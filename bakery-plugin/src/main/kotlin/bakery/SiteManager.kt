@@ -373,9 +373,35 @@ object SiteManager {
 
 // ==================== Utility Tasks ====================
 
+    // TODO: Implémenter la création/initialisation du repository GitHub Pages
+    // via l'API GitHub (gh cli ou GraphQL). Nécessite un token avec les scopes
+    // appropriés. Sera invoqué manuellement ou en CI.
     internal fun Project.registerUtilityTasks() {
-        tasks.register("createPagesRepository") { }
-        tasks.register("updatePagesSecret") { }
+        tasks.register("createPagesRepository") { task ->
+            task.apply {
+                group = BAKERY_GROUP
+                description = "TODO: Create the GitHub Pages repository via API."
+                doLast {
+                    throw NotImplementedError(
+                        "createPagesRepository is planned but not yet implemented. " +
+                        "Future integration: GitHub API with Personal Access Token."
+                    )
+                }
+            }
+        }
+
+        tasks.register("updatePagesSecret") { task ->
+            task.apply {
+                group = BAKERY_GROUP
+                description = "TODO: Update the GitHub Pages publishing secret."
+                doLast {
+                    throw NotImplementedError(
+                        "updatePagesSecret is planned but not yet implemented. " +
+                        "Future integration: GitHub API for repository secrets."
+                    )
+                }
+            }
+        }
     }
 
 

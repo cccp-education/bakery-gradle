@@ -2,8 +2,8 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour_ : 2026-04-27
-_Session en cours_ : 11 — Refonte configuration bakery (profileConfig optionnel)
+_Derniere mise a jour_ : 2026-04-30
+_Session en cours_ : 05X — Audit gouvernance (alignement sur modèle magic_stick)
 _Session terminee_ : 10 (Solidification tests + refactoring ProfilePublisher)
 
 '''
@@ -120,6 +120,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 '''
 
 _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
+_Localisation active_ : Sessions 1-10 actives. Aucun backup roté pour l'instant (1ère vague froide déclenchée à session >= 10 si EAGER cumulé > 500 lignes).
 
 '''
 
@@ -129,10 +130,12 @@ Projets gerant la meme methodologie opencode (EAGER/LAZY, procedure de fin de se
 
 |===
 | Projet | Repertoire | Session en cours | Etape 5 specifique | Derniere MAJ
-| magic_stick | `~/workspace/__repositories__/magic_stick` | 013 | SCRIPT_VERIFICATION.adoc | 2026-04-25
-| bakery-gradle | `~/workspace/__repositories__/bakery-gradle/bakery-plugin` | 10 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-27
+| magic_stick | `~/workspace/__repositories__/magic_stick` | 055 | SCRIPT_VERIFICATION.adoc | 2026-04-30
+| bakery-gradle | `~/workspace/__repositories__/bakery-gradle/bakery-plugin` | 05X (audit) | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-30
 | cheroliv.com | `~/workspace/__repositories__/cheroliv.com` | 4 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-25
 | plantuml-gradle | `~/workspace/__repositories__/plantuml-gradle/plantuml-plugin` | 132 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-23
+| jhipster-gradle-plugins | `~/workspace/__repositories__/jhipster-gradle-plugins` | Audit session 053 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-30
+| openclaw-codingame | `~/workspace/__repositories__/openclaw-codingame/quizz-benchmark-plugin` | Audit session 053 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-30
 |===
 
 _Procedure de fin de session commune_ :

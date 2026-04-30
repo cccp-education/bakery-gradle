@@ -44,11 +44,28 @@ Commandes interdites (sauf ordre) : `git add`, `git commit`, `git push`, `git me
 L'agent NE DOIT JAMAIS lancer de tests (`./gradlew test`, etc.) lors de la procedure de fin de session SANS permission explicite de l'utilisateur.
 
 === Securite
-
 * Jamais de secrets en dur dans le code
 * Jamais de credentials dans les fichiers de config
 * Jamais de tokens API commites dans Git
 * Utiliser des references (`keyRef: ${GOOGLE_API_KEY_1}`)
+
+=== Secrets et tokens — INTERDICTION DE LOG
+
+**PRINCIPE** : Les tokens API, mots de passe, et identifiants credentials NE DOIVENT JAMAIS apparaitre dans la sortie terminal de l'agent. L'utilisateur peut streamer son terminal (Discord, Twitch, etc.). Tout token visible dans le terminal est compromis.
+
+**INTERDICTIONS** :
+
+* **NE JAMAIS** passer un token en argument visible d'une commande
+* **NE JAMAIS** afficher le contenu d'un fichier contenant des tokens si le token peut etre visible dans la sortie
+* **NE JAMAIS** utiliser `echo`, `cat`, ou tout commande qui affiche des tokens dans le terminal
+
+**Procedure OBLIGATOIRE pour utiliser des tokens** :
+
+. Utiliser `gh auth login --with-token` avec le token via **stdin** (pipe ou redirect), jamais en argument visible
+. Verifier que `gh auth status` fonctionne apres configuration
+. Ne **jamais** lire puis afficher le contenu d'un fichier de credentials (site.yml, .env, etc.)
+
+**Lecon de la Session 008 (magic_stick)** : L'agent a affiche le contenu de `site.yml` contenant un token GitHub `gho_...` dans le terminal. L'utilisateur streamait son terminal sur Discord. Token compromis en 1 seconde.
 
 === Fichiers de configuration — REGLE ABSOLUE DE SURETE
 
@@ -101,13 +118,16 @@ bakery-plugin/                      # RACINE DE TRAVAIL (ce repertoire)
 |-- src/main/kotlin/               # Code source Kotlin
 |-- src/test/                       # Tests unitaires + Cucumber
 |-- src/functionalTest/             # Tests fonctionnels
-|-- .agents/                        # Documentation agent (sessions, archives, references)
+|-- .agents/                        # Documentation agent
 |   |-- INDEX.adoc                 # Regles absolues + sessions recentes (EAGER)
-|   |-- sessions/                  # Archives par session
-|   |-- archives/                  # Archives mensuelles
+|   |-- SESSIONS_HISTORY.adoc      # Historique des sessions (EAGER)
+|   |-- sessions/                  # Archives par session (LAZY)
+|   |-- archives/                  # Archives mensuelles (LAZY)
+|   |-- encyclopedies/             # Connaissance froide (COLD — humain seulement)
+|   |-- backup/                    # Vagues froides (snapshots horodates)
 |-- PROMPT_REPRISE.adoc            # Mission session en cours (EAGER)
+|-- LAZY_EAGER_ESSENTIALS.adoc     # Principes LAZY/EAGER (EAGER)
 |-- AGENT.adoc                     # Directives completes (ce fichier)
-|-- AGENT_MODUS_OPERANDI.adoc      # Methodologie LAZY/EAGER
 |-- BACKLOG.adoc                   # Suivi prioritaire des taches
 |-- TODO.adoc                      # Pense-bete informel
 +-- build.gradle.kts               # Build du plugin
@@ -152,6 +172,20 @@ bakery-gradle/                     # RACINE GIT (ne contient que le repo + boots
 * **`TODO.adoc`** -> pense-bete informel d'idees, PAS un plan, PAS une liste de priorites
 * **`PROMPT_REPRISE.adoc`** -> mission de la session en cours et priorites de la prochaine session
 
+=== Audit du Contexte
+
+**Regle de vigilance** : Tout fichier EAGER > 100 lignes est un suspect. Il merite un audit. La question n'est pas "faut-il le supprimer ?" mais "faut-il le charger a chaque session ?"
+
+**Procedure d'audit en 5 etapes** :
+
+. **Mesurer** : `wc -l` sur tous les fichiers EAGER. Le total doit etre < 1000 lignes.
+. **Identifier le suspect** : le fichier qui pese > 20% du total.
+. **Auditer section par section** : Deja ailleurs ? → doublon. Jamais servi ? → mort. Information unique ? → critique.
+. **Classifier** : doublons a retirer de l'EAGER, jamais utilise → cold storage, connaissance unique → a garder.
+. **Splitter ou relocaliser** : unique et critique → ESSENTIALS compacte. Tout le reste → `encyclopedies/`.
+
+**Suivi des metriques** : Tracer le total de lignes EAGER avant/apres chaque optimisation dans COMPLETED_TASKS_ARCHIVE.
+
 == Session Procedure
 
 === Debut de Session
@@ -164,6 +198,8 @@ bakery-gradle/                     # RACINE GIT (ne contient que le repo + boots
 
 **Mots-cles declencheurs** : "nouvelle session", "je quitte", "session terminee", "a plus tard", "on arrete la"
 
+**Rotation backup** : Mots-cles explicites — "rotation backup", "backup rotation", "lance la rotation backup" — declenchent une rotation independante (hors fin de session).
+
 **Procedure obligatoire en 6 etapes** :
 
 1. **Creer l'archive LAZY** : `.agents/sessions/{N}-{type}-{sujet}.adoc`
@@ -175,12 +211,57 @@ bakery-gradle/                     # RACINE GIT (ne contient que le repo + boots
 
 **Aucune etape ne peut etre marquee OK si le fichier n'a pas ete effectivement modifie et verifie.**
 
+==== Capteur de Rotation Backup (etape 7 optionnelle)
+
+**Declenchement automatique** — Apres l'etape 6, avant la checklist, l'agent verifie :
+
+. `N % 10 == 0` (session multiple de 10)
+. **OU** les fichiers EAGER cumules depassent **500 lignes** (`wc -l .agents/INDEX.adoc .agents/archives/COMPLETED_TASKS_ARCHIVE_*.adoc PROMPT_REPRISE.adoc`)
+
+Si l'une des conditions est vraie, l'agent **execute l'etape 7** au sein de la procedure de fin de session :
+
+. Creer le dossier `.agents/backup/Y{annee}-sessions-{plage}/` (plage = sessions N-5* et anterieures)
+. Y copier **integralement** INDEX, SESSIONS_HISTORY, COMPLETED_TASKS_ARCHIVE et les fichiers sessions/ concernes
+. Tronquer les fichiers actifs aux **10 dernieres sessions** (sliding window)
+. Ajouter la localisation de la nouvelle vague dans INDEX.adoc (`_Localisation active_`)
+
+La checklist s'affiche ensuite **apres** cette etape, avec `[✅] 7. Backup rote (si applicable)`.
+
 == Conventions de Code
 
 * Kotlin idiomatic, pas de commentaires sauf demande
 * Tests : JUnit5 + Cucumber (BDD)
 * Configuration : YAML + properties + env vars
 * Documentation : AsciiDoc (.adoc) uniquement
+
+=== References de Style — Codebases LAZY
+
+_Regle_ : Quand l'agent a besoin de reflechir au style de code, conventions Kotlin/Gradle, ou patterns de plugin,
+il DOIT consulter ces codebases comme reference. Ces chemins sont LAZY — ne jamais charger leur contenu en EAGER.
+
+|===
+| Projet | Chemin | Role
+| bakery-gradle | `/home/cheroliv/workspace/__repositories__/bakery-gradle/bakery-plugin` | Plugin Gradle convention-based (ce projet)
+| plantuml-gradle | `/home/cheroliv/workspace/__repositories__/plantuml-gradle/plantuml-plugin` | Plugin Gradle mature, reference principale
+| newpipe-gradle | `/home/cheroliv/workspace/__repositories__/newpipe-gradle` | Plugin Gradle
+| slider-gradle | `/home/cheroliv/workspace/__repositories__/slider-gradle` | Plugin Gradle
+| codebase-gradle | `/home/cheroliv/workspace/__repositories__/codebase-gradle` | Plugin Gradle
+| readme-gradle | `/home/cheroliv/workspace/__repositories__/readme-gradle` | Plugin Gradle
+| jhipster-gradle-plugins | `/home/cheroliv/workspace/__repositories__/jhipster-gradle-plugins` | Mono-repo persistence + assistant
+|===
+
+== Anti-Patterns — Pieges a Eviter
+
+|===
+| # | Anti-Pattern | Symptome | Prevention
+| 1 | **Agent sans `opencode.json`** | L'agent demarre nu, pose des questions basiques deja dans AGENT.adoc | Creer `opencode.json` AVANT `AGENT.adoc`, ne jamais l'oublier
+| 2 | **Trop d'agents trop tot** | Agents stubs vides, l'agent hesite | Seuil : 100 lignes de doc metier ou 5 regles concretes avant de creer un agent specialise
+| 3 | **PROMPT_REPRISE fantome** | La mission a derive, PROMPT_REPRISE ne reflete pas la realite | Mettre a jour systematiquement en fin de session, ne pas differer
+| 4 | **Archive vide** | Template rempli de placeholders "TODO" -> "a completer plus tard" n'arrive jamais | Remplir integralement a chaque session, jamais de TODO dans les archives
+| 5 | **Portefeuille fantome** | Nouveau projet cree mais pas ajoute aux INDEX.adoc des autres projets | Ajouter le projet dans TOUS les portefeuilles, pas seulement le sien
+| 6 | **Redondance cachee** | Meme backlog copie-colle -> divergence entre AGENT.adoc et INDEX.adoc | INDEX.adoc = source de verite pour roadmap/EPICs. AGENT.adoc = storytelling uniquement
+| 7 | **Session trop longue** | 2h, 85 messages, 12 fichiers -> LLM repete des erreurs deja corrigees | Splitter des que > 50 messages ou > 3 fichiers modifies. 5x20min > 1x2h
+|===
 
 == Fichiers EAGER (charges automatiquement) — chemins relatifs a bakery-plugin/
 
@@ -189,11 +270,45 @@ bakery-gradle/                     # RACINE GIT (ne contient que le repo + boots
 
 | `PROMPT_REPRISE.adoc` | Mission session en cours (max 70 lignes)
 | `.agents/INDEX.adoc` | Regles absolues + sessions recentes
+| `LAZY_EAGER_ESSENTIALS.adoc` | Principes LAZY/EAGER + politique de chargement
 | `*_ESSENTIALS.adoc` | Contexte metier critique (si EPIC active)
 | `AGENT.adoc` | Ce fichier — Directives completes
 |===
 
-== Fichiers LAZY (sur demande) — chemins relatifs a bakery-plugin/
+=== Mécanisme de Backup — Hot/Warm/Cold Storage
+
+* **Hot (EAGER)** : 10 dernieres sessions dans INDEX, PROMPT_REPRISE N+1, sessions N-1 et N, SESSIONS_HISTORY recent
+* **Warm (LAZY)** : references techniques, procedures, agents specialises
+* **Cold (`backup/`)** : Sessions N-10 et anterieures — copie integrale, sans transformation ni reindexation
+* **Cold (`encyclopedies/`)** : Connaissance thematique exhaustive (methodologie, patterns) — jamais charge automatiquement, humain seulement
+* **Regle de rotation** : Tous les ~10 sessions, deplacer le paquet de fichiers agents (INDEX, SESSIONS_HISTORY, COMPLETED_TASKS_ARCHIVE, sessions/) tel quel dans `backup/`
+* **Stockage** : `.agents/backup/Y{annee}-sessions-{plage}/` — structure identique a `.agents/` actif
+* **Principe** : Aucune donnee supprimee, tout relocalise. L'agent ne charge jamais `backup/` ni `encyclopedies/`. L'humain seul decide de la distillation.
+
+=== Défense en Profondeur — Les 3 Couches
+
+La gouvernance forme 3 couches de defense contre la saturation du contexte :
+
+. **EAGER/LAZY** — structure par *disponibilite* (tableau de bord vs manuel du proprietaire)
+. **Hot/Warm/Cold** — structure par *fraicheur* (10 sessions actives vs references vs backup)
+. **ESSENTIALS/encyclopedie** — structure par *densite* (essentiel compact vs connaissance exhaustive)
+
+=== Métaphore des 3 Étagères
+
+* **Étagère 1 (EAGER)** — le plan de travail : INDEX recent, PROMPT_REPRISE, regles absolues. Leger, immediat.
+* **Étagère 2 (LAZY)** — la bibliotheque de consultation : references techniques, procedures. Sur demande.
+* **Cave (`backup/`)** — les archives froides : tout ce qui est passe. Jamais charge auto. Humain seulement.
+
+=== Consultation du Backup (par l'humain)
+
+Deux methodes pour retrouver une information archivee :
+
+. **`grep` cible** : `grep -r "motif" backup/Y20XX-.../` — trouve tout, quel que soit l'angle (INDEX, SESSIONS_HISTORY, archive).
+. **Reintegration manuelle** : copier temporairement le dossier de backup dans le contexte actif pour analyse par l'agent.
+
+L'index du backup est **implicite** — il est dans la structure meme des fichiers archives (chaque fichier etant deja un index depuis son propre angle). Pas de `index-backup.adoc` central — ce serait une redondance de plus dans un systeme qui souffre deja de croissance lineaire.
+
+=== Fichiers LAZY (sur demande) — chemins relatifs a bakery-plugin/
 
 |===
 | Fichier | Role
@@ -201,6 +316,16 @@ bakery-gradle/                     # RACINE GIT (ne contient que le repo + boots
 | `*_REFERENCE.adoc` | Architecture complete
 | `.agents/sessions/{N}*.adoc` | Archives detaillees par session
 | `.agents/archives/COMPLETED_TASKS_ARCHIVE_*.adoc` | Archive des taches terminees
-| `SESSION_PROCEDURE.adoc` | Procedure de fin de session
-| `AGENT_MODUS_OPERANDI.adoc` | Methodologie LAZY/EAGER
+| `.agents/encyclopedies/LAZY_EAGER_ENCYCLOPEDIE.adoc` | Methodologie LAZY/EAGER complete (cold storage)
 |===
+
+=== Bootstrap d'un Nouveau Projet — 6 etapes
+
+Pour initialiser la gouvernance agent sur un projet vierge :
+
+. **opencode.json** — 6 lignes, `{ "instructions": ["AGENT.adoc"] }`. Toujours en premier.
+. **Dossiers** — `mkdir -p .agents/sessions/ .agents/archives/ .agents/encyclopedies/`
+. **AGENT.adoc** — fichier maitre (~200 lignes) : regles absolues, structure projet, conventions
+. **PROMPT_REPRISE.adoc** — mission session 1 (max 70 lignes)
+. **Fichiers LAZY structurants** : INDEX.adoc (EAGER dans .agents/), SESSIONS_HISTORY.adoc, TEST_COVERAGE_ANALYSIS.adoc, LAZY_EAGER_ESSENTIALS.adoc
+. **Portefeuille transverse** — ajouter le nouveau projet dans le tableau Portefeuille de TOUS les INDEX.adoc des autres projets
