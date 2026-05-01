@@ -30,6 +30,9 @@
                             <li class="nav-item">
                                 <a class="nav-link" th:href="${isIndexPage ? '#blog' : content.rootpath + 'blog.html'}">Blog</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="${isIndexPage ? '#contact' : content.rootpath + 'index.html#contact'}">Contact</a>
+                            </li>
                         </ul>
                         <!-- Theme Switcher moved outside the ul for simpler flexbox calculation -->
                         <div class="nav-item dropdown theme-switcher-container ms-lg-3">

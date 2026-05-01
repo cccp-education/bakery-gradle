@@ -25,4 +25,25 @@ class FirebaseSteps(private val world: BakeryWorld) {
             .describedAs("$fileName should contain $key1 and $key2")
             .contains(key1, key2)
     }
+
+    @Then("the file {string} in {string} directory should exist")
+    fun fileShouldExist(fileName: String, dirName: String) {
+        world.projectDir!!
+            .resolve(dirName)
+            .resolve(fileName)
+            .run(::assertThat)
+            .describedAs("$dirName/$fileName should exist")
+            .exists()
+    }
+
+    @Then("the file {string} in {string} directory should contain {string}")
+    fun fileShouldContain(fileName: String, dirName: String, content: String) {
+        world.projectDir!!
+            .resolve(dirName)
+            .resolve(fileName)
+            .readText(UTF_8)
+            .run(::assertThat)
+            .describedAs("$dirName/$fileName should contain '$content'")
+            .contains(content)
+    }
 }

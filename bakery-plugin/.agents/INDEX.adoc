@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour_ : 2026-04-30
-_Session en cours_ : 05X — Audit gouvernance (alignement sur modèle magic_stick)
-_Session terminee_ : 10 (Solidification tests + refactoring ProfilePublisher)
+_Derniere mise a jour_ : 2026-05-01
+_Session terminee_ : 12 (EPIC 4 Formulaire de contact Firebase)
+_Session en cours_ : 13 (Alignement BACKLOG + bumper 0.1.2 + release)
 
 '''
 
@@ -87,15 +87,21 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 '''
 
-== Sessions Recentees
+== Sessions Recentes
 
 |===
 | # | Date | Type | Sujet | Score
+| 12 | 2026-05-01 | feat | EPIC 4 Formulaire de contact Firebase (maquette + site + tests) | 8/10
+| 11 | 2026-04-27 | solidification | Cucumber e2e publishProfile + fix FileSystemManager | 8/10
 | 10 | 2026-04-27 | solidification | Augmentation couverture de tests + refactoring ProfilePublisher | 7/10
-| 9 | 2026-04-27 | fix | Fix critique publishProfile - clone avant push pour preserver historique distant | 8/10
+| 9 | 2026-04-27 | fix | Fix critique publishProfile - clone avant push | 8/10
 | 8 | 2026-04-27 | non archivee | Session non documentee | ?
 | 7 | 2026-04-27 | fix | Fix arg CLI JBake serve - version 0.1.1 | 6/10
-| 2 | 2026-04-23 | feat | Migration Supabase -> Firebase + corrections 9 tests + regle de surete | 6/10
+| 6 | 2026-04-25 | non archivee | EPIC 6 suite - publishProfil | ?
+| 5 | 2026-04-25 | feat | EPIC 6 Integration tache publishProfil | 7/10
+| 4 | 2026-04-23 | feat | Migration publishProfile consommateurs + bump 0.1.0 | 6/10
+| 3 | 2026-04-23 | feat | Integration publishProfile + version 0.1.0 | 8/10
+| 2 | 2026-04-23 | feat | Migration Supabase -> Firebase + regle de surete | 6/10
 | 1 | 2026-04-23 | feat | Integration gouvernance agent + ameliorations build | 8/10
 |===
 
@@ -108,19 +114,17 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 | EPIC 1 : Integration gouvernance agent | 100% | P0 - TERMINE
 | EPIC 2 : Migration Supabase -> Firebase + corrections tests | 100% | P0 - TERMINE
 | EPIC 3 : Amelioration build.gradle.kts | 100% | P1 - TERMINE
-| EPIC 4 : Generation code client Firebase | 0% | P1 - A FAIRE
+| EPIC 4 : Formulaire de contact Firebase (maquette + site) | 95% | P1 - TERMINE (formalite cle API)
 | EPIC 5 : Correction timeout Cucumber | 100% | P2 - TERMINE
 | EPIC 6 : Integration tache publishProfil dans le plugin | 100% | P1 - TERMINE
-| EPIC 7 : Couverture de tests publishProfile | 80% | P1 - EN COURS
+| EPIC 7 : Tolerance parsing YAML (champs inconnus) | 0% | P2 - A FAIRE
 | EPIC 8 : Bumper version 0.1.2 et release | 0% | P2 - A FAIRE
-| EPIC 9 : Configuration multi-fichiers (site.yml + profileConfig optionnel) | 0% | P0 - A FAIRE
-| EPIC 10 : Messages d'erreur explicites parsing YAML | 0% | P0 - A FAIRE
 |===
 
 '''
 
 _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
-_Localisation active_ : Sessions 1-10 actives. Aucun backup roté pour l'instant (1ère vague froide déclenchée à session >= 10 si EAGER cumulé > 500 lignes).
+_Localisation active_ : Sessions 1-12 actives. Sessions 6, 8 non archivees.
 
 '''
 
@@ -131,7 +135,7 @@ Projets gerant la meme methodologie opencode (EAGER/LAZY, procedure de fin de se
 |===
 | Projet | Repertoire | Session en cours | Etape 5 specifique | Derniere MAJ
 | magic_stick | `~/workspace/__repositories__/magic_stick` | 055 | SCRIPT_VERIFICATION.adoc | 2026-04-30
-| bakery-gradle | `~/workspace/__repositories__/bakery-gradle/bakery-plugin` | 05X (audit) | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-30
+| bakery-gradle | `~/workspace/__repositories__/bakery-gradle/bakery-plugin` | 13 | TEST_COVERAGE_ANALYSIS.adoc | 2026-05-01
 | cheroliv.com | `~/workspace/__repositories__/cheroliv.com` | 4 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-25
 | plantuml-gradle | `~/workspace/__repositories__/plantuml-gradle/plantuml-plugin` | 132 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-23
 | jhipster-gradle-plugins | `~/workspace/__repositories__/jhipster-gradle-plugins` | Audit session 053 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-30
@@ -149,5 +153,5 @@ _Procedure de fin de session commune_ :
 
 _Incoherences detectees_ :
 
-* **bakery-gradle** : COMPLETED_TASKS_ARCHIVE en retard (sessions 3-5 manquantes)
+* **bakery-gradle** : Sessions 6 et 8 non archivees
 * **plantuml-gradle** : PROCEDURES.adoc decrit 5 etapes vs 6 etapes dans INDEX.adoc

@@ -1,73 +1,56 @@
-= Prompt de Reprise — Session 11
+= Prompt de Reprise — Session 13
 
-_Règles absolues_ : voir `AGENTS.md` section "Règles Absolues"
+_Règles absolues_ : voir `AGENT.adoc` section "Règles Absolues"
 
 ____
-**Mission** : Ajouter un scénario Cucumber end-to-end pour `publishProfile` avec un remote JGit simulé.
-**Statut** : Scénario Cucumber `@end-to-end` implémenté et passant. Fix critique `mkdir` → `mkdirs` dans `FileSystemManager`. Tous les tests verts.
+**Mission** : EPIC 4 termine (sauf formalite cle API). Prochaine priorite : aligner le BACKLOG avec la realite (EPIC 5/6/7 termines mais pas marques comme tels) + bumper version 0.1.2 et release.
 ____
 
 '''
 
-== Sessions 7-10 — Historique
+== Sessions Recentes
 
-**Session 7** (2026-04-27) : Fix arg CLI JBake `serve` → version bumpée à 0.1.1.
-**Session 8** (non archivée) : Non documentée.
-**Session 9** (2026-04-27) : Fix critique `publishProfile` — force-push écrasait le repo distant entier. Clone+overlay implémenté dans `GitService`, validation `fromDir` et gilet-par-balle anti-`README.adoc` dans `PublishProfileTask`. Tests unitaires `GitServiceTest` ajoutés. Timeout de la task `test` corrigé (60s → 3min).
-**Session 10** (2026-04-27) : Refactoring `ProfilePublisher.kt`, tests unitaires `ProfilePublisherTest` (15 tests), `FileSystemManagerTest` (8 tests), `GitServiceTest` enrichis (6 tests). Tous les tests passent.
+**Session 11** (2026-04-27) : Scénario Cucumber end-to-end publishProfile + fix mkdir → mkdirs. Tous les tests verts.
+**Session 12** (2026-05-01) : EPIC 4 Formulaire de contact Firebase — maquette + template site + 9 tests unitaires + 1 scenario Cucumber.
 
 '''
 
-== Session 11 — Réalisations
+== Session 12 — Realisations
 
-1. **Fix `createRepoDir` dans `FileSystemManager.kt`** `(OK)` :
-   - Changé `mkdir()` en `mkdirs()` pour créer récursivement le répertoire `profile-cvs` dans le `buildDir`.
-   - Problème : quand le `buildDir` n'existait pas encore (cas e2e GradleRunner frais), `mkdir()` échouait silencieusement et `createRepoDir` levait `IOException: profile-cvs as directory cannot be created`.
+1. **Phase 1 Maquette** (deja faite) - Formulaire contact + Firebase SDK modular.
+2. **Phase 2 Template site** - contact.thyme cree, inclus dans index.thyme, lien Contact dans menu.thyme, contact.js Firebase reel (plus de mock), footer.thyme deja OK.
+3. **Phase 3 Plugin** - Flow injection Firebase deja complet (SiteConfiguration → SiteManager → jbake.properties → Thymeleaf).
+4. **Gap 1** - 5 tests unitaires `injectFirebaseConfigIntoJbakeProperties` (edge cases).
+5. **Gap 2-3** - 4 tests unitaires rendering templates (footer.thyme, contact.thyme, index.thyme, menu.thyme).
+6. **Gap 4** - 1 scenario Cucumber pipeline complet (deploiement templates + contenu Firebase).
 
-2. **Scénario Cucumber end-to-end `publishProfile`** `(OK)` :
-   - Feature : `5_publish_profile_task.feature`, scénario taggué `@end-to-end`.
-   - Simule un remote JGit via `Git.init().setBare(true)` en temporaire.
-   - Peuple le remote avec `old.txt`, exécute `publishProfile` via GradleRunner, puis clone le remote pour vérifier que :
-     - `README.md` et `README_fr.md` sont présents (push OK).
-     - `old.txt` avec son contenu original est toujours là (préservation de l'historique).
-
-3. **Tous les tests passent** `(OK)` :
-   - 8 scénarios Cucumber (7 + 1 end-to-end).
-   - 53 tests unitaires.
-   - `./gradlew test` + `./gradlew cucumberTest` + `./gradlew functionalTest` verts.
-
-4. **`publishToMavenLocal`** `(OK)` :
-   - Publication locale effectuée avec succès.
-
-=== Critères d'Acceptation — Statut
-
-* [x] `publishProfile` préserve l'historique du repo distant (clone avant push).
-* [x] Les fichiers `README.adoc`/`README_fr.adoc` du plugin sont rejetés explicitement.
-* [x] Tests unitaires `GitServiceTest` verts (6 tests).
-* [x] Tests unitaires `ProfilePublisherTest` verts (15 tests).
-* [x] Tests unitaires `FileSystemManagerTest` verts (8 tests).
-* [x] Tests fonctionnels/Cucumber pour `publishProfile` (task registered/unregistered).
-* [x] Scénario Cucumber end-to-end `publishProfile` avec remote JGit simulé (préservation historique).
-* [x] Fix `mkdir` → `mkdirs` dans `FileSystemManager.createRepoDir`.
-* [x] Tests complets passent (`./gradlew test`).
-* [ ] Publier 0.1.2 et release sur Gradle Plugin Portal (prochaine session).
-
-=== Analyse — Compatibilité descendante
-* Supabase : aucune référence dans le code source (retiré à la session 9).
-* Mapping `site.yml` : tous les nouveaux champs (`firebase`, `pushProfile`, `pushSource`, `pushTemplate`, `profileFiles`) sont nullable ou ont des valeurs par défaut. Les anciens fichiers `site.yml` fonctionnent sans modification.
+**Fichiers modifies** : voir archive `.agents/sessions/12-epic4-firebase-contact-form.adoc`
 
 '''
 
-== Règles
+== Session 13 — Priorites
 
-* Règle 0 : `publishToMavenLocal` après chaque modif code plugin
+=== Priorite 1 : Aligner le BACKLOG avec la realite
+Le BACKLOG marque EPIC 5, 6, 7 comme "A faire" alors que les sessions 9-10 les ont termines :
+* EPIC 5 (timeout Cucumber) → termine session 10
+* EPIC 6 (publishProfil) → termine sessions 9-11
+* EPIC 7 (tolerance YAML champs inconnus) → a verifier si implemente ou non
+
+=== Priorite 2 : Bumper version 0.1.2 et release
+* Mettre a jour `libs.versions.toml` (version bakery)
+* `./gradlew publishToMavenLocal`
+* Tests complets (`./gradlew check`)
+* Publier sur Gradle Plugin Portal
+
+=== Priorite 3 : Formalite cle API Firebase
+* Une fois la cle disponible, l'inserer dans le `site.yml` consommateur
+
+'''
+
+== Regles
+
+* Regle 0 : `publishToMavenLocal` apres chaque modif code plugin
 * Jamais de commit sans permission
-* Règle de sûreté : vérifier `.gitignore` avant de modifier un fichier de config
+* Regle de surete : verifier `.gitignore` avant de modifier un fichier de config
 * Racine de travail = `bakery-plugin/`
-* Archive + PROMPT_REPRISE mis à jour en fin de session
-
-== Prochaine Session — Idées
-
-* Bumper version à 0.1.2 et release sur Gradle Plugin Portal.
-* Ajouter d'autres tests unitaires si des zones sensibles sont identifiées.
-* Implémenter un scénario Cucumber end-to-end pour `publishSite` ou `publishMaquette` avec un remote JGit local simulé.
+* Archive + PROMPT_REPRISE mis a jour en fin de session

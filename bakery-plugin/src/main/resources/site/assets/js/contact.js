@@ -1,94 +1,101 @@
 document.addEventListener('DOMContentLoaded', function () {
     'use strict';
 
-    const form = document.getElementById('contact-form');
-    const submitButton = form.querySelector('button[type="submit"]');
-    const successMessage = document.getElementById('contact-success-message');
-    const errorMessage = document.getElementById('contact-error-message');
+    var form = document.getElementById('contact-form');
+    if (!form) return;
 
-    // Input fields for validation
-    const nameInput = form.querySelector('input[name="name"]');
-    const emailInput = form.querySelector('input[name="email"]');
-    const phoneInput = document.getElementById('phone');
-    const subjectInput = form.querySelector('input[name="subject"]');
-    const messageInput = form.querySelector('textarea[name="message"]');
+    var submitButton = form.querySelector('button[type="submit"]');
+    var successMessage = document.getElementById('contact-success-message');
+    var errorMessage = document.getElementById('contact-error-message');
+
+    var nameInput = form.querySelector('input[name="name"]');
+    var emailInput = form.querySelector('input[name="email"]');
+    var phoneInput = document.getElementById('phone');
+    var subjectInput = form.querySelector('input[name="subject"]');
+    var messageInput = form.querySelector('textarea[name="message"]');
 
     form.addEventListener('submit', function (event) {
         event.preventDefault();
         event.stopPropagation();
 
-        // --- Start Validation ---
         nameInput.setCustomValidity('');
         emailInput.setCustomValidity('');
-        phoneInput.setCustomValidity('');
+        if (phoneInput) phoneInput.setCustomValidity('');
         subjectInput.setCustomValidity('');
         messageInput.setCustomValidity('');
 
         if (nameInput.value.trim().length < 1) {
             nameInput.setCustomValidity('Veuillez saisir au moins 1 caractère pour le nom.');
         }
-        const phonePattern = /^\d{10,15}$/;
-        if (phoneInput.value.trim() === '') {
-            phoneInput.setCustomValidity('Veuillez entrer votre numéro de téléphone.');
-        } else if (!phonePattern.test(phoneInput.value.trim())) {
-            phoneInput.setCustomValidity('Veuillez saisir un numéro de téléphone valide (10 à 15 chiffres).');
+
+        var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(emailInput.value.trim())) {
+            emailInput.setCustomValidity('Veuillez saisir une adresse email valide.');
         }
-        if (subjectInput.value.trim().length < 5) {
-            subjectInput.setCustomValidity('Veuillez saisir au moins 5 caractères pour le sujet.');
+
+        if (phoneInput && phoneInput.value.trim() !== '') {
+            var phonePattern = /^\d{10,15}$/;
+            if (!phonePattern.test(phoneInput.value.trim())) {
+                phoneInput.setCustomValidity('Veuillez saisir un numéro de téléphone valide (10 à 15 chiffres).');
+            }
         }
+
+        if (subjectInput.value.trim().length < 3) {
+            subjectInput.setCustomValidity('Veuillez saisir au moins 3 caractères pour le sujet.');
+        }
+
         if (messageInput.value.trim().length < 10) {
             messageInput.setCustomValidity('Veuillez saisir au moins 10 caractères pour votre message.');
         }
-        // --- End Validation ---
 
         form.classList.add('was-validated');
 
         if (!form.checkValidity()) {
-            return; // Stop if validation fails
+            return;
         }
 
-        // --- Start Submission Logic ---
-        // Disable button and show loading state
         submitButton.disabled = true;
-        submitButton.innerHTML = `
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            Envoi en cours...
-        `;
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Envoi en cours...';
 
-        // Hide previous messages
         successMessage.style.display = 'none';
         errorMessage.style.display = 'none';
 
-        // Simulate an asynchronous API call to Firebase
-        // This part will be replaced by the actual Firebase Callable call (US 7.4)
-        const mockFirebaseCall = new Promise((resolve, reject) => {
-            setTimeout(() => {
-                if (true) {
-                    resolve({ status: 200, message: 'Message sent successfully!' });
-                } else {
-                    reject({ status: 500, message: 'Failed to send message.' });
-                }
-            }, 1500);
-        });
+        if (typeof firebase === 'undefined' || !window.FIREBASE_CONFIG) {
+            errorMessage.style.display = 'block';
+            submitButton.disabled = false;
+            submitButton.innerHTML = '<i class="bi bi-send me-2"></i>Envoyer le Message';
+            return;
+        }
 
-        mockFirebaseCall
-            .then(response => {
-                // On Success
+        try {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(window.FIREBASE_CONFIG);
+            }
+            var db = firebase.firestore();
+
+            db.collection('contacts').add({
+                name: nameInput.value.trim(),
+                email: emailInput.value.trim(),
+                phone: phoneInput ? phoneInput.value.trim() : '',
+                subject: subjectInput.value.trim(),
+                message: messageInput.value.trim(),
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(function () {
                 successMessage.style.display = 'block';
-                form.reset(); // Clear the form
+                form.reset();
                 form.classList.remove('was-validated');
-            })
-            .catch(error => {
-                // On Failure
+            }).catch(function (error) {
+                console.error('Firestore write failed:', error);
                 errorMessage.style.display = 'block';
-            })
-            .finally(() => {
-                // Restore button to its original state
+            }).finally(function () {
                 submitButton.disabled = false;
-                submitButton.innerHTML = `
-                    <i class="bi bi-send me-2"></i>
-                    Envoyer le Message
-                `;
+                submitButton.innerHTML = '<i class="bi bi-send me-2"></i>Envoyer le Message';
             });
+        } catch (error) {
+            console.error('Firebase init failed:', error);
+            errorMessage.style.display = 'block';
+            submitButton.disabled = false;
+            submitButton.innerHTML = '<i class="bi bi-send me-2"></i>Envoyer le Message';
+        }
     }, false);
 });

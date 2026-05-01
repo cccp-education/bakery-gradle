@@ -1,0 +1,34 @@
+= Session 11 — 2026-04-27 — Cucumber e2e publishProfile + fix FileSystemManager
+
+**Type** : solidification
+**Score** : 8/10
+
+== Contexte
+
+Suite directe de la session 10 (solidification tests + refactoring ProfilePublisher). Ajout d'un scenario Cucumber end-to-end pour `publishProfile` avec un remote JGit simule.
+
+== Realisations
+
+1. **Fix `createRepoDir` dans `FileSystemManager.kt`** `(OK)` :
+   - Change `mkdir()` en `mkdirs()` pour creer recursivement le repertoire `profile-cvs` dans le `buildDir`.
+   - Quand le `buildDir` n'existait pas encore (cas e2e GradleRunner frais), `mkdir()` echouait silencieusement et `createRepoDir` levait `IOException`.
+
+2. **Scenario Cucumber end-to-end `publishProfile`** `(OK)` :
+   - Feature : `5_publish_profile_task.feature`, scenario taggue `@end-to-end`.
+   - Simule un remote JGit via `Git.init().setBare(true)` en temporaire.
+   - Peuple le remote avec `old.txt`, execute `publishProfile` via GradleRunner, puis clone le remote pour verifier preservation historique.
+
+3. **Tous les tests passent** `(OK)` :
+   - 8 scenarios Cucumber (7 + 1 end-to-end).
+   - 53 tests unitaires.
+   - `./gradlew test` + `./gradlew cucumberTest` + `./gradlew functionalTest` verts.
+
+4. **`publishToMavenLocal`** `(OK)`.
+
+== Criteres d'Acceptation
+
+* [x] `publishProfile` preserve l'historique du repo distant (clone avant push).
+* [x] Fichiers `README.adoc`/`README_fr.adoc` du plugin rejetes explicitement.
+* [x] Tests complets passent.
+* [x] Fix `mkdir` -> `mkdirs` dans `FileSystemManager.createRepoDir`.
+* [ ] Publier 0.1.2 et release sur Gradle Plugin Portal (prochaine session).

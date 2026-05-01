@@ -628,4 +628,191 @@ class BakeryPluginTest {
             assertThat(cnameFile.readText(UTF_8)).isEqualTo("another.cheroliv.com")
         }
     }
+
+    @Nested
+    inner class FirebaseConfigInjectionTest {
+
+        @TempDir
+        lateinit var tempDir: File
+
+        private lateinit var project: Project
+
+        @BeforeEach
+        fun `setup project`() {
+            project = ProjectBuilder.builder().withProjectDir(tempDir).build()
+        }
+
+        private fun invokeInjectFirebase(project: Project, site: SiteConfiguration) {
+            val method = SiteManager::class.java.getDeclaredMethod(
+                "injectFirebaseConfigIntoJbakeProperties",
+                Project::class.java,
+                SiteConfiguration::class.java
+            )
+            method.isAccessible = true
+            method.invoke(SiteManager, project, site)
+        }
+
+        @Test
+        fun `should inject firebase keys into jbake properties`() {
+            val srcDir = tempDir.resolve("site")
+            srcDir.mkdirs()
+            val jbakeProps = srcDir.resolve("jbake.properties")
+            jbakeProps.writeText("site.host=https://example.com/", UTF_8)
+
+            val site = SiteConfiguration(
+                bake = BakeConfiguration(srcPath = "site", destDirPath = "bake"),
+                firebase = FirebaseContactFormConfig(
+                    project = FirebaseProjectInfo(projectId = "test-project", apiKey = "test-api-key"),
+                    firestore = FirebaseFirestoreSchema(
+                        contacts = FirebaseCollection("contacts", emptyList(), true),
+                        messages = FirebaseCollection("messages", emptyList(), true)
+                    ),
+                    callable = FirebaseCallableFunction("handleContactForm", emptyList())
+                )
+            )
+
+            invokeInjectFirebase(project, site)
+
+            val content = jbakeProps.readText(UTF_8)
+            assertThat(content).contains("firebaseApiKey=test-api-key")
+            assertThat(content).contains("firebaseProjectId=test-project")
+        }
+
+        @Test
+        fun `should do nothing when jbake properties file does not exist`() {
+            val site = SiteConfiguration(
+                bake = BakeConfiguration(srcPath = "site", destDirPath = "bake"),
+                firebase = FirebaseContactFormConfig(
+                    project = FirebaseProjectInfo(projectId = "test-project", apiKey = "test-api-key"),
+                    firestore = FirebaseFirestoreSchema(
+                        contacts = FirebaseCollection("contacts", emptyList(), true),
+                        messages = FirebaseCollection("messages", emptyList(), true)
+                    ),
+                    callable = FirebaseCallableFunction("handleContactForm", emptyList())
+                )
+            )
+
+            invokeInjectFirebase(project, site)
+        }
+
+        @Test
+        fun `should do nothing when firebase config is null`() {
+            val srcDir = tempDir.resolve("site")
+            srcDir.mkdirs()
+            val jbakeProps = srcDir.resolve("jbake.properties")
+            jbakeProps.writeText("site.host=https://example.com/", UTF_8)
+
+            val site = SiteConfiguration(
+                bake = BakeConfiguration(srcPath = "site", destDirPath = "bake"),
+                firebase = null
+            )
+
+            invokeInjectFirebase(project, site)
+
+            val content = jbakeProps.readText(UTF_8)
+            assertThat(content).doesNotContain("firebaseApiKey")
+            assertThat(content).doesNotContain("firebaseProjectId")
+        }
+
+        @Test
+        fun `should update existing firebase keys inline`() {
+            val srcDir = tempDir.resolve("site")
+            srcDir.mkdirs()
+            val jbakeProps = srcDir.resolve("jbake.properties")
+            jbakeProps.writeText("site.host=https://example.com/\nfirebaseApiKey=old-key\nfirebaseProjectId=old-project", UTF_8)
+
+            val site = SiteConfiguration(
+                bake = BakeConfiguration(srcPath = "site", destDirPath = "bake"),
+                firebase = FirebaseContactFormConfig(
+                    project = FirebaseProjectInfo(projectId = "new-project", apiKey = "new-key"),
+                    firestore = FirebaseFirestoreSchema(
+                        contacts = FirebaseCollection("contacts", emptyList(), true),
+                        messages = FirebaseCollection("messages", emptyList(), true)
+                    ),
+                    callable = FirebaseCallableFunction("handleContactForm", emptyList())
+                )
+            )
+
+            invokeInjectFirebase(project, site)
+
+            val content = jbakeProps.readText(UTF_8)
+            assertThat(content).contains("firebaseApiKey=new-key")
+            assertThat(content).contains("firebaseProjectId=new-project")
+            assertThat(content).doesNotContain("old-key")
+            assertThat(content).doesNotContain("old-project")
+        }
+
+        @Test
+        fun `should append firebase keys when not present`() {
+            val srcDir = tempDir.resolve("site")
+            srcDir.mkdirs()
+            val jbakeProps = srcDir.resolve("jbake.properties")
+            jbakeProps.writeText("site.host=https://example.com/", UTF_8)
+
+            val site = SiteConfiguration(
+                bake = BakeConfiguration(srcPath = "site", destDirPath = "bake"),
+                firebase = FirebaseContactFormConfig(
+                    project = FirebaseProjectInfo(projectId = "test-project", apiKey = "test-api-key"),
+                    firestore = FirebaseFirestoreSchema(
+                        contacts = FirebaseCollection("contacts", emptyList(), true),
+                        messages = FirebaseCollection("messages", emptyList(), true)
+                    ),
+                    callable = FirebaseCallableFunction("handleContactForm", emptyList())
+                )
+            )
+
+            invokeInjectFirebase(project, site)
+
+            val content = jbakeProps.readText(UTF_8)
+            assertThat(content).contains("firebaseApiKey=test-api-key")
+            assertThat(content).contains("firebaseProjectId=test-project")
+            assertThat(content).contains("site.host=https://example.com/")
+        }
+    }
+
+    @Nested
+    inner class FirebaseTemplateRenderingTest {
+
+        @Test
+        fun `footer thyme should contain firebase config injection`() {
+            val footerTemplate = File("src/main/resources/site/templates/footer.thyme")
+            assertThat(footerTemplate).exists()
+
+            val content = footerTemplate.readText(UTF_8)
+            assertThat(content).contains("th:inline=\"javascript\"")
+            assertThat(content).contains("FIREBASE_CONFIG")
+            assertThat(content).contains("firebaseApiKey")
+            assertThat(content).contains("firebaseProjectId")
+        }
+
+        @Test
+        fun `contact thyme should contain form fragment`() {
+            val contactTemplate = File("src/main/resources/site/templates/contact.thyme")
+            assertThat(contactTemplate).exists()
+
+            val content = contactTemplate.readText(UTF_8)
+            assertThat(content).contains("contact-section")
+            assertThat(content).contains("id=\"contact-form\"")
+            assertThat(content).contains("contact-success-message")
+            assertThat(content).contains("contact-error-message")
+        }
+
+        @Test
+        fun `index thyme should include contact fragment`() {
+            val indexTemplate = File("src/main/resources/site/templates/index.thyme")
+            assertThat(indexTemplate).exists()
+
+            val content = indexTemplate.readText(UTF_8)
+            assertThat(content).contains("contact.thyme::contact-section")
+        }
+
+        @Test
+        fun `menu thyme should contain contact nav link`() {
+            val menuTemplate = File("src/main/resources/site/templates/menu.thyme")
+            assertThat(menuTemplate).exists()
+
+            val content = menuTemplate.readText(UTF_8)
+            assertThat(content).contains("#contact")
+        }
+    }
 }

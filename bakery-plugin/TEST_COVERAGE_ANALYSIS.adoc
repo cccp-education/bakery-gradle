@@ -1,0 +1,60 @@
+= Analyse de Couverture des Tests — Bakery Gradle Plugin
+
+_Derniere mise a jour_ : 2026-05-01 (Session 12)
+
+'''
+
+== Tests Unitaires — Session 12
+
+|===
+| Classe | Tests | Statut | Notes
+| FirebaseConfigInjectionTest | 5 | OK | injectFirebase (normal, jbake.absent, firebase.null, update inline, append)
+| FirebaseTemplateRenderingTest | 4 | OK | footer.thyme FIREBASE_CONFIG, contact.thyme fragment, index.thyme inclut contact, menu.thyme lien #contact
+| ProfilePublisherTest | 15 | OK | resolveCredentials (4), copyProfileFiles (9), withCredentials (2)
+| GitServiceTest | 6 | OK | cloneAndOverlay (4), force-push (1), fallback clone (1)
+| FileSystemManagerTest | 8 | OK | createRepoDir (5), copyBakedFilesToRepo (3)
+| SiteConfigurationParsingTest | 11 | OK | 7 tests Firebase + 2 push + 1 bake + 1 cname
+| ExtensionTest | 1 | OK | plugin creates bakery extension
+| JbakeTest | 2 | OK | plugin applies jbake + lecture config
+| PublishingTest | 1 | OK | check_publishing
+| BakeryPluginTest.FileSystemManagerTest | 4 | OK | createCnameFile (4 cas)
+|===
+
+**Total** : 57+ tests unitaires OK (ajout +9 depuis session 10)
+
+== Tests Cucumber — Session 12
+
+|===
+| Feature | Scenarios | Statut | Notes
+| 1_minimal_configuration | 1 | PASS | Canary
+| 2_init_site_task | 3 | PASS | empty project, existing project, gradle.properties
+| 4_contact_form | 2 | PASS | Firebase config injection + pipeline deploiement templates
+| 5_publish_profile_task | 3 | PASS | task registered, task not registered, e2e remote simule
+|===
+
+**Total** : 9 scenarios Cucumber PASS (ajout +2 depuis session 10)
+
+== Changements Session 12
+
+* Phase 1 : Maquette - formulaire contact + Firebase SDK modular (`index.html`, `contact.js`)
+* Phase 2 : Template site - `contact.thyme` cree, inclus dans `index.thyme`, `menu.thyme` lien Contact, `contact.js` Firebase reel
+* Gap 1 : +5 tests unitaires `injectFirebaseConfigIntoJbakeProperties` (edge cases)
+* Gap 2-3 : +4 tests unitaires rendering templates (footer.thyme/contact.thyme/index.thyme/menu.thyme)
+* Gap 4 : +1 scenario Cucumber pipeline complet (deploiement templates + contenu)
+
+== Changements Sessions 9-11
+
+* Session 9 : Fix critique publishProfile - clone avant push + GitServiceTest (3 tests)
+* Session 10 : Refacto ProfilePublisher + tests (15+6+8 = 29 tests)
+* Session 11 : Cucumber e2e publishProfile + fix mkdir -> mkdirs
+
+== Zones Non Couvertes
+
+|===
+| Zone | Risque | Priorite
+| `SiteManager` : `registerPublishSiteTask`, `registerPublishMaquetteTask` | Push Git reel non teste | P1
+| `SiteManager` : `registerServeTask` | JBake CLI non mocke | P2
+| `ConfigPrompts` : `getOrPrompt`, `saveConfiguration` | I/O utilisateur | P3
+| `BakeryPlugin.apply` (integration complete) | Mocks complexes | P2
+| EPIC 7 : Tolerance parsing YAML (champs inconnus) | Non implemente | P2
+|===

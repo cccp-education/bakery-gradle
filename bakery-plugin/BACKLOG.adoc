@@ -1,0 +1,158 @@
+= Backlog — Bakery Gradle Plugin
+
+== EPIC 1 : Integration gouvernance agent
+
+**Statut** : TERMINE
+**Priorite** : P0
+
+* [x] Creer la structure `.agents/` (sessions/, archives/)
+* [x] Creer AGENT.adoc adapte a bakery-plugin
+* [x] Creer PROMPT_REPRISE.adoc
+* [x] Creer AGENT_MODUS_OPERANDI.adoc
+* [x] Creer INDEX.adoc
+
+== EPIC 2 : Migration Supabase -> Firebase + corrections tests
+
+**Statut** : TERMINE
+**Priorite** : P0
+
+* [x] Corriger les 9 tests en echec (valeurs site.yml vs attentes)
+* [x] Remplacer Supabase par Firebase pour le formulaire de contact
+* [x] Mettre a jour SiteConfiguration.kt (modeles de donnees Supabase -> Firebase)
+* [x] Mettre a jour site.yml (supabase -> firebase, placeholder sans vraie API key)
+* [x] Mock/stub Firebase dans les tests (API key fournie plus tard pour tests reels)
+* [x] Mettre a jour les tests en consequence
+* [x] Verifier que tous les tests passent avec `./gradlew test`
+
+== EPIC 3 : Amelioration build.gradle.kts
+
+**Statut** : TERMINE
+**Priorite** : P1
+
+* [x] ajouter timeouts sur les taches Test
+* [x] ajouter optimisations JVM (SerialGC, TieredStopAtLevel, etc.)
+* [x] ajouter cleanup dans cucumberTest
+
+== EPIC 4 : Formulaire de contact Firebase (maquette puis site)
+
+**Statut** : TERMINE (reste formalite : insertion cle API reelle dans site.yml consommateur)
+
+=== Tests ajoutes en session N+
+
+* [x] `FirebaseConfigInjectionTest` (5 tests unitaires) — edge cases: fichier absent, firebase null, cles existantes inline, append
+* [x] `FirebaseTemplateRenderingTest` (4 tests unitaires) — footer.thyme contient FIREBASE_CONFIG, contact.thyme contient le fragment, index.thyme inclut contact, menu.thyme a le lien #contact
+* [x] Cucumber scenario pipeline complet — `initSite` deploye contact.thyme/footer.thyme/index.thyme/menu.thyme avec le contenu Firebase attendu
+**Priorite** : P1
+
+_Contexte (directives utilisateur — Session N+)_ : Ne pas travailler directement dans le template Thymeleaf du `site/`. Stabiliser d'abord le formulaire de contact Firebase dans la **maquette** (`src/main/resources/maquette/index.html`), puis une fois fonctionnel, le transferer dans le template JBake (`src/main/resources/site/templates/`). Les dossiers `site/` et `maquette/` dans `src/main/resources/` sont preserves pour la tache de scaffolding du plugin. La maquette est un site HTML standalone, le site est un template JBake + Thymeleaf.
+
+_Source de reference pour le formulaire_ : `/home/cheroliv/workspace/__repositories__/cheroliv.com/site/jbake/` — `templates/contact.thyme` (HTML), `templates/footer.thyme` (Firebase SDK init), `assets/js/contact.js` (logique JS). Le `contact.js` actuel utilise un mock — on veut du Firebase Firestore reel.
+
+=== Phase 1 : Maquette (standalone HTML) [✅ TERMINEE]
+
+* [x] Ajouter la section `#contact` dans `maquette/index.html` (formulaire HTML + messages success/error)
+* [x] Ajouter le lien `Contact` dans la navbar de la maquette (href="#contact")
+* [x] Ajouter le bloc `<script type="module">` Firebase SDK dans la maquette (init Firestore, exposer `window.__FIREBASE__`)
+* [x] Creer `maquette/js/contact.js` avec logique Firestore reelle (pas de mock) — validation, `addDoc` vers collection `contacts`
+* [x] Verifier le CSS `.contact-form` existant dans `maquette/css/styles.css` (deja present)
+
+=== Phase 2 : Transfert vers le template site (JBake + Thymeleaf) [✅ TERMINEE]
+
+* [x] Creer `site/templates/contact.thyme` (fragment Thymeleaf `contact-section`)
+* [x] Inclure `contact.thyme` dans `site/templates/index.thyme` (via th:replace)
+* [x] Remplacer le mock par Firebase compat SDK reel dans `site/assets/js/contact.js` (Firestore `addDoc` via `FIREBASE_CONFIG`)
+* [x] Ajouter le lien `Contact` dans `site/templates/menu.thyme` (href="#contact")
+* [x] `footer.thyme` deja a jour : Firebase compat SDK + injection `FIREBASE_CONFIG` via Thymeleaf inline JS
+* [x] `contact.js` reference dans `footer.thyme` deja present
+
+=== Phase 3 : Plugin / SiteManager [✅ FLOW EXISTANT FONCTIONNEL]
+
+* [x] `SiteConfiguration.kt` a deja `firebase: FirebaseContactFormConfig?` avec modeles complets
+* [x] `SiteManager.injectFirebaseConfigIntoJbakeProperties()` injecte `firebaseApiKey`/`firebaseProjectId` dans `jbake.properties`
+* [x] `jbake.properties` expose `firebaseApiKey=FIREBASE_API_KEY_PLACEHOLDER` + `firebaseProjectId=bakery-contact-form`
+* [x] Aucune reference Supabase residuelle dans le code/site
+* [ ] Ajouter une vraie Firebase API key dans le site.yml consommateur (formalite, quand disponible)
+
+== EPIC 5 : Correction timeout Cucumber
+
+**Statut** : A faire
+**Priorite** : P2
+
+* [ ] Augmenter timeout Cucumber de 1 min a 5 min ou desactiver
+* [ ] Verifier que les tests Cucumber passent
+
+== EPIC 6 : Integration tache publishProfil dans le plugin
+
+**Statut** : A faire
+**Priorite** : P1
+
+_Code source de reference_ : `cheroliv.com/build.gradle.kts` (tache `publishProfil` inline + data classes `ProfileSiteConf`/`ProfilePushConf`/`ProfileRepoConf`/`ProfileCreds` + credential resolution `profileCredentials`)
+
+_Objectif_ : Migrer la gestion du profil GitHub du build script inline vers le plugin bakery en tant que tache a part entiere (`PublishProfileTask`), en suivant les patterns existants du plugin (`GitService`, `SiteConfiguration`, `SiteManager`).
+
+=== Analyse du code source a migrer
+
+La tache `publishProfil` dans `cheroliv.com/build.gradle.kts` fait :
+. Lit les credentials depuis `site.yml` via Jackson (`ProfileSiteConf` -> `ProfilePushConf` -> `ProfileRepoConf` -> `ProfileCreds`), avec fallback sur les project properties `-PprofileToken` et `-PprofileUsername`
+. Copie `README.md` et `README_fr.md` du projet vers un repertoire temporaire `build/cvs-profil/`
+. Initialise un depot git dans ce repertoire avec `Git.init()` (branche `main`)
+. Ajoute le remote `origin` pointant vers `https://github.com/cheroliv/cheroliv.git`
+. Force-push vers `origin/main` avec `UsernamePasswordCredentialsProvider`
+. Nettoie le repertoire temporaire
+
+=== Taches de migration
+
+==== 1. Etendre SiteConfiguration.kt — Ajouter le mode profil
+
+* [ ] Ajouter une section `pushProfile` dans `SiteConfiguration` (type `GitPushConfiguration` existant ou nouveau modele dedie si la structure YAML differe)
+* [ ] Le schema YAML dans `site.yml` est deja compatible : `pushPage.repo.credentials` est utilise par `publishSite` et peut servir de base. Le profil GitHub a potentiellement son propre repo/credentials (`pushProfile.repo.repository`, `pushProfile.repo.credentials`)
+* [ ] Ajouter un champ `profileFiles` (liste de fichiers a pousser, ex: `["README.md", "README_fr.md"]`)
+
+==== 2. Creer PublishProfileTask.kt
+
+* [ ] Creer `src/main/kotlin/bakery/PublishProfileTask.kt`
+* [ ] Implementer une tache Gradle typee (`abstract class PublishProfileTask : DefaultTask`) avec inputs/outputs annotes
+* [ ] Utiliser `GitService` existant pour le push (refactor si besoin pour supporter le pattern profil : init temp repo + copy files + force push)
+* [ ] Gerer la resolution des credentials : priorite project properties (`-PprofileToken`, `-PprofileUsername`) > `site.yml` > erreur
+
+==== 3. Refactoriser GitService.kt si necessaire
+
+* [ ] Verifier si `GitService.pushPages()` peut etre reutilise tel quel ou s'il faut extraire une methode generique `pushToRemote(repoDir, remoteUrl, branch, credentials)` utilisable a la fois par `publishSite`, `publishMaquette` et `publishProfil`
+* [ ] La difference cle : `publishProfil` copie des fichiers specifiques du projet (pas le contenu baked), tandis que `publishSite` copie le contenu de `build/bake/`
+
+==== 4. Enregistrer la tache dans SiteManager.kt
+
+* [ ] Ajouter `registerPublishProfileTask(site: SiteConfiguration)` dans `SiteManager.kt`
+* [ ] Groupe : `"profile"`, description : `"Push profile README files to GitHub profile repository."`
+* [ ] Condition : ne registrer que si `site.pushProfile` est present dans `site.yml`
+
+==== 5. Tests
+
+* [ ] Ajouter un test unitaire pour la resolution des credentials (priority: project properties > YAML > erreur)
+* [ ] Ajouter un scenario Cucumber pour valider que la tache est registree quand `pushProfile` est present dans `site.yml`
+* [ ] Ajouter un scenario Cucumber pour valider que la tache n'est PAS registree quand `pushProfile` est absent
+
+==== 6. Nettoyage cheroliv.com
+
+* [ ] Une fois le plugin mis a jour et publie (`publishToMavenLocal`), retirer le code inline de `cheroliv.com/build.gradle.kts` :
+** Supprimer les data classes `ProfileSiteConf`, `ProfilePushConf`, `ProfileRepoConf`, `ProfileCreds`
+** Supprimer la propriete `profileCredentials`
+** Supprimer la tache `tasks.register("publishProfil")`
+** Supprimer le bloc `buildscript` (les dependances JGit/Jackson sont deja fournies par le plugin)
+** Configurer le plugin via `bakery { configPath = file("site.yml").absolutePath }` (deja existant)
+
+== EPIC 7 : Tolerance parsing YAML (champs inconnus)
+
+**Statut** : A faire
+**Priorite** : P2
+**Depend de** : EPIC 6 (Session 9 bakery-plugin)
+
+_Probleme_ : Le plugin crash (`UnrecognizedPropertyException`) quand le `site.yml` contient d'anciens champs supprimes (ex: `supabase:` remplace par `firebase:`). Le secret GitHub `CHEROLIV_CONFIG` contenait encore `supabase:`, causant l'echec du workflow CI `Publish website`.
+
+_Solution_ : Ajouter `@JsonIgnoreProperties(ignoreUnknown = true)` sur la classe `SiteConfiguration` pour ignorer les champs non reconnus au lieu de planter.
+
+=== Taches
+
+* [ ] Ajouter `@JsonIgnoreProperties(ignoreUnknown = true)` sur `SiteConfiguration`
+* [ ] Ajouter un test unitaire qui valide qu'un `site.yml` avec un champ inconnu ne fait pas planter le parsing
+* [ ] Verifier que cela ne masque pas d'erreurs reelles de configuration (typos dans les champs valides)

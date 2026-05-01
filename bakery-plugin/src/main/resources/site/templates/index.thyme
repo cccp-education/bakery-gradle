@@ -12,6 +12,7 @@
 <div class="main-content-wrapper">
     <div th:replace="~{hero_section.thyme::hero}" />
     <div th:replace="~{blog_section.thyme::blog-section}" />
+    <div th:replace="~{contact.thyme::contact-section}" />
 </div>
 
 <!-- Script de mock pour les tests UI (doit être avant script.js) -->
