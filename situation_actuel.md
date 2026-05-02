@@ -1,0 +1,1 @@
+E3PO fais moi un topo de la situation du backlog sur les choses encore a faire tu me les classera par ordre de priorité decroissante.

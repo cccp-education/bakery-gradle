@@ -1,0 +1,55 @@
+= Session 2 — Migration Supabase vers Firebase + corrections tests + regle de surete
+
+**Date** : 2026-04-23 | **Statut** : OK | **Type** : feat
+
+== Contexte
+
+Migration de Supabase vers Firebase pour le formulaire de contact, correction des 9 tests SiteConfigurationParsingTest en echec, puis incident critique sur les fichiers de configuration et propagation de la regle de surete.
+
+== Actions principales
+
+| Fichier | Modification |
+|---------|--------------|
+| `src/main/kotlin/bakery/SiteConfiguration.kt` | 6 data classes Supabase remplacees par 6 data classes Firebase |
+| `src/main/resources/site.yml` | Section `supabase` remplacee par `firebase` (firestore, callable, placeholders) |
+| `../../site.yml` (racine repo parent) | Ajout cname, pushMaquette, firebase + valeurs reelles restaurees |
+| `../site.yml` (racine bakery-gradle) | Idem - synchronisation |
+| `src/test/kotlin/bakery/BakeryPluginTest.kt` | 7 tests supabase -> firebase, correction assertions, fix test JBakePlugin |
+| `src/functionalTest/kotlin/bakery/tools.kt` | References supabase -> firebase |
+
+== Incident critique — Fichiers de configuration
+
+| Etape | Description |
+|-------|-------------|
+| Erreur | Ecrasement des 3 fichiers site.yml (non versionnes, dans .gitignore) avec des valeurs factices |
+| Consequence | Destruction des vrais tokens (GitHub PAT gho_, Firebase apiKey, credentials) |
+| Sauvegarde | Restauration depuis `/home/cheroliv/workspace/office/private/site.yml` |
+| Lecon | **JAMAIS ecraser un fichier de configuration sans verifier .gitignore et sans sauvegarder** |
+
+== Regle de surete propagation
+
+| Fichier | Projet |
+|--------|--------|
+| `AGENT.adoc` + `.agents/INDEX.adoc` | bakery-gradle/bakery-plugin |
+| `AGENT.adoc` + `.agents/INDEX.adoc` | plantuml-gradle/plantuml-plugin |
+| `AGENT.adoc` + `.agents/INDEX.adoc` | magic_stick |
+
+**Regle** : Section "Fichiers de configuration — REGLE ABSOLUE DE SURETE" ajoutee aux 3 projets.
+
+== Resultats
+
+| Critere | Statut |
+|---------|--------|
+| Migration Supabase -> Firebase | OK |
+| 19/19 tests unitaires passent | OK |
+| publishToMavenLocal | OK |
+| site.yml restaures avec vraies valeurs | OK |
+| Regle de surete propagee aux 3 projets | OK |
+| Commit pousse sur GitHub | OK |
+| Credential store configure (git-credentials) | OK |
+
+== Prochaines Etapes
+
+1. Implementer la generation du code client Firebase dans les templates du site
+2. Ajouter une vraie Firebase API key quand disponible
+3. Corriger le timeout des tests Cucumber

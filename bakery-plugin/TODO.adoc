@@ -1,0 +1,6 @@
+= TODO — Bakery Plugin
+
+* Implementer la generation du code client Firebase dans les templates
+* Ajouter une vraie Firebase API key quand disponible
+* Corriger le timeout Cucumber (1 min -> 5 min)
+* Verifier coherence des 3 fichiers site.yml

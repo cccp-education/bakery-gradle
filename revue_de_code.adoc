@@ -1,0 +1,169 @@
+= Revue de Code du Plugin Gradle Bakery
+
+J'ai effectué une revue de code approfondie de votre plugin Gradle `bakery`. Voici mes observations et suggestions, organisées par fichier et par catégorie.
+
+== `bakery-plugin/bakery/src/functionalTest/kotlin/com/cheroliv/bakery/BakeryPluginFunctionalTests.kt`
+
+=== Observations Générales:
+* L'utilisation de `@file:Suppress("FunctionName")` indique une préférence pour des noms de fonctions de test descriptifs. C'est acceptable pour la lisibilité des rapports de test, mais sachez que cela s'écarte de la convention `camelCase` de Kotlin.
+* L'utilisation intensive de `info()` pour les logs et l'affichage des progrès est très utile pour le débogage.
+* La structuration des tests en "Phases" (`Phase 1: File Setup`, `Phase 2: Plugin Execution`, `Phase 3: Integration Tests (Future)`) est une excellente approche pour organiser et planifier vos efforts de test.
+* L'utilisation de `@TempDir` est parfaite pour assurer l'isolation des tests.
+
+=== Suggestions d'Amélioration:
+1. **Fonctions de test ignorées (`@Ignore`):** Priorisez la mise en œuvre et l'activation des tests actuellement ignorés dès que les fonctionnalités correspondantes sont prêtes. Par exemple, le test de la tâche `serve` devrait être activé pour valider sa fonctionnalité.
+2. **Répétition de la configuration de `GradleRunner`:** Le code `create().forwardOutput().withPluginClasspath().withProjectDir(projectDir)` est répété dans presque tous les tests. Envisagez d'extraire cette configuration dans une fonction d'aide privée (par exemple, `createGradleRunner(): GradleRunner`) ou dans une variable `lateinit var` initialisée dans `setUp` pour réduire la verbosité.
+3. **Assertions redondantes:** Dans `phase 1 - all project files are created correctly()`, l'assertion `assertThat(projectDir.listFiles()!!.size).isNotZero` est redondante si `assertThat(projectDir).isNotEmptyDirectory` est déjà utilisée, car cette dernière implique la première. De plus, compter le nombre exact de fichiers peut être fragile si de nouveaux fichiers sont ajoutés. Concentrez-vous sur l'existence des fichiers spécifiques.
+4. **Nom de test imprécis:** Renommez `Template folder does not exist()` pour mieux refléter son intention, par exemple, `initSiteTaskDeletesExistingJbakeFolderBeforeCopyingTemplates`.
+
+== `bakery-plugin/bakery/src/functionalTest/kotlin/com/cheroliv/bakery/tools.kt`
+
+=== Observations Générales:
+* Ce fichier remplit bien son rôle de centralisation des fonctions utilitaires pour la création des fichiers de test et des constantes (`FuncTestsConstants`), ce qui améliore la modularité et la lisibilité.
+
+=== Suggestions d'Amélioration:
+1. **Robustesse du chemin dans `createConfigFile()`:** La ligne `File("").absoluteFile.parentFile?.parentFile?.resolve(CONFIG_FILE)` pour copier `site.yml` repose sur la position relative de l'exécution du test. Pour plus de robustesse, surtout dans un contexte de test fonctionnel qui devrait être auto-suffisant :
+    * Si `site.yml` est un template fixe du plugin, copiez-le depuis les ressources du plugin vers le `projectDir` temporaire du test.
+    * Si `site.yml` est censé être un fichier utilisateur, créez-le directement dans le `projectDir` du test avec le contenu de test.
+2. **`Logger.loadConfiguration()`:** Cette fonction est très grande et semble dupliquer des assertions de `setUp()` dans les tests fonctionnels.
+    * **Découpage:** Fractionnez-la en fonctions plus petites et plus ciblées (par exemple, `assertTomlFileContent(file)`, `assertSettingsFileContent(file)`).
+    * **Nommage:** Le nom `loadConfiguration` est trompeur, car la fonction effectue des assertions plutôt que de charger la configuration. Un nom comme `assertTestEnvironmentFilesCreatedAndConfigured` serait plus précis.
+    * **Réduction de la duplication:** Si les assertions sont déjà faites dans `setUp()`, cette fonction pourrait être superflue ou être utilisée uniquement pour des vérifications plus complexes.
+
+== `bakery-plugin/bakery/src/main/kotlin/com/cheroliv/bakery/BakeryExtension.kt`
+
+=== Observations Générales:
+* Implémentation très propre et idiomatique d'une extension Gradle. L'utilisation de `Property<String>` et l'injection de `ObjectFactory` suivent les meilleures pratiques de Gradle pour une configuration paresseuse et l'évitement de la configuration.
+
+=== Suggestions d'Amélioration:
+* Aucune suggestion spécifique ; le fichier est bien conçu pour son objectif.
+
+== `bakery-plugin/bakery/src/main/kotlin/com/cheroliv/bakery/BakeryPlugin.kt`
+
+=== Observations Générales:
+* La classe principale du plugin gère bien l'application de la logique au projet Gradle, en déléguant la plupart des opérations à `SiteManager` et `FileSystemManager`.
+* L'utilisation de `project.afterEvaluate` est souvent nécessaire pour les plugins qui doivent réagir à la configuration du projet, mais une utilisation excessive peut ralentir les builds.
+
+=== Correction Critique Nécessaire:
+1. **Gestion sécurisée de `bakeryExtension.configPath.get()`:** La ligne `val configFile = project.layout.projectDirectory.asFile.resolve(bakeryExtension.configPath.get())` appellera `get()` sur une `Property` potentiellement non configurée, ce qui provoquera une `MissingPropertyException` si `configPath` n'a pas été défini (par exemple, via DSL ou `gradle.properties`).
+    * **Solution:** Vous devez toujours vérifier `bakeryExtension.configPath.isPresent` avant d'appeler `get()`. Modifiez la logique dans le bloc `afterEvaluate` pour ressembler à ceci :
+
+[source,kotlin]
+----
+project.afterEvaluate {
+    project.configureConfigPath(bakeryExtension) // Cette fonction devrait définir configPath si trouvé
+
+    val configPathProvider = bakeryExtension.configPath
+    if (configPathProvider.isPresent) {
+        val configFilePath = configPathProvider.get()
+        val configFile = project.layout.projectDirectory.asFile.resolve(configFilePath)
+
+        if (!configFile.exists()) {
+            // ... logique existante pour registerInitSiteTask
+        } else {
+            // ... logique existante pour enregistrer les autres tâches
+        }
+    } else {
+        // Si configPath n'est toujours pas présent, enregistrez uniquement les tâches de base
+        project.logger.warn("ConfigPath n'est pas défini. Seules les tâches de configuration de base seront enregistrées.")
+        project.registerInitSiteTask()
+        project.registerConfigureSiteTask(bakeryExtension, false) // Passer l'extension et false pour isGradlePropertiesEnabled
+        project.registerUtilityTasks()
+    }
+}
+----
+
+=== Suggestions d'Amélioration:
+1. **Renommer `isGradlePropertiesEnabled`:** Le nom `isGradlePropertiesEnabled` est trompeur. Renommez-le en quelque chose comme `isConfigPathExplicitlySet` ou `isConfigPathConfigured` pour mieux refléter qu'il vérifie si la propriété `configPath` a été définie, et non l'activation globale de `gradle.properties`.
+2. **Enregistrement conditionnel des tâches:** Actuellement, `registerUtilityTasks()` et `registerConfigureSiteTask()` ne sont enregistrées que si `configFile.exists()`. Cela semble contre-intuitif pour des tâches de configuration et d'utilité. Envisagez de les enregistrer toujours, indépendamment de l'existence du fichier de configuration, afin qu'elles soient disponibles pour initialiser ou configurer le site.
+
+== `bakery-plugin/bakery/src/main/kotlin/com/cheroliv/bakery/ConfigPrompts.kt`
+
+=== Observations Générales:
+* Excellente implémentation d'un mécanisme de saisie interactive robuste et sécurisé.
+* L'ordre de précédence (propriétés CLI, variables d'environnement, valeur par défaut, puis invite interactive) est correct et convivial.
+* La gestion sécurisée des entrées sensibles (`readPassword()`, `input.fill('0')`) et les avertissements en cas de console non interactive sont d'excellentes pratiques.
+
+=== Suggestion d'Amélioration:
+1. **Implémenter `Project.saveConfiguration()`:** La fonction `saveConfiguration()` est actuellement entièrement commentée. C'est la suggestion la plus critique : implémentez-la pour persister la configuration saisie par l'utilisateur (token, username, repo, configPath) dans le fichier `site.yml` en utilisant `FileSystemManager.yamlMapper`. C'est essentiel pour que la tâche `configureSite` soit utile au-delà d'une seule exécution.
+
+== `bakery-plugin/bakery/src/main/kotlin/com/cheroliv/bakery/FileSystemManager.kt`
+
+=== Observations Générales:
+* Objet très solide pour les opérations du système de fichiers, y compris la lecture/écriture YAML, la copie de ressources et la gestion des répertoires de dépôt.
+* L'utilisation de `jackson-dataformat-yaml` est un excellent choix.
+* La gestion des ressources (`copyFromJar`, `copyFromFileSystem`) est bien pensée pour les scénarios de développement et de plugin packagé.
+* Les fonctions de création et de copie de dépôt (`createRepoDir`, `copyBakedFilesToRepo`) sont robustes, gérant la suppression et la création pour assurer un état propre.
+* L'extension `SiteConfiguration.createCnameFile()` est une fonctionnalité utile et bien implémentée.
+
+=== Suggestion d'Amélioration:
+1. **Gestion des erreurs de `Project.read()`:** Actuellement, `Project.read()` retourne une `SiteConfiguration()` par défaut en cas d'échec de lecture du fichier de configuration. Bien que cela empêche le build de planter, cela peut masquer une erreur de configuration fondamentale qui devrait plutôt arrêter le build avec un message d'erreur clair. Envisagez de lancer une exception plus spécifique ou de loguer l'erreur avec un niveau `ERROR` si une configuration invalide doit être considérée comme fatale.
+
+== `bakery-plugin/bakery/src/main/kotlin/com/cheroliv/bakery/GitService.kt`
+
+=== Observations Générales:
+* Très bonne encapsulation des opérations Git utilisant `org.eclipse.jgit`.
+* L'utilisation des classes scellées `FileOperationResult` et `GitOperationResult` est une excellente approche pour une gestion des erreurs explicite et de type sûr.
+* La fonction `pushPages()` orchestre bien le workflow de publication, avec une gestion correcte des erreurs et un nettoyage (`finally` block).
+* Les fonctions individuelles (`initRepository`, `addRemote`, `addAllFiles`, `commitChanges`, `executePushCommand`) sont claires et ont des responsabilités bien définies.
+* La définition de `GIT_ATTRIBUTES_CONTENT` est une bonne pratique pour la cohérence des dépôts.
+
+=== Suggestions d'Amélioration:
+1. **Confirmation de `isForce = true`:** L'utilisation de `isForce = true` dans la commande `git.push()` est courante pour les GitHub Pages, mais elle peut écraser l'historique. Assurez-vous que cette décision est documentée et comprise, ou offrez une option de configuration pour la désactiver si nécessaire.
+2. **Gestion des erreurs de `executePushCommand()`:** Actuellement, `executePushCommand()` retourne `MutableIterable<PushResult>?`. Si l'opération de push échoue (par exemple, en raison de problèmes d'authentification ou de réseau), JGit lèvera probablement une exception qui doit être capturée et convertie en `GitOperationResult.Failure` pour une gestion cohérente. Le code actuel propage implicitement l'exception de JGit si elle n'est pas gérée.
+
+== `bakery-plugin/bakery/src/main/kotlin/com/cheroliv/bakery/SiteConfiguration.kt`
+
+=== Observations Générales:
+* Ce fichier définit les classes de données (`data class`) pour la configuration du site. La structure est claire, modulaire et bien organisée.
+* L'utilisation de valeurs par défaut pour toutes les propriétés des classes de données est une excellente pratique, rendant la configuration optionnelle et robuste.
+* La classe `RepositoryConfiguration` inclut des constantes utiles (`ORIGIN`, `CNAME`, `REMOTE`).
+
+=== Suggestions d'Amélioration:
+* Aucune suggestion spécifique ; le fichier est bien conçu et répond à son objectif.
+
+== `bakery-plugin/bakery/src/main/kotlin/com/cheroliv/bakery/SiteManager.kt`
+
+=== Observations Générales:
+* Cet objet est le cœur de la logique du plugin, enregistrant et configurant toutes les tâches liées au site.
+* La fonction `createJBakeRuntimeConfiguration()` est essentielle pour configurer le classpath de JBake.
+* Les tâches `initSite` et `configureSite` fournissent une bonne expérience utilisateur pour l'initialisation et la configuration.
+* Les fonctions de publication (`registerPublishSiteTask`, `registerPublishMaquetteTask`) sont bien structurées et s'appuient sur `GitService`.
+* La tâche `serve` est une fonctionnalité clé pour le développement local.
+
+=== Suggestions d'Amélioration:
+1. **Refactorisation de `configureConfigPath()`:** Cette fonction vérifie si `configPath` est défini dans `gradle.properties`. La logique actuelle dans `BakeryPlugin.kt` et `SiteManager.kt` peut être simplifiée. La fonction `configureConfigPath` dans `SiteManager` devrait être responsable de la *définition* du `bakeryExtension.configPath` si elle trouve une valeur dans `gradle.properties`, sans nécessiter le paramètre `isGradlePropertiesEnabled`. Le `BakeryPlugin` vérifierait alors simplement `bakeryExtension.configPath.isPresent`.
+2. **Logique d'initialisation de `site.yml` dans `registerInitSiteTask()`:** La fonction `createAndConfigureSiteYml()` configure un objet `SiteConfiguration` par défaut (`SiteConfiguration(BakeConfiguration("site", "bake"))`) et l'écrit dans `site.yml`. C'est une bonne base.
+    * **Considération:** Si le fichier `site.yml` existe déjà et est invalide, la tâche `initSite` devrait-elle l'écraser ? Actuellement, `createNewFile()` ne fait rien si le fichier existe, puis `writeText()` l'écrasera. Assurez-vous que c'est le comportement désiré ou offrez une option pour conserver les modifications existantes ou avertir l'utilisateur.
+3. **Chemin de `ASCIIDOC_SOURCE_DIR`:** Dans `configureJBakePlugin()`, le chemin `project.projectDir.resolve(site.bake.srcPath)` pour `ASCIIDOC_SOURCE_DIR` semble correct pour une utilisation avec Asciidoctor.
+4. **Tâche `serve`:**
+    * **Gestion du processus en arrière-plan:** L'explication dans `GEMINI.md` sur les "conventions de Test" mentionne la gestion des tâches de longue durée (comme un serveur) via PID. Bien que la tâche `serve` soit actuellement une `JavaExec` et puisse être exécutée en arrière-plan via `&` dans le shell, si vous souhaitez la gérer de manière plus programmatique (par exemple, une tâche `stopServe`), vous devrez implémenter la gestion des PID comme décrit.
+    * **Port du serveur:** Le message `Serving $group at: https://localhost:8820/` est un `info` mais le port 8820 n'est pas configuré dans les arguments de JBake. JBake utilise par défaut le port 8080. Si vous utilisez 8820, assurez-vous qu'il est configuré pour JBake.
+
+== `bakery-plugin/bakery/src/test/kotlin/com/cheroliv/bakery/BakeryPluginTest.kt`
+
+=== Observations Générales:
+* Ce fichier contient des tests unitaires et des tests d'intégration plus fins utilisant des mocks.
+* `SiteConfigurationParsingTest` est excellent pour valider la lecture et le mappage du fichier `site.yml`. Les assertions détaillées sur les tailles, les contenus et les types sont très précieuses.
+* `ExtensionTest` et `JbakeTest` vérifient correctement l'intégration du plugin et l'application du plugin JBake.
+* `FileSystemManagerTest` est un bon exemple de tests unitaires pour les fonctions de gestion de fichiers, en particulier pour `createCnameFile()`.
+
+=== Suggestions d'Amélioration:
+1. **Complexité de `createMockProject()`:** La fonction `createMockProject()` est très longue et complexe en raison du grand nombre de mocks et de leurs configurations. Cela peut rendre la maintenance difficile.
+    * **Refactorisation:** Envisagez de simplifier cette fonction en créant des mocks plus ciblés pour des tests spécifiques, ou en utilisant un framework de test de plugin Gradle qui fournit des objets `Project` pré-configurés pour des scénarios de test plus légers.
+2. **Activation de `@Ignore`d test:** Le test `createCnameFile should create CNAME file with correct content when cname is provided()` est ignoré. Activez-le pour assurer la couverture de test.
+3. **Vérification des exceptions:** Dans `SiteConfigurationParsingTest`, lors de la lecture des propriétés Supabase (par exemple, `config.supabase!!.project.url`), l'utilisation de `!!` implique que `supabase` ne sera jamais nul. Si une configuration `site.yml` sans section `supabase` est possible, ces tests pourraient planter. Assurez-vous que le fichier de test `site.yml` contient bien toutes les sections attendues, ou ajoutez des tests pour les cas où `supabase` est absent.
+
+== `bakery-plugin/bakery/src/test/scenarios/com/cheroliv/bakery/scenarios/AsyncSteps.kt`, `CucumberTestRunner.kt`, `InitSiteSteps.kt`, `BakeryWorld.kt`
+
+=== Observations Générales:
+* Ces fichiers constituent l'infrastructure des tests fonctionnels basés sur Cucumber.
+* `TestWorld` est une excellente classe pour gérer l'état partagé entre les étapes Cucumber, y compris la création de projets Gradle temporaires, l'exécution de tâches et la gestion des coroutines pour les opérations asynchrones.
+* L'utilisation de `runBlocking` et `async/await` pour gérer les exécutions Gradle est une approche moderne et efficace.
+* Les étapes Cucumber sont bien écrites et descriptives.
+
+=== Suggestions d'Amélioration:
+1. **Dossier `maquette` dans `InitSiteSteps`:** La fonction `indexHtmlFileShouldBeCreated()` fait référence à `world.projectDir!!.resolve("maquette").resolve("index.html")`. La description de la tâche (`siteDirName`) est trompeuse ici car elle est utilisée pour `maquette`. Renommez la variable `siteDirName` en `maquetteDirName` ou clarifiez son utilisation.
+2. **`TestWorld.createGradleProject()`:** La fonction `createGradleProject()` utilise `createTempFile` puis `delete()` et `mkdirs()`. Cela peut être simplifié en utilisant `createTempDir()` pour créer un répertoire temporaire directement.
+
+En résumé, votre plugin est bien structuré, utilise de bonnes pratiques Kotlin et Gradle, et dispose d'une base de tests robuste. Les points critiques concernent principalement la gestion sécurisée des propriétés Gradle potentiellement non définies et l'implémentation de la persistance de la configuration.

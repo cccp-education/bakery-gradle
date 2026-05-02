@@ -1,0 +1,29 @@
+= TODO
+
+.A faire:
+Crée moi un US dans la bonne epic : ajouter un champ phone juste apres le champ email dans le formulaire de contact dans le section contact.
+
+
+bi bi-moon me-1
+bi bi-sun me-1
+margin right, sur les liens faire de wrap ward ou break ward ou text wrap
+
+
+*definir le comportement d'un workflow de boucle iterative de dev.*
+
+prompt:
+
+tache :
+- creer moi une us preliminaire a l'US-61a cette us sera pour preparer une couverture de test pour evaluer le mapping de jackson avec gradle, pour la mise a jour du schema yaml du fichier de configuration passé a github action en secret pour porter la configuration de facon securisé.
+
+- tu ajoutera cette description pour l'us :
+-- dans le fichier de detail des us avec son detail descriptif
+- dans le product backlog avec un statut en cours
+
+---
+
+Analyse le fichier `build.gradle.kts` pour clarifier le comportement de la tâche `verifyConfigurationMapping`.
+
+Je souhaite comprendre :
+1.  Comment la tâche `verifyConfigurationMapping` est-elle déclenchée par la tâche `test` ? Est-ce que le simple fait d'appartenir au groupe "verification" est suffisant pour son exécution lors des tests ?
+2.  La tâche `verifyConfigurationMapping` ne devrait-elle pas être configurée avec une fonction paramétrée via la classe `org.gradle.api.tasks.testing.Test` tel tasks.register<Test>("verifyConfigurationMapping") ?

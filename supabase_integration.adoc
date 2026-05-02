@@ -1,0 +1,156 @@
+= Intégration de la Configuration Supabase dans le Build Gradle
+
+Ce document décrit l'approche pour intégrer la configuration Supabase de manière structurée et sécurisée dans le build Gradle du projet, en la centralisant au sein de la `data class` `SiteConfiguration`.
+
+Cette méthode permet de :
+- Centraliser toute la configuration du site en un seul endroit.
+- Utiliser un modèle de données typé en Kotlin pour éviter les erreurs.
+- Générer facilement un fichier de configuration YAML complet, idéal pour être utilisé comme secret dans les workflows GitHub Actions.
+
+== 1. Mise à jour des `data class` Kotlin
+
+La première étape consiste à définir des `data class` qui représentent précisément le schéma Supabase du formulaire de contact. Ces classes sont ensuite ajoutées à la `SiteConfiguration` existante.
+
+Le code suivant doit être ajouté au fichier `build.gradle.kts`, à côté des autres définitions de `data class`.
+
+[source,kotlin]
+----
+// =================================================================
+// Data classes pour la configuration Supabase (spécifique au formulaire)
+// =================================================================
+
+data class SupabaseContactFormConfig(
+    val project: SupabaseProjectInfo,
+    val schema: SupabaseDatabaseSchema,
+    val rpc: SupabaseRpcFunction
+)
+
+data class SupabaseProjectInfo(
+    val url: String,
+    val publicKey: String // La clé "anon" pour le client JS
+)
+
+data class SupabaseDatabaseSchema(
+    val contacts: SupabaseTable,
+    val messages: SupabaseTable
+)
+
+data class SupabaseTable(
+    val name: String,
+    val columns: List<SupabaseColumn>,
+    val rlsEnabled: Boolean
+)
+
+data class SupabaseColumn(
+    val name: String,
+    val type: String
+)
+
+data class SupabaseRpcFunction(
+    val name: String,
+    val params: List<SupabaseParam>
+)
+
+data class SupabaseParam(
+    val name: String,
+    val type: String
+)
+
+// =================================================================
+// Mise à jour de la data class SiteConfiguration
+// =================================================================
+
+data class SiteConfiguration(
+    val bake: BakeConfiguration,
+    val pushPage: GitPushConfiguration,
+    val pushMaquette: GitPushConfiguration,
+    val pushSource: GitPushConfiguration? = null,
+    val pushTemplate: GitPushConfiguration? = null,
+    // Ajout de la configuration Supabase, optionnelle pour la rétrocompatibilité
+    val supabase: SupabaseContactFormConfig? = null
+)
+----
+
+NOTE: Les nouvelles classes ont été préfixées par `Supabase` pour garantir la clarté et éviter toute collision de noms potentielle.
+
+== 2. Exemple de Fichier de Configuration YAML Complet
+
+Avec les nouvelles `data class`, le fichier de configuration YAML (par exemple, `config.yaml`) peut maintenant inclure une section `supabase` qui contient toutes les informations nécessaires.
+
+[source,yaml]
+----
+bake:
+  srcPath: "site"
+  destDirPath: "bake"
+  cname: "cheroliv.com"
+pushPage:
+  from: "bake"
+  to: "cvs"
+  repo:
+    name: "cheroliv.github.io"
+    repository: "https://github.com/cheroliv/cheroliv.github.io.git"
+    credentials:
+      username: "cheroliv"
+      password: "gho_api_key" # Sera chargé depuis les secrets en CI/CD
+  branch: "main"
+  message: "chore(website): publish site"
+pushMaquette:
+  # ... (configuration de la maquette)
+# --- NOUVELLE SECTION ---
+supabase:
+  project:
+    url: "https://<your-project-ref>.supabase.co"
+    publicKey: "<your-anon-key>"
+  schema:
+    contacts:
+      name: "public.contacts"
+      rlsEnabled: true
+      columns:
+        - { name: "id", type: "UUID" }
+        - { name: "created_at", type: "TIMESTAMPTZ" }
+        - { name: "name", type: "TEXT" }
+        - { name: "email", type: "TEXT" }
+        - { name: "telephone", type: "TEXT" }
+    messages:
+      name: "public.messages"
+      rlsEnabled: true
+      columns:
+        - { name: "id", type: "UUID" }
+        - { name: "created_at", type: "TIMESTAMPTZ" }
+        - { name: "contact_id", type: "UUID" }
+        - { name: "subject", type: "TEXT" }
+        - { name: "message", type: "TEXT" }
+  rpc:
+    name: "public.handle_contact_form"
+    params:
+      - { name: "p_name", type: "TEXT" }
+      - { name: "p_email", type: "TEXT" }
+      - { name: "p_subject", type: "TEXT" }
+      - { name: "p_message", type: "TEXT" }
+----
+
+== 3. Générer le Secret pour GitHub Actions
+
+Pour simplifier la création du secret dans GitHub, une tâche Gradle peut être ajoutée pour générer le contenu YAML complet à partir de la configuration locale.
+
+Ajoutez cette tâche à votre `build.gradle.kts` :
+
+[source,kotlin]
+----
+tasks.register("generateGithubSecret") {
+    group = "managed"
+    description = "Génère la configuration complète du site en YAML pour un secret GitHub."
+    doLast {
+        // 'localConf' et 'mapper' sont déjà définis dans votre build script
+        val yamlString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(localConf)
+        
+        println("\n" + "=".repeat(80))
+        println("COPIEZ LE BLOC YAML CI-DESSOUS DANS VOTRE SECRET GITHUB (ex: SITE_CONFIG_YAML)")
+        println("=".repeat(80) + "\n")
+        println(yamlString)
+        println("\n" + "=".repeat(80))
+    }
+}
+----
+
+Pour l'utiliser, il suffit de lancer la commande `./gradlew generateGithubSecret` dans le terminal. La sortie peut ensuite être copiée directement dans un secret GitHub, fournissant ainsi au workflow de CI/CD un accès sécurisé à l'ensemble de la configuration du site.

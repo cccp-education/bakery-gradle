@@ -1,0 +1,133 @@
+# 🎨 Configuration du Projet de site statique perso de Cheroliv
+
+---
+>  **⚠️**
+> **Directive Utilisateur :** NE PLUS PROPOSER DE LANCER LE SCRIPT `jbake.sh`. L'utilisateur en prend la pleine responsabilité.
+---
+
+## 📝 Aperçu du Projet
+
+Ceci est un projet Gradle utilisant le DSL Kotlin. Son objectif principal est de générer un site web personnel statique à l'aide du plugin JBake. Le site généré est ensuite déployé sur GitHub Pages en utilisant la bibliothèque `jgit`.
+
+-   **Source des Modèles de Site Statique :** `site/jbake`
+-   **Source des Actifs de l'Interface Utilisateur :** `site/jbake/assets/`
+-   **Fichiers de Modèles de l'Interface Utilisateur :** `site/jbake/templates/`
+
+## 🎯 Objectif de Développement : Modernisation de l'Interface Utilisateur
+
+L'objectif principal est de migrer l'interface utilisateur du site web statique de Bootstrap 3 vers Bootstrap 5. Cette migration vise non seulement une esthétique contemporaine mais aussi une amélioration radicale de l'expérience utilisateur (UX), de la performance et, surtout, de l'accessibilité.
+
+### 📐 Exigences de Qualité et de Test (Definition of Done)
+
+Toute fonctionnalité liée à l'interface utilisateur doit respecter les critères suivants pour être considérée comme "terminée" :
+
+*   **♿ Accessibilité (WCAG 2.1 AA) :** Le site doit viser la conformité avec les standards internationaux pour être utilisable par tous, en adressant les handicaps physiques, moteurs, sensoriels et cognitifs.
+*   **📱 Conception Responsive Détaillée :** Le design doit être fluide et validé sur 7 points de rupture critiques pour garantir une expérience optimale sur tous les appareils.
+    1.  **Micro Mobile :** < 320px
+    2.  **Petit Mobile :** 320px - 480px
+    3.  **Grand Mobile :** 481px - 767px
+    4.  **Tablette :** 768px - 991px
+    5.  **Petit Desktop :** 992px - 1199px
+    6.  **Desktop Moyen/Large :** 1200px - 1919px
+    7.  **Très Grand Écran (TV) :** ≥ 1920px
+*   **🌐 Compatibilité Navigateurs :** Le rendu et les fonctionnalités doivent être impeccablement testés sur les dernières versions de : **Chromium**, **Firefox**, **Safari**, et **Edge**.
+*   **⚡ Performance :** Les actifs (images, CSS, JS) doivent être optimisés (minification, compression, chargement différé) pour un score Lighthouse élevé et un chargement quasi instantané.
+
+---
+
+## 🚀 Plan d'Implémentation : Approche Scrumban
+
+Cette refonte est découpée en Épopées (grandes fonctionnalités) et User Stories (besoins utilisateurs spécifiques). Cette structure permet de livrer de la valeur de manière incrémentale et de s'adapter en cours de route.
+
+### **🌟 Épopées du Projet**
+
+1.  **Épopée 6 : 🧠 Accessibilité Cognitive, Langagière et d'Apprentissage**
+    *   **Objectif :** Simplifier la compréhension et l'utilisation du site pour tous, y compris les personnes avec des troubles de l'attention, de la mémoire ou des difficultés de lecture.
+    *   **Modus Operandi :** Utiliser un langage clair, une navigation prévisible, des intitulés de liens explicites et des mécanismes d'aide en cas d'erreur.
+2.  **Épopée 7 : 🌐 Support Netlify pour le déploiement de site statique**
+    *   **Objectif :** Intégrer la prise en charge de Netlify comme option de déploiement pour les sites statiques générés par le plugin.
+    *   **Modus Operandi :** Ajouter des tâches Gradle pour générer un fichier `netlify.toml` et configurer les déploiements Netlify (via des hooks Git ou l'API Netlify).
+3.  **Épopée 8 : 🛠️ Gestion GitHub (Repos, Secrets, Actions) via API REST**
+    *   **Objectif :** Permettre la création et la gestion automatisée des dépôts GitHub, des secrets et l'activation des GitHub Actions directement via des appels d'API REST depuis Gradle.
+    *   **Modus Operandi :** Développer des tâches Gradle pour interagir avec l'API REST de GitHub pour les opérations de création/gestion des ressources nécessaires au déploiement.
+---
+
+### **💡 Boîte à idées pour les Futurs Sprints**
+
+Voir le fichier : [futur_sprints.md](futur_sprints.md)
+
+---
+
+### **📋 Tableau Scrumban du Projet**
+
+Ce tableau représente notre backlog. Les tâches sont priorisées et déplacées de "À Faire" à "Terminé" au fil de l'avancement.
+
+#### P Product Backlog (All tasks)
+
+Ce tableau représente la liste complète et priorisée des tâches à réaliser pour le projet et encore non réalisé ni en cours.
+
+Voir le fichier : [product_backlog.md](product_backlog.md)
+    
+#### ⏳ **En Cours**
+
+---
+##### **Reprise de session (07/10/2025) : Implémentation de la tâche `serve` dans `site-baker`**
+
+*   **Contexte :** L'analyse a montré que, malgré le blocage du build principal (`buildSrc`/`build-logic`), il est stratégique d'avancer sur la migration de la logique métier vers le plugin `site-baker`. L'implémentation de la tâche `serve` est une étape clé pour capitaliser sur le code existant et valider le plugin.
+*   **Approche :** TDD, en commençant par l'activation du test unitaire existant mais ignoré : `the plugin registers the serve task`.
+*   **Plan d'action :**
+    1.  **Activer le test :** Supprimer l'annotation `@Ignore` du test `the plugin registers the serve task` dans `SiteBakerPluginTest.kt` pour le faire échouer.
+    2.  **Implémenter la tâche `serve` :** Ajouter la tâche `serve` dans `SiteBakerPlugin.kt` en s'inspirant de la logique existante.
+    3.  **Vérifier :** Lancer les tests pour confirmer que le test unitaire passe.
+---
+
+### **📋 Tableau Scrumban du Projet (Terminé)**
+
+Voir le fichier d'archive : [GEMINI_archive.md](GEMINI_archive.md)
+
+---
+
+## 🤔 Suivi des Décisions de Développement
+
+Cette section documente les décisions stratégiques et les ajustements apportés au plan de développement initial.
+
+### 📝 **Ajustements du Backlog**
+
+*   **Gestion de l'Accessibilité :** Les User Stories des épopées 3, 4, 5 et 6 ne seront pas traitées comme des tâches isolées. Elles serviront de **critères d'acceptance transverses** pour toutes les nouvelles fonctionnalités UI.
+
+### 🗑️ **Directives de Suppression de Code**
+
+*   **Confirmation Avant Suppression :** Avant de supprimer toute donnée ou portion de code qui n'est pas directement impliquée dans la logique d'exécution (par exemple, des variables de référence visuelle, des exemples de configuration, ou des commentaires détaillés), je dois **systématiquement demander confirmation à l'utilisateur**. Je ne dois pas présumer de son inutilité, même si elle ne génère pas d'erreur d'exécution, car elle peut servir de repère ou d'aide au développement.
+
+###  conventions de Test
+
+*   **Test des Tâches de Fond (ex: Serveur) :** Pour tester des tâches Gradle qui lancent des processus de longue durée (comme un serveur web), il est impératif d'éviter les commandes destructrices et non ciblées (ex: `killall java`). La convention est d'utiliser une gestion par PID (Process ID) :
+    1.  La tâche de démarrage (`serve`) doit lancer le processus en arrière-plan et écrire son PID dans un fichier (`build/jbake.pid`).
+    2.  La tâche d'arrêt (`stopServe`) doit lire le PID depuis ce fichier et utiliser une commande ciblée (`kill <PID>`) pour terminer uniquement le processus concerné.
+    3.  Les tests automatisés doivent suivre ce cycle : `serve` -> vérifier le service -> `stopServe` -> vérifier l'arrêt, pour garantir l'isolation et la fiabilité.
+
+*   **Tests dans `buildSrc` :**
+    *   **Chemins d'Exécution :** Les tests exécutés dans le contexte de `buildSrc` doivent utiliser des chemins relatifs prudents (ex: `../gradlew`) ou construire des chemins absolus fiables pour accéder aux ressources de la racine du projet.
+    *   **Sorties de Commandes :** Lors de la validation de la sortie de commandes externes (ex: `curl`), toujours utiliser des options pour rendre la sortie "silencieuse" et propre (ex: `curl -s`) afin d'éviter que des informations de statut ne polluent le résultat et ne fassent échouer les assertions.
+
+### ⛔ **Contraintes Spécifiques au Projet**
+
+*   **Fichier de Configuration Intangible :** Il est strictement interdit de modifier le fichier `managed-bake-context.yml`. Toute configuration provenant de ce fichier doit être considérée comme une source de vérité et surchargée programmatiquement dans les scripts de build si nécessaire.
+
+### 🔍 **Bilan de la Revue de Code et Améliorations Apportées**
+
+Voir le fichier d'archive : [GEMINI_archive.md](GEMINI_archive.md)
+
+
+### ⚡ Commandes Habituelles
+
+*   **Lancer les tests du plugin `bakery` :**
+    ```bash
+    ./gradlew -p bakery check --rerun-tasks
+    ```
+---
+
+
+### **🧠 Base de Connaissances**
+
+Voir le fichier : [knowledge_base.md](knowledge_base.md)

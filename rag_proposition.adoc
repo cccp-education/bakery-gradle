@@ -1,0 +1,119 @@
+= Proposition d'Architecture RAG pour Gemini-CLI
+
+== 1. Vision : Créer un "Second Cerveau" pour l'Assistant e3po
+
+L'objectif est de doter l'assistant `e3po` d'une connaissance approfondie et contextuelle du projet `thymeleaf.cheroliv.com`. Au lieu de se baser uniquement sur les informations fournies dans la fenêtre de contexte limitée du prompt, l'assistant pourra interroger une base de connaissances privée et à jour, construite à partir des fichiers du projet.
+
+Ce système RAG (Retrieval-Augmented Generation) agira comme un "second cerveau", permettant à `e3po` de :
+
+*   **Répondre à des questions précises** sur le code, l'architecture ou les décisions de conception passées.
+*   **Générer du code cohérent** avec les conventions et les bibliothèques déjà en place.
+*   **Accélérer le développement** en fournissant instantanément le contexte pertinent pour une tâche donnée.
+
+'''
+
+== 2. Architecture Finale : Une Approche Intégrée et Performante
+
+Après analyse des différentes options, l'architecture retenue s'articule autour de deux phases distinctes et s'appuie sur votre écosystème technologique existant pour une cohérence et une efficacité maximales.
+
+=== Phase 1 : Indexation des Connaissances (Le Travail de Gradle)
+
+Cette phase consiste à construire et à maintenir la base de connaissances. Elle est exécutée "hors-ligne", c'est-à-dire en dehors de nos conversations, via une tâche dédiée.
+
+*   **Outil :** Une tâche Gradle, par exemple `./gradlew indexKnowledgeBase`.
+*   **Processus :**
+    . **Scan des Fichiers :** La tâche lit l'ensemble des fichiers pertinents du projet (`.md`, `.adoc`, `.kt`, etc.).
+    . **Découpage (Chunking) :** Le contenu est scindé en morceaux de texte logiques.
+    . **Vectorisation (Embedding) :** Pour chaque morceau, la tâche appelle l'API Gemini (`text-embedding-004`) pour le transformer en vecteur numérique.
+    . **Stockage :** Les morceaux de texte et leurs vecteurs associés sont stockés dans votre base de données **PostgreSQL locale** (gérée via Portainer), qui doit avoir l'extension `pgvector` activée.
+*   **Rôle :** Gradle agit comme l'usine qui fabrique et met à jour l'encyclopédie du projet.
+
+=== Phase 2 : Interrogation des Connaissances (Le Dialogue en Temps Réel)
+
+Cette phase se déroule pendant nos interactions. Pour garantir une conversation fluide et réactive, une architecture Client/Serveur est indispensable afin d'éviter la latence inhérente au démarrage de Gradle.
+
+*   **Le Serveur RAG (Votre Application Spring Boot) :**
+    *   **Intégration :** La logique RAG sera directement intégrée à votre application **Kotlin/Spring Boot réactive** existante.
+    *   **Responsabilité :** Exposer un point de terminaison HTTP (ex: `POST /api/rag/query`) qui accepte une question structurée et retourne les contextes les plus pertinents depuis la base PostgreSQL.
+    *   **Avantages :** Capitalisation sur l'existant, maintenance unifiée, et performance d'une application déjà démarrée.
+
+*   **Le Client RAG (`query-kb`) :**
+    *   **Type :** Un simple outil en ligne de commande (CLI), par exemple un script Kotlin.
+    *   **Responsabilité :** Agir comme un **pont** entre moi (Gemini-CLI) et le serveur RAG. Il prend ma question en argument, la formate selon le protocole défini (MCP), l'envoie au serveur Spring Boot, reçoit la réponse structurée et l'imprime sur la sortie standard pour que je puisse la lire.
+    *   **Mon Utilisation :** J'utiliserai mon outil `run_shell_command` pour appeler ce client : `run_shell_command(command: "./query-kb 'ma question...'")`.
+
+'''
+
+== 3. Le "Modèle Contexte Protocole" (MCP) : Le Langage de notre Dialogue
+
+Pour rendre l'échange entre le client et le serveur intelligent, nous définissons un protocole de communication structuré en JSON.
+
+=== Requête MCP (Client -> Serveur)
+
+Le client `query-kb` enverra une requête `POST` avec un corps JSON contenant :
+
+[source,json]
+----
+{
+  "query": "Détails sur la refactorisation de createCnameFile",
+  "top_k": 5,
+  "source_filter": ["docs", "code"]
+}
+----
+
+=== Réponse MCP (Serveur -> Client)
+
+Le serveur Spring Boot répondra avec un JSON structuré, riche en métadonnées :
+
+[source,json]
+----
+{
+  "results": [
+    {
+      "source": "iterative_development_guide.md",
+      "content": "Action de refactorisation : La fonction a été transformée en une fonction d'extension...",
+      "similarity_score": 0.92,
+      "metadata": {
+        "type": "documentation",
+        "line_start": 120
+      }
+    },
+    {
+      "source": "buildSrc/src/main/kotlin/data/Configuration.kt",
+      "content": "fun SiteConfiguration.createCnameFile(project: Project) { ... }",
+      "similarity_score": 0.88,
+      "metadata": {
+        "type": "code",
+        "language": "kotlin",
+        "line_start": 55
+      }
+    }
+  ]
+}
+----
+
+Grâce à ce protocole, je peux non seulement obtenir le contexte, mais aussi sa provenance, sa pertinence et sa nature, me permettant de formuler des réponses beaucoup plus précises.
+
+'''
+
+== 4. Justification Stratégique et Prochaines Étapes
+
+*   **Pourquoi cette architecture ?**
+    *   **Performance :** L'approche client/serveur garantit une faible latence, essentielle pour une interaction fluide.
+    *   **Cohérence :** Elle s'intègre entièrement dans votre stack technique existante (Kotlin, Gradle, Spring Boot, PostgreSQL).
+    *   **Robustesse :** Elle sépare clairement les responsabilités : Gradle pour l'indexation, Spring Boot pour le service, et un client léger pour l'interrogation.
+
+.Conclusion et Plan d'Action
+****
+L'investissement dans la mise en place de ce système RAG est stratégique. Il accélérera significativement le projet en réduisant le temps de recherche d'information et en augmentant la pertinence de mes interventions.
+
+Nous allons créer une nouvelle épopée pour suivre cette implémentation.
+
+*   **Épopée 7 : 🚀 Amélioration de la vélocité de développement via une base de connaissances RAG**
+
+Les premières User Stories seront :
+1.  **US-RAG-1 :** Mettre en place la tâche Gradle `indexKnowledgeBase` pour scanner, vectoriser et stocker le contenu de la documentation (`.md`, `.adoc`) dans la base PostgreSQL locale.
+2.  **US-RAG-2 :** Définir les `data class` Kotlin pour le MCP (requête et réponse).
+3.  **US-RAG-3 :** Implémenter le point de terminaison `POST /api/rag/query` dans l'application Spring Boot pour servir les requêtes RAG.
+4.  **US-RAG-4 :** Créer le client CLI `query-kb` capable d'interroger le point de terminaison Spring Boot.
+****

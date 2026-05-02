@@ -1,0 +1,278 @@
+= Intégration TDD pour le Script de Build Gradle avec TestKit
+
+L'objectif de ce document est de définir une stratégie claire pour appliquer les principes du Développement Guidé par les Tests (TDD) à la logique de build contenue dans `build.gradle.kts`. En s'appuyant sur l'outil **Gradle TestKit**, nous pouvons créer une suite de tests robuste qui garantit la fiabilité, la maintenabilité et la sécurité lors des refactorisations futures du build.
+
+Cette approche s'inscrit directement dans les objectifs de l'**Épopée 11 : Couverture de Test pour le Build Gradle**.
+
+== 1. Principes Fondamentaux de Gradle TestKit
+
+Gradle TestKit est un outil fourni par Gradle qui permet de tester la logique de build de manière isolée. Son fonctionnement est simple mais puissant :
+
+. **Exécution Programmatique :** Il permet de lancer une exécution de Gradle depuis un test (par exemple, un test JUnit).
+. **Environnement Isolé :** Chaque test s'exécute dans un répertoire de projet temporaire, garantissant qu'il n'y a pas d'interférence entre les tests ou avec l'environnement de développement local.
+. **Inspection des Résultats :** Après l'exécution, TestKit fournit un objet `BuildResult` qui permet d'inspecter en détail le déroulement du build :
+    - Le statut de chaque tâche (SUCCESS, FAILED, UP-TO-DATE, etc.).
+    - La sortie standard et les erreurs (`stdout`, `stderr`).
+. **Assertions sur le Système de Fichiers :** Le test peut vérifier l'état du système de fichiers après l'exécution du build (par exemple, si un fichier a été créé, modifié ou supprimé).
+
+== 2. Mise en Place de l'Environnement de Test
+
+Pour commencer à écrire des tests pour notre build, nous devons configurer notre projet.
+
+=== 2.1. Dépendances
+
+La première étape est d'ajouter la dépendance `gradleTestKit()` au bloc `dependencies` de notre `build.gradle.kts`. Il faut également s'assurer que JUnit 5 est configuré pour le `testImplementation`.
+
+[source,kotlin]
+----
+// Dans build.gradle.kts
+dependencies {
+    // ... autres dépendances
+    testImplementation(gradleTestKit())
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
+----
+
+=== 2.2. Structure des Fichiers
+
+Les tests pour la logique de build doivent être placés dans le répertoire standard `src/test/kotlin`.
+
+----
+.
+├── build.gradle.kts
+├── src
+│   └── test
+│       └── kotlin
+│           └── com
+│               └── cheroliv
+│                   └── build
+│                       └── PublishSiteTaskTest.kt
+----
+
+== 3. Stratégie TDD pour les Tâches Gradle
+
+Nous appliquerons le cycle TDD classique "Red-Green-Refactor" pour développer et tester nos tâches Gradle.
+
+=== 3.1. Étape 1 : Écrire un Test Qui Échoue (Red)
+
+L'objectif est de créer un test pour une fonctionnalité qui n'existe pas encore ou qui ne se comporte pas comme attendu.
+
+. **Créer la classe de test :** Par exemple, `PublishSiteTaskTest.kt`.
+. **Utiliser `@TempDir` :** JUnit 5 injectera un répertoire temporaire pour chaque test, garantissant l'isolation.
+. **Préparer le projet de test :** Dans ce répertoire temporaire, nous allons recréer une version minimale du projet nécessaire pour le test :
+    - Un `build.gradle.kts` simplifié.
+    - Un fichier de configuration `managed-jbake-context.yml`.
+    - Une arborescence de fichiers source minimale (ex: `site/content/index.html`).
+. **Utiliser `GradleRunner` :** C'est le point d'entrée de TestKit. On le configure pour qu'il pointe vers notre projet de test et on lui demande d'exécuter une tâche (ex: `publishSite`).
+. **Écrire une assertion qui échoue :** On affirme un résultat attendu. Par exemple, on vérifie que le build a réussi (`result.task(":publishSite")?.outcome == SUCCESS`) ou qu'un répertoire de sortie a été créé.
+
+Au premier lancement, ce test *doit* échouer, car la logique n'est pas encore implémentée.
+
+=== 3.2. Étape 2 : Écrire le Code Minimum Pour Réussir (Green)
+
+On écrit ensuite la quantité de code la plus simple possible dans le `build.gradle.kts` principal pour que le test passe. L'objectif n'est pas d'écrire du code parfait, mais de faire passer le test au vert.
+
+=== 3.3. Étape 3 : Refactoriser
+
+Une fois le test au vert, on peut améliorer le code en toute sécurité.
+- Renommer des variables pour plus de clarté.
+- Extraire de la logique complexe dans des fonctions dédiées.
+- Optimiser les performances.
+
+Après chaque refactorisation, on relance les tests pour s'assurer que rien n'a été cassé.
+
+== 4. Exemple Concret : Tester la Tâche `publishSite`
+
+Voici à quoi pourrait ressembler un test pour la tâche `publishSite`. Ce test vérifie un scénario simple : la tâche `bake` est bien exécutée comme dépendance et le répertoire de sortie est créé.
+
+[source,kotlin]
+----
+// Dans src/test/kotlin/com/cheroliv/build/PublishSiteTaskTest.kt
+package com.cheroliv.build
+
+import org.gradle.testkit.runner.GradleRunner
+import org.gradle.testkit.runner.TaskOutcome.SUCCESS
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
+import java.io.File
+
+class PublishSiteTaskTest {
+
+    @field:TempDir
+    lateinit var projectDir: File
+
+    private val buildFile by lazy { projectDir.resolve("build.gradle.kts") }
+    private val settingsFile by lazy { projectDir.resolve("settings.gradle.kts") }
+    private val configFile by lazy { projectDir.resolve("config.yml") }
+
+    @Test
+    fun `publishSite task should execute bake and create output directory`() {
+        // --- 1. Préparation (Arrange) ---
+
+        // Créer un settings.gradle.kts minimal
+        settingsFile.writeText("""
+            rootProject.name = "test-project"
+        """.trimIndent())
+
+        // Créer un build.gradle.kts avec le plugin jbake et notre tâche
+        // NOTE : Pour un test réel, on importerait le script via `apply(from = "...")`
+        // ou on testerait un plugin.
+        buildFile.writeText("""
+            import java.util.Properties
+            
+            plugins { id("org.jbake.site") }
+            
+            repositories { mavenCentral() }
+
+            jbake {
+                srcDirName = "site"
+                destDirName = "build/bake"
+            }
+
+            tasks.register("publishSite") {
+                dependsOn(tasks.bake)
+                doLast {
+                    println("Site published!")
+                }
+            }
+        """.trimIndent())
+
+        // Créer les répertoires et fichiers source nécessaires
+        val contentDir = projectDir.resolve("site/content")
+        contentDir.mkdirs()
+        contentDir.resolve("index.html").writeText("<h1>Hello</h1>")
+
+        // --- 2. Exécution (Act) ---
+        val runner = GradleRunner.create()
+            .withProjectDir(projectDir)
+            .withArguments("publishSite", "--stacktrace")
+            .withPluginClasspath() // Important pour que le plugin jbake soit trouvé
+
+        val result = runner.build()
+
+        // --- 3. Assertions (Assert) ---
+        assertEquals(SUCCESS, result.task(":bake")?.outcome)
+        assertEquals(SUCCESS, result.task(":publishSite")?.outcome)
+
+        val outputDir = projectDir.resolve("build/bake")
+        assertTrue(outputDir.exists())
+        assertTrue(outputDir.resolve("index.html").exists())
+    }
+}
+----
+
+== Conclusion
+
+Adopter une approche TDD avec TestKit pour notre logique de build nous apportera une confiance immense lors des modifications. Chaque fonction, chaque tâche, chaque interaction complexe peut être validée par un test automatisé.
+
+Cela nous permettra non seulement de garantir que le build fonctionne comme prévu, mais aussi de paver la voie à des refactorisations plus ambitieuses, comme la migration de la logique de build vers un plugin Gradle personnalisé, en sachant que nous sommes protégés par une solide suite de tests.
+
+== 5. Stratégie de Test End-to-End (E2E) avec Playwright pour Valider le Site Généré
+
+Alors que Gradle TestKit est parfait pour tester la *logique de build* elle-même, il ne valide pas le résultat final : le site web statique. Pour cela, nous avons besoin de tests End-to-End (E2E) qui simulent le comportement d'un utilisateur sur un vrai navigateur. C'est là que Playwright for Java intervient.
+
+=== 5.1. L'Avantage Clé : Une Intégration JVM Native, Sans Node.js
+
+Contrairement à d'autres frameworks de test E2E, Playwright for Java s'intègre directement dans notre écosystème JVM (Gradle, JUnit) sans nécessiter une installation externe de Node.js.
+
+. **Dépendance Gradle unique :** Il suffit d'ajouter une seule dépendance à `build.gradle.kts`.
+. **Gestion Automatique des Navigateurs :** Playwright télécharge et gère ses propres instances de navigateurs (Chromium, Firefox, WebKit) de manière isolée. Cela garantit des tests cohérents et reproductibles, que ce soit en local ou en CI/CD.
+. **API Java Intuitive :** L'API est entièrement en Java, ce qui permet d'écrire des tests clairs et maintenables en Kotlin, en parfaite synergie avec le reste de notre projet.
+
+Cette approche "tout-en-un" réduit la complexité de la configuration et élimine une source potentielle de problèmes de compatibilité.
+
+=== 5.2. Mise en Place dans Gradle
+
+L'intégration est simple. Il suffit d'ajouter la dépendance Playwright au scope `testImplementation`.
+
+[source,kotlin]
+----
+// Dans build.gradle.kts
+dependencies {
+    // ... autres dépendances
+    testImplementation("com.microsoft.playwright:playwright:1.40.0") // Vérifier la dernière version
+}
+----
+
+Playwright fournit également une tâche Gradle pour télécharger les navigateurs nécessaires.
+
+[source,bash]
+----
+# Télécharger les navigateurs pour Playwright
+./gradlew playwrightInstall
+----
+
+=== 5.3. Exemple de Test E2E pour la Page d'Accueil
+
+Voici un exemple de test JUnit 5 qui valide le titre de la page d'accueil.
+**Prérequis :** Ce test part du principe que le site a été préalablement généré (par exemple, via le script `./jbake.sh`) et qu'un serveur web local sert le contenu du répertoire `build/jbake/` sur le port 8820.
+
+[source,kotlin]
+----
+// Dans src/test/kotlin/com/cheroliv/site/HomePageE2ETest.kt
+package com.cheroliv.site
+
+import com.microsoft.playwright.Browser
+import com.microsoft.playwright.Page
+import com.microsoft.playwright.Playwright
+import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Assertions.assertEquals
+
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class HomePageE2ETest {
+
+    private lateinit var playwright: Playwright
+    private lateinit var browser: Browser
+
+    @BeforeAll
+    fun launchBrowser() {
+        playwright = Playwright.create()
+        // Lancer un navigateur headless. Retirer "setHeadless(false)" pour le voir.
+        browser = playwright.chromium().launch(Browser.LaunchOptions().setHeadless(true))
+    }
+
+    @AfterAll
+    fun closeBrowser() {
+        playwright.close()
+    }
+
+    @Test
+    fun `home page should have the correct title`() {
+        val page = browser.newPage()
+        // Naviguer vers le site servi localement
+        page.navigate("http://localhost:8820")
+
+        // Attendre que le titre corresponde à la valeur attendue
+        page.waitForFunction("document.title === 'cheroliv | Développeur et Architecte Logiciel'")
+
+        val title = page.title()
+        assertEquals("cheroliv | Développeur et Architecte Logiciel", title)
+        
+        page.close()
+    }
+}
+----
+
+=== 5.4. Orchestration avec Gradle
+
+Pour rendre ces tests E2E exécutables facilement, on peut créer une tâche Gradle qui orchestre tout le processus :
+
+1.  S'assurer que le site est généré et à jour (par exemple, en exécutant le script `./jbake.sh` ou en dépendant de la tâche `bake`).
+2.  Démarrer un serveur web pour servir le contenu du répertoire `build/jbake/`.
+3.  Exécuter les tests E2E (qui ciblent l'URL du serveur local).
+4.  Arrêter le serveur web, que les tests réussissent ou échouent.
+
+== Conclusion Générale : Deux Stratégies de Test Complémentaires
+
+L'intégration de **Gradle TestKit** et de **Playwright for Java** nous offre une couverture de test complète :
+
+1.  **TestKit valide la *logique de construction* :** Il garantit que nos tâches Gradle se comportent comme prévu, que les fichiers sont correctement traités et que le build est fiable.
+2.  **Playwright valide le *produit final* :** Il garantit que le site web généré est fonctionnel, accessible et se présente correctement pour l'utilisateur final.
+
+Ensemble, ces deux approches forment un filet de sécurité robuste, nous permettant de refactoriser et d'ajouter des fonctionnalités en toute confiance.

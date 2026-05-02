@@ -1,0 +1,279 @@
+# Plan d'Action : Intégration Formulaire Contact avec Supabase et Google Apps Script
+
+## 🎯 Objectif
+Implémenter un système complet de gestion des contacts avec :
+- Formulaire Bootstrap 5 + Thymeleaf
+- Base de données Supabase
+- Notifications automatiques via Gmail (Google Apps Script)
+
+---
+
+## 📋 Phase 1 : Configuration Backend Supabase
+
+### ✅ Étape 1.1 : Base de données (DÉJÀ FAIT)
+- [x] Tables `contacts` et `messages` créées
+- [x] Fonction RPC `handle_contact_form()` configurée
+- [x] Sécurité RLS activée
+
+### 🔧 Étape 1.2 : Configuration API Supabase
+1. **Récupérer les clés d'API**
+    - URL du projet : `https://[votre-projet].supabase.co`
+    - Clé anonyme (anon key)
+    - Clé de service (service_role key)
+
+2. **Tester la fonction RPC**
+   ```sql
+   SELECT public.handle_contact_form(
+     'Test User',
+     'test@example.com',
+     'Test Subject', 
+     'Test message'
+   );
+   ```
+
+3. **Configurer CORS** (si nécessaire)
+    - Ajouter votre domaine dans les paramètres Supabase
+
+---
+
+## 🎨 Phase 2 : Frontend - Amélioration du Formulaire
+
+### 🔧 Étape 2.1 : Ajout du JavaScript client
+**Fichier : `static/js/contact.js`**
+
+```javascript
+// Configuration Supabase
+const supabaseUrl = 'YOUR_SUPABASE_URL';
+const supabaseKey = 'YOUR_SUPABASE_ANON_KEY';
+
+// Gestionnaire de soumission du formulaire
+document.getElementById('contact-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const submitButton = this.querySelector('button[type="submit"]');
+    
+    // Désactiver le bouton pendant l'envoi
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Envoi en cours...';
+    
+    try {
+        // Appeler la fonction RPC Supabase
+        const response = await fetch(`${supabaseUrl}/rest/v1/rpc/handle_contact_form`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'apikey': supabaseKey,
+                'Authorization': `Bearer ${supabaseKey}`
+            },
+            body: JSON.stringify({
+                p_name: formData.get('name'),
+                p_email: formData.get('email'),
+                p_subject: formData.get('subject'),
+                p_message: formData.get('message')
+            })
+        });
+        
+        if (response.ok) {
+            // Succès - Afficher message de confirmation
+            showSuccessMessage();
+            this.reset();
+        } else {
+            throw new Error('Erreur lors de l\'envoi');
+        }
+        
+    } catch (error) {
+        showErrorMessage(error.message);
+    } finally {
+        // Réactiver le bouton
+        submitButton.disabled = false;
+        submitButton.innerHTML = '<i class="bi bi-send me-2"></i>Envoyer le Message';
+    }
+});
+```
+
+### 🔧 Étape 2.2 : Amélioration du template Thymeleaf
+**Modifications à apporter :**
+
+1. **Ajouter les zones de notification**
+```html
+<div class="col-lg-8">
+    <!-- Zone de messages -->
+    <div id="message-container" class="mb-4"></div>
+    
+    <div class="contact-form">
+        <!-- Formulaire existant -->
+    </div>
+</div>
+```
+
+2. **Corriger le nom du champ téléphone**
+```html
+<!-- Changer 'phone' en 'telephone' pour correspondre au schema -->
+<input type="tel"
+       id="telephone"
+       name="telephone"
+       class="form-control"
+       placeholder="Téléphone (Optionnel)" />
+```
+
+3. **Ajouter le script JavaScript**
+```html
+<script th:src="@{/js/contact.js}"></script>
+```
+
+### 🔧 Étape 2.3 : Fonctions utilitaires JavaScript
+```javascript
+// Fonctions d'affichage des messages
+function showSuccessMessage() {
+    const container = document.getElementById('message-container');
+    container.innerHTML = `
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>
+            <strong>Message envoyé !</strong> Nous vous répondrons dans les plus brefs délais.
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+}
+
+function showErrorMessage(message) {
+    const container = document.getElementById('message-container');
+    container.innerHTML = `
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <strong>Erreur :</strong> ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+}
+```
+
+---
+
+## 📧 Phase 3 : Configuration Google Apps Script
+
+### 🔧 Étape 3.1 : Création du projet Apps Script
+1. **Aller sur [script.google.com](https://script.google.com)**
+2. **Créer un nouveau projet** : "Contact Form Notifications"
+3. **Copier le code** depuis l'artefact précédent
+4. **Configurer les variables** :
+   ```javascript
+   const SUPABASE_URL = 'https://votre-projet.supabase.co';
+   const SUPABASE_ANON_KEY = 'votre-cle-anon';
+   ```
+5. **Modifier l'email admin** : remplacer `'admin@votresite.com'`
+
+### 🔧 Étape 3.2 : Permissions et tests
+1. **Exécuter `initialSetup()`** pour :
+    - Autoriser les permissions Gmail
+    - Créer le déclencheur automatique
+    - Tester la connexion Supabase
+
+2. **Tester avec `testNotification()`**
+
+### 🔧 Étape 3.3 : Personnalisation des emails
+- **Modifier les templates** dans `sendAdminNotification()`
+- **Ajuster la fréquence** de vérification (15 min par défaut)
+- **Personnaliser les messages** d'accusé de réception
+
+---
+
+## 🚀 Phase 4 : Déploiement et Tests
+
+### 🔧 Étape 4.1 : Tests locaux
+1. **Test du formulaire** :
+    - Validation côté client
+    - Envoi vers Supabase
+    - Affichage des messages de retour
+
+2. **Test de la base de données** :
+    - Vérifier l'insertion dans `contacts`
+    - Vérifier l'insertion dans `messages`
+    - Tester la fonction RPC
+
+3. **Test des notifications** :
+    - Exécuter manuellement `sendNotificationsForNewMessages()`
+    - Vérifier la réception des emails
+
+### 🔧 Étape 4.2 : Configuration de production
+
+1. **Variables d'environnement** :
+   ```properties
+   # application.properties
+   supabase.url=https://votre-projet.supabase.co
+   supabase.anon.key=votre-cle-anon
+   ```
+
+2. **Sécurisation** :
+    - Utiliser HTTPS
+    - Valider côté serveur (optionnel)
+    - Limiter les appels API (rate limiting)
+
+### 🔧 Étape 4.3 : Monitoring et maintenance
+
+1. **Logs Google Apps Script** :
+    - Surveiller les erreurs d'exécution
+    - Vérifier les déclencheurs actifs
+
+2. **Monitoring Supabase** :
+    - Surveiller l'utilisation de l'API
+    - Vérifier les logs d'erreur
+
+---
+
+## 📁 Structure des fichiers
+
+```
+projet/
+├── src/main/resources/
+│   ├── templates/
+│   │   └── fragments/
+│   │       └── contact.html (formulaire existant + modifications)
+│   └── static/
+│       └── js/
+│           └── contact.js (nouveau fichier)
+├── supabase/
+│   └── schema.sql (déjà créé)
+└── google-apps-script/
+    └── notifications.js (code Apps Script)
+```
+
+---
+
+## ⚠️ Points d'attention
+
+### Sécurité
+- **Ne jamais exposer** la clé `service_role` côté client
+- **Utiliser HTTPS** en production
+- **Valider les données** côté serveur si possible
+
+### Performance
+- **Rate limiting** sur les appels Supabase
+- **Debouncing** sur le formulaire pour éviter les double-clics
+- **Timeout** sur les requêtes
+
+### UX
+- **Messages d'erreur clairs** pour l'utilisateur
+- **Indicateur de chargement** pendant l'envoi
+- **Validation en temps réel** des champs
+
+---
+
+## 🎯 Résultat attendu
+
+1. **Utilisateur remplit le formulaire** → Validation Bootstrap 5
+2. **Soumission** → Envoi vers Supabase via RPC
+3. **Confirmation visuelle** → Message de succès affiché
+4. **Stockage** → Contact créé/mis à jour + Message enregistré
+5. **Notification automatique** → Email à l'admin (≤ 15 min)
+6. **Accusé de réception** → Email automatique au client
+
+---
+
+## 📅 Planning suggéré
+
+- **Jour 1** : Phases 1 & 2 (Backend + Frontend)
+- **Jour 2** : Phase 3 (Google Apps Script)
+- **Jour 3** : Phase 4 (Tests + Déploiement)
+
+**Temps estimé total : 2-3 jours**

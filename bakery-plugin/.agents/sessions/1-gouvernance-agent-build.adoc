@@ -1,0 +1,37 @@
+= Session 1 — Integration gouvernance agent + ameliorations build
+
+**Date** : 2026-04-23 | **Statut** : OK | **Type** : feat
+
+== Contexte
+
+Integration de la strategie du projet plantuml-plugin dans bakery-plugin. Trois EPICs identifies : gouvernance agent, corrections tests (avec migration Supabase -> Firebase), et ameliorations build.
+
+== Actions
+
+| Fichier | Modification |
+|---------|--------------|
+| `.agents/INDEX.adoc` | Creation - Regles absolues + sessions recentes |
+| `.agents/SESSIONS_HISTORY.adoc` | Creation - Historique des sessions |
+| `.agents/archives/COMPLETED_TASKS_ARCHIVE_2026-04.adoc` | Creation - Archive taches terminees |
+| `AGENT.adoc` | Creation - Directives agent adaptees a bakery-plugin |
+| `AGENT_MODUS_OPERANDI.adoc` | Creation - Methodologie LAZY/EAGER adaptee |
+| `PROMPT_REPRISE.adoc` | Creation - Mission session 1 |
+| `BACKLOG.adoc` | Creation - Suivi prioritaire des taches |
+| `TODO.adoc` | Creation - Pense-bete informel |
+| `build.gradle.kts` | Ajout timeouts, optimisations JVM, cleanup cucumberTest |
+
+== Resultats
+
+| Critere | Statut |
+|---------|--------|
+| Gouvernance agent creee | OK |
+| Build.gradle.kts ameliore | OK |
+| Compilation Kotlin | OK |
+| Tests SiteConfigurationParsingTest | Pas encore corriges (prochaine session) |
+
+== Prochaines Etapes
+
+1. Migrer Supabase vers Firebase dans SiteConfiguration.kt
+2. Mettre a jour site.yml (supabase -> firebase avec placeholders)
+3. Mock/stub Firebase dans les tests
+4. Corriger les 9 tests SiteConfigurationParsingTest

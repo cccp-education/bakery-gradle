@@ -1,0 +1,86 @@
+= Modèle Générique pour la Rédaction d'Articles de Blog JBake
+
+:toc: left
+:sectnums:
+:icons: font
+
+== Introduction : Notre Routine de Création d'Articles
+
+Ce document sert de "prompt refactorisé" pour la génération d'articles de blog. L'objectif est de créer une routine simple et efficace pour produire des articles techniques de haute qualité, fidèles à votre approche de "développeur formateur".
+
+Chaque article doit être plus qu'un simple tutoriel : il doit raconter une histoire, partager une expérience et transmettre des leçons sur le *métier* de développeur, pas seulement sur la technique.
+
+---
+
+== Le Prompt Générique Idéal
+
+Pour me demander de rédiger un nouvel article, veuillez me fournir les informations suivantes en suivant cette structure.
+
+=== 1. Le Sujet Principal (Le "Quoi")
+// Décrivez le sujet technique de base de l'article.
+*   **Titre de travail :** [Ex: "Corriger un bug de menu responsive Bootstrap"]
+*   **Concept technique central :** [Ex: "Dynamic Navbar Breakpoint en JavaScript"]
+
+=== 2. L'Angle d'Approche (Le "Pourquoi")
+// Quelle est la leçon principale que le lecteur doit retenir ?
+*   [ ] **Retour d'Expérience (War Story) :** Raconter la résolution d'un problème complexe, en incluant les erreurs et les fausses pistes.
+*   [ ] **Tutoriel Approfondi :** Guider pas à pas dans la mise en place d'une fonctionnalité, en expliquant les choix d'architecture.
+*   [ ] **Article Conceptuel :** Explorer un concept de haut niveau (ex: l'importance des frameworks, la dette technique) en l'illustrant avec un exemple concret.
+*   [ ] **Analyse Comparative :** Comparer différentes approches pour résoudre un même problème.
+
+=== 3. La Structure Narrative (Le Fil Rouge)
+// Comment l'histoire doit-elle être racontée ? Le modèle par défaut est souvent le plus efficace.
+*   **Modèle par défaut :**
+    1.  **Le Besoin :** Présentation du contexte et de l'objectif (la User Story).
+    2.  **Le Premier Obstacle :** Le bug ou le problème initial.
+    3.  **Le Voyage :** Les tentatives de résolution, les erreurs, les fausses pistes (le "tatônnement").
+    4.  **La Révélation :** Le moment "eurêka" (souvent lié à la relecture de la documentation ou à un changement de perspective).
+    5.  **La Solution Élégante :** Présentation de la solution finale, simple et robuste.
+    6.  **Les Leçons Apprises :** Synthèse des apprentissages (techniques, méthodologiques, etc.).
+
+=== 4. Les Éléments Clés à Inclure
+// Fournissez les "briques" de contenu spécifiques.
+*   **User Story / Bug ID :** [Ex: `US-40`, `BUG-46` depuis `GEMINI.md`]
+*   **Extraits de code :** [Préciser les fichiers et les fonctions à montrer, ex: `la classe DynamicNavbarBreakpoint dans script.js`]
+*   **Concepts techniques à expliquer :** [Ex: `offsetHeight`, `clientWidth`, la gestion des classes `navbar-expand-lg` par Bootstrap]
+*   **Références externes :** [Ex: "Lien vers la documentation officielle de la Navbar Bootstrap 5"]
+
+=== 5. Le Ton et le Style
+// Le style par défaut est défini ci-dessous, mais peut être ajusté.
+*   **Ton par défaut :** Pédagogique, professionnel, honnête. Le ton d'un formateur qui partage son expérience avec pragmatisme. On montre les erreurs pour mieux expliquer la bonne solution.
+*   **Mots-clés à intégrer :** [Ex: "UX/UI", "Responsive", "Framework", "Scrumban", "Prompting"]
+
+=== 6. Métadonnées JBake
+// Je remplirai ces champs pour chaque nouvel article.
+*   **Tags :** [Ex: `developpement, web, bootstrap, javascript, ux, ui`]
+*   **Statut :** `draft` (par défaut)
+
+---
+
+== Exemple d'Application (Basé sur notre expérience du menu burger)
+
+Voici comment vous pourriez utiliser ce modèle pour me demander la série d'articles :
+
+*   **1. Sujet Principal :**
+    *   **Titre de travail :** "Série : Le Cauchemar du Menu Burger Responsive"
+    *   **Concept technique central :** Créer un point de rupture de menu dynamique et robuste avec Bootstrap 5 et JavaScript.
+
+*   **2. Angle d'Approche :**
+    *   [x] **Retour d'Expérience (War Story)**
+
+*   **3. Structure Narrative :**
+    *   **Modèle par défaut** (sera découpé en 3 articles comme défini dans `plan_article_menu_burger.adoc`).
+
+*   **4. Éléments Clés :**
+    *   **User Story / Bug ID :** `US-40` et `BUG-46` de `GEMINI.md`.
+    *   **Extraits de code :** Les différentes versions de la classe `DynamicNavbarBreakpoint`, les classes CSS erronées (`.force-burger-mode`), et la structure HTML de `menu.thyme`.
+    *   **Concepts techniques :** `offsetHeight`, `clientWidth`, le conflit entre JS custom et le fonctionnement natif de Bootstrap (`.navbar-expand-lg`), l'importance du `gap` en flexbox.
+    *   **Références externes :** Documentation de la Navbar Bootstrap 5.
+
+*   **5. Ton et Style :**
+    *   **Ton par défaut.**
+    *   **Mots-clés :** "UX", "Responsive", "Bootstrap", "Scrumban", "Prompting", "Régression".
+
+*   **6. Métadonnées JBake :**
+    *   **Tags :** `developpement, web, bootstrap, javascript, ux, ui, responsive, scrumban, gemini`
+    *   **Statut :** `draft`

@@ -1,0 +1,299 @@
+= Modus Operandi — Stratégie LAZY/EAGER pour Bakery Plugin (Encyclopédie)
+:toc: left
+:toclevels: 4
+:icons: font
+:last-update-label: Dernière mise à jour
+:sectnums:
+:jbake-status: COLD
+
+[abstract]
+--
+**Document encyclopédique** — Connaissance thématique exhaustive sur la méthode LAZY/EAGER.
+
+Ce fichier est en **COLD storage** — jamais chargé automatiquement par l'agent.
+Réservé à la consultation humaine. Le résumé EAGER est dans `LAZY_EAGER_ESSENTIALS.adoc`.
+
+**Inspiré de** : `plantuml-plugin/AGENT_MODUS_OPERANDI.adoc` — Adapté pour `bakery-plugin`
+**Préservé de** : `AGENT_MODUS_OPERANDI.adoc` (supprimé lors de l'audit session 05X — split encyclopédique)
+--
+
+[WARNING]
+====
+**RACINE DE TRAVAIL** : Ce fichier est dans `bakery-plugin/`, qui est la **racine de travail** du projet.
+La racine du dépôt git est `bakery-gradle/`, mais l'agent travaille depuis `bakery-plugin/`.
+TOUS les chemins dans ce document sont relatifs à `bakery-plugin/`.
+====
+
+---
+
+== Vue d'ensemble
+
+=== Problème Résolu
+
+**Contexte** : Les LLM ont une fenêtre de contexte limitée (~100k-200k tokens).
+
+**Symptômes** :
+
+* Saturation du contexte (trop de fichiers chargés)
+* Dilution de l'attention (LLM perdu dans les détails)
+* Tokens gaspillés sur des infos non critiques
+* Hallucinations (LLM invente car contexte saturé)
+* Rappels chronophages (réexpliquer à chaque session)
+
+**Solution** : Séparer l'information en 2 catégories (**LAZY** / **EAGER**)
+
+=== Principes Fondamentaux
+
+[cols="1,4", options="header"]
+|===
+|Principe |Description
+
+|**LAZY/EAGER**
+|Séparer l'information critique (toujours chargée) des détails (chargés sur demande).
+**EAGER** = Tableau de bord de voiture. **LAZY** = Manuel du propriétaire.
+
+|**1 session = 1 objectif**
+|Une session traite UNE seule tâche (1 fichier, 1 feature, 1 bug).
+Durée cible : 15-30 minutes.
+
+|**Archive systématique**
+|Chaque session terminée est archivée avec résumé et prochaines étapes.
+Rien ne se perd, tout se retrouve.
+
+|**Git manuel**
+|L'agent NE JAMAIS committer sans permission explicite.
+C'est l'utilisateur qui gère Git.
+
+|**Tests sur demande**
+|L'agent NE JAMAIS lancer de tests en fin de session sans demande.
+Les tests prennent 1-3 minutes.
+|===
+
+=== Analogie
+
+[cols="1,2,2", options="header"]
+|===
+|Type |EAGER (toujours chargé) |LAZY (sur demande)
+
+|**Voiture**
+|Tableau de bord (vitesse, carburant, alertes)
+|Manuel du propriétaire (détails techniques, historique)
+
+|**Projet**
+|`PROMPT_REPRISE.adoc` + `*_ESSENTIALS.adoc`
+|Archives sessions, références détaillées
+
+|**Taille**
+|<= 100 lignes total (~5k tokens)
+|Illimité (lu uniquement si besoin)
+
+|**Chargement**
+|Automatique (début session)
+|Sur demande explicite
+|===
+
+---
+
+== Structure des Fichiers
+
+=== Arborescence
+
+[source,bash]
+----
+bakery-plugin/
+|-- .agents/                          # Documentation agent
+|   |-- INDEX.adoc                      # Règles absolues + sessions récentes (EAGER)
+|   |-- SESSIONS_HISTORY.adoc           # Historique des sessions (EAGER)
+|   |-- sessions/                      # Archives par session (LAZY)
+|   |-- archives/                      # Archives mensuelles (LAZY)
+|   |   |-- COMPLETED_TASKS_ARCHIVE_2026-04.adoc
+|   |-- encyclopedies/                 # Connaissance froide (COLD — humain seulement)
+|   |   |-- LAZY_EAGER_ENCYCLOPEDIE.adoc (ce fichier)
+|   |-- backup/                        # Vagues froides (snapshots horodatés)
+|
+|-- PROMPT_REPRISE.adoc                 # Fichier EAGER principal (racine)
+|-- LAZY_EAGER_ESSENTIALS.adoc          # Résumé EAGER de ce fichier
+|-- AGENT.adoc                          # Directives complètes
+|-- BACKLOG.adoc                        # Suivi prioritaire des tâches (LAZY)
+|-- TODO.adoc                           # Pense-bête informel (LAZY)
++-- src/                              # Code source
+----
+
+=== Politique de Chargement
+
+[cols="2,1,2,3", options="header"]
+|===
+|Fichier |Type |Taille Max |Quand Charger
+
+|`PROMPT_REPRISE.adoc`
+|**EAGER**
+|<= 70 lignes
+|**Début session** (automatique)
+
+|`.agents/INDEX.adoc` (règles)
+|**EAGER**
+|<= 100 lignes
+|**Début session** (automatique)
+
+|`LAZY_EAGER_ESSENTIALS.adoc`
+|**EAGER**
+|<= 80 lignes
+|**Début session** (automatique)
+
+|`*_ESSENTIALS.adoc`
+|**EAGER**
+|<= 50 lignes
+|**Début session** (automatique si EPIC concernée)
+
+|`*_REFERENCE.adoc`
+|LAZY
+|Illimité
+|Sur besoin (détails architecture)
+
+|`.agents/sessions/{N}*.adoc`
+|LAZY
+|Illimité
+|Sur demande (détails session N)
+
+|`.agents/archives/COMPLETED_TASKS_ARCHIVE_*.adoc`
+|LAZY
+|Variable
+|Fin de session (archivage des tâches)
+
+|`.agents/encyclopedies/*.adoc`
+|COLD
+|Variable
+|Jamais automatique (humain seulement)
+|===
+
+---
+
+== Règles Absolues
+
+=== Commits/Git — INTERDICTION FORMELLE
+
+**L'agent NE DOIT JAMAIS** exécuter de commit, push, merge, ou toute commande git
+modifiant l'historique **SANS permission explicite de l'utilisateur**.
+
+[cols="1,4", options="header"]
+|===
+|Autorisé |`git status`, `git diff`, `git log`, `git show` (lecture seule)
+
+|Interdit
+|`git add`, `git commit`, `git push`, `git merge`, `git rebase` (sauf ordre explicite)
+|===
+
+=== Tests en Fin de Session — INTERDICTION FORMELLE
+
+**L'agent NE DOIT JAMAIS** lancer de tests (`./gradlew test`, etc.) lors de la
+procédure de fin de session **SANS permission explicite de l'utilisateur**.
+
+=== Secrets et Credentials — SÉCURITÉ MAXIMALE
+
+**INTERDICTION ABSOLUE** :
+
+* Jamais de secrets en dur dans le code
+* Jamais de credentials dans les fichiers de config
+* Jamais de tokens API commités dans Git
+
+---
+
+== Cycle de Vie d'une Session
+
+=== Démarrage de Session
+
+Chargement automatique (EAGER) :
+1. `PROMPT_REPRISE.adoc` -> Mission, priorités, contexte
+2. `.agents/INDEX.adoc` (section règles) -> Règles absolues
+3. `LAZY_EAGER_ESSENTIALS.adoc` -> Principes LAZY/EAGER
+4. `*_ESSENTIALS.adoc` (si EPIC active) -> Contexte métier critique
+
+=== Pendant la Session
+
+* **1 fichier à la fois** : Modifier un seul fichier avant de passer au suivant
+* **Validation immédiate** : Compiler après chaque modification
+* **Contexte léger** : Maximum 50k tokens EAGER (~3000 lignes)
+* **Progression visible** : Mettre à jour `PROMPT_REPRISE.adoc` en temps réel
+* **`publishToMavenLocal`** : Obligatoire après toute modification du code source
+
+=== Fin de Session — Procédure en 6 Étapes OBLIGATOIRES
+
+**Mots-clés déclencheurs** : "nouvelle session", "je quitte", "session terminée", "a plus tard", "on arrête là"
+
+1. **Créer l'archive LAZY** : `.agents/sessions/{N}-{type}-{sujet}.adoc`
+2. **Mettre à jour PROMPT_REPRISE.adoc** (max 70 lignes)
+3. **Mettre à jour SESSIONS_HISTORY.adoc** : Ajouter la session terminée
+4. **Mettre à jour INDEX.adoc** : Date, session en cours N+1
+5. **Mettre à jour TEST_COVERAGE_ANALYSIS.adoc** (si tests modifiés)
+6. **Mettre à jour COMPLETED_TASKS_ARCHIVE.adoc**
+
+---
+
+== Métriques et Seuils
+
+=== Métriques de Session Idéale
+
+[cols="1,3", options="header"]
+|===
+|Métrique |Cible
+
+|**Durée**
+|15-30 minutes
+
+|**Fichiers modifiés**
+|1-3 maximum
+
+|**Échanges LLM**
+|5-10 messages
+
+|**Contexte tokens EAGER**
+|< 50k (~3000 lignes)
+
+|**Fichiers EAGER chargés**
+|2-3 maximum
+|===
+
+=== Signes Qu'il Faut Changer de Session
+
+* Le LLM répète des erreurs déjà corrigées
+* Plus de 3 fichiers modifiés en parallèle
+* Conversation > 50 messages
+* Tu te dis "il faudrait qu'on reparte sur de bonnes bases"
+
+**Règle d'or** : Mieux vaut 5 sessions de 20 minutes qu'une session de 2 heures.
+
+---
+
+== Types de Sessions et Détection
+
+[cols="1,2,2,2", options="header"]
+|===
+|# |Type de Session |Indices Détectés |Méthodologie Proposée
+
+|1
+|**Création fichier**
+|"créer", "data class"
+|Méthodologie de création
+
+|2
+|**Debug**
+|"debug", "échec", "erreur", "NullPointerException"
+|Agir directement
+
+|3
+|**Test unitaire**
+|"créer test", "couverture"
+|Consulter l'analyse de couverture
+
+|4
+|**Fin de session**
+|"session terminée", "je quitte", "à plus tard"
+|PROCÉDURE AUTOMATIQUE (6 étapes)
+|===
+
+---
+
+**Document créé** : 2026-04-23 (original) / 2026-04-30 (split encyclopédique)
+**Projet** : Bakery Gradle Plugin
+**Inspiration** : `plantuml-plugin/AGENT_MODUS_OPERANDI.adoc`
+**Version** : 1.1

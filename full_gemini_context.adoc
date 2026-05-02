@@ -1,0 +1,1364 @@
+= 🎨 Configuration du Projet de site statique perso de Cheroliv
+:toc: left
+:toclevels: 6
+:source-highlighter: highlight.js
+:icons: font
+:imagesdir: images
+:sectnumlevels: 6
+:sectnums:
+:toc-title: Sommaire
+:tags:
+:summary:
+
+
+'''
+[IMPORTANT]
+====
+*Directive Utilisateur :* NE PLUS PROPOSER DE LANCER LE SCRIPT `jbake.sh`. L'utilisateur en prend la pleine responsabilité.
+====
+'''
+
+== 📝 Aperçu du Projet
+
+Ceci est un projet Gradle utilisant le DSL Kotlin. Son objectif principal est de générer un site web personnel statique à l'aide du plugin JBake. Le site généré est ensuite déployé sur GitHub Pages en utilisant la bibliothèque `jgit`.
+
+* *Source des Modèles de Site Statique :* `site/jbake`
+* *Source des Actifs de l'Interface Utilisateur :* `site/jbake/assets/`
+* *Fichiers de Modèles de l'Interface Utilisateur :* `site/jbake/templates/`
+
+== 🎯 Objectif de Développement : Modernisation de l'Interface Utilisateur
+
+L'objectif principal est de migrer l'interface utilisateur du site web statique de Bootstrap 3 vers Bootstrap 5. Cette migration vise non seulement une esthétique contemporaine mais aussi une amélioration radicale de l'expérience utilisateur (UX), de la performance et, surtout, de l'accessibilité.
+
+=== 📐 Exigences de Qualité et de Test (Definition of Done)
+
+Toute fonctionnalité liée à l'interface utilisateur doit respecter les critères suivants pour être considérée comme "terminée" :
+
+* *♿ Accessibilité (WCAG 2.1 AA) :* Le site doit viser la conformité avec les standards internationaux pour être utilisable par tous, en adressant les handicaps physiques, moteurs, sensoriels et cognitifs.
+* *📱 Conception Responsive Détaillée :* Le design doit être fluide et validé sur 7 points de rupture critiques pour garantir une expérience optimale sur tous les appareils.
+.  *Micro Mobile :* < 320px
+.  *Petit Mobile :* 320px - 480px
+.  *Grand Mobile :* 481px - 767px
+.  *Tablette :* 768px - 991px
+.  *Petit Desktop :* 992px - 1199px
+.  *Desktop Moyen/Large :* 1200px - 1919px
+.  *Très Grand Écran (TV) :* ≥ 1920px
+
+* *🌐 Compatibilité Navigateurs :* Le rendu et les fonctionnalités doivent être impeccablement testés sur les dernières versions de : *Chromium*, *Firefox*, *Safari*, et *Edge*.
+* *⚡ Performance :* Les actifs (images, CSS, JS) doivent être optimisés (minification, compression, chargement différé) pour un score Lighthouse élevé et un chargement quasi instantané.
+
+'''
+
+== 🚀 Plan d'Implémentation : Approche Scrumban
+
+Cette refonte est découpée en Épopées (grandes fonctionnalités) et User Stories (besoins utilisateurs spécifiques). Cette structure permet de livrer de la valeur de manière incrémentale et de s'adapter en cours de route.
+
+=== *🌟 Épopées du Projet*
+
+.  *Épopée 1 : Migration vers Bootstrap 5 & Intégration du Thème*
+
+** *Objectif :* Remplacer le thème Bootstrap 3 existant par un nouveau thème moderne et accessible basé sur Bootstrap 5. Intégrer la maquette statique dans l'écosystème JBake/Thymeleaf.
+** *Modus Operandi :*
+... Déplacer les actifs (CSS, JS, images) de la maquette vers `site/assets/`.
+... Découper la maquette `index.html` en fragments Thymeleaf réutilisables (`header.thyme`, `footer.thyme`, `menu.thyme`, et des fragments pour chaque section de la page d'accueil).
+... Créer un template de base `index.thyme` qui assemble tous les fragments pour reconstruire la page d'accueil.
+... Mettre à jour les templates existants (`post.thyme`, `page.thyme`, etc.) pour qu'ils héritent du nouveau design.
+
+
+.  *Épopée 2 : Expérience de Lecture des Articles (AsciiDoc)*
+
+** *Objectif :* Garantir que les articles, générés depuis des fichiers AsciiDoc, s'intègrent parfaitement au nouveau design. La lisibilité, la mise en forme du code et la responsivité sont les priorités absolues.
+** *Modus Operandi :* Styliser les éléments HTML générés par AsciiDoctor via une feuille de style dédiée (`asciidoctor.css`). Assurer la responsivité des images, tableaux et blocs de code.
+
+
+.  *Épopée 3 : 🏛️ Fondations Techniques de l'Accessibilité*
+
+** *Objectif :* Mettre en place la base technique non négociable pour un site accessible. Sans ces fondations, toute autre amélioration de l'accessibilité serait vaine.
+** *Modus Operandi :* Utiliser des balises HTML sémantiques (`<header>`, `<nav>`, `<main>`, `<footer>`, `<article>`, `<section>`) dans les templates Thymeleaf. Configurer correctement la langue du site.
+
+
+.  *Épopée 4 : 👁️ Accessibilité Sensorielle (Vision & Ouïe)*
+
+** *Objectif :* Rendre le contenu perceptible pour les utilisateurs ayant des déficiences visuelles (cécité, basse vision, daltonisme) ou auditives.
+** *Modus Operandi :* Rédiger des textes alternatifs pour les images, choisir une palette de couleurs avec des contrastes élevés, s'assurer que le zoom du navigateur ne casse pas la mise en page.
+
+
+.  *Épopée 5 : 🦾 Accessibilité Motrice*
+
+** *Objectif :* Permettre une navigation fluide et complète pour les personnes ne pouvant pas utiliser de souris (handicap moteur, utilisateurs avancés).
+** *Modus Operandi :* S'assurer que tous les éléments interactifs sont accessibles via la touche `Tab`, que l'élément qui a le focus est clairement visible, et que les zones cliquables sont suffisamment grandes.
+
+
+.  *Épopée 6 : 🧠 Accessibilité Cognitive, Langagière et d'Apprentissage*
+
+** *Objectif :* Simplifier la compréhension et l'utilisation du site pour tous, y compris les personnes avec des troubles de l'attention, de la mémoire ou des difficultés de lecture.
+** *Modus Operandi :* Utiliser un langage clair, une navigation prévisible, des intitulés de liens explicites et des mécanismes d'aide en cas d'erreur.
+
+
+.  *Épopée 7 : Expérience Blog*
+
+** *Objectif :* Améliorer la section blog pour enrichir l'expérience utilisateur, faciliter la navigation et la découverte de contenu.
+** *Modus Operandi :* Ajouter des fonctionnalités clés comme une page de blog dédiée, des archives, et une recherche.
+
+
+.  *Épopée 8 : Amélioration de l'Expérience de Navigation*
+
+** *Objectif :* Optimiser la structure et l'ordre du menu de navigation principal pour le rendre plus intuitif et aligné avec les attentes des utilisateurs.
+** *Modus Operandi :*
+        *   Réorganiser les entrées du menu pour suivre un parcours narratif logique, de la découverte à l'action.
+        *   **Contrainte :** Le bouton de recherche dans les sections de blog (page d'accueil et page de blog dédiée) doit utiliser la couleur bleue `#0d6efd` pour une meilleure cohérence visuelle avec le thème clair. Une classe CSS personnalisée (`.btn-custom-blue`) a été créée et appliquée à cet effet.
+
+
+. *Épopée 9 : Amélioration du Pied de Page (Footer)*
+
+** *Objectif :* Rendre le pied de page plus fonctionnel et informatif en y ajoutant des liens sociaux clés.
+** *Modus Operandi :* Modifier le template `footer.thyme` pour inclure des icônes cliquables pointant vers GitHub et le flux RSS.
+** *Détails Techniques : Gestion des Infobulles (Tooltips) avec `TooltipManager` et `DOMContentLoaded`*
++
+____
+* *Utilité de `TooltipManager` :* Cette classe centralise la gestion des infobulles Bootstrap. Elle scanne la page à la recherche d'éléments avec `data-bs-toggle="tooltip"` et active la fonctionnalité d'infobulle pour chacun. Cela évite la duplication de code et facilite la maintenance.
+* *Apport de `DOMContentLoaded` :* L'initialisation de `TooltipManager` via l'événement `DOMContentLoaded` garantit que les infobulles deviennent fonctionnelles le plus tôt possible, dès que le HTML est chargé et analysé, sans attendre le téléchargement complet des ressources externes (images, vidéos, CSS). Cela améliore la performance et la réactivité de l'interface utilisateur.
+* *Bénéfices Clés :*
+. *Organisation et Maintenance :* Toute la logique des infobulles est encapsulée, rendant le code plus propre et facile à modifier.
+. *Performance et Réactivité :* Les infobulles sont interactives rapidement, améliorant l'expérience utilisateur.
+. *Fiabilité :* Le script s'exécute lorsque tous les éléments HTML sont garantis d'exister, évitant les erreurs.
+____
+
+
+. *Épopée 10 : Intégration du Formulaire de Contact avec Supabase*
+
+** *Objectif :* Remplacer le formulaire de contact statique par une solution dynamique et fiable qui stocke les soumissions dans une base de données Supabase et envoie des notifications par e-mail en temps réel.
+** *Justification Technique :* Le choix de Supabase est motivé par son modèle économique avantageux, son adossement à PostgreSQL — une base de données relationnelle devenue un standard de l'industrie et avec laquelle l'utilisateur est familier — et sa simplicité d'intégration.
+** *Modus Operandi :*
+...  *Backend Supabase :* Configurer la table `contacts`, activer la sécurité RLS et créer une politique d'insertion publique.
+...  *Frontend Client JS :* Intégrer le client Supabase JS dans le site pour permettre la communication avec la base de données.
+...  *Logique de Soumission :* Implémenter le script côté client pour capturer les données du formulaire et les envoyer à Supabase.
+...  *Retour Utilisateur :* Afficher des messages de succès ou d'erreur clairs à l'utilisateur après la soumission.
+...  *Notifications :* Déployer un webhook Google Apps Script qui, une fois appelé, envoie un e-mail de notification formaté via Gmail.
+...  *Automatisation :* Créer une fonction et un trigger dans Supabase pour appeler automatiquement le webhook à chaque nouvelle soumission.
+...  *Améliorations de Sécurité et de Maintenabilité :* Ajouter des validations avancées (honeypot, regex) et améliorer les notifications (formatage HTML, logging), afin de renforcer la sécurité et la maintenabilité de la solution.
+
+.  *Épopée 13 : Mise en Place de l'Infrastructure RAG (Retrieval-Augmented Generation)*
+    *   **Objectif :** Construire le "second cerveau" de l'assistant `e3po` en développant un système RAG basé sur la stack `Kotlin + Gradle + LangChain4j + Supabase`. Ce système indexera le contenu du projet pour fournir un contexte pertinent aux requêtes du LLM.
+    *   **Vision :** Le RAG servira à la fois d'outil d'aide au développement en local et de moteur de contenu pour la génération d'articles de blog via des actions GitHub.
+    *   **Technos Clés :** Kotlin, Gradle, LangChain4j, Supabase (PostgreSQL avec `pgvector`), API Gemini Embeddings.
+.  *Épopée 14 : Génération de Contenu de Blog Assistée par RAG et CI/CD*
+    *   **Objectif :** Mettre en place une chaîne de production de contenu semi-automatisée qui utilise le système RAG pour générer des brouillons d'articles de blog pertinents et contextuels, et les intègre dans le flux de publication existant via GitHub Actions.
+    *   **Contrainte :** L'Épopée 13 (Infrastructure RAG) doit être terminée.
+    *   **Modus Operandi :**
+        1.  Déclencher un workflow GitHub (`articleGenerator`) manuellement avec un sujet.
+        2.  L'action utilise `gemini-cli-action` pour appeler une tâche Gradle.
+        3.  La tâche Gradle interroge le service RAG pour obtenir un contexte riche.
+        4.  Le prompt enrichi est envoyé à Gemini pour générer un brouillon d'article `.adoc`.
+        5.  L'action commite automatiquement le brouillon dans le dossier `/draft`.
+        6.  Le commit déclenche le workflow de publication existant.
+
+.  *Épopée 15 : Amélioration des Thèmes Visuels*
+    *   **US-88 : Adapter le Thème Light de Bootstrap.com :**
+        1.  Analyser les variables CSS et le schéma de couleurs du thème light utilisé sur `https://getbootstrap.com/`.
+        2.  Modifier les variables CSS du thème light du projet pour refléter les couleurs de Bootstrap.com (arrière-plans, textes, couleurs d'accentuation).
+        3.  **Contraintes Additionnelles :**
+            *   La barre de navigation doit utiliser la couleur d'accentuation violette (`--accent-color`) comme fond.
+            *   Le texte du logo, les liens de navigation, l'icône du menu burger et l'icône du sélecteur de thème doivent être blancs pour garantir la lisibilité sur le fond violet.
+            *   Les effets de survol dans la barre de navigation doivent être adaptés pour ce nouveau fond (par exemple, un léger fond blanc transparent).
+            *   Le texte du logo doit être en gras (`font-weight: bold;`).
+            *   Les liens de navigation doivent avoir une taille de police de `1.1rem`.
+            *   L'icône du menu burger doit avoir une taille de `24px`.
+            *   L'icône du sélecteur de thème doit avoir une taille de `20px`.
+        4.  S'assurer que les modifications s'appliquent uniquement au thème light, sans impacter les thèmes `dark` et `high-contrast`.
+
+'''
+
+=== *📋 Tableau Scrumban du Projet*
+
+Ce tableau représente notre backlog. Les tâches sont priorisées et déplacées de "À Faire" à "Terminé" au fil de l'avancement.
+
+==== P Product Backlog (All tasks)
+
+*   **Épopée 13 : Mise en Place de l'Infrastructure RAG**
+    *   **US-80 : Mettre en Place une Configuration de Base de Données Multi-Environnements :**
+        1.  Définir les propriétés de connexion à la base de données (URL, user, password) dans `gradle.properties` pour l'environnement Docker local.
+        2.  S'assurer que `gradle.properties` est bien ignoré par Git.
+        3.  Préparer le script Gradle à lire ces propriétés, en donnant la priorité aux variables d'environnement (pour la CI/CD avec Supabase).
+        4.  Ajouter les dépendances `langchain4j` au build.
+        5.  Activer l'extension `pgvector` sur Supabase pour l'environnement de déploiement.
+    *   **US-81 : Création du Service d'Indexation :** Développer une tâche Gradle (`indexContent`) capable de scanner les fichiers sources (`.adoc`, `.md`, `.kts`), de les découper en segments (chunks), de générer leurs embeddings via l'API Gemini, et de les stocker dans la base de données configurée (locale ou Supabase).
+    *   **US-82 : Création du Service d'Interrogation (Retrieval) :** Développer une fonction ou une tâche qui prend une question en entrée, la transforme en embedding, et interroge la base de données configurée (`pgvector`) pour trouver les segments de documents les plus pertinents.
+    *   **US-83 : Orchestration de la Génération Augmentée :** Créer une tâche Gradle (`askWithRag`) qui combine la question de l'utilisateur avec le contexte récupéré par le service d'interrogation pour construire un prompt enrichi et appeler l'API Gemini.
+
+*   **Épopée 14 : Génération de Contenu de Blog Assistée par RAG et CI/CD**
+    *   **Contrainte :** L'Épopée 13 (Infrastructure RAG) doit être terminée.
+    *   **US-84 : Créer une Tâche Gradle `generateArticle` :** Développer une tâche qui prend un sujet d'article en entrée, utilise le service RAG (`askWithRag`) pour générer le contenu, et sauvegarde le résultat dans un fichier `.adoc`.
+    *   **US-85 : Mettre en Place un Workflow GitHub `articleGenerator` :** Créer une nouvelle action (utilisant `gemini-cli-action`) qui peut être déclenchée manuellement pour appeler la tâche `generateArticle`.
+    *   **US-86 : Configurer le Commit Automatique :** L'action `articleGenerator` doit être capable de commiter le fichier généré dans le dépôt.
+    *   **US-87 : Assurer l'Intégration avec le Workflow de Publication :** Valider que le commit de l'article déclenche bien l'action `publishSite`.
+
+*   **Épopée 15 : Amélioration des Thèmes Visuels**
+    *   **US-88 : Adapter le Thème Light de Bootstrap.com :**
+        1.  Analyser les variables CSS et le schéma de couleurs du thème light utilisé sur `https://getbootstrap.com/`.
+        2.  Modifier les variables CSS du thème light du projet pour refléter les couleurs de Bootstrap.com (arrière-plans, textes, couleurs d'accentuation).
+        3.  **Contraintes Additionnelles :**
+            *   La barre de navigation doit utiliser la couleur d'accentuation violette (`--accent-color`) comme fond.
+            *   Le texte du logo, les liens de navigation, l'icône du menu burger et l'icône du sélecteur de thème doivent être blancs pour garantir la lisibilité sur le fond violet.
+            *   Les effets de survol dans la barre de navigation doivent être adaptés pour ce nouveau fond (par exemple, un léger fond blanc transparent).
+            *   Le texte du logo doit être en gras (`font-weight: bold;`).
+            *   Les liens de navigation doivent avoir une taille de police de `1.1rem`.
+            *   L'icône du menu burger doit avoir une taille de `24px`.
+            *   L'icône du sélecteur de thème doit avoir une taille de `20px`.
+        4.  S'assurer que les modifications s'appliquent uniquement au thème light, sans impacter les thèmes `dark` et `high-contrast`..
+
+* *Épopée 11 : Migration du Fichier de Pilotage vers AsciiDoc*
++
+____
+* *En tant que développeur (cheroliv), je veux migrer le fichier de pilotage `GEMINI.md` vers `full_gemini_context.adoc`, afin de bénéficier d'une meilleure intégration avec ma stack de développement et mes outils.*
+* *Résolution :* La migration est en cours. Un article de blog, "Guide de Conversion : De Markdown à AsciiDoc, l'exemple de GEMINI.md", a été créé pour documenter ce processus et servira de référence pour la conversion manuelle de `GEMINI.md` vers `full_gemini_context.adoc`.
+____
+
+* *Épopée 10 : Intégration du Formulaire de Contact avec Supabase*
+** *US-60 : Configuration du Backend Supabase*
++
+____
+*En tant que développeur, je veux configurer la table `contacts` et la sécurité (RLS) dans Supabase, afin de créer une fondation sécurisée pour stocker les messages du formulaire.*
+____
+** *US-60b : Création de la Fonction RPC pour la Soumission*
++
+____
+*En tant que développeur, je veux créer une fonction PostgreSQL (RPC) qui encapsule la logique de recherche/création d'un contact et d'insertion d'un message, afin de garantir que la soumission du formulaire soit atomique et sécurisée.*
+____
+
+** *US-60c : Tâche Gradle pour l'Initialisation de la Base de Données*
++
+____
+*En tant que développeur, je veux créer une tâche Gradle qui vérifie et crée les tables Supabase nécessaires avant le déploiement, afin d'automatiser la configuration initiale de la base de données et de garantir que l'environnement est toujours prêt.*
+
+.*Contraintes :*
+* La tâche doit s'exécuter automatiquement avant la tâche `publishSite`.
+* Elle doit utiliser les credentials Supabase de manière sécurisée (via la *nouvelle `SiteConfiguration` unifiée*).
+* Si les tables (`contacts`, `messages`) existent déjà, la tâche doit l'ignorer silencieusement sans générer d'erreur.
+____
+
+
+** *US-61a (Refondue) : Consolidation de toute la configuration externe dans `SiteConfiguration`*
++
+____
+*En tant que développeur, je veux que TOUTE la configuration externe (déploiement, Supabase) soit lue depuis `managed-jbake-context.yml` et mappée dans un unique objet `SiteConfiguration` dans Gradle, afin de créer une pipeline CI/CD agnostique et de centraliser la gestion des paramètres.*
+
+.*Contraintes :*
+*   Le fichier `managed-jbake-context.yml` devient l'unique source de vérité pour la configuration en environnement CI/CD.
+*   Le build Gradle doit mapper ce fichier YAML vers l'objet `SiteConfiguration` via Jackson.
+*   Toutes les tâches Gradle et configurations (JBake, `setupSupabaseSchema`, etc.) doivent lire leurs paramètres depuis cet objet unifié.
+
+.*Modus Operandi :*
+. Mettre à jour le secret GitHub `CHEROLIV_MIGRATION_CONFIG` pour y inclure les informations Supabase (URL et clé publique).
+. Modifier la `data class SiteConfiguration` dans `build.gradle.kts` pour qu'elle puisse contenir les nouvelles données (déploiement et Supabase).
+. Adapter la logique de désérialisation Jackson pour mapper l'entièreté du fichier YAML vers le nouvel objet `SiteConfiguration`.
+. Mettre à jour la configuration de JBake pour qu'elle tire les paramètres Supabase depuis `siteConfiguration.supabase` pour les injecter dans le frontend.
+____
+
+** *US-61 : Intégration du Client Supabase JS*
++
+____
+*En tant que développeur, je veux intégrer le client Supabase JS dans le site et initialiser la connexion, afin de permettre au frontend de communiquer avec l'API Supabase.*
+____
+
+** *US-62 : Logique de Soumission du Formulaire*
++
+____
+*En tant qu'utilisateur, je veux que le formulaire de contact envoie mes informations (nom, email, sujet, message) à Supabase lorsque je clique sur 'Envoyer', afin que mon message soit enregistré.*
+____
+
+** *US-63 : Retour Visuel pour l'Utilisateur*
++
+____
+*En tant qu'utilisateur, je veux recevoir une confirmation visuelle claire (succès ou erreur) après avoir soumis le formulaire, afin de savoir si mon message a bien été envoyé.*
+____
+
+** *US-64 : Webhook de Notification par Email (Google Apps Script)*
++
+____
+*En tant qu'administrateur du site, je veux qu'un script Google Apps soit déployé pour recevoir les données d'un nouveau contact et m'envoyer une notification par email, afin d'être informé en temps réel des nouvelles soumissions.*
+____
+
+** *US-65 : Déclencheur d'Automatisation (Supabase Trigger)*
++
+____
+*En tant que développeur, je veux créer une fonction et un trigger dans Supabase qui appellent le webhook Google Apps Script à chaque nouvelle insertion dans la table `contacts`, afin d'automatiser le processus de notification.*
+____
+
+
+** *US-66 : Améliorations de Sécurité et de Maintenabilité*
++
+____
+*En tant que développeur, je veux ajouter des validations avancées (honeypot, regex) et améliorer les notifications (formatage HTML, logging), afin de renforcer la sécurité et la maintenabilité de la solution.*
+____
+
+* *Épopée 11 : Couverture de Test pour le Build Gradle (Infrastructure)*
+** *Objectif :* Mettre en place une couverture de test robuste pour le script de build Gradle, afin de garantir sa fiabilité et sa maintenabilité.
+** *US-67 : Intégration de JUnit 5 pour les Tests Gradle*
++++
+<div class="paragraph">
+<p><strong>En tant que développeur, je veux intégrer JUnit 5 au projet Gradle, afin de pouvoir écrire et exécuter des tests unitaires pour les tâches et la logique du build.</strong></p>
+</div>
++++
+** *US-68 : Écriture de Tests Unitaires pour les Tâches Gradle Clés*
++++
+<div class="paragraph">
+<p><strong>En tant que développeur, je veux écrire des tests unitaires pour les tâches Gradle critiques (ex: `publishSite`, `setupSupabaseSchema`), afin de valider leur comportement et leurs interactions.</strong></p>
+</div>
++++
+** *US-69 : Mesure de la Couverture de Code avec JaCoCo*
++++
+<div class="paragraph">
+<p><strong>En tant que développeur, je veux intégrer JaCoCo au build Gradle, afin de mesurer la couverture de code des scripts de build et d'identifier les zones non testées.</strong></p>
+</div>
++++
+** *US-70 : Rapports de Couverture de Test dans GitHub Actions*
++++
+<div class="paragraph">
+<p><strong>En tant que développeur, je veux que les rapports de couverture de test soient générés et affichés dans la pipeline GitHub Actions, afin de visualiser l'état de la couverture à chaque déploiement.</strong></p>
+</div>
++++
+
+* *Épopée 12 : Migration du Build Script vers un Plugin Gradle (Infrastructure)*
+** *Objectif :* Migrer la logique complexe du script de build principal vers un plugin Gradle réutilisable, en s'inspirant du projet `sample_gradle_plugin-kotlin-dsl` et en adoptant une approche TDD.
+** *Contrainte :* L'Épopée 11 (Couverture de Test pour le Build Gradle) doit être entièrement terminée avant de commencer cette épopée.
+** *US-71 : Analyse du Build Script Existant et Identification des Logiques à Migrer*
++++
+<div class="paragraph">
+<p><strong>En tant que développeur, je veux analyser le `build.gradle.kts` actuel pour identifier les tâches, configurations et logiques qui peuvent être encapsulées dans un plugin, afin de définir le périmètre de la migration.</strong></p>
+</div>
++++
+** *US-72 : Création de la Structure Initiale du Plugin Gradle*
++++
+<div class="paragraph">
+<p><strong>En tant que développeur, je veux créer un nouveau sous-projet pour le plugin Gradle avec sa structure de base (classes de plugin, tests), en m'appuyant sur l'exemple `sample_gradle_plugin-kotlin-dsl`, afin de démarrer le développement du plugin.</strong></p>
+</div>
++++
+** *US-73 : Développement des Tâches du Plugin avec TDD*
++++
+<div class="paragraph">
+<p><strong>En tant que développeur, je veux développer les tâches et la logique du plugin en utilisant une approche TDD (tests unitaires et fonctionnels), en m'inspirant des tests du `sample_gradle_plugin-kotlin-dsl`, afin de garantir la qualité et la robustesse du plugin.</strong></p>
+</div>
++++
+** *US-74 : Intégration du Nouveau Plugin dans le Build Principal*
++++
+<div class="paragraph">
+<p><strong>En tant que développeur, je veux remplacer la logique migrée dans `build.gradle.kts` par l'application du nouveau plugin, afin de simplifier le script de build principal et de valider l'intégration du plugin.</strong></p>
+</div>
++++
+** *US-75 : Refactoring et Optimisation du Plugin*
++++
+<div class="paragraph">
+<p><strong>En tant que développeur, je veux refactoriser et optimiser le code du plugin, en m'assurant qu'il respecte les bonnes pratiques Gradle et Kotlin, afin d'améliorer sa maintenabilité et ses performances.</strong></p>
+</div>
++++
+
+* *Épopée 1 : Migration vers Bootstrap 5 & Intégration du Thème*
+
+* *Épopée 2 : Expérience de Lecture des Articles (AsciiDoc)*
+
+** *US-12 : Style des Blocs de Code*
++
+____
+.*Contrainte :*
+Pour améliorer le confort de lecture, la police des blocs de code doit être suffisamment grande.
+
+.*Résolution :*
+La taille de la police pour les blocs de code (`<pre>`, `<code>`) a été augmentée de 10% (`font-size: 1.1rem`) dans `site/assets/css/asciidoctor.css` pour une meilleure lisibilité.
+____
+
+** *US-12b : Bouton Copier*
+
+** *US-12c : Thème Adaptatif pour les Blocs de Code*
++
+____
+[NOTE]
+Voici une liste de thèmes sombres populaires de `highlight.js` qui peuvent être utilisés pour l'implémentation.
+
+[source,js]
+----
+const darkThemes = {
+    'dark': 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/dark.min.css',
+    'monokai': 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/monokai.min.css',
+    'tomorrow-night': 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/tomorrow-night.min.css',
+    'vs2015': 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/vs2015.min.css',
+    'atom-one-dark': 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/atom-one-dark.min.css',
+    'github-dark': 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css'
+};
+----
+____
+
+* *Épopée 3 : Fondations Techniques de l'Accessibilité*
+
+** *US-14 : Structure Sémantique et Titres*
+
+* *Épopée 4 : Accessibilité Sensorielle*
+
+** *US-18 : Zoom et Reflow (Réagencement)*
+
+* *Épopée 5 : Accessibilité Motrice*
+
+** *US-22 : Grandes Zones Cliquables*
+
+* *Épopée 6 : Accessibilité Cognitive*
+
+** *US-23 : Clarté et Simplicité du Langage*
+
+** *US-24 : Navigation Cohérente*
+
+** *US-25 : Liens Descriptifs*
+
+** *US-26 : Prévention et Guidage des Erreurs*
+
+* *Épopée 7 : Expérience Blog*
+
+** *US-30 : Page Blog Dédiée*
++
+____
+*Résolution :* Le template `site/templates/blog.thyme` a été mis à jour pour utiliser un design moderne basé sur des cartes, afficher les résumés des articles et inclure des boutons d'action (Archives, Rechercher), alignant ainsi la page de blog dédiée avec la nouvelle interface utilisateur Bootstrap 5.
+____
+
+** *US-32b : Reporter la Modale de Recherche vers Thymeleaf*
++
+____
+*En tant que développeur, je veux que les modifications de la modale de recherche (structure et style) apportées à la maquette HTML soient reportées dans les templates Thymeleaf, afin que le site généré reflète les dernières évolutions.*
+____
+
+* *Épopée 9 : Amélioration du Pied de Page (Footer)*
+
+** *US-57 : Liens Essentiels dans le Pied de Page*
++
+____
+*En tant que visiteur, je veux trouver des liens clairs vers GitHub et le flux RSS dans le pied de page, afin d'accéder rapidement aux informations et aux moyens d'interaction clés.*
+
+.*Contrainte :*
+Au survol des icônes, une infobulle (tooltip) doit apparaître pour préciser la destination : "github/cheroliv" pour GitHub et "flux RSS" pour le flux RSS.
+____
+
+==== ⏳ *En Cours*
+
+==== ✅ *Terminé*
+
+* *BUG-60 : Visibilité des Icônes du Footer en Thème Clair*
++
+____
+*En tant qu'utilisateur, je veux que les icônes GitHub et RSS dans le pied de page soient clairement visibles lorsque le thème clair est activé, afin de garantir une bonne expérience utilisateur et un accès facile à ces liens.*
+
+.*Résolution :*
+Le problème initial a été résolu en retirant la classe `text-white` des liens des icônes dans `site/templates/footer.thyme`. Une régression de build a été corrigée en mettant à jour le chemin du `script.js` pour utiliser `content.rootpath`, assurant la compatibilité avec la génération de site statique. Les icônes sont maintenant visibles sur tous les thèmes et le site se construit correctement.
+____
+
+* *BUG-59 : Lien Contact Inopérant sur les Pages Secondaires*
++
+____
+*En tant qu'utilisateur, je veux que le lien vers la section contact dans le pied de page fonctionne correctement, même lorsque je ne suis pas sur la page d'accueil, afin d'assurer une navigation cohérente.*
+
+.*Résolution :*
+Le lien de contact dans `site/templates/footer.thyme` a été modifié. Au lieu d'un simple `href="#contact"`, il utilise désormais une expression Thymeleaf conditionnelle : `th:href="${(content.uri == 'index.html' or content.uri == null) ? '#contact' : content.rootpath + 'index.html#contact'}"`. Cette logique génère un lien d'ancre simple sur la page d'accueil et un lien complet vers la section contact de la page d'accueil depuis toutes les autres pages.
+
+[NOTE]
+*L'utilisateur a confirmé que le bug est résolu.*
+____
+
+* *BUG-58 : Incohérence du Lien de Flux RSS*
++
+____
+*En tant que développeur, je veux que le lien du flux RSS soit robuste et fonctionnel sur l'ensemble du site, afin de garantir que les utilisateurs puissent y accéder de manière fiable depuis n'importe quelle page.*
+
+.*Résolution :*
+La tentative d'utiliser un chemin absolu (`@{/feed.xml}`) s'est avérée incompatible avec le contexte de génération du site. La solution fonctionnelle et correcte a été restaurée : `th:href="@{${content.rootpath} + 'feed.xml'}"`. Cette approche construit dynamiquement un chemin relatif qui s'adapte correctement à la profondeur de la page actuelle, garantissant que le lien est toujours valide.
+
+[NOTE]
+*L'utilisateur a confirmé que le bug est résolu.*
+____
+
+* *BUG-56 : Espacement des Boutons du Hero en Mode Mobile*
++
+____
+*En tant qu'utilisateur, je veux qu'un espacement vertical soit maintenu entre les boutons de la section "hero" lorsqu'ils passent en colonne sur les petits écrans, afin de garantir une présentation esthétique et d'éviter qu'ils ne se touchent.*
+
+.*Résolution :*
+Le problème a été résolu en utilisant les classes utilitaires de Bootstrap 5. Le conteneur `div.hero-buttons` a été modifié pour inclure les classes `d-grid d-lg-inline-flex gap-3`. Cette approche crée une grille avec un espacement (`gap`) sur les petits écrans où les boutons sont empilés, et revient à un affichage flexible en ligne sur les écrans plus larges, garantissant un espacement adéquat dans toutes les configurations.
+____
+
+* *BUG-55 : Comportement Erroné du Menu Déroulant en Mode Burger*
++
+____
+*En tant qu'utilisateur mobile, je veux pouvoir ouvrir le sous-menu "Memos" sans que le menu burger principal ne se ferme, afin de pouvoir naviguer dans ses options.*
+
+.*Résolution :*
+La classe `MobileMenuManager` dans `site/assets/js/script.js` a été entièrement réécrite pour utiliser la délégation d'événements. Cette nouvelle approche gère intelligemment les clics : elle ignore les clics sur les liens de type `dropdown-toggle` (permettant au sous-menu de s'ouvrir), tout en assurant la fermeture du menu burger lors d'un clic sur un lien de navigation final (un lien simple ou un élément dans le sous-menu).
+____
+
+* *US-54 : Réorganisation du Menu de Navigation pour une Expérience Utilisateur Intuitive*
++
+____
+*En tant qu'utilisateur, je souhaite que les éléments du menu de navigation principal soient réorganisés pour suivre un parcours plus logique et intuitif, afin d'améliorer la clarté et l'efficacité de la navigation sur le site.*
+
+.*Résolution :*
+L'ordre des liens dans `site/templates/menu.thyme` a été modifié pour suivre un parcours narratif logique (`Accueil`, `À propos`, `Services`, `Expertise`, `Formations`, `Portfolio`, `Blog`, `Memos`, `Contact`), conformément à la justification UX documentée dans la User Story.
+____
+
+* *US-53 : Menu Déroulant "Memos"*
++
+____
+*En tant que visiteur, je veux une entrée de menu déroulante "Memos" dans la barre de navigation principale, afin d'accéder rapidement à une liste de billets de blog thématiques (mémos) importants.*
+
+.*Résolution :*
+Un menu déroulant "Memos" a été ajouté au template `site/templates/menu.thyme`. Il contient des liens directs vers des articles spécifiques, chacun agrémenté d'une icône Font Awesome pertinente. La dépendance Font Awesome a été ajoutée dans `site/templates/header.thyme` pour assurer l'affichage des icônes.
+____
+
+* *US-52 : Intégration des Commentaires Disqus*
++
+____
+*En tant que lecteur, je veux pouvoir lire et laisser des commentaires à la fin de chaque article de blog, afin d'interagir avec l'auteur et la communauté.*
+
+.*Résolution :*
+Le script Disqus a été intégré dans le template `site/templates/post.thyme`. Un conteneur `<section id="disqus_thread">` a été ajouté après le contenu de l'article, et le script d'initialisation utilise Thymeleaf pour passer dynamiquement l'URI du post (`content.uri`) comme identifiant unique. Une balise `<noscript>` a également été incluse pour l'accessibilité.
+
+[Note]
+Pour une intégration visuelle optimale, il est nécessaire d'activer la détection automatique du thème (clair/sombre) dans les paramètres d'administration de Disqus.
+____
+
+* *Tâche d'Amélioration : Réduction de la Taille du Titre d'Article*
++
+____
+*En tant qu'utilisateur, je trouve que le titre des articles est trop grand par rapport au reste du contenu, ce qui nuit à l'harmonie visuelle.*
+
+.*Résolution :*
+La classe `display-5` a été remplacée par la classe `h2` sur la balise `<h1>` du titre dans le template `site/templates/post.thyme`. Ce changement réduit la taille visuelle du titre pour mieux l'intégrer au reste de la page, tout en conservant sa valeur sémantique de titre principal.
+____
+
+* *BUG-51 : Chevauchement du Titre d'Article et du Menu*
++
+____
+*En tant qu'utilisateur, je veux qu'il y ait un espace clair entre le menu de navigation et le titre d'un article de blog, afin d'éviter que les deux ne se chevauchent et de garantir une bonne lisibilité.*
+
+.*Résolution :*
+Le template `site/templates/post.thyme` a été entièrement restructuré pour s'aligner sur les standards des autres pages du site. La structure obsolète a été remplacée par une disposition sémantique moderne utilisant `<main>` et `<article>`. La classe CSS `.main-content-padding`, déjà utilisée sur d'autres pages, a été appliquée au conteneur principal. Cette classe ajoute un `padding` supérieur dynamique qui pousse le contenu de l'article vers le bas, assurant un espacement adéquat avec la barre de navigation et résolvant ainsi le problème de chevauchement.
+____
+
+* *Tâche d'Amélioration : Espacement du Footer sur la Page d'Archives*
++
+____
+*En tant qu'utilisateur, je veux un espace entre le contenu de la page d'archives et le pied de page, afin d'améliorer la séparation visuelle.*
+
+.*Résolution :*
+La classe de marge Bootstrap `mb-5` a été ajoutée à la balise `<main>` du template `site/templates/archive.thyme`, créant ainsi l'espacement requis.
+____
+
+* *US-31 : Page des Archives*
++
+____
+.*Résolution :*
+La page d'archives a été modernisée en remplaçant la liste simple par des composants `list-group` de Bootstrap 5 pour une meilleure hiérarchie visuelle, garantissant que l'arrière-plan des éléments s'adapte au thème courant. La structure a été alignée avec les autres templates en supprimant un `div` obsolète et en assurant la consistance des classes. Un bouton de scroll-up a été ajouté pour améliorer la navigation. Enfin, la couleur de la date de publication a été harmonisée avec celle du titre de l'article en retirant la classe `text-muted`. De plus, un espacement a été ajouté entre le contenu principal et le pied de page pour une meilleure séparation visuelle.
+____
+
+* *US-12b : Bouton Copier*
++
+____
+.*Résolution :*
+Une fonctionnalité de copie de code a été ajoutée à tous les blocs de code. Une nouvelle classe `CodeBlockManager` dans `site/assets/js/script.js` détecte dynamiquement chaque bloc de code (`<pre><code>`), y injecte un bouton "Copier". Au clic, le contenu textuel du bloc est copié dans le presse-papiers via l'API `navigator.clipboard`. Des styles CSS dédiés dans `site/assets/css/styles.css` positionnent le bouton, gèrent son affichage au survol et assurent sa cohérence avec les thèmes du site. Un retour visuel ("Copié !") confirme le succès de l'opération.
+____
+
+* *US-12a : Coloration Syntaxique*
++
+____
+*Résolution :* La bibliothèque de coloration syntaxique `highlight.js` (v11.11.1) a été intégrée au projet. Le CSS du thème `default` est chargé dans `header.thyme` et les scripts JS nécessaires sont chargés et initialisés (`hljs.highlightAll()`) dans `footer.thyme`, activant ainsi la coloration automatique sur tous les blocs de code générés par AsciiDoctor.
+____
+
+* *BUG-50 : Régression de Navigation sur la Page d'Archives*
++
+____
+*En tant qu'utilisateur, je veux que le lien 'Blog' dans le menu de navigation me redirige correctement vers la page du blog lorsque je suis sur la page des archives, afin d'assurer une navigation cohérente.*
+
+.*Problématique Actuelle :*
+Sur la page `archive.html`, le lien "Blog" dans le menu pointe vers `http://localhost:8820/archive.html#blog` au lieu de `http://localhost:8820/blog.html`.
+
+.*Résolution :*
+Le problème venait du fait que la variable `isIndexPage` était incorrectement évaluée comme `true` sur la page des archives, probablement parce que `content.uri` y est `null`. La condition de la variable `isIndexPage` dans `site/templates/menu.thyme` a été renforcée en y ajoutant `and content.type != 'archive'`. Cela garantit que la page des archives n'est pas identifiée comme la page d'accueil, et le lien "Blog" pointe désormais correctement vers `blog.html` au lieu de `archive.html#blog`.
+____
+
+* *US-49 : Standardisation de la Taille du Bouton de la Section Contact*
++
+____
+*En tant qu'utilisateur, je veux que le bouton "Envoyer le message" dans la section contact ait une taille standard, afin d'assurer une cohérence visuelle avec les autres boutons d'action du site.*
+
+.*Résolution :*
+La classe `btn-lg` a été retirée du bouton de soumission du formulaire dans le template `site/templates/contact.thyme` pour standardiser sa taille.
+____
+
+* *US-48 : Standardisation de la Taille des Boutons du Hero*
++
+____
+*En tant que visiteur, je veux que les boutons de la section 'hero' aient une taille standard (non-large), afin d'harmoniser leur apparence avec les autres boutons d'action du site (comme ceux de la section blog).*
+
+.*Résolution :*
+La classe `btn-lg` a été retirée des deux boutons d'action ("Mes Services" et "Me Contacter") dans le template `site/templates/hero_section.thyme`. Leur taille est désormais standard, assurant une cohérence visuelle avec les autres boutons du site.
+____
+
+* *BUG-47 : Alignement Vertical du Sélecteur de Thème dans le Menu Burger*
++
+____
+*En tant qu'utilisateur, je veux que l'icône du sélecteur de thème soit parfaitement alignée avec le texte des liens de navigation dans le menu burger ouvert, afin d'assurer une finition visuelle impeccable.*
+
+.*Résolution :*
+Le problème a été résolu en ajoutant une règle CSS ciblée dans `site/assets/css/styles.css`. Via une media query (`@media (max-width: 991.98px)`), un `padding` horizontal (`0.5rem 1rem`) a été appliqué au conteneur `.theme-switcher-container`. Cette modification assure que le sélecteur de thème partage le même espacement que les liens de navigation (`.nav-link`) en mode mobile, corrigeant ainsi le décalage et garantissant un alignement parfait.
+____
+
+* *BUG-46 : Alignement Responsive du Menu de Navigation*
++
+____
+*En tant qu'utilisateur, je veux que les éléments du menu de navigation restent correctement alignés pendant la transition vers le mode "burger", afin d'éviter des sauts de mise en page inesthétiques.*
+
+.*Problématique Actuelle :*
+Un bug a été identifié où l'alignement des éléments du menu est incorrect juste avant ou pendant le passage au point de rupture du menu burger.
+
+.*Résolution :*
+Le bug a été résolu en revenant à une approche qui respecte les standards de Bootstrap 5. La classe CSS custom `.force-burger-mode` a été supprimée. La logique JavaScript dans `DynamicNavbarBreakpoint` a été réécrite pour ne plus manipuler directement le DOM, mais pour *ajouter ou retirer dynamiquement la classe `.navbar-expand-lg`* de la balise `<nav>`. Cela permet à Bootstrap de gérer nativement l'affichage du menu et du burger. La structure HTML de `menu.thyme` a été ajustée pour que le sélecteur de thème soit un élément flex de premier niveau, garantissant des calculs de largeur fiables. Enfin, la classe `align-items-lg-center` a été retirée pour assurer un *alignement strict à gauche* du contenu du menu burger lorsqu'il est ouvert, corrigeant un problème esthétique d'alignement au centre sur certaines tailles d'écran.
+____
+
+* *US-40 : Point de Rupture Robuste et Dynamique du Menu de Navigation*
++
+____
+*En tant que visiteur, je veux que le menu de navigation passe en mode "burger" *immédiatement* dès qu'un de ses éléments, comme "À propos", n'a plus assez de place et passe sur deux lignes, afin de garantir que le menu reste toujours sur une seule ligne, lisible et esthétique, quelle que soit la résolution de l'écran.*
+
+.*Résolution :*
+La solution finale et robuste est décrite dans la résolution du *BUG-46*. L'approche s'appuie sur le basculement de la classe `.navbar-expand-lg` pour laisser Bootstrap gérer nativement le point de rupture, ce qui s'est avéré plus fiable que les tentatives initiales de détection manuelle du passage à la ligne.
+____
+
+* *US-45 : Élimination du Flash Visuel (FOUC) lors de la Navigation*
++
+____
+*En tant qu'utilisateur, je veux que la navigation entre les pages se fasse sans aucun flash visuel (flash blanc), afin de garantir une transition fluide et professionnelle, quel que soit le thème sélectionné (clair, sombre ou contraste élevé).*
+
+.*Résolution :*
+Un script JavaScript bloquant ("script bouclier") a été ajouté dans le `<head>` du template `site/templates/header.thyme`. Ce script lit la préférence de thème de l'utilisateur depuis le `localStorage` et applique l'attribut `data-bs-theme` à la balise `<html>` avant même que le rendu du `<body>` ne commence. Cette action préventive élimine complètement le "Flash of Unstyled Content" (FOUC) en s'assurant que la page est toujours rendue avec le bon thème dès le premier affichage.
+____
+
+* *Tâche d'Amélioration : Bouton de Scroll-Up sur la Page d'Archives*
++
+____
+.*Objectif :*
+Ajouter un bouton de retour en haut de page sur la page d'archives, avec le même comportement et style que celui des pages d'index et de blog.
+
+.*Résolution :*
+Le bouton de scroll-up a été ajouté à `site/templates/archive.thyme` et la logique JavaScript existante dans `site/assets/js/script.js` gère son affichage et son comportement sans nécessiter de modifications supplémentaires. Le bouton est désormais fonctionnel sur la page d'archives.
+____
+
+* *US-43 : Visibilité de l'icône du menu burger en mode Contraste Élevé*
++
+____
+*En tant qu'utilisateur, je veux que l'icône du menu burger soit toujours visible sur les petits écrans lorsque le thème "Contraste Élevé" est activé, afin de garantir que la navigation reste accessible quel que soit le thème choisi.*
+
+.*Résolution :*
+La classe `.navbar-light` a été supprimée de la balise `<nav>` dans `site/templates/menu.thyme`. Cette classe forçait l'icône du menu à rester sombre, la rendant invisible sur le fond noir du thème à contraste élevé. La suppression de cette classe permet aux styles personnalisés de s'appliquer correctement, assurant la visibilité de l'icône.
+____
+
+==== ⏸️ *Standby*
+
+==== ✅ *Terminé*
+
+* *US-33 : Amélioration du Style de la Modale de Recherche en Mode Contraste Élevé*
++
+____
+*En tant que développeur, je veux que la modale de recherche applique correctement les styles du thème "Contraste Élevé" (couleurs de fond, texte, bordures, et visibilité des éléments interactifs comme le bouton de fermeture et le champ de saisie), afin de garantir une expérience utilisateur optimale et accessible, même après plusieurs tentatives de correction.*
+
+.*Résolution :*
+L'utilisateur a confirmé que le problème est résolu. La modale de recherche s'adapte désormais correctement à tous les thèmes, y compris le mode à contraste élevé.
+____
+
+* *US-42 : Amélioration Visuelle du Sélecteur de Thème (Icône Agrandie et Épurée)*
++
+____
+*En tant qu'utilisateur, je veux que le sélecteur de thème n'affiche qu'une icône agrandie du thème actuel (soleil, lune, contraste), sans texte, sans flèche de menu déroulant et sans bordure, afin d'optimiser l'espace et de moderniser l'esthétique. Pour l'accessibilité, le nom du thème doit rester disponible pour les lecteurs d'écran.*
+
+.*Résolution :*
+L'élément `<span>` affichant le nom du thème a été conservé dans `site/templates/menu.thyme` mais a reçu la classe `visually-hidden` pour le masquer visuellement. La méthode `ThemeManager.updateThemeUI()` dans `site/assets/js/script.js` a été modifiée pour mettre à jour dynamiquement l'attribut `aria-label` du bouton du sélecteur de thème et le `textContent` du `<span>` masqué, assurant ainsi l'accessibilité pour les lecteurs d'écran. Les styles CSS dans `site/assets/css/styles.css` ont été ajustés pour que le bouton soit compact (44x44px), sans bordure (`border: none`), centre l'icône, augmente sa taille (`1.5rem`) et masque la flèche par défaut de Bootstrap (`::after { display: none; }`), créant un bouton d'icône moderne et accessible. L'icône par défaut a été changée pour `bi-sun` dans `menu.thyme`.
+____
+
+* *US-39 : Stabiliser la largeur du sélecteur de thème*
++
+____
+*En tant qu'utilisateur, je veux que la largeur du bouton du sélecteur de thème soit fixe et s'aligne sur la longueur du nom de thème le plus long, afin d'éviter un redimensionnement du bouton et un décalage des autres éléments de la navigation lors du changement de thème.*
+
+.*Résolution :* Une classe CSS dédiée (`theme-dropdown-btn`) a été ajoutée au bouton. Une règle CSS applique désormais une `min-width` de 180px et utilise `justify-content: space-between` pour garantir que le bouton conserve une taille stable et un alignement interne propre, quel que soit le thème sélectionné.
+____
+
+* *Tâche d'Amélioration : Ajout d'Icônes au Sélecteur de Thème (Initiative)*
++
+____
+*En tant qu'utilisateur, je veux que le sélecteur de thème affiche des icônes visuelles (soleil pour clair, lune pour sombre, contraste pour contraste élevé) à côté du texte, afin de rendre la sélection de thème plus intuitive et esthétique.*
+
+.*Résolution :*
+Des icônes Bootstrap (soleil, lune, cercle-half) ont été intégrées au sélecteur de thème dans `site/templates/menu.thyme`. Une logique conditionnelle a été ajoutée pour afficher l'icône appropriée en fonction du thème sélectionné, améliorant ainsi l'intuitivité et l'esthétique du composant.
+____
+
+* *US-37 : Menu de Navigation Responsive (Burger Menu)*
++
+____
+*En tant que visiteur, je veux que le menu de navigation principal se transforme en une icône "burger" sur les petits écrans, afin de pouvoir accéder à toutes les pages du site de manière intuitive sur mon mobile ou ma tablette.*
+
+.*Résolution :*
+La solution a été implémentée en revenant à une structure HTML standard de Bootstrap 5. Le `navbar-toggler` gère l'affichage sur mobile, tandis que la classe `ms-auto` sur la liste `<ul>` assure l'alignement à droite des liens sur grand écran. Le sélecteur de thème est placé à l'intérieur du `div.collapse` pour un comportement cohérent. Un script JS complémentaire assure la fermeture automatique du menu lors d'un clic sur un lien, améliorant l'UX mobile.
+____
+
+* *US-38 : Alignement et Uniformisation des Cartes d'Articles*
++
+____
+*En tant que visiteur, je veux que les cartes d'aperçu d'articles affichées sur une même ligne aient une taille identique et que le bouton "Lire la suite" soit aligné en bas à gauche, afin de garantir une présentation visuelle harmonieuse sur tous les écrans.*
+
+.*Résolution :*
+Les classes Bootstrap 5 `d-flex flex-column` ont été ajoutées au conteneur de la carte (`.blog-card`) et à son corps (`.card-body`). Le bouton "Lire la suite" a été encapsulé dans un `div` avec la classe `mt-auto`. Cette combinaison force les cartes d'une même ligne à avoir la même hauteur et pousse le bouton en bas, garantissant un alignement parfait sur les pages `blog.thyme` et `blog_section.thyme`.
+____
+
+* *US-32b : Reporter la Modale de Recherche vers Thymeleaf*
++
+____
+*En tant que développeur, je veux que les modifications de la modale de recherche (structure et style) apportées à la maquette HTML soient reportées dans les templates Thymeleaf, afin que le site généré reflète les dernières évolutions.*
+
+.*Résolution :*
+La classe `.themed-modal` a été ajoutée au `div` de la modale dans le template `site/templates/blog_section.thyme`, assurant que les styles thématiques définis dans `styles.css` s'appliquent correctement au site généré.
+____
+
+* *US-32 : Modale de Recherche d'Articles*
++
+____
+.*Résolution :*
+La fonctionnalité de la modale de recherche a été implémentée et stylisée dans la maquette statique (`maquette/index.html`), incluant la prise en charge complète des thèmes. Le report vers les templates Thymeleaf est géré par la US-32b.
+____
+
+* *US-32a : Thème de la Modale de Recherche (Maquette)*
++
+____
+*En tant qu'utilisateur, je veux que la fenêtre modale de recherche dans la maquette s'adapte au thème (clair ou sombre) actuellement sélectionné, afin que l'interface reste cohérente et visuellement agréable.*
+
+.*Résolution :*
+.  *Ajout d'une Classe CSS :* Une classe `.themed-modal` a été ajoutée à la modale dans `maquette/index.html`.
+.  *Styles Thématiques :* Des règles CSS ont été ajoutées à `maquette/css/styles.css` pour que la modale utilise les variables de couleur du thème pour son arrière-plan, son texte et ses bordures.
+.  *Correction Contraste Élevé :* Des styles spécifiques ont été ajoutés pour les éléments de formulaire (`.form-control`, `.btn`) afin de garantir qu'ils s'affichent correctement en mode "high-contrast", corrigeant un problème où ils n'héritaient pas des bonnes couleurs.
+____
+
+* *US-34 : Afficher le résumé des derniers articles*
++
+____
+*En tant qu'utilisateur, je veux que la fenêtre modale de recherche dans la maquette s'adapte au thème (clair ou sombre) actuellement sélectionné, afin que l'interface reste cohérente et visuellement agréable.*
+
+.*Résolution :*
+.  *Ajout d'une Classe CSS :* Une classe `.themed-modal` a été ajoutée au `div` principal de la modale dans `maquette/index.html` pour permettre un ciblage CSS spécifique.
+.  *Création de Styles Thématiques :* Des règles CSS ont été ajoutées à `maquette/css/styles.css`. Ces règles utilisent les variables CSS du projet (`--card-bg`, `--text-primary`, `--border-color`, etc.) pour styliser le `.modal-content`, le `.modal-header` et le bouton de fermeture (`.btn-close`).
+.  *Adaptation Dynamique :* Grâce à ces styles, l'apparence de la modale (couleur de fond, texte, bordures) se met désormais à jour automatiquement lorsque le thème du site est changé via le sélecteur de thème.
+____
+
+* *US-34 : Afficher le résumé des derniers articles*
++
+____
+*En tant que visiteur, je veux voir le titre, la date et le résumé des trois derniers articles de blog sur la page d'accueil, pour avoir un aperçu rapide du contenu récent.*
+
+.*Résolution :*
+Le template `site/templates/blog_section.thyme` a été corrigé pour afficher le résumé (`post.summary`) de l'article au lieu d'un extrait du corps (`post.body`). Le reste de l'implémentation, qui affiche les trois articles les plus récents avec leur titre, date et un lien, reste inchangé.
+____
+
+* *US-29 : Boutons d'Action du Blog*
++
+____
+*En tant qu'utilisateur, je veux des boutons clairs dans la section blog de la page d'accueil pour naviguer facilement vers la page principale du blog, les archives, et pour rechercher des articles, afin de trouver rapidement le contenu qui m'intéresse.*
+
+.*Résolution :*
+.  *Ajout des Boutons :* Trois boutons ont été ajoutés dans la section blog de `maquette/index.html`, au-dessus de la liste des articles.
+**   Un bouton "Visiter le Blog" qui pointe vers `blog.html` (classe `btn-primary`).
+**   Un bouton "Archives" qui pointe vers `archive.html` (classe `btn-secondary`).
+**   Un bouton "Rechercher" qui déclenche l'ouverture d'une fenêtre modale (classe `btn-info`).
+.  *Harmonisation de la Taille :* La classe `btn-lg` a été ajoutée aux trois boutons pour correspondre à la taille des autres boutons d'action principaux du site (sections hero et contact).
+.  *Création de la Modale de Recherche :* Une structure de base pour une fenêtre modale de recherche a été ajoutée à `maquette/index.html`. Elle contient un champ de saisie et un bouton de soumission, et est déclenchée par le bouton "Rechercher".
+.  *Styles Dédiés :* Une classe CSS `.blog-action-buttons` a été créée dans `site/assets/css/styles.css` pour encapsuler les styles spécifiques aux boutons d'action du blog, assurant une meilleure modularité et maintenabilité.
+
+.*Contrainte Ajoutée :*
+Pour créer une hiérarchie visuelle et assurer la cohérence, la taille de tous les boutons d'action du blog ("Visiter le Blog", "Archives", "Rechercher") a été uniformisée à la taille par défaut (classe `btn-lg` retirée), que ce soit sur la page d'accueil ou sur la page de blog dédiée.
+____
+
+* *US-0 : Mettre en Place l'Environnement de Développement UI*
++
+____
+.*Résolution :*
+L'environnement de développement local est géré via la commande `./jbake.sh` qui permet de visualiser en local les changements effectué dans le rendu du site généré.
+____
+
+* *US-28 : Intégration de la Maquette Statique dans JBake/Thymeleaf*
++
+____
+*En tant que développeur, j'ai intégré la maquette statique HTML/CSS/JS dans la structure de templates Thymeleaf de JBake, afin de remplacer l'ancien thème par le nouveau design moderne et responsive.*
+
+.*Résolution :*
+.  *Migration des Actifs :* Les fichiers `styles.css` et `script.js` de la maquette ont été copiés dans `site/assets/css/` et `site/assets/js/` respectivement. Les anciennes feuilles de style (Bootstrap 3, base.css) ont été supprimées des templates.
+.  *Découpage en Fragments :* La page `index.html` de la maquette a été décomposée en plusieurs fragments Thymeleaf dans `site/templates/` :
+**   `hero_section.thyme`
+**   `about_section.thyme`
+**   `services_section.thyme`
+**   `expertise_section.thyme`
+**   `portfolio_section.thyme`
+**   `formations_section.thyme`
+**   `blog_section.thyme`
+**   `contact.thyme`
+.  *Mise à jour des Templates Principaux :*
+**   `header.thyme` : Intègre les nouvelles dépendances CSS (Bootstrap 5, Bootstrap Icons, styles.css).
+**   `menu.thyme` : Contient la nouvelle structure de la barre de navigation, incluant le sélecteur de thème.
+**   `footer.thyme` : Contient le nouveau pied de page et les scripts JS (Bootstrap 5, script.js).
+**   `index.thyme` : Sert de template principal pour la page d'accueil, assemblant tous les fragments de section via des `th:replace`.
+
+[NOTE]
+*Cette intégration constitue la nouvelle base visuelle pour l'ensemble du site.*
+____
+
+* *US-11 : Modèle d'Article `post.thyme`*
++
+____
+*En tant que lecteur, je veux que la page d'un article de blog s'affiche avec le nouveau design moderne et responsive, afin que l'expérience de lecture soit optimale et cohérente avec le reste du site.*
+
+.*Résolution :*
+Le template `post.thyme` a été mis à jour pour hériter du nouveau design global (header, menu, footer). Le contenu de l'article est maintenant encapsulé dans une structure sémantique (`<main>` et `<article>`) et stylisé avec les classes Bootstrap 5 pour une mise en page responsive et une lisibilité optimale.
+____
+
+* *US-15 : Déclaration de Langue*
++
+____
+.*Résolution :*
+La langue du site est correctement déclarée avec `lang="fr"` sur la balise `<html>` dans `header.thyme` et `index.thyme`.
+____
+
+* *US-21 : Indicateur de Focus Visible*
++
+____
+.*Résolution :*
+Des styles de focus clairs sont définis dans `styles.css` pour les éléments interactifs (`.btn`, `.form-control`, `.nav-link`), y compris pour le thème à contraste élevé.
+____
+
+* *US-20 : Navigation au Clavier Complète* (Partiellement)
++
+____
+.*Résolution :*
+Un lien d'évitement (`skip-link`) a été ajouté dans `script.js` et la gestion du focus dans les menus déroulants a été améliorée pour la navigation au clavier. Une vérification complète de la navigation au clavier sur tous les éléments interactifs reste à faire.
+____
+
+* *US-19 : Préparation pour le Multimédia (Transcriptions)* (Partiellement)
++
+____
+.*Résolution :*
+Une région `aria-live="polite"` a été mise en place dans `script.js` pour annoncer les changements de contenu dynamique aux lecteurs d'écran, ce qui est une fondation pour l'accessibilité du multimédia.
+____
+
+* *US-13 : Style des Éléments AsciiDoc*
++
+____
+.*Résolution :*
+La feuille de style `site/assets/css/asciidoctor.css` a été refactorisée pour utiliser les variables CSS du thème et les classes Bootstrap 5, et les styles redondants ont été supprimés.
+____
+
+* *US-16 : Alternatives Textuelles pour les Médias*
++
+____
+.*Résolution :*
+Des attributs `aria-label` ont été ajoutés au bouton de sélection de thème dans `menu.thyme` et aux liens sociaux dans `footer.thyme`. Il a été confirmé qu'il n'y a pas de balises `<img>` dans les templates actuels nécessitant des attributs `alt`.
+____
+
+* *US-17 : Contrastes et Utilisation de la Couleur*
++
+____
+.*Résolution :*
+Les variables de couleur dans `styles.css` ont été ajustées pour améliorer les ratios de contraste et se conformer aux exigences WCAG 2.1 AA.
+____
+
+* *Tâche d'Amélioration : Structure Sémantique des Templates*
++
+____
+.*Résolution :*
+La structure sémantique des templates a été améliorée en s'assurant que toutes les sections utilisent des balises `<section>` avec des titres `<h2>` appropriés. La balise `<main id="main-content">` a été ajoutée à `index.thyme` et `post.thyme`, puis retirée de `index.thyme` à la demande de l'utilisateur pour une structure plus simple, et corrigée dans `post.thyme` pour assurer la validité HTML.
+____
+
+* *Tâche d'Amélioration : Nettoyage des Dépendances Obsoletes*
++
+____
+.*Résolution :*
+Les liens vers les fichiers CSS (`css/base.css`, `css/prettify.css`) et JS (`js/html5shiv.min.js`, `js/jquery-1.11.1.min.js`) obsolètes ont été supprimés de `header.thyme` et `index.thyme`. Les fichiers physiques n'ont pas été supprimés à la demande de l'utilisateur, en attendant la validation de l'intégration des articles de blog.
+____
+
+* *Tâche d'Amélioration : Fonctionnement du Sélecteur de Thème sur la Page Blog*
++
+____
+.*Résolution :*
+Le sélecteur de thème fonctionne désormais correctement sur la page de blog. Les scripts `bootstrap.bundle.min.js` et `script.js` ont été centralisés dans `site/templates/footer.thyme`. Les inclusions de scripts dupliquées ont été supprimées de `site/templates/index.thyme`. L'attribut `lang="fr"` a été ajouté à la balise `<html>` de `site/templates/blog.thyme` pour la cohérence. Enfin, la double initialisation des composants dans `site/assets/js/script.js` a été corrigée.
+____
+
+* *Tâche d'Amélioration : Correction des Liens de Navigation sur la Page Blog*
++
+____
+.*Résolution :*
+Les liens de navigation dans `site/templates/menu.thyme` ont été mis à jour pour pointer correctement vers les sections de la page d'accueil (`index.html#section`) lorsque l'utilisateur se trouve sur une autre page (comme `blog.html`). Une logique conditionnelle basée sur la variable `isIndexPage` a été ajoutée pour adapter dynamiquement les URLs des liens.
+____
+
+* *Tâche d'Amélioration : Navigation Contextuelle Intelligente (Initiative)*
++
+____
+*En tant qu'utilisateur, je veux que les liens du menu s'adaptent à la page sur laquelle je me trouve. Spécifiquement, le lien 'Blog' doit pointer vers la section `#blog` sur la page d'accueil, mais vers `blog.html` depuis les autres pages, afin d'éviter une redirection déroutante vers la page d'accueil.*
+
+.*Résolution :*
+Cette initiative a été implémentée dans `site/templates/menu.thyme` en exploitant la variable `isIndexPage`. Le lien du blog utilise une expression `th:href` conditionnelle : `th:href="${isIndexPage ? '#blog' : content.rootpath + 'blog.html'}"`. Ce comportement intelligent, non spécifié initialement, a été ajouté proactivement pour garantir une navigation fluide et prévisible, et a été formellement documenté suite à la revue de l'utilisateur.
+____
+
+* *US-35 : Liens de Navigation Cohérents sur la Page Blog*
++
+____
+*En tant qu'utilisateur, je veux que les liens de navigation du menu sur la page de blog me redirigent correctement vers les sections correspondantes de la page d'accueil, afin de pouvoir naviguer fluidement sur l'ensemble du site.*
+
+.*Résolution :*
+Les liens de navigation dans `site/templates/menu.thyme` ont été mis à jour pour pointer correctement vers les sections de la page d'accueil (`index.html#section`) lorsque l'utilisateur se trouve sur une autre page (comme `blog.html`). Une logique conditionnelle basée sur la variable `isIndexPage` a été ajoutée pour adapter dynamiquement les URLs des liens.
+____
+
+* *US-38 : Alignement des Boutons "Lire la suite" dans les Cartes d'Articles*
++
+____
+*En tant que visiteur, je veux que le bouton "Lire la suite" soit toujours positionné en bas à gauche de la carte d'aperçu de l'article, quelle que soit la longueur du résumé, afin que l'alignement visuel des cartes sur une même ligne soit cohérent et esthétique.*
+
+.*Résolution :*
+Les classes Bootstrap 5 `d-flex flex-column` ont été ajoutées au `.card-body` et `mt-auto` au bouton "Lire la suite" dans les templates `site/templates/blog.thyme` et `site/templates/blog_section.thyme`. Cela garantit que le bouton est toujours aligné en bas, quelle que soit la hauteur de la carte, assurant une cohérence visuelle sur la page de blog et la page d'accueil.
+____
+
+* *US-36 : Flèche de Retour en Haut de Page sur le Blog*
++
+____
+.*Résolution :*
+La flèche de retour en haut de page a été implémentée et améliorée.
+
+. *Structure HTML :* Le bouton a été retiré du `footer.thyme` et ajouté directement dans `index.thyme` et `blog.thyme` pour un meilleur contrôle.
+. *Style et Forme :* Les styles CSS dans `site/assets/css/styles.css` ont été modifiés pour transformer le bouton en une forme carrée avec des coins arrondis, tout en assurant son positionnement fixe en bas à droite.
+. *Comportement Dynamique :* La logique dans `site/assets/js/script.js` a été perfectionnée. Le bouton apparaît désormais uniquement lorsque l'utilisateur remonte la page (il est masqué en haut et tout en bas). De plus, sa position s'ajuste dynamiquement pour rester visible juste au-dessus du footer lorsque celui-ci entre dans le champ de vision.
+____
+
+* *Tâche d'Amélioration : Cohérence des Liens de Navigation sur les Pages Secondaires (Archive, Blog)*
++
+____
+.*Résolution :*
+Les liens de navigation dans `site/templates/menu.thyme` ont été mis à jour pour utiliser une condition explicite `content.uri == 'index.html'` pour déterminer si la page actuelle est la page d'accueil. Si ce n'est pas le cas, les liens sont construits avec `content.rootpath + 'index.html#section'` (pour les sections de la page d'accueil) ou `content.rootpath + 'blog.html'` (pour la page de blog). Cette modification garantit que les liens pointent toujours vers les bonnes destinations, indépendamment de la page actuelle, améliorant ainsi la cohérence de la navigation.
+____
+
+* *Tâche d'Amélioration : Correction du Chevauchement du Contenu sur la Page d'Archives*
++
+____
+.*Résolution :*
+Le problème de chevauchement du contenu sous la barre de navigation sur la page d'archives a été résolu. Une nouvelle classe CSS `.main-content-padding` a été ajoutée à `site/assets/css/styles.css` avec un `padding-top` dynamique (`calc(var(--navbar-height) + 2rem)`). Cette classe a ensuite été appliquée au `div.container` principal de la page dans `site/templates/archive.thyme`, assurant un espacement correct et évitant le chevauchement.
+____
+
+'''
+
+== 🤔 Suivi des Décisions de Développement
+
+Cette section documente les décisions stratégiques et les ajustements apportés au plan de développement initial.
+
+=== ✅ *Tâches Préliminaires Terminées*
+
+* *US-0 : Mettre en Place l'Environnement de Développement UI*
++
+____
+.*Résolution :*
+L'environnement de développement local est géré via la commande `./jbake.sh` qui permet de visualiser en local les changements effectué dans le rendu du site généré.
+____
+
+=== 📝 *Ajustements du Backlog*
+
+* *Gestion de l'Accessibilité :* Les User Stories des épopées 3, 4, 5 et 6 ne seront pas traitées comme des tâches isolées. Elles serviront de *critères d'acceptance transverses* pour toutes les nouvelles fonctionnalités UI.
+* *Migration vers Bootstrap 5 :* La refonte UI est maintenant considérée comme terminée avec l'intégration de la nouvelle maquette (US-28). Les anciennes US liées à la migration progressive de Bootstrap 3 sont archivées.
+
+=== 🔍 *Bilan de la Revue de Code et Améliorations Apportées*
+
+.*Objectif :*
+Identifier et corriger les ajouts potentiellement inutiles ou les erreurs structurelles, et documenter les améliorations apportées au code CSS et JS.
+
+.*Observations et Actions par Fichier :*
+* *`index.thyme`*
+** *Observation Initiale :* Une tentative d'ajout de la balise `<main id="main-content">` avait initialement conduit à une balise fermante mal placée, rendant le HTML invalide.
+** *Action :* La balise fermante mal placée a été supprimée. Suite à la demande de l'utilisateur, la balise ouvrante `<main id="main-content">` a également été retirée pour une structure plus simple.
+** *Statut Actuel :* Le fichier est maintenant propre et valide, sans la balise `<main>`.
+
+* *`post.thyme`*
+** *Observation Initiale :* Présence de balises `<main>` et `<article>` mal placées et d'un `div` avec `id="wrap"` inutile, entraînant un HTML invalide.
+** *Action :* Le fichier a été entièrement réécrit avec une structure propre et valide, supprimant le `div` `id="wrap"` et les balises sématiques problématiques, tout en préservant l'affichage du contenu.
+** *Statut Actuel :* Le fichier est propre et valide.
+
+* *`header.thyme`*
+** *Observation Initiale :* Contenait des liens vers des fichiers CSS (`css/base.css`, `css/prettify.css`) et JS (`js/html5shiv.min.js`) obsolètes.
+** *Action :* Ces liens obsolètes ont été supprimés.
+** *Statut Actuel :* Le fichier est propre, ne contenant que les liens nécessaires vers Bootstrap 5, Bootstrap Icons, `styles.css` et `asciidoctor.css`.
+
+* *`footer.thyme`*
+** *Observation Initiale :* Les liens vers les réseaux sociaux manquaient d'attributs `aria-label` pour l'accessibilité.
+** *Action :* Des attributs `aria-label` appropriés ont été ajoutés à ces liens.
+** *Statut Actuel :* L'accessibilité des liens sociaux a été améliorée.
+
+* *`asciidoctor.css`*
+** *Observation Initiale :* Le fichier contenait de nombreux styles redondants, obsolètes et conflictuels (par exemple, des correctifs spécifiques à IE, d'anciennes réinitialisations, des couleurs codées en dur) qui n'étaient pas alignés avec Bootstrap 5 ou le système de thème basé sur les variables CSS.
+** *Action :* Le fichier a été entièrement refactorisé. Les règles obsolètes ont été supprimées et les styles restants (images, formulaires, titres, listes, citations, tableaux, blocs de code, admonitions, etc.) ont été mis à jour pour utiliser les variables CSS et les conventions de Bootstrap 5.
+** *Statut Actuel :* Le fichier est beaucoup plus propre, plus ciblé et aligné avec les standards du projet.
+
+* *`styles.css`*
+** *Observation Initiale :* Les variables de couleur initiales pour les thèmes clair et sombre présentaient des ratios de contraste insuffisants pour `--text-secondary`, `--text-muted` et `--accent-color` afin de respecter les normes WCAG 2.1 AA.
+** *Action :* Ces variables de couleur ont été ajustées pour utiliser des nuances plus foncées pour le thème clair et plus claires pour le thème sombre, afin d'améliorer le contraste.
+** *Statut Actuel :* Le contraste des couleurs a été amélioré, répondant aux exigences d'accessibilité.
+
+* *`script.js`*
+** *Observation Initiale :* Le fichier a été examiné pour détecter d'éventuels ajouts inutiles.
+** *Action :* Aucun ajout inutile n'a été trouvé. Toutes les classes (ThemeManager, SmoothScroll, NavbarScrollEffect, FormHandler, AnimationObserver, AccessibilityEnhancements, PerformanceOptimizer) contribuent directement à la modernisation de l'interface utilisateur, à l'expérience utilisateur, à l'accessibilité et aux objectifs de performance.
+** *Statut Actuel :* Le fichier est propre et fonctionnel.
+
+*Mise à jour du Tableau Scrumban :*
+
+Les tâches suivantes ont été déplacées vers la colonne "Terminé" :
+
+* *Tâche d'Amélioration : Nettoyage des Dépendances Obsoletes*
+* *Tâche d'Amélioration : Structure Sémantique des Templates*
+
+'''
+
+== 🤖 Assistant de Développement
+
+* *Nom :* e3po
+* *Référence :* Droid de protocole de l'Empire dans Star Wars (licence de film de George Lucas).
+* *Utilisateur :* cheroliv
+* *Rôle :* Assistant de développement pour le projet situé dans le dossier `/home/cheroliv/workspace/__repositories__/thymeleaf.cheroliv.com/`. E3PO doit aider à coder et maintenir la cohérence du développement du site personnel, tel que décrit par les épopées définies dans ce document.
+
+'''
+
+== 🧠 Knowledge Base
+
+Cette section documente le parcours de développement, les décisions techniques et les solutions mises en œuvre.
+
+
+
+=== *Épopée 13 : Mise en Place de l'Infrastructure RAG (Retrieval-Augmented Generation)*
+
+==== Proposition d'Architecture RAG pour Gemini-CLI
+
+===== Vision : Créer un "Second Cerveau" pour l'Assistant e3po
+
+L'objectif est de doter l'assistant `e3po` d'une connaissance approfondie et contextuelle du projet `thymeleaf.cheroliv.com`. Au lieu de se baser uniquement sur les informations fournies dans la fenêtre de contexte limitée du prompt, l'assistant pourra interroger une base de connaissances privée et à jour, construite à partir des fichiers du projet.
+
+Ce système RAG (Retrieval-Augmented Generation) agira comme un "second cerveau", permettant à `e3po` de :
+
+*   **Répondre à des questions précises** sur le code, l'architecture ou les décisions de conception passées.
+*   **Générer du code cohérent** avec les conventions et les bibliothèques déjà en place.
+*   **Accélérer le développement** en fournissant instantanément le contexte pertinent pour une tâche donnée.
+
+Le flux de travail serait le suivant :
+
+. **Question de l'utilisateur** (`cheroliv`) à `gemini-cli`.
+. **Interrogation RAG** : Le système RAG recherche dans sa base de connaissances (vecteurs) les documents les plus pertinents par rapport à la question.
+. **Augmentation du Prompt** : Le prompt initial est enrichi avec le contexte retrouvé.
+. **Génération** : Le prompt augmenté est envoyé à l'API Gemini, qui fournit une réponse beaucoup plus précise et contextuelle.
+
+'''
+
+===== Options d'Architecture Technique
+
+Les deux options ci-dessous sont excellentes et robustes. Le choix dépendra principalement de votre écosystème de prédilection et de vos objectifs à long terme.
+
+====== Option 1 : L'Écosystème Cohérent (Kotlin + Gradle + LangChain4j + PostgreSQL)
+
+Cette option s'intègre parfaitement dans l'écosystème existant de votre projet, qui utilise déjà Gradle et Kotlin. C'est un choix pragmatique et performant.
+
+*Langage & Build*:: **Kotlin + Gradle**
++
+--
+*Pourquoi ?* Vous maîtrisez déjà cet environnement. La robustesse du typage statique de Kotlin est un atout pour la maintenabilité. L'intégration d'une tâche Gradle pour l'indexation des données serait naturelle.
+--
+
+*Framework RAG*:: **LangChain4j**
++
+--
+*Pourquoi ?* C'est la bibliothèque de référence dans l'écosystème Java/Kotlin. Elle offre une API fluide et complète pour gérer le cycle de vie RAG : chargement de documents, découpage, embedding, et orchestration des appels au LLM.
+--
+
+*Base de Vecteurs*:: **PostgreSQL avec l'extension `pgvector`**
++
+--
+*Pourquoi ?* C'est un choix exceptionnel. Vous capitalisez sur un SGBD relationnel que vous connaissez, qui est mature, transactionnel et robuste. `pgvector` permet de stocker les vecteurs d'embedding directement aux côtés des métadonnées, simplifiant grandement l'architecture (pas de base de données supplémentaire à gérer).
+--
+
+*Modèle d'Embedding*:: **API Gemini (e.g., `text-embedding-004`)**
++
+--
+*Pourquoi ?* Pour rester cohérent avec le modèle de génération. Utiliser les embeddings de Google garantit une "compréhension" sémantique alignée avec le LLM qui générera la réponse finale.
+--
+
+======= Avantages :
+*   **Cohérence du projet** : Tout reste dans le même écosystème (JVM, Gradle).
+*   **Performance et Robustesse** : La JVM et le typage statique de Kotlin offrent un cadre solide.
+*   **Gestion simplifiée** : Pas besoin de jongler avec plusieurs environnements (Python, Node, etc.).
+*   **Intégration naturelle** : Une tâche Gradle (`./gradlew indexContent`) pourrait automatiser la mise à jour de la base de connaissances.
+
+======= Inconvénients :
+*   L'écosystème IA/ML est historiquement moins fourni sur la JVM que sur Python, même si LangChain4j comble une grande partie de l'écart.
+
+'''
+
+====== Option 2 : Le Standard de l'Industrie (Python + FastAPI + LangChain + PostgreSQL)
+
+Python est le langage de facto pour le Machine Learning et les applications d'IA. Cette option offre une flexibilité et un accès à l'écosystème le plus large.
+
+*Langage*:: **Python**
++
+--
+*Pourquoi ?* Simplicité, rapidité de prototypage et un accès inégalé aux bibliothèques d'IA/ML.
+--
+
+*Framework RAG*:: **LangChain ou LlamaIndex**
++
+--
+*Pourquoi ?* Ce sont les leaders incontestés. LangChain est extrêmement complet, tandis que LlamaIndex est souvent plus spécialisé et performant sur les aspects de "retrieval".
+--
+
+*API Service*:: **FastAPI**
++
+--
+*Pourquoi ?* Pour exposer la logique RAG via une API REST simple et ultra-performante que `gemini-cli` (ou un script wrapper) pourrait appeler.
+--
+
+*Base de Vecteurs*:: **PostgreSQL avec `pgvector`** (ou alternatives)
++
+--
+*Pourquoi ?* Les mêmes raisons que pour l'option 1. C'est une base solide. Alternativement, des solutions plus légères comme **ChromaDB** ou **FAISS** (basé sur des fichiers) pourraient être utilisées pour un démarrage rapide sans serveur de base de données.
+--
+
+*Modèle d'Embedding*:: **API Gemini**
++
+--
+*Pourquoi ?* Mêmes raisons : cohérence de l'écosystème sémantique.
+--
+
+======= Avantages :
+*   **Écosystème le plus riche** : Accès à toutes les dernières innovations et bibliothèques.
+*   **Communauté immense** : Très facile de trouver de l'aide, des tutoriels et des exemples.
+*   **Prototypage rapide** : Le code Python est souvent plus concis pour ce type de tâches.
+
+======= Inconvénients :
+*   **Complexité d'environnement** : Nécessite de gérer un environnement Python (`venv`, `pip`, `conda`) en parallèle de votre projet Gradle.
+*   **Moins d'intégration "native"** avec votre build Gradle.
+
+'''
+
+===== 3. Recommandation & Stratégie de Base de Données
+
+Votre faible pour le combo *Kotlin + LangChain4j + PostgreSQL* est non seulement justifié mais également *très pertinent* pour votre contexte. C'est l'approche que je vous recommande de privilégier.
+
+Elle garantit une **cohérence technique** avec votre projet, simplifie la maintenance et s'appuie sur des technologies robustes et performantes que vous maîtrisez déjà. L'idée de créer une tâche Gradle pour gérer l'indexation est particulièrement séduisante et efficace.
+
+L'option Python reste une excellente alternative, à considérer si jamais vous ressentez le besoin d'une bibliothèque très spécifique qui n'existerait que dans cet écosystème.
+
+====== Validation de l'Utilisation de Supabase
+
+L'utilisation de **Supabase** comme fournisseur PostgreSQL managé est une **décision stratégique excellente** qui renforce encore la cohérence du projet.
+
+*   **Cohérence Maximale** : Vous centralisez tous les besoins backend (formulaire de contact, RAG) sur une seule et même plateforme.
+*   **Simplicité Radicale** : Aucune gestion d'infrastructure (Docker, base de données locale). L'extension `pgvector` s'active en un clic.
+*   **Infrastructure Unifiée** : Les mêmes secrets et configurations peuvent être utilisés pour toutes les interactions avec le backend.
+
+Cette approche est donc validée et sera la base de l'implémentation.
+
+.Prochaine étape suggérée
+****
+Mettre en place un premier PoC (Proof of Concept) avec l'option 1, en utilisant Supabase :
+
+. Activer l'extension `pgvector` sur le projet Supabase.
+. Ajouter les dépendances `langchain4j` au build Gradle.
+. Créer une tâche Gradle qui :
+.. Lit un ensemble de fichiers `.md` ou `.adoc`.
+.. Les découpe en morceaux (chunks).
+.. Utilise l'API Gemini pour créer des embeddings.
+.. Stocke ces embeddings dans la base de données Supabase.
+****
+
+Quelle option préférez-vous explorer en premier ?
+
+=== *Épopée 11 : Couverture de Test pour le Build Gradle (Infrastructure)*
+
+* *Objectif :* Mettre en place une couverture de test robuste pour le script de build Gradle, afin de garantir sa fiabilité et sa maintenabilité.
+* *Ressources :*
+** link:tiroir/gradle-9.0.0/docs/userguide/test_kit.html[Testing Build Logic with TestKit] : Documentation officielle de Gradle sur l'utilisation de TestKit pour tester la logique de build, y compris les tâches Gradle.
+* *US-67 : Intégration de JUnit 5 pour les Tests Gradle*
++++
+<div class="paragraph">
+<p><strong>En tant que développeur, je veux intégrer JUnit 5 au projet Gradle, afin de pouvoir écrire et exécuter des tests unitaires pour les tâches et la logique du build.</strong></p>
+</div>
++++
+* *US-68 : Écriture de Tests Unitaires pour les Tâches Gradle Clés*
++++
+<div class="paragraph">
+<p><strong>En tant que développeur, je veux écrire des tests unitaires pour les tâches Gradle critiques (ex: `publishSite`, `setupSupabaseSchema`), afin de valider leur comportement et leurs interactions.</strong></p>
+</div>
++++
+* *US-69 : Mesure de la Couverture de Code avec JaCoCo*
++++
+<div class="paragraph">
+<p><strong>En tant que développeur, je veux intégrer JaCoCo au build Gradle, afin de mesurer la couverture de code des scripts de build et d'identifier les zones non testées.</strong></p>
+</div>
++++
+* *US-70 : Rapports de Couverture de Test dans GitHub Actions*
++++
+<div class="paragraph">
+<p><strong>En tant que développeur, je veux que les rapports de couverture de test soient générés et affichés dans la pipeline GitHub Actions, afin de visualiser l'état de la couverture à chaque déploiement.</strong></p>
+</div>
++++
+
+=== *Épopée 10 : Intégration du Formulaire de Contact avec Supabase*
+
+* *US-60 : Configuration du Backend Supabase*
+** *Schéma de la Base de Données :* Pour garantir une structure de données robuste, sécurisée et normalisée, la configuration se fait via l'éditeur SQL de Supabase. Le script ci-dessous est la source de vérité pour l'architecture de la base de données.
+
+* *Logique du Schéma :*
+.  *Table `contacts` :* Stocke les informations uniques sur les personnes qui entrent en contact (nom, email, téléphone). L'unicité est garantie sur l'email et le téléphone.
+.  *Table `messages` :* Stocke chaque message individuel, lié à un contact via une clé étrangère. Cela évite la duplication des données de contact si une même personne envoie plusieurs messages.
+.  *Sécurité (RLS) :* La sécurité au niveau des lignes est activée sur les deux tables pour empêcher toute lecture depuis le client.
+.  *Fonction RPC `handle_contact_form` :* C'est le *seul point d'entrée* pour le formulaire. Cette fonction sécurisée gère la logique de "trouver ou créer" un contact, puis d'insérer le message de manière atomique. Le frontend n'appelle que cette fonction, jamais les tables directement.
+
+* *Script d'Initialisation SQL :*
+
+[source,sql]
+----
+-- =================================================================
+--  SCHEMA COMPLET ET SÉCURISÉ POUR LE FORMULAIRE DE CONTACT
+-- =================================================================
+
+-- 1. Création de la table "contacts"
+-- Utilise un UUID comme clé primaire.
+-- Garantit l'unicité sur 'email' (si non nul) ET sur 'telephone' (si non nul).
+-- Assure qu'au moins l'un des deux est fourni.
+-- =================================================================
+CREATE TABLE public.contacts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+    name TEXT,
+    email TEXT,
+    telephone TEXT,
+    CONSTRAINT contacts_email_key UNIQUE (email),
+    CONSTRAINT contacts_telephone_key UNIQUE (telephone),
+    CONSTRAINT check_contact_info CHECK (email IS NOT NULL OR telephone IS NOT NULL)
+);
+
+-- 2. Création de la table "messages" pour stocker les soumissions
+-- =================================================================
+CREATE TABLE public.messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    created_at TIMESTAMPTZ DEFAULT now() NOT NULL,
+    contact_id UUID NOT NULL REFERENCES public.contacts(id) ON DELETE CASCADE,
+    subject TEXT,
+    message TEXT
+);
+
+-- 3. Activation de la sécurité RLS pour les deux tables
+-- =================================================================
+ALTER TABLE public.contacts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
+
+-- 4. Création de la fonction RPC "handle_contact_form"
+-- C'est le seul point d'entrée pour le formulaire. Elle gère la logique
+-- de recherche/création du contact et l'insertion du message de manière atomique et sécurisée.
+-- =================================================================
+CREATE OR REPLACE FUNCTION public.handle_contact_form(
+    p_name TEXT,
+    p_email TEXT,
+    p_subject TEXT,
+    p_message TEXT
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $
+DECLARE
+    contact_uuid UUID;
+BEGIN
+    SELECT id INTO contact_uuid FROM public.contacts WHERE email = p_email;
+
+    IF contact_uuid IS NULL THEN
+        INSERT INTO public.contacts (name, email)
+        VALUES (p_name, p_email)
+        RETURNING id INTO contact_uuid;
+    END IF;
+
+    INSERT INTO public.messages (contact_id, subject, message)
+    VALUES (contact_uuid, p_subject, p_message);
+END;
+$;
+
+-- 5. Donner la permission d'exécuter la fonction au rôle public
+-- =================================================================
+GRANT EXECUTE
+ON FUNCTION public.handle_contact_form(TEXT, TEXT, TEXT, TEXT)
+TO anon;
+----
+
+=== *CI/CD : Déploiement Automatisé avec GitHub Actions*
+
+Le projet intègre une pipeline de déploiement continu (CI/CD) via GitHub Actions, définie dans le fichier `.github/workflows/website.yml`. Cette automatisation assure que chaque modification poussée sur la branche `main` est automatiquement construite et déployée sur GitHub Pages.
+
+* *Déclencheurs (Triggers) :*
+** *`push: branches: [main]` :* Le déploiement est lancé automatiquement à chaque fois qu'un commit est poussé sur la branche `main`.
+** *`workflow_dispatch` :* Permet de lancer manuellement le déploiement depuis l'onglet "Actions" de GitHub, ce qui est utile pour redéployer une version existante sans avoir à créer un nouveau commit.
+
+* *Processus du Job (`publish-website`) :*
+    1.  *Environnement :* Le job s'exécute sur une machine virtuelle Ubuntu (`ubuntu-latest`) fournie par GitHub.
+    2.  *Checkout :* La première étape (`actions/checkout@v4`) récupère le code source du dépôt.
+    3.  *Setup Java :* L'environnement Java 24 (`temurin`) est ensuite configuré (`actions/setup-java@v4`), ce qui est un prérequis pour exécuter Gradle.
+    4.  *Déploiement :* L'étape finale exécute deux commandes critiques :
+        *   `echo "${{ secrets.CHEROLIV_MIGRATION_CONFIG }}" > managed-jbake-context.yml` : Cette commande injecte la configuration externe (credentials de déploiement, clés Supabase, etc.) depuis un secret GitHub dans un fichier `managed-jbake-context.yml`. C'est une méthode sécurisée pour fournir des informations sensibles au processus de build sans les stocker dans le code.
+        *   `./gradlew -q -s publishSite` : C'est le cœur du déploiement. Elle exécute la tâche Gradle `publishSite`. Au démarrage, *le build Gradle lit le fichier `managed-jbake-context.yml` et le mappe à l'objet `SiteConfiguration`*, qui devient la source de vérité unique pour toutes les tâches (JBake, déploiement, etc.).
+            *   `-q` (`--quiet`) : Réduit le bruit dans les logs en n'affichant que les erreurs.
+            *   `-s` (`--stacktrace`) : Fournit une trace complète en cas d'erreur, facilitant le débogage.
+
+=== *Configuration du Déploiement (`managed-jbake-context.yml` et `SiteConfiguration`)*
+
+Le fichier `managed-jbake-context.yml`, généré dynamiquement par la GitHub Action, est la source de vérité pour la configuration externe. Son contenu est directement mappé par le build Gradle à une `data class SiteConfiguration` (via Jackson), qui centralise tous les paramètres.
+
+Voici un exemple anonymisé de la structure du fichier YAML :
+
+[source,yaml]
+----
+bake:
+  srcPath: "site"
+  destDirPath: "bake"
+  cname: ""
+pushPage:
+  from: "bake"
+  to: "cvs"
+  repo:
+    name: "jdoe.github.io"
+    repository: "https://github.com/jdoe/jdoe.github.io.git"
+    credentials:
+      username: "jdoe"
+      password: "gho_api_key"
+  branch: "main"
+  message: "jdoe/jdoe.github.io"
+pushMaquette:
+  from: "bake"
+  to: "cvs"
+  repo:
+    name: "jdoe-maquette"
+    repository: "https://github.com/jdoe/jdoe-maquette.git"
+    credentials:
+      username: "jdoe"
+      password: "gho_api_key"
+  branch: "main"
+  message: "jdoe/jdoe-maquette"
+----
+
+* *Analyse des sections :*
+** *`bake`* : Cette section configure les chemins de base pour JBake.
+        *   `srcPath` : Le dossier source (`site/`) contenant les templates, assets et contenus.
+        *   `destDirPath` : Le dossier de destination (`bake/`) où le site statique est généré par JBake.
+** *`pushPage`* : C'est la configuration principale pour le déploiement du site public.
+        *   `from` : Spécifie que le contenu à déployer se trouve dans le dossier `bake` (le site généré).
+        *   `repo` : Définit le dépôt Git de destination.
+            *   `repository` : L'URL du dépôt où le site doit être publié (ex: `cheroliv.github.io`).
+            *   `credentials` : Contient les informations d'authentification. Le `password` est un *Personal Access Token (PAT)* de GitHub avec les permissions nécessaires pour pousser du code.
+        *   `branch` : La branche cible du déploiement (ici, `main`).
+        *   `message` : Le message de commit utilisé pour le déploiement.
+** *`pushMaquette`* : Cette section illustre la flexibilité du script, permettant de déployer potentiellement une autre version du site (une maquette) vers un dépôt différent avec ses propres credentials et message de commit.
+
+Cette approche centralisée et basée sur les secrets est une bonne pratique de sécurité qui sépare la configuration sensible du code source versionné.

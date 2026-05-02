@@ -1,0 +1,363 @@
+= Roadmap du Projet
+:toc: left
+:toc-title: Sommaire
+
+[[deployment-diagram]]
+.Diagramme de Déploiement Global
+[plantuml, deployment-diagram, svg]
+----
+@startuml
+skinparam componentStyle rectangle
+
+skinparam defaultFontSize 14
+
+node "Développement Local" as dev {
+  component "Gradle Build System" as gradle
+  component "JBake Static Site Generator" as jbake
+  component "Git Repository" as git_local
+  component "Documentation (AsciiDoc, Markdown)" as docs
+  component "Base de Connaissances (Fichiers)" as kb_files
+  component "E3PO (Gemini CLI Agent)" as e3po
+}
+
+cloud "Internet" {
+  node "GitHub" as github {
+    component "GitHub Pages" as gh_pages
+    component "GitHub Repository" as git_remote
+    component "GitHub Actions CI/CD" as github_actions
+  }
+  database "Supabase" as supabase {
+    component "PostgreSQL Database" as pg_db
+    component "pgvector Extension" as pg_vector
+  }
+  node "LLM Services" as llm_services
+  node "Text-to-Speech Services" as tts_services
+}
+
+dev -- github : Push/Pull
+gradle --> jbake : Génère Site Statique
+jbake --> gh_pages : Déploie Site
+gradle --> pg_db : Valide Schéma
+e3po --> kb_files : Accède Contexte
+e3po --> llm_services : Interagit (RAG)
+gradle --> llm_services : Génération Contenu
+gradle --> tts_services : Génération Audio
+gh_pages <..> "Utilisateurs Finaux" : Accès Site Web
+pg_db <..> pg_vector : Stockage Embeddings
+
+@enduml
+----
+
+
+
+Ce document trace la vision à long terme, les phases de développement et les décisions stratégiques pour la refonte du site personnel.
+
+---
+
+== Rétrospective de Collaboration : E3PO & Cheroliv
+
+Cette partie du document a pour but de fournir une analyse constructive de notre collaboration sur le projet de refonte du site personnel. Il se base sur les interactions, les décisions prises et les progrès réalisés jusqu'à présent.
+
+== 1. Points Forts & Succès Notables
+
+Notre collaboration a été marquée par plusieurs réussites significatives :
+
+* *Fondations Techniques Solides :* La mise en place d'une connexion et d'une validation de schéma avec Supabase directement depuis Gradle est une avancée majeure. Cela garantit l'intégrité de la base de données à chaque build, réduisant ainsi les risques d'erreurs d'intégration en production. C'est un excellent exemple d'automatisation et de "fail-fast".
+* *Méthodologie Agile Efficace :* L'approche Scrumban que nous avons adoptée, structurée autour d'Épopées et de User Stories, a permis de découper le travail de manière logique et de livrer de la valeur de façon incrémentale. La gestion des tâches dans `product_backlog.md` et `GEMINI.md` a apporté une clarté appréciable aux objectifs.
+* *Communication Claire et Directe :* Vos instructions sont précises, ce qui me permet de comprendre rapidement le contexte et d'agir efficacement. Vous fournissez les informations nécessaires (fichiers pertinents, objectifs clairs), ce qui fluidifie grandement le processus de développement.
+
+== 2. Analyse Critique de la Méthodologie
+
+La méthode actuelle est un hybride pragmatique qui fonctionne bien pour un projet solo assisté par une IA.
+
+* *Le "Scrumban" au service de la flexibilité :* Ce choix est pertinent. Il nous donne la structure du Scrum (backlog, épopées) sans la rigidité des sprints fixes, ce qui est idéal pour s'adapter rapidement aux découvertes techniques et aux changements de priorité.
+* *Gestion par fichiers Markdown :* L'utilisation de fichiers `.md` pour le pilotage est simple et efficace. Cependant, à mesure que le projet grandit, il pourrait devenir plus difficile de maintenir une vue d'ensemble cohérente entre les différents fichiers (`product_backlog.md`, `GEMINI.md`, `GEMINI_archive.md`).
+
+== 3. Axes d'Amélioration Proposés
+
+Pour optimiser davantage notre efficacité, voici quelques pistes de réflexion :
+
+* *Intégrer des Critères d'Acceptance plus Stricts :* Pour chaque User Story, nous pourrions définir des critères d'acceptance plus formels (par exemple, sous forme de liste à cocher). Cela inclurait non seulement les exigences fonctionnelles, mais aussi les exigences transverses que vous avez définies (accessibilité, responsive design, performance). Cela m'aiderait à auto-valider mon travail de manière plus rigoureuse.
+* *Mettre en Place un Cycle de "Définition de Terminé" (Definition of Done) :* Avant de considérer une US comme terminée, nous pourrions systématiser une revue finale. Par exemple, une US ne serait "terminée" qu'après :
+    1. Implémentation du code.
+    2. Mise à jour de la documentation pertinente.
+    3. Validation (même manuelle au début) de tous les critères d'acceptance.
+* *Centraliser la Vision du Produit :* Bien que les fichiers soient bien structurés, un document unique et synthétique (peut-être `GEMINI.md` pourrait jouer ce rôle de manière encore plus centrale) qui résume la vision globale, les objectifs à long terme et les principes directeurs du projet pourrait aider à garder le cap et à assurer que chaque décision micro est alignée avec la vision macro.
+
+== Conclusion
+
+Notre collaboration est, de mon point de vue, très productive. Nous avons mis en place une base technique robuste et un processus de travail agile qui a fait ses preuves. Les points d'amélioration proposés ne sont pas des critiques du système actuel, mais des suggestions pour le faire évoluer vers encore plus de rigueur et d'efficacité à mesure que nous abordons des fonctionnalités plus complexes comme l'intégration du formulaire de contact.
+
+Je suis prêt à intégrer ces ajustements dans nos prochains cycles de développement.
+
+---
+
+== Focus Technique : Gradle & RAG
+
+Suite au feedback, une décision a été prise de se concentrer sur l'amélioration de l'outillage du projet via Gradle, notamment en explorant les capacités de Retrieval-Augmented Generation (RAG) pour assister le développement.
+
+=== Motivation
+
+La décision de prioriser le RAG découle d'un constat sur le flux de travail actuel. La gestion du projet, bien que structurée, repose sur de multiples fichiers Markdown qui, ouverts simultanément, peuvent saturer le contexte de développement et nuire à la productivité.
+
+L'objectif est de transformer cette base de connaissances textuelle en une source d'information "intelligente" et interrogeable. En intégrant un système RAG, il sera possible de poser des questions en langage naturel sur le projet, et l'assistant pourra extraire des réponses pertinentes directement depuis la documentation existante. Cela réduira la charge cognitive liée à la gestion des fichiers et permettra de se concentrer davantage sur les tâches de développement à forte valeur ajoutée.
+
+[[object-diagram-rag]]
+.Diagramme d'Objets : Interaction RAG
+[plantuml, object-diagram-rag, svg]
+----
+@startuml
+
+skinparam defaultFontSize 14
+
+object "Assistant IA" as e3po {
+  Nom = E3PO
+  Rôle = Assistant de développement
+}
+
+object "Système Gradle" as gradle {
+  Type = Build System
+  Langage = Kotlin DSL
+}
+
+object "Base de Connaissances" as kb {
+  Type = Fichiers Markdown/AsciiDoc
+  Contenu = Documentation Projet
+}
+
+object "Moteur RAG" as rag {
+  Fonction = Extraction de Contexte
+  Source = Base de Connaissances
+}
+
+e3po --> gradle : Lance Tâches
+e3po --> rag : Interroge
+rag --> kb : Récupère Informations
+gradle --> rag : Utilise pour Génération
+
+@enduml
+----
+
+
+
+=== Objectifs
+
+L'objectif est d'automatiser davantage les tâches répétitives, d'améliorer la cohérence du code et de la documentation, et de créer un workflow de développement plus intelligent et assisté.
+
+== Documents de Référence
+
+* *link:rag_proposition.adoc[Proposition RAG]* : Ce document détaille la vision et la proposition technique pour l'intégration d'un système RAG dans notre workflow.
+* *link:gradle_task_dev.md[Tâches de Développement Gradle]* : Décrit les tâches Gradle personnalisées qui sont et seront développées pour supporter cet écosystème.
+
+---
+
+== Automatisation de la Création de Contenu via Gradle
+
+Cette section étend la vision du RAG au-delà de la simple récupération d'informations pour en faire un véritable moteur de génération de contenu.
+
+=== Vision
+
+L'objectif est de créer un ensemble de tâches Gradle capables d'invoquer le système RAG pour générer des brouillons de haute qualité pour divers types de contenu, en s'assurant qu'ils soient contextuellement pertinents par rapport au projet et à la base de connaissances existante.
+
+=== Cas d'Usage Cibles
+
+* *Génération d'Articles :* Une tâche pour créer un squelette d'article de blog sur un sujet technique donné, en s'appuyant sur les concepts et le code déjà présents dans le projet.
+    * Exemple : ``./gradlew generateArticle --topic "Les avantages du DSL Kotlin dans Gradle"``
+* *Documentation de Code :* Des tâches pour générer ou mettre à jour la documentation (KDoc, Javadoc) pour des classes ou des méthodes spécifiques, en expliquant leur rôle et leur utilisation.
+    * Exemple : ``./gradlew generateDoc --class "com.cheroliv.mcp.ContextService"``
+* *Création de Modules de Formation :* Une tâche pour assembler des notes, des exemples de code et des explications afin de créer un module de formation structuré sur un concept particulier.
+    * Exemple : ``./gradlew generateTraining --subject "Introduction au protocole MCP"``
+* *Génération de Supports Vidéo :* Transformer un article de blog existant en une vidéo de présentation. Le processus serait le suivant :
+    1. L'article est découpé en une série de diapositives (slides).
+    2. Le texte de chaque diapositive est converti en audio via un service de synthèse vocale (Text-to-Speech).
+    3. Les diapositives (images) et l'audio correspondant sont assemblés pour créer un fichier vidéo.
+    * Exemple : ``./gradlew generateVideo --fromArticle "blog/2025/mon-super-article.adoc"``
+
+[[activity-video-generation]]
+.Diagramme d'Activité : Génération de Supports Vidéo
+[plantuml, activity-video-generation, svg]
+----
+@startuml
+
+skinparam defaultFontSize 14
+
+start
+
+:Lancer tâche `generateVideo` avec article source;
+:Récupérer Article de Blog (AsciiDoc);
+:Découper l'article en Diapositives (Slides);
+:Extraire Texte de chaque Diapositive;
+
+fork
+  :Convertir Texte en Audio (Text-to-Speech);
+  :Stocker Fichiers Audio;
+fork again
+  :Générer Images pour chaque Diapositive;
+  :Stocker Fichiers Images;
+end fork
+
+:Assembler Fichiers Audio et Images en Vidéo;
+:Stocker Fichier Vidéo Final;
+
+stop
+
+@enduml
+----
+
+
+
+[[use-case-content-generation]]
+.Diagramme de Cas d'Utilisation : Automatisation de la Création de Contenu
+[plantuml, use-case-content-generation, svg]
+----
+@startuml
+
+skinparam defaultFontSize 14
+
+left to right direction
+
+actor "Développeur (Cheroliv)" as dev
+actor "Assistant IA (E3PO)" as e3po
+
+rectangle "Système de Génération de Contenu" {
+  usecase "Générer Article de Blog" as uc_article
+  usecase "Générer Documentation de Code" as uc_doc
+  usecase "Créer Module de Formation" as uc_training
+  usecase "Générer Support Vidéo" as uc_video
+}
+
+dev --> uc_article
+dev --> uc_doc
+dev --> uc_training
+dev --> uc_video
+
+e3po --> uc_article : Assiste
+e3po --> uc_doc : Assiste
+e3po --> uc_training : Assiste
+e3po --> uc_video : Assiste
+
+uc_article .> (Utiliser Base de Connaissances) : <<include>>
+uc_doc .> (Utiliser Base de Connaissances) : <<include>>
+uc_training .> (Utiliser Base de Connaissances) : <<include>>
+uc_video .> (Utiliser Base de Connaissances) : <<include>>
+
+(Utiliser Base de Connaissances) <. (Interroger Moteur RAG) : <<extend>>
+
+@enduml
+----
+
+
+
+En utilisant Gradle comme point d'entrée, nous intégrons cette capacité de génération de contenu directement dans le cycle de vie du développement, rendant le processus plus fluide et productif.
+
+---
+
+== Plugin Open Source : Outillage de Site Statique
+
+Cette initiative vise à extraire la logique de gestion du site statique dans un plugin Gradle dédié, open source et publié sur Maven Central.
+
+=== Périmètre
+
+* Intégration et configuration de *JBake*.
+* Tâche de validation de schéma *Supabase* au moment du build.
+* Tâches de déploiement sur *GitHub Pages*.
+* Gestion des configurations associées (ex: CNAME, Disqus).
+
+[[component-open-source-plugin]]
+.Diagramme de Composants : Plugin Open Source (Outillage de Site Statique)
+[plantuml, component-open-source-plugin, svg]
+----
+@startuml
+skinparam componentStyle rectangle
+
+skinparam defaultFontSize 14
+
+package "Plugin Gradle Open Source" as plugin {
+  [JBake Integration] as jbake_comp
+  [Supabase Schema Validation Task] as supabase_task
+  [GitHub Pages Deployment Task] as gh_pages_task
+  [Configuration Management] as config_mgmt
+}
+
+[Gradle Build System] as gradle_sys
+[JBake Core] as jbake_core
+[Supabase Database] as supabase_db
+[GitHub Pages] as gh_pages_service
+
+gradle_sys --> plugin : Utilise
+jbake_comp .> jbake_core : Configure et Invoque
+supabase_task .> supabase_db : Valide Schéma
+gh_pages_task .> gh_pages_service : Déploie
+config_mgmt .> jbake_core : Fournit Config
+config_mgmt .> gh_pages_service : Fournit Config
+
+@enduml
+----
+
+
+
+=== Objectifs
+
+* *Fournir un outil* réutilisable à la communauté pour simplifier la création et le déploiement de sites statiques modernes.
+* *Découpler* l'outillage de l'infrastructure du contenu spécifique de ce projet.
+
+---
+
+== Plugin Privé : Moteur de Contenu Génératif
+
+Cette initiative concerne le développement d'un plugin Gradle privé qui encapsule le "cœur de métier" : le système RAG et la génération de contenu.
+
+=== Périmètre
+
+* Implémentation du *Model Context Protocole (MCP)*.
+* Intégration avec des services de LLM.
+* Toutes les tâches de *génération de contenu* (articles, documentation, formations, vidéos).
+
+=== Architecture Cible : Serveur MCP
+
+Pour une modularité et une performance optimales, le moteur RAG sera architecturé autour d'un *Serveur MCP (Model Context Protocol)*.
+
+* *Rôle :* Ce serveur, implémenté en Spring Boot & Kotlin, aura pour unique responsabilité de gérer la "couche d'embedding". Il chargera les documents, les convertira en vecteurs (embeddings), les stockera dans une base de données vectorielle (Supabase avec pgvector), et exposera une API pour interroger cette base.
+* *Interaction :* Le serveur aura deux types de clients principaux :
+    * *Clients Interactifs (Usage Principal) :* Des outils agentiques comme `gemini-cli` (E3PO) interrogeront le serveur pour obtenir un contexte projet ultra-pertinent lors des sessions de développement. Cela permet à l'agent de surmonter la "saturation de contexte" et de fournir des réponses et des modifications de code plus rapides et plus précises.
+    * *Clients Automatisés :* Les tâches Gradle de génération de contenu (`generateArticle`, etc.) utiliseront également le serveur pour récupérer le contexte nécessaire à la création de contenu automatisé.
+
+[[state-mcp-server]]
+.Diagramme d'État : Serveur MCP (Model Context Protocol)
+[plantuml, state-mcp-server, svg]
+----
+@startuml
+skinparam defaultFontSize 14
+
+state "Serveur MCP" as ServeurMCP {
+  [*] --> Initialisé
+  Initialisé --> Chargement_Documents : Démarrage
+  Chargement_Documents --> Documents_Chargés : Succès Chargement
+  Documents_Chargés --> Indexation_Embeddings : Documents Prêts
+  Indexation_Embeddings --> Prêt_à_Interroger : Indexation Complète
+  Prêt_à_Interroger --> Traitement_Requête : Requête Reçue
+  Traitement_Requête --> Prêt_à_Interroger : Requête Traitée
+  Prêt_à_Interroger --> Arrêté : Arrêt Serveur
+  Traitement_Requête --> Erreur : Échec Traitement
+  Erreur --> Prêt_à_Interroger : Récupération / Réinitialisation
+  Arrêté --> [*]
+
+  state "Gestion des Embeddings" as embeddings {
+    state Création_Vecteurs
+    state Stockage_DB_Vectorielle
+    Documents_Chargés --> Création_Vecteurs : Nouveaux Docs
+    Création_Vecteurs --> Stockage_DB_Vectorielle : Vecteurs Générés
+    Stockage_DB_Vectorielle --> Indexation_Embeddings : Stockage OK
+  }
+}
+
+@enduml
+----
+
+
+
+=== Objectifs
+
+* *Protéger la propriété intellectuelle* qui constitue un avantage concurrentiel.
+* *Créer un moteur puissant* et internalisé pour la production de contenu à grande échelle.
+* Le plugin sera publié sur un *repository Maven privé* (ex: GitHub Packages) pour une utilisation interne sécurisée.

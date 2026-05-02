@@ -1,0 +1,34 @@
+= Bug : La tâche `serve` ne surcharge pas `site.host` avec l'URL locale
+
+== Problème
+
+Lorsqu'on exécute la tâche Gradle `serve`, le site est bien servi sur `http://localhost:8820/`, mais le rendu est cassé car les assets (CSS, JS, images) ne se chargent pas.
+
+== Cause racine
+
+Dans `jbake.properties`, la propriété `site.host` est définie avec l'URL de production, par exemple :
+
+[source,properties]
+----
+site.host=https://pages-content.github.io/
+----
+
+JBake utilise cette valeur pour calculer `content.rootpath`, qui est utilisée dans les templates Thymeleaf pour résoudre les chemins des assets. Résultat : en local, le navigateur tente de charger les CSS/JS depuis l'URL distante (`https://pages-content.github.io/css/styles.css`) au lieu du serveur local (`http://localhost:8820/css/styles.css`).
+
+== Comportement attendu
+
+La tâche `serve` doit surcharger dynamiquement `site.host` avec l'URL du serveur local (par défaut `http://localhost:8820/`) **avant** de lancer le bake+serve JBake. Ainsi, `content.rootpath` sera résolu vers le serveur local et les assets se chargeront correctement.
+
+== Spécification de la correction
+
+. Dans la tâche `serve`, injecter la valeur `http://localhost:8820/` (ou le port configuré) comme override de `site.host` avant l'exécution de JBake.
+. L'override ne doit s'appliquer **que** dans le contexte de la tâche `serve`, pas lors d'un `bake` normal (production).
+. Cela peut se faire en passant un argument supplémentaire à JBake, en modifiant le fichier `jbake.properties` temporairement, ou via une propriété système que JBake peut lire en priorité — choisir la méthode la plus propre et la moins invasive.
+. Documenter le comportement dans le README du plugin.
+
+== Contexte technique
+
+* Plugin Gradle : `bakery` (custom)
+* Moteur de template : Thymeleaf
+* Variable problématique : `content.rootpath` (dérivée de `site.host`)
+* Port par défaut du serveur local JBake : `8820`

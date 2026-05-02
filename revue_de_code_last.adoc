@@ -1,0 +1,225 @@
+= Revue de Code du Plugin Gradle Bakery
+
+J'ai effectué une revue de code approfondie de votre plugin Gradle `bakery`. Voici mes observations et suggestions, organisées par fichier et par catégorie.
+
+== `bakery-plugin/bakery/src/functionalTest/kotlin/com/cheroliv/bakery/BakeryPluginFunctionalTests.kt`
+
+=== Observations Générales:
+* L'utilisation de ` @file:Suppress("FunctionName")` indique une préférence pour des noms de fonctions de test descriptifs. C'est acceptable pour la lisibilité des rapports de test, mais sachez que cela s'écarte de la convention `camelCase` de Kotlin.
+* L'utilisation intensive de `info()` pour les logs et l'affichage des progrès est très utile pour le débogage.
+* La structuration des tests en "Phases" (`Phase 1: File Setup`, `Phase 2: Plugin Execution`, `Phase 3: Integration Tests (Future)`) est une excellente approche pour organiser et planifier vos efforts de test.
+* L'utilisation de ` @TempDir` est parfaite pour assurer l'isolation des tests.
+
+=== Suggestions d'Amélioration:
+1. **Fonctions de test ignorées (` @Ignore`):** Priorisez la mise en œuvre et l'activation des tests actuellement ignorés dès que les fonctionnalités correspondantes sont prêtes. Par exemple, le test de la tâche `serve` devrait être activé pour valider sa fonctionnalité.
+2. **Répétition de la configuration de `GradleRunner`:** Le code `create().forwardOutput().withPluginClasspath().withProjectDir(projectDir)` est répété dans presque tous les tests. Envisagez d'extraire cette configuration dans une fonction d'aide privée (par exemple, `createGradleRunner(): GradleRunner`) ou dans une variable `lateinit var` initialisée dans `setUp` pour réduire la verbosité.
+3. **Assertions redondantes:** Dans `phase 1 - all project files are created correctly()`, l'assertion `assertThat(projectDir.listFiles()!!.size).isNotZero` est redondante si `assertThat(projectDir).isNotEmptyDirectory` est déjà utilisée, car cette dernière implique la première. De plus, compter le nombre exact de fichiers peut être fragile si de nouveaux fichiers sont ajoutés. Concentrez-vous sur l'existence des fichiers spécifiques.
+4. **Nom de test imprécis:** Renommez `Template folder does not exist()` pour mieux refléter son intention, par exemple, `initSiteTaskDeletesExistingJbakeFolderBeforeCopyingTemplates`.
+
+== `bakery-plugin/bakery/src/functionalTest/kotlin/com/cheroliv/bakery/tools.kt`
+
+=== Observations Générales:
+* Ce fichier remplit bien son rôle de centralisation des fonctions utilitaires pour la création des fichiers de test et des constantes (`FuncTestsConstants`), ce qui améliore la modularité et la lisibilité.
+
+=== Suggestions d'Amélioration:
+1. **Robustesse du chemin dans `createConfigFile()`:** La ligne `File("").absoluteFile.parentFile?.parentFile?.resolve(CONFIG_FILE)` pour copier `site.yml` repose sur la position relative de l'exécution du test. Pour plus de robustesse, surtout dans un contexte de test fonctionnel qui devrait être auto-suffisant :
+    * Si `site.yml` est un template fixe du plugin, copiez-le depuis les ressources du plugin vers le `projectDir` temporaire du test.
+    * Si `site.yml` est censé être un fichier utilisateur, créez-le directement dans le `projectDir` du test avec le contenu de test.
+2. **`Logger.loadConfiguration()`:** Cette fonction est très grande et semble dupliquer des assertions de `setUp()` dans les tests fonctionnels.
+    * **Découpage:** Fractionnez-la en fonctions plus petites et plus ciblées (par exemple, `assertTomlFileContent(file)`, `assertSettingsFileContent(file)`).
+    * **Nommage:** Le nom `loadConfiguration` est trompeur, car la fonction effectue des assertions plutôt que de charger la configuration. Un nom comme `assertTestEnvironmentFilesCreatedAndConfigured` serait plus précis.
+    * **Réduction de la duplication:** Si les assertions sont déjà faites dans `setUp()`, cette fonction pourrait être superflue ou être utilisée uniquement pour des vérifications plus complexes.
+
+== `bakery-plugin/bakery/src/main/kotlin/com/cheroliv/bakery/BakeryExtension.kt`
+
+=== Observations Générales:
+* Implémentation très propre et idiomatique d'une extension Gradle. L'utilisation de `Property<String>` et l'injection de `ObjectFactory` suivent les meilleures pratiques de Gradle pour une configuration paresseuse et l'évitement de la configuration.
+
+=== Suggestions d'Amélioration:
+* Aucune suggestion spécifique ; le fichier est bien conçu pour son objectif.
+
+== `bakery-plugin/bakery/src/main/kotlin/com/cheroliv/bakery/BakeryPlugin.kt`
+
+=== Observations Générales:
+* La classe principale du plugin gère bien l'application de la logique au projet Gradle, en déléguant la plupart des opérations à `SiteManager` et `FileSystemManager`.
+* L'utilisation de `project.afterEvaluate` est souvent nécessaire pour les plugins qui doivent réagir à la configuration du projet, mais une utilisation excessive peut ralentir les builds.
+
+=== Correction Critique Nécessaire:
+1. **Gestion sécurisée de `bakeryExtension.configPath.get()`:** La ligne `val configFile = project.layout.projectDirectory.asFile.resolve(bakeryExtension.configPath.get())` appellera `get()` sur une `Property` potentiellement non configurée, ce qui provoquera une `MissingPropertyException` si `configPath` n'a pas été défini (par exemple, via DSL ou `gradle.properties`).
+    * **Solution:** Vous devez toujours vérifier `bakeryExtension.configPath.isPresent` avant d'appeler `get()`. Modifiez la logique dans le bloc `afterEvaluate` pour ressembler à ceci :
+
+[source,kotlin]
+----
+project.afterEvaluate {
+    project.configureConfigPath(bakeryExtension) // Cette fonction devrait définir configPath si trouvé
+
+    val configPathProvider = bakeryExtension.configPath
+    if (configPathProvider.isPresent) {
+        val configFilePath = configPathProvider.get()
+        val configFile = project.layout.projectDirectory.asFile.resolve(configFilePath)
+
+        if (!configFile.exists() &&
+            (!project.projectDir.resolve("site").exists() || !project.projectDir.resolve("maquette").exists())) {
+            // ... logique existante pour registerInitSiteTask
+        } else {
+            // ... logique existante pour enregistrer les autres tâches
+        }
+    } else {
+        // Si configPath n'est toujours pas présent, enregistrez uniquement les tâches de base
+        project.logger.warn("ConfigPath n'est pas défini. Seules les tâches de configuration de base seront enregistrées.")
+        project.registerInitSiteTask()
+        project.registerConfigureSiteTask(bakeryExtension, false) // Passer l'extension et false pour isGradlePropertiesEnabled
+        project.registerUtilityTasks()
+    }
+}
+----
+
+=== Suggestions d'Amélioration:
+1. **Renommer `isGradlePropertiesEnabled`:** Le nom `isGradlePropertiesEnabled` est trompeur. Renommez-le en quelque chose comme `isConfigPathExplicitlySet` ou `isConfigPathConfigured` pour mieux refléter qu'il vérifie si la propriété `configPath` a été définie, et non l'activation globale de `gradle.properties`.
+2. **Enregistrement conditionnel des tâches:** Actuellement, `registerUtilityTasks()` et `registerConfigureSiteTask()` ne sont enregistrées que si `configFile.exists()`. Cela semble contre-intuitif pour des tâches de configuration et d'utilité. Envisagez de les enregistrer toujours, indépendamment de l'existence du fichier de configuration, afin qu'elles soient disponibles pour initialiser ou configurer le site.
+
+== `bakery-plugin/bakery/src/main/kotlin/com/cheroliv/bakery/ConfigPrompts.kt`
+
+=== Observations Générales:
+* Excellente implémentation d'un mécanisme de saisie interactive robuste et sécurisé.
+* L'ordre de précédence (propriétés CLI, variables d'environnement, valeur par défaut, puis invite interactive) est correct et convivial.
+* La gestion sécurisée des entrées sensibles (`readPassword()`, `input.fill('0')`) et les avertissements en cas de console non interactive sont d'excellentes pratiques.
+
+=== Suggestion d'Amélioration:
+1. **Implémenter `Project.saveConfiguration()`:** La fonction `saveConfiguration()` est actuellement entièrement commentée. C'est la suggestion la plus critique : implémentez-la pour persister la configuration saisie par l'utilisateur (token, username, repo, configPath) dans le fichier `site.yml` en utilisant `FileSystemManager.yamlMapper`. C'est essentiel pour que la tâche `configureSite` soit utile au-delà d'une seule exécution.
+
+== `bakery-plugin/bakery/src/main/kotlin/com/cheroliv/bakery/FileSystemManager.kt`
+
+=== Observations Générales:
+* Objet très solide pour les opérations du système de fichiers, y compris la lecture/écriture YAML, la copie de ressources et la gestion des répertoires de dépôt.
+* L'utilisation de `jackson-dataformat-yaml` est un excellent choix.
+* La gestion des ressources (`copyFromJar`, `copyFromFileSystem`) est bien pensée pour les scénarios de développement et de plugin packagé.
+* Les fonctions de création et de copie de dépôt (`createRepoDir`, `copyBakedFilesToRepo`) sont robustes, gérant la suppression et la création pour assurer un état propre.
+* L'extension `SiteConfiguration.createCnameFile()` est une fonctionnalité utile et bien implémentée.
+
+=== Suggestion d'Amélioration:
+1. **Gestion des erreurs de `Project.read()`:** Actuellement, `Project.read()` retourne une `SiteConfiguration()` par défaut en cas d'échec de lecture du fichier de configuration. Bien que cela empêche le build de planter, cela peut masquer une erreur de configuration fondamentale qui devrait plutôt arrêter le build avec un message d'erreur clair. Envisagez de lancer une exception plus spécifique ou de loguer l'erreur avec un niveau `ERROR` si une configuration invalide doit être considérée comme fatale.
+
+== `bakery-plugin/bakery/src/main/kotlin/com/cheroliv/bakery/GitService.kt`
+
+=== Observations Générales:
+* Très bonne encapsulation des opérations Git utilisant `org.eclipse.jgit`.
+* L'utilisation des classes scellées `FileOperationResult` et `GitOperationResult` est une excellente approche pour une gestion des erreurs explicite et de type sûr.
+* La fonction `pushPages()` orchestre bien le workflow de publication, avec une gestion correcte des erreurs et un nettoyage (`finally` block).
+* Les fonctions individuelles (`initRepository`, `addRemote`, `addAllFiles`, `commitChanges`, `executePushCommand`) sont claires et ont des responsabilités bien définies.
+* La définition de `GIT_ATTRIBUTES_CONTENT` est une bonne pratique pour la cohérence des dépôts.
+
+=== Suggestions d'Amélioration:
+1. **Confirmation de `isForce = true`:** L'utilisation de `isForce = true` dans la commande `git.push()` est courante pour les GitHub Pages, mais elle peut écraser l'historique. Assurez-vous que cette décision est documentée et comprise, ou offrez une option de configuration pour la désactiver si nécessaire.
+2. **Gestion des erreurs de `executePushCommand()`:** Actuellement, `executePushCommand()` retourne `MutableIterable<PushResult>?`. Si l'opération de push échoue (par exemple, en raison de problèmes d'authentification ou de réseau), JGit lèvera probablement une exception qui doit être capturée et convertie en `GitOperationResult.Failure` pour une gestion cohérente. Le code actuel propage implicitement l'exception de JGit si elle n'est pas gérée.
+
+== `bakery-plugin/bakery/src/main/kotlin/com/cheroliv/bakery/SiteConfiguration.kt`
+
+=== Observations Générales:
+* Ce fichier définit les classes de données (`data class`) pour la configuration du site. La structure est claire, modulaire et bien organisée.
+* L'utilisation de valeurs par défaut pour toutes les propriétés des classes de données est une excellente pratique, rendant la configuration optionnelle et robuste.
+* La classe `RepositoryConfiguration` inclut des constantes utiles (`ORIGIN`, `CNAME`, `REMOTE`).
+
+=== Suggestions d'Amélioration:
+* Aucune suggestion spécifique ; le fichier est bien conçu et répond à son objectif.
+
+== `bakery-plugin/bakery/src/main/kotlin/com/cheroliv/bakery/SiteManager.kt`
+
+=== Observations Générales:
+* Cet objet est le cœur de la logique du plugin, enregistrant et configurant toutes les tâches liées au site.
+* La fonction `createJBakeRuntimeConfiguration()` est essentielle pour configurer le classpath de JBake.
+* Les tâches `initSite` et `configureSite` fournissent une bonne expérience utilisateur pour l'initialisation et la configuration.
+* Les fonctions de publication (`registerPublishSiteTask`, `registerPublishMaquetteTask`) sont bien structurées et s'appuient sur `GitService`.
+* La tâche `serve` est une fonctionnalité clé pour le développement local.
+
+=== Suggestions d'Amélioration:
+1. **Refactorisation de `configureConfigPath()`:** Cette fonction vérifie si `configPath` est défini dans `gradle.properties`. La logique actuelle dans `BakeryPlugin.kt` et `SiteManager.kt` peut être simplifiée. La fonction `configureConfigPath` dans `SiteManager` devrait être responsable de la *définition* du `bakeryExtension.configPath` si elle trouve une valeur dans `gradle.properties`, sans nécessiter le paramètre `isGradlePropertiesEnabled`. Le `BakeryPlugin` vérifierait alors simplement `bakeryExtension.configPath.isPresent`.
+2. **Logique d'initialisation de `site.yml` dans `registerInitSiteTask()`:** La fonction `createAndConfigureSiteYml()` configure un objet `SiteConfiguration` par défaut (`SiteConfiguration(BakeConfiguration("site", "bake"))`) et l'écrit dans `site.yml`. C'est une bonne base.
+    * **Considération:** Si le fichier `site.yml` existe déjà et est invalide, la tâche `initSite` devrait-elle l'écraser ? Actuellement, `createNewFile()` ne fait rien si le fichier existe, puis `writeText()` l'écrasera. Assurez-vous que c'est le comportement désiré ou offrez une option pour conserver les modifications existantes ou avertir l'utilisateur.
+3. **Chemin de `ASCIIDOC_SOURCE_DIR`:** Dans `configureJBakePlugin()`, le chemin `project.projectDir.resolve(site.bake.srcPath)` pour `ASCIIDOC_SOURCE_DIR` semble correct pour une utilisation avec Asciidoctor.
+4. **Tâche `serve`:**
+    * **Gestion du processus en arrière-plan:** L'explication dans `GEMINI.md` sur les "conventions de Test" mentionne la gestion des tâches de longue durée (comme un serveur) via PID. Bien que la tâche `serve` soit actuellement une `JavaExec` et puisse être exécutée en arrière-plan via `&` dans le shell, si vous souhaitez la gérer de manière plus programmatique (par exemple, une tâche `stopServe`), vous devrez implémenter la gestion des PID comme décrit.
+    * **Port du serveur:** Le message `Serving $group at: https://localhost:8820/` est un `info` mais le port 8820 n'est pas configuré dans les arguments de JBake. JBake utilise par défaut le port 8080. Si vous utilisez 8820, assurez-vous qu'il est configuré pour JBake.
+
+== `bakery-plugin/bakery/src/test/kotlin/com/cheroliv/bakery/BakeryPluginTest.kt`
+
+=== Observations Générales:
+* Ce fichier contient des tests unitaires et des tests d'intégration plus fins utilisant des mocks.
+* `SiteConfigurationParsingTest` est excellent pour valider la lecture et le mappage du fichier `site.yml`. Les assertions détaillées sur les tailles, les contenus et les types sont très précieuses.
+* `ExtensionTest` et `JbakeTest` vérifient correctement l'intégration du plugin et l'application du plugin JBake.
+* `FileSystemManagerTest` est un bon exemple de tests unitaires pour les fonctions de gestion de fichiers, en particulier pour `createCnameFile()`.
+
+=== Suggestions d'Amélioration:
+1. **Complexité de `createMockProject()`:** La fonction `createMockProject()` est très longue et complexe en raison du grand nombre de mocks et de leurs configurations. Cela peut rendre la maintenance difficile.
+    * **Refactorisation:** Envisagez de simplifier cette fonction en créant des mocks plus ciblés pour des tests spécifiques, ou en utilisant un framework de test de plugin Gradle qui fournit des objets `Project` pré-configurés pour des scénarios de test plus légers.
+2. **Activation de `@Ignore`d test:** Le test `createCnameFile should create CNAME file with correct content when cname is provided()` est ignoré. Activez-le pour assurer la couverture de test.
+3. **Vérification des exceptions:** Dans `SiteConfigurationParsingTest`, lors de la lecture des propriétés Supabase (par exemple, `config.supabase!!.project.url`), l'utilisation de `!!` implique que `supabase` ne sera jamais nul. Si une configuration `site.yml` sans section `supabase` est possible, ces tests pourraient planter. Assurez-vous que le fichier de test `site.yml` contient bien toutes les sections attendues, ou ajoutez des tests pour les cas où `supabase` est absent.
+
+== `bakery-plugin/bakery/src/test/scenarios/com/cheroliv/bakery/scenarios/AsyncSteps.kt`, `CucumberTestRunner.kt`, `InitSiteSteps.kt`, `BakeryWorld.kt`
+
+=== Observations Générales:
+* Ces fichiers constituent l'infrastructure des tests fonctionnels basés sur Cucumber.
+* `TestWorld` est une excellente classe pour gérer l'état partagé entre les étapes Cucumber, y compris la création de projets Gradle temporaires, l'exécution de tâches et la gestion des coroutines pour les opérations asynchrones.
+* L'utilisation de `runBlocking` et `async/await` pour gérer les exécutions Gradle est une approche moderne et efficace.
+* Les étapes Cucumber sont bien écrites et descriptives.
+
+=== Suggestions d'Amélioration:
+1. **Dossier `maquette` dans `InitSiteSteps`:** La fonction `indexHtmlFileShouldBeCreated()` fait partie d'un test fonctionnel pour `initSite`. Elle fait référence à `world.projectDir!!.resolve(maquetteDirName).resolve(htmlFileName)`. Renommez la variable `maquetteDirName` en `templateFolderName` ou `resourceFolderName` pour mieux refléter son utilisation générique.
+2. **`TestWorld.createGradleProject()`:** La fonction `createGradleProject()` utilise `createTempFile` puis `delete()` et `mkdirs()`. Cela peut être simplifié en utilisant `createTempDir()` pour créer un répertoire temporaire directement.
+
+== `bakery-plugin/bakery/src/main/resources/maquette/css/styles.css` & `bakery-plugin/bakery/src/main/resources/site/assets/css/styles.css`
+
+=== Observations Générales:
+* Les deux fichiers CSS définissent des variables CSS pour différents thèmes (light, dark, high-contrast), ce qui est une excellente pratique pour la maintenabilité et la flexibilité.
+* L'utilisation de `calc(100vh - var(--navbar-height))` pour le `min-height` de la section `hero` est intelligente pour s'adapter à une barre de navigation fixe.
+* Les ajustements spécifiques pour les thèmes sombres et à contraste élevé sont bien pensés pour l'accessibilité.
+* Les animations `fadeInUp` ajoutent une touche moderne à l'interface.
+
+=== Suggestions d'Amélioration:
+1. **Consolidation des styles:** Il y a une duplication significative des variables et des règles CSS entre `maquette/css/styles.css` et `site/assets/css/styles.css`. Envisagez de consolider ces fichiers si leur objectif est le même, ou de les structurer de manière à ce qu'une base commune soit partagée et que des styles spécifiques à la maquette/au site soient ajoutés via des fichiers séparés ou des cascades intelligentes. Cela réduirait la redondance et faciliterait la maintenance.
+2. **Cohérence des couleurs d'accentuation:** Le thème `light` dans `site/assets/css/styles.css` utilise `--accent-color: #7952b3;` (purple) tandis que dans `maquette/css/styles.css`, il utilise `--accent-color: #0d6efd;` (blue). Assurez une cohérence dans le choix de la couleur d'accentuation pour le thème clair sur l'ensemble du projet, ou documentez clairement pourquoi il y a une différence.
+3. **Optimisation des préfixes vendeurs:** Certains styles utilisent encore des préfixes vendeurs (`-webkit-backdrop-filter`). Bien que Bootstrap 5 gère déjà cela, une vérification peut être utile si des cibles de navigateur très spécifiques sont envisagées.
+
+== `bakery-plugin/bakery/src/main/resources/maquette/index.html` & `bakery-plugin/bakery/src/main/resources/site/templates/index.thyme`
+
+=== Observations Générales:
+* La structure HTML est claire, utilise Bootstrap 5 et intègre les icônes nécessaires.
+* L'anti-FOUC (Flash Of Unstyled Content) via le script `loadTheme` est une excellente pratique pour garantir une expérience utilisateur fluide lors du chargement de la page avec un thème sauvegardé.
+* L'intégration des sections `hero` et `blog` via Thymeleaf (`th:replace`) est modulaire et propre.
+* Le modal de recherche est bien intégré pour une fonctionnalité future.
+
+=== Suggestions d'Amélioration:
+1. **Image Hero SVG:** Actuellement, la section hero dans `index.html` (et `hero_section.thyme`) utilise `i class="bi bi-laptop..."`. Dans `script.js`, il y a une fonction `updateHeroSvg` qui semble vouloir charger des SVG différents selon le thème. Il serait plus cohérent que `index.html` (et `hero_section.thyme`) utilise un élément `<img>` avec une source SVG qui peut être dynamiquement modifiée par JavaScript, au lieu d'une icône Bootstrap. Par exemple : `<img class="hero-svg-icon img-fluid" src="/img/undraw_road_to_knowledge_light.svg" alt="Road to knowledge" />`. Modifiez `hero_section.thyme` en conséquence.
+2. **Accessibilité du thème par défaut:** Le script anti-FOUC définit le thème par défaut en fonction de `window.matchMedia('(prefers-color-scheme: dark)').matches`. C'est bien, mais assurez-vous que cela est également géré côté serveur si possible pour les utilisateurs qui ont JavaScript désactivé ou pour un premier chargement sans latence de script.
+
+== `bakery-plugin/bakery/src/main/resources/maquette/js/script.js` & `bakery-plugin/bakery/src/main/resources/site/assets/js/script.js`
+
+=== Observations Générales:
+* Ces fichiers JavaScript sont très bien structurés en classes (`ThemeManager`, `ScrollToTopButton`, `MobileMenuManager`, `SmoothScrollWithOffset`, `DynamicNavbarBreakpoint`, `CodeBlockManager`, `TooltipManager`, `SupabaseManager`, `ContactFormHandler`, `PhoneInputManager`), ce qui favorise la modularité et la maintenabilité.
+* L'initialisation sécurisée de chaque composant via un bloc `try-catch` est une excellente pratique.
+* Le `ThemeManager` gère de manière robuste les thèmes (localStorage, préférences système) et l'intégration avec Bootstrap.
+* Le `DynamicNavbarBreakpoint` est une solution innovante pour adapter la navigation aux différentes tailles d'écran.
+* Le `CodeBlockManager` avec son bouton de copie est une fonctionnalité utile.
+* Le `SupabaseManager` et `ContactFormHandler` sont bien organisés pour les interactions avec Supabase.
+
+=== Suggestions d'Amélioration:
+1. **Consolidation des scripts:** Comme pour les CSS, il y a une duplication presque totale entre `maquette/js/script.js` et `site/assets/js/script.js`. Il est fortement recommandé de consolider ces scripts en un seul fichier de base partagé. Si des fonctionnalités sont *exclusivement* pour la maquette ou le site final, elles devraient être incluses conditionnellement ou dans des fichiers séparés importés spécifiquement.
+2. **`DynamicNavbarBreakpoint` - `Re-initialize the dropdown`:** La ligne `new bootstrap.Dropdown(this.themeSelector);` à la fin de `checkBreakpoint()` est probablement superflue et peut causer des réinitialisations inutiles ou des problèmes si le dropdown n'est pas censé être réinitialisé à chaque redimensionnement. Bootstrap gère généralement bien les dropdowns sans avoir besoin d'une réinitialisation manuelle constante. Testez si cela est vraiment nécessaire.
+3. **`NavbarHeightUpdater` et `DynamicNavbarBreakpoint` Interaction:** `NavbarHeightUpdater` met à jour `--navbar-height` et `DynamicNavbarBreakpoint` utilise `navbar.classList.add('navbar-expand-lg')` pour mesurer la largeur. Assurez-vous que l'ordre d'initialisation et les interactions entre ces deux classes ne créent pas de conditions de concurrence ou de mesures incorrectes. `NavbarHeightUpdater` devrait idéalement s'exécuter avant ou être synchronisé avec `DynamicNavbarBreakpoint` pour des mesures précises.
+4. **Chargement de `highlight.js`:** Le `ThemeManager.updateCodeTheme` modifie la feuille de style de `highlight.js`. Cependant, le chargement initial de `highlight.js` (y compris `highlightAll()`) se fait avant l'exécution du `ThemeManager` dans `DOMContentLoaded`. Cela signifie que le thème initial de `highlight.js` pourrait ne pas correspondre au thème préféré de l'utilisateur avant que `ThemeManager` ne le change. Envisagez de déplacer `hljs.highlightAll();` *après* l'initialisation du `ThemeManager` (ou dans une méthode du `ThemeManager`) pour s'assurer que `highlight.js` est stylé correctement dès le départ.
+
+== `bakery-plugin/bakery/src/main/resources/site/templates/footer.thyme` & `bakery-plugin/bakery/src/main/resources/site/templates/header.thyme`
+
+=== Observations Générales:
+* L'utilisation des fragments Thymeleaf (`th:replace`) pour `head` et `footer` est une excellente pratique pour la réutilisabilité et la cohérence.
+* L'inclusion de Bootstrap CSS/JS, Bootstrap Icons, Font Awesome et `intl-tel-input` via CDN est correcte.
+* L'injection des variables Supabase (`SUPABASE_URL`, `SUPABASE_KEY`) via Thymeleaf est sécurisée et flexible.
+* L'inclusion de `highlight.js` et son initialisation est également présente.
+
+=== Suggestions d'Amélioration:
+1. **Chargement de `highlight.js` (Header/Footer):** `highlight.js` est inclus deux fois : dans le `header.thyme` (la feuille de style) et dans `footer.thyme` (le script et `highlightAll()`). C'est correct, mais le `ThemeManager` dans `script.js` (chargé dans `footer.thyme`) s'occupe de changer le thème de `highlight.js`. Comme mentionné précédemment, pour garantir que le thème correct est appliqué *dès le chargement initial*, il serait préférable de s'assurer que `highlight.js` n'est initialisé (`hljs.highlightAll();`) qu'après que le `ThemeManager` ait eu l'occasion de définir la feuille de style correcte. Une solution pourrait être de déplacer `hljs.highlightAll();` dans la méthode `updateCodeTheme` du `ThemeManager` et de l'appeler une fois après le chargement initial du thème.
+2. **Duplication des Meta Tags SEO:** Les méta tags SEO sont définis dans `header.thyme`. Il serait préférable de les gérer de manière plus dynamique via Thymeleaf pour chaque page (par exemple, `th:attr="content=${content.description}"`) afin d'éviter la duplication de contenu et d'optimiser le référencement pour des pages spécifiques.
+3. **`intl-tel-input` JavaScript:** Le `utilsScript` pour `intl-tel-input` est chargé depuis CDN dans `footer.thyme`. Assurez-vous que l'initialisation du `PhoneInputManager` dans `script.js` (aussi dans `footer.thyme`) a lieu *après* que le script `utils.js` soit entièrement chargé pour éviter les erreurs.
+4. **`window.matchMedia` dans header.thyme:** Le script `IIFE` pour l'anti-FOUC dans `header.thyme` utilise `window.matchMedia`. Bien que sécurisé, sur des navigateurs très anciens, cela pourrait poser problème. Étant donné l'objectif de modernité (Bootstrap 5), cela est probablement acceptable, mais une note pourrait être ajoutée si la compatibilité avec des clients très spécifiques est une exigence.
+
+En résumé, votre plugin est bien structuré, utilise de bonnes pratiques Kotlin et Gradle, et dispose d'une base de tests robuste. Les points critiques concernent principalement la gestion sécurisée des propriétés Gradle potentiellement non définies, l'implémentation de la persistance de la configuration et la consolidation/synchronisation des assets front-end.

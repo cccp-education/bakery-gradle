@@ -1,0 +1,351 @@
+= Plan d'Action : Implémentation de l'Infrastructure RAG
+:toc:
+
+[abstract]
+Ce document détaille le plan d'action pour la mise en place de l'architecture RAG (Retrieval-Augmented Generation), conformément à la vision et à la proposition technique. L'objectif est de construire le "second cerveau" de l'assistant `e3po` pour améliorer la pertinence de ses interventions et accélérer le développement.
+
+== Vision d'Ensemble et Composants Technologiques
+
+Ce projet vise à créer un écosystème logiciel complet, articulé autour de plusieurs composants distincts mais cohabitant au sein du même build Gradle. L'objectif est de doter l'assistant `e3po` d'une mémoire contextuelle (RAG) tout en gérant la génération du site statique.
+
+*   **Le Build Script Gradle (`build.gradle.kts`) :** C'est le chef d'orchestre central. Il gère deux responsabilités majeures avec des approches architecturales différentes :
+    1.  **Génération du Site Statique :** Cette partie utilise une architecture hybride. Une partie de la logique est déjà externalisée dans `buildSrc`, tandis que la logique plus complexe (comme la publication avec JBake) est en cours de migration vers un **plugin Gradle personnalisé** pour améliorer la modularité et la testabilité.
+    2.  **Orchestration du RAG :** Le build script hébergera également les tâches liées à la construction de la base de connaissances, notamment via un autre **plugin Gradle** dédié à l'indexation des contenus et à la préparation de la base de données.
+
+*   **Le Projet JHipster (Serveur MCP) :** Il s'agit d'un projet **indépendant du build principal**, bien que potentiellement dans le même dépôt. Son unique rôle est de servir de backend RAG en temps réel.
+    *   Il exposera une API REST sécurisée suivant le **Modèle Contexte Protocole (MCP)**.
+    *   Il utilisera **LangChain4j** pour orchestrer la logique de recherche de similarité et d'interaction avec la base de données vectorielle.
+
+*   **Le Client MCP :** Un outil en ligne de commande (CLI) léger et dédié, conçu pour être appelé par `gemini-cli`. Il implémentera le protocole MCP pour formuler des requêtes vers le serveur JHipster et retourner le contexte de manière structurée.
+
+En résumé, Gradle gère les processus "hors-ligne" (génération du site, indexation de la connaissance), tandis que le serveur JHipster gère les requêtes "en temps réel" de l'assistant, créant ainsi une séparation claire des responsabilités.
+
+== 1. Architecture Cible : Modèle Client-Serveur avec JHipster
+
+L'implémentation s'articulera autour d'une architecture client-serveur robuste pour garantir des interactions fluides et performantes, en séparant clairement les responsabilités.
+
+*   **Moteur d'indexation (Hors-ligne) :** Une tâche Gradle (`indexContent`) reste responsable de lire les fichiers du projet, de les découper, de générer les embeddings via l'API Gemini, et de les stocker dans la base de données.
+*   **Base de connaissances :** Une base de données PostgreSQL avec l'extension `pgvector`, gérée localement via Docker pour le développement et sur Supabase pour la production/CI.
+*   **Serveur RAG (Temps réel) :** Une application **JHipster (Kotlin/Spring Boot)** exposera une API REST sécurisée. Ce serveur sera le cœur de la logique d'interrogation, recevant les requêtes et retournant le contexte pertinent depuis la base vectorielle. Il inclura également un back-office pour la visualisation des données.
+*   **Protocole de Communication :** Le **Modèle Contexte Protocole (MCP)**, un contrat JSON structuré, définira les échanges entre le client et le serveur pour garantir des communications riches et standardisées.
+*   **Client RAG :** Un outil CLI léger (`rag-query`), que `gemini-cli` pourra appeler, utilisera un **SDK Kotlin MCP** dédié pour communiquer avec le serveur JHipster.
+
+== 2. Le Modèle Contexte Protocole (MCP)
+
+Pour structurer la communication, nous utiliserons le protocole MCP.
+
+Pour plus de détails sur l'intégration et les concepts sous-jacents, la documentation officielle est une excellente ressource : link:https://docs.langchain4j.dev/tutorials/mcp[Tutoriel LangChain4j sur le MCP].
+
+=== Requête MCP (Client -> Serveur)
+
+Le client enverra une requête `POST /api/rag/query` avec un corps JSON :
+
+[source,json]
+----
+{
+  "query": "Détails sur la refactorisation de createCnameFile",
+  "top_k": 5,
+  "source_filter": ["docs", "code"]
+}
+----
+
+=== Réponse MCP (Serveur -> Client)
+
+Le serveur JHipster répondra avec un JSON structuré, riche en métadonnées :
+
+[source,json]
+----
+{
+  "results": [
+    {
+      "source": "iterative_development_guide.md",
+      "content": "Action de refactorisation : La fonction a été transformée en une fonction d'extension...",
+      "similarity_score": 0.92,
+      "metadata": { "type": "documentation", "line_start": 120 }
+    },
+    {
+      "source": "buildSrc/src/main/kotlin/data/Configuration.kt",
+      "content": "fun SiteConfiguration.createCnameFile(project: Project) { ... }",
+      "similarity_score": 0.88,
+      "metadata": { "type": "code", "language": "kotlin", "line_start": 55 }
+    }
+  ]
+}
+----
+
+== 3. Épopée et User Stories
+
+L'ensemble de ce projet est couvert par l'épopée suivante, décomposée en User Stories qui constituent notre plan d'action.
+
+=== Épopée 13 : Mise en Place de l'Infrastructure RAG
+
+*Objectif : Construire le "second cerveau" de l'assistant e3po en développant un système RAG basé sur la stack Kotlin + Gradle + LangChain4j + Supabase, et servi par une application JHipster.*
+
+---
+
+== 4. Architecture Détaillée et Scénarios d'Utilisation
+
+Cette section présente la vision architecturale complète du système, des objectifs de haut niveau jusqu'aux interactions détaillées entre les composants.
+
+=== Cas d'Utilisation (Diagramme)
+
+Ce diagramme montre les acteurs principaux et les objectifs qu'ils cherchent à accomplir avec le système.
+
+[plantuml, rag-use-cases, svg]
+....
+@startuml
+left to right direction
+
+actor "Développeur" as Dev
+actor "Assistant IA (e3po)" as AI
+
+rectangle "Système RAG & Site" {
+  usecase "Indexer la base de connaissances" as UC_Index
+  usecase "Gérer le build du site" as UC_Build
+  usecase "Obtenir un contexte pertinent" as UC_Query
+}
+
+Dev -- UC_Index
+Dev -- UC_Build
+AI -- UC_Query
+
+@enduml
+....
+
+=== Composants Applicatifs (Diagramme)
+
+Ce diagramme détaille les composants logiciels du système et leurs dépendances. Il illustre la séparation claire entre la logique de build (exécutée par Gradle) et le service RAG en temps réel (servi par JHipster).
+
+[plantuml, rag-components, svg]
+....
+@startuml
+title Diagramme de Composants du Système RAG
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+package "Service RAG (Temps Réel)" {
+  [Serveur RAG (JHipster)] as Server
+  [SDK Client MCP] as SDK
+  [CLI 'rag-query'] as CLI
+
+  CLI --> SDK : Utilise
+  SDK --> Server : Communique via
+}
+
+package "Build Logic (Gradle)" {
+  [Build Gradle] as GradleBuild
+  [Plugin JBake] as JBakePlugin
+  [Plugin RAG Indexer] as RAGPlugin
+  [buildSrc] as BuildSrc
+
+  GradleBuild --> JBakePlugin
+  GradleBuild --> RAGPlugin
+  GradleBuild --> BuildSrc
+}
+
+package "Services Externes & Données" {
+  database "Base de Données\n(Postgres + pgvector)" as DB
+  [API Gemini] as GeminiAPI
+}
+
+Server --> DB : Lit/Écrit
+Server --> GeminiAPI : Interroge (Embeddings)
+RAGPlugin --> DB : Écrit
+RAGPlugin --> GeminiAPI : Interroge (Embeddings)
+
+@enduml
+....
+
+=== Scénarios Principaux (Diagrammes de Séquence)
+
+Les diagrammes suivants décrivent les interactions dynamiques entre les composants pour les deux scénarios clés.
+
+==== Scénario 1 : Indexation du Contenu
+
+Ce processus est exécuté "hors-ligne" par le développeur pour construire ou mettre à jour la base de connaissances vectorielle.
+
+[plantuml, rag-indexing-sequence, svg]
+....
+@startuml
+title Séquence d'Indexation du Contenu
+
+actor "Développeur" as Dev
+participant "Gradle (:indexContent)" as Gradle
+participant "Système de Fichiers" as FS
+participant "API Gemini (Embeddings)" as GeminiAPI
+database "Base de Données (pgvector)" as DB
+
+autonumber "<b>[00]"
+
+Dev -> Gradle: Exécute ./gradlew indexContent
+activate Gradle
+
+Gradle -> FS: Scanne les fichiers (.adoc, .md, .kts)
+activate FS
+FS --> Gradle: Retourne le contenu des fichiers
+deactivate FS
+
+loop pour chaque segment de contenu
+    Gradle -> GeminiAPI: Génère l'embedding pour le segment
+    activate GeminiAPI
+    GeminiAPI --> Gradle: Retourne le vecteur
+    deactivate GeminiAPI
+
+    Gradle -> DB: Stocke le segment et son vecteur
+    activate DB
+    DB --> Gradle: Confirmation de stockage
+    deactivate DB
+end
+
+Gradle --> Dev: Terminé
+deactivate Gradle
+
+@enduml
+....
+
+==== Scénario 2 : Interrogation du RAG par l'Assistant
+
+Ce processus est exécuté en "temps réel" pendant une conversation pour fournir un contexte pertinent à l'assistant.
+
+[plantuml, rag-query-sequence, svg]
+....
+@startuml
+title Séquence d'Interrogation du RAG
+
+participant "Gemini-CLI (e3po)" as E3PO
+participant "CLI (rag-query)" as RAGClient
+participant "Serveur RAG (JHipster)" as RAGServer
+participant "API Gemini (Embeddings)" as GeminiAPI
+database "Base de Données (pgvector)" as DB
+
+autonumber "<b>[00]"
+
+E3PO -> RAGClient: Exécute rag-query "question..."
+activate RAGClient
+
+RAGClient -> RAGServer: Requête MCP (POST /api/rag/query)
+activate RAGServer
+
+RAGServer -> GeminiAPI: Génère l'embedding pour la question
+activate GeminiAPI
+GeminiAPI --> RAGServer: Retourne le vecteur de la question
+deactivate GeminiAPI
+
+RAGServer -> DB: Cherche les documents similaires au vecteur
+activate DB
+DB --> RAGServer: Retourne les N documents pertinents
+deactivate DB
+
+RAGServer --> RAGClient: Réponse MCP (JSON)
+deactivate RAGServer
+
+RAGClient -> E3PO: Imprime la réponse JSON sur stdout
+deactivate RAGClient
+
+@enduml
+....
+
+== 5. Stratégie d'Intégration avec Gemini-CLI (e3po)
+
+L'intégration du serveur MCP avec `gemini-cli` (et donc avec l'assistant e3po) se fait de manière **indirecte mais très efficace**, en suivant l'architecture définie.
+
+=== Le Principe Clé : L'Abstration par un Client CLI
+
+L'assistant n'a pas la capacité d'ouvrir des connexions réseau directes vers un serveur. Cependant, il peut exécuter des commandes shell locales via l'outil `run_shell_command`. L'intégration repose sur cette capacité : au lieu d'ajouter le serveur *directement* à `gemini-cli`, nous fournissons un **pont** pour communiquer avec lui : le client CLI `rag-query`.
+
+=== Les Étapes Concrètes de l'Intégration
+
+. **Développement du Serveur MCP :** L'application JHipster expose le point de terminaison `POST /api/rag/query`. Ce serveur est une entité complètement indépendante.
+. **Développement du Client CLI (`rag-query`) :** C'est la pièce maîtresse de l'intégration. Ce programme a trois responsabilités :
+.. Accepter une question en argument (ex: `./rag-query "Ma question ici"`).
+.. Utiliser le SDK MCP pour envoyer cette question au serveur JHipster.
+.. Recevoir la réponse JSON du serveur et l'imprimer telle quelle sur la sortie standard (stdout).
+. **"Enregistrement" du client auprès de l'assistant :** Une fois l'exécutable `rag-query` accessible, il suffit d'informer l'assistant de son existence et de son utilité, par exemple en lui demandant de mémoriser son rôle.
+
+=== Scénario d'Utilisation par l'Assistant
+
+Ce diagramme illustre parfaitement le flux d'interaction une fois l'intégration en place.
+
+[plantuml, rag-integration-sequence, svg]
+....
+@startuml
+title Séquence d'Intégration et d'Utilisation
+
+actor "Utilisateur" as User
+participant "Gemini-CLI (e3po)" as E3PO
+participant "CLI (rag-query)" as RAGClient
+participant "Serveur RAG (JHipster)" as RAGServer
+
+User -> E3PO: "Mémorise l'outil 'rag-query'."
+note right of E3PO: L'agent sauvegarde cette information.
+
+... Plus tard ...
+
+User -> E3PO: "Comment fonctionne la tâche X ?"
+activate E3PO
+
+E3PO -> RAGClient: run_shell_command("./rag-query 'Comment fonctionne la tâche X ?'")
+activate RAGClient
+
+RAGClient -> RAGServer: Requête MCP
+activate RAGServer
+RAGServer --> RAGClient: Réponse MCP (JSON)
+deactivate RAGServer
+
+RAGClient -> E3PO: Imprime JSON sur stdout
+deactivate RAGClient
+
+note right of E3PO: L'agent analyse le JSON et synthétise le contexte.
+E3PO --> User: "Voici une réponse détaillée basée sur le contexte du projet..."
+deactivate E3PO
+
+@enduml
+....
+
+En conclusion, l'intégration est élégante car elle ne requiert aucune modification de `gemini-cli`. Elle repose sur un contrat simple : un outil en ligne de commande qui parle au serveur, que l'assistant peut utiliser pour enrichir ses connaissances.
+
+== 6. Plan d'Action Détaillé
+
+Les User Stories suivantes seront implémentées dans l'ordre pour construire l'infrastructure de manière incrémentale.
+
+. **US-80 : Mettre en Place une Configuration de Base de Données Multi-Environnements**
+*   **Action :** Définir les propriétés de connexion (URL, utilisateur, mot de passe) dans `gradle.properties` pour l'environnement Docker local.
+*   **Action :** S'assurer que `gradle.properties` est correctement listé dans `.gitignore`.
+*   **Action :** Adapter les scripts Gradle pour lire ces propriétés, en priorisant les variables d'environnement pour une intégration transparente avec la CI/CD (Supabase).
+*   **Action :** Ajouter les dépendances `langchain4j`, `pgvector`, et les dépendances Spring Boot/JHipster nécessaires au projet dans `build.gradle.kts`.
+*   **Action :** Activer manuellement l'extension `pgvector` sur l'instance Supabase.
+
+. **US-81 : Création du Service d'Indexation (Tâche Gradle)**
+*   **Action :** Développer une tâche Gradle `indexContent`.
+*   **Responsabilités de la tâche :**
+    **..** Scanner les fichiers sources pertinents (`.adoc`, `.md`, `.kts`).
+    **..** Découper le contenu en segments logiques (chunks).
+    **..** Appeler l'API Gemini pour générer les embeddings de chaque segment.
+    **..** Stocker les segments et leurs embeddings dans la base de données configurée.
+
+. **US-82 : Développement du Backend RAG (API JHipster)**
+*   **Action :** Générer un nouveau projet JHipster avec Kotlin, Spring Boot, et une authentification de base.
+*   **Action :** Définir les DTOs (Data Transfer Objects) correspondant au protocole MCP.
+*   **Action :** Créer le contrôleur REST exposant le point de terminaison `POST /api/rag/query`.
+*   **Action :** Implémenter la couche service qui :
+    **..** Reçoit la requête MCP.
+    **..** Génère l'embedding de la question via `LangChain4j`.
+    **..** Interroge la base `pgvector` pour trouver les documents similaires.
+    **..** Formate et retourne la réponse MCP.
+
+. **US-83 : Création du Client RAG et du SDK Kotlin MCP**
+*   **Action :** Créer un nouveau module Kotlin pour le `mcp-sdk`.
+*   **Action :** Dans le SDK, définir les `data class` du protocole MCP et un client HTTP (ex: Ktor, Retrofit) pour interagir avec l'API JHipster.
+*   **Action :** Développer un outil CLI (`rag-query`) qui utilise le `mcp-sdk`.
+*   **Responsabilités du CLI :**
+    **..** Accepter une question en argument de ligne de commande.
+    **..** Appeler la fonction du SDK pour interroger le serveur.
+    **..** Imprimer la réponse MCP (JSON) sur la sortie standard, pour que `gemini-cli` puisse la consommer.
+
+. **US-84 : Création d'un Back-Office de Visualisation**
+*   **Action :** Utiliser le générateur d'entités de JHipster pour créer une vue en lecture seule sur la table contenant les documents et les embeddings.
+*   **Objectif :** Fournir une interface web simple pour permettre de vérifier rapidement le contenu de la base de connaissances, de voir le nombre de documents indexés et de faire des recherches simples.
+
+== 7. Prochaines Étapes
+
+L'implémentation commencera par la **US-80** pour établir les fondations de la base de données et de la configuration, ce qui est un prérequis pour toutes les autres étapes.
