@@ -20,7 +20,9 @@ data class RepositoryConfiguration(
     }
 }
 
-data class RepositoryCredentials(val username: String = "", val password: String = "")
+data class RepositoryCredentials(val username: String = "", val password: String = "") {
+    override fun toString(): String = "RepositoryCredentials(username='$username', password='***')"
+}
 
 data class SiteConfiguration(
     val bake: BakeConfiguration = BakeConfiguration(),

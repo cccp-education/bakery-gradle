@@ -18,6 +18,66 @@ class GitServiceTest {
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class InitAddCommitTest {
+
+        @TempDir
+        lateinit var tempDir: File
+
+        @Test
+        fun `initAddCommit initializes repo and creates commit`() {
+            val repoDir = tempDir.resolve("repo")
+            repoDir.mkdirs()
+            repoDir.resolve("index.html").writeText("<h1>Hello</h1>")
+
+            val config = GitPushConfiguration(
+                from = "",
+                to = "",
+                repo = RepositoryConfiguration(
+                    name = "test",
+                    repository = "https://github.com/test/test.git",
+                    credentials = RepositoryCredentials("user", "token")
+                ),
+                branch = "main",
+                message = "deploy: cheroliv.com"
+            )
+
+            val revCommit = GitService.initAddCommit(repoDir, config, logger)
+
+            assertThat(revCommit.shortMessage).isEqualTo("deploy: cheroliv.com")
+            assertThat(repoDir.resolve("index.html")).exists()
+
+            val git = Git.open(repoDir)
+            val log = git.log().call().toList()
+            assertThat(log).hasSize(1)
+            assertThat(log[0].fullMessage).contains("deploy: cheroliv.com")
+            git.close()
+        }
+
+        @Test
+        fun `initAddCommit does not mask commit message`() {
+            val repoDir = tempDir.resolve("repo2")
+            repoDir.mkdirs()
+            repoDir.resolve("file.txt").writeText("data")
+
+            val config = GitPushConfiguration(
+                from = "",
+                to = "",
+                repo = RepositoryConfiguration(
+                    name = "test",
+                    repository = "https://github.com/test/test.git",
+                    credentials = RepositoryCredentials("user", "ghp_abc123")
+                ),
+                branch = "main",
+                message = "deploy: test"
+            )
+
+            val commit = GitService.initAddCommit(repoDir, config, logger)
+            assertThat(commit.fullMessage).contains("deploy: test")
+        }
+    }
+
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class PushToRemoteHistoryPreservationTest {
 
         @TempDir

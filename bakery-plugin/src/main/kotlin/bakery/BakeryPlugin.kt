@@ -18,6 +18,7 @@ import bakery.SiteManager.registerUtilityTasks
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import java.io.File
 
 
 class BakeryPlugin : Plugin<Project> {
@@ -36,10 +37,12 @@ class BakeryPlugin : Plugin<Project> {
             val configFile = project.layout
                 .projectDirectory.asFile
                 .resolve(bakeryExtension.configPath.get())
+            val configDir = configFile.parentFile
+
             if (!configFile.exists() || (configFile.exists() &&
                         yamlMapper.readValue<SiteConfiguration>(configFile).run {
-                            !project.projectDir.resolve(bake.srcPath).exists() &&
-                                    !project.projectDir.resolve(pushMaquette.from).exists()
+                            !configDir.resolve(bake.srcPath).exists() &&
+                                    !configDir.resolve(pushMaquette.from).exists()
                         })
             ) {
                 "config file does not exists or site and maquette directories do not exist."
@@ -47,7 +50,8 @@ class BakeryPlugin : Plugin<Project> {
                     .let(project.logger::info)
                 project.registerInitSiteTask()
             } else {
-                val site = project.from(bakeryExtension.configPath.get())
+                val rawSite = project.from(bakeryExtension.configPath.get())
+                val site = rawSite.resolvePaths(configDir)
                 project.configureJBakePlugin(site)
                 project.configureBakeTask(site)
                 project.registerPublishSiteTask(site)
@@ -63,3 +67,13 @@ class BakeryPlugin : Plugin<Project> {
         }
     }
 }
+
+private fun SiteConfiguration.resolvePaths(base: File): SiteConfiguration = copy(
+    bake = bake.copy(srcPath = resolvePath(base, bake.srcPath)),
+    pushMaquette = pushMaquette.copy(from = resolvePath(base, pushMaquette.from)),
+    pushPage = pushPage.copy(from = resolvePath(base, pushPage.from)),
+    pushProfile = pushProfile?.copy(from = resolvePath(base, pushProfile.from)),
+)
+
+private fun resolvePath(base: File, path: String): String =
+    if (path.isBlank() || File(path).isAbsolute) path else base.resolve(path).absolutePath

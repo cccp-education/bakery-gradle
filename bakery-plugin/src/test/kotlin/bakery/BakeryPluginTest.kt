@@ -4,224 +4,50 @@ import bakery.FileSystemManager.createCnameFile
 import bakery.FileSystemManager.yamlMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.assertj.core.api.Assertions.assertThat
-import org.gradle.api.Action
 import org.gradle.api.Project
-import org.gradle.api.Task
-import org.gradle.api.artifacts.*
-import org.gradle.api.artifacts.dsl.DependencyHandler
-import org.gradle.api.file.Directory
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.ProjectLayout
-import org.gradle.api.logging.Logger
-import org.gradle.api.plugins.ExtensionContainer
-import org.gradle.api.plugins.PluginContainer
-import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.JavaExec
-import org.gradle.api.tasks.TaskCollection
-import org.gradle.api.tasks.TaskContainer
 import org.gradle.testfixtures.ProjectBuilder
-import org.jbake.gradle.JBakeExtension
-import org.jbake.gradle.JBakePlugin
-import org.jbake.gradle.JBakeTask
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.junit.jupiter.api.io.TempDir
-import org.mockito.kotlin.*
+import org.mockito.kotlin.verify
 import java.io.File
-import java.util.*
 import kotlin.text.Charsets.UTF_8
 
 class BakeryPluginTest {
 
-    private fun createMockProject(): Pair<Project, PluginContainer> {
-        // Create all mocks first to avoid nested mock creation issues
-        val mockJbakeDependency = mock<MinimalExternalModuleDependency>()
-        val mockSlf4jDependency = mock<MinimalExternalModuleDependency>()
-        val mockAsciidoctorjDiagramDependency = mock<MinimalExternalModuleDependency>()
-        val mockAsciidoctorjDiagramPlantumlDependency = mock<MinimalExternalModuleDependency>()
-        val mockCommonsIoDependency = mock<MinimalExternalModuleDependency>()
-        val mockCommonsConfigurationDependency = mock<MinimalExternalModuleDependency>()
+    @Nested
+    @TestInstance(PER_CLASS)
+    inner class PluginApplicationTest {
 
-        val mockJbakeProvider = mock<Provider<MinimalExternalModuleDependency>>()
-        val mockSlf4jProvider = mock<Provider<MinimalExternalModuleDependency>>()
-        val mockAsciidoctorjDiagramProvider = mock<Provider<MinimalExternalModuleDependency>>()
-        val mockAsciidoctorjDiagramPlantumlProvider = mock<Provider<MinimalExternalModuleDependency>>()
-        val mockCommonsIoProvider = mock<Provider<MinimalExternalModuleDependency>>()
-        val mockCommonsConfigurationProvider = mock<Provider<MinimalExternalModuleDependency>>()
-        val mockVersionConstraint = mock<VersionConstraint>()
-        val mockLibsCatalog = mock<VersionCatalog>()
-        val mockVersionCatalogsExtension = mock<VersionCatalogsExtension>()
-        val mockJbakeRuntimeConfiguration = mock<Configuration>()
-        val mockConfigurationContainer = mock<ConfigurationContainer>()
-        val mockConfigPathProperty = mock<Property<String>>()
-        val mockBakeryExtension = mock<BakeryExtension>()
-        val mockProjectDirectory = mock<Directory>()
-        val mockBuildDirectoryFile = mock<Directory>()
-        val mockBuildDirectory = mock<DirectoryProperty>()
-        val mockProjectLayout = mock<ProjectLayout>()
-        val mockExtensionContainer = mock<ExtensionContainer>()
-        val mockDependencyHandler = mock<DependencyHandler>()
-        val mockTaskContainer = mock<TaskContainer>()
-        val mockPluginContainer = mock<PluginContainer>()
-        val mockLogger = mock<Logger>()
-        val mockProject = mock<Project>()
+        private lateinit var fixture: BakeryTestFixture
 
-        // Now configure all the mocks using whenever
-        whenever(mockJbakeProvider.get()).thenReturn(mockJbakeDependency)
-        whenever(mockSlf4jProvider.get()).thenReturn(mockSlf4jDependency)
-        whenever(mockAsciidoctorjDiagramProvider.get()).thenReturn(mockAsciidoctorjDiagramDependency)
-        whenever(mockAsciidoctorjDiagramPlantumlProvider.get()).thenReturn(mockAsciidoctorjDiagramPlantumlDependency)
-        whenever(mockCommonsIoProvider.get()).thenReturn(mockCommonsIoDependency)
-        whenever(mockCommonsConfigurationProvider.get()).thenReturn(mockCommonsConfigurationDependency)
-
-        whenever(mockLibsCatalog.findLibrary("jbake")).thenReturn(Optional.of(mockJbakeProvider))
-        whenever(mockLibsCatalog.findLibrary("slf4j-simple")).thenReturn(Optional.of(mockSlf4jProvider))
-        whenever(mockLibsCatalog.findLibrary("asciidoctorj-diagram")).thenReturn(
-            Optional.of(
-                mockAsciidoctorjDiagramProvider
-            )
-        )
-        whenever(mockLibsCatalog.findLibrary("asciidoctorj-diagram-plantuml")).thenReturn(
-            Optional.of(
-                mockAsciidoctorjDiagramPlantumlProvider
-            )
-        )
-        whenever(mockLibsCatalog.findLibrary("commons-io")).thenReturn(Optional.of(mockCommonsIoProvider))
-        whenever(mockLibsCatalog.findLibrary("commons-configuration")).thenReturn(
-            Optional.of(
-                mockCommonsConfigurationProvider
-            )
-        )
-        whenever(mockLibsCatalog.findVersion("jbake")).thenReturn(Optional.of(mockVersionConstraint))
-
-        whenever(mockVersionCatalogsExtension.named("libs")).thenReturn(mockLibsCatalog)
-
-        whenever(mockJbakeRuntimeConfiguration.name).thenReturn("jbakeRuntime")
-        whenever(mockJbakeRuntimeConfiguration.asPath).thenReturn("/mock/classpath")
-
-        // CORRECTION IMPORTANTE : Gérer les deux cas d'appel de create()
-        // Cas 1 : create(String) sans Action
-        whenever(mockConfigurationContainer.create(eq("jbakeRuntime"))).thenReturn(mockJbakeRuntimeConfiguration)
-
-        // Cas 2 : create(String, Action) avec Action (pour compatibilité)
-        whenever(
-            mockConfigurationContainer.create(
-                eq("jbakeRuntime"),
-                any<Action<Configuration>>()
-            )
-        ).doAnswer { invocation ->
-            @Suppress("UNCHECKED_CAST")
-            val action = invocation.arguments[1] as Action<Configuration>
-            action.execute(mockJbakeRuntimeConfiguration)
-            mockJbakeRuntimeConfiguration
+        @BeforeEach
+        fun setUp() {
+            fixture = BakeryTestFixture.create()
         }
 
-        val configFile = File("../../site.yml").canonicalFile
-        val projectDir = configFile.parentFile
-
-        // Use the actual path that will resolve correctly
-        whenever(mockConfigPathProperty.get()).thenReturn("site.yml")
-        whenever(mockConfigPathProperty.isPresent).thenReturn(true)
-
-        whenever(mockBakeryExtension.configPath).thenReturn(mockConfigPathProperty)
-
-        // Make sure projectDirectory points to where site.yml actually exists
-        whenever(mockProjectDirectory.asFile).thenReturn(projectDir)
-
-        // Mock the build directory and its dir() method
-        val buildDir = File(projectDir, "build")
-        whenever(mockBuildDirectoryFile.asFile).thenReturn(buildDir)
-        whenever(mockBuildDirectory.get()).thenReturn(mockBuildDirectoryFile)
-
-        // Create a separate mock for asFile property
-        val mockBuildDirAsFileProvider = mock<Provider<File>>()
-        whenever(mockBuildDirAsFileProvider.get()).thenReturn(buildDir)
-        whenever(mockBuildDirectory.asFile).thenReturn(mockBuildDirAsFileProvider)
-
-        // Mock the dir() method to return a proper Provider
-        whenever(mockBuildDirectory.dir(any<String>())).doAnswer { invocation ->
-            val path = invocation.arguments[0] as String
-            val mockDirProvider = mock<Provider<Directory>>()
-            val mockDir = mock<Directory>()
-            whenever(mockDir.asFile).thenReturn(File(buildDir, path))
-            whenever(mockDirProvider.get()).thenReturn(mockDir)
-            mockDirProvider
+        @Test
+        fun `plugin creates bakery extension`() {
+            val plugin = BakeryPlugin()
+            plugin.apply(fixture.project)
+            verify(fixture.project.extensions).create("bakery", BakeryExtension::class.java)
         }
 
-        whenever(mockProjectLayout.projectDirectory).thenReturn(mockProjectDirectory)
-        whenever(mockProjectLayout.buildDirectory).thenReturn(mockBuildDirectory)
-
-        whenever(mockExtensionContainer.getByType(VersionCatalogsExtension::class.java)).thenReturn(
-            mockVersionCatalogsExtension
-        )
-        whenever(mockExtensionContainer.create("bakery", BakeryExtension::class.java)).thenReturn(mockBakeryExtension)
-        whenever(mockExtensionContainer.getByType(BakeryExtension::class.java)).thenReturn(mockBakeryExtension)
-
-        // Mock configure method for JBakeExtension
-        whenever(
-            mockExtensionContainer.configure(
-                eq(JBakeExtension::class.java),
-                any()
-            )
-        ).doAnswer { invocation ->
-            // Just execute the action, we don't need to verify JBake extension configuration
-            @Suppress("UNCHECKED_CAST")
-            val action = invocation.arguments[1] as Action<JBakeExtension>
-            null
+        @Test
+        fun `plugin manager is configured on apply`() {
+            val plugin = BakeryPlugin()
+            plugin.apply(fixture.project)
+            verify(fixture.project.pluginManager).apply("com.github.node-gradle.node")
         }
 
-        whenever(mockProject.extensions).thenReturn(mockExtensionContainer)
-        whenever(mockProject.configurations).thenReturn(mockConfigurationContainer)
-        whenever(mockProject.dependencies).thenReturn(mockDependencyHandler)
+        @Test
+        fun `plugin reads config path from extension`() {
+            val plugin = BakeryPlugin()
+            plugin.apply(fixture.project)
 
-        // CORRECTION : Mock pour DependencyHandler.add()
-        whenever(mockDependencyHandler.add(any(), any())).thenReturn(mock<Dependency>())
-
-        whenever(mockProject.tasks).thenReturn(mockTaskContainer)
-        whenever(mockProject.plugins).thenReturn(mockPluginContainer)
-        whenever(mockProject.layout).thenReturn(mockProjectLayout)
-        whenever(mockProject.logger).thenReturn(mockLogger)
-
-        // Set projectDir consistently
-        val projectDirectory = File("../../site.yml").canonicalFile.parentFile
-        whenever(mockProject.projectDir).thenReturn(projectDirectory)
-        whenever(mockProject.file(any<String>())).doAnswer { invocation ->
-            File(projectDirectory, invocation.arguments[0] as String)
+            val extension = fixture.project.extensions.getByType(BakeryExtension::class.java)
+            assertThat(extension.configPath.get()).isEqualTo("site.yml")
         }
-
-        // Mock tasks.withType to avoid issues
-        val mockJBakeTaskCollection = mock<TaskCollection<JBakeTask>>()
-        val mockJBakeTask = mock<JBakeTask>()
-        whenever(mockJBakeTaskCollection.getByName("bake")).thenReturn(mockJBakeTask)
-        whenever(mockTaskContainer.withType(JBakeTask::class.java)).thenReturn(mockJBakeTaskCollection)
-
-        // Mock task registration methods
-        whenever(mockTaskContainer.register(any<String>(), any<Action<Task>>())).thenReturn(mock())
-        whenever(mockTaskContainer.register(eq("publishSite"), any<Action<Task>>())).thenReturn(mock())
-        whenever(
-            mockTaskContainer.register(
-                eq("publishMaquette"),
-                any<Action<Task>>()
-            )
-        ).thenReturn(mock())
-        whenever(mockTaskContainer.register(eq("configureSite"), any<Action<Task>>())).thenReturn(mock())
-        whenever(
-            mockTaskContainer.register(
-                eq("serve"),
-                eq(JavaExec::class.java),
-                any<Action<JavaExec>>()
-            )
-        ).thenReturn(mock())
-
-        // Set up afterEvaluate to execute immediately
-        whenever(mockProject.afterEvaluate(any<Action<Project>>())).doAnswer { invocation ->
-            @Suppress("UNCHECKED_CAST")
-            val action = invocation.arguments[0] as Action<Project>
-            action.execute(mockProject)
-            null
-        }
-        return Pair(mockProject, mockPluginContainer)
     }
 
     @Nested
@@ -431,66 +257,12 @@ class BakeryPluginTest {
 
     @Nested
     @TestInstance(PER_CLASS)
-    inner class ExtensionTest {
-
-        @Test
-        fun `plugin creates bakery extension`() {
-            val (project, _) = createMockProject()
-            val plugin = BakeryPlugin()
-
-            plugin.apply(project)
-
-            verify(project.extensions).create("bakery", BakeryExtension::class.java)
-        }
-    }
-
-    @Nested
-    @TestInstance(PER_CLASS)
-    inner class JbakeTest {
-
-        @Test
-        fun `plugin applies jbake gradle plugin`() {
-            // Get both the project mock and the plugin container mock
-            val (project, mockPluginContainer) = createMockProject()
-
-            val projectDir = project.layout.projectDirectory.asFile
-            val siteDir = File(projectDir, "site")
-            val maquetteDir = File(projectDir, "maquette")
-            val siteDirCreated = !siteDir.exists() && siteDir.mkdirs()
-            val maquetteDirCreated = !maquetteDir.exists() && maquetteDir.mkdirs()
-
-            val plugin = BakeryPlugin()
-            plugin.apply(project)
-
-            if (siteDirCreated) siteDir.deleteRecursively()
-            if (maquetteDirCreated) maquetteDir.deleteRecursively()
-
-            verify(mockPluginContainer).apply(JBakePlugin::class.java)
-        }
-
-        @Test
-        fun `lecture de la configuration depuis l'extension`() {
-            val (project, _) = createMockProject()
-            val plugin = BakeryPlugin()
-
-            plugin.apply(project)
-
-            val extension = project.extensions.getByType(BakeryExtension::class.java)
-            val configPath = extension.configPath.get()
-
-            // The mock now uses "site.yml" instead of "../../site.yml"
-            assertThat(configPath).isEqualTo("site.yml")
-        }
-    }
-
-    @Nested
-    @TestInstance(PER_CLASS)
     inner class PublishingTest {
         @Test
         fun check_publishing() {
-            val (project, _) = createMockProject()
+            val fixture = BakeryTestFixture.create()
             val plugin = BakeryPlugin()
-            plugin.apply(project)
+            plugin.apply(fixture.project)
         }
     }
 
@@ -513,7 +285,6 @@ class BakeryPluginTest {
 
         @Test
         fun `createCnameFile should create CNAME file with correct content when cname is provided`() {
-            // Given
             @Suppress("LocalVariableName")
             val CNAME_VALUE = "test.cheroliv.com"
             val siteConfiguration = createFakeSiteConfiguration(CNAME_VALUE)
@@ -543,10 +314,8 @@ class BakeryPluginTest {
                         .describedAs("CNAME file should contain 'test.cheroliv.com'")
                         .contains(CNAME_VALUE)
                 }
-            // When
             siteConfiguration.createCnameFile(project)
 
-            // Then
             expectedCnameFile
                 .run(::assertThat)
                 .describedAs("CNAME file should exist")
@@ -559,39 +328,32 @@ class BakeryPluginTest {
 
         @Test
         fun `createCnameFile should do nothing if cname is null`() {
-            // Given
             val siteConfiguration = createFakeSiteConfiguration()
             project.layout.buildDirectory.get().asFile.mkdirs()
             val cnameFile = project.layout.buildDirectory.file(
                 "${siteConfiguration.bake.destDirPath}/CNAME"
             ).get().asFile
 
-            // When
             siteConfiguration.createCnameFile(project)
 
-            // Then
             assertThat(cnameFile).doesNotExist()
         }
 
         @Test
         fun `createCnameFile should do nothing if cname is blank`() {
-            // Given
             val siteConfiguration = createFakeSiteConfiguration("   ")
             project.layout.buildDirectory.get().asFile.mkdirs()
             val cnameFile = project.layout.buildDirectory.file(
                 "${siteConfiguration.bake.destDirPath}/CNAME"
             ).get().asFile
 
-            // When
             siteConfiguration.createCnameFile(project)
 
-            // Then
             assertThat(cnameFile).doesNotExist()
         }
 
         @Test
         fun `createCnameFile should overwrite existing CNAME file`() {
-            // Given
             val siteConfiguration = createFakeSiteConfiguration("new.cheroliv.com")
             project.layout.buildDirectory.get().asFile.mkdirs()
             val cnameFile = project.layout.buildDirectory.file(
@@ -600,17 +362,14 @@ class BakeryPluginTest {
             cnameFile.parentFile.mkdirs()
             cnameFile.writeText("old.cheroliv.com", UTF_8)
 
-            // When
             siteConfiguration.createCnameFile(project)
 
-            // Then
             assertThat(cnameFile).exists().isFile
             assertThat(cnameFile.readText(UTF_8)).isEqualTo("new.cheroliv.com")
         }
 
         @Test
         fun `createCnameFile should replace existing CNAME directory`() {
-            // Given
             val siteConfiguration = createFakeSiteConfiguration("another.cheroliv.com")
             project.layout.buildDirectory.get().asFile.mkdirs()
             val cnameFile = project.layout.buildDirectory.file(
@@ -620,10 +379,8 @@ class BakeryPluginTest {
             cnameFile.mkdirs()
             assertThat(cnameFile).exists().isDirectory
 
-            // When
             siteConfiguration.createCnameFile(project)
 
-            // Then
             assertThat(cnameFile).exists().isFile
             assertThat(cnameFile.readText(UTF_8)).isEqualTo("another.cheroliv.com")
         }
