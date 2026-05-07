@@ -123,3 +123,14 @@ Erreur CI : champ `supabase` inconnu dans le secret `BAKERY_GRADLE_PLUGIN`.
 
 **Fichiers modifies** : `libs.versions.toml`, `build.gradle.kts`, `BakeryPlugin.kt`, `SiteManager.kt`
 + docs transverses
+
+== Session 019 — 2026-05-07 — Migration chemins OSS/CSS (inter-session chore)
+
+**Contexte** : Granularisation OSS/CSS. INDEX.adoc contenait des chemins `foundry/` au lieu de `foundry/OSS/`.
+Migration transverse sur 9 repos.
+
+**Taches realisees** :
+* [x] `.agents/INDEX.adoc` : remplacement `foundry/` → `foundry/OSS/` dans le portefeuille
+* [x] PROMPT_REPRISE.adoc mis a jour
+* [x] SESSIONS_HISTORY.adoc : entree session 019
+* [x] Commit + push

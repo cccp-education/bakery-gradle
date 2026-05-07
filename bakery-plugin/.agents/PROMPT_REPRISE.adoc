@@ -10,6 +10,11 @@ Bakery 0.1.3 → 0.1.4 publie sur Gradle Plugin Portal.
 Pipeline CI office/cheroliv.com corrige et vert.
 BUG PluginApplicationTest corrige.
 
+== Session 019 — Migration chemins OSS/CSS (inter-session chore)
+
+**Date** : 2026-05-07 | **Type** : chore
+**Resultat** : ✅ INDEX.adoc — remplacement `foundry/` → `foundry/OSS/` pour granularisation OSS/CSS. Commit + push.
+
 == Prochaine etape
 
 Reprendre la couverture de test pour les features restantes :
