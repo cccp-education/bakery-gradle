@@ -1,63 +1,44 @@
-= Prompt de Reprise — Session 18
+= Prompt de Reprise — Session 19
 
 _Règles absolues_ : voir `AGENT.adoc` section "Règles Absolues"
 
 ____
-**Mission** : EPIC 10 Scaffolding — Finir phase green (3 scénarios Cucumber en échec) + EPIC 11 Optimisation durée des tests. Atteindre couverture Kover >= 75%.
+**Mission** : EPIC 10 Scaffolding — Finir phase green (3 scénarios Cucumber en échec) + Couverture Kover >= 75%.
 ____
 
 '''
 
 == Sessions Récentes
 
-**Session 14** (2026-05-07) : EPIC 10 Scaffolding — TDD complet. Ajout `sitesBaseDir`/`siteName` à `BakeryExtension`, création `SiteScaffolder.kt`, modification `SiteManager.registerInitSiteTask(targetDir)`, modification `BakeryPlugin.apply()`. 10 tests unitaires OK, 5 tests fonctionnels OK, 5 scénarios Cucumber (3 encore en échec). Intégration Kover 0.9.1.
+**Session 018** (2026-05-07) : EPIC 11 Optimisation durée tests. Suppression JVM args anti-perf (`TieredStopAtLevel=1`, `SerialGC`, `MaxMetaspaceSize=256m`), `forkEvery=0` sur cucumberTest, refactor ArchitectureValidationTest avec pattern `@Nested` + projet partagé. Durée totale -52% (8m → 3m50s).
 
-**Session 13bis** (2026-05-02) : Migration Exec → NpxTask pour Pagefind + vision orchestration LLM.
-
-**Session 13** (2026-05-02) : Pagefind + fix CI + fix tracking Git.
+**Session 017** (2026-05-07) : EPIC 10 Scaffolding TDD complet. `sitesBaseDir`/`siteName`, `SiteScaffolder.kt`, 10 tests unitaires + 5 fonctionnels + 5 Cucumber (3 en échec). Kover 0.9.1.
 
 '''
 
-== Session 14 — Réalisations
+== Session 018 — Réalisations
 
-1. **EPIC 10 Scaffolding** :
-   * `BakeryExtension` : ajout `sitesBaseDir` (Property<String>) et `siteName` (Property<String>)
-   * `SiteScaffolder.kt` : `resolveSiteTargetDir()` + `validateSiteTargetDoesNotExist()`
-   * `SiteManager.kt` : `registerInitSiteTask(targetDir: File = projectDir)` — toutes les méthodes privées acceptent `targetDir` au lieu de `projectDir`
-   * `BakeryPlugin.kt` : dans le bloc `afterEvaluate` → condition `initSite`, appel `SiteScaffolder.resolveSiteTargetDir()` puis `validateSiteTargetDoesNotExist()` si targetDir != projectDir, puis `registerInitSiteTask(targetDir)`
-   * Tests unitaires : 10/10 passent
-   * Tests fonctionnels : 5/5 passent
-   * Cucumber : 12/15 passent, 3 en échec (siteNameOnly, backwardCompat x2)
-2. **Kover 0.9.1** : Intégré dans `build.gradle.kts`, rapports HTML + XML sur `check`, tâche `koverThresholdCheck` avec seuil 75%.
-3. **Couverture actuelle** : 57% instruction (sous le seuil).
+* [x] `build.gradle.kts` : suppression `-XX:TieredStopAtLevel=1`, `-XX:+UseSerialGC`, `-XX:MaxMetaspaceSize=256m`
+* [x] `cucumberTest` : `forkEvery=1` → `forkEvery=0`
+* [x] `ArchitectureValidationTest.kt` : refactor pattern `@Nested` + `@JvmStatic @TempDir` + projet partagé
+  - 7 cold starts Gradle → 1 daemon réutilisé
+  - 2 classes `@Nested` : `BakeTasks` + `TaskInspection`
+* [x] Durée tests : 8m → 3m50s (-52%)
 
-**Fichiers créés/modifiés** :
-* `src/main/kotlin/bakery/BakeryExtension.kt` — +2 propriétés
-* `src/main/kotlin/bakery/SiteScaffolder.kt` — créé
-* `src/main/kotlin/bakery/SiteManager.kt` — registerInitSiteTask(targetDir)
-* `src/main/kotlin/bakery/BakeryPlugin.kt` — appel SiteScaffolder
-* `src/test/kotlin/bakery/SiteScaffolderTest.kt` — créé (10 tests)
-* `src/functionalTest/kotlin/bakery/ScaffoldFunctionalTests.kt` — créé (5 tests)
-* `src/test/features/6_site_scaffolding.feature` — créé (5 scénarios)
-* `src/test/scenarios/bakery/scenarios/ScaffoldSteps.kt` — créé
-* `gradle/libs.versions.toml` — ajout kover 0.9.1
-* `build.gradle.kts` — plugin kover, config, koverThresholdCheck
-* `BACKLOG.adoc` — EPIC 10, EPIC 11
-* `PROMPT_REPRISE.adoc` — ce fichier
+**Fichiers modifiés** :
+* `build.gradle.kts` — JVM args + forkEvery
+* `src/functionalTest/kotlin/bakery/ArchitectureValidationTest.kt` — refactor
 
 '''
 
-== Session 15 — Priorités
+== Session 19 — Priorités
 
-=== Priorité 0 : EPIC 11 — Optimisation durée des tests
-* Durée actuelle : 3-6 min par run → intenable en boucle TDD
-* Pistes : forkEvery=1, configuration-cache, --parallel, réduire daemons TestKit
+=== Priorité 0 : EPIC 10 — Finir phase green Cucumber
+* 3 scénarios encore en échec dans `6_site_scaffolding.feature`
+* Cause probable : `ScaffoldSteps` conflit avec `InitSiteSteps` existant
+* Investiguer le conflit de state entre les steps Cucumber
 
-=== Priorité 1 : EPIC 10 — Finir phase green Cucumber
-* 3 scénarios encore en échec : `siteNameOnly`, `backwardCompat`
-* Cause probable : le `ScaffoldSteps` ne gère pas correctement le cas où aucun `sitesBaseDir`/`siteName` n'est défini dans la feature (conflit avec le `InitSiteSteps` existant)
-
-=== Priorité 2 : Couverture Kover >= 75%
+=== Priorité 1 : Couverture Kover >= 75%
 * Couverture actuelle : 57%
 * Une fois les 3 scénarios Cucumber verts, recalculer
 
@@ -67,8 +48,7 @@ ____
 
 * Règle 0 : `publishToMavenLocal` après chaque modif code plugin
 * Jamais de commit sans permission
-* Règle de sûreté : vérifier `.gitignore` avant de modifier un fichier de config
 * Racine de travail = `bakery-plugin/`
 * Archive + PROMPT_REPRISE mis à jour en fin de session
-* Ne pas lancer `check` complet (5+ min) — lancer tests individuels
+* Ne pas lancer `check` complet — lancer tests individuels
 * Utiliser `--tests` filter pour cibler les tests pertinents

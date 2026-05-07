@@ -1,6 +1,6 @@
 = Analyse de Couverture des Tests — Bakery Gradle Plugin
 
-_Derniere mise a jour_ : 2026-05-07 (Session 017)
+_Derniere mise a jour_ : 2026-05-07 (Session 018)
 
 '''
 
@@ -63,6 +63,16 @@ _Derniere mise a jour_ : 2026-05-07 (Session 017)
 
 **Total Session 017 unitaires** : 10 nouveaux tests OK
 
+== Tests Fonctionnels — Session 018
+
+|===
+| Classe | Tests | Statut | Notes
+| ArchitectureValidationTest.BakeTasks | 4 | OK | bake index.html, blog post, sans credentials, UP-TO-DATE
+| ArchitectureValidationTest.TaskInspection | 2 | OK | tasks enregistrés, serve inspectable
+|===
+
+6 tests OK, 1 projet partagé via @Nested + @BeforeAll (pattern plantuml-gradle).
+
 == Tests Fonctionnels — Session 017
 
 |===
@@ -75,16 +85,7 @@ _Derniere mise a jour_ : 2026-05-07 (Session 017)
 
 **Total Session 017 fonctionnels** : 5 nouveaux tests OK
 
-=== Couverture Kover — Session 017
-
-| Métrique | Valeur |
-| INSTRUCTION | 57.0% (4107/7200) ❌ < 75% |
-| BRANCH | 29.8% |
-| LINE | 57.0% |
-| METHOD | 66.5% |
-| CLASS | 61.4% |
-
-== Tests Cucumber — Session 017
+== Tests Cucumber — Session 018
 
 | Feature | Scenarios | Statut | Notes
 | 1_minimal_configuration | 1 | PASS | Canary
@@ -95,9 +96,16 @@ _Derniere mise a jour_ : 2026-05-07 (Session 017)
 | 6_site_scaffolding | 5 | 2 PASS, 3 FAIL | UJ1, UJ3 OK ; UJ2, UJ4, UJ5 en échec
 |===
 
-**Total Cucumber** : 15 scenarios (12 PASS, 3 FAIL)
+Total Cucumber : 15 scenarios (12 PASS, 3 FAIL)
 
-== Zones Non Couvertes (session 018)
+=== Couverture Kover — Session 018
+
+| Métrique | Valeur |
+| INSTRUCTION | 57.0% (estimé) ❌ < 75% |
+| BRANCH | ~30% |
+| LINE | ~57% |
+
+== Zones Non Couvertes (session 019)
 
 |===
 | Zone | Risque | Priorite

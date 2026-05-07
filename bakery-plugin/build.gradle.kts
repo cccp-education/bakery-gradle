@@ -46,20 +46,14 @@ dependencies {
 
 
 tasks.withType<Test> {
-    useJUnitPlatform {
-        timeout.set(Duration.ofSeconds(30))
-    }
+    useJUnitPlatform()
     testLogging {
         events("passed", "skipped", "failed")
         showStandardStreams = true
     }
-    maxParallelForks = 1
     forkEvery = 0
-    timeout.set(Duration.ofSeconds(60))
+    timeout.set(Duration.ofMinutes(5))
     outputs.cacheIf { true }
-    jvmArgs("-XX:+UseSerialGC")
-    jvmArgs("-XX:MaxMetaspaceSize=256m")
-    jvmArgs("-XX:TieredStopAtLevel=1")
 }
 
 // Specific configuration for plugin tests
@@ -68,7 +62,7 @@ tasks.named<Test>("test") {
 
     systemProperty("gradle.plugin.repository", project.rootDir.resolve("build/libs").absolutePath)
 
-    timeout.set(Duration.ofMinutes(3))
+    maxParallelForks = 1
 }
 
 
@@ -120,15 +114,9 @@ val functionalTestTask = tasks.register<Test>("functionalTest") {
     }
     failOnNoDiscoveredTests = false
 
-    timeout.set(Duration.ofMinutes(5))
-
     systemProperty("test.timeout.multiplier", "2")
 
-    maxParallelForks = (Runtime.getRuntime().availableProcessors() / 2).coerceAtLeast(1)
-    forkEvery = 0
-    jvmArgs("-XX:+UseSerialGC")
-    jvmArgs("-XX:MaxMetaspaceSize=256m")
-    jvmArgs("-XX:TieredStopAtLevel=1")
+    maxParallelForks = (Runtime.getRuntime().availableProcessors()).coerceAtLeast(1)
 }
 
 // CORRECTION: Gérer les duplications de ressources pour functionalTest
@@ -212,10 +200,7 @@ val cucumberTest = tasks.register<Test>("cucumberTest") {
     dependsOn(tasks.classes)
 
     maxParallelForks = 1
-    forkEvery = 1
-    jvmArgs("-XX:+UseSerialGC")
-    jvmArgs("-XX:MaxMetaspaceSize=256m")
-    jvmArgs("-XX:TieredStopAtLevel=1")
+    forkEvery = 0
 
     timeout.set(Duration.ofMinutes(5))
 

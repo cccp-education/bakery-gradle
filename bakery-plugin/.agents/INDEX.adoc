@@ -3,8 +3,8 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-05-07
-_Session terminee_ : 017 (EPIC 10 Scaffolding TDD + Kover)
-_Session en cours_ : 018 (EPIC 11 Optimisation durée tests + finir Cucumber green)
+_Session terminee_ : 018 (Optimisation durée tests -52%)
+_Session en cours_ : 019 (EPIC 10 Finir Cucumber green + Kover 75%)
 
 '''
 
@@ -69,6 +69,8 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | # | Date | Type | Sujet | Score
+| 018 | 2026-05-07 | perf | Optimisation durée tests -52% (JVM + @Nested plantuml pattern) | 9/10
+| 017 | 2026-05-07 | feat + test + quality | EPIC 10 Scaffolding TDD complet + Kover 0.9.1 | 7/10
 | 016 | 2026-05-07 | test + fix + feat | Couverture P1/P2/P3 + fix CI + EPIC 7 YAML tolerance | 8/10
 | 015 | 2026-05-07 | test + fix | ConfigPrompts tests + bugfix camelCase | 8/10
 | 014 | 2026-05-04 | governance | Renommage openclaw→quizz-benchmark | -
@@ -98,7 +100,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 | EPIC 8 : Bumper version 0.1.4 et release | 100% | P2 - TERMINE (session 016)
 | EPIC 9 : Architecture d'orchestration LLM | 0% | P0 - A FAIRE
 | EPIC 10 : Pagefind recherche full-text | 100% | P2 - TERMINE
-| EPIC 11 : Base Firebase tests + emulator CI | 0% | P2 - A FAIRE
+| EPIC 11 : Optimisation durée des tests | 100% | P0 - TERMINE (session 018)
 | EPIC 12 : Couverture de tests ConfigPrompts | 70% | P1 - PARTIEL (session 015)
 | EPIC 13 : Couverture de tests — lacunes P1 | 50% | P1 - PARTIEL (session 016)
 |===

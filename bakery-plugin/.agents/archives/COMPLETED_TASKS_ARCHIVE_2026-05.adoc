@@ -1,5 +1,21 @@
 = Archive des Taches Terminees — Mai 2026
 
+== Session 018 — 2026-05-07 — Optimisation durée des tests (-52%)
+
+**Contexte** : Tests ~8 min intenable en TDD. 2 causes : JVM args anti-perf + 7 cold starts
+Gradle dans ArchitectureValidationTest.
+
+**Taches realisees** :
+
+* [x] `build.gradle.kts` : suppression `-XX:TieredStopAtLevel=1`, `-XX:+UseSerialGC`, `-XX:MaxMetaspaceSize=256m`
+* [x] `cucumberTest` : `forkEvery=1` → `forkEvery=0`
+* [x] `ArchitectureValidationTest.kt` : refactor pattern `@Nested` + `@JvmStatic @TempDir` + `@BeforeAll`
+  - 7 cold starts Gradle → 1 projet partagé (inspiré de `plantuml-gradle/PlantumlFunctionalSuite.kt`)
+  - 2 classes `@Nested` : `BakeTasks` (4 tests), `TaskInspection` (2 tests)
+* [x] Résultats : 8m → 3m50s (-52%)
+
+**Fichiers modifies** : `build.gradle.kts`, `ArchitectureValidationTest.kt`
+
 == Session 017 — 2026-05-07 — EPIC 10 Scaffolding TDD complet + Kover
 
 **Contexte** : initSite crée tout dans projectDir. Besoin de scripter un nouveau site
