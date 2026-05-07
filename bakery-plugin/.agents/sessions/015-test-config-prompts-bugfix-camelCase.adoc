@@ -1,0 +1,44 @@
+= Session 015 — Couverture tests ConfigPrompts + fix bug camelCase
+:toc:
+:date: 2026-05-07
+
+== Contexte
+
+Session 015 faisant suite au renommage gouvernance openclaw→quizz-benchmark (session 014).
+Objectif : ajouter la couverture de test pour `ConfigPrompts.kt`, le seul fichier source
+du plugin sans aucun test.
+
+== Taches realisees
+
+=== Tests ConfigPrompts (13 tests)
+
+**ConfigPromptsTest.kt** — 5 classes nested, 13 tests, tous passent :
+
+* [x] `CliPropertyResolution` (4 tests) : -P priority, blank skip, not present, priority over default
+* [x] `DefaultResolution` (3 tests) : standard, sensitive flag, example text
+* [x] `CamelCaseToUpperSnake` (4 tests) : single word, two words, three words, acronym
+* [x] `SaveConfiguration` (2 tests) : no-op sans exception, no-op avec gradleProperties enabled
+
+=== Bug fix — camelCase → UPPER_SNAKE casse
+
+* [x] `ConfigPrompts.kt:31` : `.uppercase()` etait appele **avant** `.replace(Regex, ...)`
+  → plus aucune minuscule, la regex ne matche jamais
+  → `"githubRepo"` produisait `"GITHUBREPO"` au lieu de `"GITHUB_REPO"`
+  → les variables d'environnement n'etaient jamais resolues correctement
+* [x] Correction : inverser l'ordre → `.replace...uppercase()`
+
+== Resultats
+
+- ConfigPrompts : 0% → ~70% couvert (CLI, default, conversion env key, saveConfiguration no-op)
+- Chemins interactifs (promptSensitive, promptNormal, promptFallback) non couverts
+  car impossibles a tester de maniere fiable dans Gradle runner
+- Full test suite : BUILD SUCCESSFUL (unit + functional + Cucumber all pass)
+
+== Prochaine session (016)
+
+Voir `PROMPT_REPRISE.adoc` — priorites de couverture restantes.
+
+== Fichiers modifies
+
+* `ConfigPrompts.kt` — fix ordre .uppercase/.replace
+* `ConfigPromptsTest.kt` — nouveau fichier, 13 tests

@@ -2,7 +2,9 @@ package bakery
 
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
+import java.io.BufferedReader
 import java.io.Console
+import java.io.InputStreamReader
 import java.lang.System.console
 import java.lang.System.getenv
 
@@ -26,8 +28,8 @@ object ConfigPrompts {
 
         // 2. Vérifier les variables d'environnement
         val envVar: String = cliProperty
-            .uppercase()
             .replace(Regex(REGEX_ALPHA), REGEX_REPLACEMENT)
+            .uppercase()
 
         getenv(envVar)?.takeIf { it.isNotBlank() }?.let { return it }
 
@@ -93,8 +95,9 @@ object ConfigPrompts {
 
         var input: String?
 
+        val reader = BufferedReader(InputStreamReader(System.`in`))
         do {
-            input = readlnOrNull()
+            input = reader.readLine()
             if (input.isNullOrBlank()) {
                 logger.warn("$propertyName cannot be empty. Please try again.")
                 print("Enter $propertyName$exampleText: ")

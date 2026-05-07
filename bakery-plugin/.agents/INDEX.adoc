@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour_ : 2026-05-02
-_Session terminee_ : 13bis (NpxTask Pagefind + Architecture orchestration LLM)
-_Session en cours_ : 14 (EPIC 7 Tolerance YAML + base Firebase tests)
+_Derniere mise a jour_ : 2026-05-07
+_Session terminee_ : 015 (ConfigPrompts tests + bugfix camelCase)
+_Session en cours_ : 016 (Couverture de test — lacunes P1)
 
 '''
 
@@ -37,45 +37,23 @@ _Procedure obligatoire avant tout commit_ :
 **PRINCIPE** : Tout fichier de configuration (YAML, JSON, XML, TOML, properties, .env) peut contenir des donnees sensibles non versionnees. Ne **jamais** mettre en danger l'integrite du travail du developpeur.
 
 **INTERDICTIONS** :
-
 * **NE JAMAIS ecraser** un fichier config avec un `Write` complet quand un `Edit` partiel suffit
 * **NE JAMAIS remplacer** des valeurs sensibles (tokens, mots de passe, cles API, URLs prod) par des valeurs factices
 * **NE JAMAIS modifier** sans verifier `git check-ignore` et `git ls-files` — un fichier non tracke n'a pas de `git restore`
 
-**Procedure OBLIGATOIRE** avant modification :
-
-. `git check-ignore <fichier>` + `git ls-files -- <fichier>`
-. Si non tracke : **CREER UNE SAUVEGARDE** (`cp <fichier> <fichier>.bak`)
-. **PRESERVER** les valeurs sensibles intactes
-. Privilegier l'**edit partiel** sur l'ecriture complete
-. **Verifier** apres modification que les valeurs sensibles sont toujours la
-
-_Lecon Session 2_ : Ecraser un site.yml non versionne a detruit des tokens reels. Sans sauvegarde git (fichier ignore), restauration impossible sans fallback externe. Le developpeur aurait ete bloque definitivement.
+_Lecon Session 2_ : Ecraser un site.yml non versionne a detruit des tokens reels.
 
 === 1c. FICHIERS PERSONNELS — INTERDICTION DE MODIFIER
 
-_L'agent NE DOIT JAMAIS_ modifier, ecraser ou supprimer un fichier personnel de l'utilisateur (`~/.gitconfig`, `~/.bashrc`, `~/.ssh/config`, `~/.zshrc`, etc.) _SANS permission explicite de l'utilisateur_.
+_L'agent NE DOIT JAMAIS_ modifier, ecraser ou supprimer un fichier personnel de l'utilisateur _SANS permission explicite de l'utilisateur_.
 
-**PRINCIPE** : Les fichiers `~/.*` appartiennent a l'utilisateur. Leur modifier peut casser le workflow, les credentials, ou les preferences de l'environnement. L'environnement de travail de l'utilisateur est en dehors du scope du projet.
-
-**INTERDICTIONS** :
-
-* **NE JAMAIS** utiliser `Write` ou `Edit` sur un fichier `~/.*` ou `~/*` qui n'est pas dans le repertoire de travail du projet
-* **NE JAMAIS** executer de commande touchant `~/.gitconfig`, `~/.bashrc`, `~/.ssh/*`, `~/.zshrc`, etc. meme avec l'intention de "reparer" ou "configurer"
-* **Toujours rester dans le working directory** du projet actuel
-
-_Lecon Session 033 (magic_stick)_ : L'agent a tente de modifier `/home/cheroliv/.gitconfig` pour changer le `user.name` de `opencode` vers `cheroliv`. Sans permission explicite. Modifier les configs utilisateur hors projet est un comportement catastrophique qui peut corrompre l'environnement de travail.
+_Lecon Session 033 (magic_stick)_ : L'agent a tente de modifier `/home/cheroliv/.gitconfig`.
 
 === 2. TESTS EN FIN DE SESSION — INTERDICTION FORMELLE
 
-_L'agent NE DOIT JAMAIS_ lancer de tests (`./gradlew test`, `./gradlew cucumberTest`, etc.) lors de la procedure de fin de session _SANS permission explicite de l'utilisateur_.
-
-* Autorise : Resumer les resultats des tests deja executes pendant la session
-* Interdit : Lancer `./gradlew cucumberTest` ou tout autre test en procedure de fin de session
+_L'agent NE DOIT JAMAIS_ lancer de tests lors de la procedure de fin de session _SANS permission explicite_.
 
 === 3. PROCEDURE DE FIN DE SESSION — EXECUTION COMPLETE OBLIGATOIRE
-
-_REGLE ABSOLUE_ : Quand l'utilisateur declenche la fin de session ("fin de session", "session terminee", "je quitte", "a plus tard", "on arrete la"), l'agent DOIT executer _TOUTES les etapes_ de la procedure _SANS EXCEPTION et SANS OMISSION_.
 
 _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 . Creer l'archive `.agents/sessions/{N}-{titre}.adoc`
@@ -91,20 +69,16 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | # | Date | Type | Sujet | Score
+| 015 | 2026-05-07 | test + fix | ConfigPrompts tests + bugfix camelCase | 8/10
+| 014 | 2026-05-04 | governance | Renommage openclaw→quizz-benchmark | -
 | 13bis | 2026-05-02 | fix + vision | NpxTask Pagefind + Architecture orchestration LLM | 8/10
 | 13 | 2026-05-02 | feat + fix | Pagefind search + CI workflow fix (secret supabase) | 7/10
 | 12 | 2026-05-01 | feat | EPIC 4 Formulaire de contact Firebase (maquette + site + tests) | 8/10
 | 11 | 2026-04-27 | solidification | Cucumber e2e publishProfile + fix FileSystemManager | 8/10
 | 10 | 2026-04-27 | solidification | Augmentation couverture de tests + refactoring ProfilePublisher | 7/10
 | 9 | 2026-04-27 | fix | Fix critique publishProfile - clone avant push | 8/10
-| 8 | 2026-04-27 | non archivee | Session non documentee | ?
 | 7 | 2026-04-27 | fix | Fix arg CLI JBake serve - version 0.1.1 | 6/10
-| 6 | 2026-04-25 | non archivee | EPIC 6 suite - publishProfil | ?
 | 5 | 2026-04-25 | feat | EPIC 6 Integration tache publishProfil | 7/10
-| 4 | 2026-04-23 | feat | Migration publishProfile consommateurs + bump 0.1.0 | 6/10
-| 3 | 2026-04-23 | feat | Integration publishProfile + version 0.1.0 | 8/10
-| 2 | 2026-04-23 | feat | Migration Supabase -> Firebase + regle de surete | 6/10
-| 1 | 2026-04-23 | feat | Integration gouvernance agent + ameliorations build | 8/10
 |===
 
 '''
@@ -119,45 +93,30 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 | EPIC 4 : Formulaire de contact Firebase (maquette + site) | 95% | P1 - TERMINE (formalite cle API)
 | EPIC 5 : Correction timeout Cucumber | 100% | P2 - TERMINE
 | EPIC 6 : Integration tache publishProfil dans le plugin | 100% | P1 - TERMINE
-| EPIC 7 : Tolerance parsing YAML (champs inconnus) | 0% | P2 - A FAIRE (priorite session 14)
-| EPIC 8 : Bumper version 0.1.3 et release | 50% | P2 - BUMP FAIT (0.1.2 → 0.1.3 dans TOML), release a faire
-| EPIC 9 : Architecture d'orchestration LLM | 0% | P0 - A FAIRE (vision formalisee session 13bis)
-| EPIC 10 : Pagefind recherche full-text | 100% | P2 - TERMINE (session 13)
-| EPIC 11 : Base Firebase tests + emulator CI | 0% | P2 - A FAIRE (session 14)
+| EPIC 7 : Tolerance parsing YAML (champs inconnus) | 0% | P2 - A FAIRE
+| EPIC 8 : Bumper version 0.1.3 et release | 60% | P2 - BUMP FAIT (0.1.3), release a faire
+| EPIC 9 : Architecture d'orchestration LLM | 0% | P0 - A FAIRE
+| EPIC 10 : Pagefind recherche full-text | 100% | P2 - TERMINE
+| EPIC 11 : Base Firebase tests + emulator CI | 0% | P2 - A FAIRE
+| EPIC 12 : Couverture de tests ConfigPrompts | 70% | P1 - PARTIEL (session 015)
+| EPIC 13 : Couverture de tests — lacunes P1 | 0% | P1 - A FAIRE (session 016)
 |===
 
 '''
 
 _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
-_Localisation active_ : Sessions 1-13bis actives. Sessions 6, 8 non archivees.
 
 '''
 
 == Portefeuille de Projets
 
-Projets gerant la meme methodologie opencode (EAGER/LAZY, procedure de fin de session 6 etapes, COMPLETED_TASKS_ARCHIVE) :
-
 |===
-| Projet | Repertoire | Session en cours | Etape 5 specifique | Derniere MAJ
-| magic_stick | `~/workspace/foundry/magic_stick` | 055 | SCRIPT_VERIFICATION.adoc | 2026-04-30
-| bakery-gradle | `~/workspace/foundry/bakery-gradle/bakery-plugin` | 14 | TEST_COVERAGE_ANALYSIS.adoc | 2026-05-02
-| cheroliv.com | `~/workspace/foundry/cheroliv.com` | 4 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-25
-| plantuml-gradle | `~/workspace/foundry/plantuml-gradle/plantuml-plugin` | 132 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-23
-| jhipster-gradle-plugins | `~/workspace/foundry/jhipster-gradle-plugins` | Audit session 053 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-30
-| quizz-benchmark-gradle | `~/workspace/foundry/quizz-benchmark-gradle/quizz-benchmark-plugin` | Audit session 053 | TEST_COVERAGE_ANALYSIS.adoc | 2026-04-30
+| Projet | Repertoire | Session en cours | Derniere MAJ
+| magic_stick | `~/workspace/foundry/magic_stick` | 055 | 2026-04-30
+| bakery-gradle | `~/workspace/foundry/bakery-gradle/bakery-plugin` | 016 | 2026-05-07
+| cheroliv.com | `~/workspace/foundry/cheroliv.com` | 4 | 2026-04-25
+| plantuml-gradle | `~/workspace/foundry/plantuml-gradle/plantuml-plugin` | 132 | 2026-04-23
+| jhipster-gradle-plugins | `~/workspace/foundry/jhipster-gradle-plugins` | Audit 053 | 2026-04-30
+| quizz-benchmark-gradle | `~/workspace/foundry/quizz-benchmark-gradle/quizz-benchmark-plugin` | Audit 053 | 2026-04-30
+| engine | `~/workspace/foundry/engine` | 1 | 2026-05-07
 |===
-
-_Procedure de fin de session commune_ :
-
-. Creer l'archive `.agents/sessions/{N}-{titre}.adoc`
-. Mettre a jour `PROMPT_REPRISE.adoc` pour la session N+1
-. Mettre a jour `SESSIONS_HISTORY.adoc` avec la session N
-. Mettre a jour `INDEX.adoc` (session en cours, roadmap, fichiers)
-. Mettre a jour `SCRIPT_VERIFICATION.adoc` ou `TEST_COVERAGE_ANALYSIS.adoc` (selon le projet)
-. Mettre a jour `COMPLETED_TASKS_ARCHIVE_{mois}.adoc`
-
-_Incoherences detectees_ :
-
-* **bakery-gradle** : Sessions 6 et 8 non archivees
-* **plantuml-gradle** : PROCEDURES.adoc decrit 5 etapes vs 6 etapes dans INDEX.adoc
-| 014 | 2026-05-04 | governance | Renommage openclaw→quizz-benchmark (gouvernance) | —

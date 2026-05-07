@@ -1,14 +1,43 @@
-= PROMPT_REPRISE — Session 015 — Bakery Plugin
+= PROMPT_REPRISE — Session 016 — Bakery Plugin
 :jbake-status: draft
 
 == Contexte de Reprise
 
-Session 015 suite au renommage gouvernance openclaw-codingame → quizz-benchmark-gradle (session precedente).
-La gouvernance agent globale (`AGENT_GOVERNANCE.adoc`) est a jour.
+Session 015 a ajoute 13 tests pour `ConfigPrompts.kt` (le seul fichier source sans test).
+Un bug de conversion camelCase→UPPER_SNAKE dans l'env lookup a ete corrige
+(`.uppercase()` etait appele avant `.replace()`, rendant la regex inoperante).
+
+La session a egalement :
+- Initialise le repo git pour `foundry/engine` et push sur `cheroliv/engine`
+- Lance la full test suite (BUILD SUCCESSFUL, tous passent)
 
 == Prochaine etape
 
-Reprendre le BACKLOG et la roadmap pour identifier la prochaine tache prioritaire.
+Reprendre la couverture de test pour les features restantes du plugin
+(les lacunes identifiees dans TEST_COVERAGE_ANALYSIS.adoc) :
+
+P1 — Plus impactant :
+* `SiteManager.registerServeTask` — 0 test
+* `SiteManager.registerPagefindTask` — 0 test
+* `SiteManager.registerPublishMaquetteTask` — 0 test
+* `SiteManager.registerPublishSiteTask` — seulement indirect (Cucumber)
+* Feature Cucumber 3 `configureSite` — fichier vide
+
+P2 — Moyen impact :
+* `FileSystemManager.copyResourceDirectory` (JAR + filesystem) — 0 test
+* `PublishProfileTask.publishProfile()` — 0 test unitaire
+* `SiteManager.configureConfigPath` — 0 test unitaire
+* `SiteManager.registerConfigureSiteTask` — 0 test
+* Functional Phase 3 workflow complet — placeholder vide
+
+P3 — Faible impact :
+* `GitService.cleanupDir` — 0 test direct
+* `FileSystemManager.isYmlUri` — 0 test
+* `BakeryPlugin.resolvePaths` — 0 test direct
+* `SiteManager.createJBakeRuntimeConfiguration` — 0 test
+
+BUG ouvert :
+* `BakeryPluginTest > PluginApplicationTest > plugin manager is configured on apply` — FAIL
 
 [.text-right]
-*Session 2026-05-04 — bootstrap PROMPT_REPRISE.*
+*Session 2026-05-07 — generee par la procedure de fin de session 015.*

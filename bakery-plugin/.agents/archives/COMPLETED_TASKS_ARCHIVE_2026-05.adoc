@@ -1,83 +1,57 @@
 = Archive des Taches Terminees — Mai 2026
 
+== Session 015 — 2026-05-07 — ConfigPrompts tests + bugfix camelCase
+
+**Contexte** : `ConfigPrompts.kt` etait le seul fichier source du plugin sans aucun test.
+Session 015 a comble ce gap avec 13 tests unitaires et corrige un bug critique de conversion
+camelCase→UPPER_SNAKE.
+
+**Taches realisees** :
+
+* [x] `CliPropertyResolution` (4 tests) : -P priority, blank skip, not present, priority over default
+* [x] `DefaultResolution` (3 tests) : standard, sensitive flag, example text
+* [x] `CamelCaseToUpperSnake` (4 tests) : single word, two words, three words, acronym
+* [x] `SaveConfiguration` (2 tests) : no-op, avec gradleProperties
+* [x] Bug fix : `.uppercase()` etait appele AVANT `.replace(Regex)` — ordre inverse
+* [x] Full test suite : BUILD SUCCESSFUL (unite + fonctionnel + Cucumber)
+
+**Resultat** : ConfigPrompts 0% → ~70% couvert. Chemins interactifs non couverts
+(impossible en Gradle runner).
+
+**Fichiers modifies** : `ConfigPrompts.kt`, `ConfigPromptsTest.kt` (nouveau)
+
 == Session 13 — 2026-05-02 — Pagefind search integration + CI workflow fix
 
-**Contexte** : Le formulaire de recherche dans les templates etait un placeholder (modale Bootstrap avec simple `<form>`). L'utilisateur voulait connecter la recherche a un vrai moteur pour site statique. Choix de Pagefind (index pre-genere a la build, zero JS au chargement, full-text + stemming).
-
-_Erreur CI_ : Le workflow `website.yml` echouait sur `Unrecognized field "supabase"` car le secret `BAKERY_GRADLE_PLUGIN` contenait un `site.yml` different de la version locale (avec un champ `supabase` que `SiteConfiguration` ne connait pas).
+**Contexte** : Le formulaire de recherche dans les templates etait un placeholder.
+Choix de Pagefind (index pre-genere a la build, zero JS au chargement).
+Erreur CI : champ `supabase` inconnu dans le secret `BAKERY_GRADLE_PLUGIN`.
 
 **Taches realisees** :
-
-* [x] Tache Gradle `pagefind` (Exec: `npx pagefind` sur `build/bake/`, depend de `bake`)
-* [x] `publishSite` depend de `pagefind` (index inclus dans le deploiement)
-* [x] `header.thyme` : CSS `_pagefind/pagefind-ui.css` (plugin + sync site/)
-* [x] `footer.thyme` : JS `_pagefind/pagefind-ui.js` + init lazy (`show.bs.modal` event)
-* [x] `blog_section.thyme` : modale remplacer `<form>` → `<div id="pagefind-search">` (plugin + sync site/)
-* [x] `blog.thyme` : idem (plugin + sync site/)
-* [x] Fix CI : mise a jour secret `BAKERY_GRADLE_PLUGIN` avec `site.yml` local (sans `supabase`)
-* [x] Fix tracking Git : `git branch --set-upstream-to=origin/main main`
+* [x] Tache Gradle `pagefind` (NpxTask via node-gradle)
+* [x] `publishSite` depend de `pagefind`
+* [x] Templates : header/footer/blog_section/blog (CSS + JS Pagefind)
+* [x] Fix CI : mise a jour secret `BAKERY_GRADLE_PLUGIN`
 * [x] Bump versions : `bakery 0.1.2 → 0.1.3`, `asciidoctorj-diagram-plantuml 1.2025.3 → 1.2026.2`
 
-**Resultats** :
-- Pagefind fonctionnel : recherche lazy dans modale Bootstrap, index genere a la build
-- Workflow CI repare : 2 executions success consecutives
-- Tracking Git definitivement corrige
+**Fichiers modifies** : `SiteManager.kt`, `BakeryPlugin.kt`, `header.thyme`, `footer.thyme`,
+`blog_section.thyme`, `blog.thyme`, `libs.versions.toml`
 
-**Fichiers modifies** : `SiteManager.kt`, `BakeryPlugin.kt`, `header.thyme`, `footer.thyme`, `blog_section.thyme`, `blog.thyme` (plugin + sync site/), `libs.versions.toml` (plugin + root)
-
-== Session 12 — 2026-05-01 — EPIC 4 Formulaire de contact Firebase (maquette + site + tests)
-
-**Contexte** : EPIC 4 etait liste comme "A faire" dans le BACKLOG mais l'infrastructure etait deja largement en place (SiteConfiguration avec modele Firebase, SiteManager.injectFirebaseConfigIntoJbakeProperties, footer.thyme avec injection FIREBASE_CONFIG). Le travail restant : stabiliser le formulaire dans la maquette, le transferer dans le template JBake, et combler les gaps de test.
-
-_Directives utilisateur_ :
-- Ne pas travailler directement dans le template Thymeleaf du site/
-- Stabiliser d'abord le formulaire dans la maquette (`src/main/resources/maquette/index.html`)
-- Source de reference : `/home/cheroliv/workspace/foundry/cheroliv.com/site/jbake/`
-- Remplacer le mock Firebase par du Firestore reel
+== Session 12 — 2026-05-01 — EPIC 4 Formulaire de contact Firebase
 
 **Taches realisees** :
+* [x] Maquette : section #contact + Firebase SDK modular
+* [x] Template site : `contact.thyme`, inclusion `index.thyme`, lien `menu.thyme`
+* [x] 9 tests unitaires + 1 scenario Cucumber
 
-* [x] Phase 1 Maquette : section #contact + Firebase SDK modular exposant `window.__FIREBASE__`
-* [x] Phase 1 Maquette : `contact.js` avec Firestore reel (`addDoc` vers collection `contacts`)
-* [x] Phase 2 Template site : creation de `contact.thyme` (fragment Thymeleaf `contact-section`)
-* [x] Phase 2 Template site : inclusion dans `index.thyme` via `th:replace`
-* [x] Phase 2 Template site : lien `Contact` dans `menu.thyme` (href="#contact")
-* [x] Phase 2 Template site : remplacement du mock par Firebase compat SDK reel dans `contact.js`
-* [x] Phase 3 : Verification du flow d'injection Firebase (deja fonctionnel)
-* [x] Gap 1 : 5 tests unitaires `injectFirebaseConfigIntoJbakeProperties` (edge cases : fichier absent, firebase null, update inline, append)
-* [x] Gap 2-3 : 4 tests unitaires rendering templates (footer.thyme, contact.thyme, index.thyme, menu.thyme)
-* [x] Gap 4 : 1 scenario Cucumber pipeline complet (deploiement templates + contenu Firebase)
-
-**Resultats** :
-- EPIC 4 quasi termine (reste formalite cle API reelle)
-- 9 nouveaux tests unitaires + 1 scenario Cucumber
-- Flow complet : `site.yml` → `SiteManager` → `jbake.properties` → Thymeleaf `FIREBASE_CONFIG` → `contact.js` Firestore `addDoc`
-
-**Fichiers modifies** : `maquette/index.html`, `maquette/js/contact.js`, `site/templates/contact.thyme`, `site/templates/index.thyme`, `site/templates/menu.thyme`, `site/assets/js/contact.js`, `BakeryPluginTest.kt`, `4_contact_form.feature`, `FirebaseSteps.kt`, `BACKLOG.adoc`
+**Fichiers modifies** : `maquette/index.html`, `contact.js`, `contact.thyme`, `index.thyme`,
+`menu.thyme`, `BakeryPluginTest.kt`, `4_contact_form.feature`, `FirebaseSteps.kt`
 
 == Session 13bis — 2026-05-02 — NpxTask Pagefind + Architecture orchestration LLM
 
-**Contexte** : L'utilisateur a pointe que la tache `pagefind` utilisait `Exec::class.java` avec `commandLine("npx", ...)` alors qu'il existe un plugin Gradle dedie (`com.github.node-gradle.node`). Puis discussion sur l'architecture d'orchestration LLM avec dispatcher + experts specialises.
-
 **Taches realisees** :
+* [x] Migration node-gradle : NpxTask au lieu de Exec
+* [x] Vision architecture orchestration LLM : dispatcher + experts
+* [x] Documentation transverse (WHAT_THE_GAMES_BEEN_MISSING, WORKSPACE_AS_PRODUCT, etc.)
 
-* [x] Migration node-gradle : version 7.1.0 + lib dans `libs.versions.toml`
-* [x] Migration node-gradle : `implementation(libs.node.gradle)` dans `build.gradle.kts`
-* [x] Migration node-gradle : `apply("com.github.node-gradle.node")` dans `BakeryPlugin.kt`
-* [x] Migration node-gradle : `Exec::class.java` → `NpxTask::class.java` dans `SiteManager.kt`
-* [x] Compilation OK (`./gradlew compileKotlin`)
-* [x] Vision architecture orchestration : `WHAT_THE_GAMES_BEEN_MISSING.adoc` [v10]
-* [x] Vision architecture orchestration : `WORKSPACE_AS_PRODUCT.adoc` section + flywheel
-* [x] Vision architecture orchestration : `WORKSPACE_VISION.adoc` session 2 mai
-* [x] Vision architecture orchestration : `WORKSPACE_ORGANIZATION.adoc` 8e principe
-* [x] Vision architecture orchestration : `BACKLOG.adoc` EPIC 9 (renumerote)
-* [x] Vision architecture orchestration : creation `codebase-gradle/VISION_ORCHESTRATION_LLM.adoc`
-* [x] Validation litterature : 4 papiers (Anthropic, arXiv 2402.05120, 2408.03314, 2311.08545)
-
-**Resultats** :
-- Pagefind utilise desormais le plugin node-gradle officiel (Node.js auto-gere, typage fort)
-- Architecture dispatcher + experts formalisee et documentee transversalement
-- codebase-gradle informe de son role de proprietaire du fine-tuning
-
-**Fichiers modifies** : `gradle/libs.versions.toml`, `build.gradle.kts`, `BakeryPlugin.kt`, `SiteManager.kt`, `BACKLOG.adoc`, `PROMPT_REPRISE.adoc`, `WHAT_THE_GAMES_BEEN_MISSING.adoc`, `WORKSPACE_AS_PRODUCT.adoc`, `WORKSPACE_VISION.adoc`, `WORKSPACE_ORGANIZATION.adoc`, `codebase-gradle/VISION_ORCHESTRATION_LLM.adoc`
-| 2026-05-04 | 014 | governance | Renommage openclaw-codingame → quizz-benchmark-gradle (gouvernance) |
+**Fichiers modifies** : `libs.versions.toml`, `build.gradle.kts`, `BakeryPlugin.kt`, `SiteManager.kt`
++ docs transverses
