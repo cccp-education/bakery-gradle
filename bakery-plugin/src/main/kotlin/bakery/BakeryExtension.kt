@@ -9,4 +9,6 @@ import javax.inject.Inject
  */
 open class BakeryExtension @Inject constructor(objects: ObjectFactory) {
     val configPath: Property<String> = objects.property(String::class.java)
+    val sitesBaseDir: Property<String> = objects.property(String::class.java)
+    val siteName: Property<String> = objects.property(String::class.java)
 }

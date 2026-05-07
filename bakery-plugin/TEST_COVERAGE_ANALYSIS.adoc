@@ -1,6 +1,6 @@
 = Analyse de Couverture des Tests — Bakery Gradle Plugin
 
-_Derniere mise a jour_ : 2026-05-07 (Session 016)
+_Derniere mise a jour_ : 2026-05-07 (Session 017)
 
 '''
 
@@ -52,7 +52,52 @@ _Derniere mise a jour_ : 2026-05-07 (Session 016)
 
 **Total Cucumber** : 10 scenarios PASS
 
-== Zones Non Couvertes (session 017)
+== Tests Unitaires — Session 017
+
+|===
+| Classe | Tests | Statut | Notes
+| SiteScaffolderTest.ResolveSiteTargetDirTest | 5 | OK | baseDir+siteName, siteName only, error sitesBaseDir without siteName, fallback projectDir, nested dirs
+| SiteScaffolderTest.ValidateSiteTargetDoesNotExistTest | 3 | OK | passee, existe deja → exception, n'existe pas
+| SiteScaffolderTest.BakeryExtensionScaffoldingPropertiesTest | 2 | OK | sitesBaseDir Property, siteName Property
+|===
+
+**Total Session 017 unitaires** : 10 nouveaux tests OK
+
+== Tests Fonctionnels — Session 017
+
+|===
+| Classe | Tests | Statut | Notes
+| ScaffoldFunctionalTests.HappyPathTest | 1 | OK | office/sites/my-company
+| ScaffoldFunctionalTests.ErrorHandlingTest | 2 | OK | siteName missing, already exists
+| ScaffoldFunctionalTests.SiteNameOnlyTest | 1 | OK | mysite/
+| ScaffoldFunctionalTests.BackwardCompatTest | 1 | OK | projectDir root
+|===
+
+**Total Session 017 fonctionnels** : 5 nouveaux tests OK
+
+=== Couverture Kover — Session 017
+
+| Métrique | Valeur |
+| INSTRUCTION | 57.0% (4107/7200) ❌ < 75% |
+| BRANCH | 29.8% |
+| LINE | 57.0% |
+| METHOD | 66.5% |
+| CLASS | 61.4% |
+
+== Tests Cucumber — Session 017
+
+| Feature | Scenarios | Statut | Notes
+| 1_minimal_configuration | 1 | PASS | Canary
+| 2_init_site_task | 3 | PASS | DSL, existing, gradle.properties
+| 3_configure_site_task | 1 | PASS | task registration
+| 4_contact_form | 2 | PASS | Firebase + templates
+| 5_publish_profile_task | 3 | PASS | registration + e2e remote
+| 6_site_scaffolding | 5 | 2 PASS, 3 FAIL | UJ1, UJ3 OK ; UJ2, UJ4, UJ5 en échec
+|===
+
+**Total Cucumber** : 15 scenarios (12 PASS, 3 FAIL)
+
+== Zones Non Couvertes (session 018)
 
 |===
 | Zone | Risque | Priorite
@@ -60,7 +105,9 @@ _Derniere mise a jour_ : 2026-05-07 (Session 016)
 | `PublishProfileTask.publishProfile()` | Push profil GitHub | P2
 | `GitService.cleanupDir` | Nettoyage temp dirs | P3
 | `BakeryPlugin.resolvePaths` | Resolution chemins | P3
-| `BakeryPlugin.apply` (integration complete) | Mocks complexes | P2
+| 3 scenarios Cucumber scaffolding en echec | EPIC 10 | P0
+| Duree des tests > 5 min | Productivite | P0
 | EPIC 9 : Architecture orchestration LLM | Non implemente | P0
-| EPIC 11 : Base Firebase tests + emulator CI | Non implemente | P2
 |===
+
+

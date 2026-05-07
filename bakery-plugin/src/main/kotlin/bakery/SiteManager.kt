@@ -66,27 +66,28 @@ object SiteManager {
 
 // ==================== Init Site Task ====================
 
-    fun Project.registerInitSiteTask() {
+    fun Project.registerInitSiteTask(siteTargetDir: File = projectDir) {
         tasks.register("initSite") { task ->
             task.apply {
                 group = BAKERY_GROUP
                 description = "Initialise site and maquette folders."
 
                 doLast {
-                    project.projectDir
+                    val targetDir = siteTargetDir.also { it.mkdirs() }
+                    targetDir
                         .resolve("site.yml")
-                        .apply { if (!exists()) createAndConfigureSiteYml() }
+                        .apply { if (!exists()) createAndConfigureSiteYml(targetDir) }
                         .run {
-                            setupGitIgnore()
-                            setupGitAttributes()
-                            copySiteResources(this)
+                            setupGitIgnore(targetDir)
+                            setupGitAttributes(targetDir)
+                            copySiteResources(targetDir, this)
                         }
                 }
             }
         }
     }
 
-    private fun Project.createAndConfigureSiteYml(): File = projectDir
+    private fun Project.createAndConfigureSiteYml(targetDir: File): File = targetDir
         .resolve("site.yml").apply {
             createNewFile()
             "create config file."
@@ -104,8 +105,8 @@ object SiteManager {
         }
 
 
-    private fun Project.setupGitIgnore() {
-        projectDir.resolve(".gitignore").run {
+    private fun Project.setupGitIgnore(targetDir: File) {
+        targetDir.resolve(".gitignore").run {
             if (!exists()) {
                 createNewFile()
                 writeText(
@@ -118,8 +119,8 @@ object SiteManager {
         }
     }
 
-    private fun Project.setupGitAttributes() {
-        projectDir.resolve(".gitattributes").run {
+    private fun Project.setupGitAttributes(targetDir: File) {
+        targetDir.resolve(".gitattributes").run {
             if (!exists()) {
                 createNewFile()
                 writeText(GIT_ATTRIBUTES_CONTENT.trimIndent(), UTF_8)
@@ -127,15 +128,15 @@ object SiteManager {
         }
     }
 
-    private fun Project.copySiteResources(configFile: File) {
+    private fun Project.copySiteResources(targetDir: File, configFile: File) {
         val site = from(configFile.absolutePath)
-        copyResourceDirectory(site.bake.srcPath, project.projectDir, project)
-        copyResourceDirectory(site.pushMaquette.from, project.projectDir, project)
-        injectFirebaseConfigIntoJbakeProperties(site)
+        copyResourceDirectory(site.bake.srcPath, targetDir, project)
+        copyResourceDirectory(site.pushMaquette.from, targetDir, project)
+        injectFirebaseConfigIntoJbakeProperties(targetDir, site)
     }
 
-    private fun Project.injectFirebaseConfigIntoJbakeProperties(site: SiteConfiguration) {
-        val jbakeProps = projectDir.resolve(site.bake.srcPath)
+    private fun Project.injectFirebaseConfigIntoJbakeProperties(targetDir: File, site: SiteConfiguration) {
+        val jbakeProps = targetDir.resolve(site.bake.srcPath)
             .resolve("jbake.properties")
         if (!jbakeProps.exists()) {
             logger.warn("jbake.properties not found at ${jbakeProps.absolutePath}")

@@ -3,8 +3,8 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-05-07
-_Session terminee_ : 016 (Couverture P1/P2/P3 + fix CI + EPIC 7)
-_Session en cours_ : 017 (P2 — copyResourceDirectory, publishProfile, cleanupDir, resolvePaths)
+_Session terminee_ : 017 (EPIC 10 Scaffolding TDD + Kover)
+_Session en cours_ : 018 (EPIC 11 Optimisation durée tests + finir Cucumber green)
 
 '''
 

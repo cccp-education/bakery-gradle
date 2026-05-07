@@ -1,5 +1,32 @@
 = Archive des Taches Terminees — Mai 2026
 
+== Session 017 — 2026-05-07 — EPIC 10 Scaffolding TDD complet + Kover
+
+**Contexte** : initSite crée tout dans projectDir. Besoin de scripter un nouveau site
+dans `office/sites/<siteName>/`.
+
+**Taches realisees** :
+
+* [x] `BakeryExtension` : ajout `sitesBaseDir` + `siteName` (Property<String>)
+* [x] `SiteScaffolder.kt` : `resolveSiteTargetDir()` + `validateSiteTargetDoesNotExist()`
+* [x] `SiteManager.kt` : `registerInitSiteTask(targetDir)` — 5 méthodes privées paramétrées
+* [x] `BakeryPlugin.kt` : appel `SiteScaffolder` dans `afterEvaluate`
+* [x] Tests unitaires : 10/10 OK (SiteScaffolderTest)
+* [x] Tests fonctionnels : 5/5 OK (ScaffoldFunctionalTests)
+* [x] Cucumber feature 6 : 5 scénarios écrits, 2 PASS, 3 FAIL (en cours)
+* [x] Kover 0.9.1 intégré : build.gradle.kts, threshold 75%, XML + HTML
+* [x] Couverture initiale : 57% instruction
+
+**Resultat** : Phase RED + GREEN quasi-complète. 15 tests automatisés verts.
+3 scénarios Cucumber restants → session 018.
+
+**Fichiers créés** : `SiteScaffolder.kt`, `SiteScaffolderTest.kt`, `ScaffoldFunctionalTests.kt`,
+`6_site_scaffolding.feature`, `ScaffoldSteps.kt`
+
+**Fichiers modifiés** : `BakeryExtension.kt`, `SiteManager.kt`, `BakeryPlugin.kt`,
+`libs.versions.toml`, `build.gradle.kts`, `BACKLOG.adoc`, `PROMPT_REPRISE.adoc`,
+`TEST_COVERAGE_ANALYSIS.adoc`
+
 == Session 016 — 2026-05-07 — Couverture P1/P2/P3 + fix CI + EPIC 7
 
 **Contexte** : Reprise session 016. P1/P2/P3 lacunes identifiees dans TEST_COVERAGE_ANALYSIS.

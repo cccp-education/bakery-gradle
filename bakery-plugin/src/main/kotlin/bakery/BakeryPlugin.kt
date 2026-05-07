@@ -48,7 +48,14 @@ class BakeryPlugin : Plugin<Project> {
                 "config file does not exists or site and maquette directories do not exist."
                     .apply(::println)
                     .let(project.logger::info)
-                project.registerInitSiteTask()
+                val targetDir = SiteScaffolder.resolveSiteTargetDir(
+                    bakeryExtension,
+                    project.projectDir
+                )
+                if (targetDir != project.projectDir) {
+                    SiteScaffolder.validateSiteTargetDoesNotExist(targetDir)
+                }
+                project.registerInitSiteTask(targetDir)
             } else {
                 val rawSite = project.from(bakeryExtension.configPath.get())
                 val site = rawSite.resolvePaths(configDir)

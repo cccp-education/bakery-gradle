@@ -1,12 +1,12 @@
-# Guide Gradle buildSrc - Définition de tâches en Kotlin DSL
+== Guide Gradle buildSrc - Définition de tâches en Kotlin DSL
 
-## Introduction
+=== Introduction
 
-Le dossier `buildSrc` est un projet Gradle spécial qui permet d'organiser la logique de build personnalisée de manière réutilisable. Il est automatiquement compilé et ses classes sont disponibles dans tous les scripts de build du projet principal.
+Le dossier `buildSrc` est un projet Gradle spécial qui permet d’organiser la logique de build personnalisée de manière réutilisable. Il est automatiquement compilé et ses classes sont disponibles dans tous les scripts de build du projet principal.
 
-## Structure de base de buildSrc
+=== Structure de base de buildSrc
 
-```
+....
 buildSrc/
 ├── build.gradle.kts
 └── src/
@@ -16,11 +16,12 @@ buildSrc/
             ├── tasks/
             ├── extensions/
             └── conventions/
-```
+....
 
-### Configuration de buildSrc/build.gradle.kts
+==== Configuration de buildSrc/build.gradle.kts
 
-```kotlin
+[source,kotlin]
+----
 plugins {
     `kotlin-dsl`
 }
@@ -34,15 +35,16 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin")
     // Autres dépendances nécessaires
 }
-```
+----
 
-## Stratégies de définition de tâches
+=== Stratégies de définition de tâches
 
-### 1. Plugin personnalisé avec tâches
+==== 1. Plugin personnalisé avec tâches
 
-**Cas d'usage** : Réutilisation maximale, logique complexe, distribution
+*Cas d’usage* : Réutilisation maximale, logique complexe, distribution
 
-```kotlin
+[source,kotlin]
+----
 // buildSrc/src/main/kotlin/plugins/DeploymentPlugin.kt
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -90,20 +92,23 @@ abstract class DeployTask : DefaultTask() {
         }
     }
 }
-```
+----
 
-**Utilisation dans build.gradle.kts** :
-```kotlin
+*Utilisation dans build.gradle.kts* :
+
+[source,kotlin]
+----
 plugins {
     id("deployment-plugin")
 }
-```
+----
 
-### 2. Classes de tâches réutilisables
+==== 2. Classes de tâches réutilisables
 
-**Cas d'usage** : Tâches spécialisées, configuration flexible
+*Cas d’usage* : Tâches spécialisées, configuration flexible
 
-```kotlin
+[source,kotlin]
+----
 // buildSrc/src/main/kotlin/tasks/DockerTask.kt
 abstract class DockerTask : DefaultTask() {
     @get:Input
@@ -163,10 +168,12 @@ abstract class TestReportTask : DefaultTask() {
         """.trimIndent())
     }
 }
-```
+----
 
-**Utilisation dans build.gradle.kts** :
-```kotlin
+*Utilisation dans build.gradle.kts* :
+
+[source,kotlin]
+----
 tasks.register<DockerTask>("buildAppImage") {
     imageName.set("myapp:${version}")
     dockerfile.set("docker/Dockerfile.app")
@@ -177,13 +184,14 @@ tasks.register<TestReportTask>("generateTestReport") {
     reportFile.set(layout.buildDirectory.file("reports/custom-test-report.md"))
     dependsOn("test")
 }
-```
+----
 
-### 3. Extensions de projet avec DSL personnalisé
+==== 3. Extensions de projet avec DSL personnalisé
 
-**Cas d'usage** : Configuration fluide, API métier
+*Cas d’usage* : Configuration fluide, API métier
 
-```kotlin
+[source,kotlin]
+----
 // buildSrc/src/main/kotlin/extensions/MicroserviceExtension.kt
 abstract class MicroserviceExtension {
     abstract val serviceName: Property<String>
@@ -229,10 +237,12 @@ class MicroservicePlugin : Plugin<Project> {
         }
     }
 }
-```
+----
 
-**Utilisation dans build.gradle.kts** :
-```kotlin
+*Utilisation dans build.gradle.kts* :
+
+[source,kotlin]
+----
 plugins {
     id("microservice-plugin")
 }
@@ -242,13 +252,14 @@ microservice {
     version.set("1.0.0")
     port.set(8080)
 }
-```
+----
 
-### 4. Convention plugins
+==== 4. Convention plugins
 
-**Cas d'usage** : Standardisation, configuration par convention
+*Cas d’usage* : Standardisation, configuration par convention
 
-```kotlin
+[source,kotlin]
+----
 // buildSrc/src/main/kotlin/conventions/spring-boot-conventions.gradle.kts
 plugins {
     id("org.springframework.boot")
@@ -296,20 +307,23 @@ tasks.register("packageForDocker") {
     description = "Package l'application pour Docker"
     dependsOn("bootJar", "createDockerfile")
 }
-```
+----
 
-**Utilisation dans build.gradle.kts** :
-```kotlin
+*Utilisation dans build.gradle.kts* :
+
+[source,kotlin]
+----
 plugins {
     id("spring-boot-conventions")
 }
-```
+----
 
-## Patterns avancés et bonnes pratiques
+=== Patterns avancés et bonnes pratiques
 
-### Tâches avec configuration complexe
+==== Tâches avec configuration complexe
 
-```kotlin
+[source,kotlin]
+----
 // buildSrc/src/main/kotlin/tasks/DatabaseMigrationTask.kt
 abstract class DatabaseMigrationTask : DefaultTask() {
     @get:Input
@@ -353,11 +367,12 @@ abstract class DatabaseMigrationTask : DefaultTask() {
         // Logique de statut
     }
 }
-```
+----
 
-### Tâches avec dépendances et orchestration
+==== Tâches avec dépendances et orchestration
 
-```kotlin
+[source,kotlin]
+----
 // buildSrc/src/main/kotlin/plugins/ContinuousDeploymentPlugin.kt
 class ContinuousDeploymentPlugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -406,24 +421,26 @@ class ContinuousDeploymentPlugin : Plugin<Project> {
         println("🔍 Validation du déploiement")
     }
 }
-```
+----
 
-## Configuration et utilisation
+=== Configuration et utilisation
 
-### Enregistrement des plugins dans buildSrc
+==== Enregistrement des plugins dans buildSrc
 
-```kotlin
+[source,kotlin]
+----
 // buildSrc/src/main/kotlin/plugins/Plugins.kt
 object Plugins {
     const val DEPLOYMENT = "deployment-plugin"
     const val MICROSERVICE = "microservice-plugin"
     const val CI_CD = "continuous-deployment-plugin"
 }
-```
+----
 
-### Déclaration dans le projet principal
+==== Déclaration dans le projet principal
 
-```kotlin
+[source,kotlin]
+----
 // build.gradle.kts
 plugins {
     id("deployment-plugin")
@@ -441,20 +458,22 @@ tasks.register<DockerTask>("buildProductionImage") {
     imageName.set("myapp:production")
     dockerfile.set("Dockerfile.prod")
 }
-```
+----
 
-## Conseils pour l'assistant agentique
+=== Conseils pour l’assistant agentique
 
-### Patterns de workflow automatisés
+==== Patterns de workflow automatisés
 
-1. **Build → Test → Deploy** : Utilisez les dépendances de tâches
-2. **Validation en pipeline** : Créez des tâches de validation entre les étapes
-3. **Rollback automatique** : Implémentez des tâches de rollback en cas d'échec
-4. **Monitoring** : Ajoutez des tâches de health check post-déploiement
+[arabic]
+. *Build → Test → Deploy* : Utilisez les dépendances de tâches
+. *Validation en pipeline* : Créez des tâches de validation entre les étapes
+. *Rollback automatique* : Implémentez des tâches de rollback en cas d’échec
+. *Monitoring* : Ajoutez des tâches de health check post-déploiement
 
-### Template de tâche générique
+==== Template de tâche générique
 
-```kotlin
+[source,kotlin]
+----
 abstract class WorkflowTask : DefaultTask() {
     @get:Input
     abstract val environment: Property<String>
@@ -479,17 +498,18 @@ abstract class WorkflowTask : DefaultTask() {
     abstract fun simulateExecution()
     abstract fun performExecution()
 }
-```
+----
 
-### Variables d'environnement et configuration
+==== Variables d’environnement et configuration
 
-```kotlin
+[source,kotlin]
+----
 // Configuration centralisée
 object Config {
     val environment = System.getenv("ENVIRONMENT") ?: "development"
     val version = System.getenv("VERSION") ?: "SNAPSHOT"
     val isCI = System.getenv("CI") != null
 }
-```
+----
 
 Ce guide vous donne une base complète pour automatiser vos workflows Gradle avec buildSrc et les tâches personnalisées en Kotlin DSL.

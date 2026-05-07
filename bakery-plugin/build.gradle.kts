@@ -8,6 +8,7 @@ plugins {
     `java-gradle-plugin`
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.publish)
+    alias(libs.plugins.kover)
 }
 
 group = "com.cheroliv"
@@ -244,6 +245,59 @@ tasks.check {
     dependsOn(functionalTestTask)
     dependsOn(cucumberTest)
 }
+
+kover {
+    currentProject {
+        sources {
+            includedSourceSets.addAll("main", "functionalTest")
+        }
+    }
+    reports {
+        total {
+            html {
+                onCheck.set(true)
+                htmlDir.set(layout.buildDirectory.dir("reports/kover/html"))
+            }
+            xml {
+                onCheck.set(true)
+                xmlFile.set(layout.buildDirectory.file("reports/kover/xml/report.xml"))
+            }
+        }
+    }
+}
+
+tasks.register("koverThresholdCheck") {
+    doLast {
+        val reportFile = layout.buildDirectory.file("reports/kover/xml/report.xml").get().asFile
+        if (!reportFile.exists()) {
+            throw GradleException("Kover report not found. Run 'koverXmlReport' first.")
+        }
+        val xml = reportFile.readText()
+        val coverageRegex = Regex("""<counter type="INSTRUCTION" missed="(\d+)" covered="(\d+)"/>""")
+        val matches = coverageRegex.findAll(xml)
+        var totalMissed = 0L
+        var totalCovered = 0L
+        for (match in matches) {
+            totalMissed += match.groupValues[1].toLong()
+            totalCovered += match.groupValues[2].toLong()
+        }
+        val total = totalMissed + totalCovered
+        val coverage = if (total > 0) (totalCovered.toDouble() / total) * 100 else 0.0
+        println(
+            "Instruction coverage: ${
+                String.format(
+                    "%.2f",
+                    coverage
+                )
+            }% (missed=$totalMissed, covered=$totalCovered)"
+        )
+        if (coverage < 75.0) {
+            throw GradleException("Coverage ${String.format("%.2f", coverage)}% is below threshold 75%")
+        }
+    }
+}
+
+tasks.check { dependsOn("koverThresholdCheck") }
 
 gradlePlugin {
     plugins {

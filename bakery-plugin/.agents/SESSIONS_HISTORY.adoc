@@ -4,6 +4,7 @@ _Derniere mise a jour : 2026-05-07_
 
 |===
 | # | Date | Type | Sujet | Score
+| 017 | 2026-05-07 | feat + test + quality | EPIC 10 Scaffolding TDD complet + Kover 0.9.1 | 7/10
 | 016 | 2026-05-07 | test + fix + feat | Couverture P1/P2/P3 + fix CI + EPIC 7 YAML tolerance | 8/10
 | 015 | 2026-05-07 | test + fix | ConfigPrompts tests + bugfix camelCase | 8/10
 | 014 | 2026-05-04 | governance | Renommage openclaw→quizz-benchmark | -

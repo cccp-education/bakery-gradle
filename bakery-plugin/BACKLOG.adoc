@@ -157,6 +157,65 @@ _Solution_ : Ajouter `@JsonIgnoreProperties(ignoreUnknown = true)` sur la classe
 * [ ] Ajouter un test unitaire qui valide qu'un `site.yml` avec un champ inconnu ne fait pas planter le parsing
 * [ ] Verifier que cela ne masque pas d'erreurs reelles de configuration (typos dans les champs valides)
 
+== EPIC 10 : Scaffolding — Création de site dans `office/sites/<siteName>/`
+
+**Statut** : En cours (tests écrits, implémentation green 80%)
+**Priorité** : P0
+
+_Problème_ : initSite crée tout dans `project.projectDir`. Pour scripter un
+nouveau site statique propulsé par bakery, il faut un `sitesBaseDir` (ex:
+`office/sites`) et un `siteName` pour créer le dossier `office/sites/<nom>/`
+contenant `site/`, `maquette/`, `site.yml`, `.gitignore`, `.gitattributes`.
+
+=== User Journeys
+
+* UJ1 — sitesBaseDir + siteName → crée `<baseDir>/<siteName>/` avec toute la structure
+* UJ2 — sitesBaseDir sans siteName → erreur `siteName must be defined`
+* UJ3 — site cible déjà existant → erreur `already exists`
+* UJ4 — siteName seul (sans sitesBaseDir) → crée `projectDir/<siteName>/`
+* UJ5 — ni sitesBaseDir ni siteName → rétrocompatibilité (comportement actuel)
+
+=== Tâches
+
+* [x] Ajouter `sitesBaseDir` et `siteName` à `BakeryExtension`
+* [x] Créer `SiteScaffolder.kt` avec `resolveSiteTargetDir()` + `validateSiteTargetDoesNotExist()`
+* [x] Modifier `SiteManager.registerInitSiteTask()` pour accepter un `targetDir`
+* [x] Modifier `BakeryPlugin.apply()` pour appeler le scaffolding
+* [x] Tests unitaires SiteScaffolderTest (10 tests)
+* [x] Tests fonctionnels ScaffoldFunctionalTests (5 tests)
+* [x] Cucumber feature 6_site_scaffolding.feature (5 scénarios)
+* [ ] Faire passer les 3 scénarios Cucumber encore en échec (`siteNameOnly` et `backwardCompat`)
+* [ ] Vérifier couverture Kover >= 75%
+
+=== Fichiers
+
+* `src/main/kotlin/bakery/BakeryExtension.kt` — ajout `sitesBaseDir`, `siteName`
+* `src/main/kotlin/bakery/SiteScaffolder.kt` — créé
+* `src/main/kotlin/bakery/SiteManager.kt` — `registerInitSiteTask(targetDir)`
+* `src/main/kotlin/bakery/BakeryPlugin.kt` — appel `SiteScaffolder`
+* `src/test/kotlin/bakery/SiteScaffolderTest.kt` — créé
+* `src/functionalTest/kotlin/bakery/ScaffoldFunctionalTests.kt` — créé
+* `src/test/features/6_site_scaffolding.feature` — créé
+* `src/test/scenarios/bakery/scenarios/ScaffoldSteps.kt` — créé
+
+== EPIC 11 : Optimisation durée d'exécution des tests
+
+**Statut** : A faire
+**Priorité** : P0
+
+_Problème critique_ : Les tests prennent 3 à 6 minutes par run, ce qui est
+intenable en boucle TDD. `koverXmlReport` met 5 min, `cucumberTest` 3 min,
+`functionalTest` 2 min. Chaque `check` complet > 5 min.
+
+=== Pistes d'optimisation
+
+* [ ] Passer de `forkEvery = 0` à `forkEvery = 1` pour éviter les leaks de mémoire Gradle TestKit entre tests Cucumber
+* [ ] Utiliser `configuration-cache` Gradle pour éviter la reconfiguration
+* [ ] Ajouter `--parallel` pour les tests indépendants
+* [ ] Réduire le nombre de daemons Gradle créés par TestKit (`org.gradle.daemon=false` est déjà là, mais chaque test fonctionnel lance un nouveau daemon)
+* [ ] Pré-warm le plugin classpath (`pluginUnderTestMetadata` est UP-TO-DATE donc OK)
+* [ ] Investiguer si `maxParallelForks` peut être > 1 sans conflits
+
 == EPIC 9 : Architecture d'orchestration LLM — Dispatcher + Experts spécialisés
 
 **Statut** : A faire

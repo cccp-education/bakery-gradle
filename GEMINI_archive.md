@@ -1,8 +1,0 @@
-
----
-### **Épopée 15 : Création de Contenu : Livre Gradle et Articles Teasers**
-
-*   **User Stories Terminées :**
-    *   **US 15.2 :** En tant que développeur, je veux écrire un article expliquant l'approche TDD utilisée pour développer le plugin `site-baker`, en détaillant les tests unitaires et fonctionnels mis en place pour garantir la robustesse et la maintenabilité du code.
-        *   **Statut :** Terminé (25/09/2025).
-        *   **Artefact :** `article_tdd_gradle_plugin.adoc`.

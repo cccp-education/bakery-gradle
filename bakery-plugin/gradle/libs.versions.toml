@@ -20,6 +20,7 @@ junit_platform = "1.14.2"
 jackson = "2.21.0"
 coroutines = "1.10.2"
 node-gradle = "7.1.0"
+kover = "0.9.1"
 
 [libraries]
 kotlin-stdlib-jdk8 = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8" }
@@ -55,6 +56,7 @@ node-gradle = { module = "com.github.node-gradle:gradle-node-plugin", version.re
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 bakery = { id = "com.cheroliv.bakery", version.ref = "bakery" }
 publish = { id = "com.gradle.plugin-publish", version.ref = "plugin-publish" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 
 [bundles]
 jbake = [
