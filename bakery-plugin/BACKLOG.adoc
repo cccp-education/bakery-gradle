@@ -255,3 +255,48 @@ Validation par la littérature :
 * [ ] Intégrer la persistance LangChain4j partagée
 * [ ] Wiring ONNX dans la boucle de validation des outputs
 * [ ] Test du pipeline complet : décomposition → batch expert → validation → synthèse
+
+== EPIC 12 : Articles connexes par Knowledge Graph + Ontologie émergente
+
+**Statut** : A faire
+**Priorité** : P1
+**Lien** : `/home/cheroliv/workspace/ARTICLES_CONNEXES_KNOWLEDGE_GRAPH.adoc`
+
+_Problème_ : Les « Articles connexes » dans `post.thyme` sont les 4 derniers
+posts chronologiques. Zéro lien sémantique avec le post courant. Un article
+sur pgvector peut recommander un article sur Kitty Terminal.
+
+_Solution_ : Remplacer le voisinage temporel par un scoring basé sur le
+Knowledge Graph (graphify) enrichi d'une ontologie émergente (NLP sur le corpus).
+
+=== Architecture
+
+Bakery (N2) importe graphify (N0). Engine (N3) ne sait rien de graphify.
+La collaboration est interne à bakery — pattern fondry standard.
+
+=== Sous-EPICs
+
+==== BKG-0 : Enrichissement graphify pour contenu éditorial (5 pts)
+
+* [ ] BKG-0.1 — Étendre ScanWorkspaceTask pour parser métadonnées JBake (:jbake-tags:, :jbake-description:) → nœuds article
+* [ ] BKG-0.2 — Extraire co-occurrences de tags → edges `tag_cooccurrence` avec poids
+* [ ] BKG-0.3 — Extraire entités nommées (TF-IDF sur descriptions) → edges `entity_overlap`
+* [ ] BKG-0.4 — Sortie : `graph.json` enrichi section `blog_articles`
+
+==== BKG-1 : Consommation graphe dans bakery (3 pts)
+
+* [ ] BKG-1.1 — BakeryPlugin lit `graph.json` au bake, expose map `slug → relatedIds` dans modèle JBake
+* [ ] BKG-1.2 — Modifier `post.thyme` : remplacer boucle chronologique par lookup graphe (top 4, fallback chrono)
+* [ ] BKG-1.3 — Tests : mock graph.json avec fixtures, vérifier résolution connexes
+
+==== BKG-2 : Ontologie émergente (optionnel, 8 pts)
+
+* [ ] BKG-2.1 — Pipeline NLP offline : clustering articles par cosine similarity sur embeddings
+* [ ] BKG-2.2 — Génération communautés ontologiques dans `graph.json` (cluster "RAG/pgvector", cluster "Gradle/CI/CD")
+* [ ] BKG-2.3 — Interface visuelle `post.thyme` : badge cluster + lien « articles du même cluster »
+
+=== Contrat DAG
+
+| bakery → graphify | N2 → N0 | ✅ Valide
+| engine → bakery | N3 → N2 | ✅ Valide
+| engine → graphify | N3 → N0 | ❌ Ne doit pas — collaboration interne à bakery
