@@ -16,6 +16,7 @@ version = libs.plugins.bakery.get().version
 kotlin.jvmToolchain(JavaVersion.VERSION_24.ordinal)
 
 repositories {
+    mavenLocal()
     mavenCentral()
     gradlePluginPortal()
 }
@@ -27,6 +28,8 @@ dependencies {
     api(libs.bundles.jgit)
     api(libs.commons.io)
     implementation(libs.node.gradle)
+
+    implementation(libs.graphify.plugin)
 
     // Coroutines - IMPORTANT pour les tests asynchrones
     testImplementation(libs.bundles.coroutines)

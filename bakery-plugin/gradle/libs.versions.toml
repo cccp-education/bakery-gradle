@@ -1,4 +1,5 @@
 [versions]
+graphify = "0.0.2"
 bakery = "0.1.4"
 commons-io = "2.13.0"
 jgit = "6.10.0.202406032230-r"
@@ -51,6 +52,7 @@ kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-c
 kotlinx-coroutines-jdk8 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8", version.ref = "coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 node-gradle = { module = "com.github.node-gradle:gradle-node-plugin", version.ref = "node-gradle" }
+graphify-plugin = { module = "com.cheroliv:graphify-plugin", version.ref = "graphify" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
