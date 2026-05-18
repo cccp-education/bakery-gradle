@@ -101,33 +101,33 @@ class BakeryPluginFunctionalTests {
 
     /**
      * # Mode interactif
-     * ./gradlew configureSite
+     * ./gradlew collectSiteConfig
      *
      * # Avec paramètres
-     * ./gradlew configureSite \
+     * ./gradlew collectSiteConfig \
      *   -PGitHubToken=ghp_xxx \
      *   -PGitHubUsername=username \
      *   -PGitHubRepositoryURL=https://github.com/username/repo.git
      *
      * # Mode non-interactif (échoue si paramètres manquants)
-     * ./gradlew configureSite --no-interactive -PGitHubUsername=username
+     * ./gradlew collectSiteConfig --no-interactive -PGitHubUsername=username
      */
 //    @kotlin.test.Ignore
 //    @Test
-    fun `test configureSite task without config file with --no-interactive parameter`() {
+    fun `test collectSiteConfig task without config file with --no-interactive parameter`() {
         projectDir.deleteConfigFile()
         info("$CONFIG_FILE file successfully deleted.")
-        info("Run gradle task: configureSite.")
+        info("Run gradle task: collectSiteConfig.")
         create()
             .forwardOutput()
             .withPluginClasspath()
-//            .withArguments("configureSite")
-            .withArguments("configureSite", "--no-interactive")
+//            .withArguments("collectSiteConfig")
+            .withArguments("collectSiteConfig", "--no-interactive")
             .withProjectDir(projectDir)
             .build()
 
 //        assertThat(result.output)
-//        ```./gradlew configureSite \
+//        ```./gradlew collectSiteConfig \
 //        -PGitHubToken=ghp_xxx \
 //        -PGitHubUsername=cheroliv \
 //        -PGitHubRepositoryURL=https://github.com/cheroliv/bakery.git```
@@ -135,7 +135,7 @@ class BakeryPluginFunctionalTests {
 
 
     @Test
-    fun `test configureSite task exists without config file`() {
+    fun `test collectSiteConfig task exists without config file`() {
         projectDir.deleteConfigFile()
         info("$CONFIG_FILE file successfully deleted.")
         info("Run gradle task :tasks --group=$BAKERY_GROUP.")
@@ -146,19 +146,19 @@ class BakeryPluginFunctionalTests {
             .withProjectDir(projectDir)
             .build()
         assertThat(result.output)
-            .describedAs("""Gradle task tasks output should contains 'configureSite' and 'Initialize configuration.'""")
-            .doesNotContain("configureSite", "Initialize Bakery configuration.")
+            .describedAs("""Gradle task tasks output should contains 'collectSiteConfig' and 'Initialize configuration.'""")
+            .doesNotContain("collectSiteConfig", "Initialize Bakery configuration.")
         assertThat(result.output)
-            .describedAs("""Gradle task tasks output should not contains 'publishSite' and 'Publish site online.'""")
-            .doesNotContain("publishSite", "Publish site online.")
+            .describedAs("""Gradle task tasks output should not contains 'deploySite' and 'Deploy site online.'""")
+            .doesNotContain("deploySite", "Deploy site online.")
         assertThat(result.output)
-            .describedAs("""Gradle task tasks output should not contains 'publishMaquette' and 'Publish maquette online.'""")
-            .doesNotContain("publishMaquette", "Publish maquette online.")
+            .describedAs("""Gradle task tasks output should not contains 'deployMaquette' and 'Deploy maquette online.'""")
+            .doesNotContain("deployMaquette", "Deploy maquette online.")
         assertThat(result.output)
             .describedAs("""Gradle task tasks output should not contains 'serve' and 'Serves the baked site locally.'""")
             .doesNotContain("serve", "Serves the baked site locally.")
 
-        info("✓ tasks displays the configureSite task's description correctly without config file.")
+        info("✓ tasks displays the collectSiteConfig task's description correctly without config file.")
     }
 
 
@@ -171,9 +171,9 @@ class BakeryPluginFunctionalTests {
             .withProjectDir(projectDir)
             .build()
         assertThat(result.output)
-            .describedAs("""Gradle task tasks output should contain 'configureSite' and 'Initialize configuration.'""")
-            .doesNotContain("Initialize Bakery configuration.", "configureSite")
-        info("✓ tasks displays the configureSite task's description correctly.")
+            .describedAs("""Gradle task tasks output should contain 'collectSiteConfig' and 'Initialize configuration.'""")
+            .doesNotContain("Initialize Bakery configuration.", "collectSiteConfig")
+        info("✓ tasks displays the collectSiteConfig task's description correctly.")
     }
 
     @Test
@@ -335,8 +335,8 @@ class BakeryPluginFunctionalTests {
             .build()
 
         assertThat(result.output)
-            .describedAs("""Gradle task tasks output should contains publishSite and publishMaquette""")
-            .doesNotContain("publishMaquette", "publishSite")
+            .describedAs("""Gradle task tasks output should contains deploySite and deployMaquette""")
+            .doesNotContain("deployMaquette", "deploySite")
 
         "✓ Plugin reads the configuration correctly"
             .apply(log::info)

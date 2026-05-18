@@ -1,0 +1,25 @@
+= Session 021 — EPIC K-1 Renommage taxonomie (generateSite, deploySite, deployMaquette, deployProfile, collectSiteConfig)
+:type: migration
+:date: 2026-05-19
+:score: 10/10
+
+== Résumé
+
+Renommage de 10 tâches conformément à la taxonomie workspace (GENERER/DÉPLOYER/COLLECTER).
+
+- `initSite` → `generateSite`
+- `publishSite` → `deploySite`
+- `publishMaquette` → `deployMaquette`
+- `publishProfile` → `deployProfile`
+- `configureSite` → `collectSiteConfig`
+
+== Fichiers modifiés
+
+13 fichiers dans `bakery-plugin/` :
+- Renommage des classes de tâches
+- Mise à jour des registrations dans le plugin
+- Ajustement des tests et références
+
+== Tests
+
+44 unit tests PASS.

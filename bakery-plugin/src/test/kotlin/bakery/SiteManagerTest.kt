@@ -2,12 +2,17 @@ package bakery
 
 import bakery.FileSystemManager.from
 import bakery.SiteManager.BAKERY_GROUP
+import bakery.SiteManager.GENERATE_GROUP
+import bakery.SiteManager.DEPLOY_GROUP
+import bakery.SiteManager.TRANSFORM_GROUP
+import bakery.SiteManager.INFO_GROUP
+import bakery.SiteManager.COLLECT_GROUP
 import bakery.SiteManager.configureConfigPath
 import bakery.SiteManager.createJBakeRuntimeConfiguration
-import bakery.SiteManager.registerConfigureSiteTask
+import bakery.SiteManager.registerCollectSiteConfigTask
+import bakery.SiteManager.registerDeployMaquetteTask
+import bakery.SiteManager.registerDeploySiteTask
 import bakery.SiteManager.registerPagefindTask
-import bakery.SiteManager.registerPublishMaquetteTask
-import bakery.SiteManager.registerPublishSiteTask
 import bakery.SiteManager.registerServeTask
 import com.github.gradle.node.npm.task.NpxTask
 import org.assertj.core.api.Assertions.assertThat
@@ -51,7 +56,7 @@ class SiteManagerTest {
 
             val serveTask = project.tasks.getByName("serve")
             assertThat(serveTask).isInstanceOf(JavaExec::class.java)
-            assertThat(serveTask.group).isEqualTo(BAKERY_GROUP)
+            assertThat(serveTask.group).isEqualTo(INFO_GROUP)
             assertThat(serveTask.description).isEqualTo("Serves the baked site locally.")
         }
 
@@ -109,7 +114,7 @@ class SiteManagerTest {
 
             val pagefindTask = project.tasks.getByName("pagefind")
             assertThat(pagefindTask).isInstanceOf(NpxTask::class.java)
-            assertThat(pagefindTask.group).isEqualTo(BAKERY_GROUP)
+            assertThat(pagefindTask.group).isEqualTo(TRANSFORM_GROUP)
             assertThat(pagefindTask.description).isEqualTo("Index the baked site with Pagefind for full-text search.")
         }
 
@@ -166,7 +171,7 @@ class SiteManagerTest {
     }
 
     @Nested
-    inner class RegisterPublishMaquetteTaskTest {
+    inner class RegisterDeployMaquetteTaskTest {
 
         @TempDir
         lateinit var tempDir: File
@@ -181,17 +186,17 @@ class SiteManagerTest {
         }
 
         @Test
-        fun `should register publishMaquette task`() {
+        fun `should register deployMaquette task`() {
             val site = SiteConfiguration(
                 pushMaquette = GitPushConfiguration(from = "maquette", to = "cvs-output"),
                 bake = BakeConfiguration("jbake", "bake")
             )
 
-            project.registerPublishMaquetteTask(site)
+            project.registerDeployMaquetteTask(site)
 
-            val task = project.tasks.getByName("publishMaquette")
-            assertThat(task.group).isEqualTo(BAKERY_GROUP)
-            assertThat(task.description).isEqualTo("Publish maquette online.")
+            val task = project.tasks.getByName("deployMaquette")
+            assertThat(task.group).isEqualTo(DEPLOY_GROUP)
+            assertThat(task.description).isEqualTo("Deploy maquette online.")
         }
 
         @Test
@@ -205,9 +210,9 @@ class SiteManagerTest {
                 bake = BakeConfiguration("jbake", "bake")
             )
 
-            noMdProject.registerPublishMaquetteTask(site)
+            noMdProject.registerDeployMaquetteTask(site)
 
-            val task = noMdProject.tasks.getByName("publishMaquette")
+            val task = noMdProject.tasks.getByName("deployMaquette")
 
             assertThatThrownBy {
                 task.actions.forEach { it.execute(task) }
@@ -217,7 +222,7 @@ class SiteManagerTest {
     }
 
     @Nested
-    inner class RegisterPublishSiteTaskTest {
+    inner class RegisterDeploySiteTaskTest {
 
         @TempDir
         lateinit var tempDir: File
@@ -231,36 +236,36 @@ class SiteManagerTest {
         }
 
         @Test
-        fun `should register publishSite task`() {
+        fun `should register deploySite task`() {
             val site = SiteConfiguration(
                 bake = BakeConfiguration("jbake", "bake"),
                 pushPage = GitPushConfiguration(from = "bake", to = "cvs-output")
             )
 
-            project.registerPublishSiteTask(site)
+            project.registerDeploySiteTask(site)
 
-            val task = project.tasks.getByName("publishSite")
-            assertThat(task.group).isEqualTo(BAKERY_GROUP)
-            assertThat(task.description).isEqualTo("Publish site online.")
+            val task = project.tasks.getByName("deploySite")
+            assertThat(task.group).isEqualTo(DEPLOY_GROUP)
+            assertThat(task.description).isEqualTo("Deploy site online.")
         }
 
         @Test
-        fun `publishSite task should depend on pagefind`() {
+        fun `deploySite task should depend on pagefind`() {
             val site = SiteConfiguration(
                 bake = BakeConfiguration("jbake", "bake"),
                 pushPage = GitPushConfiguration(from = "bake", to = "cvs-output")
             )
 
-            project.registerPublishSiteTask(site)
+            project.registerDeploySiteTask(site)
 
-            val task = project.tasks.getByName("publishSite")
+            val task = project.tasks.getByName("deploySite")
             assertThat(task.dependsOn.map { it.toString() })
                 .anyMatch { it.contains("pagefind") }
         }
     }
 
     @Nested
-    inner class RegisterConfigureSiteTaskTest {
+    inner class RegisterCollectSiteConfigTaskTest {
 
         @TempDir
         lateinit var tempDir: File
@@ -273,16 +278,16 @@ class SiteManagerTest {
         }
 
         @Test
-        fun `should register configureSite task`() {
+        fun `should register collectSiteConfig task`() {
             val site = SiteConfiguration(
                 bake = BakeConfiguration("jbake", "bake"),
                 pushPage = GitPushConfiguration()
             )
 
-            project.registerConfigureSiteTask(site, false)
+            project.registerCollectSiteConfigTask(site, false)
 
-            val task = project.tasks.getByName("configureSite")
-            assertThat(task.group).isEqualTo(BAKERY_GROUP)
+            val task = project.tasks.getByName("collectSiteConfig")
+            assertThat(task.group).isEqualTo(COLLECT_GROUP)
             assertThat(task.description).isEqualTo("Initialize Bakery configuration.")
         }
     }

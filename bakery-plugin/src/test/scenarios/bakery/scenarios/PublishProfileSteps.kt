@@ -118,13 +118,13 @@ class PublishProfileSteps(private val world: BakeryWorld) {
         }
     }
 
-    @When("I execute the publishProfile task with credentials {string} and {string}")
-    fun executePublishProfileTask(username: String, token: String) = runBlocking {
+    @When("I execute the deployProfile task with credentials {string} and {string}")
+    fun executeDeployProfileTask(username: String, token: String) = runBlocking {
         val result = create()
             .withProjectDir(world.projectDir!!)
             .withPluginClasspath()
             .withArguments(
-                "publishProfile",
+                "deployProfile",
                 "-PprofileUsername=$username",
                 "-PprofileToken=$token",
                 "--stacktrace"

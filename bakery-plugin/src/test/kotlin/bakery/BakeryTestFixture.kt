@@ -136,9 +136,9 @@ private fun mockTaskContainer(): TaskContainer {
     whenever(taskContainer.withType(JBakeTask::class.java)).thenReturn(jbakeTaskCollection)
 
     whenever(taskContainer.register(any<String>(), any<Action<Task>>())).thenReturn(mock())
-    whenever(taskContainer.register(eq("publishSite"), any<Action<Task>>())).thenReturn(mock())
-    whenever(taskContainer.register(eq("publishMaquette"), any<Action<Task>>())).thenReturn(mock())
-    whenever(taskContainer.register(eq("configureSite"), any<Action<Task>>())).thenReturn(mock())
+    whenever(taskContainer.register(eq("deploySite"), any<Action<Task>>())).thenReturn(mock())
+    whenever(taskContainer.register(eq("deployMaquette"), any<Action<Task>>())).thenReturn(mock())
+    whenever(taskContainer.register(eq("collectSiteConfig"), any<Action<Task>>())).thenReturn(mock())
 
     return taskContainer
 }

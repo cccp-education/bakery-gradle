@@ -7,12 +7,12 @@ import bakery.SiteManager.configureBakeTask
 import bakery.SiteManager.configureConfigPath
 import bakery.SiteManager.configureJBakePlugin
 import bakery.SiteManager.createJBakeRuntimeConfiguration
-import bakery.SiteManager.registerConfigureSiteTask
-import bakery.SiteManager.registerInitSiteTask
+import bakery.SiteManager.registerCollectSiteConfigTask
+import bakery.SiteManager.registerDeployMaquetteTask
+import bakery.SiteManager.registerDeployProfileTask
+import bakery.SiteManager.registerDeploySiteTask
+import bakery.SiteManager.registerGenerateSiteTask
 import bakery.SiteManager.registerPagefindTask
-import bakery.SiteManager.registerPublishMaquetteTask
-import bakery.SiteManager.registerPublishProfileTask
-import bakery.SiteManager.registerPublishSiteTask
 import bakery.SiteManager.registerServeTask
 import bakery.SiteManager.registerUtilityTasks
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -55,21 +55,21 @@ class BakeryPlugin : Plugin<Project> {
                 if (targetDir != project.projectDir) {
                     SiteScaffolder.validateSiteTargetDoesNotExist(targetDir)
                 }
-                project.registerInitSiteTask(targetDir)
+                project.registerGenerateSiteTask(targetDir)
             } else {
                 val rawSite = project.from(bakeryExtension.configPath.get())
                 val site = rawSite.resolvePaths(configDir)
                 project.configureJBakePlugin(site)
                 project.configureBakeTask(site)
-                project.registerPublishSiteTask(site)
-                project.registerPublishMaquetteTask(site)
+                project.registerDeploySiteTask(site)
+                project.registerDeployMaquetteTask(site)
                 project.registerPagefindTask(site)
                 if (site.pushProfile != null) {
-                    project.registerPublishProfileTask(site)
+                    project.registerDeployProfileTask(site)
                 }
                 project.registerServeTask(site, jbakeRuntime)
                 project.registerUtilityTasks()
-                project.registerConfigureSiteTask(site, isGradlePropertiesEnabled)
+                project.registerCollectSiteConfigTask(site, isGradlePropertiesEnabled)
             }
         }
     }

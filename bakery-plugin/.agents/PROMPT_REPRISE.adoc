@@ -1,32 +1,24 @@
-= PROMPT_REPRISE — Session 017 — Bakery Plugin
-:jbake-status: draft
+= PROMPT_REPRISE — Session 021 terminée (K-1)
 
-== Contexte de Reprise
+== Mission accomplie
 
-Session 016 a ajoute 16 tests unitaires pour `SiteManager` (P1 + P2/P3) +
-implemente la feature Cucumber 3 `configureSite`.
-EPIC 7 (YAML tolerance) termine : `@JsonIgnoreProperties` sur `SiteConfiguration`.
-Bakery 0.1.3 → 0.1.4 publie sur Gradle Plugin Portal.
-Pipeline CI office/cheroliv.com corrige et vert.
-BUG PluginApplicationTest corrige.
+Renommage taxonomie de 10 tâches :
+- `initSite`→`generateSite`
+- `publishSite`→`deploySite`
+- `publishMaquette`→`deployMaquette`
+- `publishProfile`→`deployProfile`
+- `configureSite`→`collectSiteConfig`
 
-== Session 019 — Migration chemins OSS/CSS (inter-session chore)
+13 fichiers modifiés. 44 unit tests PASS.
 
-**Date** : 2026-05-07 | **Type** : chore
-**Resultat** : ✅ INDEX.adoc — remplacement `foundry/` → `foundry/OSS/` pour granularisation OSS/CSS. Commit + push.
+== Prochaine mission (022)
 
-== Prochaine etape
+- EPIC 9 — Architecture d'orchestration LLM
+- Ou K-2 — Format pivot metadata.json
+- Ou EPIC 12 — Couverture tests ConfigPrompts
 
-Reprendre la couverture de test pour les features restantes :
+== Rappels
 
-P2 — Moyen impact :
-* `FileSystemManager.copyResourceDirectory` (JAR + filesystem) — 0 test
-* `PublishProfileTask.publishProfile()` — 0 test unitaire
-* Functional Phase 3 workflow complet — placeholder vide
-
-P3 — Faible impact :
-* `GitService.cleanupDir` — 0 test direct
-* `BakeryPlugin.resolvePaths` — 0 test direct
-
-[.text-right]
-*Session 2026-05-07 — generee par la procedure de fin de session 016.*
+- GroupId: cccp.education.bakery
+- Plugin ID: cccp.education.bakery
+- Procédure publishToMavenLocal après chaque modification

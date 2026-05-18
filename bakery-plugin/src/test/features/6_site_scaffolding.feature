@@ -17,7 +17,7 @@ Feature: Scaffold a new static site into the sites base directory
     And the gradle project does not have 'index.html' file for maquette
     And the bakery extension defines 'sitesBaseDir' as 'office/sites'
     And the bakery extension defines 'siteName' as 'my-company'
-    When I am executing the task 'initSite'
+    When I am executing the task 'generateSite'
     Then the project directory 'office/sites/my-company' should exist
     Then the directory 'office/sites/my-company' should have a 'site.yml' file for site configuration
     Then the directory 'office/sites/my-company' should have a directory named 'site' who contains 'jbake.properties' file
@@ -34,7 +34,7 @@ Feature: Scaffold a new static site into the sites base directory
     And 'settings.gradle.kts' set gradle portal dependencies repository with 'gradlePluginPortal'
     And the bakery extension defines 'sitesBaseDir' as 'office/sites'
     And the bakery extension does not define 'siteName'
-    When I am executing the task 'initSite' expecting failure
+    When I am executing the task 'generateSite' expecting failure
     Then the build output should contain 'siteName must be defined'
 
   # ================================================================
@@ -47,7 +47,7 @@ Feature: Scaffold a new static site into the sites base directory
     And the bakery extension defines 'sitesBaseDir' as 'office/sites'
     And the bakery extension defines 'siteName' as 'existing-site'
     And the directory 'office/sites/existing-site' already exists
-    When I am executing the task 'initSite' expecting failure
+    When I am executing the task 'generateSite' expecting failure
     Then the build output should contain 'already exists'
 
   # =================================================================
@@ -62,7 +62,7 @@ Feature: Scaffold a new static site into the sites base directory
     And the gradle project does not have 'index.html' file for maquette
     And the bakery extension defines 'siteName' as 'mysite'
     And the bakery extension does not define 'sitesBaseDir'
-    When I am executing the task 'initSite'
+    When I am executing the task 'generateSite'
     Then the project directory 'mysite' should exist
     Then the directory 'mysite' should have a 'site.yml' file for site configuration
     Then the directory 'mysite' should have a directory named 'site' who contains 'jbake.properties' file
@@ -70,7 +70,7 @@ Feature: Scaffold a new static site into the sites base directory
 
   # =================================================================
   # UJ5 — ni sitesBaseDir ni siteName → rétrocompatibilité
-  #   initSite crée tout dans projectDir comme aujourd'hui
+  #   generateSite crée tout dans projectDir comme aujourd'hui
   # =================================================================
   @backward-compat
   Scenario: Scaffold into project root when no scaffolding properties are defined (backward compat)
@@ -79,7 +79,7 @@ Feature: Scaffold a new static site into the sites base directory
     And the gradle project does not have 'site.yml' for site configuration
     And the gradle project does not have 'site' directory for site
     And the gradle project does not have 'index.html' file for maquette
-    When I am executing the task 'initSite'
+    When I am executing the task 'generateSite'
     Then the project should have a 'site.yml' file for site configuration
     Then the project should have a directory named 'site' who contains 'jbake.properties' file
     Then the project should have a directory named 'maquette' who contains 'index.html' file

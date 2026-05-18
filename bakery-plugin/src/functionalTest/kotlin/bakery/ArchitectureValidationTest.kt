@@ -223,10 +223,10 @@ class ArchitectureValidationTest {
 
         @Test
         fun `tasks are registered correctly from office sites structure`() {
-            val result = runner("tasks", "--group=bakery").build()
+            val result = runner("tasks").build()
 
             assertThat(result.output).contains("bake")
-            assertThat(result.output).contains("publishSite")
+            assertThat(result.output).contains("deploySite")
             assertThat(result.output).contains("serve")
         }
 

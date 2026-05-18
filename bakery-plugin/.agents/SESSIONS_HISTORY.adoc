@@ -1,9 +1,10 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-_Derniere mise a jour : 2026-05-07_
+_Derniere mise a jour : 2026-05-19_
 
 |===
 | # | Date | Type | Sujet | Score
+| 021 | 2026-05-19 | migration | EPIC K-1 — Renommage taxonomie (10 tâches : generateSite, deploySite, deployMaquette, deployProfile, collectSiteConfig) — 13 fichiers, 44 tests PASS | 10/10
 | 020 | 2026-05-18 | chore | Gitignore — ajout pattern **/site.yml (racine + plugin) | 10/10
 | 019 | 2026-05-07 | chore | Migration chemins foundry/ → foundry/OSS/ dans INDEX.adoc | —
 | 018 | 2026-05-07 | perf | Optimisation durée tests -52% (JVM args + @Nested pattern) | 9/10

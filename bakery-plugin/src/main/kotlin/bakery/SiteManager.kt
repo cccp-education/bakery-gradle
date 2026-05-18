@@ -23,6 +23,11 @@ import kotlin.text.Charsets.UTF_8
 object SiteManager {
 
     const val BAKERY_GROUP = "bakery"
+    const val GENERATE_GROUP = "generate"
+    const val DEPLOY_GROUP = "deploy"
+    const val TRANSFORM_GROUP = "transform"
+    const val INFO_GROUP = "info"
+    const val COLLECT_GROUP = "collect"
     const val BAKE_TASK = "bake"
     const val ASCIIDOCTOR_OPTION_REQUIRES = "asciidoctor.option.requires"
     const val ASCIIDOCTOR_DIAGRAM = "asciidoctor-diagram"
@@ -64,12 +69,12 @@ object SiteManager {
     }
 
 
-// ==================== Init Site Task ====================
+// ==================== Generate Site Task ====================
 
-    fun Project.registerInitSiteTask(siteTargetDir: File = projectDir) {
-        tasks.register("initSite") { task ->
+    fun Project.registerGenerateSiteTask(siteTargetDir: File = projectDir) {
+        tasks.register("generateSite") { task ->
             task.apply {
-                group = BAKERY_GROUP
+                group = GENERATE_GROUP
                 description = "Initialise site and maquette folders."
 
                 doLast {
@@ -177,6 +182,7 @@ object SiteManager {
     internal fun Project.configureBakeTask(site: SiteConfiguration) {
         tasks.withType(JBakeTask::class.java)
             .getByName(BAKE_TASK).apply {
+                group = GENERATE_GROUP
                 input = file(site.bake.srcPath)
                 output = layout.buildDirectory
                     .dir(site.bake.destDirPath)
@@ -190,7 +196,7 @@ object SiteManager {
     internal fun Project.registerGitPushTask(
         taskName: String,
         taskDescription: String,
-        taskGroup: String = BAKERY_GROUP,
+        taskGroup: String = DEPLOY_GROUP,
         dependsOnTask: String? = null,
         doFirstAction: (org.gradle.api.Task).() -> Unit = {},
         fromPath: () -> String,
@@ -215,7 +221,7 @@ object SiteManager {
     internal fun Project.registerPagefindTask(site: SiteConfiguration) {
         tasks.register("pagefind", NpxTask::class.java) { task ->
             task.apply {
-                group = BAKERY_GROUP
+                group = TRANSFORM_GROUP
                 description = "Index the baked site with Pagefind for full-text search."
                 dependsOn(BAKE_TASK)
 
@@ -234,16 +240,16 @@ object SiteManager {
         }
     }
 
-// ==================== Publish Site Task ====================
+// ==================== Deploy Site Task ====================
 
-    internal fun Project.registerPublishSiteTask(site: SiteConfiguration) {
+    internal fun Project.registerDeploySiteTask(site: SiteConfiguration) {
         val buildDir = layout.buildDirectory.get().asFile.absolutePath
         val destDirPath = site.bake.destDirPath
         val pushPage = site.pushPage
 
         registerGitPushTask(
-            taskName = "publishSite",
-            taskDescription = "Publish site online.",
+            taskName = "deploySite",
+            taskDescription = "Deploy site online.",
             dependsOnTask = "pagefind",
             doFirstAction = { site.createCnameFile(project) },
             fromPath = { "$buildDir$separator$destDirPath" },
@@ -252,12 +258,12 @@ object SiteManager {
         )
     }
 
-// ==================== Publish Maquette Task ====================
+// ==================== Deploy Maquette Task ====================
 
-    internal fun Project.registerPublishMaquetteTask(site: SiteConfiguration) {
+    internal fun Project.registerDeployMaquetteTask(site: SiteConfiguration) {
         registerGitPushTask(
-            taskName = "publishMaquette",
-            taskDescription = "Publish maquette online.",
+            taskName = "deployMaquette",
+            taskDescription = "Deploy maquette online.",
             doFirstAction = { prepareAndCopyMaquette(site) },
             fromPath = {
                 val buildDir = layout.buildDirectory.asFile.get()
@@ -299,12 +305,12 @@ object SiteManager {
         uiDir.copyRecursively(uiBuildDir, overwrite = true)
     }
 
-// ==================== Publish Profile Task ====================
+// ==================== Deploy Profile Task ====================
 
-    internal fun Project.registerPublishProfileTask(site: SiteConfiguration) {
-        tasks.register("publishProfile", PublishProfileTask::class.java) { task ->
+    internal fun Project.registerDeployProfileTask(site: SiteConfiguration) {
+        tasks.register("deployProfile", PublishProfileTask::class.java) { task ->
             task.apply {
-                group = "profile"
+                group = DEPLOY_GROUP
                 description = "Push profile files (e.g. README.md) to GitHub repository"
             }
         }
@@ -318,7 +324,7 @@ object SiteManager {
     ) {
         tasks.register("serve", JavaExec::class.java) { task ->
             task.apply {
-                group = BAKERY_GROUP
+                group = INFO_GROUP
                 description = "Serves the baked site locally."
                 mainClass.set("org.jbake.launcher.Main")
                 classpath = jbakeRuntime
@@ -346,15 +352,15 @@ object SiteManager {
         }
     }
 
-// ==================== Configure Site Task ====================
+// ==================== Collect Site Config Task ====================
 
-    internal fun Project.registerConfigureSiteTask(
+    internal fun Project.registerCollectSiteConfigTask(
         site: SiteConfiguration,
         isGradlePropertiesEnabled: Boolean
     ) {
-        tasks.register("configureSite") { task ->
+        tasks.register("collectSiteConfig") { task ->
             task.apply {
-                group = BAKERY_GROUP
+                group = COLLECT_GROUP
                 description = "Initialize Bakery configuration."
 
                 doLast {
@@ -405,7 +411,7 @@ object SiteManager {
     internal fun Project.registerUtilityTasks() {
         tasks.register("createPagesRepository") { task ->
             task.apply {
-                group = BAKERY_GROUP
+                group = DEPLOY_GROUP
                 description = "TODO: Create the GitHub Pages repository via API."
                 doLast {
                     throw NotImplementedError(
@@ -418,7 +424,7 @@ object SiteManager {
 
         tasks.register("updatePagesSecret") { task ->
             task.apply {
-                group = BAKERY_GROUP
+                group = DEPLOY_GROUP
                 description = "TODO: Update the GitHub Pages publishing secret."
                 doLast {
                     throw NotImplementedError(

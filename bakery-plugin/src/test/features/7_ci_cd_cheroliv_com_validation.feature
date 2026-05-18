@@ -22,11 +22,11 @@ Feature: CI/CD cheroliv.com — Validation end-to-end sans exposition de credent
     And the baked output should contain "index.html"
     And the baked output should contain "blog/2026/0119_benchmark_dgx_spark_vs_cloud_abonnement_llm_post.html"
 
-  Scenario: La tache publishSite est enregistree pour cheroliv.com
+  Scenario: La tache deploySite est enregistree pour cheroliv.com
     Given the cheroliv.com jbake source in the engine-style project
     And a "site.yml" with bake config and empty credentials
     When I run the "tasks" task for cheroliv.com
-    Then the task "publishSite" should be listed in the output
+    Then the task "deploySite" should be listed in the output
 
   Scenario: Les articles generes contiennent le bloc SEO 'Articles connexes'
     Given the cheroliv.com jbake source in the engine-style project

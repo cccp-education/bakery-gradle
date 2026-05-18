@@ -14,7 +14,7 @@ import kotlin.text.Charsets.UTF_8
 class ScaffoldFunctionalTests {
 
     @Nested
-    @DisplayName("initSite avec sites.base.dir + site.name")
+    @DisplayName("generateSite avec sites.base.dir + site.name")
     inner class HappyPathTest {
 
         @TempDir
@@ -27,7 +27,7 @@ class ScaffoldFunctionalTests {
             val result = create()
                 .withProjectDir(projectDir)
                 .withPluginClasspath()
-                .withArguments("initSite")
+                .withArguments("generateSite")
                 .build()
 
             val siteDir = projectDir.resolve("office/sites/my-company")
@@ -42,7 +42,7 @@ class ScaffoldFunctionalTests {
     }
 
     @Nested
-    @DisplayName("initSite failures")
+    @DisplayName("generateSite failures")
     inner class ErrorHandlingTest {
 
         @TempDir
@@ -55,7 +55,7 @@ class ScaffoldFunctionalTests {
             val result = create()
                 .withProjectDir(projectDir)
                 .withPluginClasspath()
-                .withArguments("initSite", "--stacktrace")
+                .withArguments("generateSite", "--stacktrace")
                 .buildAndFail()
 
             assertThat(result.output).contains("siteName must be defined")
@@ -69,7 +69,7 @@ class ScaffoldFunctionalTests {
             val result = create()
                 .withProjectDir(projectDir)
                 .withPluginClasspath()
-                .withArguments("initSite", "--stacktrace")
+                .withArguments("generateSite", "--stacktrace")
                 .buildAndFail()
 
             assertThat(result.output).contains("already exists")
@@ -77,7 +77,7 @@ class ScaffoldFunctionalTests {
     }
 
     @Nested
-    @DisplayName("initSite with siteName only")
+    @DisplayName("generateSite with siteName only")
     inner class SiteNameOnlyTest {
 
         @TempDir
@@ -90,7 +90,7 @@ class ScaffoldFunctionalTests {
             val result = create()
                 .withProjectDir(projectDir)
                 .withPluginClasspath()
-                .withArguments("initSite")
+                .withArguments("generateSite")
                 .build()
 
             val siteDir = projectDir.resolve("mysite")
@@ -102,7 +102,7 @@ class ScaffoldFunctionalTests {
     }
 
     @Nested
-    @DisplayName("initSite backward compat (ni sites.base.dir ni site.name)")
+    @DisplayName("generateSite backward compat (ni sites.base.dir ni site.name)")
     inner class BackwardCompatTest {
 
         @TempDir
@@ -115,7 +115,7 @@ class ScaffoldFunctionalTests {
             val result = create()
                 .withProjectDir(projectDir)
                 .withPluginClasspath()
-                .withArguments("initSite")
+                .withArguments("generateSite")
                 .build()
 
             assertThat(projectDir.resolve("site.yml")).exists().isFile

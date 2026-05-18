@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour_ : 2026-05-18
-_Session terminee_ : 020 — Gitignore pattern **/site.yml
-_Session en cours_ : 021 — (a definir)
+_Derniere mise a jour_ : 2026-05-19
+_Session terminee_ : 021 — EPIC K-1 Renommage taxonomie (generateSite, deploySite, deployMaquette, deployProfile, collectSiteConfig)
+_Session en cours_ : 022 — (a definir)
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | # | Date | Type | Sujet | Score
+| 021 | 2026-05-19 | migration | EPIC K-1 — Renommage taxonomie (10 tâches : generateSite, deploySite, deployMaquette, deployProfile, collectSiteConfig) | 10/10
 | 020 | 2026-05-18 | chore | Gitignore — ajout pattern **/site.yml (racine + plugin) | 10/10
 | 019 | 2026-05-07 | chore | Migration chemins foundry/ → foundry/OSS/ (granularisation OSS/CSS) | —
 | 018 | 2026-05-07 | perf | Optimisation durée tests -52% (JVM + @Nested plantuml pattern) | 9/10

@@ -24,15 +24,15 @@ class ConfigureSiteSteps(private val world: BakeryWorld) {
         }
     }
 
-    @Then("the output should contain configureSite task information")
-    fun outputShouldContainConfigureSiteTaskInfo() {
+    @Then("the output should contain collectSiteConfig task information")
+    fun outputShouldContainCollectSiteConfigTaskInfo() {
         val output = world.buildResult?.output ?: ""
 
         assertThat(output)
-            .describedAs("tasks output should contain configureSite")
-            .contains("configureSite")
+            .describedAs("tasks output should contain collectSiteConfig")
+            .contains("collectSiteConfig")
         assertThat(output)
-            .describedAs("tasks output should contain Bakery group and configureSite description")
+            .describedAs("tasks output should contain Bakery group and collectSiteConfig description")
             .contains("Bakery tasks", "Initialize Bakery configuration.")
     }
 }
