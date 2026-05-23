@@ -36,7 +36,9 @@ class BakeryPlugin : Plugin<Project> {
             project.configureConfigPath(bakeryExtension, isGradlePropertiesEnabled)
             val configFile = project.layout
                 .projectDirectory.asFile
+                .toPath()
                 .resolve(bakeryExtension.configPath.get())
+                .toFile()
             val configDir = configFile.parentFile
 
             if (!configFile.exists() || (configFile.exists() &&
