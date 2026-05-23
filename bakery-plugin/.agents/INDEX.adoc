@@ -124,5 +124,5 @@ _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
 | plantuml-gradle | `~/workspace/foundry/OSS/plantuml-gradle/plantuml-plugin` | 132 | 2026-04-23
 | jhipster-gradle-plugins | `~/workspace/foundry/OSS/jhipster-gradle-plugins` | Audit 053 | 2026-04-30
 | quizz-benchmark-gradle | `~/workspace/foundry/OSS/quizz-benchmark-gradle/quizz-benchmark-plugin` | Audit 053 | 2026-04-30
-| engine | `~/workspace/foundry/OSS/engine` | 2 | 2026-05-07
+| runner-gradle | `~/workspace/foundry/OSS/runner-gradle` | 2 | 2026-05-07
 |===
