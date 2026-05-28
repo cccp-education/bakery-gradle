@@ -9,7 +9,6 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.publish)
     alias(libs.plugins.kover)
-    alias(libs.plugins.codebase)
 }
 
 group = "education.cccp"
@@ -350,7 +349,6 @@ publishing {
                             distMgmt.appendChild(relocation)
                             pom.appendChild(distMgmt)
                         }
-                    }
                     }
                 }
             }
