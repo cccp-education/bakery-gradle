@@ -1,0 +1,48 @@
+= TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
+:description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
+
+_Dernière mise à jour : 2026-05-29 — Session 023_
+_Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
+
+'''
+== État Actuel
+
+[cols="2,3"]
+|===
+| Métrique | Valeur
+| Couverture Kover | *Inconnue* — `./gradlew koverXmlReport` à lancer en session 023
+| Seuil configuré | 75% (dans `build.gradle.kts` → `koverThresholdCheck`)
+| Tests unitaires JUnit5 | 9 fichiers, 2 287 lignes — ratio 1.62x vs src/main
+| Tests fonctionnels (TestKit) | 4 fichiers, 1 117 lignes
+| Tests Cucumber BDD | 7 features, 18 scénarios, 944 lignes de steps
+| Compilation | ✅ BUILD SUCCESSFUL — Gradle 9.5.1, Kotlin 2.3.20, Java 24, zéro warning
+|===
+
+'''
+== Historique
+
+[cols="2,2,2,3,3"]
+|===
+| Session | Date | Kover % | Tests PASS | Notes
+| 022 | 2026-05-29 | — | — | Fichier créé (absent depuis plusieurs sessions). Audit sans exécution de tests.
+| 023 | 2026-05-29 | *Non mesuré* | 14/14 unitaires, 4/4 fonctionnels | BKY-IA-0 : ajout LlmService, OllamaLlmService, IaConfig. 8 nouveaux fichiers. Tests ajoutés sans Mockito (FakeLlmService, FakeChatModel)
+|===
+
+'''
+== Problèmes Connus
+
+. *EPIC 10 Scaffolding* : 3 scénarios Cucumber en échec (`siteNameOnly`, `backwardCompat`)
+  depuis la session 017 (2026-05-07). Bloque la complétion du scaffolding.
+. *EPIC 13 Couverture lacunes P1* : 50% — couverture partielle sur ConfigPrompts
+  (session 015) et lacunes identifiées en session 016.
+. *Kover threshold* : le check est intégré à `./gradlew check` mais aucune
+  mesure récente n'a été enregistrée. Risque de build cassé si la couverture
+  réelle est < 75%.
+
+'''
+== Plan d'Amélioration
+
+. *Session 023* : lancer `./gradlew koverXmlReport` → enregistrer la métrique réelle
+. *Session 023* : documenter la couverture par classe (SiteManager, GitService, etc.)
+. *Session 024+* : ramener la couverture à ≥ 75% si nécessaire
+. *EPIC 13* : compléter les tests ConfigPrompts + lacunes P1

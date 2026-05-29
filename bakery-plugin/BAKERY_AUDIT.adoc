@@ -1,0 +1,837 @@
+= BAKERY_AUDIT — État des Lieux du Plugin Bakery-Gradle (Session 022)
+:toc: left
+:toclevels: 3
+:icons: font
+:sectnums:
+:source-highlighter: highlight.js
+
+[abstract]
+--
+Audit complet du plugin `bakery-gradle` (N2 dans le DAG) — générateur de sites
+statiques convention-based utilisant JBake, JGit, Thymeleaf, Firebase, et
+graphify-gradle. Réalisé le 29 mai 2026 en préparation de la session 022.
+Ce document est un STIMULUS en Cercle 4 (foundry/public/) — il doit être
+dilué dans `.agents/INDEX.adoc` et `BACKLOG.adoc` avant suppression.
+--
+
+'''
+== Métadonnées
+
+[cols="2,3"]
+|===
+| Projet | `foundry/public/bakery-gradle/bakery-plugin/`
+| GroupId | `education.cccp`
+| Plugin ID | `cccp.education.bakery`
+| Niveau DAG | *N2* — consommateur de N0 (`graphify-gradle`), pgvector (shared service)
+| Dernière session | 021 — EPIC K-1 Renommage taxonomie (2026-05-19)
+| Session en cours | 022 — (à définir)
+| Gradle | 9.5.1
+| Kotlin | 2.3.20 (jvmToolchain Java 24)
+| Compilation | ✅ BUILD SUCCESSFUL — zéro warning
+|===
+
+'''
+== Synthèse — Points Critiques
+
+[cols="1,3,2"]
+|===
+| # | Constat | Gravité
+
+| 1
+| EPIC 9 (Orchestration LLM) à 0% — c'est le plus gros EPIC restant, P0
+| 🔴 BLOQUANT
+
+| 2
+| `TEST_COVERAGE_ANALYSIS.adoc` absent du `.agents/` — procédure de fin de session
+  non respectée depuis plusieurs sessions
+| 🟠 GOUVERNANCE
+
+| 3
+| EPIC 10 Scaffolding à 80% — 3 scénarios Cucumber encore en échec, bloqué
+  depuis session 017 (2026-05-07)
+| 🟠 TECHNIQUE
+
+| 4
+| EPIC 6 (publishProfil) et EPIC 7 (YAML tolerance) marqués « A faire » dans
+  BACKLOG mais TERMINÉS dans INDEX.adoc — divergence documentaire
+| 🟠 DOC
+
+| 5
+| Kover threshold à 75% — pas de métrique récente disponible, le check est
+  intégré à `./gradlew check` mais le pipeline CI n'est documenté nulle part
+| 🟡 QUALITÉ
+
+| 6
+| SiteManager.kt pèse 439 lignes (31% du src/main) — classe god, pas de
+  délégation, pas de doc interne
+| 🟡 ARCHITECTURE
+|===
+
+'''
+== Inventaire du Code Source
+
+=== src/main/kotlin/bakery/ — 10 fichiers, 1 413 lignes
+
+[cols="1,2,1,3", options="header"]
+|===
+| Fichier | Lignes | % | Rôle
+| `SiteManager.kt` | 439 | 31.1% | Orchestrateur principal — registre toutes les tâches Gradle
+| `GitService.kt` | 272 | 19.2% | Push git (pages, maquette, profil), clone, credentials
+| `FileSystemManager.kt` | 205 | 14.5% | Gestion des fichiers, templates, ressources
+| `ConfigPrompts.kt` | 154 | 10.9% | Prompts de configuration interactive
+| `BakeryPlugin.kt` | 87 | 6.2% | Point d'entrée Gradle — `apply()`
+| `SiteConfiguration.kt` | 83 | 5.9% | Modèles de données YAML (Jackson)
+| `ProfilePublisher.kt` | 77 | 5.4% | Logique de publication du profil GitHub
+| `SiteScaffolder.kt` | 43 | 3.0% | Scaffolding `office/sites/<name>/`
+| `PublishProfileTask.kt` | 39 | 2.8% | Tâche Gradle typée pour publishProfil
+| `BakeryExtension.kt` | 14 | 1.0% | Extension DSL Gradle
+|===
+
+=== Tests Unitaires — 9 fichiers, 2 287 lignes
+
+[cols="1,2", options="header"]
+|===
+| Fichier | Lignes
+| `BakeryPluginTest.kt` | 575
+| `SiteManagerTest.kt` | 377
+| `GitServiceTest.kt` | 371
+| `ProfilePublisherTest.kt` | 256
+| `BakeryTestFixture.kt` | 213
+| `ConfigPromptsTest.kt` | 163
+| `FileSystemManagerTest.kt` | 158
+| `SiteScaffolderTest.kt` | 149
+| `RepositoryCredentialsTest.kt` | 25
+|===
+
+*Ratio test/source* : 2 287 / 1 413 = *1.62x* — correct, mais les tests
+sont concentrés sur `SiteManager` et `BakeryPlugin`, et faibles sur
+`ProfilePublisher` et `PublishProfileTask`.
+
+=== Tests Fonctionnels — 4 fichiers, 1 117 lignes
+
+|===
+| Fichier | Lignes
+| `BakeryPluginFunctionalTests.kt` | 389
+| `tools.kt` | 332
+| `ArchitectureValidationTest.kt` | 240
+| `ScaffoldFunctionalTests.kt` | 156
+|===
+
+=== Tests Cucumber — 7 features, 18 scénarios, 944 lignes de steps
+
+|===
+| Feature | Scénarios | Statut
+| `1_minimal_configuration.feature` | 1 | ✅ PASS
+| `2_init_site_task.feature` | 3 | ✅ PASS
+| `3_configure_site_task.feature` | 1 | ✅ PASS
+| `4_contact_form.feature` | 2 | ✅ PASS
+| `5_publish_profile_task.feature` | 3 | ✅ PASS
+| `6_site_scaffolding.feature` | 5 | ⚠️ 2/5 PASS — 3 échecs
+| `7_ci_cd_cheroliv_com_validation.feature` | 3 | ✅ PASS
+|===
+
+'''
+== Roadmap — État des EPICs
+
+[cols="1,2,2,2,3"]
+|===
+| EPIC | Statut | Priorité | Sessions | Bloquant
+
+| EPIC 1 | ✅ TERMINÉ | P0 | — | —
+| EPIC 2 | ✅ TERMINÉ | P0 | — | —
+| EPIC 3 | ✅ TERMINÉ | P1 | — | —
+| EPIC 4 | ✅ TERMINÉ (95%) | P1 | 012 | Formalité : clé API réelle
+| EPIC 5 | ⬜ À FAIRE | P2 | — | Timeout Cucumber 1→5 min
+| EPIC 6 | ⬜ À FAIRE | P1 | 005 | publishProfil dans le plugin
+| EPIC 7 | ❓ STATUS FLUIDE | P2 | 016 | YAML tolerance (BACKLOG: à faire, INDEX: terminé)
+| EPIC 8 | ✅ TERMINÉ | P2 | 016 | Bumper version 0.1.4
+| EPIC 9 | ⬜ À FAIRE | *P0* | — | Orchestration LLM — *0%, le plus gros EPIC restant*
+| EPIC 10 | 🟡 EN COURS (80%) | P0 | 017 | Scaffolding — 3 scénarios Cucumber bloqués
+| EPIC 11 | ⬜ À FAIRE | P0 | — | Optimisation durée tests
+| EPIC 12 (BKG) | ⬜ À FAIRE | P1 | 13bis | Articles connexes par KG + ontologie émergente
+| EPIC 13 | 🟡 PARTIEL (50%) | P1 | 016 | Couverture tests — lacunes P1
+|===
+
+*Total* : 13 EPICs — 6 terminés, 2 en cours, 5 non démarrés.
+*Charge restante* : ~60 pts (EPIC 9 = 21 pts, EPIC 10 = 8 pts, EPIC 11 = 8 pts,
+EPIC 6 = 13 pts, EPIC 12 = 16 pts, EPIC 13 = 5 pts).
+
+'''
+== Audit de Gouvernance
+
+=== Fichiers `.agents/` présents
+
+[cols="1,2"]
+|===
+| Fichier | État
+| `INDEX.adoc` | ✅ 128 lignes — dernière màj 2026-05-19
+| `SESSIONS_HISTORY.adoc` | ✅ 23 lignes — 17 entrées (sessions 5→21)
+| `sessions/` | ✅ Archives par session
+| `archives/` | ✅ COMPLETED_TASKS_ARCHIVE 2026-04 + 2026-05
+| `backup/` | ✅ Présent
+| `encyclopedies/` | ✅ Présent
+| `TEST_COVERAGE_ANALYSIS.adoc` | ❌ *ABSENT* — procédure non respectée
+|===
+
+=== Anomalies de gouvernance
+
+. `TEST_COVERAGE_ANALYSIS.adoc` est manquant alors que l'étape 5 de la
+  procédure de fin de session l'exige. Cela signifie que la procédure n'a
+  pas été exécutée complètement depuis plusieurs sessions (au moins depuis
+  la session 014 si ce n'est avant).
+
+. `PROMPT_REPRISE.adoc` fait 24 lignes — très en dessous du max de 70 lignes.
+  Les missions des sessions 022 ne sont pas définies (« à définir »).
+
+. Divergence BACKLOG vs INDEX.adoc : EPIC 7 est marqué « TERMINÉ (session 016) »
+  dans INDEX.adoc mais « À faire » dans BACKLOG.adoc. EPIC 6 est marqué « TERMINÉ »
+  dans INDEX.adoc (session 005) mais « À faire » dans BACKLOG.
+
+. Aucune métrique de couverture récente. Le seuil Kover est à 75% mais
+  aucune mesure enregistrée depuis la session 017.
+
+'''
+== Audit du Build
+
+=== Configuration Gradle
+
+[cols="2,3"]
+|===
+| Gradle | 9.5.1
+| Kotlin | jvmToolchain Java 24
+| Test framework | JUnit 5 + Cucumber JUnit Platform + Gradle TestKit
+| Couverture | Kover 0.9.1, seuil 75%, XML + HTML
+| Publication | Maven Central (Sonatype OSSRH), Gradle Plugin Portal
+| Signing | GPG (via `useGpgCmd()`), CI conditionnel
+|===
+
+=== Dépendances clés
+
+[cols="2,3,2"]
+|===
+| Dépendance | Usage | Niveau DAG
+| `graphify-plugin` | `implementation` — scan de workspace | *N0 → N2* ✅ Valide
+| `jbake-core` | Moteur de génération de site | N/A
+| `jgit` | Push git (pages, maquette, profil) | N/A
+| `commons-io` | Utilitaires fichiers | N/A
+| `node-gradle` | npm/npx (ex: Pagefind) | N/A
+|===
+
+=== Tâches Gradle exposées (après K-1)
+
+[cols="2,2,3"]
+|===
+| Verbe | Tâche | Rôle
+| `GENERER` | `generateSite` | Initialise un site statique (template JBake)
+| `COLLECTER` | `collectSiteConfig` | Prompts interactifs → `site.yml`
+| `TRANSFORMER` | `bake` | JBake → site HTML statique
+| `DÉPLOYER` | `deploySite` | Push git pages (gh-pages)
+| `DÉPLOYER` | `deployMaquette` | Push maquette standalone
+| `DÉPLOYER` | `deployProfile` | Push README profil GitHub
+|===
+
+'''
+== Anomalies Architecturales
+
+=== 1. SiteManager.kt — God Class (439 lignes, 31% du src)
+
+`SiteManager` concentre toute la logique d'enregistrement des tâches Gradle :
+`registerInitSiteTask`, `registerConfigureSiteTask`, `registerBakeTask`,
+`registerDeploySiteTask`, `registerDeployMaquetteTask`,
+`registerDeployProfileTask`, `registerScaffoldTask`, injection Firebase,
+configuration JBake, clean, etc.
+
+*Recommandation* : Splitter en `TaskRegistrar` délégués par domaine fonctionnel
+(`BakeTaskRegistrar`, `DeployTaskRegistrar`, `ProfileTaskRegistrar`).
+
+=== 2. EPIC 10 Scaffolding — Bloqué depuis 12 jours
+
+3 scénarios Cucumber en échec depuis la session 017 (2026-05-07) :
+les cas `siteNameOnly` et `backwardCompat`. La feature `6_site_scaffolding.feature`
+est à 40% de complétion.
+
+=== 3. EPIC 6 et EPIC 7 — Fantômes documentaires
+
+Ces deux EPICs apparaissent comme « À faire » dans BACKLOG mais sont marqués
+« TERMINÉ » dans INDEX.adoc. La réalité est probablement qu'ils ne sont PAS
+faits — le statut BACKLOG fait foi car c'est le suivi prioritaire.
+
+=== 4. Dépendance graphify-gradle (N2→N0)
+
+Le contrat DAG est respecté (N2 peut dépendre de N0). Mais l'usage réel de
+graphify dans bakery n'est pas documenté — il apparaît dans `build.gradle.kts`
+ligne 32 comme `implementation` sans qu'aucun usage ne soit visible dans les
+10 fichiers source. Vérifier si cette dépendance est réellement utilisée.
+
+'''
+== Recommandations pour la Session 023+
+
+*Mise à jour 2026-05-29* : la session 022 a produit la roadmap IA (Partie II).
+Les recommandations ci-dessous sont conservées pour référence mais la priorité
+réelle est dictée par le tableau EPIC 14 dans `BACKLOG.adoc`.
+
+=== Priorité P0 — Bloquants restants
+
+. *Créer `TEST_COVERAGE_ANALYSIS.adoc`* : toujours absent du `.agents/` —
+  rétablir la procédure de fin de session complète (étape 5 manquante).
+. *BKY-IA-0 — Service LLM partagé* : prérequis à tous les EPICs IA (~5 pts,
+  session 023).
+
+=== Priorité P1 — Qualité
+
+. *Auditer la dépendance graphify* : est-elle réellement utilisée ? Si non,
+  la retirer pour alléger le build.
+. *Mesurer la couverture Kover* : lancer `./gradlew koverXmlReport` et
+  enregistrer la métrique dans `TEST_COVERAGE_ANALYSIS.adoc`.
+. *Documenter le pipeline CI* : aucun `.github/workflows/` visible dans le repo.
+
+'''
+== Métriques Globales
+
+[cols="2,3"]
+|===
+| Code source (src/main) | 1 413 lignes Kotlin (10 fichiers)
+| Tests unitaires | 2 287 lignes Kotlin (9 fichiers)
+| Tests fonctionnels | 1 117 lignes Kotlin (4 fichiers)
+| Tests Cucumber | 271 lignes features + 944 lignes steps (7+9 fichiers)
+| Total Kotlin | 5 761 lignes (32 fichiers)
+| EPICs | 13 (6 terminés, 2 en cours, 5 à faire)
+| Sessions historisées | 17 (sessions 5→21)
+| Couverture Kover | Inconnue — mesurer en session 022
+| Compilation | ✅ BUILD SUCCESSFUL — zéro warning
+|===
+
+'''
+== Métadonnées
+
+[cols="2,3"]
+|===
+| Document | `BAKERY_AUDIT.adoc`
+| Créé | 2026-05-29 — Session 022
+| Classification | VISION — audit factuel basé sur lecture du code source
+| Type | STIMULUS Cercle 4
+| Dilution cible | `.agents/INDEX.adoc` (roadmap), `BACKLOG.adoc` (statuts EPICs)
+| Suppression | Après dilution + archivage dans `.agents/sessions/022-audit-bakery.adoc`
+|===
+
+'''
+= PARTIE II — Brainstorm : Bakery Autonome + Intégré dans l'Écosystème Workspace
+
+[abstract]
+--
+Session 022, seconde phase. L'audit factuel a révélé un plugin mature sur le plan
+mécanique (build, test, déploiement) mais totalement absent sur le plan IA.
+L'objectif de cette partie est de projeter bakery dans le concert du workspace :
+quels workflows IA-assistés doit-il embarquer POUR LUI-MÊME (autonomie),
+et quels contrats doit-il exposer POUR LES AUTRES (intégration DAG N2 → N3) ?
+
+La thèse : *bakery n'est pas juste un générateur de site statique. C'est le point
+de rendez-vous où le contenu (articles, slides, SPDs, formulaires, thèmes) rencontre
+le déploiement. Sa mission dans le MVP0 formation est d'être le dernier maillon N2
+avant l'orchestration N3 — celui qui matérialise le livrable visible.*
+--
+
+'''
+== Règles Architecturale du Brainstorm
+
+. *DAG N2* : bakery NE PEUT PAS dépendre de N1 (codebase-gradle). Il peut dépendre
+  de N0 (graphify-gradle) et de pgvector (shared service). Il est consommé par N3
+  (runner-gradle).
+. *DOGFOOD FIRST* : toute fonctionnalité IA est utilisée par bakery en interne avant
+  d'être exposée à l'utilisateur final. Le pattern clasp (privé) est l'exemple canonique.
+. *Contrat N3* : bakery doit produire un `metadata.json` structuré pour que runner-gradle
+  puisse l'agréger dans le vecteur composite. Sans ce contrat, bakery est invisible
+  pour l'orchestrateur.
+. *Ne pas réinventer* : slider-gradle et plantuml-gradle ont déjà des patterns
+  LangChain4j + Ollama + prompt engineering qui fonctionnent en production. Bakery
+  doit les adapter, pas les refaire.
+
+'''
+== Analyse des Axes Proposés
+
+=== Axe 1 — Scaffolding Assisté par IA
+
+*Proposition* : le `generateSite` actuel est mécanique (copie de templates
+JBake fixes). L'IA pourrait choisir la structure du site, les templates, les
+métadonnées JBake en fonction d'une intention exprimée en langage naturel.
+
+*Analyse* :
+- EPIC 10 (Scaffolding TDD) est à 80% — la mécanique de fondation est presque
+  prête. L'ajout d'un prompt LLM au-dessus du scaffolding est une couche
+  mince une fois la base solide.
+- Le pattern existe déjà : plantuml-gradle fait "décris ton diagramme en langage
+  naturel → je génère le PlantUML". Bakery peut faire "décris ton site → je
+  génère la structure JBake + site.yml".
+- Le LLM n'a pas besoin de connaître JBake — il a besoin de connaître les
+  *intentions éditoriales* (blog, portfolio, formation, documentation) et bakery
+  fait le mapping intention → structure.
+
+*Verdict* : ✅ *Validé — P0* une fois EPIC 10 terminé. Charge : ~5 pts.
+Découpage :
+. `BKY-IA-1.1` — Ajouter `BakeryExtension.ia { prompt { } }` dans le DSL
+. `BKY-IA-1.2` — `ScaffoldIntention` data class (type, langue, audience, sections)
+. `BKY-IA-1.3` — Tâche `generateSiteFromIntention` qui prompte le LLM →
+  structure → scaffolding
+. `BKY-IA-1.4` — Tests unitaires + Cucumber (intention → structure valide)
+
+=== Axe 2 — Personnalisation de Thème Assistée par IA
+
+*Proposition* : génération/modification de templates Thymeleaf + CSS en fonction
+d'un domaine visuel (couleurs, typographie, mise en page).
+
+*Analyse* :
+- Bakery utilise Thymeleaf comme moteur de template. Les templates sont dans
+  `src/main/resources/site/templates/`. Le LLM peut générer des variantes.
+- C'est un axe puissant MAIS risqué : la génération de CSS/HTML par LLM est
+  notoirement instable (hallucinations de classes, CSS invalide, design incohérent).
+- Approche recommandée : *paramétrique plutôt que générative*. Le LLM choisit
+  parmi un catalogue de thèmes prédéfinis + ajuste des variables (couleurs,
+  polices, espacement) plutôt que de générer du CSS from scratch.
+- Pattern : slider-gradle fait déjà ça avec les thèmes reveal.js — le LLM
+  sélectionne un thème existant, ne génère pas de CSS.
+
+*Verdict* : ⚠️ *Validé avec contrainte — P1*. Approche paramétrique (catalogue
+de thèmes + variables) plutôt que générative (CSS from scratch).
+Charge : ~8 pts. Découpage :
+. `BKY-IA-2.1` — Catalogue de thèmes Thymeleaf (5-10 variantes : minimal, magazine,
+  documentation, portfolio, formation)
+. `BKY-IA-2.2` — Variables de thème (couleurs, polices, logo, favicon)
+. `BKY-IA-2.3` — Tâche `generateTheme` : intention → sélection thème + variables
+. `BKY-IA-2.4` — Tests : vérifier que les templates générés compilent avec Thymeleaf
+
+=== Axe 3 — Connexion à Firebase Assistée par IA
+
+*Proposition* : le LLM génère la configuration Firebase (Firestore rules,
+collections, cloud functions) et l'injecte dans le site.
+
+*Analyse* :
+- EPIC 4 (Formulaire de contact Firebase) est déjà à 95%. Le flux manuel est
+  documenté : `site.yml` → `SiteConfiguration.kt` → injection dans `jbake.properties`
+  → template Thymeleaf `footer.thyme` → SDK Firebase dans le HTML.
+- L'IA n'ajoute pas grand-chose au flux actuel qui est déjà bien mécanisé.
+  La vraie valeur IA serait de *générer le backend Firebase* (Firestore rules,
+  schéma de collection, cloud functions pour traitement des formulaires) —
+  mais ça sort du scope de bakery. C'est du backend-as-code, pas du site statique.
+- Ce que bakery PEUT faire : détecter qu'un formulaire est configuré dans `site.yml`
+  → proposer de générer la config Firebase via LLM → injecter. Mais le gain
+  est marginal par rapport au flux actuel.
+
+*Verdict* : ⚠️ *Partiellement validé — P2*. Le flux Firebase actuel est déjà
+opérationnel. L'IA ajouterait de la valeur sur la *validation* (vérifier que
+la config Firebase est cohérente) plutôt que sur la *génération*.
+Charge : ~3 pts. Découpage :
+. `BKY-IA-3.1` — Tâche `validateFirebaseConfig` : le LLM vérifie la cohérence
+  du bloc `firebase:` dans `site.yml` (projectId valide, règles cohérentes)
+. `BKY-IA-3.2` — Suggester : "tu as un formulaire de contact, veux-tu aussi un
+  formulaire de newsletter ?"
+
+=== Axe 4 — Génération d'Article Assistée par IA
+
+*Proposition* : tâche `generateArticle` qui prend un topic + un corpus d'articles
+existants → produit un article AsciiDoc avec métadonnées JBake.
+
+*Analyse* :
+- C'est *la killer feature pour cheroliv.com*. Le blog est le principal
+  consommateur de bakery aujourd'hui. Pouvoir dire "génère-moi un article
+  sur pgvector avec des exemples Kotlin" et obtenir un `.adoc` prêt à baker
+  est une accélération massive du pipeline éditorial.
+- Bakery a déjà `ConfigPrompts.kt` (prompts interactifs). Le pattern peut être
+  étendu : prompts → intention éditoriale → LLM → article AsciiDoc.
+- Le corpus existe : les articles déjà publiés sur cheroliv.com sont la
+  mémoire éditoriale. Le LLM peut s'appuyer sur le style, le ton, la structure
+  existants.
+- Le contrat DAG est respecté : bakery appelle le LLM directement (LangChain4j
+  + Ollama) ou via pgvector (shared service). Pas de dépendance à codebase-gradle.
+- *Point critique* : la qualité éditoriale. Un article généré par IA sans
+  relecture humaine est un risque. Le workflow doit être : ébauche IA →
+  relecture humaine → publication. Bakery fournit l'ébauche, pas le produit fini.
+
+*Verdict* : ✅ *Validé — P0*. C'est l'axe qui apporte le plus de valeur
+immédiate à l'utilisateur principal (cheroliv.com). Charge : ~8 pts.
+Découpage :
+. `BKY-IA-4.1` — `ArticleIntention` data class (topic, audience, ton, longueur,
+  mots-clés, articles similaires)
+. `BKY-IA-4.2` — Tâche `generateArticle` : intention → prompt LLM structuré →
+  article AsciiDoc avec header JBake (`:jbake-title:`, `:jbake-tags:`, etc.)
+. `BKY-IA-4.3` — Intégration LangChain4j + Ollama (DeepSeek-v4-pro) — même
+  pattern que slider-gradle et plantuml-gradle
+. `BKY-IA-4.4` — Prompt engineering : template de prompt éditorial qui force
+  le style, la structure, et les métadonnées JBake
+. `BKY-IA-4.5` — Tests : vérifier que l'article généré est un AsciiDoc valide,
+  que le header JBake est parsable, que le contenu n'est pas vide
+
+=== Axe 5 — Formulaire Google Forms : Bakery → Edster → CI/CD → Drive Utilisateur
+
+*Proposition (v3 — corrigée après feedback utilisateur)* : une tâche bakery
+prépare la recette du formulaire, l'API REST Edster provisionne le workflow CI/CD,
+et c'est la CI/CD de l'utilisateur qui exécute clasp pour livrer le formulaire
+dans son Drive. Bakery récupère l'URL finale et l'injecte dans le site.
+
+*Analyse* :
+- *Architecture en 3 couches* :
+  . *Bakery (N2)* — génère la **recette** (intention IA → code Apps Script `Code.gs`
+    + `appsscript.json` + `FormIntention`). Ne sait RIEN d'Edster. Ne connaît que
+    son contrat N2 → N3 : produire un artefact (`build/bakery/forms/<formId>/recipe.json`).
+  . *Edster (N3, SaaS)* — reçoit la recette via l'API REST (`POST /provision/form`),
+    provisionne le job CI/CD (GitHub Actions) dans le repo de l'utilisateur.
+    C'est le SaaS — il tourne sur le VPS OVH (edster.cloud, 30€/mois, marge ~95%).
+  . *CI/CD utilisateur* — le job GitHub Actions exécute clasp (OAuth scope Drive
+    utilisateur), déploie le formulaire dans le Drive, renvoie l'URL du formulaire
+    publié à Edster (callback ou webhook).
+  . *Bakery (N2) — récupération* — runner-gradle (N3) récupère l'URL depuis Edster,
+    appelle bakery pour injecter l'URL dans la page du site (`deployFormUrl`).
+
+- *Contrat DAG strictement respecté* :
+  - Bakery (N2) NE PEUT PAS appeler Edster (N3) directement → violation DAG.
+  - Le flux est : Bakery → runner-gradle (N3) → Edster (N3 SaaS) → CI/CD user.
+  - Bakery expose une tâche `GENERER` (`generateFormRecipe`) qui produit la recette.
+  - Runner-gradle orchestre : récupère la recette → appelle Edster → attend le
+    callback → appelle bakery pour l'injection.
+
+- *Flux complet* :
+----
+1. Utilisateur : site.yml → forms: { type: "evaluation", questions: 5, googleAccount: "formateur@gmail.com" }
+2. Bakery : generateFormRecipe → LLM → Code.gs + appsscript.json + FormIntention
+   → build/bakery/forms/<formId>/recipe.json
+3. Runner-gradle (N3) : collecte recipe.json → POST /provision/form → Edster
+4. Edster : provisionne le job CI/CD (GitHub Actions) dans le repo de l'utilisateur
+   → injecte les secrets (CLASP_TOKEN, GOOGLE_ACCOUNT)
+5. CI/CD utilisateur : clasp login → clasp push → clasp deploy → callback Edster avec URL
+6. Edster → runner-gradle : URL du formulaire publié
+7. Runner-gradle → bakery : deployFormUrl(url, page="evaluation.thyme")
+8. Bakery : injecte l'URL dans la page Thymeleaf → bake → deploySite
+----
+
+- *L'IA intervient à un seul niveau — la recette* :
+  . "Je veux un formulaire d'évaluation avec 5 questions QCM" → LLM → JSON structuré
+    → code Apps Script. C'est bakery qui génère, pas Edster. Edster ne fait
+    qu'orchestrer le déploiement.
+
+- *Séparation des responsabilités* :
+  [cols="1,3", options="header"]
+  |=== 
+  | Composant | Responsabilité
+  | Bakery (N2) | Générer la recette (code + intention). Injecter l'URL finale
+    dans le site. Ne connaît PAS Edster.
+  | Runner-gradle (N3) | Orchestrer le flux : collecter recette → appeler Edster
+    → récupérer URL → appeler bakery.
+  | Edster (N3 SaaS) | Provisionner le job CI/CD. Gérer les credentials utilisateur.
+    Exposer l'API REST. Facturer.
+  | CI/CD utilisateur | Exécuter clasp. Posséder le token OAuth. Livrer le
+    formulaire dans le Drive.
+  |===
+
+- *Pourquoi cette architecture* :
+  - *DOGFOOD FIRST, SAAS LATER* — en mode dogfood (MVP0), le job CI/CD est celui
+    du développeur (cheroliv). En mode SaaS (MVP1), Edster provisionne le job
+    chez le client.
+  - *Sécurité* : le token OAuth Google (CLASP_TOKEN) n'est jamais chez bakery.
+    Il est injecté comme secret GitHub Actions dans la CI/CD de l'utilisateur.
+  - *RGPD* : le formulaire est dans le Drive de l'utilisateur. Les réponses
+    sont dans son Google Sheets. Bakery ne voit aucune donnée stagiaire.
+  - *Monétisation* : Edster facture le provisionnement. C'est la brique
+    transactionnelle (waiter-gradle). Bakery reste Apache 2.0 gratuit.
+
+*Verdict* : ✅ *Validé — P0 pour le MVP0 formation*. Bakery est le générateur
+de recette, Edster est le provisionneur, la CI/CD utilisateur est l'exécuteur.
+Charge : ~8 pts (réduit car le déploiement est délégué à Edster).
+Découpage :
+. `BKY-IA-5.1` — `FormIntention` data class (type : contact, évaluation, inscription,
+  feedback ; questions : QCM, texte, échelle ; googleAccount cible)
+. `BKY-IA-5.2` — `FormGenerator.kt` (GENERER) : intention → LLM → code Apps Script
+  (`Code.gs` + `appsscript.json` + `recipe.json`)
+. `BKY-IA-5.3` — Tâche `generateFormRecipe` : LLM prompting → recipe.json dans
+  `build/bakery/forms/<formId>/`
+. `BKY-IA-5.4` — Tâche `deployFormUrl` : reçoit l'URL du formulaire (depuis
+  runner-gradle) → injecte dans la page Thymeleaf
+. `BKY-IA-5.5` — Extension DSL `bakery { forms { googleAccount = "..." } }`
+. `BKY-IA-5.6` — Tests : mock LLM → recipe.json valide, injection URL dans template
+  Cucumber : génération recette → code Apps Script parsable, injection URL ok
+
+*Note sur Edster* : l'API REST Edster (`POST /provision/form`) n'est PAS dans
+le scope bakery. C'est le contrat runner-gradle ↔ Edster. Bakery ne connaît
+que `recipe.json` (sortie) et `deployFormUrl` (réception). Le reste est
+opaque pour bakery — c'est le principe du DAG.
+
+*Stratégie MVP0 — Mock Edster* : en attendant qu'Edster soit opérationnel
+(API REST + CI/CD provisioning + waiter-gradle facturation), le flux est mocké
+au niveau runner-gradle :
+- Runner-gradle lit `build/bakery/forms/<formId>/recipe.json`
+- Au lieu d'appeler Edster, il exécute directement clasp en local (via `npx @google/clasp`)
+  avec le token OAuth du développeur (cheroliv) → le formulaire est dans le Drive
+  cheroliv. C'est le mode *dogfood* pur.
+- La tâche `generateFormRecipe` (bakery) est réelle dès le jour 1 — c'est la
+  génération IA qui est testée et validée, pas le déploiement Edster.
+- Le switch vers Edster se fera en une seule ligne dans runner-gradle :
+  remplacer `ClaspLocalExecutor` par `EdsterApiClient`. Le contrat recipe.json
+  ne change pas.
+
+Ce mock est aligné sur la règle d'or : *DOGFOOD FIRST, SAAS LATER*. Tant qu'il
+n'y a pas de client externe, pas besoin d'API REST Edster — clasp local suffit.
+
+'''
+== Propositions Complémentaires — Ce qui Manque pour le Concert Workspace
+
+=== Proposition 6 — Knowledge Graph pour Articles Connexes (EPIC BKG)
+
+*Cadré dans BACKLOG* (sessions 13bis, EPIC 12) mais non démarré.
+
+Bakery a déjà `graphify-gradle` en dépendance `implementation`. L'usage prévu
+est documenté dans `BACKLOG.adoc` sous EPIC 12 / BKG-0→BKG-2 : remplacer les
+"articles connexes" chronologiques par un scoring basé sur le Knowledge Graph.
+
+*Pourquoi c'est prioritaire maintenant* :
+- La dépendance graphify est déjà dans le build mais inutilisée → dette
+  technique silencieuse.
+- Le linking sémantique est une valeur différenciante qu'aucun autre outil de
+  site statique ne propose (Jekyll, Hugo, Gatsby : tous font du chronologique).
+- C'est le seul axe qui exploite la position N2 de bakery (consommateur de N0
+  graphify) pour produire une fonctionnalité visible par l'utilisateur final.
+
+*Architecture* :
+```
+graphify-gradle (N0)
+  └─→ scanne le workspace → graph.json
+        └─→ bakery (N2)
+              ├─→ lit graph.json au bake
+              ├─→ extrait les co-occurrences de tags, entités, similarité cosine
+              └─→ expose slug → relatedIds dans le modèle JBake
+                    └─→ post.thyme : top 4 sémantiques (fallback chronologique)
+```
+
+*Verdict* : ✅ *Validé — P0*. Charge : ~16 pts (BKG-0 + BKG-1 ; BKG-2 ontologie
+émergente en P2). Découpage déjà fait dans BACKLOG.adoc.
+
+=== Proposition 7 — Contrat N3 : metadata.json Structuré
+
+*Nouveau — pas dans le backlog actuel*.
+
+Bakery est le dernier maillon N2 avant l'orchestrateur N3 (runner-gradle).
+Pour que runner-gradle puisse agréger bakery dans le vecteur composite
+(`assembleCompositeContext`), bakery doit exposer un `metadata.json` standardisé.
+
+*Ce que bakery doit exposer* :
+```json
+{
+  "borough": "bakery",
+  "dag_level": "N2",
+  "sites": {
+    "cheroliv.com": {
+      "type": "blog",
+      "articles": 147,
+      "tags": ["kotlin", "gradle", "pgvector", "langchain4j"],
+      "lastDeploy": "2026-05-29T14:30:00Z",
+      "deployUrl": "https://cheroliv.com",
+      "firebase": { "enabled": true, "forms": ["contact"] },
+      "graphify": { "enabled": true, "graphPath": "build/graph.json" }
+    }
+  },
+  "tasks": ["generateSite", "collectSiteConfig", "bake", "deploySite", ...],
+  "ia_capabilities": ["generateArticle", "generateTheme", "deployForm"]
+}
+```
+
+*Tâche Gradle* : `collectSiteContext` (COLLECTER) — agrège les métadonnées
+de tous les sites gérés par bakery → `build/bakery/metadata.json`.
+
+*Contrat runner-gradle* : la tâche N3 `assembleCompositeContext` lit
+`build/bakery/metadata.json` et l'agrège avec les métadonnées des autres
+boroughs (planner, codex, slider, plantuml, training).
+
+*Verdict* : ✅ *Validé — P0*. C'est une obligation architecturale pour le DAG.
+Sans ça, bakery est un îlot isolé, invisible pour l'orchestrateur.
+Charge : ~5 pts. Découpage :
+. `BKY-N3-7.1` — `SiteContext.kt` data class (modèle de données pour metadata.json)
+. `BKY-N3-7.2` — Tâche `collectSiteContext` (COLLECTER) : scanne les sites →
+  metadata.json
+. `BKY-N3-7.3` — Format pivot aligné sur `Metadata.kt` (EPIC K-2) et le contrat
+  runner-gradle `assembleCompositeContext`
+
+=== Proposition 8 — Service LLM Partagé (LangChain4j + Ollama)
+
+*Nouveau — pas dans le backlog actuel*.
+
+Tous les axes IA (1, 2, 4, 5) nécessitent un accès au LLM. Plutôt que de câbler
+un appel HTTP brut à Ollama dans chaque tâche, bakery doit adopter le pattern
+LangChain4j déjà utilisé par slider-gradle et plantuml-gradle.
+
+*Architecture* :
+```kotlin
+// BakeryExtension.kt
+open class BakeryExtension {
+    val ia: IaConfig = IaConfig()
+}
+
+open class IaConfig {
+    var provider: String = "deepseek-v4-pro"  // modèle Ollama
+    var ollamaUrl: String = "http://localhost:11434"
+    var temperature: Double = 0.7
+    var maxTokens: Int = 4096
+    var systemPrompt: String = "Tu es un assistant éditorial..."
+}
+
+// LlmService.kt (nouveau fichier)
+class LlmService(config: IaConfig) {
+    private val model = OllamaChatModel.builder()
+        .baseUrl(config.ollamaUrl)
+        .modelName(config.provider)
+        .temperature(config.temperature)
+        .build()
+
+    fun generate(prompt: String): String { ... }
+    fun generateStructured(prompt: String, schema: JsonSchema): JsonNode { ... }
+}
+```
+
+*Contrat DAG* : LangChain4j est une dépendance standard (comme slider-gradle et
+plantuml-gradle). Pas de dépendance à codebase-gradle (N1). L'accès à Ollama
+est local — DOGFOOD FIRST.
+
+*Verdict* : ✅ *Validé — P0, prérequis transverse*. Tous les autres axes IA
+en dépendent. Charge : ~5 pts. Découpage :
+. `BKY-IA-0.1` — Ajouter `langchain4j-ollama` dans `build.gradle.kts`
+. `BKY-IA-0.2` — `LlmService.kt` : wrapper LangChain4j + Ollama
+. `BKY-IA-0.3` — `IaConfig` dans `BakeryExtension`
+. `BKY-IA-0.4` — Tests : mock du LLM (pattern slider-gradle)
+
+=== Proposition 9 — Intégration Formation : assembleTrainingSite
+
+*Nouveau — aligné MVP0 Graal*.
+
+Bakery est listé dans `AGENTS.adoc` (section "MVP0 Graal") comme producteur du
+"Site statique" du pipeline formation. Pour tenir ce rôle, il doit accepter
+des entrées structurées en provenance de :
+
+- `planner-gradle` (N2) → SPG + SPDs en AsciiDoc
+- `slider-gradle` (N2) → slides reveal.js
+- `codex-gradle` (N2) → PDFs cours stagiaire
+- `quizz-benchmark` (N2) → quiz d'évaluation
+- `training-gradle` (N2) → métadonnées de formation
+
+*Flux* :
+```
+1. runner-gradle (N3) orchestre → collecte les artefacts N2
+2. bakery reçoit un répertoire structuré :
+   formation-portal/
+   ├── spg.adoc              (depuis planner-gradle)
+   ├── spds/
+   │   ├── session-01.adoc   (depuis planner-gradle)
+   │   └── ...
+   ├── slides/
+   │   ├── session-01.html   (depuis slider-gradle)
+   │   └── ...
+   ├── pdfs/
+   │   ├── session-01.pdf    (depuis codex-gradle)
+   │   └── ...
+   ├── quiz/
+   │   ├── session-01.json   (depuis quizz-benchmark)
+   │   └── ...
+   └── metadata.json         (depuis runner-gradle, agrégé)
+3. bakery → assembleTrainingSite → site statique complet avec :
+   - Page d'accueil (SPG)
+   - Navigation par session (menu latéral)
+   - Slides embarquées (iframe)
+   - PDFs téléchargeables
+   - Quiz interactifs intégrés
+   - Formulaire d'évaluation Google Forms
+   - Page de certification/attestation
+4. bakery → deploySite → gh-pages (ou Firebase Hosting)
+```
+
+*Tâche Gradle* : `assembleTrainingSite` (TRANSFORMER) — lit le répertoire
+structuré → génère le site de formation.
+
+*Contrat* : le répertoire structuré est le format pivot entre les boroughs N2.
+La tâche `assembleTrainingSite` est appelée par runner-gradle (N3) dans le
+pipeline CI/CD. Pas d'appel direct entre bakery et training-gradle —
+l'orchestration passe par N3.
+
+*Verdict* : ✅ *Validé — P0 pour MVP0 Graal*. C'est la raison d'être de bakery
+dans le pipeline formation. Charge : ~21 pts. Découpage :
+. `BKY-TRN-9.1` — `TrainingSiteConfig` data class (structure du répertoire,
+  navigation, sections, certification)
+. `BKY-TRN-9.2` — Template Thymeleaf `formation` (layout, menu, slides iframe,
+  PDF download, quiz embed)
+. `BKY-TRN-9.3` — Tâche `assembleTrainingSite` : parse le répertoire structuré →
+  génère les pages
+. `BKY-TRN-9.4` — Intégration quiz : embed du player quizz-benchmark dans la page
+. `BKY-TRN-9.5` — Page attestation : template conditionnel si certification activée
+. `BKY-TRN-9.6` — Tests Cucumber : pipeline complet → site de formation valide
+
+'''
+== Synthèse — Roadmap IA Bakery (7 EPICs, ~78 pts)
+
+[cols="1,3,2,2,3", options="header"]
+|===
+| EPIC | Axe | Pts | Priorité | Dépend de
+| *BKY-IA-0* | Service LLM partagé (LangChain4j + Ollama) | 5 | *P0* | —
+| *BKY-IA-1* | Scaffolding assisté par IA | 5 | *P0* | BKY-IA-0, EPIC 10 (Scaffolding mécanique)
+| *BKY-IA-4* | Génération d'article assistée par IA | 8 | *P0* | BKY-IA-0
+| *BKY-IA-5* | Formulaire Google Forms (recette → Edster → CI/CD → Drive user, mocké MVP0) | 8 | *P0 (MVP0)* | BKY-IA-0
+| *BKY-BKG* | Articles connexes par Knowledge Graph | 16 | *P0* | graphify (N0, déjà en dep)
+| *BKY-N3-7* | Contrat N3 : metadata.json | 5 | *P0* | —
+| *BKY-IA-2* | Personnalisation thème IA (paramétrique) | 8 | *P1* | BKY-IA-0
+| *BKY-TRN-9* | Intégration formation : assembleTrainingSite | 21 | *P0 (MVP0)* | BKY-N3-7, training-gradle, slider-gradle, codex-gradle, quizz-benchmark
+| *BKY-IA-3* | Validation Firebase IA | 3 | *P2* | EPIC 4 (Firebase mécanique)
+|===
+
+*Total* : 5 axes utilisateur analysés + 4 propositions complémentaires = 9 EPICs
+cadrés. Charge estimée : ~73 points (BKY-IA-5 réduit à 8 pts — déploiement
+délégué à Edster/runner-gradle, clasp local mocké en MVP0).
+Découpage en User Stories de max 3 pts (pattern Baby-Step) → ~24-28 US.
+
+'''
+== Ce Que Bakery Devient — Vision Cible
+
+[cols="2,5", options="header"]
+|===
+| État actuel (Session 022) | État cible (post-IA)
+| Générateur de site statique mécanique (JBake + JGit)
+| *Usine à contenu éditorial IA-assistée* — articles, thèmes, formulaires,
+  sites de formation, navigation sémantique
+
+| 6 tâches Gradle mécaniques (generateSite, collectSiteConfig, bake, deploySite,
+  deployMaquette, deployProfile)
+| *12+ tâches dont 8 IA-assistées* — generateArticle, generateTheme, deployForm,
+  collectContext, assembleTrainingSite, validateFirebaseConfig, generateSiteFromIntention
+
+| Zéro sortie structurée pour l'écosystème
+| *metadata.json standardisé* — contrat N3 pour runner-gradle
+
+| Dépendance graphify inutilisée
+| *Articles connexes par KG* — linking sémantique en production
+
+| Isolé du pipeline formation
+| *Dernier maillon N2 du MVP0 Graal* — assembleTrainingSite reçoit les artefacts
+  et produit le portail de formation
+
+| Pas de capacités IA
+| *LangChain4j + Ollama* — service LLM partagé, tous les axes IA en dépendent
+
+| Configuration manuelle (site.yml)
+| *Configuration IA-assistée* — prompts, intentions, validation automatique
+|===
+
+'''
+== Métadonnées — Partie II
+
+[cols="2,3"]
+|===
+| Document | `BAKERY_AUDIT.adoc` — Partie II
+| Créé | 2026-05-29 — Session 022, seconde phase (brainstorm)
+| Classification | VISION — projection architecturale basée sur l'audit factuel
+| Type | STIMULUS Cercle 4
+| Axes analysés | 5 proposés par l'utilisateur + 4 propositions complémentaires.
+  Axe 5 (Google Forms) a eu 3 itérations : v1 (bakery exécute clasp, Drive user
+  non spécifié) → v2 (Drive user explicite, bakery garde la recette) →
+  v3 (Edster API REST au milieu, clasp mocké en MVP0)
+| EPICs cadrés | 9 (BKY-IA-0→BKY-IA-5, BKY-BKG, BKY-N3-7, BKY-TRN-9)
+| Charge estimée | ~73 points → ~24-28 User Stories Baby-Step (max 3 pts/US)
+| Stratégie mock | Edster + CI/CD mockés en MVP0 via runner-gradle (clasp local).
+  Switch vers Edster = 1 ligne dans runner-gradle (ClaspLocalExecutor → EdsterApiClient)
+| Dilution cible | `BACKLOG.adoc` (nouveaux EPICs), `.agents/INDEX.adoc` (roadmap IA)
+| Prochaine étape | Session 023 — prioriser et démarrer BKY-IA-0 (service LLM partagé)
+|===
+
+[.text-right]
+*= Fin du document BAKERY_AUDIT.adoc — Session 022 complète.*

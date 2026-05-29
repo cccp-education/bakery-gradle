@@ -31,7 +31,15 @@ dependencies {
 
     implementation(libs.graphify.plugin)
 
-    // Coroutines - IMPORTANT pour les tests asynchrones
+    // LLM — LangChain4j + Ollama (BKY-IA-0)
+    implementation(libs.langchain4j.ollama)
+
+    // Coroutines — déjà en testImplementation via bundle,
+    // on ajoute le core en implementation pour OllamaLlmService
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.coroutines.jdk8)
+
+    // Coroutines — IMPORTANT pour les tests asynchrones
     testImplementation(libs.bundles.coroutines)
 
     testImplementation(kotlin("test-junit5"))

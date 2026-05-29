@@ -1,0 +1,320 @@
+= BAKERY_AUDIT — État des Lieux du Plugin Bakery-Gradle (Session 022)
+:toc: left
+:toclevels: 3
+:icons: font
+:sectnums:
+:source-highlighter: highlight.js
+
+[abstract]
+--
+Audit complet du plugin `bakery-gradle` (N2 dans le DAG) — générateur de sites
+statiques convention-based utilisant JBake, JGit, Thymeleaf, Firebase, et
+graphify-gradle. Réalisé le 29 mai 2026 en préparation de la session 022.
+Ce document est un STIMULUS en Cercle 4 (foundry/public/) — il doit être
+dilué dans `.agents/INDEX.adoc` et `BACKLOG.adoc` avant suppression.
+--
+
+'''
+== Métadonnées
+
+[cols="2,3"]
+|===
+| Projet | `foundry/public/bakery-gradle/bakery-plugin/`
+| GroupId | `education.cccp`
+| Plugin ID | `cccp.education.bakery`
+| Niveau DAG | *N2* — consommateur de N0 (`graphify-gradle`), pgvector (shared service)
+| Dernière session | 021 — EPIC K-1 Renommage taxonomie (2026-05-19)
+| Session en cours | 022 — (à définir)
+| Gradle | 9.5.1
+| Kotlin | 2.3.20 (jvmToolchain Java 24)
+| Compilation | ✅ BUILD SUCCESSFUL — zéro warning
+|===
+
+'''
+== Synthèse — Points Critiques
+
+[cols="1,3,2"]
+|===
+| # | Constat | Gravité
+
+| 1
+| EPIC 9 (Orchestration LLM) à 0% — c'est le plus gros EPIC restant, P0
+| 🔴 BLOQUANT
+
+| 2
+| `TEST_COVERAGE_ANALYSIS.adoc` absent du `.agents/` — procédure de fin de session
+  non respectée depuis plusieurs sessions
+| 🟠 GOUVERNANCE
+
+| 3
+| EPIC 10 Scaffolding à 80% — 3 scénarios Cucumber encore en échec, bloqué
+  depuis session 017 (2026-05-07)
+| 🟠 TECHNIQUE
+
+| 4
+| EPIC 6 (publishProfil) et EPIC 7 (YAML tolerance) marqués « A faire » dans
+  BACKLOG mais TERMINÉS dans INDEX.adoc — divergence documentaire
+| 🟠 DOC
+
+| 5
+| Kover threshold à 75% — pas de métrique récente disponible, le check est
+  intégré à `./gradlew check` mais le pipeline CI n'est documenté nulle part
+| 🟡 QUALITÉ
+
+| 6
+| SiteManager.kt pèse 439 lignes (31% du src/main) — classe god, pas de
+  délégation, pas de doc interne
+| 🟡 ARCHITECTURE
+|===
+
+'''
+== Inventaire du Code Source
+
+=== src/main/kotlin/bakery/ — 10 fichiers, 1 413 lignes
+
+[cols="1,2,1,3", options="header"]
+|===
+| Fichier | Lignes | % | Rôle
+| `SiteManager.kt` | 439 | 31.1% | Orchestrateur principal — registre toutes les tâches Gradle
+| `GitService.kt` | 272 | 19.2% | Push git (pages, maquette, profil), clone, credentials
+| `FileSystemManager.kt` | 205 | 14.5% | Gestion des fichiers, templates, ressources
+| `ConfigPrompts.kt` | 154 | 10.9% | Prompts de configuration interactive
+| `BakeryPlugin.kt` | 87 | 6.2% | Point d'entrée Gradle — `apply()`
+| `SiteConfiguration.kt` | 83 | 5.9% | Modèles de données YAML (Jackson)
+| `ProfilePublisher.kt` | 77 | 5.4% | Logique de publication du profil GitHub
+| `SiteScaffolder.kt` | 43 | 3.0% | Scaffolding `office/sites/<name>/`
+| `PublishProfileTask.kt` | 39 | 2.8% | Tâche Gradle typée pour publishProfil
+| `BakeryExtension.kt` | 14 | 1.0% | Extension DSL Gradle
+|===
+
+=== Tests Unitaires — 9 fichiers, 2 287 lignes
+
+[cols="1,2", options="header"]
+|===
+| Fichier | Lignes
+| `BakeryPluginTest.kt` | 575
+| `SiteManagerTest.kt` | 377
+| `GitServiceTest.kt` | 371
+| `ProfilePublisherTest.kt` | 256
+| `BakeryTestFixture.kt` | 213
+| `ConfigPromptsTest.kt` | 163
+| `FileSystemManagerTest.kt` | 158
+| `SiteScaffolderTest.kt` | 149
+| `RepositoryCredentialsTest.kt` | 25
+|===
+
+*Ratio test/source* : 2 287 / 1 413 = *1.62x* — correct, mais les tests
+sont concentrés sur `SiteManager` et `BakeryPlugin`, et faibles sur
+`ProfilePublisher` et `PublishProfileTask`.
+
+=== Tests Fonctionnels — 4 fichiers, 1 117 lignes
+
+|===
+| Fichier | Lignes
+| `BakeryPluginFunctionalTests.kt` | 389
+| `tools.kt` | 332
+| `ArchitectureValidationTest.kt` | 240
+| `ScaffoldFunctionalTests.kt` | 156
+|===
+
+=== Tests Cucumber — 7 features, 18 scénarios, 944 lignes de steps
+
+|===
+| Feature | Scénarios | Statut
+| `1_minimal_configuration.feature` | 1 | ✅ PASS
+| `2_init_site_task.feature` | 3 | ✅ PASS
+| `3_configure_site_task.feature` | 1 | ✅ PASS
+| `4_contact_form.feature` | 2 | ✅ PASS
+| `5_publish_profile_task.feature` | 3 | ✅ PASS
+| `6_site_scaffolding.feature` | 5 | ⚠️ 2/5 PASS — 3 échecs
+| `7_ci_cd_cheroliv_com_validation.feature` | 3 | ✅ PASS
+|===
+
+'''
+== Roadmap — État des EPICs
+
+[cols="1,2,2,2,3"]
+|===
+| EPIC | Statut | Priorité | Sessions | Bloquant
+
+| EPIC 1 | ✅ TERMINÉ | P0 | — | —
+| EPIC 2 | ✅ TERMINÉ | P0 | — | —
+| EPIC 3 | ✅ TERMINÉ | P1 | — | —
+| EPIC 4 | ✅ TERMINÉ (95%) | P1 | 012 | Formalité : clé API réelle
+| EPIC 5 | ⬜ À FAIRE | P2 | — | Timeout Cucumber 1→5 min
+| EPIC 6 | ⬜ À FAIRE | P1 | 005 | publishProfil dans le plugin
+| EPIC 7 | ❓ STATUS FLUIDE | P2 | 016 | YAML tolerance (BACKLOG: à faire, INDEX: terminé)
+| EPIC 8 | ✅ TERMINÉ | P2 | 016 | Bumper version 0.1.4
+| EPIC 9 | ⬜ À FAIRE | *P0* | — | Orchestration LLM — *0%, le plus gros EPIC restant*
+| EPIC 10 | 🟡 EN COURS (80%) | P0 | 017 | Scaffolding — 3 scénarios Cucumber bloqués
+| EPIC 11 | ⬜ À FAIRE | P0 | — | Optimisation durée tests
+| EPIC 12 (BKG) | ⬜ À FAIRE | P1 | 13bis | Articles connexes par KG + ontologie émergente
+| EPIC 13 | 🟡 PARTIEL (50%) | P1 | 016 | Couverture tests — lacunes P1
+|===
+
+*Total* : 13 EPICs — 6 terminés, 2 en cours, 5 non démarrés.
+*Charge restante* : ~60 pts (EPIC 9 = 21 pts, EPIC 10 = 8 pts, EPIC 11 = 8 pts,
+EPIC 6 = 13 pts, EPIC 12 = 16 pts, EPIC 13 = 5 pts).
+
+'''
+== Audit de Gouvernance
+
+=== Fichiers `.agents/` présents
+
+[cols="1,2"]
+|===
+| Fichier | État
+| `INDEX.adoc` | ✅ 128 lignes — dernière màj 2026-05-19
+| `SESSIONS_HISTORY.adoc` | ✅ 23 lignes — 17 entrées (sessions 5→21)
+| `sessions/` | ✅ Archives par session
+| `archives/` | ✅ COMPLETED_TASKS_ARCHIVE 2026-04 + 2026-05
+| `backup/` | ✅ Présent
+| `encyclopedies/` | ✅ Présent
+| `TEST_COVERAGE_ANALYSIS.adoc` | ❌ *ABSENT* — procédure non respectée
+|===
+
+=== Anomalies de gouvernance
+
+. `TEST_COVERAGE_ANALYSIS.adoc` est manquant alors que l'étape 5 de la
+  procédure de fin de session l'exige. Cela signifie que la procédure n'a
+  pas été exécutée complètement depuis plusieurs sessions (au moins depuis
+  la session 014 si ce n'est avant).
+
+. `PROMPT_REPRISE.adoc` fait 24 lignes — très en dessous du max de 70 lignes.
+  Les missions des sessions 022 ne sont pas définies (« à définir »).
+
+. Divergence BACKLOG vs INDEX.adoc : EPIC 7 est marqué « TERMINÉ (session 016) »
+  dans INDEX.adoc mais « À faire » dans BACKLOG.adoc. EPIC 6 est marqué « TERMINÉ »
+  dans INDEX.adoc (session 005) mais « À faire » dans BACKLOG.
+
+. Aucune métrique de couverture récente. Le seuil Kover est à 75% mais
+  aucune mesure enregistrée depuis la session 017.
+
+'''
+== Audit du Build
+
+=== Configuration Gradle
+
+[cols="2,3"]
+|===
+| Gradle | 9.5.1
+| Kotlin | jvmToolchain Java 24
+| Test framework | JUnit 5 + Cucumber JUnit Platform + Gradle TestKit
+| Couverture | Kover 0.9.1, seuil 75%, XML + HTML
+| Publication | Maven Central (Sonatype OSSRH), Gradle Plugin Portal
+| Signing | GPG (via `useGpgCmd()`), CI conditionnel
+|===
+
+=== Dépendances clés
+
+[cols="2,3,2"]
+|===
+| Dépendance | Usage | Niveau DAG
+| `graphify-plugin` | `implementation` — scan de workspace | *N0 → N2* ✅ Valide
+| `jbake-core` | Moteur de génération de site | N/A
+| `jgit` | Push git (pages, maquette, profil) | N/A
+| `commons-io` | Utilitaires fichiers | N/A
+| `node-gradle` | npm/npx (ex: Pagefind) | N/A
+|===
+
+=== Tâches Gradle exposées (après K-1)
+
+[cols="2,2,3"]
+|===
+| Verbe | Tâche | Rôle
+| `GENERER` | `generateSite` | Initialise un site statique (template JBake)
+| `COLLECTER` | `collectSiteConfig` | Prompts interactifs → `site.yml`
+| `TRANSFORMER` | `bake` | JBake → site HTML statique
+| `DÉPLOYER` | `deploySite` | Push git pages (gh-pages)
+| `DÉPLOYER` | `deployMaquette` | Push maquette standalone
+| `DÉPLOYER` | `deployProfile` | Push README profil GitHub
+|===
+
+'''
+== Anomalies Architecturales
+
+=== 1. SiteManager.kt — God Class (439 lignes, 31% du src)
+
+`SiteManager` concentre toute la logique d'enregistrement des tâches Gradle :
+`registerInitSiteTask`, `registerConfigureSiteTask`, `registerBakeTask`,
+`registerDeploySiteTask`, `registerDeployMaquetteTask`,
+`registerDeployProfileTask`, `registerScaffoldTask`, injection Firebase,
+configuration JBake, clean, etc.
+
+*Recommandation* : Splitter en `TaskRegistrar` délégués par domaine fonctionnel
+(`BakeTaskRegistrar`, `DeployTaskRegistrar`, `ProfileTaskRegistrar`).
+
+=== 2. EPIC 10 Scaffolding — Bloqué depuis 12 jours
+
+3 scénarios Cucumber en échec depuis la session 017 (2026-05-07) :
+les cas `siteNameOnly` et `backwardCompat`. La feature `6_site_scaffolding.feature`
+est à 40% de complétion.
+
+=== 3. EPIC 6 et EPIC 7 — Fantômes documentaires
+
+Ces deux EPICs apparaissent comme « À faire » dans BACKLOG mais sont marqués
+« TERMINÉ » dans INDEX.adoc. La réalité est probablement qu'ils ne sont PAS
+faits — le statut BACKLOG fait foi car c'est le suivi prioritaire.
+
+=== 4. Dépendance graphify-gradle (N2→N0)
+
+Le contrat DAG est respecté (N2 peut dépendre de N0). Mais l'usage réel de
+graphify dans bakery n'est pas documenté — il apparaît dans `build.gradle.kts`
+ligne 32 comme `implementation` sans qu'aucun usage ne soit visible dans les
+10 fichiers source. Vérifier si cette dépendance est réellement utilisée.
+
+'''
+== Recommandations pour la Session 022
+
+=== Priorité P0 — Bloquants
+
+. *Débloquer EPIC 10 (Scaffolding)* : corriger les 3 scénarios Cucumber restants.
+  Charge : ~3 points, 45 minutes.
+. *Réconcilier BACKLOG vs INDEX.adoc* : aligner les statuts EPIC 6 et EPIC 7.
+  Décision : les marquer « À FAIRE » ou « TERMINÉ » dans les deux documents.
+. *Créer `TEST_COVERAGE_ANALYSIS.adoc`* : documenter la couverture actuelle
+  et rétablir la procédure de fin de session complète.
+
+=== Priorité P1 — Qualité
+
+. *Auditer la dépendance graphify* : est-elle réellement utilisée ? Si non,
+  la retirer pour alléger le build.
+. *Mesurer la couverture Kover* : lancer `./gradlew koverXmlReport` et
+  enregistrer la métrique.
+. *Documenter le pipeline CI* : aucun `.github/workflows/` visible dans le repo.
+
+=== Priorité P2 — Roadmap
+
+. *EPIC 9 (Orchestration LLM)* : le plus gros morceau restant. Définir le scope
+  exact et découper en US de max 3 pts (pattern Baby-Step).
+. *EPIC 5 (Timeout Cucumber)* : quick win — passer de 1 à 5 minutes.
+. *EPIC 6 (publishProfil)* : migration de code depuis cheroliv.com.
+
+'''
+== Métriques Globales
+
+[cols="2,3"]
+|===
+| Code source (src/main) | 1 413 lignes Kotlin (10 fichiers)
+| Tests unitaires | 2 287 lignes Kotlin (9 fichiers)
+| Tests fonctionnels | 1 117 lignes Kotlin (4 fichiers)
+| Tests Cucumber | 271 lignes features + 944 lignes steps (7+9 fichiers)
+| Total Kotlin | 5 761 lignes (32 fichiers)
+| EPICs | 13 (6 terminés, 2 en cours, 5 à faire)
+| Sessions historisées | 17 (sessions 5→21)
+| Couverture Kover | Inconnue — mesurer en session 022
+| Compilation | ✅ BUILD SUCCESSFUL — zéro warning
+|===
+
+'''
+== Métadonnées
+
+[cols="2,3"]
+|===
+| Document | `BAKERY_AUDIT.adoc`
+| Créé | 2026-05-29 — Session 022
+| Classification | VISION — audit factuel basé sur lecture du code source
+| Type | STIMULUS Cercle 4
+| Dilution cible | `.agents/INDEX.adoc` (roadmap), `BACKLOG.adoc` (statuts EPICs)
+| Suppression | Après dilution + archivage dans `.agents/sessions/022-audit-bakery.adoc`
+|===

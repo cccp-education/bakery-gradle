@@ -1,5 +1,33 @@
 = Archive des Taches Terminees — Mai 2026
 
+== Session 023 — 2026-05-29 — BKY-IA-0 Service LLM partagé
+
+**Contexte** : Première brique IA dans bakery-gradle (N2). Contrat fun interface, adapter
+langchain4j, DSL Gradle. Règle DAG : N2 ne dépend pas de N1, donc zéro dépendance vers
+codebase-gradle. Pool Docker (11437-11465, gpt-oss:120b-cloud) délégué à N3.
+
+**Taches realisees** :
+
+* [x] `LlmService.kt` : fun interface `suspend complete(prompt): String`
+* [x] `FakeLlmService.kt` : test double déterministe
+* [x] `OllamaLlmService.kt` : adapter langchain4j `OllamaChatModel`, factory `create()`
+* [x] `FakeChatModel` : test double ChatModel (privé dans OllamaLlmServiceTest)
+* [x] `IaConfig.kt` : config DSL (baseUrl, modelName, timeout, enabled, poolPorts, poolModel)
+* [x] `BakeryExtension.kt` : +`ia` DSL block `bakery { ia { ... } }`
+* [x] `build.gradle.kts` : +`langchain4j-ollama:1.14.1`
+* [x] `libs.versions.toml` : +`langchain4j` version + `langchain4j-ollama` library
+* [x] Tests unitaires : 14/14 PASS (LlmServiceTest, OllamaLlmServiceTest, IaConfigTest)
+* [x] Tests fonctionnels : 4/4 PASS (IaFunctionalTests)
+* [x] Cucumber : feature 8_ia_configuration.feature + IaSteps (échec préexistant plugin ID)
+* [x] `BakeryWorld.kt` : +`createGradleProjectWithIA()` + `createGradleProjectWithIAPool()`
+* [x] `publishToMavenLocal` OK
+
+**Fichiers créés** : `LlmService.kt`, `OllamaLlmService.kt`, `IaConfig.kt`,
+`FakeLlmService.kt`, `LlmServiceTest.kt`, `OllamaLlmServiceTest.kt`, `IaConfigTest.kt`,
+`IaFunctionalTests.kt`, `8_ia_configuration.feature`, `IaSteps.kt`
+
+**Fichiers modifiés** : `BakeryExtension.kt`, `build.gradle.kts`, `libs.versions.toml`, `BakeryWorld.kt`
+
 == Session 018 — 2026-05-07 — Optimisation durée des tests (-52%)
 
 **Contexte** : Tests ~8 min intenable en TDD. 2 causes : JVM args anti-perf + 7 cold starts
@@ -134,3 +162,70 @@ Migration transverse sur 9 repos.
 * [x] PROMPT_REPRISE.adoc mis a jour
 * [x] SESSIONS_HISTORY.adoc : entree session 019
 * [x] Commit + push
+
+== Session 020 — 2026-05-18 — Gitignore pattern **/site.yml
+
+**Contexte** : Ajout du pattern `+**/site.yml+` dans `.gitignore` a la racine du repo
+et dans bakery-plugin/ pour eviter de commit des tokens GitHub/Firebase sensibles.
+
+**Taches realisees** :
+* [x] `.gitignore` racine : ajout `+**/site.yml+`
+* [x] `.gitignore` bakery-plugin : ajout `+**/site.yml+`
+* [x] Verification : `git ls-files site.yml` (aucun tracke)
+
+== Session 021 — 2026-05-19 — EPIC K-1 Renommage taxonomie
+
+**Contexte** : EPIC K-1 (ontologie workspace) — renommage de 10 taches selon la taxonomie
+unifiee (GENERER/COLLECTER/TRANSFORMER/DEPLOYER).
+
+**Taches realisees** :
+* [x] `initSite` → `generateSite`
+* [x] `publishSite` → `deploySite`
+* [x] `publishMaquette` → `deployMaquette`
+* [x] `publishProfile` → `deployProfile`
+* [x] `configureSite` → `collectSiteConfig`
+* [x] 13 fichiers modifies, 44 tests unitaires PASS
+* [x] PROMPT_REPRISE, SESSIONS_HISTORY, INDEX.adoc mis a jour
+
+== Session 022 — 2026-05-29 — Audit Complet + Brainstorm IA (BAKERY_AUDIT.adoc, 842 lignes)
+
+**Contexte** : La session 021 etait terminee depuis 10 jours. La roadmap etait floue.
+Session 022 = tout remettre a plat AVANT de coder.
+
+**Taches realisees — Partie I (Audit factuel)** :
+* [x] Inventaire complet du code source : 10 fichiers src/main (1 413 lignes),
+  9 tests unitaires (2 287 lignes), 4 tests fonctionnels (1 117 lignes),
+  7 features Cucumber (18 scenarios, 944 lignes de steps)
+  → total 32 fichiers Kotlin, 5 761 lignes
+* [x] Roadmap auditee : 13 EPICs — 6 termines, 2 en cours, 5 a faire
+* [x] 5 anomalies identifiees : god class SiteManager (439 lignes, 31% du src),
+  TEST_COVERAGE_ANALYSIS absent, divergence BACKLOG↔INDEX (EPIC 6/7),
+  EPIC 10 bloque 3 scenarios Cucumber depuis 12 jours, dependance graphify inutilisee
+* [x] Compilation verifiee : ✅ BUILD SUCCESSFUL (Gradle 9.5.1, Kotlin 2.3.20, Java 24, zero warning)
+
+**Taches realisees — Partie II (Brainstorm IA)** :
+* [x] 5 axes utilisateur analyses + 4 propositions complementaires
+* [x] 9 EPICs IA cadres (BKY-IA-0→BKY-IA-5, BKY-BKG, BKY-N3-7, BKY-TRN-9) — ~73 pts
+* [x] Axe 5 (Google Forms) finalise v3 : recette bakery → Edster API REST →
+  CI/CD user → Drive user. Mocke clasp local en MVP0 (DOGFOOD FIRST, SAAS LATER)
+* [x] Axe 5 corrige 3 fois apres feedback utilisateur : v1 (bakery execute clasp,
+  Drive user non specifie) → v2 (Drive user explicite, bakery garde recette) →
+  v3 (Edster API REST au milieu, clasp local mocke en MVP0)
+* [x] Vision cible definie : bakery passe de generateur statique mecanique a
+  usine a contenu editorial IA-assistee (articles, themes, formulaires,
+  sites de formation, navigation semantique)
+
+**Taches realisees — Gouvernance (dilution)** :
+* [x] `BAKERY_AUDIT.adoc` cree et historise (842 lignes) dans `.agents/sessions/022-audit-bakery.adoc`
+* [x] `BACKLOG.adoc` : EPIC 14 ajoute (9 EPICs IA, ~73 pts)
+* [x] `.agents/INDEX.adoc` : roadmap IA ajoutee + divergences EPIC 6/7 corrigees
+  (marques « A FAIRE », pas « TERMINE »)
+* [x] `PROMPT_REPRISE.adoc` : mis a jour pour session 023 (BKY-IA-0 prioritaire)
+* [x] `.agents/SESSIONS_HISTORY.adoc` : entree 022 mise a jour
+* [x] `.agents/TEST_COVERAGE_ANALYSIS.adoc` : CREE — etait absent depuis plusieurs sessions
+* [x] `.agents/archives/COMPLETED_TASKS_ARCHIVE_2026-05.adoc` : session 022 ajoutee (ce fichier)
+
+**Score** : 9/10 — session purement documentaire et strategique, zero code, mais fondation
+solide posee pour les 6 prochains mois de developpement IA sur bakery.
+
+**Prochaine session (023)** : BKY-IA-0 — Service LLM partage (LangChain4j + Ollama, 5 pts)

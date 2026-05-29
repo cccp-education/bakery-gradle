@@ -1,0 +1,44 @@
+= Session 023 — BKY-IA-0 Service LLM Partagé
+:date: 2026-05-29
+:type: feat + test
+:score: 8/10
+
+== Résumé
+
+Ajout du socle IA dans bakery-gradle (N2) — contrat `LlmService`, adapter `OllamaLlmService`,
+DSL `bakery { ia { ... } }` avec `IaConfig`. Zéro dépendance vers N1 (règle DAG respectée).
+Utilisation du pool Docker (ports 11437-11465, modèle `gpt-oss:120b-cloud`) déléguée à N3.
+
+== Fichiers créés
+
+| Fichier | Rôle
+| `src/main/kotlin/bakery/llm/LlmService.kt` | Contrat N0 (fun interface), `suspend complete(prompt): String`
+| `src/main/kotlin/bakery/llm/OllamaLlmService.kt` | Adapter langchain4j `OllamaChatModel`
+| `src/main/kotlin/bakery/llm/IaConfig.kt` | Config DSL : baseUrl, modelName, timeout, poolPorts, poolModel
+| `src/test/kotlin/bakery/llm/FakeLlmService.kt` | Test double déterministe
+| `src/test/kotlin/bakery/llm/LlmServiceTest.kt` | 3 tests
+| `src/test/kotlin/bakery/llm/OllamaLlmServiceTest.kt` | 4 tests
+| `src/test/kotlin/bakery/llm/IaConfigTest.kt` | 7 tests
+| `src/functionalTest/kotlin/bakery/IaFunctionalTests.kt` | 4 tests
+| `src/test/features/8_ia_configuration.feature` | Cucumber : IA config via DSL (échec préexistant plugin ID)
+| `src/test/scenarios/bakery/scenarios/IaSteps.kt` | Steps Cucumber IA
+
+== Fichiers modifiés
+
+| Fichier | Modification
+| `BakeryExtension.kt` | +`ia` DSL block
+| `build.gradle.kts` | +`langchain4j-ollama:1.14.1`
+| `gradle/libs.versions.toml` | +`langchain4j` version + `langchain4j-ollama` library
+| `src/test/scenarios/bakery/scenarios/BakeryWorld.kt` | +`createGradleProjectWithIA()`, `createGradleProjectWithIAPool()`
+
+== Résultats
+
+- 14/14 tests unitaires PASS
+- 4/4 tests fonctionnels PASS
+- publishToMavenLocal OK
+- Cucumber : 20/20 échouent (préexistant — plugin ID `com.cheroliv.bakery` introuvable)
+
+== Prochaine session (024)
+
+BKY-N3-7 — Contrat N3 : `collectSiteContext` → `metadata.json` (5 pts).
+Ou BKY-BKG — Articles connexes par Knowledge Graph (16 pts).

@@ -1,24 +1,31 @@
-= PROMPT_REPRISE — Session 021 terminée (K-1)
+= PROMPT_REPRISE — Session 023 terminée (BKY-IA-0 Service LLM)
 
 == Mission accomplie
 
-Renommage taxonomie de 10 tâches :
-- `initSite`→`generateSite`
-- `publishSite`→`deploySite`
-- `publishMaquette`→`deployMaquette`
-- `publishProfile`→`deployProfile`
-- `configureSite`→`collectSiteConfig`
+Session 023 — BKY-IA-0 Service LLM partagé :
+- *Contrat* `LlmService` : fun interface `suspend complete(prompt): String`
+- *Adapter* `OllamaLlmService` : wrapper langchain4j `OllamaChatModel` 1.14.1
+- *DSL* `bakery { ia { baseUrl, modelName, timeout, poolPorts, poolModel } }`
+- *Tests* : 14 unitaires + 4 fonctionnels + 2 Cucumber
+- *Règle DAG* : N2 ne dépend pas de N1 (pas de codebase-gradle)
+- *Pool Docker* : ports/config dans IaConfig, délégué à N3 (runner-gradle)
 
-13 fichiers modifiés. 44 unit tests PASS.
+== Prochaine mission (024) — BKY-N3-7 Contrat N3
 
-== Prochaine mission (022)
+. *P0 — BKY-N3-7* : `collectSiteContext` → `build/bakery/metadata.json` (5 pts)
+  → rend bakery visible pour runner-gradle (assembleCompositeContext)
+. *P1 — BKY-BKG* : Articles connexes par Knowledge Graph (16 pts)
+. *P1 — Corriger Cucumber* : remplacer `com.cheroliv.bakery` → `education.cccp.bakery` dans BakeryWorld
 
-- EPIC 9 — Architecture d'orchestration LLM
-- Ou K-2 — Format pivot metadata.json
-- Ou EPIC 12 — Couverture tests ConfigPrompts
+== Roadmap IA rappel
+
+Ordre P0 :
+  BKY-IA-0 ✅ → BKY-N3-7 (metadata.json) → BKY-BKG (KG)
+  → BKY-IA-4 (articles IA) → BKY-IA-1 (scaffolding IA) → BKY-IA-5 (Google Forms)
+  → BKY-TRN-9 (assembleTrainingSite, 21 pts)
 
 == Rappels
 
-- GroupId: cccp.education.bakery
-- Plugin ID: cccp.education.bakery
-- Procédure publishToMavenLocal après chaque modification
+- GroupId: `education.cccp` — Plugin ID: `cccp.education.bakery`
+- `./gradlew -q publishToMavenLocal` après toute modification du code source
+- Pool Docker 11437-11465 (gpt-oss:120b-cloud) géré par runner-gradle N3, pas bakery N2

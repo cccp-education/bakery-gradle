@@ -300,3 +300,230 @@ La collaboration est interne à bakery — pattern fondry standard.
 | bakery → graphify | N2 → N0 | ✅ Valide
 | engine → bakery | N3 → N2 | ✅ Valide
 | engine → graphify | N3 → N0 | ❌ Ne doit pas — collaboration interne à bakery
+
+== EPIC 14 : Capacités IA Bakery — Roadmap Session 022 (Brainstorm BAKERY_AUDIT.adoc)
+
+*Cadrage* : session 022 (2026-05-29), document `BAKERY_AUDIT.adoc` Partie II.
+9 EPICs cadrés (~73 pts). Règle d'or : DOGFOOD FIRST, SAAS LATER.
+Prérequis transverse : BKY-IA-0 (service LLM partagé LangChain4j + Ollama).
+
+[cols="1,3,2,2", options="header"]
+|===
+| EPIC | Axe | Pts | Priorité
+| *BKY-IA-0* | Service LLM partagé (LangChain4j + Ollama) | 5 | *P0 — Prérequis*
+| *BKY-N3-7* | Contrat N3 : collectSiteContext → metadata.json | 5 | *P0 — Architecture*
+| *BKY-BKG* | Articles connexes par Knowledge Graph | 16 | *P0 — Quick win*
+| *BKY-IA-4* | Génération d'article assistée par IA | 8 | *P0 — Valeur immédiate*
+| *BKY-IA-1* | Scaffolding assisté par IA | 5 | *P0 — Fondation*
+| *BKY-IA-5* | Formulaire Google Forms (recette → Edster → CI/CD → Drive user) | 8 | *P0 — MVP0*
+| *BKY-TRN-9* | Intégration formation : assembleTrainingSite | 21 | *P0 — MVP0 Graal*
+| *BKY-IA-2* | Personnalisation thème IA (paramétrique) | 8 | *P1*
+| *BKY-IA-3* | Validation Firebase IA | 3 | *P2*
+|===
+
+=== BKY-IA-0 — Service LLM Partagé (Prérequis Transverse)
+
+*Statut* : À faire — *P0, démarrage session 023*
+*Priorité* : P0 — tous les autres EPICs IA en dépendent
+*Charge* : 5 pts
+*Dépend de* : —
+
+*Objectif* : Mettre en place le wrapper LangChain4j + Ollama dans bakery,
+même pattern que slider-gradle et plantuml-gradle.
+
+*Architecture* :
+```kotlin
+// BakeryExtension.kt — nouveau bloc DSL
+open class BakeryExtension {
+    val ia: IaConfig = IaConfig()  // NOUVEAU
+}
+open class IaConfig {
+    var provider: String = "deepseek-v4-pro"
+    var ollamaUrl: String = "http://localhost:11434"
+    var temperature: Double = 0.7
+    var maxTokens: Int = 4096
+}
+
+// LlmService.kt — NOUVEAU fichier
+class LlmService(config: IaConfig) {
+    private val model = OllamaChatModel.builder()...
+    fun generate(prompt: String): String
+    fun generateStructured(prompt: String, schema: JsonSchema): JsonNode
+}
+```
+
+*Tâches* :
+. `BKY-IA-0.1` — Ajouter `langchain4j-ollama` dans `build.gradle.kts`
+. `BKY-IA-0.2` — `LlmService.kt` : wrapper LangChain4j + Ollama
+. `BKY-IA-0.3` — `IaConfig` dans `BakeryExtension` (bloc DSL `bakery { ia { ... } }`)
+. `BKY-IA-0.4` — Tests : mock du LLM (pattern slider-gradle — interface + stub)
+
+=== BKY-N3-7 — Contrat N3 : metadata.json Structuré
+
+*Statut* : À faire — *P0, peut démarrer en parallèle de BKY-IA-0*
+*Priorité* : P0 — obligation architecturale : sans ça, bakery est invisible pour runner-gradle
+*Charge* : 5 pts
+*Dépend de* : —
+
+*Objectif* : Exposer un `metadata.json` standardisé pour que runner-gradle (N3)
+puisse agréger bakery dans le vecteur composite (`assembleCompositeContext`).
+
+*Sortie* : tâche `collectSiteContext` (COLLECTER) → `build/bakery/metadata.json`
+```json
+{
+  "borough": "bakery", "dag_level": "N2",
+  "sites": { "cheroliv.com": { "type": "blog", "articles": 147, ... } },
+  "tasks": ["generateSite", "collectSiteConfig", "bake", "deploySite", ...],
+  "ia_capabilities": ["generateArticle", "generateTheme", "generateFormRecipe"]
+}
+```
+
+*Tâches* :
+. `BKY-N3-7.1` — `SiteContext.kt` data class (modèle metadata.json)
+. `BKY-N3-7.2` — Tâche `collectSiteContext` (groupe COLLECTER) : scanne les sites → JSON
+. `BKY-N3-7.3` — Alignement format pivot `Metadata.kt` (EPIC K-2) + contrat runner-gradle
+
+=== BKY-BKG — Articles Connexes par Knowledge Graph (reprise EPIC 12)
+
+*Statut* : À faire — *P0, cadré en session 13bis, non démarré*
+*Priorité* : P0 — dépendance graphify déjà dans le build mais inutilisée (dette technique)
+*Charge* : 16 pts (BKG-0 = 5, BKG-1 = 3, BKG-2 = 8 optionnel P2)
+*Dépend de* : graphify-gradle (N0, déjà en `implementation`)
+
+*Principe* : remplacer les « Articles connexes » chronologiques par un scoring
+basé sur le Knowledge Graph. Le linking sémantique est une valeur différenciante
+qu'aucun autre outil de site statique ne propose.
+
+*Sous-EPICs* (déjà détaillés dans EPIC 12 ci-dessus) :
+- BKG-0 : Enrichissement graphify pour contenu éditorial (5 pts)
+- BKG-1 : Consommation graphe dans bakery (3 pts)
+- BKG-2 : Ontologie émergente (8 pts, P2 optionnel)
+
+=== BKY-IA-4 — Génération d'Article Assistée par IA
+
+*Statut* : À faire — *P0, dépend de BKY-IA-0*
+*Priorité* : P0 — valeur immédiate pour cheroliv.com (principal consommateur)
+*Charge* : 8 pts
+*Dépend de* : BKY-IA-0
+
+*Objectif* : Tâche `generateArticle` qui prend un topic + corpus → article
+AsciiDoc avec header JBake. Workflow : ébauche IA → relecture humaine → publication.
+
+*Tâches* :
+. `BKY-IA-4.1` — `ArticleIntention` data class (topic, audience, ton, longueur, mots-clés)
+. `BKY-IA-4.2` — Tâche `generateArticle` : intention → LLM → article AsciiDoc + header JBake
+. `BKY-IA-4.3` — Intégration LangChain4j + Ollama (DeepSeek-v4-pro via `LlmService`)
+. `BKY-IA-4.4` — Prompt engineering : template éditorial forçant style + structure + métadonnées
+. `BKY-IA-4.5` — Tests : AsciiDoc valide, header JBake parsable, contenu non vide
+
+=== BKY-IA-1 — Scaffolding Assisté par IA
+
+*Statut* : À faire — *P0, dépend de BKY-IA-0 et EPIC 10 (scaffolding mécanique)*
+*Priorité* : P0 — couche IA au-dessus du scaffolding mécanique (EPIC 10 à 80%)
+*Charge* : 5 pts
+*Dépend de* : BKY-IA-0, EPIC 10 (Scaffolding TDD — 3 scénarios Cucumber bloqués)
+
+*Objectif* : Le LLM choisit la structure du site (templates, métadonnées JBake)
+en fonction d'une intention exprimée en langage naturel. Pattern : plantuml-gradle
+faisait déjà « décris ton diagramme → je génère le PlantUML ».
+
+*Tâches* :
+. `BKY-IA-1.1` — `ScaffoldIntention` data class (type : blog, portfolio, doc, formation ; langue, audience)
+. `BKY-IA-1.2` — Tâche `generateSiteFromIntention` : intention → LLM → structure → scaffolding
+. `BKY-IA-1.3` — Extension DSL `bakery { ia { scaffoldPrompt { ... } } }`
+. `BKY-IA-1.4` — Tests : intention → structure valide (templates, site.yml, métadonnées)
+
+=== BKY-IA-5 — Formulaire Google Forms : Recette → Edster → CI/CD → Drive User
+
+*Statut* : À faire — *P0 pour MVP0 formation*
+*Priorité* : P0 — brique du livrable MVP0 Graal (formulaires d'évaluation)
+*Charge* : 8 pts
+*Dépend de* : BKY-IA-0
+*Stratégie mock* : Edster + CI/CD mockés en MVP0. Runner-gradle exécute clasp localement
+  (npx @google/clasp) avec le token cheroliv. Switch Edster = 1 ligne :
+  `ClaspLocalExecutor` → `EdsterApiClient`.
+
+*Architecture 3 couches* :
+----
+Bakery (N2)        → generateFormRecipe → recipe.json
+Runner-gradle (N3) → lit recipe.json → MVP0: npx clasp local / MVP1: POST Edster
+Edster (N3 SaaS)   → provisionne CI/CD + secrets (CLASP_TOKEN)
+CI/CD utilisateur  → clasp push/deploy → formulaire dans Drive user
+Runner-gradle      → callback URL → bakery.deployFormUrl(url)
+Bakery (N2)        → injecte URL dans la page → bake → deploy
+----
+
+*Responsabilités* :
+- Bakery (N2) : génère la recette (code Apps Script + FormIntention). Injecte l'URL.
+  Ne connaît PAS Edster.
+- Runner-gradle (N3) : orchestre le flux (recette → Edster → callback → injection)
+- Edster (N3 SaaS) : provisionne le job CI/CD, gère les credentials, facture
+- CI/CD utilisateur : exécute clasp, token OAuth scopé Drive user, possède le formulaire
+- RGPD : formulaire et réponses dans le compte Google du formateur. Bakery ne voit rien.
+
+*Tâches* :
+. `BKY-IA-5.1` — `FormIntention` data class (type : contact, évaluation, inscription ; questions QCM/texte/échelle ; googleAccount cible)
+. `BKY-IA-5.2` — `FormGenerator.kt` (GENERER) : intention → LLM → `Code.gs` + `appsscript.json` + `recipe.json`
+. `BKY-IA-5.3` — Tâche `generateFormRecipe` : LLM → recipe.json dans `build/bakery/forms/<formId>/`
+. `BKY-IA-5.4` — Tâche `deployFormUrl` : reçoit l'URL (depuis runner-gradle) → injecte dans la page Thymeleaf
+. `BKY-IA-5.5` — Extension DSL `bakery { forms { googleAccount = "..." } }`
+. `BKY-IA-5.6` — Tests : mock LLM → recipe.json valide, injection URL ok. Cucumber : génération recette → Apps Script parsable
+
+=== BKY-TRN-9 — Intégration Formation : assembleTrainingSite
+
+*Statut* : À faire — *P0 pour MVP0 Graal, dernier EPIC du pipeline formation*
+*Priorité* : P0 — raison d'être de bakery dans le pipeline MVP0
+*Charge* : 21 pts (le plus gros EPIC IA)
+*Dépend de* : BKY-N3-7 (metadata.json), training-gradle, slider-gradle, codex-gradle, quizz-benchmark
+
+*Objectif* : Bakery reçoit un répertoire structuré d'artefacts N2
+(SPG, SPDs, slides, PDFs, quiz) → assemble un site de formation complet.
+
+*Flux* :
+----
+runner-gradle (N3) → collecte artefacts N2 → répertoire structuré :
+  formation-portal/
+  ├── spg.adoc              (planner-gradle)
+  ├── spds/*.adoc           (planner-gradle)
+  ├── slides/*.html         (slider-gradle)
+  ├── pdfs/*.pdf            (codex-gradle)
+  ├── quiz/*.json           (quizz-benchmark)
+  └── metadata.json         (runner-gradle agrégé)
+bakery → assembleTrainingSite → site statique complet :
+  - Page d'accueil (SPG) + navigation par session
+  - Slides embarquées (iframe) + PDFs téléchargeables
+  - Quiz interactifs intégrés + formulaire évaluation Google Forms
+  - Page de certification/attestation
+----
+
+*Tâches* :
+. `BKY-TRN-9.1` — `TrainingSiteConfig` data class (structure répertoire, navigation, sections)
+. `BKY-TRN-9.2` — Template Thymeleaf `formation` (layout, menu, slides iframe, PDF download)
+. `BKY-TRN-9.3` — Tâche `assembleTrainingSite` (TRANSFORMER) : parse répertoire → génère pages
+. `BKY-TRN-9.4` — Intégration quiz : embed player quizz-benchmark dans la page
+. `BKY-TRN-9.5` — Page attestation : template conditionnel si certification activée
+. `BKY-TRN-9.6` — Tests Cucumber : pipeline complet → site de formation valide
+
+=== BKY-IA-2 — Personnalisation de Thème IA (Paramétrique)
+
+*Statut* : À faire — *P1*
+*Priorité* : P1 — approche paramétrique (catalogue + variables) plutôt que générative (CSS from scratch)
+*Charge* : 8 pts
+*Dépend de* : BKY-IA-0
+
+*Tâches* :
+. `BKY-IA-2.1` — Catalogue de thèmes Thymeleaf (5-10 variantes : minimal, magazine, doc, portfolio, formation)
+. `BKY-IA-2.2` — Variables de thème (couleurs, polices, logo, favicon)
+. `BKY-IA-2.3` — Tâche `generateTheme` : intention → sélection thème + variables
+. `BKY-IA-2.4` — Tests : templates générés compilent avec Thymeleaf
+
+=== BKY-IA-3 — Validation Firebase Assistée par IA
+
+*Statut* : À faire — *P2*
+*Priorité* : P2 — EPIC 4 (Firebase mécanique) déjà à 95%, l'IA ajoute validation + suggestions
+*Charge* : 3 pts
+*Dépend de* : BKY-IA-0, EPIC 4
+
+*Tâches* :
+. `BKY-IA-3.1` — Tâche `validateFirebaseConfig` : LLM vérifie cohérence bloc `firebase:` dans `site.yml`
+. `BKY-IA-3.2` — Suggester : "tu as un formulaire de contact, veux-tu aussi une newsletter ?"

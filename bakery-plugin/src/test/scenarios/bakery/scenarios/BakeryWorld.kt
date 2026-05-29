@@ -111,5 +111,70 @@ class BakeryWorld {
             return this
         }
     }
-}
 
+    /**
+     * Crée un projet Gradle de test avec bloc IA par défaut.
+     */
+    fun createGradleProjectWithIA(): File {
+        val pluginId = "com.cheroliv.bakery"
+        val buildScriptContent = """
+            bakery {
+                configPath = file("site.yml").absolutePath
+                ia {
+                    baseUrl = "http://localhost:11434"
+                    modelName = "deepseek-v4-pro"
+                }
+            }
+        """.trimIndent()
+        createTempFile("gradle-test-", "").apply {
+            delete()
+            mkdirs()
+        }.run {
+            resolve("settings.gradle.kts")
+                .apply { createNewFile() }
+                .writeText(
+                    "pluginManagement.repositories.gradlePluginPortal()\n" +
+                            "rootProject.name = \"${name}\""
+                )
+            resolve("build.gradle.kts")
+                .apply { createNewFile() }
+                .writeText("plugins { id(\"$pluginId\") }\n$buildScriptContent")
+            createConfigFile()
+            projectDir = this
+            return this
+        }
+    }
+
+    /**
+     * Crée un projet Gradle de test avec bloc IA pool multi-port.
+     */
+    fun createGradleProjectWithIAPool(): File {
+        val pluginId = "com.cheroliv.bakery"
+        val buildScriptContent = """
+            bakery {
+                configPath = file("site.yml").absolutePath
+                ia {
+                    poolPorts = "11437,11438,11439"
+                    poolModel = "gpt-oss:120b-cloud"
+                }
+            }
+        """.trimIndent()
+        createTempFile("gradle-test-", "").apply {
+            delete()
+            mkdirs()
+        }.run {
+            resolve("settings.gradle.kts")
+                .apply { createNewFile() }
+                .writeText(
+                    "pluginManagement.repositories.gradlePluginPortal()\n" +
+                            "rootProject.name = \"${name}\""
+                )
+            resolve("build.gradle.kts")
+                .apply { createNewFile() }
+                .writeText("plugins { id(\"$pluginId\") }\n$buildScriptContent")
+            createConfigFile()
+            projectDir = this
+            return this
+        }
+    }
+}

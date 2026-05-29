@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour_ : 2026-05-19
-_Session terminee_ : 021 — EPIC K-1 Renommage taxonomie (generateSite, deploySite, deployMaquette, deployProfile, collectSiteConfig)
-_Session en cours_ : 022 — (a definir)
+_Derniere mise a jour_ : 2026-05-29
+_Session terminee_ : 022 — Audit complet (BAKERY_AUDIT.adoc) — 10 fichiers src, 13 EPICs, anomalies gouvernance
+_Session en cours_ : 023 — BKY-IA-0 Service LLM partagé (LlmService, OllamaLlmService, IaConfig DSL, BakeryExtension.ia { ... })
 
 '''
 
@@ -91,6 +91,8 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 == Roadmap — Etat Actuel
 
+=== EPICs Historiques
+
 |===
 | EPIC | Progression | Priorite
 | EPIC 1 : Integration gouvernance agent | 100% | P0 - TERMINE
@@ -98,15 +100,36 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 | EPIC 3 : Amelioration build.gradle.kts | 100% | P1 - TERMINE
 | EPIC 4 : Formulaire de contact Firebase (maquette + site) | 95% | P1 - TERMINE (formalite cle API)
 | EPIC 5 : Correction timeout Cucumber | 100% | P2 - TERMINE
-| EPIC 6 : Integration tache publishProfil dans le plugin | 100% | P1 - TERMINE
-| EPIC 7 : Tolerance parsing YAML (champs inconnus) | 100% | P2 - TERMINE (session 016)
-| EPIC 8 : Bumper version 0.1.4 et release | 100% | P2 - TERMINE (session 016)
-| EPIC 9 : Architecture d'orchestration LLM | 0% | P0 - A FAIRE
-| EPIC 10 : Pagefind recherche full-text | 100% | P2 - TERMINE
-| EPIC 11 : Optimisation durée des tests | 100% | P0 - TERMINE (session 018)
-| EPIC 12 : Couverture de tests ConfigPrompts | 70% | P1 - PARTIEL (session 015)
-| EPIC 13 : Couverture de tests — lacunes P1 | 50% | P1 - PARTIEL (session 016)
+| EPIC 6 : Integration tache publishProfil dans le plugin | 0% | P1 - A FAIRE (BACKLOG session 005, divergence corrigee 2026-05-29)
+| EPIC 7 : Tolerance parsing YAML (champs inconnus) | 0% | P2 - A FAIRE (BACKLOG session 016, divergence corrigee 2026-05-29)
+| EPIC 8 : Bumper version 0.1.4 et release | 100% | P2 - TERMINE
+| EPIC 9 : Architecture d'orchestration LLM | 0% | P0 - SUPERSEDE par EPIC 14 (BKY-IA-*)
+| EPIC 10 : Scaffolding TDD (sitesBaseDir + siteName) | 80% | P0 - EN COURS (3 scenarios Cucumber bloques)
+| EPIC 11 : Optimisation duree des tests | 0% | P0 - A FAIRE
+| EPIC 12 : Articles connexes par Knowledge Graph | 0% | P1 - SUPERSEDE par BKY-BKG
+| EPIC 13 : Couverture de tests — lacunes P1 | 50% | P1 - PARTIEL
 |===
+
+=== EPIC 14 — Roadmap IA Bakery (Session 022, BAKERY_AUDIT.adoc)
+
+*Cadrage* : 2026-05-29. 9 EPICs, ~73 pts. Regle d'or : DOGFOOD FIRST, SAAS LATER.
+Pre-requis : BKY-IA-0 (service LLM LangChain4j + Ollama).
+
+|===
+| EPIC | Axe | Pts | Priorite | Depend de
+| *BKY-IA-0* | Service LLM partage (LangChain4j + Ollama) | 5 | *P0* | —
+| *BKY-N3-7* | Contrat N3 : collectSiteContext → metadata.json | 5 | *P0* | —
+| *BKY-BKG* | Articles connexes par Knowledge Graph | 16 | *P0* | graphify (N0)
+| *BKY-IA-4* | Generation d'article assistee par IA | 8 | *P0* | BKY-IA-0
+| *BKY-IA-1* | Scaffolding assiste par IA | 5 | *P0* | BKY-IA-0, EPIC 10
+| *BKY-IA-5* | Formulaire Google Forms (recette → Edster → CI/CD → Drive user) | 8 | *P0* | BKY-IA-0
+| *BKY-TRN-9* | Integration formation : assembleTrainingSite | 21 | *P0* | BKY-N3-7, training-gradle, slider-gradle, codex-gradle, quizz-benchmark
+| *BKY-IA-2* | Personnalisation theme IA (parametrique) | 8 | *P1* | BKY-IA-0
+| *BKY-IA-3* | Validation Firebase IA | 3 | *P2* | BKY-IA-0, EPIC 4
+|===
+
+*Total IA* : 9 EPICs, ~73 pts → ~24-28 User Stories Baby-Step (max 3 pts/US).
+*Prochaine session* : 023 — demarrer BKY-IA-0 (service LLM partage).
 
 '''
 
