@@ -1,26 +1,27 @@
-= PROMPT_REPRISE — Session 023 terminée (BKY-IA-0 Service LLM)
+= PROMPT_REPRISE — Session 024 terminée (BKY-N3-7 Contrat N3)
+:toc:
 
 == Mission accomplie
 
-Session 023 — BKY-IA-0 Service LLM partagé :
-- *Contrat* `LlmService` : fun interface `suspend complete(prompt): String`
-- *Adapter* `OllamaLlmService` : wrapper langchain4j `OllamaChatModel` 1.14.1
-- *DSL* `bakery { ia { baseUrl, modelName, timeout, poolPorts, poolModel } }`
-- *Tests* : 14 unitaires + 4 fonctionnels + 2 Cucumber
-- *Règle DAG* : N2 ne dépend pas de N1 (pas de codebase-gradle)
-- *Pool Docker* : ports/config dans IaConfig, délégué à N3 (runner-gradle)
+Session 024 — BKY-N3-7 collectSiteContext → build/bakery/metadata.json :
+- **SiteContextCollector.kt** : parsing feed.xml (RSS 2.0) + sitemap.xml → JSON
+- **SiteManager.kt** : `registerCollectSiteContextTask(site)` (COLLECT_GROUP, dependsOn bake)
+- **BakeryPlugin.kt** : enregistrement dans `afterEvaluate`
+- **Tests** : 3 unitaires + 1 fonctionnel PASS
+- **Test réel** : `./gradlew collectSiteContext` → 4 articles, 6 URLs
+- **Bug corrigé** : double-slash `//` dans les URLs (substringAfter déjà préfixé)
 
-== Prochaine mission (024) — BKY-N3-7 Contrat N3
+== Prochaine mission (025) — BKY-BKG Articles connexes par Knowledge Graph
 
-. *P0 — BKY-N3-7* : `collectSiteContext` → `build/bakery/metadata.json` (5 pts)
-  → rend bakery visible pour runner-gradle (assembleCompositeContext)
-. *P1 — BKY-BKG* : Articles connexes par Knowledge Graph (16 pts)
-. *P1 — Corriger Cucumber* : remplacer `com.cheroliv.bakery` → `education.cccp.bakery` dans BakeryWorld
+. *P0 — BKY-BKG* : Articles connexes par Knowledge Graph (16 pts)
+  → utilise graphify-plugin (N0) pour lier les articles du site
+. *P1 — BKY-IA-4* : Génération d'article assistée par IA (8 pts)
+. *P1 — BKY-IA-1* : Scaffolding assisté par IA (5 pts)
 
 == Roadmap IA rappel
 
 Ordre P0 :
-  BKY-IA-0 ✅ → BKY-N3-7 (metadata.json) → BKY-BKG (KG)
+  BKY-IA-0 ✅ → BKY-N3-7 ✅ → BKY-BKG (KG)
   → BKY-IA-4 (articles IA) → BKY-IA-1 (scaffolding IA) → BKY-IA-5 (Google Forms)
   → BKY-TRN-9 (assembleTrainingSite, 21 pts)
 

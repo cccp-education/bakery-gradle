@@ -1,9 +1,10 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-_Derniere mise a jour : 2026-05-29_
+_Derniere mise a jour : 2026-05-30_
 
 |===
 | # | Date | Type | Sujet | Score
+| 024 | 2026-05-30 | feat + test | BKY-N3-7 Contrat N3 — collectSiteContext → build/bakery/metadata.json (SiteContextCollector, feed.xml + sitemap.xml, 3 unitaires + 1 fonctionnel PASS, contrat pivot runner-gradle) | 9/10
 | 023 | 2026-05-29 | feat + test | BKY-IA-0 Service LLM partagé — LlmService (fun interface), OllamaLlmService (langchain4j 1.14.1), IaConfig DSL (ia { baseUrl, modelName, poolPorts, poolModel }), BakeryExtension.ia { ... }, FakeLlmService, FakeChatModel. 14 tests unitaires + 4 fonctionnels PASS. Pool Docker délégué à N3 | 8/10
 | 022 | 2026-05-29 | audit + brainstorm | Audit complet + Brainstorm IA (BAKERY_AUDIT.adoc, 836 lignes). 9 EPICs cadrés (~73 pts). Axe 5 (Google Forms) finalisé v3 : recette bakery → Edster API REST → CI/CD user → Drive, mocké clasp local en MVP0 | 9/10
 | 021 | 2026-05-19 | migration | EPIC K-1 — Renommage taxonomie (10 tâches : generateSite, deploySite, deployMaquette, deployProfile, collectSiteConfig) — 13 fichiers, 44 tests PASS | 10/10

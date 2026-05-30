@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-05-29 — Session 023_
+_Dernière mise à jour : 2026-05-30 — Session 024_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -24,8 +24,8 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 [cols="2,2,2,3,3"]
 |===
 | Session | Date | Kover % | Tests PASS | Notes
-| 022 | 2026-05-29 | — | — | Fichier créé (absent depuis plusieurs sessions). Audit sans exécution de tests.
-| 023 | 2026-05-29 | *Non mesuré* | 14/14 unitaires, 4/4 fonctionnels | BKY-IA-0 : ajout LlmService, OllamaLlmService, IaConfig. 8 nouveaux fichiers. Tests ajoutés sans Mockito (FakeLlmService, FakeChatModel)
+| 024 | 2026-05-30 | *Non mesuré* | 3/3 unitaires, 1/1 fonctionnel | BKY-N3-7 : ajout SiteContextCollector + SiteContextCollectorTest + CollectSiteContextFunctionalTest. Parsing feed.xml + sitemap.xml. 3 nouveaux fichiers.
+| 023 | 2026-05-29 | *Non mesuré* | 14/14 unitaires, 4/4 fonctionnels | BKY-IA-0 : ajout LlmService, OllamaLlmService, IaConfig. 8 nouveaux fichiers.
 |===
 
 '''

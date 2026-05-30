@@ -403,6 +403,27 @@ object SiteManager {
         }
     }
 
+// ==================== Collect Site Context Task (BKY-N3-7) ====================
+
+    internal fun Project.registerCollectSiteContextTask(site: SiteConfiguration) {
+        tasks.register("collectSiteContext") { task ->
+            task.apply {
+                group = COLLECT_GROUP
+                description = "Collecte le contexte du site baké → build/bakery/metadata.json pour runner-gradle N3."
+                dependsOn(BAKE_TASK)
+
+                doLast {
+                    val bakedDir = layout.buildDirectory.get().asFile.resolve(site.bake.destDirPath)
+                    val outputDir = layout.buildDirectory.get().asFile.resolve("bakery")
+
+                    logger.lifecycle("[collectSiteContext] Scanning baked dir: {}", bakedDir.absolutePath)
+                    SiteContextCollector.collect(bakedDir, outputDir)
+                    logger.lifecycle("[collectSiteContext] metadata.json written to: {}", outputDir.absolutePath)
+                }
+            }
+        }
+    }
+
 // ==================== Utility Tasks ====================
 
     // TODO: Implémenter la création/initialisation du repository GitHub Pages

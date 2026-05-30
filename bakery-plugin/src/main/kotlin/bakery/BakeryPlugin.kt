@@ -8,6 +8,7 @@ import bakery.SiteManager.configureConfigPath
 import bakery.SiteManager.configureJBakePlugin
 import bakery.SiteManager.createJBakeRuntimeConfiguration
 import bakery.SiteManager.registerCollectSiteConfigTask
+import bakery.SiteManager.registerCollectSiteContextTask
 import bakery.SiteManager.registerDeployMaquetteTask
 import bakery.SiteManager.registerDeployProfileTask
 import bakery.SiteManager.registerDeploySiteTask
@@ -72,6 +73,7 @@ class BakeryPlugin : Plugin<Project> {
                 project.registerServeTask(site, jbakeRuntime)
                 project.registerUtilityTasks()
                 project.registerCollectSiteConfigTask(site, isGradlePropertiesEnabled)
+                project.registerCollectSiteContextTask(site)
             }
         }
     }

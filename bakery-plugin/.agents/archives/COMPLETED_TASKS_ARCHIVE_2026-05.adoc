@@ -1,5 +1,25 @@
 = Archive des Taches Terminees — Mai 2026
 
+== Session 024 — 2026-05-30 — BKY-N3-7 Contrat N3 : collectSiteContext → metadata.json
+
+**Contexte** : Rendre bakery visible pour runner-gradle (N3) via metadata.json — contrat pivot
+EPIC K. Parsing feed.xml (RSS 2.0) + sitemap.xml, écriture Jackson. Aligné sur Metadata(codex, training, planner, quizz).
+
+**Taches realisees** :
+
+* [x] `SiteContextCollector.kt` : object, `collect(bakedDir, outputDir)` — parse XML via DocumentBuilderFactory, conversion dates RSS→ISO, écriture metadata.json via Jackson
+* [x] `SiteManager.kt` : +`registerCollectSiteContextTask(site)` — tâche Gradle (COLLECT_GROUP, dependsOn bake)
+* [x] `BakeryPlugin.kt` : +import + appel `registerCollectSiteContextTask(site)` dans `afterEvaluate`
+* [x] `SiteContextCollectorTest.kt` : 3/3 PASS — extraction articles, feed absent, feed vide
+* [x] `CollectSiteContextFunctionalTest.kt` : 1/1 PASS — tâche exposée dans le groupe "collect"
+* [x] Test réel sur bakery-gradle : `./gradlew collectSiteContext` → BUILD SUCCESSFUL, metadata.json avec 4 articles + 6 URLs
+* [x] Bug double-slash `//` corrigé : `.let { "/$it" }` → `.let { it }`
+* [x] `publishToMavenLocal` OK
+
+**Fichiers créés** : `SiteContextCollector.kt`, `SiteContextCollectorTest.kt`, `CollectSiteContextFunctionalTest.kt`
+
+**Fichiers modifiés** : `SiteManager.kt`, `BakeryPlugin.kt`
+
 == Session 023 — 2026-05-29 — BKY-IA-0 Service LLM partagé
 
 **Contexte** : Première brique IA dans bakery-gradle (N2). Contrat fun interface, adapter

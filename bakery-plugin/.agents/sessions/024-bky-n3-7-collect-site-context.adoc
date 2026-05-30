@@ -1,0 +1,66 @@
+= Session 024 — BKY-N3-7 Contrat N3 : collectSiteContext → metadata.json
+:session: 024
+:date: 2026-05-30
+:type: feat + test
+:status: TERMINEE
+:score: 9/10
+:projet: bakery-gradle (bakery-plugin)
+
+== Résumé
+
+Implémentation de `collectSiteContext` : tâche Gradle qui collecte le contexte
+du site baké (articles via feed.xml, URLs via sitemap.xml) et produit
+`build/bakery/metadata.json` — contrat pivot N3 pour runner-gradle (assembleCompositeContext).
+
+== Fichiers créés
+
+|===
+| Fichier | Lignes | Rôle
+| `src/main/kotlin/bakery/SiteContextCollector.kt` | 109 | Parsing feed.xml (RSS 2.0) + sitemap.xml → metadata.json via Jackson
+| `src/test/kotlin/bakery/SiteContextCollectorTest.kt` | 132 | 3 tests unitaires : extraction articles, feed absent, feed vide
+| `src/functionalTest/kotlin/bakery/CollectSiteContextFunctionalTest.kt` | 77 | 1 test fonctionnel : tâche exposée dans le groupe "collect"
+|===
+
+== Fichiers modifiés
+
+|===
+| Fichier | Modification
+| `src/main/kotlin/bakery/SiteManager.kt` | +19 lignes — `registerCollectSiteContextTask(site)` (groupe COLLECT_GROUP, dependsOn bake, appelle SiteContextCollector.collect)
+| `src/main/kotlin/bakery/BakeryPlugin.kt` | +2 lignes — import + appel `registerCollectSiteContextTask(site)` dans `afterEvaluate`
+|===
+
+== Contrat metadata.json
+
+```json
+{
+  "source": "bakery",
+  "type": "site",
+  "version": "1.0",
+  "model": "jbake",
+  "generatedAt": "2026-05-30T06:59:32Z",
+  "sessions": 4,
+  "dependencies": ["jbake"],
+  "articles": [
+    {"title": "Fourth Post", "url": "/blog/2013/fourth-post.html", "date": "2013-10-17", "tags": [], "author": ""}
+  ],
+  "sitemap": ["/about.html", "/blog.html", ...],
+  "feed": "/feed.xml"
+}
+```
+
+Format aligné sur Metadata(codex, training, planner, quizz) — `source`, `type`, `version`, `model`, `generatedAt`, `sessions`, `dependencies`.
+
+== Tests
+
+- 3 unitaires (SiteContextCollectorTest) PASS
+- 1 fonctionnel (CollectSiteContextFunctionalTest) PASS
+- Test réel sur bakery-gradle : `./gradlew collectSiteContext` → BUILD SUCCESSFUL, 4 articles
+
+== Leçon
+
+Bug double-slash corrigé : `substringAfter("/").let { "/$it" }` produisait `//blog/...`.
+Fix : `.let { it }` directement (le path est déjà préfixé).
+
+== Prochaine session (025)
+
+BKY-BKG — Articles connexes par Knowledge Graph (graphify-plugin N0, 16 pts).

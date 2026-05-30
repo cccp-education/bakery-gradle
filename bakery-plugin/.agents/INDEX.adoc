@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour_ : 2026-05-29
-_Session terminee_ : 022 — Audit complet (BAKERY_AUDIT.adoc) — 10 fichiers src, 13 EPICs, anomalies gouvernance
-_Session en cours_ : 023 — BKY-IA-0 Service LLM partagé (LlmService, OllamaLlmService, IaConfig DSL, BakeryExtension.ia { ... })
+_Derniere mise a jour_ : 2026-05-30
+_Session terminee_ : 024 — BKY-N3-7 Contrat N3 collectSiteContext → metadata.json (SiteContextCollector, 3 UT + 1 FT PASS)
+_Session en cours_ : 025 — BKY-BKG Articles connexes par Knowledge Graph (16 pts)
 
 '''
 
@@ -69,7 +69,8 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | # | Date | Type | Sujet | Score
-| 021 | 2026-05-19 | migration | EPIC K-1 — Renommage taxonomie (10 tâches : generateSite, deploySite, deployMaquette, deployProfile, collectSiteConfig) | 10/10
+| 024 | 2026-05-30 | feat + test | BKY-N3-7 Contrat N3 — collectSiteContext → metadata.json (SiteContextCollector, feed+sitemap, 3UT+1FT) | 9/10
+| 023 | 2026-05-29 | feat + test | BKY-IA-0 Service LLM partagé (LlmService, OllamaLlmService, IaConfig DSL) | 8/10
 | 020 | 2026-05-18 | chore | Gitignore — ajout pattern **/site.yml (racine + plugin) | 10/10
 | 019 | 2026-05-07 | chore | Migration chemins foundry/ → foundry/OSS/ (granularisation OSS/CSS) | —
 | 018 | 2026-05-07 | perf | Optimisation durée tests -52% (JVM + @Nested plantuml pattern) | 9/10
@@ -118,7 +119,7 @@ Pre-requis : BKY-IA-0 (service LLM LangChain4j + Ollama).
 |===
 | EPIC | Axe | Pts | Priorite | Depend de
 | *BKY-IA-0* | Service LLM partage (LangChain4j + Ollama) | 5 | *P0* | —
-| *BKY-N3-7* | Contrat N3 : collectSiteContext → metadata.json | 5 | *P0* | —
+| *BKY-N3-7* | Contrat N3 : collectSiteContext → metadata.json | 5 | *P0* ✅ | —
 | *BKY-BKG* | Articles connexes par Knowledge Graph | 16 | *P0* | graphify (N0)
 | *BKY-IA-4* | Generation d'article assistee par IA | 8 | *P0* | BKY-IA-0
 | *BKY-IA-1* | Scaffolding assiste par IA | 5 | *P0* | BKY-IA-0, EPIC 10
