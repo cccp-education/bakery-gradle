@@ -15,6 +15,7 @@ import javax.inject.Inject
  *     configPath = "site.yml"
  *     sitesBaseDir = "..."
  *     siteName = "..."
+ *     siteType = "blog"        // blog | basic
  *     ia {
  *         baseUrl = "http://localhost:11434"
  *         modelName = "deepseek-v4-pro"
@@ -26,6 +27,13 @@ open class BakeryExtension @Inject constructor(objects: ObjectFactory) {
     val configPath: Property<String> = objects.property(String::class.java)
     val sitesBaseDir: Property<String> = objects.property(String::class.java)
     val siteName: Property<String> = objects.property(String::class.java)
+
+    /**
+     * Type de site JBake à scaffolding.
+     * - `"blog"` (défaut) : site/blog classique avec articles, tags, archives
+     * - `"basic"` : site minimal (index, about, contact)
+     */
+    val siteType: Property<String> = objects.property(String::class.java)
 
     /** Configuration du service IA (LangChain4j + Ollama) — BKY-IA-0 */
     val ia: IaConfig = IaConfig()

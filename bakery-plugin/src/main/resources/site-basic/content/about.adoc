@@ -1,0 +1,5 @@
+= À propos
+:description: Page à propos
+:status: published
+
+Ceci est la page à propos de votre site.

@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-05-30 — Session 025_
+_Dernière mise à jour : 2026-05-30 — Session 026_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -12,7 +12,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 | Métrique | Valeur
 | Couverture Kover | *Inconnue* — `./gradlew koverXmlReport` à lancer en session 023
 | Seuil configuré | 75% (dans `build.gradle.kts` → `koverThresholdCheck`)
-| Tests unitaires JUnit5 | 9 fichiers, 2 287 lignes — ratio 1.62x vs src/main
+| Tests unitaires JUnit5 | 10 fichiers, ~2 550 lignes — ratio ~1.8x vs src/main
 | Tests fonctionnels (TestKit) | 4 fichiers, 1 117 lignes
 | Tests Cucumber BDD | 7 features, 18 scénarios, 944 lignes de steps
 | Compilation | ✅ BUILD SUCCESSFUL — Gradle 9.5.1, Kotlin 2.3.20, Java 24, zéro warning
@@ -24,6 +24,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 [cols="2,2,2,3,3"]
 |===
 | Session | Date | Kover % | Tests PASS | Notes
+| 026 | 2026-05-30 | *Non mesuré* | 17/17 unitaires, 5/5 fonctionnels | BKY-JB-0 : ajout SiteType enum + resolveSiteType(), ressources site-basic/ (12 fichiers). Nettoyage type FORMATION. 22 nouveaux tests. 11 échecs pré-existants inchangés.
 | 025 | 2026-05-30 | *Non mesuré* | 18/18 unitaires, 3/3 fonctionnels | BKY-BKG Step 1-3 : ajout kgraph/ (ArticleNode, RelatedArticlesService, RelatedArticlesGraph), 4 nouveaux fichiers. Fix extraction tags <category> + URL /. 0 régression.
 | 024 | 2026-05-30 | *Non mesuré* | 3/3 unitaires, 1/1 fonctionnel | BKY-N3-7 : ajout SiteContextCollector + SiteContextCollectorTest + CollectSiteContextFunctionalTest. Parsing feed.xml + sitemap.xml. 3 nouveaux fichiers.
 | 023 | 2026-05-29 | *Non mesuré* | 14/14 unitaires, 4/4 fonctionnels | BKY-IA-0 : ajout LlmService, OllamaLlmService, IaConfig. 8 nouveaux fichiers.

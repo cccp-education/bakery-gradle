@@ -126,11 +126,106 @@ class ScaffoldFunctionalTests {
         }
     }
 
+    @Nested
+    @DisplayName("generateSite avec siteType = basic")
+    inner class BasicSiteTypeTest {
+
+        @TempDir
+        lateinit var projectDir: File
+
+        @Test
+        fun `should scaffold basic site with minimal structure`() {
+            createMinimalBakeryProject(
+                projectDir,
+                sitesBaseDir = null,
+                siteName = "mon-site",
+                siteType = "basic"
+            )
+
+            val result = create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateSite")
+                .build()
+
+            val siteDir = projectDir.resolve("mon-site")
+            assertThat(siteDir).exists().isDirectory
+            // Basic-specific resource path: site-basic
+            assertThat(siteDir.resolve("site-basic/jbake.properties")).exists().isFile
+            assertThat(siteDir.resolve("site-basic/templates/index.thyme")).exists().isFile
+            assertThat(siteDir.resolve("site-basic/templates/page.thyme")).exists().isFile
+            assertThat(siteDir.resolve("site-basic/content/index.adoc")).exists().isFile
+            assertThat(siteDir.resolve("site-basic/content/about.adoc")).exists().isFile
+            assertThat(siteDir.resolve("site-basic/content/contact.adoc")).exists().isFile
+            assertThat(siteDir.resolve("maquette/index.html")).exists().isFile
+            assertThat(siteDir.resolve("site.yml")).exists().isFile
+            assertThat(result.output).contains("BUILD SUCCESSFUL")
+        }
+
+        @Test
+        fun `should scaffold basic site with minimal jbake config`() {
+            createMinimalBakeryProject(
+                projectDir,
+                sitesBaseDir = null,
+                siteName = "minimal",
+                siteType = "basic"
+            )
+
+            val result = create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateSite")
+                .build()
+
+            val siteDir = projectDir.resolve("minimal")
+            val jbakeProps = siteDir.resolve("site-basic/jbake.properties")
+            assertThat(jbakeProps).exists().isFile
+            val props = jbakeProps.readText(UTF_8)
+            assertThat(props).contains("template.index.file=index.thyme")
+            assertThat(props).contains("render.feed=false")
+            assertThat(result.output).contains("BUILD SUCCESSFUL")
+        }
+    }
+
+    @Nested
+    @DisplayName("generateSite avec siteType explicite = blog (backward compat)")
+    inner class BlogSiteTypeTest {
+
+        @TempDir
+        lateinit var projectDir: File
+
+        @Test
+        fun `should scaffold blog site with explicit siteType blog`() {
+            createMinimalBakeryProject(
+                projectDir,
+                sitesBaseDir = null,
+                siteName = "mon-blog",
+                siteType = "blog"
+            )
+
+            val result = create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateSite")
+                .build()
+
+            val siteDir = projectDir.resolve("mon-blog")
+            assertThat(siteDir).exists().isDirectory
+            // Blog-specific resource path: site (backward compat)
+            assertThat(siteDir.resolve("site/jbake.properties")).exists().isFile
+            assertThat(siteDir.resolve("site/templates/blog.thyme")).exists().isFile
+            assertThat(siteDir.resolve("site/templates/post.thyme")).exists().isFile
+            assertThat(siteDir.resolve("site/content/blog.adoc")).exists().isFile
+            assertThat(result.output).contains("BUILD SUCCESSFUL")
+        }
+    }
+
     companion object {
         private fun createMinimalBakeryProject(
             projectDir: File,
             sitesBaseDir: String?,
-            siteName: String?
+            siteName: String?,
+            siteType: String? = null
         ) {
             val sbDsl = StringBuilder()
             if (sitesBaseDir != null) {
@@ -138,6 +233,9 @@ class ScaffoldFunctionalTests {
             }
             if (siteName != null) {
                 sbDsl.append("    siteName = \"$siteName\"\n")
+            }
+            if (siteType != null) {
+                sbDsl.append("    siteType = \"$siteType\"\n")
             }
 
             projectDir.resolve("settings.gradle.kts").writeText("""

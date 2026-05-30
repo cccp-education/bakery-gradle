@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-05-30
-_Session terminee_ : 025 — BKY-BKG Step 1-3 (ArticleGraph + RelatedArticlesService + tâche collectRelatedArticles, 18 UT + 3 FT PASS)
-_Vision mise a jour_ : `FORMATION_CONTAINER_VISION.adoc` — Nouveau cap : UX bricks formation (FC) avant génération formation.
-_Session en cours_ : 026 — FC-0 Scaffolding formation site (generateFormationLayout)
+_Session terminee_ : 026 — BKY-JB-0 Scaffolding site JBake (SiteType BLOG/BASIC, 22 nouveaux tests PASS)
+_Prochaine session_ : 027 — generateArticle (User Journey IA complète via OllamaLlmService)
+_Session en cours_ : 027 — BKY-JB-0 GenerateArticle
 
 '''
 
@@ -70,6 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | # | Date | Type | Sujet | Score
+| 026 | 2026-05-30 | feat + test | BKY-JB-0 Scaffolding site JBake — SiteType enum (BLOG/BASIC), ressources site-basic/, resolveSiteType() DSL, 22 tests (17 UT + 4 FT + 1 blog explicite) PASS | 8/10
 | 025 | 2026-05-30 | feat + test | BKY-BKG Step 1-3 — ArticleGraph + RelatedArticlesService (scoring tags/titres, stop words) + tâche collectRelatedArticles (18UT+3FT PASS) | 8/10
 | 024 | 2026-05-30 | feat + test | BKY-N3-7 Contrat N3 — collectSiteContext → metadata.json (SiteContextCollector, feed+sitemap, 3UT+1FT) | 9/10
 | 023 | 2026-05-29 | feat + test | BKY-IA-0 Service LLM partagé (LlmService, OllamaLlmService, IaConfig DSL) | 8/10
@@ -121,7 +122,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | EPIC | Axe | Pts | Priorite | Depend de
-| *BKY-JB-0* | Scaffolding site JBake : generateSite enrichi, structure, templates par defaut | 5 | *P0* | —
+| *BKY-JB-0* | Scaffolding site JBake : generateSite enrichi, structure, templates par defaut | 5 | *P0 ✅ TERMINE* | —
 | *BKY-JB-1* | Templates Thymeleaf : formation-landing, session-landing, module-landing | 8 | *P0* | BKY-JB-0
 | *BKY-JB-2* | Composants Thymeleaf : toc-sidebar, breadcrumb, progress-bar, pdf-viewer | 5 | *P0* | BKY-JB-1
 | *BKY-JB-3* | Google Forms embed : composant iframe responsive dans templates JBake | 5 | *P0* | BKY-JB-1
@@ -137,7 +138,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 *Phase B (JB-3→5)* : services = ~13 pts.
 *Phase C (JB-6→7)* : theme + layouts = ~8 pts.
 *Phase D (JB-8)* : IA via codebase = ~13 pts.
-*Prochaine session* : 026 — BKY-JB-0 Scaffolding site JBake (generateSite enrichi).
+*Prochaine session* : 027 — BKY-JB-0 GenerateArticle (User Journey IA complète via OllamaLlmService).
 
 === EPICs Historiques conservés
 

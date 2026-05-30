@@ -1,36 +1,36 @@
-= PROMPT_REPRISE — Session 026 prête : BKY-JB-0 Scaffolding site JBake
-:toc:
+= PROMPT_REPRISE — Session 027 prête : BKY-JB-0 GenerateArticle (User Journey IA complète)
 
-== Mission accomplie (Session 025)
+== Mission accomplie (Session 026)
 
-BKY-BKG Step 1-3 (18 UT + 3 FT PASS) :
-- Modèle domaine ArticleGraph + RelatedArticlesService (scoring tags/titres/stop words)
-- Tâche collectRelatedArticles (COLLECT_GROUP, dependsOn collectSiteContext)
-- Fix SiteContextCollector : tags `<category>` + préfixe `/` URLs
+BKY-JB-0 Scaffolding site type ✅ :
+- SiteType enum (BLOG/BASIC) + extension DSL `siteType`
+- Ressources `site-basic/` (12 fichiers templates minimaux)
+- 22 nouveaux tests (17 unitaires + 4 fonctionnels + 1 blog explicite)
 
-== Nouveau cap — Roadmap Expert Métier JBake
+== Prochaine mission (027) — generateArticle : user journey IA complète
 
-*Document de référence* : `.agents/BAKERY_ROADMAP_JBake.adoc`
+Boucler la première user journey de bout en bout :
+```
+generateSite → generateArticle → bake → deploySite
+```
 
-La vision a changé. Bakery n'est pas un assembleur de formation. Bakery est **l'expert métier JBake** (site statique). On monte en puissance sur son domaine avant de l'utiliser dans la formation.
+Implémenter la tâche `generateArticle` :
+1. Prendre un topic via `-Ptopic="..."` (CLI)
+2. Appeler `OllamaLlmService` via `bakery { ia { ... } }` (BKY-IA-0 existant)
+3. Générer un article AsciiDoc structuré (titre, description, body, date, tags)
+4. L'injecter dans `content/blog/YYYY/MM/article-slug.adoc`
+5. TDD baby-step : FakeLlmService → tests unitaires → tests fonctionnels
+6. Architecture : bakery = expert JBake, pas IA. BKY-IA-0 = MVP, future délégation codebase.
 
-*IA centralisée* : codebase (N1) est le SEUL provider IA (koog orchestre, langchain4j exécute). BKY-IA-0 à dépiler.
-
-== Prochaine mission (026) — BKY-JB-0 Scaffolding site JBake
-
-Objectif : enrichir `generateSite` pour qu'il propose une structure JBake solide (choix du type de site, templates par défaut, services optionnels).
-
-Phases roadmap JBake :
-  A. Scaffolding + templates + composants (JB-0→2, ~18 pts)
-  B. Services : Google Forms, Firebase, Analytics (JB-3→5, ~13 pts)
-  C. Thème + layouts (JB-6→7, ~8 pts)
-  D. IA via codebase : génération article assistée (JB-8, ~13 pts)
+Patterns koog (KOOG_AGENTIC_PATTERNS.adoc) : **Pattern 10 Self-Reflection** pour la qualité article.
 
 Ordre P0 :
-  BKY-JB-0 → BKY-JB-1 → BKY-JB-2 → BKY-JB-3 → BKY-JB-8 (IA via codebase)
+  BKY-JB-0 ✅ → generateArticle (MVP) → BKY-JB-1 → BKY-JB-8 (via codebase)
 
 == Rappels
 
 - GroupId: `education.cccp` — Plugin ID: `cccp.education.bakery`
 - `./gradlew -q publishToMavenLocal` après toute modification du code source
-- Pool Docker 11437-11465 (gpt-oss:120b-cloud) géré par runner-gradle N3, pas bakery N2
+- Discipline baby-step : RED (test) → GREEN (implémente) → REFACTOR
+- Bakery = expert JBake site statique, PAS formation (training-gradle)
+- KOOG_AGENTIC_PATTERNS.adoc = référence architecture agentique

@@ -1,0 +1,7 @@
+<th:block th:each="content : ${published_content}" xmlns:th="http://www.thymeleaf.org">
+    <entry>
+        <title th:text="${content.title}">Title</title>
+        <link th:href="@{${content.uri}}" />
+        <id th:text="${content.uri}" />
+    </entry>
+</th:block>

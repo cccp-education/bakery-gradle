@@ -30,6 +30,37 @@ CollectRelatedArticlesFunctionalTest.kt (6 fichiers)
 
 **Mis en backlog** : Step 4 (integration graphify-plugin), Step 5 (Cucumber BDD), BKY-IA-4, BKY-IA-1
 
+== Session 026 — 2026-05-30 — BKY-JB-0 : Scaffolding site JBake (SiteType BLOG/BASIC)
+
+**Contexte** : Enrichir generateSite pour proposer un choix du type de site JBake au scaffold
+(site blog classique BLOG ou site minimal BASIC). Supprimer le type FORMATION hors scope.
+
+**Taches realisees** :
+
+* [x] `SiteScaffolder.kt` : +`SiteType` enum (BLOG/BASIC), +`fromString(value)`, +`fromStringOrDefault(value)`, +`resolveSiteType(bakeryExtension)`
+* [x] `BakeryExtension.kt` : +`siteType` property (`Property<String>`, défaut "blog")
+* [x] `BakeryPlugin.kt` : extraction `siteType` via `resolveSiteType`, passage à `registerGenerateSiteTask`
+* [x] `SiteManager.kt` : `registerGenerateSiteTask(site, siteType)`, `resourcePathForType(type)`, `defaultSiteDescription(type)`
+* [x] `src/main/resources/site-basic/` : 12 fichiers templates minimaux JBake :
+  - `templates/` : header.ftl, footer.ftl, menu.ftl, index.ftl, page.ftl, feed.ftl, sitemap.ftl
+  - `content/` : index.adoc, about.adoc, contact.adoc
+  - `jbake.properties` : render.feed=false, render.archive=false, render.tags=false
+* [x] Nettoyage : suppression type FORMATION (`fromString("formation")` → `IllegalArgumentException`)
+* [x] Nettoyage : suppression ressources `site-formation/` créées par erreur
+* [x] Nettoyage : suppression `FormationSiteScaffolderTest.kt`
+* [x] Tests unitaires : 17/17 PASS (SiteScaffolderTest — SiteType 11 + ResolveSiteType 6)
+* [x] Tests fonctionnels : 5/5 PASS (ScaffoldFunctionalTests — Blog explicite 1 + Basic 2 + backward compat 2)
+* [x] `publishToMavenLocal` OK
+
+**Fichiers crees** : 12 fichiers ressources site-basic/
+
+**Fichiers modifies** : SiteScaffolder.kt, BakeryExtension.kt, BakeryPlugin.kt, SiteManager.kt,
+SiteScaffolderTest.kt, ScaffoldFunctionalTests.kt
+
+**Fichiers supprimes** : formation/ (ressources), FormationsSiteScaffolderTest.kt
+
+**Prochaine session** : 027 — generateArticle (User Journey IA complète via OllamaLlmService)
+
 == Session 024 — 2026-05-30 — BKY-N3-7 Contrat N3 : collectSiteContext → metadata.json
 
 **Contexte** : Rendre bakery visible pour runner-gradle (N3) via metadata.json — contrat pivot

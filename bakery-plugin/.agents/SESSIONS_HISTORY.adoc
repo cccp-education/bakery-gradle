@@ -4,6 +4,7 @@ _Derniere mise a jour : 2026-05-30_
 
 |===
 | # | Date | Type | Sujet | Score
+| 026 | 2026-05-30 | feat + test | BKY-JB-0 Scaffolding site JBake — SiteType enum (BLOG/BASIC), ressources site-basic/ (12 fichiers templates minimaux), resolveSiteType() DSL, nettoyage type FORMATION + ressources site-formation/. 22 tests (17 UT + 4 FT + 1 blog explicite) PASS. 170 tests, 11 échecs pré-existants. | 8/10
 | 025 | 2026-05-30 | feat + test | BKY-BKG Step 1-3 — ArticleGraph + RelatedArticlesService (scoring tags/titres/stop words) + tâche collectRelatedArticles (COLLECT_GROUP, dependsOn collectSiteContext). 18 UT + 3 FT PASS. Fix extraction tags <category> + URL prefixe / | 8/10
 | 024 | 2026-05-30 | feat + test | BKY-N3-7 Contrat N3 — collectSiteContext → build/bakery/metadata.json (SiteContextCollector, feed.xml + sitemap.xml, 3 unitaires + 1 fonctionnel PASS, contrat pivot runner-gradle) | 9/10
 | 023 | 2026-05-29 | feat + test | BKY-IA-0 Service LLM partagé — LlmService (fun interface), OllamaLlmService (langchain4j 1.14.1), IaConfig DSL (ia { baseUrl, modelName, poolPorts, poolModel }), BakeryExtension.ia { ... }, FakeLlmService, FakeChatModel. 14 tests unitaires + 4 fonctionnels PASS. Pool Docker délégué à N3 | 8/10

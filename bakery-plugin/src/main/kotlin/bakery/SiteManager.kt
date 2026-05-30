@@ -71,36 +71,59 @@ object SiteManager {
 
 // ==================== Generate Site Task ====================
 
-    fun Project.registerGenerateSiteTask(siteTargetDir: File = projectDir) {
+    /**
+     * Résoud le chemin de ressource JBake en fonction du type de site.
+     */
+    private fun resourcePathForType(siteType: SiteType): String = when (siteType) {
+        SiteType.BLOG -> "site"
+        SiteType.BASIC -> "site-basic"
+    }
+
+    /**
+     * Résoud la description par défaut pour site.yml selon le type.
+     */
+    private fun defaultSiteDescription(siteType: SiteType): String = when (siteType) {
+        SiteType.BLOG -> "Blog JBake avec articles, tags et archives"
+        SiteType.BASIC -> "Site statique minimal"
+    }
+
+    fun Project.registerGenerateSiteTask(
+        siteTargetDir: File = projectDir,
+        siteType: SiteType = SiteType.BLOG
+    ) {
         tasks.register("generateSite") { task ->
             task.apply {
                 group = GENERATE_GROUP
-                description = "Initialise site and maquette folders."
+                description = "Initialise site and maquette folders (type: ${siteType.alias})."
 
                 doLast {
                     val targetDir = siteTargetDir.also { it.mkdirs() }
+                    val resourcePath = resourcePathForType(siteType)
                     targetDir
                         .resolve("site.yml")
-                        .apply { if (!exists()) createAndConfigureSiteYml(targetDir) }
+                        .apply { if (!exists()) createAndConfigureSiteYml(targetDir, siteType) }
                         .run {
                             setupGitIgnore(targetDir)
                             setupGitAttributes(targetDir)
-                            copySiteResources(targetDir, this)
+                            copySiteResources(targetDir, this, resourcePath, siteType)
                         }
                 }
             }
         }
     }
 
-    private fun Project.createAndConfigureSiteYml(targetDir: File): File = targetDir
+    private fun Project.createAndConfigureSiteYml(
+        targetDir: File,
+        siteType: SiteType = SiteType.BLOG
+    ): File = targetDir
         .resolve("site.yml").apply {
             createNewFile()
             "create config file."
                 .apply(::println)
                 .let(logger::info)
             SiteConfiguration(
-                bake = BakeConfiguration("site", "bake"),
-                pushPage = GitPushConfiguration(from = "site", to = "cvs"),
+                bake = BakeConfiguration(resourcePathForType(siteType), "bake"),
+                pushPage = GitPushConfiguration(from = resourcePathForType(siteType), to = "cvs"),
                 pushMaquette = GitPushConfiguration(from = "maquette", to = "cvs")
             ).run(yamlMapper::writeValueAsString)
                 .run(::writeText)
@@ -133,11 +156,19 @@ object SiteManager {
         }
     }
 
-    private fun Project.copySiteResources(targetDir: File, configFile: File) {
+    private fun Project.copySiteResources(
+        targetDir: File,
+        configFile: File,
+        resourcePath: String = "site",
+        siteType: SiteType = SiteType.BLOG
+    ) {
         val site = from(configFile.absolutePath)
-        copyResourceDirectory(site.bake.srcPath, targetDir, project)
+        // Copier le répertoire de ressources spécifique au type de site
+        copyResourceDirectory(resourcePath, targetDir, project)
+        // Copier le répertoire maquette (partagé entre tous les types)
         copyResourceDirectory(site.pushMaquette.from, targetDir, project)
         injectFirebaseConfigIntoJbakeProperties(targetDir, site)
+        logger.lifecycle("✓ Site scaffolded (type: ${siteType.alias}) from resource: $resourcePath")
     }
 
     private fun Project.injectFirebaseConfigIntoJbakeProperties(targetDir: File, site: SiteConfiguration) {

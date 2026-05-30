@@ -1,0 +1,5 @@
+= Contact
+:description: Page contact
+:status: published
+
+Contactez-nous par email à contact@example.com.

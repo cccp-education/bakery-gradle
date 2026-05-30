@@ -1,0 +1,5 @@
+<th:block th:each="content : ${published_content}" xmlns:th="http://www.thymeleaf.org">
+    <url>
+        <loc th:text="${content.uri}" />
+    </url>
+</th:block>

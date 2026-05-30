@@ -130,19 +130,117 @@ class SiteScaffolderTest {
         }
     }
 
+    @Nested
+    inner class SiteTypeTest {
+
+        @Test
+        fun `fromString should return BLOG for blog`() {
+            assertThat(SiteType.fromString("blog")).isEqualTo(SiteType.BLOG)
+        }
+
+        @Test
+        fun `fromString should return BASIC for basic`() {
+            assertThat(SiteType.fromString("basic")).isEqualTo(SiteType.BASIC)
+        }
+
+        @Test
+        fun `fromString should be case insensitive`() {
+            assertThat(SiteType.fromString("BLOG")).isEqualTo(SiteType.BLOG)
+            assertThat(SiteType.fromString("BASIC")).isEqualTo(SiteType.BASIC)
+        }
+
+        @Test
+        fun `fromString should throw for unknown type`() {
+            assertThatThrownBy { SiteType.fromString("unknown") }
+                .isInstanceOf(IllegalArgumentException::class.java)
+                .hasMessageContaining("inconnu")
+        }
+
+        @Test
+        fun `fromStringOrDefault should return BLOG for null`() {
+            assertThat(SiteType.fromStringOrDefault(null)).isEqualTo(SiteType.BLOG)
+        }
+
+        @Test
+        fun `fromStringOrDefault should return BLOG for blank`() {
+            assertThat(SiteType.fromStringOrDefault("")).isEqualTo(SiteType.BLOG)
+            assertThat(SiteType.fromStringOrDefault("   ")).isEqualTo(SiteType.BLOG)
+        }
+
+        @Test
+        fun `fromStringOrDefault should return BLOG for unknown type`() {
+            assertThat(SiteType.fromStringOrDefault("nonsense")).isEqualTo(SiteType.BLOG)
+        }
+
+        @Test
+        fun `fromStringOrDefault should resolve valid types`() {
+            assertThat(SiteType.fromStringOrDefault("basic")).isEqualTo(SiteType.BASIC)
+        }
+
+        @Test
+        fun `alias should return correct string`() {
+            assertThat(SiteType.BLOG.alias).isEqualTo("blog")
+            assertThat(SiteType.BASIC.alias).isEqualTo("basic")
+        }
+    }
+
+    @Nested
+    inner class ResolveSiteTypeTest {
+
+        @TempDir
+        lateinit var tempDir: File
+
+        @Test
+        fun `resolveSiteType should return BLOG by default`() {
+            val ext = mockBakeryExtension(null, null, null)
+            assertThat(SiteScaffolder.resolveSiteType(ext)).isEqualTo(SiteType.BLOG)
+        }
+
+        @Test
+        fun `resolveSiteType should return BLOG when siteType is blank`() {
+            val ext = mockBakeryExtension(null, null, "")
+            assertThat(SiteScaffolder.resolveSiteType(ext)).isEqualTo(SiteType.BLOG)
+        }
+
+        @Test
+        fun `resolveSiteType should return BASIC when siteType is basic`() {
+            val ext = mockBakeryExtension(null, null, "basic")
+            assertThat(SiteScaffolder.resolveSiteType(ext)).isEqualTo(SiteType.BASIC)
+        }
+
+        @Test
+        fun `resolveSiteType should be case insensitive`() {
+            val ext = mockBakeryExtension(null, null, "BASIC")
+            assertThat(SiteScaffolder.resolveSiteType(ext)).isEqualTo(SiteType.BASIC)
+        }
+
+        @Test
+        fun `resolveSiteType should fallback to BLOG for unknown type`() {
+            val ext = mockBakeryExtension(null, null, "nonsense")
+            assertThat(SiteScaffolder.resolveSiteType(ext)).isEqualTo(SiteType.BLOG)
+        }
+    }
+
     companion object {
         private fun bakeryExtension(sitesBaseDir: String?, siteName: String?): BakeryExtension =
-            mockBakeryExtension(sitesBaseDir, siteName)
+            mockBakeryExtension(sitesBaseDir, siteName, null)
 
         @Suppress("UNCHECKED_CAST")
-        private fun mockBakeryExtension(sitesBaseDir: String?, siteName: String?): BakeryExtension {
+        private fun mockBakeryExtension(
+            sitesBaseDir: String?,
+            siteName: String?,
+            siteType: String?
+        ): BakeryExtension {
             val ext = org.mockito.kotlin.mock<BakeryExtension>()
             val sbMock = org.mockito.kotlin.mock<org.gradle.api.provider.Property<String>>()
             val snMock = org.mockito.kotlin.mock<org.gradle.api.provider.Property<String>>()
+            val stMock = org.mockito.kotlin.mock<org.gradle.api.provider.Property<String>>()
             org.mockito.kotlin.whenever(sbMock.orNull).thenReturn(sitesBaseDir)
             org.mockito.kotlin.whenever(snMock.orNull).thenReturn(siteName)
+            org.mockito.kotlin.whenever(stMock.orNull).thenReturn(siteType)
             org.mockito.kotlin.whenever(ext.sitesBaseDir).thenReturn(sbMock)
             org.mockito.kotlin.whenever(ext.siteName).thenReturn(snMock)
+            org.mockito.kotlin.whenever(ext.siteType).thenReturn(stMock)
             return ext
         }
     }

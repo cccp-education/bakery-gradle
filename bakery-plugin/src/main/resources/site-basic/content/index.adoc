@@ -1,0 +1,10 @@
+= Accueil
+:description: Site minimal
+:status: published
+
+Bienvenue sur votre nouveau site.
+
+== Navigation
+
+* link:about.html[À propos]
+* link:contact.html[Contact]

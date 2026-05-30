@@ -1,0 +1,95 @@
+= Session 026 — BKY-JB-0 Scaffolding site JBake : enrichissement generateSite avec choix du type de site
+:date: 2026-05-30
+:author: cheroliv
+:status: terminee
+
+== Mission
+
+Enrichir `generateSite` pour proposer un choix du type de site JBake au scaffold :
+site blog classique (défaut) ou site minimal (basic).
+
+== Travail réalisé
+
+=== 1. Création de `SiteType` enum (SiteScaffolder.kt)
+
+Types supportés :
+- `BLOG` (défaut) — site blog avec articles, tags, archives (backward compat)
+- `BASIC` — site minimal (index, about, contact)
+
+Méthodes :
+- `fromString(value)` — résolution insensible à la casse, throw si inconnu
+- `fromStringOrDefault(value)` — fallback vers BLOG si null/blank/inconnu
+
+=== 2. Ajout de `siteType` à `BakeryExtension`
+
+Nouvelle propriété DSL : `bakery { siteType = "basic" }` (blog par défaut).
+
+=== 3. Création des ressources `site-basic/`
+
+Structure complète JBake pour site minimal :
+- `templates/` : header, footer, menu, index, page, feed, sitemap
+- `content/` : index.adoc, about.adoc, contact.adoc
+- `jbake.properties` : config minimal (render.feed=false, render.archive=false, render.tags=false)
+
+=== 4. Modification de `SiteManager.registerGenerateSiteTask`
+
+- Accepte `siteType: SiteType` (défaut BLOG)
+- `resourcePathForType()` : BLOG → "site" (ressource existante), BASIC → "site-basic"
+- `createAndConfigureSiteYml()` : écrit le bon `bake.srcPath` selon le type
+- `copySiteResources()` : copie la ressource spécifique au type
+
+=== 5. Mise à jour de `BakeryPlugin.kt`
+
+- Extraction du `siteType` via `SiteScaffolder.resolveSiteType(bakeryExtension)`
+- Passage à `registerGenerateSiteTask(targetDir, siteType)`
+
+=== 6. Nettoyage (feedback utilisateur)
+
+- Suppression du type `FORMATION` (hors scope — formation = training-gradle)
+- Suppression des ressources `site-formation/` créées par erreur
+- Suppression des tests associés
+
+== Tests
+
+=== Unitaires (SiteScaffolderTest)
+- `SiteTypeTest` : 11 tests — fromString (3 cas) + fromStringOrDefault (4 cas) + alias (2 cas) + case insensitive (1 cas) + throw unknown (1 cas)
+- `ResolveSiteTypeTest` : 6 tests — default (1) + blank (1) + BASIC (1) + case insensitive (1) + fallback (1)
+
+=== Fonctionnels (ScaffoldFunctionalTests)
+- `BlogSiteTypeTest` : 1 test — scaffold blog avec siteType="blog" explicite ✅
+- `BasicSiteTypeTest` : 2 tests — structure minimal + vérification jbake.properties ✅
+- Tests existants backward compat : 5 tests inchangés ✅
+
+=== Régression
+- 170 tests exécutés, 11 échecs pré-existants (PluginApplicationTest NPE + Cucumber UndefinedStep)
+- Tous les tests fonctionnels PASS
+
+== Fichiers modifiés
+
+[cols="2,3"]
+|===
+| Fichier | Changement
+| `SiteScaffolder.kt` | +SiteType enum, +resolveSiteType()
+| `BakeryExtension.kt` | +siteType property
+| `BakeryPlugin.kt` | Passe siteType à registerGenerateSiteTask
+| `SiteManager.kt` | registerGenerateSiteTask accepte siteType, resourcePathForType, defaultSiteDescription
+| `SiteScaffolderTest.kt` | +17 tests SiteType + resolveSiteType
+| `ScaffoldFunctionalTests.kt` | +4 tests (basic + blog explicite)
+|`src/main/resources/site-basic/` | Nouveau : 12 fichiers de templates minimal JBake
+|===
+
+== Leçons
+
+- Bakery ne fait PAS de formation — son domaine c'est JBake site statique
+- La user journey complète : generateSite → generateArticle → bake → deploySite
+- Pour l'article IA : utiliser BKY-IA-0 (OllamaLlmService) en MVP, future intégration codebase
+- Toujours regarder la matrice KOOG_AGENTIC_PATTERNS avant d'implémenter de l'IA
+
+== Prochaine mission (Session 027)
+
+Implémenter la tâche `generateArticle` pour la user journey complète :
+1. Prendre un topic via `-P`
+2. Appeler `OllamaLlmService` via `bakery { ia { ... } }`
+3. Générer un article AsciiDoc structuré
+4. L'injecter dans `content/blog/YYYY/MM/article-slug.adoc`
+5. Tests avec `FakeLlmService`
