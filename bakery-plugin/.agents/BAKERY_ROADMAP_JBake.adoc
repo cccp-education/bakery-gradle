@@ -1,0 +1,156 @@
+= Bakery — Roadmap Expert Métier JBake
+:toc: macro
+:toclevels: 4
+:date: 2026-05-30
+:author: cheroliv
+:status: brouillon
+:description: Bakery comme expert métier du site statique JBake. Monter en puissance dans son domaine avant de servir la formation.
+
+toc::[]
+
+---
+
+## 1. Positionnement — Expert Métier JBake
+
+Bakery est l'expert métier du **site statique JBake** dans l'ecosystème.
+Son domaine : scaffolding, templates Thymeleaf, theming, services agrégés, déploiement gh-pages.
+
+```
+DOMAINE BAKERY (JBake) :
+├── scaffolding site     → generateSite, site.yml, structure JBake
+├── templates Thymeleaf  → blog.thyme, page.thyme, post.thyme, menu.thyme, etc.
+├── theming              → CSS, variables, layouts, dark/light mode, responsive
+├── services agrégés     → Firebase, Disqus, Google Forms, Pagefind ✅, Analytics
+├── contenu              → articles, pages, taxonomies, feed.xml, sitemap.xml
+└── déploiement          → bake, deploySite, gh-pages, sous-domaines
+```
+
+HORS domaine :
+- ❌ Pédagogie/formation → c'est training-gradle
+- ❌ Slides → c'est slider
+- ❌ Documents PDF → c'est codex
+- ❌ Quiz → c'est forms/quizz-benchmark
+- ❌ IA → c'est codebase (bakery consomme)
+
+---
+
+## 2. Où on en est
+
+| Capacité JBake | État | Détail |
+|---|---|---|
+| **Scaffolding** | 🔶 Partiel | `generateSite` existe mais ne crée que blog vide. Pas de choix de template. |
+| **Templates** | ✅ Blog | blog.thyme, post.thyme, page.thyme, archive.thyme, tags.thyme — OK |
+| **Templates** | 🔴 Formation | Aucun : landing, session, module — inexistants |
+| **Templates** | 🔴 Composants | TOC sidebar, breadcrumb, progression, pagination — inexistants |
+| **Services** | ✅ Pagefind | ✅ Fait |
+| **Services** | 🔴 Firebase Auth/Comments | EPIC 4 (contact form) OK, mais pas auth, pas comments |
+| **Services** | 🔴 Google Forms embed | Inexistant |
+| **Services** | 🔴 Analytics | Inexistant |
+| **Theming** | 🔶 Partiel | CSS styles.css + Bootstrap 5.3. Pas de système de variables, pas de thème formation. |
+| **Déploiement** | ✅ gh-pages | deploySite, deployMaquette, deployProfile — OK |
+| **IA** | 🔴 À dépiler | BKY-IA-0 (LLM service) → remplacer par appel codebase |
+
+---
+
+## 3. Roadmap — Monter en puissance JBake
+
+### Phase A — Scaffolding & templates (le squelette)
+
+| EPIC | Description | Pts | Prio |
+|---|---|---|---|
+| **BKY-JB-0** | `generateSite` enrichi : structure JBake, templates par défaut (blog + formation-landing), choix du type de site au scaffold | 5 | P0 |
+| **BKY-JB-1** | Templates Thymeleaf formation : `formation-landing.thyme`, `session-landing.thyme`, `module-landing.thyme` | 8 | P0 |
+| **BKY-JB-2** | Composants Thymeleaf réutilisables : `toc-sidebar.thyme`, `breadcrumb.thyme`, `progress-bar.thyme`, `pdf-viewer.thyme` | 5 | P0 |
+
+### Phase B — Services (les fonctionnalités)
+
+| EPIC | Description | Pts | Prio |
+|---|---|---|---|
+| **BKY-JB-3** | Google Forms embed : composant iframe responsive, paramétrable par module via metadata | 5 | P0 |
+| **BKY-JB-4** | Firebase Auth + Comments : header login/logout, composant commentaires session/module | 5 | P1 |
+| **BKY-JB-5** | Analytics + Newsletter : Plausible/Matomo, formulaire mail footer | 3 | P1 |
+
+### Phase C — Thème & personnalisation (l'identité)
+
+| EPIC | Description | Pts | Prio |
+|---|---|---|---|
+| **BKY-JB-6** | Système de thème : CSS variables (couleurs, fonts, spacing), dark/light mode, logo custom, favicon | 5 | P1 |
+| **BKY-JB-7** | Layouts : full-width, sidebar droite, sidebar gauche, centered — choix par page | 3 | P2 |
+
+### Phase D — Assistance IA (via codebase)
+
+| EPIC | Description | Pts | Prio | Dépend de |
+|---|---|---|---|---|
+| **BKY-JB-8** | Génération d'article assistée IA : bakery appelle codebase → RAG pgvector (AFNOR/REAC) → génération → injection JBake. Dépile BKY-IA-0. | 13 | P0 | BKY-JB-0 → 3, codebase RAG seed |
+
+---
+
+**Total** : 8 EPICs, ~47 pts.
+**Phase A (JB-0→2)** : ~18 pts — le strict nécessaire.
+**Phase B (JB-3→5)** : ~13 pts — services.
+**Phase C (JB-6→7)** : ~8 pts — identité visuelle.
+**Phase D (JB-8)** : ~13 pts — IA.
+
+---
+
+## 4. Contrat d'entrée — formation.yaml (optionnel)
+
+bakery expose un contrat optionnel `formation.yaml` que les autres briques (training-gradle, runner) peuvent déposer pour structurer un site formation :
+
+```yaml
+# deposé dans le site JBake par training-gradle / runner
+formation:
+  title: "Titre Formation"
+  sessions:
+    - id: s01
+      title: "Introduction"
+      modules:
+        - id: m01
+          title: "Concepts clés"
+          slides: slides/m01.html
+          pdf: pdfs/m01.pdf
+          quiz: quizzes/m01.html
+          google-form-id: "abc123"
+```
+
+Ce contrat est **optionnel** — bakery fonctionne sans. Il sert uniquement quand formation il y a.
+
+---
+
+## 5. IA — Architecture
+
+bakery → codebase :
+
+```
+BKY-JB-8 (bakery)
+  │
+  ├── 1. Requête : "génère article intro session 1"
+  │
+  ▼
+codebase (koog + langchain4j)
+  │
+  ├── 2. buildContext : RAG pgvector → AFNOR/REAC
+  ├── 3. generate : LLM pool gpt-oss-12b:cloud
+  ├── 4. selfReflect : auto-évaluation score
+  └── 5. Return : article AsciiDoc structuré
+      │
+      ▼
+bakery
+  └── 6. Injecte dans JBake : content/s01-intro/index.adoc
+  └── 7. bake + deploySite
+```
+
+BKY-IA-0 (LlmService, OllamaLlmService) est à dépiler — bakery ne fait plus d'IA directe.
+
+---
+
+## 6. État actuel des autres briques UX
+
+| Brique | Expert métier | État |
+|---|---|---|
+| **slider** | Slides Reveal.js | Rename + Playwright ✅. Pas de tâche SPD→slides. |
+| **readme** | Documentation | 0 activité. Rôle à clarifier. |
+| **plantuml** | Diagrammes | Sync seulement. Pas de tâche formation. |
+| **forms** | Quiz/évaluation | 51/51 tests. Pas intégré bakery. |
+
+L'assemblage formation (MVP0 Graal) commence APRÈS que chaque brique a son expert métier mature.

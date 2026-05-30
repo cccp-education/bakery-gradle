@@ -4,7 +4,8 @@ _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-05-30
 _Session terminee_ : 025 — BKY-BKG Step 1-3 (ArticleGraph + RelatedArticlesService + tâche collectRelatedArticles, 18 UT + 3 FT PASS)
-_Session en cours_ : 026 — à choisir (BKY-IA-4 | BKY-BKG-2 graphify | BKY-IA-1)
+_Vision mise a jour_ : `FORMATION_CONTAINER_VISION.adoc` — Nouveau cap : UX bricks formation (FC) avant génération formation.
+_Session en cours_ : 026 — FC-0 Scaffolding formation site (generateFormationLayout)
 
 '''
 
@@ -112,27 +113,43 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 | EPIC 13 : Couverture de tests — lacunes P1 | 50% | P1 - PARTIEL
 |===
 
-=== EPIC 14 — Roadmap IA Bakery (Session 022, BAKERY_AUDIT.adoc)
+=== Nouveau Cap — Roadmap Expert Métier JBake
 
-*Cadrage* : 2026-05-29. 9 EPICs, ~73 pts. Regle d'or : DOGFOOD FIRST, SAAS LATER.
-Pre-requis : BKY-IA-0 (service LLM LangChain4j + Ollama).
+*Cadrage* : 2026-05-30. Vision complète dans `BAKERY_ROADMAP_JBake.adoc`.
+*Principe* : bakery est l'expert métier JBake (site statique). Monter en puissance dans son domaine (templates, services, thème, scaffolding) avant d'être utilisé dans la formation.
+*IA centralisee* : codebase (N1) est le SEUL provider IA. BKY-IA-0 (LLM service) à dépiler.
 
 |===
 | EPIC | Axe | Pts | Priorite | Depend de
-| *BKY-IA-0* | Service LLM partage (LangChain4j + Ollama) | 5 | *P0* | —
-| *BKY-N3-7* | Contrat N3 : collectSiteContext → metadata.json | 5 | *P0* ✅ | —
-| *BKY-BKG* | Articles connexes par Knowledge Graph | 16 | *P0* | graphify (N0)
-| *BKY-IA-4* | Generation d'article assistee par IA | 8 | *P0* | BKY-IA-0
-| *BKY-IA-1* | Scaffolding assiste par IA | 5 | *P0* | BKY-IA-0, EPIC 10
-| *BKY-IA-5* | Formulaire Google Forms (recette → Edster → CI/CD → Drive user) | 8 | *P0* | BKY-IA-0
-| *BKY-TRN-9* | Integration formation : assembleTrainingSite | 21 | *P0* | BKY-N3-7, training-gradle, slider-gradle, codex-gradle, quizz-benchmark
-| *BKY-IA-2* | Personnalisation theme IA (parametrique) | 8 | *P1* | BKY-IA-0
-| *BKY-IA-3* | Validation Firebase IA | 3 | *P2* | BKY-IA-0, EPIC 4
+| *BKY-JB-0* | Scaffolding site JBake : generateSite enrichi, structure, templates par defaut | 5 | *P0* | —
+| *BKY-JB-1* | Templates Thymeleaf : formation-landing, session-landing, module-landing | 8 | *P0* | BKY-JB-0
+| *BKY-JB-2* | Composants Thymeleaf : toc-sidebar, breadcrumb, progress-bar, pdf-viewer | 5 | *P0* | BKY-JB-1
+| *BKY-JB-3* | Google Forms embed : composant iframe responsive dans templates JBake | 5 | *P0* | BKY-JB-1
+| *BKY-JB-4* | Firebase Auth + Comments : header login/logout, commentaires session/module | 5 | *P1* | BKY-JB-1
+| *BKY-JB-5* | Analytics + Newsletter : Plausible/Matomo, formulaire mail footer | 3 | *P1* | BKY-JB-1
+| *BKY-JB-6* | Systeme de theme : CSS variables, dark/light mode, logo custom, favicon | 5 | *P1* | BKY-JB-1
+| *BKY-JB-7* | Layouts : full-width, sidebar droite/gauche, centered — choix par page | 3 | *P2* | BKY-JB-1
+| *BKY-JB-8* | Generation d'article assistee IA : bakery → codebase (koog+langchain4j, RAG) → injection JBake. Depile BKY-IA-0. | 13 | *P0* | BKY-JB-0→3, codebase RAG seed
 |===
 
-*Total IA* : 9 EPICs, ~73 pts → ~24-28 User Stories Baby-Step (max 3 pts/US).
-*BKY-BKG* : Step 1-3 terminé (modèle + service + tâche). Step 4-6 (graphify, Cucumber) en backlog.
-*Prochaine session* : 026 — à choisir (BKY-IA-4, BKY-BKG-2 graphify, BKY-IA-1).
+*Total JBake* : 9 EPICs, ~47 pts.
+*Phase A (JB-0→2)* : scaffolding + templates + composants = ~18 pts.
+*Phase B (JB-3→5)* : services = ~13 pts.
+*Phase C (JB-6→7)* : theme + layouts = ~8 pts.
+*Phase D (JB-8)* : IA via codebase = ~13 pts.
+*Prochaine session* : 026 — BKY-JB-0 Scaffolding site JBake (generateSite enrichi).
+
+=== EPICs Historiques conservés
+
+|===
+| EPIC | Progression | Priorite
+| BKY-IA-0 Service LLM partagé | ✅ 100% | *À dépiler* — codebase remplace
+| BKY-N3-7 Contrat N3 | ✅ 100% | Conservé
+| BKY-BKG Articles connexes | Step 1-3 ✅ | Step 4-6 backlog
+| BKY-IA-4 Generation d'article | 🔄 0% | Remplace par BKY-JB-8 (via codebase)
+| BKY-IA-5 Google Forms | 🔄 0% | Remplace par BKY-JB-3
+| BKY-TRN-9 Integration formation | 🔄 0% | Post-maturation JBake
+|===
 
 '''
 
