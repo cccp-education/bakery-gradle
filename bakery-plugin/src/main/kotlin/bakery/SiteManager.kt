@@ -1,5 +1,8 @@
 package bakery
 
+import bakery.article.GenerateArticleTask
+import bakery.llm.IaConfig
+import bakery.llm.OllamaLlmService
 import bakery.ConfigPrompts.getOrPrompt
 import bakery.ConfigPrompts.saveConfiguration
 import bakery.FileSystemManager.copyResourceDirectory
@@ -379,6 +382,37 @@ object SiteManager {
                         .apply(logger::info)
                         .run(::println)
                 }
+            }
+        }
+    }
+
+// ==================== Generate Article Task (BKY-JB-0) ====================
+
+    /**
+     * Enregistre la tâche `generateArticle` pour un site configuré.
+     *
+     * @param site Configuration du site (utilise bake.srcPath pour le content root)
+     * @param iaConfig Configuration IA (Ollama baseUrl, modelName) depuis `bakery { ia { ... } }`
+     */
+    internal fun Project.registerGenerateArticleTask(site: SiteConfiguration, iaConfig: IaConfig = IaConfig()) {
+        val contentRoot = project.projectDir.resolve(site.bake.srcPath)
+        tasks.register("generateArticle", GenerateArticleTask::class.java) { task ->
+            task.group = GENERATE_GROUP
+            task.description = "Génère un article de blog assisté IA via Ollama — injecte dans content/blog/YYYY/MM/"
+            task.contentRootDir = contentRoot
+            task.topic.set(project.providers.gradleProperty("topic").orElse(""))
+            if (iaConfig.enabled) {
+                task.llmService = OllamaLlmService.create(
+                    baseUrl = iaConfig.baseUrl,
+                    modelName = iaConfig.modelName,
+                    timeout = iaConfig.timeout
+                )
+                project.logger.info(
+                    "[BakeryPlugin] generateArticle IA activé : {} @ {}",
+                    iaConfig.modelName, iaConfig.baseUrl
+                )
+            } else {
+                project.logger.info("[BakeryPlugin] generateArticle IA désactivé (ia.enabled = false)")
             }
         }
     }

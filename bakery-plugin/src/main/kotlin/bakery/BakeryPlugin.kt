@@ -13,10 +13,12 @@ import bakery.SiteManager.registerCollectSiteContextTask
 import bakery.SiteManager.registerDeployMaquetteTask
 import bakery.SiteManager.registerDeployProfileTask
 import bakery.SiteManager.registerDeploySiteTask
+import bakery.SiteManager.registerGenerateArticleTask
 import bakery.SiteManager.registerGenerateSiteTask
 import bakery.SiteManager.registerPagefindTask
 import bakery.SiteManager.registerServeTask
 import bakery.SiteManager.registerUtilityTasks
+import bakery.llm.OllamaLlmService
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -77,6 +79,7 @@ class BakeryPlugin : Plugin<Project> {
                 project.registerCollectSiteConfigTask(site, isGradlePropertiesEnabled)
                 project.registerCollectSiteContextTask(site)
                 project.registerCollectRelatedArticlesTask(site)
+                project.registerGenerateArticleTask(site, bakeryExtension.ia)
             }
         }
     }

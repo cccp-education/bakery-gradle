@@ -146,6 +146,76 @@ class BakeryWorld {
     }
 
     /**
+     * Crée un projet Gradle de test avec site fully configured (bake.srcPath + maquette existants).
+     * Nécessaire pour tester les tasks qui ne sont enregistrées que dans la branche "else" du plugin
+     * (generateArticle, deploySite, etc.).
+     */
+    fun createGradleProjectWithSiteConfigured(iaEnabled: Boolean = true): File {
+        val pluginId = "education.cccp.bakery"
+        val iaBlock = if (iaEnabled) """
+            ia {
+                baseUrl = "http://localhost:11434"
+                modelName = "deepseek-v4-pro"
+            }
+        """.trimIndent() else ""
+
+        val buildScriptContent = """
+            bakery {
+                configPath = file("site.yml").absolutePath
+                $iaBlock
+            }
+        """.trimIndent()
+
+        createTempFile("gradle-test-", "").apply {
+            delete()
+            mkdirs()
+        }.run {
+            resolve("settings.gradle.kts")
+                .apply { createNewFile() }
+                .writeText(
+                    "pluginManagement.repositories.gradlePluginPortal()\n" +
+                            "rootProject.name = \"${name}\""
+                )
+            resolve("build.gradle.kts")
+                .apply { createNewFile() }
+                .writeText("plugins { id(\"$pluginId\") }\n$buildScriptContent")
+            // Écrire un site.yml minimal mais valide
+            resolve("site.yml").writeText("""
+                bake:
+                  srcPath: "site"
+                  destDirPath: "build/bake"
+                pushPage:
+                  from: "site"
+                  to: "cvs"
+                  repo:
+                    name: "test-site"
+                    repository: "https://github.com/user/repo.git"
+                    credentials:
+                      username: "user"
+                      password: "token"
+                  branch: "main"
+                  message: "Deploy test"
+                pushMaquette:
+                  from: "maquette"
+                  to: "cvs"
+                  repo:
+                    name: "test-maquette"
+                    repository: "https://github.com/user/maquette.git"
+                    credentials:
+                      username: "user"
+                      password: "token"
+                  branch: "main"
+                  message: "Deploy maquette"
+            """.trimIndent())
+            // Créer les répertoires pour que le plugin prenne la branche "else" du afterEvaluate
+            resolve("site").mkdirs()
+            resolve("maquette").mkdirs()
+            projectDir = this
+            return this
+        }
+    }
+
+    /**
      * Crée un projet Gradle de test avec bloc IA pool multi-port.
      */
     fun createGradleProjectWithIAPool(): File {
