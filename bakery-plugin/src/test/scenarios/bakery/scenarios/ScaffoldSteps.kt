@@ -87,7 +87,7 @@ class ScaffoldSteps(private val world: BakeryWorld) {
     private fun rebuildBuildFile() {
         val dslBody = props.entries.joinToString("\n") { (k, v) -> "    $k = $v" }
         world.projectDir!!.resolve("build.gradle.kts").writeText(
-            """plugins { id("com.cheroliv.bakery") }
+            """plugins { id("education.cccp.bakery") }
 bakery {
 $dslBody
 }

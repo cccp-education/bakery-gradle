@@ -146,7 +146,7 @@ class ScaffoldFunctionalTests {
             """.trimIndent(), UTF_8)
 
             projectDir.resolve("build.gradle.kts").writeText("""
-                plugins { id("com.cheroliv.bakery") }
+                plugins { id("education.cccp.bakery") }
                 bakery {
                     configPath = file("site.yml").absolutePath
             $sbDsl    }

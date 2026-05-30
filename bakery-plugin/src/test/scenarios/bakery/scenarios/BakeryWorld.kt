@@ -91,7 +91,7 @@ class BakeryWorld {
      * Crée un projet Gradle de test
      */
     fun createGradleProject(configFileName: String = "site.yml"): File {
-        val pluginId = "com.cheroliv.bakery"
+        val pluginId = "education.cccp.bakery"
         val buildScriptContent = "bakery { configPath = file(\"$configFileName\").absolutePath }"
         createTempFile("gradle-test-", "").apply {
             delete()
@@ -116,7 +116,7 @@ class BakeryWorld {
      * Crée un projet Gradle de test avec bloc IA par défaut.
      */
     fun createGradleProjectWithIA(): File {
-        val pluginId = "com.cheroliv.bakery"
+        val pluginId = "education.cccp.bakery"
         val buildScriptContent = """
             bakery {
                 configPath = file("site.yml").absolutePath
@@ -149,7 +149,7 @@ class BakeryWorld {
      * Crée un projet Gradle de test avec bloc IA pool multi-port.
      */
     fun createGradleProjectWithIAPool(): File {
-        val pluginId = "com.cheroliv.bakery"
+        val pluginId = "education.cccp.bakery"
         val buildScriptContent = """
             bakery {
                 configPath = file("site.yml").absolutePath

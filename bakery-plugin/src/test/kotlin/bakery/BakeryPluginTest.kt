@@ -403,10 +403,11 @@ class BakeryPluginTest {
             val method = SiteManager::class.java.getDeclaredMethod(
                 "injectFirebaseConfigIntoJbakeProperties",
                 Project::class.java,
+                java.io.File::class.java,
                 SiteConfiguration::class.java
             )
             method.isAccessible = true
-            method.invoke(SiteManager, project, site)
+            method.invoke(SiteManager, project, tempDir, site)
         }
 
         @Test

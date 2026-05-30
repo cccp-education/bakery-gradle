@@ -2,6 +2,7 @@
 
 package bakery
 
+import bakery.llm.IaConfig
 import java.io.File
 import java.util.Optional
 import org.gradle.api.Action
@@ -70,7 +71,12 @@ private fun mockProperty(value: String, present: Boolean): Property<String> {
 
 private fun mockBakeryExtension(configPath: Property<String>): BakeryExtension {
     val ext = mock<BakeryExtension>()
+    val sitesBaseDirProp = mockProperty("", present = false)
+    val siteNameProp = mockProperty("", present = false)
     whenever(ext.configPath).thenReturn(configPath)
+    whenever(ext.sitesBaseDir).thenReturn(sitesBaseDirProp)
+    whenever(ext.siteName).thenReturn(siteNameProp)
+    whenever(ext.ia).thenReturn(IaConfig())
     return ext
 }
 

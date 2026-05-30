@@ -133,7 +133,7 @@ class ArchitectureValidationTest {
             projectDir.resolve("build.gradle.kts").writeText(
                 """
                 plugins {
-                    id("com.cheroliv.bakery") version "0.1.3"
+                    id("education.cccp.bakery") version "0.1.3"
                 }
                 bakery {
                     configPath.set(file("site.yml").absolutePath)

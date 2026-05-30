@@ -101,7 +101,7 @@ bakery { configPath = file("$CONFIG_FILE").absolutePath }
             [libraries]
 
             [plugins]
-            bakery = { id = "com.cheroliv.bakery", version.ref = "bakery" }
+            bakery = { id = "education.cccp.bakery", version.ref = "bakery" }
 
             [bundles]
         """

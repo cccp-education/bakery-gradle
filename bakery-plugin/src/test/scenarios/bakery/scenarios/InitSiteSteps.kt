@@ -82,7 +82,7 @@ class InitSiteSteps(private val world: BakeryWorld) {
             .run(::assertThat)
             .describedAs("Gradle buildScript should contains plugins block and bakery dsl.")
             .contains(
-                "plugins { id(\"com.cheroliv.bakery\") }",
+                "plugins { id(\"education.cccp.bakery\") }",
                 "bakery { configPath = file(\"$configFileName\").absolutePath }"
             )
     }
@@ -259,7 +259,7 @@ class InitSiteSteps(private val world: BakeryWorld) {
         BUILD_FILE.run(world.projectDir!!::resolve).apply {
             delete()
             createNewFile()
-            writeText("plugins { id(\"com.cheroliv.bakery\") }", UTF_8)
+            writeText("plugins { id(\"education.cccp.bakery\") }", UTF_8)
             readText(UTF_8).run(::assertThat)
                 .describedAs("Gradle buildScript should contains plugins block without bakery dsl.")
                 .doesNotContain("bakery { configPath = file(\"site.yml\").absolutePath }")
