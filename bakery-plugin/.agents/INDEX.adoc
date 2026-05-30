@@ -3,8 +3,8 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-05-30
-_Session terminee_ : 024 — BKY-N3-7 Contrat N3 collectSiteContext → metadata.json (SiteContextCollector, 3 UT + 1 FT PASS)
-_Session en cours_ : 025 — BKY-BKG Articles connexes par Knowledge Graph (16 pts)
+_Session terminee_ : 025 — BKY-BKG Step 1-3 (ArticleGraph + RelatedArticlesService + tâche collectRelatedArticles, 18 UT + 3 FT PASS)
+_Session en cours_ : 026 — à choisir (BKY-IA-4 | BKY-BKG-2 graphify | BKY-IA-1)
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | # | Date | Type | Sujet | Score
+| 025 | 2026-05-30 | feat + test | BKY-BKG Step 1-3 — ArticleGraph + RelatedArticlesService (scoring tags/titres, stop words) + tâche collectRelatedArticles (18UT+3FT PASS) | 8/10
 | 024 | 2026-05-30 | feat + test | BKY-N3-7 Contrat N3 — collectSiteContext → metadata.json (SiteContextCollector, feed+sitemap, 3UT+1FT) | 9/10
 | 023 | 2026-05-29 | feat + test | BKY-IA-0 Service LLM partagé (LlmService, OllamaLlmService, IaConfig DSL) | 8/10
 | 020 | 2026-05-18 | chore | Gitignore — ajout pattern **/site.yml (racine + plugin) | 10/10
@@ -130,7 +131,8 @@ Pre-requis : BKY-IA-0 (service LLM LangChain4j + Ollama).
 |===
 
 *Total IA* : 9 EPICs, ~73 pts → ~24-28 User Stories Baby-Step (max 3 pts/US).
-*Prochaine session* : 023 — demarrer BKY-IA-0 (service LLM partage).
+*BKY-BKG* : Step 1-3 terminé (modèle + service + tâche). Step 4-6 (graphify, Cucumber) en backlog.
+*Prochaine session* : 026 — à choisir (BKY-IA-4, BKY-BKG-2 graphify, BKY-IA-1).
 
 '''
 

@@ -424,6 +424,62 @@ object SiteManager {
         }
     }
 
+// ==================== Collect Related Articles Task (BKY-BKG) ====================
+
+    internal fun Project.registerCollectRelatedArticlesTask(site: SiteConfiguration) {
+        tasks.register("collectRelatedArticles") { task ->
+            task.apply {
+                group = COLLECT_GROUP
+                description = "Construit le graphe KG d'articles connexes (tags + mots-clés titre) → build/bakery/related-articles.json."
+                dependsOn("collectSiteContext")
+
+                doLast {
+                    val outputDir = layout.buildDirectory.get().asFile.resolve("bakery")
+                    val metadataFile = outputDir.resolve("metadata.json")
+
+                    if (!metadataFile.exists()) {
+                        logger.warn("[collectRelatedArticles] metadata.json not found. Run collectSiteContext first.")
+                        return@doLast
+                    }
+
+                    val mapper = com.fasterxml.jackson.module.kotlin.jacksonObjectMapper()
+                    val metadata: Map<String, Any> = mapper.readValue(metadataFile, object : com.fasterxml.jackson.core.type.TypeReference<Map<String, Any>>() {})
+
+                    @Suppress("UNCHECKED_CAST")
+                    val rawArticles = metadata["articles"] as? List<Map<String, Any>> ?: emptyList()
+
+                    val articles = rawArticles.map { art ->
+                        @Suppress("UNCHECKED_CAST")
+                        val tags = (art["tags"] as? List<String>) ?: emptyList()
+                        bakery.kgraph.ArticleNode(
+                            url = art["url"] as? String ?: "",
+                            title = art["title"] as? String ?: "",
+                            date = art["date"] as? String ?: "",
+                            tags = tags,
+                            author = art["author"] as? String ?: ""
+                        )
+                    }
+
+                    logger.lifecycle("[collectRelatedArticles] {} articles loaded from metadata.json", articles.size)
+
+                    val service = bakery.kgraph.RelatedArticlesService()
+                    val graph = service.buildGraph(articles)
+                    val output = service.toSuggestions(graph)
+
+                    mapper.writerWithDefaultPrettyPrinter()
+                        .writeValue(outputDir.resolve("related-articles.json"), output)
+
+                    val totalEdges = output.suggestions.values.sumOf { it.size }
+                    val articleCount = output.suggestions.size
+                    logger.lifecycle(
+                        "[collectRelatedArticles] {} article(s) avec {} suggestion(s) au total → {}",
+                        articleCount, totalEdges, outputDir.absolutePath
+                    )
+                }
+            }
+        }
+    }
+
 // ==================== Utility Tasks ====================
 
     // TODO: Implémenter la création/initialisation du repository GitHub Pages

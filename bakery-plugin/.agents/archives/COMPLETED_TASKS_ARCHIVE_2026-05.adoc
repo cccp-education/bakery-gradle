@@ -1,5 +1,35 @@
 = Archive des Taches Terminees — Mai 2026
 
+== Session 025 — 2026-05-30 — BKY-BKG Step 1-3 : ArticleGraph + RelatedArticlesService + tâche collectRelatedArticles
+
+**Contexte** : Première brique de BKY-BKG (Articles connexes par Knowledge Graph, 16 pts).
+Implantation du modèle domaine ArticleGraph (ArticleNode, ArticleEdge, RelatedArticlesGraph),
+du service de scoring RelatedArticlesService (tags +1.0/tag, titre +0.2/mot, stop words ~80),
+et de la tâche Gradle collectRelatedArticles (COLLECT_GROUP, dependsOn collectSiteContext).
+
+**Taches realisees** :
+
+* [x] `ArticleNode.kt` : modèle article (url, title, date, tags, author)
+* [x] `ArticleEdge.kt` : arête pondérée (sourceUrl, targetUrl, score, reasons)
+* [x] `RelatedArticlesGraph.kt` : graphe + `relatedTo(url, maxResults)`
+* [x] `RelatedArticleSuggestion.kt` : suggestion d'article connexe (url, title, score, reasons)
+* [x] `RelatedArticlesOutput.kt` : format JSON (version, generatedAt, suggestions)
+* [x] `RelatedArticlesService.kt` : buildGraph + computeScore + titleOverlap + buildReasons + toSuggestions
+* [x] `SiteManager.kt` : +registerCollectRelatedArticlesTask(site) (COLLECT_GROUP)
+* [x] `BakeryPlugin.kt` : enregistrement de collectRelatedArticles dans afterEvaluate
+* [x] Tests unitaires : 18/18 PASS (kgraph.*)
+* [x] Tests fonctionnels : 3/3 PASS (CollectRelatedArticlesFunctionalTest)
+* [x] Fix regression : extraction tags `<category>` depuis feed.xml
+* [x] Fix regression : préfixe `/` manquant dans les URLs SiteContextCollector
+
+**Fichiers crees** : RelatedArticlesGraph.kt, RelatedArticlesService.kt,
+RelatedArticlesGraphTest.kt, RelatedArticlesOutputTest.kt, RelatedArticlesServiceTest.kt,
+CollectRelatedArticlesFunctionalTest.kt (6 fichiers)
+
+**Fichiers modifies** : SiteManager.kt, BakeryPlugin.kt, SiteContextCollector.kt (3 fichiers)
+
+**Mis en backlog** : Step 4 (integration graphify-plugin), Step 5 (Cucumber BDD), BKY-IA-4, BKY-IA-1
+
 == Session 024 — 2026-05-30 — BKY-N3-7 Contrat N3 : collectSiteContext → metadata.json
 
 **Contexte** : Rendre bakery visible pour runner-gradle (N3) via metadata.json — contrat pivot

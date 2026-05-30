@@ -60,9 +60,9 @@ object SiteContextCollector {
                         val link = (0 until nodes.length).firstNotNullOfOrNull { j ->
                             if (nodes.item(j).nodeName == "link") nodes.item(j).textContent.trim() else null
                         } ?: ""
-                        link.substringAfter("://")
+                        "/" + link.substringAfter("://")
                             .substringAfter("/")
-                            .let { it }  // déjà préfixé par / via substringAfter
+                            .removePrefix("/")
                     },
                     "date" to item.childNodes.let { nodes ->
                         val raw = (0 until nodes.length).firstNotNullOfOrNull { j ->
@@ -70,7 +70,11 @@ object SiteContextCollector {
                         } ?: ""
                         parseRssDate(raw)
                     },
-                    "tags" to emptyList<String>(),
+                    "tags" to item.childNodes.let { nodes ->
+                        (0 until nodes.length).filter { j ->
+                            nodes.item(j).nodeName == "category"
+                        }.map { j -> nodes.item(j).textContent.trim() }
+                    },
                     "author" to ""
                 )
             }
@@ -100,9 +104,9 @@ object SiteContextCollector {
             val locs = doc.getElementsByTagName("loc")
             (0 until locs.length).map { i ->
                 val url = locs.item(i).textContent.trim()
-                url.substringAfter("://")
+                "/" + url.substringAfter("://")
                     .substringAfter("/")
-                    .let { it }  // déjà préfixé par / via substringAfter
+                    .removePrefix("/")
             }.filter { it.isNotBlank() }
         }.getOrDefault(emptyList())
     }
