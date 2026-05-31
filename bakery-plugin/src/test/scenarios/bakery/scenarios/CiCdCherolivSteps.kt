@@ -10,6 +10,7 @@ import org.gradle.testkit.runner.GradleRunner
 import java.io.File
 import kotlin.text.Charsets.UTF_8
 
+//TODO: CHANGER le nommage qui ne va pas du tout
 class CiCdCherolivSteps(private val world: BakeryWorld) {
 
     private val jbakeSourcePath = System.getenv("OFFICE_PATH")

@@ -121,8 +121,8 @@ class BakeryWorld {
             bakery {
                 configPath = file("site.yml").absolutePath
                 ia {
-                    baseUrl = "http://localhost:11434"
-                    modelName = "deepseek-v4-pro"
+                    baseUrl = "http://localhost:11438"
+                    modelName = "gpt-oss:120b-cloud"
                 }
             }
         """.trimIndent()
@@ -154,8 +154,8 @@ class BakeryWorld {
         val pluginId = "education.cccp.bakery"
         val iaBlock = if (iaEnabled) """
             ia {
-                baseUrl = "http://localhost:11434"
-                modelName = "deepseek-v4-pro"
+                baseUrl = "http://localhost:11437"
+                modelName = "gpt-oss:120b-cloud"
             }
         """.trimIndent() else ""
 
