@@ -17,8 +17,8 @@ class OllamaLlmServiceTest {
     @Test
     fun `factory creates service with real OllamaChatModel`() {
         val service = OllamaLlmService.create(
-            baseUrl = "http://localhost:11434",
-            modelName = "deepseek-v4-pro"
+            baseUrl = "http://localhost:11465",
+            modelName = "gpt-oss:120b-cloud"
         )
         assertNotNull(service)
     }

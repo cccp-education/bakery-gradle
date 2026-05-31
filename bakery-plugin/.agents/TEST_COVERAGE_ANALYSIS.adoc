@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-05-30 — Session 026_
+_Dernière mise à jour : 2026-05-31 — Session 027_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -48,3 +48,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 . *Session 023* : documenter la couverture par classe (SiteManager, GitService, etc.)
 . *Session 024+* : ramener la couverture à ≥ 75% si nécessaire
 . *EPIC 13* : compléter les tests ConfigPrompts + lacunes P1
+. *Session 027* : pas de nouveaux tests ajoutés (analyse + documentation). Ports LLM modifiés dans les tests existants (11465/64/63/62). 14/14 tests IA PASS.
+. *EPIC 15* : réparer 4 tests NPE (PluginApplicationTest + PublishingTest)
+. *EPIC 16* : réparer 7 tests Cucumber (Scaffolding steps manquants)
+. *EPIC 17* : réparer generateArticle graceful fail (1 test Cucumber)

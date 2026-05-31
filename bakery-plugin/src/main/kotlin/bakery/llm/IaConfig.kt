@@ -9,7 +9,7 @@ import java.time.Duration
  *
  * Mode simple (single instance) :
  * ```
- * bakery { ia { baseUrl = "http://localhost:11434"; modelName = "deepseek-v4-pro" } }
+ * bakery { ia { baseUrl = "http://localhost:11464"; modelName = "deepseek-v4-pro" } }
  * ```
  *
  * Mode pool (multi-instances Docker, ports 11437-11465, modèle gpt-oss:120b-cloud) :
@@ -18,7 +18,7 @@ import java.time.Duration
  * ```
  */
 open class IaConfig(
-    var baseUrl: String = "http://localhost:11434",
+    var baseUrl: String = "http://localhost:11464",
     var modelName: String = "deepseek-v4-pro",
     var timeout: Duration = Duration.ofSeconds(120),
     var enabled: Boolean = true,

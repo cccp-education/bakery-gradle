@@ -527,3 +527,222 @@ bakery → assembleTrainingSite → site statique complet :
 *Tâches* :
 . `BKY-IA-3.1` — Tâche `validateFirebaseConfig` : LLM vérifie cohérence bloc `firebase:` dans `site.yml`
 . `BKY-IA-3.2` — Suggester : "tu as un formulaire de contact, veux-tu aussi une newsletter ?"
+
+== EPIC 15 : Réparation PluginApplicationTest + PublishingTest (4 NPE)
+
+*Statut* : Analyse terminée — *P0*
+*Charge* : 3 pts
+*Priorité* : P0 — bloque la confiance dans la suite de tests unitaires
+*Fichiers concernés* : `BakeryTestFixture.kt`, `BakeryPluginTest.kt`, `BakeryPlugin.kt`, `SiteScaffolder.kt`
+
+=== Analyse de la cause racine
+
+Le `BakeryTestFixture` mocke `BakeryExtension` avec Mockito mais omet la propriété `siteType`.
+
+```
+mockBakeryExtension()                ← CAUSE RACINE : siteType non-stubbé
+  ↓
+bakeryExtension.siteType = null      ← Mockito retourne null par défaut
+  ↓
+SiteScaffolder.resolveSiteType()     ← MAILLON FAIBLE : pas de null-check
+  ↓
+null.orNull                          → NPE à SiteScaffolder.kt:70
+  ↓
+BakeryPlugin.kt:64 (afterEvaluate)   ← POINT D'APPEL
+  ↓
+BakeryPluginTest.kt:32/39/46/265    ← 4 tests échouent
+```
+
+**4 tests NPE** :
+- `PluginApplicationTest > plugin creates bakery extension()`
+- `PluginApplicationTest > plugin manager is configured on apply()`
+- `PluginApplicationTest > plugin reads config path from extension()`
+- `PublishingTest > check_publishing()`
+
+=== User Journeys BDD
+
+```gherkin
+Feature: Réparation PluginApplicationTest
+  En tant que développeur bakery
+  Je veux que l'application du plugin sur un projet mocké minimal fonctionne
+  Afin d'avoir une suite de tests unitaires fiable en TDD
+
+  Scenario: Le plugin s'applique sans NPE sur un projet mocké
+    Given un BakeryTestFixture avec tous les mocks nécessaires
+      (configPath, sitesBaseDir, siteName, siteType, ia)
+    When BakeryPlugin().apply(fixture.project) est appelé
+    Then l'appel réussit sans exception
+    And pluginManager.apply("com.github.node-gradle.node") a été appelé
+    And extensions.create("bakery", BakeryExtension::class.java) a été appelé
+    And configPath.get() retourne "site.yml"
+```
+
+=== Conditions aux limites
+
+- `siteType = null` sur l'extension → doit être géré dans `resolveSiteType()`
+- `configPath` non défini → `isGradlePropertiesEnabled = false` → comportement par défaut
+- `site.yml` inexistant → branche scaffolding (prise par le mock)
+- `site.yml` existant → branche site config (bloque la résolution des chemins)
+
+=== Baby Steps DDD/TDD
+
+. **Étape 1 — Mock** (1 pt) : Ajouter `siteType` dans `BakeryTestFixture.mockBakeryExtension()`
+  - [ ] Stubber `ext.siteType` avec `mockProperty("blog", present = true)`
+  - [ ] Vérifier que les 4 NPE disparaissent (`./gradlew test --tests "*PluginApplicationTest*" --tests "*PublishingTest*"`)
+
+. **Étape 2 — Null-safety** (1 pt) : Ajouter une protection dans `SiteScaffolder.resolveSiteType()`
+  - [ ] Ajouter un null-check : `val rawType = bakeryExtension.siteType?.orNull`
+  - [ ] Ajouter un test unitaire pour `resolveSiteType` avec extension null
+
+. **Étape 3 — UTs complets** (1 pt) : Remplacer les mocks Mockito par `ProjectBuilder` réel
+  - [ ] Migrer `PluginApplicationTest` vers `ProjectBuilder` (sans `afterEvaluate`)
+  - [ ] Ajouter `@TempDir` + `ProjectBuilder.builder().withProjectDir(tempDir).build()`
+  - [ ] Tester les 2 branches : scaffolding (sans `site.yml`) vs site config (avec `site.yml`)
+
+== EPIC 16 : Correction Cucumber Scaffolding — Step manquant (7 UndefinedStepException)
+
+*Statut* : Analyse terminée — *P0*
+*Charge* : 2 pts
+*Priorité* : P0 — 3 User Journeys scaffolding bloquées (UJ1, UJ4, UJ5)
+*Fichiers concernés* : `6_site_scaffolding.feature`
+
+=== Analyse de la cause racine
+
+**Divergence unique** entre le fichier `.feature` et l'annotation Cucumber :
+
+```diff
+# Lignes 15, 60, 79 du feature (6_site_scaffolding.feature) :
+- And the gradle project does not have 'site.yml' for site configuration
+# Annotation dans InitSiteSteps.kt ligne 90 :
++ @And("does not have {string} for site configuration")
+```
+
+Le préfixe `the gradle project ` est présent dans le `.feature` mais absent de l'annotation.
+
+**Scénarios affectés** (3/5) :
+- UJ1 `Scaffold a new site into the sites base directory` (ligne 15)
+- UJ4 `Scaffold into project directory when only siteName is defined` (ligne 60)
+- UJ5 `Scaffold into project root when no scaffolding properties are defined` (ligne 79)
+
+**Scénarios OK** (2/5) :
+- UJ2 `Scaffold fails when siteName is missing` — pas d'étape concernée
+- UJ3 `Scaffold fails when the site already exists` — pas d'étape concernée
+
+Les autres features (`2_init_site_task.feature`, `4_contact_form.feature`) utilisent la forme correcte `does not have` sans préfixe.
+
+=== User Journeys BDD
+
+```gherkin
+Feature: Correction Scaffolding Cucumber
+
+  UJ1 — Scaffolder site complet (sitesBaseDir + siteName)
+  Scenario: Scaffold a new site into the sites base directory
+    Given a new Bakery project
+    And does not have 'site.yml' for site configuration    ← step corrigé
+    And the bakery extension defines 'sitesBaseDir' as 'office/sites'
+    And the bakery extension defines 'siteName' as 'my-company'
+    When I am executing the task 'generateSite'
+    Then the project directory 'office/sites/my-company' should exist
+
+  UJ4 — Scaffold dans projectDir avec siteName seul
+  Scenario: Scaffold into project directory when only siteName is defined
+    Given a new Bakery project
+    And does not have 'site.yml' for site configuration    ← step corrigé
+    And the bakery extension defines 'siteName' as 'mysite'
+    When I am executing the task 'generateSite'
+    Then the project directory 'mysite' should exist
+
+  UJ5 — Rétrocompatibilité (ni sitesBaseDir ni siteName)
+  Scenario: Scaffold into project root (backward compat)
+    Given a new Bakery project
+    And does not have 'site.yml' for site configuration    ← step corrigé
+    When I am executing the task 'generateSite'
+    Then the project should have a 'site.yml' file for site configuration
+```
+
+=== Conditions aux limites
+
+- `site.yml` déjà présent → la tâche `generateSite` crée-t-elle quand même ?
+- `site/` dossier existant mais pas `maquette/` → comportement partiel
+- `siteName` avec caractères spéciaux / chemin relatif (`../`) → validation ?
+- `.gitignore` / `.gitattributes` déjà présents → écrasement ou append ?
+
+=== Baby Steps DDD/TDD
+
+. **Étape 1 — Correction unique** (1 pt) : Aligner le `.feature` sur l'annotation existante
+  - [ ] Lignes 15, 60, 79 : remplacer `the gradle project does not have` → `does not have`
+  - [ ] Vérifier : `./gradlew cucumberTest --tests "*CucumberTestRunner*"` → UJ1, UJ4, UJ5 passent
+
+. **Étape 2 — Boundary tests** (1 pt) : Ajouter les cas aux limites
+  - [ ] UJ1b : `site.yml` préexistant ne bloque pas `generateSite`
+  - [ ] UJ5b : `.gitignore` déjà présent avec `site.yml` dédupliqué (append vs écrasement)
+
+== EPIC 17 : Réparation generateArticle — Fails gracefully (1 AssertionError, 3 bugs superposés)
+
+*Statut* : Analyse terminée — *P0*
+*Charge* : 5 pts
+*Priorité* : P0 — dernière brique de la User Journey IA complète
+*Fichiers concernés* : `IaConfig.kt`, `GenerateArticleSteps.kt`, `9_generate_article.feature`, `BakeryWorld.kt`
+
+=== Analyse des 3 bugs superposés
+
+**🔴 Bug #1 — Couche scénario (Cucumber)** : `createBakeryProjectWithSiteConfigured()` appelle `world.createGradleProjectWithSiteConfigured()` **sans paramètre**, donc `iaEnabled = true` par défaut. Le projet de test contient le bloc `ia { baseUrl = ":11437" }`. Le scénario dit "sans IA" mais setup "avec IA".
+
+**🔴 Bug #2 — Couche production (IaConfig)** : `IaConfig.enabled = true` **par défaut**. Même sans bloc `ia { }` dans le DSL, `bakeryExtension.ia.enabled` reste `true`. Le `if (iaConfig.enabled)` dans `registerGenerateArticleTask` est du **code mort** — la branche `else` (sans LLM) n'est jamais exécutée.
+
+**🔴 Bug #3 — Couche assertion** : `buildShouldFail()` **passe** mais pour la **mauvaise raison** : le build échoue avec `ConnectException` sur le port Ollama (:11437), pas avec `IllegalStateException("LlmService")`. `outputShouldContain("LlmService")` échoue car le message d'erreur réel est "Connection refused".
+
+=== User Journey BDD
+
+```gherkin
+Feature: generateArticle — Fails gracefully sans IA
+
+  Le comportement attendu quand l'utilisateur n'a PAS configuré l'IA :
+
+  Scenario: generateArticle échoue avec message explicite sans IA
+    Given a new Bakery project with site configured but without IA
+    When I execute task "generateArticle" with topic "Test"
+    Then the build should fail
+    And the output should contain "LlmService"
+
+  Le comportement attendu quand l'utilisateur a configuré l'IA :
+
+  Scenario: generateArticle réussit avec IA configurée
+    Given a new Bakery project with site configured and IA enabled
+    And Ollama tourne sur localhost:11437 avec un modèle disponible
+    When I execute task "generateArticle" with topic "Introduction à Kotlin"
+    Then the build should succeed
+    And an article file should be created in content/blog/YYYY/MM/
+```
+
+=== Conditions aux limites
+
+| Condition | Comportement attendu | Status |
+|---|---|---|
+| Pas de bloc `ia { }` dans le DSL | `enabled = false` → `llmService = null` → `IllegalStateException("LlmService")` | ❌ Code mort |
+| Bloc `ia { }` présent, port indisponible | `ConnectException` → build failed | ⚠️ Non-déterministe |
+| Bloc `ia { enabled = false }` | `llmService = null` → message explicite | ❌ `enabled = true` par défaut |
+| `-Ptopic` manquant | `IllegalArgumentException` "Aucun sujet" | ✅ |
+| Ollama disponible sur le port configuré | Build réussit, article créé | ⚠️ Dépend de l'environnement |
+
+=== Baby Steps DDD/TDD
+
+. **Étape 1 — Production** (1 pt) : `IaConfig.enabled` passe à `false` par défaut
+  - [ ] `IaConfig.kt` ligne 24 : `var enabled: Boolean = true` → `var enabled: Boolean = false`
+  - [ ] Vérifier que `SiteManager.registerGenerateArticleTask` prend `iaConfig.enabled` en compte
+  - [ ] Vérifier que les tests `IaConfigTest` existants restent verts (ils testent la valeur par défaut... à mettre à jour)
+
+. **Étape 2 — Nouveau step Cucumber** (1 pt) : Ajouter `Given a new Bakery project with site configured but without IA`
+  - [ ] `GenerateArticleSteps.kt` : méthode `createBakeryProjectWithSiteConfiguredButWithoutIA()` → `world.createGradleProjectWithSiteConfigured(iaEnabled = false)`
+  - [ ] Feature `9_generate_article.feature` ligne 16 : utiliser le nouveau `Given`
+
+. **Étape 3 — Vérification** (1 pt) : Lancer les tests et valider
+  - [ ] `./gradlew cucumberTest --tests "*CucumberTestRunner*"` → `9_generate_article.feature` en vert
+  - [ ] Vérifier que le message d'erreur contient "LlmService" et pas "Connection refused"
+
+. **Étape 4 — Robustesse** (1 pt) : `buildShouldFail()` plus fiable
+  - [ ] Éviter la dépendance à l'environnement : rendre `buildShouldFail()` robuste (check `exception` OU `buildResult`)
+
+. **Étape 5 — Boundary** (1 pt) : Ajouter un test de non-régression
+  - [ ] Test unitaire : `ArticleGenerator` sans `LlmService` → `IllegalStateException`
+  - [ ] Vérifier qu'avec `enabled = true` et un vrai LLM, le service est injecté

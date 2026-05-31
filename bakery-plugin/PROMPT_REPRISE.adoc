@@ -1,36 +1,33 @@
-= PROMPT_REPRISE — Session 027 prête : BKY-JB-0 GenerateArticle (User Journey IA complète)
+= PROMPT_REPRISE — Session 028 prête : EPIC 16 (Scaffolding Cucumber) en priorité
 
-== Mission accomplie (Session 026)
+== Mission accomplie (Session 027)
 
-BKY-JB-0 Scaffolding site type ✅ :
-- SiteType enum (BLOG/BASIC) + extension DSL `siteType`
-- Ressources `site-basic/` (12 fichiers templates minimaux)
-- 22 nouveaux tests (17 unitaires + 4 fonctionnels + 1 blog explicite)
+Analyse exhaustive des 12 échecs de test préexistants + 3 EPICs cadrés dans BACKLOG :
 
-== Prochaine mission (027) — generateArticle : user journey IA complète
+- **EPIC 15** (3pts, P0) : PluginApplicationTest NPE — cause : `siteType` non stubbé
+- **EPIC 16** (2pts, P0) : Cucumber Scaffolding 7 UndefinedStepException — cause : 1 step manquant
+- **EPIC 17** (5pts, P0) : generateArticle graceful fail — cause : 3 bugs superposés (scénario + prod + assertion)
 
-Boucler la première user journey de bout en bout :
+Modifications live :
+- Ports LLM test modifiés : 11434→11465/64/63/62 selon fichier
+- `IaConfig.kt` prod : défaut 11434→11464 aligné
+- `gradle/libs.versions.toml` : readme plugin 0.0.0→0.0.1
+
+== Prochaine mission (028) — EPIC 16 (le + rapide)
+
+Ordre recommandé : EPIC 16 → EPIC 15 → EPIC 17
+
+**EPIC 16 — Baby step ①** (1 pt, ~10 min) :
 ```
-generateSite → generateArticle → bake → deploySite
+6_site_scaffolding.feature lignes 15, 60, 79 :
+  remplacer "the gradle project does not have"
+  par "does not have"
+→ ./gradlew cucumberTest --tests "*CucumberTestRunner*"
+→ 3 scénarios verts (UJ1, UJ4, UJ5)
 ```
-
-Implémenter la tâche `generateArticle` :
-1. Prendre un topic via `-Ptopic="..."` (CLI)
-2. Appeler `OllamaLlmService` via `bakery { ia { ... } }` (BKY-IA-0 existant)
-3. Générer un article AsciiDoc structuré (titre, description, body, date, tags)
-4. L'injecter dans `content/blog/YYYY/MM/article-slug.adoc`
-5. TDD baby-step : FakeLlmService → tests unitaires → tests fonctionnels
-6. Architecture : bakery = expert JBake, pas IA. BKY-IA-0 = MVP, future délégation codebase.
-
-Patterns koog (KOOG_AGENTIC_PATTERNS.adoc) : **Pattern 10 Self-Reflection** pour la qualité article.
-
-Ordre P0 :
-  BKY-JB-0 ✅ → generateArticle (MVP) → BKY-JB-1 → BKY-JB-8 (via codebase)
 
 == Rappels
 
-- GroupId: `education.cccp` — Plugin ID: `cccp.education.bakery`
-- `./gradlew -q publishToMavenLocal` après toute modification du code source
-- Discipline baby-step : RED (test) → GREEN (implémente) → REFACTOR
-- Bakery = expert JBake site statique, PAS formation (training-gradle)
-- KOOG_AGENTIC_PATTERNS.adoc = référence architecture agentique
+- `./gradlew -q publishToMavenLocal` après modif code source
+- Bakery = expert JBake site statique
+- BACKLOG.adoc = 3 nouveaux EPICs (15, 16, 17) avec User Journeys Gherkin + baby-steps

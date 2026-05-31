@@ -29,7 +29,7 @@ class IaFunctionalTests {
     @Test
     fun `DSL ia block compiles with custom values`() {
         createProjectWithIaBlock(
-            baseUrl = "https://ollama.custom.example.com:11434",
+            baseUrl = "https://ollama.custom.example.com:11462",
             modelName = "custom-model:7b"
         )
 

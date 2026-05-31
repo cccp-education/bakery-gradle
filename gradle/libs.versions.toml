@@ -1,6 +1,6 @@
 [versions]
 bakery = "0.1.4"
-readme = "0.0.0"
+readme = "0.0.1"
 
 [libraries]
 

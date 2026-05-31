@@ -2,10 +2,10 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour_ : 2026-05-30
-_Session terminee_ : 026 — BKY-JB-0 Scaffolding site JBake (SiteType BLOG/BASIC, 22 nouveaux tests PASS)
-_Prochaine session_ : 027 — generateArticle (User Journey IA complète via OllamaLlmService)
-_Session en cours_ : 027 — BKY-JB-0 GenerateArticle
+_Derniere mise a jour_ : 2026-05-31
+_Session terminee_ : 027 — Analyse 12 echecs tests + BACKLOG 3 EPICs (15/16/17) + ports LLM
+_Prochaine session_ : 028 — EPIC 16 (Cucumber Scaffolding — correction step unique)
+_Session en cours_ : 028 — EPIC 16 Scaffolding Cucumber
 
 '''
 
@@ -70,6 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | # | Date | Type | Sujet | Score
+| 027 | 2026-05-31 | analyse + doc + plan | Analyse 12 echecs tests → EPIC 15 (NPE), EPIC 16 (Cucumber Scaffolding), EPIC 17 (generateArticle graceful fail). 3 EPICs dans BACKLOG avec User Journeys Gherkin + baby-steps DDD/TDD/BDD. Ports LLM 11434→11465/64/63/62. | 8/10
 | 026 | 2026-05-30 | feat + test | BKY-JB-0 Scaffolding site JBake — SiteType enum (BLOG/BASIC), ressources site-basic/, resolveSiteType() DSL, 22 tests (17 UT + 4 FT + 1 blog explicite) PASS | 8/10
 | 025 | 2026-05-30 | feat + test | BKY-BKG Step 1-3 — ArticleGraph + RelatedArticlesService (scoring tags/titres, stop words) + tâche collectRelatedArticles (18UT+3FT PASS) | 8/10
 | 024 | 2026-05-30 | feat + test | BKY-N3-7 Contrat N3 — collectSiteContext → metadata.json (SiteContextCollector, feed+sitemap, 3UT+1FT) | 9/10
@@ -138,7 +139,19 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 *Phase B (JB-3→5)* : services = ~13 pts.
 *Phase C (JB-6→7)* : theme + layouts = ~8 pts.
 *Phase D (JB-8)* : IA via codebase = ~13 pts.
-*Prochaine session* : 027 — BKY-JB-0 GenerateArticle (User Journey IA complète via OllamaLlmService).
+
+=== EPICs de Réparation (tests legacy)
+
+|===
+| EPIC | Pts | Priorite | Cause racine
+| EPIC 15 — PluginApplicationTest NPE | 3 | *P0* | `siteType` non stubbé dans BakeryTestFixture
+| EPIC 16 — Cucumber Scaffolding steps | 2 | *P0* | 1 step manquant (préfixe `the gradle project `)
+| EPIC 17 — generateArticle graceful fail | 5 | *P0* | 3 bugs superposés (scenario+prod+assertion)
+|===
+
+*Priorite P0* : EPIC 16 (le + rapide, ~10 min) → EPIC 15 → EPIC 17
+
+*Prochaine session* : 028 — EPIC 16 Cucumber Scaffolding (correction step unique).
 
 === EPICs Historiques conservés
 

@@ -11,7 +11,7 @@ class IaConfigTest {
     @Test
     fun `default config has standard Ollama URL`() {
         val config = IaConfig()
-        assertEquals("http://localhost:11434", config.baseUrl)
+        assertEquals("http://localhost:11464", config.baseUrl)
     }
 
     @Test
@@ -55,11 +55,11 @@ class IaConfigTest {
     @Test
     fun `mutating properties works after construction`() {
         val config = IaConfig()
-        config.baseUrl = "http://custom:11434"
+        config.baseUrl = "http://custom:11463"
         config.modelName = "phi"
         config.timeout = Duration.ofSeconds(30)
         config.enabled = false
-        assertEquals("http://custom:11434", config.baseUrl)
+        assertEquals("http://custom:11463", config.baseUrl)
         assertEquals("phi", config.modelName)
         assertEquals(Duration.ofSeconds(30), config.timeout)
         assertEquals(false, config.enabled)
