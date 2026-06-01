@@ -188,6 +188,214 @@ class ThymeleafRenderingTest {
     }
 
     @Nested
+    @DisplayName("header.thyme — theme integration rendering")
+    inner class HeaderThemeRenderingTest {
+
+        @Test
+        fun `header includes theme-script fragment which renders CSS variables`() {
+            val html = factory.render("header", mapOf(
+                "themePrimaryColor" to "#e74c3c",
+                "themeSecondaryColor" to "#2c3e50",
+                "themeFontFamily" to "Inter",
+                "content" to mapOf("rootpath" to "")
+            ))
+
+            assertThat(html).contains("setProperty('--bakery-primary'")
+            assertThat(html).doesNotContain("th:replace")
+        }
+
+        @Test
+        fun `header renders custom favicon when themeFaviconUrl is present`() {
+            val html = factory.render("header", mapOf(
+                "themeFaviconUrl" to "/img/custom-favicon.png",
+                "content" to mapOf("rootpath" to "")
+            ))
+
+            assertThat(html).contains("/img/custom-favicon.png")
+            assertThat(html).doesNotContain("cheroliv_logo_icon.png")
+        }
+
+        @Test
+        fun `header renders default favicon when themeFaviconUrl is absent`() {
+            val html = factory.render("header", mapOf(
+                "content" to mapOf("rootpath" to "")
+            ))
+
+            assertThat(html).contains("cheroliv_logo_icon.png")
+            assertThat(html).doesNotContain("th:if")
+            assertThat(html).doesNotContain("th:unless")
+        }
+    }
+
+    @Nested
+    @DisplayName("menu.thyme — theme integration rendering")
+    inner class MenuThemeRenderingTest {
+
+        @Test
+        fun `menu renders custom logo when themeLogoUrl is present`() {
+            val html = factory.render("menu", mapOf(
+                "themeLogoUrl" to "/img/custom-logo.png",
+                "content" to mapOf("uri" to "index.html", "rootpath" to "", "type" to "page")
+            ))
+
+            assertThat(html).contains("/img/custom-logo.png")
+            assertThat(html).contains("navbar-logo")
+            assertThat(html).doesNotContain("th:if")
+        }
+
+        @Test
+        fun `menu renders brand text when themeLogoUrl is absent`() {
+            val html = factory.render("menu", mapOf(
+                "content" to mapOf("uri" to "index.html", "rootpath" to "", "type" to "page")
+            ))
+
+            assertThat(html).doesNotContain("navbar-logo")
+            assertThat(html).contains("Blog Template")
+        }
+    }
+
+    @Nested
+    @DisplayName("footer.thyme — service integration rendering")
+    inner class FooterIntegrationRenderingTest {
+
+        @Test
+        fun `footer includes firebase-auth-compat script`() {
+            val html = factory.render("footer", mapOf(
+                "firebaseApiKey" to "AIzaSyTest",
+                "firebaseProjectId" to "my-project",
+                "firebaseAuthDomain" to "my-project.firebaseapp.com",
+                "content" to mapOf("rootpath" to "")
+            ))
+
+            assertThat(html).contains("firebase-auth-compat.js")
+            assertThat(html).contains("firebase-firestore-compat.js")
+            assertThat(html).contains("AIzaSyTest")
+            assertThat(html).contains("my-project.firebaseapp.com")
+        }
+
+        @Test
+        fun `footer includes analytics-script fragment when configured`() {
+            val html = factory.render("footer", mapOf(
+                "analyticsProvider" to "plausible",
+                "analyticsDomain" to "my-site.com",
+                "analyticsScriptSrc" to "https://plausible.io/js/script.js",
+                "content" to mapOf("rootpath" to "")
+            ))
+
+            assertThat(html).contains("data-domain=\"my-site.com\"")
+            assertThat(html).doesNotContain("th:replace")
+        }
+
+        @Test
+        fun `footer includes newsletter-form fragment when enabled`() {
+            val html = factory.render("footer", mapOf(
+                "newsletterEnabled" to "true",
+                "newsletterEndpoint" to "https://mailchimp.example.com/subscribe",
+                "content" to mapOf("rootpath" to "")
+            ))
+
+            assertThat(html).contains("newsletter-section")
+            assertThat(html).contains("mailchimp.example.com/subscribe")
+            assertThat(html).doesNotContain("th:replace")
+        }
+    }
+
+    @Nested
+    @DisplayName("breadcrumb.thyme — rendering with context")
+    inner class BreadcrumbRenderingTest {
+
+        @Test
+        fun `renders breadcrumb with title when content variables are present`() {
+            val html = factory.render("breadcrumb", mapOf(
+                "content" to mapOf("title" to "Mon Article", "rootpath" to "/blog/")
+            ))
+
+            assertThat(html).contains("Mon Article")
+            assertThat(html).contains("breadcrumb-item active")
+            assertThat(html).contains("/blog/")
+            assertThat(html).doesNotContain("th:text")
+            assertThat(html).doesNotContain("th:href")
+        }
+
+        @Test
+        fun `renders blog link in breadcrumb`() {
+            val html = factory.render("breadcrumb", mapOf(
+                "content" to mapOf("title" to "Test", "rootpath" to "")
+            ))
+
+            assertThat(html).contains("blog.html")
+            assertThat(html).contains("Accueil")
+        }
+    }
+
+    @Nested
+    @DisplayName("toc-sidebar.thyme — rendering with context")
+    inner class TocSidebarRenderingTest {
+
+        @Test
+        fun `renders sidebar with Sommaire heading`() {
+            val html = factory.render("toc-sidebar")
+
+            assertThat(html).contains("toc-sidebar")
+            assertThat(html).contains("Sommaire")
+            assertThat(html).contains("toc-list")
+            assertThat(html).doesNotContain("th:fragment")
+        }
+    }
+
+    @Nested
+    @DisplayName("progress-bar.thyme — rendering with context")
+    inner class ProgressBarRenderingTest {
+
+        @Test
+        fun `renders progress bar with ARIA attributes`() {
+            val html = factory.render("progress-bar")
+
+            assertThat(html).contains("reading-progress-bar")
+            assertThat(html).contains("progressbar")
+            assertThat(html).contains("aria-valuenow")
+            assertThat(html).doesNotContain("th:fragment")
+        }
+    }
+
+    @Nested
+    @DisplayName("pdf-viewer.thyme — rendering with context")
+    inner class PdfViewerRenderingTest {
+
+        @Test
+        fun `renders PDF viewer when content pdf is present`() {
+            val html = factory.render("pdf-viewer", mapOf(
+                "content" to mapOf("pdf" to "pdfs/document.pdf", "rootpath" to "")
+            ))
+
+            assertThat(html).contains("pdf-viewer-container")
+            assertThat(html).contains("document.pdf")
+            assertThat(html).contains("<iframe")
+            assertThat(html).contains("Télécharger")
+            assertThat(html).doesNotContain("th:if")
+        }
+
+        @Test
+        fun `renders nothing when content pdf is absent`() {
+            val html = factory.render("pdf-viewer", mapOf(
+                "content" to mapOf("rootpath" to "")
+            ))
+
+            assertThat(html).doesNotContain("pdf-viewer-container")
+            assertThat(html).doesNotContain("<iframe")
+        }
+
+        @Test
+        fun `renders nothing when content pdf is empty string`() {
+            val html = factory.render("pdf-viewer", mapOf(
+                "content" to mapOf("pdf" to "", "rootpath" to "")
+            ))
+
+            assertThat(html).doesNotContain("pdf-viewer-container")
+        }
+    }
+
+    @Nested
     @DisplayName("newsletter-form.thyme — rendering with context")
     inner class NewsletterFormRenderingTest {
 

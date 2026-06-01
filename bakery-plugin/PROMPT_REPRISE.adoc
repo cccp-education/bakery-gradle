@@ -1,39 +1,39 @@
-= PROMPT_REPRISE — Session 035 terminée : BKY-JB-9 Phase A Rendering Tests
+= PROMPT_REPRISE — Session 036 terminée : BKY-JB-9 Phase A suite Rendering Tests
 
-== Missionaccomplie (Session 035)
+== Mission accomplie (Session 036)
 
-BKY-JB-9 Phase A (Thymeleaf Rendering Tests) — 3/4 baby steps terminées.
-5 bugs templates détectés et corrigés par les rendering tests.
+BKY-JB-9 Phase A — Rendering tests complété.
+DualConventionResolver créé pour gérer le bug des doubles suffixes .thyme.thyme.
+32 rendering tests PASS. 4 TemplateTest marqués @SupersededBy.
 
 === Résultats
 
-- **BKY-JB-9 Phase A** : 3 pts terminés (JB-9.1, JB-9.2, JB-9.3)
-  - ThymeleafRenderingTestFactory + 17 rendering tests
-  - 5 bugs SpEL→OGNL + CSS→JS corrigés
-  - 282 UT + FT + 36 Cucumber tous PASS
-- **BKY-JB-5 Étape 5** : Cucumber déjà complet (checkboxes cochées)
+- **JB-9.4** : 5 rendering tests d'intégration (header, menu, footer) + DualConventionResolver
+- **JB-9.5** : 7 rendering tests JB-2 (breadcrumb, toc, progress, pdf)
+- **JB-9.6** : KDoc @SupersededBy sur 4 TemplateTest (conservés comme littérature)
+- **297 UT PASS** total
 
-== Prochaines baby steps — BKY-JB-9 Phase A (suite)
+== Prochaines baby steps — BKY-JB-9 Phase B
 
 | Step | Description | Pts |
 |-------|-------------|-----|
-| JB-9.4 | Migrer les TemplateTest existants vers rendering tests | 1 |
-| JB-9.5 | Ajouter rendering tests pour composants JB-2 (breadcrumb, toc, progress, pdf) | 1 |
-| JB-9.6 | Nettoyer les anciens `readText().contains()` devenus redondants | 0.5 |
+| JB-9.5 | (DÉJÀ FAIT) Rendering tests composants JB-2 | 1 |
+| JB-9.6 | (DÉJÀ FAIT) Nettoyage redondances avec marquage @SupersededBy | 0.5 |
+| JB-9.7 | Playwright-jvm E2E : ajouter dépendance + tâche Gradle e2eTest | 1 |
+| JB-9.8 | Scénarios Cucumber E2E : analytics visible, newsletter, auth, Google Forms | 2 |
+| JB-9.9 | CI workflow e2eTest sur push main (headless Chrome) | 1 |
 
 == EPICs disponibles (priorité décroissante)
 
 | EPIC | Pts | Prio | Description |
 |------|-----|------|-------------|
-| BKY-JB-9 (Phase A suite) | 2.5 | P1 | Migrer + nettoyer rendering tests |
 | BKY-JB-9 (Phase B) | 5 | P1 | Playwright-jvm E2E (browser) |
 | BKY-JB-7 | 3 | P2 | Layouts (full-width, sidebar, centered) |
 | BKY-JB-8 | 13 | P0 | Article assisté IA via codebase |
 
-== Prochaine session (036)
+== Prochaine session (037)
 
-Priorité : **BKY-JB-9 Phase A suite** — migrer les 4 TemplateTest existants
-(ThemeTemplateTest, GoogleFormsTemplateTest, FirebaseAuthTemplateTest,
-AnalyticsNewsletterTemplateTest) vers `ThymeleafRenderingTestFactory`.
-Puis ajouter rendering tests pour breadcrumb/toc/progress-bar/pdf-viewer (JB-2).
-Enfin nettoyer les `readText().contains()` devenus redondants.
+Priorité : **BKY-JB-9 Phase B** — ajouter Playwright-jvm comme dépendance
+`e2eImplementation`, créer la tâche Gradle `e2eTest` (start serv → Playwright tests → stop serv),
+puis scénarios Cucumber E2E pour les composants JS (analytics, newsletter, auth, Google Forms).
+Référence : capsule-gradle utilise déjà Playwright.

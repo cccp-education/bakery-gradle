@@ -4,6 +4,16 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.io.File
 
+/**
+ * Source-text assertion tests for Google Forms template.
+ *
+ * **Superseded by** [ThymeleafRenderingTest.GoogleFormsRenderingTest] which
+ * renders actual HTML via Thymeleaf engine instead of checking raw template source.
+ *
+ * Kept as reference literature — these tests verify the *presence* of
+ * Thymeleaf expressions in the source, while rendering tests verify the
+ * *evaluated output*. Both perspectives are valuable.
+ */
 class GoogleFormsTemplateTest {
 
     private val templatesDir = File("src/main/resources/site/templates")

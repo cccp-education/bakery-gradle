@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-06-02
-_Session terminee_ : 037 — Borough-isation : bakery-gradle devient Bushwick 🟤, 20ème borough
-_Prochaine session_ : 038 — BKY-JB-9 Phase A suite (migrer TemplateTest existants)
-_Session en cours_ : 038
+_Session terminee_ : 036 — BKY-JB-9 Phase A suite (DualConventionResolver, 32 rendering tests, @SupersededBy)
+_Prochaine session_ : 037 — BKY-JB-9 Phase B (Playwright-jvm E2E)
+_Session en cours_ : 037
 
 '''
 
@@ -70,6 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | # | Date | Type | Sujet | Score
+| 036 | 2026-06-02 | feat + test + bugfix | BKY-JB-9 Phase A suite — DualConventionResolver (.thyme.thyme bug), 15 rendering tests (header, menu, footer, breadcrumb, toc, progress, pdf). 4 TemplateTest marqués @SupersededBy. 297 UT PASS. | 9/10
 | 035 | 2026-06-01 | feat + test + bugfix | BKY-JB-9 Phase A — ThymeleafRenderingTestFactory + 17 rendering tests. 5 bugs templates (3x SpEL→OGNL, Elvis, CSS→JS). 282 UT PASS. | 9/10
 | 034 | 2026-06-01 | feat + test | BKY-JB-6 Système de thème — ThemeConfig (mode/colors/font/logo/favicon), theme-script.thyme (CSS :root variables), header favicon cond., menu logo cond., site-basic aligné. 16 UT + 2 FT + 3 Cucumber. Baby steps 5/5. | 9/10
 | 033 | 2026-06-01 | feat + test + backlog | BKY-JB-5 Analytics + Newsletter — AnalyticsConfig + NewsletterConfig, analytics-script.thyme (Plausible/Matomo), newsletter-form.thyme, 18 UT + 2 FT + 3 Cucumber PASS. Baby steps 5/5. EPIC BKY-JB-9 cadré. Phase B 100%. | 9/10

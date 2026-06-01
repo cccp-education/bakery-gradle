@@ -175,4 +175,32 @@
 
 **Tests** : +8 UT (17 rendering tests - 9 anciens toujours verts). 282 UT + FT + 36 Cucumber tous PASS.
 
-**Prochaine session** : 036 — BKY-JB-9 Phase A suite (migrer TemplateTest existants)
+**Prochaine session** : 037 — BKY-JB-9 Phase B (Playwright-jvm E2E)
+
+== Session 036 — 2026-06-02 — BKY-JB-9 Phase A suite : Rendering Tests + DualConventionResolver
+
+**Contexte** : Session 036 poursuit BKY-JB-9 Phase A. Migration des TemplateTest existants vers rendering tests, ajout des rendering tests pour les composants JB-2, nettoyage des redondances avec marquage `@SupersededBy`.
+
+**Taches realisees** :
+
+* [x] JB-9.4a (1pt) ✅ — 5 rendering tests d'intégration thème (header favicon, menu logo, footer firebase/analytics/newsletter)
+  - `DualConventionResolver` créé (subclass `FileTemplateResolver`) pour gérer le bug des 2 conventions Thymeleaf
+  - Bug découvert : `~{name.thyme::fragment}` cause double suffixe `.thyme.thyme` → résolu par override `computeResourceName()`
+* [x] JB-9.4b ✅ — GoogleFormsTemplateTest marqué `@SupersededBy` (100% couvert par rendering tests)
+* [x] JB-9.4c ✅ — FirebaseAuthTemplateTest marqué `@SupersededBy` (partiel : 2 tests post/page non supersedés)
+* [x] JB-9.4d ✅ — AnalyticsNewsletterTemplateTest marqué `@SupersededBy` (100% couvert par rendering tests)
+* [x] JB-9.5 (1pt) ✅ — 7 rendering tests composants JB-2
+  - BreadcrumbRenderingTest (2 tests : titre+breadcrumb, lien blog)
+  - TocSidebarRenderingTest (1 test : Sommaire heading)
+  - ProgressBarRenderingTest (1 test : ARIA attributes)
+  - PdfViewerRenderingTest (3 tests : pdf présent, pdf absent, pdf vide string)
+* [x] JB-9.6 (0.5pt) ✅ — Nettoyage redondances avec marquage `@SupersededBy`
+  - 4 classes TemplateTest conservées comme littérature (suppression refusée par l'utilisateur)
+  - KDoc ajoutée sur chaque classe redondante pointant vers les rendering tests équivalents
+
+**Tests** : 32/32 Thymeleaf rendering tests PASS. 297 UT total PASS.
+
+**Décisions** :
+
+- *Tests comme littérature* : les anciens TemplateTest sont conservés et marqués `@SupersededBy` plutôt que supprimés
+- *DualConventionResolver* : solution DDD pour le bug des 2 conventions de référence Thymeleaf sans modifier les templates production

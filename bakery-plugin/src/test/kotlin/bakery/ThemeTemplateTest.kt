@@ -4,6 +4,18 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.io.File
 
+/**
+ * Source-text assertion tests for theme templates.
+ *
+ * **Superseded by** [ThymeleafRenderingTest.ThemeScriptRenderingTest],
+ * [ThymeleafRenderingTest.HeaderThemeRenderingTest], and
+ * [ThymeleafRenderingTest.MenuThemeRenderingTest] which render actual HTML
+ * via Thymeleaf engine instead of checking raw template source.
+ *
+ * Kept as reference literature — these tests verify the *presence* of
+ * Thymeleaf expressions in the source, while rendering tests verify the
+ * *evaluated output*. Both perspectives are valuable.
+ */
 class ThemeTemplateTest {
 
     private val templatesDir = File("src/main/resources/site/templates")

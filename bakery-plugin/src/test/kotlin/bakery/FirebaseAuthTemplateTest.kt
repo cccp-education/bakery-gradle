@@ -4,6 +4,21 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import java.io.File
 
+/**
+ * Source-text assertion tests for Firebase Auth and comments templates.
+ *
+ * **Partially superseded by** [ThymeleafRenderingTest.AuthHeaderRenderingTest],
+ * [ThymeleafRenderingTest.CommentsRenderingTest], and
+ * [ThymeleafRenderingTest.FooterIntegrationRenderingTest] which render actual
+ * HTML via Thymeleaf engine instead of checking raw template source.
+ *
+ * Tests 7-8 (post/page includes comments fragment) remain **not superseded** —
+ * they verify cross-template structural integration that rendering tests don't cover
+ * (composite page rendering requires Playwright E2E, Phase B).
+ *
+ * Kept as reference literature — source-text assertions and rendering assertions
+ * verify different perspectives of the same templates. Both are valuable.
+ */
 class FirebaseAuthTemplateTest {
 
     private val templatesDir = File("src/main/resources/site/templates")
