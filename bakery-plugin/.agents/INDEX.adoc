@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-06-01
-_Session terminee_ : 031 — Fix date GenerateArticleTaskTest + EPIC 11 optimisation tests (check complet chaud 1.9s)
-_Prochaine session_ : 032 — BKY-JB-4 Firebase Auth + Comments
-_Session en cours_ : 032
+_Session terminee_ : 032 — BKY-JB-4 Firebase Auth + Comments (5/5 baby steps DDD/TDD/BDD terminées)
+_Prochaine session_ : 033 — BKY-JB-5 Analytics + Newsletter
+_Session en cours_ : 033
 
 '''
 
@@ -70,6 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | # | Date | Type | Sujet | Score
+| 032 | 2026-06-01 | feat + test | BKY-JB-4 Firebase Auth + Comments — FirebaseAuthConfig + CommentsConfig, auth-header.thyme, comments.thyme (Disqus→Firestore), 16 UT + 2 FT + 3 Cucumber PASS. Baby steps 5/5. | 9/10
 | 029 | 2026-06-01 | feat + test + cleanup | EPIC 7 YAML tolerance (3 tests), EPIC 10 80%→100%, BKY-JB-2 composants Thymeleaf (4 fragments, 4 FT, 5 Cucumber). Bug date GenerateArticleTaskTest découvert. | 8/10
 | 027 | 2026-05-31 | analyse + doc + plan | Analyse 12 echecs tests → EPIC 15 (NPE), EPIC 16 (Cucumber Scaffolding), EPIC 17 (generateArticle graceful fail). 3 EPICs dans BACKLOG avec User Journeys Gherkin + baby-steps DDD/TDD/BDD. Ports LLM 11434→11465/64/63/62. | 8/10
 | 026 | 2026-05-30 | feat + test | BKY-JB-0 Scaffolding site JBake — SiteType enum (BLOG/BASIC), ressources site-basic/, resolveSiteType() DSL, 22 tests (17 UT + 4 FT + 1 blog explicite) PASS | 8/10
@@ -128,7 +129,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 | *BKY-JB-1* | ❌ DÉPLACÉ vers training-gradle (TRN-TEMP) — les templates formation ne sont pas du domaine bakery | — | — | —
 | *BKY-JB-2* | Composants Thymeleaf : toc-sidebar, breadcrumb, progress-bar, pdf-viewer | 5 | *P0 ✅ TERMINÉ* | BKY-JB-0
 | *BKY-JB-3* | Google Forms embed : composant iframe responsive dans templates JBake | 5 | *P0 ✅ TERMINÉ* | BKY-JB-0
-| *BKY-JB-4* | Firebase Auth + Comments : header login/logout, commentaires session/module | 5 | *P1* | BKY-JB-0
+| *BKY-JB-4* | Firebase Auth + Comments : header login/logout, commentaires Firestore | 5 | *P0 ✅ TERMINÉ* | BKY-JB-0
 | *BKY-JB-5* | Analytics + Newsletter : Plausible/Matomo, formulaire mail footer | 3 | *P1* | BKY-JB-0
 | *BKY-JB-6* | Systeme de theme : CSS variables, dark/light mode, logo custom, favicon | 5 | *P1* | BKY-JB-0
 | *BKY-JB-7* | Layouts : full-width, sidebar droite/gauche, centered — choix par page | 3 | *P2* | BKY-JB-0
@@ -137,7 +138,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 *Total JBake* : 9 EPICs, ~47 pts.
 *Phase A (JB-0→2)* : ✅ COMPLÈTE — scaffolding + templates + composants = 10 pts terminés.
-*Phase B (JB-3→5)* : 🔄 EN COURS — 5/13 pts (JB-3 ✅ = 5 pts terminés, reste JB-4 + JB-5 = 8 pts).
+*Phase B (JB-3→5)* : 🔄 EN COURS — 10/13 pts (JB-3 ✅ + JB-4 ✅ = 10 pts terminés, reste JB-5 = 3 pts).
 *Phase C (JB-6→7)* : theme + layouts = ~8 pts.
 *Phase D (JB-8)* : IA via codebase = ~13 pts.
 
@@ -152,7 +153,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 *Priorite P0* : EPIC 16 (le + rapide, ~10 min) → EPIC 15 → EPIC 17
 
-*Prochaine session* : 032 — BKY-JB-4 (Firebase Auth + Comments) Phase B
+*Prochaine session* : 033 — BKY-JB-5 (Analytics + Newsletter) Phase B
 
 === EPICs Historiques conservés
 

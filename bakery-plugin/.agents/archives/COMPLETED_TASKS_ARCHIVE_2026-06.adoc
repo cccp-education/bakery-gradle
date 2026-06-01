@@ -86,3 +86,25 @@
 **Tests** : 0 nouveau test, 3 bugs fixés (GenerateArticleTaskTest). Check complet passant (UT + FT + Cucumber + Kover).
 
 **Prochaine session** : 032 — BKY-JB-4 (Firebase Auth + Comments)
+
+== Session 032 — 2026-06-01 — BKY-JB-4 Firebase Auth + Comments
+
+**Contexte** : Deuxième EPIC de la Phase B (services JBake). Firebase Auth pour login/logout + Firestore Comments pour remplacer Disqus. Méthodo DDD/TDD/BDD baby steps 5/5.
+
+**Taches realisees** :
+
+* [x] BKY-JB-4 (5pts, P1) ✅ TERMINÉ — Firebase Auth + Comments :
+  - Étape 1 DDD : `FirebaseAuthConfig` + `CommentsConfig` data classes + `FirebaseAuthDsl` + `CommentsDsl` DSL
+  - Étape 2 TDD : `auth-header.thyme` (login/logout bouton, th:if guard) + `comments.thyme` (Firestore CRUD, th:if guard)
+  - Étape 3 TDD : `injectFirebaseAuthConfigIntoJbakeProperties()` + `injectCommentsConfigIntoJbakeProperties()` dans SiteManager
+  - Étape 4 FT : 2 tests fonctionnels (templates déployés, pas d'injection sans config)
+  - Étape 5 BDD : 3 scénarios Cucumber (happy-path, no-config, integration)
+* [x] `firebase-auth-compat.js` ajouté dans `footer.thyme`
+* [x] `FIREBASE_CONFIG` enrichi avec `authDomain` + `firebase.initializeApp()` dans footer
+* [x] `Disqus` remplacé par `comments.thyme` dans `post.thyme`
+* [x] `auth-header.thyme` intégré dans `menu.thyme`
+* [x] `comments.thyme` intégré dans `page.thyme`
+
+**Tests** : +21 tests (16 UT + 2 FT + 3 Cucumber). Tous PASS.
+
+**Prochaine session** : 033 — BKY-JB-5 (Analytics + Newsletter)

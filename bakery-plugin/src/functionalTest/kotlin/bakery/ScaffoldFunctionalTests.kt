@@ -352,6 +352,72 @@ class ScaffoldFunctionalTests {
         }
     }
 
+    @Nested
+    @DisplayName("generateSite with Firebase Auth + Comments (BKY-JB-4)")
+    inner class FirebaseAuthCommentsTest {
+
+        @TempDir
+        lateinit var projectDir: File
+
+        @Test
+        fun `should scaffold blog site with auth-header and comments templates deployed`() {
+            createMinimalBakeryProject(
+                projectDir,
+                sitesBaseDir = null,
+                siteName = "auth-test",
+                siteType = "blog"
+            )
+
+            val result = create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateSite")
+                .build()
+
+            val templatesDir = projectDir.resolve("auth-test/site/templates")
+            assertThat(templatesDir.resolve("auth-header.thyme")).exists().isFile
+            assertThat(templatesDir.resolve("auth-header.thyme").readText(UTF_8))
+                .contains("auth-header")
+                .contains("firebaseAuthApiKey")
+                .contains("th:if")
+            assertThat(templatesDir.resolve("comments.thyme")).exists().isFile
+            assertThat(templatesDir.resolve("comments.thyme").readText(UTF_8))
+                .contains("comments-section")
+                .contains("commentsEnabled")
+                .contains("th:if")
+            assertThat(result.output).contains("BUILD SUCCESSFUL")
+        }
+
+        @Test
+        fun `should scaffold site with auth and comments templates but no injection when site yml has no firebaseAuth`() {
+            createMinimalBakeryProject(
+                projectDir,
+                sitesBaseDir = null,
+                siteName = "no-auth",
+                siteType = "blog"
+            )
+
+            val result = create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateSite")
+                .build()
+
+            val siteDir = projectDir.resolve("no-auth")
+            val templatesDir = siteDir.resolve("site/templates")
+            assertThat(templatesDir.resolve("auth-header.thyme")).exists().isFile
+            assertThat(templatesDir.resolve("comments.thyme")).exists().isFile
+
+            val jbakeProps = siteDir.resolve("site/jbake.properties")
+            assertThat(jbakeProps).exists().isFile
+            assertThat(jbakeProps.readText(UTF_8))
+                .doesNotContain("firebaseAuth")
+                .doesNotContain("commentsEnabled")
+
+            assertThat(result.output).contains("BUILD SUCCESSFUL")
+        }
+    }
+
     companion object {
         private fun createMinimalBakeryProject(
             projectDir: File,

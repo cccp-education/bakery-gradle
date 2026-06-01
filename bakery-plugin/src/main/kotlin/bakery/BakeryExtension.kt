@@ -41,9 +41,25 @@ open class BakeryExtension @Inject constructor(objects: ObjectFactory) {
     /** Configuration Google Forms embed — BKY-JB-3 */
     val googleForms: GoogleFormsDsl = GoogleFormsDsl()
 
+    /** Configuration Firebase Auth + Comments — BKY-JB-4 */
+    val firebaseAuth: FirebaseAuthDsl = FirebaseAuthDsl()
+
+    /** Configuration Comments (Firestore) — BKY-JB-4 */
+    val commentsConfig: CommentsDsl = CommentsDsl()
+
     /** DSL : bakery { googleForms { ... } } */
     fun googleForms(action: Action<GoogleFormsDsl>) {
         action.execute(googleForms)
+    }
+
+    /** DSL : bakery { firebaseAuth { ... } } */
+    fun firebaseAuth(action: Action<FirebaseAuthDsl>) {
+        action.execute(firebaseAuth)
+    }
+
+    /** DSL : bakery { commentsConfig { ... } } */
+    fun commentsConfig(action: Action<CommentsDsl>) {
+        action.execute(commentsConfig)
     }
 
     /** DSL : bakery { ia { ... } } */

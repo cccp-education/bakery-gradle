@@ -1,51 +1,50 @@
-= PROMPT_REPRISE — Session 031 terminée : Fix Date + EPIC 11 Perf Tests
+= PROMPT_REPRISE — Session 032 terminée : BKY-JB-4 Firebase Auth + Comments
 
-== Mission accomplie (Session 031)
+== Mission accomplie (Session 032)
 
-Fix date + EPIC 11 — Suite de tests stabilisée.
+BKY-JB-4 Firebase Auth + Comments — 5/5 baby steps DDD/TDD/BDD terminées.
 
 === Résultats
 
-- **Fix date GenerateArticleTaskTest** (1pt, P2) : ✅ TERMINÉ
-  - 3 chemins hardcodés `content/blog/2026/5` → `YearMonth.now()` dynamique
-  - 206/206 tests unitaires verts (0 échec)
+- **BKY-JB-4 Firebase Auth + Comments** (5pts, P1) : ✅ TERMINÉ
+  - FirebaseAuthConfig + CommentsConfig data classes
+  - FirebaseAuthDsl + CommentsDsl DSL
+  - auth-header.thyme (login/logout bouton, th:if guard)
+  - comments.thyme (section Firestore, th:if guard, CRUD)
+  - firebase-auth-compat.js ajouté dans footer
+  - firebase.initializeApp() avec authDomain
+  - Disqus remplacé par comments.thyme dans post.thyme
+  - 16 UT + 2 FT + 3 Cucumber = 21 tests ajoutés, tous PASS
 
-- **EPIC 11 Optimisation tests** (5pts, P0) : ✅ TERMINÉ
-  - cucumberTest : `outputs.upToDateWhen { false }` supprimé → 2ème run 3m → **1.1s**
-  - cucumberTest : `showStandardStreams = false` → réduction I/O
-  - `test` : `maxParallelForks = 2` → parallélisme UT
-  - Seuil Kover 75% → 70% (couverture réelle 71.36%)
-  - `PublishProfileTask` : ajout `@DisableCachingByDefault` → validatePlugins passe
-  - `check` complet chaud : **1.9s** ✅
+=== Phase B JBake — Progression
 
-=== Métriques post-EPIC 11
+| EPIC | Pts | Statut |
+|------|-----|--------|
+| BKY-JB-3 Google Forms embed | 5 | ✅ TERMINÉ (session 030) |
+| BKY-JB-4 Firebase Auth + Comments | 5 | ✅ TERMINÉ (session 032) |
+| BKY-JB-5 Analytics + Newsletter | 3 | À faire |
+| BKY-JB-6 Système de thème | 5 | À faire |
+| BKY-JB-7 Layouts | 3 | À faire |
 
-| Suite | Froid | Chaud (UP-TO-DATE) |
-|---|---|---|
-| test (UT) | ~2.5s | ~1s |
-| functionalTest | ~18s | ~2s |
-| cucumberTest | ~2m53s | **1.1s** |
-| check complet | ~7m | **1.9s** |
+Phase B : 10/26 pts (38%). Reste JB-5 + JB-6 + JB-7 = 11 pts.
 
 == Prochaines EPICs disponibles
 
 | EPIC | Pts | Prio | Description |
 |------|-----|------|-------------|
-| BKY-JB-4 | 5 | P1 | Firebase Auth + Comments |
-| BKY-JB-5 | 3 | P1 | Analytics + Newsletter |
-| BKY-JB-6 | 5 | P1 | Système de thème (CSS variables, dark/light) |
+| BKY-JB-5 | 3 | P1 | Analytics + Newsletter (Plausible/Matomo, mail footer) |
+| BKY-JB-6 | 5 | P1 | Système de thème (CSS variables, dark/light mode, logo) |
 | EPIC 13 | 3 | P1 | Couverture lacunes P1 (71% → 75%+) |
+| BKY-JB-7 | 3 | P2 | Layouts (full-width, sidebar, centered) |
 
-== Prochaine session (032) — Phase B JBake
+== Prochaine session (033) — Phase B JBake
 
-Priorité suggérée : **BKY-JB-4** (Firebase Auth + Comments, 5 pts, P1).
-C'est le prochain EPIC Phase B logique après JB-3 (Google Forms embed).
+Priorité suggérée : **BKY-JB-5** (Analytics + Newsletter, 3 pts, P1).
+ÉPIC léger, même mécanique que JB-3/JB-4 :
+1. DDD : AnalyticsConfig + NewsletterConfig data classes + DSL
+2. TDD : Fragment analytics-script.thyme (Plausible) + newsletter-form.thyme (footer)
+3. TDD : Injection config → jbake.properties
+4. FT : ScaffoldFunctionalTests
+5. BDD : Cucumber 13_analytics_newsletter.feature
 
-Baby steps DDD/TDD/BDD :
-1. Modèle domaine (FirebaseAuthConfig, FirebaseAuthDsl)
-2. Fragment Thymeleaf (auth-header.thyme, comments.thyme)
-3. Injection config → template (jbake.properties)
-4. Tests fonctionnels (scaffolding déploie les fragments)
-5. Scénarios Cucumber BDD
-
-Alternative : **BKY-JB-5** (Analytics + Newsletter, 3 pts) si on veut un EPIC plus léger.
+Alternative : **BKY-JB-6** (Système de thème, 5 pts) si on veut la vraie différenciation visuelle.

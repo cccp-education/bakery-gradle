@@ -1,0 +1,54 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<!--/*
+  Auth Header component — Firebase Authentication login/logout button.
+  Usage : <div th:replace="~{auth-header.thyme::auth-header}"/>
+  The firebaseAuthApiKey is injected via jbake.properties.
+  When firebaseAuthApiKey is absent, the fragment renders nothing (th:if=false).
+*/-->
+<div th:fragment="auth-header" class="nav-item ms-lg-2"
+     th:if="${firebaseAuthApiKey != null and firebaseAuthApiKey != ''}">
+  <button id="auth-btn" class="btn btn-outline-primary btn-sm"
+          type="button" aria-label="Se connecter">
+    <i class="bi bi-box-arrow-in-right me-1"></i>
+    <span id="auth-label">Connexion</span>
+  </button>
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+    (function() {
+      var btn = document.getElementById('auth-btn');
+      var label = document.getElementById('auth-label');
+      if (!btn) return;
+
+      function updateUI(user) {
+        if (user) {
+          label.textContent = 'Déconnexion';
+          btn.classList.remove('btn-outline-primary');
+          btn.classList.add('btn-outline-danger');
+          btn.querySelector('i').className = 'bi bi-box-arrow-right me-1';
+        } else {
+          label.textContent = 'Connexion';
+          btn.classList.remove('btn-outline-danger');
+          btn.classList.add('btn-outline-primary');
+          btn.querySelector('i').className = 'bi bi-box-arrow-in-right me-1';
+        }
+      }
+
+      btn.addEventListener('click', function() {
+        var user = firebase.auth().currentUser;
+        if (user) {
+          firebase.auth().signOut();
+        } else {
+          var provider = new firebase.auth.GoogleAuthProvider();
+          firebase.auth().signInWithPopup(provider);
+        }
+      });
+
+      if (typeof firebase !== 'undefined' && firebase.auth) {
+        firebase.auth().onAuthStateChanged(updateUI);
+      }
+    })();
+    /*]]>*/
+  </script>
+</div>
+</html>

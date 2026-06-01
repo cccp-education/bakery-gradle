@@ -172,6 +172,8 @@ object SiteManager {
         copyResourceDirectory(site.pushMaquette.from, targetDir, project)
         injectFirebaseConfigIntoJbakeProperties(targetDir, site)
         injectGoogleFormsConfigIntoJbakeProperties(targetDir, site)
+        injectFirebaseAuthConfigIntoJbakeProperties(targetDir, site)
+        injectCommentsConfigIntoJbakeProperties(targetDir, site)
         logger.lifecycle("✓ Site scaffolded (type: ${siteType.alias}) from resource: $resourcePath")
     }
 
@@ -220,6 +222,53 @@ object SiteManager {
         updateProperty("googleFormsHeight", googleFormsConfig.height)
         jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
         logger.lifecycle("✓ Injected Google Forms config into jbake.properties")
+    }
+
+    private fun Project.injectFirebaseAuthConfigIntoJbakeProperties(targetDir: File, site: SiteConfiguration) {
+        val jbakeProps = targetDir.resolve(site.bake.srcPath)
+            .resolve("jbake.properties")
+        if (!jbakeProps.exists()) {
+            logger.warn("jbake.properties not found at ${jbakeProps.absolutePath}")
+            return
+        }
+        val firebaseAuthConfig = site.firebaseAuth ?: return
+        val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
+        fun updateProperty(key: String, value: String) {
+            val idx = lines.indexOfFirst { it.startsWith("$key=") }
+            if (idx >= 0) {
+                lines[idx] = "$key=$value"
+            } else {
+                lines.add("$key=$value")
+            }
+        }
+        updateProperty("firebaseAuthApiKey", firebaseAuthConfig.apiKey)
+        updateProperty("firebaseAuthDomain", firebaseAuthConfig.authDomain)
+        updateProperty("firebaseAuthProjectId", firebaseAuthConfig.projectId)
+        jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
+        logger.lifecycle("✓ Injected Firebase Auth config into jbake.properties")
+    }
+
+    private fun Project.injectCommentsConfigIntoJbakeProperties(targetDir: File, site: SiteConfiguration) {
+        val jbakeProps = targetDir.resolve(site.bake.srcPath)
+            .resolve("jbake.properties")
+        if (!jbakeProps.exists()) {
+            logger.warn("jbake.properties not found at ${jbakeProps.absolutePath}")
+            return
+        }
+        val commentsConfig = site.comments ?: return
+        val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
+        fun updateProperty(key: String, value: String) {
+            val idx = lines.indexOfFirst { it.startsWith("$key=") }
+            if (idx >= 0) {
+                lines[idx] = "$key=$value"
+            } else {
+                lines.add("$key=$value")
+            }
+        }
+        updateProperty("commentsEnabled", commentsConfig.enabled.toString())
+        updateProperty("commentsCollection", commentsConfig.collection)
+        jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
+        logger.lifecycle("✓ Injected Comments config into jbake.properties")
     }
 
 // ==================== Bakery Tasks Configuration ====================

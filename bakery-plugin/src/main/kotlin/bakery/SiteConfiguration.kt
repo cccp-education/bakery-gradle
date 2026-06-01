@@ -36,7 +36,9 @@ data class SiteConfiguration(
     val pushSource: GitPushConfiguration? = null,
     val pushTemplate: GitPushConfiguration? = null,
     val firebase: FirebaseContactFormConfig? = null,
-    val googleForms: GoogleFormsConfig? = null
+    val googleForms: GoogleFormsConfig? = null,
+    val firebaseAuth: FirebaseAuthConfig? = null,
+    val comments: CommentsConfig? = null,
 )
 
 data class BakeConfiguration(
@@ -87,5 +89,16 @@ data class GoogleFormsConfig(
     val width: String = "640",
     val height: String = "800",
     val allowMultiple: Boolean = false,
+)
+
+data class FirebaseAuthConfig(
+    val apiKey: String = "",
+    val authDomain: String = "",
+    val projectId: String = "",
+)
+
+data class CommentsConfig(
+    val enabled: Boolean = false,
+    val collection: String = "comments",
 )
 

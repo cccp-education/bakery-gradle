@@ -921,3 +921,88 @@ _Objectif_ : Valider les 3 User Journeys en Gherkin exécutable.
 * `src/functionalTest/kotlin/bakery/ScaffoldFunctionalTests.kt` — 2 FT
 * `src/test/features/11_google_forms_embed.feature` — 3 scénarios
 * `src/test/scenarios/bakery/scenarios/GoogleFormsSteps.kt` — steps Cucumber
+
+== BKY-JB-4 : Firebase Auth + Comments — Header login/logout + Commentaires Firestore
+
+**Statut** : TERMINE
+**Priorite** : P0
+**Charge** : 5 pts
+**Depend de** : BKY-JB-0 (TERMINE)
+
+_Objectif_ : Ajouter Firebase Authentication (login/logout bouton dans la navbar) et une section commentaires Firestore (remplaçant Disqus) pilotés par la config YAML `site.yml` (clés `firebaseAuth:` et `comments:`). Deuxième EPIC de la Phase B (services JBake).
+
+=== Architecture cible
+
+----
+site.yml:
+  firebaseAuth:
+    apiKey: "AIzaSy..."
+    authDomain: "my-app.firebaseapp.com"
+    projectId: "my-app"
+  comments:
+    enabled: true
+    collection: "comments"
+
+auth-header.thyme → bouton login/logout (th:if="${firebaseAuthApiKey}")
+comments.thyme → section commentaires Firestore (th:if="${commentsEnabled == 'true'}")
+footer.thyme → +firebase-auth-compat.js, +authDomain, +firebase.initializeApp()
+----
+
+=== Baby Steps DDD/TDD/BDD — Méthodologie Agile Software Craftsmanship
+
+==== Étape 1 — DDD : Modèle domaine (1 pt)
+
+* [x] Créer `FirebaseAuthConfig` data class dans `SiteConfiguration.kt`
+* [x] Créer `CommentsConfig` data class dans `SiteConfiguration.kt`
+* [x] Ajouter `firebaseAuth: FirebaseAuthConfig?` et `comments: CommentsConfig?` dans `SiteConfiguration`
+* [x] Créer `FirebaseAuthDsl` open class
+* [x] Créer `CommentsDsl` open class
+* [x] Ajouter DSL `bakery { firebaseAuth { ... } }` et `bakery { commentsConfig { ... } }` dans `BakeryExtension`
+* [x] **TDD — 5 tests unitaires** : `FirebaseAuthConfigTest`
+
+==== Étape 2 — TDD : Fragments Thymeleaf (1 pt)
+
+* [x] Créer `auth-header.thyme` — bouton login/logout avec `th:if` guard sur `firebaseAuthApiKey`
+* [x] Créer `comments.thyme` — section commentaires Firestore avec `th:if` guard sur `commentsEnabled`
+* [x] Intégrer `firebase-auth-compat.js` dans `footer.thyme`
+* [x] Enrichir `FIREBASE_CONFIG` avec `authDomain` + `firebase.initializeApp()`
+* [x] Intégrer `auth-header.thyme` dans `menu.thyme`
+* [x] Remplacer Disqus par `comments.thyme` dans `post.thyme`
+* [x] Ajouter `comments.thyme` dans `page.thyme`
+* [x] **TDD — 8 tests unitaires** : `FirebaseAuthTemplateTest`
+
+==== Étape 3 — TDD : Injection config → template (1 pt)
+
+* [x] Ajouter `injectFirebaseAuthConfigIntoJbakeProperties()` dans `SiteManager`
+* [x] Ajouter `injectCommentsConfigIntoJbakeProperties()` dans `SiteManager`
+* [x] **TDD — 3 tests unitaires** : `FirebaseAuthInjectionTest`
+
+==== Étape 4 — FT : Tests fonctionnels (1 pt)
+
+* [x] Test fonctionnel : `generateSite` → `auth-header.thyme` et `comments.thyme` déployés
+* [x] Test fonctionnel : `generateSite` sans config → pas d'injection dans jbake.properties
+* [x] **FT — 2 tests fonctionnels** dans `ScaffoldFunctionalTests.FirebaseAuthCommentsTest`
+
+==== Étape 5 — BDD : Scénarios Cucumber (1 pt)
+
+* [x] Créer `src/test/features/12_firebase_auth_comments.feature` (3 scénarios)
+* [x] Réutiliser steps existants : `ThymeleafComponentSteps`, `GoogleFormsSteps`
+* [x] **BDD — 3 scénarios Cucumber** : happy-path, no-config, integration
+
+=== Fichiers
+
+* `src/main/kotlin/bakery/SiteConfiguration.kt` — +FirebaseAuthConfig, +CommentsConfig
+* `src/main/kotlin/bakery/BakeryExtension.kt` — +firebaseAuth DSL, +commentsConfig DSL
+* `src/main/kotlin/bakery/FirebaseAuthDsl.kt` — créé
+* `src/main/kotlin/bakery/SiteManager.kt` — +injectFirebaseAuthConfigIntoJbakeProperties, +injectCommentsConfigIntoJbakeProperties
+* `src/main/resources/site/templates/auth-header.thyme` — créé
+* `src/main/resources/site/templates/comments.thyme` — créé
+* `src/main/resources/site/templates/footer.thyme` — modifié (+firebase-auth-compat, +authDomain, +firebase.initializeApp)
+* `src/main/resources/site/templates/menu.thyme` — modifié (+auth-header.thyme)
+* `src/main/resources/site/templates/post.thyme` — modifié (Disqus → comments.thyme)
+* `src/main/resources/site/templates/page.thyme` — modifié (+comments.thyme)
+* `src/test/kotlin/bakery/FirebaseAuthConfigTest.kt` — 5 UT
+* `src/test/kotlin/bakery/FirebaseAuthTemplateTest.kt` — 8 UT
+* `src/test/kotlin/bakery/FirebaseAuthInjectionTest.kt` — 3 UT
+* `src/functionalTest/kotlin/bakery/ScaffoldFunctionalTests.kt` — 2 FT
+* `src/test/features/12_firebase_auth_comments.feature` — 3 scénarios

@@ -21,33 +21,9 @@
                         Contenu de l'article...
                     </div>
 
-            <!-- Section Commentaires Disqus -->
-            <section id="disqus_thread" class="mt-5"></section>
-            <script th:inline="javascript">
-                /*<![CDATA[*/
-                var disqus_identifier = /*[[${content.uri}]]*/ '';
+                    <div th:replace="~{comments.thyme::comments}"/>
 
-                (({disqus_shortname, document}) => {
-                    injectScript('//' + disqus_shortname + '.disqus.com/embed.js');
-                    injectScript('//' + disqus_shortname + '.disqus.com/count.js');
-
-                    function injectScript(url) {
-                        const s = document.createElement('script');
-                        s.async = true;
-                        s.src = url;
-                        (document.head || document.body).appendChild(s);
-                    }
-                })({'disqus_shortname': 'disqus_username', 'document': document});
-                /*]]>*/
-            </script>
-            <noscript>
-                <div class="alert alert-warning">
-                    Veuillez activer JavaScript pour voir les
-                    <a href="https://disqus.com/?ref_noscript" class="alert-link">commentaires propulsés par Disqus</a>.
-                </div>
-            </noscript>
-
-        </article>
+                </article>
             </div><!-- /col-lg-9 -->
             <div class="col-lg-3 d-none d-lg-block">
                 <div th:replace="~{toc-sidebar.thyme::toc-sidebar}"/>

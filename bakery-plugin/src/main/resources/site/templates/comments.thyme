@@ -1,0 +1,115 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<!--/*
+  Comments component — Firestore-powered comments section.
+  Usage : <div th:replace="~{comments.thyme::comments}"/>
+  The commentsEnabled flag is injected via jbake.properties.
+  When commentsEnabled is absent or false, the fragment renders nothing (th:if=false).
+  Requires Firebase Auth (auth-header.thyme) for user identification.
+*/-->
+<div th:fragment="comments" class="comments-section mt-5"
+     th:if="${commentsEnabled != null and commentsEnabled == 'true'}">
+  <h3 id="comments-title">
+    <i class="bi bi-chat-dots me-2"></i>Commentaires
+  </h3>
+  <div id="comments-list" class="mb-4">
+    <p class="text-muted">Chargement des commentaires…</p>
+  </div>
+  <div id="comment-form" class="card">
+    <div class="card-body">
+      <div class="mb-3">
+        <label for="comment-text" class="form-label">Votre commentaire</label>
+        <textarea id="comment-text" class="form-control" rows="3"
+                  placeholder="Écrivez votre commentaire…"></textarea>
+      </div>
+      <button id="comment-submit" class="btn btn-primary" type="button">
+        <i class="bi bi-send me-1"></i>Envoyer
+      </button>
+      <div id="comment-login-hint" class="mt-2 text-muted" style="display:none;">
+        <i class="bi bi-info-circle me-1"></i>Connectez-vous pour commenter.
+      </div>
+    </div>
+  </div>
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+    (function() {
+      var collectionName = /*[[${commentsCollection}]]*/ 'comments';
+      var pageId = /*[[${content.uri}]]*/ '';
+
+      function loadComments() {
+        var listEl = document.getElementById('comments-list');
+        if (!listEl || typeof firebase === 'undefined') return;
+
+        firebase.firestore().collection(collectionName)
+          .where('pageId', '==', pageId)
+          .orderBy('createdAt', 'asc')
+          .get()
+          .then(function(snap) {
+            if (snap.empty) {
+              listEl.innerHTML = '<p class="text-muted">Aucun commentaire pour l\'instant.</p>';
+              return;
+            }
+            listEl.innerHTML = '';
+            snap.forEach(function(doc) {
+              var d = doc.data();
+              var div = document.createElement('div');
+              div.className = 'card mb-2';
+              div.innerHTML = '<div class="card-body">'
+                + '<h6 class="card-subtitle mb-1 text-muted">' + (d.authorName || 'Anonyme') + '</h6>'
+                + '<p class="card-text">' + (d.text || '') + '</p>'
+                + '</div>';
+              listEl.appendChild(div);
+            });
+          })
+          .catch(function(err) {
+            listEl.innerHTML = '<p class="text-danger">Erreur de chargement des commentaires.</p>';
+            console.error('Comments load error:', err);
+          });
+      }
+
+      function setupSubmit() {
+        var submitBtn = document.getElementById('comment-submit');
+        var hintText = document.getElementById('comment-login-hint');
+        if (!submitBtn) return;
+
+        if (typeof firebase !== 'undefined' && firebase.auth) {
+          firebase.auth().onAuthStateChanged(function(user) {
+            if (user) {
+              hintText.style.display = 'none';
+            } else {
+              hintText.style.display = 'block';
+            }
+          });
+        }
+
+        submitBtn.addEventListener('click', function() {
+          var user = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
+          if (!user) {
+            alert('Veuillez vous connecter pour commenter.');
+            return;
+          }
+          var text = document.getElementById('comment-text').value.trim();
+          if (!text) return;
+
+          firebase.firestore().collection(collectionName).add({
+            pageId: pageId,
+            text: text,
+            authorName: user.displayName || 'Anonyme',
+            authorUid: user.uid,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          }).then(function() {
+            document.getElementById('comment-text').value = '';
+            loadComments();
+          }).catch(function(err) {
+            console.error('Comment submit error:', err);
+          });
+        });
+      }
+
+      loadComments();
+      setupSubmit();
+    })();
+    /*]]>*/
+  </script>
+</div>
+</html>

@@ -59,6 +59,7 @@
                                 </button></li>
                             </ul>
                         </div>
+                        <div th:replace="~{auth-header.thyme::auth-header}"/>
                     </div>
                 </div>
             </nav>

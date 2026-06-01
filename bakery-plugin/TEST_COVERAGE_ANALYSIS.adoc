@@ -1,6 +1,6 @@
 = Analyse de Couverture des Tests — Bakery Gradle Plugin
 
-_Derniere mise a jour_ : 2026-05-07 (Session 018)
+_Derniere mise a jour_ : 2026-06-01 (Session 032)
 
 '''
 
@@ -117,5 +117,33 @@ Total Cucumber : 15 scenarios (12 PASS, 3 FAIL)
 | Duree des tests > 5 min | Productivite | P0
 | EPIC 9 : Architecture orchestration LLM | Non implemente | P0
 |===
+
+== Tests Unitaires — Session 032 (BKY-JB-4)
+
+|===
+| Classe | Tests | Statut | Notes
+| FirebaseAuthConfigTest | 5 | OK | parse firebaseAuth (1), sans firebaseAuth (1), parse comments (1), sans comments (1), both together (1)
+| FirebaseAuthTemplateTest | 8 | OK | auth-header with guard (2), comments with guard (2), footer auth-compat (1), menu fragment (1), post fragment (1), page fragment (1)
+| FirebaseAuthInjectionTest | 3 | OK | with config injects (1), without config no inject (1), auth only comments disabled (1)
+|===
+
+**Total Session 032 unitaires** : 16 nouveaux tests OK
+
+== Tests Fonctionnels — Session 032 (BKY-JB-4)
+
+|===
+| Classe | Tests | Statut | Notes
+| ScaffoldFunctionalTests.FirebaseAuthCommentsTest | 2 | OK | templates deployed (1), no injection without config (1)
+|===
+
+**Total Session 032 fonctionnels** : 2 nouveaux tests OK
+
+== Tests Cucumber — Session 032 (BKY-JB-4)
+
+| Feature | Scenarios | Statut | Notes
+| 12_firebase_auth_comments | 3 | PASS | happy-path, no-config, integration
+|===
+
+**Total Session 032 Cucumber** : 3 scenarios PASS
 
 
