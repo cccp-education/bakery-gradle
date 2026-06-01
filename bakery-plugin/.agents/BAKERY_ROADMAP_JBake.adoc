@@ -40,7 +40,7 @@ HORS domaine :
 |---|---|---|
 | **Scaffolding** | 🔶 Partiel | `generateSite` existe mais ne crée que blog vide. Pas de choix de template. |
 | **Templates** | ✅ Blog | blog.thyme, post.thyme, page.thyme, archive.thyme, tags.thyme — OK |
-| **Templates** | 🔴 Formation | Aucun : landing, session, module — inexistants |
+| **Templates** | 🔴 Formation | Aucun : landing, session, module — *déplacé vers training-gradle (TRN-TEMP)* |
 | **Templates** | 🔴 Composants | TOC sidebar, breadcrumb, progression, pagination — inexistants |
 | **Services** | ✅ Pagefind | ✅ Fait |
 | **Services** | 🔴 Firebase Auth/Comments | EPIC 4 (contact form) OK, mais pas auth, pas comments |
@@ -58,8 +58,8 @@ HORS domaine :
 
 | EPIC | Description | Pts | Prio |
 |---|---|---|---|
-| **BKY-JB-0** | `generateSite` enrichi : structure JBake, templates par défaut (blog + formation-landing), choix du type de site au scaffold | 5 | P0 |
-| **BKY-JB-1** | Templates Thymeleaf formation : `formation-landing.thyme`, `session-landing.thyme`, `module-landing.thyme` | 8 | P0 |
+| **BKY-JB-0** | `generateSite` enrichi : structure JBake, templates par défaut (blog), choix du type de site au scaffold | 5 | P0 |
+| **BKY-JB-1** | ❌ DÉPLACÉ vers training-gradle — les templates formation (landing, session, module) sont du domaine métier formation, pas du domaine technique JBake | — | — |
 | **BKY-JB-2** | Composants Thymeleaf réutilisables : `toc-sidebar.thyme`, `breadcrumb.thyme`, `progress-bar.thyme`, `pdf-viewer.thyme` | 5 | P0 |
 
 ### Phase B — Services (les fonctionnalités)
@@ -85,17 +85,20 @@ HORS domaine :
 
 ---
 
-**Total** : 8 EPICs, ~47 pts.
-**Phase A (JB-0→2)** : ~18 pts — le strict nécessaire.
+**Total** : 8 EPICs, ~39 pts (JB-1 déplacé vers training-gradle).
+**Phase A (JB-0, JB-2)** : ~10 pts — le strict nécessaire (scaffolding + composants).
 **Phase B (JB-3→5)** : ~13 pts — services.
 **Phase C (JB-6→7)** : ~8 pts — identité visuelle.
 **Phase D (JB-8)** : ~13 pts — IA.
 
+NOTE : BKY-JB-1 (templates formation-landing, session-landing, module-landing) a été déplacé vers training-gradle (EPIC TRN-TEMP). La formation est du domaine métier de training, pas du domaine technique JBake.
+
 ---
 
-## 4. Contrat d'entrée — formation.yaml (optionnel)
+## 4. Contrat d'entrée — formation.yaml (optionnel, fourni par training-gradle)
 
-bakery expose un contrat optionnel `formation.yaml` que les autres briques (training-gradle, runner) peuvent déposer pour structurer un site formation :
+bakery expose un contrat optionnel `formation.yaml` que **training-gradle** dépose pour structurer un site formation.
+Les templates formation (landing, session, module) sont du ressort de training-gradle (EPIC TRN-TEMP), pas bakery.
 
 ```yaml
 # deposé dans le site JBake par training-gradle / runner

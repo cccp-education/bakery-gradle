@@ -2,10 +2,10 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour_ : 2026-05-31
-_Session terminee_ : 027 — Analyse 12 echecs tests + BACKLOG 3 EPICs (15/16/17) + ports LLM
-_Prochaine session_ : 028 — EPIC 16 (Cucumber Scaffolding — correction step unique)
-_Session en cours_ : 028 — EPIC 16 Scaffolding Cucumber
+_Derniere mise a jour_ : 2026-06-01
+_Session terminee_ : 028 — EPICs 15/16/17 déjà verts + transfert BKY-JB-1 vers training-gradle
+_Prochaine session_ : 029 — BKY-JB-2 (composants Thymeleaf) ou EPIC 7 (YAML tolerance)
+_Session en cours_ : 029
 
 '''
 
@@ -124,13 +124,13 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 |===
 | EPIC | Axe | Pts | Priorite | Depend de
 | *BKY-JB-0* | Scaffolding site JBake : generateSite enrichi, structure, templates par defaut | 5 | *P0 ✅ TERMINE* | —
-| *BKY-JB-1* | Templates Thymeleaf : formation-landing, session-landing, module-landing | 8 | *P0* | BKY-JB-0
-| *BKY-JB-2* | Composants Thymeleaf : toc-sidebar, breadcrumb, progress-bar, pdf-viewer | 5 | *P0* | BKY-JB-1
-| *BKY-JB-3* | Google Forms embed : composant iframe responsive dans templates JBake | 5 | *P0* | BKY-JB-1
-| *BKY-JB-4* | Firebase Auth + Comments : header login/logout, commentaires session/module | 5 | *P1* | BKY-JB-1
-| *BKY-JB-5* | Analytics + Newsletter : Plausible/Matomo, formulaire mail footer | 3 | *P1* | BKY-JB-1
-| *BKY-JB-6* | Systeme de theme : CSS variables, dark/light mode, logo custom, favicon | 5 | *P1* | BKY-JB-1
-| *BKY-JB-7* | Layouts : full-width, sidebar droite/gauche, centered — choix par page | 3 | *P2* | BKY-JB-1
+| *BKY-JB-1* | ❌ DÉPLACÉ vers training-gradle (TRN-TEMP) — les templates formation ne sont pas du domaine bakery | — | — | —
+| *BKY-JB-2* | Composants Thymeleaf : toc-sidebar, breadcrumb, progress-bar, pdf-viewer | 5 | *P0* | BKY-JB-0
+| *BKY-JB-3* | Google Forms embed : composant iframe responsive dans templates JBake | 5 | *P0* | BKY-JB-0
+| *BKY-JB-4* | Firebase Auth + Comments : header login/logout, commentaires session/module | 5 | *P1* | BKY-JB-0
+| *BKY-JB-5* | Analytics + Newsletter : Plausible/Matomo, formulaire mail footer | 3 | *P1* | BKY-JB-0
+| *BKY-JB-6* | Systeme de theme : CSS variables, dark/light mode, logo custom, favicon | 5 | *P1* | BKY-JB-0
+| *BKY-JB-7* | Layouts : full-width, sidebar droite/gauche, centered — choix par page | 3 | *P2* | BKY-JB-0
 | *BKY-JB-8* | Generation d'article assistee IA : bakery → codebase (koog+langchain4j, RAG) → injection JBake. Depile BKY-IA-0. | 13 | *P0* | BKY-JB-0→3, codebase RAG seed
 |===
 
@@ -140,18 +140,18 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 *Phase C (JB-6→7)* : theme + layouts = ~8 pts.
 *Phase D (JB-8)* : IA via codebase = ~13 pts.
 
-=== EPICs de Réparation (tests legacy)
+=== EPICs de Réparation (tests legacy) — ✅ TERMINÉS
 
 |===
 | EPIC | Pts | Priorite | Cause racine
-| EPIC 15 — PluginApplicationTest NPE | 3 | *P0* | `siteType` non stubbé dans BakeryTestFixture
-| EPIC 16 — Cucumber Scaffolding steps | 2 | *P0* | 1 step manquant (préfixe `the gradle project `)
-| EPIC 17 — generateArticle graceful fail | 5 | *P0* | 3 bugs superposés (scenario+prod+assertion)
+| EPIC 15 — PluginApplicationTest NPE | 3 | *P0 ✅ TERMINÉ* | `siteType` déjà stubbé dans BakeryTestFixture
+| EPIC 16 — Cucumber Scaffolding steps | 2 | *P0 ✅ TERMINÉ* | Step déjà corrigé dans .feature (session 027)
+| EPIC 17 — generateArticle graceful fail | 5 | *P0 ✅ TERMINÉ* | IaConfig.enabled corrigé, LlmService error OK
 |===
 
 *Priorite P0* : EPIC 16 (le + rapide, ~10 min) → EPIC 15 → EPIC 17
 
-*Prochaine session* : 028 — EPIC 16 Cucumber Scaffolding (correction step unique).
+*Prochaine session* : 029 — BKY-JB-2 (composants Thymeleaf) ou EPIC 7 (YAML tolerance).
 
 === EPICs Historiques conservés
 

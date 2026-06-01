@@ -1,0 +1,54 @@
+= Session 028 — EPICs 15/16/17 déjà verts + transfert BKY-JB-1 vers training-gradle
+:date: 2026-06-01
+:session: 028
+
+== Résumé
+
+Session de vérification + correction de périmètre.
+
+== CE QUI A ÉTÉ FAIT
+
+=== 1. Vérification complète des tests EPICs 15/16/17
+
+Les 3 EPICs identifiés en session 027 sont **déjà verts** :
+
+- **EPIC 15** (3pts, P0) : PluginApplicationTest NPE — ✅ 4/4 PASSED
+- **EPIC 16** (2pts, P0) : Cucumber Scaffolding — ✅ 5/5 PASSED (step déjà corrigé dans le .feature)
+- **EPIC 17** (5pts, P0) : generateArticle graceful fail — ✅ PASSED (message LlmService OK)
+
+Tous les Cucumber (20+ scénarios), unitaires et fonctionnels sont verts.
+Les corrections avaient été appliquées en session 027, le PROMPT_REPRISE n'était pas à jour.
+
+=== 2. Transfert de périmètre BKY-JB-1 → training-gradle
+
+**Raison** : Les templates formation (landing, session, module) sont du domaine métier formation, pas du domaine technique JBake. Bakery fournit le mécanisme (Thymeleaf, scaffolding, theming). Training fournit le contenu et les modèles métier.
+
+**Fichiers modifiés** :
+
+| Fichier | Changement |
+|---|---|
+| `BAKERY_ROADMAP_JBake.adoc` | BKY-JB-1 marqué ❌ DÉPLACÉ, totaux 47→39 pts, BKY-JB-0 nettoyé |
+| `INDEX.adoc` bakery | BKY-JB-1 marqué déplacé, JB-2→7 dépendances changées vers JB-0 |
+| `BACKLOG.adoc` training-gradle | Créé — EPIC TRN-TEMP avec 5 tâches |
+| `INDEX.adoc` training-gradle | Roadmap mise à jour avec TRN-3 |
+| `PROMPT_REPRISE.adoc` bakery | Session 028 terminée, état réel documenté |
+
+=== 3. Architecture cross-borough clarifiée
+
+```
+training-gradle (Newark, N2)  → depose formation.yaml + templates métier
+bakery-gradle (Brooklyn, N2)  → fournit le mécanisme Thymeleaf, scaffolding, theming
+runner-gradle (New Jersey, N3) → orchestre : training → bakery → deploy
+```
+
+== TESTS
+
+Aucun test modifié. Tous les tests existants sont verts.
+
+- Cucumber : 20+ scénarios PASSÉS
+- Unitaires : UP-TO-DATE / PASSÉS
+- EPIC 15/16/17 : ✅ tous verts
+
+== SCORE : 7/10
+
+Session productive mais courte — vérification plutôt que création. Le transfert de périmètre est le vrai apport.

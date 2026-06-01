@@ -1,33 +1,42 @@
-= PROMPT_REPRISE — Session 028 prête : EPIC 16 (Scaffolding Cucumber) en priorité
+= PROMPT_REPRISE — Session 028 terminée : EPICs 15/16/17 déjà verts + transfert BKY-JB-1
 
-== Mission accomplie (Session 027)
+== Mission accomplie (Session 028)
 
-Analyse exhaustive des 12 échecs de test préexistants + 3 EPICs cadrés dans BACKLOG :
+Analyse complète de l'état des tests + transfert de périmètre formation.
 
-- **EPIC 15** (3pts, P0) : PluginApplicationTest NPE — cause : `siteType` non stubbé
-- **EPIC 16** (2pts, P0) : Cucumber Scaffolding 7 UndefinedStepException — cause : 1 step manquant
-- **EPIC 17** (5pts, P0) : generateArticle graceful fail — cause : 3 bugs superposés (scénario + prod + assertion)
+=== Résultats tests
 
-Modifications live :
-- Ports LLM test modifiés : 11434→11465/64/63/62 selon fichier
-- `IaConfig.kt` prod : défaut 11434→11464 aligné
-- `gradle/libs.versions.toml` : readme plugin 0.0.0→0.0.1
+Les 3 EPICs du PROMPT_REPRISE précédent sont **déjà verts** :
 
-== Prochaine mission (028) — EPIC 16 (le + rapide)
+- **EPIC 15** (3pts, P0) : PluginApplicationTest NPE — ✅ 4/4 PASSED (siteType déjà stubbé)
+- **EPIC 16** (2pts, P0) : Cucumber Scaffolding — ✅ 5/5 PASSED (step déjà corrigé dans .feature)
+- **EPIC 17** (5pts, P0) : generateArticle graceful fail — ✅ PASSED (LlmService error OK)
 
-Ordre recommandé : EPIC 16 → EPIC 15 → EPIC 17
+Tous les tests Cucumber (20+ scénarios), unitaires et fonctionnels sont verts.
 
-**EPIC 16 — Baby step ①** (1 pt, ~10 min) :
-```
-6_site_scaffolding.feature lignes 15, 60, 79 :
-  remplacer "the gradle project does not have"
-  par "does not have"
-→ ./gradlew cucumberTest --tests "*CucumberTestRunner*"
-→ 3 scénarios verts (UJ1, UJ4, UJ5)
-```
+=== Transfert de périmètre
 
-== Rappels
+**BKY-JB-1** (templates formation-landing, session-landing, module-landing) a été **déplacé de bakery-gradle vers training-gradle** :
 
-- `./gradlew -q publishToMavenLocal` après modif code source
-- Bakery = expert JBake site statique
-- BACKLOG.adoc = 3 nouveaux EPICs (15, 16, 17) avec User Journeys Gherkin + baby-steps
+- Raison : les templates formation sont du domaine métier formation, pas du domaine technique JBake
+- Nouvel EPIC dans training-gradle : TRN-TEMP (8 pts, P0)
+- Fichiers modifiés :
+  - `BAKERY_ROADMAP_JBake.adoc` : JB-1 marqué déplacé, totaux mis à jour (47→39 pts)
+  - `INDEX.adoc` bakery : JB-1 marqué déplacé, JB-2→7 dépendances changées de JB-1 vers JB-0
+  - `BACKLOG.adoc` training-gradle : créé avec EPIC TRN-TEMP + 5 tâches
+  - `INDEX.adoc` training-gradle : roadmap mise à jour avec TRN-3 (templates)
+
+=== Prochaines EPICs bakery disponibles (dans le domaine JBake)
+
+| EPIC | Pts | Prio | Description |
+|------|-----|------|-------------|
+| BKY-JB-2 | 5 | P0 | Composants Thymeleaf réutilisables (toc-sidebar, breadcrumb, progress-bar, pdf-viewer) |
+| BKY-JB-3 | 5 | P0 | Google Forms embed (iframe responsive dans templates JBake) |
+| EPIC 7 | — | P2 | Tolerance parsing YAML (`@JsonIgnoreProperties`) |
+| EPIC 11 | — | P0 | Optimisation durée tests (3-6 min → < 2 min) |
+
+== Prochaine session (029) — À définir
+
+Priorité suggérée : **BKY-JB-2** (composants Thymeleaf réutilisables) — c'est le prochain P0 dans le domaine JBake, et les dépendances (JB-0 scaffolding) sont terminées.
+
+Alternative : **EPIC 7** (YAML tolerance) si on veut un quick win mécanique avant d'attaquer les composants.

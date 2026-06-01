@@ -1,0 +1,21 @@
+= Archive des Taches Terminees — Juin 2026
+
+== Session 028 — 2026-06-01 — EPICs 15/16/17 déjà verts + transfert BKY-JB-1
+
+**Contexte** : Vérification complète des 3 EPICs identifiés en session 027. Tous déjà verts (corrections appliquées en 027). Transfert de périmètre formation vers training-gradle.
+
+**Taches realisees** :
+
+* [x] EPIC 15 (3pts, P0) ✅ TERMINÉ — PluginApplicationTest NPE déjà résolu (siteType stubbé)
+* [x] EPIC 16 (2pts, P0) ✅ TERMINÉ — Cucumber Scaffolding déjà résolu (step corrigé dans .feature)
+* [x] EPIC 17 (5pts, P0) ✅ TERMINÉ — generateArticle graceful fail déjà résolu (LlmService error OK)
+* [x] Transfert BKY-JB-1 (templates formation) de bakery-gradle vers training-gradle (EPIC TRN-TEMP)
+* [x] Mise à jour BAKERY_ROADMAP_JBake.adoc : JB-1 marqué déplacé, totaux 47→39 pts
+* [x] Mise à jour INDEX.adoc bakery : JB-1 déplacé, JB-2→7 dépendances vers JB-0
+* [x] Création BACKLOG.adoc training-gradle : EPIC TRN-TEMP + 5 tâches
+* [x] Mise à jour INDEX.adoc training-gradle : roadmap avec TRN-3
+* [x] Mise à jour PROMPT_REPRISE.adoc pour session 029
+
+**Tests** : Aucun test modifié. Tous verts (20+ Cucumber, unitaires, fonctionnels).
+
+**Prochaine session** : 029 — BKY-JB-2 (composants Thymeleaf) ou EPIC 7 (YAML tolerance)
