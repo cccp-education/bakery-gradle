@@ -1,40 +1,39 @@
-= PROMPT_REPRISE — Session 034 terminée : BKY-JB-6 Système de thème
+= PROMPT_REPRISE — Session 035 terminée : BKY-JB-9 Phase A Rendering Tests
 
-== Mission accomplie (Session 034)
+== Missionaccomplie (Session 035)
 
-BKY-JB-6 Système de thème — 5/5 baby steps DDD/TDD/BDD terminées.
+BKY-JB-9 Phase A (Thymeleaf Rendering Tests) — 3/4 baby steps terminées.
+5 bugs templates détectés et corrigés par les rendering tests.
 
 === Résultats
 
-- **BKY-JB-6 Système de thème** (5pts, P1) : ✅ TERMINÉ
-  - ThemeConfig data class (mode, primaryColor, secondaryColor, fontFamily, logoUrl, faviconUrl)
-  - ThemeDsl + bakery { theme { ... } } DSL
-  - theme-script.thyme (CSS :root variables, th:if guard sur themePrimaryColor)
-  - header.thyme — favicon conditionnel (th:if/th:unless themeFaviconUrl)
-  - menu.thyme — navbar-brand conditionnel (logo img vs texte, th:if themeLogoUrl)
-  - Variantes site-basic/ alignées
-  - injectThemeConfigIntoJbakeProperties dans SiteManager
-  - 16 UT + 2 FT + 3 Cucumber = 21 tests ajoutés, tous PASS
+- **BKY-JB-9 Phase A** : 3 pts terminés (JB-9.1, JB-9.2, JB-9.3)
+  - ThymeleafRenderingTestFactory + 17 rendering tests
+  - 5 bugs SpEL→OGNL + CSS→JS corrigés
+  - 282 UT + FT + 36 Cucumber tous PASS
+- **BKY-JB-5 Étape 5** : Cucumber déjà complet (checkboxes cochées)
 
-=== Phase C JBake — En cours (5/8 pts, 62%)
+== Prochaines baby steps — BKY-JB-9 Phase A (suite)
 
-| EPIC | Pts | Statut |
-|------|-----|--------|
-| BKY-JB-6 Système de thème | 5 | ✅ TERMINÉ |
-| BKY-JB-7 Layouts | 3 | À faire (P2) |
+| Step | Description | Pts |
+|-------|-------------|-----|
+| JB-9.4 | Migrer les TemplateTest existants vers rendering tests | 1 |
+| JB-9.5 | Ajouter rendering tests pour composants JB-2 (breadcrumb, toc, progress, pdf) | 1 |
+| JB-9.6 | Nettoyer les anciens `readText().contains()` devenus redondants | 0.5 |
 
-== Prochaines EPICs disponibles
+== EPICs disponibles (priorité décroissante)
 
 | EPIC | Pts | Prio | Description |
 |------|-----|------|-------------|
+| BKY-JB-9 (Phase A suite) | 2.5 | P1 | Migrer + nettoyer rendering tests |
+| BKY-JB-9 (Phase B) | 5 | P1 | Playwright-jvm E2E (browser) |
 | BKY-JB-7 | 3 | P2 | Layouts (full-width, sidebar, centered) |
-| BKY-JB-9 | 8 | P1 | E2E Tests (Thymeleaf rendering + Playwright-jvm) |
-| BKY-JB-8 | 13 | P0 | Génération d'article assistée IA via codebase |
-| EPIC 6 | 5 | P1 | publishProfil Task |
-| BKY-BKG | 8 | P1 | Articles connexes KG (steps 4-6) |
+| BKY-JB-8 | 13 | P0 | Article assisté IA via codebase |
 
-== Prochaine session (035) — Phase C/D
+== Prochaine session (036)
 
-Priorité suggérée : **BKY-JB-9** (E2E Tests, 8 pts, P1) pour solidifier la pyramide de tests.
-Alternative : **BKY-JB-8** (Article assisté IA, 13 pts, P0) si on veut avancer sur l'IA.
-BKY-JB-7 (Layouts, P2) est le dernier de la Phase C mais moins prioritaire.
+Priorité : **BKY-JB-9 Phase A suite** — migrer les 4 TemplateTest existants
+(ThemeTemplateTest, GoogleFormsTemplateTest, FirebaseAuthTemplateTest,
+AnalyticsNewsletterTemplateTest) vers `ThymeleafRenderingTestFactory`.
+Puis ajouter rendering tests pour breadcrumb/toc/progress-bar/pdf-viewer (JB-2).
+Enfin nettoyer les `readText().contains()` devenus redondants.

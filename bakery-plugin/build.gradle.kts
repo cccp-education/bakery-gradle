@@ -51,6 +51,9 @@ dependencies {
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.mockito.junit.jupiter)
 
+    // Thymeleaf — rendering tests (BKY-JB-9)
+    testImplementation(libs.thymeleaf)
+
     // Cucumber dependencies
     testImplementation(libs.bundles.cucumber)
 }

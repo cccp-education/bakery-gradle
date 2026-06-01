@@ -6,17 +6,14 @@
 <!-- Theme Script Fragment — BKY-JB-6 (site-basic variant) -->
 <!-- =============================================================================================================== -->
 <div th:fragment="theme-script" th:if="${themePrimaryColor}">
-    <style>
-        :root {
-            --bakery-primary: /*[[${themePrimaryColor}]]*/ #0d6efd;
-            --bakery-secondary: /*[[${themeSecondaryColor}]]*/ #6c757d;
-        }
-    </style>
-    <style th:if="${themeFontFamily}">
-        body {
-            font-family: /*[[${themeFontFamily}]]*/ system-ui, sans-serif;
-        }
-    </style>
+    <script th:inline="javascript">
+        document.documentElement.style.setProperty('--bakery-primary', /*[[${themePrimaryColor}]]*/ '#0d6efd');
+        document.documentElement.style.setProperty('--bakery-secondary', /*[[${themeSecondaryColor}]]*/ '#6c757d');
+    </script>
+    <script th:if="${themeFontFamily}" th:inline="javascript">
+        document.documentElement.style.setProperty('--bakery-font-family', /*[[${themeFontFamily}]]*/ 'system-ui, sans-serif');
+        document.body.style.fontFamily = /*[[${themeFontFamily}]]*/ 'system-ui, sans-serif';
+    </script>
 </div>
 </body>
 </html>

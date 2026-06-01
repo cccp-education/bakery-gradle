@@ -7,7 +7,7 @@
   When firebaseAuthApiKey is absent, the fragment renders nothing (th:if=false).
 */-->
 <div th:fragment="auth-header" class="nav-item ms-lg-2"
-     th:if="${firebaseAuthApiKey != null and firebaseAuthApiKey != ''}">
+     th:if="${firebaseAuthApiKey != null && firebaseAuthApiKey != ''}">
   <button id="auth-btn" class="btn btn-outline-primary btn-sm"
           type="button" aria-label="Se connecter">
     <i class="bi bi-box-arrow-in-right me-1"></i>

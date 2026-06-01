@@ -1068,10 +1068,9 @@ footer.thyme → +analytics-script fragment, +newsletter-form fragment
 
 ==== Étape 5 — BDD : Scénarios Cucumber (0.5 pt)
 
-* [ ] Créer `src/test/features/13_analytics_newsletter.feature` (3 scénarios)
-* [ ] Créer `src/test/scenarios/bakery/scenarios/AnalyticsNewsletterSteps.kt`
-* [ ] Réutiliser steps existants : `ThymeleafComponentSteps`, `MinimalSteps`
-* [ ] **BDD — 3 scénarios Cucumber** : happy-path, no-config, th:if guard
+* [x] Créer `src/test/features/13_analytics_newsletter.feature` (3 scénarios)
+* [x] Réutiliser steps existants : `ThymeleafComponentSteps`, `MinimalSteps` — aucun steps dédié nécessaire
+* [x] **BDD — 3 scénarios Cucumber** : happy-path, no-config, integration — tous PASS (session 033/035 vérifié)
 
 === Conditions aux limites
 

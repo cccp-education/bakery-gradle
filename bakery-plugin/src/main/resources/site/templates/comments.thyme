@@ -8,7 +8,7 @@
   Requires Firebase Auth (auth-header.thyme) for user identification.
 */-->
 <div th:fragment="comments" class="comments-section mt-5"
-     th:if="${commentsEnabled != null and commentsEnabled == 'true'}">
+     th:if="${commentsEnabled != null && commentsEnabled == 'true'}">
   <h3 id="comments-title">
     <i class="bi bi-chat-dots me-2"></i>Commentaires
   </h3>

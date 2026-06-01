@@ -7,7 +7,7 @@
   When googleFormsFormId is absent, the fragment renders nothing (th:if=false).
 */-->
 <div th:fragment="google-forms" class="google-forms-container mb-4"
-     th:if="${googleFormsFormId != null and googleFormsFormId != ''}">
+     th:if="${googleFormsFormId != null && googleFormsFormId != ''}">
   <div class="card">
     <div class="card-header">
       <h5 class="mb-0">
@@ -17,8 +17,8 @@
     <div class="card-body p-0">
       <div class="google-forms-responsive">
         <iframe th:src="'https://docs.google.com/forms/d/e/' + ${googleFormsFormId} + '/viewform?embedded=true'"
-                th:width="${googleFormsWidth ?: '640'}"
-                th:height="${googleFormsHeight ?: '800'}"
+                th:width="${googleFormsWidth}"
+                th:height="${googleFormsHeight}"
                 frameborder="0"
                 marginheight="0"
                 marginwidth="0"

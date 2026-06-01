@@ -150,3 +150,29 @@
 **Tests** : +21 tests (16 UT + 2 FT + 3 Cucumber). Tous PASS.
 
 **Prochaine session** : 035 — BKY-JB-9 (E2E Tests) ou BKY-JB-8 (Article IA)
+
+== Session 035 — 2026-06-01 — BKY-JB-9 Phase A : Thymeleaf Rendering Tests
+
+**Contexte** : Comble le trou critique de la pyramide de tests — les templates Thymeleaf n'étaient jamais _rendus_. Les rendering tests ont révélé 5 bugs templates que `readText().contains()` ne pouvait pas détecter.
+
+**Taches realisees** :
+
+* [x] BKY-JB-9 Phase A JB-9.1 (1pt) ✅ — Dépendance thymeleaf en testImplementation
+  - `thymeleaf = "3.0.14.RELEASE"` dans `libs.versions.toml` (bonne pratiques)
+  - Version alignée sur JBake 2.7.0
+* [x] BKY-JB-9 Phase A JB-9.2 (1pt) ✅ — ThymeleafRenderingTestFactory + 17 rendering tests
+  - Factory : TemplateEngine + FileTemplateResolver, `.thyme` suffix, HTML mode
+  - 5 templates testés : analytics-script, google-forms, theme-script, auth-header, comments, newsletter-form
+  - 17 tests : happy-path + absent + false pour chaque
+* [x] BKY-JB-9 Phase A JB-9.3 (1pt) ✅ — 5 bugs templates corrigés
+  - google-forms.thyme : `${x and y}` → `${x && y}` (SpEL→OGNL)
+  - google-forms.thyme : `${x ?: 'default'}` supprimé (Elvis→OGNL incompatible)
+  - auth-header.thyme : `${x and y}` → `${x && y}`
+  - comments.thyme : `${x and y}` → `${x && y}`
+  - theme-script.thyme (site + site-basic) : `/*[[${var}]]*/ default` → `th:inline="javascript"` + `setProperty()`
+* [x] BKY-JB-5 Étape 5 : Cucumber déjà complet (checkboxes cochées dans BACKLOG)
+* [x] `publishToMavenLocal` après modifications code source
+
+**Tests** : +8 UT (17 rendering tests - 9 anciens toujours verts). 282 UT + FT + 36 Cucumber tous PASS.
+
+**Prochaine session** : 036 — BKY-JB-9 Phase A suite (migrer TemplateTest existants)
