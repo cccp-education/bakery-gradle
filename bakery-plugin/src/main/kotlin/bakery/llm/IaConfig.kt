@@ -21,7 +21,7 @@ open class IaConfig(
     var baseUrl: String = "http://localhost:11464",
     var modelName: String = "deepseek-v4-pro",
     var timeout: Duration = Duration.ofSeconds(120),
-    var enabled: Boolean = true,
+    var enabled: Boolean = false,
     /** Ports du pool Docker (ex: "11437,11438,11439"). Active le mode pool si non-null. */
     var poolPorts: String? = null,
     /** Modèle à utiliser pour chaque instance du pool. Obligatoire si poolPorts est défini. */

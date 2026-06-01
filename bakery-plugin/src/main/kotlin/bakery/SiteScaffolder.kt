@@ -67,7 +67,7 @@ object SiteScaffolder {
 
     /** Résoud le type de site depuis l'extension bakery. */
     fun resolveSiteType(bakeryExtension: BakeryExtension): SiteType {
-        val rawType = bakeryExtension.siteType.orNull
+        val rawType = bakeryExtension.siteType?.orNull
         return SiteType.fromStringOrDefault(rawType)
     }
 }

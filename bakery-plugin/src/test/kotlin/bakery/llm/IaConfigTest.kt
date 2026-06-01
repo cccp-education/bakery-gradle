@@ -27,9 +27,9 @@ class IaConfigTest {
     }
 
     @Test
-    fun `config exposes enabled flag true by default`() {
+    fun `config exposes enabled flag false by default`() {
         val config = IaConfig()
-        assertTrue(config.enabled)
+        assertFalse(config.enabled)
     }
 
     @Test

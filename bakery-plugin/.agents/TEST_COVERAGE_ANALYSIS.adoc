@@ -24,6 +24,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 [cols="2,2,2,3,3"]
 |===
 | Session | Date | Kover % | Tests PASS | Notes
+| 027 | 2026-05-31 | *Non mesuré* | 14/14 IA PASS | Analyse 12 échecs → 3 EPICs (15/16/17). Ports LLM modifiés. BACKLOG +218 lignes.
 | 026 | 2026-05-30 | *Non mesuré* | 17/17 unitaires, 5/5 fonctionnels | BKY-JB-0 : ajout SiteType enum + resolveSiteType(), ressources site-basic/ (12 fichiers). Nettoyage type FORMATION. 22 nouveaux tests. 11 échecs pré-existants inchangés.
 | 025 | 2026-05-30 | *Non mesuré* | 18/18 unitaires, 3/3 fonctionnels | BKY-BKG Step 1-3 : ajout kgraph/ (ArticleNode, RelatedArticlesService, RelatedArticlesGraph), 4 nouveaux fichiers. Fix extraction tags <category> + URL /. 0 régression.
 | 024 | 2026-05-30 | *Non mesuré* | 3/3 unitaires, 1/1 fonctionnel | BKY-N3-7 : ajout SiteContextCollector + SiteContextCollectorTest + CollectSiteContextFunctionalTest. Parsing feed.xml + sitemap.xml. 3 nouveaux fichiers.

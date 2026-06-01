@@ -4,7 +4,7 @@ Feature: The site template contact form
 
   Scenario: `generateSite` injects Firebase config into jbake.properties
     Given an existing empty Bakery project using DSL with 'site.yml' file
-    And the output of the task 'tasks' contains 'generateSite' from the group 'generate' and 'Initialise site and maquette folders.'
+    And the output of the task 'tasks' contains 'generateSite' from the group 'generate' and 'Initialise site and maquette folders (type: blog).'
     When I am executing the task 'generateSite'
     Then the project should have a directory named 'site' who contains 'jbake.properties' file
     And the 'jbake.properties' file in 'site' directory should contain 'firebaseApiKey' and 'firebaseProjectId'

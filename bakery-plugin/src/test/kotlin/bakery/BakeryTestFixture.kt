@@ -73,9 +73,11 @@ private fun mockBakeryExtension(configPath: Property<String>): BakeryExtension {
     val ext = mock<BakeryExtension>()
     val sitesBaseDirProp = mockProperty("", present = false)
     val siteNameProp = mockProperty("", present = false)
+    val siteTypeProp = mockProperty("blog", present = true)
     whenever(ext.configPath).thenReturn(configPath)
     whenever(ext.sitesBaseDir).thenReturn(sitesBaseDirProp)
     whenever(ext.siteName).thenReturn(siteNameProp)
+    whenever(ext.siteType).thenReturn(siteTypeProp)
     whenever(ext.ia).thenReturn(IaConfig())
     return ext
 }

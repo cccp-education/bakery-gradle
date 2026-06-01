@@ -32,7 +32,7 @@ class ConfigureSiteSteps(private val world: BakeryWorld) {
             .describedAs("tasks output should contain collectSiteConfig")
             .contains("collectSiteConfig")
         assertThat(output)
-            .describedAs("tasks output should contain Bakery group and collectSiteConfig description")
-            .contains("Bakery tasks", "Initialize Bakery configuration.")
+            .describedAs("tasks output should contain collect group and collectSiteConfig description")
+            .contains("collect", "Initialize Bakery configuration.")
     }
 }

@@ -13,7 +13,7 @@ Feature: The generateSite task initialize the static site
     And 'settings.gradle.kts' set gradle portal dependencies repository with 'gradlePluginPortal'
     And the gradle project does not have 'site' directory for site
     And the gradle project does not have 'index.html' file for maquette
-    And the output of the task 'tasks' contains 'generateSite' from the group 'generate' and 'Initialise site and maquette folders.'
+    And the output of the task 'tasks' contains 'generateSite' from the group 'generate' and 'Initialise site and maquette folders (type: blog).'
     When I am executing the task 'generateSite'
     Then the project should have a 'site.yml' file for site configuration
     Then the project should have a directory named 'site' who contains 'jbake.properties' file
@@ -26,7 +26,7 @@ Feature: The generateSite task initialize the static site
   # gradle.properties : bakery.config.path='site.yml'
   Scenario: `generateSite` task against an existing bakery project with DSL and configuration without site and maquette
     Given an existing empty Bakery project using DSL with 'site.yml' file
-    And the output of the task 'tasks' contains 'generateSite' from the group 'generate' and 'Initialise site and maquette folders.'
+    And the output of the task 'tasks' contains 'generateSite' from the group 'generate' and 'Initialise site and maquette folders (type: blog).'
     And 'build.gradle.kts' file use 'site.yml' as the config path in the DSL
     And 'settings.gradle.kts' set gradle portal dependencies repository with 'gradlePluginPortal'
     And the gradle project does not have 'site' directory for site

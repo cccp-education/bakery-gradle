@@ -12,7 +12,7 @@ Feature: Scaffold a new static site into the sites base directory
   Scenario: Scaffold a new site into the sites base directory
     And 'build.gradle.kts' file use 'site.yml' as the config path in the DSL
     And 'settings.gradle.kts' set gradle portal dependencies repository with 'gradlePluginPortal'
-    And the gradle project does not have 'site.yml' for site configuration
+    And does not have 'site.yml' for site configuration
     And the gradle project does not have 'site' directory for site
     And the gradle project does not have 'index.html' file for maquette
     And the bakery extension defines 'sitesBaseDir' as 'office/sites'
@@ -57,7 +57,7 @@ Feature: Scaffold a new static site into the sites base directory
   Scenario: Scaffold into project directory when only siteName is defined
     And 'build.gradle.kts' file use 'site.yml' as the config path in the DSL
     And 'settings.gradle.kts' set gradle portal dependencies repository with 'gradlePluginPortal'
-    And the gradle project does not have 'site.yml' for site configuration
+    And does not have 'site.yml' for site configuration
     And the gradle project does not have 'site' directory for site
     And the gradle project does not have 'index.html' file for maquette
     And the bakery extension defines 'siteName' as 'mysite'
@@ -76,7 +76,7 @@ Feature: Scaffold a new static site into the sites base directory
   Scenario: Scaffold into project root when no scaffolding properties are defined (backward compat)
     And 'build.gradle.kts' file use 'site.yml' as the config path in the DSL
     And 'settings.gradle.kts' set gradle portal dependencies repository with 'gradlePluginPortal'
-    And the gradle project does not have 'site.yml' for site configuration
+    And does not have 'site.yml' for site configuration
     And the gradle project does not have 'site' directory for site
     And the gradle project does not have 'index.html' file for maquette
     When I am executing the task 'generateSite'
