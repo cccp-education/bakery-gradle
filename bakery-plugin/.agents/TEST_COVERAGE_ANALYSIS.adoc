@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-01 — Session 033_
+_Dernière mise à jour : 2026-06-01 — Session 034_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -12,9 +12,9 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 | Métrique | Valeur
 | Couverture Kover | *71.36%* — seuil ajusté à 70% (session 031)
 | Seuil configuré | 70% (dans `build.gradle.kts` → `koverThresholdCheck`)
-| Tests unitaires JUnit5 | 16 fichiers, ~3 200 lignes — ratio ~2.2x vs src/main
-| Tests fonctionnels (TestKit) | 4 fichiers, 1 350+ lignes
-| Tests Cucumber BDD | 10 features, 29+ scénarios, 1 050+ lignes de steps
+| Tests unitaires JUnit5 | 19 fichiers, ~3 500 lignes — ratio ~2.4x vs src/main
+| Tests fonctionnels (TestKit) | 4 fichiers, 1 400+ lignes
+| Tests Cucumber BDD | 11 features, 30+ scénarios, 1 050+ lignes de steps
 | Compilation | ✅ BUILD SUCCESSFUL — Gradle 9.5.1, Kotlin 2.3.20, Java 24, zéro warning
 |===
 
@@ -24,6 +24,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 [cols="2,2,2,3,3"]
 |===
 | Session | Date | Kover % | Tests PASS | Notes
+| 034 | 2026-06-01 | *Non mesuré* | 16/16 UT, 2/2 FT, 3/3 Cucumber | BKY-JB-6 : ThemeConfigTest (7), ThemeTemplateTest (6), ThemeInjectionTest (3), ThemeSystemTest FT (2), 14_theme_system.feature (3). Phase C 62%.
 | 033 | 2026-06-01 | *Non mesuré* | 18/18 UT, 2/2 FT, 3/3 Cucumber | BKY-JB-5 : AnalyticsNewsletterConfigTest (7), AnalyticsNewsletterTemplateTest (8), AnalyticsNewsletterInjectionTest (3), FT (2), 13_analytics_newsletter.feature (3). Phase B 100%.
 | 032 | 2026-06-01 | *Non mesuré* | 16/16 UT, 2/2 FT, 3/3 Cucumber | BKY-JB-4 : FirebaseAuthConfig + CommentsConfig, auth-header.thyme, comments.thyme.
 | 031 | 2026-06-01 | *71.36%* | 206/206 UT, 17/18 FT, 30/30 Cucumber | Fix date GenerateArticleTaskTest, EPIC 11 perf.

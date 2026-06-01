@@ -176,6 +176,7 @@ object SiteManager {
         injectCommentsConfigIntoJbakeProperties(targetDir, site)
         injectAnalyticsConfigIntoJbakeProperties(targetDir, site)
         injectNewsletterConfigIntoJbakeProperties(targetDir, site)
+        injectThemeConfigIntoJbakeProperties(targetDir, site)
         logger.lifecycle("✓ Site scaffolded (type: ${siteType.alias}) from resource: $resourcePath")
     }
 
@@ -319,6 +320,33 @@ object SiteManager {
         updateProperty("newsletterEndpoint", newsletterConfig.endpoint)
         jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
         logger.lifecycle("✓ Injected Newsletter config into jbake.properties")
+    }
+
+    private fun Project.injectThemeConfigIntoJbakeProperties(targetDir: File, site: SiteConfiguration) {
+        val jbakeProps = targetDir.resolve(site.bake.srcPath)
+            .resolve("jbake.properties")
+        if (!jbakeProps.exists()) {
+            logger.warn("jbake.properties not found at ${jbakeProps.absolutePath}")
+            return
+        }
+        val themeConfig = site.theme ?: return
+        val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
+        fun updateProperty(key: String, value: String) {
+            val idx = lines.indexOfFirst { it.startsWith("$key=") }
+            if (idx >= 0) {
+                lines[idx] = "$key=$value"
+            } else {
+                lines.add("$key=$value")
+            }
+        }
+        updateProperty("themeMode", themeConfig.mode)
+        updateProperty("themePrimaryColor", themeConfig.primaryColor)
+        updateProperty("themeSecondaryColor", themeConfig.secondaryColor)
+        updateProperty("themeFontFamily", themeConfig.fontFamily)
+        updateProperty("themeLogoUrl", themeConfig.logoUrl)
+        updateProperty("themeFaviconUrl", themeConfig.faviconUrl)
+        jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
+        logger.lifecycle("✓ Injected Theme config into jbake.properties")
     }
 
 // ==================== Bakery Tasks Configuration ====================

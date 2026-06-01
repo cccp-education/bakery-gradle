@@ -131,3 +131,22 @@
 **Tests** : +23 tests (18 UT + 2 FT + 3 Cucumber). Tous PASS.
 
 **Prochaine session** : 034 — BKY-JB-6 (Système de thème) Phase C
+
+== Session 034 — 2026-06-01 — BKY-JB-6 Système de thème
+
+**Contexte** : Premier EPIC de la Phase C (thème + layouts). Système de thème CSS custom properties (dark/light/auto, custom font, logo, favicon). Méthodo DDD/TDD/BDD baby steps 5/5.
+
+**Taches realisees** :
+
+* [x] BKY-JB-6 (5pts, P1) ✅ TERMINÉ — Système de thème :
+  - Étape 1 DDD : `ThemeConfig` data class (mode, primaryColor, secondaryColor, fontFamily, logoUrl, faviconUrl) + `ThemeDsl` open class + `BakeryExtension.theme` DSL
+  - Étape 2 TDD : `theme-script.thyme` (CSS :root variables --bakery-primary/--bakery-secondary, th:if guard sur themePrimaryColor, font-family conditionnel) + `header.thyme` favicon conditionnel (th:if/th:unless) + `menu.thyme` navbar-brand conditionnel (logo img vs texte)
+  - Étape 3 TDD : `injectThemeConfigIntoJbakeProperties()` dans SiteManager (6 propriétés : mode, primaryColor, secondaryColor, fontFamily, logoUrl, faviconUrl)
+  - Étape 4 FT : 2 tests fonctionnels ThemeSystemTest (template déployé, pas d'injection sans config)
+  - Étape 5 BDD : 3 scénarios Cucumber 14_theme_system.feature (happy-path, no-config, integration)
+* [x] Variantes `site-basic/` alignées : theme-script.thyme, header.thyme, menu.thyme
+* [x] Phase C JBake : 5/8 pts (62%)
+
+**Tests** : +21 tests (16 UT + 2 FT + 3 Cucumber). Tous PASS.
+
+**Prochaine session** : 035 — BKY-JB-9 (E2E Tests) ou BKY-JB-8 (Article IA)

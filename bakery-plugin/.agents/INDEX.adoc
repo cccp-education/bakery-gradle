@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-06-01
-_Session terminee_ : 033 — BKY-JB-5 Analytics + Newsletter (5/5 baby steps DDD/TDD/BDD terminées)
-_Prochaine session_ : 034 — BKY-JB-6 Système de thème
-_Session en cours_ : 034
+_Session terminee_ : 034 — BKY-JB-6 Système de thème (5/5 baby steps DDD/TDD/BDD terminées)
+_Prochaine session_ : 035 — BKY-JB-9 E2E Tests ou BKY-JB-8 Article IA
+_Session en cours_ : 035
 
 '''
 
@@ -70,6 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | # | Date | Type | Sujet | Score
+| 034 | 2026-06-01 | feat + test | BKY-JB-6 Système de thème — ThemeConfig (mode/colors/font/logo/favicon), theme-script.thyme (CSS :root variables), header favicon cond., menu logo cond., site-basic aligné. 16 UT + 2 FT + 3 Cucumber. Baby steps 5/5. | 9/10
 | 033 | 2026-06-01 | feat + test + backlog | BKY-JB-5 Analytics + Newsletter — AnalyticsConfig + NewsletterConfig, analytics-script.thyme (Plausible/Matomo), newsletter-form.thyme, 18 UT + 2 FT + 3 Cucumber PASS. Baby steps 5/5. EPIC BKY-JB-9 cadré. Phase B 100%. | 9/10
 | 029 | 2026-06-01 | feat + test + cleanup | EPIC 7 YAML tolerance (3 tests), EPIC 10 80%→100%, BKY-JB-2 composants Thymeleaf (4 fragments, 4 FT, 5 Cucumber). Bug date GenerateArticleTaskTest découvert. | 8/10
 | 027 | 2026-05-31 | analyse + doc + plan | Analyse 12 echecs tests → EPIC 15 (NPE), EPIC 16 (Cucumber Scaffolding), EPIC 17 (generateArticle graceful fail). 3 EPICs dans BACKLOG avec User Journeys Gherkin + baby-steps DDD/TDD/BDD. Ports LLM 11434→11465/64/63/62. | 8/10
@@ -131,7 +132,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 | *BKY-JB-3* | Google Forms embed : composant iframe responsive dans templates JBake | 5 | *P0 ✅ TERMINÉ* | BKY-JB-0
 | *BKY-JB-4* | Firebase Auth + Comments : header login/logout, commentaires Firestore | 5 | *P0 ✅ TERMINÉ* | BKY-JB-0
 | *BKY-JB-5* | Analytics + Newsletter : Plausible/Matomo, formulaire mail footer | 3 | *P0 ✅ TERMINÉ* | BKY-JB-0
-| *BKY-JB-6* | Systeme de theme : CSS variables, dark/light mode, logo custom, favicon | 5 | *P1* | BKY-JB-0
+| *BKY-JB-6* | Systeme de theme : CSS variables, dark/light mode, logo custom, favicon | 5 | *P1 ✅ TERMINÉ* | BKY-JB-0
 | *BKY-JB-7* | Layouts : full-width, sidebar droite/gauche, centered — choix par page | 3 | *P2* | BKY-JB-0
 | *BKY-JB-8* | Generation d'article assistee IA : bakery → codebase (koog+langchain4j, RAG) → injection JBake. Depile BKY-IA-0. | 13 | *P0* | BKY-JB-0→3, codebase RAG seed
 |===
@@ -139,7 +140,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 *Total JBake* : 9 EPICs, ~47 pts.
 *Phase A (JB-0→2)* : ✅ COMPLÈTE — scaffolding + templates + composants = 10 pts terminés.
 *Phase B (JB-3→5)* : ✅ COMPLÈTE — 13/13 pts (JB-3 ✅ + JB-4 ✅ + JB-5 ✅ = 13 pts terminés).
-*Phase C (JB-6→7)* : 🔄 À FAIRE — theme + layouts = ~8 pts.
+*Phase C (JB-6→7)* : 🔄 EN COURS — thème ✅ + layouts = 5/8 pts (62%).
 *Phase D (JB-8)* : IA via codebase = ~13 pts.
 
 === EPICs de Réparation (tests legacy) — ✅ TERMINÉS
@@ -153,7 +154,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 *Priorite P0* : EPIC 16 (le + rapide, ~10 min) → EPIC 15 → EPIC 17
 
-*Prochaine session* : 034 — BKY-JB-6 (Système de thème) Phase C
+*Prochaine session* : 035 — BKY-JB-9 (E2E Tests) ou BKY-JB-8 (Article IA)
 
 === EPICs Historiques conservés
 

@@ -41,6 +41,7 @@ data class SiteConfiguration(
     val comments: CommentsConfig? = null,
     val analytics: AnalyticsConfig? = null,
     val newsletter: NewsletterConfig? = null,
+    val theme: ThemeConfig? = null,
 )
 
 data class BakeConfiguration(
@@ -114,5 +115,14 @@ data class NewsletterConfig(
     val enabled: Boolean = false,
     val provider: String = "",
     val endpoint: String = "",
+)
+
+data class ThemeConfig(
+    val mode: String = "auto",
+    val primaryColor: String = "#0d6efd",
+    val secondaryColor: String = "#6c757d",
+    val fontFamily: String = "",
+    val logoUrl: String = "",
+    val faviconUrl: String = "",
 )
 

@@ -1,41 +1,40 @@
-= PROMPT_REPRISE — Session 033 terminée : BKY-JB-5 Analytics + Newsletter
+= PROMPT_REPRISE — Session 034 terminée : BKY-JB-6 Système de thème
 
-== Mission accomplie (Session 033)
+== Mission accomplie (Session 034)
 
-BKY-JB-5 Analytics + Newsletter — 5/5 baby steps DDD/TDD/BDD terminées.
+BKY-JB-6 Système de thème — 5/5 baby steps DDD/TDD/BDD terminées.
 
 === Résultats
 
-- **BKY-JB-5 Analytics + Newsletter** (3pts, P1) : ✅ TERMINÉ
-  - AnalyticsConfig + NewsletterConfig data classes + DSL
-  - analytics-script.thyme (Plausible/Matomo, th:if guard)
-  - newsletter-form.thyme (mail footer, th:if guard)
-  - injectAnalyticsConfig + injectNewsletterConfig dans SiteManager
-  - 18 UT + 2 FT + 3 Cucumber = 23 tests ajoutés, tous PASS
+- **BKY-JB-6 Système de thème** (5pts, P1) : ✅ TERMINÉ
+  - ThemeConfig data class (mode, primaryColor, secondaryColor, fontFamily, logoUrl, faviconUrl)
+  - ThemeDsl + bakery { theme { ... } } DSL
+  - theme-script.thyme (CSS :root variables, th:if guard sur themePrimaryColor)
+  - header.thyme — favicon conditionnel (th:if/th:unless themeFaviconUrl)
+  - menu.thyme — navbar-brand conditionnel (logo img vs texte, th:if themeLogoUrl)
+  - Variantes site-basic/ alignées
+  - injectThemeConfigIntoJbakeProperties dans SiteManager
+  - 16 UT + 2 FT + 3 Cucumber = 21 tests ajoutés, tous PASS
 
-- **EPIC BKY-JB-9** (8pts, P1) : Proposition cadrée dans BACKLOG
-  - Couche 1 : Thymeleaf Rendering Tests (UT rapide)
-  - Couche 2 : Playwright-jvm E2E (Cucumber + Browser)
-
-=== Phase B JBake — COMPLÈTE (13/13 pts, 100%)
+=== Phase C JBake — En cours (5/8 pts, 62%)
 
 | EPIC | Pts | Statut |
 |------|-----|--------|
-| BKY-JB-3 Google Forms embed | 5 | ✅ TERMINÉ |
-| BKY-JB-4 Firebase Auth + Comments | 5 | ✅ TERMINÉ |
-| BKY-JB-5 Analytics + Newsletter | 3 | ✅ TERMINÉ |
+| BKY-JB-6 Système de thème | 5 | ✅ TERMINÉ |
+| BKY-JB-7 Layouts | 3 | À faire (P2) |
 
 == Prochaines EPICs disponibles
 
 | EPIC | Pts | Prio | Description |
 |------|-----|------|-------------|
-| BKY-JB-6 | 5 | P1 | Système de thème (CSS variables, dark/light mode, logo) |
-| BKY-JB-9 | 8 | P1 | E2E Tests (Thymeleaf rendering + Playwright-jvm) |
 | BKY-JB-7 | 3 | P2 | Layouts (full-width, sidebar, centered) |
-| EPIC 13 | 3 | P1 | Couverture lacunes P1 (71% → 75%+) |
+| BKY-JB-9 | 8 | P1 | E2E Tests (Thymeleaf rendering + Playwright-jvm) |
+| BKY-JB-8 | 13 | P0 | Génération d'article assistée IA via codebase |
+| EPIC 6 | 5 | P1 | publishProfil Task |
+| BKY-BKG | 8 | P1 | Articles connexes KG (steps 4-6) |
 
-== Prochaine session (034) — Phase C JBake
+== Prochaine session (035) — Phase C/D
 
-Priorité suggérée : **BKY-JB-6** (Système de thème, 5 pts, P1).
-Mécanique similaire à JB-3→5 : DDD ThemeConfig → CSS variables → dark/light toggle.
-Alternative : **BKY-JB-9** (E2E Tests) si on veut solidifier la pyramide de tests d'abord.
+Priorité suggérée : **BKY-JB-9** (E2E Tests, 8 pts, P1) pour solidifier la pyramide de tests.
+Alternative : **BKY-JB-8** (Article assisté IA, 13 pts, P0) si on veut avancer sur l'IA.
+BKY-JB-7 (Layouts, P2) est le dernier de la Phase C mais moins prioritaire.

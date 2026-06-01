@@ -1,0 +1,22 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- =============================================================================================================== -->
+<!-- Theme Script Fragment — BKY-JB-6 (site-basic variant) -->
+<!-- =============================================================================================================== -->
+<div th:fragment="theme-script" th:if="${themePrimaryColor}">
+    <style>
+        :root {
+            --bakery-primary: /*[[${themePrimaryColor}]]*/ #0d6efd;
+            --bakery-secondary: /*[[${themeSecondaryColor}]]*/ #6c757d;
+        }
+    </style>
+    <style th:if="${themeFontFamily}">
+        body {
+            font-family: /*[[${themeFontFamily}]]*/ system-ui, sans-serif;
+        }
+    </style>
+</div>
+</body>
+</html>

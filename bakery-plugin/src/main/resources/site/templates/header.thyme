@@ -35,6 +35,9 @@
         <!-- Custom CSS -->
         <link th:with="rootpath=(${content.rootpath != null} ? ${content.rootpath} : '')" th:href="${rootpath}+'css/styles.css'" rel="stylesheet" />
 
+        <!-- Theme CSS Variables (BKY-JB-6) -->
+        <div th:replace="~{theme-script :: theme-script}"></div>
+
         <!-- Pagefind UI CSS -->
         <link th:with="rootpath=(${content.rootpath != null} ? ${content.rootpath} : '')" th:href="${rootpath}+'_pagefind/pagefind-ui.css'" rel="stylesheet" />
 
@@ -47,7 +50,12 @@
 
 
         <!-- Favicon -->
-        <link th:with="rootpath=(${content.rootpath != null} ? ${content.rootpath} : '')"
+        <link th:if="${themeFaviconUrl}"
+              th:with="rootpath=(${content.rootpath != null} ? ${content.rootpath} : '')"
+              rel="shortcut icon"
+              th:href="${rootpath}+${themeFaviconUrl}"/>
+        <link th:unless="${themeFaviconUrl}"
+              th:with="rootpath=(${content.rootpath != null} ? ${content.rootpath} : '')"
               rel="shortcut icon"
               th:href="${rootpath}+'/img/cheroliv_logo_icon.png'"/>
 

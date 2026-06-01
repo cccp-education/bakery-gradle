@@ -484,6 +484,67 @@ class ScaffoldFunctionalTests {
         }
     }
 
+    @Nested
+    @DisplayName("generateSite with Theme system (BKY-JB-6)")
+    inner class ThemeSystemTest {
+
+        @TempDir
+        lateinit var projectDir: File
+
+        @Test
+        fun `should scaffold blog site with theme-script template deployed`() {
+            createMinimalBakeryProject(
+                projectDir,
+                sitesBaseDir = null,
+                siteName = "theme-test",
+                siteType = "blog"
+            )
+
+            val result = create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateSite")
+                .build()
+
+            val templatesDir = projectDir.resolve("theme-test/site/templates")
+            assertThat(templatesDir.resolve("theme-script.thyme")).exists().isFile
+            assertThat(templatesDir.resolve("theme-script.thyme").readText(UTF_8))
+                .contains("theme-script")
+                .contains("themePrimaryColor")
+                .contains("th:if")
+                .contains("--bakery-primary")
+            assertThat(result.output).contains("BUILD SUCCESSFUL")
+        }
+
+        @Test
+        fun `should scaffold site with theme template but no injection when site yml has no theme`() {
+            createMinimalBakeryProject(
+                projectDir,
+                sitesBaseDir = null,
+                siteName = "no-theme",
+                siteType = "blog"
+            )
+
+            val result = create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateSite")
+                .build()
+
+            val siteDir = projectDir.resolve("no-theme")
+            val templatesDir = siteDir.resolve("site/templates")
+            assertThat(templatesDir.resolve("theme-script.thyme")).exists().isFile
+
+            val jbakeProps = siteDir.resolve("site/jbake.properties")
+            assertThat(jbakeProps).exists().isFile
+            assertThat(jbakeProps.readText(UTF_8))
+                .doesNotContain("themeMode")
+                .doesNotContain("themePrimaryColor")
+
+            assertThat(result.output).contains("BUILD SUCCESSFUL")
+        }
+    }
+
     companion object {
         private fun createMinimalBakeryProject(
             projectDir: File,
