@@ -38,6 +38,14 @@ open class BakeryExtension @Inject constructor(objects: ObjectFactory) {
     /** Configuration du service IA (LangChain4j + Ollama) — BKY-IA-0 */
     val ia: IaConfig = IaConfig()
 
+    /** Configuration Google Forms embed — BKY-JB-3 */
+    val googleForms: GoogleFormsDsl = GoogleFormsDsl()
+
+    /** DSL : bakery { googleForms { ... } } */
+    fun googleForms(action: Action<GoogleFormsDsl>) {
+        action.execute(googleForms)
+    }
+
     /** DSL : bakery { ia { ... } } */
     fun ia(action: Action<IaConfig>) {
         action.execute(ia)

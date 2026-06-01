@@ -44,3 +44,22 @@
 **Tests** : +12 tests (3 UT + 4 FT + 5 Cucumber). Bug découvert : GenerateArticleTaskTest 3 échecs (date hardcodée).
 
 **Prochaine session** : 030 — BKY-JB-3 (Google Forms embed) ou quick win (Fix date + EPIC 11)
+
+== Session 030 — 2026-06-01 — BKY-JB-3 Google Forms Embed
+
+**Contexte** : Premier EPIC de la Phase B (services JBake). Création d'un composant Thymeleaf pour embarquer un Google Form en iframe responsive, piloté par config YAML. Méthodo DDD/TDD/BDD baby steps 5/5.
+
+**Taches realisees** :
+
+* [x] BKY-JB-3 (5pts, P0) ✅ TERMINÉ — Google Forms Embed :
+  - Étape 1 DDD : `GoogleFormsConfig` data class + `GoogleFormsDsl` open class + extension DSL
+  - Étape 2 TDD : `google-forms.thyme` (iframe responsive + th:if guard)
+  - Étape 3 TDD : `injectGoogleFormsConfigIntoJbakeProperties()` + intégration `page.thyme`
+  - Étape 4 FT : 2 tests fonctionnels (template déployé, pas d'injection sans config)
+  - Étape 5 BDD : 3 scénarios Cucumber (happy-path, no-config, th:if guard)
+* [x] BACKLOG.adoc — documentation BKY-JB-3 avec baby steps DDD/TDD/BDD complets
+* [x] INDEX.adoc, SESSIONS_HISTORY.adoc, TEST_COVERAGE_ANALYSIS.adoc, PROMPT_REPRISE.adoc mis à jour
+
+**Tests** : +11 tests (6 UT + 2 FT + 3 Cucumber). Bug préexistant : GenerateArticleTaskTest 3 échecs (date hardcodée).
+
+**Prochaine session** : 031 — Fix date GenerateArticleTaskTest + EPIC 11 (perf tests)

@@ -293,6 +293,65 @@ class ScaffoldFunctionalTests {
         }
     }
 
+    @Nested
+    @DisplayName("generateSite with Google Forms embed (BKY-JB-3)")
+    inner class GoogleFormsEmbedTest {
+
+        @TempDir
+        lateinit var projectDir: File
+
+        @Test
+        fun `should scaffold blog site with google-forms template deployed`() {
+            createMinimalBakeryProject(
+                projectDir,
+                sitesBaseDir = null,
+                siteName = "gforms-test",
+                siteType = "blog"
+            )
+
+            val result = create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateSite")
+                .build()
+
+            val templatesDir = projectDir.resolve("gforms-test/site/templates")
+            assertThat(templatesDir.resolve("google-forms.thyme")).exists().isFile
+            assertThat(templatesDir.resolve("google-forms.thyme").readText(UTF_8))
+                .contains("google-forms-container")
+                .contains("iframe")
+                .contains("googleFormsFormId")
+            assertThat(result.output).contains("BUILD SUCCESSFUL")
+        }
+
+        @Test
+        fun `should scaffold site with google-forms template but no injection when site yml has no googleForms`() {
+            createMinimalBakeryProject(
+                projectDir,
+                sitesBaseDir = null,
+                siteName = "no-gforms",
+                siteType = "blog"
+            )
+
+            val result = create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateSite")
+                .build()
+
+            val siteDir = projectDir.resolve("no-gforms")
+            val templatesDir = siteDir.resolve("site/templates")
+            assertThat(templatesDir.resolve("google-forms.thyme")).exists().isFile
+
+            val jbakeProps = siteDir.resolve("site/jbake.properties")
+            assertThat(jbakeProps).exists().isFile
+            assertThat(jbakeProps.readText(UTF_8))
+                .doesNotContain("googleForms")
+
+            assertThat(result.output).contains("BUILD SUCCESSFUL")
+        }
+    }
+
     companion object {
         private fun createMinimalBakeryProject(
             projectDir: File,

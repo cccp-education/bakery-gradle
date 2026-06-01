@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-06-01
-_Session terminee_ : 029 — EPIC 7 + EPIC 10 cleanup + BKY-JB-2 composants Thymeleaf
-_Prochaine session_ : 030 — BKY-JB-3 (Google Forms embed) ou quick win (Fix date + EPIC 11)
-_Session en cours_ : 030
+_Session terminee_ : 030 — BKY-JB-3 Google Forms Embed (11 tests, 5/5 baby steps DDD/TDD/BDD)
+_Prochaine session_ : 031 — Fix date GenerateArticleTaskTest + EPIC 11 (perf tests)
+_Session en cours_ : 031
 
 '''
 
@@ -127,7 +127,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 | *BKY-JB-0* | Scaffolding site JBake : generateSite enrichi, structure, templates par defaut | 5 | *P0 ✅ TERMINE* | —
 | *BKY-JB-1* | ❌ DÉPLACÉ vers training-gradle (TRN-TEMP) — les templates formation ne sont pas du domaine bakery | — | — | —
 | *BKY-JB-2* | Composants Thymeleaf : toc-sidebar, breadcrumb, progress-bar, pdf-viewer | 5 | *P0 ✅ TERMINÉ* | BKY-JB-0
-| *BKY-JB-3* | Google Forms embed : composant iframe responsive dans templates JBake | 5 | *P0* | BKY-JB-0
+| *BKY-JB-3* | Google Forms embed : composant iframe responsive dans templates JBake | 5 | *P0 ✅ TERMINÉ* | BKY-JB-0
 | *BKY-JB-4* | Firebase Auth + Comments : header login/logout, commentaires session/module | 5 | *P1* | BKY-JB-0
 | *BKY-JB-5* | Analytics + Newsletter : Plausible/Matomo, formulaire mail footer | 3 | *P1* | BKY-JB-0
 | *BKY-JB-6* | Systeme de theme : CSS variables, dark/light mode, logo custom, favicon | 5 | *P1* | BKY-JB-0
@@ -137,7 +137,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 *Total JBake* : 9 EPICs, ~47 pts.
 *Phase A (JB-0→2)* : ✅ COMPLÈTE — scaffolding + templates + composants = 10 pts terminés.
-*Phase B (JB-3→5)* : services = ~13 pts.
+*Phase B (JB-3→5)* : 🔄 EN COURS — 5/13 pts (JB-3 ✅ = 5 pts terminés, reste JB-4 + JB-5 = 8 pts).
 *Phase C (JB-6→7)* : theme + layouts = ~8 pts.
 *Phase D (JB-8)* : IA via codebase = ~13 pts.
 

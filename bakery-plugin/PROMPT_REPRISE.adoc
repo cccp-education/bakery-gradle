@@ -1,38 +1,34 @@
-= PROMPT_REPRISE — Session 029 terminée : EPIC 7 + EPIC 10 cleanup + BKY-JB-2 composants Thymeleaf
+= PROMPT_REPRISE — Session 030 terminée : BKY-JB-3 Google Forms Embed
 
-== Mission accomplie (Session 029)
+== Mission accomplie (Session 030)
 
-Nettoyage du terrain + implémentation BKY-JB-2 (4 composants Thymeleaf).
+BKY-JB-3 (Google Forms Embed) — 5/5 baby steps DDD/TDD/BDD terminés.
 
 === Résultats
 
-- **EPIC 7** (P2) : YAML Tolerance — ✅ TERMINE (3 tests YamlToleranceTest)
-  - `@JsonIgnoreProperties(ignoreUnknown=true)` déjà présent (session 016)
-  - Limitation documentée : typo dans un champ valide silencieusement ignorée
-- **EPIC 10** : Scaffolding TDD — ✅ 100% (était marqué 80%, BACKLOG en retard)
-  - 8 UT + 8 FT + 5 Cucumber tous verts
-- **BKY-JB-2** (5pts, P0) : Composants Thymeleaf — ✅ TERMINE
-  - 4 fragments : breadcrumb, toc-sidebar, progress-bar, pdf-viewer
-  - Intégrés dans post.thyme (breadcrumb + progress-bar + toc-sidebar sidebar)
-  - Intégrés dans page.thyme (breadcrumb + progress-bar + pdf-viewer conditionnel)
-  - 4 FT + 5 scénarios Cucumber + 2 steps réutilisables
+- **BKY-JB-3** (5pts, P0) : Google Forms Embed — ✅ TERMINE
+  - `GoogleFormsConfig` data class + `GoogleFormsDsl` (séparation domaine/DSL)
+  - `google-forms.thyme` : iframe responsive + `th:if` guard
+  - `injectGoogleFormsConfigIntoJbakeProperties` (même pattern que Firebase)
+  - Intégration dans `page.thyme` via `th:replace`
+  - 11 tests : 6 UT + 2 FT + 3 Cucumber (tous verts)
 
-=== Bug découvert (hors périmètre)
+=== Bugs préexistants (hors périmètre)
 
-3 tests `GenerateArticleTaskTest` échouent : chemin hardcodé `content/blog/2026/5` (mai) au lieu de mois dynamique. Bug de date préexistant.
+3 tests `GenerateArticleTaskTest` échouent : chemin hardcodé `content/blog/2026/5` (mai) au lieu de mois dynamique. Bug de date préexistant depuis session 029.
 
 == Prochaines EPICs disponibles (Phase B JBake)
 
 | EPIC | Pts | Prio | Description |
 |------|-----|------|-------------|
-| BKY-JB-3 | 5 | P0 | Google Forms embed (iframe responsive dans templates JBake) |
 | BKY-JB-4 | 5 | P1 | Firebase Auth + Comments |
+| BKY-JB-5 | 3 | P1 | Analytics + Newsletter (Plausible/Matomo, footer mail) |
 | EPIC 11 | 5 | P0 | Optimisation durée tests (3-6 min → < 2 min) |
 | Fix date | 1 | P2 | GenerateArticleTaskTest mois dynamique |
 
-== Prochaine session (030) — BKY-JB-3
+== Prochaine session (031) — Fix date + EPIC 11
 
-Priorité suggérée : **BKY-JB-3** (Google Forms embed) — c'est le prochain P0 dans la Phase B services JBake.
-Les composants Thymeleaf (JB-2) sont en place, le Forms embed est le premier service consommateur.
+Priorité suggérée : **Fix date** (quick win 15 min) + **EPIC 11** (perf tests < 2 min).
+Stabiliser la suite de tests avant de continuer Phase B (BKY-JB-4 Firebase Auth).
 
-Alternative : **Fix date** (quick win 15 min) + **EPIC 11** (perf tests) si on veut stabiliser avant Phase B.
+Alternative : **BKY-JB-4** (Firebase Auth + Comments) si on préfère avancer la Phase B directement.

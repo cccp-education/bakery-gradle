@@ -18,6 +18,8 @@
 			<div th:replace="~{pdf-viewer.thyme::pdf-viewer}"/>
 		
 			<p th:utext='${content.body}'>body</p>
+
+			<div th:replace="~{google-forms.thyme::google-forms}"/>
 		
 			<hr />
 		</div>

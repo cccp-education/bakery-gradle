@@ -778,3 +778,146 @@ _Objectif_ : Créer 4 fragments Thymeleaf réutilisables pour enrichir les pages
 * `src/functionalTest/kotlin/bakery/ScaffoldFunctionalTests.kt` — 4 tests ajoutés
 * `src/test/features/10_thymeleaf_components.feature` — 5 scénarios Cucumber
 * `src/test/scenarios/bakery/scenarios/ThymeleafComponentSteps.kt` — 2 steps Cucumber
+
+== BKY-JB-3 : Google Forms Embed — Composant iframe responsive dans templates JBake
+
+**Statut** : TERMINE
+**Priorite** : P0
+**Charge** : 5 pts
+**Depend de** : BKY-JB-0 (TERMINE), BKY-JB-2 (TERMINE)
+
+_Objectif_ : Créer un fragment Thymeleaf `google-forms.thyme` qui embarque un Google Form en iframe responsive, piloté par la config YAML `site.yml` (clé `googleForms:`). C'est le premier EPIC de la Phase B (services JBake).
+
+=== Architecture cible
+
+----
+site.yml:
+  googleForms:
+    formId: "1ABCDEF-x1234567890"
+    width: "640"
+    height: "800"
+    allowMultiple: false
+
+google-forms.thyme:
+  <div th:if="${googleFormsFormId}" class="google-form-container">
+    <iframe src="https://docs.google.com/forms/d/e/{formId}/viewform?embedded=true"
+            width="{width}" height="{height}" frameborder="0" marginheight="0" marginwidth="0">Chargement…</iframe>
+  </div>
+----
+
+=== User Journeys BDD
+
+```gherkin
+Feature: Google Forms Embed — BKY-JB-3
+
+  En tant que formateur utilisant bakery
+  Je veux embarquer un Google Form dans une page JBake
+  Afin de collecter des évaluations ou des inscriptions directement sur mon site
+
+  UJ1 — Site avec Google Forms configuré
+  Scenario: Google Form embed dans une page JBake
+    Given a new Bakery project with site configured
+    And the site configuration contains a googleForms block with formId "1ABC-x12345"
+    When I am executing the task 'generateSite'
+    Then the site should contain a 'google-forms.thyme' template
+    And the rendered page should contain an iframe with src containing "1ABC-x12345"
+
+  UJ2 — Site sans Google Forms
+  Scenario: Pas d'iframe si Google Forms non configuré
+    Given a new Bakery project with site configured
+    And the site configuration does NOT contain a googleForms block
+    When I am executing the task 'generateSite'
+    Then the site should contain a 'google-forms.thyme' template
+    And the rendered page should NOT contain any iframe element
+
+  UJ3 — Google Forms dans page formation
+  Scenario: Google Form embed avec un formId spécifique dans une page formation
+    Given a new Bakery project with site configured
+    And the site configuration contains a googleForms block with formId "1XYZ-98765"
+    And the page type is "formation"
+    When I am executing the task 'generateSite'
+    Then the rendered page should contain an iframe with src containing "1XYZ-98765"
+```
+
+=== Baby Steps DDD/TDD/BDD — Méthodologie Agile Software Craftsmanship
+
+_Règle_ : Chaque étape doit compiler ET faire passer ses tests AVANT de passer à la suivante. 1 fichier à la fois. Validation immédiate après chaque modification.
+
+==== Étape 1 — DDD : Modèle domaine (1 pt)
+
+_Objectif_ : Modéliser le domaine Google Forms embed dans la configuration bakery.
+
+* [x] Créer `GoogleFormsConfig` data class dans `SiteConfiguration.kt`
+  - `formId: String` — identifiant du formulaire Google
+  - `width: String = "640"` — largeur iframe (défaut)
+  - `height: String = "800"` — hauteur iframe (défaut)
+  - `allowMultiple: Boolean = false` — autoriser plusieurs réponses
+* [x] Ajouter `googleForms: GoogleFormsConfig?` dans `SiteConfiguration`
+* [x] Ajouter bloc DSL `googleForms { }` dans `BakeryExtension`
+* [x] **TDD — 2 tests unitaires** : `GoogleFormsConfigTest`
+  - `parse site.yml avec googleForms → config=formId+defaults`
+  - `parse site.yml sans googleForms → config=null`
+
+==== Étape 2 — TDD : Fragment Thymeleaf (1 pt)
+
+_Objectif_ : Créer le fragment `google-forms.thyme` avec iframe responsive.
+
+* [x] Créer `src/main/resources/site/templates/google-forms.thyme`
+  - Container div avec `th:if="${googleFormsFormId}"`
+  - Iframe responsive (CSS aspect-ratio ou padding-bottom trick)
+  - Attributs Thymeleaf : `th:src`, `th:width`, `th:height`
+* [x] **TDD — 2 tests unitaires** : `GoogleFormsTemplateTest`
+  - Rendu avec formId → HTML contient iframe src avec formId
+  - Rendu sans formId (th:if=false) → fragment vide, pas d'iframe
+
+==== Étape 3 — TDD : Injection config → template (1 pt)
+
+_Objectif_ : Brancher la config YAML vers les propriétés JBake lues par le template.
+
+* [x] Ajouter `injectGoogleFormsConfigIntoJbakeProperties()` dans `SiteManager`
+  - Injecte `googleFormsFormId`, `googleFormsWidth`, `googleFormsHeight` dans `jbake.properties`
+* [x] Intégrer `google-forms.thyme` dans `page.thyme` (via `th:replace`)
+* [x] **TDD — 2 tests unitaires** : `GoogleFormsInjectionTest`
+  - `site.yml avec googleForms → jbake.properties contient les 3 clés`
+  - `site.yml sans googleForms → jbake.properties ne contient PAS les clés googleForms`
+
+==== Étape 4 — FT : Tests fonctionnels (1 pt)
+
+_Objectif_ : Valider end-to-end que le scaffolding déploye le composant.
+
+* [x] Test fonctionnel : `generateSite` → `google-forms.thyme` déployé dans le site
+* [x] Test fonctionnel : `generateSite` sans googleForms → pas d'injection dans jbake.properties
+* [x] **FT — 2 tests fonctionnels** dans `ScaffoldFunctionalTests.kt`
+
+==== Étape 5 — BDD : Scénarios Cucumber (1 pt)
+
+_Objectif_ : Valider les 3 User Journeys en Gherkin exécutable.
+
+* [x] Créer `src/test/features/11_google_forms_embed.feature` (3 scénarios)
+* [x] Créer `src/test/scenarios/bakery/scenarios/GoogleFormsSteps.kt`
+* [x] Réutiliser steps existants : `ThymeleafComponentSteps`, `MinimalSteps`
+* [x] **BDD — 3 scénarios Cucumber** : happy-path, no-config, th:if guard
+
+=== Conditions aux limites
+
+| Condition | Comportement attendu |
+|---|---|
+| `googleForms:` absent de `site.yml` | Pas d'iframe, fragment Thymeleaf rendu vide (th:if=false) |
+| `googleForms.formId` vide ou manquant | Erreur de validation : formId est requis |
+| `width`/`height` non spécifiés | Valeurs par défaut : 640×800 |
+| `allowMultiple = true` | Ajouter `?usp=pp_url` ou param de duplication Google Forms |
+| Plusieurs formulaires sur une page | Pas supporté en MVP — 1 formId global par site |
+
+=== Fichiers prévus
+
+* `src/main/kotlin/bakery/SiteConfiguration.kt` — ajout `GoogleFormsConfig`
+* `src/main/kotlin/bakery/BakeryExtension.kt` — bloc DSL `googleForms { }`
+* `src/main/resources/site/templates/google-forms.thyme` — créé
+* `src/main/resources/site/templates/page.thyme` — modifié (th:replace google-forms)
+* `src/main/kotlin/bakery/SiteManager.kt` — injection props JBake
+* `src/test/kotlin/bakery/GoogleFormsConfigTest.kt` — 1 UT
+* `src/test/kotlin/bakery/GoogleFormsTemplateTest.kt` — 2 UT
+* `src/test/kotlin/bakery/GoogleFormsInjectionTest.kt` — 2 UT
+* `src/functionalTest/kotlin/bakery/ScaffoldFunctionalTests.kt` — 2 FT
+* `src/test/features/11_google_forms_embed.feature` — 3 scénarios
+* `src/test/scenarios/bakery/scenarios/GoogleFormsSteps.kt` — steps Cucumber

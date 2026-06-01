@@ -4,6 +4,7 @@ _Derniere mise a jour : 2026-06-01_
 
 |===
 | # | Date | Type | Sujet | Score
+| 030 | 2026-06-01 | feat + test | BKY-JB-3 Google Forms Embed — GoogleFormsConfig + GoogleFormsDsl, google-forms.thyme (iframe responsive + th:if guard), injection jbake.properties, intégration page.thyme. 11 tests (6 UT + 2 FT + 3 Cucumber). Méthodo DDD/TDD/BDD baby steps 5/5. | 8/10
 | 029 | 2026-06-01 | feat + test + cleanup | EPIC 7 YAML tolerance (3 tests), EPIC 10 80%→100% (BACKLOG remis à jour), BKY-JB-2 Composants Thymeleaf (breadcrumb, toc-sidebar, progress-bar, pdf-viewer). 4 FT + 5 Cucumber + 2 steps. Méthodo DDD/TDD/BDD baby steps. Bug date GenerateArticleTaskTest découvert. | 8/10
 | 028 | 2026-06-01 | verification + gouvernance | EPICs 15/16/17 déjà verts (corrections session 027). Transfert BKY-JB-1 (templates formation) vers training-gradle (EPIC TRN-TEMP). Clarification périmètre : bakery = technique JBake, formation = métier training. | 7/10
 | 027 | 2026-05-31 | analyse + doc + plan | Analyse 12 échecs tests → 3 EPICs (15-16-17) dans BACKLOG avec User Journeys Gherkin, baby-steps DDD/TDD/BDD. Ports LLM (11434→11465/64/63/62), IaConfig défaut aligné, readme 0.0.0→0.0.1. 14/14 tests IA PASS. | 8/10

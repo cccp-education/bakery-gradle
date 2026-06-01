@@ -1,0 +1,54 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<!--/*
+  Google Forms Embed component — Embed a Google Form in an iframe.
+  Usage : <div th:replace="~{google-forms.thyme::google-forms}"/>
+  The formId is injected via jbake.properties (googleFormsFormId).
+  When googleFormsFormId is absent, the fragment renders nothing (th:if=false).
+*/-->
+<div th:fragment="google-forms" class="google-forms-container mb-4"
+     th:if="${googleFormsFormId != null and googleFormsFormId != ''}">
+  <div class="card">
+    <div class="card-header">
+      <h5 class="mb-0">
+        <i class="bi bi-ui-checks-grid me-2"></i>Formulaire
+      </h5>
+    </div>
+    <div class="card-body p-0">
+      <div class="google-forms-responsive">
+        <iframe th:src="'https://docs.google.com/forms/d/e/' + ${googleFormsFormId} + '/viewform?embedded=true'"
+                th:width="${googleFormsWidth ?: '640'}"
+                th:height="${googleFormsHeight ?: '800'}"
+                frameborder="0"
+                marginheight="0"
+                marginwidth="0"
+                title="Google Form"
+                loading="lazy">
+          Chargement…
+        </iframe>
+      </div>
+    </div>
+  </div>
+  <style>
+    .google-forms-responsive {
+      position: relative;
+      width: 100%;
+      padding-top: 125%; /* 4:5 ratio for forms */
+      overflow: hidden;
+    }
+    .google-forms-responsive iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    @media (max-width: 768px) {
+      .google-forms-responsive {
+        padding-top: 150%; /* taller on mobile */
+      }
+    }
+  </style>
+</div>
+</html>

@@ -35,7 +35,8 @@ data class SiteConfiguration(
     val profileFiles: List<String> = emptyList(),
     val pushSource: GitPushConfiguration? = null,
     val pushTemplate: GitPushConfiguration? = null,
-    val firebase: FirebaseContactFormConfig? = null
+    val firebase: FirebaseContactFormConfig? = null,
+    val googleForms: GoogleFormsConfig? = null
 )
 
 data class BakeConfiguration(
@@ -79,5 +80,12 @@ data class FirebaseCallableFunction(
 data class FirebaseCallableParam(
     val name: String,
     val type: String
+)
+
+data class GoogleFormsConfig(
+    val formId: String = "",
+    val width: String = "640",
+    val height: String = "800",
+    val allowMultiple: Boolean = false,
 )
 

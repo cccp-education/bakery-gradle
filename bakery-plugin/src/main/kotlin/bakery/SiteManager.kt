@@ -171,6 +171,7 @@ object SiteManager {
         // Copier le répertoire maquette (partagé entre tous les types)
         copyResourceDirectory(site.pushMaquette.from, targetDir, project)
         injectFirebaseConfigIntoJbakeProperties(targetDir, site)
+        injectGoogleFormsConfigIntoJbakeProperties(targetDir, site)
         logger.lifecycle("✓ Site scaffolded (type: ${siteType.alias}) from resource: $resourcePath")
     }
 
@@ -195,6 +196,30 @@ object SiteManager {
         updateProperty("firebaseProjectId", firebaseConfig.project.projectId)
         jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
         logger.lifecycle("✓ Injected Firebase config into jbake.properties")
+    }
+
+    private fun Project.injectGoogleFormsConfigIntoJbakeProperties(targetDir: File, site: SiteConfiguration) {
+        val jbakeProps = targetDir.resolve(site.bake.srcPath)
+            .resolve("jbake.properties")
+        if (!jbakeProps.exists()) {
+            logger.warn("jbake.properties not found at ${jbakeProps.absolutePath}")
+            return
+        }
+        val googleFormsConfig = site.googleForms ?: return
+        val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
+        fun updateProperty(key: String, value: String) {
+            val idx = lines.indexOfFirst { it.startsWith("$key=") }
+            if (idx >= 0) {
+                lines[idx] = "$key=$value"
+            } else {
+                lines.add("$key=$value")
+            }
+        }
+        updateProperty("googleFormsFormId", googleFormsConfig.formId)
+        updateProperty("googleFormsWidth", googleFormsConfig.width)
+        updateProperty("googleFormsHeight", googleFormsConfig.height)
+        jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
+        logger.lifecycle("✓ Injected Google Forms config into jbake.properties")
     }
 
 // ==================== Bakery Tasks Configuration ====================

@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-01 — Session 029_
+_Dernière mise à jour : 2026-06-01 — Session 030_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -12,9 +12,9 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 | Métrique | Valeur
 | Couverture Kover | *Inconnue* — `./gradlew koverXmlReport` à lancer en session 023
 | Seuil configuré | 75% (dans `build.gradle.kts` → `koverThresholdCheck`)
-| Tests unitaires JUnit5 | 10 fichiers, ~2 550 lignes — ratio ~1.8x vs src/main
-| Tests fonctionnels (TestKit) | 4 fichiers, 1 117 lignes
-| Tests Cucumber BDD | 8 features, 23+ scénarios, 944+ lignes de steps
+| Tests unitaires JUnit5 | 13 fichiers, ~2 800 lignes — ratio ~2x vs src/main
+| Tests fonctionnels (TestKit) | 4 fichiers, 1 250+ lignes
+| Tests Cucumber BDD | 9 features, 26+ scénarios, 1 000+ lignes de steps
 | Compilation | ✅ BUILD SUCCESSFUL — Gradle 9.5.1, Kotlin 2.3.20, Java 24, zéro warning
 |===
 
@@ -24,6 +24,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 [cols="2,2,2,3,3"]
 |===
 | Session | Date | Kover % | Tests PASS | Notes
+| 030 | 2026-06-01 | *Non mesuré* | 6/6 UT, 2/2 FT, 3/3 Cucumber | BKY-JB-3 : GoogleFormsConfigTest (2), GoogleFormsTemplateTest (2), GoogleFormsInjectionTest (2), GoogleFormsEmbedTest FT (2), 11_google_forms_embed.feature (3). Séparation domaine/DSL (GoogleFormsConfig data class + GoogleFormsDsl open class). Bug date préexistant (3 échecs GenerateArticleTaskTest).
 | 029 | 2026-06-01 | *Non mesuré* | YamlToleranceTest 3/3, ThymeleafComponentsTest 4/4, Cucumber 5/5 | EPIC 7 (3 UT), EPIC 10 (validé 100%), BKY-JB-2 (4 FT + 5 Cucumber + 2 steps). Bug date GenerateArticleTaskTest découvert (3 échecs).
 | 027 | 2026-05-31 | *Non mesuré* | 14/14 IA PASS | Analyse 12 échecs → 3 EPICs (15/16/17). Ports LLM modifiés. BACKLOG +218 lignes.
 | 026 | 2026-05-30 | *Non mesuré* | 17/17 unitaires, 5/5 fonctionnels | BKY-JB-0 : ajout SiteType enum + resolveSiteType(), ressources site-basic/ (12 fichiers). Nettoyage type FORMATION. 22 nouveaux tests. 11 échecs pré-existants inchangés.
