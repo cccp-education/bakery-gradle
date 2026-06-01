@@ -257,6 +257,90 @@ class BakeryPluginTest {
 
     @Nested
     @TestInstance(PER_CLASS)
+    inner class YamlToleranceTest {
+
+        @Test
+        fun `SiteConfiguration ignores unknown fields like supabase`() {
+            val yaml = """
+                bake:
+                  srcPath: site
+                  destDirPath: bake
+                  cname: bakery
+                supabase:
+                  url: https://example.supabase.co
+                  key: legacy-key
+                firebase:
+                  project:
+                    projectId: test-project
+                    apiKey: test-key
+                  firestore:
+                    contacts:
+                      name: contacts
+                      fields:
+                        - name: name
+                          type: string
+                      rulesEnabled: false
+                    messages:
+                      name: messages
+                      fields:
+                        - name: body
+                          type: string
+                      rulesEnabled: false
+                  callable:
+                    name: submitContact
+                    params:
+                      - name: p_name
+                        type: string
+            """.trimIndent()
+
+            val config = yamlMapper.readValue<SiteConfiguration>(yaml)
+            assertThat(config.bake.srcPath).isEqualTo("site")
+            assertThat(config.firebase).isNotNull
+            assertThat(config.firebase!!.project.projectId).isEqualTo("test-project")
+        }
+
+        @Test
+        fun `SiteConfiguration ignores multiple unknown top-level fields`() {
+            val yaml = """
+                bake:
+                  srcPath: site
+                  destDirPath: bake
+                  cname: bakery
+                legacy_config:
+                  deprecated: true
+                custom_extension:
+                  feature: experimental
+            """.trimIndent()
+
+            val config = yamlMapper.readValue<SiteConfiguration>(yaml)
+            assertThat(config.bake.srcPath).isEqualTo("site")
+            assertThat(config.pushPage).isNotNull
+        }
+
+        @Test
+        fun `SiteConfiguration silently ignores typo in valid field name`() {
+            // Known limitation of @JsonIgnoreProperties(ignoreUnknown = true):
+            // a typo like 'pusPage' instead of 'pushPage' is silently ignored.
+            // This test documents the behavior, not a bug to fix.
+            val yaml = """
+                bake:
+                  srcPath: site
+                  destDirPath: bake
+                  cname: bakery
+                pusPage:
+                  from: bake
+                  to: cvs
+            """.trimIndent()
+
+            val config = yamlMapper.readValue<SiteConfiguration>(yaml)
+            // pushPage keeps its default values — the typo'd key is ignored
+            assertThat(config.pushPage.from).isEmpty()
+            assertThat(config.pushPage.to).isEmpty()
+        }
+    }
+
+    @Nested
+    @TestInstance(PER_CLASS)
     inner class PublishingTest {
         @Test
         fun check_publishing() {

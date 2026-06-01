@@ -220,6 +220,79 @@ class ScaffoldFunctionalTests {
         }
     }
 
+    @Nested
+    @DisplayName("generateSite blog includes Reusable Thymeleaf components (BKY-JB-2)")
+    inner class ThymeleafComponentsTest {
+
+        @TempDir
+        lateinit var projectDir: File
+
+        @Test
+        fun `should scaffold blog site with breadcrumb component`() {
+            createMinimalBakeryProject(projectDir, sitesBaseDir = null, siteName = "compo-test", siteType = "blog")
+
+            val result = create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateSite")
+                .build()
+
+            val templatesDir = projectDir.resolve("compo-test/site/templates")
+            assertThat(templatesDir.resolve("breadcrumb.thyme")).exists().isFile
+            assertThat(templatesDir.resolve("breadcrumb.thyme").readText(UTF_8))
+                .contains("breadcrumb")
+            assertThat(result.output).contains("BUILD SUCCESSFUL")
+        }
+
+        @Test
+        fun `should scaffold blog site with toc-sidebar component`() {
+            createMinimalBakeryProject(projectDir, sitesBaseDir = null, siteName = "compo-test2", siteType = "blog")
+
+            create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateSite")
+                .build()
+
+            val templatesDir = projectDir.resolve("compo-test2/site/templates")
+            assertThat(templatesDir.resolve("toc-sidebar.thyme")).exists().isFile
+            assertThat(templatesDir.resolve("toc-sidebar.thyme").readText(UTF_8))
+                .contains("toc")
+        }
+
+        @Test
+        fun `should scaffold blog site with progress-bar component`() {
+            createMinimalBakeryProject(projectDir, sitesBaseDir = null, siteName = "compo-test3", siteType = "blog")
+
+            create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateSite")
+                .build()
+
+            val templatesDir = projectDir.resolve("compo-test3/site/templates")
+            assertThat(templatesDir.resolve("progress-bar.thyme")).exists().isFile
+            assertThat(templatesDir.resolve("progress-bar.thyme").readText(UTF_8))
+                .contains("progress")
+        }
+
+        @Test
+        fun `should scaffold blog site with pdf-viewer component`() {
+            createMinimalBakeryProject(projectDir, sitesBaseDir = null, siteName = "compo-test4", siteType = "blog")
+
+            create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateSite")
+                .build()
+
+            val templatesDir = projectDir.resolve("compo-test4/site/templates")
+            assertThat(templatesDir.resolve("pdf-viewer.thyme")).exists().isFile
+            assertThat(templatesDir.resolve("pdf-viewer.thyme").readText(UTF_8))
+                .contains("pdf")
+        }
+    }
+
     companion object {
         private fun createMinimalBakeryProject(
             projectDir: File,

@@ -5,17 +5,21 @@
 <div class="main-content-wrapper">
     <div th:replace="~{menu.thyme::menu}"/>
     <main class="container main-content-padding" id="main-content">
-        <article>
-            <header class="page-header mb-4">
-                <h1 class="h2" th:text="${content.title}">Titre de l'article</h1>
-                <p class="lead">
-                    <em th:text="'Publié le ' + ${#dates.format(content.date, 'dd MMMM yyyy')}">Date de publication</em>
-                </p>
-            </header>
+        <div th:replace="~{progress-bar.thyme::progress-bar}"/>
+        <div th:replace="~{breadcrumb.thyme::breadcrumb}"/>
+        <div class="row">
+            <div class="col-lg-9">
+                <article>
+                    <header class="page-header mb-4">
+                        <h1 class="h2" th:text="${content.title}">Titre de l'article</h1>
+                        <p class="lead">
+                            <em th:text="'Publié le ' + ${#dates.format(content.date, 'dd MMMM yyyy')}">Date de publication</em>
+                        </p>
+                    </header>
 
-            <div class="content" th:utext="${content.body}">
-                Contenu de l'article...
-            </div>
+                    <div class="content" th:utext="${content.body}">
+                        Contenu de l'article...
+                    </div>
 
             <!-- Section Commentaires Disqus -->
             <section id="disqus_thread" class="mt-5"></section>
@@ -44,6 +48,11 @@
             </noscript>
 
         </article>
+            </div><!-- /col-lg-9 -->
+            <div class="col-lg-3 d-none d-lg-block">
+                <div th:replace="~{toc-sidebar.thyme::toc-sidebar}"/>
+            </div>
+        </div><!-- /row -->
     </main>
 </div>
 

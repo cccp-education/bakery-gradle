@@ -143,7 +143,7 @@ La tache `publishProfil` dans `cheroliv.com/build.gradle.kts` fait :
 
 == EPIC 7 : Tolerance parsing YAML (champs inconnus)
 
-**Statut** : A faire
+**Statut** : TERMINE
 **Priorite** : P2
 **Depend de** : EPIC 6 (Session 9 bakery-plugin)
 
@@ -153,13 +153,13 @@ _Solution_ : Ajouter `@JsonIgnoreProperties(ignoreUnknown = true)` sur la classe
 
 === Taches
 
-* [ ] Ajouter `@JsonIgnoreProperties(ignoreUnknown = true)` sur `SiteConfiguration`
-* [ ] Ajouter un test unitaire qui valide qu'un `site.yml` avec un champ inconnu ne fait pas planter le parsing
-* [ ] Verifier que cela ne masque pas d'erreurs reelles de configuration (typos dans les champs valides)
+* [x] Ajouter `@JsonIgnoreProperties(ignoreUnknown = true)` sur `SiteConfiguration` — déjà présent depuis session 016
+* [x] Ajouter un test unitaire qui valide qu'un `site.yml` avec un champ inconnu ne fait pas planter le parsing — session 029 (3 tests YamlToleranceTest)
+* [x] Vérifier que cela ne masque pas d'erreurs réelles de configuration (typos dans les champs valides) — test documentant la limitation
 
 == EPIC 10 : Scaffolding — Création de site dans `office/sites/<siteName>/`
 
-**Statut** : En cours (tests écrits, implémentation green 80%)
+**Statut** : TERMINE (8 UT + 8 FT + 5 Cucumber tous verts)
 **Priorité** : P0
 
 _Problème_ : initSite crée tout dans `project.projectDir`. Pour scripter un
@@ -184,8 +184,8 @@ contenant `site/`, `maquette/`, `site.yml`, `.gitignore`, `.gitattributes`.
 * [x] Tests unitaires SiteScaffolderTest (10 tests)
 * [x] Tests fonctionnels ScaffoldFunctionalTests (5 tests)
 * [x] Cucumber feature 6_site_scaffolding.feature (5 scénarios)
-* [ ] Faire passer les 3 scénarios Cucumber encore en échec (`siteNameOnly` et `backwardCompat`)
-* [ ] Vérifier couverture Kover >= 75%
+* [x] Faire passer les 3 scénarios Cucumber encore en échec (`siteNameOnly` et `backwardCompat`) — corrigé session 028
+* [x] Vérifier couverture Kover >= 75% — validé session 029
 
 === Fichiers
 
@@ -746,3 +746,35 @@ Feature: generateArticle — Fails gracefully sans IA
 . **Étape 5 — Boundary** (1 pt) : Ajouter un test de non-régression
   - [ ] Test unitaire : `ArticleGenerator` sans `LlmService` → `IllegalStateException`
   - [ ] Vérifier qu'avec `enabled = true` et un vrai LLM, le service est injecté
+
+== BKY-JB-2 : Composants Thymeleaf réutilisables
+
+**Statut** : TERMINE
+**Priorite** : P0
+**Charge** : 5 pts
+
+_Objectif_ : Créer 4 fragments Thymeleaf réutilisables pour enrichir les pages bakery : breadcrumb, toc-sidebar, progress-bar, pdf-viewer.
+
+=== Tâches
+
+* [x] Créer `breadcrumb.thyme` — fil d'Ariane (Accueil > Blog > Article)
+* [x] Créer `toc-sidebar.thyme` — table des matières extraite des headings h2/h3
+* [x] Créer `progress-bar.thyme` — barre de progression de lecture (scroll)
+* [x] Créer `pdf-viewer.thyme` — embed PDF responsive avec condition `th:if`
+* [x] Intégrer breadcrumb + progress-bar + toc-sidebar dans `post.thyme`
+* [x] Intégrer breadcrumb + progress-bar + pdf-viewer dans `page.thyme`
+* [x] Tests fonctionnels : 4 tests ScaffoldFunctionalTests (composants déployés)
+* [x] Tests Cucumber : 5 scénarios (10_thymeleaf_components.feature)
+* [x] Steps Cucumber : ThymeleafComponentSteps (2 steps réutilisables)
+
+=== Fichiers
+
+* `src/main/resources/site/templates/breadcrumb.thyme` — créé
+* `src/main/resources/site/templates/toc-sidebar.thyme` — créé
+* `src/main/resources/site/templates/progress-bar.thyme` — créé
+* `src/main/resources/site/templates/pdf-viewer.thyme` — créé
+* `src/main/resources/site/templates/post.thyme` — modifié (breadcrumb + progress-bar + toc-sidebar)
+* `src/main/resources/site/templates/page.thyme` — modifié (breadcrumb + progress-bar + pdf-viewer)
+* `src/functionalTest/kotlin/bakery/ScaffoldFunctionalTests.kt` — 4 tests ajoutés
+* `src/test/features/10_thymeleaf_components.feature` — 5 scénarios Cucumber
+* `src/test/scenarios/bakery/scenarios/ThymeleafComponentSteps.kt` — 2 steps Cucumber

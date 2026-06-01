@@ -1,42 +1,38 @@
-= PROMPT_REPRISE — Session 028 terminée : EPICs 15/16/17 déjà verts + transfert BKY-JB-1
+= PROMPT_REPRISE — Session 029 terminée : EPIC 7 + EPIC 10 cleanup + BKY-JB-2 composants Thymeleaf
 
-== Mission accomplie (Session 028)
+== Mission accomplie (Session 029)
 
-Analyse complète de l'état des tests + transfert de périmètre formation.
+Nettoyage du terrain + implémentation BKY-JB-2 (4 composants Thymeleaf).
 
-=== Résultats tests
+=== Résultats
 
-Les 3 EPICs du PROMPT_REPRISE précédent sont **déjà verts** :
+- **EPIC 7** (P2) : YAML Tolerance — ✅ TERMINE (3 tests YamlToleranceTest)
+  - `@JsonIgnoreProperties(ignoreUnknown=true)` déjà présent (session 016)
+  - Limitation documentée : typo dans un champ valide silencieusement ignorée
+- **EPIC 10** : Scaffolding TDD — ✅ 100% (était marqué 80%, BACKLOG en retard)
+  - 8 UT + 8 FT + 5 Cucumber tous verts
+- **BKY-JB-2** (5pts, P0) : Composants Thymeleaf — ✅ TERMINE
+  - 4 fragments : breadcrumb, toc-sidebar, progress-bar, pdf-viewer
+  - Intégrés dans post.thyme (breadcrumb + progress-bar + toc-sidebar sidebar)
+  - Intégrés dans page.thyme (breadcrumb + progress-bar + pdf-viewer conditionnel)
+  - 4 FT + 5 scénarios Cucumber + 2 steps réutilisables
 
-- **EPIC 15** (3pts, P0) : PluginApplicationTest NPE — ✅ 4/4 PASSED (siteType déjà stubbé)
-- **EPIC 16** (2pts, P0) : Cucumber Scaffolding — ✅ 5/5 PASSED (step déjà corrigé dans .feature)
-- **EPIC 17** (5pts, P0) : generateArticle graceful fail — ✅ PASSED (LlmService error OK)
+=== Bug découvert (hors périmètre)
 
-Tous les tests Cucumber (20+ scénarios), unitaires et fonctionnels sont verts.
+3 tests `GenerateArticleTaskTest` échouent : chemin hardcodé `content/blog/2026/5` (mai) au lieu de mois dynamique. Bug de date préexistant.
 
-=== Transfert de périmètre
-
-**BKY-JB-1** (templates formation-landing, session-landing, module-landing) a été **déplacé de bakery-gradle vers training-gradle** :
-
-- Raison : les templates formation sont du domaine métier formation, pas du domaine technique JBake
-- Nouvel EPIC dans training-gradle : TRN-TEMP (8 pts, P0)
-- Fichiers modifiés :
-  - `BAKERY_ROADMAP_JBake.adoc` : JB-1 marqué déplacé, totaux mis à jour (47→39 pts)
-  - `INDEX.adoc` bakery : JB-1 marqué déplacé, JB-2→7 dépendances changées de JB-1 vers JB-0
-  - `BACKLOG.adoc` training-gradle : créé avec EPIC TRN-TEMP + 5 tâches
-  - `INDEX.adoc` training-gradle : roadmap mise à jour avec TRN-3 (templates)
-
-=== Prochaines EPICs bakery disponibles (dans le domaine JBake)
+== Prochaines EPICs disponibles (Phase B JBake)
 
 | EPIC | Pts | Prio | Description |
 |------|-----|------|-------------|
-| BKY-JB-2 | 5 | P0 | Composants Thymeleaf réutilisables (toc-sidebar, breadcrumb, progress-bar, pdf-viewer) |
 | BKY-JB-3 | 5 | P0 | Google Forms embed (iframe responsive dans templates JBake) |
-| EPIC 7 | — | P2 | Tolerance parsing YAML (`@JsonIgnoreProperties`) |
-| EPIC 11 | — | P0 | Optimisation durée tests (3-6 min → < 2 min) |
+| BKY-JB-4 | 5 | P1 | Firebase Auth + Comments |
+| EPIC 11 | 5 | P0 | Optimisation durée tests (3-6 min → < 2 min) |
+| Fix date | 1 | P2 | GenerateArticleTaskTest mois dynamique |
 
-== Prochaine session (029) — À définir
+== Prochaine session (030) — BKY-JB-3
 
-Priorité suggérée : **BKY-JB-2** (composants Thymeleaf réutilisables) — c'est le prochain P0 dans le domaine JBake, et les dépendances (JB-0 scaffolding) sont terminées.
+Priorité suggérée : **BKY-JB-3** (Google Forms embed) — c'est le prochain P0 dans la Phase B services JBake.
+Les composants Thymeleaf (JB-2) sont en place, le Forms embed est le premier service consommateur.
 
-Alternative : **EPIC 7** (YAML tolerance) si on veut un quick win mécanique avant d'attaquer les composants.
+Alternative : **Fix date** (quick win 15 min) + **EPIC 11** (perf tests) si on veut stabiliser avant Phase B.

@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-06-01
-_Session terminee_ : 028 — EPICs 15/16/17 déjà verts + transfert BKY-JB-1 vers training-gradle
-_Prochaine session_ : 029 — BKY-JB-2 (composants Thymeleaf) ou EPIC 7 (YAML tolerance)
-_Session en cours_ : 029
+_Session terminee_ : 029 — EPIC 7 + EPIC 10 cleanup + BKY-JB-2 composants Thymeleaf
+_Prochaine session_ : 030 — BKY-JB-3 (Google Forms embed) ou quick win (Fix date + EPIC 11)
+_Session en cours_ : 030
 
 '''
 
@@ -70,6 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | # | Date | Type | Sujet | Score
+| 029 | 2026-06-01 | feat + test + cleanup | EPIC 7 YAML tolerance (3 tests), EPIC 10 80%→100%, BKY-JB-2 composants Thymeleaf (4 fragments, 4 FT, 5 Cucumber). Bug date GenerateArticleTaskTest découvert. | 8/10
 | 027 | 2026-05-31 | analyse + doc + plan | Analyse 12 echecs tests → EPIC 15 (NPE), EPIC 16 (Cucumber Scaffolding), EPIC 17 (generateArticle graceful fail). 3 EPICs dans BACKLOG avec User Journeys Gherkin + baby-steps DDD/TDD/BDD. Ports LLM 11434→11465/64/63/62. | 8/10
 | 026 | 2026-05-30 | feat + test | BKY-JB-0 Scaffolding site JBake — SiteType enum (BLOG/BASIC), ressources site-basic/, resolveSiteType() DSL, 22 tests (17 UT + 4 FT + 1 blog explicite) PASS | 8/10
 | 025 | 2026-05-30 | feat + test | BKY-BKG Step 1-3 — ArticleGraph + RelatedArticlesService (scoring tags/titres, stop words) + tâche collectRelatedArticles (18UT+3FT PASS) | 8/10
@@ -106,10 +107,10 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 | EPIC 4 : Formulaire de contact Firebase (maquette + site) | 95% | P1 - TERMINE (formalite cle API)
 | EPIC 5 : Correction timeout Cucumber | 100% | P2 - TERMINE
 | EPIC 6 : Integration tache publishProfil dans le plugin | 0% | P1 - A FAIRE (BACKLOG session 005, divergence corrigee 2026-05-29)
-| EPIC 7 : Tolerance parsing YAML (champs inconnus) | 0% | P2 - A FAIRE (BACKLOG session 016, divergence corrigee 2026-05-29)
+| EPIC 7 : Tolerance parsing YAML (champs inconnus) | 100% | P2 - TERMINE
 | EPIC 8 : Bumper version 0.1.4 et release | 100% | P2 - TERMINE
 | EPIC 9 : Architecture d'orchestration LLM | 0% | P0 - SUPERSEDE par EPIC 14 (BKY-IA-*)
-| EPIC 10 : Scaffolding TDD (sitesBaseDir + siteName) | 80% | P0 - EN COURS (3 scenarios Cucumber bloques)
+| EPIC 10 : Scaffolding TDD (sitesBaseDir + siteName) | 100% | P0 - TERMINE
 | EPIC 11 : Optimisation duree des tests | 0% | P0 - A FAIRE
 | EPIC 12 : Articles connexes par Knowledge Graph | 0% | P1 - SUPERSEDE par BKY-BKG
 | EPIC 13 : Couverture de tests — lacunes P1 | 50% | P1 - PARTIEL
@@ -125,7 +126,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 | EPIC | Axe | Pts | Priorite | Depend de
 | *BKY-JB-0* | Scaffolding site JBake : generateSite enrichi, structure, templates par defaut | 5 | *P0 ✅ TERMINE* | —
 | *BKY-JB-1* | ❌ DÉPLACÉ vers training-gradle (TRN-TEMP) — les templates formation ne sont pas du domaine bakery | — | — | —
-| *BKY-JB-2* | Composants Thymeleaf : toc-sidebar, breadcrumb, progress-bar, pdf-viewer | 5 | *P0* | BKY-JB-0
+| *BKY-JB-2* | Composants Thymeleaf : toc-sidebar, breadcrumb, progress-bar, pdf-viewer | 5 | *P0 ✅ TERMINÉ* | BKY-JB-0
 | *BKY-JB-3* | Google Forms embed : composant iframe responsive dans templates JBake | 5 | *P0* | BKY-JB-0
 | *BKY-JB-4* | Firebase Auth + Comments : header login/logout, commentaires session/module | 5 | *P1* | BKY-JB-0
 | *BKY-JB-5* | Analytics + Newsletter : Plausible/Matomo, formulaire mail footer | 3 | *P1* | BKY-JB-0
@@ -135,7 +136,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 |===
 
 *Total JBake* : 9 EPICs, ~47 pts.
-*Phase A (JB-0→2)* : scaffolding + templates + composants = ~18 pts.
+*Phase A (JB-0→2)* : ✅ COMPLÈTE — scaffolding + templates + composants = 10 pts terminés.
 *Phase B (JB-3→5)* : services = ~13 pts.
 *Phase C (JB-6→7)* : theme + layouts = ~8 pts.
 *Phase D (JB-8)* : IA via codebase = ~13 pts.
@@ -151,7 +152,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 *Priorite P0* : EPIC 16 (le + rapide, ~10 min) → EPIC 15 → EPIC 17
 
-*Prochaine session* : 029 — BKY-JB-2 (composants Thymeleaf) ou EPIC 7 (YAML tolerance).
+*Prochaine session* : 030 — BKY-JB-3 (Google Forms embed) ou quick win (Fix date + EPIC 11).
 
 === EPICs Historiques conservés
 
@@ -176,7 +177,7 @@ _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
 |===
 | Projet | Repertoire | Session en cours | Derniere MAJ
 | magic-stick | `~/workspace/foundry/OSS/magic-stick` | 055 | 2026-04-30
-| bakery-gradle | `~/workspace/foundry/OSS/bakery-gradle/bakery-plugin` | 017 | 2026-05-07
+| bakery-gradle | `~/workspace/foundry/OSS/bakery-gradle/bakery-plugin` | 030 | 2026-06-01
 | cheroliv.com | `~/workspace/foundry/OSS/cheroliv.com` | 4 | 2026-04-25
 | plantuml-gradle | `~/workspace/foundry/OSS/plantuml-gradle/plantuml-plugin` | 132 | 2026-04-23
 | jhipster-gradle-plugins | `~/workspace/foundry/OSS/jhipster-gradle-plugins` | Audit 053 | 2026-04-30

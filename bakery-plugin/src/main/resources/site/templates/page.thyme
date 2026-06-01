@@ -5,6 +5,8 @@
 	<body onload="prettyPrint()">
 	<div id="wrap">
 		<div th:replace="menu.thyme::menu"/>
+		<div th:replace="~{progress-bar.thyme::progress-bar}"/>
+		<div th:replace="~{breadcrumb.thyme::breadcrumb}"/>
 		<div class="container">
 	
 			<div class="page-header">
@@ -12,6 +14,8 @@
 			</div>
 		
 			<p><em th:text='${#dates.format(content.date,"dd MMMM yyyy")}'>date</em></p>
+
+			<div th:replace="~{pdf-viewer.thyme::pdf-viewer}"/>
 		
 			<p th:utext='${content.body}'>body</p>
 		

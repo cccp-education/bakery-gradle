@@ -1,0 +1,74 @@
+= Session 029 — EPIC 7 YAML Tolerance + EPIC 10 cleanup + BKY-JB-2 Composants Thymeleaf
+
+== Date
+2026-06-01
+
+== Type
+feat + test + cleanup
+
+== Objectif
+Nettoyer le terrain (EPIC 7, EPIC 10) puis implémenter les 4 composants Thymeleaf réutilisables (BKY-JB-2).
+
+== Résultats
+
+=== EPIC 7 — YAML Tolerance (TERMINE)
+
+`@JsonIgnoreProperties(ignoreUnknown = true)` déjà présent sur `SiteConfiguration` depuis session 016.
+Ajout de 3 tests unitaires `YamlToleranceTest` :
+
+* champ inconnu legacy (`supabase:`) ignoré sans crash
+* champs inconnus multiples ignorés
+* limitation documentée : typo dans un champ valide silencieusement ignorée
+
+=== EPIC 10 — Scaffolding TDD (TERMINE — passage 80% → 100%)
+
+Vérification réelle : 8 UT + 8 FT + 5 Cucumber tous verts.
+BACKLOG et INDEX mis à jour pour refléter la réalité.
+
+=== BKY-JB-2 — Composants Thymeleaf réutilisables (TERMINE)
+
+4 fragments créés :
+
+| Composant | Fichier | Intégré dans |
+|-----------|---------|--------------|
+| breadcrumb | `breadcrumb.thyme` | post.thyme, page.thyme |
+| toc-sidebar | `toc-sidebar.thyme` | post.thyme (sidebar col-lg-3) |
+| progress-bar | `progress-bar.thyme` | post.thyme, page.thyme |
+| pdf-viewer | `pdf-viewer.thyme` | page.thyme (conditionnel `th:if`) |
+
+Méthodo DDD/TDD/BDD respectée :
+
+1. **RED** : 4 tests fonctionnels échouent (templates inexistants)
+2. **GREEN** : création des 4 templates → 4/4 passent
+3. **REFACTOR** : intégration dans post.thyme + page.thyme + Cucumber BDD
+
+Tests ajoutés :
+
+* 4 tests fonctionnels `ScaffoldFunctionalTests.ThymeleafComponentsTest`
+* 5 scénarios Cucumber `10_thymeleaf_components.feature`
+* 2 steps Cucumber `ThymeleafComponentSteps.kt`
+* 3 tests unitaires `YamlToleranceTest`
+
+== Fichiers modifiés/créés
+
+| Fichier | Action |
+|---------|--------|
+| `src/main/resources/site/templates/breadcrumb.thyme` | créé |
+| `src/main/resources/site/templates/toc-sidebar.thyme` | créé |
+| `src/main/resources/site/templates/progress-bar.thyme` | créé |
+| `src/main/resources/site/templates/pdf-viewer.thyme` | créé |
+| `src/main/resources/site/templates/post.thyme` | modifié (breadcrumb + progress-bar + toc-sidebar) |
+| `src/main/resources/site/templates/page.thyme` | modifié (breadcrumb + progress-bar + pdf-viewer) |
+| `src/test/kotlin/bakery/BakeryPluginTest.kt` | 3 tests YamlToleranceTest ajoutés |
+| `src/functionalTest/kotlin/bakery/ScaffoldFunctionalTests.kt` | 4 tests ThymeleafComponentsTest ajoutés |
+| `src/test/features/10_thymeleaf_components.feature` | créé (5 scénarios) |
+| `src/test/scenarios/bakery/scenarios/ThymeleafComponentSteps.kt` | créé (2 steps) |
+| `BACKLOG.adoc` | EPIC 7 + EPIC 10 + BKY-JB-2 mis à jour |
+| `.agents/INDEX.adoc` | roadmap mise à jour |
+
+== Bug découvert
+
+3 tests `GenerateArticleTaskTest` échouent sur un bug de date (chemin hardcodé `content/blog/2026/5` au lieu de mois dynamique). Bug préexistant, pas introduit par cette session.
+
+== Score
+8/10 — Méthodo DDD/TDD/BDD respectée, baby steps, pyramide unit→fonctionnel→Cucumber. Bug de date repéré mais non corrigé (pas dans le périmètre).

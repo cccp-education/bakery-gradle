@@ -19,3 +19,28 @@
 **Tests** : Aucun test modifié. Tous verts (20+ Cucumber, unitaires, fonctionnels).
 
 **Prochaine session** : 029 — BKY-JB-2 (composants Thymeleaf) ou EPIC 7 (YAML tolerance)
+
+== Session 029 — 2026-06-01 — EPIC 7 + EPIC 10 cleanup + BKY-JB-2 Composants Thymeleaf
+
+**Contexte** : Nettoyage du terrain (EPIC 7, EPIC 10) puis implémentation BKY-JB-2. Méthodo DDD/TDD/BDD baby steps respectée.
+
+**Taches realisees** :
+
+* [x] EPIC 7 (P2) ✅ TERMINÉ — YAML Tolerance : 3 tests YamlToleranceTest (champ inconnu ignoré, champs multiples, limitation typo documentée). Annotation déjà présente depuis session 016.
+* [x] EPIC 10 (P0) ✅ 80%→100% — Scaffolding TDD : vérification réelle (8 UT + 8 FT + 5 Cucumber verts). BACKLOG et INDEX remis à jour.
+* [x] BKY-JB-2 (5pts, P0) ✅ TERMINÉ — Composants Thymeleaf réutilisables :
+  - `breadcrumb.thyme` — fil d'Ariane (Accueil > Blog > Article)
+  - `toc-sidebar.thyme` — table des matières extraite des headings h2/h3 (JS côté client)
+  - `progress-bar.thyme` — barre de progression de lecture (scroll, sticky)
+  - `pdf-viewer.thyme` — embed PDF responsive (iframe, conditionnel `th:if`)
+  - Intégration dans `post.thyme` (breadcrumb + progress-bar + toc-sidebar sidebar)
+  - Intégration dans `page.thyme` (breadcrumb + progress-bar + pdf-viewer)
+* [x] 4 tests fonctionnels ScaffoldFunctionalTests.ThymeleafComponentsTest
+* [x] 5 scénarios Cucumber 10_thymeleaf_components.feature
+* [x] 2 steps Cucumber ThymeleafComponentSteps.kt
+* [x] 3 tests unitaires YamlToleranceTest
+* [x] BACKLOG.adoc, INDEX.adoc, SESSIONS_HISTORY.adoc, TEST_COVERAGE_ANALYSIS.adoc mis à jour
+
+**Tests** : +12 tests (3 UT + 4 FT + 5 Cucumber). Bug découvert : GenerateArticleTaskTest 3 échecs (date hardcodée).
+
+**Prochaine session** : 030 — BKY-JB-3 (Google Forms embed) ou quick win (Fix date + EPIC 11)

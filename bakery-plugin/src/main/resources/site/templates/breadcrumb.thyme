@@ -1,0 +1,19 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<!--/*-->
+  Breadcrumb component — Fil d'Ariane réutilisable.
+  Usage : <div th:replace="~{breadcrumb.thyme::breadcrumb}"/>
+  Variables JBake : content.title, content.rootpath
+<!--*/-->
+<nav aria-label="breadcrumb" th:fragment="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a th:href="${content.rootpath}" href="/">Accueil</a>
+    </li>
+    <li class="breadcrumb-item">
+      <a th:href="${content.rootpath} + 'blog.html'" href="/blog.html">Blog</a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page" th:text="${content.title}">Article</li>
+  </ol>
+</nav>
+</html>

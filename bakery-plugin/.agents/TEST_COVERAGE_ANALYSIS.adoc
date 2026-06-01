@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-05-31 — Session 027_
+_Dernière mise à jour : 2026-06-01 — Session 029_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -14,7 +14,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 | Seuil configuré | 75% (dans `build.gradle.kts` → `koverThresholdCheck`)
 | Tests unitaires JUnit5 | 10 fichiers, ~2 550 lignes — ratio ~1.8x vs src/main
 | Tests fonctionnels (TestKit) | 4 fichiers, 1 117 lignes
-| Tests Cucumber BDD | 7 features, 18 scénarios, 944 lignes de steps
+| Tests Cucumber BDD | 8 features, 23+ scénarios, 944+ lignes de steps
 | Compilation | ✅ BUILD SUCCESSFUL — Gradle 9.5.1, Kotlin 2.3.20, Java 24, zéro warning
 |===
 
@@ -24,6 +24,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 [cols="2,2,2,3,3"]
 |===
 | Session | Date | Kover % | Tests PASS | Notes
+| 029 | 2026-06-01 | *Non mesuré* | YamlToleranceTest 3/3, ThymeleafComponentsTest 4/4, Cucumber 5/5 | EPIC 7 (3 UT), EPIC 10 (validé 100%), BKY-JB-2 (4 FT + 5 Cucumber + 2 steps). Bug date GenerateArticleTaskTest découvert (3 échecs).
 | 027 | 2026-05-31 | *Non mesuré* | 14/14 IA PASS | Analyse 12 échecs → 3 EPICs (15/16/17). Ports LLM modifiés. BACKLOG +218 lignes.
 | 026 | 2026-05-30 | *Non mesuré* | 17/17 unitaires, 5/5 fonctionnels | BKY-JB-0 : ajout SiteType enum + resolveSiteType(), ressources site-basic/ (12 fichiers). Nettoyage type FORMATION. 22 nouveaux tests. 11 échecs pré-existants inchangés.
 | 025 | 2026-05-30 | *Non mesuré* | 18/18 unitaires, 3/3 fonctionnels | BKY-BKG Step 1-3 : ajout kgraph/ (ArticleNode, RelatedArticlesService, RelatedArticlesGraph), 4 nouveaux fichiers. Fix extraction tags <category> + URL /. 0 régression.
@@ -34,8 +35,8 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 '''
 == Problèmes Connus
 
-. *EPIC 10 Scaffolding* : 3 scénarios Cucumber en échec (`siteNameOnly`, `backwardCompat`)
-  depuis la session 017 (2026-05-07). Bloque la complétion du scaffolding.
+. *EPIC 10 Scaffolding* : ✅ RÉSOLU — 8 UT + 8 FT + 5 Cucumber verts (session 029)
+. *GenerateArticleTaskTest* : 3 tests échouent (chemin hardcodé `content/blog/2026/5` au lieu de mois dynamique). Bug de date découvert session 029.
 . *EPIC 13 Couverture lacunes P1* : 50% — couverture partielle sur ConfigPrompts
   (session 015) et lacunes identifiées en session 016.
 . *Kover threshold* : le check est intégré à `./gradlew check` mais aucune
@@ -50,6 +51,6 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 . *Session 024+* : ramener la couverture à ≥ 75% si nécessaire
 . *EPIC 13* : compléter les tests ConfigPrompts + lacunes P1
 . *Session 027* : pas de nouveaux tests ajoutés (analyse + documentation). Ports LLM modifiés dans les tests existants (11465/64/63/62). 14/14 tests IA PASS.
-. *EPIC 15* : réparer 4 tests NPE (PluginApplicationTest + PublishingTest)
-. *EPIC 16* : réparer 7 tests Cucumber (Scaffolding steps manquants)
-. *EPIC 17* : réparer generateArticle graceful fail (1 test Cucumber)
+. *EPIC 15* : ✅ RÉSOLU (session 028)
+. *EPIC 16* : ✅ RÉSOLU (session 028)
+. *EPIC 17* : ✅ RÉSOLU (session 028)
