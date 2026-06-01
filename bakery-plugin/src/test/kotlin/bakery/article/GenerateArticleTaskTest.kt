@@ -5,6 +5,7 @@ import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import java.time.YearMonth
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -66,8 +67,9 @@ class GenerateArticleTaskTest {
 
         task.executeGenerate()
 
-        val blogDir = contentRoot.resolve("content/blog/2026/5")
-        assertTrue(blogDir.exists(), "Blog directory should exist")
+        val expectedBlogDir = "content/blog/${YearMonth.now().year}/${YearMonth.now().monthValue}"
+        val blogDir = contentRoot.resolve(expectedBlogDir)
+        assertTrue(blogDir.exists(), "Blog directory $expectedBlogDir should exist")
         val files = blogDir.listFiles()
         assertNotNull(files)
         assertTrue(files.any { it.name.endsWith(".adoc") }, "Should have at least one .adoc article")
@@ -89,7 +91,8 @@ class GenerateArticleTaskTest {
 
         task.executeGenerate()
 
-        val blogDir = contentRoot.resolve("content/blog/2026/5")
+        val expectedBlogDir = "content/blog/${YearMonth.now().year}/${YearMonth.now().monthValue}"
+        val blogDir = contentRoot.resolve(expectedBlogDir)
         val articleFile = blogDir.listFiles()?.firstOrNull { it.name.endsWith(".adoc") }
         assertNotNull(articleFile, "Article file should exist")
 
@@ -191,7 +194,8 @@ class GenerateArticleTaskTest {
 
         task.executeGenerate()
 
-        val blogDir = contentRoot.resolve("content/blog/2026/5")
+        val expectedBlogDir = "content/blog/${YearMonth.now().year}/${YearMonth.now().monthValue}"
+        val blogDir = contentRoot.resolve(expectedBlogDir)
         val articleFile = blogDir.listFiles()?.firstOrNull { it.name.endsWith(".adoc") }
         assertNotNull(articleFile)
 

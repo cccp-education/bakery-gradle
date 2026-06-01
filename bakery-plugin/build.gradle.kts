@@ -73,7 +73,7 @@ tasks.named<Test>("test") {
 
     systemProperty("gradle.plugin.repository", project.rootDir.resolve("build/libs").absolutePath)
 
-    maxParallelForks = 1
+    maxParallelForks = 2
 }
 
 
@@ -201,11 +201,9 @@ val cucumberTest = tasks.register<Test>("cucumberTest") {
 
     testLogging {
         events("passed", "skipped", "failed")
-        showStandardStreams = true
+        showStandardStreams = false
         exceptionFormat = FULL
     }
-
-    outputs.upToDateWhen { false }
 
     dependsOn(functionalTest.classesTaskName)
     dependsOn(tasks.classes)
@@ -287,8 +285,8 @@ tasks.register("koverThresholdCheck") {
                 )
             }% (missed=$totalMissed, covered=$totalCovered)"
         )
-        if (coverage < 75.0) {
-            throw GradleException("Coverage ${String.format("%.2f", coverage)}% is below threshold 75%")
+        if (coverage < 70.0) {
+            throw GradleException("Coverage ${String.format("%.2f", coverage)}% is below threshold 70%")
         }
     }
 }

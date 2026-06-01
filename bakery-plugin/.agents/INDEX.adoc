@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-06-01
-_Session terminee_ : 030 — BKY-JB-3 Google Forms Embed (11 tests, 5/5 baby steps DDD/TDD/BDD)
-_Prochaine session_ : 031 — Fix date GenerateArticleTaskTest + EPIC 11 (perf tests)
-_Session en cours_ : 031
+_Session terminee_ : 031 — Fix date GenerateArticleTaskTest + EPIC 11 optimisation tests (check complet chaud 1.9s)
+_Prochaine session_ : 032 — BKY-JB-4 Firebase Auth + Comments
+_Session en cours_ : 032
 
 '''
 
@@ -111,7 +111,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 | EPIC 8 : Bumper version 0.1.4 et release | 100% | P2 - TERMINE
 | EPIC 9 : Architecture d'orchestration LLM | 0% | P0 - SUPERSEDE par EPIC 14 (BKY-IA-*)
 | EPIC 10 : Scaffolding TDD (sitesBaseDir + siteName) | 100% | P0 - TERMINE
-| EPIC 11 : Optimisation duree des tests | 0% | P0 - A FAIRE
+| EPIC 11 : Optimisation duree des tests | 100% | P0 - TERMINE
 | EPIC 12 : Articles connexes par Knowledge Graph | 0% | P1 - SUPERSEDE par BKY-BKG
 | EPIC 13 : Couverture de tests — lacunes P1 | 50% | P1 - PARTIEL
 |===
@@ -152,7 +152,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 *Priorite P0* : EPIC 16 (le + rapide, ~10 min) → EPIC 15 → EPIC 17
 
-*Prochaine session* : 030 — BKY-JB-3 (Google Forms embed) ou quick win (Fix date + EPIC 11).
+*Prochaine session* : 032 — BKY-JB-4 (Firebase Auth + Comments) Phase B
 
 === EPICs Historiques conservés
 

@@ -8,8 +8,10 @@ import bakery.ProfilePublisher.copyProfileFiles
 import bakery.ProfilePublisher.resolveCredentials
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 import org.slf4j.Logger
 
+@DisableCachingByDefault(because = "Push Git — side effect, non-cacheable")
 abstract class PublishProfileTask : DefaultTask() {
 
     @TaskAction
