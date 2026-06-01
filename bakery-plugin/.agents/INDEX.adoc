@@ -2,10 +2,10 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour_ : 2026-06-01
-_Session terminee_ : 035 — BKY-JB-9 Phase A Rendering Tests (17 tests, 5 bugs corrigés)
-_Prochaine session_ : 036 — BKY-JB-9 Phase A suite (migrer TemplateTest existants)
-_Session en cours_ : 036
+_Derniere mise a jour_ : 2026-06-02
+_Session terminee_ : 037 — Borough-isation : bakery-gradle devient Bushwick 🟤, 20ème borough
+_Prochaine session_ : 038 — BKY-JB-9 Phase A suite (migrer TemplateTest existants)
+_Session en cours_ : 038
 
 '''
 

@@ -1,9 +1,10 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-_Derniere mise a jour : 2026-06-01_
+_Derniere mise a jour : 2026-06-02_
 
 |===
 | # | Date | Type | Sujet | Score
+| 037 | 2026-06-02 | governance | Borough-isation — bakery-gradle devient Bushwick 🟤, 20ème borough | 10/10
 | 035 | 2026-06-01 | feat + test + bugfix | BKY-JB-9 Phase A Rendering Tests — ThymeleafRenderingTestFactory + 17 rendering tests. 5 bugs templates détectés : 3x SpEL `and`→OGNL `&&`, 1x Elvis `?:` supprimé, 1x CSS inline non résolu→JS `setProperty()`. 282 UT + FT + 36 Cucumber PASS. libs.versions.toml bonne pratique. | 9/10
 | 034 | 2026-06-01 | feat + test | BKY-JB-6 Système de thème — ThemeConfig (mode, colors, font, logo, favicon), ThemeDsl, theme-script.thyme (CSS :root variables), header.thyme favicon cond., menu.thyme logo cond., site-basic aligné. 16 UT + 2 FT + 3 Cucumber. Baby steps 5/5. Phase C 62%. | 9/10
 | 033 | 2026-06-01 | feat + test + backlog | BKY-JB-5 Analytics + Newsletter — AnalyticsConfig + NewsletterConfig, analytics-script.thyme (Plausible/Matomo), newsletter-form.thyme (mail footer), injection jbake.properties. 18 UT + 2 FT + 3 Cucumber. Méthodo DDD/TDD/BDD baby steps 5/5. EPIC BKY-JB-9 (Playwright + Thymeleaf rendering) cadré dans BACKLOG. Phase B JBake 100% complète. | 9/10
