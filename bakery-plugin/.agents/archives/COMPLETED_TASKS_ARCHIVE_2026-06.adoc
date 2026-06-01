@@ -108,3 +108,26 @@
 **Tests** : +21 tests (16 UT + 2 FT + 3 Cucumber). Tous PASS.
 
 **Prochaine session** : 033 — BKY-JB-5 (Analytics + Newsletter)
+
+== Session 033 — 2026-06-01 — BKY-JB-5 Analytics + Newsletter
+
+**Contexte** : Troisième et dernier EPIC de la Phase B (services JBake). Analytics (Plausible/Matomo) + Newsletter (formulaire mail footer). Méthodo DDD/TDD/BDD baby steps 5/5. EPIC BKY-JB-9 (E2E Tests) cadré proactivement.
+
+**Taches realisees** :
+
+* [x] BKY-JB-5 (3pts, P1) ✅ TERMINÉ — Analytics + Newsletter :
+  - Étape 1 DDD : `AnalyticsConfig` (provider, domain, scriptSrc) + `NewsletterConfig` (enabled, provider, endpoint) data classes + `AnalyticsDsl` + `NewsletterDsl` DSL
+  - Étape 2 TDD : `analytics-script.thyme` (Plausible + Matomo, th:if guard sur analyticsProvider) + `newsletter-form.thyme` (mail footer, th:if guard sur newsletterEnabled)
+  - Étape 3 TDD : `injectAnalyticsConfigIntoJbakeProperties()` + `injectNewsletterConfigIntoJbakeProperties()` dans SiteManager
+  - Étape 4 FT : 2 tests fonctionnels (templates déployés, pas d'injection sans config)
+  - Étape 5 BDD : 3 scénarios Cucumber (happy-path, no-config, integration). Steps réutilisés.
+* [x] `footer.thyme` enrichi : +analytics-script fragment + newsletter-form fragment
+* [x] EPIC BKY-JB-9 (8pts, P1) — Proposition E2E Tests cadrée dans BACKLOG :
+  - Couche 1 : Thymeleaf Rendering Tests (UT rapide, JVM only)
+  - Couche 2 : Playwright-jvm E2E (Cucumber + Browser)
+  - Référence : capsule-gradle utilise déjà Playwright
+* [x] Phase B JBake 100% complète (JB-3 + JB-4 + JB-5 = 13 pts)
+
+**Tests** : +23 tests (18 UT + 2 FT + 3 Cucumber). Tous PASS.
+
+**Prochaine session** : 034 — BKY-JB-6 (Système de thème) Phase C

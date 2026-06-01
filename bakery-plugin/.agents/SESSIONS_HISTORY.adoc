@@ -4,6 +4,7 @@ _Derniere mise a jour : 2026-06-01_
 
 |===
 | # | Date | Type | Sujet | Score
+| 033 | 2026-06-01 | feat + test + backlog | BKY-JB-5 Analytics + Newsletter — AnalyticsConfig + NewsletterConfig, analytics-script.thyme (Plausible/Matomo), newsletter-form.thyme (mail footer), injection jbake.properties. 18 UT + 2 FT + 3 Cucumber. Méthodo DDD/TDD/BDD baby steps 5/5. EPIC BKY-JB-9 (Playwright + Thymeleaf rendering) cadré dans BACKLOG. Phase B JBake 100% complète. | 9/10
 | 032 | 2026-06-01 | feat + test | BKY-JB-4 Firebase Auth + Comments — FirebaseAuthConfig + CommentsConfig, auth-header.thyme (login/logout), comments.thyme (Firestore CRUD), firebase-auth-compat.js, Disqus→Comments, 16 UT + 2 FT + 3 Cucumber. Méthodo DDD/TDD/BDD baby steps 5/5. | 9/10
 | 031 | 2026-06-01 | fix + perf | Fix date GenerateArticleTaskTest (3 chemins hardcodés 2026/5 → YearMonth.now()), EPIC 11 optimisation tests (cucumberTest upToDateWhen supprimé → 2nd run 1.1s, showStdStreams=false, maxPF=2 UT, seuil Kover 75→70%, @DisableCachingByDefault PublishProfileTask). 206/206 UT verts. Check complet chaud 1.9s. | 9/10
 | 030 | 2026-06-01 | feat + test | BKY-JB-3 Google Forms Embed — GoogleFormsConfig + GoogleFormsDsl, google-forms.thyme (iframe responsive + th:if guard), injection jbake.properties, intégration page.thyme. 11 tests (6 UT + 2 FT + 3 Cucumber). Méthodo DDD/TDD/BDD baby steps 5/5. | 8/10

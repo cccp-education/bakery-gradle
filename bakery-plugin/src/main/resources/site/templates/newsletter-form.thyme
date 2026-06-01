@@ -1,0 +1,21 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- =============================================================================================================== -->
+<!-- Newsletter Form Fragment — BKY-JB-5 -->
+<!-- =============================================================================================================== -->
+<div th:fragment="newsletter-form" th:if="${newsletterEnabled == 'true'}">
+    <div class="newsletter-section">
+        <h5 class="newsletter-title">Newsletter</h5>
+        <p class="newsletter-desc">Recevez les derniers articles directement dans votre boîte mail.</p>
+        <form th:attr="action=${newsletterEndpoint}" method="post" class="newsletter-form" target="_blank" novalidate>
+            <div class="input-group">
+                <input type="email" name="EMAIL" class="form-control newsletter-input" placeholder="votre@email.com" required />
+                <button type="submit" class="btn btn-primary newsletter-submit">S'inscrire</button>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

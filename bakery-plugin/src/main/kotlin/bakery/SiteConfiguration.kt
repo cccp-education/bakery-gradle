@@ -39,6 +39,8 @@ data class SiteConfiguration(
     val googleForms: GoogleFormsConfig? = null,
     val firebaseAuth: FirebaseAuthConfig? = null,
     val comments: CommentsConfig? = null,
+    val analytics: AnalyticsConfig? = null,
+    val newsletter: NewsletterConfig? = null,
 )
 
 data class BakeConfiguration(
@@ -100,5 +102,17 @@ data class FirebaseAuthConfig(
 data class CommentsConfig(
     val enabled: Boolean = false,
     val collection: String = "comments",
+)
+
+data class AnalyticsConfig(
+    val provider: String = "",
+    val domain: String = "",
+    val scriptSrc: String = "",
+)
+
+data class NewsletterConfig(
+    val enabled: Boolean = false,
+    val provider: String = "",
+    val endpoint: String = "",
 )
 

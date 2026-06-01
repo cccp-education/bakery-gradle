@@ -48,6 +48,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/go.min.js"></script>
     <script>hljs.highlightAll();</script>
+    <!-- Newsletter Form (BKY-JB-5) -->
+    <div th:replace="~{newsletter-form :: newsletter-form}"></div>
+    <!-- Analytics Script (BKY-JB-5) -->
+    <div th:replace="~{analytics-script :: analytics-script}"></div>
     <!-- intl-tel-input JS -->
     <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@25.10.1/build/js/intlTelInput.min.js"></script>
     <!-- Custom JS -->

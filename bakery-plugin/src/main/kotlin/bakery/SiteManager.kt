@@ -174,6 +174,8 @@ object SiteManager {
         injectGoogleFormsConfigIntoJbakeProperties(targetDir, site)
         injectFirebaseAuthConfigIntoJbakeProperties(targetDir, site)
         injectCommentsConfigIntoJbakeProperties(targetDir, site)
+        injectAnalyticsConfigIntoJbakeProperties(targetDir, site)
+        injectNewsletterConfigIntoJbakeProperties(targetDir, site)
         logger.lifecycle("✓ Site scaffolded (type: ${siteType.alias}) from resource: $resourcePath")
     }
 
@@ -269,6 +271,54 @@ object SiteManager {
         updateProperty("commentsCollection", commentsConfig.collection)
         jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
         logger.lifecycle("✓ Injected Comments config into jbake.properties")
+    }
+
+    private fun Project.injectAnalyticsConfigIntoJbakeProperties(targetDir: File, site: SiteConfiguration) {
+        val jbakeProps = targetDir.resolve(site.bake.srcPath)
+            .resolve("jbake.properties")
+        if (!jbakeProps.exists()) {
+            logger.warn("jbake.properties not found at ${jbakeProps.absolutePath}")
+            return
+        }
+        val analyticsConfig = site.analytics ?: return
+        val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
+        fun updateProperty(key: String, value: String) {
+            val idx = lines.indexOfFirst { it.startsWith("$key=") }
+            if (idx >= 0) {
+                lines[idx] = "$key=$value"
+            } else {
+                lines.add("$key=$value")
+            }
+        }
+        updateProperty("analyticsProvider", analyticsConfig.provider)
+        updateProperty("analyticsDomain", analyticsConfig.domain)
+        updateProperty("analyticsScriptSrc", analyticsConfig.scriptSrc)
+        jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
+        logger.lifecycle("✓ Injected Analytics config into jbake.properties")
+    }
+
+    private fun Project.injectNewsletterConfigIntoJbakeProperties(targetDir: File, site: SiteConfiguration) {
+        val jbakeProps = targetDir.resolve(site.bake.srcPath)
+            .resolve("jbake.properties")
+        if (!jbakeProps.exists()) {
+            logger.warn("jbake.properties not found at ${jbakeProps.absolutePath}")
+            return
+        }
+        val newsletterConfig = site.newsletter ?: return
+        val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
+        fun updateProperty(key: String, value: String) {
+            val idx = lines.indexOfFirst { it.startsWith("$key=") }
+            if (idx >= 0) {
+                lines[idx] = "$key=$value"
+            } else {
+                lines.add("$key=$value")
+            }
+        }
+        updateProperty("newsletterEnabled", newsletterConfig.enabled.toString())
+        updateProperty("newsletterProvider", newsletterConfig.provider)
+        updateProperty("newsletterEndpoint", newsletterConfig.endpoint)
+        jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
+        logger.lifecycle("✓ Injected Newsletter config into jbake.properties")
     }
 
 // ==================== Bakery Tasks Configuration ====================

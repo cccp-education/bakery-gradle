@@ -418,6 +418,72 @@ class ScaffoldFunctionalTests {
         }
     }
 
+    @Nested
+    @DisplayName("generateSite with Analytics + Newsletter (BKY-JB-5)")
+    inner class AnalyticsNewsletterTest {
+
+        @TempDir
+        lateinit var projectDir: File
+
+        @Test
+        fun `should scaffold blog site with analytics-script and newsletter-form templates deployed`() {
+            createMinimalBakeryProject(
+                projectDir,
+                sitesBaseDir = null,
+                siteName = "analytics-test",
+                siteType = "blog"
+            )
+
+            val result = create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateSite")
+                .build()
+
+            val templatesDir = projectDir.resolve("analytics-test/site/templates")
+            assertThat(templatesDir.resolve("analytics-script.thyme")).exists().isFile
+            assertThat(templatesDir.resolve("analytics-script.thyme").readText(UTF_8))
+                .contains("analytics-script")
+                .contains("analyticsProvider")
+                .contains("th:if")
+            assertThat(templatesDir.resolve("newsletter-form.thyme")).exists().isFile
+            assertThat(templatesDir.resolve("newsletter-form.thyme").readText(UTF_8))
+                .contains("newsletter-section")
+                .contains("newsletterEnabled")
+                .contains("th:if")
+            assertThat(result.output).contains("BUILD SUCCESSFUL")
+        }
+
+        @Test
+        fun `should scaffold site with analytics and newsletter templates but no injection when site yml has no analytics`() {
+            createMinimalBakeryProject(
+                projectDir,
+                sitesBaseDir = null,
+                siteName = "no-analytics",
+                siteType = "blog"
+            )
+
+            val result = create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateSite")
+                .build()
+
+            val siteDir = projectDir.resolve("no-analytics")
+            val templatesDir = siteDir.resolve("site/templates")
+            assertThat(templatesDir.resolve("analytics-script.thyme")).exists().isFile
+            assertThat(templatesDir.resolve("newsletter-form.thyme")).exists().isFile
+
+            val jbakeProps = siteDir.resolve("site/jbake.properties")
+            assertThat(jbakeProps).exists().isFile
+            assertThat(jbakeProps.readText(UTF_8))
+                .doesNotContain("analyticsProvider")
+                .doesNotContain("newsletterEnabled")
+
+            assertThat(result.output).contains("BUILD SUCCESSFUL")
+        }
+    }
+
     companion object {
         private fun createMinimalBakeryProject(
             projectDir: File,

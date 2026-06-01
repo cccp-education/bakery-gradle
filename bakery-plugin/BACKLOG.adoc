@@ -1006,3 +1006,176 @@ footer.thyme → +firebase-auth-compat.js, +authDomain, +firebase.initializeApp(
 * `src/test/kotlin/bakery/FirebaseAuthInjectionTest.kt` — 3 UT
 * `src/functionalTest/kotlin/bakery/ScaffoldFunctionalTests.kt` — 2 FT
 * `src/test/features/12_firebase_auth_comments.feature` — 3 scénarios
+
+== BKY-JB-5 : Analytics + Newsletter — Plausible/Matomo, formulaire mail footer
+
+**Statut** : EN COURS (session 033)
+**Priorite** : P1
+**Charge** : 3 pts
+**Depend de** : BKY-JB-0 (TERMINE)
+
+_Objectif_ : Ajouter un fragment Thymeleaf `analytics-script.thyme` (script Plausible/Matomo) et un fragment `newsletter-form.thyme` (formulaire mail footer) pilotés par la config YAML `site.yml` (clés `analytics:` et `newsletter:`). Troisième EPIC de la Phase B (services JBake).
+
+=== Architecture cible
+
+----
+site.yml:
+  analytics:
+    provider: "plausible"
+    domain: "my-site.com"
+    scriptSrc: "https://plausible.io/js/script.js"
+  newsletter:
+    enabled: true
+    provider: "mailchimp"
+    endpoint: "https://mailchimp.us1.list-manage.com/subscribe/post?u=xxx&id=yyy"
+
+analytics-script.thyme → <script> Plausible ou Matomo (th:if="${analyticsProvider}")
+newsletter-form.thyme → formulaire email footer (th:if="${newsletterEnabled == 'true'}")
+footer.thyme → +analytics-script fragment, +newsletter-form fragment
+----
+
+=== Baby Steps DDD/TDD/BDD — Méthodologie Agile Software Craftsmanship
+
+==== Étape 1 — DDD : Modèle domaine (1 pt)
+
+* [x] Créer `AnalyticsConfig` data class dans `SiteConfiguration.kt` (provider, domain, scriptSrc)
+* [x] Créer `NewsletterConfig` data class dans `SiteConfiguration.kt` (enabled, provider, endpoint)
+* [x] Ajouter `analytics: AnalyticsConfig?` et `newsletter: NewsletterConfig?` dans `SiteConfiguration`
+* [x] Créer `AnalyticsDsl` open class
+* [x] Créer `NewsletterDsl` open class
+* [x] Ajouter DSL `bakery { analytics { ... } }` et `bakery { newsletter { ... } }` dans `BakeryExtension`
+* [x] **TDD — 7 tests unitaires** : `AnalyticsNewsletterConfigTest`
+
+==== Étape 2 — TDD : Fragments Thymeleaf (1 pt)
+
+* [x] Créer `analytics-script.thyme` — script Plausible/Matomo avec `th:if` guard sur `analyticsProvider`
+* [x] Créer `newsletter-form.thyme` — formulaire mail footer avec `th:if` guard sur `newsletterEnabled`
+* [x] Intégrer `analytics-script.thyme` dans `footer.thyme` (via th:replace)
+* [x] Intégrer `newsletter-form.thyme` dans `footer.thyme` (via th:replace)
+* [x] **TDD — 8 tests unitaires** : `AnalyticsNewsletterTemplateTest`
+
+==== Étape 3 — TDD : Injection config → template (1 pt)
+
+* [x] Ajouter `injectAnalyticsConfigIntoJbakeProperties()` dans `SiteManager`
+* [x] Ajouter `injectNewsletterConfigIntoJbakeProperties()` dans `SiteManager`
+* [x] **TDD — 3 tests unitaires** : `AnalyticsNewsletterInjectionTest`
+
+==== Étape 4 — FT : Tests fonctionnels (0.5 pt)
+
+* [x] Test fonctionnel : `generateSite` → `analytics-script.thyme` et `newsletter-form.thyme` déployés
+* [x] Test fonctionnel : `generateSite` sans config → pas d'injection dans jbake.properties
+* [x] **FT — 2 tests fonctionnels** dans `ScaffoldFunctionalTests.AnalyticsNewsletterTest`
+
+==== Étape 5 — BDD : Scénarios Cucumber (0.5 pt)
+
+* [ ] Créer `src/test/features/13_analytics_newsletter.feature` (3 scénarios)
+* [ ] Créer `src/test/scenarios/bakery/scenarios/AnalyticsNewsletterSteps.kt`
+* [ ] Réutiliser steps existants : `ThymeleafComponentSteps`, `MinimalSteps`
+* [ ] **BDD — 3 scénarios Cucumber** : happy-path, no-config, th:if guard
+
+=== Conditions aux limites
+
+| Condition | Comportement attendu |
+|---|---|
+| `analytics:` absent de `site.yml` | Pas de script, fragment rendu vide (th:if=false) |
+| `analytics.provider` vide | Pas de script (th:if guard sur analyticsProvider) |
+| `newsletter:` absent de `site.yml` | Pas de formulaire (th:if=false) |
+| `newsletter.enabled = false` | Fragment rendu vide, formulaire invisible |
+| `newsletter.endpoint` vide | Formulaire visible mais action="" (comportement navigateur natif) |
+| Provider inconnu (ni plausible ni matomo) | Script plausible ignoré, matomo ignoré — rien ne s'injecte |
+
+=== Fichiers
+
+* `src/main/kotlin/bakery/SiteConfiguration.kt` — +AnalyticsConfig, +NewsletterConfig
+* `src/main/kotlin/bakery/BakeryExtension.kt` — +analytics DSL, +newsletter DSL
+* `src/main/kotlin/bakery/AnalyticsDsl.kt` — créé
+* `src/main/kotlin/bakery/SiteManager.kt` — +injectAnalyticsConfigIntoJbakeProperties, +injectNewsletterConfigIntoJbakeProperties
+* `src/main/resources/site/templates/analytics-script.thyme` — créé
+* `src/main/resources/site/templates/newsletter-form.thyme` — créé
+* `src/main/resources/site/templates/footer.thyme` — modifié (+analytics-script, +newsletter-form)
+* `src/test/kotlin/bakery/AnalyticsNewsletterConfigTest.kt` — 7 UT
+* `src/test/kotlin/bakery/AnalyticsNewsletterTemplateTest.kt` — 8 UT
+* `src/test/kotlin/bakery/AnalyticsNewsletterInjectionTest.kt` — 3 UT
+* `src/functionalTest/kotlin/bakery/ScaffoldFunctionalTests.kt` — 2 FT
+* `src/test/features/13_analytics_newsletter.feature` — 3 scénarios (à créer)
+
+== BKY-JB-9 : E2E Tests — Playwright-jvm + Thymeleaf Rendering Tests
+
+**Statut** : PROPOSITION
+**Priorite** : P1
+**Charge** : 8 pts
+**Depend de** : BKY-JB-5 (en cours), BKY-JB-6 (thème)
+
+=== Problème
+
+La pyramide de tests de bakery a un **trou critique** : les templates Thymeleaf ne sont jamais _rendus_ dans les tests.
+
+| Couche | Testé aujourd'hui | Manquant |
+|---|---|---|
+| UT (JUnit5) | `template.readText().contains("th:if")` — test de fichier | ❌ Rendu Thymeleaf avec vraies données |
+| FT (Gradle TestKit) | `generateSite` déploie fichiers, jbake.properties injecté | ❌ HTML résultant correct dans un navigateur |
+| BDD (Cucumber) | Scénarios → même chose que FT, différent langage | ❌ Visibilité humaine des composants |
+
+Nos "template tests" vérifient que le _texte source_ contient les bonnes chaînes, mais jamais que Thymeleaf l'évalue correctement avec `firebaseAuthApiKey != null`.
+
+=== Architecture cible — 2 couches
+
+==== Couche 1 : Thymeleaf Rendering Tests (UT rapide, ~1s)
+
+```kotlin
+val engine = TemplateEngine()
+val context = Context(mapOf(
+    "analyticsProvider" to "plausible",
+    "analyticsDomain" to "my-site.com",
+    "analyticsScriptSrc" to "https://plausible.io/js/script.js"
+))
+val html = engine.process(FileTemplateSource("analytics-script.thyme"), context)
+assertThat(html).contains("""data-domain="my-site.com"""")
+assertThat(html).doesNotContain("th:if")  // th:if résolu, pas visible dans HTML
+```
+
+Avantage : JVM only, 0 infra, ~1s par test. Couvre 80% du besoin.
+Inconvénient : Ne teste pas le JS.
+
+==== Couche 2 : Playwright-jvm E2E (Cucumber + Browser, ~30s)
+
+```gherkin
+Feature: E2E Analytics — BKY-JB-9
+
+  Scenario: Plausible script is visible when analytics is configured
+    Given a baked bakery site with analytics configured as plausible
+    When I navigate to the homepage
+    Then I see a script tag with data-domain "my-site.com"
+
+  Scenario: Newsletter form is visible when enabled
+    Given a baked bakery site with newsletter enabled
+    When I navigate to the homepage
+    Then I see a newsletter form with email input
+    And I see a subscribe button labeled "S'inscrire"
+```
+
+Avantage : Vrai navigateur, vraie interaction, couvre JS aussi.
+Inconvénient : Lourd (Node.js + browser binary), ~30s par test.
+
+=== Baby Steps DDD/TDD/BDD
+
+==== Phase A — Thymeleaf Rendering Tests (3 pts)
+
+. **JB-9.1** : Ajouter `org.thymeleaf:thymeleaf` en `testImplementation`
+. **JB-9.2** : Créer `ThymeleafRenderingTestFactory` — helper qui configure `TemplateEngine` + résout les templates depuis `src/main/resources/site/templates/`
+. **JB-9.3** : Migrer les tests template existants (analytics, newsletter, auth, google-forms, breadcrumb, etc.) vers des rendering tests
+. **JB-9.4** : Supprimer les `template.readText().contains()` — remplacer par `html.contains()`
+
+==== Phase B — Playwright-jvm E2E (5 pts)
+
+. **JB-9.5** : Ajouter `com.microsoft.playwright:playwright` en `e2eImplementation`
+. **JB-9.6** : Créer tâche Gradle `e2eTest` : start serv → Playwright tests → stop serv
+. **JB-9.7** : Scénarios Cucumber E2E : analytics visible, newsletter visible, auth buttons, Google Forms iframe
+. **JB-9.8** : CI workflow : `e2eTest` sur push main (headless Chrome)
+. **JB-9.9** : Référence : capsule-gradle utilise déjà Playwright (`foundry/public/capsule-gradle/`)
+
+=== Référence croisée
+
+* capsule-gradle utilise déjà Playwright pour la capture vidéo — pattern réutilisable
+* quizz-benchmark a des CLI tests mais pas de browser
+*codebase-gradle a des tests pgvector (infra lourde) — même patterns d'orchestration Testcontainers

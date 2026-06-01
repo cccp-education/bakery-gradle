@@ -47,6 +47,12 @@ open class BakeryExtension @Inject constructor(objects: ObjectFactory) {
     /** Configuration Comments (Firestore) — BKY-JB-4 */
     val commentsConfig: CommentsDsl = CommentsDsl()
 
+    /** Configuration Analytics (Plausible/Matomo) — BKY-JB-5 */
+    val analytics: AnalyticsDsl = AnalyticsDsl()
+
+    /** Configuration Newsletter (mail footer) — BKY-JB-5 */
+    val newsletter: NewsletterDsl = NewsletterDsl()
+
     /** DSL : bakery { googleForms { ... } } */
     fun googleForms(action: Action<GoogleFormsDsl>) {
         action.execute(googleForms)
@@ -60,6 +66,16 @@ open class BakeryExtension @Inject constructor(objects: ObjectFactory) {
     /** DSL : bakery { commentsConfig { ... } } */
     fun commentsConfig(action: Action<CommentsDsl>) {
         action.execute(commentsConfig)
+    }
+
+    /** DSL : bakery { analytics { ... } } */
+    fun analytics(action: Action<AnalyticsDsl>) {
+        action.execute(analytics)
+    }
+
+    /** DSL : bakery { newsletter { ... } } */
+    fun newsletter(action: Action<NewsletterDsl>) {
+        action.execute(newsletter)
     }
 
     /** DSL : bakery { ia { ... } } */

@@ -1,0 +1,26 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- =============================================================================================================== -->
+<!-- Analytics Script Fragment — BKY-JB-5 -->
+<!-- =============================================================================================================== -->
+<div th:fragment="analytics-script" th:if="${analyticsProvider}">
+    <script th:if="${analyticsProvider == 'plausible'}" th:attr="data-domain=${analyticsDomain}" th:src="${analyticsScriptSrc}" async defer></script>
+    <script th:if="${analyticsProvider == 'matomo'}">
+        /*<![CDATA[*/
+        var _paq = window._paq = window._paq || [];
+        _paq.push(['trackPageView']);
+        _paq.push(['enableLinkTracking']);
+        (function() {
+            var u=/*[[${analyticsScriptSrc}]]*/ '';
+            _paq.push(['setTrackerUrl', u+'matomo.php']);
+            _paq.push(['setSiteId', /*[[${analyticsDomain}]]*/ '1']);
+            var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+            g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+        })();
+        /*]]>*/
+    </script>
+</div>
+</body>
+</html>

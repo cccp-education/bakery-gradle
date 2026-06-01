@@ -1,50 +1,41 @@
-= PROMPT_REPRISE — Session 032 terminée : BKY-JB-4 Firebase Auth + Comments
+= PROMPT_REPRISE — Session 033 terminée : BKY-JB-5 Analytics + Newsletter
 
-== Mission accomplie (Session 032)
+== Mission accomplie (Session 033)
 
-BKY-JB-4 Firebase Auth + Comments — 5/5 baby steps DDD/TDD/BDD terminées.
+BKY-JB-5 Analytics + Newsletter — 5/5 baby steps DDD/TDD/BDD terminées.
 
 === Résultats
 
-- **BKY-JB-4 Firebase Auth + Comments** (5pts, P1) : ✅ TERMINÉ
-  - FirebaseAuthConfig + CommentsConfig data classes
-  - FirebaseAuthDsl + CommentsDsl DSL
-  - auth-header.thyme (login/logout bouton, th:if guard)
-  - comments.thyme (section Firestore, th:if guard, CRUD)
-  - firebase-auth-compat.js ajouté dans footer
-  - firebase.initializeApp() avec authDomain
-  - Disqus remplacé par comments.thyme dans post.thyme
-  - 16 UT + 2 FT + 3 Cucumber = 21 tests ajoutés, tous PASS
+- **BKY-JB-5 Analytics + Newsletter** (3pts, P1) : ✅ TERMINÉ
+  - AnalyticsConfig + NewsletterConfig data classes + DSL
+  - analytics-script.thyme (Plausible/Matomo, th:if guard)
+  - newsletter-form.thyme (mail footer, th:if guard)
+  - injectAnalyticsConfig + injectNewsletterConfig dans SiteManager
+  - 18 UT + 2 FT + 3 Cucumber = 23 tests ajoutés, tous PASS
 
-=== Phase B JBake — Progression
+- **EPIC BKY-JB-9** (8pts, P1) : Proposition cadrée dans BACKLOG
+  - Couche 1 : Thymeleaf Rendering Tests (UT rapide)
+  - Couche 2 : Playwright-jvm E2E (Cucumber + Browser)
+
+=== Phase B JBake — COMPLÈTE (13/13 pts, 100%)
 
 | EPIC | Pts | Statut |
 |------|-----|--------|
-| BKY-JB-3 Google Forms embed | 5 | ✅ TERMINÉ (session 030) |
-| BKY-JB-4 Firebase Auth + Comments | 5 | ✅ TERMINÉ (session 032) |
-| BKY-JB-5 Analytics + Newsletter | 3 | À faire |
-| BKY-JB-6 Système de thème | 5 | À faire |
-| BKY-JB-7 Layouts | 3 | À faire |
-
-Phase B : 10/26 pts (38%). Reste JB-5 + JB-6 + JB-7 = 11 pts.
+| BKY-JB-3 Google Forms embed | 5 | ✅ TERMINÉ |
+| BKY-JB-4 Firebase Auth + Comments | 5 | ✅ TERMINÉ |
+| BKY-JB-5 Analytics + Newsletter | 3 | ✅ TERMINÉ |
 
 == Prochaines EPICs disponibles
 
 | EPIC | Pts | Prio | Description |
 |------|-----|------|-------------|
-| BKY-JB-5 | 3 | P1 | Analytics + Newsletter (Plausible/Matomo, mail footer) |
 | BKY-JB-6 | 5 | P1 | Système de thème (CSS variables, dark/light mode, logo) |
-| EPIC 13 | 3 | P1 | Couverture lacunes P1 (71% → 75%+) |
+| BKY-JB-9 | 8 | P1 | E2E Tests (Thymeleaf rendering + Playwright-jvm) |
 | BKY-JB-7 | 3 | P2 | Layouts (full-width, sidebar, centered) |
+| EPIC 13 | 3 | P1 | Couverture lacunes P1 (71% → 75%+) |
 
-== Prochaine session (033) — Phase B JBake
+== Prochaine session (034) — Phase C JBake
 
-Priorité suggérée : **BKY-JB-5** (Analytics + Newsletter, 3 pts, P1).
-ÉPIC léger, même mécanique que JB-3/JB-4 :
-1. DDD : AnalyticsConfig + NewsletterConfig data classes + DSL
-2. TDD : Fragment analytics-script.thyme (Plausible) + newsletter-form.thyme (footer)
-3. TDD : Injection config → jbake.properties
-4. FT : ScaffoldFunctionalTests
-5. BDD : Cucumber 13_analytics_newsletter.feature
-
-Alternative : **BKY-JB-6** (Système de thème, 5 pts) si on veut la vraie différenciation visuelle.
+Priorité suggérée : **BKY-JB-6** (Système de thème, 5 pts, P1).
+Mécanique similaire à JB-3→5 : DDD ThemeConfig → CSS variables → dark/light toggle.
+Alternative : **BKY-JB-9** (E2E Tests) si on veut solidifier la pyramide de tests d'abord.
