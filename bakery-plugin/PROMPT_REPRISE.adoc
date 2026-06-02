@@ -1,31 +1,59 @@
-= PROMPT_REPRISE — Session 042 : BKY-BKG Steps 4-6 (BKG-1)
+= PROMPT_REPRISE — Session 043 : BKY-BKG BKG-1 (Architecture Extension + jbake.properties)
 
-== Mission (Session 042)
+== Mission (Session 043)
 
-Implémenter BKY-BKG BKG-1 (3 pts, P1) — Consommation du graphe KG dans les templates bakery. Remplacer les "articles connexes" chronologiques par un scoring basé sur le Knowledge Graph.
+Implémenter BKY-BKG BKG-1 (3 pts, P1) — Consommation du graphe KG dans les templates bakery VIA l'extension DSL + jbake.properties + Thymeleaf côté serveur. PAS de post-bake HTML injection.
 
-=== Baby Steps DDD/TDD/BDD
+== Règle d'architecture — Surcharge multi-couche
+
+```
+CLI (-PmaVariable) > gradle.properties > DSL bakery { } > site.yml > defaults
+```
+
+L'extension bakery WRAP le cycle de vie JBake. Config DSL → injection jbake.properties → bake → HTML.
+
+== Nettoyage obligatoire AVANT tout code (Session 043 Step 0)
+
+Retirer le code post-bake exploratoire de la session 042 :
+
+* `SiteManager.registerInjectRelatedArticlesTask()` + `buildRelatedArticlesHtml()`
+* `BakeryPlugin` import `registerInjectRelatedArticlesTask` + appel
+* `post.thyme` — retirer `<!-- RELATED_ARTICLES_PLACEHOLDER -->`
+* `build.gradle.kts` — retirer `implementation(libs.jsoup)`
+* `gradle/libs.versions.toml` — retirer jsoup version + library
+* Supprimer `InjectRelatedArticlesFunctionalTest.kt`
+* `./gradlew compileKotlin` → BUILD SUCCESSFUL
+
+== Baby Steps DDD/TDD/BDD
 
 | Étape | Type | Action | Tests |
 |-------|------|--------|-------|
-| 1 | DDD | `RelatedArticlesResolver` — lit `related-articles.json` → résout suggestions pour un slug | 5+ UT |
-| 2 | TDD | Injection resolver dans pipeline JBake → props jbake.properties | 2 UT |
-| 3 | TDD | Fragment `related-articles.thyme` (th:if guard + fallback chrono si pas de graphe) | 3 rendering tests |
-| 4 | TDD | Intégration dans `post.thyme` (remplacement section chrono) | 2 UT |
-| 5 | FT | Tests fonctionnels : generateSite déploie related-articles.thyme | 2 FT |
+| 0 | NETTOYAGE | Retirer code post-bake (ci-dessus) | compile |
+| 1 | DDD | `RelatedArticlesConfig` dans SiteConfiguration + `RelatedArticlesDsl` dans BakeryExtension | 3 UT |
+| 2 | TDD | `injectRelatedArticlesIntoJbakeProperties()` dans SiteManager (pattern des 8 injectors) | 3 UT |
+| 3 | TDD | Fragment `related-articles.thyme` (th:if="${relatedArticlesEnabled}" + th:each suggestions) | 3 rendering tests |
+| 4 | TDD | Intégration dans `post.thyme` via `th:replace="~{related-articles.thyme::related-articles}"` | 2 UT |
+| 5 | FT | Tests fonctionnels : DSL config → jbake.properties → template déployé | 2 FT |
 | 6 | BDD | Cucumber `17_related_articles_kg.feature` — 3 scénarios | 3 Cucumber |
 
-=== Code existant (Steps 1-3 déjà faits)
+== Code existant (conservé)
 
+* `bakery/kgraph/RelatedArticlesResolver.kt` — 8 UT PASS ✅
 * `bakery/kgraph/RelatedArticlesGraph.kt` — ArticleNode, ArticleEdge, RelatedArticlesOutput
 * `bakery/kgraph/RelatedArticlesService.kt` — buildGraph, computeScore, toSuggestions
 * `SiteManager.registerCollectRelatedArticlesTask()` — tâche Gradle `collectRelatedArticles`
 
-=== EPICs disponibles (priorité décroissante)
+== EPICs disponibles (priorité décroissante)
 
 | EPIC | Pts | Prio | Description |
 |------|-----|------|-------------|
-| BKY-BKG (BKG-1) | 3 | P1 | Articles connexes KG — Steps 4-6 |
+| BKY-CONV-1 | 5 | P0 | Surcharge Configuration Multi-Couche — standardiser pattern foundry/public (ordre à vérifier dans slider-gradle, plantuml-gradle, codebase-gradle AVANT de coder) |
+| BKY-BKG (BKG-1) | 3 | P1 | Articles connexes KG — Steps 0-6 |
 | EPIC 13 | 2.5 | P1 | Couverture tests lacunes P1 (50%) |
 | EPIC 6 | — | P1 | PublishProfile migration |
-| EPIC 11 | — | P0 | Optimisation tests durée |
+
+== IMPORTANT — Ordre de surcharge à vérifier
+
+L'ordre `CLI > gradle.properties > DSL > site.yml > defaults` est à **CONFIRMER** en lisant
+le code réel de slider-gradle, plantuml-gradle et codebase-gradle AVANT session 043.
+Ne PAS supposer l'ordre — le vérifier dans le code source.

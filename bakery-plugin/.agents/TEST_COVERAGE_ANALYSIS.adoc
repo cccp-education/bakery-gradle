@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-02 — Session 040_
+_Dernière mise à jour : 2026-06-02 — Session 042_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -24,6 +24,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 [cols="2,2,2,3,3"]
 |===
 | Session | Date | Kover % | Tests PASS | Notes
+| 042 | 2026-06-02 | *Non mesuré* | 8 UT ✅ (Resolver), code post-bake À RETIRER | BKY-BKG : RelatedArticlesResolver (8 UT PASS — exact, suffix, partial, empty, missing, maxResults, count). Code post-bake Jsoup exploratoire = anti-pattern. Pivot vers Extension DSL.
 | 040 | 2026-06-02 | *Non mesuré* | 29 UT ✅, 4 FT ✅, 55 Cucumber ✅ | BKY-JB-8 Article IA : ArticleIntentionTest (13), ArticleGeneratorTest intención +7, ResolveIntention +9, ArticleIntentionFunctionalTests (4), 16_article_intention.feature (3). Phase D 100% complète.
 | 039 | 2026-06-02 | *Non mesuré* | 16/16 UT ✅, 2/2 FT ✅, 52/52 Cucumber ✅ | BKY-JB-7 Layouts : LayoutConfigTest (6), LayoutTemplateTest (7), LayoutInjectionTest (3), LayoutTest FT (2), 13_layouts.feature (3). Phase C 100% complète.
 | 038 | 2026-06-02 | *Non mesuré* | 297 UT ✅, 13 E2E ✅, 49 Cucumber ✅, FT ✅ | BKY-JB-9 Phase B COMPLETE — Cucumber E2E 10 scénarios + CI workflow

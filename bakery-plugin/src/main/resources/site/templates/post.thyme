@@ -27,6 +27,8 @@
 
                                     <div th:replace="~{comments.thyme::comments}"/>
 
+                                    <!-- RELATED_ARTICLES_PLACEHOLDER -->
+
                                 </article>
                             </div>
                             <div class="col-lg-3 d-none d-lg-block">

@@ -33,6 +33,9 @@ dependencies {
 
     implementation(libs.graphify.plugin)
 
+    // Jsoup — HTML parsing for post-bake injection
+    implementation(libs.jsoup)
+
     // LLM — LangChain4j + Ollama (BKY-IA-0)
     implementation(libs.langchain4j.ollama)
 

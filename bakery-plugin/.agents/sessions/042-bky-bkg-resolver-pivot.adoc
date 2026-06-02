@@ -1,0 +1,74 @@
+= Session 042 — BKY-BKG Steps 4-6 : RelatedArticlesResolver + Pivot Architecture
+:date: 2026-06-02
+:type: feat + test + pivot
+:score: 4/10
+
+== Contexte
+
+Reprise bakery-gradle (Bushwick) session 042. Mission initiale :
+BKY-BKG BKG-1 (3 pts, P1) — Consommation du graphe KG dans les templates bakery.
+
+== Réalisé
+
+=== Baby Step 1 — DDD : RelatedArticlesResolver ✅
+
+* `src/main/kotlin/bakery/kgraph/RelatedArticlesResolver.kt` — NOUVEAU
+  - Lit `related-articles.json` via Jackson lazy loading
+  - `resolve(slug)` : correspondance exacte, puis suffixe, puis contains
+  - `hasSuggestions()`, `articleCount()`, `load()` companion
+  - `maxResults` configurable (défaut 3)
+
+=== Baby Step 2 — TDD : RelatedArticlesResolverTest ✅
+
+* `src/test/kotlin/bakery/kgraph/RelatedArticlesResolverTest.kt` — NOUVEAU
+  - 8 tests unitaires PASS
+  - Exact match, suffix match, partial contains, empty, missing file, maxResults, article count, empty suggestions
+
+=== Code exploratoire (À RETIRER) ⚠️
+
+L'approche post-bake HTML injection avec Jsoup est un **anti-pattern** dans bakery.
+Le code suivant a été écrit maisDOIT ÊTRE RETIRÉ avant la session 043 :
+
+* `SiteManager.registerInjectRelatedArticlesTask()` — tâche post-bake avec Jsoup
+* `SiteManager.buildRelatedArticlesHtml()` — rendu HTML en Kotlin
+* `BakeryPlugin.registerInjectRelatedArticlesTask` import + appel
+* `post.thyme` — `<!-- RELATED_ARTICLES_PLACEHOLDER -->` ajouté
+* `build.gradle.kts` — dépendance jsoup ajoutée
+* `gradle/libs.versions.toml` — jsoup 1.17.2 ajouté
+* `InjectRelatedArticlesFunctionalTest.kt` — 1/4 tests verts, 3 échoués
+
+== Pivot Architecture — Directive Utilisateur
+
+L'utilisateur a rappelé le pattern de surcharge multi-couche :
+
+```
+CLI (-PmaVariable) > gradle.properties > DSL bakery { } > site.yml > defaults
+```
+
+L'approche correcte pour BKY-BKG :
+
+1. **RelatedArticlesConfig** dans `SiteConfiguration` (modèle DDD)
+2. **RelatedArticlesDsl** dans `BakeryExtension` (DSL `bakery { relatedArticles { ... } }`)
+3. **injectRelatedArticlesIntoJbakeProperties()** dans `SiteManager` (pattern des 8 injectors existants)
+4. **related-articles.thyme** fragment qui lit `config.relatedArticles*` (Thymeleaf côté serveur)
+5. **Intégration dans post.thyme** via `th:replace`
+
+Pas de Jsoup, pas de post-bake HTML, pas de placeholder.
+La config passe par l'extension → jbake.properties → Thymeleaf.
+
+== Non Réalisé
+
+* Step 4 : RelatedArticlesConfig + RelatedArticlesDsl
+* Step 5 : injectRelatedArticlesIntoJbakeProperties
+* Step 6 : related-articles.thyme fragment
+* Step 7 : Intégration post.thyme
+* Step 8 : FT fonctionnels
+* Step 9 : Cucumber 17_related_articles_kg.feature
+
+== Leçons
+
+| # | Leçon
+| 1 | Post-bake HTML injection = anti-pattern. Toujours passer par l'extension + jbake.properties + Thymeleaf côté serveur.
+| 2 | La surcharge multi-couche (CLI > gradle.properties > DSL > YAML > defaults) est le standard foundry/public.
+| 3 | L'extension bakery WRAP le cycle de vie JBake — config DSL → injection → bake → HTML.
+| 4 | RelatedArticlesResolver (8 UT PASS) est conservé : il sera consommé par un pré-bake task qui lit le JSON et peuple la config.

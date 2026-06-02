@@ -1178,3 +1178,60 @@ Inconvénient : Lourd (Node.js + browser binary), ~30s par test.
 * capsule-gradle utilise déjà Playwright pour la capture vidéo — pattern réutilisable
 * quizz-benchmark a des CLI tests mais pas de browser
 *codebase-gradle a des tests pgvector (infra lourde) — même patterns d'orchestration Testcontainers
+
+== BKY-CONV-1 : Surcharge Configuration Multi-Couche — Standardiser le pattern foundry/public
+
+**Statut** : À faire
+**Priorite** : P0
+**Charge** : 5 pts
+**Dépend de** : —
+
+_Problème_ : L'ordre de précédence de surcharge de configuration n'est pas standardisé ni documenté dans bakery. Les autres projets foundry/public ont un pattern établi qu'il faut appliquer.
+
+_Objectif_ : Standardiser et documenter l'ordre de résolution des propriétés de configuration dans tout le plugin bakery, aligné sur les autres projets foundry/public. Chaque propriété doit pouvoir être surchargée par la couche_supérieure.
+
+=== Ordre de précédence (à vérifier dans les autres projets foundry/public)
+
+```
+CLI (-PmaVariable) > gradle.properties > DSL bakery { } > site.yml > defaults
+```
+
+_Note_ : L'ordre EXACT est à confirmer en lisant le code des projets slider-gradle, plantuml-gradle, codebase-gradle. Ne PAS supposer — vérifier._
+
+=== User Journeys BDD
+
+```gherkin
+Feature: Surcharge Configuration Multi-Couche — BKY-CONV-1
+
+  En tant que développeur utilisant bakery
+  Je veux que chaque propriété de configuration soit surchargeable par la couche supérieure
+  Afin de pouvoir adapter le comportement sans modifier site.yml
+
+  Scenario: CLI -P surcharge tout
+    Given un site.yml avec relatedArticles.enabled = true
+    And le DSL bakery { relatedArticles { enabled = true } }
+    And gradle.properties avec bakery.relatedArticles.enabled = true
+    When j'exécute ./gradlew bake -Pbakery.relatedArticles.enabled=false
+    Then relatedArticles.enabled vaut false
+
+  Scenario: gradle.properties surcharge DSL et YAML
+    Given un site.yml avec relatedArticles.enabled = true
+    And le DSL bakery { relatedArticles { enabled = true } }
+    And gradle.properties avec bakery.relatedArticles.enabled = false
+    When j'exécute ./gradlew bake
+    Then relatedArticles.enabled vaut false
+
+  Scenario: DSL surcharge YAML
+    Given un site.yml avec relatedArticles.enabled = true
+    And le DSL bakery { relatedArticles { enabled = false } }
+    When j'exécute ./gradlew bake
+    Then relatedArticles.enabled vaut false
+```
+
+=== Baby Steps DDD/TDD/BDD
+
+. **CONV-1.1** — Audit : Lire l'ordre de précédence réel dans slider-gradle, plantuml-gradle, codebase-gradle (1 pt)
+. **CONV-1.2** — Documenter : Ajouter section "Ordre de surcharge" dans AGENT.adoc + BACKLOG (0.5 pt)
+. **CONV-1.3** — Standardiser : Créer `ConfigResolver` générique qui applique l'ordre CLI > gradle.properties > DSL > YAML > defaults (2 pts)
+. **CONV-1.4** — Migrer : Appliquer ConfigResolver sur les 9+ configs existantes (firebase, googleForms, analytics, newsletter, theme, layout, comments, firebaseAuth, relatedArticles) (1 pt)
+. **CONV-1.5** — Tests : 5+ UT par config + 3 Cucumber sur l'ordre de résolution (0.5 pt)

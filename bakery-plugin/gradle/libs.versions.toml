@@ -26,6 +26,7 @@ codebase = "0.0.1"
 langchain4j = "1.14.1"
 thymeleaf = "3.0.14.RELEASE"
 playwright = "1.52.0"
+jsoup = "1.17.2"
 
 [libraries]
 kotlin-stdlib-jdk8 = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8" }
@@ -60,6 +61,7 @@ graphify-plugin = { module = "education.cccp:graphify-plugin", version.ref = "gr
 langchain4j-ollama = { module = "dev.langchain4j:langchain4j-ollama", version.ref = "langchain4j" }
 thymeleaf = { module = "org.thymeleaf:thymeleaf", version.ref = "thymeleaf" }
 playwright = { module = "com.microsoft.playwright:playwright", version.ref = "playwright" }
+jsoup = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

@@ -15,6 +15,7 @@ import bakery.SiteManager.registerDeployProfileTask
 import bakery.SiteManager.registerDeploySiteTask
 import bakery.SiteManager.registerGenerateArticleTask
 import bakery.SiteManager.registerGenerateSiteTask
+import bakery.SiteManager.registerInjectRelatedArticlesTask
 import bakery.SiteManager.registerPagefindTask
 import bakery.SiteManager.registerServeTask
 import bakery.SiteManager.registerUtilityTasks
@@ -79,6 +80,7 @@ class BakeryPlugin : Plugin<Project> {
                 project.registerCollectSiteConfigTask(site, isGradlePropertiesEnabled)
                 project.registerCollectSiteContextTask(site)
                 project.registerCollectRelatedArticlesTask(site)
+                project.registerInjectRelatedArticlesTask(site)
                 project.registerGenerateArticleTask(site, bakeryExtension.ia, bakeryExtension.articleIntention)
             }
         }

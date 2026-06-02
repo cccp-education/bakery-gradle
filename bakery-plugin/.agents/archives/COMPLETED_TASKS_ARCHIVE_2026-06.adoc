@@ -326,3 +326,25 @@
 **Tests** : Aucun test modifié. 297 UT PASS.
 
 **Prochaine session** : 042 — BKY-BKG Steps 4-6 (RelatedArticlesResolver + related-articles.thyme + post.thyme)
+
+== Session 042 — 2026-06-02 — BKY-BKG Resolver + Pivot Architecture
+
+**Contexte** : Implémentation BKY-BKG BKG-1 Steps 4-6. RelatedArticlesResolver créé et testé (8 UT PASS). Approche post-bake HTML injection explorée puis identifiée comme anti-pattern. Pivot vers Extension DSL + jbake.properties + Thymeleaf côté serveur.
+
+**Taches realisees** :
+
+* [x] RelatedArticlesResolver.kt — lit related-articles.json, resolve(slug), hasSuggestions(), articleCount() (8 UT PASS)
+* [x] RelatedArticlesResolverTest.kt — 8 tests unitaires
+* [ ] Code post-bake exploratoire (À RETIRER session 043) — registerInjectRelatedArticlesTask, buildRelatedArticlesHtml, jsoup dep, placeholder HTML
+
+**Non réalisé** (pivoté) :
+
+* [ ] RelatedArticlesConfig dans SiteConfiguration
+* [ ] RelatedArticlesDsl dans BakeryExtension
+* [ ] injectRelatedArticlesIntoJbakeProperties dans SiteManager
+* [ ] related-articles.thyme fragment
+* [ ] Intégration post.thyme
+
+**Tests** : +8 UT (RelatedArticlesResolver). Code post-bake à retirer.
+
+**Prochaine session** : 043 — Nettoyage post-bake + BKY-BKG Extension DSL + jbake.properties

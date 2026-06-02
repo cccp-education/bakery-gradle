@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-06-02
-_Session terminee_ : 041 — Reprise Bakery + Planning BKY-BKG Steps 4-6 (analyse code existant, plan DDD/TDD/BDD 6 étapes)
-_Prochaine session_ : 042 — BKY-BKG Steps 4-6 (RelatedArticlesResolver + related-articles.thyme + post.thyme)
-_Session en cours_ : 042
+_Session terminee_ : 042 — BKY-BKG Resolver (8 UT PASS) + Pivot Architecture (post-bake anti-pattern → Extension DSL + jbake.properties)
+_Prochaine session_ : 043 — BKY-BKG BKG-1 Extension DSL + jbake.properties + Thymeleaf (nettoyage post-bake puis steps 1-6)
+_Session en cours_ : 043
 
 '''
 
@@ -70,7 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | # | Date | Type | Sujet | Score
-| 041 | 2026-06-02 | analyse + planning | Reprise Bakery + Planning BKY-BKG Steps 4-6 — analyse code existant (RelatedArticlesService, RelatedArticlesGraph, SiteManager), plan baby steps DDD/TDD/BDD 6 étapes, post.thyme identifié pour modification. Aucun code modifié. | 7/10
+| 042 | 2026-06-02 | feat + test + pivot | BKY-BKG Resolver + Pivot Architecture — RelatedArticlesResolver (8 UT PASS), code post-bake exploratoire (À RETIRER), pivotExtension DSL + jbake.properties + Thymeleaf côté serveur. Score 4/10 (anti-pattern détecté tard). | 4/10
 | 040 | 2026-06-02 | feat + test | BKY-JB-8 Article IA COMPLETE — ArticleIntention DDD (topic+ton+audience+keywords+lang), Generator.generate(intention) + buildPrompt(intention) enrichi, resolveIntention() CLI>DSL>défauts, ArticleIntentionDsl bridge, BakeryExtension.articleIntention DSL. 29 UT + 4 FT + 3 Cucumber (55 total). Baby steps 5/5. | 9/10
 | 039 | 2026-06-02 | feat + test | BKY-JB-7 Layouts COMPLETE — LayoutType enum (4), LayoutConfig+Dsl, 4 layout-*.thyme (th:if guards), injection jbake.properties, post.thyme+page.thyme intégrés. 16 UT + 2 FT + 3 Cucumber. 52 Cucumber total. Baby steps DDD/TDD/BDD 5/5. | 9/10
 | 038 | 2026-06-02 | feat + test + ci | BKY-JB-9 Phase B COMPLETE — Cucumber E2E 10 scénarios (15_e2e_thymeleaf_components.feature + E2eThymeleafSteps.kt), CI workflow test.yml (build + e2eTest). 49 Cucumber PASS. JB-9.8 + JB-9.9 ✅ | 9/10
