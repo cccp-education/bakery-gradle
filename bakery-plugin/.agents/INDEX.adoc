@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-06-02
-_Session terminee_ : 036 — BKY-JB-9 Phase A suite (DualConventionResolver, 32 rendering tests, @SupersededBy)
-_Prochaine session_ : 037 — BKY-JB-9 Phase B (Playwright-jvm E2E)
-_Session en cours_ : 037
+_Session terminee_ : 037 — BKY-JB-9 Phase B Setup (Playwright E2E, 13/13 E2E tests PASS, borough-isation Bushwick)
+_Prochaine session_ : 038 — BKY-JB-9 Phase B reste (Cucumber E2E + CI) ou BKY-JB-7/BKY-JB-8
+_Session en cours_ : 038
 
 '''
 
@@ -70,6 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | # | Date | Type | Sujet | Score
+| 037 | 2026-06-02 | feat + test + infra | BKY-JB-9 Phase B Setup — Playwright E2E (sourceSet e2eTest, tâche e2eTest + installPlaywright NpxTask, 13/13 E2E tests PASS). Borough-isation bakery-gradle → Bushwick 🟤 (20ème borough). | 8/10
 | 036 | 2026-06-02 | feat + test + bugfix | BKY-JB-9 Phase A suite — DualConventionResolver (.thyme.thyme bug), 15 rendering tests (header, menu, footer, breadcrumb, toc, progress, pdf). 4 TemplateTest marqués @SupersededBy. 297 UT PASS. | 9/10
 | 035 | 2026-06-01 | feat + test + bugfix | BKY-JB-9 Phase A — ThymeleafRenderingTestFactory + 17 rendering tests. 5 bugs templates (3x SpEL→OGNL, Elvis, CSS→JS). 282 UT PASS. | 9/10
 | 034 | 2026-06-01 | feat + test | BKY-JB-6 Système de thème — ThemeConfig (mode/colors/font/logo/favicon), theme-script.thyme (CSS :root variables), header favicon cond., menu logo cond., site-basic aligné. 16 UT + 2 FT + 3 Cucumber. Baby steps 5/5. | 9/10
@@ -137,14 +138,14 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 | *BKY-JB-6* | Systeme de theme : CSS variables, dark/light mode, logo custom, favicon | 5 | *P1 ✅ TERMINÉ* | BKY-JB-0
 | *BKY-JB-7* | Layouts : full-width, sidebar droite/gauche, centered — choix par page | 3 | *P2* | BKY-JB-0
 | *BKY-JB-8* | Generation d'article assistee IA : bakery → codebase (koog+langchain4j, RAG) → injection JBake. Depile BKY-IA-0. | 13 | *P0* | BKY-JB-0→3, codebase RAG seed
-| *BKY-JB-9* | E2E Tests : Phase A Thymeleaf Rendering (TemplateEngine) + Phase B Playwright-jvm | 8 | *P1 🔄 Phase A 3/4* | BKY-JB-5, JB-6
+| *BKY-JB-9* | E2E Tests : Phase A Thymeleaf Rendering (TemplateEngine) + Phase B Playwright-jvm | 8 | *P1 🔄 Phase A ✅ + Phase B JB-9.7 ✅ (13/13 E2E PASS)* | BKY-JB-5, JB-6
 |===
 
 *Total JBake* : 10 EPICs, ~55 pts.
 *Phase A (JB-0→2)* : ✅ COMPLÈTE — scaffolding + templates + composants = 10 pts terminés.
 *Phase B (JB-3→5)* : ✅ COMPLÈTE — 13/13 pts (JB-3 ✅ + JB-4 ✅ + JB-5 ✅ = 13 pts terminés).
 *Phase C (JB-6→7)* : 🔄 EN COURS — thème ✅ + layouts = 5/8 pts (62%).
-*Phase C+ (JB-9)* : 🔄 EN COURS — E2E Tests Phase A 3/4 rendering tests (3 pts).
+*Phase C+ (JB-9)* : 🔄 EN COURS — Phase A ✅ + Phase B JB-9.7 ✅ (13/13 E2E tests PASS, sourceSet + Gradle task). Reste JB-9.8 (Cucumber E2E) + JB-9.9 (CI workflow).
 *Phase D (JB-8)* : IA via codebase = ~13 pts.
 
 === EPICs de Réparation (tests legacy) — ✅ TERMINÉS

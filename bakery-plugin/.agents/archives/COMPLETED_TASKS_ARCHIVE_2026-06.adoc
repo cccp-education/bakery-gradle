@@ -204,3 +204,34 @@
 
 - *Tests comme littérature* : les anciens TemplateTest sont conservés et marqués `@SupersededBy` plutôt que supprimés
 - *DualConventionResolver* : solution DDD pour le bug des 2 conventions de référence Thymeleaf sans modifier les templates production
+
+== Session 037 — 2026-06-02 — BKY-JB-9 Phase B Setup : Playwright E2E
+
+**Contexte** : Session 037 installe l'infrastructure Playwright E2E pour bakery-gradle. SourceSet `e2eTest` + tâche Gradle `e2eTest` + 6 classes E2E (13/13 PASS). Borough-isation bakery-gradle → Bushwick.
+
+**Taches realisees** :
+
+* [x] JB-9.7 (1pt) ✅ — Playwright-jvm + SourceSet e2eTest + tâches Gradle
+  - SourceSet `e2eTest` (kotlin + resources) configuré dans build.gradle.kts
+  - Tâche `e2eTest` (Test) : JUnit5, headless chromium, timeout 10min, maxParallelForks=1
+  - Tâche `installPlaywright` (NpxTask) : installe Chromium automatiquement
+  - Plugin `com.github.node-gradle.node` ajouté
+  - Dépendance `playwright 1.52.0` dans libs.versions.toml
+  - `e2eTest` hors du cycle `check` (lancement explicite requis)
+* [x] 6 classes E2E créées :
+  - `PlaywrightSanityTest` (2 tests : factory creates, chromium headless)
+  - `E2ETestBase` (HTTP server + Thymeleaf rendering + Playwright lifecycle)
+  - `PlaywrightHelper` (availability check — isAvailable())
+  - `E2EGoogleFormsTest` (2 tests : iframe visible, iframe absent)
+  - `E2EAnalyticsNewsletterTest` (5 tests : Plausible, Matomo, no-analytics, newsletter, no-newsletter)
+  - `E2EAuthCommentsTest` (4 tests : auth visible, auth absent, comments visible, comments absent)
+* [x] 13/13 E2E tests PASS (Playwright Chromium headless)
+* [x] 297 UT, 39 Cucumber, tous PASS (aucune régression)
+
+**Décisions** :
+
+- *E2E = JUnit5 + Playwright, PAS Cucumber* : les tests E2E utilisent JUnit5 directement, pas de wrapper Cucumber. La couche BDD couvre les user journeys via les 39 scénarios Cucumber existants.
+- *Séparation check/e2eTest* : `e2eTest` est volontairement hors du cycle `check` (trop lourd, nécessite Chromium)
+- *NpxTask pour installPlaywright* : pattern capsule-gradle réutilisé
+
+**Prochaine session** : 038 — JB-9.8 (Cucumber E2E OU validation JUnit5 suffisante) + JB-9.9 (CI workflow)

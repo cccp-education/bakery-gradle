@@ -1,3 +1,4 @@
+import com.github.gradle.node.npm.task.NpxTask
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import java.time.Duration
 
@@ -9,6 +10,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.publish)
     alias(libs.plugins.kover)
+    alias(libs.plugins.node.gradle)
 }
 
 group = "education.cccp"
@@ -51,7 +53,7 @@ dependencies {
     testImplementation(libs.mockito.kotlin)
     testImplementation(libs.mockito.junit.jupiter)
 
-    // Thymeleaf — rendering tests (BKY-JB-9)
+    // Thymeleaf — rendering tests (BKY-JB-9 Phase A)
     testImplementation(libs.thymeleaf)
 
     // Cucumber dependencies
@@ -137,6 +139,92 @@ val functionalTestTask = tasks.register<Test>("functionalTest") {
 tasks.named<ProcessResources>(functionalTest.processResourcesTaskName) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
+
+// ────────────────────────────────────────────────────────────
+// E2E Test SourceSet + Playwright (BKY-JB-9 Phase B)
+// ────────────────────────────────────────────────────────────
+
+// 1. Créer le SourceSet e2eTest
+val e2eTest: SourceSet by sourceSets.creating {
+    java {
+        srcDirs("src/e2eTest/kotlin")
+    }
+    resources {
+        srcDirs("src/e2eTest/resources")
+    }
+}
+
+// 2. Dépendances e2eTest : Playwright + JUnit5 + AssertJ + full test runtime
+dependencies {
+    add(e2eTest.implementationConfigurationName, sourceSets.main.get().output)
+    add(e2eTest.implementationConfigurationName, sourceSets.test.get().output)
+    add(e2eTest.implementationConfigurationName, libs.playwright)
+    add(e2eTest.implementationConfigurationName, kotlin("stdlib-jdk8"))
+    add(e2eTest.implementationConfigurationName, kotlin("test-junit5"))
+    add(e2eTest.implementationConfigurationName, libs.assertj.core)
+    add(e2eTest.implementationConfigurationName, libs.thymeleaf)
+    add(e2eTest.implementationConfigurationName, libs.bundles.jbake)
+    add(e2eTest.implementationConfigurationName, libs.bundles.jgit)
+    add(e2eTest.implementationConfigurationName, libs.commons.io)
+    add(e2eTest.implementationConfigurationName, libs.bundles.cucumber)
+    add(e2eTest.implementationConfigurationName, libs.langchain4j.ollama)
+    add(e2eTest.implementationConfigurationName, libs.node.gradle)
+    add(e2eTest.implementationConfigurationName, libs.graphify.plugin)
+    add(e2eTest.implementationConfigurationName, libs.bundles.coroutines)
+    add(e2eTest.implementationConfigurationName, libs.kotlinx.coroutines.test)
+    add(e2eTest.implementationConfigurationName, "org.slf4j:slf4j-api:2.0.17")
+    add(e2eTest.implementationConfigurationName, libs.mockito.kotlin)
+    add(e2eTest.implementationConfigurationName, libs.mockito.junit.jupiter)
+    add(e2eTest.runtimeOnlyConfigurationName, "ch.qos.logback:logback-classic:1.5.26")
+    add(e2eTest.runtimeOnlyConfigurationName, "org.junit.platform:junit-platform-launcher")
+}
+
+// 3. Tâche e2eTest — Playwright browser tests (séparés de check)
+val e2eTestTask = tasks.register<Test>("e2eTest") {
+    description = "Runs E2E tests with Playwright browser."
+    group = "verification"
+    testClassesDirs = e2eTest.output.classesDirs
+    classpath = configurations[e2eTest.runtimeClasspathConfigurationName] + e2eTest.output
+
+    useJUnitPlatform()
+
+    testLogging {
+        events("passed", "skipped", "failed")
+        showStandardStreams = true
+    }
+    failOnNoDiscoveredTests = false
+
+    // Les tests E2E nécessitent Chromium installé.
+    // La tâche installPlaywright (NpxTask) gère l'installation automatiquement.
+    dependsOn("installPlaywright")
+
+    maxParallelForks = 1
+    forkEvery = 1
+
+    timeout.set(Duration.ofMinutes(10))
+
+    // Éviter les conflits de ressources avec d'autres JVM
+    jvmArgs("-XX:+EnableDynamicAgentLoading")
+}
+
+// 4. Tâche installPlaywright — installe Chromium via le plugin Gradle Node
+// Utilise NpxTask au lieu d'un appel manuel en ligne de commande.
+
+tasks.register<NpxTask>("installPlaywright") {
+    group = "verification"
+    description = "Install Playwright Chromium browser for E2E tests."
+    command.set("playwright")
+    args.addAll("install", "chromium")
+}
+
+// 5. Gérer les duplications de ressources pour e2eTest
+tasks.named<ProcessResources>(e2eTest.processResourcesTaskName) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+// NOTE : e2eTest n'est PAS dans tasks.check{} — il doit être lancé explicitement
+// via ./gradlew e2eTest. Playwright + Chromium sont installés automatiquement
+// via la tâche installPlaywright (NpxTask, plugin Gradle Node).
 
 // 4. Configurer les sources sets pour Cucumber (test standard)
 sourceSets {

@@ -25,6 +25,7 @@ kover = "0.9.8"
 codebase = "0.0.1"
 langchain4j = "1.14.1"
 thymeleaf = "3.0.14.RELEASE"
+playwright = "1.52.0"
 
 [libraries]
 kotlin-stdlib-jdk8 = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib-jdk8" }
@@ -58,6 +59,7 @@ node-gradle = { module = "com.github.node-gradle:gradle-node-plugin", version.re
 graphify-plugin = { module = "education.cccp:graphify-plugin", version.ref = "graphify" }
 langchain4j-ollama = { module = "dev.langchain4j:langchain4j-ollama", version.ref = "langchain4j" }
 thymeleaf = { module = "org.thymeleaf:thymeleaf", version.ref = "thymeleaf" }
+playwright = { module = "com.microsoft.playwright:playwright", version.ref = "playwright" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
@@ -65,6 +67,7 @@ bakery = { id = "education.cccp.bakery", version.ref = "bakery" }
 publish = { id = "com.gradle.plugin-publish", version.ref = "plugin-publish" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 codebase = { id = "education.cccp.codebase", version.ref = "codebase" }
+node-gradle = { id = "com.github.node-gradle.node", version.ref = "node-gradle" }
 
 [bundles]
 jbake = [

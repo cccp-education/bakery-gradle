@@ -1,39 +1,34 @@
-= PROMPT_REPRISE — Session 036 terminée : BKY-JB-9 Phase A suite Rendering Tests
+= PROMPT_REPRISE — Session 037 terminée : BKY-JB-9 Phase B Setup
 
-== Mission accomplie (Session 036)
+== Mission accomplie (Session 037)
 
-BKY-JB-9 Phase A — Rendering tests complété.
-DualConventionResolver créé pour gérer le bug des doubles suffixes .thyme.thyme.
-32 rendering tests PASS. 4 TemplateTest marqués @SupersededBy.
+BKY-JB-9 Phase B — Playwright E2E setup complété.
+13 E2E tests PASS (Playwright Chromium headless). Tâche Gradle `e2eTest` configurée.
 
 === Résultats
 
-- **JB-9.4** : 5 rendering tests d'intégration (header, menu, footer) + DualConventionResolver
-- **JB-9.5** : 7 rendering tests JB-2 (breadcrumb, toc, progress, pdf)
-- **JB-9.6** : KDoc @SupersededBy sur 4 TemplateTest (conservés comme littérature)
-- **297 UT PASS** total
+- **JB-9.7** : SourceSet e2eTest + tâche `e2eTest` + tâche `installPlaywright` (NpxTask)
+- **6 classes E2E** : PlaywrightSanityTest (2), E2ETestBase, PlaywrightHelper, E2EGoogleFormsTest (2), E2EAnalyticsNewsletterTest (5), E2EAuthCommentsTest (4)
+- **13/13 E2E tests PASS** + 297 UT PASS + 39 Cucumber PASS
+- Dépendances : playwright 1.52.0 + node-gradle plugin
 
-== Prochaines baby steps — BKY-JB-9 Phase B
+== Prochaines baby steps — BKY-JB-9 Phase B (reste)
 
 | Step | Description | Pts |
 |-------|-------------|-----|
-| JB-9.5 | (DÉJÀ FAIT) Rendering tests composants JB-2 | 1 |
-| JB-9.6 | (DÉJÀ FAIT) Nettoyage redondances avec marquage @SupersededBy | 0.5 |
-| JB-9.7 | Playwright-jvm E2E : ajouter dépendance + tâche Gradle e2eTest | 1 |
-| JB-9.8 | Scénarios Cucumber E2E : analytics visible, newsletter, auth, Google Forms | 2 |
+| JB-9.8 | Scénarios Cucumber E2E OU validation JUnit5 suffisante | 2 |
 | JB-9.9 | CI workflow e2eTest sur push main (headless Chrome) | 1 |
+
+== Choix à faire en session 038
+
+1. **Convertir les E2E JUnit5 en Cucumber BDD** (`.feature` + steps) pour respecter la méthodologie BDD complète ?
+2. **Accepter les E2E JUnit5 comme suffisants** et clore BKY-JB-9 ?
+3. **Passer à BKY-JB-7 Layouts** ou **BKY-JB-8 Article IA** ?
 
 == EPICs disponibles (priorité décroissante)
 
 | EPIC | Pts | Prio | Description |
 |------|-----|------|-------------|
-| BKY-JB-9 (Phase B) | 5 | P1 | Playwright-jvm E2E (browser) |
+| BKY-JB-9 (Phase B reste) | 3 | P1 | Cucumber E2E + CI workflow |
 | BKY-JB-7 | 3 | P2 | Layouts (full-width, sidebar, centered) |
 | BKY-JB-8 | 13 | P0 | Article assisté IA via codebase |
-
-== Prochaine session (037)
-
-Priorité : **BKY-JB-9 Phase B** — ajouter Playwright-jvm comme dépendance
-`e2eImplementation`, créer la tâche Gradle `e2eTest` (start serv → Playwright tests → stop serv),
-puis scénarios Cucumber E2E pour les composants JS (analytics, newsletter, auth, Google Forms).
-Référence : capsule-gradle utilise déjà Playwright.
