@@ -1,28 +1,52 @@
-= PROMPT_REPRISE — Session 047 : Backlog priorisé après BKG
+= PROMPT_REPRISE — Session 048 : BKY-CONV-1 migration SiteManager
 
-== Mission (Session 047)
+== Mission (Session 048)
 
-1. Dépiler le backlog priorisé : BKY-CONV-1 (surcharge configuration multi-couche, P0) ou BKY-IA-4 (génération article IA, P0).
-2. Optionnel : BKG-2 ontologie émergente (P2, 8 pts) si les P0 sont bloqués.
+1. **CONV-1.4** : Migrer les 9+ méthodes `inject*IntoJbakeProperties` dans `SiteManager` pour utiliser `ConfigResolver` au lieu du pattern `site.xxx ?: return`. Chaque config doit être résolue via la cascade 4 couches : `CLI > gradle.properties > DSL > site.yml > defaults`.
+2. **CONV-1.5** : 3 scénarios Cucumber sur l'ordre de résolution de configuration.
+3. Optionnel : BKY-IA-4 si CONV-1 est terminé.
 
-== État actuel (Session 046 terminée)
+== État actuel (Session 047 terminée)
 
-BKG-1.4 TERMINÉ :
-- `related-articles.thyme` consomme le graphe via `data-related-articles` JSON + JavaScript
-- `SiteManager` injecte `relatedArticlesData` (JSON du graphe) dans jbake.properties
-- 2 UT template PASS + 2 UT injection PASS + 2 scénarios Cucumber PASS
-- Build complet : 397 UT + 53 FT + 66 Cucumber PASS ✅
+BKY-CONV-1 Steps 1-3 TERMINÉS :
+- `ConfigResolver.kt` créé : résolution 4 couches (`CLI > gradle.properties > DSL > YAML > defaults`)
+- 4 types supportés : `resolveString`, `resolveInt`, `resolveBoolean`, `resolveEnum`
+- 3 méthodes de résolution par config : `resolveGoogleFormsConfig`, `resolveAnalyticsConfig`, `resolveRelatedArticlesConfig`
+- 50 UT PASS ✅ (7 nested classes : String, Int, Boolean, Enum, EdgeCases, Cascade, Config-resolution)
+- `loadProperties(project)` et `loadPropertiesFromMap()` pour bridging Gradle
+- Audit complet : 9/10 configs sans override multi-couche. Seul `articleIntention` a un vrai override CLI > DSL > defaults.
+- Référence : `plantuml-gradle` ConfigMerger (5 couches) → inspiré et simplifié.
+
+== Ce qui reste pour CONV-1
+
+- **CONV-1.4** (migration SiteManager) : Modifier `copySiteResources` pour passer `project.properties` et `BakeryExtension` aux méthodes `inject*`. Créer les méthodes `resolve*Config` manquantes : `resolveFirebaseConfig`, `resolveFirebaseAuthConfig`, `resolveCommentsConfig`, `resolveNewsletterConfig`, `resolveThemeConfig`, `resolveLayoutConfig`. ~9 méthodes à migrer.
+- **CONV-1.5** (BDD) : 3 scénarios Cucumber Gherkin sur l'ordre de résolution.
+- **CONV-1.6** (documentation) : Documenter l'ordre de surcharge dans AGENT.adoc.
 
 == Backlog priorisé
 
 | ÉPIC | Priorité | Description |
 |------|----------|-------------|
-| BKY-CONV-1 | P0 | Surcharge configuration multi-couche (CLI > gradle.properties > DSL > site.yml > defaults) |
+| BKY-CONV-1 | P0 | Surcharge configuration multi-couche — Steps 4-6 restants |
 | BKY-IA-4 | P0 | Génération d'article assistée IA (JB-8 ✅, reste IA-4) |
 | BKG-2 | P2 | Ontologie émergente — clustering cosine similarity (8 pts, optionnel) |
 | BKY-TRN-9 | P0 | Intégration formation : assembleTrainingSite |
 
+== Architecture ConfigResolver — Rappel
+
+```
+CLI (-Pbakery.xxx) > gradle.properties > DSL (bakery { xxx { ... } }) > site.yml > defaults
+```
+
+- `ConfigResolver.resolveString(props, prefix, key, dslValue, yamlValue, default)`
+- `ConfigResolver.resolveBoolean(props, prefix, key, dslValue, yamlValue, default)`
+- `ConfigResolver.resolveInt(props, prefix, key, dslValue, yamlValue, default)`
+- `ConfigResolver.resolveEnum(props, prefix, key, dslValue, yamlValue, default)`
+- `ConfigResolver.resolveGoogleFormsConfig(props, dsl, yaml, default)`
+- `ConfigResolver.resolveAnalyticsConfig(props, dsl, yaml, default)`
+- `ConfigResolver.resolveRelatedArticlesConfig(props, dsl, yaml, default)`
+
 == Attention
 
-- Les tests Cucumber de `9_generate_article.feature` sont en état d'échec (3 bugs EPIC 17 non résolus). Ne pas les modifier sans EPIC 17.
-- BKG EPIC complet : BKG-0 (4 étapes) + BKG-1 (4 étapes) ✅. BKG-2 reste optionnel.
+- Les tests Cucumber de `9_generate_article.feature` sont en état d'échec (3 bugs EPIC 17 non résolus).
+- ConfigResolver N'est PAS encore branché dans SiteManager — c'est CONV-1.4.

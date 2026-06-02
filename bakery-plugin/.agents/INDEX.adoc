@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-06-02
-_Session terminee_ : 046 — BKG-1.4 post.thyme consommation graphe (data-attributes + JavaScript + injection relatedArticlesData)
-_Prochaine session_ : 047 — BKY-CONV-1 surcharge config ou BKG-2 ontologie
-_Session en cours_ : 047
+_Session terminee_ : 047 — BKY-CONV-1 ConfigResolver 4 couches (CLI>gradleProps>DSL>YAML>defaults) + 50 UT + audit 9/10 configs sans override
+_Prochaine session_ : 048 — CONV-1.4 migration SiteManager + CONV-1.5 Cucumber BDD
+_Session en cours_ : 048
 
 '''
 
@@ -70,6 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | # | Date | Type | Sujet | Score
+| 047 | 2026-06-02 | feat + test + DDD | BKY-CONV-1 Steps 1-3 — ConfigResolver 4 couches (CLI>gradleProps>DSL>YAML>defaults). resolveString/Int/Boolean/Enum + resolveGoogleForms/Analytics/RelatedArticles. 50 UT PASS. Audit complet : 9/10 configs sans override. Build 451 UT PASS. | 9/10
 | 046 | 2026-06-02 | feat + test + BDD | BKG-1.4 post.thyme consommation graphe — related-articles.thyme data-attributes + JavaScript + injection relatedArticlesData (2 UT template + 2 UT injection + 2 Cucumber). 397 UT + 53 FT + 66 Cucumber. | 9/10
 | 045 | 2026-06-02 | feat + test + BDD | BKG-0.4 + BKG-1.1-1.3 — BlogArticleSummary data class + RelatedArticlesOutput.blogArticles + graphFilePath DSL + injection jbake.properties + Cucumber 19 (3/3 PASS). 395 UT + 53 FT + 64 Cucumber. | 9/10
 | 044 | 2026-06-02 | feat + test + BDD | BKG-0 KG Enrichi — ArticleNode.description + tag co-occurrence + entity overlap (TF-IDF descriptions). RelatedArticlesService enrichi (4 facteurs). Feature Cucumber 18 (3/3 PASS). 6 UT nouveaux + 3 UT description. | 9/10

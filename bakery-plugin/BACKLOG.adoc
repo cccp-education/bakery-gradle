@@ -1181,22 +1181,31 @@ Inconvénient : Lourd (Node.js + browser binary), ~30s par test.
 
 == BKY-CONV-1 : Surcharge Configuration Multi-Couche — Standardiser le pattern foundry/public
 
-**Statut** : À faire
+**Statut** : EN COURS (Session 047 : Steps 1-3 terminés)
 **Priorite** : P0
-**Charge** : 5 pts
+**Charge** : 5 pts (3/5 terminés)
 **Dépend de** : —
 
 _Problème_ : L'ordre de précédence de surcharge de configuration n'est pas standardisé ni documenté dans bakery. Les autres projets foundry/public ont un pattern établi qu'il faut appliquer.
 
 _Objectif_ : Standardiser et documenter l'ordre de résolution des propriétés de configuration dans tout le plugin bakery, aligné sur les autres projets foundry/public. Chaque propriété doit pouvoir être surchargée par la couche_supérieure.
 
-=== Ordre de précédence (à vérifier dans les autres projets foundry/public)
+=== Ordre de précédence — AUDIT COMPLET (Session 047)
 
 ```
-CLI (-PmaVariable) > gradle.properties > DSL bakery { } > site.yml > defaults
+CLI (-Pbakery.xxx) > gradle.properties > DSL bakery { xxx { ... } } > site.yml > defaults
 ```
 
-_Note_ : L'ordre EXACT est à confirmer en lisant le code des projets slider-gradle, plantuml-gradle, codebase-gradle. Ne PAS supposer — vérifier._
+_Audité et confirmé_ : plantuml-gradle (ConfigMerger 5 couches), codebase-gradle (4 couches natives Gradle), slider-gradle (3 couches YAML-centric). Bakery aligne sur l'ordre 4 couches ci-dessus.
+
+=== État de la migration (Session 047)
+
+* [x] **CONV-1.1** — Audit : Analysé 9/10 configs sans override. Seul `articleIntention` a un vrai override CLI>DSL>defaults.
+* [x] **CONV-1.2** — DDD : `ConfigResolver.kt` créé (4 types primitifs + 3 méthodes par config). 50 UT PASS.
+* [x] **CONV-1.3** — TDD : 50 UT couvrent String/Int/Boolean/Enum/GoogleForms/Analytics/RelatedArticles.
+* [ ] **CONV-1.4** — Migration : Brancher ConfigResolver dans SiteManager (9+ méthodes `inject*IntoJbakeProperties`).
+* [ ] **CONV-1.5** — BDD : 3 scénarios Cucumber sur l'ordre de résolution.
+* [ ] **CONV-1.6** — Documentation : AGENT.adoc + BACKLOG mis à jour.
 
 === User Journeys BDD
 

@@ -1,0 +1,8 @@
+= COMPLETED_TASKS_ARCHIVE — Juin 2026
+
+== Session 047 — BKY-CONV-1 ConfigResolver (2026-06-02)
+
+* [x] CONV-1.1 — Audit cross-borough : plantuml-gradle (ConfigMerger 5 couches), codebase-gradle (4 couches Gradle), slider-gradle (3 couches YAML). 9/10 configs bakery sans override.
+* [x] CONV-1.2 — DDD : ConfigResolver.kt créé (4 types primitifs + 3 méthodes par config).
+* [x] CONV-1.3 — TDD : 50 UT ConfigResolver (7 nested classes : String, Int, Boolean, Enum, EdgeCases, Cascade, Config).
+* [x] Build compile + publishToMavenLocal + 451 UT PASS.
