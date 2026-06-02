@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-06-02
-_Session terminee_ : 053 — Audit Intégration Réalité Augmentée (Pattern LENTILLE)
-_Prochaine session_ : 054 — BKY-LENS-1 SubgraphExtractor (Ségrégation)
-_Session en cours_ : 054
+_Session terminee_ : 054 — Audit Intégration Réalité Augmentée (Pattern LENTILLE)
+_Prochaine session_ : 055 — BKY-LENS-1 SubgraphExtractor (Ségrégation)
+_Session en cours_ : 055
 
 '''
 
@@ -209,6 +209,7 @@ Pattern LENTILLE : ségrégation (SubgraphExtractor) → enrichissement
 | BKY-IA-5 generateFormRecipe / clasp | 🔄 0% → **KINGSTON** (à créer) | `foundry/private/gsuite-gradle` 🔒 (borough à créer) | L'expertise Google Suite (clasp, Forms, Sheets, Drive) vivra dans son propre borough KINGSTON, pas dans bakery
 | BKY-IA-4 Génération d'article | ✅ REMPLACÉ | BKY-JB-8 (bakery) | Remplacé dans le périmètre bakery par JB-8 (ArticleIntention DDD + Generator enrichi)
 | BKY-IA-5 Google Forms embed | ✅ REMPLACÉ | BKY-JB-3 (bakery) | Remplacé dans le périmètre bakery par JB-3 (iframe responsive + th:if guard)
+| BKY-BKG Articles connexes KG | ⚠️ SUPERSEDÉ | BKY-LENS (bakery) | Le scoring maison (tags+TF-IDF) est inférieur au pipeline RAG+KG hybride. Remplacé par BKY-LENS (Pattern LENTILLE).
 |===
 
 '''

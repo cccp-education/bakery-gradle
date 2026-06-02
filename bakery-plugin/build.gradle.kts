@@ -32,6 +32,7 @@ dependencies {
     implementation(libs.node.gradle)
 
     implementation(libs.graphify.plugin)
+    implementation(libs.codebase.contracts)
 
     // LLM — LangChain4j + Ollama (BKY-IA-0)
     implementation(libs.langchain4j.ollama)
@@ -170,6 +171,7 @@ dependencies {
     add(e2eTest.implementationConfigurationName, libs.langchain4j.ollama)
     add(e2eTest.implementationConfigurationName, libs.node.gradle)
     add(e2eTest.implementationConfigurationName, libs.graphify.plugin)
+    add(e2eTest.implementationConfigurationName, libs.codebase.contracts)
     add(e2eTest.implementationConfigurationName, libs.bundles.coroutines)
     add(e2eTest.implementationConfigurationName, libs.kotlinx.coroutines.test)
     add(e2eTest.implementationConfigurationName, "org.slf4j:slf4j-api:2.0.17")

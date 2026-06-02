@@ -534,3 +534,45 @@
 * `src/test/scenarios/bakery/scenarios/GenerateArticleSteps.kt` — ajout step `createBakeryProjectWithSiteConfiguredButWithoutIA()`
 
 **Résultat** : 70/70 Cucumber PASS ✅ — EPIC 17 TERMINÉ
+
+== Session 054 — 2026-06-02 — Audit Intégration Réalité Augmentée (Pattern LENTILLE)
+
+**Contexte** : Audit d'architecture cross-borough sur l'intégration graphify+codebase dans bakery. La question posée est : ce n'est plus graphify qu'il faut intégrer, mais toute la réalité augmentée portée par codebase-gradle (N1).
+
+**Constats** :
+
+* 🔴 Problème 1 : Bakery a réinventé la roue du KG (`RelatedArticlesService` scoring maison tags+TF-IDF+co-occurrencesBornées) — strictement inférieur au pipeline RAG+graphify
+* 🔴 Problème 2 : Dépendance `graphify-plugin` déclarée en `implementation` mais zéro `import` dans le code source
+* 🟡 Problème 3 : Bakery n'est pas connecté au pipeline N3 (`assembleCompositeContext` produit mais jamais consommé)
+
+**Décision architecturale** : BKY-BKG → SUPERSEDÉ par BKY-LENS (Pattern LENTILLE)
+
+**Pattern LENTILLE** — 3 couches :
+
+. **Ségrégation** (`SubgraphExtractor`) : filtre les 203k nœuds de graph.json en ~200 nœuds pertinents (communautés + types + edges + depth)
+. **Enrichissement** (`AugmentedArticlesService`) : scoring hybride RAG+KG+tags+xref (α=0.4/β=0.3/γ=0.15/δ=0.15) + règles métier
+. **Budget** (`LensBudget`) : tronque à 4-6 articles/page, similarité min 0.7
+
+**EPIC BKY-LENS cadré** : 21 pts, 6 sous-EPICs :
+
+| Sous-EPIC | Axe | Pts | Priorité
+| BKY-LENS-1 | SubgraphExtractor (Ségrégation) | 5 | P0
+| BKY-LENS-2 | AugmentedArticlesService (Enrichissement) | 4 | P0
+| BKY-LENS-3 | Budget + Injection JBake (Reconnect) | 3 | P0
+| BKY-LENS-4 | Cucumber Features 17-19 (Réécriture) | 3 | P1
+| BKY-LENS-5 | Connect N3 Composite Context | 3 | P1
+| BKY-LENS-6 | Templates Augmentés JBake | 3 | P2
+
+**Fichiers créés** :
+
+* `.agents/sessions/054-audit-lentille-contexte-augmente.adoc` — Rapport d'audit complet (284 lignes)
+
+**Fichiers modifiés** :
+
+* `BACKLOG.adoc` — EPIC 12 marqué SUPERSEDÉ, BKY-BKG marqué SUPERSEDÉ, EPIC BKY-LENS ajouté (21 pts)
+* `.agents/INDEX.adoc` — Session 054, roadmap LENTILLE, session suivante 055
+* `.agents/SESSIONS_HISTORY.adoc` — Session 054 ajoutée
+* `PROMPT_REPRISE.adoc` — Session 055 : BKY-LENS-1 SubgraphExtractor
+* `.agents/archives/COMPLETED_TASKS_ARCHIVE_2026-06.adoc` — Cette entrée
+
+**Résultat** : Aucun code source modifié — audit et conception uniquement. BKY-LENS supersède BKY-BKG.

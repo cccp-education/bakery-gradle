@@ -23,6 +23,7 @@ coroutines = "1.10.2"
 node-gradle = "7.1.0"
 kover = "0.9.8"
 codebase = "0.0.1"
+codebase-contracts = "0.1.0"
 langchain4j = "1.14.1"
 thymeleaf = "3.0.14.RELEASE"
 playwright = "1.52.0"
@@ -58,6 +59,7 @@ kotlinx-coroutines-jdk8 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-j
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 node-gradle = { module = "com.github.node-gradle:gradle-node-plugin", version.ref = "node-gradle" }
 graphify-plugin = { module = "education.cccp:graphify-plugin", version.ref = "graphify" }
+codebase-contracts = { module = "education.cccp:codebase-contracts", version.ref = "codebase-contracts" }
 langchain4j-ollama = { module = "dev.langchain4j:langchain4j-ollama", version.ref = "langchain4j" }
 thymeleaf = { module = "org.thymeleaf:thymeleaf", version.ref = "thymeleaf" }
 playwright = { module = "com.microsoft.playwright:playwright", version.ref = "playwright" }
