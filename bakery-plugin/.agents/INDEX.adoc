@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-06-02
-_Session terminee_ : 054 — Audit Intégration Réalité Augmentée (Pattern LENTILLE)
-_Prochaine session_ : 055 — BKY-LENS-1 SubgraphExtractor (Ségrégation)
-_Session en cours_ : 055
+_Session terminee_ : 055 — Reprise LENS-1 : Vérification complète (BKY-LENS-1 ENTIEREMENT implémenté, 30 tests PASS)
+_Prochaine session_ : 056 — BKY-LENS-2 AugmentedArticlesService (Enrichissement)
+_Session en cours_ : 056
 
 '''
 
@@ -70,6 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | # | Date | Type | Sujet | Score
+| 055 | 2026-06-02 | reprise + vérification | Reprise Bakery LENS-1 — vérification complète. BKY-LENS-1 ENTIEREMENT implémenté (7 fichiers, 30 tests PASS). LensConfig + AugmentedContextDsl + SubgraphExtractor + SiteSubgraph + BakeryExtension.augmentedContext. | 8/10
 | 053 | 2026-06-02 | fix + BDD | EPIC 17 TERMINÉ — generateArticle graceful fail : 2 scénarios Cucumber corrigés (step "without IA"). 70/70 Cucumber PASS ✅ | 9/10
 | 052 | 2026-06-02 | fix + test | CONV-1.8 DuplicateStepDefinition résolu (1 step supprimé GenerateArticleSteps). 437 UT + 53 FT + 68/70 Cucumber PASS (2 échefs = EPIC 17). | 9/10
 | 051 | 2026-06-02 | feat + test + BDD | CONV-1.7 saveConfiguration() FT + Cucumber — 2 FT (SaveConfigurationTest : credentials persistence + bake config preservation) + 2 Cucumber (Feature 21 : save credentials + preserve config). Dette Cucumber identifiée : DuplicateStepDefinitionException. | 8/10
@@ -180,7 +181,7 @@ Pattern LENTILLE : ségrégation (SubgraphExtractor) → enrichissement
 
 |===
 | EPIC | Axe | Pts | Priorite | Depend de
-| *BKY-LENS-1* | SubgraphExtractor (Ségrégation) | 5 | *P0* | graphify-plugin
+| *BKY-LENS-1* | SubgraphExtractor (Ségrégation) | 5 | *P0 ✅ TERMINÉ* | graphify-plugin
 | *BKY-LENS-2* | AugmentedArticlesService (Enrichissement) | 4 | *P0* | BKY-LENS-1, codebase-contracts
 | *BKY-LENS-3* | Budget + Injection JBake (Reconnect) | 3 | *P0* | BKY-LENS-2
 | *BKY-LENS-4* | Cucumber Features 17-19 (Réécriture) | 3 | *P1* | BKY-LENS-1,2,3

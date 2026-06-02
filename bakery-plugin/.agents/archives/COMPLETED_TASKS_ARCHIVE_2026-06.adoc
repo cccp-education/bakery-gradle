@@ -1,5 +1,30 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 055 — 2026-06-02 — BKY-LENS-1 Vérification Complète
+
+**Contexte** : Reprise de bakery-gradle session 055. Vérification que BKY-LENS-1 (SubgraphExtractor, Ségrégation) est ENTIEREMENT implémenté.
+
+**Tâches réalisées** :
+
+* [x] LENS-1.1 — Import codebase-contracts : Dépendance déjà dans `build.gradle.kts` (`libs.codebase.contracts`). Les contrats N0 seront consommés par AugmentedArticlesService (LENS-2).
+* [x] LENS-1.2 — LensConfig + DSL : `LensConfig.kt` (66 lignes, 3 scopes SUBGRAPH/FULL/SEMANTIC_ONLY) + `AugmentedContextDsl.kt` (42 lignes) + `BakeryExtension.augmentedContext` (9 lignes ajoutées).
+* [x] LENS-1.3 — SubgraphExtractor : `SubgraphExtractor.kt` (246 lignes) + `SiteSubgraph` data class. BFS expansion, filtrage communautés/types/edges/extensions. 3 scopes.
+* [x] LENS-1.4 — Tests : `LensConfigTest.kt` (17 tests PASS) + `SubgraphExtractorTest.kt` (13 tests PASS) + `graph-lens-test.json` fixture (5 communautés, 37 nœuds, 24 edges).
+* [x] Commit + publishToMavenLocal des 7 fichiers LENS-1.
+
+**Fichiers modifiés/créés** :
+
+| Fichier | Statut | Lignes |
+| `src/main/kotlin/bakery/lens/LensConfig.kt` | Nouveau | 66 |
+| `src/main/kotlin/bakery/lens/SubgraphExtractor.kt` | Nouveau | 246 |
+| `src/main/kotlin/bakery/lens/AugmentedContextDsl.kt` | Nouveau | 42 |
+| `src/main/kotlin/bakery/BakeryExtension.kt` | Modifié | +9 |
+| `src/test/kotlin/bakery/lens/LensConfigTest.kt` | Nouveau | 205 |
+| `src/test/kotlin/bakery/lens/SubgraphExtractorTest.kt` | Nouveau | 584 |
+| `src/test/resources/fixtures/graph-lens-test.json` | Nouveau | 84 |
+
+**Résultats** : 30/30 tests LENS PASS. Build compile ✅.
+
 == Session 051 — 2026-06-02 — CONV-1.7 saveConfiguration() FT + Cucumber
 
 **Contexte** : CONV-1.7 — Ajouter des tests fonctionnels (FT) et scénarios Cucumber pour saveConfiguration().

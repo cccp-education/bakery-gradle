@@ -1,45 +1,57 @@
-= PROMPT_REPRISE — Session 055 : BKY-LENS-1 SubgraphExtractor (Ségrégation)
+= PROMPT_REPRISE — Session 056 : BKY-LENS-2 AugmentedArticlesService (Enrichissement)
 
-== Mission (Session 055)
+== Mission (Session 056)
 
-1. **BKY-LENS-1.1** — Importer `codebase-contracts` (N0) dans bakery : `CompositeContext`, `ChannelBudget`, `ContextChannel`
-2. **BKY-LENS-1.2** — Créer `LensConfig` data class + DSL `bakery { augmentedContext { lens { ... } } }`
-3. **BKY-LENS-1.3** — Créer `SubgraphExtractor` : lit `graph.json`, filtre par communautés/types/edges/depth
-4. **BKY-LENS-1.4** — Tests : `SubgraphExtractorTest` avec fixtures `graph.json` mock (3 communautés, 50 nœuds)
+1. **BKY-LENS-2.1** — Créer `AugmentedContextResolver` : lit `bakery.context.txt`, extrait les canaux EAGER/RAG/GRAPHIFY/DOCS
+2. **BKY-LENS-2.2** — Créer `AugmentedArticlesService` : scoring hybride RAG+KG+tags+xref (α=0.4/β=0.3/γ=0.15/δ=0.15)
+3. **BKY-LENS-2.3** — Créer `LensRules` data class : excludeDrafts, excludeTags, prioritizeCrossReferences, crossRefBonus, communityAffinity
 
-== État actuel (Session 054 terminée — Audit)
+== État actuel (Session 055 terminée — Vérification LENS-1)
 
-- EPIC BKY-BKG **supersédé** par BKY-LENS (Pattern LENTILLE)
-- 3 problèmes identifiés : KG maison inférieur, dépendance graphify morte, pipeline N3 non branché
-- Architecture LENTILLE cadrée : ségrégation → enrichissement → budget
-- EPIC BKY-LENS : 21 pts, 6 sous-EPICs (LENS-1 à LENS-6)
-- Rapport détaillé : `.agents/sessions/054-audit-lentille-contexte-augmente.adoc`
-- BACKLOG mis à jour avec BKY-LENS
+- EPIC BKY-LENS-1 **ENTIÈREMENT IMPLÉMENTÉ ET TESTÉ** — SubgraphExtractor + SiteSubgraph + LensConfig + AugmentedContextDsl
+- Code LENS-1 committé (7 fichiers : 3 sources + 1 diff BakeryExtension + 2 test classes + 1 fixture JSON)
+- 30 tests LENS PASS (LensConfigTest 17 + SubgraphExtractorTest 13)
+- Build compile ✅, publishToMavenLocal ✅
+- 53 échecs Cucumber pré-existants (non liés à LENS)
 
 == Architecture BKY-LENS — Rappel
 
 ```
 graph.json (203k nœuds)
-    ↓ SubgraphExtractor (filtre communautés + types + edges + depth)
-site-subgraph (~200 nœuds, ~300 edges)
-    ↓ + RAG pgvector (top-K=20, sim>0.7) + règles métier
+    ↓ SubgraphExtractor (LENS-1 ✅) → site-subgraph (~200 nœuds)
+    ↓ + RAG pgvector (top-K=20, sim>0.7) + règles métier (LENS-2) ← SESSION 056
 site-graph (~200 nœuds, ~500 edges)
-    ↓ LensBudget (4-6 articles/page, minSimilarity=0.7)
+    ↓ LensBudget (4-6 articles/page, minSimilarity=0.7) (LENS-3)
 jbake.properties (relatedArticlesData)
     ↓
-post.thyme (AUGMENTÉ)
+post.thyme (AUGMENTÉ) (LENS-6)
+```
+
+== Scoring Hybride LENS-2
+
+```
+score = α × ragSimilarité      // 0.40 — similarité sémantique (pgvector)
+      + β × graphProximité     // 0.30 — voisinage structurel (graphify depth)
+      + γ × tagRecouvrement   // 0.15 — tags éditoriaux partagés (JBake metadata)
+      + δ × crossRefCount     // 0.15 — références croisées AsciiDoc (xref)
+
+  + bonus 0.2 si même communauté (communityAffinity)
+  + bonus 0.2 si cross-reference AsciiDoc vérifiée (prioritizeCrossReferences)
 ```
 
 == Contrat DAG
 
-- bakery (N2) importe codebase-contracts (N0) ✅
+- bakery (N2) importe codebase-contracts (N0) ✅ (déjà dans build.gradle.kts)
 - bakery (N2) importe graphify-plugin (N0) ✅ (déjà en implementation)
-- codebase (N1) importe graphify-plugin (N0) ✅ (canal GRAPHIFY existant)
+
+== Méthodologie
+
+- **Baby steps DDD/TDD/BDD** : chaque étape compile ET fait passer ses tests AVANT de passer à la suivante
+- 1 fichier à la fois, validation immédiate après chaque modification
 
 == Attention
 
 - Ne pas lancer `./gradlew test` sans permission explicite
-- `graphify-plugin` est déjà en `implementation` mais AUCUN code n'importe ses classes
-- Commencer par LENS-1.1 (ajout codebase-contracts) AVANT LENS-1.3 (SubgraphExtractor)
-- Le scoring hybride (LENS-2) viendra après — ne pas anticiper
-- BKY-LENS supersède BKY-BKG — ne pas toucher au code RelatedArticles* existant avant LENS-3.3
+- BKY-BKG (RelatedArticlesService, RelatedArticlesGraph, RelatedArticlesResolver, kgraph/) sera supprimé en LENS-3.3 — ne pas y toucher maintenant
+- Les 53 échecs Cucumber pré-existants sont connus et seront traités par LENS-4 (réécriture Features 17-19)
+- L'import de `CompositeContext`, `ChannelBudget`, `ContextChannel` (codebase-contracts) se fera dans AugmentedArticlesService (LENS-2.2), pas dans LENS-1

@@ -1,0 +1,65 @@
+= Session 055 — Reprise Bakery LENS-1 : Vérification et Validation
+
+== Date
+2026-06-02
+
+== Type
+Reprise + vérification + validation
+
+== Sujet
+Reprise de bakery-gradle pour la session 055. Lecture du PROMPT_REPRISE (BKY-LENS-1 SubgraphExtractor).
+Vérification complète de l'état du code BKY-LENS-1 déjà implémenté (non committé).
+
+== Contexte
+Le PROMPT_REPRISE indiquait la mission BKY-LENS-1 (SubgraphExtractor, Ségrégation).
+L'analyse révèle que BKY-LENS-1 est **ENTIÈREMENT implémenté** mais jamais committé.
+
+== État BKY-LENS-1 — VERIFICATION COMPLETEE
+
+|===
+| Sous-EPIC | Statut | Détail
+| LENS-1.1 | ✅ Codebase-contracts | Dépendance déjà dans `build.gradle.kts` (`libs.codebase.contracts`). Pas d'import direct dans le code LENS — normal, les contrats seront consommés par `AugmentedArticlesService` (LENS-2)
+| LENS-1.2 | ✅ LensConfig + DSL | `LensConfig.kt` (66 lignes), `AugmentedContextDsl.kt` (42 lignes), `BakeryExtension.augmentedContext` modifié (9 lignes ajoutées)
+| LENS-1.3 | ✅ SubgraphExtractor | `SubgraphExtractor.kt` (246 lignes), `SiteSubgraph` data class, BFS expansion, filtrage communautés/types/edges/extensions, 3 scopes (SUBGRAPH/FULL/SEMANTIC_ONLY)
+| LENS-1.4 | ✅ Tests | `LensConfigTest.kt` (17 tests PASS), `SubgraphExtractorTest.kt` (13 tests PASS), fixture `graph-lens-test.json` (3 communautés + 2 secondaires, 37 nœuds, 24 edges)
+|===
+
+== Fichiers LENS-1 (non committés)
+
+|===
+| Fichier | Statut | Lignes
+| `src/main/kotlin/bakery/lens/LensConfig.kt` | Nouveau | 66
+| `src/main/kotlin/bakery/lens/SubgraphExtractor.kt` | Nouveau | 246
+| `src/main/kotlin/bakery/lens/AugmentedContextDsl.kt` | Nouveau | 42
+| `src/main/kotlin/bakery/BakeryExtension.kt` | Modifié | +9
+| `src/test/kotlin/bakery/lens/LensConfigTest.kt` | Nouveau | 205
+| `src/test/kotlin/bakery/lens/SubgraphExtractorTest.kt` | Nouveau | 584
+| `src/test/resources/fixtures/graph-lens-test.json` | Nouveau | 84
+|===
+
+== Résultats Tests
+
+* Unit Tests LENS : 30/30 PASS (LensConfigTest 17 + SubgraphExtractorTest 13)
+* Total UT : 537 (dont 53 échecs Cucumber pré-existants, non liés à LENS)
+* Build : `compileKotlin` UP-TO-DATE ✅
+* `publishToMavenLocal` : À exécuter avant commit
+
+== Architecture LENTILLE (Rappel)
+
+----
+graph.json (203k nœuds)
+    ↓ SubgraphExtractor (filtre communautés + types + edges + depth)  ← LENS-1 ✅
+site-subgraph (~200 nœuds, ~300 edges)
+    ↓ + RAG pgvector (top-K=20, sim>0.7) + règles métier              ← LENS-2 (À FAIRE)
+site-graph (~200 nœuds, ~500 edges)
+    ↓ LensBudget (4-6 articles/page, minSimilarity=0.7)               ← LENS-3 (À FAIRE)
+jbake.properties (relatedArticlesData)
+    ↓
+post.thyme (AUGMENTÉ)                                                 ← LENS-6 (À FAIRE)
+----
+
+== Prochaines étapes (Session 056)
+BKY-LENS-2 : AugmentedArticlesService (Enrichissement) — scoring hybride RAG+KG+tags+xref
+
+== Score : 8/10
+Bonne session de vérification. Le code LENS-1 est complet et testé. Il manquait le commit + publish.

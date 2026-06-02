@@ -1,0 +1,84 @@
+{
+  "nodes": [
+    {"id": "bakery-gradle/bakery-plugin/src/main/kotlin/bakery/BakeryPlugin.kt", "label": "BakeryPlugin.kt", "type": "file", "community": "bakery-gradle"},
+    {"id": "bakery-gradle/bakery-plugin/src/main/kotlin/bakery/SiteManager.kt", "label": "SiteManager.kt", "type": "file", "community": "bakery-gradle"},
+    {"id": "bakery-gradle/bakery-plugin/src/main/kotlin/bakery/BakeryExtension.kt", "label": "BakeryExtension.kt", "type": "file", "community": "bakery-gradle"},
+    {"id": "bakery-gradle/bakery-plugin/src/main/kotlin/bakery/lens/SubgraphExtractor.kt", "label": "SubgraphExtractor.kt", "type": "file", "community": "bakery-gradle"},
+    {"id": "bakery-gradle/bakery-plugin/src/main/kotlin/bakery/lens/LensConfig.kt", "label": "LensConfig.kt", "type": "file", "community": "bakery-gradle"},
+    {"id": "bakery-gradle/bakery-plugin/src/main/resources/site/templates/post.thyme", "label": "post.thyme", "type": "file", "community": "bakery-gradle"},
+    {"id": "bakery-gradle/bakery-plugin/src/main/resources/site/templates/page.thyme", "label": "page.thyme", "type": "file", "community": "bakery-gradle"},
+    {"id": "bakery-gradle/bakery-plugin/build.gradle.kts", "label": "build.gradle.kts", "type": "file", "community": "bakery-gradle"},
+    {"id": "bakery-gradle/bakery-plugin/src/main/kotlin/bakery/SiteConfiguration.kt", "label": "SiteConfiguration.kt", "type": "file", "community": "bakery-gradle"},
+    {"id": "bakery-gradle/bakery-plugin/src/main/kotlin/bakery/ConfigResolver.kt", "label": "ConfigResolver.kt", "type": "file", "community": "bakery-gradle"},
+    {"id": "bakery-gradle/bakery-plugin/src/test/kotlin/bakery/lens/SubgraphExtractorTest.kt", "label": "SubgraphExtractorTest.kt", "type": "file", "community": "bakery-gradle"},
+    {"id": "bakery-gradle/bakery-plugin/docs/index.adoc", "label": "index.adoc", "type": "file", "community": "bakery-gradle"},
+    {"id": "bakery-gradle/bakery-plugin/docs/getting-started.adoc", "label": "getting-started.adoc", "type": "file", "community": "bakery-gradle"},
+    {"id": "bakery-gradle/README.adoc", "label": "README.adoc", "type": "file", "community": "bakery-gradle"},
+
+    {"id": "codebase-gradle/codebase-plugin/src/main/kotlin/codebase/RagService.kt", "label": "RagService.kt", "type": "file", "community": "codebase-gradle"},
+    {"id": "codebase-gradle/codebase-plugin/src/main/kotlin/codebase/CodebasePlugin.kt", "label": "CodebasePlugin.kt", "type": "file", "community": "codebase-gradle"},
+    {"id": "codebase-gradle/codebase-plugin/src/main/kotlin/codebase/VectorStore.kt", "label": "VectorStore.kt", "type": "file", "community": "codebase-gradle"},
+    {"id": "codebase-gradle/codebase-plugin/build.gradle.kts", "label": "codebase-build.gradle.kts", "type": "file", "community": "codebase-gradle"},
+    {"id": "codebase-gradle/docs/architecture.adoc", "label": "architecture.adoc", "type": "file", "community": "codebase-gradle"},
+    {"id": "codebase-gradle/docs/index.adoc", "label": "codebase-index.adoc", "type": "file", "community": "codebase-gradle"},
+
+    {"id": "slider-gradle/slider-plugin/src/main/kotlin/slider/SliderPlugin.kt", "label": "SliderPlugin.kt", "type": "file", "community": "slider-gradle"},
+    {"id": "slider-gradle/slider-plugin/src/main/kotlin/slider/RevealJsTask.kt", "label": "RevealJsTask.kt", "type": "file", "community": "slider-gradle"},
+    {"id": "slider-gradle/slider-plugin/build.gradle.kts", "label": "slider-build.gradle.kts", "type": "file", "community": "slider-gradle"},
+    {"id": "slider-gradle/docs/index.adoc", "label": "slider-index.adoc", "type": "file", "community": "slider-gradle"},
+
+    {"id": "workspace-bom/codebase-contracts/src/main/kotlin/contracts/context/CompositeContext.kt", "label": "CompositeContext.kt", "type": "file", "community": "workspace-bom"},
+    {"id": "workspace-bom/codebase-contracts/src/main/kotlin/contracts/context/ContextChannel.kt", "label": "ContextChannel.kt", "type": "file", "community": "workspace-bom"},
+    {"id": "workspace-bom/codebase-contracts/src/main/kotlin/contracts/context/ChannelBudget.kt", "label": "ChannelBudget.kt", "type": "module", "community": "workspace-bom"},
+    {"id": "workspace-bom/build.gradle.kts", "label": "bom-build.gradle.kts", "type": "file", "community": "workspace-bom"},
+
+    {"id": "graphify-gradle/graphify-plugin/src/main/kotlin/com/cheroliv/graphify/GraphifyPlugin.kt", "label": "GraphifyPlugin.kt", "type": "file", "community": "graphify-gradle"},
+    {"id": "graphify-gradle/graphify-plugin/src/main/kotlin/com/cheroliv/graphify/model/GraphModel.kt", "label": "GraphModel.kt", "type": "file", "community": "graphify-gradle"},
+    {"id": "graphify-gradle/graphify-plugin/build.gradle.kts", "label": "graphify-build.gradle.kts", "type": "file", "community": "graphify-gradle"},
+
+    {"id": "bakery-gradle", "label": "bakery-gradle", "type": "module", "community": "bakery-gradle"},
+    {"id": "codebase-gradle", "label": "codebase-gradle", "type": "module", "community": "codebase-gradle"},
+    {"id": "slider-gradle", "label": "slider-gradle", "type": "module", "community": "slider-gradle"},
+    {"id": "graphify-gradle", "label": "graphify-gradle", "type": "module", "community": "graphify-gradle"},
+    {"id": "workspace-bom", "label": "workspace-bom", "type": "module", "community": "workspace-bom"},
+
+    {"id": "unknown-community/random-file.txt", "label": "random-file.txt", "type": "file", "community": "unknown-community"},
+    {"id": "no-community/orphan.adoc", "label": "orphan.adoc", "type": "file", "community": null}
+  ],
+  "edges": [
+    {"source": "bakery-gradle/bakery-plugin/src/main/kotlin/bakery/BakeryPlugin.kt", "target": "bakery-gradle/bakery-plugin/src/main/kotlin/bakery/SiteManager.kt", "type": "reference"},
+    {"source": "bakery-gradle/bakery-plugin/src/main/kotlin/bakery/BakeryPlugin.kt", "target": "bakery-gradle/bakery-plugin/src/main/kotlin/bakery/BakeryExtension.kt", "type": "reference"},
+    {"source": "bakery-gradle/bakery-plugin/src/main/kotlin/bakery/SiteManager.kt", "target": "bakery-gradle/bakery-plugin/src/main/kotlin/bakery/SiteConfiguration.kt", "type": "reference"},
+    {"source": "bakery-gradle/bakery-plugin/src/main/kotlin/bakery/SiteManager.kt", "target": "bakery-gradle/bakery-plugin/src/main/kotlin/bakery/ConfigResolver.kt", "type": "reference"},
+    {"source": "bakery-gradle/bakery-plugin/src/main/kotlin/bakery/lens/SubgraphExtractor.kt", "target": "bakery-gradle/bakery-plugin/src/main/kotlin/bakery/lens/LensConfig.kt", "type": "reference"},
+    {"source": "bakery-gradle/bakery-plugin/src/main/kotlin/bakery/lens/SubgraphExtractor.kt", "target": "graphify-gradle/graphify-plugin/src/main/kotlin/com/cheroliv/graphify/model/GraphModel.kt", "type": "reference"},
+    {"source": "bakery-gradle/bakery-plugin/src/main/kotlin/bakery/BakeryPlugin.kt", "target": "bakery-gradle", "type": "contains"},
+    {"source": "bakery-gradle", "target": "bakery-gradle/bakery-plugin/src/main/kotlin/bakery/BakeryPlugin.kt", "type": "contains"},
+    {"source": "codebase-gradle", "target": "codebase-gradle/codebase-plugin/src/main/kotlin/codebase/CodebasePlugin.kt", "type": "contains"},
+    {"source": "slider-gradle", "target": "slider-gradle/slider-plugin/src/main/kotlin/slider/SliderPlugin.kt", "type": "contains"},
+
+    {"source": "bakery-gradle/bakery-plugin/src/main/kotlin/bakery/lens/SubgraphExtractor.kt", "target": "workspace-bom/codebase-contracts/src/main/kotlin/contracts/context/CompositeContext.kt", "type": "reference"},
+    {"source": "bakery-gradle/bakery-plugin/src/main/kotlin/bakery/lens/LensConfig.kt", "target": "workspace-bom/codebase-contracts/src/main/kotlin/contracts/context/ContextChannel.kt", "type": "reference"},
+
+    {"source": "codebase-gradle/codebase-plugin/src/main/kotlin/codebase/RagService.kt", "target": "workspace-bom/codebase-contracts/src/main/kotlin/contracts/context/CompositeContext.kt", "type": "reference"},
+    {"source": "codebase-gradle/codebase-plugin/src/main/kotlin/codebase/VectorStore.kt", "target": "workspace-bom/codebase-contracts/src/main/kotlin/contracts/context/ChannelBudget.kt", "type": "reference"},
+
+    {"source": "bakery-gradle/bakery-plugin/docs/index.adoc", "target": "bakery-gradle/bakery-plugin/docs/getting-started.adoc", "type": "agent_reference"},
+    {"source": "bakery-gradle/bakery-plugin/docs/index.adoc", "target": "codebase-gradle/docs/architecture.adoc", "type": "agent_reference"},
+    {"source": "bakery-gradle/README.adoc", "target": "bakery-gradle/bakery-plugin/docs/index.adoc", "type": "agent_reference"},
+    {"source": "slider-gradle/slider-plugin/src/main/kotlin/slider/SliderPlugin.kt", "target": "workspace-bom/codebase-contracts/src/main/kotlin/contracts/context/ContextChannel.kt", "type": "reference"},
+    {"source": "slider-gradle/slider-plugin/build.gradle.kts", "target": "bakery-gradle/bakery-plugin/build.gradle.kts", "type": "reference"},
+    {"source": "graphify-gradle/graphify-plugin/src/main/kotlin/com/cheroliv/graphify/model/GraphModel.kt", "target": "graphify-gradle/graphify-plugin/build.gradle.kts", "type": "contains"},
+
+    {"source": "unknown-community/random-file.txt", "target": "bakery-gradle/bakery-plugin/src/main/kotlin/bakery/BakeryPlugin.kt", "type": "reference"},
+    {"source": "no-community/orphan.adoc", "target": "bakery-gradle/bakery-plugin/docs/index.adoc", "type": "reference"}
+  ],
+  "communities": [
+    {"id": "bakery-gradle", "label": "Bakery Gradle Plugin", "size": 14},
+    {"id": "codebase-gradle", "label": "Codebase Gradle Plugin", "size": 6},
+    {"id": "slider-gradle", "label": "Slider Gradle Plugin", "size": 4},
+    {"id": "workspace-bom", "label": "Workspace BOM", "size": 4},
+    {"id": "graphify-gradle", "label": "Graphify Gradle Plugin", "size": 3},
+    {"id": "unknown-community", "label": "Unknown", "size": 1}
+  ]
+}
