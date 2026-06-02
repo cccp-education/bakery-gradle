@@ -568,14 +568,35 @@ object SiteManager {
      *
      * @param site Configuration du site (utilise bake.srcPath pour le content root)
      * @param iaConfig Configuration IA (Ollama baseUrl, modelName) depuis `bakery { ia { ... } }`
+     * @param articleIntentionDsl Configuration intention article depuis `bakery { articleIntention { ... } }`
      */
-    internal fun Project.registerGenerateArticleTask(site: SiteConfiguration, iaConfig: IaConfig = IaConfig()) {
+    internal fun Project.registerGenerateArticleTask(
+        site: SiteConfiguration,
+        iaConfig: IaConfig = IaConfig(),
+        articleIntentionDsl: bakery.article.ArticleIntentionDsl? = null
+    ) {
         val contentRoot = project.projectDir.resolve(site.bake.srcPath)
         tasks.register("generateArticle", GenerateArticleTask::class.java) { task ->
             task.group = GENERATE_GROUP
             task.description = "Génère un article de blog assisté IA via Ollama — injecte dans content/blog/YYYY/MM/"
             task.contentRootDir = contentRoot
             task.topic.set(project.providers.gradleProperty("topic").orElse(""))
+            task.articleTon.set(project.providers.gradleProperty("articleTon").orElse(""))
+            task.articleAudience.set(project.providers.gradleProperty("articleAudience").orElse(""))
+            task.articleKeywords.set(project.providers.gradleProperty("articleKeywords").orElse(""))
+            task.articleLang.set(project.providers.gradleProperty("articleLang").orElse("fr"))
+
+            // Inject DSL intention if configured
+            articleIntentionDsl?.let { dsl ->
+                if (dsl.topic.isNotBlank()) {
+                    task.dslIntention = try {
+                        dsl.toIntention()
+                    } catch (_: IllegalArgumentException) {
+                        null
+                    }
+                }
+            }
+
             if (iaConfig.enabled) {
                 task.llmService = OllamaLlmService.create(
                     baseUrl = iaConfig.baseUrl,

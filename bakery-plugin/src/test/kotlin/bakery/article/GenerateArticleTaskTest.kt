@@ -3,9 +3,11 @@ package bakery.article
 import bakery.llm.FakeLlmService
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.time.YearMonth
+import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -201,5 +203,172 @@ class GenerateArticleTaskTest {
 
         assertTrue(articleFile!!.name.startsWith("decouvrir-kotlin-pour-gradle"),
             "Filename should be based on slug: ${articleFile.name}")
+    }
+
+    // ── resolveIntention() — BKY-JB-8 ──────────────────────────────────
+
+    @Test
+    fun `resolveIntention with topic only uses defaults`() {
+        val project = ProjectBuilder.builder()
+            .withProjectDir(tempDir)
+            .withName("test-resolve-intention")
+            .build()
+        project.pluginManager.apply("java-base")
+
+        val task = project.tasks.register("generateArticle", GenerateArticleTask::class.java).get()
+        task.topic.set("Kotlin pour Gradle")
+
+        val intention = task.resolveIntention()
+
+        assertEquals("Kotlin pour Gradle", intention.topic)
+        assertEquals(ArticleTon.INFORMATIF, intention.ton)
+        assertEquals(ArticleAudience.GENERAL, intention.audience)
+        assertTrue(intention.keywords.isEmpty())
+        assertEquals("fr", intention.lang)
+    }
+
+    @Test
+    fun `resolveIntention with CLI ton overrides default`() {
+        val project = ProjectBuilder.builder()
+            .withProjectDir(tempDir)
+            .withName("test-cli-ton")
+            .build()
+        project.pluginManager.apply("java-base")
+
+        val task = project.tasks.register("generateArticle", GenerateArticleTask::class.java).get()
+        task.topic.set("Kotlin Coroutines")
+        task.articleTon.set("technique")
+
+        val intention = task.resolveIntention()
+
+        assertEquals(ArticleTon.TECHNIQUE, intention.ton)
+    }
+
+    @Test
+    fun `resolveIntention with CLI audience overrides default`() {
+        val project = ProjectBuilder.builder()
+            .withProjectDir(tempDir)
+            .withName("test-cli-audience")
+            .build()
+        project.pluginManager.apply("java-base")
+
+        val task = project.tasks.register("generateArticle", GenerateArticleTask::class.java).get()
+        task.topic.set("Kotlin Coroutines")
+        task.articleAudience.set("developpeur")
+
+        val intention = task.resolveIntention()
+
+        assertEquals(ArticleAudience.DEVELOPPEUR, intention.audience)
+    }
+
+    @Test
+    fun `resolveIntention with CLI keywords parses comma-separated`() {
+        val project = ProjectBuilder.builder()
+            .withProjectDir(tempDir)
+            .withName("test-cli-keywords")
+            .build()
+        project.pluginManager.apply("java-base")
+
+        val task = project.tasks.register("generateArticle", GenerateArticleTask::class.java).get()
+        task.topic.set("Kotlin")
+        task.articleKeywords.set("coroutines,async,flow")
+
+        val intention = task.resolveIntention()
+
+        assertEquals(listOf("coroutines", "async", "flow"), intention.keywords)
+    }
+
+    @Test
+    fun `resolveIntention with DSL intention overrides defaults`() {
+        val project = ProjectBuilder.builder()
+            .withProjectDir(tempDir)
+            .withName("test-dsl-intention")
+            .build()
+        project.pluginManager.apply("java-base")
+
+        val task = project.tasks.register("generateArticle", GenerateArticleTask::class.java).get()
+        task.topic.set("Kotlin Flow")
+        task.dslIntention = ArticleIntention(
+            topic = "Kotlin Flow",
+            ton = ArticleTon.PEDAGOGIQUE,
+            audience = ArticleAudience.FORMATEUR,
+            rawKeywords = listOf("flow", "reactive"),
+            lang = "en"
+        )
+
+        val intention = task.resolveIntention()
+
+        // CLI topic overrides DSL topic
+        assertEquals("Kotlin Flow", intention.topic)
+        // DSL ton/audience used when CLI not set (but we need to check task.articleTon is empty)
+        assertEquals(ArticleTon.PEDAGOGIQUE, intention.ton)
+        assertEquals(ArticleAudience.FORMATEUR, intention.audience)
+        assertEquals(listOf("flow", "reactive"), intention.keywords)
+        assertEquals("en", intention.lang)
+    }
+
+    @Test
+    fun `resolveIntention CLI overrides DSL`() {
+        val project = ProjectBuilder.builder()
+            .withProjectDir(tempDir)
+            .withName("test-cli-overrides-dsl")
+            .build()
+        project.pluginManager.apply("java-base")
+
+        val task = project.tasks.register("generateArticle", GenerateArticleTask::class.java).get()
+        task.topic.set("CLI Topic")
+        task.articleTon.set("convaincre")
+        task.dslIntention = ArticleIntention(
+            topic = "DSL Topic",
+            ton = ArticleTon.INFORMATIF
+        )
+
+        val intention = task.resolveIntention()
+
+        assertEquals("CLI Topic", intention.topic)
+        assertEquals(ArticleTon.CONVAINCRE, intention.ton)
+    }
+
+    @Test
+    fun `resolveIntention fails when no topic and no DSL`() {
+        val project = ProjectBuilder.builder()
+            .withProjectDir(tempDir)
+            .withName("test-no-topic")
+            .build()
+        project.pluginManager.apply("java-base")
+
+        val task = project.tasks.register("generateArticle", GenerateArticleTask::class.java).get()
+        // topic defaults to "" and dslIntention is null
+
+        assertThrows<IllegalArgumentException> {
+            task.resolveIntention()
+        }
+    }
+
+    @Test
+    fun `executeGenerate with intention enriches prompt`() {
+        val project = ProjectBuilder.builder()
+            .withProjectDir(tempDir)
+            .withName("test-intention-prompt")
+            .build()
+        project.pluginManager.apply("java-base")
+
+        val contentRoot = tempDir.resolve("site")
+        val fakeLlm = FakeLlmService(sampleArticle)
+        val task = project.tasks.register("generateArticle", GenerateArticleTask::class.java).get()
+        task.contentRootDir = contentRoot
+        task.topic.set("Kotlin Coroutines")
+        task.articleTon.set("technique")
+        task.articleAudience.set("developpeur")
+        task.articleKeywords.set("suspend,flow")
+        task.llmService = fakeLlm
+
+        task.executeGenerate()
+
+        val prompt = fakeLlm.promptsReceived.first()
+        assertTrue(prompt.contains("Kotlin Coroutines"))
+        assertTrue(prompt.contains("technique"))
+        assertTrue(prompt.contains("développeur"))
+        assertTrue(prompt.contains("suspend"))
     }
 }

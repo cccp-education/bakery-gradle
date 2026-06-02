@@ -290,3 +290,23 @@
 **Tests** : 16 UT + 2 FT + 3 Cucumber (nouveaux). Zéro régression.
 
 **Prochaine session** : 040 — BKY-JB-8 Article assisté IA via codebase (13 pts, P0)
+
+== Session 040 — 2026-06-02 — BKY-JB-8 Article IA COMPLETE
+
+**Contexte** : EPIC BKY-JB-8 (13 pts, P0) — Article assisté IA. Modèle domaine ArticleIntention + Generator enrichi avec prompt contextualisé + CLI/DSL/defauts resolution. Méthodo DDD/TDD/BDD baby steps 5/5.
+
+**Taches realisees** :
+
+* [x] JB-8.1 (1pt) DDD — `ArticleIntention` data class + `ArticleTon` enum (4) + `ArticleAudience` enum (3) + validation
+* [x] JB-8.2 (1pt) TDD — `ArticleIntentionTest` 13/13 PASS
+* [x] JB-8.3 (3pts) TDD — `ArticleGenerator.generate(intention)` + `buildPrompt(intention)` enrichi + `GenerateArticleTask.resolveIntention()` CLI>DSL>défauts + `ArticleIntentionDsl` bridge + `BakeryExtension.articleIntention` DSL. 16+16 UT.
+* [x] JB-8.4 (1pt) FT — `ArticleIntentionFunctionalTests` 4/4 PASS
+* [x] JB-8.5 (1pt) BDD — `16_article_intention.feature` 3/3 Cucumber PASS (55 total)
+
+**Fichiers créés (5)** : ArticleIntention.kt, ArticleIntentionDsl.kt, ArticleIntentionTest.kt, ArticleIntentionFunctionalTests.kt, 16_article_intention.feature
+
+**Fichiers modifiés (9)** : ArticleGenerator.kt, GenerateArticleTask.kt, BakeryExtension.kt, SiteManager.kt, BakeryPlugin.kt, ArticleGeneratorTest.kt, GenerateArticleTaskTest.kt, GenerateArticleSteps.kt, BakeryWorld.kt
+
+**Tests** : +36 tests (29 UT + 4 FT + 3 Cucumber). Zéro régression. Phase D 100% complète.
+
+**Prochaine session** : 041 — BKY-BKG Steps 4-6 ou EPIC 13

@@ -148,4 +148,118 @@ class ArticleGeneratorTest {
         assertTrue(prompt.contains(":tags:"), "Le prompt doit demander les metadata :tags:")
         assertTrue(prompt.contains(":description:"), "Le prompt doit demander :description:")
     }
+
+    // ── generate(ArticleIntention) — BKY-JB-8 ────────────────────────────
+
+    @Test
+    fun `generate with intention includes audience in prompt`() = runBlocking {
+        val fakeLlm = FakeLlmService(sampleAsciiDoc)
+        val generator = ArticleGenerator()
+
+        val intention = ArticleIntention(
+            topic = "Kotlin pour Gradle",
+            audience = ArticleAudience.DEVELOPPEUR
+        )
+        generator.generate(intention, fakeLlm)
+
+        val prompt = fakeLlm.promptsReceived.first()
+        assertTrue(prompt.contains("développeur"), "Le prompt doit contenir l'audience")
+    }
+
+    @Test
+    fun `generate with intention includes ton in prompt`() = runBlocking {
+        val fakeLlm = FakeLlmService(sampleAsciiDoc)
+        val generator = ArticleGenerator()
+
+        val intention = ArticleIntention(
+            topic = "Kotlin pour Gradle",
+            ton = ArticleTon.PEDAGOGIQUE
+        )
+        generator.generate(intention, fakeLlm)
+
+        val prompt = fakeLlm.promptsReceived.first()
+        assertTrue(prompt.contains("pédagogique"), "Le prompt doit contenir le ton")
+    }
+
+    @Test
+    fun `generate with intention includes keywords in prompt`() = runBlocking {
+        val fakeLlm = FakeLlmService(sampleAsciiDoc)
+        val generator = ArticleGenerator()
+
+        val intention = ArticleIntention(
+            topic = "Kotlin pour Gradle",
+            rawKeywords = listOf("dsl", "plugin")
+        )
+        generator.generate(intention, fakeLlm)
+
+        val prompt = fakeLlm.promptsReceived.first()
+        assertTrue(prompt.contains("dsl"), "Le prompt doit contenir le mot-clé 'dsl'")
+        assertTrue(prompt.contains("plugin"), "Le prompt doit contenir le mot-clé 'plugin'")
+    }
+
+    @Test
+    fun `generate with intention includes language guidance in prompt`() = runBlocking {
+        val fakeLlm = FakeLlmService(sampleAsciiDoc)
+        val generator = ArticleGenerator()
+
+        val intention = ArticleIntention(
+            topic = "Kotlin for Gradle",
+            lang = "en"
+        )
+        generator.generate(intention, fakeLlm)
+
+        val prompt = fakeLlm.promptsReceived.first()
+        assertTrue(prompt.contains("en"), "Le prompt doit contenir la langue 'en'")
+    }
+
+    @Test
+    fun `generate with intention delegates to same parseResponse`() = runBlocking {
+        val fakeLlm = FakeLlmService(sampleAsciiDoc)
+        val generator = ArticleGenerator()
+
+        val intention = ArticleIntention(
+            topic = "Kotlin pour Gradle",
+            ton = ArticleTon.TECHNIQUE,
+            audience = ArticleAudience.DEVELOPPEUR
+        )
+        val article = generator.generate(intention, fakeLlm)
+
+        assertEquals("Introduction à Kotlin pour les plugins Gradle", article.titre)
+        assertEquals("introduction-a-kotlin-pour-les-plugins-gradle", article.slug)
+    }
+
+    @Test
+    fun `generate with minimal intention uses defaults in prompt`() = runBlocking {
+        val fakeLlm = FakeLlmService(sampleAsciiDoc)
+        val generator = ArticleGenerator()
+
+        val intention = ArticleIntention(topic = "Test simple")
+        generator.generate(intention, fakeLlm)
+
+        val prompt = fakeLlm.promptsReceived.first()
+        assertTrue(prompt.contains("informatif"), "Default ton must appear in prompt")
+        assertTrue(prompt.contains("grand public"), "Default audience must appear in prompt")
+        assertTrue(prompt.contains("fr"), "Default lang must appear in prompt")
+    }
+
+    @Test
+    fun `buildPrompt from intention includes all contextual guidance`() = runBlocking {
+        val generator = ArticleGenerator()
+
+        val intention = ArticleIntention(
+            topic = "Kotlin Coroutines",
+            ton = ArticleTon.TECHNIQUE,
+            audience = ArticleAudience.DEVELOPPEUR,
+            rawKeywords = listOf("suspend", "flow"),
+            lang = "en"
+        )
+        val prompt = generator.buildPrompt(intention)
+
+        assertTrue(prompt.contains("Kotlin Coroutines"), "Must contain topic")
+        assertTrue(prompt.contains("technique"), "Must contain ton")
+        assertTrue(prompt.contains("développeur"), "Must contain audience")
+        assertTrue(prompt.contains("suspend"), "Must contain keyword")
+        assertTrue(prompt.contains("en"), "Must contain language")
+        assertTrue(prompt.contains("AsciiDoc"), "Must contain format instruction")
+    }
 }

@@ -23,10 +23,27 @@ import java.time.YearMonth
  * generateSite → generateArticle → bake → deploySite
  * ```
  *
- * Usage CLI :
+ * Usage CLI (topic seul) :
  * ```
  * ./gradlew generateArticle -Ptopic="Introduction à Kotlin"
- * ./gradlew generateArticle -Ptopic="Kotlin pour Gradle" -ParticleLang=en
+ * ```
+ *
+ * Usage CLI (intention enrichie) :
+ * ```
+ * ./gradlew generateArticle -Ptopic="Kotlin pour Gradle" -ParticleTon=technique -ParticleAudience=developpeur
+ * ```
+ *
+ * Usage DSL :
+ * ```
+ * bakery {
+ *     articleIntention {
+ *         topic = "Kotlin Coroutines"
+ *         ton = "technique"
+ *         audience = "developpeur"
+ *         keywords = listOf("suspend", "flow")
+ *         lang = "en"
+ *     }
+ * }
  * ```
  *
  * Injecte le [LlmService] depuis la configuration [BakeryExtension.ia] :
@@ -62,6 +79,33 @@ abstract class GenerateArticleTask : DefaultTask() {
     abstract val topic: Property<String>
 
     /**
+     * Registre stylistique : informatif | technique | pédagogique | convaincre.
+     * CLI : `-ParticleTon=technique`
+     */
+    @get:Input
+    @get:Optional
+    @get:Option(option = "articleTon", description = "Ton de l'article (informatif/technique/pedagogique/convaincre)")
+    abstract val articleTon: Property<String>
+
+    /**
+     * Public cible : general | developpeur | formateur.
+     * CLI : `-ParticleAudience=developpeur`
+     */
+    @get:Input
+    @get:Optional
+    @get:Option(option = "articleAudience", description = "Public cible (general/developpeur/formateur)")
+    abstract val articleAudience: Property<String>
+
+    /**
+     * Mots-clés SEO/RAG (séparés par virgules).
+     * CLI : `-ParticleKeywords=kotlin,gradle,dsl`
+     */
+    @get:Input
+    @get:Optional
+    @get:Option(option = "articleKeywords", description = "Mots-clés séparés par virgules")
+    abstract val articleKeywords: Property<String>
+
+    /**
      * Langue de l'article.
      * Valeurs : "fr" (défaut), "en"
      */
@@ -70,23 +114,30 @@ abstract class GenerateArticleTask : DefaultTask() {
     @get:Option(option = "articleLang", description = "Langue de l'article (fr/en)")
     abstract val articleLang: Property<String>
 
+    /**
+     * Intention DSL injectée depuis [bakery.BakeryExtension.articleIntention].
+     * Priorité : CLI > DSL > défauts.
+     */
+    @get:Internal
+    var dslIntention: ArticleIntention? = null
+
     init {
         group = "generate"
         description = "Génère un article de blog assisté IA via Ollama — injecte dans content/blog/YYYY/MM/"
         topic.convention("")
-        articleLang.convention("fr")
+        articleTon.convention("")
+        articleAudience.convention("")
+        articleKeywords.convention("")
+        articleLang.convention("")
     }
 
     @TaskAction
     fun executeGenerate() {
-        val topicValue = topic.orNull
-            ?.takeIf { it.isNotBlank() }
-            ?: throw IllegalArgumentException(
-                "Aucun sujet spécifié. Utilisez -Ptopic=\"Votre sujet\" " +
-                "ou configurez bakery { generateArticle { topic = \"...\" } }"
-            )
+        val resolvedIntention = resolveIntention()
 
-        logger.lifecycle("[generateArticle] Génération article sur : {}", topicValue)
+        logger.lifecycle("[generateArticle] Génération article sur : {}", resolvedIntention.topic)
+        logger.lifecycle("[generateArticle] Ton : {}, Audience : {}, Lang : {}",
+            resolvedIntention.ton, resolvedIntention.audience, resolvedIntention.lang)
 
         // Résoudre le service LLM
         val service = llmService
@@ -102,7 +153,7 @@ abstract class GenerateArticleTask : DefaultTask() {
         // Générer l'article
         val generator = ArticleGenerator()
         val article = runBlocking {
-            generator.generate(topicValue, service)
+            generator.generate(resolvedIntention, service)
         }
 
         // Écrire le fichier
@@ -114,6 +165,51 @@ abstract class GenerateArticleTask : DefaultTask() {
         logger.lifecycle("[generateArticle] Titre : {}", article.titre)
         logger.lifecycle("[generateArticle] Tags : {}", article.tags.joinToString(", "))
         logger.lifecycle("[generateArticle] Slug : {}", article.slug)
+    }
+
+    /**
+     * Résout l'[ArticleIntention] finale en fusionnant CLI > DSL > défauts.
+     *
+     * Priorité de résolution :
+     * 1. CLI : `-Ptopic`, `-ParticleTon`, `-ParticleAudience`, `-ParticleKeywords`, `-ParticleLang`
+     * 2. DSL : `bakery { articleIntention { ... } }`
+     * 3. Défauts : ton=informatif, audience=general, lang=fr
+     */
+    internal fun resolveIntention(): ArticleIntention {
+        // Topic CLI a priorité sur DSL
+        val resolvedTopic = topic.orNull?.takeIf { it.isNotBlank() }
+            ?: dslIntention?.topic?.takeIf { it.isNotBlank() }
+            ?: throw IllegalArgumentException(
+                "Aucun sujet spécifié. Utilisez -Ptopic=\"Votre sujet\" " +
+                "ou configurez bakery { articleIntention { topic = \"...\" } }"
+            )
+
+        val resolvedTon = articleTon.orNull?.takeIf { it.isNotBlank() }
+            ?: dslIntention?.ton?.name?.lowercase()
+            ?: ArticleTon.INFORMATIF.name.lowercase()
+
+        val resolvedAudience = articleAudience.orNull?.takeIf { it.isNotBlank() }
+            ?: dslIntention?.audience?.name?.lowercase()
+            ?: ArticleAudience.GENERAL.name.lowercase()
+
+        val resolvedKeywords = articleKeywords.orNull?.takeIf { it.isNotBlank() }
+            ?.split(",")
+            ?.map { it.trim() }
+            ?.filter { it.isNotBlank() }
+            ?: dslIntention?.keywords
+            ?: emptyList()
+
+        val resolvedLang = articleLang.orNull?.takeIf { it.isNotBlank() }
+            ?: dslIntention?.lang
+            ?: "fr"
+
+        return ArticleIntention(
+            topic = resolvedTopic,
+            ton = ArticleTon.entries.first { it.name.lowercase() == resolvedTon.lowercase() },
+            audience = ArticleAudience.entries.first { it.name.lowercase() == resolvedAudience.lowercase() },
+            rawKeywords = resolvedKeywords,
+            lang = resolvedLang
+        )
     }
 
     /**

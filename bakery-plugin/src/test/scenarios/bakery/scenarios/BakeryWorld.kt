@@ -247,4 +247,74 @@ class BakeryWorld {
             return this
         }
     }
+
+    /**
+     * Crée un projet Gradle de test avec bloc articleIntention DSL.
+     */
+    fun createGradleProjectWithArticleIntention(
+        topic: String,
+        ton: String? = null,
+        audience: String? = null,
+        keywords: String? = null,
+        lang: String? = null
+    ): File {
+        val pluginId = "education.cccp.bakery"
+        val articleIntentionBlock = buildString {
+            appendLine("    articleIntention {")
+            appendLine("        topic = \"$topic\"")
+            ton?.let { appendLine("        ton = \"$it\"") }
+            audience?.let { appendLine("        audience = \"$it\"") }
+            keywords?.let {
+                val kwList = it.split(",").map { k -> "\"${k.trim()}\"" }.joinToString(", ")
+                appendLine("        keywords = listOf($kwList)")
+            }
+            lang?.let { appendLine("        lang = \"$it\"") }
+            appendLine("    }")
+        }
+        val buildScriptContent = """
+            bakery {
+                configPath = file("site.yml").absolutePath
+$articleIntentionBlock
+            }
+        """.trimIndent()
+
+        createTempFile("gradle-test-", "").apply {
+            delete()
+            mkdirs()
+        }.run {
+            resolve("settings.gradle.kts")
+                .apply { createNewFile() }
+                .writeText(
+                    "pluginManagement.repositories.gradlePluginPortal()\n" +
+                            "rootProject.name = \"${name}\""
+                )
+            resolve("build.gradle.kts")
+                .apply { createNewFile() }
+                .writeText("plugins { id(\"$pluginId\") }\n$buildScriptContent")
+            // Écrire un site.yml minimal mais valide pour la branche "else"
+            resolve("site.yml").writeText("""
+                bake:
+                  srcPath: "site"
+                  destDirPath: "build/bake"
+                pushPage:
+                  from: "site"
+                  to: "cvs"
+                  repo:
+                    name: "test-site"
+                    repository: "https://github.com/user/repo.git"
+                    credentials:
+                      username: "user"
+                      password: "token"
+                  branch: "main"
+                  message: "Deploy test"
+                pushMaquette:
+                  from: "maquette"
+                  to: "cvs"
+            """.trimIndent())
+            resolve("site").mkdirs()
+            resolve("maquette").mkdirs()
+            projectDir = this
+            return this
+        }
+    }
 }

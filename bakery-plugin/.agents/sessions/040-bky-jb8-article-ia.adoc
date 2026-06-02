@@ -1,0 +1,56 @@
+= Session 040 — BKY-JB-8 Article IA COMPLETE
+
+_Date_ : 2026-06-02
+_Type_ : feat + test
+_Score_ : 9/10
+
+== Contexte
+
+EPIC BKY-JB-8 — Article assisté IA via codebase (koog+langchain4j, RAG). 13 pts, P0.
+Méthodo DDD/TDD/BDD baby steps 5/5 respectée.
+
+== Tâches réalisées
+
+* [x] JB-8.1 (1pt) DDD — `ArticleIntention` data class (topic, ton, audience, keywords, lang) + `ArticleTon` enum (INFORMATIF, TECHNIQUE, PEDAGOGIQUE, CONVAINCRE) + `ArticleAudience` enum (GENERAL, DEVELOPPEUR, FORMATEUR) + validation (topic obligatoire, lang fr/en, keywords trim+dédup)
+* [x] JB-8.2 (1pt) TDD — `ArticleIntentionTest` 13/13 PASS (construction, validation topic, enum labels, keywords trim/dedup/doublons, lang validation, toPromptContext)
+* [x] JB-8.3 (3pts) TDD — `ArticleGenerator.generate(ArticleIntention, LlmService)` + `buildPrompt(ArticleIntention)` enrichi (ton guidance, audience guidance, keywords injection, lang instruction). `GenerateArticleTask.resolveIntention()` CLI>DSL>défauts. `ArticleIntentionDsl` bridge DSL→modèle. `BakeryExtension.articleIntention` DSL. `SiteManager.registerGenerateArticleTask` accepte `ArticleIntentionDsl`. 16/16 Generator + 16/16 Task PASS.
+* [x] JB-8.4 (1pt) FT — `ArticleIntentionFunctionalTests` 4/4 PASS (DSL topic, full config, pédagogique, task registered)
+* [x] JB-8.5 (1pt) BDD — `16_article_intention.feature` 3/3 Cucumber PASS + `GenerateArticleSteps` enrichi + `BakeryWorld.createGradleProjectWithArticleIntention()`. Total 55 Cucumber PASS.
+
+== Fichiers créés (5)
+
+* `src/main/kotlin/bakery/article/ArticleIntention.kt` — data class + ArticleTon + ArticleAudience enums
+* `src/main/kotlin/bakery/article/ArticleIntentionDsl.kt` — DSL Gradle bridge
+* `src/test/kotlin/bakery/article/ArticleIntentionTest.kt` — 13 UT
+* `src/functionalTest/kotlin/bakery/ArticleIntentionFunctionalTests.kt` — 4 FT
+* `src/test/features/16_article_intention.feature` — 3 scénarios Cucumber
+
+== Fichiers modifiés (6)
+
+* `src/main/kotlin/bakery/article/ArticleGenerator.kt` — surcharge generate(intention) + buildPrompt(intention) enrichi
+* `src/main/kotlin/bakery/article/GenerateArticleTask.kt` — resolveIntention(), nouvels inputs CLI, dslIntention
+* `src/main/kotlin/bakery/BakeryExtension.kt` — articleIntention DSL
+* `src/main/kotlin/bakery/SiteManager.kt` — registerGenerateArticleTask avec ArticleIntentionDsl
+* `src/main/kotlin/bakery/BakeryPlugin.kt` — passe articleIntention au register
+* `src/test/kotlin/bakery/article/ArticleGeneratorTest.kt` — +7 UT intention
+* `src/test/kotlin/bakery/article/GenerateArticleTaskTest.kt` — +9 UT resolveIntention
+* `src/test/scenarios/bakery/scenarios/GenerateArticleSteps.kt` — +5 steps article intention
+* `src/test/scenarios/bakery/scenarios/BakeryWorld.kt` — +createGradleProjectWithArticleIntention()
+
+== Tests
+
+* +29 UT (13 ArticleIntention + 9 resolveIntention + 7 Generator intention)
+* +4 FT
+* +3 Cucumber (55 total)
+* Zéro régression : UT + FT + Cucumber tous PASS
+
+== Décisions
+
+* *ArticleIntention DDD* : modèle domaine riche encapsulant l'intention de génération (topic + ton + audience + keywords + lang), validable, avec `toPromptContext()` pour le prompt LLM
+* *Priorité CLI > DSL > Défauts* : `-Ptopic` override `bakery { articleIntention { topic = ... } }` override defaults. Idem pour ton/audience/keywords/lang
+* *Convention vide* : `articleTon.convention("")` au lieu de `"informatif"` pour éviter le conflit convention vs DSL
+* *ArticleIntentionDsl bridge* : String-based DSL → typed validated ArticleIntention via `toIntention()`
+
+== Prochaine session
+
+041 — Prochain EPIC disponible : BKY-BKG Step 4-6 (Articles connexes KG) ou maintenance

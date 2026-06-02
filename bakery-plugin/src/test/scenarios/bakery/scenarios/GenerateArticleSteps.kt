@@ -14,6 +14,29 @@ class GenerateArticleSteps(private val world: BakeryWorld) {
         assertThat(world.projectDir).exists()
     }
 
+    @Given("a new Bakery project with site configured and IA enabled")
+    fun createBakeryProjectWithSiteConfiguredAndIa() {
+        world.createGradleProjectWithSiteConfigured(iaEnabled = true)
+        assertThat(world.projectDir).exists()
+    }
+
+    @Given("a new Bakery project with article intention configured with topic {string}")
+    fun createBakeryProjectWithArticleIntention(topic: String) {
+        world.createGradleProjectWithArticleIntention(topic = topic)
+        assertThat(world.projectDir).exists()
+    }
+
+    @Given("a new Bakery project with article intention configured with topic {string} and ton {string} and audience {string} and keywords {string} and lang {string}")
+    fun createBakeryProjectWithArticleIntentionFull(
+        topic: String, ton: String, audience: String, keywords: String, lang: String
+    ) {
+        world.createGradleProjectWithArticleIntention(
+            topic = topic, ton = ton, audience = audience,
+            keywords = keywords, lang = lang
+        )
+        assertThat(world.projectDir).exists()
+    }
+
     @When("I check for task {string}")
     fun checkForTask(taskName: String) = runBlocking {
         world.executeGradle("tasks", "--all")
@@ -23,6 +46,15 @@ class GenerateArticleSteps(private val world: BakeryWorld) {
     fun executeTaskWithTopic(taskName: String, topic: String) = runBlocking {
         try {
             world.executeGradle(taskName, "-Ptopic=$topic")
+        } catch (_: Exception) {
+            // L'erreur est capturée dans world.exception
+        }
+    }
+
+    @When("I execute task {string} with topic {string} and ton {string} and audience {string}")
+    fun executeTaskWithTopicTonAudience(taskName: String, topic: String, ton: String, audience: String) = runBlocking {
+        try {
+            world.executeGradle(taskName, "-Ptopic=$topic", "-ParticleTon=$ton", "-ParticleAudience=$audience")
         } catch (_: Exception) {
             // L'erreur est capturée dans world.exception
         }

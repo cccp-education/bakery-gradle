@@ -1,30 +1,21 @@
-= PROMPT_REPRISE — Session 039 terminée : BKY-JB-7 Layouts COMPLETE
+= PROMPT_REPRISE — Session 040 terminée : BKY-JB-8 Article IA COMPLETE
 
-== Mission accomplie (Session 039)
+== Mission accomplie (Session 040)
 
-BKY-JB-7 Layouts est COMPLET. 4 layouts Thymeleaf + injection jbake.properties.
+BKY-JB-8 Article IA est COMPLET. ArticleIntention DDD + Generator enrichi + DSL + CLI > DSL > défauts.
 
 === Résultats
 
-- **JB-7.1** ✅ : LayoutType enum + LayoutConfig data class + LayoutDsl + BakeryExtension DSL + injectLayoutConfigIntoJbakeProperties
-- **JB-7.2** ✅ : 16 UT (LayoutConfigTest 6 + LayoutTemplateTest 7 + LayoutInjectionTest 3)
-- **JB-7.3** ✅ : 4 fragments (layout-full-width/sidebar-left/sidebar-right/centered.thyme) + intégration post.thyme + page.thyme
-- **JB-7.4** ✅ : 2 FT (LayoutTest dans ScaffoldFunctionalTests)
-- **JB-7.5** ✅ : 3 Cucumber (13_layouts.feature) — total 52 Cucumber PASS
-
-== Prochaines baby steps — BKY-JB-8 Article IA (13 pts, P0)
-
-| Step | Description | Pts |
-|-------|-------------|-----|
-| JB-8.1 | DDD : ArticleIntention data class (topic, audience, ton, keywords) | 1 |
-| JB-8.2 | TDD : ArticleIntentionTest + validation tests | 1 |
-| JB-8.3 | TDD : Tâche generateArticle via codebase RAG (koog+langchain4j) | 3 |
-| JB-8.4 | FT : Tests fonctionnels generateArticle end-to-end | 1 |
-| JB-8.5 | BDD : Scénarios Cucumber article IA | 1 |
+- **JB-8.1** ✅ : ArticleIntention data class + ArticleTon enum (4) + ArticleAudience enum (3) + validation
+- **JB-8.2** ✅ : 13 UT ArticleIntentionTest
+- **JB-8.3** ✅ : ArticleGenerator.generate(intention) + buildPrompt(intention) + GenerateArticleTask.resolveIntention() + ArticleIntentionDsl + BakeryExtension.articleIntention — 16+16 UT
+- **JB-8.4** ✅ : 4 FT ArticleIntentionFunctionalTests
+- **JB-8.5** ✅ : 3 Cucumber (16_article_intention.feature) — total 55 Cucumber PASS
 
 == EPICs disponibles (priorité décroissante)
 
 | EPIC | Pts | Prio | Description |
 |------|-----|------|-------------|
-| BKY-JB-8 | 13 | P0 | Article assisté IA via codebase (koog+langchain4j, RAG) |
-| BKY-JB-7 | 3 | P2 | ✅ TERMINÉ — Layouts (full-width, sidebar, centered) |
+| BKY-JB-8 | 13 | P0 | ✅ TERMINÉ — Article assisté IA (ArticleIntention + Generator enrichi) |
+| BKY-BKG | 8 | P1 | Articles connexes KG — Steps 4-6 (backlog) |
+| EPIC 13 | 2.5 | P1 | Couverture tests lacunes P1 (50%) |

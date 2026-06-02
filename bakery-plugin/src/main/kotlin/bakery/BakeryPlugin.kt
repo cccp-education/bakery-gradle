@@ -79,7 +79,7 @@ class BakeryPlugin : Plugin<Project> {
                 project.registerCollectSiteConfigTask(site, isGradlePropertiesEnabled)
                 project.registerCollectSiteContextTask(site)
                 project.registerCollectRelatedArticlesTask(site)
-                project.registerGenerateArticleTask(site, bakeryExtension.ia)
+                project.registerGenerateArticleTask(site, bakeryExtension.ia, bakeryExtension.articleIntention)
             }
         }
     }

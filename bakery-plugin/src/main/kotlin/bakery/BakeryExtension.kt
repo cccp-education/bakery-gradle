@@ -1,6 +1,7 @@
 package bakery
 
 import bakery.llm.IaConfig
+import bakery.article.ArticleIntentionDsl
 import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
@@ -59,6 +60,9 @@ open class BakeryExtension @Inject constructor(objects: ObjectFactory) {
     /** Configuration Layout (FULL_WIDTH, SIDEBAR_LEFT, SIDEBAR_RIGHT, CENTERED) — BKY-JB-7 */
     val layout: LayoutDsl = LayoutDsl()
 
+    /** Configuration Article Intention (topic, ton, audience, keywords, lang) — BKY-JB-8 */
+    val articleIntention: ArticleIntentionDsl = ArticleIntentionDsl()
+
     /** DSL : bakery { googleForms { ... } } */
     fun googleForms(action: Action<GoogleFormsDsl>) {
         action.execute(googleForms)
@@ -92,6 +96,11 @@ open class BakeryExtension @Inject constructor(objects: ObjectFactory) {
     /** DSL : bakery { layout { ... } } */
     fun layout(action: Action<LayoutDsl>) {
         action.execute(layout)
+    }
+
+    /** DSL : bakery { articleIntention { ... } } */
+    fun articleIntention(action: Action<ArticleIntentionDsl>) {
+        action.execute(articleIntention)
     }
 
     /** DSL : bakery { ia { ... } } */

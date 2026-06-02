@@ -14,6 +14,22 @@ import java.time.LocalDate
 class ArticleGenerator {
 
     /**
+     * Génère un article structuré à partir d'une intention riche.
+     *
+     * Surcharge DDD : l'[ArticleIntention] encapsule le sujet, le ton,
+     * l'audience, les mots-clés et la langue pour un prompt contextualisé.
+     *
+     * @param intention Intention de génération (DDD)
+     * @param llm Service de complétion LLM (Ollama en prod, FakeLlmService en test)
+     * @return [ArticleOutput] structuré, prêt à injecter dans un site JBake
+     */
+    suspend fun generate(intention: ArticleIntention, llm: LlmService): ArticleOutput {
+        val prompt = buildPrompt(intention)
+        val response = llm.complete(prompt)
+        return parseResponse(response, intention.topic)
+    }
+
+    /**
      * Génère un article structuré à partir d'un sujet.
      *
      * @param topic Sujet de l'article (ex: "Introduction à Kotlin")
@@ -58,6 +74,68 @@ class ArticleGenerator {
         - 3 à 5 sections de contenu
         - Date au format YYYY-MM-DD (aujourd'hui si non précisée)
     """.trimIndent()
+
+    /**
+     * Construit le prompt enrichi depuis une [ArticleIntention].
+     *
+     * Inclut le ton, l'audience, les mots-clés et la langue pour guider
+     * le LLM vers un contenu plus ciblé et pertinent.
+     */
+    internal fun buildPrompt(intention: ArticleIntention): String {
+        val langInstruction = when (intention.lang) {
+            "en" -> "Write the article in English."
+            else -> "Rédige l'article en français (langue : fr)."
+        }
+
+        val toneGuidance = when (intention.ton) {
+            ArticleTon.INFORMATIF -> "Adopte un ton informatif : neutre et factuel, vulgarise si nécessaire."
+            ArticleTon.TECHNIQUE -> "Adopte un ton technique : précis, détaillé, inclus du code quand c'est pertinent."
+            ArticleTon.PEDAGOGIQUE -> "Adopte un ton pédagogique : progressif, avec des exemples et exercices."
+            ArticleTon.CONVAINCRE -> "Adopte un ton convaincre : argumenté, avec des comparaisons et un avis tranché."
+        }
+
+        val audienceGuidance = when (intention.audience) {
+            ArticleAudience.GENERAL -> "Le public cible est grand public : évite le jargon, explique les concepts."
+            ArticleAudience.DEVELOPPEUR -> "Le public cible est développeur : tu peux utiliser du jargon technique et du code."
+            ArticleAudience.FORMATEUR -> "Le public cible est formateur : inclus des objectifs pédagogiques et des points clés."
+        }
+
+        val keywordsInstruction = if (intention.keywords.isNotEmpty()) {
+            "Intègre naturellement ces mots-clés dans le contenu : ${intention.keywords.joinToString(", ")}."
+        } else ""
+
+        return """
+            Rédige un article de blog sur le sujet suivant : "${intention.topic}".
+
+            $langInstruction
+            $toneGuidance
+            $audienceGuidance
+            ${if (keywordsInstruction.isNotBlank()) keywordsInstruction else ""}
+
+            FORMAT DE RÉPONSE OBLIGATOIRE (AsciiDoc) :
+
+            = Titre de l'article
+            :description: Résumé en une phrase
+            :tags: tag1, tag2, tag3
+            :date: YYYY-MM-DD
+
+            == Première section
+
+            Contenu de la première section...
+
+            == Deuxième section
+
+            Contenu de la deuxième section...
+
+            CONSIGNES :
+            - La première ligne DOIT commencer par "= " (titre principal)
+            - Les métadonnées :description:, :tags:, :date: sont OBLIGATOIRES
+            - Le corps utilise des sections == (niveau 2) et === (niveau 3)
+            - Inclus du contenu substantiel, pas de placeholders
+            - 3 à 5 sections de contenu
+            - Date au format YYYY-MM-DD (aujourd'hui si non précisée)
+        """.trimIndent()
+    }
 
     /**
      * Parse la réponse LLM en [ArticleOutput].
