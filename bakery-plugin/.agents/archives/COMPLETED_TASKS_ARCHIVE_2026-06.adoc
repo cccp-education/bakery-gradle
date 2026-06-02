@@ -310,3 +310,19 @@
 **Tests** : +36 tests (29 UT + 4 FT + 3 Cucumber). Zéro régression. Phase D 100% complète.
 
 **Prochaine session** : 041 — BKY-BKG Steps 4-6 ou EPIC 13
+
+== Session 041 — 2026-06-02 — Reprise Bakery + Planning BKY-BKG Steps 4-6
+
+**Contexte** : Session de cadrage pour le prochain EPIC BKY-BKG. Aucun code modifié — analyse et planification uniquement.
+
+**Taches realisees** :
+
+* [x] Lecture PROMPT_REPRISE.adoc, AGENT.adoc, INDEX.adoc, BACKLOG.adoc
+* [x] Vérification build : compileKotlin ✅, test ✅ (297 UT PASS)
+* [x] Analyse code existant BKY-BKG Steps 1-3 : RelatedArticlesService, RelatedArticlesGraph, RelatedArticlesOutput, SiteManager.registerCollectRelatedArticlesTask
+* [x] Analayse post.thyme — identification de la section "articles connexes" chronologique à remplacer par lookup graphe
+* [x] Plan session 042 : BKG-1 (3 pts) — 6 baby steps DDD/TDD/BDD
+
+**Tests** : Aucun test modifié. 297 UT PASS.
+
+**Prochaine session** : 042 — BKY-BKG Steps 4-6 (RelatedArticlesResolver + related-articles.thyme + post.thyme)

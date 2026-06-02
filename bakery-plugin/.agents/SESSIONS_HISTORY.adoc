@@ -4,6 +4,7 @@ _Derniere mise a jour : 2026-06-02_
 
 |===
 | # | Date | Type | Sujet | Score
+| 041 | 2026-06-02 | analyse + planning | Reprise Bakery + Planning BKY-BKG Steps 4-6 — analyse code existant (RelatedArticlesService, RelatedArticlesGraph, SiteManager), plan baby steps DDD/TDD/BDD 6 étapes, post.thyme identifié pour modification. Aucun code modifié. | 7/10
 | 040 | 2026-06-02 | feat + test | BKY-JB-8 Article IA COMPLETE — ArticleIntention DDD (topic+ton+audience+keywords+lang), ArticleGenerator.generate(intention) + buildPrompt(intention) enrichi, GenerateArticleTask.resolveIntention() CLI>DSL>défauts, ArticleIntentionDsl bridge, BakeryExtension.articleIntention DSL. 29 UT + 4 FT + 3 Cucumber. Baby steps 5/5. | 9/10
 | 039 | 2026-06-02 | feat + test | BKY-JB-7 Layouts COMPLETE — LayoutType enum (4), LayoutConfig+Dsl, layout-*.thyme (4 fragments th:if), injection jbake.properties, intégration post.thyme+page.thyme. 16 UT + 2 FT + 3 Cucumber. Baby steps 5/5. | 9/10
 | 038 | 2026-06-02 | feat + test + ci | BKY-JB-9 Phase B COMPLETE — Cucumber E2E 10 scénarios (15_e2e_thymeleaf_components.feature + E2eThymeleafSteps.kt), CI workflow test.yml (build + e2eTest). 49 Cucumber PASS. JB-9.8 + JB-9.9 ✅ | 9/10
