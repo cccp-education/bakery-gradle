@@ -73,15 +73,35 @@ data class RelatedArticleSuggestion(
 )
 
 /**
+ * Résumé d'un article blog pour la section blog_articles du JSON de sortie.
+ * Contient les métadonnées JBake utiles pour le template Thymeleaf.
+ *
+ * @property title Titre de l'article
+ * @property description Description courte (:jbake-description:)
+ * @property tags Mots-clés (:jbake-tags:)
+ * @property date Date ISO de publication
+ * @property author Auteur
+ */
+data class BlogArticleSummary(
+    val title: String,
+    val description: String = "",
+    val tags: List<String> = emptyList(),
+    val date: String = "",
+    val author: String = ""
+)
+
+/**
  * Format de sortie du graphe d'articles connexes.
  * Sérialisé en JSON par la tâche collectRelatedArticles.
  *
  * @property version Version du format
  * @property generatedAt Timestamp ISO de génération
+ * @property blogArticles Map URL → résumé des métadonnées JBake pour chaque article
  * @property suggestions Map URL source → listes de suggestions
  */
 data class RelatedArticlesOutput(
     val version: String = "1.0",
     val generatedAt: String = Instant.now().toString(),
+    val blogArticles: Map<String, BlogArticleSummary> = emptyMap(),
     val suggestions: Map<String, List<RelatedArticleSuggestion>> = emptyMap()
 )

@@ -1,33 +1,28 @@
-= PROMPT_REPRISE — Session 045 : BKG-0.4 sortie graph.json enrichi
+= PROMPT_REPRISE — Session 047 : Backlog priorisé après BKG
 
-== Mission (Session 045)
+== Mission (Session 047)
 
-1. Avancer sur BKG-0.4 : enrichir la sortie `related-articles.json` avec une section `blog_articles` contenant les métadonnées JBake parsées (`:jbake-tags:`, `:jbake-description:`).
-2. Si le temps le permet, démarrer BKG-1 (consommation du graphe dans bakery : `post.thyme` lookup).
+1. Dépiler le backlog priorisé : BKY-CONV-1 (surcharge configuration multi-couche, P0) ou BKY-IA-4 (génération article IA, P0).
+2. Optionnel : BKG-2 ontologie émergente (P2, 8 pts) si les P0 sont bloqués.
 
-== État actuel (Session 044 terminée)
+== État actuel (Session 046 terminée)
 
-BKG-0 Steps 1-3 TERMINÉS :
-- `ArticleNode.description` ajouté (jbake-description) ✅
-- `RelatedArticlesService` enrichi : tag co-occurrence + entity overlap TF-IDF ✅
-- Feature Cucumber `18_related_articles_kg_enriched.feature` — 3/3 PASS ✅
-- Build complet : 386 UT + 53 FT + 58+3 Cucumber PASS ✅
+BKG-1.4 TERMINÉ :
+- `related-articles.thyme` consomme le graphe via `data-related-articles` JSON + JavaScript
+- `SiteManager` injecte `relatedArticlesData` (JSON du graphe) dans jbake.properties
+- 2 UT template PASS + 2 UT injection PASS + 2 scénarios Cucumber PASS
+- Build complet : 397 UT + 53 FT + 66 Cucumber PASS ✅
 
-== BKG-0.4 — Sortie graph.json enrichi section blog_articles
+== Backlog priorisé
 
-| Étape | Type | Action | Tests |
-|-------|------|--------|-------|
-| 4 | TDD | `RelatedArticlesOutput` inclure `blog_articles` avec `description` pour chaque nœud | 2 UT |
-
-== Baby Steps DDD/TDD/BDD pour BKG-1 (si temps)
-
-| Étape | Type | Action | Tests |
-|-------|------|--------|-------|
-| 1 | DDD | `RelatedArticlesConfig` + DSL pour `graphFilePath` | 2 UT |
-| 2 | TDD | BakeryPlugin lit `graph.json` au bake, expose map dans modèle JBake | 3 UT |
-| 3 | BDD | Cucumber `19_related_articles_graph_consumption.feature` | 3 scénarios |
+| ÉPIC | Priorité | Description |
+|------|----------|-------------|
+| BKY-CONV-1 | P0 | Surcharge configuration multi-couche (CLI > gradle.properties > DSL > site.yml > defaults) |
+| BKY-IA-4 | P0 | Génération d'article assistée IA (JB-8 ✅, reste IA-4) |
+| BKG-2 | P2 | Ontologie émergente — clustering cosine similarity (8 pts, optionnel) |
+| BKY-TRN-9 | P0 | Intégration formation : assembleTrainingSite |
 
 == Attention
 
 - Les tests Cucumber de `9_generate_article.feature` sont en état d'échec (3 bugs EPIC 17 non résolus). Ne pas les modifier sans EPIC 17.
-- STOP words FR ajoutés dans `RelatedArticlesService.stopWords` — valider qu'ils n'affectent pas les tests existants.
+- BKG EPIC complet : BKG-0 (4 étapes) + BKG-1 (4 étapes) ✅. BKG-2 reste optionnel.

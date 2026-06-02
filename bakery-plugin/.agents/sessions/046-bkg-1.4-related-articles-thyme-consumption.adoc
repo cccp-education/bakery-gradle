@@ -1,0 +1,76 @@
+= Session 046 — BKG-1.4 post.thyme consommation graphe
+:Date: 2026-06-02
+:Type: feat + test + BDD
+:Score: 9/10
+
+== Objectif
+
+BKG-1.4 — Modifier `related-articles.thyme` pour consommer le graphe d'articles connexes (lookup par slug dans `relatedArticlesData` JSON injecté via jbake.properties) et affichage via JavaScript côté client.
+
+== Tâches réalisées
+
+=== Étape 1 — TDD : Template + injection relatedArticlesData
+
+* [x] `related-articles.thyme` — Remplacement de la boucle Thymeleaf `${related_suggestions}` (non fonctionnelle en contexte JBake) par :
+  - `th:data-related-articles="${relatedArticlesData}"` → JSON inline du graphe
+  - `th:data-max-results="${relatedArticlesMaxResults}"` → nombre max de suggestions
+  - JavaScript `JSON.parse(aside.dataset.relatedArticles)` → lookup par `content.uri` → affichage dynamique
+  - Fallback : si pas de suggestions pour l'URI courante → `aside.style.display = 'none'`
+  - `th:if="${relatedArticlesEnabled != null && relatedArticlesEnabled == 'true'}"` conservé (guard)
+* [x] `SiteManager.injectRelatedArticlesConfigIntoJbakeProperties()` enrichi :
+  - Lecture du fichier graphe `graphFilePath` → injection de `relatedArticlesData` (JSON string échappé) dans jbake.properties
+  - Fallback : si le fichier n'existe pas → `relatedArticlesData=` (vide)
+* [x] `RelatedArticlesTemplateTest` — +2 tests BKG-1.4 (data-related-articles avec JSON / sans données)
+* [x] `RelatedArticlesInjectionTest` — +2 tests RelatedArticlesDataInjection (graph file exists / doesn't exist) + méthode enrichie
+
+=== Étape 2 — BDD : Feature Cucumber enrichie
+
+* [x] `19_related_articles_graph_consumption.feature` — +2 scénarios :
+  - `@bkg-1.4-template` : jbake.properties contient `relatedArticlesData=` quand graphe configuré
+  - `@bkg-1.4-empty-data` : jbake.properties contient `relatedArticlesData=` quand graphe absent
+
+== Résultats tests
+
+* 397 UT PASS (+2 depuis session 045)
+* 53 FT PASS (stable)
+* 66 Cucumber PASS (+2 depuis session 045)
+* `compileKotlin` ✅, `publishToMavenLocal` ✅, `test` ✅, `cucumberTest` ✅
+
+== Fichiers modifiés
+
+| Fichier | Action |
+|---|---|
+| `src/main/resources/site/templates/related-articles.thyme` | Modifié : data-attributes + JavaScript consommation graphe |
+| `src/main/kotlin/bakery/SiteManager.kt` | Modifié : injection `relatedArticlesData` depuis fichier graphe |
+| `src/test/kotlin/bakery/RelatedArticlesTemplateTest.kt` | Modifié : +2 tests BKG-1.4 |
+| `src/test/kotlin/bakery/RelatedArticlesInjectionTest.kt` | Modifié : +2 tests + méthode enrichie |
+| `src/test/features/19_related_articles_graph_consumption.feature` | Modifié : +2 scénarios Cucumber |
+
+== Architecture BKG-1.4
+
+```
+related-articles.json (collectRelatedArticles)
+        ↓
+SiteManager.injectRelatedArticlesConfigIntoJbakeProperties()
+        ↓ lit le fichier graphe → injecte relatedArticlesData (JSON string)
+jbake.properties:
+  relatedArticlesEnabled=true
+  relatedArticlesMaxResults=4
+  relatedArticlesHeading=Articles connexes
+  relatedArticlesData={"suggestions":{...},"blogArticles":{...}}
+        ↓
+related-articles.thyme:
+  th:if guard (enabled)
+  th:data-related-articles (JSON)
+  th:data-max-results (int)
+  JavaScript: JSON.parse → lookup content.uri → affiche title + url
+  Fallback: pas de suggestions → aside caché
+```
+
+== Prochaines étapes (Backlog)
+
+| EPIC | Priorité | Description |
+|---|---|---|
+| BKG-2 | P2 | Ontologie émergente (8 pts, optionnel) |
+| BKY-IA-4 | P0 | Génération d'article assistée IA (JB-8 ✅, reste IA-4) |
+| BKY-CONV-1 | P0 | Surcharge configuration multi-couche (5 pts) |

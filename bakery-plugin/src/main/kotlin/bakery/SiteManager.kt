@@ -393,8 +393,23 @@ object SiteManager {
         updateProperty("relatedArticlesEnabled", relatedArticlesConfig.enabled.toString())
         updateProperty("relatedArticlesMaxResults", relatedArticlesConfig.maxResults.toString())
         updateProperty("relatedArticlesHeading", relatedArticlesConfig.heading)
+        updateProperty("relatedArticlesGraphFilePath", relatedArticlesConfig.graphFilePath)
+
+        // BKG-1.4: Inject relatedArticlesData from the graph file
+        val graphFile = projectDir.resolve(relatedArticlesConfig.graphFilePath)
+        if (graphFile.exists()) {
+            val graphData = graphFile.readText(UTF_8)
+                .replace("\\", "\\\\")
+                .replace("\n", "\\n")
+                .replace("\t", "\\t")
+            updateProperty("relatedArticlesData", graphData)
+        } else {
+            logger.info("[BakeryPlugin] relatedArticlesData: graph file not found at ${graphFile.absolutePath}, skipping injection")
+            updateProperty("relatedArticlesData", "")
+        }
+
         jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
-        logger.lifecycle("✓ Injected RelatedArticles config into jbake.properties")
+        logger.lifecycle("✓ Injected RelatedArticles config into jbake.properties (graphFilePath=${relatedArticlesConfig.graphFilePath})")
     }
 
 // ==================== Bakery Tasks Configuration ====================

@@ -18,6 +18,7 @@ class RelatedArticlesConfigTest {
             assertThat(config.enabled).isFalse()
             assertThat(config.maxResults).isEqualTo(4)
             assertThat(config.heading).isEqualTo("Articles connexes")
+            assertThat(config.graphFilePath).isEqualTo("build/bakery/related-articles.json")
         }
 
         @Test
@@ -25,11 +26,13 @@ class RelatedArticlesConfigTest {
             val config = RelatedArticlesConfig(
                 enabled = true,
                 maxResults = 6,
-                heading = "Lire aussi"
+                heading = "Lire aussi",
+                graphFilePath = "custom/path/related-articles.json"
             )
             assertThat(config.enabled).isTrue()
             assertThat(config.maxResults).isEqualTo(6)
             assertThat(config.heading).isEqualTo("Lire aussi")
+            assertThat(config.graphFilePath).isEqualTo("custom/path/related-articles.json")
         }
     }
 
@@ -51,6 +54,22 @@ class RelatedArticlesConfigTest {
             assertThat(config.relatedArticles!!.enabled).isTrue()
             assertThat(config.relatedArticles!!.maxResults).isEqualTo(5)
             assertThat(config.relatedArticles!!.heading).isEqualTo("Voir aussi")
+        }
+
+        @Test
+        fun `parse site yml with relatedArticles including graphFilePath`() {
+            val yaml = """
+                bake:
+                  srcPath: src
+                  destDirPath: build
+                relatedArticles:
+                  enabled: true
+                  graphFilePath: "custom/graph.json"
+            """.trimIndent()
+            val config = mapper.readValue(yaml, SiteConfiguration::class.java)
+            assertThat(config.relatedArticles).isNotNull
+            assertThat(config.relatedArticles!!.enabled).isTrue()
+            assertThat(config.relatedArticles!!.graphFilePath).isEqualTo("custom/graph.json")
         }
 
         @Test
@@ -89,6 +108,7 @@ class RelatedArticlesConfigTest {
             assertThat(dsl.enabled).isFalse()
             assertThat(dsl.maxResults).isEqualTo(4)
             assertThat(dsl.heading).isEqualTo("Articles connexes")
+            assertThat(dsl.graphFilePath).isEqualTo("build/bakery/related-articles.json")
         }
 
         @Test
@@ -97,10 +117,12 @@ class RelatedArticlesConfigTest {
             dsl.enabled = true
             dsl.maxResults = 5
             dsl.heading = "Voir aussi"
+            dsl.graphFilePath = "custom/path/related-articles.json"
 
             assertThat(dsl.enabled).isTrue()
             assertThat(dsl.maxResults).isEqualTo(5)
             assertThat(dsl.heading).isEqualTo("Voir aussi")
+            assertThat(dsl.graphFilePath).isEqualTo("custom/path/related-articles.json")
         }
     }
 }

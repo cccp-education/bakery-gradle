@@ -210,10 +210,21 @@ class RelatedArticlesService {
 
     /**
      * Convertit un [RelatedArticlesGraph] en [RelatedArticlesOutput] contenant
-     * les suggestions pour chaque article qui a au moins une relation.
+     * les suggestions pour chaque article qui a au moins une relation,
+     * et les métadonnées JBake de tous les articles dans blogArticles.
      */
     fun toSuggestions(graph: RelatedArticlesGraph): RelatedArticlesOutput {
         val articlesByUrl = graph.articles.associateBy { it.url }
+
+        val blogArticles = graph.articles.associate { node ->
+            node.url to BlogArticleSummary(
+                title = node.title,
+                description = node.description,
+                tags = node.tags,
+                date = node.date,
+                author = node.author
+            )
+        }
 
         val suggestions = mutableMapOf<String, List<RelatedArticleSuggestion>>()
 
@@ -235,6 +246,9 @@ class RelatedArticlesService {
             suggestions[node.url] = related
         }
 
-        return RelatedArticlesOutput(suggestions = suggestions)
+        return RelatedArticlesOutput(
+            blogArticles = blogArticles,
+            suggestions = suggestions
+        )
     }
 }

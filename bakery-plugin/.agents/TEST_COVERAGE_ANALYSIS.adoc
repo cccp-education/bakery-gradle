@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-02 — Session 044_
+_Dernière mise à jour : 2026-06-02 — Session 046_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -24,7 +24,9 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 [cols="2,2,2,3,3"]
 |===
 | Session | Date | Kover % | Tests PASS | Notes
-| 044 | 2026-06-02 | *70.8%* | 386 UT ✅, 53 FT ✅, 61 Cucumber ✅ (58 + 3 nouveaux) | BKG-0 KG Enrichi : ArticleNode.description (3 UT), Tag co-occurrence (2 UT), Entity overlap (3 UT), score fix (1 UT), Cucumber 18_related_articles_kg_enriched.feature (3 scénarios).
+| 046 | 2026-06-02 | *70.8%* | 397 UT ✅, 53 FT ✅, 66 Cucumber ✅ (64 + 2 nouveaux) | BKG-1.4 : related-articles.thyme data-attributes + JavaScript + SiteManager injection relatedArticlesData (2 UT template + 2 UT injection + 2 Cucumber).
+| 045 | 2026-06-02 | *70.8%* | 395 UT ✅, 53 FT ✅, 64 Cucumber ✅ (61 + 3 nouveaux) | BKG-0.4 + BKG-1.1-1.3 : BlogArticleSummary (2 UT), graphFilePath (2 UT), Injection (2 UT), Resolver blogArticles (3 UT), Cucumber 19 (3 scénarios).
+| 044 | 2026-06-02 | *70.8%* | 386 UT ✅, 53 FT ✅, 61 Cucumber ✅ (58 + 3 nouveaux) | BKG-0 KG Enrichi : ArticleNode.description (3 UT), Tag co-occurrence (2 UT), Entity overlap (3 UT), score fix (1 UT), Cucumber 18 (3 scénarios).
 | 042 | 2026-06-02 | *Non mesuré* | 8 UT ✅ (Resolver), code post-bake À RETIRER | BKY-BKG : RelatedArticlesResolver (8 UT PASS — exact, suffix, partial, empty, missing, maxResults, count). Code post-bake Jsoup exploratoire = anti-pattern. Pivot vers Extension DSL.
 | 040 | 2026-06-02 | *Non mesuré* | 29 UT ✅, 4 FT ✅, 55 Cucumber ✅ | BKY-JB-8 Article IA : ArticleIntentionTest (13), ArticleGeneratorTest intención +7, ResolveIntention +9, ArticleIntentionFunctionalTests (4), 16_article_intention.feature (3). Phase D 100% complète.
 | 039 | 2026-06-02 | *Non mesuré* | 16/16 UT ✅, 2/2 FT ✅, 52/52 Cucumber ✅ | BKY-JB-7 Layouts : LayoutConfigTest (6), LayoutTemplateTest (7), LayoutInjectionTest (3), LayoutTest FT (2), 13_layouts.feature (3). Phase C 100% complète.

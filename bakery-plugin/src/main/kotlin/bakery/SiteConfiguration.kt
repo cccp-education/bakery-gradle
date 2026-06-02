@@ -136,5 +136,6 @@ data class RelatedArticlesConfig(
     val enabled: Boolean = false,
     val maxResults: Int = 4,
     val heading: String = "Articles connexes",
+    val graphFilePath: String = "build/bakery/related-articles.json",
 )
 

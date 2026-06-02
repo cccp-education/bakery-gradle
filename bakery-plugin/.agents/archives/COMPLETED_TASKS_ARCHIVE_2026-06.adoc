@@ -1,5 +1,35 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 046 — 2026-06-02 — BKG-1.4 post.thyme consommation graphe
+
+**Contexte** : BKG-1.4 — Consommation du graphe d'articles connexes dans `related-articles.thyme` via data-attributes JSON + JavaScript côté client. Injection `relatedArticlesData` dans jbake.properties par SiteManager.
+
+**Tâches réalisées** :
+
+* [x] `related-articles.thyme` — data-attributes (`th:data-related-articles`, `th:data-max-results`) + JavaScript consommation JSON (lookup par `content.uri`, fallback display:none)
+* [x] `SiteManager.injectRelatedArticlesConfigIntoJbakeProperties()` — lecture fichier graphe → injection `relatedArticlesData` JSON échappé
+* [x] `RelatedArticlesTemplateTest` — +2 tests BKG-1.4 (data-related-articles avec JSON / sans données)
+* [x] `RelatedArticlesInjectionTest` — +2 tests RelatedArticlesDataInjection (graph file exists / doesn't exist)
+* [x] Feature Cucumber 19 — +2 scénarios (@bkg-1.4-template, @bkg-1.4-empty-data)
+* [x] 397 UT + 53 FT + 66 Cucumber — 0 régression
+
+**Fichiers modifiés** : 5 (related-articles.thyme, SiteManager.kt, RelatedArticlesTemplateTest.kt, RelatedArticlesInjectionTest.kt, 19_related_articles_graph_consumption.feature)
+
+== Session 045 — 2026-06-02 — BKG-0.4 + BKG-1.1-1.3 (BlogArticleSummary, graphFilePath, Cucumber 19)
+
+**Contexte** : Session 045 — Enrichissement de la sortie `RelatedArticlesOutput` avec `blogArticles` (métadonnées JBake parsées) et consommation du graphe via DSL `graphFilePath` + injection `jbake.properties` + Cucumber BDD. Baby steps DDD/TDD/BDD 6/6.
+
+**Tâches réalisées** :
+
+* [x] BKG-0.4 — `BlogArticleSummary` data class (title, description, tags, date, author) + `RelatedArticlesOutput.blogArticles` enrichi + `toSuggestions()` peuple blogArticles (2 UT nouveaux + 1 mis à jour)
+* [x] BKG-1.1 — `RelatedArticlesConfig.graphFilePath` + `RelatedArticlesDsl.graphFilePath` (2 UT nouveaux + 2 UT mis à jour)
+* [x] BKG-1.2 — `injectRelatedArticlesConfigIntoJbakeProperties` injecte `relatedArticlesGraphFilePath` + `RelatedArticlesResolver` lit blogArticles (2 UT injection + 3 UT résolveur)
+* [x] BKG-1.3 — Feature Cucumber `19_related_articles_graph_consumption.feature` + `GraphConsumptionSteps.kt` (3 scénarios PASS)
+* [x] 395 UT + 53 FT + 64 Cucumber — 0 régression
+
+**Fichiers modifiés** : 7 (RelatedArticlesGraph.kt, RelatedArticlesService.kt, SiteConfiguration.kt, RelatedArticlesDsl.kt, SiteManager.kt, RelatedArticlesConfigTest.kt, RelatedArticlesInjectionTest.kt)
+**Fichiers créés** : 2 (19_related_articles_graph_consumption.feature, GraphConsumptionSteps.kt)
+
 == Session 043 — 2026-06-02 — BKY-BKG BKG-1 COMPLETE
 
 **Contexte** : Implémentation de l'EPIC BKY-BKG BKG-1 — consommation du graphe KG dans les templates bakery VIA l'extension DSL + jbake.properties + Thymeleaf côté serveur. Pivot architectural : l'approche post-bake HTML injection (Jsoup) est un anti-pattern, remplacée par l'architecture Extension DSL → jbake.properties → Thymeleaf.
