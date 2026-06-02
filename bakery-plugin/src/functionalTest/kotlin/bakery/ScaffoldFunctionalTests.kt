@@ -517,7 +517,7 @@ class ScaffoldFunctionalTests {
         }
 
         @Test
-        fun `should scaffold site with theme template but no injection when site yml has no theme`() {
+        fun `should scaffold site with theme template and default injection when site yml has no theme`() {
             createMinimalBakeryProject(
                 projectDir,
                 sitesBaseDir = null,
@@ -535,11 +535,12 @@ class ScaffoldFunctionalTests {
             val templatesDir = siteDir.resolve("site/templates")
             assertThat(templatesDir.resolve("theme-script.thyme")).exists().isFile
 
+            // CONV-1: ConfigResolver injects defaults when no config provided (cascade: CLI > gradle.properties > DSL > YAML > defaults)
             val jbakeProps = siteDir.resolve("site/jbake.properties")
             assertThat(jbakeProps).exists().isFile
             assertThat(jbakeProps.readText(UTF_8))
-                .doesNotContain("themeMode")
-                .doesNotContain("themePrimaryColor")
+                .contains("themeMode=auto")
+                .contains("themePrimaryColor=#0d6efd")
 
             assertThat(result.output).contains("BUILD SUCCESSFUL")
         }
@@ -638,7 +639,7 @@ class ScaffoldFunctionalTests {
         }
 
         @Test
-        fun `should scaffold site with no relatedArticles injection when site yml has no relatedArticles`() {
+        fun `should scaffold site with relatedArticles defaults when site yml has no relatedArticles`() {
             createMinimalBakeryProject(
                 projectDir,
                 sitesBaseDir = null,
@@ -655,10 +656,116 @@ class ScaffoldFunctionalTests {
             val siteDir = projectDir.resolve("no-related-articles")
             val jbakeProps = siteDir.resolve("site/jbake.properties")
             assertThat(jbakeProps).exists().isFile
+            // CONV-1: ConfigResolver injects defaults when no config provided
             assertThat(jbakeProps.readText(UTF_8))
-                .doesNotContain("relatedArticlesEnabled")
-                .doesNotContain("relatedArticlesMaxResults")
-                .doesNotContain("relatedArticlesHeading")
+                .contains("relatedArticlesEnabled=false")
+                .contains("relatedArticlesMaxResults=4")
+
+            assertThat(result.output).contains("BUILD SUCCESSFUL")
+        }
+    }
+
+    @Nested
+    @DisplayName("CONV-1: ConfigResolver 4-layer cascade (CLI > gradle.properties > DSL > YAML > defaults)")
+    inner class ConfigResolverCascadeTest {
+
+        @TempDir
+        lateinit var projectDir: File
+
+        @Test
+        fun `CONV-1 DSL overrides default when explicitly set`() {
+            createMinimalBakeryProject(
+                projectDir,
+                sitesBaseDir = null,
+                siteName = "dsl-override-test",
+                siteType = "blog"
+            )
+            // Add googleForms DSL block to build.gradle.kts
+            val buildFile = projectDir.resolve("build.gradle.kts")
+            val content = buildFile.readText(UTF_8)
+            val updatedContent = content.replace(
+                Regex("(bakery\\s*\\{)"),
+                "$1\n    googleForms {\n        formId = \"dsl-form-id\"\n    }"
+            )
+            buildFile.writeText(updatedContent, UTF_8)
+
+            val result = create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateSite")
+                .build()
+
+            val siteDir = projectDir.resolve("dsl-override-test")
+            val jbakeProps = siteDir.resolve("site/jbake.properties")
+            assertThat(jbakeProps).exists().isFile
+            // CONV-1: DSL overrides defaults — formId should be dsl-form-id
+            assertThat(jbakeProps.readText(UTF_8))
+                .contains("googleFormsFormId=dsl-form-id")
+
+            assertThat(result.output).contains("BUILD SUCCESSFUL")
+        }
+
+        @Test
+        fun `CONV-1 - gradle properties overrides DSL and defaults`() {
+            createMinimalBakeryProject(
+                projectDir,
+                sitesBaseDir = null,
+                siteName = "props-override-test",
+                siteType = "blog"
+            )
+            // Add googleForms DSL block (overridden by gradle.properties)
+            val buildFile = projectDir.resolve("build.gradle.kts")
+            val content = buildFile.readText(UTF_8)
+            val updatedContent = content.replace(
+                Regex("(bakery\\s*\\{)"),
+                "$1\n    googleForms {\n        formId = \"dsl-form-id\"\n    }"
+            )
+            buildFile.writeText(updatedContent, UTF_8)
+            // Add gradle.properties with bakery.googleForms.formId
+            projectDir.resolve("gradle.properties").writeText(
+                "bakery.googleForms.formId=props-form-id\n", UTF_8
+            )
+
+            val result = create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateSite")
+                .build()
+
+            val siteDir = projectDir.resolve("props-override-test")
+            val jbakeProps = siteDir.resolve("site/jbake.properties")
+            assertThat(jbakeProps).exists().isFile
+            // CONV-1: gradle.properties overrides DSL — formId should be props-form-id
+            assertThat(jbakeProps.readText(UTF_8))
+                .contains("googleFormsFormId=props-form-id")
+
+            assertThat(result.output).contains("BUILD SUCCESSFUL")
+        }
+
+        @Test
+        fun `CONV-1 defaults are injected when no config provided`() {
+            createMinimalBakeryProject(
+                projectDir,
+                sitesBaseDir = null,
+                siteName = "defaults-test",
+                siteType = "blog"
+            )
+
+            val result = create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateSite")
+                .build()
+
+            val siteDir = projectDir.resolve("defaults-test")
+            val jbakeProps = siteDir.resolve("site/jbake.properties")
+            assertThat(jbakeProps).exists().isFile
+            // CONV-1: defaults are injected when no config
+            val propsContent = jbakeProps.readText(UTF_8)
+            assertThat(propsContent).contains("themeMode=auto")
+            assertThat(propsContent).contains("themePrimaryColor=#0d6efd")
+            assertThat(propsContent).contains("layoutType=FULL_WIDTH")
+            assertThat(propsContent).contains("relatedArticlesMaxResults=4")
 
             assertThat(result.output).contains("BUILD SUCCESSFUL")
         }

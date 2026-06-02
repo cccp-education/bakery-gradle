@@ -1,27 +1,22 @@
-= PROMPT_REPRISE — Session 049 : CONV-1.4 migration SiteManager
+= PROMPT_REPRISE — Session 051 : CONV-1.7 saveConfiguration() FT + Cucumber
 
-== Mission (Session 049)
+== Mission (Session 051)
 
-1. **CONV-1.4** : Brancher ConfigResolver dans SiteManager.
-   - Remplacer les 9 méthodes `inject*IntoJbakeProperties` par une seule méthode
-     générique utilisant la cascade 4 couches
-   - Créer les méthodes `resolve*Config` manquantes : resolveFirebaseConfig,
-     resolveFirebaseAuthConfig, resolveCommentsConfig, resolveNewsletterConfig,
-     resolveThemeConfig, resolveLayoutConfig
-   - `copySiteResources` doit passer `project.properties` et `BakeryExtension`
-     aux méthodes d'injection
+1. **CONV-1.7** : Ajouter des tests fonctionnels (FT) pour saveConfiguration()
+2. **CONV-1.7** : Ajouter un scénario Cucumber pour la persistence site.yml
+3. **Dette** : Les 58 échecs Cucumber préexistants à investiguer
 
-2. **CONV-1.5** : 3 scénarios Cucumber sur l'ordre de résolution.
+== État actuel (Session 050 terminée)
 
-3. Optionnel : commencer CONV-1.6 (documentation de l'ordre de surcharge dans AGENT.adoc)
-
-== État actuel (Session 048 terminée)
-
-- Code review complète → `.agents/CODE_REVIEW.adoc`
-- Clarification périmètre : BKY-TRN-9 → training-gradle TRN-9 🔒, BKY-IA-5 → KINGSTON gsuite-gradle (borough à créer)
-- SiteManager.kt pointé comme god class (819 lignes)
-- ConfigResolver (50 UT) non branché dans SiteManager
-- `saveConfiguration()` toujours vide
+- CONV-1.6 : ✅ Documentation ordre de surcharge (AGENT.adoc, BACKLOG)
+- CONV-1.7 : ✅ Implémentation `File.saveConfiguration()` — 4 UT PASS
+  - `saves push credentials into existing site yml`
+  - `creates pushPage section if missing in site yml`
+  - `preserves existing bake configuration when saving credentials`
+  - `does not overwrite site yml when all credentials are empty`
+- SiteManager mis à jour : `collectSiteConfig` appelle `File.saveConfiguration`
+- Ancien no-op `Project.saveConfiguration` gardé comme `@Deprecated`
+- Graphify : dépendance RÉTABLIE (nécessaire pour BKG)
 
 == Architecture ConfigResolver — Rappel
 
@@ -29,7 +24,15 @@
 CLI (-Pbakery.xxx) > gradle.properties > DSL (bakery { xxx { ... } }) > site.yml > defaults
 ```
 
+== Architecture saveConfiguration — Rappel
+
+```
+collectSiteConfig → collecte (username, repo, token, configPath)
+                   → File.saveConfiguration(site, siteYmlFile, username, repo, token)
+                   → FileSystemManager.yamlMapper.writeValue(siteYmlFile, updatedConfig)
+```
+
 == Attention
 
-- ConfigResolver N'est PAS encore branché dans SiteManager — c'est CONV-1.4
-- Les 9 méthodes inject* sont du copier-coller — une méthode générique les remplacera
+- Ne pas lancer `./gradlew test` sans permission explicite
+- 58 échecs Cucumber préexistants (pas liés à nos changements)

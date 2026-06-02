@@ -335,18 +335,23 @@ mais le test n'est pas connecté à une vraie consommation de graphify.
 // end::high[]
 
 // tag::high[]
-=== 🟠 GRAVE 5 — @SupersededBy et tests legacy conservés
+=== 🟠 GRAVE 5 — Tests Firebase legacy partiellement couverts par ThymeleafRenderingTest
 
-4 `TemplateTest` marqués `@SupersededBy` mais conservés comme « littérature ».
+`FirebaseAuthTemplateTest` (8 tests) dont 6 sont "partiellement superseded"
+par `ThymeleafRenderingTest.AuthHeaderRenderingTest`, `.CommentsRenderingTest`,
+`.FooterIntegrationRenderingTest`.
 
-*Impact* : bruit dans les rapports de test, temps d'exécution superflu, confusion
-entre tests actifs et obsolètes.
+Le KDoc de `FirebaseAuthTemplateTest` documente explicitement :
+- Tests 1-6 : source-text assertions → partiellement couverts par rendering tests
+- Tests 7-8 : cross-template integration → **pas superseded** (nécessite Playwright E2E)
+
+*Impact* : redondance limitée (2 perspectives : source-text vs rendering),
+temps d'exécution marginal (~8 tests unitaires rapides).
 
 .Recommandation
-. Supprimer les tests marqués `@SupersededBy` (ils sont remplacés par les
-  `ThymeleafRenderingTestFactory`)
-. Si la « littérature » a de la valeur : déplacer le contenu dans un doc `.adoc`
-  dans `.agents/encyclopedies/`
+. Conserver les 8 tests : source-text et rendering couvrent des perspectives différentes
+. Le KDoc documente déjà la relation — pas d'action supplémentaire nécessaire
+. **Résolu** : audit confirme qu'il n'existe PAS d'annotation `@SupersededBy` dans le code
 // end::high[]
 
 // tag::high[]
@@ -465,14 +470,14 @@ du Knowledge Graph (linking sémantique) reste partielle sans ontologie.
 | # | Action | EPIC | Effort
 | 1 | Extraire les 9 `inject*` en méthode générique + brancher ConfigResolver | CONV-1.4 | 3 pts
 | 2 | Implémenter `saveConfiguration()` dans ConfigPrompts | CONV-1.6 | 2 pts
-| 3 | Supprimer ou documenter la dépendance graphify inutilisée | — | 1 pt
+| 3 | Clarifier ou supprimer la dépendance graphify inutilisée (BKG-0 futur) | — | 1 pt
 |===
 
 === P1 — Court terme (qualité)
 
 |===
 | # | Action | Effort
-| 4 | Supprimer les tests `@SupersededBy` ou les déplacer en littérature | 1 pt
+| 4 | ✅ Résolu : aucun @SupersededBy n'existe, KDoc documente déjà la relation — conservé | 0 pt (audit)
 | 5 | Nettoyer les fichiers legacy à la racine du repo | 2 pts
 | 6 | Aligner BAKERY_ROADMAP_JBake.adoc avec la réalité du code (BKY-IA-0) | 1 pt
 |===

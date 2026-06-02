@@ -1203,9 +1203,9 @@ _Audité et confirmé_ : plantuml-gradle (ConfigMerger 5 couches), codebase-grad
 * [x] **CONV-1.1** — Audit : Analysé 9/10 configs sans override. Seul `articleIntention` a un vrai override CLI>DSL>defaults.
 * [x] **CONV-1.2** — DDD : `ConfigResolver.kt` créé (4 types primitifs + 3 méthodes par config). 50 UT PASS.
 * [x] **CONV-1.3** — TDD : 50 UT couvrent String/Int/Boolean/Enum/GoogleForms/Analytics/RelatedArticles.
-* [ ] **CONV-1.4** — Migration : Brancher ConfigResolver dans SiteManager (9+ méthodes `inject*IntoJbakeProperties`).
-* [ ] **CONV-1.5** — BDD : 3 scénarios Cucumber sur l'ordre de résolution.
-* [ ] **CONV-1.6** — Documentation : AGENT.adoc + BACKLOG mis à jour.
+* [x] **CONV-1.4** — Migration : ConfigResolver branché dans SiteManager (9+ méthodes `inject*IntoJbakeProperties`). Vérifié session 049.
+* [x] **CONV-1.5** — BDD : 3 FT cascade(ConfigResolverCascadeTest) + Feature Cucumber 20 (2 scénarios). Vérifié session 049.
+* [x] **CONV-1.6** — Documentation : Section "Ordre de Surcharge Configuration" ajoutée dans AGENT.adoc. Cascade 5 couches documentée. BACKLOG mis à jour.
 
 === User Journeys BDD
 

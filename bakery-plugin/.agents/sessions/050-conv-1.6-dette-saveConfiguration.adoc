@@ -1,0 +1,55 @@
+= Session 050 — CONV-1.6 Documentation + Dette Technique + saveConfiguration()
+
+== Date
+2026-06-02
+
+== Objectif
+CONV-1.6 Documentation + Nettoyage dette technique + Implémentation saveConfiguration()
+
+== Réalisations
+
+=== CONV-1.6 ✅ TERMINÉ
+- Section "Ordre de Surcharge Configuration" ajoutée dans AGENT.adoc (5 couches : CLI > gradle.properties > DSL > site.yml > defaults)
+- ConfigResolver.kt documenté comme composant clé dans AGENT.adoc
+- BACKLOG mis à jour : CONV-1.4, CONV-1.5, CONV-1.6 marqués terminés
+
+=== Dette CRITIQUE : graphify-gradle — RÉTABLI
+- Tentative de suppression (4 lignes : build.gradle.kts, libs.versions.toml)
+- **Rétrogradé** : dépendance nécessaire pour BKY-BKG (articles connexes + Knowledge Graph)
+- La code review GRAVE 4 disait "inutilisée" mais le BACKLOG BKG-0/BKG-1 montre que graphify est le socle N0 pour le Knowledge Graph éditorial
+- Code review GRAVE 4 mise à jour : "clarifier ou supprimer" au lieu de "supprimé"
+
+=== Dette GRAVE 5 : tests @SupersededBy — RÉSOLU
+- Audit exhaustif : **AUCUNE annotation @SupersededBy n'existe** dans le code
+- Le seul endroit est un KDoc dans FirebaseAuthTemplateTest.kt qui documente une relation "partially superseded"
+- 8 tests FirebaseAuthTemplateTest : 6 "partiellement superseded" par ThymeleafRenderingTest, 2 tests d'intégration cross-template non superseded
+- CODE_REVIEW.adoc GRAVE 5 corrigé : diagnostic initial erroné, pas d'action nécessaire
+
+=== saveConfiguration() — IMPLÉMENTÉ ✅ (CONV-1.7 démarré)
+- Signature `Project.saveConfiguration(site, isGradlePropertiesEnabled)` était un no-op depuis 30+ sessions
+- Nouvelle signature : `File.saveConfiguration(currentConfig, siteYmlFile, username, repo, token)` qui :
+  1. Si credentials vides → no-op (préserve le fichier)
+  2. Sinon : merge les credentials dans `pushPage.repo.credentials` du site.yml existant
+  3. Utilise `FileSystemManager.yamlMapper` pour le round-trip YAML
+- `SiteManager.registerCollectSiteConfigTask` mis à jour pour appeler la nouvelle signature
+- Ancienne signature `Project.saveConfiguration` gardée comme `@Deprecated` no-op pour compat
+- 4 UT PASS :
+  - `saves push credentials into existing site yml`
+  - `creates pushPage section if missing in site yml`
+  - `preserves existing bake configuration when saving credentials`
+  - `does not overwrite site yml when all credentials are empty`
+
+== Fichiers modifiés
+| Fichier | Changement
+| AGENT.adoc | +Section "Ordre de Surcharge Configuration" + ConfigResolver dans composants clés
+| BACKLOG.adoc | CONV-1.4/1.5/1.6 cochés
+| .agents/CODE_REVIEW.adoc | GRAVE 4 clarifié, GRAVE 5 résolu
+| src/main/kotlin/bakery/ConfigPrompts.kt | +File.saveConfiguration(), @Deprecated sur l'ancien no-op
+| src/main/kotlin/bakery/SiteManager.kt | collectSiteConfig → appelle File.saveConfiguration
+| src/test/kotlin/bakery/ConfigPromptsTest.kt | 4 nouveaux UT SaveConfiguration
+
+== Score
+7/10 — Bonne session, dette analysée et traitée proprement. graphify failli être supprimé par erreur.
+
+== Prochaine session
+CONV-1.7 : Terminer saveConfiguration() — ajouter FT + Cucumber + mise à jour PROMPT_REPRISE

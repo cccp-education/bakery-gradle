@@ -153,6 +153,26 @@ bakery-gradle/                     # RACINE GIT (ne contient que le repo + boots
 * **FileSystemManager** : Gestion des fichiers et ressources
 * **ConfigPrompts** : Prompts de configuration interactive
 * **BakeryExtension** : Extension Gradle DSL
+* **ConfigResolver** : Resolveur de configuration 5 couches (CLI > gradle.properties > DSL > site.yml > defaults)
+
+=== Ordre de Surcharge Configuration
+
+Chaque propriete de configuration suit la cascade 5 couches :
+
+[source]
+----
+CLI (-Pbakery.xxx) > gradle.properties > DSL (bakery { xxx { ... } }) > site.yml > defaults
+----
+
+* **Couche 1** : CLI (`-Pbakery.googleForms.formId=...`) — priorite maximale, surcharge tout
+* **Couche 2** : `gradle.properties` (`bakery.googleForms.formId=...`) — surcharge DSL et YAML
+* **Couche 3** : DSL (`bakery { googleForms { formId = "..." } }`) — surcharge YAML
+* **Couche 4** : `site.yml` (YAML.parse) — surcharge les defaults
+* **Couche 5** : Defaults (valeurs codees en dur dans les data classes) — fallback final
+
+Implementation : `ConfigResolver` (objet singleton) avec methodes `resolveString`, `resolveInt`, `resolveBoolean`, `resolveEnum` + methodes dediees par config (`resolveGoogleFormsConfig`, etc.).
+
+Reference croisee : plantuml-gradle `ConfigMerger` (5 couches), codebase-gradle (4 couches natives Gradle), slider-gradle (3 couches YAML-centric).
 
 === Commandes Utiles
 

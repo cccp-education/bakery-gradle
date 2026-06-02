@@ -1,5 +1,59 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 050 — 2026-06-02 — CONV-1.6 Documentation + Dette + saveConfiguration()
+
+**Contexte** : CONV-1.6 Documentation de l'ordre de surcharge + nettoyage dette technique + implémentation saveConfiguration.
+
+**Tâches réalisées** :
+
+* [x] CONV-1.6 : Section "Ordre de Surcharge Configuration" ajoutée dans AGENT.adoc (5 couches documentées)
+* [x] CONV-1.6 : ConfigResolver ajouté aux composants clés dans AGENT.adoc
+* [x] CONV-1.6 : BACKLOG mis à jour — CONV-1.4, CONV-1.5, CONV-1.6 cochés terminés
+* [x] Dette GRAVE 5 : Audit exhaustif — pas d'annotation @SupersededBy, KDoc uniquement. CODE_REVIEW corrigé.
+* [x] Dette GRAVE 4 : Tentative de suppression graphify → RÉTABLI (nécessaire pour BKG)
+* [x] CONV-1.7 (démarré) : saveConfiguration() implémenté — File.saveConfiguration(currentConfig, siteYmlFile, username, repo, token)
+  - Merge credentials dans pushPage.repo.credentials via yamlMapper
+  - No-op si tous les credentials vides
+  - SiteManager.registerCollectSiteConfigTask mis à jour
+  - Ancien Project.saveConfiguration gardé comme @Deprecated
+* [x] 4 UT SaveConfiguration PASS
+
+**Fichiers créés** :
+
+* `.agents/sessions/050-conv-1.6-dette-saveConfiguration.adoc`
+
+**Fichiers modifiés** :
+
+* `AGENT.adoc` — +Section "Ordre de Surcharge Configuration" + ConfigResolver composant clé
+* `BACKLOG.adoc` — CONV-1.4/1.5/1.6 cochés
+* `.agents/CODE_REVIEW.adoc` — GRAVE 4 clarifié, GRAVE 5 résolu
+* `src/main/kotlin/bakery/ConfigPrompts.kt` — +File.saveConfiguration(), @Deprecated sur l'ancien no-op
+* `src/main/kotlin/bakery/SiteManager.kt` — collectSiteConfig appelle File.saveConfiguration
+* `src/test/kotlin/bakery/ConfigPromptsTest.kt` — 4 nouveaux UT SaveConfiguration
+* `.agents/INDEX.adoc` — session 050
+* `.agents/SESSIONS_HISTORY.adoc` — session 050
+* `PROMPT_REPRISE.adoc` — mission 051
+
+== Session 049 — 2026-06-02 — CONV-1.4 vérifié + CONV-1.5 FT cascade ConfigResolver — 2026-06-02 — CONV-1.4 vérifié + CONV-1.5 FT cascade ConfigResolver
+
+**Contexte** : CONV-1 — Surcharge Configuration Multi-Couche. Vérification que la migration ConfigResolver dans SiteManager est complète (session 047 ayant fait Steps 1-3). Ajout de tests fonctionnels de cascade.
+
+**Tâches réalisées** :
+
+* [x] CONV-1.4 : Vérifié — migration déjà réalisée. `copySiteResources` utilise ConfigResolver (9 configs résolues). Méthode unifiée `injectResolvedConfigIntoJbakeProperties` remplace les 9 méthodes `inject*`.
+* [x] CONV-1.5 FT : 3 tests fonctionnels `ConfigResolverCascadeTest` PASS — DSL override, gradle.properties override, defaults injection
+* [x] CONV-1.5 Cucumber : Feature 20 créée (2 scénarios basiques)
+* [x] 2 tests fonctionnels existants modifiés pour refléter injection defaults CONV-1
+
+**Fichiers créés** :
+
+* `src/test/features/20_config_resolver_cascade.feature` — 2 scénarios Cucumber
+* `src/test/scenarios/bakery/scenarios/ConfigResolverSteps.kt` — Steps Cucumber CONV-1
+
+**Fichiers modifiés** :
+
+* `src/functionalTest/kotlin/bakery/ScaffoldFunctionalTests.kt` — +ConfigResolverCascadeTest (3 FT), 2 tests existants modifiés (defaults assertion)
+
 == Session 046 — 2026-06-02 — BKG-1.4 post.thyme consommation graphe
 
 **Contexte** : BKG-1.4 — Consommation du graphe d'articles connexes dans `related-articles.thyme` via data-attributes JSON + JavaScript côté client. Injection `relatedArticlesData` dans jbake.properties par SiteManager.

@@ -629,10 +629,11 @@ object SiteManager {
                     logger.lifecycle("  Config Path: $configPath")
                     logger.lifecycle("  Token: ${if (token.isNotEmpty()) "***configured***" else "not set"}")
 
-                    project.saveConfiguration(site, isGradlePropertiesEnabled)
+                    val siteYmlFile = file(configPath)
+                    projectDir.saveConfiguration(site, siteYmlFile, username, repo, token)
 
                     logger.lifecycle("")
-                    logger.lifecycle("✓ Configuration saved successfully!")
+                    logger.lifecycle("✓ Configuration saved to ${siteYmlFile.absolutePath}")
                     logger.lifecycle("  You can now run: ./gradlew bake")
                 }
             }

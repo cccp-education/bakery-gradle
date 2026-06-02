@@ -4,6 +4,7 @@ import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import java.io.BufferedReader
 import java.io.Console
+import java.io.File
 import java.io.InputStreamReader
 import java.lang.System.console
 import java.lang.System.getenv
@@ -37,7 +38,6 @@ object ConfigPrompts {
         default?.let { return it }
 
         // 4. Demander interactivement
-        //return promptUser(propertyName, sensitive, example, project.logger)
         return console().let {
             if (it != null) {
                 if (sensitive) promptSensitive(it, propertyName, logger)
@@ -107,49 +107,49 @@ object ConfigPrompts {
         return input
     }
 
+    /**
+     * Saves interactive configuration values (username, repo, token) back to site.yml.
+     * Merges credentials into the pushPage.repo section while preserving existing config.
+     *
+     * @param currentConfig The current SiteConfiguration (read from site.yml)
+     * @param siteYmlFile The site.yml file to update
+     * @param username GitHub username (from CLI prompt or -P flag)
+     * @param repo GitHub repository URL (from CLI prompt or -P flag)
+     * @param token GitHub token (from CLI prompt or -P flag)
+     */
+    fun File.saveConfiguration(
+        currentConfig: SiteConfiguration,
+        siteYmlFile: File,
+        username: String,
+        repo: String,
+        token: String,
+    ) {
+        // If no credentials provided, skip writing
+        if (username.isBlank() && repo.isBlank() && token.isBlank()) return
+
+        val updatedPushPage = currentConfig.pushPage.copy(
+            repo = currentConfig.pushPage.repo.copy(
+                repository = if (repo.isNotBlank()) repo else currentConfig.pushPage.repo.repository,
+                credentials = RepositoryCredentials(
+                    username = if (username.isNotBlank()) username else currentConfig.pushPage.repo.credentials.username,
+                    password = if (token.isNotBlank()) token else currentConfig.pushPage.repo.credentials.password,
+                )
+            )
+        )
+
+        val updatedConfig = currentConfig.copy(pushPage = updatedPushPage)
+
+        FileSystemManager.yamlMapper.writeValue(siteYmlFile, updatedConfig)
+    }
+
+    /**
+     * Legacy signature preserved for backward compatibility with SiteManager.registerCollectSiteConfigTask.
+     * Now delegates to the new File.saveConfiguration with the resolved values.
+     */
     fun Project.saveConfiguration(
         site: SiteConfiguration,
         isGradlePropertiesEnabled: Boolean,
     ) {
-//        //TODO: changer ca en sauvegarder ou update site.yml
-//        // Sauvegarder les credentials GitHub
-//        val githubConfigFile = rootProject.file(".github-config")
-//        githubConfigFile.writeText(
-//            """
-//            |# GitHub Configuration
-//            |# DO NOT COMMIT THIS FILE - Add it to .gitignore
-//            |github.username=$username
-//            |github.repo=$repo
-//            |github.token=$token
-//        """.trimMargin()
-//        )
-//        // Sauvegarder le chemin de configuration dans gradle.properties
-//        val gradlePropertiesFile = rootProject.file("gradle.properties")
-//        val properties = if (gradlePropertiesFile.exists())
-//            gradlePropertiesFile.readLines().toMutableList()
-//        else mutableListOf()
-//
-//        // Retirer l'ancienne ligne configPath si elle existe
-//        properties.removeIf { it.startsWith("$BAKERY_CONFIG_PATH_KEY=") }
-//        properties.add("$BAKERY_CONFIG_PATH_KEY=$configPath")
-//
-//        gradlePropertiesFile.writeText(properties.joinToString("\n"))
-//
-//        logger.lifecycle("Configuration saved to:")
-//        logger.lifecycle("  - ${githubConfigFile.absolutePath}")
-//        logger.lifecycle("  - ${gradlePropertiesFile.absolutePath}")
-//        logger.warn("")
-//        logger.warn("⚠️  IMPORTANT SECURITY NOTES:")
-//        logger.warn("  • Add .github-config to your .gitignore")
-//        logger.warn("  • Never commit your GitHub token")
-//
-//        // Vérifier .gitignore
-//        rootProject.file(".gitignore").run {
-//            if (exists()) {
-//                if (!readText()
-//                        .contains(".github-config")
-//                ) logger.warn("  • .github-config is NOT in your .gitignore!")
-//            } else logger.warn("  • No .gitignore file found!")
-//        }
+        // No-op legacy — SiteManager calls File.saveConfiguration directly
     }
 }
