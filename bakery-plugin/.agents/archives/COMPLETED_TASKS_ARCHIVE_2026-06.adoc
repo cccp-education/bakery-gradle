@@ -366,3 +366,35 @@
 **Tests** : +8 UT (RelatedArticlesResolver). Code post-bake à retirer.
 
 **Prochaine session** : 043 — Nettoyage post-bake + BKY-BKG Extension DSL + jbake.properties
+== Session 044 — BKG-0 KG Enrichi (co-occurrence + entity overlap)
+
+**Date** : 2026-06-02
+**Score** : 9/10
+
+=== Tâches terminées
+
+* [x] BKG-0 Step 1 — DDD : ArticleNode.description ajouté (champ `description` pour jbake-description)
+* [x] BKG-0 Step 2 — TDD : RelatedArticlesService enrichi
+  - `buildTagCooccurrenceMap()` — paires de tags fréquemment co-occurrentes
+  - `computeCooccurrenceScore()` — bonus 0.3 par co-occurrence (plafond 5)
+  - `entityOverlap()` — TF-IDF simplifié sur descriptions (+0.3 par entité commune)
+  - `computeScore()` mis à jour : 4 facteurs (tags + titre + co-occurrence + entités)
+  - `buildReasons()` mis à jour : reasons `cooccurrence:tag1,tag2` et `entity:word`
+  - Stop words français ajoutés
+* [x] BKG-0 Step 3 — BDD : Feature Cucumber 18_related_articles_kg_enriched.feature + KgEnrichedSteps.kt (3/3 PASS)
+
+=== Fichiers modifiés
+
+* `src/main/kotlin/bakery/kgraph/RelatedArticlesGraph.kt` — ArticleNode.description
+* `src/main/kotlin/bakery/kgraph/RelatedArticlesService.kt` — co-occurrence, entity overlap, stop words FR
+* `src/main/kotlin/bakery/SiteManager.kt` — extraction description metadata.json
+* `src/test/kotlin/bakery/kgraph/RelatedArticlesGraphTest.kt` — 3 UT (description)
+* `src/test/kotlin/bakery/kgraph/RelatedArticlesServiceTest.kt` — 6 UT + fix scoring test
+* `src/test/features/18_related_articles_kg_enriched.feature` — créé (3 scénarios)
+* `src/test/scenarios/bakery/scenarios/KgEnrichedSteps.kt` — créé (steps Cucumber)
+
+=== Tests
+
+* +9 UT total (3 description + 2 co-occurrence + 3 entity overlap + 1 scoring fix)
+* +3 Cucumber (feature 18)
+* Build complet : 386 UT + 53 FT + 61 Cucumber PASS

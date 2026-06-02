@@ -12,13 +12,41 @@ class RelatedArticlesGraphTest {
             title = "Introduction à Kotlin",
             date = "2024-07-24",
             tags = listOf("kotlin", "programmation", "tutoriel"),
+            description = "Un guide complet pour débuter avec Kotlin",
             author = "John Doe"
         )
         assertThat(node.url).isEqualTo("/blog/2024/kotlin.html")
         assertThat(node.title).isEqualTo("Introduction à Kotlin")
         assertThat(node.date).isEqualTo("2024-07-24")
         assertThat(node.tags).containsExactly("kotlin", "programmation", "tutoriel")
+        assertThat(node.description).isEqualTo("Un guide complet pour débuter avec Kotlin")
         assertThat(node.author).isEqualTo("John Doe")
+    }
+
+    @Test
+    fun `should create ArticleNode with description defaulting to empty`() {
+        val node = ArticleNode(
+            url = "/blog/kotlin.html",
+            title = "Kotlin Tips",
+            tags = listOf("kotlin")
+        )
+        assertThat(node.description).isEmpty()
+        assertThat(node.date).isEmpty()
+        assertThat(node.author).isEmpty()
+    }
+
+    @Test
+    fun `should create ArticleNode with jbake-style metadata`() {
+        val node = ArticleNode(
+            url = "/blog/2024/pgvector.html",
+            title = "PGVector avec Kotlin",
+            date = "2024-08-15",
+            tags = listOf("pgvector", "kotlin", "rag"),
+            description = "Comment utiliser PGVector pour la recherche vectorielle en Kotlin avec LangChain4j"
+        )
+        assertThat(node.tags).containsExactly("pgvector", "kotlin", "rag")
+        assertThat(node.description).contains("PGVector")
+        assertThat(node.description).contains("LangChain4j")
     }
 
     @Test

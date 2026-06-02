@@ -1,30 +1,33 @@
-= PROMPT_REPRISE — Session 044 : BKY-BKG vérification build complet + BKG-0
+= PROMPT_REPRISE — Session 045 : BKG-0.4 sortie graph.json enrichi
 
-== Mission (Session 044)
+== Mission (Session 045)
 
-1. Vérifier le build complet : `./gradlew check` — tous les tests unitaires, fonctionnels et Cucumber doivent passer.
-2. Si des tests échouent, les corriger (en priorité les tests legacy impactés par la suppression de jsoup/injectRelatedArticles).
-3. Si le build est vert, avancer sur BKG-0 (enrichissement graphify pour contenu éditorial) — uniquement si le temps le permet.
+1. Avancer sur BKG-0.4 : enrichir la sortie `related-articles.json` avec une section `blog_articles` contenant les métadonnées JBake parsées (`:jbake-tags:`, `:jbake-description:`).
+2. Si le temps le permet, démarrer BKG-1 (consommation du graphe dans bakery : `post.thyme` lookup).
 
-== État actuel (Session 043 terminée)
+== État actuel (Session 044 terminée)
 
-BKY-BKG BKG-1 **Steps 0-6 terminés** :
-- Architecture pivot : Extension DSL + jbake.properties + Thymeleaf côté serveur ✅
-- `RelatedArticlesConfig` + `RelatedArticlesDsl` (6 UT) ✅
-- `injectRelatedArticlesConfigIntoJbakeProperties()` (3 UT) ✅
-- Fragment `related-articles.thyme` (5 UT rendering + 2 UT intégration) ✅
-- FT Scaffold (2 FT) + Cucumber (3 scénarios) ✅
-- Nettoyage : jsoup supprimé, `InjectRelatedArticlesFunctionalTest` supprimé, `registerInjectRelatedArticlesTask` supprimé
+BKG-0 Steps 1-3 TERMINÉS :
+- `ArticleNode.description` ajouté (jbake-description) ✅
+- `RelatedArticlesService` enrichi : tag co-occurrence + entity overlap TF-IDF ✅
+- Feature Cucumber `18_related_articles_kg_enriched.feature` — 3/3 PASS ✅
+- Build complet : 386 UT + 53 FT + 58+3 Cucumber PASS ✅
 
-== Attention
-
-- `libs.versions.toml` : jsoup version et library supprimés. Si d'autres boroughs référencent jsoup via ce TOML, vérifier.
-- Les tests Cucumber et FT n'ont pas été lancés en `./gradlew check` complet — uniquement des runs ciblés.
-
-== Baby Steps DDD/TDD/BDD pour BKG-0 (si le temps le permet)
+== BKG-0.4 — Sortie graph.json enrichi section blog_articles
 
 | Étape | Type | Action | Tests |
 |-------|------|--------|-------|
-| 1 | DDD | Étendre `ArticleNode` avec `:jbake-tags:`, `:jbake-description:` | 3 UT |
-| 2 | TDD | `RelatedArticlesService.buildGraph()` enrichi (tag co-occurrence) | 3 UT |
-| 3 | BDD | Cucumber `18_related_articles_kg_enriched.feature` | 3 scénarios |
+| 4 | TDD | `RelatedArticlesOutput` inclure `blog_articles` avec `description` pour chaque nœud | 2 UT |
+
+== Baby Steps DDD/TDD/BDD pour BKG-1 (si temps)
+
+| Étape | Type | Action | Tests |
+|-------|------|--------|-------|
+| 1 | DDD | `RelatedArticlesConfig` + DSL pour `graphFilePath` | 2 UT |
+| 2 | TDD | BakeryPlugin lit `graph.json` au bake, expose map dans modèle JBake | 3 UT |
+| 3 | BDD | Cucumber `19_related_articles_graph_consumption.feature` | 3 scénarios |
+
+== Attention
+
+- Les tests Cucumber de `9_generate_article.feature` sont en état d'échec (3 bugs EPIC 17 non résolus). Ne pas les modifier sans EPIC 17.
+- STOP words FR ajoutés dans `RelatedArticlesService.stopWords` — valider qu'ils n'affectent pas les tests existants.

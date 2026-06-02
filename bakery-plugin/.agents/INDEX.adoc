@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-06-02
-_Session terminee_ : 043 — BKY-BKG BKG-1 Extension DSL + jbake.properties + Thymeleaf (6 steps complets, jsoup supprime)
-_Prochaine session_ : 044 — BKY-BKG verification build complet + BKG-0
-_Session en cours_ : 044
+_Session terminee_ : 044 — BKG-0 KG Enrichi (co-occurrence + entity overlap TF-IDF)
+_Prochaine session_ : 045 — BKG-0.4 sortie graph.json enrichi + BKG-1 consommation graphe
+_Session en cours_ : 045
 
 '''
 
@@ -70,8 +70,9 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | # | Date | Type | Sujet | Score
-| 043 | 2026-06-02 | feat + test + cleanup | BKY-BKG BKG-1 COMPLETE — Extension DSL + jbake.properties + Thymeleaf côté serveur. 6 steps baby steps DDD/TDD/BDD. RelatedArticlesConfig+Dsl (6 UT), injection jbake.properties (3 UT), related-articles.thyme (5+2 rendering UT), post.thyme intégration (2 UT), FT (2), Cucumber (3 scénarios). Jsoup supprimé. Anti-pattern post-bake retiré. | 8/10
-| 042 | 2026-06-02 | feat + test + pivot | BKY-BKG Resolver + Pivot Architecture — RelatedArticlesResolver (8 UT PASS), code post-bake exploratoire (À RETIRER), pivotExtension DSL + jbake.properties + Thymeleaf côté serveur. Score 4/10 (anti-pattern détecté tard). | 4/10
+| 044 | 2026-06-02 | feat + test + BDD | BKG-0 KG Enrichi — ArticleNode.description + tag co-occurrence + entity overlap (TF-IDF descriptions). RelatedArticlesService enrichi (4 facteurs). Feature Cucumber 18 (3/3 PASS). 6 UT nouveaux + 3 UT description. | 9/10
+| 043 | 2026-06-02 | feat + test + pivot | BKY-BKG BKG-1 COMPLETE — RelatedArticlesDsl + jbake.properties + post.thyme intégré. 6 steps baby steps DDD/TDD/BDD. jsoup supprimé. Anti-pattern post-bake retiré. | 4/10
+| 042 | 2026-06-02 | feat + test + pivot | BKY-BKG Resolver + Pivot Architecture — RelatedArticlesResolver (8 UT PASS), tentative post-bake HTML injection (anti-pattern détecté), pivot vers Extension DSL + jbake.properties + Thymeleaf côté serveur. Score 4/10 (anti-pattern détecté tard). | 4/10
 | 040 | 2026-06-02 | feat + test | BKY-JB-8 Article IA COMPLETE — ArticleIntention DDD (topic+ton+audience+keywords+lang), Generator.generate(intention) + buildPrompt(intention) enrichi, resolveIntention() CLI>DSL>défauts, ArticleIntentionDsl bridge, BakeryExtension.articleIntention DSL. 29 UT + 4 FT + 3 Cucumber (55 total). Baby steps 5/5. | 9/10
 | 039 | 2026-06-02 | feat + test | BKY-JB-7 Layouts COMPLETE — LayoutType enum (4), LayoutConfig+Dsl, 4 layout-*.thyme (th:if guards), injection jbake.properties, post.thyme+page.thyme intégrés. 16 UT + 2 FT + 3 Cucumber. 52 Cucumber total. Baby steps DDD/TDD/BDD 5/5. | 9/10
 | 038 | 2026-06-02 | feat + test + ci | BKY-JB-9 Phase B COMPLETE — Cucumber E2E 10 scénarios (15_e2e_thymeleaf_components.feature + E2eThymeleafSteps.kt), CI workflow test.yml (build + e2eTest). 49 Cucumber PASS. JB-9.8 + JB-9.9 ✅ | 9/10

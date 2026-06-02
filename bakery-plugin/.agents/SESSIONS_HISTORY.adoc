@@ -4,6 +4,7 @@ _Derniere mise a jour : 2026-06-02_
 
 |===
 | # | Date | Type | Sujet | Score
+| 044 | 2026-06-02 | feat + test + BDD | BKG-0 KG Enrichi — ArticleNode.description + tag co-occurrence + entity overlap (TF-IDF descriptions). RelatedArticlesService enrichi (4 facteurs). Feature Cucumber 18 (3/3 PASS). 6 UT nouveaux + 3 UT description. | 9/10
 | 042 | 2026-06-02 | feat + test + pivot | BKY-BKG Resolver + Pivot Architecture — RelatedArticlesResolver (8 UT PASS), tentative post-bake HTML injection (anti-pattern détecté), pivot vers Extension DSL + jbake.properties + Thymeleaf côté serveur. Code post-bake À RETIRER. | 4/10
 | 041 | 2026-06-02 | analyse + planning | Reprise Bakery + Planning BKY-BKG Steps 4-6 — analyse code existant (RelatedArticlesService, RelatedArticlesGraph, SiteManager), plan baby steps DDD/TDD/BDD 6 étapes, post.thyme identifié pour modification. Aucun code modifié. | 7/10
 | 040 | 2026-06-02 | feat + test | BKY-JB-8 Article IA COMPLETE — ArticleIntention DDD (topic+ton+audience+keywords+lang), ArticleGenerator.generate(intention) + buildPrompt(intention) enrichi, GenerateArticleTask.resolveIntention() CLI>DSL>défauts, ArticleIntentionDsl bridge, BakeryExtension.articleIntention DSL. 29 UT + 4 FT + 3 Cucumber. Baby steps 5/5. | 9/10

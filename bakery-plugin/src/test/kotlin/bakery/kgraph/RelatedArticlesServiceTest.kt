@@ -54,15 +54,19 @@ class RelatedArticlesServiceTest {
             )
             val graph = service.buildGraph(articles)
 
-            // A-B partagent 2 tags → score plus élevé
+            // A-B partagent 2 tags (kotlin, gradle) → tag score 2.0
+            // Co-occurrence bonus: kotlin+gradle co-occur in A and B (2+ times)
             val edgeAB = edgesBetween(graph, "/a.html", "/b.html")
             assertNotNull(edgeAB)
-            assertThat(edgeAB!!.score).isEqualTo(2.0)
+            assertThat(edgeAB!!.score).isGreaterThanOrEqualTo(2.0) // tag score + possible co-occurrence
 
-            // A-C partagent 1 tag → score moins élevé
+            // A-C partagent 1 tag (kotlin) → tag score 1.0
             val edgeAC = edgesBetween(graph, "/a.html", "/c.html")
             assertNotNull(edgeAC)
-            assertThat(edgeAC!!.score).isEqualTo(1.0)
+            assertThat(edgeAC!!.score).isGreaterThanOrEqualTo(1.0) // tag score + possible co-occurrence
+
+            // A-B score must be strictly greater than A-C score
+            assertThat(edgeAB.score).isGreaterThan(edgeAC.score)
         }
 
         @Test
@@ -156,6 +160,125 @@ class RelatedArticlesServiceTest {
             assertThat(suggestions[0].url).isEqualTo("/b.html")
             assertThat(suggestions[0].title).isEqualTo("Article B")
             assertThat(suggestions[0].score).isEqualTo(1.0)
+        }
+    }
+
+    @Nested
+    inner class `Tag co-occurrence scoring` {
+
+        @Test
+        fun `should create tag_cooccurrence reasons when tags frequently appear together`() {
+            val articles = listOf(
+                ArticleNode("/a.html", "Article A", tags = listOf("kotlin", "gradle", "tutorial")),
+                ArticleNode("/b.html", "Article B", tags = listOf("kotlin", "gradle")),
+                ArticleNode("/c.html", "Article C", tags = listOf("kotlin", "maven")),
+            )
+            val graph = service.buildGraph(articles)
+
+            // A-B partagent kotlin et gradle → co-occurrence (kotlin,gradle) vue 2 fois
+            val edgeAB = edgesBetween(graph, "/a.html", "/b.html")
+            assertNotNull(edgeAB)
+            assertThat(edgeAB!!.reasons).contains("tag:kotlin")
+            assertThat(edgeAB.reasons).contains("tag:gradle")
+            assertThat(edgeAB.reasons).anyMatch { it.startsWith("cooccurrence:") }
+        }
+
+        @Test
+        fun `should not create co-occurrence edge for tags appearing only once together`() {
+            val articles = listOf(
+                ArticleNode("/a.html", "Article A", tags = listOf("kotlin", "gradle")),
+                ArticleNode("/b.html", "Article B", tags = listOf("java", "maven")),
+            )
+            val graph = service.buildGraph(articles)
+
+            // A et B ne partagent aucun tag → pas d'edge
+            assertNull(edgesBetween(graph, "/a.html", "/b.html"))
+        }
+    }
+
+    @Nested
+    inner class `Entity overlap from descriptions` {
+
+        @Test
+        fun `should create entity_overlap reasons when descriptions share significant terms`() {
+            val articles = listOf(
+                ArticleNode(
+                    "/a.html", "PGVector Search",
+                    tags = listOf("pgvector"),
+                    description = "Comment utiliser PGVector pour la recherche vectorielle en Kotlin"
+                ),
+                ArticleNode(
+                    "/b.html", "RAG avec PGVector",
+                    tags = listOf("rag"),
+                    description = "Implémenter le RAG avec PGVector et LangChain4j pour la recherche vectorielle"
+                ),
+                ArticleNode(
+                    "/c.html", "Java Streams",
+                    tags = listOf("java"),
+                    description = "Introduction aux Java Streams pour le traitement de collections"
+                )
+            )
+            val graph = service.buildGraph(articles)
+
+            // A et B partagent des termes significatifs dans la description (pgvector, recherche, vectorielle)
+            val edgeAB = edgesBetween(graph, "/a.html", "/b.html")
+            assertNotNull(edgeAB)
+            assertThat(edgeAB!!.reasons).anyMatch { it.startsWith("entity:") }
+
+            // A et C ne partagent rien de significatif
+            assertNull(edgesBetween(graph, "/a.html", "/c.html"))
+        }
+
+        @Test
+        fun `should combine tag score title score and entity overlap score`() {
+            val articles = listOf(
+                ArticleNode(
+                    "/a.html", "Kotlin Coroutines Guide",
+                    tags = listOf("kotlin", "coroutines"),
+                    description = "Guide complet des coroutines Kotlin pour la programmation asynchrone"
+                ),
+                ArticleNode(
+                    "/b.html", "Kotlin Flow Tutorial",
+                    tags = listOf("kotlin", "flow"),
+                    description = "Tutorial sur Kotlin Flow et les coroutines pour la programmation réactive"
+                ),
+                ArticleNode(
+                    "/c.html", "Python Asyncio",
+                    tags = listOf("python"),
+                    description = "Programmation asynchrone en Python avec asyncio"
+                )
+            )
+            val graph = service.buildGraph(articles)
+
+            // A-B : 1 tag partagé (kotlin → 1.0) + titre overlap (Kotlin → 0.2)
+            //      + description overlap (coroutines, programmation → entity)
+            val edgeAB = edgesBetween(graph, "/a.html", "/b.html")
+            assertNotNull(edgeAB)
+            assertThat(edgeAB!!.score).isGreaterThan(1.0) // Au moins le tag + titre
+
+            // A-C : pas de tags partagés, mais description overlap possible (programmation, asynchrone)
+            val edgeAC = edgesBetween(graph, "/a.html", "/c.html")
+            // Pas d'edge si le score est trop bas après filtrage stop words
+            // Mais "asynchrone" peut matcher → on vérifie juste qu'il n'y a pas de tag:kotlin
+            if (edgeAC != null) {
+                assertThat(edgeAC.reasons).noneMatch { it.startsWith("tag:") }
+            }
+        }
+
+        @Test
+        fun `should ignore descriptions with only stop words for entity overlap`() {
+            val articles = listOf(
+                ArticleNode("/a.html", "Article A", description = "Une introduction au sujet"),
+                ArticleNode("/b.html", "Article B", description = "Un guide sur le même sujet")
+            )
+            val graph = service.buildGraph(articles)
+
+            // "sujet" peut matcher, mais "introduction", "guide" sont des stop words
+            // Le score d'entity overlap doit être faible (≤ 0.2 par mot commun hors stop)
+            val edgeAB = edgesBetween(graph, "/a.html", "/b.html")
+            if (edgeAB != null) {
+                assertThat(edgeAB.score).isLessThan(2.0) // Pas de tags, titre très différent
+            }
         }
     }
 

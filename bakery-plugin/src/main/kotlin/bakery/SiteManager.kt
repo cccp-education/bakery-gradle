@@ -742,6 +742,7 @@ object SiteManager {
                             title = art["title"] as? String ?: "",
                             date = art["date"] as? String ?: "",
                             tags = tags,
+                            description = art["description"] as? String ?: "",
                             author = art["author"] as? String ?: ""
                         )
                     }

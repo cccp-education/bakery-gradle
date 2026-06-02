@@ -8,7 +8,8 @@ import java.time.Instant
  * @property url  Chemin relatif de l'article (ex: /blog/2024/kotlin.html)
  * @property title Titre de l'article
  * @property date Date ISO de publication (optionnel)
- * @property tags Mots-clés associés (optionnel)
+ * @property tags Mots-clés associés — issu de :jbake-tags: (optionnel)
+ * @property description Description courte — issu de :jbake-description: (optionnel, pour TF-IDF)
  * @property author Auteur (optionnel)
  */
 data class ArticleNode(
@@ -16,6 +17,7 @@ data class ArticleNode(
     val title: String,
     val date: String = "",
     val tags: List<String> = emptyList(),
+    val description: String = "",
     val author: String = ""
 )
 
