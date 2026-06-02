@@ -27,7 +27,7 @@
 
                                     <div th:replace="~{comments.thyme::comments}"/>
 
-                                    <!-- RELATED_ARTICLES_PLACEHOLDER -->
+                                    <div th:replace="~{related-articles.thyme::related-articles}"/>
 
                                 </article>
                             </div>

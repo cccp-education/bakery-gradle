@@ -1,0 +1,17 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<!--/*
+  Related Articles component — Display knowledge graph suggestions for the current article.
+  Usage : <div th:replace="~{related-articles.thyme::related-articles}"/>
+  The section is shown only when relatedArticlesEnabled=true (injected via jbake.properties).
+  Suggestions are resolved by JBake's content model + related-articles.json at bake time.
+*/-->
+<aside th:fragment="related-articles" class="related-articles mt-4"
+       th:if="${relatedArticlesEnabled != null && relatedArticlesEnabled == 'true'}">
+  <h3 class="related-articles-heading" th:text="${relatedArticlesHeading != null ? relatedArticlesHeading : 'Articles connexes'}">Articles connexes</h3>
+  <ul class="related-articles-list">
+    <li th:each="suggestion : ${related_suggestions}">
+      <a th:href="${suggestion.url}" th:text="${suggestion.title}">Article connexe</a>
+    </li>
+  </ul>
+</aside>

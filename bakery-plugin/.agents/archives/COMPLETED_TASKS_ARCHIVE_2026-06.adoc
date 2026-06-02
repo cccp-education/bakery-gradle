@@ -1,5 +1,23 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 043 — 2026-06-02 — BKY-BKG BKG-1 COMPLETE
+
+**Contexte** : Implémentation de l'EPIC BKY-BKG BKG-1 — consommation du graphe KG dans les templates bakery VIA l'extension DSL + jbake.properties + Thymeleaf côté serveur. Pivot architectural : l'approche post-bake HTML injection (Jsoup) est un anti-pattern, remplacée par l'architecture Extension DSL → jbake.properties → Thymeleaf.
+
+**Tâches réalisées** :
+
+* [x] Step 0 — Nettoyage post-bake exploratoire : supprimé `registerInjectRelatedArticlesTask()`, `buildRelatedArticlesHtml()`, `InjectRelatedArticlesFunctionalTest`, jsoup dependency, `<!-- RELATED_ARTICLES_PLACEHOLDER -->` dans post.thyme
+* [x] Step 1 — DDD : `RelatedArticlesConfig` data class + `RelatedArticlesDsl` open class + champ dans SiteConfiguration + DSL action dans BakeryExtension (6 UT PASS)
+* [x] Step 2 — TDD : `injectRelatedArticlesConfigIntoJbakeProperties()` dans SiteManager — pattern des 8 injectors (3 UT PASS)
+* [x] Step 3 — TDD : Fragment `related-articles.thyme` — `th:if` guard, heading, suggestions, OGNL ternaire (5+2 UT PASS)
+* [x] Step 4 — TDD : Intégration dans `post.thyme` via `th:replace="~{related-articles.thyme::related-articles}"` (2 UT PASS dans ThymeleafRenderingTest)
+* [x] Step 5 — FT : `ScaffoldFunctionalTests.RelatedArticlesTest` — 2 FT (template déployé + pas d'injection quand absent)
+* [x] Step 6 — BDD : `17_related_articles_kg.feature` — 3 scénarios Cucumber (@happy-path, @no-config, @integration)
+
+**Fichiers modifiés** : 10 (SiteManager, BakeryPlugin, BakeryExtension, SiteConfiguration, post.thyme, build.gradle.kts, libs.versions.toml, ThymeleafRenderingTest, ScaffoldFunctionalTests, InjectRelatedArticlesFunctionalTest supprimé)
+
+**Fichiers créés** : 6 (RelatedArticlesDsl, related-articles.thyme, RelatedArticlesConfigTest, RelatedArticlesInjectionTest, RelatedArticlesTemplateTest, 17_related_articles_kg.feature)
+
 == Session 028 — 2026-06-01 — EPICs 15/16/17 déjà verts + transfert BKY-JB-1
 
 **Contexte** : Vérification complète des 3 EPICs identifiés en session 027. Tous déjà verts (corrections appliquées en 027). Transfert de périmètre formation vers training-gradle.

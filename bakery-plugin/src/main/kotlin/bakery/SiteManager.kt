@@ -178,6 +178,7 @@ object SiteManager {
         injectNewsletterConfigIntoJbakeProperties(targetDir, site)
         injectThemeConfigIntoJbakeProperties(targetDir, site)
         injectLayoutConfigIntoJbakeProperties(targetDir, site)
+        injectRelatedArticlesConfigIntoJbakeProperties(targetDir, site)
         logger.lifecycle("✓ Site scaffolded (type: ${siteType.alias}) from resource: $resourcePath")
     }
 
@@ -370,6 +371,30 @@ object SiteManager {
         updateProperty("layoutType", layoutConfig.layoutType.name)
         jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
         logger.lifecycle("✓ Injected Layout config into jbake.properties")
+    }
+
+    private fun Project.injectRelatedArticlesConfigIntoJbakeProperties(targetDir: File, site: SiteConfiguration) {
+        val jbakeProps = targetDir.resolve(site.bake.srcPath)
+            .resolve("jbake.properties")
+        if (!jbakeProps.exists()) {
+            logger.warn("jbake.properties not found at ${jbakeProps.absolutePath}")
+            return
+        }
+        val relatedArticlesConfig = site.relatedArticles ?: return
+        val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
+        fun updateProperty(key: String, value: String) {
+            val idx = lines.indexOfFirst { it.startsWith("$key=") }
+            if (idx >= 0) {
+                lines[idx] = "$key=$value"
+            } else {
+                lines.add("$key=$value")
+            }
+        }
+        updateProperty("relatedArticlesEnabled", relatedArticlesConfig.enabled.toString())
+        updateProperty("relatedArticlesMaxResults", relatedArticlesConfig.maxResults.toString())
+        updateProperty("relatedArticlesHeading", relatedArticlesConfig.heading)
+        jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
+        logger.lifecycle("✓ Injected RelatedArticles config into jbake.properties")
     }
 
 // ==================== Bakery Tasks Configuration ====================
@@ -739,90 +764,6 @@ object SiteManager {
                 }
             }
         }
-    }
-
-// ==================== Inject Related Articles Task (BKY-BKG Step 4-5) ====================
-
-    internal fun Project.registerInjectRelatedArticlesTask(site: SiteConfiguration) {
-        tasks.register("injectRelatedArticles") { task ->
-            task.apply {
-                group = TRANSFORM_GROUP
-                description = "Injecte les articles connexes (KG) dans les pages HTML post-bake."
-                dependsOn("collectRelatedArticles", BAKE_TASK)
-
-                doLast {
-                    val outputDir = layout.buildDirectory.get().asFile.resolve("bakery")
-                    val relatedFile = outputDir.resolve("related-articles.json")
-                    val bakedDir = layout.buildDirectory.get().asFile.resolve(site.bake.destDirPath)
-
-                    if (!relatedFile.exists()) {
-                        logger.warn("[injectRelatedArticles] related-articles.json not found. Run collectRelatedArticles first.")
-                        return@doLast
-                    }
-                    if (!bakedDir.exists()) {
-                        logger.warn("[injectRelatedArticles] baked directory not found at {}", bakedDir.absolutePath)
-                        return@doLast
-                    }
-
-                    val resolver = bakery.kgraph.RelatedArticlesResolver.load(relatedFile, maxResults = 4)
-                    if (!resolver.hasSuggestions()) {
-                        logger.lifecycle("[injectRelatedArticles] aucune suggestion d'articles connexes à injecter.")
-                        return@doLast
-                    }
-
-                    val placeholder = "<!-- RELATED_ARTICLES_PLACEHOLDER -->"
-                    var injectedCount = 0
-
-                    bakedDir.walkTopDown()
-                        .filter { it.isFile && it.extension == "html" }
-                        .forEach { htmlFile ->
-                            val doc = org.jsoup.Jsoup.parse(htmlFile, "UTF-8")
-                            val placeholderElement = doc.body().select("*:containsOwn($placeholder)").first()
-                                ?: doc.body().let { body ->
-                                    if (body.html().contains(placeholder)) body else null
-                                }
-                            if (placeholderElement != null) {
-                                // Déterminer le slug à partir du chemin relatif
-                                val relativePath = htmlFile.relativeTo(bakedDir).invariantSeparatorsPath
-                                val slug = "/$relativePath"
-
-                                val suggestions = resolver.resolve(slug)
-                                if (suggestions.isEmpty()) {
-                                    logger.lifecycle("[injectRelatedArticles] pas de suggestions pour {} → retiré le placeholder", slug)
-                                    val newHtml = doc.html().replace(placeholder, "")
-                                    htmlFile.writeText(newHtml, UTF_8)
-                                    return@forEach
-                                }
-
-                                val relatedHtml = buildRelatedArticlesHtml(suggestions)
-                                val newHtml = doc.html().replace(placeholder, relatedHtml)
-                                htmlFile.writeText(newHtml, UTF_8)
-                                injectedCount++
-                                logger.lifecycle("[injectRelatedArticles] {} suggestions injectées dans {}", suggestions.size, relativePath)
-                            }
-                        }
-
-                    logger.lifecycle(
-                        "[injectRelatedArticles] {} page(s) modifiée(s) avec articles connexes.",
-                        injectedCount
-                    )
-                }
-            }
-        }
-    }
-
-    private fun buildRelatedArticlesHtml(suggestions: List<bakery.kgraph.RelatedArticleSuggestion>): String {
-        val sb = StringBuilder()
-        sb.appendLine("<aside class=\"related-articles\">")
-        sb.appendLine("  <h3>Articles connexes</h3>")
-        sb.appendLine("  <ul>")
-        for (s in suggestions) {
-            val titleEscaped = s.title.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-            sb.appendLine("    <li><a href=\"${s.url}\">$titleEscaped</a></li>")
-        }
-        sb.appendLine("  </ul>")
-        sb.appendLine("</aside>")
-        return sb.toString()
     }
 
 // ==================== Utility Tasks ====================

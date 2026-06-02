@@ -1,59 +1,30 @@
-= PROMPT_REPRISE — Session 043 : BKY-BKG BKG-1 (Architecture Extension + jbake.properties)
+= PROMPT_REPRISE — Session 044 : BKY-BKG vérification build complet + BKG-0
 
-== Mission (Session 043)
+== Mission (Session 044)
 
-Implémenter BKY-BKG BKG-1 (3 pts, P1) — Consommation du graphe KG dans les templates bakery VIA l'extension DSL + jbake.properties + Thymeleaf côté serveur. PAS de post-bake HTML injection.
+1. Vérifier le build complet : `./gradlew check` — tous les tests unitaires, fonctionnels et Cucumber doivent passer.
+2. Si des tests échouent, les corriger (en priorité les tests legacy impactés par la suppression de jsoup/injectRelatedArticles).
+3. Si le build est vert, avancer sur BKG-0 (enrichissement graphify pour contenu éditorial) — uniquement si le temps le permet.
 
-== Règle d'architecture — Surcharge multi-couche
+== État actuel (Session 043 terminée)
 
-```
-CLI (-PmaVariable) > gradle.properties > DSL bakery { } > site.yml > defaults
-```
+BKY-BKG BKG-1 **Steps 0-6 terminés** :
+- Architecture pivot : Extension DSL + jbake.properties + Thymeleaf côté serveur ✅
+- `RelatedArticlesConfig` + `RelatedArticlesDsl` (6 UT) ✅
+- `injectRelatedArticlesConfigIntoJbakeProperties()` (3 UT) ✅
+- Fragment `related-articles.thyme` (5 UT rendering + 2 UT intégration) ✅
+- FT Scaffold (2 FT) + Cucumber (3 scénarios) ✅
+- Nettoyage : jsoup supprimé, `InjectRelatedArticlesFunctionalTest` supprimé, `registerInjectRelatedArticlesTask` supprimé
 
-L'extension bakery WRAP le cycle de vie JBake. Config DSL → injection jbake.properties → bake → HTML.
+== Attention
 
-== Nettoyage obligatoire AVANT tout code (Session 043 Step 0)
+- `libs.versions.toml` : jsoup version et library supprimés. Si d'autres boroughs référencent jsoup via ce TOML, vérifier.
+- Les tests Cucumber et FT n'ont pas été lancés en `./gradlew check` complet — uniquement des runs ciblés.
 
-Retirer le code post-bake exploratoire de la session 042 :
-
-* `SiteManager.registerInjectRelatedArticlesTask()` + `buildRelatedArticlesHtml()`
-* `BakeryPlugin` import `registerInjectRelatedArticlesTask` + appel
-* `post.thyme` — retirer `<!-- RELATED_ARTICLES_PLACEHOLDER -->`
-* `build.gradle.kts` — retirer `implementation(libs.jsoup)`
-* `gradle/libs.versions.toml` — retirer jsoup version + library
-* Supprimer `InjectRelatedArticlesFunctionalTest.kt`
-* `./gradlew compileKotlin` → BUILD SUCCESSFUL
-
-== Baby Steps DDD/TDD/BDD
+== Baby Steps DDD/TDD/BDD pour BKG-0 (si le temps le permet)
 
 | Étape | Type | Action | Tests |
 |-------|------|--------|-------|
-| 0 | NETTOYAGE | Retirer code post-bake (ci-dessus) | compile |
-| 1 | DDD | `RelatedArticlesConfig` dans SiteConfiguration + `RelatedArticlesDsl` dans BakeryExtension | 3 UT |
-| 2 | TDD | `injectRelatedArticlesIntoJbakeProperties()` dans SiteManager (pattern des 8 injectors) | 3 UT |
-| 3 | TDD | Fragment `related-articles.thyme` (th:if="${relatedArticlesEnabled}" + th:each suggestions) | 3 rendering tests |
-| 4 | TDD | Intégration dans `post.thyme` via `th:replace="~{related-articles.thyme::related-articles}"` | 2 UT |
-| 5 | FT | Tests fonctionnels : DSL config → jbake.properties → template déployé | 2 FT |
-| 6 | BDD | Cucumber `17_related_articles_kg.feature` — 3 scénarios | 3 Cucumber |
-
-== Code existant (conservé)
-
-* `bakery/kgraph/RelatedArticlesResolver.kt` — 8 UT PASS ✅
-* `bakery/kgraph/RelatedArticlesGraph.kt` — ArticleNode, ArticleEdge, RelatedArticlesOutput
-* `bakery/kgraph/RelatedArticlesService.kt` — buildGraph, computeScore, toSuggestions
-* `SiteManager.registerCollectRelatedArticlesTask()` — tâche Gradle `collectRelatedArticles`
-
-== EPICs disponibles (priorité décroissante)
-
-| EPIC | Pts | Prio | Description |
-|------|-----|------|-------------|
-| BKY-CONV-1 | 5 | P0 | Surcharge Configuration Multi-Couche — standardiser pattern foundry/public (ordre à vérifier dans slider-gradle, plantuml-gradle, codebase-gradle AVANT de coder) |
-| BKY-BKG (BKG-1) | 3 | P1 | Articles connexes KG — Steps 0-6 |
-| EPIC 13 | 2.5 | P1 | Couverture tests lacunes P1 (50%) |
-| EPIC 6 | — | P1 | PublishProfile migration |
-
-== IMPORTANT — Ordre de surcharge à vérifier
-
-L'ordre `CLI > gradle.properties > DSL > site.yml > defaults` est à **CONFIRMER** en lisant
-le code réel de slider-gradle, plantuml-gradle et codebase-gradle AVANT session 043.
-Ne PAS supposer l'ordre — le vérifier dans le code source.
+| 1 | DDD | Étendre `ArticleNode` avec `:jbake-tags:`, `:jbake-description:` | 3 UT |
+| 2 | TDD | `RelatedArticlesService.buildGraph()` enrichi (tag co-occurrence) | 3 UT |
+| 3 | BDD | Cucumber `18_related_articles_kg_enriched.feature` | 3 scénarios |

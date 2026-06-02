@@ -1,0 +1,93 @@
+= Session 043 — BKY-BKG BKG-1 (Architecture Extension + jbake.properties)
+
+== Date
+2026-06-02
+
+== Type
+feat + test + cleanup
+
+== Score
+8/10
+
+== Résumé
+Implémentation BKY-BKG BKG-1 Steps 0-6 : pivot architecture post-bake → Extension DSL + jbake.properties + Thymeleaf côté serveur.
+
+== Réalisations
+
+=== Step 0 — Nettoyage post-bake exploratoire (session 042)
+* Suppression `SiteManager.registerInjectRelatedArticlesTask()` + `buildRelatedArticlesHtml()` (83 lignes)
+* Suppression `BakeryPlugin` import + appel `registerInjectRelatedArticlesTask`
+* Suppression `<!-- RELATED_ARTICLES_PLACEHOLDER -->` dans `post.thyme`
+* Suppression `implementation(libs.jsoup)` dans `build.gradle.kts`
+* Suppression jsoup version + library dans `libs.versions.toml`
+* Suppression `InjectRelatedArticlesFunctionalTest.kt` (205 lignes)
+* BUILD SUCCESSFUL après nettoyage
+
+=== Step 1 — DDD : RelatedArticlesConfig + RelatedArticlesDsl (3 UT)
+* `RelatedArticlesConfig` data class dans `SiteConfiguration.kt` (enabled, maxResults, heading)
+* `RelatedArticlesDsl` open class (DSL : `bakery { relatedArticles { ... } }`)
+* Champ `relatedArticles: RelatedArticlesConfig?` dans SiteConfiguration
+* DSL action `relatedArticles(Action)` dans BakeryExtension
+* 3 tests unitaires YAML parsing (config avec valeurs, null, defaults) — PASS
+
+=== Step 2 — TDD : injectRelatedArticlesIntoJbakeProperties() (3 UT)
+* Méthode `injectRelatedArticlesConfigIntoJbakeProperties()` dans SiteManager (pattern des 8 injectors)
+* Injection : `relatedArticlesEnabled`, `relatedArticlesMaxResults`, `relatedArticlesHeading`
+* Appel dans `copySiteResources()` après `injectLayoutConfigIntoJbakeProperties`
+* 3 tests unitaires (enabled+heading, null → pas d'injection, disabled=false+defaults) — PASS
+
+=== Step 3 — TDD : Fragment related-articles.thyme (3+2 rendering tests)
+* Création `related-articles.thyme` : `<aside th:fragment="related-articles" th:if="${relatedArticlesEnabled != null && relatedArticlesEnabled == 'true'}">`
+* `th:text` utilise OGNL ternaire (pas Elvis `?:` qui crashe en OGNL)
+* 5 tests RelatedArticlesTemplateTest + 2 tests dans ThymeleafRenderingTest — PASS
+
+=== Step 4 — TDD : Intégration dans post.thyme (2 UT)
+* `<div th:replace="~{related-articles.thyme::related-articles}"/>` après comments.thyme
+* 2 tests rendering (enabled, absent) dans ThymeleafRenderingTest.RelatedArticlesRenderingTest — PASS
+
+=== Step 5 — FT : Tests fonctionnels (2 FT)
+* `ScaffoldFunctionalTests.RelatedArticlesTest` : 2 FT
+  - template related-articles.thyme déployé + post.thyme inclut le fragment
+  - pas d'injection jbake.properties quand relatedArticles absent
+— PASS
+
+=== Step 6 — BDD : Cucumber 17_related_articles_kg.feature (3 scénarios)
+* Feature `17_related_articles_kg.feature` : 3 scénarios (@happy-path, @no-config, @integration)
+* Steps réutilisés (MinimalSteps, ScaffoldSteps, ThymeleafComponentSteps, GoogleFormsSteps)
+— Cucumber BUILD SUCCESSFUL
+
+== Fichiers modifiés (10) + créés (6)
+
+.Modifiés
+|===
+| Fichier | Changement
+| `SiteManager.kt` | -83 lignes post-bake, +27 lignes injection jbake.properties
+| `BakeryPlugin.kt` | -1 import, -1 appel registerInjectRelatedArticlesTask
+| `BakeryExtension.kt` | +relatedArticles DSL + action
+| `SiteConfiguration.kt` | +RelatedArticlesConfig data class + champ
+| `post.thyme` | -placeholder HTML, +th:replace related-articles.thyme
+| `build.gradle.kts` | -jsoup implementation
+| `libs.versions.toml` | -jsoup version + library
+| `ThymeleafRenderingTest.kt` | +RelatedArticlesRenderingTest (2 tests)
+| `ScaffoldFunctionalTests.kt` | +RelatedArticlesTest (2 FT)
+| `InjectRelatedArticlesFunctionalTest.kt` | SUPPRIMÉ (205 lignes)
+|===
+
+.Créés
+|===
+| Fichier | Rôle
+| `RelatedArticlesDsl.kt` | DSL open class (enabled, maxResults, heading)
+| `related-articles.thyme` | Fragment Thymeleaf (th:if guard, heading, suggestions)
+| `RelatedArticlesConfigTest.kt` | 6 UT (data class defaults + YAML parsing + DSL)
+| `RelatedArticlesInjectionTest.kt` | 3 UT (jbake.properties injection)
+| `RelatedArticlesTemplateTest.kt` | 5 UT (template rendering)
+| `17_related_articles_kg.feature` | 3 scénarios Cucumber BDD
+|===
+
+== Leçons apprises
+. **OGNL vs SpEL** : L'opérateur Elvis `?:` n'est pas supporté en OGNL (Thymeleaf standard mode). Utiliser `${var != null ? var : 'default'}` à la place.
+. **Anti-pattern post-bake** : Injecter du HTML dans les pages baked via Jsoup est un anti-pattern. L'architecture correcte est : config DSL → jbake.properties → Thymeleaf côté serveur.
+. **Jsoup supprimé** : Plus aucune dépendance jsoup dans le projet — tout le rendering passe par Thymeleaf.
+
+== Prochaine session
+BKY-BKG BKG-0 (enrichissement graphify pour contenu éditorial) ou finalisation tests + vérification build complet.

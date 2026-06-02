@@ -60,6 +60,9 @@ open class BakeryExtension @Inject constructor(objects: ObjectFactory) {
     /** Configuration Layout (FULL_WIDTH, SIDEBAR_LEFT, SIDEBAR_RIGHT, CENTERED) — BKY-JB-7 */
     val layout: LayoutDsl = LayoutDsl()
 
+    /** Configuration Related Articles KG (enabled, maxResults, heading) — BKY-BKG */
+    val relatedArticles: RelatedArticlesDsl = RelatedArticlesDsl()
+
     /** Configuration Article Intention (topic, ton, audience, keywords, lang) — BKY-JB-8 */
     val articleIntention: ArticleIntentionDsl = ArticleIntentionDsl()
 
@@ -96,6 +99,11 @@ open class BakeryExtension @Inject constructor(objects: ObjectFactory) {
     /** DSL : bakery { layout { ... } } */
     fun layout(action: Action<LayoutDsl>) {
         action.execute(layout)
+    }
+
+    /** DSL : bakery { relatedArticles { ... } } */
+    fun relatedArticles(action: Action<RelatedArticlesDsl>) {
+        action.execute(relatedArticles)
     }
 
     /** DSL : bakery { articleIntention { ... } } */

@@ -604,6 +604,66 @@ class ScaffoldFunctionalTests {
         }
     }
 
+    @Nested
+    @DisplayName("generateSite with Related Articles KG (BKY-BKG)")
+    inner class RelatedArticlesTest {
+
+        @TempDir
+        lateinit var projectDir: File
+
+        @Test
+        fun `should scaffold blog site with related-articles template deployed`() {
+            createMinimalBakeryProject(
+                projectDir,
+                sitesBaseDir = null,
+                siteName = "related-articles-test",
+                siteType = "blog"
+            )
+
+            val result = create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateSite")
+                .build()
+
+            val templatesDir = projectDir.resolve("related-articles-test/site/templates")
+            assertThat(templatesDir.resolve("related-articles.thyme")).exists().isFile
+            assertThat(templatesDir.resolve("related-articles.thyme").readText(UTF_8))
+                .contains("related-articles")
+                .contains("relatedArticlesEnabled")
+                .contains("th:if")
+            assertThat(templatesDir.resolve("post.thyme").readText(UTF_8))
+                .contains("related-articles.thyme::related-articles")
+            assertThat(result.output).contains("BUILD SUCCESSFUL")
+        }
+
+        @Test
+        fun `should scaffold site with no relatedArticles injection when site yml has no relatedArticles`() {
+            createMinimalBakeryProject(
+                projectDir,
+                sitesBaseDir = null,
+                siteName = "no-related-articles",
+                siteType = "blog"
+            )
+
+            val result = create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateSite")
+                .build()
+
+            val siteDir = projectDir.resolve("no-related-articles")
+            val jbakeProps = siteDir.resolve("site/jbake.properties")
+            assertThat(jbakeProps).exists().isFile
+            assertThat(jbakeProps.readText(UTF_8))
+                .doesNotContain("relatedArticlesEnabled")
+                .doesNotContain("relatedArticlesMaxResults")
+                .doesNotContain("relatedArticlesHeading")
+
+            assertThat(result.output).contains("BUILD SUCCESSFUL")
+        }
+    }
+
     companion object {
         private fun createMinimalBakeryProject(
             projectDir: File,
