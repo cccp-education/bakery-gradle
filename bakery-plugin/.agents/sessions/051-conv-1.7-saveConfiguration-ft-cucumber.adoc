@@ -1,0 +1,48 @@
+= Session 051 — CONV-1.7 saveConfiguration() FT + Cucumber
+
+== Date
+2026-06-02
+
+== Objectif
+CONV-1.7 : Ajouter des tests fonctionnels (FT) et scénarios Cucumber pour saveConfiguration()
+
+== Réalisations
+
+=== CONV-1.7 ✅ TERMINÉ
+
+==== Étape 1 — FT : `SaveConfigurationTest` (2 FT PASS)
+- Ajouté `SaveConfigurationTest` nested class dans `ScaffoldFunctionalTests.kt`
+- `should save push credentials into site yml when collectSiteConfig is invoked with CLI properties` — PASS
+- `should preserve existing bake configuration when saving new credentials` — PASS
+- Ajouté méthode utilitaire `createConfiguredBakeryProject()` dans le companion object
+- Pattern : Gradle TestKit + `-P` flags pour bypasser le prompt interactif
+- Vérifié : les credentials sont persistés dans `site.yml` via `File.saveConfiguration()`
+
+==== Étape 2 — BDD : Feature 21 + Steps Cucumber (2 scénarios PASS)
+- Créé `src/test/features/21_save_configuration.feature` (2 scénarios)
+- Créé `src/test/scenarios/bakery/scenarios/SaveConfigurationSteps.kt`
+- Step `Given a new Bakery project with fully configured site for collectSiteConfig` — utilise `BakeryWorld.createGradleProjectWithSiteConfigured(iaEnabled = false)`
+- Step `When I execute task "collectSiteConfig" with github username ... and repository ... and token ...` — utilise `GradleRunner` avec `-P` flags
+- Step `Then the file {string} should contain {string}` — réutilisé de `ConfigResolverSteps`
+- 2/2 scénarios PASS
+
+==== Étape 3 — Dette Cucumber préexistante (investigation)
+- `DuplicateStepDefinitionException` : conflit entre `ConfigResolverSteps` et `GenerateArticleSteps` sur `createBakeryProjectWithSiteConfigured()`
+- Cause : 2 steps définissent le même `@Given("a new Bakery project with site configured")`
+- Impact : ~58 échecs Cucumber préexistants liés à ce conflit
+- Action nécessaire : renommer un des deux steps ou fusionner les définitions
+
+== Fichiers modifiés
+
+| Fichier | Changement
+| `ScaffoldFunctionalTests.kt` | +`SaveConfigurationTest` nested class (2 FT) + `createConfiguredBakeryProject()` helper
+| `21_save_configuration.feature` | Créé — 2 scénarios Cucumber CONV-1.7
+| `SaveConfigurationSteps.kt` | Créé — 2 steps Cucumber (Given + When)
+
+== Score
+8/10 — FT et Cucumber créés et passants. Dette Cucumber préexistante identifiée mais non résolue.
+
+== Prochaine session
+- CONV-1.7 suite : Résoudre le `DuplicateStepDefinitionException` Cucumber (renommage step)
+- CONV-1.8 : Investigation des 58 échecs Cucumber préexistants
+- BKY-JB-9 suite : Phase C — Thymeleaf rendering tests

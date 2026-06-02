@@ -1,9 +1,10 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-_Derniere mise a jour : 2026-06-02 — Session 050_
+_Derniere mise a jour : 2026-06-02 — Session 051_
 
 |===
 | # | Date | Type | Sujet | Score
+| 051 | 2026-06-02 | feat + test + BDD | CONV-1.7 saveConfiguration() FT + Cucumber — 2 FT (SaveConfigurationTest dans ScaffoldFunctionalTests) + 2 Cucumber scénarios (Feature 21) PASS. Dette Cucumber identifiée : DuplicateStepDefinitionException (ConfigResolverSteps vs GenerateArticleSteps). | 8/10
 | 050 | 2026-06-02 | documentation + dette + feat | CONV-1.6 Documentation ordre de surcharge (AGENT.adoc + BACKLOG). Dette GRAVE 5 résolue (audit : pas d'annotation @SupersededBy, KDoc uniquement). Dette GRAVE 4 graphify : rétabli (nécessaire BKG). saveConfiguration() implémenté : File.saveConfiguration(username, repo, token) + 4 UT PASS. | 7/10 | 2026-06-02 | vérification + test + FT | CONV-1.4 vérifié (déjà fait) + CONV-1.5 : 3 FT cascade ConfigResolver (DSL override, gradle.properties override, defaults) PASS. Cucumber feature 20 créée (2 scénarios basiques). Dette CRITIQUE saveConfiguration() toujours vide. | 8/10
 | 048 | 2026-06-02 | audit + governance | CODE REVIEW complète (CODE_REVIEW.adoc dans .agents/). Clarification périmètre : BKY-TRN-9 → training-gradle TRN-9 🔒, BKY-IA-5 → KINGSTON gsuite-gradle (borough à créer). Backlogs mis à jour (bakery, training). Nettoyage gouvernance. | 9/10
 | 047 | 2026-06-02 | feat + test + DDD | BKY-CONV-1 Steps 1-3 — ConfigResolver 4 couches (CLI>gradleProps>DSL>YAML>defaults). resolveString/Int/Boolean/Enum + resolveGoogleForms/Analytics/RelatedArticles. 50 UT PASS. Audit complet : 9/10 configs sans override. Build 451 UT PASS. | 9/10

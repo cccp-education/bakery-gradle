@@ -1,38 +1,35 @@
-= PROMPT_REPRISE — Session 051 : CONV-1.7 saveConfiguration() FT + Cucumber
+= PROMPT_REPRISE — Session 052 : CONV-1.8 Dette Cucumber + Nettoyage
 
-== Mission (Session 051)
+== Mission (Session 052)
 
-1. **CONV-1.7** : Ajouter des tests fonctionnels (FT) pour saveConfiguration()
-2. **CONV-1.7** : Ajouter un scénario Cucumber pour la persistence site.yml
-3. **Dette** : Les 58 échecs Cucumber préexistants à investiguer
+1. **CONV-1.8** : Résoudre le `DuplicateStepDefinitionException` Cucumber (renommage step `createBakeryProjectWithSiteConfigured`)
+2. **CONV-1.8** : Investiguer les ~58 échecs Cucumber préexistants et classifier bloquants vs non-bloquants
+3. **CONV-1.7** : ✅ TERMINÉ — 2 FT + 2 Cucumber scénarios PASS
 
-== État actuel (Session 050 terminée)
+== État actuel (Session 051 terminée)
 
-- CONV-1.6 : ✅ Documentation ordre de surcharge (AGENT.adoc, BACKLOG)
-- CONV-1.7 : ✅ Implémentation `File.saveConfiguration()` — 4 UT PASS
-  - `saves push credentials into existing site yml`
-  - `creates pushPage section if missing in site yml`
-  - `preserves existing bake configuration when saving credentials`
-  - `does not overwrite site yml when all credentials are empty`
-- SiteManager mis à jour : `collectSiteConfig` appelle `File.saveConfiguration`
-- Ancien no-op `Project.saveConfiguration` gardé comme `@Deprecated`
-- Graphify : dépendance RÉTABLIE (nécessaire pour BKG)
-
-== Architecture ConfigResolver — Rappel
-
-```
-CLI (-Pbakery.xxx) > gradle.properties > DSL (bakery { xxx { ... } }) > site.yml > defaults
-```
+- CONV-1.7 : ✅ 4 UT + 2 FT + 2 Cucumber scénarios PASS
+  - FT : `SaveConfigurationTest` dans `ScaffoldFunctionalTests.kt`
+    - `should save push credentials into site yml when collectSiteConfig is invoked with CLI properties`
+    - `should preserve existing bake configuration when saving new credentials`
+  - Cucumber : `21_save_configuration.feature` — 2 scénarios PASS
+    - `Save push credentials into site.yml via collectSiteConfig`
+    - `Preserve existing bake configuration when saving push credentials`
+  - Steps : `SaveConfigurationSteps.kt` (Given + When)
+- Dette Cucumber identifiée : `DuplicateStepDefinitionException` entre `ConfigResolverSteps` et `GenerateArticleSteps`
+  - Même step `@Given("a new Bakery project with site configured")` défini 2 fois
+  - Impact : ~58 échecs Cucumber cascading
+- Solution proposée : Renommer le step dans `GenerateArticleSteps` en `@Given("a new Bakery project with site configured and IA enabled for article generation")`
 
 == Architecture saveConfiguration — Rappel
 
 ```
 collectSiteConfig → collecte (username, repo, token, configPath)
-                   → File.saveConfiguration(site, siteYmlFile, username, repo, token)
-                   → FileSystemManager.yamlMapper.writeValue(siteYmlFile, updatedConfig)
+                  → File.saveConfiguration(site, siteYmlFile, username, repo, token)
+                  → FileSystemManager.yamlMapper.writeValue(siteYmlFile, updatedConfig)
 ```
 
 == Attention
 
 - Ne pas lancer `./gradlew test` sans permission explicite
-- 58 échecs Cucumber préexistants (pas liés à nos changements)
+- 58 échecs Cucumber préexistants (DuplicateStepDefinitionException — à résoudre en CONV-1.8)

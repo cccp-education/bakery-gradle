@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-06-02
-_Session terminee_ : 050 — CONV-1.6 Documentation + Dette technique + saveConfiguration()
-_Prochaine session_ : 051 — CONV-1.7 saveConfiguration() FT + Cucumber
-_Session en cours_ : 051
+_Session terminee_ : 051 — CONV-1.7 saveConfiguration() FT + Cucumber
+_Prochaine session_ : 052 — CONV-1.8 Dette Cucumber + Nettoyage
+_Session en cours_ : 052
 
 '''
 
@@ -70,7 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | # | Date | Type | Sujet | Score
-| 050 | 2026-06-02 | documentation + dette + feat | CONV-1.6 Documentation ordre de surcharge (AGENT.adoc + BACKLOG). Dette GRAVE 5 résolue (KDoc only, pas annotation). Dette GRAVE 4 graphify : rétabli. saveConfiguration() implémenté (4 UT PASS). | 7/10
+| 051 | 2026-06-02 | feat + test + BDD | CONV-1.7 saveConfiguration() FT + Cucumber — 2 FT (SaveConfigurationTest : credentials persistence + bake config preservation) + 2 Cucumber (Feature 21 : save credentials + preserve config). Dette Cucumber identifiée : DuplicateStepDefinitionException. | 8/10
 | 049 | 2026-06-02 | vérification + test + FT | CONV-1.4 vérifié (migration déjà faite) + CONV-1.5 : 3 FT cascade ConfigResolver (DSL override, gradle.properties override, defaults) PASS. Feature Cucumber 20 créée. | 8/10
 | 046 | 2026-06-02 | feat + test + BDD | BKG-1.4 post.thyme consommation graphe — related-articles.thyme data-attributes + JavaScript + injection relatedArticlesData (2 UT template + 2 UT injection + 2 Cucumber). 397 UT + 53 FT + 66 Cucumber. | 9/10
 | 045 | 2026-06-02 | feat + test + BDD | BKG-0.4 + BKG-1.1-1.3 — BlogArticleSummary data class + RelatedArticlesOutput.blogArticles + graphFilePath DSL + injection jbake.properties + Cucumber 19 (3/3 PASS). 395 UT + 53 FT + 64 Cucumber. | 9/10

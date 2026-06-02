@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-02 — Session 049_
+_Dernière mise à jour : 2026-06-02 — Session 051_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -12,9 +12,9 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 | Métrique | Valeur
 | Couverture Kover | *70.8%* — seuil ajusté à 70% (session 031)
 | Seuil configuré | 70% (dans `build.gradle.kts` → `koverThresholdCheck`)
-| Tests unitaires JUnit5 | 21 fichiers (dont ConfigResolverTest 50 UT), ~4 100 lignes — ratio ~2.7x vs src/main
-| Tests fonctionnels (TestKit) | 4 fichiers, 1 450+ lignes — dont 3 nouveaux ConfigResolverCascadeTest
-| Tests Cucumber BDD | 21 features, ~69 scénarios, 1 250+ lignes de steps — dont feature 20 cascade
+| Tests unitaires JUnit5 | 21 fichiers (dont ConfigResolverTest 50 UT, ConfigPromptsTest 4 UT saveConfiguration), ~4 100 lignes — ratio ~2.7x vs src/main
+| Tests fonctionnels (TestKit) | 5 fichiers, 1 500+ lignes — dont SaveConfigurationTest (2 FT) + ConfigResolverCascadeTest (3 FT)
+| Tests Cucumber BDD | 22 features, ~71 scénarios, 1 300+ lignes de steps — dont feature 21 saveConfiguration (2 scénarios)
 | Compilation | ✅ BUILD SUCCESSFUL — Gradle 9.5.1, Kotlin 2.3.20, Java 24, zéro warning
 |===
 
@@ -24,6 +24,8 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 [cols="2,2,2,3,3"]
 |===
 | Session | Date | Kover % | Tests PASS | Notes
+| 051 | 2026-06-02 | *Non mesuré* | 2 FT ✅ + 2 Cucumber ✅ (Feature 21 saveConfiguration) | CONV-1.7 : SaveConfigurationTest (2 FT) + Feature 21 (2 scénarios). Dette Cucumber identifiée (DuplicateStepDefinitionException).
+| 050 | 2026-06-02 | *Non mesuré* | 4 UT ✅ (ConfigPromptsTest saveConfiguration) | CONV-1.6 : Documentation ordre de surcharge + saveConfiguration() 4 UT PASS.
 | 049 | 2026-06-02 | *Non mesuré* | 3 FT ✅ (ConfigResolverCascadeTest), feature 20 Cucumber créée | CONV-1.5 : 3 FT cascade ConfigResolver PASS (DSL override, gradle.properties override, defaults). Feature 20 créée (2 scénarios).
 | 048 | 2026-06-02 | *70.8%* | Build 451 UT PASS | Code review complète (CODE_REVIEW.adoc). Clarification périmètre.
 | 047 | 2026-06-02 | *Non mesuré* | 50 UT ConfigResolver ✅ | BKY-CONV-1 Steps 1-3 : ConfigResolver 4 couches.

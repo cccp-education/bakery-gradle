@@ -1,5 +1,34 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 051 — 2026-06-02 — CONV-1.7 saveConfiguration() FT + Cucumber
+
+**Contexte** : CONV-1.7 — Ajouter des tests fonctionnels (FT) et scénarios Cucumber pour saveConfiguration().
+
+**Tâches réalisées** :
+
+* [x] CONV-1.7 Étape 1 : FT — SaveConfigurationTest (2 FT PASS)
+  - `should save push credentials into site yml when collectSiteConfig is invoked with CLI properties`
+  - `should preserve existing bake configuration when saving new credentials`
+  - Ajouté méthode utilitaire `createConfiguredBakeryProject()` dans ScaffoldFunctionalTests companion
+* [x] CONV-1.7 Étape 2 : BDD — Feature 21 + SaveConfigurationSteps.kt (2 scénarios PASS)
+  - `Save push credentials into site.yml via collectSiteConfig`
+  - `Preserve existing bake configuration when saving push credentials`
+  - Step `Given a new Bakery project with fully configured site for collectSiteConfig` (utilise BakeryWorld.createGradleProjectWithSiteConfigured)
+* [x] CONV-1.7 Étape 3 : Dette Cucumber — DuplicateStepDefinitionException identifiée
+  - Conflit entre ConfigResolverSteps et GenerateArticleSteps sur `@Given("a new Bakery project with site configured")`
+  - ~58 échecs Cucumber cascading
+  - Action nécessaire : renommer un des deux steps
+
+**Fichiers créés** :
+
+* `src/test/features/21_save_configuration.feature` — 2 scénarios Cucumber
+* `src/test/scenarios/bakery/scenarios/SaveConfigurationSteps.kt` — 2 steps (Given + When)
+* `.agents/sessions/051-conv-1.7-saveConfiguration-ft-cucumber.adoc`
+
+**Fichiers modifiés** :
+
+* `src/functionalTest/kotlin/bakery/ScaffoldFunctionalTests.kt` — +SaveConfigurationTest nested class + createConfiguredBakeryProject() helper
+
 == Session 050 — 2026-06-02 — CONV-1.6 Documentation + Dette + saveConfiguration()
 
 **Contexte** : CONV-1.6 Documentation de l'ordre de surcharge + nettoyage dette technique + implémentation saveConfiguration.

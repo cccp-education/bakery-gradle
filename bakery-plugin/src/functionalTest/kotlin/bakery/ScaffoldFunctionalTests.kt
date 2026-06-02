@@ -771,7 +771,115 @@ class ScaffoldFunctionalTests {
         }
     }
 
+    @Nested
+    @DisplayName("CONV-1.7: saveConfiguration persists credentials via collectSiteConfig")
+    inner class SaveConfigurationTest {
+
+        @TempDir
+        lateinit var projectDir: File
+
+        @Test
+        fun `should save push credentials into site yml when collectSiteConfig is invoked with CLI properties`() {
+            // Setup: create a fully configured project (site.yml + site/ + maquette/)
+            createConfiguredBakeryProject(projectDir)
+
+            val result = create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "collectSiteConfig",
+                    "-PgithubUsername=ft-test-user",
+                    "-PgithubRepo=https://github.com/ft-test/repo.git",
+                    "-PgithubToken=ft-test-token"
+                )
+                .build()
+
+            // Verify: site.yml should contain the new credentials
+            val siteYml = projectDir.resolve("site.yml")
+            assertThat(siteYml).exists().isFile
+            val updatedContent = siteYml.readText(UTF_8)
+            assertThat(updatedContent).contains("ft-test-user")
+            assertThat(updatedContent).contains("https://github.com/ft-test/repo.git")
+            assertThat(result.output).contains("BUILD SUCCESSFUL")
+        }
+
+        @Test
+        fun `should preserve existing bake configuration when saving new credentials`() {
+            // Setup: create a fully configured project with original credentials
+            createConfiguredBakeryProject(projectDir)
+
+            val result = create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "collectSiteConfig",
+                    "-PgithubUsername=merged-user",
+                    "-PgithubRepo=https://github.com/merged/repo.git",
+                    "-PgithubToken=merged-token"
+                )
+                .build()
+
+            // Verify: original bake config preserved, credentials merged
+            val updatedContent = projectDir.resolve("site.yml").readText(UTF_8)
+            // Bake configuration should be preserved (not overwritten)
+            assertThat(updatedContent).contains("site")
+            assertThat(updatedContent).contains("build/bake")
+            // New credentials should be present
+            assertThat(updatedContent).contains("merged-user")
+            assertThat(updatedContent).contains("https://github.com/merged/repo.git")
+            assertThat(result.output).contains("BUILD SUCCESSFUL")
+        }
+    }
+
     companion object {
+        /**
+         * Creates a fully configured Bakery project (site.yml + site/ + maquette/)
+         * so the plugin takes the "else" branch (configured site, not scaffolding).
+         * This is needed for tasks like collectSiteConfig that only register in the else branch.
+         */
+        private fun createConfiguredBakeryProject(projectDir: File) {
+            projectDir.resolve("settings.gradle.kts").writeText("""
+                pluginManagement.repositories.gradlePluginPortal()
+                rootProject.name = "save-config-test"
+            """.trimIndent(), UTF_8)
+
+            projectDir.resolve("build.gradle.kts").writeText("""
+                plugins { id("education.cccp.bakery") }
+                bakery {
+                    configPath = file("site.yml").absolutePath
+                }
+            """.trimIndent() + "\n", UTF_8)
+
+            // site.yml with original credentials to test that saveConfiguration preserves them properly
+            projectDir.resolve("site.yml").writeText("""
+                bake:
+                  srcPath: "site"
+                  destDirPath: "build/bake"
+                pushPage:
+                  from: "site"
+                  to: "gh-pages"
+                  repo:
+                    name: "origin"
+                    repository: "https://github.com/ft-original/repo.git"
+                    credentials:
+                      username: "ft-original-user"
+                      password: "ft-original-token"
+                pushMaquette:
+                  from: "maquette"
+                  to: "cvs"
+                  repo:
+                    name: "test-maquette"
+                    repository: "https://github.com/user/maquette.git"
+                    credentials:
+                      username: "user"
+                      password: "token"
+            """.trimIndent(), UTF_8)
+
+            // Directories needed for the "else" branch in BakeryPlugin
+            projectDir.resolve("site").mkdirs()
+            projectDir.resolve("maquette").mkdirs()
+        }
+
         private fun createMinimalBakeryProject(
             projectDir: File,
             sitesBaseDir: String?,
