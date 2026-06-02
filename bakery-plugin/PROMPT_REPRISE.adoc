@@ -18,7 +18,7 @@
 == État actuel (Session 048 terminée)
 
 - Code review complète → `.agents/CODE_REVIEW.adoc`
-- Clarification périmètre : BKY-TRN-9 → training-gradle TRN-9 🔒, BKY-IA-5 → runner-gradle RUN-IA-5 🔒
+- Clarification périmètre : BKY-TRN-9 → training-gradle TRN-9 🔒, BKY-IA-5 → KINGSTON gsuite-gradle (borough à créer)
 - SiteManager.kt pointé comme god class (819 lignes)
 - ConfigResolver (50 UT) non branché dans SiteManager
 - `saveConfiguration()` toujours vide

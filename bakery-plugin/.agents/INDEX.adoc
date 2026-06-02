@@ -175,7 +175,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 |===
 | EPIC | Progression | Transféré vers | Raison
 | BKY-TRN-9 assembleTrainingSite | 🔄 0% → **TRN-9** | `training-gradle` (Newark, 🔒 privé) | L'assemblage du portail formation est du métier formation (training-gradle). Bakery fournit le moteur JBake, pas les templates métier.
-| BKY-IA-5 generateFormRecipe / clasp | 🔄 0% → **RUN-IA-5** | `runner-gradle` (New Jersey, 🔒 privé) | L'orchestration clasp/Edster/CI-CD est du domaine N3. Bakery expose juste `deployFormUrl` pour injection. La recette recipe.json reste produite par bakery.
+| BKY-IA-5 generateFormRecipe / clasp | 🔄 0% → **KINGSTON** (à créer) | `foundry/private/gsuite-gradle` 🔒 (borough à créer) | L'expertise Google Suite (clasp, Forms, Sheets, Drive) vivra dans son propre borough KINGSTON, pas dans bakery
 | BKY-IA-4 Génération d'article | ✅ REMPLACÉ | BKY-JB-8 (bakery) | Remplacé dans le périmètre bakery par JB-8 (ArticleIntention DDD + Generator enrichi)
 | BKY-IA-5 Google Forms embed | ✅ REMPLACÉ | BKY-JB-3 (bakery) | Remplacé dans le périmètre bakery par JB-3 (iframe responsive + th:if guard)
 |===

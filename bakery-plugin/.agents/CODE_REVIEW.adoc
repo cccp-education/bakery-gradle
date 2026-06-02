@@ -102,7 +102,7 @@ Périmètre validé : bakery est l'expert métier **JBake** (site statique). Rie
 |===
 | EPIC | Description | Transféré vers | Raison
 | BKY-TRN-9 | assembleTrainingSite (portail formation) | training-gradle TRN-9 🔒 | L'assemblage du site de formation est du métier formation, pas du site statique
-| BKY-IA-5 | generateFormRecipe / clasp / Edster | runner-gradle RUN-IA-5 🔒 | L'orchestration clasp/Edster/CI-CD est du domaine N3 (runner)
+| BKY-IA-5 | generateFormRecipe / clasp / Edster | *KINGSTON* `foundry/private/gsuite-gradle` 🔒 (à créer) | L'expertise Google Suite (clasp, Forms, Sheets, Drive) vivra dans son propre borough KINGSTON
 |===
 
 '''
@@ -498,7 +498,7 @@ du Knowledge Graph (linking sémantique) reste partielle sans ontologie.
 | Compilation | ✅ Zéro warning
 | EPICs dans périmètre | 22 ✅ TERMINÉS
 | EPICs en cours | 1 🟡 (CONV-1 Steps 4-6)
-| EPICs transférés | 2 (TRN-9 → training, RUN-IA-5 → runner)
+| EPICs transférés | 1 (TRN-9 → training) + 1 (IA-5 → KINGSTON gsuite-gradle à créer)
 | Score de santé | **7.5/10**
 | Conformité vision | **9/10** (périmètre clarifié)
 
@@ -566,7 +566,7 @@ La dette d'architecture est le seul frein à la vélocité.
 Suite à la code review, les EPICs suivants ont été transférés vers leur plugin propriétaire :
 
 . *BKY-TRN-9* (assembleTrainingSite, 21 pts) → `training-gradle BACKLOG.adoc` EPIC TRN-9
-. *BKY-IA-5* (generateFormRecipe/clasp/Edster, 8 pts) → `runner-gradle INDEX.adoc` EPIC RUN-IA-5
+. *BKY-IA-5* (generateFormRecipe/clasp/Edster, 8 pts) → `KINGSTON` `foundry/private/gsuite-gradle` (borough à créer)
 
 Backlogs mis à jour le 2026-06-02.
 
