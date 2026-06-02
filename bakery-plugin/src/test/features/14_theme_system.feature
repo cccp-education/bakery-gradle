@@ -20,11 +20,11 @@ Feature: Theme System — BKY-JB-6
     And the file 'site/templates/theme-script.thyme' should contain '--bakery-primary'
 
   @no-config
-  Scenario: Blog site without theme config has no injection in jbake properties
+  Scenario: Blog site without theme config injects defaults in jbake properties
     And does not have 'site.yml' for site configuration
     When I am executing the task 'generateSite'
-    Then the file 'site/jbake.properties' should not contain 'themeMode'
-    And the file 'site/jbake.properties' should not contain 'themePrimaryColor'
+    Then the file 'site/jbake.properties' should contain 'themeMode=auto'
+    And the file 'site/jbake.properties' should contain 'themePrimaryColor=#0d6efd'
 
   @integration
   Scenario: Header template includes theme-script and conditional favicon

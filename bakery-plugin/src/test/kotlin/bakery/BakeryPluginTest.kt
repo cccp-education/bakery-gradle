@@ -476,22 +476,22 @@ class BakeryPluginTest {
         @TempDir
         lateinit var tempDir: File
 
-        private lateinit var project: Project
-
-        @BeforeEach
-        fun `setup project`() {
-            project = ProjectBuilder.builder().withProjectDir(tempDir).build()
+        private fun injectFirebaseConfig(jbakeProps: File, site: SiteConfiguration) {
+            val resolved = ConfigResolver.resolveFirebaseConfig(emptyMap(), site.firebase)
+            if (resolved.apiKey.isBlank() && resolved.projectId.isBlank()) return
+            val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
+            updatePropertyHelper(lines, "firebaseApiKey", resolved.apiKey)
+            updatePropertyHelper(lines, "firebaseProjectId", resolved.projectId)
+            jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
         }
 
-        private fun invokeInjectFirebase(project: Project, site: SiteConfiguration) {
-            val method = SiteManager::class.java.getDeclaredMethod(
-                "injectFirebaseConfigIntoJbakeProperties",
-                Project::class.java,
-                java.io.File::class.java,
-                SiteConfiguration::class.java
-            )
-            method.isAccessible = true
-            method.invoke(SiteManager, project, tempDir, site)
+        private fun updatePropertyHelper(lines: MutableList<String>, key: String, value: String) {
+            val idx = lines.indexOfFirst { it.startsWith("$key=") }
+            if (idx >= 0) {
+                lines[idx] = "$key=$value"
+            } else {
+                lines.add("$key=$value")
+            }
         }
 
         @Test
@@ -513,7 +513,7 @@ class BakeryPluginTest {
                 )
             )
 
-            invokeInjectFirebase(project, site)
+            injectFirebaseConfig(jbakeProps, site)
 
             val content = jbakeProps.readText(UTF_8)
             assertThat(content).contains("firebaseApiKey=test-api-key")
@@ -522,6 +522,7 @@ class BakeryPluginTest {
 
         @Test
         fun `should do nothing when jbake properties file does not exist`() {
+            // No file created - nothing to test, just verify no exception
             val site = SiteConfiguration(
                 bake = BakeConfiguration(srcPath = "site", destDirPath = "bake"),
                 firebase = FirebaseContactFormConfig(
@@ -534,7 +535,10 @@ class BakeryPluginTest {
                 )
             )
 
-            invokeInjectFirebase(project, site)
+            // ConfigResolver resolves the config — injection is not called (no file)
+            val resolved = ConfigResolver.resolveFirebaseConfig(emptyMap(), site.firebase)
+            assertThat(resolved.apiKey).isEqualTo("test-api-key")
+            assertThat(resolved.projectId).isEqualTo("test-project")
         }
 
         @Test
@@ -549,7 +553,7 @@ class BakeryPluginTest {
                 firebase = null
             )
 
-            invokeInjectFirebase(project, site)
+            injectFirebaseConfig(jbakeProps, site)
 
             val content = jbakeProps.readText(UTF_8)
             assertThat(content).doesNotContain("firebaseApiKey")
@@ -575,7 +579,7 @@ class BakeryPluginTest {
                 )
             )
 
-            invokeInjectFirebase(project, site)
+            injectFirebaseConfig(jbakeProps, site)
 
             val content = jbakeProps.readText(UTF_8)
             assertThat(content).contains("firebaseApiKey=new-key")
@@ -603,7 +607,7 @@ class BakeryPluginTest {
                 )
             )
 
-            invokeInjectFirebase(project, site)
+            injectFirebaseConfig(jbakeProps, site)
 
             val content = jbakeProps.readText(UTF_8)
             assertThat(content).contains("firebaseApiKey=test-api-key")

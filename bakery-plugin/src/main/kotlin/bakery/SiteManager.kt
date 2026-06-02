@@ -92,7 +92,8 @@ object SiteManager {
 
     fun Project.registerGenerateSiteTask(
         siteTargetDir: File = projectDir,
-        siteType: SiteType = SiteType.BLOG
+        siteType: SiteType = SiteType.BLOG,
+        extension: BakeryExtension? = null
     ) {
         tasks.register("generateSite") { task ->
             task.apply {
@@ -102,13 +103,14 @@ object SiteManager {
                 doLast {
                     val targetDir = siteTargetDir.also { it.mkdirs() }
                     val resourcePath = resourcePathForType(siteType)
+                    val props = extension?.let { ConfigResolver.loadProperties(this@registerGenerateSiteTask) } ?: emptyMap()
                     targetDir
                         .resolve("site.yml")
                         .apply { if (!exists()) createAndConfigureSiteYml(targetDir, siteType) }
                         .run {
                             setupGitIgnore(targetDir)
                             setupGitAttributes(targetDir)
-                            copySiteResources(targetDir, this, resourcePath, siteType)
+                            copySiteResources(targetDir, this, resourcePath, siteType, extension, props)
                         }
                 }
             }
@@ -163,253 +165,186 @@ object SiteManager {
         targetDir: File,
         configFile: File,
         resourcePath: String = "site",
-        siteType: SiteType = SiteType.BLOG
+        siteType: SiteType = SiteType.BLOG,
+        extension: BakeryExtension? = null,
+        props: Map<String, String> = emptyMap()
     ) {
         val site = from(configFile.absolutePath)
         // Copier le répertoire de ressources spécifique au type de site
         copyResourceDirectory(resourcePath, targetDir, project)
         // Copier le répertoire maquette (partagé entre tous les types)
         copyResourceDirectory(site.pushMaquette.from, targetDir, project)
-        injectFirebaseConfigIntoJbakeProperties(targetDir, site)
-        injectGoogleFormsConfigIntoJbakeProperties(targetDir, site)
-        injectFirebaseAuthConfigIntoJbakeProperties(targetDir, site)
-        injectCommentsConfigIntoJbakeProperties(targetDir, site)
-        injectAnalyticsConfigIntoJbakeProperties(targetDir, site)
-        injectNewsletterConfigIntoJbakeProperties(targetDir, site)
-        injectThemeConfigIntoJbakeProperties(targetDir, site)
-        injectLayoutConfigIntoJbakeProperties(targetDir, site)
-        injectRelatedArticlesConfigIntoJbakeProperties(targetDir, site)
+
+        // Resolve all configs through ConfigResolver 4-layer cascade:
+        // CLI (-P) > gradle.properties > DSL (BakeryExtension) > site.yml (YAML) > defaults
+        val ext = extension ?: BakeryExtension(project.objects)
+        val resolvedFirebase = ConfigResolver.resolveFirebaseConfig(props, site.firebase)
+        val resolvedGoogleForms = ConfigResolver.resolveGoogleFormsConfig(props, ext.googleForms, site.googleForms)
+        val resolvedFirebaseAuth = ConfigResolver.resolveFirebaseAuthConfig(props, ext.firebaseAuth, site.firebaseAuth)
+        val resolvedComments = ConfigResolver.resolveCommentsConfig(props, ext.commentsConfig, site.comments)
+        val resolvedAnalytics = ConfigResolver.resolveAnalyticsConfig(props, ext.analytics, site.analytics)
+        val resolvedNewsletter = ConfigResolver.resolveNewsletterConfig(props, ext.newsletter, site.newsletter)
+        val resolvedTheme = ConfigResolver.resolveThemeConfig(props, ext.theme, site.theme)
+        val resolvedLayout = ConfigResolver.resolveLayoutConfig(props, ext.layout, site.layout)
+        val resolvedRelatedArticles = ConfigResolver.resolveRelatedArticlesConfig(props, ext.relatedArticles, site.relatedArticles)
+
+        injectResolvedConfigIntoJbakeProperties(targetDir, site) { key, value ->
+            when (key) {
+                "firebaseApiKey" -> resolvedFirebase.apiKey
+                "firebaseProjectId" -> resolvedFirebase.projectId
+                "googleFormsFormId" -> resolvedGoogleForms.formId
+                "googleFormsWidth" -> resolvedGoogleForms.width
+                "googleFormsHeight" -> resolvedGoogleForms.height
+                "firebaseAuthApiKey" -> resolvedFirebaseAuth.apiKey
+                "firebaseAuthDomain" -> resolvedFirebaseAuth.authDomain
+                "firebaseAuthProjectId" -> resolvedFirebaseAuth.projectId
+                "commentsEnabled" -> resolvedComments.enabled.toString()
+                "commentsCollection" -> resolvedComments.collection
+                "analyticsProvider" -> resolvedAnalytics.provider
+                "analyticsDomain" -> resolvedAnalytics.domain
+                "analyticsScriptSrc" -> resolvedAnalytics.scriptSrc
+                "newsletterEnabled" -> resolvedNewsletter.enabled.toString()
+                "newsletterProvider" -> resolvedNewsletter.provider
+                "newsletterEndpoint" -> resolvedNewsletter.endpoint
+                "themeMode" -> resolvedTheme.mode
+                "themePrimaryColor" -> resolvedTheme.primaryColor
+                "themeSecondaryColor" -> resolvedTheme.secondaryColor
+                "themeFontFamily" -> resolvedTheme.fontFamily
+                "themeLogoUrl" -> resolvedTheme.logoUrl
+                "themeFaviconUrl" -> resolvedTheme.faviconUrl
+                "layoutType" -> resolvedLayout.layoutType.name
+                else -> value
+            }
+        }
+
+        // BKG-1.4: Inject relatedArticlesData from the graph file
+        injectRelatedArticlesConfigIntoJbakeProperties(targetDir, site, resolvedRelatedArticles)
+
         logger.lifecycle("✓ Site scaffolded (type: ${siteType.alias}) from resource: $resourcePath")
     }
 
-    private fun Project.injectFirebaseConfigIntoJbakeProperties(targetDir: File, site: SiteConfiguration) {
+    /**
+     * Generic injection of resolved config properties into jbake.properties.
+     * Replaces the previous pattern of separate inject*IntoJbakeProperties methods.
+     * All config resolution goes through ConfigResolver 4-layer cascade.
+     */
+    private fun Project.injectResolvedConfigIntoJbakeProperties(
+        targetDir: File,
+        site: SiteConfiguration,
+        resolver: (key: String, existingValue: String) -> String
+    ) {
         val jbakeProps = targetDir.resolve(site.bake.srcPath)
             .resolve("jbake.properties")
         if (!jbakeProps.exists()) {
             logger.warn("jbake.properties not found at ${jbakeProps.absolutePath}")
             return
         }
-        val firebaseConfig = site.firebase ?: return
         val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
-        fun updateProperty(key: String, value: String) {
-            val idx = lines.indexOfFirst { it.startsWith("$key=") }
-            if (idx >= 0) {
-                lines[idx] = "$key=$value"
-            } else {
-                lines.add("$key=$value")
-            }
+
+        // Firebase contact form
+        val firebaseResolved = resolver("firebaseApiKey", "")
+        if (firebaseResolved.isNotBlank()) {
+            updateProperty(lines, "firebaseApiKey", firebaseResolved)
+            updateProperty(lines, "firebaseProjectId", resolver("firebaseProjectId", ""))
         }
-        updateProperty("firebaseApiKey", firebaseConfig.project.apiKey)
-        updateProperty("firebaseProjectId", firebaseConfig.project.projectId)
+
+        // Google Forms
+        val gfFormId = resolver("googleFormsFormId", "")
+        if (gfFormId.isNotBlank()) {
+            updateProperty(lines, "googleFormsFormId", gfFormId)
+            updateProperty(lines, "googleFormsWidth", resolver("googleFormsWidth", "640"))
+            updateProperty(lines, "googleFormsHeight", resolver("googleFormsHeight", "800"))
+        }
+
+        // Firebase Auth
+        val fAuthKey = resolver("firebaseAuthApiKey", "")
+        if (fAuthKey.isNotBlank()) {
+            updateProperty(lines, "firebaseAuthApiKey", fAuthKey)
+            updateProperty(lines, "firebaseAuthDomain", resolver("firebaseAuthDomain", ""))
+            updateProperty(lines, "firebaseAuthProjectId", resolver("firebaseAuthProjectId", ""))
+        }
+
+        // Comments
+        val commentsEnabled = resolver("commentsEnabled", "false")
+        if (commentsEnabled != "false" || resolver("commentsCollection", "comments") != "comments") {
+            updateProperty(lines, "commentsEnabled", commentsEnabled)
+            updateProperty(lines, "commentsCollection", resolver("commentsCollection", "comments"))
+        }
+
+        // Analytics
+        val analyticsProvider = resolver("analyticsProvider", "")
+        if (analyticsProvider.isNotBlank()) {
+            updateProperty(lines, "analyticsProvider", analyticsProvider)
+            updateProperty(lines, "analyticsDomain", resolver("analyticsDomain", ""))
+            updateProperty(lines, "analyticsScriptSrc", resolver("analyticsScriptSrc", ""))
+        }
+
+        // Newsletter
+        val newsletterEnabled = resolver("newsletterEnabled", "false")
+        if (newsletterEnabled != "false" || resolver("newsletterProvider", "").isNotBlank()) {
+            updateProperty(lines, "newsletterEnabled", newsletterEnabled)
+            updateProperty(lines, "newsletterProvider", resolver("newsletterProvider", ""))
+            updateProperty(lines, "newsletterEndpoint", resolver("newsletterEndpoint", ""))
+        }
+
+        // Theme
+        updateProperty(lines, "themeMode", resolver("themeMode", "auto"))
+        updateProperty(lines, "themePrimaryColor", resolver("themePrimaryColor", "#0d6efd"))
+        updateProperty(lines, "themeSecondaryColor", resolver("themeSecondaryColor", "#6c757d"))
+        updateProperty(lines, "themeFontFamily", resolver("themeFontFamily", ""))
+        updateProperty(lines, "themeLogoUrl", resolver("themeLogoUrl", ""))
+        updateProperty(lines, "themeFaviconUrl", resolver("themeFaviconUrl", ""))
+
+        // Layout
+        updateProperty(lines, "layoutType", resolver("layoutType", "FULL_WIDTH"))
+
         jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
-        logger.lifecycle("✓ Injected Firebase config into jbake.properties")
+        logger.lifecycle("✓ Injected resolved config into jbake.properties")
     }
 
-    private fun Project.injectGoogleFormsConfigIntoJbakeProperties(targetDir: File, site: SiteConfiguration) {
-        val jbakeProps = targetDir.resolve(site.bake.srcPath)
-            .resolve("jbake.properties")
-        if (!jbakeProps.exists()) {
-            logger.warn("jbake.properties not found at ${jbakeProps.absolutePath}")
-            return
+    private fun updateProperty(lines: MutableList<String>, key: String, value: String) {
+        val idx = lines.indexOfFirst { it.startsWith("$key=") }
+        if (idx >= 0) {
+            lines[idx] = "$key=$value"
+        } else {
+            lines.add("$key=$value")
         }
-        val googleFormsConfig = site.googleForms ?: return
-        val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
-        fun updateProperty(key: String, value: String) {
-            val idx = lines.indexOfFirst { it.startsWith("$key=") }
-            if (idx >= 0) {
-                lines[idx] = "$key=$value"
-            } else {
-                lines.add("$key=$value")
-            }
-        }
-        updateProperty("googleFormsFormId", googleFormsConfig.formId)
-        updateProperty("googleFormsWidth", googleFormsConfig.width)
-        updateProperty("googleFormsHeight", googleFormsConfig.height)
-        jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
-        logger.lifecycle("✓ Injected Google Forms config into jbake.properties")
     }
 
-    private fun Project.injectFirebaseAuthConfigIntoJbakeProperties(targetDir: File, site: SiteConfiguration) {
+    private fun Project.injectRelatedArticlesConfigIntoJbakeProperties(
+        targetDir: File,
+        site: SiteConfiguration,
+        resolvedRelatedArticles: RelatedArticlesConfig
+    ) {
         val jbakeProps = targetDir.resolve(site.bake.srcPath)
             .resolve("jbake.properties")
         if (!jbakeProps.exists()) {
             logger.warn("jbake.properties not found at ${jbakeProps.absolutePath}")
             return
         }
-        val firebaseAuthConfig = site.firebaseAuth ?: return
+        if (!resolvedRelatedArticles.enabled && resolvedRelatedArticles.heading.isBlank()) return
         val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
-        fun updateProperty(key: String, value: String) {
-            val idx = lines.indexOfFirst { it.startsWith("$key=") }
-            if (idx >= 0) {
-                lines[idx] = "$key=$value"
-            } else {
-                lines.add("$key=$value")
-            }
-        }
-        updateProperty("firebaseAuthApiKey", firebaseAuthConfig.apiKey)
-        updateProperty("firebaseAuthDomain", firebaseAuthConfig.authDomain)
-        updateProperty("firebaseAuthProjectId", firebaseAuthConfig.projectId)
-        jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
-        logger.lifecycle("✓ Injected Firebase Auth config into jbake.properties")
-    }
 
-    private fun Project.injectCommentsConfigIntoJbakeProperties(targetDir: File, site: SiteConfiguration) {
-        val jbakeProps = targetDir.resolve(site.bake.srcPath)
-            .resolve("jbake.properties")
-        if (!jbakeProps.exists()) {
-            logger.warn("jbake.properties not found at ${jbakeProps.absolutePath}")
-            return
-        }
-        val commentsConfig = site.comments ?: return
-        val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
-        fun updateProperty(key: String, value: String) {
-            val idx = lines.indexOfFirst { it.startsWith("$key=") }
-            if (idx >= 0) {
-                lines[idx] = "$key=$value"
-            } else {
-                lines.add("$key=$value")
-            }
-        }
-        updateProperty("commentsEnabled", commentsConfig.enabled.toString())
-        updateProperty("commentsCollection", commentsConfig.collection)
-        jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
-        logger.lifecycle("✓ Injected Comments config into jbake.properties")
-    }
-
-    private fun Project.injectAnalyticsConfigIntoJbakeProperties(targetDir: File, site: SiteConfiguration) {
-        val jbakeProps = targetDir.resolve(site.bake.srcPath)
-            .resolve("jbake.properties")
-        if (!jbakeProps.exists()) {
-            logger.warn("jbake.properties not found at ${jbakeProps.absolutePath}")
-            return
-        }
-        val analyticsConfig = site.analytics ?: return
-        val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
-        fun updateProperty(key: String, value: String) {
-            val idx = lines.indexOfFirst { it.startsWith("$key=") }
-            if (idx >= 0) {
-                lines[idx] = "$key=$value"
-            } else {
-                lines.add("$key=$value")
-            }
-        }
-        updateProperty("analyticsProvider", analyticsConfig.provider)
-        updateProperty("analyticsDomain", analyticsConfig.domain)
-        updateProperty("analyticsScriptSrc", analyticsConfig.scriptSrc)
-        jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
-        logger.lifecycle("✓ Injected Analytics config into jbake.properties")
-    }
-
-    private fun Project.injectNewsletterConfigIntoJbakeProperties(targetDir: File, site: SiteConfiguration) {
-        val jbakeProps = targetDir.resolve(site.bake.srcPath)
-            .resolve("jbake.properties")
-        if (!jbakeProps.exists()) {
-            logger.warn("jbake.properties not found at ${jbakeProps.absolutePath}")
-            return
-        }
-        val newsletterConfig = site.newsletter ?: return
-        val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
-        fun updateProperty(key: String, value: String) {
-            val idx = lines.indexOfFirst { it.startsWith("$key=") }
-            if (idx >= 0) {
-                lines[idx] = "$key=$value"
-            } else {
-                lines.add("$key=$value")
-            }
-        }
-        updateProperty("newsletterEnabled", newsletterConfig.enabled.toString())
-        updateProperty("newsletterProvider", newsletterConfig.provider)
-        updateProperty("newsletterEndpoint", newsletterConfig.endpoint)
-        jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
-        logger.lifecycle("✓ Injected Newsletter config into jbake.properties")
-    }
-
-    private fun Project.injectThemeConfigIntoJbakeProperties(targetDir: File, site: SiteConfiguration) {
-        val jbakeProps = targetDir.resolve(site.bake.srcPath)
-            .resolve("jbake.properties")
-        if (!jbakeProps.exists()) {
-            logger.warn("jbake.properties not found at ${jbakeProps.absolutePath}")
-            return
-        }
-        val themeConfig = site.theme ?: return
-        val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
-        fun updateProperty(key: String, value: String) {
-            val idx = lines.indexOfFirst { it.startsWith("$key=") }
-            if (idx >= 0) {
-                lines[idx] = "$key=$value"
-            } else {
-                lines.add("$key=$value")
-            }
-        }
-        updateProperty("themeMode", themeConfig.mode)
-        updateProperty("themePrimaryColor", themeConfig.primaryColor)
-        updateProperty("themeSecondaryColor", themeConfig.secondaryColor)
-        updateProperty("themeFontFamily", themeConfig.fontFamily)
-        updateProperty("themeLogoUrl", themeConfig.logoUrl)
-        updateProperty("themeFaviconUrl", themeConfig.faviconUrl)
-        jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
-        logger.lifecycle("✓ Injected Theme config into jbake.properties")
-    }
-
-    private fun Project.injectLayoutConfigIntoJbakeProperties(targetDir: File, site: SiteConfiguration) {
-        val jbakeProps = targetDir.resolve(site.bake.srcPath)
-            .resolve("jbake.properties")
-        if (!jbakeProps.exists()) {
-            logger.warn("jbake.properties not found at ${jbakeProps.absolutePath}")
-            return
-        }
-        val layoutConfig = site.layout ?: LayoutConfig()
-        val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
-        fun updateProperty(key: String, value: String) {
-            val idx = lines.indexOfFirst { it.startsWith("$key=") }
-            if (idx >= 0) {
-                lines[idx] = "$key=$value"
-            } else {
-                lines.add("$key=$value")
-            }
-        }
-        updateProperty("layoutType", layoutConfig.layoutType.name)
-        jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
-        logger.lifecycle("✓ Injected Layout config into jbake.properties")
-    }
-
-    private fun Project.injectRelatedArticlesConfigIntoJbakeProperties(targetDir: File, site: SiteConfiguration) {
-        val jbakeProps = targetDir.resolve(site.bake.srcPath)
-            .resolve("jbake.properties")
-        if (!jbakeProps.exists()) {
-            logger.warn("jbake.properties not found at ${jbakeProps.absolutePath}")
-            return
-        }
-        val relatedArticlesConfig = site.relatedArticles ?: return
-        val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
-        fun updateProperty(key: String, value: String) {
-            val idx = lines.indexOfFirst { it.startsWith("$key=") }
-            if (idx >= 0) {
-                lines[idx] = "$key=$value"
-            } else {
-                lines.add("$key=$value")
-            }
-        }
-        updateProperty("relatedArticlesEnabled", relatedArticlesConfig.enabled.toString())
-        updateProperty("relatedArticlesMaxResults", relatedArticlesConfig.maxResults.toString())
-        updateProperty("relatedArticlesHeading", relatedArticlesConfig.heading)
-        updateProperty("relatedArticlesGraphFilePath", relatedArticlesConfig.graphFilePath)
+        updateProperty(lines, "relatedArticlesEnabled", resolvedRelatedArticles.enabled.toString())
+        updateProperty(lines, "relatedArticlesMaxResults", resolvedRelatedArticles.maxResults.toString())
+        updateProperty(lines, "relatedArticlesHeading", resolvedRelatedArticles.heading)
+        updateProperty(lines, "relatedArticlesGraphFilePath", resolvedRelatedArticles.graphFilePath)
 
         // BKG-1.4: Inject relatedArticlesData from the graph file
-        val graphFile = projectDir.resolve(relatedArticlesConfig.graphFilePath)
+        val graphFile = projectDir.resolve(resolvedRelatedArticles.graphFilePath)
         if (graphFile.exists()) {
             val graphData = graphFile.readText(UTF_8)
                 .replace("\\", "\\\\")
                 .replace("\n", "\\n")
                 .replace("\t", "\\t")
-            updateProperty("relatedArticlesData", graphData)
+            updateProperty(lines, "relatedArticlesData", graphData)
         } else {
             logger.info("[BakeryPlugin] relatedArticlesData: graph file not found at ${graphFile.absolutePath}, skipping injection")
-            updateProperty("relatedArticlesData", "")
+            updateProperty(lines, "relatedArticlesData", "")
         }
 
         jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
-        logger.lifecycle("✓ Injected RelatedArticles config into jbake.properties (graphFilePath=${relatedArticlesConfig.graphFilePath})")
+        logger.lifecycle("✓ Injected RelatedArticles config into jbake.properties (graphFilePath=${resolvedRelatedArticles.graphFilePath})")
     }
 
 // ==================== Bakery Tasks Configuration ====================

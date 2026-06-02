@@ -1,9 +1,11 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-_Derniere mise a jour : 2026-06-02_
+_Derniere mise a jour : 2026-06-02 — Session 048-049_
 
 |===
 | # | Date | Type | Sujet | Score
+| 048 | 2026-06-02 | audit + governance | CODE REVIEW complète (CODE_REVIEW.adoc dans .agents/). Clarification périmètre : BKY-TRN-9 → training-gradle TRN-9 🔒, BKY-IA-5 → runner-gradle RUN-IA-5 🔒. 3 backlogs mis à jour (bakery, training, runner). Nettoyage gouvernance. | 9/10
+| 047 | 2026-06-02 | feat + test + DDD | BKY-CONV-1 Steps 1-3 — ConfigResolver 4 couches (CLI>gradleProps>DSL>YAML>defaults). resolveString/Int/Boolean/Enum + resolveGoogleForms/Analytics/RelatedArticles. 50 UT PASS. Audit complet : 9/10 configs sans override. Build 451 UT PASS. | 9/10
 | 046 | 2026-06-02 | feat + test + BDD | BKG-1.4 post.thyme consommation graphe — related-articles.thyme data-attributes + JavaScript consommation JSON + injection relatedArticlesData (SiteManager) + 2 UT template + 2 UT injection + 2 Cucumber. 397 UT + 53 FT + 66 Cucumber. | 9/10
 | 045 | 2026-06-02 | feat + test + BDD | BKG-0.4 Sortie graph.json enrichi (BlogArticleSummary + RelatedArticlesOutput.blogArticles) + BKG-1.1-1.3 Consommation graphe (RelatedArticlesConfig.graphFilePath, injection jbake.properties, Cucumber 19 3/3 PASS). 395 UT + 53 FT + 64 Cucumber. | 9/10
 | 044 | 2026-06-02 | feat + test + BDD | BKG-0 KG Enrichi — ArticleNode.description + tag co-occurrence + entity overlap (TF-IDF descriptions). RelatedArticlesService enrichi (4 facteurs). Feature Cucumber 18 (3/3 PASS). 6 UT nouveaux + 3 UT description. | 9/10

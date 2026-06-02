@@ -20,11 +20,11 @@ Feature: Related Articles KG — BKY-BKG
     And the file 'site/templates/related-articles.thyme' should contain 'related-articles-list'
 
   @no-config
-  Scenario: Blog site without relatedArticles config has no injection in jbake properties
+  Scenario: Blog site without relatedArticles config injects defaults in jbake properties
     And does not have 'site.yml' for site configuration
     When I am executing the task 'generateSite'
-    Then the file 'site/jbake.properties' should not contain 'relatedArticlesEnabled'
-    And the file 'site/jbake.properties' should not contain 'relatedArticlesMaxResults'
+    Then the file 'site/jbake.properties' should contain 'relatedArticlesEnabled=false'
+    And the file 'site/jbake.properties' should contain 'relatedArticlesMaxResults=4'
 
   @integration
   Scenario: Post template includes related-articles fragment

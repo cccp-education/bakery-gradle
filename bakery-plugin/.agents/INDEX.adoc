@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-06-02
-_Session terminee_ : 047 — BKY-CONV-1 ConfigResolver 4 couches (CLI>gradleProps>DSL>YAML>defaults) + 50 UT + audit 9/10 configs sans override
-_Prochaine session_ : 048 — CONV-1.4 migration SiteManager + CONV-1.5 Cucumber BDD
-_Session en cours_ : 048
+_Session terminee_ : 048 — Code review complète (CODE_REVIEW.adoc) + clarification périmètre BKY-TRN-9/IA-5
+_Prochaine session_ : 049 — CONV-1.4 migration SiteManager + CONV-1.5 Cucumber BDD
+_Session en cours_ : 049
 
 '''
 
@@ -166,20 +166,18 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 | EPIC 17 — generateArticle graceful fail | 5 | *P0 ✅ TERMINÉ* | IaConfig.enabled corrigé, LlmService error OK
 |===
 
-*Priorite P0* : EPIC 16 (le + rapide, ~10 min) → EPIC 15 → EPIC 17
+*Priorite P0* : CONV-1.4 (migration SiteManager → ConfigResolver) puis CONV-1.5 (BDD)
 
-*Prochaine session* : 035 — BKY-JB-9 (E2E Tests) ou BKY-JB-8 (Article IA)
+*Prochaine session* : 048 — CONV-1.4 migration SiteManager + CONV-1.5 Cucumber BDD
 
-=== EPICs Historiques conservés
+=== EPICs Transférés (hors périmètre bakery)
 
 |===
-| EPIC | Progression | Priorite
-| BKY-IA-0 Service LLM partagé | ✅ 100% | *À dépiler* — codebase remplace
-| BKY-N3-7 Contrat N3 | ✅ 100% | Conservé
-| BKY-BKG Articles connexes | ✅ BKG-0 (Steps 1-4) + BKG-1 (Steps 1-3) TERMINÉ | BKG-2 ontologie émergente (P2 optionnel)
-| BKY-IA-4 Generation d'article | 🔄 0% | Remplace par BKY-JB-8 (via codebase)
-| BKY-IA-5 Google Forms | 🔄 0% | Remplace par BKY-JB-3
-| BKY-TRN-9 Integration formation | 🔄 0% | Post-maturation JBake
+| EPIC | Progression | Transféré vers | Raison
+| BKY-TRN-9 assembleTrainingSite | 🔄 0% → **TRN-9** | `training-gradle` (Newark, 🔒 privé) | L'assemblage du portail formation est du métier formation (training-gradle). Bakery fournit le moteur JBake, pas les templates métier.
+| BKY-IA-5 generateFormRecipe / clasp | 🔄 0% → **RUN-IA-5** | `runner-gradle` (New Jersey, 🔒 privé) | L'orchestration clasp/Edster/CI-CD est du domaine N3. Bakery expose juste `deployFormUrl` pour injection. La recette recipe.json reste produite par bakery.
+| BKY-IA-4 Génération d'article | ✅ REMPLACÉ | BKY-JB-8 (bakery) | Remplacé dans le périmètre bakery par JB-8 (ArticleIntention DDD + Generator enrichi)
+| BKY-IA-5 Google Forms embed | ✅ REMPLACÉ | BKY-JB-3 (bakery) | Remplacé dans le périmètre bakery par JB-3 (iframe responsive + th:if guard)
 |===
 
 '''

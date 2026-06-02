@@ -63,7 +63,7 @@ class BakeryPlugin : Plugin<Project> {
                     SiteScaffolder.validateSiteTargetDoesNotExist(targetDir)
                 }
                 val siteType = SiteScaffolder.resolveSiteType(bakeryExtension)
-                project.registerGenerateSiteTask(targetDir, siteType)
+                project.registerGenerateSiteTask(targetDir, siteType, bakeryExtension)
             } else {
                 val rawSite = project.from(bakeryExtension.configPath.get())
                 val site = rawSite.resolvePaths(configDir)

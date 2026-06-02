@@ -668,4 +668,355 @@ class ConfigResolverTest {
             assertEquals("DSL heading", result.heading)  // DSL wins (non-default)
         }
     }
+
+    @Nested
+    inner class ResolveFirebaseAuthConfigTest {
+
+        @Test
+        fun `CLI overrides all fields`() {
+            val props = mapOf(
+                "bakery.firebaseAuth.apiKey" to "CLI-KEY",
+                "bakery.firebaseAuth.authDomain" to "CLI-DOMAIN",
+                "bakery.firebaseAuth.projectId" to "CLI-PROJ"
+            )
+            val result = ConfigResolver.resolveFirebaseAuthConfig(
+                props,
+                dsl = FirebaseAuthDsl(apiKey = "dsl-key", authDomain = "dsl-domain", projectId = "dsl-proj"),
+                yaml = FirebaseAuthConfig(apiKey = "yaml-key", authDomain = "yaml-domain", projectId = "yaml-proj"),
+                default = FirebaseAuthConfig()
+            )
+            assertEquals("CLI-KEY", result.apiKey)
+            assertEquals("CLI-DOMAIN", result.authDomain)
+            assertEquals("CLI-PROJ", result.projectId)
+        }
+
+        @Test
+        fun `DSL overrides YAML when non-default`() {
+            val props = emptyMap<String, String>()
+            val result = ConfigResolver.resolveFirebaseAuthConfig(
+                props,
+                dsl = FirebaseAuthDsl(apiKey = "dsl-key"),
+                yaml = FirebaseAuthConfig(apiKey = "yaml-key"),
+                default = FirebaseAuthConfig()
+            )
+            assertEquals("dsl-key", result.apiKey)
+        }
+
+        @Test
+        fun `YAML fills in when DSL is default`() {
+            val props = emptyMap<String, String>()
+            val result = ConfigResolver.resolveFirebaseAuthConfig(
+                props,
+                dsl = FirebaseAuthDsl(), // apiKey="" == default ""
+                yaml = FirebaseAuthConfig(apiKey = "yaml-key", authDomain = "yaml-domain"),
+                default = FirebaseAuthConfig()
+            )
+            assertEquals("yaml-key", result.apiKey)     // YAML wins (DSL == default)
+            assertEquals("yaml-domain", result.authDomain) // YAML wins
+        }
+
+        @Test
+        fun `defaults are used when all layers absent`() {
+            val props = emptyMap<String, String>()
+            val result = ConfigResolver.resolveFirebaseAuthConfig(
+                props,
+                dsl = FirebaseAuthDsl(),
+                yaml = null,
+                default = FirebaseAuthConfig()
+            )
+            assertEquals("", result.apiKey)
+            assertEquals("", result.authDomain)
+            assertEquals("", result.projectId)
+        }
+    }
+
+    @Nested
+    inner class ResolveCommentsConfigTest {
+
+        @Test
+        fun `CLI overrides enabled boolean`() {
+            val props = mapOf("bakery.comments.enabled" to "true")
+            val result = ConfigResolver.resolveCommentsConfig(
+                props,
+                dsl = CommentsDsl(enabled = false),
+                yaml = CommentsConfig(enabled = false),
+                default = CommentsConfig()
+            )
+            assertTrue(result.enabled)
+        }
+
+        @Test
+        fun `DSL overrides collection when non-default`() {
+            val props = emptyMap<String, String>()
+            val result = ConfigResolver.resolveCommentsConfig(
+                props,
+                dsl = CommentsDsl(collection = "my-comments"),
+                yaml = CommentsConfig(collection = "yaml-comments"),
+                default = CommentsConfig()
+            )
+            assertEquals("my-comments", result.collection)
+        }
+
+        @Test
+        fun `YAML fills in when DSL is default`() {
+            val props = emptyMap<String, String>()
+            val result = ConfigResolver.resolveCommentsConfig(
+                props,
+                dsl = CommentsDsl(), // enabled=false == default, collection="comments" == default
+                yaml = CommentsConfig(enabled = true, collection = "custom"),
+                default = CommentsConfig()
+            )
+            assertTrue(result.enabled)        // YAML wins (DSL == default)
+            assertEquals("custom", result.collection) // YAML wins (DSL default="comments", YAML="custom")
+        }
+
+        @Test
+        fun `defaults are used when all layers absent`() {
+            val props = emptyMap<String, String>()
+            val result = ConfigResolver.resolveCommentsConfig(
+                props,
+                dsl = CommentsDsl(),
+                yaml = null,
+                default = CommentsConfig()
+            )
+            assertFalse(result.enabled)
+            assertEquals("comments", result.collection)
+        }
+    }
+
+    @Nested
+    inner class ResolveNewsletterConfigTest {
+
+        @Test
+        fun `CLI overrides enabled and provider`() {
+            val props = mapOf(
+                "bakery.newsletter.enabled" to "true",
+                "bakery.newsletter.provider" to "sendgrid"
+            )
+            val result = ConfigResolver.resolveNewsletterConfig(
+                props,
+                dsl = NewsletterDsl(enabled = false, provider = "mailchimp"),
+                yaml = NewsletterConfig(enabled = false, provider = "mailchimp"),
+                default = NewsletterConfig()
+            )
+            assertTrue(result.enabled)
+            assertEquals("sendgrid", result.provider)
+        }
+
+        @Test
+        fun `DSL overrides YAML when non-default`() {
+            val props = emptyMap<String, String>()
+            val result = ConfigResolver.resolveNewsletterConfig(
+                props,
+                dsl = NewsletterDsl(enabled = true, provider = "convertkit"),
+                yaml = NewsletterConfig(enabled = false, provider = "mailchimp"),
+                default = NewsletterConfig()
+            )
+            assertTrue(result.enabled)
+            assertEquals("convertkit", result.provider)
+        }
+
+        @Test
+        fun `YAML fills in when DSL is default`() {
+            val props = emptyMap<String, String>()
+            val result = ConfigResolver.resolveNewsletterConfig(
+                props,
+                dsl = NewsletterDsl(), // enabled=false, provider="", endpoint=""
+                yaml = NewsletterConfig(enabled = true, provider = "mailchimp", endpoint = "https://example.com"),
+                default = NewsletterConfig()
+            )
+            assertTrue(result.enabled)
+            assertEquals("mailchimp", result.provider)
+            assertEquals("https://example.com", result.endpoint)
+        }
+
+        @Test
+        fun `defaults are used when all layers absent`() {
+            val props = emptyMap<String, String>()
+            val result = ConfigResolver.resolveNewsletterConfig(
+                props,
+                dsl = NewsletterDsl(),
+                yaml = null,
+                default = NewsletterConfig()
+            )
+            assertFalse(result.enabled)
+            assertEquals("", result.provider)
+            assertEquals("", result.endpoint)
+        }
+    }
+
+    @Nested
+    inner class ResolveThemeConfigTest {
+
+        @Test
+        fun `CLI overrides mode and colors`() {
+            val props = mapOf(
+                "bakery.theme.mode" to "dark",
+                "bakery.theme.primaryColor" to "#ff0000",
+                "bakery.theme.fontFamily" to "Roboto"
+            )
+            val result = ConfigResolver.resolveThemeConfig(
+                props,
+                dsl = ThemeDsl(mode = "light", primaryColor = "#00ff00"),
+                yaml = ThemeConfig(mode = "auto", primaryColor = "#0000ff"),
+                default = ThemeConfig()
+            )
+            assertEquals("dark", result.mode)
+            assertEquals("#ff0000", result.primaryColor)
+            assertEquals("Roboto", result.fontFamily)
+        }
+
+        @Test
+        fun `DSL overrides YAML when non-default`() {
+            val props = emptyMap<String, String>()
+            val result = ConfigResolver.resolveThemeConfig(
+                props,
+                dsl = ThemeDsl(mode = "dark", primaryColor = "#ff0000"),
+                yaml = ThemeConfig(mode = "light", primaryColor = "#00ff00"),
+                default = ThemeConfig()
+            )
+            assertEquals("dark", result.mode)       // DSL wins (non-default)
+            assertEquals("#ff0000", result.primaryColor) // DSL wins
+        }
+
+        @Test
+        fun `YAML fills in fontFamily when DSL is default`() {
+            val props = emptyMap<String, String>()
+            val result = ConfigResolver.resolveThemeConfig(
+                props,
+                dsl = ThemeDsl(fontFamily = ""), // empty == default
+                yaml = ThemeConfig(fontFamily = "Inter"),
+                default = ThemeConfig()
+            )
+            assertEquals("Inter", result.fontFamily) // YAML wins (DSL empty)
+        }
+
+        @Test
+        fun `defaults are used when all layers absent`() {
+            val props = emptyMap<String, String>()
+            val result = ConfigResolver.resolveThemeConfig(
+                props,
+                dsl = ThemeDsl(),
+                yaml = null,
+                default = ThemeConfig()
+            )
+            assertEquals("auto", result.mode)
+            assertEquals("#0d6efd", result.primaryColor)
+            assertEquals("#6c757d", result.secondaryColor)
+            assertEquals("", result.fontFamily)
+            assertEquals("", result.logoUrl)
+            assertEquals("", result.faviconUrl)
+        }
+    }
+
+    @Nested
+    inner class ResolveLayoutConfigTest {
+
+        @Test
+        fun `CLI overrides layoutType`() {
+            val props = mapOf("bakery.layout.layoutType" to "CENTERED")
+            val result = ConfigResolver.resolveLayoutConfig(
+                props,
+                dsl = LayoutDsl(layoutType = LayoutType.SIDEBAR_LEFT),
+                yaml = LayoutConfig(layoutType = LayoutType.SIDEBAR_RIGHT),
+                default = LayoutConfig()
+            )
+            assertEquals(LayoutType.CENTERED, result.layoutType)
+        }
+
+        @Test
+        fun `DSL overrides YAML when non-default`() {
+            val props = emptyMap<String, String>()
+            val result = ConfigResolver.resolveLayoutConfig(
+                props,
+                dsl = LayoutDsl(layoutType = LayoutType.SIDEBAR_RIGHT),
+                yaml = LayoutConfig(layoutType = LayoutType.CENTERED),
+                default = LayoutConfig()
+            )
+            assertEquals(LayoutType.SIDEBAR_RIGHT, result.layoutType)
+        }
+
+        @Test
+        fun `YAML overrides default when DSL equals default`() {
+            val props = emptyMap<String, String>()
+            val result = ConfigResolver.resolveLayoutConfig(
+                props,
+                dsl = LayoutDsl(layoutType = LayoutType.FULL_WIDTH), // same as default
+                yaml = LayoutConfig(layoutType = LayoutType.CENTERED),
+                default = LayoutConfig()
+            )
+            assertEquals(LayoutType.CENTERED, result.layoutType)
+        }
+
+        @Test
+        fun `defaults used when all layers absent`() {
+            val props = emptyMap<String, String>()
+            val result = ConfigResolver.resolveLayoutConfig(
+                props,
+                dsl = LayoutDsl(),
+                yaml = null,
+                default = LayoutConfig()
+            )
+            assertEquals(LayoutType.FULL_WIDTH, result.layoutType)
+        }
+
+        @Test
+        fun `CLI with invalid enum falls back to default`() {
+            val props = mapOf("bakery.layout.layoutType" to "INVALID_LAYOUT")
+            val result = ConfigResolver.resolveLayoutConfig(
+                props,
+                dsl = LayoutDsl(),
+                yaml = null,
+                default = LayoutConfig()
+            )
+            assertEquals(LayoutType.FULL_WIDTH, result.layoutType)
+        }
+    }
+
+    @Nested
+    inner class ResolveFirebaseConfigTest {
+
+        @Test
+        fun `CLI overrides projectId and apiKey`() {
+            val props = mapOf(
+                "bakery.firebase.projectId" to "CLI-PROJ",
+                "bakery.firebase.apiKey" to "CLI-KEY"
+            )
+            val yaml = FirebaseContactFormConfig(
+                project = FirebaseProjectInfo(projectId = "yaml-proj", apiKey = "yaml-key"),
+                firestore = FirebaseFirestoreSchema(
+                    contacts = FirebaseCollection("c", emptyList(), false),
+                    messages = FirebaseCollection("m", emptyList(), false)
+                ),
+                callable = FirebaseCallableFunction("fn", emptyList())
+            )
+            val result = ConfigResolver.resolveFirebaseConfig(props, yaml)
+            assertEquals("CLI-PROJ", result.projectId)
+            assertEquals("CLI-KEY", result.apiKey)
+        }
+
+        @Test
+        fun `YAML fills in when no CLI override`() {
+            val props = emptyMap<String, String>()
+            val yaml = FirebaseContactFormConfig(
+                project = FirebaseProjectInfo(projectId = "yaml-proj", apiKey = "yaml-key"),
+                firestore = FirebaseFirestoreSchema(
+                    contacts = FirebaseCollection("c", emptyList(), false),
+                    messages = FirebaseCollection("m", emptyList(), false)
+                ),
+                callable = FirebaseCallableFunction("fn", emptyList())
+            )
+            val result = ConfigResolver.resolveFirebaseConfig(props, yaml)
+            assertEquals("yaml-proj", result.projectId)
+            assertEquals("yaml-key", result.apiKey)
+        }
+
+        @Test
+        fun `defaults when YAML absent`() {
+            val props = emptyMap<String, String>()
+            val result = ConfigResolver.resolveFirebaseConfig(props, null)
+            assertEquals("", result.projectId)
+            assertEquals("", result.apiKey)
+        }
+    }
 }

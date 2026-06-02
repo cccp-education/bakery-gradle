@@ -205,6 +205,108 @@ object ConfigResolver {
     }
 
     /**
+     * Resolves a FirebaseAuthConfig through the 4-layer cascade.
+     */
+    fun resolveFirebaseAuthConfig(
+        props: Map<String, String>,
+        dsl: FirebaseAuthDsl,
+        yaml: FirebaseAuthConfig?,
+        default: FirebaseAuthConfig = FirebaseAuthConfig()
+    ): FirebaseAuthConfig {
+        val prefix = "bakery.firebaseAuth"
+        return FirebaseAuthConfig(
+            apiKey = resolveString(props, prefix, "apiKey", dsl.apiKey, yaml?.apiKey, default.apiKey),
+            authDomain = resolveString(props, prefix, "authDomain", dsl.authDomain, yaml?.authDomain, default.authDomain),
+            projectId = resolveString(props, prefix, "projectId", dsl.projectId, yaml?.projectId, default.projectId),
+        )
+    }
+
+    /**
+     * Resolves a CommentsConfig through the 4-layer cascade.
+     */
+    fun resolveCommentsConfig(
+        props: Map<String, String>,
+        dsl: CommentsDsl,
+        yaml: CommentsConfig?,
+        default: CommentsConfig = CommentsConfig()
+    ): CommentsConfig {
+        val prefix = "bakery.comments"
+        return CommentsConfig(
+            enabled = resolveBoolean(props, prefix, "enabled", dsl.enabled, yaml?.enabled, default.enabled),
+            collection = resolveString(props, prefix, "collection", dsl.collection, yaml?.collection, default.collection),
+        )
+    }
+
+    /**
+     * Resolves a NewsletterConfig through the 4-layer cascade.
+     */
+    fun resolveNewsletterConfig(
+        props: Map<String, String>,
+        dsl: NewsletterDsl,
+        yaml: NewsletterConfig?,
+        default: NewsletterConfig = NewsletterConfig()
+    ): NewsletterConfig {
+        val prefix = "bakery.newsletter"
+        return NewsletterConfig(
+            enabled = resolveBoolean(props, prefix, "enabled", dsl.enabled, yaml?.enabled, default.enabled),
+            provider = resolveString(props, prefix, "provider", dsl.provider, yaml?.provider, default.provider),
+            endpoint = resolveString(props, prefix, "endpoint", dsl.endpoint, yaml?.endpoint, default.endpoint),
+        )
+    }
+
+    /**
+     * Resolves a ThemeConfig through the 4-layer cascade.
+     */
+    fun resolveThemeConfig(
+        props: Map<String, String>,
+        dsl: ThemeDsl,
+        yaml: ThemeConfig?,
+        default: ThemeConfig = ThemeConfig()
+    ): ThemeConfig {
+        val prefix = "bakery.theme"
+        return ThemeConfig(
+            mode = resolveString(props, prefix, "mode", dsl.mode, yaml?.mode, default.mode),
+            primaryColor = resolveString(props, prefix, "primaryColor", dsl.primaryColor, yaml?.primaryColor, default.primaryColor),
+            secondaryColor = resolveString(props, prefix, "secondaryColor", dsl.secondaryColor, yaml?.secondaryColor, default.secondaryColor),
+            fontFamily = resolveString(props, prefix, "fontFamily", dsl.fontFamily, yaml?.fontFamily, default.fontFamily),
+            logoUrl = resolveString(props, prefix, "logoUrl", dsl.logoUrl, yaml?.logoUrl, default.logoUrl),
+            faviconUrl = resolveString(props, prefix, "faviconUrl", dsl.faviconUrl, yaml?.faviconUrl, default.faviconUrl),
+        )
+    }
+
+    /**
+     * Resolves a LayoutConfig through the 4-layer cascade.
+     */
+    fun resolveLayoutConfig(
+        props: Map<String, String>,
+        dsl: LayoutDsl,
+        yaml: LayoutConfig?,
+        default: LayoutConfig = LayoutConfig()
+    ): LayoutConfig {
+        val prefix = "bakery.layout"
+        return LayoutConfig(
+            layoutType = resolveEnum(props, prefix, "layoutType", dsl.layoutType, yaml?.layoutType, default.layoutType),
+        )
+    }
+
+    /**
+     * Resolves Firebase contact form config (apiKey, projectId) through the 4-layer cascade.
+     * Note: Firebase contact form has no DSL class (uses nested config in site.yml only).
+     */
+    fun resolveFirebaseConfig(
+        props: Map<String, String>,
+        yaml: FirebaseContactFormConfig?,
+        default: FirebaseProjectInfo = FirebaseProjectInfo(projectId = "", apiKey = "")
+    ): FirebaseProjectInfo {
+        val prefix = "bakery.firebase"
+        val yamlProject = yaml?.project ?: default
+        return FirebaseProjectInfo(
+            projectId = resolveString(props, prefix, "projectId", default.projectId, yamlProject.projectId, default.projectId),
+            apiKey = resolveString(props, prefix, "apiKey", default.apiKey, yamlProject.apiKey, default.apiKey),
+        )
+    }
+
+    /**
      * Resolves an Enum property through the 4-layer cascade.
      */
     inline fun <reified E : Enum<E>> resolveEnum(
