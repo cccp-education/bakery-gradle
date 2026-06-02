@@ -8,12 +8,6 @@ import org.assertj.core.api.Assertions.assertThat
 
 class GenerateArticleSteps(private val world: BakeryWorld) {
 
-    @Given("a new Bakery project with site configured")
-    fun createBakeryProjectWithSiteConfigured() {
-        world.createGradleProjectWithSiteConfigured()
-        assertThat(world.projectDir).exists()
-    }
-
     @Given("a new Bakery project with site configured and IA enabled")
     fun createBakeryProjectWithSiteConfiguredAndIa() {
         world.createGradleProjectWithSiteConfigured(iaEnabled = true)

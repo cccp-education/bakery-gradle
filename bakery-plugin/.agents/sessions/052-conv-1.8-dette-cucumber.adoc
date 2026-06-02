@@ -1,0 +1,47 @@
+= Session 052 — CONV-1.8 Dette Cucumber + Nettoyage
+:Date: 2026-06-02
+:Score: 9/10
+:Type: fix + test + BDD
+
+== Mission
+
+Résoudre le `DuplicateStepDefinitionException` Cucumber et classifier les échefs préexistants.
+
+== Résultats
+
+=== CONV-1.8 — DuplicateStepDefinition RÉSOLU ✅
+
+**Cause racine** : Le step `@Given("a new Bakery project with site configured")` était défini dans 2 classes Cucumber du même glue package `bakery.scenarios` :
+- `ConfigResolverSteps.kt:18` — `world.createGradleProject()`
+- `GenerateArticleSteps.kt:11` — `world.createGradleProjectWithSiteConfigured()`
+
+**Correction** : Suppression du step dupliqué de `GenerateArticleSteps.kt` (lignes 11-15). Le step canonique reste dans `ConfigResolverSteps.kt`.
+
+**Impact** : 
+- Avant : 58 échecs Cucumber cascading (DuplicateStepDefinitionException)
+- Après : **2 échefs seulement** (les 2 scénarios de `9_generate_article.feature` — bug EPIC 17 déjà identifié)
+
+=== Bilan tests
+
+| Couche | Résultat
+| UT JUnit5 | *437 PASS* (0 échec)
+| FT TestKit | *53 PASS* (0 échec)
+| Cucumber BDD | *68/70 scénarios PASS* (2 échefs = EPIC 17 generateArticle)
+| Compilation | ✅ BUILD SUCCESSFUL
+
+=== Dette restante identifiée
+
+Les 2 échecs Cucumber de `9_generate_article.feature` correspondent à l'**EPIC 17** :
+1. `IaConfig.enabled = true` par défaut (devrait être `false`) — code mort
+2. Le scénario "generateArticle fails gracefully without IA" attend "LlmService" mais reçoit "Connection refused"
+
+== Fichier modifié
+
+* `src/test/scenarios/bakery/scenarios/GenerateArticleSteps.kt` — Suppression du step `@Given("a new Bakery project with site configured")` dupliqué (lignes 11-15)
+
+== Prochaine session
+
+CONV-1.8 TERMINÉ. Prochaines priorités :
+1. EPIC 17 — Corriger `IaConfig.enabled = false` par défaut + corriger le scénario Cucumber generateArticle
+2. EPIC 6 — Intégration tâche publishProfil (P1)
+3. EPIC 13 — Couverture tests lacunes P1 (50%)

@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-02 — Session 051_
+_Dernière mise à jour : 2026-06-02 — Session 052_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -24,6 +24,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 [cols="2,2,2,3,3"]
 |===
 | Session | Date | Kover % | Tests PASS | Notes
+| 052 | 2026-06-02 | *Non mesuré* | 437 UT ✅, 53 FT ✅, 68/70 Cucumber ✅ | CONV-1.8 : DuplicateStepDefinition résolu. 1 step supprimé (GenerateArticleSteps). 2 échefs restants = EPIC 17 generateArticle.
 | 051 | 2026-06-02 | *Non mesuré* | 2 FT ✅ + 2 Cucumber ✅ (Feature 21 saveConfiguration) | CONV-1.7 : SaveConfigurationTest (2 FT) + Feature 21 (2 scénarios). Dette Cucumber identifiée (DuplicateStepDefinitionException).
 | 050 | 2026-06-02 | *Non mesuré* | 4 UT ✅ (ConfigPromptsTest saveConfiguration) | CONV-1.6 : Documentation ordre de surcharge + saveConfiguration() 4 UT PASS.
 | 049 | 2026-06-02 | *Non mesuré* | 3 FT ✅ (ConfigResolverCascadeTest), feature 20 Cucumber créée | CONV-1.5 : 3 FT cascade ConfigResolver PASS (DSL override, gradle.properties override, defaults). Feature 20 créée (2 scénarios).
@@ -57,6 +58,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 . *EPIC 10 Scaffolding* : ✅ RÉSOLU — 8 UT + 8 FT + 5 Cucumber verts (session 029)
 . *GenerateArticleTaskTest* : ✅ RÉSOLU — chemins dynamiques via `YearMonth.now()` (session 031)
 . *EPIC 11 Optimisation* : ✅ RÉSOLU — cucumberTest UP-TO-DATE, showStdStreams=false, seuil Kover 70%, validatePlugins fix (session 031)
+. *EPIC 17* : 🔴 2 échefs Cucumber (`9_generate_article.feature`) — `IaConfig.enabled = true` par défaut (devrait être `false`). Scénario "fails gracefully without IA" attend "LlmService" mais reçoit "Connection refused".
 . *EPIC 13 Couverture lacunes P1* : 50% — couverture partielle sur ConfigPrompts
    (session 015) et lacunes identifiées en session 016. Kover mesure 71.36% (session 031).
 . *Kover threshold* : ✅ Ajusté à 70% (session 031) — couverture mesurée 71.36%

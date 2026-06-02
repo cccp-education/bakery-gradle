@@ -1,35 +1,37 @@
-= PROMPT_REPRISE — Session 052 : CONV-1.8 Dette Cucumber + Nettoyage
+= PROMPT_REPRISE — Session 053 : EPIC 17 generateArticle graceful fail + IaConfig.enabled=false
 
-== Mission (Session 052)
+== Mission (Session 053)
 
-1. **CONV-1.8** : Résoudre le `DuplicateStepDefinitionException` Cucumber (renommage step `createBakeryProjectWithSiteConfigured`)
-2. **CONV-1.8** : Investiguer les ~58 échecs Cucumber préexistants et classifier bloquants vs non-bloquants
-3. **CONV-1.7** : ✅ TERMINÉ — 2 FT + 2 Cucumber scénarios PASS
+1. **EPIC 17** : Corriger `IaConfig.enabled = false` par défaut (actuellement `true` — code mort)
+2. **EPIC 17** : Corriger le scénario Cucumber "generateArticle fails gracefully without IA" (2 échefs restants)
+3. **EPIC 17** : Ajouter le step Cucumber `@Given("a new Bakery project with site configured but without IA")` dans `GenerateArticleSteps.kt`
 
-== État actuel (Session 051 terminée)
+== État actuel (Session 052 terminée)
 
-- CONV-1.7 : ✅ 4 UT + 2 FT + 2 Cucumber scénarios PASS
-  - FT : `SaveConfigurationTest` dans `ScaffoldFunctionalTests.kt`
-    - `should save push credentials into site yml when collectSiteConfig is invoked with CLI properties`
-    - `should preserve existing bake configuration when saving new credentials`
-  - Cucumber : `21_save_configuration.feature` — 2 scénarios PASS
-    - `Save push credentials into site.yml via collectSiteConfig`
-    - `Preserve existing bake configuration when saving push credentials`
-  - Steps : `SaveConfigurationSteps.kt` (Given + When)
-- Dette Cucumber identifiée : `DuplicateStepDefinitionException` entre `ConfigResolverSteps` et `GenerateArticleSteps`
-  - Même step `@Given("a new Bakery project with site configured")` défini 2 fois
-  - Impact : ~58 échecs Cucumber cascading
-- Solution proposée : Renommer le step dans `GenerateArticleSteps` en `@Given("a new Bakery project with site configured and IA enabled for article generation")`
+- CONV-1.8 : ✅ TERMINÉ — DuplicateStepDefinitionException résolu (1 step supprimé dans GenerateArticleSteps.kt)
+- 437 UT PASS, 53 FT PASS, 68/70 Cucumber PASS
+- 2 échefs Cucumber restants = EPIC 17 (`9_generate_article.feature` scénarios 1 et 2)
+  - Scénario 1 : `generateArticle task is registered` — attend `task "generateArticle"` dans output mais `generateArticle` n'est pas registred car IA non configuré
+  - Scénario 2 : `generateArticle fails gracefully without IA` — attend "LlmService" mais reçoit "Connection refused" car `IaConfig.enabled = true` par défaut
 
-== Architecture saveConfiguration — Rappel
+== Architecture EPIC 17 — Rappel
 
 ```
-collectSiteConfig → collecte (username, repo, token, configPath)
-                  → File.saveConfiguration(site, siteYmlFile, username, repo, token)
-                  → FileSystemManager.yamlMapper.writeValue(siteYmlFile, updatedConfig)
+IaConfig.enabled = false (par défaut)
+  ↓
+Si enabled = false → generateArticle ne s'enregistre PAS (task absente)
+Si enabled = true + LLM disponible → article créé
+Si enabled = true + LLM indisponible → IllegalStateException("LlmService")
 ```
+
+== Baby Steps DDD/TDD/BDD (EPIC 17)
+
+. **Étape 1 — Production** : `IaConfig.enabled = false` par défaut (`IaConfig.kt`)
+. **Étape 2 — Step Cucumber** : Ajouter `@Given("a new Bakery project with site configured but without IA")` dans `GenerateArticleSteps.kt`
+. **Étape 3 — Feature Cucumber** : Mettre à jour `9_generate_article.feature` avec les nouveaux steps
+. **Étape 4 — Vérification** : Lancer UT + FT + Cucumber → 70/70 PASS
 
 == Attention
 
 - Ne pas lancer `./gradlew test` sans permission explicite
-- 58 échecs Cucumber préexistants (DuplicateStepDefinitionException — à résoudre en CONV-1.8)
+- EPIC 17 baby steps déjà cadrés dans BACKLOG.adoc

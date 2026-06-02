@@ -1,5 +1,13 @@
 = COMPLETED_TASKS_ARCHIVE — Juin 2026
 
+== Session 052 — CONV-1.8 Dette Cucumber (2026-06-02)
+
+* [x] CONV-1.8 — Suppression step Cucumber dupliqué `@Given("a new Bakery project with site configured")` dans `GenerateArticleSteps.kt`
+* [x] CONV-1.8 — DuplicateStepDefinitionException résolu (58→2 échefs Cucumber)
+* [x] CONV-1.8 — Classification échefs restants : 2/70 = EPIC 17 generateArticle (IaConfig.enabled=true bug)
+* [x] Compilation + publishToMavenLocal OK
+* [x] Bilan : 437 UT PASS, 53 FT PASS, 68/70 Cucumber PASS
+
 == Session 047 — BKY-CONV-1 ConfigResolver (2026-06-02)
 
 * [x] CONV-1.1 — Audit cross-borough : plantuml-gradle (ConfigMerger 5 couches), codebase-gradle (4 couches Gradle), slider-gradle (3 couches YAML). 9/10 configs bakery sans override.
