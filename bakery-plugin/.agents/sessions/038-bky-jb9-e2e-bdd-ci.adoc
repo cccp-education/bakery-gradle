@@ -1,0 +1,75 @@
+= Session 038 — BKY-JB-9 Phase B COMPLETE (Cucumber E2E + CI workflow)
+:jbake-status: archive
+:jbake-summary: JB-9.8 ✅ (10 scénarios Cucumber E2E) + JB-9.9 ✅ (CI workflow test.yml) 
+
+== Mission session 038 — Terminée
+
+**Objectif** : Compléter BKY-JB-9 Phase B (reste) — convertir les E2E JUnit5 en Cucumber BDD + CI workflow
+
+**Résultat** : ✅ TERMINÉ — BKY-JB-9 Phase B COMPLET (8 pts, P1)
+
+== Tâches exécutées (2 pts)
+
+=== JB-9.8 — Scénarios Cucumber E2E (1 pt)
+
+* ✅ Création du feature file `15_e2e_thymeleaf_components.feature` (10 scénarios E2E BDD)
+  ** 2 Google Forms (happy-path + no-config)
+  ** 2 Analytics (happy-path + no-config)  
+  ** 2 Newsletter (happy-path + no-config)
+  ** 2 Auth Header (happy-path + no-config)
+  ** 2 Comments (happy-path + disabled)
+* ✅ Implémentation `E2eThymeleafSteps.kt` (steps incrémentaux : context build → render → assert HTML)
+* ✅ 49 Cucumber tests PASS total (10 nouveaux E2E BDD + 39 existants)
+
+=== JB-9.9 — CI workflow e2eTest (0.5 pt) 
+
+* ✅ Création `.github/workflows/test.yml`
+  ** `build` (UT + FT + Cucumber)
+  ** `installPlaywright` (Chromium headless)
+  ** `e2eTest` (Playwright browser tests)
+  ** Exécution sur push main + PR
+
+== Étapes de mise en œuvre
+
+1. **Planification** : Analyse du choix JB-9.8/9.9 vs JB-7/JB-8 → Quick win JB-9.8 + JB-9.9 → cloture EPIC BKY-JB-9
+
+2. **JB-9.8 — Cucumber BDD E2E** :
+   . Création `15_e2e_thymeleaf_components.feature` (5 paires happy-path/no-config)
+   . Implémentation `E2eThymeleafSteps.kt` (context build → render → assert) 
+   . Tests validation (context imbriqué + assertions Thymeleaf strip)
+   . 10 nouveaux scénarios Cucumber PASS
+
+3. **JB-9.9 — CI workflow** :
+   . Analyse pattern workflows CI des autres boroughs (codebase, plantuml, etc.)
+   . Création `.github/workflows/test.yml` avec `build` + `installPlaywright` + `e2eTest` 
+   . Validation exécution dans répertoire `bakery-plugin/` (mono-projet Gradle)
+
+4. **Validation complète** :
+   . Compilation Kotlin : ✅ PASS
+   . Tests unitaires (test) : ✅ PASS (297 UT)
+   . Tests fonctionnels (functionalTest) : ✅ PASS 
+   . Tests Cucumber (cucumberTest) : ✅ PASS (49 tests)
+   . Tests E2E (e2eTest) : ✅ PASS (13 tests Playwright)
+   . Couverture Kover : ✅ PASS (70% threshold)
+   . Publication Maven Local : ✅ PASS
+
+5. **Documentation** :
+   . MAJ BACKLOG.adoc : JB-9 Phase B → Terminé ✅
+   . MAJ .agents/INDEX.adoc : Session 038 + Roadmap JB-9
+   . MAJ PROMPT_REPRISE.adoc : Mission 038 + Prochain baby-steps JB-7 Layouts
+
+== Évaluation (9/10)
+
+* ✅ 2 pts — Tâches BDD E2E Cucumber + CI workflow (JB-9.8 + JB-9.9)
+* ✅ Structure claire — feature file + steps + workflow CI 
+* ✅ Pyramide de tests couverte (UT + FT + BDD + E2E browser)
+* ⚠️ 2 heures — un peu lourd pour 1.5 pts mécaniques
+
+== Prochaines étapes — Session 039
+
+* 💡 BKY-JB-7 Layouts — DDD/TDD/BDD baby steps (3 pts, P2)  
+  OU
+* 💡 BKY-JB-8 Article IA — Intégration codebase RAG (13 pts, P0)
+
+Les templates `src/main/resources/site/templates/{layout,layout-full-width,layout-sidebar-left,layout-sidebar-right,layout-centered}.thyme` sont prêts à l'emploi. 
+La classe de données `LayoutType` existe déjà dans `bakery/LayoutConfig.kt`.

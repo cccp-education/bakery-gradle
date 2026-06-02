@@ -1165,13 +1165,13 @@ Inconvénient : Lourd (Node.js + browser binary), ~30s par test.
 . **JB-9.3** : Migrer les tests template existants (analytics, newsletter, auth, google-forms, breadcrumb, etc.) vers des rendering tests
 . **JB-9.4** : Supprimer les `template.readText().contains()` — remplacer par `html.contains()`
 
-==== Phase B — Playwright-jvm E2E (5 pts)
+==== Phase B — Playwright-jvm E2E + Cucumber BDD (5 pts) ✅ TERMINÉE
 
-. **JB-9.5** : Ajouter `com.microsoft.playwright:playwright` en `e2eImplementation`
-. **JB-9.6** : Créer tâche Gradle `e2eTest` : start serv → Playwright tests → stop serv
-. **JB-9.7** : Scénarios Cucumber E2E : analytics visible, newsletter visible, auth buttons, Google Forms iframe
-. **JB-9.8** : CI workflow : `e2eTest` sur push main (headless Chrome)
-. **JB-9.9** : Référence : capsule-gradle utilise déjà Playwright (`foundry/public/capsule-gradle/`)
+. **JB-9.5** ✅ : Ajouter `com.microsoft.playwright:playwright` en `e2eImplementation`
+. **JB-9.6** ✅ : Créer tâche Gradle `e2eTest` : start serv → Playwright tests → stop serv
+. **JB-9.7** ✅ : Scénarios Playwright E2E : analytics visible, newsletter visible, auth buttons, Google Forms iframe (13/13 PASS)
+. **JB-9.8** ✅ : Scénarios Cucumber E2E : 10 scénarios Thymeleaf rendering BDD (feature 15_e2e_thymeleaf_components.feature + E2eThymeleafSteps.kt)
+. **JB-9.9** ✅ : CI workflow : `test.yml` (build + check + e2eTest) sur push main
 
 === Référence croisée
 

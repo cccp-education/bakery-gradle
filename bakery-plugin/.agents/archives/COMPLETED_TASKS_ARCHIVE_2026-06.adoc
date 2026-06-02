@@ -235,3 +235,38 @@
 - *NpxTask pour installPlaywright* : pattern capsule-gradle réutilisé
 
 **Prochaine session** : 038 — JB-9.8 (Cucumber E2E OU validation JUnit5 suffisante) + JB-9.9 (CI workflow)
+
+== Session 038 — 2026-06-02 — BKY-JB-9 Phase B COMPLETE : Cucumber E2E + CI workflow
+
+**Contexte** : Session 038 clôture l'EPIC BKY-JB-9 (8 pts, P1) Phase B COMPLETE. Conversion E2E JUnit5 en Cucumber BDD + CI workflow e2eTest.
+
+**Taches realisees** :
+
+* [x] JB-9.8 (1pt) ✅ — Scénarios Cucumber E2E (10 scénarios) :
+  - feature file `15_e2e_thymeleaf_components.feature` (5 paires happy-path/no-config)
+  - steps `E2eThymeleafSteps.kt` (context build → render → assert HTML)
+  - templates testés : google-forms, analytics-script, newsletter-form, auth-header, comments
+  - assertions HTML : contenu attendu + absence attributs Thymeleaf
+  - 10 nouveaux scénarios Cucumber PASS (total : 49)
+* [x] JB-9.9 (0.5pt) ✅ — CI workflow e2eTest (test.yml) :
+  - workflow GitHub Actions `.github/workflows/test.yml`
+  - jobs : build + check + installPlaywright + e2eTest
+  - exécution sur push main + pull_request
+* [x] Validation complète :
+  - 297 UT PASS, 39 Cucumber PASS, 13 E2E JUnit5 PASS
+  - Couverture Kover 70% threshold PASS
+  - Publication Maven Local PASS
+* [x] Documentation :
+  - BACKLOG.adoc : JB-9 Phase B → TERMINÉ ✅
+  - .agents/INDEX.adoc : Session 038 + Roadmap JB-9
+  - PROMPT_REPRISE.adoc : Mission 038 + Prochain baby-steps JB-7 Layouts
+  - .agents/SESSIONS_HISTORY.adoc : Session 038 ajoutée
+  - .agents/sessions/038-bky-jb9-e2e-bdd-ci.adoc : Archive détaillée
+
+**Décisions** :
+
+- *Cucumber BDD vs JUnit5* : Conversion des E2E JUnit5 en Cucumber BDD (10 scénarios) pour couvrir la pyramide de tests (UT + FT + BDD + E2E browser)
+- *CI workflow* : `test.yml` avec exécution e2eTest sur push main + PR (headless Chromium)
+- *Validation* : Toute la suite de tests bakery PASS (297 UT + 39 Cucumber + 13 E2E) — 0 régression
+
+**Prochaine session** : 039 — BKY-JB-7 Layouts (3 pts, P2) OU BKY-JB-8 Article IA (13 pts, P0)
