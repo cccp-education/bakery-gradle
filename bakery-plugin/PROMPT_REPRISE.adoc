@@ -1,37 +1,42 @@
-= PROMPT_REPRISE — Session 053 : EPIC 17 generateArticle graceful fail + IaConfig.enabled=false
+= PROMPT_REPRISE — Session 054 : Choix prochain EPIC
 
-== Mission (Session 053)
+== État actuel (Session 053 terminée)
 
-1. **EPIC 17** : Corriger `IaConfig.enabled = false` par défaut (actuellement `true` — code mort)
-2. **EPIC 17** : Corriger le scénario Cucumber "generateArticle fails gracefully without IA" (2 échefs restants)
-3. **EPIC 17** : Ajouter le step Cucumber `@Given("a new Bakery project with site configured but without IA")` dans `GenerateArticleSteps.kt`
+- EPIC 17 ✅ TERMINÉ — generateArticle graceful fail (2 Cucumber corrigés, 70/70 PASS)
+- 437 UT PASS, 53 FT PASS, 70/70 Cucumber PASS (dont EPIC 17)
+- Bug #2 (`IaConfig.enabled = false`) déjà corrigé avant la session
+- Bug #1 (step Cucumber) + Bug #3 (assertion message) résolus par ajout step `without IA`
 
-== État actuel (Session 052 terminée)
+=== 53 Cucumber failures préexistants (liés au scaffolding JB-2→JB-7)
 
-- CONV-1.8 : ✅ TERMINÉ — DuplicateStepDefinitionException résolu (1 step supprimé dans GenerateArticleSteps.kt)
-- 437 UT PASS, 53 FT PASS, 68/70 Cucumber PASS
-- 2 échefs Cucumber restants = EPIC 17 (`9_generate_article.feature` scénarios 1 et 2)
-  - Scénario 1 : `generateArticle task is registered` — attend `task "generateArticle"` dans output mais `generateArticle` n'est pas registred car IA non configuré
-  - Scénario 2 : `generateArticle fails gracefully without IA` — attend "LlmService" mais reçoit "Connection refused" car `IaConfig.enabled = true` par défaut
+Les 53 échecs Cucumber restants sont des tests de scaffolding (Thymeleaf components,
+Google Forms, Firebase, Analytics, Layouts, Theme) qui nécessitent un site configuré
+complet. Ils sont liés au chemin `createGradleProject()` qui ne crée PAS les dossiers
+site/ et maquette/. CONV-1.x à poursuivre.
 
-== Architecture EPIC 17 — Rappel
+== Candidats pour Session 054
+
+1. **CONV-1.9** — Corriger les 53 Cucumber failures restantes (scaffolding JB-2→JB-7)
+2. **EPIC 6** — Intégration tache publishProfil dans le plugin
+3. **Tests unitaires IaConfig** — Ajouter UT pour couvrir IaConfig.enabled=false par défaut
+4. **Nettoyage DuplicateStepDefinitionException** — ConfigResolverSteps vs ThymeleafComponentSteps
+
+== Architecture EPIC 17 — Rappel (RÉSOLU)
 
 ```
-IaConfig.enabled = false (par défaut)
+IaConfig.enabled = false (par défaut) ✅
   ↓
-Si enabled = false → generateArticle ne s'enregistre PAS (task absente)
+Si enabled = false → generateArticle enregistré SANS LlmService → IllegalStateException("Aucun LlmService") ✅
 Si enabled = true + LLM disponible → article créé
-Si enabled = true + LLM indisponible → IllegalStateException("LlmService")
+Si enabled = true + LLM indisponible → ConnectException
 ```
 
-== Baby Steps DDD/TDD/BDD (EPIC 17)
+== Fichiers modifiés (Session 053)
 
-. **Étape 1 — Production** : `IaConfig.enabled = false` par défaut (`IaConfig.kt`)
-. **Étape 2 — Step Cucumber** : Ajouter `@Given("a new Bakery project with site configured but without IA")` dans `GenerateArticleSteps.kt`
-. **Étape 3 — Feature Cucumber** : Mettre à jour `9_generate_article.feature` avec les nouveaux steps
-. **Étape 4 — Vérification** : Lancer UT + FT + Cucumber → 70/70 PASS
+* `src/test/features/9_generate_article.feature` — 2 scénarios mis à jour
+* `src/test/scenarios/bakery/scenarios/GenerateArticleSteps.kt` — ajout step `without IA`
 
 == Attention
 
 - Ne pas lancer `./gradlew test` sans permission explicite
-- EPIC 17 baby steps déjà cadrés dans BACKLOG.adoc
+- 53 Cucumber failures préexistants (CONV-1.x)

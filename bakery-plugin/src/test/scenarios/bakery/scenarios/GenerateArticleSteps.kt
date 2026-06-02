@@ -14,6 +14,12 @@ class GenerateArticleSteps(private val world: BakeryWorld) {
         assertThat(world.projectDir).exists()
     }
 
+    @Given("a new Bakery project with site configured but without IA")
+    fun createBakeryProjectWithSiteConfiguredButWithoutIA() {
+        world.createGradleProjectWithSiteConfigured(iaEnabled = false)
+        assertThat(world.projectDir).exists()
+    }
+
     @Given("a new Bakery project with article intention configured with topic {string}")
     fun createBakeryProjectWithArticleIntention(topic: String) {
         world.createGradleProjectWithArticleIntention(topic = topic)

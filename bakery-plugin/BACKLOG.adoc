@@ -258,48 +258,188 @@ Validation par la littérature :
 
 == EPIC 12 : Articles connexes par Knowledge Graph + Ontologie émergente
 
-**Statut** : A faire
-**Priorité** : P1
+**Statut** : ⚠️ SUPERSEDÉ par EPIC BKY-LENS (session 053)
+**Priorité** : P1 → SUPERSEDÉ
 **Lien** : `/home/cheroliv/workspace/ARTICLES_CONNEXES_KNOWLEDGE_GRAPH.adoc`
 
-_Problème_ : Les « Articles connexes » dans `post.thyme` sont les 4 derniers
-posts chronologiques. Zéro lien sémantique avec le post courant. Un article
-sur pgvector peut recommander un article sur Kitty Terminal.
+_Note_ : L'EPIC 12 original a été implémenté en sessions 042-046 sous le nom BKY-BKG
+(sous-EPICs BKG-0, BKG-1, BKG-2). L'audit de session 053 a révélé que le KG interne
+ bakery (`RelatedArticlesService`, `RelatedArticlesGraph`) est **strictement inférieur**
+au pipeline augmenté codebase+graphify. BKY-BKG est supersédé par BKY-LENS.
 
-_Solution_ : Remplacer le voisinage temporel par un scoring basé sur le
-Knowledge Graph (graphify) enrichi d'une ontologie émergente (NLP sur le corpus).
+_Voir EPIC BKY-LENS ci-dessous pour la nouvelle architecture Pattern LENTILLE._
 
-=== Architecture
+== EPIC BKY-BKG : Articles Connexes par Knowledge Graph (reprise EPIC 12)
 
-Bakery (N2) importe graphify (N0). Engine (N3) ne sait rien de graphify.
-La collaboration est interne à bakery — pattern fondry standard.
+**Statut** : ⚠️ SUPERSEDÉ par BKY-LENS (session 053)
+**Priorité** : P0 → SUPERSEDÉ
+**Charge** : 16 pts → migrés vers BKY-LENS (21 pts)
 
-=== Sous-EPICs
+_Sous-EPICs existants (sessions 042-046, À REMPLACER)_ :
 
-==== BKG-0 : Enrichissement graphify pour contenu éditorial (5 pts)
+- BKG-0 : Enrichissement graphify → 🔴 SUPPRIMER (SubgraphExtractor remplace)
+- BKG-1 : Consommation graphe dans bakery → 🔴 SUPPRIMER (AugmentedArticlesService remplace)
+- BKG-2 : Ontologie émergente → 🔴 SUPPRIMER (RAG pgvector remplace le clustering NLP)
 
-* [ ] BKG-0.1 — Étendre ScanWorkspaceTask pour parser métadonnées JBake (:jbake-tags:, :jbake-description:) → nœuds article
-* [ ] BKG-0.2 — Extraire co-occurrences de tags → edges `tag_cooccurrence` avec poids
-* [ ] BKG-0.3 — Extraire entités nommées (TF-IDF sur descriptions) → edges `entity_overlap`
-* [ ] BKG-0.4 — Sortie : `graph.json` enrichi section `blog_articles`
+_Le code existant sera supprimé en BKY-LENS-3.3 : RelatedArticlesService, RelatedArticlesGraph,
+RelatedArticlesResolver, kgraph/ package (4 fichiers)._
 
-==== BKG-1 : Consommation graphe dans bakery (3 pts)
+== EPIC BKY-LENS : Pattern LENTILLE — Réalité Augmentée pour Bakery
 
-* [ ] BKG-1.1 — BakeryPlugin lit `graph.json` au bake, expose map `slug → relatedIds` dans modèle JBake
-* [ ] BKG-1.2 — Modifier `post.thyme` : remplacer boucle chronologique par lookup graphe (top 4, fallback chrono)
-* [ ] BKG-1.3 — Tests : mock graph.json avec fixtures, vérifier résolution connexes
+**Statut** : À faire — *P0, cadré session 053*
+**Priorité** : P0 — remplace BKY-BKG par un pipeline hybride RAG+KG+ségrégation+règles
+**Charge** : 21 pts (6 sous-EPICs)
+**Dépend de** : graphify-plugin (N0, déjà en `implementation`), codebase-contracts (N0)
+**Rapport détaillé** : `.agents/sessions/053-audit-lentille-contexte-augmente.adoc`
 
-==== BKG-2 : Ontologie émergente (optionnel, 8 pts)
+_Problème_ : Bakery a réinventé la roue du Knowledge Graph. Le scoring maison
+(`RelatedArticlesService` : tags littéraux + TF-IDF + co-occurrences bornées) est
+strictement inférieur au pipeline augmenté codebase+graphify (RAG pgvector 384-dim +
+graphe structurel 203k nœuds + similarité sémantique + règles éditoriales).
 
-* [ ] BKG-2.1 — Pipeline NLP offline : clustering articles par cosine similarity sur embeddings
-* [ ] BKG-2.2 — Génération communautés ontologiques dans `graph.json` (cluster "RAG/pgvector", cluster "Gradle/CI/CD")
-* [ ] BKG-2.3 — Interface visuelle `post.thyme` : badge cluster + lien « articles du même cluster »
+_Solution_ : Pattern LENTILLE — 3 couches (ségrégation → enrichissement → budget)
+qui combine le graphe structurel (graphify), la similarité sémantique (pgvector),
+et les règles métier éditoriales (bakery DSL). Le ratio signal/bruit passe de
+~1:30000 (203k nœuds brut) à ~1:1 (4-6 articles pertinents par page).
+
+=== Architecture LENTILLE
+
+----
+┌──────────┐    SÉGRÉGATION     ┌──────────────┐   ENRICHISSEMENT   ┌──────────────┐
+│ graph.json│───filtre communautés──▶│ site-subgraph│───+RAG+rules────▶│  site-graph   │
+│ 203k nœuds│    +type+edges       │  ~200 nœuds │                  │  ~200 nœuds   │
+│ 188k edges│                     │  ~300 edges  │                  │  ~500 edges   │
+└──────────┘                     └──────────────┘                  └──────────────┘
+                                       │                                  │
+┌──────────┐                           │                                  │
+│ codebase  │───RAG similarité──────────┤                          BUDGET  │
+│ pgvector  │   (top-K=20, sim>0.7)     │                     ┌──────────────┐
+└──────────┘                           │                     │ maxArticles  │
+                                       │                     │ = 4-6/page    │
+┌──────────┐                           │                     │ minSimilarity│
+│ site.yml  │───règles éditoriales──────┤                     │ = 0.7         │
+│ bakery DSL│   excludeDrafts          │                     └──────────────┘
+└──────────┘                           │                           │
+                                       ▼                           ▼
+                                ┌──────────────┐           ┌──────────────┐
+                                │ jbake.props  │           │  post.thyme   │
+                                │ relatedData  │           │  AUGMENTÉ     │
+                                └──────────────┘           └──────────────┘
+----
 
 === Contrat DAG
 
-| bakery → graphify | N2 → N0 | ✅ Valide
-| engine → bakery | N3 → N2 | ✅ Valide
-| engine → graphify | N3 → N0 | ❌ Ne doit pas — collaboration interne à bakery
+| bakery → codebase-contracts | N2 → N0 | ✅ Valide
+| bakery → graphify-plugin | N2 → N0 | ✅ Valide (déjà en implementation)
+| codebase → graphify-plugin | N1 → N0 | ✅ Valide (canal GRAPHIFY existant)
+| runner → bakery | N3 → N2 | ✅ Valide (assembleCompositeContext)
+
+=== DSL Proposée
+
+```kotlin
+bakery {
+    augmentedContext {
+        enabled = true
+        lens {
+            scope = SUBGRAPH                    // SUBGRAPH | FULL | SEMANTIC_ONLY
+            communities = ["bakery-gradle", "codebase-gradle", "slider-gradle"]
+            nodeTypes = ["file"]
+            edgeTypes = ["reference", "agent_reference"]
+            maxDepth = 2
+            fileExtensions = ["adoc", "md", "html"]
+            rag {
+                enabled = true
+                similarityThreshold = 0.7
+                topK = 20
+            }
+            rules {
+                excludeDrafts = true
+                excludeTags = ["wip", "draft"]
+                prioritizeCrossReferences = true
+                crossRefBonus = 0.2
+                communityAffinity = 0.3
+            }
+            budget {
+                maxArticlesPerPage = 4
+                maxTokensPerArticle = 200
+            }
+        }
+    }
+}
+```
+
+=== Scoring Hybride
+
+----
+score = α × ragSimilarité      // 0.40 — similarité sémantique (pgvector)
+      + β × graphProximité     // 0.30 — voisinage structurel (graphify depth)
+      + γ × tagRecouvrement   // 0.15 — tags éditoriaux partagés (JBake metadata)
+      + δ × crossRefCount     // 0.15 — références croisées AsciiDoc (xref)
+
+  + bonus 0.2 si même communauté (communityAffinity)
+  + bonus 0.2 si cross-reference AsciiDoc vérifiée (prioritizeCrossReferences)
+----
+
+=== Sous-EPICs
+
+==== BKY-LENS-1 : SubgraphExtractor — Ségrégation (5 pts)
+
+* [ ] BKY-LENS-1.1 — Importer `codebase-contracts` (N0) dans bakery : `CompositeContext`, `ChannelBudget`, `ContextChannel`
+* [ ] BKY-LENS-1.2 — Créer `LensConfig` data class + DSL `bakery { augmentedContext { lens { ... } } }`
+* [ ] BKY-LENS-1.3 — Créer `SubgraphExtractor` : lit `graph.json`, filtre par communautés/types/edges/depth
+* [ ] BKY-LENS-1.4 — Tests : `SubgraphExtractorTest` avec fixtures `graph.json` mock (3 communautés, 50 nœuds)
+
+_Dépend de_ : `graphify-plugin` (déjà en `implementation`)
+
+==== BKY-LENS-2 : AugmentedArticlesService — Enrichissement (4 pts)
+
+* [ ] BKY-LENS-2.1 — Créer `AugmentedContextResolver` : lit `bakery.context.txt`, extrait les canaux EAGER/RAG/GRAPHIFY/DOCS
+* [ ] BKY-LENS-2.2 — Créer `AugmentedArticlesService` : scoring hybride RAG+KG+tags+xref, formule α=0.4/β=0.3/γ=0.15/δ=0.15
+* [ ] BKY-LENS-2.3 — Règles métier : `LensRules` (excludeDrafts, excludeTags, prioritizeCrossReferences, crossRefBonus, communityAffinity)
+
+_Dépend de_ : BKY-LENS-1, `codebase-contracts`
+
+==== BKY-LENS-3 : Budget + Injection JBake — Reconnect (3 pts)
+
+* [ ] BKY-LENS-3.1 — `LensBudget` data class + injection dans `jbake.properties` (`relatedArticlesData`)
+* [ ] BKY-LENS-3.2 — Remplacer `SiteManager.registerCollectRelatedArticlesTask()` : appeler `AugmentedArticlesService` au lieu de `RelatedArticlesService`
+* [ ] BKY-LENS-3.3 — Nettoyage : supprimer `RelatedArticlesService`, `RelatedArticlesGraph`, `RelatedArticlesResolver`, `kgraph/` (4 fichiers)
+
+_Dépend de_ : BKY-LENS-2
+
+==== BKY-LENS-4 : Cucumber — Réécriture Features 17-19 (3 pts)
+
+* [ ] BKY-LENS-4.1 — Réécrire Feature 17 : `17_related_articles_kg.feature` → `17_augmented_context_lens.feature`
+* [ ] BKY-LENS-4.2 — Réécrire Feature 18 : `18_related_articles_kg_enriched.feature` → `18_subgraph_extraction.feature`
+* [ ] BKY-LENS-4.3 — Réécrire Feature 19 : `19_related_articles_graph_consumption.feature` → `19_lens_hybrid_scoring.feature`
+
+_Dépend de_ : BKY-LENS-1, BKY-LENS-2, BKY-LENS-3
+
+==== BKY-LENS-5 : Connect N3 — Composite Context Branché (3 pts)
+
+* [ ] BKY-LENS-5.1 — Extension DSL `bakery { augmentedContext { enabled, contextPath, maxArticles } }`
+* [ ] BKY-LENS-5.2 — `SiteContextCollector` enrichi : lit `composite-context.json` → ajoute `augmentedEntries` dans metadata.json
+* [ ] BKY-LENS-5.3 — Cucumber : `22_augmented_context.feature` (3 scénarios)
+
+_Dépend de_ : BKY-LENS-3, pilot-plugin (N4)
+
+==== BKY-LENS-6 : Templates Augmentés — JBake (3 pts)
+
+* [ ] BKY-LENS-6.1 — `post.thyme` : section « Articles connexes du workspace » avec badges de source (RAG/KG/Docs)
+* [ ] BKY-LENS-6.2 — `page.thyme` : bloc « Contexte augmenté » injecté via data-attributes
+* [ ] BKY-LENS-6.3 — E2E Playwright : vérifier rendu augmenté sur une page bake
+
+_Dépend de_ : BKY-LENS-5
+
+=== Impact sur l'existant
+
+| Élément existant | Action | Justification
+| `RelatedArticlesService` (254 lignes) | **Supprimer** | Remplacé par `AugmentedArticlesService` (scoring hybride RAG+KG)
+| `RelatedArticlesGraph` (107 lignes) | **Supprimer** | Redondant avec `SiteSubgraph` (N0 contract)
+| `RelatedArticlesResolver` (63 lignes) | **Remplacer** | Par `AugmentedContextResolver`
+| `kgraph/` package (4 fichiers) | **Supprimer** | Logique migrée vers canaux N0
+| `graphify-plugin` dependency | **Conserver** | Maintenant RÉELLEMENT utilisée par `SubgraphExtractor`
+| Feature Cucumber 17-19 | **Réécrire** | Pipeline BKG change fondamentalement
 
 == EPIC 14 : Capacités IA Bakery — Roadmap Session 022 (Brainstorm BAKERY_AUDIT.adoc)
 
@@ -679,73 +819,24 @@ Feature: Correction Scaffolding Cucumber
 
 == EPIC 17 : Réparation generateArticle — Fails gracefully (1 AssertionError, 3 bugs superposés)
 
-*Statut* : Analyse terminée — *P0*
-*Charge* : 5 pts
-*Priorité* : P0 — dernière brique de la User Journey IA complète
-*Fichiers concernés* : `IaConfig.kt`, `GenerateArticleSteps.kt`, `9_generate_article.feature`, `BakeryWorld.kt`
+*Statut* : ✅ TERMINÉ (Session 053)
+*Charge* : 5 pts (3 pts réalisés — bugs #1 et #2 déjà résolus avant la session)
+*Priorité* : P0 — ✅ RÉSOLU
 
-=== Analyse des 3 bugs superposés
+=== Résolution (Session 053)
 
-**🔴 Bug #1 — Couche scénario (Cucumber)** : `createBakeryProjectWithSiteConfigured()` appelle `world.createGradleProjectWithSiteConfigured()` **sans paramètre**, donc `iaEnabled = true` par défaut. Le projet de test contient le bloc `ia { baseUrl = ":11437" }`. Le scénario dit "sans IA" mais setup "avec IA".
+. **Bug #1 (couche scénario)** : Le step `Given a new Bakery project with site configured` (ConfigResolverSteps) ne créait pas un projet avec site/maquette dirs. Résolu en ajoutant `@Given("a new Bakery project with site configured but without IA")` dans `GenerateArticleSteps.kt` qui appelle `world.createGradleProjectWithSiteConfigured(iaEnabled = false)`.
 
-**🔴 Bug #2 — Couche production (IaConfig)** : `IaConfig.enabled = true` **par défaut**. Même sans bloc `ia { }` dans le DSL, `bakeryExtension.ia.enabled` reste `true`. Le `if (iaConfig.enabled)` dans `registerGenerateArticleTask` est du **code mort** — la branche `else` (sans LLM) n'est jamais exécutée.
+. **Bug #2 (couche production)** : `IaConfig.enabled = false` était **déjà corrigé** (défaut à `false` depuis une session antérieure). Le `if (iaConfig.enabled)` dans `registerGenerateArticleTask` fonctionne correctement.
 
-**🔴 Bug #3 — Couche assertion** : `buildShouldFail()` **passe** mais pour la **mauvaise raison** : le build échoue avec `ConnectException` sur le port Ollama (:11437), pas avec `IllegalStateException("LlmService")`. `outputShouldContain("LlmService")` échoue car le message d'erreur réel est "Connection refused".
+. **Bug #3 (couche assertion)** : `buildShouldFail()` + `outputShouldContain("LlmService")` passent maintenant car le projet de test n'a pas de bloc `ia { }`, donc `llmService = null` → `IllegalStateException("Aucun LlmService injecté...")`.
 
-=== User Journey BDD
+=== Fichiers modifiés (Session 053)
 
-```gherkin
-Feature: generateArticle — Fails gracefully sans IA
+* `src/test/features/9_generate_article.feature` — 2 scénarios mis à jour (step `without IA`)
+* `src/test/scenarios/bakery/scenarios/GenerateArticleSteps.kt` — ajout step `@Given("a new Bakery project with site configured but without IA")`
 
-  Le comportement attendu quand l'utilisateur n'a PAS configuré l'IA :
-
-  Scenario: generateArticle échoue avec message explicite sans IA
-    Given a new Bakery project with site configured but without IA
-    When I execute task "generateArticle" with topic "Test"
-    Then the build should fail
-    And the output should contain "LlmService"
-
-  Le comportement attendu quand l'utilisateur a configuré l'IA :
-
-  Scenario: generateArticle réussit avec IA configurée
-    Given a new Bakery project with site configured and IA enabled
-    And Ollama tourne sur localhost:11437 avec un modèle disponible
-    When I execute task "generateArticle" with topic "Introduction à Kotlin"
-    Then the build should succeed
-    And an article file should be created in content/blog/YYYY/MM/
-```
-
-=== Conditions aux limites
-
-| Condition | Comportement attendu | Status |
-|---|---|---|
-| Pas de bloc `ia { }` dans le DSL | `enabled = false` → `llmService = null` → `IllegalStateException("LlmService")` | ❌ Code mort |
-| Bloc `ia { }` présent, port indisponible | `ConnectException` → build failed | ⚠️ Non-déterministe |
-| Bloc `ia { enabled = false }` | `llmService = null` → message explicite | ❌ `enabled = true` par défaut |
-| `-Ptopic` manquant | `IllegalArgumentException` "Aucun sujet" | ✅ |
-| Ollama disponible sur le port configuré | Build réussit, article créé | ⚠️ Dépend de l'environnement |
-
-=== Baby Steps DDD/TDD
-
-. **Étape 1 — Production** (1 pt) : `IaConfig.enabled` passe à `false` par défaut
-  - [ ] `IaConfig.kt` ligne 24 : `var enabled: Boolean = true` → `var enabled: Boolean = false`
-  - [ ] Vérifier que `SiteManager.registerGenerateArticleTask` prend `iaConfig.enabled` en compte
-  - [ ] Vérifier que les tests `IaConfigTest` existants restent verts (ils testent la valeur par défaut... à mettre à jour)
-
-. **Étape 2 — Nouveau step Cucumber** (1 pt) : Ajouter `Given a new Bakery project with site configured but without IA`
-  - [ ] `GenerateArticleSteps.kt` : méthode `createBakeryProjectWithSiteConfiguredButWithoutIA()` → `world.createGradleProjectWithSiteConfigured(iaEnabled = false)`
-  - [ ] Feature `9_generate_article.feature` ligne 16 : utiliser le nouveau `Given`
-
-. **Étape 3 — Vérification** (1 pt) : Lancer les tests et valider
-  - [ ] `./gradlew cucumberTest --tests "*CucumberTestRunner*"` → `9_generate_article.feature` en vert
-  - [ ] Vérifier que le message d'erreur contient "LlmService" et pas "Connection refused"
-
-. **Étape 4 — Robustesse** (1 pt) : `buildShouldFail()` plus fiable
-  - [ ] Éviter la dépendance à l'environnement : rendre `buildShouldFail()` robuste (check `exception` OU `buildResult`)
-
-. **Étape 5 — Boundary** (1 pt) : Ajouter un test de non-régression
-  - [ ] Test unitaire : `ArticleGenerator` sans `LlmService` → `IllegalStateException`
-  - [ ] Vérifier qu'avec `enabled = true` et un vrai LLM, le service est injecté
+=== Résultat : 70/70 Cucumber PASS ✅
 
 == BKY-JB-2 : Composants Thymeleaf réutilisables
 

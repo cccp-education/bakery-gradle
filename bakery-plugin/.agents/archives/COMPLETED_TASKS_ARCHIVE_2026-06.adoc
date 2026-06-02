@@ -511,3 +511,26 @@
 * +9 UT total (3 description + 2 co-occurrence + 3 entity overlap + 1 scoring fix)
 * +3 Cucumber (feature 18)
 * Build complet : 386 UT + 53 FT + 61 Cucumber PASS
+
+== Session 053 — 2026-06-02 — EPIC 17 generateArticle graceful fail
+
+**Contexte** : EPIC 17 — Corriger les 2 derniers scénarios Cucumber en échec (9_generate_article.feature).
+
+**Tâches réalisées** :
+
+* [x] EPIC 17 Étape 1 — Ajout step Cucumber `@Given("a new Bakery project with site configured but without IA")`
+  - `GenerateArticleSteps.kt` : nouvelle méthode `createBakeryProjectWithSiteConfiguredButWithoutIA()`
+  - Appelle `world.createGradleProjectWithSiteConfigured(iaEnabled = false)` — site.yml + site/ + maquette/ mais sans bloc `ia { }`
+* [x] EPIC 17 Étape 2 — Mise à jour feature `9_generate_article.feature`
+  - Scénario 1 : `Given a new Bakery project with site configured but without IA`
+  - Scénario 2 : `Given a new Bakery project with site configured but without IA`
+  - Descriptions enrichies pour documenter le comportement `ia.enabled = false`
+
+**Bug #2 déjà résolu** : `IaConfig.enabled = false` par défaut (corrigé session antérieure).
+
+**Fichiers modifiés** :
+
+* `src/test/features/9_generate_article.feature` — 2 scénarios mis à jour
+* `src/test/scenarios/bakery/scenarios/GenerateArticleSteps.kt` — ajout step `createBakeryProjectWithSiteConfiguredButWithoutIA()`
+
+**Résultat** : 70/70 Cucumber PASS ✅ — EPIC 17 TERMINÉ

@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-06-02
-_Session terminee_ : 052 — CONV-1.8 Dette Cucumber + Nettoyage
-_Prochaine session_ : 053 — EPIC 17 generateArticle graceful fail
-_Session en cours_ : 053
+_Session terminee_ : 053 — Audit Intégration Réalité Augmentée (Pattern LENTILLE)
+_Prochaine session_ : 054 — BKY-LENS-1 SubgraphExtractor (Ségrégation)
+_Session en cours_ : 054
 
 '''
 
@@ -70,6 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | # | Date | Type | Sujet | Score
+| 053 | 2026-06-02 | fix + BDD | EPIC 17 TERMINÉ — generateArticle graceful fail : 2 scénarios Cucumber corrigés (step "without IA"). 70/70 Cucumber PASS ✅ | 9/10
 | 052 | 2026-06-02 | fix + test | CONV-1.8 DuplicateStepDefinition résolu (1 step supprimé GenerateArticleSteps). 437 UT + 53 FT + 68/70 Cucumber PASS (2 échefs = EPIC 17). | 9/10
 | 051 | 2026-06-02 | feat + test + BDD | CONV-1.7 saveConfiguration() FT + Cucumber — 2 FT (SaveConfigurationTest : credentials persistence + bake config preservation) + 2 Cucumber (Feature 21 : save credentials + preserve config). Dette Cucumber identifiée : DuplicateStepDefinitionException. | 8/10
 | 049 | 2026-06-02 | vérification + test + FT | CONV-1.4 vérifié (migration déjà faite) + CONV-1.5 : 3 FT cascade ConfigResolver (DSL override, gradle.properties override, defaults) PASS. Feature Cucumber 20 créée. | 8/10
@@ -128,7 +129,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 | EPIC 9 : Architecture d'orchestration LLM | 0% | P0 - SUPERSEDE par EPIC 14 (BKY-IA-*)
 | EPIC 10 : Scaffolding TDD (sitesBaseDir + siteName) | 100% | P0 - TERMINE
 | EPIC 11 : Optimisation duree des tests | 100% | P0 - TERMINE
-| EPIC 12 : Articles connexes par Knowledge Graph | 0% | P1 - SUPERSEDE par BKY-BKG
+| EPIC 12 : Articles connexes par Knowledge Graph | 0% | P1 - ⚠️ SUPERSEDE par BKY-LENS (session 053)
 | EPIC 13 : Couverture de tests — lacunes P1 | 50% | P1 - PARTIEL
 |===
 
@@ -168,9 +169,37 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 | EPIC 17 — generateArticle graceful fail | 5 | *P0 ✅ TERMINÉ* | IaConfig.enabled corrigé, LlmService error OK
 |===
 
-*Priorite P0* : EPIC 17 (generateArticle graceful fail) — IaConfig.enabled=false + 2 Cucumber scénarios
+=== EPIC LENTILLE — Réalité Augmentée pour Bakery (21 pts)
 
-*Prochaine session* : 053 — EPIC 17 generateArticle graceful fail
+*Cadrage* : session 053 (audit). Le KG interne (`RelatedArticlesService`) est
+strictement inférieur au pipeline codebase+graphify. BKY-BKG supersédé.
+Pattern LENTILLE : ségrégation (SubgraphExtractor) → enrichissement
+(AugmentedArticlesService, scoring hybride RAG+KG+tags+xref) → budget
+(LensBudget, 4-6 articles/page).
+*Rapport détaillé* : `.agents/sessions/053-audit-lentille-contexte-augmente.adoc`
+
+|===
+| EPIC | Axe | Pts | Priorite | Depend de
+| *BKY-LENS-1* | SubgraphExtractor (Ségrégation) | 5 | *P0* | graphify-plugin
+| *BKY-LENS-2* | AugmentedArticlesService (Enrichissement) | 4 | *P0* | BKY-LENS-1, codebase-contracts
+| *BKY-LENS-3* | Budget + Injection JBake (Reconnect) | 3 | *P0* | BKY-LENS-2
+| *BKY-LENS-4* | Cucumber Features 17-19 (Réécriture) | 3 | *P1* | BKY-LENS-1,2,3
+| *BKY-LENS-5* | Connect N3 Composite Context | 3 | *P1* | BKY-LENS-3, pilot-plugin
+| *BKY-LENS-6* | Templates Augmentés JBake | 3 | *P2* | BKY-LENS-5
+|===
+
+*Phase 1 (LENS-1→3)* : 12 pts — P0 Ségrégation + Enrichissement + Reconnect
+*Phase 2 (LENS-4)* : 3 pts — P1 Réécriture Cucumber
+*Phase 3 (LENS-5→6)* : 6 pts — P1-P2 N3 + Templates
+| EPIC | Pts | Priorite | Cause racine
+| EPIC 15 — PluginApplicationTest NPE | 3 | *P0 ✅ TERMINÉ* | `siteType` déjà stubbé dans BakeryTestFixture
+| EPIC 16 — Cucumber Scaffolding steps | 2 | *P0 ✅ TERMINÉ* | Step déjà corrigé dans .feature (session 027)
+| EPIC 17 — generateArticle graceful fail | 5 | *P0 ✅ TERMINÉ* | IaConfig.enabled=false + 2 Cucumber scénarios (70/70 PASS)
+|===
+
+*Priorite P0* : ✅ Tous les EPICs de réparation terminés (EPIC 15, 16, 17)
+
+*Prochaine session* : 054 — (à définir selon BACKLOG)
 
 === EPICs Transférés (hors périmètre bakery)
 
