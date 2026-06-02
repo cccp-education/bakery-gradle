@@ -42,6 +42,7 @@ data class SiteConfiguration(
     val analytics: AnalyticsConfig? = null,
     val newsletter: NewsletterConfig? = null,
     val theme: ThemeConfig? = null,
+    val layout: LayoutConfig? = null,
 )
 
 data class BakeConfiguration(
@@ -124,5 +125,9 @@ data class ThemeConfig(
     val fontFamily: String = "",
     val logoUrl: String = "",
     val faviconUrl: String = "",
+)
+
+data class LayoutConfig(
+    val layoutType: LayoutType = LayoutType.FULL_WIDTH,
 )
 

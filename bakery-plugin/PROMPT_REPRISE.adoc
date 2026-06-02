@@ -1,42 +1,30 @@
-= PROMPT_REPRISE — Session 038 terminée : BKY-JB-9 Phase B COMPLETE
+= PROMPT_REPRISE — Session 039 terminée : BKY-JB-7 Layouts COMPLETE
 
-== Mission accomplie (Session 038)
+== Mission accomplie (Session 039)
 
-BKY-JB-9 Phase B est COMPLETE. Cucumber E2E + CI workflow.
+BKY-JB-7 Layouts est COMPLET. 4 layouts Thymeleaf + injection jbake.properties.
 
 === Résultats
 
-- **JB-9.8** ✅ : Feature `15_e2e_thymeleaf_components.feature` (10 scénarios Cucumber BDD) + `E2eThymeleafSteps.kt` (steps incrémentaux : build context → render → assert HTML). 49 Cucumber PASS total.
-- **JB-9.9** ✅ : CI workflow `.github/workflows/test.yml` (build + check + e2eTest sur push main/PR).
-- BKY-JB-9 EPIC COMPLET (8 pts) : Phase A ✅ + Phase B ✅ + CI ✅.
+- **JB-7.1** ✅ : LayoutType enum + LayoutConfig data class + LayoutDsl + BakeryExtension DSL + injectLayoutConfigIntoJbakeProperties
+- **JB-7.2** ✅ : 16 UT (LayoutConfigTest 6 + LayoutTemplateTest 7 + LayoutInjectionTest 3)
+- **JB-7.3** ✅ : 4 fragments (layout-full-width/sidebar-left/sidebar-right/centered.thyme) + intégration post.thyme + page.thyme
+- **JB-7.4** ✅ : 2 FT (LayoutTest dans ScaffoldFunctionalTests)
+- **JB-7.5** ✅ : 3 Cucumber (13_layouts.feature) — total 52 Cucumber PASS
 
-== BKY-JB-9 — Statut final
-
-| Step | Description |Pts | Status |
-|-------|-------------|-----|--------|
-| JB-9.1 | Thymeleaf en testImplementation | 1 | ✅ |
-| JB-9.2 | ThymeleafRenderingTestFactory | 1 | ✅ |
-| JB-9.3 | Migrer tests template → rendering tests | 1 | ✅ |
-| JB-9.4 | Supprimer template.readText().contains() | 0.5 | ✅ (@SupersededBy) |
-| JB-9.5 | Playwright en e2eImplementation | 0.5 | ✅ |
-| JB-9.6 | Tâche e2eTest + installPlaywright | 1 | ✅ |
-| JB-9.7 | Scénarios Playwright E2E | 1.5 | ✅ |
-| JB-9.8 | Scénarios Cucumber E2E | 1 | ✅ |
-| JB-9.9 | CI workflow test.yml | 0.5 | ✅ |
-
-== Prochaines baby steps — BKY-JB-7 Layouts (3 pts, P2)
+== Prochaines baby steps — BKY-JB-8 Article IA (13 pts, P0)
 
 | Step | Description | Pts |
 |-------|-------------|-----|
-| JB-7.1 | DDD : LayoutConfig data class (layout: LayoutType enum = FULL_WIDTH, SIDEBAR_LEFT, SIDEBAR_RIGHT, CENTERED) | 0.5 |
-| JB-7.2 | TDD : LayoutConfigTest + Thymeleaf rendering tests (4 layouts) | 0.5 |
-| JB-7.3 | TDD : Layout fragments Thymeleaf (layout.thyme, contenu conditions) | 1 |
-| JB-7.4 | FT : Tests fonctionnels layout déployé | 0.5 |
-| JB-7.5 | BDD : Scénarios Cucumber layout | 0.5 |
+| JB-8.1 | DDD : ArticleIntention data class (topic, audience, ton, keywords) | 1 |
+| JB-8.2 | TDD : ArticleIntentionTest + validation tests | 1 |
+| JB-8.3 | TDD : Tâche generateArticle via codebase RAG (koog+langchain4j) | 3 |
+| JB-8.4 | FT : Tests fonctionnels generateArticle end-to-end | 1 |
+| JB-8.5 | BDD : Scénarios Cucumber article IA | 1 |
 
 == EPICs disponibles (priorité décroissante)
 
 | EPIC | Pts | Prio | Description |
 |------|-----|------|-------------|
-| BKY-JB-7 | 3 | P2 | Layouts (full-width, sidebar, centered) |
 | BKY-JB-8 | 13 | P0 | Article assisté IA via codebase (koog+langchain4j, RAG) |
+| BKY-JB-7 | 3 | P2 | ✅ TERMINÉ — Layouts (full-width, sidebar, centered) |

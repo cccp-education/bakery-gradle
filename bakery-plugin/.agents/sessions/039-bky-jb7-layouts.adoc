@@ -1,0 +1,67 @@
+= Session 039 — BKY-JB-7 Layouts (3 pts) COMPLETE
+
+== Date
+2026-06-02
+
+== Type
+feat + test
+
+== Sujet
+BKY-JB-7 Layouts — 4 layouts Thymeleaf (FULL_WIDTH, SIDEBAR_LEFT, SIDEBAR_RIGHT, CENTERED) avec injection jbake.properties.
+
+== Résultats
+
+=== JB-7.1 — DDD : Modèle domaine ✅
+- `LayoutDsl.kt` — LayoutType enum (4 valeurs) + LayoutDsl open class
+- `SiteConfiguration.kt` — +LayoutConfig data class, +layout nullable field
+- `BakeryExtension.kt` — +layout DSL property + action lambda
+- `SiteManager.kt` — +injectLayoutConfigIntoJbakeProperties (layoutType→jbake.properties)
+
+=== JB-7.3 — Thymeleaf fragments ✅
+- `layout-full-width.thyme` — th:if="${layoutType == 'FULL_WIDTH'}", container-fluid
+- `layout-sidebar-left.thyme` — th:if="${layoutType == 'SIDEBAR_LEFT'}", sidebar col-3 + content col-9
+- `layout-sidebar-right.thyme` — th:if="${layoutType == 'SIDEBAR_RIGHT'}", content col-9 + sidebar col-3
+- `layout-centered.thyme` — th:if="${layoutType == 'CENTERED'}", container + justify-content-center col-8
+- `post.thyme` — intégration 4 layout fragments (th:replace imbriqués)
+- `page.thyme` — intégration 4 layout fragments
+
+=== JB-7.2 — TDD : Tests unitaires (16/16 PASS) ✅
+- LayoutConfigTest (6) : YAML parsing 4 layouts + sans layout + avec theme
+- LayoutTemplateTest (7) : 4 th:if guards + post/page intègrent layouts
+- LayoutInjectionTest (3) : SIDEBAR_LEFT→jbake, sans layout→FULL_WIDTH défaut, CENTERED→jbake
+
+=== JB-7.4 — FT : Tests fonctionnels (2/2 PASS) ✅
+- ScaffoldFunctionalTests.LayoutTest : 4 templates déployés + layoutType=FULL_WIDTH défaut
+
+=== JB-7.5 — BDD : Cucumber (3/3 PASS) ✅
+- 13_layouts.feature : happy-path (4 templates), default FULL_WIDTH, th:if guards
+- LayoutSteps.kt : classe vide (steps réutilisés de ThymeleafComponentSteps + GoogleFormsSteps)
+
+== Métriques
+- Tests unitaires : 16/16 PASS (nouveaux)
+- Tests fonctionnels : 2/2 PASS (nouveaux)
+- Cucumber : 3/3 PASS (nouveaux) — total 52 scénarios
+- Compilation : BUILD SUCCESSFUL
+
+== Fichiers créés (9)
+- src/main/kotlin/bakery/LayoutDsl.kt
+- src/main/resources/site/templates/layout-full-width.thyme
+- src/main/resources/site/templates/layout-sidebar-left.thyme
+- src/main/resources/site/templates/layout-sidebar-right.thyme
+- src/main/resources/site/templates/layout-centered.thyme
+- src/test/kotlin/bakery/LayoutConfigTest.kt
+- src/test/kotlin/bakery/LayoutTemplateTest.kt
+- src/test/kotlin/bakery/LayoutInjectionTest.kt
+- src/test/features/13_layouts.feature
+- src/test/scenarios/bakery/scenarios/LayoutSteps.kt
+
+== Fichiers modifiés (4)
+- src/main/kotlin/bakery/SiteConfiguration.kt
+- src/main/kotlin/bakery/BakeryExtension.kt
+- src/main/kotlin/bakery/SiteManager.kt
+- src/functionalTest/kotlin/bakery/ScaffoldFunctionalTests.kt
+- src/main/resources/site/templates/post.thyme
+- src/main/resources/site/templates/page.thyme
+
+== Score
+9/10 — Baby steps DDD/TDD/BDD respectées, zéro régression, EPIC complet en 1 session.

@@ -177,6 +177,7 @@ object SiteManager {
         injectAnalyticsConfigIntoJbakeProperties(targetDir, site)
         injectNewsletterConfigIntoJbakeProperties(targetDir, site)
         injectThemeConfigIntoJbakeProperties(targetDir, site)
+        injectLayoutConfigIntoJbakeProperties(targetDir, site)
         logger.lifecycle("✓ Site scaffolded (type: ${siteType.alias}) from resource: $resourcePath")
     }
 
@@ -347,6 +348,28 @@ object SiteManager {
         updateProperty("themeFaviconUrl", themeConfig.faviconUrl)
         jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
         logger.lifecycle("✓ Injected Theme config into jbake.properties")
+    }
+
+    private fun Project.injectLayoutConfigIntoJbakeProperties(targetDir: File, site: SiteConfiguration) {
+        val jbakeProps = targetDir.resolve(site.bake.srcPath)
+            .resolve("jbake.properties")
+        if (!jbakeProps.exists()) {
+            logger.warn("jbake.properties not found at ${jbakeProps.absolutePath}")
+            return
+        }
+        val layoutConfig = site.layout ?: LayoutConfig()
+        val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
+        fun updateProperty(key: String, value: String) {
+            val idx = lines.indexOfFirst { it.startsWith("$key=") }
+            if (idx >= 0) {
+                lines[idx] = "$key=$value"
+            } else {
+                lines.add("$key=$value")
+            }
+        }
+        updateProperty("layoutType", layoutConfig.layoutType.name)
+        jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
+        logger.lifecycle("✓ Injected Layout config into jbake.properties")
     }
 
 // ==================== Bakery Tasks Configuration ====================

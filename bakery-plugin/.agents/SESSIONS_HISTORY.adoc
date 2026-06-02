@@ -4,6 +4,7 @@ _Derniere mise a jour : 2026-06-02_
 
 |===
 | # | Date | Type | Sujet | Score
+| 039 | 2026-06-02 | feat + test | BKY-JB-7 Layouts COMPLETE — LayoutType enum (4), LayoutConfig+Dsl, layout-*.thyme (4 fragments th:if), injection jbake.properties, intégration post.thyme+page.thyme. 16 UT + 2 FT + 3 Cucumber. Baby steps 5/5. | 9/10
 | 038 | 2026-06-02 | feat + test + ci | BKY-JB-9 Phase B COMPLETE — Cucumber E2E 10 scénarios (15_e2e_thymeleaf_components.feature + E2eThymeleafSteps.kt), CI workflow test.yml (build + e2eTest). 49 Cucumber PASS. JB-9.8 + JB-9.9 ✅ | 9/10
 | 037 | 2026-06-02 | feat + test + infra | BKY-JB-9 Phase B Setup — Playwright E2E (sourceSet e2eTest, tâche e2eTest + installPlaywright NpxTask, 13/13 E2E tests PASS : sanity 2, google-forms 2, analytics+newsletter 5, auth+comments 4). Borough-isation bakery-gradle → Bushwick (20ème borough). | 8/10
 | 036 | 2026-06-02 | feat + test + bugfix | BKY-JB-9 Phase A suite — DualConventionResolver (bug .thyme.thyme), 15 rendering tests ajoutés (header, menu, footer, breadcrumb, toc, progress, pdf). 4 TemplateTest marqués @SupersededBy (conservés comme littérature). 297 UT PASS. | 9/10

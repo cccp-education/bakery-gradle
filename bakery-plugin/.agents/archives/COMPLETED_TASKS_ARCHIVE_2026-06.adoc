@@ -270,3 +270,23 @@
 - *Validation* : Toute la suite de tests bakery PASS (297 UT + 39 Cucumber + 13 E2E) — 0 régression
 
 **Prochaine session** : 039 — BKY-JB-7 Layouts (3 pts, P2) OU BKY-JB-8 Article IA (13 pts, P0)
+
+== Session 039 — 2026-06-02 — BKY-JB-7 Layouts COMPLETE
+
+**Contexte** : Implémentation BKY-JB-7 (3 pts, P2) — 4 layouts Thymeleaf conditionnels. Méthodo DDD/TDD/BDD baby steps 5/5. Phase C (JB-6→7) 100% complète.
+
+**Taches realisees** :
+
+* [x] JB-7.1 (0.5pt) DDD — LayoutType enum (FULL_WIDTH, SIDEBAR_LEFT, SIDEBAR_RIGHT, CENTERED) + LayoutConfig data class + LayoutDsl open class + BakeryExtension.layout DSL + injectLayoutConfigIntoJbakeProperties
+* [x] JB-7.2 (0.5pt) TDD — LayoutConfigTest (6), LayoutTemplateTest (7), LayoutInjectionTest (3) → 16/16 PASS
+* [x] JB-7.3 (1pt) TDD — 4 fragments layout-*.thyme (th:if guards) + intégration post.thyme + page.thyme
+* [x] JB-7.4 (0.5pt) FT — LayoutTest nested class dans ScaffoldFunctionalTests (2/2 PASS)
+* [x] JB-7.5 (0.5pt) BDD — 13_layouts.feature (3 scénarios), LayoutSteps.kt → 3/3 Cucumber PASS. Total 52 Cucumber.
+
+**Fichiers créés (10)** : LayoutDsl.kt, layout-full-width.thyme, layout-sidebar-left.thyme, layout-sidebar-right.thyme, layout-centered.thyme, LayoutConfigTest.kt, LayoutTemplateTest.kt, LayoutInjectionTest.kt, 13_layouts.feature, LayoutSteps.kt
+
+**Fichiers modifiés (6)** : SiteConfiguration.kt, BakeryExtension.kt, SiteManager.kt, post.thyme, page.thyme, ScaffoldFunctionalTests.kt
+
+**Tests** : 16 UT + 2 FT + 3 Cucumber (nouveaux). Zéro régression.
+
+**Prochaine session** : 040 — BKY-JB-8 Article assisté IA via codebase (13 pts, P0)

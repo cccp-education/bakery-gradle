@@ -1,0 +1,15 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<div th:fragment="layout-sidebar-left" th:if="${layoutType == 'SIDEBAR_LEFT'}" class="layout-sidebar-left">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 d-none d-lg-block">
+                <div th:replace="~{::layout-sidebar}"/>
+            </div>
+            <div class="col-lg-9">
+                <div th:replace="~{::layout-content}"/>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

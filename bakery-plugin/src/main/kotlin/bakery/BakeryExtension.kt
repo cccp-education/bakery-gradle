@@ -56,6 +56,9 @@ open class BakeryExtension @Inject constructor(objects: ObjectFactory) {
     /** Configuration Theme (CSS variables, dark/light, logo) — BKY-JB-6 */
     val theme: ThemeDsl = ThemeDsl()
 
+    /** Configuration Layout (FULL_WIDTH, SIDEBAR_LEFT, SIDEBAR_RIGHT, CENTERED) — BKY-JB-7 */
+    val layout: LayoutDsl = LayoutDsl()
+
     /** DSL : bakery { googleForms { ... } } */
     fun googleForms(action: Action<GoogleFormsDsl>) {
         action.execute(googleForms)
@@ -84,6 +87,11 @@ open class BakeryExtension @Inject constructor(objects: ObjectFactory) {
     /** DSL : bakery { theme { ... } } */
     fun theme(action: Action<ThemeDsl>) {
         action.execute(theme)
+    }
+
+    /** DSL : bakery { layout { ... } } */
+    fun layout(action: Action<LayoutDsl>) {
+        action.execute(layout)
     }
 
     /** DSL : bakery { ia { ... } } */

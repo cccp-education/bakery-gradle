@@ -9,18 +9,26 @@
 		<div th:replace="~{breadcrumb.thyme::breadcrumb}"/>
 		<div class="container">
 	
-			<div class="page-header">
-				<h1 th:text='${content.title}'>title</h1>
+			<div th:replace="~{layout-full-width.thyme::layout-full-width}">
+				<div th:replace="~{layout-sidebar-left.thyme::layout-sidebar-left}">
+					<div th:replace="~{layout-sidebar-right.thyme::layout-sidebar-right}">
+						<div th:replace="~{layout-centered.thyme::layout-centered}">
+							<div class="page-header">
+								<h1 th:text='${content.title}'>title</h1>
+							</div>
+						
+							<p><em th:text='${#dates.format(content.date,"dd MMMM yyyy")}'>date</em></p>
+
+							<div th:replace="~{pdf-viewer.thyme::pdf-viewer}"/>
+						
+							<p th:utext='${content.body}'>body</p>
+
+							<div th:replace="~{google-forms.thyme::google-forms}"/>
+							<div th:replace="~{comments.thyme::comments}"/>
+						</div>
+					</div>
+				</div>
 			</div>
-		
-			<p><em th:text='${#dates.format(content.date,"dd MMMM yyyy")}'>date</em></p>
-
-			<div th:replace="~{pdf-viewer.thyme::pdf-viewer}"/>
-		
-			<p th:utext='${content.body}'>body</p>
-
-			<div th:replace="~{google-forms.thyme::google-forms}"/>
-			<div th:replace="~{comments.thyme::comments}"/>
 		
 			<hr />
 		</div>

@@ -545,6 +545,65 @@ class ScaffoldFunctionalTests {
         }
     }
 
+    @Nested
+    @DisplayName("generateSite with Layout system (BKY-JB-7)")
+    inner class LayoutTest {
+
+        @TempDir
+        lateinit var projectDir: File
+
+        @Test
+        fun `should scaffold blog site with all layout templates deployed`() {
+            createMinimalBakeryProject(
+                projectDir,
+                sitesBaseDir = null,
+                siteName = "layout-test",
+                siteType = "blog"
+            )
+
+            val result = create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateSite")
+                .build()
+
+            val templatesDir = projectDir.resolve("layout-test/site/templates")
+            assertThat(templatesDir.resolve("layout-full-width.thyme")).exists().isFile
+            assertThat(templatesDir.resolve("layout-full-width.thyme").readText(UTF_8))
+                .contains("layout-full-width")
+                .contains("FULL_WIDTH")
+                .contains("th:if")
+            assertThat(templatesDir.resolve("layout-sidebar-left.thyme")).exists().isFile
+            assertThat(templatesDir.resolve("layout-sidebar-right.thyme")).exists().isFile
+            assertThat(templatesDir.resolve("layout-centered.thyme")).exists().isFile
+            assertThat(result.output).contains("BUILD SUCCESSFUL")
+        }
+
+        @Test
+        fun `should scaffold site with default layoutType FULL_WIDTH in jbake properties`() {
+            createMinimalBakeryProject(
+                projectDir,
+                sitesBaseDir = null,
+                siteName = "layout-default",
+                siteType = "blog"
+            )
+
+            val result = create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generateSite")
+                .build()
+
+            val siteDir = projectDir.resolve("layout-default")
+            val jbakeProps = siteDir.resolve("site/jbake.properties")
+            assertThat(jbakeProps).exists().isFile
+            assertThat(jbakeProps.readText(UTF_8))
+                .contains("layoutType=FULL_WIDTH")
+
+            assertThat(result.output).contains("BUILD SUCCESSFUL")
+        }
+    }
+
     companion object {
         private fun createMinimalBakeryProject(
             projectDir: File,
