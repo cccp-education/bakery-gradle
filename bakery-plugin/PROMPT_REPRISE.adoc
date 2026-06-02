@@ -1,25 +1,33 @@
-= PROMPT_REPRISE — Session 056 : BKY-LENS-2 AugmentedArticlesService (Enrichissement)
+= PROMPT_REPRISE — Session 057 : BKY-LENS-2 AugmentedArticlesService (Scoring Hybride)
 
-== Mission (Session 056)
+== Mission (Session 057)
 
-1. **BKY-LENS-2.1** — Créer `AugmentedContextResolver` : lit `bakery.context.txt`, extrait les canaux EAGER/RAG/GRAPHIFY/DOCS
-2. **BKY-LENS-2.2** — Créer `AugmentedArticlesService` : scoring hybride RAG+KG+tags+xref (α=0.4/β=0.3/γ=0.15/δ=0.15)
-3. **BKY-LENS-2.3** — Créer `LensRules` data class : excludeDrafts, excludeTags, prioritizeCrossReferences, crossRefBonus, communityAffinity
+1. **LENS-2.2** — Créer `AugmentedArticlesService` : scoring hybride RAG+KG+tags+xref (α=0.4/β=0.3/γ=0.15/δ=0.15)
+   - `score(nodeId, subgraph, ragResults, lensRules)` : calcule le score composite
+   - `scoreAll(subgraph, ragResults, lensRules)` : scoring pour tous les nœuds du sous-graphe
+   - `applyRules(scoredNodes, lensRules)` : filtre excludeDrafts, excludeTags, bonus crossRef/community
+2. **LENS-2.3** — Tests TDD : `LensRulesTest`, `AugmentedContextResolverTest`, `AugmentedArticlesServiceTest`
+   - Baby steps DDD/TDD/BDD : 1 fichier à la fois, validation après chaque modification
+3. **LENS-2.3** — Cucumber BDD : Feature 22 `22_augmented_context_lens.feature`
 
-== État actuel (Session 055 terminée — Vérification LENS-1)
+== État actuel (Session 056 — Démarrage LENS-2)
 
-- EPIC BKY-LENS-1 **ENTIÈREMENT IMPLÉMENTÉ ET TESTÉ** — SubgraphExtractor + SiteSubgraph + LensConfig + AugmentedContextDsl
-- Code LENS-1 committé (7 fichiers : 3 sources + 1 diff BakeryExtension + 2 test classes + 1 fixture JSON)
-- 30 tests LENS PASS (LensConfigTest 17 + SubgraphExtractorTest 13)
-- Build compile ✅, publishToMavenLocal ✅
+- LENS-1 ENTIEREMENT IMPLÉMENTÉ ET TESTÉ (30 tests PASS)
+- LENS-2.1 IMPLÉMENTÉ (pas encore de tests) :
+  - `LensRules` data class (excludeDrafts, excludeTags, prioritizeCrossReferences, crossRefBonus, communityAffinity)
+  - `LensRagConfig` data class (enabled, similarityThreshold, topK)
+  - `LensConfig` enrichi avec `rules` + `rag` + 2 DSL actions
+  - `AugmentedContextDsl` enrichi avec `minSimilarity`
+  - `AugmentedContextResolver` (resolve composite-context.json, extractChannels)
+- Build compile ✅
 - 53 échecs Cucumber pré-existants (non liés à LENS)
 
-== Architecture BKY-LENS — Rappel
+== Architecture LENS — Rappel
 
 ```
 graph.json (203k nœuds)
     ↓ SubgraphExtractor (LENS-1 ✅) → site-subgraph (~200 nœuds)
-    ↓ + RAG pgvector (top-K=20, sim>0.7) + règles métier (LENS-2) ← SESSION 056
+    ↓ + RAG pgvector (top-K=20, sim>0.7) + règles métier (LENS-2) ← SESSION 057
 site-graph (~200 nœuds, ~500 edges)
     ↓ LensBudget (4-6 articles/page, minSimilarity=0.7) (LENS-3)
 jbake.properties (relatedArticlesData)
@@ -54,4 +62,4 @@ score = α × ragSimilarité      // 0.40 — similarité sémantique (pgvector)
 - Ne pas lancer `./gradlew test` sans permission explicite
 - BKY-BKG (RelatedArticlesService, RelatedArticlesGraph, RelatedArticlesResolver, kgraph/) sera supprimé en LENS-3.3 — ne pas y toucher maintenant
 - Les 53 échecs Cucumber pré-existants sont connus et seront traités par LENS-4 (réécriture Features 17-19)
-- L'import de `CompositeContext`, `ChannelBudget`, `ContextChannel` (codebase-contracts) se fera dans AugmentedArticlesService (LENS-2.2), pas dans LENS-1
+- L'import de `CompositeContext`, `ChannelBudget`, `ContextChannel` (codebase-contracts) se fait dans AugmentedArticlesService (LENS-2.2), pas dans LENS-1

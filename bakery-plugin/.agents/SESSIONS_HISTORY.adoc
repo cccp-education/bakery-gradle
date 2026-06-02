@@ -1,9 +1,10 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-_Derniere mise a jour : 2026-06-02 — Session 055_
+_Derniere mise a jour : 2026-06-02 — Session 056_
 
 |===
 | # | Date | Type | Sujet | Score
+| 056 | 2026-06-02 | feat + DDD | BKY-LENS-2 Démarrage — LensRules data class (excludeDrafts, excludeTags, prioritizeCrossReferences, crossRefBonus, communityAffinity) + LensRagConfig data class (enabled, similarityThreshold, topK) + LensConfig enrichi (rules, rag, DSL actions) + AugmentedContextResolver (resolve composite-context.json, extractChannels EAGER/RAG/GRAPHIFY/DOCS). Compile OK. Pas de tests TDD encore. | 7/10
 | 055 | 2026-06-02 | reprise + vérification | Reprise Bakery LENS-1 — vérification complète. BKY-LENS-1 ENTIEREMENT implémenté mais non committé. 30 tests LENS PASS (LensConfigTest 17 + SubgraphExtractorTest 13). 7 fichiers LENS-1 commités. | 8/10
 | 054 | 2026-06-02 | audit + conception | Audit Intégration Réalité Augmentée — Pattern LENTILLE. 3 problèmes identifiés (KG maison inférieur, dépendance graphify morte, pipeline N3 non branché). Architecture LENTILLE cadrée : ségrégation (SubgraphExtractor) → enrichissement (AugmentedArticlesService, scoring hybride RAG+KG+tags+xref) → budget (LensBudget). EPIC BKY-LENS (21 pts, 6 sous-EPICs) supersède BKY-BKG. Rapport : `.agents/sessions/054-audit-lentille-contexte-augmente.adoc`. | N/A
 | 053 | 2026-06-02 | fix + BDD | EPIC 17 TERMINÉ — generateArticle graceful fail : 2 scénarios Cucumber corrigés (step "without IA"). 70/70 Cucumber PASS. | 9/10

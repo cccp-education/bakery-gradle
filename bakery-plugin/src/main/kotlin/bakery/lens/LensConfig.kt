@@ -1,5 +1,7 @@
 package bakery.lens
 
+import org.gradle.api.Action
+
 /**
  * Configuration du Pattern LENTILLE — Ségrégation du Knowledge Graph.
  *
@@ -25,6 +27,15 @@ package bakery.lens
  *             edgeTypes = listOf("reference", "agent_reference")
  *             maxDepth = 2
  *             fileExtensions = listOf("adoc", "md", "html")
+ *             rules {
+ *                 excludeDrafts = true
+ *                 prioritizeCrossReferences = true
+ *             }
+ *             rag {
+ *                 enabled = true
+ *                 similarityThreshold = 0.7
+ *                 topK = 20
+ *             }
  *         }
  *     }
  * }
@@ -50,7 +61,39 @@ data class LensConfig(
     var fileExtensions: List<String> = listOf("adoc", "md", "html"),
 
     /** Chemin vers le fichier graph.json (défaut: office/graph.json) */
-    var graphFilePath: String = "office/graph.json"
+    var graphFilePath: String = "office/graph.json",
+
+    /** Règles métier éditoriales (BKY-LENS-2). */
+    val rules: LensRules = LensRules(),
+
+    /** Configuration RAG pgvector (BKY-LENS-2). */
+    val rag: LensRagConfig = LensRagConfig()
+) {
+    /** DSL : bakery { augmentedContext { lens { rules { ... } } } } */
+    fun rules(action: Action<LensRules>) {
+        action.execute(rules)
+    }
+
+    /** DSL : bakery { augmentedContext { lens { rag { ... } } } } */
+    fun rag(action: Action<LensRagConfig>) {
+        action.execute(rag)
+    }
+}
+
+/**
+ * Configuration RAG pgvector — BKY-LENS-2.
+ *
+ * Contrôle les paramètres de similarité sémantique pour l'enrichissement.
+ */
+data class LensRagConfig(
+    /** Active/désactive la recherche RAG (défaut: true). */
+    var enabled: Boolean = true,
+
+    /** Seuil de similarité minimale pour les résultats RAG (0.0–1.0, défaut: 0.7). */
+    var similarityThreshold: Double = 0.7,
+
+    /** Nombre maximum de résultats RAG à récupérer (top-K, défaut: 20). */
+    var topK: Int = 20
 )
 
 /**

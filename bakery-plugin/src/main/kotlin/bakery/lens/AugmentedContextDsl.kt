@@ -5,8 +5,10 @@ import org.gradle.api.Action
 /**
  * DSL configuration du contexte augmenté — Pattern LENTILLE.
  *
- * Contient la config `lens` (ségrégation) qui sera enrichie en BKY-LENS-2
- * avec `rag` et `rules`, puis en BKY-LENS-3 avec `budget`.
+ * 3 couches :
+ * 1. SÉGRÉGATION : lens { scope, communities, ... }
+ * 2. ENRICHISSEMENT : lens { rules { ... }, rag { ... } }
+ * 3. BUDGET : maxArticles, minSimilarity (LENS-3)
  *
  * Usage:
  * ```
@@ -16,6 +18,15 @@ import org.gradle.api.Action
  *         lens {
  *             scope = LensScope.SUBGRAPH
  *             communities = listOf("bakery-gradle")
+ *             rules {
+ *                 excludeDrafts = true
+ *                 prioritizeCrossReferences = true
+ *             }
+ *             rag {
+ *                 enabled = true
+ *                 similarityThreshold = 0.7
+ *                 topK = 20
+ *             }
  *         }
  *     }
  * }
@@ -32,7 +43,10 @@ open class AugmentedContextDsl {
     /** Nombre max d'articles connexes par page (défaut: 4). */
     var maxArticles: Int = 4
 
-    /** Configuration de la lentille (ségrégation du graphe). */
+    /** Seuil de similarité minimum pour les suggestions (défaut: 0.7). */
+    var minSimilarity: Double = 0.7
+
+    /** Configuration de la lentille (ségrégation + enrichissement). */
     val lens: LensConfig = LensConfig()
 
     /** DSL : bakery { augmentedContext { lens { ... } } } */

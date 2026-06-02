@@ -1,5 +1,38 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 056 — 2026-06-02 — BKY-LENS-2 Démarrage (Enrichissement)
+
+**Contexte** : Reprise de bakery-gradle session 056. Démarrage de l'EPIC BKY-LENS-2 (AugmentedArticlesService — Enrichissement). BKY-LENS-1 est ENTIEREMENT implémenté et committé.
+
+**Tâches réalisées** :
+
+* [x] LENS-2.1 — `LensRules` data class créée : excludeDrafts, excludeTags, prioritizeCrossReferences, crossRefBonus (0.2), communityAffinity (0.3)
+* [x] LENS-2.1 — `LensRagConfig` data class créée : enabled (true), similarityThreshold (0.7), topK (20)
+* [x] LENS-2.1 — `LensConfig` enrichi : +`rules: LensRules`, +`rag: LensRagConfig`, +2 DSL actions (`rules {}`, `rag {}`)
+* [x] LENS-2.1 — `AugmentedContextDsl` enrichi : +`minSimilarity: Double = 0.7`, documentation 3 couches LENTILLE mise à jour
+* [x] LENS-2.1 — `AugmentedContextResolver` créé : resolve(composite-context.json), extractChannels(EAGER/RAG/GRAPHIFY/DOCS), availableSections
+* [x] Compilation validée — `./gradlew compileKotlin` BUILD SUCCESSFUL
+
+**Tâches en cours / Non terminées** :
+
+* [ ] LENS-2.2 — `AugmentedArticlesService` (scoring hybride RAG+KG+tags+xref)
+* [ ] LENS-2.3 — Tests unitaires LensRules, AugmentedContextResolver, AugmentedArticlesService (TDD)
+* [ ] LENS-2.3 — Cucumber Features pour LENS-2 (BDD)
+
+**Fichiers créés** :
+
+| Fichier | Lignes | Rôle |
+| `src/main/kotlin/bakery/lens/LensRules.kt` | 36 | Règles métier éditoriales |
+| `src/main/kotlin/bakery/lens/AugmentedContextResolver.kt` | 85 | Résolveur de contexte augmenté |
+
+**Fichiers modifiés** :
+
+| Fichier | Changement |
+| `src/main/kotlin/bakery/lens/LensConfig.kt` | +LensRules rules, +LensRagConfig rag, +2 DSL actions, +import Action |
+| `src/main/kotlin/bakery/lens/AugmentedContextDsl.kt` | +minSimilarity, documentation enrichie 3 couches |
+
+**Résultats** : Compile OK. Pas encore de tests.
+
 == Session 055 — 2026-06-02 — BKY-LENS-1 Vérification Complète
 
 **Contexte** : Reprise de bakery-gradle session 055. Vérification que BKY-LENS-1 (SubgraphExtractor, Ségrégation) est ENTIEREMENT implémenté.
