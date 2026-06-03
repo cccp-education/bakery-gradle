@@ -407,11 +407,11 @@ _Dépend de_ : BKY-LENS-1, `codebase-contracts`
 
 _Dépend de_ : BKY-LENS-2
 
-==== BKY-LENS-4 : Cucumber — Réécriture Features 17-19 (3 pts)
+==== BKY-LENS-4 : Cucumber — Réécriture Features 17-19 (3 pts) — EN COURS
 
-* [ ] BKY-LENS-4.1 — Réécrire Feature 17 : `17_related_articles_kg.feature` → `17_augmented_context_lens.feature`
-* [ ] BKY-LENS-4.2 — Réécrire Feature 18 : `18_related_articles_kg_enriched.feature` → `18_subgraph_extraction.feature`
-* [ ] BKY-LENS-4.3 — Réécrire Feature 19 : `19_related_articles_graph_consumption.feature` → `19_lens_hybrid_scoring.feature`
+* [ ] BKY-LENS-4.1 — Réécrire Feature 17 : `17_related_articles_kg.feature` → `17_augmented_context_lens.feature` (réécrite, 6 échecs Cucumber à valider)
+* [ ] BKY-LENS-4.2 — Réécrire Feature 18 : `18_related_articles_kg_enriched.feature` → `18_subgraph_extraction.feature` (réécrite, 6 échecs Cucumber à valider)
+* [x] BKY-LENS-4.3 — Réécrire Feature 19 : `19_related_articles_graph_consumption.feature` → `19_lens_hybrid_scoring.feature` ✅ 3/3 PASS
 
 _Dépend de_ : BKY-LENS-1, BKY-LENS-2, BKY-LENS-3
 

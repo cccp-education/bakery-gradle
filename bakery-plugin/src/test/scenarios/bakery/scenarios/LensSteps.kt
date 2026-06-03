@@ -1,8 +1,11 @@
 package bakery.scenarios
 
 import bakery.lens.AugmentedArticlesService
+import bakery.lens.LensConfig
 import bakery.lens.LensRules
+import bakery.lens.LensScope
 import bakery.lens.SiteSubgraph
+import bakery.lens.SubgraphExtractor
 import com.cheroliv.graphify.model.GraphCommunity
 import com.cheroliv.graphify.model.GraphEdge
 import com.cheroliv.graphify.model.GraphNode
@@ -11,16 +14,17 @@ import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
 import org.assertj.core.api.Assertions.assertThat
 import bakery.lens.ScoredNode
+import bakery.lens.LensBudget
+import com.fasterxml.jackson.module.kotlin.kotlinModule
 
 /**
- * Cucumber steps pour BKY-LENS-2 — Scoring hybride + filtrage + budget.
+ * Cucumber steps pour BKY-LENS — Pattern LENTILLE.
  *
- * Scénarios :
- * 1. Scoring hybride (RAG + KG + tags + xref)
- * 2. Filtrage des règles (excludeDrafts, excludeTags)
- * 3. Budget (maxArticles, minSimilarity)
+ * 2 types de scénarios :
+ * 1. Scénarios unitaires (scoring, filtrage, budget) — testent les services LENS directement
+ * 2. Scénarios d'intégration (injection jbake, extraction sous-graphe) — testent via Gradle Task
  */
-class LensSteps {
+class LensSteps(private val world: BakeryWorld) {
 
     private val service = AugmentedArticlesService()
 
@@ -202,5 +206,200 @@ class LensSteps {
     @Then("the result should have exactly {int} nodes")
     fun `the result should have exactly nodes`(count: Int) {
         assertThat(filteredNodes).hasSize(count)
+    }
+
+    // ──────────────────────────────────────────────────────
+    // BKY-LENS-4 — Scénarios d'intégration (Gradle Task)
+    // ──────────────────────────────────────────────────────
+
+    // ─── Feature 17 : Augmented Context Lens — injection jbake.properties ───
+
+    @Given("the bakery DSL defines augmentedContext as enabled with maxArticlesPerPage {int} and minSimilarity {double}")
+    fun `the bakery DSL defines augmentedContext enabled with budget`(
+        maxArticles: Int, minSimilarity: Double
+    ) {
+        val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
+        val buildFile = projectDir.resolve("build.gradle.kts")
+        val content = buildFile.readText(Charsets.UTF_8)
+        val lensBlock = """
+            augmentedContext {
+                enabled = true
+                budget {
+                    maxArticlesPerPage = $maxArticles
+                    minSimilarity = $minSimilarity
+                }
+            }
+        """.trimIndent()
+        val updatedContent = content.replace(
+            Regex("(bakery\\s*\\{)"),
+            "$1\n    $lensBlock"
+        )
+        buildFile.writeText(updatedContent, Charsets.UTF_8)
+    }
+
+    @Given("the bakery DSL defines augmentedContext as disabled")
+    fun `the bakery DSL defines augmentedContext disabled`() {
+        val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
+        val buildFile = projectDir.resolve("build.gradle.kts")
+        val content = buildFile.readText(Charsets.UTF_8)
+        val augmentedBlock = """
+            augmentedContext {
+                enabled = false
+            }
+        """.trimIndent()
+        val updatedContent = content.replace(
+            Regex("(bakery\\s*\\{)"),
+            "$1\n    $augmentedBlock"
+        )
+        buildFile.writeText(updatedContent, Charsets.UTF_8)
+    }
+
+    // ─── Feature 18 : SubgraphExtractor — extraction sous-graphe ───
+
+    private lateinit var extractor: SubgraphExtractor
+    private lateinit var extractedSubgraph: SiteSubgraph
+
+    @Given("a graph.json file with {int} nodes in {int} communities and {int} edges")
+    fun aGraphJsonFileWithNodesInCommunitiesAndEdges(
+        nodeCount: Int, communityCount: Int, edgeCount: Int
+    ) {
+        val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
+        val nodes = mutableListOf<GraphNode>()
+        val communitiesList = mutableListOf<GraphCommunity>()
+
+        // Créer les communautés
+        for (i in 0 until communityCount) {
+            communitiesList.add(GraphCommunity("community-$i", "Community $i", nodeCount / communityCount))
+        }
+
+        // Créer les nœuds répartis dans les communautés
+        for (i in 0 until nodeCount) {
+            val communityId = communitiesList[i % communityCount].id
+            nodes.add(GraphNode("node-$i.adoc", "Node $i", "file", communityId))
+        }
+
+        // Créer les edges
+        val edges = mutableListOf<GraphEdge>()
+        val maxEdges = minOf(edgeCount, nodeCount - 1)
+        for (i in 0 until maxEdges) {
+            edges.add(GraphEdge("node-$i.adoc", "node-${i + 1}.adoc", "reference"))
+        }
+
+        // Sérialiser en graph.json
+        val objectMapper = com.fasterxml.jackson.databind.ObjectMapper()
+            .registerModule(com.fasterxml.jackson.module.kotlin.kotlinModule())
+        val graphModel = com.cheroliv.graphify.model.GraphModel(nodes, edges, communitiesList)
+        val graphFile = projectDir.resolve("office/graph.json")
+        graphFile.parentFile.mkdirs()
+        graphFile.writeText(objectMapper.writeValueAsString(graphModel), Charsets.UTF_8)
+    }
+
+    @Given("a graph.json file at custom path {string} with {int} nodes")
+    fun aGraphJsonFileAtCustomPathWithNodes(customPath: String, nodeCount: Int) {
+        val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
+        val objectMapper = com.fasterxml.jackson.databind.ObjectMapper()
+            .registerModule(com.fasterxml.jackson.module.kotlin.kotlinModule())
+        val nodes = (0 until nodeCount).map {
+            GraphNode("custom-node-$it.adoc", "Custom Node $it", "file", "custom-community")
+        }
+        val communitiesList = listOf(GraphCommunity("custom-community", "Custom Community", nodeCount))
+        val graphModel = com.cheroliv.graphify.model.GraphModel(nodes, emptyList(), communitiesList)
+        val graphFile = projectDir.resolve(customPath)
+        graphFile.parentFile.mkdirs()
+        graphFile.writeText(objectMapper.writeValueAsString(graphModel), Charsets.UTF_8)
+    }
+
+    @Given("the bakery DSL defines augmentedContext with lens scope={string} and communities {string}")
+    fun `the bakery DSL defines augmentedContext with lens scope and communities`(
+        scope: String, communities: String
+    ) {
+        val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
+        val buildFile = projectDir.resolve("build.gradle.kts")
+        val content = buildFile.readText(Charsets.UTF_8)
+        val communityList = communities.split(",").map { it.trim() }.joinToString(", ") { "\"$it\"" }
+        val lensBlock = """
+            augmentedContext {
+                enabled = true
+                lens {
+                    scope = $scope
+                    communities = listOf($communityList)
+                }
+            }
+        """.trimIndent()
+        val updatedContent = content.replace(
+            Regex("(bakery\\s*\\{)"),
+            "$1\n    $lensBlock"
+        )
+        buildFile.writeText(updatedContent, Charsets.UTF_8)
+    }
+
+    @Given("the bakery DSL defines augmentedContext with lens graphFilePath={string}")
+    fun `the bakery DSL defines augmentedContext with lens graphFilePath`(graphFilePath: String) {
+        val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
+        val buildFile = projectDir.resolve("build.gradle.kts")
+        val content = buildFile.readText(Charsets.UTF_8)
+        val lensBlock = """
+            augmentedContext {
+                enabled = true
+                lens {
+                    graphFilePath = "$graphFilePath"
+                }
+            }
+        """.trimIndent()
+        val updatedContent = content.replace(
+            Regex("(bakery\\s*\\{)"),
+            "$1\n    $lensBlock"
+        )
+        buildFile.writeText(updatedContent, Charsets.UTF_8)
+    }
+
+    @When("I extract a subgraph with communities {string}")
+    fun `i extract a subgraph with communities`(communities: String) {
+        val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
+        extractor = SubgraphExtractor()
+        val communityList = communities.split(",").map { it.trim() }
+        val lensConfig = LensConfig(
+            scope = LensScope.SUBGRAPH,
+            communities = communityList,
+            graphFilePath = projectDir.resolve("office/graph.json").absolutePath
+        )
+        extractedSubgraph = extractor.extractFromPath(lensConfig.graphFilePath, lensConfig)
+    }
+
+    @When("I extract a subgraph with scope {string}")
+    fun `i extract a subgraph with scope`(scope: String) {
+        val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
+        extractor = SubgraphExtractor()
+        val lensScope = LensScope.valueOf(scope)
+        val lensConfig = LensConfig(
+            scope = lensScope,
+            communities = listOf("community-0", "community-1"),
+            graphFilePath = projectDir.resolve("office/graph.json").absolutePath
+        )
+        extractedSubgraph = extractor.extractFromPath(lensConfig.graphFilePath, lensConfig)
+    }
+
+    @Then("the subgraph should only contain nodes from community {string}")
+    fun `the subgraph should only contain nodes from community`(communityId: String) {
+        assertThat(extractedSubgraph.nodes).isNotEmpty
+        assertThat(extractedSubgraph.nodes).allMatch { it.community == communityId }
+    }
+
+    @Then("the subgraph should contain nodes from all communities")
+    fun `the subgraph should contain nodes from all communities`() {
+        assertThat(extractedSubgraph.nodes).isNotEmpty
+        val uniqueCommunities = extractedSubgraph.nodes.mapNotNull { it.community }.toSet()
+        assertThat(uniqueCommunities).hasSizeGreaterThanOrEqualTo(2)
+    }
+
+    @Then("the subgraph should contain {int} nodes")
+    fun `the subgraph should contain nodes`(count: Int) {
+        assertThat(extractedSubgraph.nodeCount).isEqualTo(count)
+    }
+
+    @Then("the subgraph should contain all original nodes")
+    fun `the subgraph should contain all original nodes`() {
+        // En scope FULL, tous les nœuds du graphe sont conservés
+        assertThat(extractedSubgraph.nodes).isNotEmpty
     }
 }

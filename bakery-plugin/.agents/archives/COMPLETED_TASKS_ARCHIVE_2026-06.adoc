@@ -1,5 +1,20 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 059 — 2026-06-03 — BKY-LENS-4 Cucumber Features 17-19 (Réécriture LENS)
+
+**Contexte** : Reprise de bakery-gradle session 059. Les Features Cucumber 17-19 (BKG legacy orphelines depuis LENS-3.3) doivent être réécrites en LENS.
+
+**Tâches réalisées** :
+
+* [x] LENS-4.1 — Feature 17 : `17_related_articles_kg.feature` → `17_augmented_context_lens.feature` (3 scénarios : enabled + budget custom + disabled)
+* [x] LENS-4.2 — Feature 18 : `18_related_articles_kg_enriched.feature` → `18_subgraph_extraction.feature` (3 scénarios : communauté filtrée + scope FULL + custom path)
+* [x] LENS-4.3 — Feature 19 : `19_related_articles_graph_consumption.feature` → `19_lens_hybrid_scoring.feature` (3 scénarios : scoring RAG+KG+tags + filtrage règles + budget troncature). **3/3 PASS** 🟢
+* [x] Fix DuplicateStepDefinition : `the file {string} should contain {string}` défini dans ConfigResolverSteps ET ThymeleafComponentSteps → supprimé de ThymeleafComponentSteps
+* [x] LensSteps.kt enrichi : +BakeryWorld au constructeur, +7 steps (augmentedContext DSL injection + SubgraphExtractor + subgraph assertions)
+* [x] Background ajouté à Feature 18 pour résoudre Project dir not initialized
+
+**Résultat** : Cucumber 53→6 échecs (47 résolus par le fix DuplicateStepDefinition). Feature 19 3/3 PASS. 65/71 Cucumber PASS. Features 17-18 à valider en session 060.
+
 == Session 058 — 2026-06-03 — BKY-LENS-3 Budget + Injection JBake (Reconnect) + Nettoyage BKG
 
 **Contexte** : Reprise de bakery-gradle session 058. BKY-LENS-3 (Budget + Injection JBake + Nettoyage). LENS-1 ✅ LENS-2 ✅ déjà terminés.

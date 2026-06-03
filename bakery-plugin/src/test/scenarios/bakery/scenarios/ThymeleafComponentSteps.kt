@@ -15,15 +15,5 @@ class ThymeleafComponentSteps(private val world: BakeryWorld) {
             .isFile
     }
 
-    @Then("the file {string} should contain {string}")
-    fun checkFileContains(filePath: String, expectedContent: String) {
-        val file = world.projectDir!!.resolve(filePath)
-        assertThat(file)
-            .describedAs("File $filePath should exist")
-            .exists()
-            .isFile
-        assertThat(file.readText(UTF_8))
-            .describedAs("File $filePath should contain '$expectedContent'")
-            .contains(expectedContent)
-    }
+    // "the file {string} should contain {string}" is defined in ConfigResolverSteps (shared step)
 }

@@ -1,9 +1,10 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-_Derniere mise a jour : 2026-06-03 — Session 058_
+_Derniere mise a jour : 2026-06-03 — Session 059_
 
 |===
 | # | Date | Type | Sujet | Score
+| 059 | 2026-06-03 | feat + BDD + fix | BKY-LENS-4 Cucumber Features 17-19 — 3 features BKG orphelines réécrites en LENS (17_augmented_context_lens, 18_subgraph_extraction, 19_lens_hybrid_scoring). Fix DuplicateStepDefinition (ThymeleafComponentSteps vs ConfigResolverSteps) → Cucumber 53→6 échecs. LensSteps enrichi (+BakeryWorld, +7 steps extraction/injection). Feature 19 3/3 PASS. 65/71 Cucumber PASS. | 7/10
 | 058 | 2026-06-03 | feat + TDD + BDD + cleanup | BKY-LENS-3 Budget + Injection JBake (Reconnect) — LensBudget data class (maxArticlesPerPage=4, minSimilarity=0.7) + apply() filtrage/troncature + budget { } DSL + registerCollectAugmentedContextTask (pipeline LENS complet) + injectLensBudgetIntoJbakeProperties + Nettoyage BKG legacy (13 fichiers supprimés : 4 src kgraph/ + RelatedArticlesDsl + 7 tests + 2 cucumber steps). 82+ UT lens PASS. | 9/10
 | 057 | 2026-06-03 | feat + TDD + BDD | BKY-LENS-2.3 Scoring Hybride TDD + BDD — Fix Feature 22 Scénario 2 (guillemets), 7 boundary tests AugmentedArticlesService, 4 boundary tests AugmentedContextResolver. Feature 22 Cucumber 3/3 PASS. 52+ UT lens PASS. | 8/10
 | 056 | 2026-06-02 | feat + DDD | BKY-LENS-2 Démarrage — LensRules data class (excludeDrafts, excludeTags, prioritizeCrossReferences, crossRefBonus, communityAffinity) + LensRagConfig data class (enabled, similarityThreshold, topK) + LensConfig enrichi (rules, rag, DSL actions) + AugmentedContextResolver (resolve composite-context.json, extractChannels EAGER/RAG/GRAPHIFY/DOCS). Compile OK. Pas de tests TDD encore. | 7/10

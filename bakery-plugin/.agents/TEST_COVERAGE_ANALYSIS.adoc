@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-03 — Session 058_
+_Dernière mise à jour : 2026-06-03 — Session 059_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -14,7 +14,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 | Seuil configuré | 70% (dans `build.gradle.kts` → `koverThresholdCheck`)
 | Tests unitaires JUnit5 | 21 fichiers (dont lens/ 7 fichiers, ConfigResolverTest 46 UT, ConfigPromptsTest 4 UT), ~4 200 lignes — ratio ~3.0x vs src/main
 | Tests fonctionnels (TestKit) | 5 fichiers, 1 500+ lignes — dont SaveConfigurationTest (2 FT) + ConfigResolverCascadeTest (3 FT)
-| Tests Cucumber BDD | 22 features, ~71 scénarios, 1 100+ lignes de steps — dont Feature 22 augmented context lens (3 scénarios). Features 17-19 orphelines (BKG steps supprimés, réécriture LENS-4)
+| Tests Cucumber BDD | 22 features, ~71 scénarios, 1 100+ lignes de steps — Features 17-19 réécrites LENS (17_augmented_context_lens, 18_subgraph_extraction, 19_lens_hybrid_scoring). Fix DuplicateStepDefinition → 65/71 PASS. Feature 19 3/3 PASS.
 | Compilation | ✅ BUILD SUCCESSFUL — Gradle 9.5.1, Kotlin 2.3.20, Java 24, zéro warning
 |===
 

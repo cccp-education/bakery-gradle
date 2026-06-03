@@ -1,24 +1,21 @@
-= PROMPT_REPRISE — Session 059 : BKY-LENS-4 Cucumber Features 17-19 (Réécriture LENS)
+= PROMPT_REPRISE — Session 060 : BKY-LENS-4 Validation Cucumber + Fix 6 échecs
 
-== Mission (Session 059)
+== Mission (Session 060)
 
-1. **LENS-4.1** — Réécrire Feature 17 : `17_related_articles_kg.feature` → `17_augmented_context_lens.feature`
-   - 3 scénarios LENS : augmentedContext enabled + budget injection + disabled
-2. **LENS-4.2** — Réécrire Feature 18 : `18_related_articles_kg_enriched.feature` → `18_subgraph_extraction.feature`
-   - 3 scénarios SubgraphExtractor : communauté filtrée + graphFilePath custom + scope FULL
-3. **LENS-4.3** — Réécrire Feature 19 : `19_related_articles_graph_consumption.feature` → `19_lens_hybrid_scoring.feature`
-   - 3 scénarios scoring hybride : scoring RAG+KG+tags → règles filtrage → budget troncature
+1. **Valider Feature 17** — Lancer `./gradlew cucumberTest` et vérifier les 3 scénarios LENS injection jbake
+   - Si UndefinedStepException : vérifier que les steps refactorisés matchent la Feature Gherkin
+2. **Valider Feature 18** — Vérifier que le Background `Given a new Bakery project` résout les `IllegalStateException`
+3. **Valider Feature 19** — Déjà 3/3 PASS, confirmer stabilité
+4. **Fix** les échecs restants (objectif : 71/71 PASS ou < 3 échecs)
 
-== État actuel (Session 058 — LENS-3 Budget + Injection JBake)
+== État actuel (Session 059)
 
-- LENS-1 ✅ ENTIEREMENT IMPLÉMENTÉ ET TESTÉ (30 tests PASS)
-- LENS-2.1 ✅ IMPLÉMENTÉ (LensRules, LensRagConfig, AugmentedContextResolver, LensConfig enrichi)
-- LENS-2.2 ✅ IMPLÉMENTÉ + TESTÉ (AugmentedArticlesService 25 UT, ScoredNode, scoring hybride)
-- LENS-2.3 ✅ TESTÉ (7 boundary AugmentedArticlesService + 4 boundary AugmentedContextResolver + Feature 22 fix 3/3)
-- LENS-3 ✅ ENTIEREMENT IMPLÉMENTÉ (LensBudget 13 UT + injection 4 UT + tâche LENS + nettoyage BKG 13 fichiers)
-- BKG legacy SUPPRIMÉ : kgraph/, RelatedArticlesDsl, RelatedArticlesConfig, injection BKG
+- LENS-1 ✅ SubgraphExtractor (7 src, 30 UT)
+- LENS-2 ✅ AugmentedArticlesService + LensRules + AugmentedContextResolver (52+ UT)
+- LENS-3 ✅ LensBudget + injection JBake + nettoyage BKG (82+ UT)
+- LENS-4 : Features 17-19 réécrites, 6 échecs Cucumber à valider
 - Build compile ✅, publishToMavenLocal ✅
-- 53 échecs Cucumber pré-existants (dont Features 17-19 BKG orphelines) → LENS-4
+- **Fix majeur** : DuplicateStepDefinition supprimé (53→6 échecs Cucumber)
 
 == Architecture LENS — Rappel
 
@@ -33,19 +30,9 @@ jbake.properties (augmentedContextData)
 post.thyme (AUGMENTÉ) (LENS-6)
 ```
 
-== Contrat DAG
+== Points d'attention
 
-- bakery (N2) importe codebase-contracts (N0) ✅
-- bakery (N2) importe graphify-plugin (N0) ✅
-
-== Méthodologie
-
-- **Baby steps DDD/TDD/BDD** : chaque étape compile ET fait passer ses tests AVANT de passer à la suivante
-- 1 fichier à la fois, validation immédiate après chaque modification
-
-== Attention
-
+- Les 6 échecs sont probablement des problèmes de step matching (Feature 17) et d'initialisation (Feature 18)
+- Le step `the file {string} should contain {string}` est maintenant UNIQUEMENT dans ConfigResolverSteps
 - Ne pas lancer `./gradlew test` sans permission explicite
-- Les Features 17-19 BKG orphelines (step definitions supprimées en LENS-3.3) doivent être réécrites AVANT de lancer cucumberTest
-- RAG scores viendront de pgvector en LENS-5 (connexion N3) — pour l'instant RAG=emptyMap
-- L'import de `CompositeContext`, `ContextChannel` (codebase-contracts) se fait dans AugmentedContextResolver
+- RAG scores viendront de pgvector en LENS-5 — pour l'instant RAG=emptyMap
