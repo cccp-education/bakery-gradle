@@ -200,21 +200,27 @@ contenant `site/`, `maquette/`, `site.yml`, `.gitignore`, `.gitattributes`.
 
 == EPIC 11 : Optimisation durée d'exécution des tests
 
-**Statut** : A faire
+**Statut** : TERMINÉ (Session 064)
 **Priorité** : P0
 
 _Problème critique_ : Les tests prennent 3 à 6 minutes par run, ce qui est
 intenable en boucle TDD. `koverXmlReport` met 5 min, `cucumberTest` 3 min,
 `functionalTest` 2 min. Chaque `check` complet > 5 min.
 
-=== Pistes d'optimisation
+_Résultat_ : `test` de 2m46s → 38s (-77%). `check` de ~8m30s → 7m (-18% cold, +cache warm 7s).
 
-* [ ] Passer de `forkEvery = 0` à `forkEvery = 1` pour éviter les leaks de mémoire Gradle TestKit entre tests Cucumber
-* [ ] Utiliser `configuration-cache` Gradle pour éviter la reconfiguration
-* [ ] Ajouter `--parallel` pour les tests indépendants
-* [ ] Réduire le nombre de daemons Gradle créés par TestKit (`org.gradle.daemon=false` est déjà là, mais chaque test fonctionnel lance un nouveau daemon)
-* [ ] Pré-warm le plugin classpath (`pluginUnderTestMetadata` est UP-TO-DATE donc OK)
-* [ ] Investiguer si `maxParallelForks` peut être > 1 sans conflits
+=== Résolution (Session 064)
+
+* [x] **Étape 1 — Séparer Cucumber de JUnit5** : `test` task exclut `cucumber` engine + `filter { excludeTestsMatching("bakery.scenarios.*") }`. Les 81 scénarios Cucumber n'étaient exécutés QUE dans `cucumberTest`. Gain : `test` de 2m46s à 38s (-77%).
+* [x] **Étape 2 — Nettoyer `gradle.properties`** : Suppression du bruit CSS, ajout de `org.gradle.caching=true`, `org.gradle.workers.max=4`, `org.gradle.jvmargs=-XX:+UseParallelGC -Xmx1g`.
+* [x] **Étape 2b — Fix `koverThresholdCheck`** : Ajout de `dependsOn("koverXmlReport")` pour que le XML report soit généré avant le check. Coverage : 73.13% > seuil 70%.
+* [ ] **Étape 3 — Configuration-cache** : Incompatible avec `koverThresholdCheck` (utilise `project` qui n'est pas sérialisable). À réévaluer quand Kover sera compatible.
+
+=== Pistes d'optimisation restantes
+
+* [ ] Configuration-cache : bloqué par `koverThresholdCheck` (utilise `project`), à réévaluer quand Kover migrera
+* [ ] `functionalTest` : chaque test lance un Gradle daemon (~3s chacun), envisager un shared daemon TestKit
+* [ ] `cucumberTest` : `maxParallelForks = 1`, investiguer si parallélisation possible
 
 == EPIC 9 : Architecture d'orchestration LLM — Dispatcher + Experts spécialisés
 

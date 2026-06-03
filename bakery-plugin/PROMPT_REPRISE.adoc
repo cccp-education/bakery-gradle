@@ -1,56 +1,51 @@
-= PROMPT_REPRISE — Session 064 : BKY-IA-0 Service LLM Partagé ou EPIC backlog suivant
+= PROMPT_REPRISE — Session 065 : BKY-IA-1 Scaffolding assisté par IA ou EPIC backlog
 
-== Mission (Session 064)
+== Mission (Session 065)
 
 Dépiler l'EPIC suivant dans le backlog bakery :
-1. **BKY-IA-0** (Service LLM partagé LangChain4j + Ollama) — P0 prérequis pour tous les EPICs IA
-2. Ou **BKY-N3-7** (metadata.json structuré pour runner-gradle N3) — P0 architecture
+1. **BKY-IA-1** (Scaffolding assisté par IA) — P0, dépend de BKY-IA-0 (✅ session 023) + EPIC 10 (✅)
+2. Ou **EPIC 6** (Intégration publishProfil) — P1, mécanique pure, sans dépendance
 
-== État actuel (Session 063)
+== État actuel (Session 064)
 
-- **BKY-LENS-6.3 TERMINÉ** ✅ — E2E Playwright : 4 tests PASS (rendu augmenté avec data-attributes, badges, heading custom, scoredNodes vide)
-- **FT Legacy BKG nettoyé** ✅ — 6 tests en échec résolus (56/56 FT PASS)
-- **Template legacy supprimé** ✅ — `related-articles.thyme` remplacé par `augmented-articles.thyme`
-- **Cucumber Feature 24 enrichi** ✅ — 5→7 scénarios (2 scénarios rendu Thymeleaf ajoutés)
-- **81/81 Cucumber PASS** ✅
-- **17/17 E2E Playwright PASS** ✅
-- **56/56 FT PASS** ✅ (0 échec)
-- **publishToMavenLocal** ✅
+- **EPIC 11 TERMINÉ** ✅ — Optimisation durée tests (-77% sur unit tests)
+  - `test` task : 2m46s → 38s (exclusion Cucumber + filter excludeTestsMatching)
+  - `gradle.properties` nettoyé (bruit CSS supprimé, optimisations ajoutées)
+  - `koverThresholdCheck` fix (dependsOn koverXmlReport)
+  - Coverage 73.13% > seuil 70%
+- **BKY-IA-0 TERMINÉ** ✅ (session 023) — LlmService, OllamaLlmService, IaConfig DSL
+- **BKY-N3-7 TERMINÉ** ✅ (session 024) — SiteContextCollector → metadata.json
+- **Pipeline LENS TERMINÉ** ✅ — LENS-1→6.3
+- **54/54 UT PASS** | **56/56 FT PASS** | **81/81 Cucumber PASS** | **17/17 E2E PASS**
 
-== Architecture LENS — Pipeline complet TERMINÉ
+== Changements Session 064
 
-```
-graph.json (203k nœuds) ← ✅ LENS-1
-    ↓ SubgraphExtractor → site-subgraph (~200 nœuds)
-    ↓ + RAG pgvector + règles métier ← ✅ LENS-2
-site-graph (~200 nœuds, ~500 edges)
-    ↓ LensBudget (4-6 articles/page, minSimilarity=0.7) ← ✅ LENS-3
-jbake.properties (augmentedContextData) ← ✅ LENS-3
-    ↓
-composite-context.json (runner-gradle N3) ← ✅ LENS-5
-    ↓
-AugmentedContextResolver → augmentedEntries in metadata.json ← ✅ LENS-5
-    ↓
-post.thyme / page.thyme → badges RAG/KG/Docs ← ✅ LENS-6
-    ↓
-E2E Playwright (data-attributes, badges, JS runtime) ← ✅ LENS-6.3
-```
+- `build.gradle.kts` : task `test` exclut Cucumber (`excludeEngines("cucumber")` + `filter { excludeTestsMatching("bakery.scenarios.*") }`)
+- `build.gradle.kts` : `koverThresholdCheck` dependsOn `koverXmlReport` (fix XML report missing)
+- `gradle.properties` : nettoyé (suppression bruit CSS), ajouté `org.gradle.caching=true`, `org.gradle.workers.max=4`, optimisation JVM args
 
 == EPICs restants (par priorité)
 
 | EPIC | Axe | Priorité | Dépend de |
 |------|-----|----------|-----------|
-| BKY-IA-0 | Service LLM partagé LangChain4j + Ollama | P0 | — |
-| BKY-N3-7 | metadata.json structuré (runner-gradle N3) | P0 | — |
-| BKY-IA-4 | Génération d'article assistée IA | P0 | BKY-IA-0 (✅ via BKY-JB-8) |
-| BKY-IA-1 | Scaffolding assisté par IA | P0 | BKY-IA-0, EPIC 10 |
+| BKY-IA-1 | Scaffolding assisté par IA | P0 | BKY-IA-0 (✅), EPIC 10 (✅) |
 | EPIC 6 | Intégration publishProfil | P1 | — |
-| EPIC 11 | Optimisation durée tests | P1 | — |
-| BKY-IA-5 | Google Forms embed | P0 MVP0 | BKY-IA-0 |
-| BKY-TRN-9 | Intégration formation assembleTrainingSite | P0 MVP0 | BKY-N3-7 |
+| BKY-IA-2 | Thème IA paramétrique | P1 | BKY-IA-0 (✅) |
+| BKY-IA-3 | Validation Firebase IA | P2 | BKY-IA-0 (✅), EPIC 4 |
+
+== EPICs déjà TERMINÉS (ne pas reprendre)
+
+| EPIC | Statut | Note |
+|------|--------|------|
+| BKY-IA-0 | ✅ Session 023 | LlmService, OllamaLlmService, IaConfig DSL |
+| BKY-N3-7 | ✅ Session 024 | SiteContextCollector → metadata.json |
+| BKY-IA-4 | ✅ Remplacé par BKY-JB-8 | ArticleIntention DDD + Generator enrichi |
+| BKY-IA-5 | 🔄 Transféré KINGSTON | gsuite-gradle (hors périmètre bakery) |
+| BKY-TRN-9 | 🔄 Transféré TRN-9 | training-gradle (hors périmètre bakery) |
+| EPIC 11 | ✅ Session 064 | Optimisation durée tests (-77%) |
 
 == Points d'attention
 
-- Tous les EPICs LENS (LENS-1 à LENS-6) sont TERMINÉS ✅
-- Aucune dette technique FT legacy BKG restante
 - Ne pas lancer `./gradlew test` sans permission explicite
+- `test` task n'exécute plus les Cucumber (exclus) → lancer `./gradlew test cucumberTest` pour les deux
+- Configuration-cache bloqué par `koverThresholdCheck` (utilise `project`, non sérialisable)

@@ -1,5 +1,20 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 064 — 2026-06-03 — EPIC 11 Optimisation durée tests
+
+**Contexte** : EPIC 11 — Les tests prennent 8m30s pour un `check` complet, 2m46s pour `test` seul. Les 81 scénarios Cucumber étaient exécutés 2 fois (dans `test` ET `cucumberTest`).
+
+**Tâches réalisées** :
+
+* [x] Diagnostic : profilage des 3 suites de tests (test 2m46s, functionalTest 1m53s, cucumberTest 3m54s)
+* [x] Cause racine : `CucumberTestRunner` (@Suite) découvert par JUnit5 dans `test` task → 81 scénarios Cucumber exécutés dans `test` ET `cucumberTest`
+* [x] Étape 1 : `build.gradle.kts` — task `test` exclut `cucumber` engine + `filter { excludeTestsMatching("bakery.scenarios.*") }` → gain -77% (2m46s → 38s)
+* [x] Étape 2 : `gradle.properties` — nettoyage bruit CSS, ajout `org.gradle.caching=true`, `org.gradle.workers.max=4`, optimisation JVM args
+* [x] Étape 2b : `build.gradle.kts` — `koverThresholdCheck` dependsOn `koverXmlReport` (fix XML report missing)
+* [x] Étape 3 : configuration-cache évalué mais incompatible avec `koverThresholdCheck` (utilise `project` → non sérialisable)
+
+**Résultats** : `test` 2m46s→38s (-77%), `check` ~8m30s→7m (cold), coverage 73.13% > 70%.
+
 == Session 063 — 2026-06-03 — BKY-LENS-6.3 Nettoyage FT Legacy BKG + E2E Playwright
 
 **Contexte** : Nettoyer les tests fonctionnels legacy BKG (3 échecs préexistants depuis LENS-3.3) et implémenter LENS-6.3 (E2E Playwright rendu augmenté).

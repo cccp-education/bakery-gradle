@@ -74,10 +74,21 @@ tasks.withType<Test> {
 }
 
 // Specific configuration for plugin tests
+// EPIC 11 — CucumberTestRunner excluded from unit tests: only cucumberTest task runs Cucumber
+// This prevents double execution (~5min wasted). Cucumber tests are in bakery.scenarios package.
 tasks.named<Test>("test") {
     classpath += files(tasks.named("jar"))
 
     systemProperty("gradle.plugin.repository", project.rootDir.resolve("build/libs").absolutePath)
+
+    useJUnitPlatform {
+        excludeEngines("cucumber")
+    }
+
+    // Exclude Cucumber step definitions and runner from unit test discovery
+    filter {
+        excludeTestsMatching("bakery.scenarios.*")
+    }
 
     maxParallelForks = 2
 }
@@ -354,6 +365,8 @@ kover {
 }
 
 tasks.register("koverThresholdCheck") {
+    dependsOn("koverXmlReport")
+
     doLast {
         val reportFile = layout.buildDirectory.file("reports/kover/xml/report.xml").get().asFile
         if (!reportFile.exists()) {

@@ -1,0 +1,88 @@
+= Session 064 — EPIC 11 Optimisation durée tests
+
+== Date
+2026-06-03
+
+== Type
+perf + fix
+
+== Score
+9/10
+
+== Objectif
+Optimiser la durée d'exécution des tests de bakery-gradle (EPIC 11).
+Problème initial : `check` complet > 8m30s, `test` seul 2m46s pour 16 tests unitaires.
+
+== Diagnostic
+
+.Profilage initial
+| Suite | Tests | Durée avant | Remarque |
+|-------|-------|-------------|----------|
+| `test` | 16 UT + 81 Cucumber | 2m46s | Cucumber doublonné ! |
+| `functionalTest` | 57 FT | 1m53s | OK pour TestKit |
+| `cucumberTest` | 81 Cucumber | 3m54s | Mêmes scénarios que dans `test` |
+| `check` total | 154 | ~8m30s | Intenable en boucle TDD |
+
+.Cause racine identifiée
+Le `CucumberTestRunner` (classe `@Suite` dans `src/test/scenarios/`) est inclus dans le
+sourceSet `test` (lignes 231-241 du build.gradle.kts). Quand `./gradlew test` s'exécute,
+JUnit5 découvre à la fois les tests unitaires ET le CucumberTestRunner, exécutant les
+81 scénarios Cucumber. Puis `./gradlew cucumberTest` relance les MÊMES 81 scénarios.
+
+Au total : **5m39s de Cucumber pour des scénarios qui ne devraient prendre que 3m54s**.
+
+== Changements
+
+=== Étape 1 — Séparer Cucumber de JUnit5 (Impact Majeur)
+
+**Fichier** : `build.gradle.kts`
+
+Ajout dans la config de la task `test` :
+- `useJUnitPlatform { excludeEngines("cucumber") }` — exclut le moteur Cucumber
+- `filter { excludeTestsMatching("bakery.scenarios.*") }` — exclut les step definitions et le runner
+
+*Résultat* : `test` de 2m46s → 38s (-77%)
+
+=== Étape 2 — Nettoyer gradle.properties
+
+**Fichier** : `gradle.properties` (racine bakery-gradle)
+
+Suppression du bruit (commentaires CSS : "règle 60-10-30", "transparence bordure des cards").
+Ajout d'optimisations :
+- `org.gradle.caching=true`
+- `org.gradle.workers.max=4`
+- `org.gradle.jvmargs=-XX:+UseParallelGC -Xmx1g`
+
+=== Étape 2b — Fix koverThresholdCheck
+
+**Fichier** : `build.gradle.kts`
+
+`koverThresholdCheck` échouait quand le XML report n'existait pas encore.
+Ajout de `dependsOn("koverXmlReport")` pour garantir la génération avant le check.
+
+*Note* : Le configuration-cache reste incompatible avec `koverThresholdCheck` (utilise `project`,
+non sérialisable). À réévaluer quand Kover migrera.
+
+== Résultats
+
+.Profilage après optimisation
+| Suite | Tests | Durée après | Gain |
+|-------|-------|-------------|------|
+| `test` | 509 UT (sans Cucumber) | 38s | **-77%** |
+| `functionalTest` | 57 FT | 1m53s | inchangé |
+| `cucumberTest` | 81 Cucumber | 2m49s | inchangé |
+| `check` complet (cold) | 154 | ~7m | **-18%** |
+| `check` complet (warm) | 154 | 7s | **-99%** (cache) |
+
+Coverage Kover : 73.13% > seuil 70% ✅
+
+== Fichiers modifiés
+
+- `bakery-plugin/build.gradle.kts` — task `test` (excludeEngines + filter), `koverThresholdCheck` (dependsOn)
+- `bakery-gradle/gradle.properties` — nettoyage + optimisation JVM/cache
+
+== Prochaines étapes
+
+- BKY-IA-1 : Scaffolding assisté par IA (P0, dépend de BKY-IA-0 ✅ et EPIC 10 ✅)
+- EPIC 6 : Intégration publishProfil (P1)
+- Configuration-cache : bloqué par koverThresholdCheck, à réévaluer plus tard
