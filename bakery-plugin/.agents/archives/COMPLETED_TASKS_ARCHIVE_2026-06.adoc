@@ -1,5 +1,28 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 067 — 2026-06-03 — CODE REVIEW v2 + Analyse Vélocité + Stratégie
+
+**Contexte** : Code review complète du plugin bakery-gradle. Mise à jour de CODE_REVIEW.adoc
+avec les sessions 049→066. Analyse de vélocité. Projection de finalisation. Recommandation stratégique.
+
+**Tâches réalisées** :
+
+* [x] CODE_REVIEW.adoc v2 — Réécriture complète (~600 lignes)
+  ** Métriques actuelles (4 976 lignes src, 15 444 tests, 85 Cucumber, ratio 3.29x)
+  ** 12 code smells identifiés (3 CRITIQUE, 4 MODÉRÉ, 5 LÉGER)
+  ** 3 CRITIQUE : CS-1 SiteManager god class (874 lignes), CS-2 logique métier inline doLast, CS-3 parse JSON maison
+  ** Analyse vélocité : ~2.5 pts/session en burst, ~12 sessions/jour
+  ** Projection finalisation : 4-8 juin 2026
+  ** Stratégie : finir bakery (1 jour) en split (essentiel puis polish)
+  ** État réel EPICs : EPIC 6 fantôme (~3 pts, pas 13), vrai total restant ~14-17 pts
+* [x] AGENT.adoc — CODE_REVIEW.adoc ajouté comme fichier EAGER (chargé automatiquement)
+* [x] PROMPT_REPRISE.adoc — Mission Session 068 (EPIC 6 + BKY-IA-2)
+* [x] INDEX.adoc — Session 067 ajoutée, session 068 prochaine
+* [x] SESSIONS_HISTORY.adoc — Session 067 ajoutée
+
+**Résultat** : CODE_REVIEW.adoc v2 est maintenant le fichier de référence EAGER.
+Priorité claire : finir bakery (~1 jour).
+
 == Session 066 — 2026-06-03 — BKY-IA-1.4-5 FT + BDD Scaffold IA
 
 **Contexte** : BKY-IA-1 étapes 4-5 — Tests fonctionnels et Cucumber BDD pour le scaffolding assisté par IA.

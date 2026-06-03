@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-06-03
-_Session terminee_ : 066 — BKY-IA-1.4-5 FT + BDD (ScaffoldIntentionFunctionalTests + Cucumber Feature 25)
-_Prochaine session_ : 067 — EPIC 6 publishProfil ou BKY-IA-2 Thème IA
-_Session en cours_ : 067
+_Session terminee_ : 067 — Code Review v2 + Analyse Vélocité + Stratégie
+_Prochaine session_ : 068 — EPIC 6 publishProfil finalisation + BKY-IA-2 Thème IA
+_Session en cours_ : 068
 
 '''
 
@@ -70,6 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | # | Date | Type | Sujet | Score
+| 067 | 2026-06-03 | audit + governance | **CODE REVIEW v2** — Mise à jour complète (~600 lignes). 12 code smells (3 crit, 4 mod, 5 light). Analyse vélocité (~2.5 pts/session). Projection finalisation 4-8 juin. Stratégie : finir bakery (1 jour). EPIC 6 fantôme (code existe, ~3 pts réels). Vrai total restant ~14-17 pts. CODE_REVIEW.adoc ajouté comme EAGER dans AGENT.adoc. | 9/10
 | 066 | 2026-06-03 | feat + TDD + BDD | BKY-IA-1.4-5 FT + BDD Scaffold IA — 5 FT ScaffoldIntentionFunctionalTests + Cucumber Feature 25 (3 scénarios) + BakeryWorld.createGradleProjectWithScaffoldIntention(). BKY-IA-1 TERMINÉ (48 UT + 5 FT + 3 Cucumber). 26/26 Cucumber PASS. | 9/10
 | 064 | 2026-06-03 | perf + fix | EPIC 11 Optimisation durée tests — Séparation Cucumber/JUnit5 (test 2m46s→38s, -77%), nettoyage gradle.properties, fix koverThresholdCheck dependsOn. Coverage 73.13%. | 9/10
 | 063 | 2026-06-03 | fix + TDD + BDD + E2E | BKY-LENS-6.3 Nettoyage FT Legacy BKG + E2E Playwright — 3 tests CollectRelatedArticles supprimés, 2 tests RelatedArticlesTest supprimés, CONV-1 defaults corrigé, related-articles.thyme supprimé, 4 tests E2E Playwright augmentés, +2 scénarios Cucumber rendu. 56/56 FT PASS, 81/81 Cucumber PASS, 17/17 E2E PASS. | 9/10

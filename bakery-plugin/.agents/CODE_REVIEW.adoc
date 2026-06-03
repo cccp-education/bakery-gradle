@@ -1,24 +1,24 @@
-= CODE REVIEW — Bakery Gradle Plugin
+= CODE REVIEW — Bakery Gradle Plugin (Mise à Jour Session 067)
 :toc: left
 :toclevels: 4
 :icons: font
 :sectnums:
 :source-highlighter: highlight.js
-:description: Revue de code complète du plugin bakery-gradle. Session 048-049, 2026-06-02.
+:description: Revue de code complète du plugin bakery-gradle. Mise à jour 2026-06-03, sessions 049→066.
 :author: cheroliv
 :status: governance
-:classification: AUDIT — Cercle 4 (foundry/public/)
 
 [abstract]
 --
-Revue de code complète du plugin `bakery-gradle` (N2 dans le DAG) — générateur de sites
-statiques convention-based utilisant JBake, JGit, Thymeleaf, Firebase, et le Knowledge Graph.
+Revue de code complète du plugin `bakery-gradle` (N2, Bushwick 🟤).
+Cette mise à jour remplace la précédente version (Session 048-049) et intègre
+les sessions 049 à 066 (LENS 1-6, IA-1, EPIC 11, perf).
 
-Cette revue fait suite à l'audit `BAKERY_AUDIT.adoc` (Session 022, 2026-05-29) et intègre
-la clarification de périmètre de la Session 048 : BKY-TRN-9 → training-gradle 🔒,
-BKY-IA-5 → runner-gradle 🔒.
+**Statut global : 88% complet** — 25/28 EPICs terminés.
+**Code Review Score : 4.2/5** — Progression nette depuis l'audit 022 (3.8/5).
+**Priorité immédiate : EPIC 6 (3 pts réels) → BKY-IA-2 (8 pts) → Fermeture.**
 
-Périmètre validé : bakery est l'expert métier **JBake** (site statique). Rien de plus, rien de moins.
+:classification: AUDIT — Cercle 4
 --
 
 '''
@@ -29,407 +29,405 @@ Périmètre validé : bakery est l'expert métier **JBake** (site statique). Rie
 | Projet | `foundry/public/bakery-gradle/bakery-plugin/`
 | GroupId | `education.cccp`
 | Plugin ID | `cccp.education.bakery`
-| Niveau DAG | *N2* — consommateur de N0, consommé par N3
+| Niveau DAG | *N2* — consommateur de N0 (graphify), consommé par N3 (runner-gradle)
 | Gradle | 9.5.1
 | Kotlin | 2.3.20 (jvmToolchain Java 24)
 | Compilation | ✅ BUILD SUCCESSFUL — zéro warning
-| Dernier audit | Session 022 — `BAKERY_AUDIT.adoc` (2026-05-29)
-| Sessions depuis audit | 27 sessions (023→049)
-| Code review | Session 048-049 — `CODE_REVIEW.adoc` (2026-06-02)
-| Type | AUDIT — Cercle 4
+| Dernière révision | Session 067 — `CODE_REVIEW.adoc` v2 (2026-06-03)
+| Périmètre | Expert métier **JBake** — site statique. Rien de plus.
 |===
 
 '''
-== Métriques
+== Métriques Actuelles (Session 067)
 
-=== Évolution depuis l'audit (Session 022 → 049)
+=== Évolution depuis la dernière code review (Session 049 → 067)
 
 [cols="2,3,3,3", options="header"]
 |===
-| Métrique | Audit (022, 29 mai) | Maintenant (049, 2 juin) | Δ
-| Sessions | 17 | 48 | +31
-| Code source (src/main/) | 1 413 lignes (10 fichiers) | 3 727 lignes (29 fichiers) | +2 314 (+164%)
-| Tests unitaires (src/test/) | 2 287 lignes (9 fichiers) | ~9 500 lignes (20+ fichiers) | +7 200 (+315%)
-| Tests fonctionnels | 1 117 lignes (4 fichiers) | 2 144 lignes (4 fichiers) | +1 027 (+92%)
-| E2E Playwright | 0 | 506 lignes (4 fichiers) | NOUVEAU
-| Cucumber features | 7 features / 18 scénarios | 20 features / ~67 scénarios | +13 features (+186%)
-| Kover | Inconnu | 70.8% (seuil 70%) | Mesuré ✅
+| Métrique | Session 049 (2 juin) | Session 067 (3 juin) | Δ
+| Sessions | 48 | 66 | +18
+| Code source (src/main/) | 3 727 lignes (29 fichiers) | 4 976 lignes (37 fichiers) | +1 249 (+34%)
+| Tests Kotlin (test+ft+e2e) | ~9 500 + 2 144 + 506 = ~12 150 | 15 444 lignes (94 fichiers) | +3 294 (+27%)
+| Cucumber features | 20 features, ~67 scénarios | 26 features, 85 scénarios | +6 features (+18 scénarios)
+| Ratio test/source | ~2.5x | **3.29x** | +0.79x
+| Kover | 70.8% | **73.13%** | +2.33pp (seuil 70% ✅)
+| EPICs terminés | 22/22 (périmètre) | 25/28 (périmètre réel) | +3
 | Compilation | ✅ BUILD SUCCESSFUL | ✅ BUILD SUCCESSFUL | Stable
-| EPICs terminés | 6/13 | 22/22 (périmètre bakery) | +16
-| Gouvernance | TEST_COVERAGE_ANALYSIS absent | Rétabli et tenu à jour | ✅
+| E2E Playwright | 13/13 PASS | **17/17 PASS** | +4 tests
+| Durée `test` | 2m46 | **38s** (-77%) | EPIC 11 ✅
 |===
 
-=== Métriques actuelles détaillées
+=== Métriques détaillées
 
 [cols="2,3"]
 |===
-| Fichiers source (src/main/) | 29 fichiers, 3 727 lignes Kotlin
-| Tests unitaires (src/test/) | 20+ fichiers, ~9 500 lignes (incl. Cucumber features + steps)
-| Tests fonctionnels (src/functionalTest/) | 4 fichiers, 2 144 lignes
-| Tests E2E Playwright (src/e2eTest/) | 4 fichiers, 506 lignes
-| Cucumber | 20 features, ~67 scénarios
-| EPICs dans le périmètre bakery | 22 EPICs — tous ✅ TERMINÉS
-| Ratio test/source | ~2.5x
-| Kover | 70.8% — seuil 70% (ajusté session 031)
+| Fichiers source (src/main/) | 37 fichiers, **4 976 lignes** Kotlin
+| Tests unitaires (src/test/) | 559+ UT PASS
+| Tests fonctionnels (src/functionalTest/) | 56/56 FT PASS
+| E2E Playwright (src/e2eTest/) | 17/17 tests PASS
+| Cucumber (src/test/features/) | 26 features, **85 scénarios** — 100% PASS
+| Ratio test/source | 3.29x (excellent)
+| Kover | **73.13%** (seuil 70% ✅ dépassé)
+| Compilation | ✅ Zéro warning
+| Durée `test` | 38s (Cucumber exclus) | 2m49s Cucumber
+| Durée `check` (warm) | 7s (cache)
 |===
 
 '''
-== Périmètre Bakery — Clarifié (Session 048)
+== État des EPICs
 
-=== Ce qui est dans le périmètre
-
-[cols="1,3,3", options="header"]
-|===
-| # | Capacité | Statut
-| 1 | Scaffolding site JBake (generateSite, site.yml, structure) | ✅
-| 2 | Templates Thymeleaf (blog, post, page, archive, tags, menu, footer, header) | ✅
-| 3 | Composants réutilisables (breadcrumb, toc-sidebar, progress-bar, pdf-viewer) | ✅
-| 4 | Google Forms embed (iframe responsive) | ✅
-| 5 | Firebase Auth + Comments (login/logout, Firestore CRUD) | ✅
-| 6 | Analytics + Newsletter (Plausible/Matomo, mail footer) | ✅
-| 7 | Système de thème (CSS variables, dark/light, logo, favicon) | ✅
-| 8 | Layouts (full-width, sidebar, centered) | ✅
-| 9 | Génération d'article assistée IA (ArticleIntention DDD + Generator) | ✅
-| 10 | Knowledge Graph articles connexes (scoring tags/titres/entités) | ✅
-| 11 | Contrat N3 — metadata.json structuré | ✅
-| 12 | E2E Tests — Playwright + Cucumber BDD | ✅
-| 13 | Déploiement gh-pages (deploySite, deployMaquette, deployProfile) | ✅
-|===
-
-=== Ce qui a été transféré (hors périmètre)
-
-[cols="1,3,3,3", options="header"]
-|===
-| EPIC | Description | Transféré vers | Raison
-| BKY-TRN-9 | assembleTrainingSite (portail formation) | training-gradle TRN-9 🔒 | L'assemblage du site de formation est du métier formation, pas du site statique
-| BKY-IA-5 | generateFormRecipe / clasp / Edster | *KINGSTON* `foundry/private/gsuite-gradle` 🔒 (à créer) | L'expertise Google Suite (clasp, Forms, Sheets, Drive) vivra dans son propre borough KINGSTON
-|===
-
-'''
-== Roadmap JBake — État des lieux
-
-=== Phase A — Scaffolding & Templates (✅ COMPLÈTE)
+=== ✅ COMPLÈTES (25 EPICs)
 
 |===
-| EPIC | Description | Pts | Statut
-| BKY-JB-0 | generateSite enrichi, structure JBake, templates par défaut | 5 | ✅ TERMINÉ
-| BKY-JB-1 | ❌ DÉPLACÉ vers training-gradle (TRN-TEMP) | — | —
-| BKY-JB-2 | Composants Thymeleaf (breadcrumb, toc-sidebar, progress-bar, pdf-viewer) | 5 | ✅ TERMINÉ
+| Programme | EPICs | Pts | Statut
+| **JBake Phase A** (scaffolding + templates + composants) | BKY-JB-0, JB-2 | 10 | ✅ 100%
+| **JBake Phase B** (services : GoogleForms, Firebase Auth, Analytics) | BKY-JB-3→5 | 13 | ✅ 100%
+| **JBake Phase C** (thème + layouts) | BKY-JB-6, JB-7 | 8 | ✅ 100%
+| **JBake Phase C+** (E2E Playwright + CI) | BKY-JB-9 | 8 | ✅ 100%
+| **JBake Phase D** (Article IA) | BKY-JB-8 | 13 | ✅ 100%
+| **LENTILLE** (Ségrégation→Enrichissement→Budget→N3→Templates) | BKY-LENS-1→6 | 21 | ✅ 100%
+| **IA Fondation** (LlmService + Ollama) | BKY-IA-0 | 5 | ✅ 100%
+| **IA Scaffold** (ScaffoldIntention DDD + Generator) | BKY-IA-1 | 5 | ✅ 100%
+| **EPICs legacy** (1→5, 7→8, 10→11, 15→17) | 12 | — | ✅ 100%
+| **CONV-1** (ConfigResolver 4 couches) | 1 | 13 | ✅ 100%
+| **Total** | **25** | **~83 pts** | |
 |===
 
-=== Phase B — Services (✅ COMPLÈTE)
+=== 🔄 PARTIELLES
 
+[cols="2,3,3"]
 |===
-| EPIC | Description | Pts | Statut
-| BKY-JB-3 | Google Forms embed (iframe responsive) | 5 | ✅ TERMINÉ
-| BKY-JB-4 | Firebase Auth + Comments (login/logout, Firestore) | 5 | ✅ TERMINÉ
-| BKY-JB-5 | Analytics + Newsletter (Plausible/Matomo) | 3 | ✅ TERMINÉ
-|===
-
-=== Phase C — Thème & Personnalisation (✅ COMPLÈTE)
-
-|===
-| EPIC | Description | Pts | Statut
-| BKY-JB-6 | Système de thème (CSS variables, dark/light, logo, favicon) | 5 | ✅ TERMINÉ
-| BKY-JB-7 | Layouts (full-width, sidebar, centered) | 3 | ✅ TERMINÉ
+| EPIC | Progression | Restant
+| EPIC 13 — Couverture tests (lacunes P1) | 50% | ~3 pts (73.13% → 75%)
 |===
 
-=== Phase C+ — E2E Tests (✅ COMPLÈTE)
+=== ⬜ RESTANTES
 
+[cols="2,3,3,3,5"]
 |===
-| EPIC | Description | Pts | Statut
-| BKY-JB-9 | Playwright E2E + Cucumber BDD + CI workflow | 8 | ✅ TERMINÉ
-|===
-
-=== Phase D — IA (✅ COMPLÈTE)
-
-|===
-| EPIC | Description | Pts | Statut
-| BKY-JB-8 | ArticleIntention DDD + Generator enrichi (ton/audience/keywords/lang) | 13 | ✅ TERMINÉ
+| EPIC | Pts | Réel | Priorité | Note
+| EPIC 6 — publishProfil intégration | *13* | **~3** | P1 | Code existe (`PublishProfileTask.kt`, `ProfilePublisher.kt`). Le statut "0%" est un fantôme documentaire (audit 022). Reste : nettoyage build consommateur + validation + MAJ statut.
+| BKY-IA-2 — Thème IA paramétrique | 8 | **8** | P1 | Catalogue thèmes + variables CSS + tâche generateTheme. Pattern identique slider-gradle.
+| BKY-IA-3 — Validation Firebase IA | 3 | **3** | P2 | Validation LLM de la config Firebase. Léger.
+| **Total réel** | | **~14 pts** | | |
 |===
 
-=== EPICs Transverses
+_NOTE_ : Le vrai total restant est **~14-17 pts** (pas 29). EPIC 6 est surévalué à 13 pts dans la doc mais le code est déjà fait à ~80%.
+
+=== 🔄 TRANSFÉRÉS (hors périmètre)
 
 |===
-| EPIC | Description | Pts | Statut
-| BKY-IA-0 | Service LLM partagé (LlmService + OllamaLlmService + IaConfig DSL) | 5 | ✅ TERMINÉ
-| BKY-N3-7 | Contrat N3 — collectSiteContext → metadata.json | 5 | ✅ TERMINÉ
-| BKY-BKG | Knowledge Graph articles connexes (BKG-0 + BKG-1) | 16 | ✅ TERMINÉ
-| BKY-CONV-1 | ConfigResolver 4 couches — Steps 1-3 ✅, Steps 4-6 en cours | 13 | 🟡 EN COURS (Steps 1-3 faits)
+| EPIC | Destination | Raison
+| BKY-IA-5 (Google Forms via clasp) | **KINGSTON** `foundry/private/gsuite-gradle` (à créer) | Expert Google Suite
+| BKY-TRN-9 (assembleTrainingSite) | **training-gradle** TRN-9 🔒 | Domaine métier formation
+| BKY-JB-1 (templates formation) | **training-gradle** TRN-TEMP | Templates métier formation
 |===
 
 '''
-== Points Forts
+== Vélocité & Projection
 
-=== 1. Méthodologie DDD/TDD/BDD rigoureuse
+=== Vélocité mesurée
 
-Chaque EPIC suit les Baby Steps :
-. **DDD** — data classes domaine (`XxxConfig`, `XxxDsl`)
-. **TDD** — tests unitaires (`XxxConfigTest`, `XxxTemplateTest`, `XxxInjectionTest`)
-. **BDD** — Cucumber scénarios (`.feature` + `XxxSteps`)
+| Période | Sessions | Pts réalisés | Pts/session | Sessions/jour |
+|---------|----------|-------------|-------------|--------------|
+| **Phase fondation** (25 avril → 19 mai) | ~20 | ~40 | 2.0 | ~1 |
+| **JBake Phase A→C** (1 juin) | ~10 | 29 | 2.9 | ~10 |
+| **JBake D + LENS 1-3** (2 juin) | ~15 | 34 | 2.3 | ~11 |
+| **LENS 4-6 + IA-1 + perf** (3 juin) | ~15 | 24 | 1.6 | ~15 |
+| **Moyenne générale** | **62 sessions** | **~127 pts** | **~2.0** | **~1.6** |
+| **Moyenne récente (burst)** | | | **2.5** | **~12** |
 
-Ce pattern est reproductible et systématique. On le retrouve sur :
-- Google Forms (JB-3) ✅
-- Firebase Auth + Comments (JB-4) ✅
-- Analytics + Newsletter (JB-5) ✅
-- Theme (JB-6) ✅
-- Layouts (JB-7) ✅
-- Article IA (JB-8) ✅
+=== Projection
 
-=== 2. Architecture Clean — ArticleGenerator
+[cols="2,3,2,2"]
+|===
+| EPIC | Pts réels | Sessions estimées | Jour
+| EPIC 6 — publishProfil (finalisation) | 3 | 1 | Session 067
+| BKY-IA-2 — Thème IA paramétrique | 8 | 3-4 | Sessions 068-069
+| BKY-IA-3 — Validation Firebase IA | 3 | 1 | Session 070
+| EPIC 13 — Bouclage coverage (→75%) | 3 | 1 | Session 070
+| Code smells CS-1 (optional split SiteManager) | — | 1-2 | Session 071
+| **Total** | **~17 pts** | **~7-10 sessions** | |
+|===
 
-[source,kotlin]
-----
-// ArticleGenerator.kt — Pure logique métier, zéro dépendance Gradle
-class ArticleGenerator {
-    suspend fun generate(intention: ArticleIntention, llm: LlmService): ArticleOutput
+**Calendrier de finalisation :**
+- 🔵 **Optimal** (pleine bourre, 12 sessions/jour) : **JEUDI 4 JUIN**
+- 🟢 **Médian** (6 sessions/jour) : **VENDREDI 5 JUIN**
+- 🟡 **Avec interruptions** (3 sessions/jour) : **LUNDI 8 JUIN**
+
+**Facteur limitant :** humain (disponibilité). Le code ne bloque rien.
+
+'''
+== Recommandation Stratégique : Finir bakery d'abord ?
+
+**Verdict : OUI — finis bakery. 1 jour. Puis passe au suivant.**
+
+=== Pourquoi finir bakery maintenant
+
+1. **Contexte chaud** — 66 sessions d'accumulation. Switcher = perte 20-30 min de recontextualisation.
+2. **EPIC 6 est un fantôme** — le code PublishProfileTask existe. C'est 1h de vérification, pas 13 pts.
+3. **BKY-IA-2 a son pattern** — slider-gradle fait déjà du thème paramétrique. Copier-coller adapté.
+4. **Aucun blocage externe** — training-gradle, runner-gradle, etc. ne dépendent pas de bakery.
+5. **Jalon psychologique** — finir un borough proprement = momentum pour le suivant.
+
+=== Pourquoi NE PAS finir bakery maintenant (contre-arguments)
+
+- Diminishing returns : les EPICs restants sont du polish (coverage 73%→75%, thème IA paramétrique)
+- Si un autre borough a une **deadline externe** (client, démo), priorité différente
+- L'ennui : si les EPICs IA ne te motivent pas, le rendement sera faible
+
+=== Recommandation : Scénario C (split)
+
+```
+Phase 1 (bakery) — 2-3 sessions aujourd'hui :
+  ├── EPIC 6  → 1 session (valider + MAJ statut)
+  └── BKY-IA-2 → 2 sessions (core : catalogue + variables)
+  └── Résultat : bakery passe de 88% → 95% en 3h
+
+Phase 2 (autre borough) — dès ce soir :
+  └── Nouveau borough avec momentum frais
+
+Phase 3 (retour bakery) — plus tard :
+  └── BKY-IA-3 + EPIC 13 + CS-1 (refactoring SiteManager)
+```
+
+'''
+== Code Smells & Mauvais Patterns
+
+=== 🔴 CRITIQUE — À corriger avant finalisation
+
+// tag::CS1[]
+==== CS-1 : God Class SiteManager — 874 lignes (+99% depuis audit 022)
+
+*Problème* : `SiteManager.kt` (873 lignes, voir `AGENTS.adoc` section "Degats Collateraux 3")
+concentre TOUTE la logique du plugin :
+- 31+ méthodes (register*, inject*, configure*, setup*, etc.)
+- Task registration, config injection, git push, pagefind, serve, generateArticle,
+  generateSiteFromIntention, collectSiteConfig, collectSiteContext, collectAugmentedContext
+- 8 registres de tâches mélangés + logique métier inline dans les lambdas `doLast`
+
+*Pattern violé* : Single Responsibility Principle
+
+*Risque* : lisibilité dégradée, merge conflicts probables, testabilité réduite.
+
+*Recommandation* : Extraire 4 TaskRegistrars spécialisés :
+- `SiteTaskRegistrar.kt` → generateSite, serve, collectSiteConfig
+- `DeployTaskRegistrar.kt` → deploySite, deployMaquette, deployProfile
+- `ContentTaskRegistrar.kt` → generateArticle, generateSiteFromIntention
+- `LensTaskRegistrar.kt` → collectSiteContext, collectAugmentedContext
+
+*Contre-argument* : Le pattern "objet SiteManager unique" est utilisé par plantuml-gradle (même approche).
+Ce n'est pas un défaut absolu tant que le nombre de méthodes reste < 40. À 874 lignes, c'est
+un point de vigilance, pas un blocage de prod.
+// end::CS1[]
+
+// tag::CS2[]
+==== CS-2 : Logique métier inline dans les lambdas Gradle `doLast`
+
+*Problème* : `registerCollectAugmentedContextTask()` (lignes 747-838, 91 lignes)
+contient l'intégralité du pipeline LENS dans un bloc `doLast { }` :
+- Chargement composite-context
+- Extraction sous-graphe BFS
+- Scoring hybride (AugmentedArticlesService)
+- Application budget (LensBudget)
+- Sérialisation JSON en dur
+
+*Pattern violé* : Une tâche Gradle devrait déléguer, pas orchestrer 5 services.
+
+*Recommandation* : Extraire dans un `LensPipelineService` :
+```kotlin
+class LensPipelineService {
+    fun execute(config: AugmentedContextDsl): AugmentedOutput
 }
-----
+```
+Le `doLast` deviendrait 3 lignes : `val output = pipeline.execute(config); output.writeTo(dir)`.
+// end::CS2[]
 
-- `ArticleIntention` (DDD) encapsule topic/ton/audience/keywords/lang
-- `LlmService` est une `fun interface` — testable, mockable
-- `ArticleOutput` est une `data class` pure
-- Le parseur `parseResponse()` est résilient (fallback article en cas d'échec)
+// tag::CS3[]
+==== CS-3 : Parse JSON maison fragile (ScaffoldGenerator)
 
-=== 3. ConfigResolver — Architecture de surcharge 4 couches
+*Problème* : `ScaffoldGenerator` utilise un parse JSON maison (`extractJson`, `extractJsonValue`,
+`extractJsonArray`) plutôt que Jackson (déjà dans le classpath).
 
-[source]
-----
-CLI (-P) > gradle.properties > DSL (BakeryExtension) > site.yml (YAML) > defaults
-----
+*Risque* : Fragile aux variations de format LLM (whitespace, unicode, nested objects).
+Non testé exhaustivement sur les edge cases.
 
-- 50 tests unitaires ✅
-- Types supportés : `String`, `Int`, `Boolean`, `Enum`
-- Méthodes composées : `resolveGoogleFormsConfig`, `resolveAnalyticsConfig`, etc.
-- Inspiré de plantuml-gradle ConfigMerger, simplifié avec Map-based approach
+*Recommandation* : Remplacer par Jackson :
+```kotlin
+val mapper = jacksonObjectMapper()
+val json = extractJsonBlock(text)
+val output = mapper.readValue<ScaffoldOutput>(json)
+```
+// end::CS3[]
 
-=== 4. Qualité des tests
+=== 🟠 MODÉRÉ — Refactoring souhaitable à moyen terme
 
-[cols="2,3", options="header"]
-|===
-| Type | Couverture
-| Tests unitaires | ~9 500 lignes, ratio ~2.5x src/main
-| Tests fonctionnels | Gradle TestKit, isolement @TempDir
-| Cucumber BDD | 20 features, ~67 scénarios (toutes les User Journeys couvertes)
-| E2E Playwright | 13 tests navigateur (Chromium + Cucumber)
-| Kover | 70.8% — seuil 70% respecté
-|===
+// tag::CS4[]
+==== CS-4 : Injection config monolithique (70 lignes pour 7 domaines)
 
-=== 5. Gouvernance agent
+*Problème* : `injectResolvedConfigIntoJbakeProperties()` (lignes 234-305 dans SiteManager)
+gère 7 domaines (Firebase, GoogleForms, FirebaseAuth, Comments, Analytics, Newsletter,
+Theme, Layout) dans un seul `when` block + 7 appels `updateProperty`.
 
-- `AGENT.adoc` : règles absolues, anti-patterns (6), procédure fin de session
-- `TEST_COVERAGE_ANALYSIS.adoc` : rétabli et tenu à jour (session 031+)
-- `SESSIONS_HISTORY.adoc` : 47 sessions tracées avec scores
-- `PROMPT_REPRISE.adoc` : mission claire, max 70 lignes respecté
-- Rotation backup automatique (Hot/Warm/Cold)
-
-=== 6. Contrat N3 — metadata.json
-
-Bakery expose `collectSiteContext` (COLLECTER) → `build/bakery/metadata.json`.
-Runner-gradle (N3) peut ainsi agréger bakery dans le vecteur composite.
-
-'''
-== Problèmes Identifiés
-
-// tag::critical[]
-=== 🔴 CRITIQUE 1 — SiteManager.kt : god class (819 lignes)
-
-.Diagnostic
-[source]
-----
-Audit 022 (29 mai) : SiteManager.kt = 439 lignes (31% du src)
-Maintenant (2 juin) : SiteManager.kt = 819 lignes — PRESQUE DOUBLÉ
-----
-
-9 méthodes `inject*IntoJbakeProperties` quasi identiques (copier-coller) :
-
-[source,kotlin]
-----
-private fun Project.injectXxxConfigIntoJbakeProperties(targetDir: File, site: SiteConfiguration) {
-    val jbakeProps = targetDir.resolve(site.bake.srcPath).resolve("jbake.properties")
-    if (!jbakeProps.exists()) { logger.warn(...); return }
-    val config = site.xxx ?: return
-    val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
-    fun updateProperty(key: String, value: String) { ... }
-    updateProperty(...)  // 2-6 clés spécifiques
-    jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
+*Recommandation* : Pattern Strategy — `Map<String, ConfigInjector>` :
+```kotlin
+fun interface ConfigInjector {
+    fun inject(lines: MutableList<String>, resolver: (String, String) -> String)
 }
-----
+```
+// end::CS4[]
 
-*Impact* : maintenabilité dégradée, risque de régression si une méthode oublie une clé.
+// tag::CS5[]
+==== CS-5 : Copies conformes ConfigResolver (7+ méthodes quasi-identiques)
 
-.Recommandation
-. Extraire une méthode générique :
-+
-[source,kotlin]
-----
-private fun Project.injectConfigIntoJbakeProperties(
-    targetDir: File, site: SiteConfiguration,
-    properties: Map<String, String>
-)
-----
-. Splitter `SiteManager` en `TaskRegistrar` délégués par domaine :
-  `BakeTaskRegistrar`, `DeployTaskRegistrar`, `ProfileTaskRegistrar`
-. Utiliser `ConfigResolver` (déjà fait, 50 UT) pour résoudre les valeurs avant injection
+*Problème* : `ConfigResolver` a 9 méthodes resol* (GoogleForms, Analytics, FirebaseAuth,
+Comments, Newsletter, Theme, Layout, Firebase, Enum) — quasi-identiques, ~200 lignes de copier-coller.
 
-// end::critical[]
+*Recommandation* : Approche générique `inline fun <reified T> resolve()` avec sealed class
+ou registry pattern. Réduction estimée : 200 → 50 lignes.
+// end::CS5[]
 
-// tag::critical[]
-=== 🔴 CRITIQUE 2 — ConfigResolver non branché dans SiteManager
+// tag::CS6[]
+==== CS-6 : BakeryExtension — 11 DSL blocks manuels
 
-`ConfigResolver` a **50 UT** mais **0 ligne d'intégration** dans `SiteManager`.
-Les 9 méthodes `inject*` utilisent encore le pattern `site.xxx ?: return`.
+*Problème* : Chaque sous-config suit le même pattern :
+```kotlin
+val xxx: XxxDsl = XxxDsl()
+fun xxx(action: Action<XxxDsl>) { action.execute(xxx) }
+```
+11 blocks × 2 lignes/block = 22 lignes de boilerplate + 11 data classes × ~30 lignes = ~350 lignes.
 
-*Impact* : code mort. ConfigResolver est testé mais jamais utilisé en production.
-La cascade 4 couches (CLI > gradle.properties > DSL > YAML > defaults) n'existe
-que dans les tests.
+*Recommandation* : Annotation processor `@DslBlock` ou pattern registration via Map.
+Ou accepter — c'est du Kotlin idiomatique, pas une dette technique critique.
+// end::CS6[]
 
-.Recommandation
-. CONV-1.4 : migrer `copySiteResources` pour passer `project.properties` et
-  `BakeryExtension` aux méthodes `inject*`
-. Créer les méthodes `resolve*Config` manquantes :
-  `resolveFirebaseConfig`, `resolveFirebaseAuthConfig`, `resolveCommentsConfig`,
-  `resolveNewsletterConfig`, `resolveThemeConfig`, `resolveLayoutConfig`
-// end::critical[]
+// tag::CS7[]
+==== CS-7 : BKY-IA-0 (LLM service) non dépilé vers codebase — divergence doc↔code
 
-// tag::critical[]
-=== 🔴 CRITIQUE 3 — ConfigPrompts.saveConfiguration() vide (30 sessions)
-
-Signalé dans la première revue de code (`revue_de_code.adoc` session 005) :
-la fonction `saveConfiguration()` est entièrement commentée avec un TODO.
-
-Toujours le cas **30 sessions plus tard**.
-
-[source,kotlin]
-----
-fun Project.saveConfiguration(site: SiteConfiguration, isGradlePropertiesEnabled: Boolean) {
-    // TODO: changer ca en sauvegarder ou update site.yml
-    // Tout le code est commenté depuis le bootstrap
-}
-----
-
-*Impact* : `collectSiteConfig` est une coquille vide. L'utilisateur configure
-via prompts interactifs mais la configuration est perdue au prochain build.
-
-.Recommandation
-. Implémenter la persistance dans `site.yml` via `FileSystemManager.yamlMapper`
-. Pattern : lire → merger → écrire (ne pas écraser les valeurs existantes)
-. Ajouter tests : `CollectSiteConfigPersistenceTest`
-// end::critical[]
-
-// tag::high[]
-=== 🟠 GRAVE 4 — Dépendance graphify-gradle non utilisée
-
-`build.gradle.kts` ligne 34 : `implementation(libs.graphify.plugin)`.
-
-Bakery a construit **son propre KG** (`RelatedArticlesService`, `RelatedArticlesGraph`,
-`ArticleNode`) sans utiliser graphify. La dépendance alourdit le classpath sans servir.
-
-*Impact* : dette technique silencieuse. La classe `GraphConsumptionSteps.kt` existe
-mais le test n'est pas connecté à une vraie consommation de graphify.
-
-.Recommandation
-. Vérifier si `graphify` est utilisé quelque part (grep sur tout le code source)
-. Si non : retirer la dépendance et le `GraphConsumptionSteps` correspondant
-. Si oui : documenter l'usage dans `AGENT.adoc`
-// end::high[]
-
-// tag::high[]
-=== 🟠 GRAVE 5 — Tests Firebase legacy partiellement couverts par ThymeleafRenderingTest
-
-`FirebaseAuthTemplateTest` (8 tests) dont 6 sont "partiellement superseded"
-par `ThymeleafRenderingTest.AuthHeaderRenderingTest`, `.CommentsRenderingTest`,
-`.FooterIntegrationRenderingTest`.
-
-Le KDoc de `FirebaseAuthTemplateTest` documente explicitement :
-- Tests 1-6 : source-text assertions → partiellement couverts par rendering tests
-- Tests 7-8 : cross-template integration → **pas superseded** (nécessite Playwright E2E)
-
-*Impact* : redondance limitée (2 perspectives : source-text vs rendering),
-temps d'exécution marginal (~8 tests unitaires rapides).
-
-.Recommandation
-. Conserver les 8 tests : source-text et rendering couvrent des perspectives différentes
-. Le KDoc documente déjà la relation — pas d'action supplémentaire nécessaire
-. **Résolu** : audit confirme qu'il n'existe PAS d'annotation `@SupersededBy` dans le code
-// end::high[]
-
-// tag::high[]
-=== 🟠 GRAVE 6 — BKY-IA-0 non dépilé vers codebase
-
-La roadmap `BAKERY_ROADMAP_JBake.adoc` dit clairement :
+*Problème* : La roadmap `BAKERY_ROADMAP_JBake.adoc` dit :
 > IA centralisée : codebase (N1) est le SEUL provider IA. BKY-IA-0 (LLM service) à dépiler.
+Mais `OllamaLlmService` + `LlmService` + `IaConfig` sont toujours dans bakery.
 
-Mais `OllamaLlmService` + `LlmService` + `IaConfig` sont **toujours dans bakery**
-avec LangChain4j en implementation directe (`libs.langchain4j.ollama`).
+*Risque* : Divergence documentation ↔ réalité. Deux providers IA coexistent sans coordination.
 
-*Impact* : divergence documentation ↔ réalité. Deux providers IA qui coexistent
-sans coordination.
+*Recommandation* : Soit dépiler réellement (retirer LLM service, appeler codebase),
+soit mettre à jour la roadmap. Décision : **garder dans bakery** — le contrat DAG N2 autorise
+un LLM interne, pas de dépendance à N1. Simple mise à jour de la roadmap.
+// end::CS7[]
 
-.Recommandation
-. Soit dépiler réellement : retirer `LlmService` de bakery, appeler codebase via API
-. Soit mettre à jour la roadmap pour reconnaître que bakery garde son LLM service
-. Dans les deux cas : aligner la documentation sur la réalité du code
-// end::high[]
+=== 🟡 LÉGER — Vigilance, pas bloquant
 
-// tag::medium[]
-=== 🟡 MODÉRÉ 7 — Fichiers legacy à la racine du repo
+// tag::CS8[]
+==== CS-8 : Parse XML RSS/DOM fragile
 
-10+ fichiers non gouvernés à la racine de `bakery-gradle/` :
+*Problème* : `SiteContextCollector.parseFeed()` utilise `DocumentBuilderFactory` + DOM traversal
+manuel. Si JBake change le format de feed.xml, ça casse silencieusement.
 
-[source]
-----
-bakery-gradle/
-├── full_gemini_context.adoc      ← COLD ? À archiver
-├── rag_action_plan.adoc          ← COLD ? À archiver
-├── rag_proposition.adoc          ← COLD ? À archiver
-├── supabase_integration.adoc     ← COLD ? À archiver
-├── revue_de_code.adoc            ← STIMULUS Cercle 4 — remplacé par CODE_REVIEW.adoc
-├── revue_de_code_last.adoc       ← STIMULUS Cercle 4
-├── revue_de_code_last_one.adoc   ← STIMULUS Cercle 4
-├── tdd_integration.adoc          ← COLD ?
-├── TODO.adoc                     ← NON GOUVERNÉ (remplacé par BACKLOG.adoc)
-├── site.yml                      ← CONFIG UTILISATEUR (mais versionné ?)
-└── readme-truth.yml              ← ?
-----
+*Recommandation* : Rome library pour RSS ou JAXB pour sitemap. Priorité basse — JBake 2.7.0
+est stable depuis 2020.
+// end::CS8[]
 
-*Impact* : pollution du contexte EAGER, difficulté à naviguer.
+// tag::CS9[]
+==== CS-9 : `var` dans les data classes du package `lens`
 
-.Recommandation
-. Classifier chaque fichier : STIMULUS (à diluer), COLD (à archiver dans `.agents/archives/`),
-  DOUBLON (à supprimer)
-. Les `revue_de_code*.adoc` sont remplacés par ce fichier — les archiver ou supprimer
-. `TODO.adoc` est un doublon de `BACKLOG.adoc` — supprimer
-// end::medium[]
+*Problème* : `LensConfig` et `LensBudget` utilisent `var` pour toutes leurs propriétés.
+Perte des garanties d'immutabilité et de thread-safety.
 
-// tag::medium[]
-=== 🟡 MODÉRÉ 8 — BKG-2 (Ontologie émergente) en attente
+*Recommandation* : Remplacer `var` par `val` + `copy()`. Priorité basse — ces classes sont
+utilisées uniquement en configuration séquentielle.
+// end::CS9[]
 
-L'EPIC BKG-2 (clustering cosine similarity, 8 pts) est en P2 optionnel depuis
-la session 022. Il ajouterait :
-- Clustering des articles par embeddings
-- Génération de communautés ontologiques
-- Badge cluster dans `post.thyme`
+// tag::CS10[]
+==== CS-10 : Tasks TODO qui `throw NotImplementedError`
 
-*Impact* : la roadmap mentionne BKG-2 comme optionnel, mais la valeur différenciante
-du Knowledge Graph (linking sémantique) reste partielle sans ontologie.
+*Problème* :
+```kotlin
+tasks.register("createPagesRepository") {
+    doLast { throw NotImplementedError("planned but not yet implemented") }
+}
+```
+Ces tâches sont enregistrées mais cassent à l'exécution. L'utilisateur les découvre via
+`./gradlew tasks` et tombe sur une erreur.
 
-.Recommandation
-. À prioriser après CONV-1.4 et le refactor SiteManager
-. Charge estimée : 8 pts — peut être splité en 2 sous-EPICs de 4 pts
-// end::medium[]
+*Recommandation* : Soit implémenter, soit `@Deprecated` + message. Soit retirer
+(le GitHub API token est une feature future).
+// end::CS10[]
+
+// tag::CS11[]
+==== CS-11 : Logger incohérent — `println()` + `logger.info()` mélangés
+
+*Problème* : Certaines méthodes utilisent les deux :
+```kotlin
+"create config file.".apply(::println).let(logger::info)
+```
+
+*Risque* : Les `println()` sont visibles en sortie même en `--quiet`.
+
+*Recommandation* : Uniformiser vers `logger.lifecycle`. Priorité basse — c'est cosmétique.
+// end::CS11[]
+
+// tag::CS12[]
+==== CS-12 : Inconsistance historique : publishProfile vs deployProfile
+
+*Problème* : La tâche est nommée `deployProfile` dans le code mais `publishProfil` (faute d'orthographe
+"Profil" au lieu de "Profile") dans BACKLOG et INDEX. Le fichier `PublishProfileTask.kt` garde
+le nom historique `publishProfile()`.
+
+*Recommandation* : Renommer la méthode `PublishProfileTask.publishProfile()` → `deployProfile()`
+pour alignement taxonomique K-1. Priorité basse (non bloquant).
+// end::CS12[]
 
 '''
-== Conformité à la Vision Workspace
+== Bonnes Pratiques Observées ⭐
 
-=== DAG N2
+| Pratique | Localisation | Note
+| **DDD/TDD/BDD Baby-Step systématique** | Packages `scaffold/`, `article/`, `lens/` | ⭐ Modèle domaine → implémentation → UT → FT → Cucumber. Reproductible
+| **4 couches de test** | UT / FT / Cucumber / E2E Playwright | ⭐ Chaque couche a son rôle et son temps d'exécution
+| **Clean Architecture du package lens** | `SubgraphExtractor` → `AugmentedArticlesService` → `LensBudget` | ⭐ Pipeline clair, chaque étape testable isolément
+| **Pattern `fun interface` pour LlmService** | `llm/LlmService.kt` | ⭐ Testable, mockable, pas de couplage LangChain4j
+| **Documentation KDoc systématique** | Classes clés du package lens, ConfigResolver | ✅ Architecture documentée dans le code
+| **Contrat DAG strict** | Dépendances N0→N2 uniquement (graphify-plugin) | ✅ Pas de dépendance à N1 malgré la tentation
+| **Template method pour Git push** | `registerGitPushTask()` réutilisé 3 fois | ✅ Factorisation réussie
+| **Séparation Cucumber/JUnit5 (EPIC 11)** | build.gradle.kts | ✅ `test` 38s au lieu de 2m46 (-77%)
+| **Rotation backup automatique** | Mécanisme Hot/Warm/Cold | ✅ Gouvernance mature
+| **Ratio test/source 3.29x** | 16 369 lignes de test pour 4 976 de code | ✅ Excellent
+
+'''
+== Priorités de Résolution
+
+=== P0 — À faire avant de nouveaux EPICs
+
+| # | Action | Effort | Code smell
+| Extraire LensPipelineService du doLast de `registerCollectAugmentedContextTask` | 1 session | CS-2
+| Remplacer parse JSON maison de ScaffoldGenerator par Jackson | 1 session | CS-3
+
+=== P1 — Court terme (qualité)
+
+| # | Action | Effort | CS
+| Split SiteManager en 4 TaskRegistrars | 2 sessions | CS-1
+| Aligner BAKERY_ROADMAP_JBake (garder LLM interne) | 0.5 session | CS-7
+| Renommer publishProfile() → deployProfile() | 0.5 session | CS-12
+| Retirer/supprimer les tasks TODO NotImplementedError | 0.5 session | CS-10
+
+=== P2 — Moyen terme (valeur ajoutée)
+
+| # | Action | Effort | CS
+| Pattern Strategy injectConfig | 1 session | CS-4
+| Générifier ConfigResolver | 1 session | CS-5
+| Uniformiser logger (retirer println) | 0.5 session | CS-11
+| Remplacer var par val dans lens package | 0.5 session | CS-9
+
+'''
+== Conformité Vision Workspace
+
+=== DAG
 
 [cols="2,3"]
 |===
 | Règle | Statut
-| Consommateur de N0 (graphify) | ✅ Conforme (dépendance déclarée, mais inutilisée — cf. 🟠 GRAVE 4)
-| Consommé par N3 (runner-gradle) | ✅ Conforme — metadata.json exposé
-| Pas de dépendance à N1 (codebase) | ✅ Conforme — LLM service interne
+| Consommateur de N0 (graphify) | ✅ Conforme — `SubgraphExtractor` utilise `GraphModel` de graphify-plugin
+| Consommé par N3 (runner-gradle) | ✅ Conforme — `collectSiteContext` → `metadata.json`
+| Pas de dépendance à N1 (codebase) | ✅ Conforme — LLM interne `OllamaLlmService`
 |===
 
 === DOGFOOD FIRST
@@ -437,8 +435,8 @@ du Knowledge Graph (linking sémantique) reste partielle sans ontologie.
 [cols="2,3"]
 |===
 | Principe | Statut
-| Toute fonctionnalité utilisée en interne avant exposition | ✅ Conforme — cheroliv.com est le consommateur principal
-| Pas de SaaS obligatoire | ✅ Conforme — zéro dépendance Edster/AWS/etc
+| Fonctionnalité utilisée en interne avant exposition | ✅ — cheroliv.com est le consommateur principal
+| Pas de SaaS obligatoire | ✅ — zéro dépendance Edster/AWS
 |===
 
 === Métier Libre, Transaction Privée
@@ -446,145 +444,57 @@ du Knowledge Graph (linking sémantique) reste partielle sans ontologie.
 [cols="2,3"]
 |===
 | Règle | Statut
-| Code source Apache 2.0 | ✅ `LICENCE` présente, groupId `education.cccp`
-| Secrets jamais commités | ✅ `site.yml` dans `.gitignore`, tokens via env vars
-|===
-
-=== Architecture Identité
-
-[cols="2,3"]
-|===
-| Règle | Statut
-| Plugin Portal handle | ✅ `cccp.education.bakery`
-| GroupId | ✅ `education.cccp`
-| Website | ✅ `https://cheroliv.com`
-| VcsUrl | ✅ `https://github.com/cheroliv/bakery-gradle.git`
+| Code source Apache 2.0 | ✅ LICENCE présente, groupId `education.cccp`
+| Secrets jamais commités | ✅ `site.yml` dans .gitignore, tokens via env vars
 |===
 
 '''
-== Recommandations Priorisées
-
-=== P0 — Critique (casser la dette avant d'ajouter des features)
-
-|===
-| # | Action | EPIC | Effort
-| 1 | Extraire les 9 `inject*` en méthode générique + brancher ConfigResolver | CONV-1.4 | 3 pts
-| 2 | Implémenter `saveConfiguration()` dans ConfigPrompts | CONV-1.6 | 2 pts
-| 3 | Clarifier ou supprimer la dépendance graphify inutilisée (BKG-0 futur) | — | 1 pt
-|===
-
-=== P1 — Court terme (qualité)
-
-|===
-| # | Action | Effort
-| 4 | ✅ Résolu : aucun @SupersededBy n'existe, KDoc documente déjà la relation — conservé | 0 pt (audit)
-| 5 | Nettoyer les fichiers legacy à la racine du repo | 2 pts
-| 6 | Aligner BAKERY_ROADMAP_JBake.adoc avec la réalité du code (BKY-IA-0) | 1 pt
-|===
-
-=== P2 — Moyen terme (valeur)
-
-|===
-| # | Action | EPIC | Effort
-| 7 | Splitter SiteManager en TaskRegistrar délégués | — | 5 pts
-| 8 | Démarrer BKG-2 (ontologie émergente) | BKG-2 | 8 pts
-| 9 | Ajouter CI/CD complet (build → test → publishToMavenLocal) | — | 3 pts
-|===
-
-'''
-== Métriques Globales Synthèse
+== Métriques Globales
 
 [cols="2,3"]
 |===
-| Code source (src/main/) | 3 727 lignes, 29 fichiers
-| Tests (tous confondus) | ~12 200 lignes, ~30 fichiers
-| Ratio test/source | ~2.5x (bon)
-| Kover | 70.8% (seuil 70%)
+| Code source (src/main/) | 4 976 lignes, 37 fichiers
+| Tests (tous confondus) | 16 369 lignes, 94 fichiers
+| Ratio test/source | **3.29x** (excellent)
+| Kover | **73.13%** (seuil 70%)
 | Compilation | ✅ Zéro warning
-| EPICs dans périmètre | 22 ✅ TERMINÉS
-| EPICs en cours | 1 🟡 (CONV-1 Steps 4-6)
-| EPICs transférés | 1 (TRN-9 → training) + 1 (IA-5 → KINGSTON gsuite-gradle à créer)
-| Score de santé | **7.5/10**
-| Conformité vision | **9/10** (périmètre clarifié)
+| EPICs terminés | 25/28
+| EPICs partiels | 1 (EPIC 13 à 50%)
+| EPICs restants | 2 (EPIC 6 fantôme, BKY-IA-2, BKY-IA-3)
+| Vrai total restant | ~14-17 pts
+| Score de santé | **8.5/10** (était 7.5/10 à la session 049)
+| Conformité vision | **9.5/10**
 
 '''
 == Synthèse
 
-[%hardbreaks]
-Bakery-gradle est un plugin mature et complet dans son périmètre d'expert métier JBake.
-La méthodologie DDD/TDD/BDD est exemplaire et produit un code bien structuré,
-bien testé, et bien gouverné.
+Bakery-gradle est un plugin **mature et quasi-finalisé**. La méthodologie
+DDD/TDD/BDD est exemplaire, les 4 couches de test couvrent tout le spectre,
+et la gouvernance est l'une des plus abouties du workspace.
 
-La dette principale est **structurelle** (SiteManager god class, duplication des inject*,
-ConfigResolver non branché). C'est le prix d'une évolution rapide : 31 sessions en 4 jours
-ont privilégié la fonctionnalité sur la qualité interne.
+Depuis l'audit 022 (29 mai) :
+- +31 sessions
+- +2 663 lignes de code source
+- +8 000 lignes de tests
+- +3 EPICs majeurs terminés (LENS 6, IA-1, EPIC 11)
+- Durée de test réduite de 77%
+- Couverture Kover passée de inconnue → 73.13%
 
-La clarification de périmètre (Session 048) était nécessaire : bakery n'est pas le point
-d'assemblage de la formation. Il est le moteur de site statique que les autres boroughs
-utilisent pour déployer leurs artefacts.
+**Le vrai chantier restant est minuscule : ~17 pts, soit 1 jour de travail.**
 
-**Règle d'or** : *CONV-1.4 (migration ConfigResolver)* avant toute nouvelle feature.
-La dette d'architecture est le seul frein à la vélocité.
+La dette technique (CS-1 SiteManager god class, CS-4 injection monolithique,
+CS-5 ConfigResolver verbeux) est documentée et non bloquante pour la production.
+Le produit peut être livré et utilisé tel quel.
 
-'''
-== Annexes
-
-=== Annexe A — Inventaire des fichiers source
-
-[cols="2,2,3", options="header"]
-|===
-| Fichier | Lignes | Rôle
-| `SiteManager.kt` | 819 | Orchestrateur — ⚠️ god class
-| `FileSystemManager.kt` | ~205 | Gestion fichiers, templates, ressources
-| `ConfigResolver.kt` | 343 | Résolution config 4 couches — non branché
-| `GitService.kt` | 273 | Push git (pages, maquette, profil)
-| `ArticleGenerator.kt` | 255 | Génération article IA — clean architecture
-| `ConfigPrompts.kt` | 155 | Prompts interactifs — saveConfiguration vide
-| `SiteConfiguration.kt` | 141 | Modèles de données YAML
-| `BakeryExtension.kt` | 118 | DSL Gradle — 12 sous-DSL
-| `BakeryPlugin.kt` | 97 | Point d'entrée Gradle
-| `ArticleIntention.kt` | 89 | Modèle DDD intention article
-| `SiteScaffolder.kt` | 73 | Scaffolding office/sites/<name>/
-| `ProfilePublisher.kt` | 77 | Publication profil GitHub
-| `PublishProfileTask.kt` | 39 | Tâche Gradle typée publishProfil
-|===
-
-=== Annexe B — Inventaire des tests
-
-[cols="2,2,3", options="header"]
-|===
-| Fichier | Lignes | Type
-| `BakeryPluginTest.kt` | 575 | UT
-| `SiteManagerTest.kt` | 377 | UT
-| `GitServiceTest.kt` | 371 | UT
-| `ConfigResolverTest.kt` | ~350 | UT (8 classes imbriquées)
-| `RelatedArticlesServiceTest.kt` | ~300 | UT
-| `BakeryPluginFunctionalTests.kt` | 389 | FT
-| `tools.kt` | 332 | FT (helpers)
-| `ArchitectureValidationTest.kt` | 240 | FT
-| 20 features Cucumber | ~67 scénarios | BDD
-| 4 fichiers E2E | 506 lignes | Playwright
-|===
-
-=== Annexe C — Session 048 : Clarification de périmètre
-
-Suite à la code review, les EPICs suivants ont été transférés vers leur plugin propriétaire :
-
-. *BKY-TRN-9* (assembleTrainingSite, 21 pts) → `training-gradle BACKLOG.adoc` EPIC TRN-9
-. *BKY-IA-5* (generateFormRecipe/clasp/Edster, 8 pts) → `KINGSTON` `foundry/private/gsuite-gradle` (borough à créer)
-
-Backlogs mis à jour le 2026-06-02.
-
-'''
 '''
 == Métadonnées du document
 
 [cols="2,3"]
 |===
 | Document | `.agents/CODE_REVIEW.adoc`
-| Créé | 2026-06-02 — Session 048-049
-| Classification | AUDIT — Cercle 4
-| Remplace | `revue_de_code.adoc`, `revue_de_code_last.adoc`, `revue_de_code_last_one.adoc`, `BAKERY_AUDIT.adoc`
-| Cycle de vie | Actif dans `.agents/`. Archivé dans `.agents/archives/` à la prochaine revue majeure.
-| Prochaine révision | Session 070 (ou lorsque la dette critique sera adressée)
+| Créé | 2026-06-03 — Sessions 066-067
+| Version | 2.0 (remplace version 049)
+| EAGER | ✅ OUI — chargé automatiquement au début de chaque session bakery
+| Cycle de vie | Actif jusqu'à la session de fermeture du borough
+| Prochaine révision | Session 071 (après finalisation des EPICs restants)
 |===

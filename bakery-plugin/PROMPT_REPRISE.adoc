@@ -1,34 +1,29 @@
-= PROMPT_REPRISE — Session 067 : EPIC 6 publishProfil ou BKY-IA-2 Thème IA
+= PROMPT_REPRISE — Session 068 : EPIC 6 publishProfil finalisation + BKY-IA-2 Thème IA
 
-== Mission (Session 067)
+== Mission (Session 068)
 
-Dépiler l'EPIC suivant par priorité :
-1. **EPIC 6** — Intégration publishProfil dans le plugin (P1)
-2. OU **BKY-IA-2** — Thème IA paramétrique (P1, dépend de BKY-IA-0 ✅)
+1. **EPIC 6** — Vérification + finalisation publishProfil (P1, ~1h)
+   - Vérifier que `deployProfile` marche dans un projet consommateur
+   - Nettoyer build consommateur cheroliv.com si besoin
+   - MAJ statut EPIC 6 dans INDEX → 100%
+2. **BKY-IA-2** — Thème IA paramétrique (P1, 8 pts, ~3-4h)
+   - Catalogue de 5-10 thèmes Thymeleaf (minimal, magazine, documentation, portfolio, formation)
+   - Variables de thème (couleurs, polices, logo, favicon) — déjà dans le DSL `bakery { theme { ... } }`
+   - Tâche `generateTheme` : intention → sélection thème + variables
+   - Tests : vérifier que les templates générés compilent avec Thymeleaf
+   - Cucumber : scénarios de régression
+3. **Priorité P2** si temps : BKY-IA-3 Validation Firebase IA
 
-== État actuel (Session 066)
+== État actuel (Session 067)
 
-- **BKY-IA-1 TERMINÉ** ✅ — Scaffolding assisté par IA complet (étapes 1-5)
-  - Étapes 1-3 : DDD + TDD (48 UT PASS)
-  - Étape 4 : FT — `ScaffoldIntentionFunctionalTests` (5 FT PASS)
-  - Étape 5 : BDD — Cucumber Feature 25 (3 scénarios PASS, 26/26 total)
-- Fichiers créés (session 066) :
-  - `src/functionalTest/kotlin/bakery/ScaffoldIntentionFunctionalTests.kt` — 5 FT
-  - `src/test/features/25_scaffold_intention_ia.feature` — 3 scénarios Gherkin
-  - `src/test/scenarios/bakery/scenarios/ScaffoldIntentionSteps.kt` — 2 steps `@Given`
-  - `src/test/scenarios/bakery/scenarios/BakeryWorld.kt` — ajout `createGradleProjectWithScaffoldIntention()`
-
-== EPICs restants (par priorité)
-
-| EPIC | Axe | Priorité | Dépend de |
-|------|-----|----------|-----------|
-| EPIC 6 | Intégration publishProfil | P1 | — |
-| BKY-IA-2 | Thème IA paramétrique | P1 | BKY-IA-0 (✅) |
-| BKY-IA-3 | Validation Firebase IA | P2 | BKY-IA-0 (✅), EPIC 4 |
+- **CODE_REVIEW.adoc v2** ✅ — Mise à jour complète avec 12 code smells, analyse vélocité, projection
+- **CODE_REVIEW.adoc EAGER** ✅ — Ajouté dans AGENT.adoc, chargé automatiquement
+- EPIC 6 : code existant, statut documentaire à corriger (~3 pts réels)
+- Vrai total restant : ~14-17 pts
 
 == Points d'attention
 
+- Lire `.agents/CODE_REVIEW.adoc` en premier — contient l'analyse complète
 - Ne pas lancer `./gradlew test` sans permission explicite
-- `test` task n'exécute plus les Cucumber (exclus) → lancer `./gradlew test cucumberTest` pour les deux
-- Configuration-cache bloqué par `koverThresholdCheck` (utilise `project`, non sérialisable)
-- BKY-IA-1 complet : package `bakery/scaffold/` avec 5 source files + 4 test files + 1 FT file + 1 Cucumber feature
+- `test` task exclut Cucumber (38s) — lancer `./gradlew cucumberTest` séparément
+- Configuration-cache bloqué par `koverThresholdCheck` (non sérialisable)

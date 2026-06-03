@@ -1,0 +1,72 @@
+= Session 065 — BKY-IA-1 Scaffolding assisté par IA (Étapes 1-3)
+
+== Date : 2026-06-03
+
+== Résumé
+
+Dépilage BKY-IA-1 (Scaffolding assisté par IA) — baby steps DDD/TDD/BDD étapes 1 à 3.
+Nouveau package `bakery/scaffold/` avec modèle domaine, générateur IA, tâche Gradle, DSL.
+
+== Étapes réalisées
+
+=== Étape 1 — DDD : Modèle domaine (17 UT PASS)
+
+* `ScaffoldIntention` data class (description, siteType, lang, projectName) avec validation + `toPromptContext()`
+* `ScaffoldSiteType` enum (BLOG, PORTFOLIO, DOC, FORMATION) avec `fromStringOrDefault()`
+* `ScaffoldOutput` data class (siteType, projectName, description, templates, metadata)
+* `ScaffoldMetadata` data class (title, description, tags, layout, language)
+* `ScaffoldIntentionDsl` bridge Gradle → domaine avec `toIntention()`
+* Tests : `ScaffoldIntentionTest` (13 UT) + `ScaffoldIntentionDslTest` (5 UT)
+
+=== Étape 2 — TDD : ScaffoldGenerator (18 UT PASS)
+
+* `ScaffoldGenerator` : prompt LLM structuré + parse JSON réponse + fallback résilient
+* Prompt demande JSON avec siteType, projectName, description, templates, metadata
+* Parse JSON maison (sans Jackson) — `extractJson`, `extractJsonValue`, `extractJsonArray`
+* Fallback par type : BLOG → blog.thyme/post.thyme/page.thyme, DOC/FORMATION/PORTFOLIO templates dédiés
+* Slugify description → projectName fallback
+* Tests : `ScaffoldGeneratorTest` (17 UT + compact JSON test)
+
+=== Étape 3 — TDD : GenerateSiteFromIntentionTask + DSL wiring (13 UT PASS)
+
+* `GenerateSiteFromIntentionTask` — tâche Gradle `@DisableCachingByDefault`
+  * Résolution CLI > DSL > defaults (même pattern que `GenerateArticleTask`)
+  * Propriétés : scaffoldDescription, siteType, scaffoldLang, projectName
+  * `resolveIntention()` fusionne les sources
+  * `applyScaffoldOutput()` écrit `site.yml` suggéré par l'IA
+* `BakeryExtension` : nouveau bloc `bakery { scaffoldIntention { ... } }` + action method
+* `SiteManager.registerGenerateSiteFromIntentionTask()` — même pattern que `registerGenerateArticleTask()`
+* `BakeryPlugin` : branchement dans `afterEvaluate` branche scaffolding
+* Tests : `GenerateSiteFromIntentionTaskTest` (3 nested classes, 10 UT)
+
+== Fichiers créés
+
+| Fichier | Rôle |
+|---------|------|
+| `src/main/kotlin/bakery/scaffold/ScaffoldIntention.kt` | Modèle domaine DDD |
+| `src/main/kotlin/bakery/scaffold/ScaffoldOutput.kt` | Output structuré LLM |
+| `src/main/kotlin/bakery/scaffold/ScaffoldIntentionDsl.kt` | Bridge Gradle → domaine |
+| `src/main/kotlin/bakery/scaffold/ScaffoldGenerator.kt` | Service IA prompt + parse |
+| `src/main/kotlin/bakery/scaffold/GenerateSiteFromIntentionTask.kt` | Tâche Gradle |
+| `src/test/kotlin/bakery/scaffold/ScaffoldIntentionTest.kt` | 13 UT |
+| `src/test/kotlin/bakery/scaffold/ScaffoldIntentionDslTest.kt` | 5 UT |
+| `src/test/kotlin/bakery/scaffold/ScaffoldGeneratorTest.kt` | 18 UT |
+| `src/test/kotlin/bakery/scaffold/GenerateSiteFromIntentionTaskTest.kt` | 10 UT |
+
+== Fichiers modifiés
+
+| Fichier | Changement |
+|---------|------------|
+| `BakeryExtension.kt` | +import ScaffoldIntentionDsl, +val scaffoldIntention, +fun scaffoldIntention() |
+| `SiteManager.kt` | +import GenerateSiteFromIntentionTask/ScaffoldIntentionDsl, +registerGenerateSiteFromIntentionTask() |
+| `BakeryPlugin.kt` | +import registerGenerateSiteFromIntentionTask, +appel dans afterEvaluate branche scaffolding |
+
+== Prochaine session (066)
+
+* BKY-IA-1.4 — FT : Tests fonctionnels (scaffold IA vs classique)
+* BKY-IA-1.5 — BDD : Cucumber Feature 24 (3 scénarios)
+
+== Score : 9/10
+
+Baby steps DDD/TDD rigoureux. Pattern ArticleIntention parfaitement recopié.
+48 UT nouveaux, 0 régression, compilation OK, publishToMavenLocal OK.

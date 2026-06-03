@@ -293,6 +293,7 @@ il DOIT consulter ces codebases comme reference. Ces chemins sont LAZY — ne ja
 | `LAZY_EAGER_ESSENTIALS.adoc` | Principes LAZY/EAGER + politique de chargement
 | `*_ESSENTIALS.adoc` | Contexte metier critique (si EPIC active)
 | `AGENT.adoc` | Ce fichier — Directives completes
+| `.agents/CODE_REVIEW.adoc` | **Code review complète** — smells, vélocité, projection, priorisation. LIRE EN PREMIER.
 |===
 
 === Mécanisme de Backup — Hot/Warm/Cold Storage
