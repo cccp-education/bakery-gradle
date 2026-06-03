@@ -1,5 +1,18 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 068 — 2026-06-03 — BKY-IA-2 Baby Steps 1-3 + EPIC 6 Fantôme Corrigé
+
+**Contexte** : Reprise bakery-gradle après code review v2. EPIC 6 vérifié (100% implémenté, statut corrigé). BKY-IA-2 thème IA paramétrique Baby Steps 1-3 (DDD/TDD).
+
+**Tâches complétées** :
+
+. ✅ EPIC 6 — Vérifié fantôme documentaire (PublishProfileTask + ProfilePublisher + 14 UT + 3 Cucumber + câblage SiteManager/BakeryPlugin existaient déjà).
+. ✅ BKY-IA-2 Baby Step 1 — DDD : ThemeVariant enum (5 variantes), ThemeCatalog (5 presets + résolution), ThemeOverrides, ThemePreset, ThemeIntention, ThemeIntentionDsl.
+. ✅ BKY-IA-2 Baby Step 2 — TDD : 38 UT theme (ThemeVariantTest, ThemeCatalogTest, ThemeIntentionTest, ThemeIntentionDslTest).
+. ✅ BKY-IA-2 Baby Step 3 — ConfigResolver enrichi (variant preset cascade, 8 UT), ThemeDsl +6 champs, ThemeConfig +6 champs, SiteManager +5 injections jbake.properties, theme-script.thyme +4 CSS variables, ThemeTemplateTest +4 UT.
+
+**Métriques** : 50 nouveaux UT, BUILD SUCCESSFUL, publishToMavenLocal OK.
+
 == Session 067 — 2026-06-03 — CODE REVIEW v2 + Analyse Vélocité + Stratégie
 
 **Contexte** : Code review complète du plugin bakery-gradle. Mise à jour de CODE_REVIEW.adoc

@@ -1,0 +1,61 @@
+= Session 068 — BKY-IA-2 Baby Steps 1-3 (DDD/TDD) + EPIC 6 Fantôme Corrigé
+
+== Date
+2026-06-03
+
+== Type
+feat + TDD + DDD
+
+== Score
+8/10
+
+== Résumé
+
+Session de reprise bakery-gradle après la code review v2 (session 067). Deux accomplissements majeurs :
+
+1. **EPIC 6 — Fantôme documentaire corrigé** : Le code `PublishProfileTask` + `ProfilePublisher` + `resolveCredentials` + `copyProfileFiles` + `withCredentials` + câblage `BakeryPlugin` existait déjà à 100%. 14 UT + 3 Cucumber + `registerDeployProfileTask` dans SiteManager. Le statut "0%" était faux.
+
+2. **BKY-IA-2 Baby Steps 1-3** : Thème IA paramétrique — modèle domaine DDD complet (ThemeVariant, ThemeCatalog, ThemePreset, ThemeOverrides, ThemeIntention, ThemeIntentionDsl) + 38 UT + 8 UT ConfigResolver variante + 4 UT ThemeTemplate IA-2. ConfigResolver enrichi avec cascade variant preset. SiteManager injecte 5 nouvelles propriétés thème. Template `theme-script.thyme` enrichi.
+
+== Fichiers Créés
+
+| Fichier | Rôle |
+|---------|------|
+| `src/main/kotlin/bakery/theme/ThemeVariant.kt` | Enum 5 variantes (MINIMAL, MAGAZINE, DOCUMENTATION, PORTFOLIO, FORMATION) |
+| `src/main/kotlin/bakery/theme/ThemeCatalog.kt` | Catalogue de presets + résolution variant + ThemeOverrides |
+| `src/main/kotlin/bakery/theme/ThemePreset.kt` | Data class preset (9 propriétés CSS) |
+| `src/main/kotlin/bakery/theme/ThemeIntention.kt` | Data class DDD intention (description + variant + overrides) |
+| `src/main/kotlin/bakery/theme/ThemeIntentionDsl.kt` | DSL bridge Gradle → domaine |
+| `src/test/kotlin/bakery/theme/ThemeVariantTest.kt` | 10 UT — fromStringOrDefault, labels, descriptions |
+| `src/test/kotlin/bakery/theme/ThemeCatalogTest.kt` | 11 UT — presetFor, availableVariants, resolve, overrides |
+| `src/test/kotlin/bakery/theme/ThemeIntentionTest.kt` | 8 UT — construction, validation, toPromptContext |
+| `src/test/kotlin/bakery/theme/ThemeIntentionDslTest.kt` | 9 UT — toIntention, variant fallback, overrides mapping |
+
+== Fichiers Modifiés
+
+| Fichier | Changement |
+|---------|-----------|
+| `ThemeDsl.kt` | +6 champs (variant, accentColor, backgroundColor, textColor, headingFont) |
+| `BakeryExtension.kt` | +ThemeIntentionDsl + DSL block bakery { themeIntention { ... } } |
+| `SiteConfiguration.kt` | ThemeConfig +6 champs (variant, accentColor, backgroundColor, textColor, headingFont) |
+| `ConfigResolver.kt` | resolveThemeConfig enrichi avec variant preset cascade |
+| `SiteManager.kt` | +5 injections jbake.properties (themeVariant, themeAccentColor, themeBackgroundColor, themeTextColor, themeHeadingFont) |
+| `theme-script.thyme` | +4 scripts CSS variables (accent, bg, text, heading) |
+| `ThemeConfigTest.kt` | +4 UT (variant, extended properties) |
+| `ConfigResolverTest.kt` | +8 UT (variant preset cascade, CLI override, YAML override) |
+| `ThemeTemplateTest.kt` | +4 UT (accent, bg, text, heading variables) |
+| `ThemeInjectionTest.kt` | inchangé (compatible) |
+
+== Métriques
+
+- **UT ajoutées** : 38 (theme) + 8 (ConfigResolver) + 4 (ThemeTemplate) = 50 nouveaux UT
+- **Total UT** : ~609+ UT PASS
+- **BUILD** : SUCCESSFUL
+- **publishToMavenLocal** : OK
+
+== Prochaine Session (069)
+
+BKY-IA-2 Baby Steps 3-5 :
+- GenerateThemeTask (tâche Gradle)
+- FT : ThemeIntentionFunctionalTests
+- BDD : Cucumber Feature 27

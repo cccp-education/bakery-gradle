@@ -1,29 +1,27 @@
-= PROMPT_REPRISE — Session 068 : EPIC 6 publishProfil finalisation + BKY-IA-2 Thème IA
+= PROMPT_REPRISE — Session 069 : BKY-IA-2 Étapes 3-5 (GenerateThemeTask + FT + Cucumber)
 
-== Mission (Session 068)
+== Mission (Session 069)
 
-1. **EPIC 6** — Vérification + finalisation publishProfil (P1, ~1h)
-   - Vérifier que `deployProfile` marche dans un projet consommateur
-   - Nettoyer build consommateur cheroliv.com si besoin
-   - MAJ statut EPIC 6 dans INDEX → 100%
-2. **BKY-IA-2** — Thème IA paramétrique (P1, 8 pts, ~3-4h)
-   - Catalogue de 5-10 thèmes Thymeleaf (minimal, magazine, documentation, portfolio, formation)
-   - Variables de thème (couleurs, polices, logo, favicon) — déjà dans le DSL `bakery { theme { ... } }`
-   - Tâche `generateTheme` : intention → sélection thème + variables
-   - Tests : vérifier que les templates générés compilent avec Thymeleaf
-   - Cucumber : scénarios de régression
-3. **Priorité P2** si temps : BKY-IA-3 Validation Firebase IA
+1. **BKY-IA-2 Baby Step 3** — `GenerateThemeTask` : tâche Gradle qui résout la variante thème via ConfigResolver, injecte les variables CSS dans `jbake.properties`. Tester via FT.
+2. **BKY-IA-2 Baby Step 4** — FT : tests fonctionnels `ThemeIntentionFunctionalTests` (enregistrement tâche, config injectée).
+3. **BKY-IA-2 Baby Step 5** — BDD : Cucumber Feature 27 (sélection variante, injection propriétés thème étendues, résolution cascade CLI>DSL>YAML>preset>defaults).
+4. **Priorité P2** si temps : BKY-IA-3 Validation Firebase IA + EPIC 13 coverage 73→75%.
 
-== État actuel (Session 067)
+== État actuel (Session 068)
 
-- **CODE_REVIEW.adoc v2** ✅ — Mise à jour complète avec 12 code smells, analyse vélocité, projection
-- **CODE_REVIEW.adoc EAGER** ✅ — Ajouté dans AGENT.adoc, chargé automatiquement
-- EPIC 6 : code existant, statut documentaire à corriger (~3 pts réels)
-- Vrai total restant : ~14-17 pts
+- **EPIC 6** ✅ — Code existait à 100% (14 UT + 3 Cucumber). Fantôme documentaire corrigé. Statut mis à jour.
+- **BKY-IA-2 Baby Steps 1-3** ✅ — DDD (ThemeVariant, ThemeCatalog, ThemeIntention, ThemePreset, ThemeOverrides, ThemeIntentionDsl) + TDD (38 UT theme + 8 UT ConfigResolver variant + 4 UT ThemeTemplate IA-2) + ConfigResolver enrichi (variant preset cascade) + SiteManager injection 5 nouvelles propriétés.
+- **ThemeDsl** enrichi (variant, accentColor, backgroundColor, textColor, headingFont)
+- **ThemeConfig** enrichi (mêmes 5 champs)
+- **theme-script.thyme** enrichi (accent, bg, text, heading CSS variables)
+- **Fichiers créés** : `theme/ThemeVariant.kt`, `theme/ThemeCatalog.kt`, `theme/ThemePreset.kt`, `theme/ThemeIntention.kt`, `theme/ThemeIntentionDsl.kt`, `theme/ThemeOverrides.kt`
+- **Fichiers modifiés** : `ThemeDsl.kt`, `BakeryExtension.kt`, `SiteConfiguration.kt`, `ConfigResolver.kt`, `SiteManager.kt`, `theme-script.thyme`
+- BUILD SUCCESSFUL. `publishToMavenLocal` OK.
 
 == Points d'attention
 
-- Lire `.agents/CODE_REVIEW.adoc` en premier — contient l'analyse complète
 - Ne pas lancer `./gradlew test` sans permission explicite
-- `test` task exclut Cucumber (38s) — lancer `./gradlew cucumberTest` séparément
-- Configuration-cache bloqué par `koverThresholdCheck` (non sérialisable)
+- `test` task exclut Cucumber (38s). Lancer `./gradlew cucumberTest` séparément si besoin
+- EPIC 6 est TERMINÉ — ne pas le rouvrir
+- Le cascade ConfigResolver thème variante fonctionne : CLI > DSL (si explicitement modifié) > YAML > Preset > Defaults
+- Les nouvelles propriétés DSL (accentColor, textColor, etc.) ont des valeurs par défaut vides, ce qui permet au preset de prendre le relais correctement

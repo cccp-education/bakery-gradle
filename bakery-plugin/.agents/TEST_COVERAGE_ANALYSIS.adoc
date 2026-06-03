@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-03 — Session 066_
+_Dernière mise à jour : 2026-06-03 — Session 068_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -12,7 +12,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 | Métrique | Valeur
 | Couverture Kover | *73.13%* — seuil 70% (session 064)
 | Seuil configuré | 70% (dans `build.gradle.kts` → `koverThresholdCheck`)
-| Tests unitaires JUnit5 | 132 fichiers, 509+ tests — ~38s (session 064, Cucumber exclu de `test` task)
+| Tests unitaires JUnit5 | 136 fichiers, 559+ tests — ~38s (session 068, Cucumber exclu de `test` task)
 | Tests fonctionnels (TestKit) | 7 fichiers, 61/61 FT PASS (0 échec) — ajouts : ScaffoldIntentionFunctionalTests (5 FT)
 | Tests Cucumber BDD | 26 features, 84 scénarios — ajouts : Feature 25 (3 scénarios scaffold IA)
 | Tests E2E Playwright | 5 fichiers, 17/17 PASS — séparés de `check`

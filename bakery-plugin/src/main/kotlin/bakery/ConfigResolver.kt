@@ -1,5 +1,7 @@
 package bakery
 
+import bakery.theme.ThemeCatalog
+import bakery.theme.ThemeVariant
 import org.gradle.api.Project
 
 /**
@@ -238,6 +240,8 @@ object ConfigResolver {
 
     /**
      * Resolves a ThemeConfig through the 4-layer cascade.
+     * BKY-IA-2: supports variant selection — when variant is set, preset values
+     * serve as YAML-layer defaults before individual overrides are applied.
      */
     fun resolveThemeConfig(
         props: Map<String, String>,
@@ -246,13 +250,23 @@ object ConfigResolver {
         default: ThemeConfig = ThemeConfig()
     ): ThemeConfig {
         val prefix = "bakery.theme"
+        // BKY-IA-2: if variant is set, resolve it to a ThemePreset and use as YAML-layer defaults
+        val variantName = resolveString(props, prefix, "variant", dsl.variant, yaml?.variant, default.variant)
+        val presetVariant = ThemeVariant.fromStringOrDefault(variantName.ifBlank { null })
+        val preset = if (variantName.isNotBlank()) ThemeCatalog.presetFor(presetVariant) else null
+
         return ThemeConfig(
             mode = resolveString(props, prefix, "mode", dsl.mode, yaml?.mode, default.mode),
-            primaryColor = resolveString(props, prefix, "primaryColor", dsl.primaryColor, yaml?.primaryColor, default.primaryColor),
-            secondaryColor = resolveString(props, prefix, "secondaryColor", dsl.secondaryColor, yaml?.secondaryColor, default.secondaryColor),
-            fontFamily = resolveString(props, prefix, "fontFamily", dsl.fontFamily, yaml?.fontFamily, default.fontFamily),
-            logoUrl = resolveString(props, prefix, "logoUrl", dsl.logoUrl, yaml?.logoUrl, default.logoUrl),
-            faviconUrl = resolveString(props, prefix, "faviconUrl", dsl.faviconUrl, yaml?.faviconUrl, default.faviconUrl),
+            primaryColor = resolveString(props, prefix, "primaryColor", dsl.primaryColor, yaml?.primaryColor, preset?.primaryColor ?: default.primaryColor),
+            secondaryColor = resolveString(props, prefix, "secondaryColor", dsl.secondaryColor, yaml?.secondaryColor, preset?.secondaryColor ?: default.secondaryColor),
+            fontFamily = resolveString(props, prefix, "fontFamily", dsl.fontFamily, yaml?.fontFamily, preset?.fontFamily ?: default.fontFamily),
+            logoUrl = resolveString(props, prefix, "logoUrl", dsl.logoUrl, yaml?.logoUrl, preset?.logoUrl ?: default.logoUrl),
+            faviconUrl = resolveString(props, prefix, "faviconUrl", dsl.faviconUrl, yaml?.faviconUrl, preset?.faviconUrl ?: default.faviconUrl),
+            variant = variantName,
+            accentColor = resolveString(props, prefix, "accentColor", dsl.accentColor, yaml?.accentColor, preset?.accentColor ?: default.accentColor),
+            backgroundColor = resolveString(props, prefix, "backgroundColor", dsl.backgroundColor, yaml?.backgroundColor, preset?.backgroundColor ?: default.backgroundColor),
+            textColor = resolveString(props, prefix, "textColor", dsl.textColor, yaml?.textColor, preset?.textColor ?: default.textColor),
+            headingFont = resolveString(props, prefix, "headingFont", dsl.headingFont, yaml?.headingFont, preset?.headingFont ?: default.headingFont),
         )
     }
 

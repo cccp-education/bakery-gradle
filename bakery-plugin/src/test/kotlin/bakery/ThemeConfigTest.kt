@@ -116,7 +116,7 @@ class ThemeConfigTest {
     fun `parse site yml with theme and analytics together returns both`() {
         val yaml = """
             bake:
-              srcPath: src
+              srcPath: site
               destDirPath: build
             analytics:
               provider: "plausible"
@@ -131,5 +131,73 @@ class ThemeConfigTest {
         assertNotNull(config.theme)
         assertEquals("dark", config.theme!!.mode)
         assertEquals("#1a1a2e", config.theme!!.primaryColor)
+    }
+
+    // BKY-IA-2 — Theme variant + extended properties
+
+    @Test
+    fun `parse site yml with theme variant returns variant name`() {
+        val yaml = """
+            bake:
+              srcPath: site
+              destDirPath: build
+            theme:
+              variant: "magazine"
+        """.trimIndent()
+        val config = mapper.readValue(yaml, SiteConfiguration::class.java)
+        assertNotNull(config.theme)
+        assertEquals("magazine", config.theme!!.variant)
+    }
+
+    @Test
+    fun `parse site yml with theme extended properties`() {
+        val yaml = """
+            bake:
+              srcPath: site
+              destDirPath: build
+            theme:
+              variant: "documentation"
+              accentColor: "#8e44ad"
+              backgroundColor: "#fafafa"
+              textColor: "#333333"
+              headingFont: "Inter"
+        """.trimIndent()
+        val config = mapper.readValue(yaml, SiteConfiguration::class.java)
+        assertNotNull(config.theme)
+        assertEquals("documentation", config.theme!!.variant)
+        assertEquals("#8e44ad", config.theme!!.accentColor)
+        assertEquals("#fafafa", config.theme!!.backgroundColor)
+        assertEquals("#333333", config.theme!!.textColor)
+        assertEquals("Inter", config.theme!!.headingFont)
+    }
+
+    @Test
+    fun `parse site yml with theme variant and override primary color`() {
+        val yaml = """
+            bake:
+              srcPath: site
+              destDirPath: build
+            theme:
+              variant: "magazine"
+              primaryColor: "#ff6600"
+        """.trimIndent()
+        val config = mapper.readValue(yaml, SiteConfiguration::class.java)
+        assertNotNull(config.theme)
+        assertEquals("magazine", config.theme!!.variant)
+        assertEquals("#ff6600", config.theme!!.primaryColor)
+    }
+
+    @Test
+    fun `parse site yml without variant returns empty variant`() {
+        val yaml = """
+            bake:
+              srcPath: site
+              destDirPath: build
+            theme:
+              mode: "dark"
+        """.trimIndent()
+        val config = mapper.readValue(yaml, SiteConfiguration::class.java)
+        assertNotNull(config.theme)
+        assertEquals("", config.theme!!.variant)
     }
 }

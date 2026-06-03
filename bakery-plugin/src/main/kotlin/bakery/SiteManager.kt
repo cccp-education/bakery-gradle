@@ -213,6 +213,12 @@ object SiteManager {
                 "themeFontFamily" -> resolvedTheme.fontFamily
                 "themeLogoUrl" -> resolvedTheme.logoUrl
                 "themeFaviconUrl" -> resolvedTheme.faviconUrl
+                // Theme BKY-IA-2 — variante catalogue + propriétés étendues
+                "themeVariant" -> resolvedTheme.variant
+                "themeAccentColor" -> resolvedTheme.accentColor
+                "themeBackgroundColor" -> resolvedTheme.backgroundColor
+                "themeTextColor" -> resolvedTheme.textColor
+                "themeHeadingFont" -> resolvedTheme.headingFont
                 "layoutType" -> resolvedLayout.layoutType.name
                 else -> value
             }
@@ -297,6 +303,12 @@ object SiteManager {
         updateProperty(lines, "themeFontFamily", resolver("themeFontFamily", ""))
         updateProperty(lines, "themeLogoUrl", resolver("themeLogoUrl", ""))
         updateProperty(lines, "themeFaviconUrl", resolver("themeFaviconUrl", ""))
+        // Theme BKY-IA-2 — variante catalogue + propriétés étendues
+        updateProperty(lines, "themeVariant", resolver("themeVariant", ""))
+        updateProperty(lines, "themeAccentColor", resolver("themeAccentColor", ""))
+        updateProperty(lines, "themeBackgroundColor", resolver("themeBackgroundColor", ""))
+        updateProperty(lines, "themeTextColor", resolver("themeTextColor", ""))
+        updateProperty(lines, "themeHeadingFont", resolver("themeHeadingFont", ""))
 
         // Layout
         updateProperty(lines, "layoutType", resolver("layoutType", "FULL_WIDTH"))

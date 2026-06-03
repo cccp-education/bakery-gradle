@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-06-03
-_Session terminee_ : 067 — Code Review v2 + Analyse Vélocité + Stratégie
-_Prochaine session_ : 068 — EPIC 6 publishProfil finalisation + BKY-IA-2 Thème IA
-_Session en cours_ : 068
+_Session terminee_ : 068 — BKY-IA-2 Baby Steps 1-3 (DDD/TDD) + EPIC 6 Fantôme Corrigé
+_Prochaine session_ : 069 — BKY-IA-2 Étapes 3-5 (GenerateThemeTask + FT + Cucumber)
+_Session en cours_ : 069
 
 '''
 
@@ -132,7 +132,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 | EPIC 3 : Amelioration build.gradle.kts | 100% | P1 - TERMINE
 | EPIC 4 : Formulaire de contact Firebase (maquette + site) | 95% | P1 - TERMINE (formalite cle API)
 | EPIC 5 : Correction timeout Cucumber | 100% | P2 - TERMINE
-| EPIC 6 : Integration tache publishProfil dans le plugin | 0% | P1 - A FAIRE (BACKLOG session 005, divergence corrigee 2026-05-29)
+| EPIC 6 : Integration tache publishProfil dans le plugin | 100% | P1 - TERMINE (code existait deja, fantome documentaire corrige session 068)
 | EPIC 7 : Tolerance parsing YAML (champs inconnus) | 100% | P2 - TERMINE
 | EPIC 8 : Bumper version 0.1.4 et release | 100% | P2 - TERMINE
 | EPIC 9 : Architecture d'orchestration LLM | 0% | P0 - SUPERSEDE par EPIC 14 (BKY-IA-*)
@@ -195,6 +195,7 @@ Pattern LENTILLE : ségrégation (SubgraphExtractor) → enrichissement
 | *BKY-LENS-4* | Cucumber Features 17-19 (Réécriture) | 3 | *P0 ✅ TERMINÉ* | BKY-LENS-1,2,3
 | *BKY-LENS-5* | Connect N3 Composite Context | 3 | *P0 ✅ TERMINÉ* | BKY-LENS-3, pilot-plugin
 | *BKY-LENS-6* | Templates Augmentés JBake | 3 | *P0 ✅ TERMINÉ* | BKY-LENS-5
+| *BKY-IA-2* | Thème IA paramétrique (catalogue + variables) | 8 | *P1 — EN COURS (session 068)* | BKY-IA-0
 |===
 
 *Phase 1 (LENS-1→3)* : 12 pts — P0 Ségrégation + Enrichissement + Reconnect ✅ TERMINÉ

@@ -125,6 +125,16 @@ data class ThemeConfig(
     val fontFamily: String = "",
     val logoUrl: String = "",
     val faviconUrl: String = "",
+    /** Variante de catalogue — BKY-IA-2 */
+    val variant: String = "",
+    /** Couleur d'accent — BKY-IA-2 */
+    val accentColor: String = "",
+    /** Couleur de fond — BKY-IA-2 */
+    val backgroundColor: String = "",
+    /** Couleur de texte — BKY-IA-2 */
+    val textColor: String = "",
+    /** Police des titres — BKY-IA-2 */
+    val headingFont: String = "",
 )
 
 data class LayoutConfig(

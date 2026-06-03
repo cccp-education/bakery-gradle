@@ -83,7 +83,7 @@ _Source de reference pour le formulaire_ : `/home/cheroliv/workspace/foundry/che
 
 == EPIC 6 : Integration tache publishProfil dans le plugin
 
-**Statut** : A faire
+**Statut** : TERMINE (session 068 — code existant a 100%, statut documentaire mis a jour)
 **Priorite** : P1
 
 _Code source de reference_ : `cheroliv.com/build.gradle.kts` (tache `publishProfil` inline + data classes `ProfileSiteConf`/`ProfilePushConf`/`ProfileRepoConf`/`ProfileCreds` + credential resolution `profileCredentials`)

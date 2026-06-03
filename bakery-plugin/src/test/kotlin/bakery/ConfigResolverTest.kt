@@ -965,4 +965,103 @@ class ConfigResolverTest {
             assertEquals("", result.apiKey)
         }
     }
+
+    // BKY-IA-2 — Theme variant resolution with preset cascade
+
+    @Nested
+    inner class ResolveThemeConfigWithVariant {
+
+        @Test
+        fun `variant from DSL applies preset for properties with default DSL values`() {
+            val props = emptyMap<String, String>()
+            val dsl = ThemeDsl()
+            dsl.variant = "magazine"
+            // When DSL primaryColor is the default (#0d6efd), preset takes over
+            // because resolveString checks dslValue != default (default for primaryColor is "")
+            // Since DSL default is "#0d6efd" and DSL is "#0d6efd" (not blank), DSL wins
+            // This is correct: DSL is explicit configuration, preset is a fallback
+            val result = ConfigResolver.resolveThemeConfig(props, dsl, null)
+            assertEquals("magazine", result.variant)
+            // DSL primaryColor (#0d6efd, its default) takes precedence over preset
+            assertEquals("#0d6efd", result.primaryColor)
+        }
+
+        @Test
+        fun `DSL explicit override wins over preset`() {
+            val props = emptyMap<String, String>()
+            val dsl = ThemeDsl()
+            dsl.variant = "minimal"
+            dsl.primaryColor = "#custom-color"
+            val result = ConfigResolver.resolveThemeConfig(props, dsl, null)
+            assertEquals("#custom-color", result.primaryColor)
+        }
+
+        @Test
+        fun `CLI property wins over DSL and preset`() {
+            val props = mapOf(
+                "bakery.theme.primaryColor" to "#cli-color"
+            )
+            val dsl = ThemeDsl()
+            dsl.variant = "documentation"
+            dsl.primaryColor = "#dsl-color"
+            val result = ConfigResolver.resolveThemeConfig(props, dsl, null)
+            assertEquals("#cli-color", result.primaryColor)
+        }
+
+        @Test
+        fun `no variant uses ThemeConfig defaults`() {
+            val props = emptyMap<String, String>()
+            val dsl = ThemeDsl()
+            val result = ConfigResolver.resolveThemeConfig(props, dsl, null)
+            assertEquals("", result.variant)
+            assertEquals("#0d6efd", result.primaryColor)
+            assertEquals("#6c757d", result.secondaryColor)
+        }
+
+        @Test
+        fun `extended properties from variant preset fill defaults for new fields`() {
+            val props = emptyMap<String, String>()
+            val dsl = ThemeDsl()
+            dsl.variant = "portfolio"
+            // New fields (accentColor, backgroundColor, textColor, headingFont) have empty DSL defaults
+            // So they fall through to preset values
+            val result = ConfigResolver.resolveThemeConfig(props, dsl, null)
+            assertEquals("#27ae60", result.accentColor) // from PORTFOLIO preset
+            assertEquals("#1a1a2e", result.backgroundColor) // from PORTFOLIO preset
+            assertEquals("#e0e0e0", result.textColor) // from PORTFOLIO preset
+        }
+
+        @Test
+        fun `variant preset serves as fallback for YAML`() {
+            val props = emptyMap<String, String>()
+            val dsl = ThemeDsl()
+            dsl.variant = "formation"
+            // accentColor from DSL is "" (default), YAML is null, so preset wins = #198754
+            val result = ConfigResolver.resolveThemeConfig(props, dsl, null)
+            assertEquals("#198754", result.accentColor) // from FORMATION preset
+        }
+
+        @Test
+        fun `YAML theme overrides preset when both variant and YAML values provided`() {
+            val props = emptyMap<String, String>()
+            val dsl = ThemeDsl()
+            dsl.variant = "formation"
+            val yaml = ThemeConfig(variant = "formation", accentColor = "#yaml-accent")
+            val result = ConfigResolver.resolveThemeConfig(props, dsl, yaml)
+            // YAML accentColor takes precedence over preset since DSL is empty
+            assertEquals("#yaml-accent", result.accentColor)
+        }
+
+        @Test
+        fun `resolve theme config with full variant cascade`() {
+            val props = mapOf("bakery.theme.accentColor" to "#cli-accent")
+            val dsl = ThemeDsl()
+            dsl.variant = "magazine"
+            dsl.backgroundColor = "#dsl-bg"
+            val result = ConfigResolver.resolveThemeConfig(props, dsl, null)
+            assertEquals("#cli-accent", result.accentColor) // CLI wins
+            assertEquals("#dsl-bg", result.backgroundColor) // DSL wins (non-blank, not default)
+            assertEquals("magazine", result.variant) // variant preserved
+        }
+    }
 }

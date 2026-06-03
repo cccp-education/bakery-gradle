@@ -78,4 +78,42 @@ class ThemeTemplateTest {
         assertTrue(content.contains("themeLogoUrl"), "navbar-brand must reference themeLogoUrl for custom logo")
         assertTrue(content.contains("th:if"), "logo must be conditional (th:if)")
     }
+
+    // BKY-IA-2: Extended theme variables
+
+    @Test
+    fun `theme-script thyme template contains accent color variable`() {
+        val template = templatesDir.resolve("theme-script.thyme")
+        assertTrue(template.exists(), "theme-script.thyme must exist")
+        val content = template.readText()
+        assertTrue(content.contains("themeAccentColor"), "must use themeAccentColor for accent color")
+        assertTrue(content.contains("--bakery-accent"), "must define --bakery-accent CSS variable")
+    }
+
+    @Test
+    fun `theme-script thyme template contains background color variable`() {
+        val template = templatesDir.resolve("theme-script.thyme")
+        assertTrue(template.exists(), "theme-script.thyme must exist")
+        val content = template.readText()
+        assertTrue(content.contains("themeBackgroundColor"), "must use themeBackgroundColor for background")
+        assertTrue(content.contains("--bakery-bg"), "must define --bakery-bg CSS variable")
+    }
+
+    @Test
+    fun `theme-script thyme template contains text color variable`() {
+        val template = templatesDir.resolve("theme-script.thyme")
+        assertTrue(template.exists(), "theme-script.thyme must exist")
+        val content = template.readText()
+        assertTrue(content.contains("themeTextColor"), "must use themeTextColor for text color")
+        assertTrue(content.contains("--bakery-text"), "must define --bakery-text CSS variable")
+    }
+
+    @Test
+    fun `theme-script thyme template contains heading font variable`() {
+        val template = templatesDir.resolve("theme-script.thyme")
+        assertTrue(template.exists(), "theme-script.thyme must exist")
+        val content = template.readText()
+        assertTrue(content.contains("themeHeadingFont"), "must use themeHeadingFont for heading font")
+        assertTrue(content.contains("--bakery-heading-font"), "must define --bakery-heading-font CSS variable")
+    }
 }

@@ -1,6 +1,9 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-_Derniere mise a jour : 2026-06-03 — Session 067_
+_Derniere mise a jour : 2026-06-03 — Session 068_
+
+|===
+| 068 | 2026-06-03 | feat + TDD + DDD | BKY-IA-2 Baby Steps 1-3 Thème IA paramétrique — ThemeVariant enum (5), ThemeCatalog (5 presets + résolution), ThemePreset/ThemeOverrides/ThemeIntention/ThemeIntentionDsl (DDD), ConfigResolver variant cascade (8 UT), ThemeTemplate IA-2 (4 UT). EPIC 6 fantôme corrigé (100% implémenté). 50 UT ajoutés. | 8/10
 
 |===
 | 067 | 2026-06-03 | audit + governance | CODE REVIEW v2 — Mise à jour complète. 12 code smells, analyse vélocité, projection finalisation 4-8 juin, stratégie finir bakery. CODE_REVIEW.adoc EAGER branché. | 9/10

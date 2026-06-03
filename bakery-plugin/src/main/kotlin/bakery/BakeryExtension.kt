@@ -4,6 +4,7 @@ import bakery.llm.IaConfig
 import bakery.article.ArticleIntentionDsl
 import bakery.lens.AugmentedContextDsl
 import bakery.scaffold.ScaffoldIntentionDsl
+import bakery.theme.ThemeIntentionDsl
 import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
@@ -71,6 +72,9 @@ open class BakeryExtension @Inject constructor(objects: ObjectFactory) {
     /** Configuration Scaffold Intention (description, siteType, lang, projectName) — BKY-IA-1 */
     val scaffoldIntention: ScaffoldIntentionDsl = ScaffoldIntentionDsl()
 
+    /** Configuration Theme Intention (description, variante, surcharges) — BKY-IA-2 */
+    val themeIntention: ThemeIntentionDsl = ThemeIntentionDsl()
+
     /** DSL : bakery { googleForms { ... } } */
     fun googleForms(action: Action<GoogleFormsDsl>) {
         action.execute(googleForms)
@@ -124,5 +128,10 @@ open class BakeryExtension @Inject constructor(objects: ObjectFactory) {
     /** DSL : bakery { scaffoldIntention { ... } } — BKY-IA-1 */
     fun scaffoldIntention(action: Action<ScaffoldIntentionDsl>) {
         action.execute(scaffoldIntention)
+    }
+
+    /** DSL : bakery { themeIntention { ... } } — BKY-IA-2 */
+    fun themeIntention(action: Action<ThemeIntentionDsl>) {
+        action.execute(themeIntention)
     }
 }
