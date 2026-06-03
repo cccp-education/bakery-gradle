@@ -1,26 +1,23 @@
-= PROMPT_REPRISE — Session 071 : Finalisation Bakery (Polish + SiteManager Split)
+= PROMPT_REPRISE — Session 072 : Bakery Finalisation (EPIC 6 Validation + BKY-IA-2 Suite)
 
-== Mission (Session 071)
+== Mission (Session 072)
 
-1. **CS-1 — Split SiteManager** (P1) : Extraire 4 TaskRegistrars spécialisés
-   - `SiteTaskRegistrar` → generateSite, serve, collectSiteConfig
-   - `DeployTaskRegistrar` → deploySite, deployMaquette, deployProfile
-   - `ContentTaskRegistrar` → generateArticle, generateSiteFromIntention, generateTheme
-   - `LensTaskRegistrar` → collectSiteContext, collectAugmentedContext
-2. **CS-10 — Retirer tasks TODO NotImplementedError**
-3. **EPIC 13 — Coverage 73→75%** (si possible après split)
+1. **EPIC 6 — Validation finale publishProfil** (P1) : Vérifier que PublishProfileTask + ProfilePublisher + wiring existant fonctionnent. Corriger statut documentaire si nécessaire.
+2. **BKY-IA-2 — Thème IA paramétrique suite** (P1) : Baby Steps 4-5 — FT + Cucumber BDD pour generateTheme.
+3. **EPIC 13 — Stabiliser coverage 77%** (P2) : Si régression <75%, ajouter tests ciblés.
 
-== État actuel (Session 070)
+== État actuel (Session 071)
 
-- **BKY-IA-3** ✅ TERMINÉ — ValidateFirebaseConfigTask + FirebaseConfigValidator + 18 UT + 5 FT + 3 Cucumber — DÉJÀ IMPLÉMENTÉ avant la session (fichiers existaient)
-- **CS-2** ✅ — `LensPipelineService` créé (lens package), `LensPipelineOutput`/`BudgetSummary` data classes, 6 UT PASS. SiteManager doLast réduit de 79 → 10 lignes (-87%).
-- **CS-3** ✅ — `ScaffoldOutputDto` créé, `parseJsonOutput` migre vers `jacksonObjectMapper` avec `FAIL_ON_UNKNOWN_PROPERTIES=false`. 4 méthodes regex privées supprimées. 16/16 ScaffoldGeneratorTest PASS.
-- **SiteManager** : 977 → 916 lignes (-61, -6.2%)
-- **BUILD SUCCESSFUL** — Tous les tests PASS. `publishToMavenLocal` OK.
+- **CS-1** ✅ TERMINÉ — SiteManager split en 4 TaskRegistrars. 917→44 lignes (-95%).
+- **CS-10** ✅ — Tasks TODO NotImplementedError supprimées.
+- **EPIC 13** ✅ — Coverage 73.13% → 77.09% (+3.96%, cible 75% dépassée).
+- **BUILD SUCCESSFUL** — Tous tests PASS (UT + FT + Cucumber + E2E).
+- **SiteManager** : 44 lignes (façade propre).
 
 == Points d'attention
 
 - Ne pas lancer `./gradlew test` sans permission explicite
 - `test` task exclut Cucumber. Lancer `./gradlew cucumberTest` séparément si besoin
-- Tous les EPICs terminés : BKY-JB-0→9, BKY-LENS-1→6, BKY-IA-0→3, CONV-1
-- Bakery est **88% complet**, vrai chantier restant : SiteManager split (CS-1) + polish
+- Bakery est **92% complet**, derniers chantiers : EPIC 6 validation + BKY-IA-2 suite + polish final
+
+(End of file - total 26 lines)

@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
  _Derniere mise a jour_ : 2026-06-04
- _Session terminee_ : 070 — CS-2 LensPipelineService + CS-3 Jackson + Audit IA-3
- _Prochaine session_ : 071 — Finalisation (SiteManager split CS-1 + polish)
- _Session en cours_ : 071
+ _Session terminee_ : 071 — CS-1 SiteManager Split + CS-10 Cleanup + EPIC 13 Coverage
+ _Prochaine session_ : 072 — EPIC 6 Validation + BKY-IA-2 Suite
+ _Session en cours_ : 072
 
 '''
 
@@ -69,8 +69,9 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 == Sessions Recentes
 
 |===
-| # | Date | Type | Sujet | Score
-| 070 | 2026-06-04 | refactor + TDD + audit | **CS-2** `LensPipelineService` créé — extraction pipeline LENS du doLast de SiteManager (79 → 10 lignes, -87%). 6/6 UT PASS. **CS-3** `ScaffoldOutputDto` — migration parse JSON maison → Jackson (FAIL_ON_UNKNOWN_PROPERTIES=false). 4 méthodes regex privées supprimées. 16/16 ScaffoldGeneratorTest PASS. **Audit IA-3** : code déjà complet (ValidateFirebaseConfigTask + FirebaseConfigValidator + 18 UT + 5 FT + 3 Cucumber) — statut mis à jour TERMINÉ. SiteManager : 977 → 916 lignes (-61, -6.2%). BUILD SUCCESSFUL tous tests PASS. | 9/10
+ | # | Date | Type | Sujet | Score
+ | 071 | 2026-06-04 | refactor + TDD | **CS-1** `SiteManager` split en 4 TaskRegistrars — `SiteTaskRegistrar` (446l), `DeployTaskRegistrar` (103l), `ContentTaskRegistrar` (196l), `LensTaskRegistrar` (79l). SiteManager : 917→44 lignes (-95%). **CS-10** Tasks TODO `NotImplementedError` supprimées. **EPIC 13** coverage 73.13%→77.09% (+3.96%). BUILD SUCCESSFUL tous tests PASS. | 9/10
+ | 070 | 2026-06-04 | refactor + TDD + audit | **CS-2** `LensPipelineService` créé — extraction pipeline LENS du doLast de SiteManager (79 → 10 lignes, -87%). 6/6 UT PASS. **CS-3** `ScaffoldOutputDto` — migration parse JSON maison → Jackson (FAIL_ON_UNKNOWN_PROPERTIES=false). 4 méthodes regex privées supprimées. 16/16 ScaffoldGeneratorTest PASS. **Audit IA-3** : code déjà complet (ValidateFirebaseConfigTask + FirebaseConfigValidator + 18 UT + 5 FT + 3 Cucumber) — statut mis à jour TERMINÉ. SiteManager : 977 → 916 lignes (-61, -6.2%). BUILD SUCCESSFUL tous tests PASS. | 9/10
 | 069 | 2026-06-03 | feat + TDD + BDD | BKY-IA-2 Baby Steps 4-5 — GenerateThemeTask + ThemeIntentionFunctionalTests (5 FT) + Feature 27 Cucumber (3 scénarios). 87/87 Cucumber PASS. | 9/10
 | 064 | 2026-06-03 | perf + fix | EPIC 11 Optimisation durée tests — Séparation Cucumber/JUnit5 (test 2m46s→38s, -77%), nettoyage gradle.properties, fix koverThresholdCheck dependsOn. Coverage 73.13%. | 9/10
 | 063 | 2026-06-03 | fix + TDD + BDD + E2E | BKY-LENS-6.3 Nettoyage FT Legacy BKG + E2E Playwright — 3 tests CollectRelatedArticles supprimés, 2 tests RelatedArticlesTest supprimés, CONV-1 defaults corrigé, related-articles.thyme supprimé, 4 tests E2E Playwright augmentés, +2 scénarios Cucumber rendu. 56/56 FT PASS, 81/81 Cucumber PASS, 17/17 E2E PASS. | 9/10

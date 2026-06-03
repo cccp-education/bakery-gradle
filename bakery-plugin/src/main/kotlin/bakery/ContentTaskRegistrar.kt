@@ -1,0 +1,196 @@
+package bakery
+
+import bakery.article.GenerateArticleTask
+import bakery.llm.IaConfig
+import bakery.llm.OllamaLlmService
+import bakery.scaffold.GenerateSiteFromIntentionTask
+import bakery.scaffold.ScaffoldIntentionDsl
+import bakery.theme.GenerateThemeTask
+import bakery.theme.ThemeIntentionDsl
+import bakery.firebase.ValidateFirebaseConfigTask
+import org.gradle.api.Project
+import java.io.File
+
+object ContentTaskRegistrar {
+
+    /**
+     * Enregistre la tâche `generateArticle` pour un site configuré.
+     *
+     * @param site Configuration du site (utilise bake.srcPath pour le content root)
+     * @param iaConfig Configuration IA (Ollama baseUrl, modelName) depuis `bakery { ia { ... } }`
+     * @param articleIntentionDsl Configuration intention article depuis `bakery { articleIntention { ... } }`
+     */
+    internal fun Project.registerGenerateArticleTask(
+        site: SiteConfiguration,
+        iaConfig: IaConfig = IaConfig(),
+        articleIntentionDsl: bakery.article.ArticleIntentionDsl? = null
+    ) {
+        val contentRoot = project.projectDir.resolve(site.bake.srcPath)
+        tasks.register("generateArticle", GenerateArticleTask::class.java) { task ->
+            task.group = BakeryConstants.GENERATE_GROUP
+            task.description = "Génère un article de blog assisté IA via Ollama — injecte dans content/blog/YYYY/MM/"
+            task.contentRootDir = contentRoot
+            task.topic.set(project.providers.gradleProperty("topic").orElse(""))
+            task.articleTon.set(project.providers.gradleProperty("articleTon").orElse(""))
+            task.articleAudience.set(project.providers.gradleProperty("articleAudience").orElse(""))
+            task.articleKeywords.set(project.providers.gradleProperty("articleKeywords").orElse(""))
+            task.articleLang.set(project.providers.gradleProperty("articleLang").orElse("fr"))
+
+            // Inject DSL intention if configured
+            articleIntentionDsl?.let { dsl ->
+                if (dsl.topic.isNotBlank()) {
+                    task.dslIntention = try {
+                        dsl.toIntention()
+                    } catch (_: IllegalArgumentException) {
+                        null
+                    }
+                }
+            }
+
+            if (iaConfig.enabled) {
+                task.llmService = OllamaLlmService.create(
+                    baseUrl = iaConfig.baseUrl,
+                    modelName = iaConfig.modelName,
+                    timeout = iaConfig.timeout
+                )
+                project.logger.info(
+                    "[BakeryPlugin] generateArticle IA activé : {} @ {}",
+                    iaConfig.modelName, iaConfig.baseUrl
+                )
+            } else {
+                project.logger.info("[BakeryPlugin] generateArticle IA désactivé (ia.enabled = false)")
+            }
+        }
+    }
+
+    /**
+     * Enregistre la tâche `generateSiteFromIntention` pour le scaffolding IA.
+     *
+     * @param targetDir Répertoire cible du site
+     * @param iaConfig Configuration IA (Ollama baseUrl, modelName) depuis `bakery { ia { ... } }`
+     * @param scaffoldIntentionDsl Configuration intention scaffold depuis `bakery { scaffoldIntention { ... } }`
+     */
+    internal fun Project.registerGenerateSiteFromIntentionTask(
+        targetDir: File,
+        iaConfig: IaConfig = IaConfig(),
+        scaffoldIntentionDsl: ScaffoldIntentionDsl? = null
+    ) {
+        tasks.register("generateSiteFromIntention", GenerateSiteFromIntentionTask::class.java) { task ->
+            task.group = BakeryConstants.GENERATE_GROUP
+            task.description = "Génère la structure d'un site assistée par IA — scaffold interactif"
+            task.targetDir = targetDir
+            task.scaffoldDescription.set(project.providers.gradleProperty("scaffoldDescription").orElse(""))
+            task.siteType.set(project.providers.gradleProperty("siteType").orElse(""))
+            task.scaffoldLang.set(project.providers.gradleProperty("scaffoldLang").orElse("fr"))
+            task.projectName.set(project.providers.gradleProperty("projectName").orElse(""))
+
+            // Inject DSL intention if configured
+            scaffoldIntentionDsl?.let { dsl ->
+                if (dsl.description.isNotBlank()) {
+                    task.dslIntention = try {
+                        dsl.toIntention()
+                    } catch (_: IllegalArgumentException) {
+                        null
+                    }
+                }
+            }
+
+            if (iaConfig.enabled) {
+                task.llmService = OllamaLlmService.create(
+                    baseUrl = iaConfig.baseUrl,
+                    modelName = iaConfig.modelName,
+                    timeout = iaConfig.timeout
+                )
+                project.logger.info(
+                    "[BakeryPlugin] generateSiteFromIntention IA activé : {} @ {}",
+                    iaConfig.modelName, iaConfig.baseUrl
+                )
+            } else {
+                project.logger.info("[BakeryPlugin] generateSiteFromIntention IA désactivé (ia.enabled = false)")
+            }
+        }
+    }
+
+    /**
+     * Enregistre la tâche `generateTheme` pour la sélection de variante de thème.
+     *
+     * @param site Configuration du site (utilise bake.srcPath pour le répertoire cible)
+     * @param themeIntentionDsl Configuration intention thème depuis `bakery { themeIntention { ... } }`
+     */
+    internal fun Project.registerGenerateThemeTask(
+        site: SiteConfiguration,
+        themeIntentionDsl: bakery.theme.ThemeIntentionDsl? = null
+    ) {
+        val contentRoot = project.projectDir.resolve(site.bake.srcPath)
+        tasks.register("generateTheme", GenerateThemeTask::class.java) { task ->
+            task.group = BakeryConstants.GENERATE_GROUP
+            task.description = "Génère un thème à partir du catalogue — résolution variante + surcharges"
+            task.targetDir = contentRoot
+
+            task.themeVariant.set(project.providers.gradleProperty("themeVariant").orElse(""))
+            task.themeDescription.set(project.providers.gradleProperty("themeDescription").orElse(""))
+            task.themePrimaryColor.set(project.providers.gradleProperty("themePrimaryColor").orElse(""))
+            task.themeSecondaryColor.set(project.providers.gradleProperty("themeSecondaryColor").orElse(""))
+            task.themeAccentColor.set(project.providers.gradleProperty("themeAccentColor").orElse(""))
+            task.themeBackgroundColor.set(project.providers.gradleProperty("themeBackgroundColor").orElse(""))
+            task.themeTextColor.set(project.providers.gradleProperty("themeTextColor").orElse(""))
+            task.themeFontFamily.set(project.providers.gradleProperty("themeFontFamily").orElse(""))
+            task.themeHeadingFont.set(project.providers.gradleProperty("themeHeadingFont").orElse(""))
+
+            // Inject DSL intention if configured
+            themeIntentionDsl?.let { dsl ->
+                if (dsl.description.isNotBlank()) {
+                    task.dslIntention = try {
+                        dsl.toIntention()
+                    } catch (_: IllegalArgumentException) {
+                        null
+                    }
+                }
+            }
+
+            project.logger.info("[BakeryPlugin] generateTheme tâche enregistrée (variante=${themeIntentionDsl?.variant ?: "par défaut"})")
+        }
+    }
+
+    /**
+     * Enregistre la tâche `validateFirebaseConfig` pour la validation de la configuration Firebase.
+     *
+     * @param site Configuration du site (résolution ConfigResolver pour les deux configs)
+     * @param iaConfig Configuration IA (injecte LLM si ia.enabled = true via DSL ou CLI)
+     * @param props Properties issues de loadProperties (CLI + gradle.properties)
+     */
+    internal fun Project.registerValidateFirebaseConfigTask(
+        site: SiteConfiguration,
+        iaConfig: IaConfig = IaConfig(),
+        firebaseAuthDsl: FirebaseAuthDsl = FirebaseAuthDsl(),
+        props: Map<String, String> = emptyMap()
+    ) {
+        tasks.register("validateFirebaseConfig", ValidateFirebaseConfigTask::class.java) { task ->
+            task.group = BakeryConstants.VALIDATE_GROUP
+            task.description = "Valide la cohérence de la configuration Firebase (mécanique + IA optionnelle)"
+
+            // Résoudre les configs via ConfigResolver 4-layer cascade
+            val resolvedFirebaseAuth = ConfigResolver.resolveFirebaseAuthConfig(
+                props, firebaseAuthDsl, site.firebaseAuth
+            )
+            val resolvedFirebaseContact = site.firebase
+
+            task.resolvedAuthConfig = resolvedFirebaseAuth
+            task.resolvedContactConfig = resolvedFirebaseContact
+
+            if (iaConfig.enabled) {
+                task.llmService = OllamaLlmService.create(
+                    baseUrl = iaConfig.baseUrl,
+                    modelName = iaConfig.modelName,
+                    timeout = iaConfig.timeout
+                )
+                project.logger.info(
+                    "[BakeryPlugin] validateFirebaseConfig IA activé : {} @ {}",
+                    iaConfig.modelName, iaConfig.baseUrl
+                )
+            } else {
+                project.logger.info("[BakeryPlugin] validateFirebaseConfig IA désactivé (ia.enabled = false)")
+            }
+        }
+    }
+}

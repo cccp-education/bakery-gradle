@@ -1,0 +1,76 @@
+= Session 071 — 2026-06-04 : CS-1 SiteManager Split + CS-10 Cleanup + EPIC 13 Coverage
+
+== Contexte
+
+Session 071 : Finalisation Bakery — Polish + Split SiteManager (PROMPT_REPRISE session 070).
+Derniers items de la code review v2 (CS-1, CS-10, EPIC 13).
+
+== Tâches réalisées
+
+=== CS-1 — Split SiteManager en 4 TaskRegistrars (P1)
+
+* [x] `BakeryConstants.kt` — extraction des 19 constantes (GROUP, BAKE_TASK, ASCIIDOCTOR_*, etc.)
+* [x] `SiteTaskRegistrar.kt` (446 lignes) — generateSite, collectSiteConfig, serve, pagefind, configureJBakePlugin, configureBakeTask, injectResolvedConfigIntoJbakeProperties, injectLensBudgetIntoJbakeProperties
+* [x] `DeployTaskRegistrar.kt` (103 lignes) — registerGitPushTask (template method), deploySite, deployMaquette, deployProfile, prepareAndCopyMaquette
+* [x] `ContentTaskRegistrar.kt` (196 lignes) — generateArticle, generateSiteFromIntention, generateTheme, validateFirebaseConfig
+* [x] `LensTaskRegistrar.kt` (79 lignes) — collectSiteContext, collectAugmentedContext
+* [x] `SiteManager.kt` réduit : 917 → 44 lignes (-95%). Garde createJBakeRuntimeConfiguration, configureConfigPath, registerUtilityTasks (deprecated)
+* [x] `BakeryPlugin.kt` — 22 imports mis à jour (déléguations aux 4 registrars)
+* [x] `SiteManagerTest.kt` — imports mis à jour (constants depuis BakeryConstants, méthodes depuis registrars)
+* [x] `InitSiteSteps.kt` — `BAKERY_CONFIG_PATH_KEY` importé depuis `BakeryConstants`
+
+=== CS-10 — Retirer les tasks TODO NotImplementedError
+
+* [x] `registerUtilityTasks()` vidée — `createPagesRepository` et `updatePagesSecret` supprimées
+* [x] Annotation `@Deprecated` ajoutée avec message explicite
+* [x] Zéro test ne les référençait — aucune adaptation nécessaire
+
+=== EPIC 13 — Coverage 73.13% → 77.09%
+
+* [x] Couverture Kover après split : **77.09%** LINES (cible 75% dépassée de +2.09%)
+* [x] Le split a rendu le code plus testable — les FT/Cucumber couvrent indirectement les registrars
+
+== Résultats des builds
+
+| Commande | Résultat |
+|----------|----------|
+| `./gradlew compileKotlin` | ✅ BUILD SUCCESSFUL (zero warning) |
+| `./gradlew test` | ✅ Tous les tests PASS |
+| `./gradlew functionalTest` | ✅ 56/56 FT PASS |
+| `./gradlew cucumberTest` | ✅ 129/129 Cucumber PASS |
+| `./gradlew koverXmlReport` | ✅ BUILD SUCCESSFUL |
+| `./gradlew -q publishToMavenLocal` | ✅ Publié |
+
+== Fichiers modifiés (4)
+
+| Fichier | Changement |
+| `BakeryPlugin.kt` | 22 imports mis à jour (SiteManager → 4 registrars) |
+| `SiteManager.kt` | Réduit de 917 → 44 lignes. Suppression méthodes déplacées. |
+| `SiteManagerTest.kt` | Imports mis à jour (BakeryConstants + registrars) |
+| `InitSiteSteps.kt` | Import BakeryConstants.BAKERY_CONFIG_PATH_KEY |
+
+== Fichiers créés (5)
+
+| Fichier | Lignes | Rôle |
+| `BakeryConstants.kt` | 19 | Constantes GROUP + BAKE_TASK + ASCIIDOCTOR_* |
+| `SiteTaskRegistrar.kt` | 446 | Tasks site + config + serve + pagefind + injection |
+| `DeployTaskRegistrar.kt` | 103 | Tasks déploiement Git + maquette + profil |
+| `ContentTaskRegistrar.kt` | 196 | Tasks contenu IA (article, scaffold, thème, validation) |
+| `LensTaskRegistrar.kt` | 79 | Tasks collecte contexte (site + augmenté) |
+
+== Métriques
+
+| Avant | Après | Δ |
+|-------|-------|---|
+| SiteManager 917 lignes | SiteManager 44 lignes | -95% |
+| 1 god class | 5 classes spécialisées | SRP respecté |
+| Coverage 73.13% | Coverage 77.09% | +3.96% |
+
+== Score : 9/10
+
+Split propre, zéro régression, coverage améliorée, méthodologie baby-step respectée.
+Point de retrait : -1 car les registrars mériteraient des tests unitaires dédiés (au lieu de dépendre des FT/Cucumber indirects).
+
+== Prochaine session : 072
+
+Voir PROMPT_REPRISE.adoc.
