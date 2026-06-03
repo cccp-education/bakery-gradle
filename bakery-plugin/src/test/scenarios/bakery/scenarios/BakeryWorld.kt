@@ -317,4 +317,50 @@ $articleIntentionBlock
             return this
         }
     }
+
+    /**
+     * Crée un projet Gradle de test avec bloc scaffoldIntention DSL.
+     */
+    fun createGradleProjectWithScaffoldIntention(
+        description: String? = null,
+        siteType: String? = null,
+        lang: String? = null,
+        projectName: String? = null
+    ): File {
+        val pluginId = "education.cccp.bakery"
+        val scaffoldIntentionBlock = buildString {
+            if (description != null) {
+                appendLine("    scaffoldIntention {")
+                appendLine("        description = \"$description\"")
+                siteType?.let { appendLine("        siteType = \"$it\"") }
+                lang?.let { appendLine("        lang = \"$it\"") }
+                projectName?.let { appendLine("        projectName = \"$it\"") }
+                appendLine("    }")
+            }
+        }
+        val buildScriptContent = """
+            bakery {
+                configPath = file("site.yml").absolutePath
+$scaffoldIntentionBlock
+            }
+        """.trimIndent()
+
+        createTempFile("gradle-test-", "").apply {
+            delete()
+            mkdirs()
+        }.run {
+            resolve("settings.gradle.kts")
+                .apply { createNewFile() }
+                .writeText(
+                    "pluginManagement.repositories.gradlePluginPortal()\n" +
+                            "rootProject.name = \"${name}\""
+                )
+            resolve("build.gradle.kts")
+                .apply { createNewFile() }
+                .writeText("plugins { id(\"$pluginId\") }\n$buildScriptContent")
+            createConfigFile()
+            projectDir = this
+            return this
+        }
+    }
 }

@@ -3,6 +3,8 @@ package bakery
 import bakery.article.GenerateArticleTask
 import bakery.llm.IaConfig
 import bakery.llm.OllamaLlmService
+import bakery.scaffold.GenerateSiteFromIntentionTask
+import bakery.scaffold.ScaffoldIntentionDsl
 import bakery.ConfigPrompts.getOrPrompt
 import bakery.ConfigPrompts.saveConfiguration
 import bakery.FileSystemManager.copyResourceDirectory
@@ -592,6 +594,56 @@ object SiteManager {
                 )
             } else {
                 project.logger.info("[BakeryPlugin] generateArticle IA désactivé (ia.enabled = false)")
+            }
+        }
+    }
+
+    // ==================== Generate Site From Intention Task (BKY-IA-1) ====================
+
+    /**
+     * Enregistre la tâche `generateSiteFromIntention` pour le scaffolding IA.
+     *
+     * @param targetDir Répertoire cible du site
+     * @param iaConfig Configuration IA (Ollama baseUrl, modelName) depuis `bakery { ia { ... } }`
+     * @param scaffoldIntentionDsl Configuration intention scaffold depuis `bakery { scaffoldIntention { ... } }`
+     */
+    internal fun Project.registerGenerateSiteFromIntentionTask(
+        targetDir: File,
+        iaConfig: IaConfig = IaConfig(),
+        scaffoldIntentionDsl: ScaffoldIntentionDsl? = null
+    ) {
+        tasks.register("generateSiteFromIntention", GenerateSiteFromIntentionTask::class.java) { task ->
+            task.group = GENERATE_GROUP
+            task.description = "Génère la structure d'un site assistée par IA — scaffold interactif"
+            task.targetDir = targetDir
+            task.scaffoldDescription.set(project.providers.gradleProperty("scaffoldDescription").orElse(""))
+            task.siteType.set(project.providers.gradleProperty("siteType").orElse(""))
+            task.scaffoldLang.set(project.providers.gradleProperty("scaffoldLang").orElse("fr"))
+            task.projectName.set(project.providers.gradleProperty("projectName").orElse(""))
+
+            // Inject DSL intention if configured
+            scaffoldIntentionDsl?.let { dsl ->
+                if (dsl.description.isNotBlank()) {
+                    task.dslIntention = try {
+                        dsl.toIntention()
+                    } catch (_: IllegalArgumentException) {
+                        null
+                    }
+                }
+            }
+
+            if (iaConfig.enabled) {
+                task.llmService = OllamaLlmService.create(
+                    baseUrl = iaConfig.baseUrl,
+                    modelName = iaConfig.modelName,
+                    timeout = iaConfig.timeout
+                )
+                project.logger.info(
+                    "[BakeryPlugin] generateSiteFromIntention IA activé : {} @ {}",
+                    iaConfig.modelName, iaConfig.baseUrl
+                )
+            } else {
+                project.logger.info("[BakeryPlugin] generateSiteFromIntention IA désactivé (ia.enabled = false)")
             }
         }
     }

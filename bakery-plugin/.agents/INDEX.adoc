@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-06-03
-_Session terminee_ : 064 — EPIC 11 Optimisation durée tests (-77% unit tests)
-_Prochaine session_ : 065 — BKY-IA-1 Scaffolding assisté par IA ou EPIC backlog suivant
-_Session en cours_ : 065
+_Session terminee_ : 066 — BKY-IA-1.4-5 FT + BDD (ScaffoldIntentionFunctionalTests + Cucumber Feature 25)
+_Prochaine session_ : 067 — EPIC 6 publishProfil ou BKY-IA-2 Thème IA
+_Session en cours_ : 067
 
 '''
 
@@ -70,6 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | # | Date | Type | Sujet | Score
+| 066 | 2026-06-03 | feat + TDD + BDD | BKY-IA-1.4-5 FT + BDD Scaffold IA — 5 FT ScaffoldIntentionFunctionalTests + Cucumber Feature 25 (3 scénarios) + BakeryWorld.createGradleProjectWithScaffoldIntention(). BKY-IA-1 TERMINÉ (48 UT + 5 FT + 3 Cucumber). 26/26 Cucumber PASS. | 9/10
 | 064 | 2026-06-03 | perf + fix | EPIC 11 Optimisation durée tests — Séparation Cucumber/JUnit5 (test 2m46s→38s, -77%), nettoyage gradle.properties, fix koverThresholdCheck dependsOn. Coverage 73.13%. | 9/10
 | 063 | 2026-06-03 | fix + TDD + BDD + E2E | BKY-LENS-6.3 Nettoyage FT Legacy BKG + E2E Playwright — 3 tests CollectRelatedArticles supprimés, 2 tests RelatedArticlesTest supprimés, CONV-1 defaults corrigé, related-articles.thyme supprimé, 4 tests E2E Playwright augmentés, +2 scénarios Cucumber rendu. 56/56 FT PASS, 81/81 Cucumber PASS, 17/17 E2E PASS. | 9/10
 | 062 | 2026-06-03 | feat + TDD + BDD | BKY-LENS-6 Templates Augmentés JBake — augmented-articles.thyme (badges RAG/KG/Docs/EAGER) + post.thyme + page.thyme intégrés + Cucumber Feature 24 (10/10) + FT CollectAugmentedContext. 129/129 Cucumber PASS. | 9/10

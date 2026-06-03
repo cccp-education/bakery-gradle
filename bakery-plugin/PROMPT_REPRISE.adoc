@@ -1,51 +1,34 @@
-= PROMPT_REPRISE — Session 065 : BKY-IA-1 Scaffolding assisté par IA ou EPIC backlog
+= PROMPT_REPRISE — Session 067 : EPIC 6 publishProfil ou BKY-IA-2 Thème IA
 
-== Mission (Session 065)
+== Mission (Session 067)
 
-Dépiler l'EPIC suivant dans le backlog bakery :
-1. **BKY-IA-1** (Scaffolding assisté par IA) — P0, dépend de BKY-IA-0 (✅ session 023) + EPIC 10 (✅)
-2. Ou **EPIC 6** (Intégration publishProfil) — P1, mécanique pure, sans dépendance
+Dépiler l'EPIC suivant par priorité :
+1. **EPIC 6** — Intégration publishProfil dans le plugin (P1)
+2. OU **BKY-IA-2** — Thème IA paramétrique (P1, dépend de BKY-IA-0 ✅)
 
-== État actuel (Session 064)
+== État actuel (Session 066)
 
-- **EPIC 11 TERMINÉ** ✅ — Optimisation durée tests (-77% sur unit tests)
-  - `test` task : 2m46s → 38s (exclusion Cucumber + filter excludeTestsMatching)
-  - `gradle.properties` nettoyé (bruit CSS supprimé, optimisations ajoutées)
-  - `koverThresholdCheck` fix (dependsOn koverXmlReport)
-  - Coverage 73.13% > seuil 70%
-- **BKY-IA-0 TERMINÉ** ✅ (session 023) — LlmService, OllamaLlmService, IaConfig DSL
-- **BKY-N3-7 TERMINÉ** ✅ (session 024) — SiteContextCollector → metadata.json
-- **Pipeline LENS TERMINÉ** ✅ — LENS-1→6.3
-- **54/54 UT PASS** | **56/56 FT PASS** | **81/81 Cucumber PASS** | **17/17 E2E PASS**
-
-== Changements Session 064
-
-- `build.gradle.kts` : task `test` exclut Cucumber (`excludeEngines("cucumber")` + `filter { excludeTestsMatching("bakery.scenarios.*") }`)
-- `build.gradle.kts` : `koverThresholdCheck` dependsOn `koverXmlReport` (fix XML report missing)
-- `gradle.properties` : nettoyé (suppression bruit CSS), ajouté `org.gradle.caching=true`, `org.gradle.workers.max=4`, optimisation JVM args
+- **BKY-IA-1 TERMINÉ** ✅ — Scaffolding assisté par IA complet (étapes 1-5)
+  - Étapes 1-3 : DDD + TDD (48 UT PASS)
+  - Étape 4 : FT — `ScaffoldIntentionFunctionalTests` (5 FT PASS)
+  - Étape 5 : BDD — Cucumber Feature 25 (3 scénarios PASS, 26/26 total)
+- Fichiers créés (session 066) :
+  - `src/functionalTest/kotlin/bakery/ScaffoldIntentionFunctionalTests.kt` — 5 FT
+  - `src/test/features/25_scaffold_intention_ia.feature` — 3 scénarios Gherkin
+  - `src/test/scenarios/bakery/scenarios/ScaffoldIntentionSteps.kt` — 2 steps `@Given`
+  - `src/test/scenarios/bakery/scenarios/BakeryWorld.kt` — ajout `createGradleProjectWithScaffoldIntention()`
 
 == EPICs restants (par priorité)
 
 | EPIC | Axe | Priorité | Dépend de |
 |------|-----|----------|-----------|
-| BKY-IA-1 | Scaffolding assisté par IA | P0 | BKY-IA-0 (✅), EPIC 10 (✅) |
 | EPIC 6 | Intégration publishProfil | P1 | — |
 | BKY-IA-2 | Thème IA paramétrique | P1 | BKY-IA-0 (✅) |
 | BKY-IA-3 | Validation Firebase IA | P2 | BKY-IA-0 (✅), EPIC 4 |
-
-== EPICs déjà TERMINÉS (ne pas reprendre)
-
-| EPIC | Statut | Note |
-|------|--------|------|
-| BKY-IA-0 | ✅ Session 023 | LlmService, OllamaLlmService, IaConfig DSL |
-| BKY-N3-7 | ✅ Session 024 | SiteContextCollector → metadata.json |
-| BKY-IA-4 | ✅ Remplacé par BKY-JB-8 | ArticleIntention DDD + Generator enrichi |
-| BKY-IA-5 | 🔄 Transféré KINGSTON | gsuite-gradle (hors périmètre bakery) |
-| BKY-TRN-9 | 🔄 Transféré TRN-9 | training-gradle (hors périmètre bakery) |
-| EPIC 11 | ✅ Session 064 | Optimisation durée tests (-77%) |
 
 == Points d'attention
 
 - Ne pas lancer `./gradlew test` sans permission explicite
 - `test` task n'exécute plus les Cucumber (exclus) → lancer `./gradlew test cucumberTest` pour les deux
 - Configuration-cache bloqué par `koverThresholdCheck` (utilise `project`, non sérialisable)
+- BKY-IA-1 complet : package `bakery/scaffold/` avec 5 source files + 4 test files + 1 FT file + 1 Cucumber feature

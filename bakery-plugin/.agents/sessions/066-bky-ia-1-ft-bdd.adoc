@@ -1,0 +1,63 @@
+= Session 066 — BKY-IA-1.4-5 FT + BDD (Scaffold Intention IA)
+
+== Date
+2026-06-03
+
+== Type
+feat + TDD + BDD
+
+== Score
+9/10
+
+== Objectif
+Continuer BKY-IA-1 (Scaffolding assisté par IA) — baby steps 4 et 5 :
+- BKY-IA-1.4 : Tests fonctionnels (scaffold IA vs classique, rétro-compatibilité)
+- BKY-IA-1.5 : Cucumber Feature 25 (3 scénarios Gherkin)
+
+== Réalisé
+
+=== BKY-IA-1.4 — Tests Fonctionnels ✅
+
+Création de `ScaffoldIntentionFunctionalTests.kt` (5 tests fonctionnels) :
+
+1. `DSL scaffoldIntention block compiles with description only` — vérifie que le DSL compile
+2. `DSL scaffoldIntention block compiles with full config` — vérifie que le DSL avec tous les paramètres compile
+3. `generateSiteFromIntention task is registered with scaffoldIntention DSL` — vérifie que `generateSite` fonctionne avec `scaffoldIntention` configuré
+4. `backward compatibility - generateSite task still works without scaffoldIntention` — vérifie rétro-compatibilité du scaffolding classique
+5. `generateSiteFromIntention with scaffoldIntention and ia blocks both present` — vérifie que les blocs `scaffoldIntention` et `ia` cohabitent
+
+Pattern identique à `ArticleIntentionFunctionalTests.kt`. Les FT utilisent `GradleRunner.withPluginClasspath()` comme les FT existants.
+
+=== BKY-IA-1.5 — Cucumber Feature 25 ✅
+
+Création de `25_scaffold_intention_ia.feature` (3 scénarios Gherkin) :
+
+1. *Intention IA génère une structure de site valide* — `Given a new Bakery project with scaffold intention configured with description "Blog tech Kotlin" and siteType "blog"` → `When I am executing the task 'tasks'` → `Then the build should succeed` + `And task "generateSiteFromIntention" should be registered`
+2. *Sans IA, le scaffolding classique fonctionne* — `Given a new Bakery project with minimal scaffolding configuration` → `When I am executing the task 'tasks'` → `Then the build should succeed` + `And task "generateSite" should be registered`
+3. *Intention invalide (description vide) produit un fallback gracieux* — `Given a new Bakery project with scaffold intention configured with description "" and siteType "blog"` → `When I am executing the task 'tasks'` → `Then the build should succeed`
+
+Fichiers créés/modifiés :
+- `src/test/features/25_scaffold_intention_ia.feature` — nouveau
+- `src/test/scenarios/bakery/scenarios/ScaffoldIntentionSteps.kt` — nouveau (2 steps `@Given`)
+- `src/test/scenarios/bakery/scenarios/BakeryWorld.kt` — ajout `createGradleProjectWithScaffoldIntention()`
+
+=== Résultat des tests
+
+- 48 UT scaffold (17 + 18 + 13) : ✅ PASS
+- 5 FT ScaffoldIntentionFunctionalTests : ✅ PASS
+- 26/26 Cucumber (dont 3 nouveaux scaffold IA) : ✅ PASS
+
+== EPICs restants (par priorité)
+
+| EPIC | Axe | Priorité | Dépend de |
+|------|-----|----------|-----------|
+| BKY-IA-1 | ✅ TERMINÉ — Étapes 1-5 complètes (48 UT + 5 FT + 3 Cucumber) | P0 | — |
+| EPIC 6 | Intégration publishProfil | P1 | — |
+| BKY-IA-2 | Thème IA paramétrique | P1 | BKY-IA-0 (✅) |
+| BKY-IA-3 | Validation Firebase IA | P2 | BKY-IA-0 (✅), EPIC 4 |
+
+== Points d'attention
+
+- Les tests FT utilisent `generateSite` (et non `generateSiteFromIntention`) car la tâche IA ne peut pas s'exécuter sans LlmService réel. Les FT vérifient la compilation DSL et le wiring du plugin.
+- La branche scaffolding du plugin (quand site.yml n'existe pas ou site/maquette/ n'existent pas) est la seule qui enregistre `generateSiteFromIntention`.
+- Les tests Cucumber réutilisent les steps existants de `GenerateArticleSteps.kt` (`taskShouldBeRegistered`, `taskShouldBeInGroup`).

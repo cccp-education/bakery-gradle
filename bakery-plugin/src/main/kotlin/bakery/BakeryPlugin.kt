@@ -14,6 +14,7 @@ import bakery.SiteManager.registerDeployMaquetteTask
 import bakery.SiteManager.registerDeployProfileTask
 import bakery.SiteManager.registerDeploySiteTask
 import bakery.SiteManager.registerGenerateArticleTask
+import bakery.SiteManager.registerGenerateSiteFromIntentionTask
 import bakery.SiteManager.registerGenerateSiteTask
 
 import bakery.SiteManager.registerPagefindTask
@@ -64,6 +65,9 @@ class BakeryPlugin : Plugin<Project> {
                 }
                 val siteType = SiteScaffolder.resolveSiteType(bakeryExtension)
                 project.registerGenerateSiteTask(targetDir, siteType, bakeryExtension)
+                project.registerGenerateSiteFromIntentionTask(
+                    targetDir, bakeryExtension.ia, bakeryExtension.scaffoldIntention
+                )
             } else {
                 val rawSite = project.from(bakeryExtension.configPath.get())
                 val site = rawSite.resolvePaths(configDir)

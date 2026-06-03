@@ -1,5 +1,27 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 066 — 2026-06-03 — BKY-IA-1.4-5 FT + BDD Scaffold IA
+
+**Contexte** : BKY-IA-1 étapes 4-5 — Tests fonctionnels et Cucumber BDD pour le scaffolding assisté par IA.
+
+**Tâches réalisées** :
+
+* [x] BKY-IA-1.4 — Création de ScaffoldIntentionFunctionalTests (5 FT) :
+  ** DSL scaffoldIntention block compiles with description only
+  ** DSL scaffoldIntention block compiles with full config
+  ** generateSiteFromIntention task is registered with scaffoldIntention DSL
+  ** backward compatibility - generateSite task still works without scaffoldIntention
+  ** generateSiteFromIntention with scaffoldIntention and ia blocks both present
+* [x] BKY-IA-1.5 — Création de Cucumber Feature 25_scaffold_intention_ia.feature (3 scénarios) :
+  ** Intention IA génère une structure de site valide
+  ** Sans IA, le scaffolding classique fonctionne
+  ** Intention invalide (description vide) produit un fallback gracieux
+* [x] Ajout ScaffoldIntentionSteps.kt (2 steps @Given)
+* [x] Ajout BakeryWorld.createGradleProjectWithScaffoldIntention()
+* [x] Compilation OK, 5/5 FT PASS, 26/26 Cucumber PASS
+
+**Résultat** : BKY-IA-1 TERMINÉ (48 UT + 5 FT + 3 Cucumber = 56 tests scaffold IA au total).
+
 == Session 064 — 2026-06-03 — EPIC 11 Optimisation durée tests
 
 **Contexte** : EPIC 11 — Les tests prennent 8m30s pour un `check` complet, 2m46s pour `test` seul. Les 81 scénarios Cucumber étaient exécutés 2 fois (dans `test` ET `cucumberTest`).

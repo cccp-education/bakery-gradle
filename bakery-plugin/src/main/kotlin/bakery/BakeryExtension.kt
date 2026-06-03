@@ -3,6 +3,7 @@ package bakery
 import bakery.llm.IaConfig
 import bakery.article.ArticleIntentionDsl
 import bakery.lens.AugmentedContextDsl
+import bakery.scaffold.ScaffoldIntentionDsl
 import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
@@ -67,6 +68,9 @@ open class BakeryExtension @Inject constructor(objects: ObjectFactory) {
     /** Configuration Augmented Context (Pattern LENTILLE) — BKY-LENS */
     val augmentedContext: AugmentedContextDsl = AugmentedContextDsl()
 
+    /** Configuration Scaffold Intention (description, siteType, lang, projectName) — BKY-IA-1 */
+    val scaffoldIntention: ScaffoldIntentionDsl = ScaffoldIntentionDsl()
+
     /** DSL : bakery { googleForms { ... } } */
     fun googleForms(action: Action<GoogleFormsDsl>) {
         action.execute(googleForms)
@@ -115,5 +119,10 @@ open class BakeryExtension @Inject constructor(objects: ObjectFactory) {
     /** DSL : bakery { augmentedContext { ... } } */
     fun augmentedContext(action: Action<AugmentedContextDsl>) {
         action.execute(augmentedContext)
+    }
+
+    /** DSL : bakery { scaffoldIntention { ... } } — BKY-IA-1 */
+    fun scaffoldIntention(action: Action<ScaffoldIntentionDsl>) {
+        action.execute(scaffoldIntention)
     }
 }

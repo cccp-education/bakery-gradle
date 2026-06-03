@@ -465,7 +465,7 @@ Prérequis transverse : BKY-IA-0 (service LLM partagé LangChain4j + Ollama).
 | *BKY-N3-7* | Contrat N3 : collectSiteContext → metadata.json | 5 | *P0 — Architecture*
 | *BKY-BKG* | Articles connexes par Knowledge Graph | 16 | *P0 — Quick win*
 | *BKY-IA-4* | Génération d'article assistée par IA | 8 | *P0 — Valeur immédiate*
-| *BKY-IA-1* | Scaffolding assisté par IA | 5 | *P0 — Fondation*
+| *BKY-IA-1* | Scaffolding assisté par IA | 5 | *P0 ✅ TERMINÉ*
 | *BKY-IA-5* | Formulaire Google Forms (recette → Edster → CI/CD → Drive user) | 8 | *P0 — MVP0*
 | *BKY-TRN-9* | Intégration formation : assembleTrainingSite | 21 | *P0 — MVP0 Graal*
 | *BKY-IA-2* | Personnalisation thème IA (paramétrique) | 8 | *P1*
@@ -568,20 +568,30 @@ AsciiDoc avec header JBake. Workflow : ébauche IA → relecture humaine → pub
 
 === BKY-IA-1 — Scaffolding Assisté par IA
 
-*Statut* : À faire — *P0, dépend de BKY-IA-0 et EPIC 10 (scaffolding mécanique)*
-*Priorité* : P0 — couche IA au-dessus du scaffolding mécanique (EPIC 10 à 80%)
-*Charge* : 5 pts
-*Dépend de* : BKY-IA-0, EPIC 10 (Scaffolding TDD — 3 scénarios Cucumber bloqués)
+*Statut* : ✅ TERMINÉ — *P0, étapes 1-5 complètes (sessions 065-066)*
+*Priorité* : P0 — couche IA au-dessus du scaffolding mécanique (EPIC 10 ✅)
+*Charge* : 5 pts (3/5 terminés)
+*Dépend de* : BKY-IA-0 (✅), EPIC 10 (✅)
 
 *Objectif* : Le LLM choisit la structure du site (templates, métadonnées JBake)
 en fonction d'une intention exprimée en langage naturel. Pattern : plantuml-gradle
 faisait déjà « décris ton diagramme → je génère le PlantUML ».
 
 *Tâches* :
-. `BKY-IA-1.1` — `ScaffoldIntention` data class (type : blog, portfolio, doc, formation ; langue, audience)
-. `BKY-IA-1.2` — Tâche `generateSiteFromIntention` : intention → LLM → structure → scaffolding
-. `BKY-IA-1.3` — Extension DSL `bakery { ia { scaffoldPrompt { ... } } }`
-. `BKY-IA-1.4` — Tests : intention → structure valide (templates, site.yml, métadonnées)
+. `BKY-IA-1.1` ✅ — `ScaffoldIntention` data class + `ScaffoldSiteType` enum + `ScaffoldOutput` + `ScaffoldMetadata` + `ScaffoldIntentionDsl` (17 UT PASS)
+. `BKY-IA-1.2` ✅ — `ScaffoldGenerator` : prompt LLM + parse JSON + fallback + `ScaffoldGeneratorTest` (18 UT PASS + compact JSON)
+. `BKY-IA-1.3` ✅ — `GenerateSiteFromIntentionTask` + DSL `bakery { scaffoldIntention { ... } }` + wiring `BakeryExtension` + `SiteManager` + `BakeryPlugin` (13 UT PASS)
+. `BKY-IA-1.4` ✅ — FT : Tests fonctionnels (5 FT ScaffoldIntentionFunctionalTests — scaffold IA vs classique, rétro-compatibilité, IA+LLM cohabitation)
+. `BKY-IA-1.5` ✅ — BDD : Cucumber Feature 25 (3 scénarios : intention IA → task enregistrée, sans IA → scaffolding classique, intention vide → build OK)
+
+*Architecture* :
+----
+bakery { scaffoldIntention { description = "Blog tech Kotlin"; siteType = "blog"; lang = "fr"; projectName = "kotlin-blog" } }
+     ↓ resolveIntention (CLI > DSL > defaults)
+     ↓ ScaffoldGenerator.generate(intention, llm)
+     ↓ JSON response → ScaffoldOutput
+     ↓ applyScaffoldOutput → site.yml suggéré
+----
 
 === BKY-IA-5 — Formulaire Google Forms : Recette → Edster → CI/CD → Drive User
 

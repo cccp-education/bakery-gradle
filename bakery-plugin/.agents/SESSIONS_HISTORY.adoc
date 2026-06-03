@@ -1,9 +1,11 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-_Derniere mise a jour : 2026-06-03 — Session 064_
+_Derniere mise a jour : 2026-06-03 — Session 066_
 
 |===
 | # | Date | Type | Sujet | Score
+| 066 | 2026-06-03 | feat + TDD + BDD | BKY-IA-1.4-5 FT + BDD Scaffold IA — 5 FT ScaffoldIntentionFunctionalTests + Cucumber Feature 25 (3 scénarios) + BakeryWorld.createGradleProjectWithScaffoldIntention(). BKY-IA-1 TERMINÉ (48 UT + 5 FT + 3 Cucumber). 26/26 Cucumber PASS. | 9/10
+| 065 | 2026-06-03 | feat + TDD + DDD | BKY-IA-1 Étapes 1-3 Scaffolding assisté par IA — ScaffoldIntention DDD (17 UT) + ScaffoldGenerator prompt/parse/fallback (18 UT) + GenerateSiteFromIntentionTask DSL wiring (13 UT). 48/48 UT PASS. Package bakery/scaffold/ créé. | 9/10
 | 064 | 2026-06-03 | perf + fix | EPIC 11 Optimisation durée tests — Séparation Cucumber/JUnit5 (test 2m46s→38s, -77%), nettoyage gradle.properties, fix koverThresholdCheck dependsOn. Coverage 73.13%. | 9/10
 | 063 | 2026-06-03 | fix + TDD + BDD + E2E | BKY-LENS-6.3 Nettoyage FT Legacy BKG + E2E Playwright — Suppression CollectRelatedArticlesFunctionalTest (3 tests legacy), RelatedArticlesTest (2 tests), correction CONV-1 defaults, suppression related-articles.thyme. 4 tests E2E Playwright augmentés. +2 scénarios Cucumber rendu Thymeleaf. 81/81 Cucumber PASS, 56/56 FT PASS, 17/17 E2E PASS. | 9/10
 | 062 | 2026-06-03 | feat + TDD + BDD | BKY-LENS-6 Templates Augmentés JBake — augmented-articles.thyme (badges RAG/KG/Docs/EAGER) + post.thyme + page.thyme intégrés + Cucumber Feature 24 (10/10 PASS) + FT CollectAugmentedContext. 21/21 UT PASS. 129/129 Cucumber PASS. | 9/10
