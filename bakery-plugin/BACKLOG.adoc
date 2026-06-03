@@ -286,9 +286,9 @@ RelatedArticlesResolver, kgraph/ package (4 fichiers)._
 
 == EPIC BKY-LENS : Pattern LENTILLE — Réalité Augmentée pour Bakery
 
-**Statut** : En cours — *P0, cadré session 053*
+**Statut** : ✅ TERMINÉ — *P0, cadré session 053, terminé session 062*
 **Priorité** : P0 — remplace BKY-BKG par un pipeline hybride RAG+KG+ségrégation+règles
-**Charge** : 21 pts (6 sous-EPICs) — 12 pts terminés (LENS-1 ✅ LENS-2 ✅ LENS-3 ✅)
+**Charge** : 21 pts (6 sous-EPICs) — ✅ 21 pts terminés (LENS-1 ✅ LENS-2 ✅ LENS-3 ✅ LENS-4 ✅ LENS-5 ✅ LENS-6 ✅)
 **Dépend de** : graphify-plugin (N0, déjà en `implementation`), codebase-contracts (N0)
 **Rapport détaillé** : `.agents/sessions/053-audit-lentille-contexte-augmente.adoc`
 
@@ -407,10 +407,10 @@ _Dépend de_ : BKY-LENS-1, `codebase-contracts`
 
 _Dépend de_ : BKY-LENS-2
 
-==== BKY-LENS-4 : Cucumber — Réécriture Features 17-19 (3 pts) — EN COURS
+==== BKY-LENS-4 : Cucumber — Réécriture Features 17-19 (3 pts) ✅ TERMINÉ
 
-* [ ] BKY-LENS-4.1 — Réécrire Feature 17 : `17_related_articles_kg.feature` → `17_augmented_context_lens.feature` (réécrite, 6 échecs Cucumber à valider)
-* [ ] BKY-LENS-4.2 — Réécrire Feature 18 : `18_related_articles_kg_enriched.feature` → `18_subgraph_extraction.feature` (réécrite, 6 échecs Cucumber à valider)
+* [x] BKY-LENS-4.1 — Réécrire Feature 17 : `17_related_articles_kg.feature` → `17_augmented_context_lens.feature` ✅ 3/3 PASS
+* [x] BKY-LENS-4.2 — Réécrire Feature 18 : `18_related_articles_kg_enriched.feature` → `18_subgraph_extraction.feature` ✅ 3/3 PASS
 * [x] BKY-LENS-4.3 — Réécrire Feature 19 : `19_related_articles_graph_consumption.feature` → `19_lens_hybrid_scoring.feature` ✅ 3/3 PASS
 
 _Dépend de_ : BKY-LENS-1, BKY-LENS-2, BKY-LENS-3
@@ -443,7 +443,7 @@ _Dépend de_ : BKY-LENS-5
 | `registerCollectRelatedArticlesTask` | **Remplacé** par `registerCollectAugmentedContextTask` | ✅ LENS-3.2
 | `injectRelatedArticlesConfigIntoJbakeProperties` | **Remplacé** par `injectLensBudgetIntoJbakeProperties` | ✅ LENS-3.2
 | `resolveRelatedArticlesConfig` (ConfigResolver) | **Supprimé** | ✅ LENS-3.3
-| Feature Cucumber 17-19 | **À réécrire** (LENS-4) | ⏳
+| Feature Cucumber 17-19 | **Réécrites** (LENS-4) | ✅ LENS-4
 | `graphify-plugin` dependency | **Conserver** | ✅ (utilisé par SubgraphExtractor)
 
 == EPIC 14 : Capacités IA Bakery — Roadmap Session 022 (Brainstorm BAKERY_AUDIT.adoc)
@@ -468,7 +468,7 @@ Prérequis transverse : BKY-IA-0 (service LLM partagé LangChain4j + Ollama).
 
 === BKY-IA-0 — Service LLM Partagé (Prérequis Transverse)
 
-*Statut* : À faire — *P0, démarrage session 023*
+*Statut* : ✅ TERMINÉ — *P0, session 023*
 *Priorité* : P0 — tous les autres EPICs IA en dépendent
 *Charge* : 5 pts
 *Dépend de* : —
@@ -546,10 +546,9 @@ qu'aucun autre outil de site statique ne propose.
 
 === BKY-IA-4 — Génération d'Article Assistée par IA
 
-*Statut* : À faire — *P0, dépend de BKY-IA-0*
+*Statut* : ✅ REMPLACÉ par BKY-JB-8 (bakery) — ArticleIntention DDD + Generator enrichi + DSL + CLI (session 040)
 *Priorité* : P0 — valeur immédiate pour cheroliv.com (principal consommateur)
-*Charge* : 8 pts
-*Dépend de* : BKY-IA-0
+*Charge* : 8 pts → implémenté dans BKY-JB-8 (13 pts)
 
 *Objectif* : Tâche `generateArticle` qui prend un topic + corpus → article
 AsciiDoc avec header JBake. Workflow : ébauche IA → relecture humaine → publication.
