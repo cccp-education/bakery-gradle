@@ -1,5 +1,42 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 057 — 2026-06-03 — BKY-LENS-2.3 TDD + BDD (Scoring Hybride Boundary Cases + Feature 22 Fix)
+
+**Contexte** : Reprise de bakery-gradle session 057. BKY-LENS-2 (AugmentedArticlesService scoring hybride) implémenté en session 056 mais sans tests TDD. Feature 22 Cucumber avait 2/3 scénarios (scénario 2 en PendingException).
+
+**Tâches réalisées** :
+
+* [x] LENS-2.3 — Fix Cucumber Feature 22 Scénario 2 : guillemets manquants dans `.feature`
+  - `Given a list of scored nodes with tags draft, wip, and published` → `tags "draft", "wip", and "published"`
+  - L'annotation Cucumber attend 3 `{string}` paramètres → guillemets requis dans Gherkin
+  - Résultat : Feature 22 passe 3/3 ✅
+
+* [x] LENS-2.3 — 7 tests TDD boundary cases `AugmentedArticlesServiceTest` :
+  - Empty subgraph → empty list
+  - Single isolated node → graphProximity = 1.0
+  - Score clamped to 1.0 when bonuses exceed
+  - Jaccard partial overlap (50% = 0.5)
+  - crossRefCount normalized for 3+ refs
+  - communityAffinity = 0 → no bonus even with same community
+  - scoreAll with 2 nodes → 2 results sorted descending
+
+* [x] LENS-2.3 — 4 tests TDD boundary cases `AugmentedContextResolverTest` :
+  - resolve returns null for empty file
+  - extractChannels with all empty sections → empty map
+  - extractChannelsFromPath consistent with resolve + extractChannels
+  - availableSections consistent with extractChannelsFromPath
+
+* [x] LENS-2 — `publishToMavenLocal` après modification code source ✅
+
+**Fichiers modifiés** :
+
+| Fichier | Changement |
+| `src/test/features/22_augmented_context_lens.feature` | Fix guillemets Scénario 2 |
+| `src/test/kotlin/bakery/lens/AugmentedArticlesServiceTest.kt` | +7 tests boundary (LENS-2.3) |
+| `src/test/kotlin/bakery/lens/AugmentedContextResolverTest.kt` | +4 tests boundary (LENS-2.3) |
+
+**Résultats** : 52+ UT lens PASS, Feature 22 3/3 Cucumber PASS. 54 échecs Cucumber pré-existants non liés à LENS.
+
 == Session 056 — 2026-06-02 — BKY-LENS-2 Démarrage (Enrichissement)
 
 **Contexte** : Reprise de bakery-gradle session 056. Démarrage de l'EPIC BKY-LENS-2 (AugmentedArticlesService — Enrichissement). BKY-LENS-1 est ENTIEREMENT implémenté et committé.

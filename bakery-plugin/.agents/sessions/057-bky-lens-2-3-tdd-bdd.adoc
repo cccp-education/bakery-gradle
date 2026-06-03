@@ -1,0 +1,71 @@
+= Session 057 — BKY-LENS-2.3 TDD + BDD (Scoring Hybride Boundary Cases + Feature 22 Fix)
+
+== Date
+2026-06-03
+
+== Type
+feat + TDD + BDD
+
+== Score
+8/10
+
+== Contexte
+Reprise de bakery-gradle session 057. BKY-LENS-2 AugmentedArticlesService (scoring hybride)
+déjà implémenté en session 056 mais sans tests TDD. Feature 22 Cucumber avait 2/3 scénarios
+(scénario 2 en PendingException).
+
+== Tâches réalisées
+
+* [x] LENS-2.3 — Fix Cucumber Feature 22 Scénario 2 : guillemets manquants dans `.feature`
+  - `Given a list of scored nodes with tags draft, wip, and published`
+  - → `Given a list of scored nodes with tags "draft", "wip", and "published"`
+  - L'annotation Cucumber `@Given("a list of scored nodes with tags {string}, {string}, and {string}")` 
+    nécessite des guillemets autour des 3 paramètres strings dans le Gherkin
+  - Résultat : Feature 22 passe 3/3 ✅
+
+* [x] LENS-2.3 — Ajout 7 tests TDD boundary cases `AugmentedArticlesServiceTest`
+  - `scoreAll with empty subgraph returns empty list` (sous-graphe vide)
+  - `score single isolated node has graphProximity 1.0` (nœud isolé = centralité 1.0)
+  - `score is clamped to 1.0 when bonuses exceed` (clamp score max)
+  - `score jaccard partial overlap` (Jaccard 50% = 0.5)
+  - `score crossRefCount normalized for 3+ refs` (3 agent_reference → count=3)
+  - `score no community bonus when affinity zero even with same community` (affinity=0 → même score)
+  - `scoreAll with 2 nodes returns 2 results` (tri par score décroissant)
+
+* [x] LENS-2.3 — Ajout 4 tests TDD boundary cases `AugmentedContextResolverTest`
+  - `resolve returns null for empty file` (fichier vide → null)
+  - `extractChannels with all empty sections returns empty map` (4 sections vides → map vide)
+  - `extractChannelsFromPath consistent with resolve and extractChannels` (consistance API)
+  - `availableSections consistent with extractChannelsFromPath` (cohérence keys)
+
+* [x] LENS-2 — `publishToMavenLocal` après modification code source ✅
+
+== Fichiers modifiés
+
+| Fichier | Changement |
+| `src/test/features/22_augmented_context_lens.feature` | Fix guillemets Scénario 2 |
+| `src/test/kotlin/bakery/lens/AugmentedArticlesServiceTest.kt` | +7 tests boundary (LENS-2.3) |
+| `src/test/kotlin/bakery/lens/AugmentedContextResolverTest.kt` | +4 tests boundary (LENS-2.3) |
+
+== Résultats
+
+* 25/25 AugmentedArticlesServiceTest PASS (18 LENS-2.2 + 7 LENS-2.3)
+* 16/16 AugmentedContextResolverTest PASS (12 LENS-2.2 + 4 LENS-2.3)
+* 11/11 LensRulesTest PASS
+* Feature 22 Cucumber : 3/3 PASS
+* Tous lens tests : 52+ UT PASS
+* 54 échecs Cucumber pré-existants (non liés à LENS, traités par LENS-4)
+
+== Méthodologie
+
+Baby steps DDD/TDD/BDD respectée :
+1. Fix Feature 22 Scénario 2 (guillemets) → vérification Cucumber ✅
+2. Ajout 7 boundary tests AugmentedArticlesService → vérification UT ✅
+3. Ajout 4 boundary tests AugmentedContextResolver → vérification UT ✅
+4. publishToMavenLocal → ✅
+
+== Prochaine session
+
+LENS-3 : Budget + Injection JBake (Reconnect) — LensBudget data class + 
+remplacement SiteManager.registerCollectRelatedArticlesTask() + 
+suppression BKY-BKG legacy (4 fichiers)
