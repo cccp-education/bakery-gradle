@@ -1,0 +1,71 @@
+= Session 036 — BKY-JB-9 Phase A suite : Rendering Tests + DualConventionResolver
+:date: 2026-06-02
+:type: feat + test + bugfix
+:score: 9/10
+
+== Objectif
+
+Poursuivre BKY-JB-9 Phase A : migrer les TemplateTest existants vers rendering tests,
+ajouter les rendering tests pour les composants JB-2, nettoyer les redondances.
+
+== Baby Steps Complétés
+
+=== JB-9.4 : Migration TemplateTest → Rendering Tests
+
+- **ThymeleafRenderingTestFactory** : remplacement du `FileTemplateResolver` simple par un
+  `DualConventionResolver` (subclass `FileTemplateResolver`) qui gère les 2 conventions
+  de référence Thymeleaf dans bakery :
+  * `~{name :: fragment}` (suffixe .thyme ajouté par le resolver)
+  * `~{name.thyme::fragment}` (suffixe déjà dans le nom, double suffixe .thyme.thyme évité)
+- Bug découvert : les templates bakery utilisent 2 conventions incompatibles pour `th:replace`.
+  Le `DualConventionResolver` override `computeResourceName()` pour strip le double suffixe
+  quand le fichier n'existe pas, puis fallback sur le nom avec suffixe.
+- 5 rendering tests d'intégration ajoutés :
+  * `HeaderThemeRenderingTest` (3 tests : theme-script intégré, favicon custom, favicon défaut)
+  * `MenuThemeRenderingTest` (2 tests : logo custom, texte brand)
+  * `FooterIntegrationRenderingTest` (3 tests : firebase-auth-compat, analytics-script, newsletter-form)
+- KDoc `@SupersededBy` ajoutée sur les 4 classes TemplateTest conservées comme littérature :
+  * `ThemeTemplateTest` — supersedée par `ThemeScriptRenderingTest`, `HeaderThemeRenderingTest`, `MenuThemeRenderingTest`
+  * `GoogleFormsTemplateTest` — supersedée par `GoogleFormsRenderingTest`
+  * `AnalyticsNewsletterTemplateTest` — supersedée par `AnalyticsScriptRenderingTest`, `NewsletterFormRenderingTest`, `FooterIntegrationRenderingTest`
+  * `FirebaseAuthTemplateTest` — partiellement supersedée (2 tests post/page integration non supersedés)
+
+=== JB-9.5 : Rendering Tests composants JB-2
+
+- `BreadcrumbRenderingTest` (2 tests : titre+breadcrumb, lien blog)
+- `TocSidebarRenderingTest` (1 test : Sommaire heading)
+- `ProgressBarRenderingTest` (1 test : ARIA attributes)
+- `PdfViewerRenderingTest` (3 tests : pdf présent, pdf absent, pdf vide)
+
+=== JB-9.6 : Nettoyage redondances
+
+- 4 classes TemplateTest conservées (suppression refusée par l'utilisateur — littérature)
+- KDoc `@SupersededBy` ajoutée comme marquage pour Kover/analyseurs de code
+- Aucun fichier détruit
+
+== Chiffres
+
+- **32 Thymeleaf rendering tests** PASS (0 échec)
+- **297 tests unitaires** PASS total
+- **1 bug corrigé** : double suffixe `.thyme.thyme` dans `th:replace`
+- **4 classes TemplateTest** marquées `@SupersededBy`
+
+== Fichiers modifiés
+
+| Fichier | Changement |
+|---------|-----------|
+| `ThymeleafRenderingTestFactory.kt` | `DualConventionResolver` (override `computeResourceName`) |
+| `ThymeleafRenderingTest.kt` | +15 rendering tests (header, menu, footer, breadcrumb, toc, progress, pdf) |
+| `ThemeTemplateTest.kt` | KDoc `@SupersededBy` |
+| `GoogleFormsTemplateTest.kt` | KDoc `@SupersededBy` |
+| `AnalyticsNewsletterTemplateTest.kt` | KDoc `@SupersededBy` |
+| `FirebaseAuthTemplateTest.kt` | KDoc `@SupersededBy` |
+
+== Décisions
+
+- *Tests comme littérature* : les anciens TemplateTest sont conservés et marqués `@SupersededBy`
+  plutôt que supprimés. Ils vérifient la _présence_ des expressions Thymeleaf dans le source,
+  tandis que les rendering tests vérifient le _résultat_ du rendu HTML. Les deux perspectives
+  sont complémentaires.
+- *DualConventionResolver* : solution DDD pour le bug des 2 conventions de référence Thymeleaf.
+  Pas de modification des templates production — le resolver gère les 2 conventions.

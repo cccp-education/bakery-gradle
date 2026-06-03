@@ -1,0 +1,48 @@
+= Session 018 — 2026-05-07 — Optimisation durée des tests (build.gradle.kts + @Nested pattern)
+
+**Contexte** : Durée totale des tests ~8 min, intenable en boucle TDD.
+2 causes principales : (1) JVM args anti-performants, (2) 7 cold starts Gradle
+dans ArchitectureValidationTest.
+
+**Source d'inspiration** : Pattern `@Nested` + `@JvmStatic @TempDir` + `@BeforeAll`
+du projet `plantuml-gradle` (`PlantumlFunctionalSuite.kt`).
+
+== Tâches réalisées
+
+=== build.gradle.kts — Suppression des JVM args anti-performants
+
+* [x] Supprimé `-XX:TieredStopAtLevel=1` (désactivait le compilateur C2, divisait perfs par 5-10x)
+* [x] Supprimé `-XX:+UseSerialGC` (retour au G1GC par défaut)
+* [x] Supprimé `-XX:MaxMetaspaceSize=256m` (laisse la JVM gérer)
+* [x] `forkEvery=1` → `forkEvery=0` sur cucumberTest (plus de nouvelle JVM par test)
+* [x] Nettoyage config redondante : timeout centralisé dans `tasks.withType<Test>`, `useJUnitPlatform()` sans argument custom
+* [x] `maxParallelForks=1` partout (conservé, demande utilisateur pour éviter saturation mémoire)
+
+=== ArchitectureValidationTest.kt — Refactor @Nested + projet partagé
+
+* [x] `@TempDir @JvmStatic` dans `companion object` → projet Gradle créé une fois
+* [x] `@BeforeAll setupSharedProject()` : settings, build, config YAML, structure JBake complète
+* [x] `runner()` helper dans companion object → wrapper `GradleRunner.create()` partagé
+* [x] 2 classes `@Nested` (BakeTasks, TaskInspection) — 7 tests répartis
+* [x] 7 cold starts Gradle → 1 daemon réutilisé entre @Nested
+
+== Résultats
+
+[cols="<,^,^,^",options=header]
+|===
+| Suite | Avant | Après | Gain
+| test (unit) | ~1m00s | ~0m57s | -5%
+| cucumberTest | ~3m56s | ~1m41s | -57%
+| functionalTest | ~2m55s | ~1m13s | -58%
+| **Total** | **~8m** | **~3m50s** | **-52%**
+|===
+
+Le gain principal vient de :
+1. Réactivation du compilateur C2 (`TieredStopAtLevel=1` retiré)
+2. ArchitectureValidationTest : 1 projet Gradle au lieu de 7
+3. cucumberTest : `forkEvery=0` au lieu de `forkEvery=1`
+
+== Fichiers modifiés
+
+* `build.gradle.kts` : JVM args + timeouts + forkEvery
+* `src/functionalTest/kotlin/bakery/ArchitectureValidationTest.kt` : refactor @Nested (419 lignes)

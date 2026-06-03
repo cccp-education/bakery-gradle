@@ -1,0 +1,58 @@
+= Session 033 — BKY-JB-5 Analytics + Newsletter
+
+== Date
+2026-06-01
+
+== Type
+feat + test + backlog
+
+== Sujet
+BKY-JB-5 Analytics + Newsletter — 5/5 baby steps DDD/TDD/BDD terminées. EPIC BKY-JB-9 (Playwright-jvm + Thymeleaf rendering) cadré dans BACKLOG.
+
+== Résultats
+
+=== BKY-JB-5 Analytics + Newsletter (3 pts, P1) — TERMINÉ
+
+5 baby steps complètes :
+
+. **DDD** : `AnalyticsConfig` (provider, domain, scriptSrc) + `NewsletterConfig` (enabled, provider, endpoint) data classes. `AnalyticsDsl` + `NewsletterDsl`. BakeryExtension DSL `bakery { analytics { ... } }` et `bakery { newsletter { ... } }`. 7 UT PASS.
+. **TDD Templates** : `analytics-script.thyme` (Plausible + Matomo, th:if guard sur analyticsProvider) + `newsletter-form.thyme` (mail footer, th:if guard sur newsletterEnabled). Intégration footer.thyme. 8 UT PASS.
+. **TDD Injection** : `injectAnalyticsConfigIntoJbakeProperties` + `injectNewsletterConfigIntoJbakeProperties` dans SiteManager. 3 UT PASS.
+. **FT** : ScaffoldFunctionalTests.AnalyticsNewsletterTest — templates déployés + pas d'injection sans config. 2 FT PASS.
+. **BDD** : `13_analytics_newsletter.feature` — 3 scénarios (happy-path, no-config, integration). Steps réutilisés (ThymeleafComponentSteps, GoogleFormsSteps). 3 Cucumber PASS.
+
+**Total JB-5** : 18 UT + 2 FT + 3 Cucumber = 23 tests ajoutés, tous PASS.
+
+=== EPIC BKY-JB-9 — Proposition E2E Tests (cadré dans BACKLOG)
+
+Cadrage complet de l'EPIC BKY-JB-9 dans BACKLOG.adoc :
+
+- **Couche 1** : Thymeleaf Rendering Tests (UT rapide, ~1s, JVM only) — remplace les `template.readText().contains("th:if")` par des vrais rendus
+- **Couche 2** : Playwright-jvm E2E (Cucumber + Browser, ~30s) — vrai navigateur, vraie interaction
+- Charge : 8 pts (Phase A = 3 pts, Phase B = 5 pts)
+- Référence : capsule-gradle utilise déjà Playwright
+
+=== Phase B JBake — Complète
+
+Phase B (JB-3→5) : 13/13 pts (100%). Tous les EPICs services JBake sont terminés.
+
+== Fichiers modifiés/créés
+
+| Fichier | Action | Détail |
+|---|---|---|
+| `SiteConfiguration.kt` | modifié | +AnalyticsConfig, +NewsletterConfig |
+| `BakeryExtension.kt` | modifié | +analytics DSL, +newsletter DSL |
+| `AnalyticsDsl.kt` | créé | AnalyticsDsl + NewsletterDsl |
+| `SiteManager.kt` | modifié | +injectAnalyticsConfig, +injectNewsletterConfig, appel dans copySiteResources |
+| `analytics-script.thyme` | créé | Plausible/Matomo avec th:if guard |
+| `newsletter-form.thyme` | créé | Mail footer avec th:if guard |
+| `footer.thyme` | modifié | +analytics-script fragment, +newsletter-form fragment |
+| `AnalyticsNewsletterConfigTest.kt` | créé | 7 UT |
+| `AnalyticsNewsletterTemplateTest.kt` | créé | 8 UT |
+| `AnalyticsNewsletterInjectionTest.kt` | créé | 3 UT |
+| `ScaffoldFunctionalTests.kt` | modifié | +2 FT AnalyticsNewsletterTest |
+| `13_analytics_newsletter.feature` | créé | 3 scénarios Cucumber |
+| `BACKLOG.adoc` | modifié | +BKY-JB-5 complet, +BKY-JB-9 proposition |
+
+== Score
+9/10 — Baby steps strictement respectées, EPIC terminé en 5 étapes, BKY-JB-9 cadré proactivement.

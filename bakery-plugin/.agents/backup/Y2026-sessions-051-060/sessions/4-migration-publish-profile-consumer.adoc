@@ -1,0 +1,25 @@
+= Session 6 — Migration publishProfile côté consommateur
+
+**Date** : 2026-04-27
+**Résultat** : OK
+
+== Résumé
+
+Migration de la tache `publishProfile` intégrée dans le plugin bakery `0.1.0` vers le projet consommateur `bakery-gradle`.
+
+== Changements effectués
+
+1. **gradle/libs.versions.toml** : version plugin bakery `0.0.9` → `0.1.0`
+2. **site.yml** : ajout section `pushProfile` (repo `cheroliv/cheroliv`, branch `main`) + `profileFiles` (`README.adoc`, `README_fr.adoc`)
+3. **README.adoc / README_fr.adoc** : version `0.0.9` → `0.1.0`
+4. **Vérification `publishProfile`** : `./gradlew publishProfile` BUILD SUCCESSFUL — fichiers poussés vers cheroliv/cheroliv
+5. **Vérification `serve`** : JBake démarre correctement sans régression
+
+== Criteres d'acceptation
+
+* [x] Version plugin 0.1.0 dans `gradle/libs.versions.toml`
+* [x] Section `pushProfile` + `profileFiles` presents dans `site.yml`
+* [x] `./gradlew publishProfile` fonctionne avec la nouvelle config
+* [x] Code inline supprimé de `build.gradle.kts` (déjà propre)
+* [x] Bloc `buildscript` supprimé de `build.gradle.kts` (déjà propre)
+* [x] `./gradlew serve` fonctionne toujours

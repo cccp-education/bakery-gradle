@@ -1,0 +1,60 @@
+= Session 059 — BKY-LENS-4 Cucumber Features 17-19 (Réécriture LENS)
+:date: 2026-06-03
+:type: feat + BDD + fix
+:score: 7/10
+
+== Mission
+
+Réécrire les 3 Features Cucumber BKG orphelines (17-19) vers LENS.
+
+== Réalisé
+
+=== BKY-LENS-4.1 — Feature 17 ✅
+- Supprimé `17_related_articles_kg.feature` (BKG legacy)
+- Créé `17_augmented_context_lens.feature` : 3 scénarios (enabled + budget custom + disabled)
+- Steps ajoutés : `augmentedContext as enabled with maxArticlesPerPage {int} and minSimilarity {double}` + `augmentedContext as disabled`
+- Refactorisé les steps après UndefinedStepException (enabled={string} → steps séparés)
+
+=== BKY-LENS-4.2 — Feature 18 ✅
+- Supprimé `18_related_articles_kg_enriched.feature` (BKG legacy)
+- Créé `18_subgraph_extraction.feature` : 3 scénarios (communauté filtrée + scope FULL + custom path)
+- Steps ajoutés : `a graph.json file with {int} nodes...`, `I extract a subgraph with communities`, `I extract a subgraph with scope`, assertions subgraph
+- Ajouté Background `Given a new Bakery project` pour résoudre `Project dir not initialized`
+
+=== BKY-LENS-4.3 — Feature 19 ✅
+- Supprimé `19_related_articles_graph_consumption.feature` (BKG legacy)
+- Créé `19_lens_hybrid_scoring.feature` : 3 scénarios (scoring RAG+KG+tags + filtrage règles + budget troncature)
+- **3/3 PASS** 🟢 (réutilise les steps existants LensSteps + AugmentedArticlesService)
+
+=== Fix Duplication Cucumber — Impact majeur
+- Découvert `DuplicateStepDefinition` : `the file {string} should contain {string}` défini dans `ConfigResolverSteps` ET `ThymeleafComponentSteps`
+- Supprimé le step dupliqué de `ThymeleafComponentSteps`
+- **Impact** : Cucumber 53 échecs → 6 échecs (47 échecs résolus par ce fix seul)
+
+=== LensSteps.kt enrichi
+- Ajouté `BakeryWorld` au constructeur (was: constructeur vide)
+- +7 nouveaux steps pour Features 17-18
+- Import `kotlinModule()`, `LensConfig`, `LensScope`, `SubgraphExtractor`, `LensBudget`
+
+== Non terminé
+
+- **6 échecs Cucumber restants** (Features 17 + 18) → nécessitent re-validation
+  - Feature 17 : 3 UndefinedStepException → steps refactorisés, Feature Gherkin mise à jour → **à vérifier**
+  - Feature 18 : 3 IllegalStateException → Background ajouté → **à vérifier**
+- Pas de `./gradlew cucumberTest` final validé
+
+== Métriques
+
+- Build compile ✅, publishToMavenLocal ✅
+- 30/30 tests unitaires LENS PASS
+- Cucumber : 71 tests, 6 échecs (down from 53), 65 PASS
+- Feature 19 : 3/3 PASS
+
+== Fichiers modifiés
+
+| Fichier | Action |
+| `src/test/features/17_augmented_context_lens.feature` | Créé (remplace 17_related_articles_kg.feature supprimé) |
+| `src/test/features/18_subgraph_extraction.feature` | Créé (remplace 18_related_articles_kg_enriched.feature supprimé) |
+| `src/test/features/19_lens_hybrid_scoring.feature` | Créé (remplace 19_related_articles_graph_consumption.feature supprimé) |
+| `src/test/scenarios/bakery/scenarios/LensSteps.kt` | Enrichi (+BakeryWorld, +7 steps, fix imports) |
+| `src/test/scenarios/bakery/scenarios/ThymeleafComponentSteps.kt` | Supprimé step dupliqué |

@@ -1,0 +1,58 @@
+# Session 025 — BKY-BKG ArticleGraph + RelatedArticlesService + Tâche collectRelatedArticles
+:jbake-status: draft
+
+## Contexte
+Session dédiée à BKY-BKG (Articles connexes par Knowledge Graph, 16 pts).
+Implémentation en baby-steps DDD/TDD/BDD : modèle domaine → service → tâche Gradle → test fonctionnel.
+
+## Réalisations
+
+### Step 1 — Modèle domaine ArticleGraph (8 UT, 8 PASS)
+- `ArticleNode(url, title, date, tags, author)` — noeud du graphe
+- `ArticleEdge(sourceUrl, targetUrl, score, reasons)` — arête pondérée
+- `RelatedArticlesGraph(articles, edges).relatedTo(url, maxResults)` — requête de connexité
+- `RelatedArticleSuggestion(url, title, score, reasons)` — format de suggestion
+- `RelatedArticlesOutput(version, generatedAt, suggestions)` — format de sortie JSON
+
+### Step 2 — RelatedArticlesService (10 UT, 10 PASS)
+- `buildGraph(articles)` — construit le graphe complet par paire
+- Score tags partagés : +1.0 par tag commun
+- Score titre : +0.2 par mot significatif commun (hors stop words, >2 car.)
+- Stop words : ~80 mots vides structurels et génériques (article, guide, tutorial...)
+
+### Step 3 — Tâche Gradle + test fonctionnel (3 FT, 3 PASS)
+- `registerCollectRelatedArticlesTask(site)` dans `SiteManager.kt` (COLLECT_GROUP)
+- Enregistrée dans `BakeryPlugin.kt` (afterEvaluate)
+- Lit metadata.json → construit le graphe → écrit related-articles.json
+- Fonctionnel : `collectRelatedArticles` produit un JSON valide
+
+### Fix regression
+- `SiteContextCollector.kt` : extraction des tags `<category>` depuis feed.xml
+- `SiteContextCollector.kt` : correction du préfixe `/` manquant dans les URLs
+- Test `SiteContextCollectorTest` (3/3 PASS, inchangé)
+
+### 4 échecs Cucumber pré-existants (inchangés)
+- collectSiteConfig (1) + Scaffolding (3) — EPIC 10 80%, connus
+
+## Fichiers créés (6)
+- `src/main/kotlin/bakery/kgraph/RelatedArticlesGraph.kt`
+- `src/main/kotlin/bakery/kgraph/RelatedArticlesService.kt`
+- `src/test/kotlin/bakery/kgraph/RelatedArticlesGraphTest.kt`
+- `src/test/kotlin/bakery/kgraph/RelatedArticlesOutputTest.kt`
+- `src/test/kotlin/bakery/kgraph/RelatedArticlesServiceTest.kt`
+- `src/functionalTest/kotlin/bakery/CollectRelatedArticlesFunctionalTest.kt`
+
+## Fichiers modifiés (3)
+- `src/main/kotlin/bakery/SiteManager.kt` — +registerCollectRelatedArticlesTask
+- `src/main/kotlin/bakery/BakeryPlugin.kt` — +enregistrement tâche
+- `src/main/kotlin/bakery/SiteContextCollector.kt` — tags <category> + fix URL `/`
+
+## Step 4+ mis en backlog (non fait)
+- BKY-BKG-2 : intégration graphify-plugin (lecture graph.json) → edges enrichis
+- BKY-BKG Cucumber BDD
+- BKY-IA-4 : Génération d'article assistée par IA (8 pts)
+- BKY-IA-1 : Scaffolding assisté par IA (5 pts)
+
+## Métriques
+- 18 UT PASS (kgraph.*) + 3 FT PASS (CollectRelatedArticlesFunctionalTest)
+- 0 régression sur l'existant (SiteContextCollector 3/3, existing tests inchangés)

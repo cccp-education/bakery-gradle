@@ -230,10 +230,8 @@ class LensSteps(private val world: BakeryWorld) {
                 }
             }
         """.trimIndent()
-        val updatedContent = content.replace(
-            Regex("(bakery\\s*\\{)"),
-            "$1\n    $lensBlock"
-        )
+        // Insert before closing '}' of bakery { ... }
+        val updatedContent = insertBeforeClosingBrace(content, "bakery", lensBlock)
         buildFile.writeText(updatedContent, Charsets.UTF_8)
     }
 
@@ -247,17 +245,20 @@ class LensSteps(private val world: BakeryWorld) {
                 enabled = false
             }
         """.trimIndent()
-        val updatedContent = content.replace(
-            Regex("(bakery\\s*\\{)"),
-            "$1\n    $augmentedBlock"
-        )
+        // Insert before closing '}' of bakery { ... }
+        val updatedContent = insertBeforeClosingBrace(content, "bakery", augmentedBlock)
         buildFile.writeText(updatedContent, Charsets.UTF_8)
     }
+
+    // Délègue à DslInjectionHelper pour insertion DSL robuste
+    private fun insertBeforeClosingBrace(content: String, blockName: String, blockToInsert: String): String =
+        bakery.lens.DslInjectionHelper.insertBeforeClosingBrace(content, blockName, blockToInsert)
 
     // ─── Feature 18 : SubgraphExtractor — extraction sous-graphe ───
 
     private lateinit var extractor: SubgraphExtractor
     private lateinit var extractedSubgraph: SiteSubgraph
+    private var graphFilePath: String? = null
 
     @Given("a graph.json file with {int} nodes in {int} communities and {int} edges")
     fun aGraphJsonFileWithNodesInCommunitiesAndEdges(
@@ -292,6 +293,7 @@ class LensSteps(private val world: BakeryWorld) {
         val graphFile = projectDir.resolve("office/graph.json")
         graphFile.parentFile.mkdirs()
         graphFile.writeText(objectMapper.writeValueAsString(graphModel), Charsets.UTF_8)
+        graphFilePath = graphFile.absolutePath
     }
 
     @Given("a graph.json file at custom path {string} with {int} nodes")
@@ -307,6 +309,7 @@ class LensSteps(private val world: BakeryWorld) {
         val graphFile = projectDir.resolve(customPath)
         graphFile.parentFile.mkdirs()
         graphFile.writeText(objectMapper.writeValueAsString(graphModel), Charsets.UTF_8)
+        graphFilePath = graphFile.absolutePath
     }
 
     @Given("the bakery DSL defines augmentedContext with lens scope={string} and communities {string}")
@@ -326,10 +329,7 @@ class LensSteps(private val world: BakeryWorld) {
                 }
             }
         """.trimIndent()
-        val updatedContent = content.replace(
-            Regex("(bakery\\s*\\{)"),
-            "$1\n    $lensBlock"
-        )
+        val updatedContent = insertBeforeClosingBrace(content, "bakery", lensBlock)
         buildFile.writeText(updatedContent, Charsets.UTF_8)
     }
 
@@ -346,10 +346,7 @@ class LensSteps(private val world: BakeryWorld) {
                 }
             }
         """.trimIndent()
-        val updatedContent = content.replace(
-            Regex("(bakery\\s*\\{)"),
-            "$1\n    $lensBlock"
-        )
+        val updatedContent = insertBeforeClosingBrace(content, "bakery", lensBlock)
         buildFile.writeText(updatedContent, Charsets.UTF_8)
     }
 
@@ -358,10 +355,11 @@ class LensSteps(private val world: BakeryWorld) {
         val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
         extractor = SubgraphExtractor()
         val communityList = communities.split(",").map { it.trim() }
+        val resolvedGraphPath = graphFilePath ?: projectDir.resolve("office/graph.json").absolutePath
         val lensConfig = LensConfig(
             scope = LensScope.SUBGRAPH,
             communities = communityList,
-            graphFilePath = projectDir.resolve("office/graph.json").absolutePath
+            graphFilePath = resolvedGraphPath
         )
         extractedSubgraph = extractor.extractFromPath(lensConfig.graphFilePath, lensConfig)
     }
@@ -371,10 +369,11 @@ class LensSteps(private val world: BakeryWorld) {
         val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
         extractor = SubgraphExtractor()
         val lensScope = LensScope.valueOf(scope)
+        val resolvedGraphPath = graphFilePath ?: projectDir.resolve("office/graph.json").absolutePath
         val lensConfig = LensConfig(
             scope = lensScope,
             communities = listOf("community-0", "community-1"),
-            graphFilePath = projectDir.resolve("office/graph.json").absolutePath
+            graphFilePath = resolvedGraphPath
         )
         extractedSubgraph = extractor.extractFromPath(lensConfig.graphFilePath, lensConfig)
     }

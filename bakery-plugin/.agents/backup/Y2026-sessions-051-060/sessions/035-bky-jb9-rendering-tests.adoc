@@ -1,0 +1,89 @@
+= Session 035 — BKY-JB-9 Phase A : Thymeleaf Rendering Tests
+:date: 2026-06-01
+:type: feat + test + bugfix
+:score: 9/10
+
+== Objectif
+
+Mettre en place les Thymeleaf Rendering Tests (BKY-JB-9 Phase A) pour combler
+le trou critique de la pyramide de tests : les templates Thymeleaf n'étaient
+jamais _rendus_ dans les tests, seul le texte source était vérifié.
+
+== Baby Steps Complétés
+
+=== JB-9.1 : Dépendance Thymeleaf en testImplementation
+
+- Ajout `thymeleaf = "3.0.14.RELEASE"` dans `gradle/libs.versions.toml` ([versions] + [libraries])
+- `testImplementation(libs.thymeleaf)` dans `build.gradle.kts`
+- Version alignée sur JBake 2.7.0 (même moteur Thymeleaf en production)
+
+=== JB-9.2 : ThymeleafRenderingTestFactory + 17 Rendering Tests
+
+- Créé `ThymeleafRenderingTestFactory.kt` — helper JUnit5 qui configure un
+  `TemplateEngine` pointant vers `src/main/resources/site/templates/`
+- Créé `ThymeleafRenderingTest.kt` — 17 tests de rendu couvrant 5 templates :
+  * analytics-script (3 tests : plausible, absent, matomo)
+  * google-forms (2 tests : présent, absent)
+  * theme-script (2 tests : présent, absent)
+  * auth-header (2 tests : présent, absent)
+  * comments (3 tests : true, false, absent)
+  * newsletter-form (3 tests : true, false, absent)
+  * sanity (2 tests : directory, template exists)
+
+=== JB-9.3 : 5 Bugs Templates Détectés et Corrigés
+
+Les rendering tests ont révélé 5 bugs dans les templates Thymeleaf :
+
+| # | Template | Bug | Correction |
+|---|----------|-----|------------|
+| 1 | `google-forms.thyme` | `${x and y}` (SpEL, pas OGNL) | `&&` |
+| 2 | `google-forms.thyme` | `${x ?: 'default'}` (Elvis, pas OGNL) | valeurs default data class |
+| 3 | `auth-header.thyme` | `${x and y}` (SpEL) | `&&` |
+| 4 | `comments.thyme` | `${x and y}` (SpEL) | `&&` |
+| 5 | `theme-script.thyme` | `/*[[${var}]]*/ default` CSS inline | `th:inline="javascript"` + `setProperty()` |
+
+Bug #5 critique : les CSS custom properties n'étaient JAMAIS appliquées par
+le navigateur car l'inline Thymeleaf en mode HTML place la valeur dans un
+commentaire CSS `/*value*/` que le navigateur ignore.
+
+=== BKY-JB-5 Étape 5 : Cucumber Déjà Complet
+
+Le BACKLOG marquait l'étape 5 BDD comme [ ] mais le feature
+`13_analytics_newsletter.feature` + steps existants étaient déjà complets.
+Correctif : checkboxes cochées dans BACKLOG.adoc.
+
+== Fichiers Modifiés
+
+| Fichier | Action |
+|---------|--------|
+| `gradle/libs.versions.toml` | +thymeleaf version + library |
+| `build.gradle.kts` | +testImplementation(libs.thymeleaf) |
+| `src/test/kotlin/bakery/ThymeleafRenderingTestFactory.kt` | créé |
+| `src/test/kotlin/bakery/ThymeleafRenderingTest.kt` | créé (17 tests) |
+| `src/main/resources/site/templates/google-forms.thyme` | OGNL fix |
+| `src/main/resources/site/templates/auth-header.thyme` | OGNL fix |
+| `src/main/resources/site/templates/comments.thyme` | OGNL fix |
+| `src/main/resources/site/templates/theme-script.thyme` | CSS→JS migration |
+| `src/main/resources/site-basic/templates/theme-script.thyme` | aligné |
+| `BACKLOG.adoc` | BKY-JB-5 Étape 5 cochée |
+
+== Métriques Tests
+
+| Couche | Avant | Après | Delta |
+|--------|-------|-------|-------|
+| UT | 274 | 282 | +8 rendering tests |
+| FT | PASS | PASS | — |
+| Cucumber | 36/36 | 36/36 | — |
+
+== Leçons
+
+1. **Thymeleaf Rendering Tests sont un filet anti-bug essentiel** : 5 bugs
+   (3 SpEL/OGNL + 1 CSS inline + 1 Elvis) n'auraient jamais été détectés
+   par les tests `readText().contains()`.
+2. **`and` vs `&&`** : Thymeleaf StandardDialect utilise OGNL, pas SpEL.
+   L'opérateur logique est `&&`, pas `and`.
+3. **CSS inline `/*[[${}]]*/`** : Le natural template Thymeleaf place la
+   valeur dans un commentaire HTML/CSS que le navigateur ignore. Préférer
+   `th:inline="javascript"` + `setProperty()` pour les CSS custom properties.
+4. **Toujours déclarer les dépendances via `libs.versions.toml`** : pas de
+   versions hardcodées dans `build.gradle.kts`.

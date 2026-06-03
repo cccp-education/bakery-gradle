@@ -1,0 +1,53 @@
+= Session 041 — Reprise Bakery + Planning BKY-BKG Steps 4-6
+
+_Date_ : 2026-06-02
+_Type_ : analyse + planning
+_Score_ : 7/10
+
+== Contexte
+
+Reprise du borough Bushwick (bakery-gradle). Session de cadrage pour le prochain EPIC BKY-BKG Steps 4-6 (consommation graphe KG dans les templates). Aucun code modifié — analyse et planification uniquement.
+
+== Tâches réalisées
+
+* [x] Lecture PROMPT_REPRISE.adoc (session 040 → BKY-JB-8 terminé)
+* [x] Lecture AGENT.adoc + INDEX.adoc + BACKLOG.adoc
+* [x] Vérification build : compileKotlin ✅, test ✅ (297 UT PASS)
+* [x] Lecture code source BKY-BKG existant : RelatedArticlesService, RelatedArticlesGraph, RelatedArticlesOutput, SiteManager.registerCollectRelatedArticlesTask
+* [x] Lecture post.thyme — identification de la section "articles connexes" chronologique à remplacer
+* [x] Analyse BACKLOG BKG-1 (3 pts) : consommation graphe dans bakery
+
+== État des lieux
+
+* Build : compile ✅, 297 UT PASS ✅
+* Roadmap JBake : 10 EPICs TOUS TERMINÉS (JB-0→JB-9 ✅)
+* EPICs ouverts : BKY-BKG (8 pts, P1), EPIC 13 (2.5 pts, P1), EPIC 6 (P1), EPIC 11 (P0)
+
+== Plan session 042 — BKY-BKG Steps 4-6 (BKG-1 = 3 pts)
+
+Baby steps DDD/TDD/BDD :
+
+| Étape | Type | Action | Tests |
+|-------|------|--------|-------|
+| 1 | DDD | `RelatedArticlesResolver` — lit `related-articles.json` → résout suggestions pour un slug | 5+ UT |
+| 2 | TDD | Injection resolver dans pipeline JBake → props ou modèle Thymeleaf | 2 UT |
+| 3 | TDD | Fragment `related-articles.thyme` avec th:if guard + fallback chrono | 3 rendering tests |
+| 4 | TDD | Intégration dans `post.thyme` (remplacement section chrono) | 2 UT |
+| 5 | FT | Tests fonctionnels : generateSite déploie related-articles.thyme | 2 FT |
+| 6 | BDD | Cucumber `17_related_articles_kg.feature` — 3 scénarios | 3 Cucumber |
+
+== Fichiers existants BKG (Steps 1-3)
+
+* `src/main/kotlin/bakery/kgraph/RelatedArticlesGraph.kt` — ArticleNode, ArticleEdge, RelatedArticlesGraph, RelatedArticleSuggestion, RelatedArticlesOutput
+* `src/main/kotlin/bakery/kgraph/RelatedArticlesService.kt` — buildGraph, computeScore, toSuggestions
+* `src/main/kotlin/bakery/SiteManager.kt` — registerCollectRelatedArticlesTask (tâche Gradle)
+* 18 UT + 3 FT déjà existants (Steps 1-3)
+
+== Décisions
+
+* Prochain EPIC : BKY-BKG Steps 4-6 (BKG-1 = 3 pts, P1) naturellement suivant Steps 1-3
+* BKG-2 (ontologie émergente, 8 pts, P2 optionnel) reporté — clustering NLP = trop lourd pour cette session
+
+== Prochaine session
+
+042 — BKY-BKG Steps 4-6 (BKG-1) : RelatedArticlesResolver + related-articles.thyme + post.thyme modification + baby steps DDD/TDD/BDD

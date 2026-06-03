@@ -1,0 +1,75 @@
+= Session 045 — BKG-0.4 Sortie graph.json enrichi + BKG-1 Consommation graphe
+
+== Date
+2026-06-02
+
+== Type
+feat + test + BDD
+
+== Score
+9/10
+
+== Résumé
+Session 045 : BKG-0.4 Knowledge Graph enrichi (blogArticles dans output) + BKG-1 Consommation du graphe (DSL graphFilePath + injection jbake.properties + Cucumber).
+
+Baby steps DDD/TDD/BDD 6/6 :
+
+**BKG-0.4 — Sortie graph.json enrichi section blog_articles** :
+- `BlogArticleSummary` data class ajouté (title, description, tags, date, author)
+- `RelatedArticlesOutput` enrichi avec `blogArticles: Map<String, BlogArticleSummary>`
+- `RelatedArticlesService.toSuggestions()` peuple `blogArticles` depuis les `ArticleNode`
+- 2 nouveaux UT ( sérialisation/désérialisation blogArticles, empty blogArticles map)
+- 1 UT existant mis à jour (sérialisation RelatedArticlesOutput avec blogArticles)
+
+**BKG-1.1 — DDD : RelatedArticlesConfig + DSL graphFilePath** :
+- `graphFilePath: String = "build/bakery/related-articles.json"` ajouté à `RelatedArticlesConfig` et `RelatedArticlesDsl`
+- 2 nouveaux UT (YAML parsing graphFilePath, DSL graphFilePath defaults)
+- 1 UT existant mis à jour (defaults include graphFilePath)
+
+**BKG-1.2 — TDD : Injection jbake.properties + Resolver** :
+- `injectRelatedArticlesConfigIntoJbakeProperties` met à jour `relatedArticlesGraphFilePath` dans jbake.properties
+- `RelatedArticlesResolver` lit les blogArticles depuis related-articles.json
+- 3 nouveaux UT (Resolver lit blogArticles, metadata blogArticles, output avec blogArticles mais pas suggestions)
+- 2 UT existants mis à jour (injection graphFilePath dans jbake.properties, custom et default path)
+- `RelatedArticlesInjectionTest` : 2 nouveaux tests (custom graphFilePath + default path injection)
+
+**BKG-1.3 — BDD : Cucumber 19_related_articles_graph_consumption.feature** :
+- Feature : 3 scénarios PASS
+  - @happy-path : RelatedArticlesConfig avec graphFilePath injecte dans jbake.properties
+  - @default-path : RelatedArticlesConfig sans graphFilePath utilise le chemin par défaut
+  - @output-enriched : RelatedArticlesOutput contient blogArticles avec description et tags
+- `GraphConsumptionSteps.kt` créé (4 steps Cucumber)
+
+**Total** : 395 UT + 53 FT + 64 Cucumber (61 anciens + 3 nouveaux). 0 régression.
+
+== Fichiers modifiés
+- `src/main/kotlin/bakery/kgraph/RelatedArticlesGraph.kt` — BlogArticleSummary data class + RelatedArticlesOutput.blogArticles
+- `src/main/kotlin/bakery/kgraph/RelatedArticlesService.kt` — toSuggestions() peuple blogArticles
+- `src/main/kotlin/bakery/SiteConfiguration.kt` — RelatedArticlesConfig.graphFilePath
+- `src/main/kotlin/bakery/RelatedArticlesDsl.kt` — graphFilePath property
+- `src/main/kotlin/bakery/SiteManager.kt` — injectRelatedArticlesConfigIntoJbakeProperties + graphFilePath
+- `src/test/kotlin/bakery/kgraph/RelatedArticlesOutputTest.kt` — 2 nouveaux UT (blogArticles sérialisation + empty)
+- `src/test/kotlin/bakery/kgraph/RelatedArticlesResolverTest.kt` — 3 nouveaux UT (blogArticles lecture, metadata, output sans suggestions)
+- `src/test/kotlin/bakery/kgraph/RelatedArticlesGraphTest.kt` — inchangé
+- `src/test/kotlin/bakery/kgraph/RelatedArticlesServiceTest.kt` — inchangé
+- `src/test/kotlin/bakery/RelatedArticlesConfigTest.kt` — 2 nouveaux UT (graphFilePath YAML + DSL)
+- `src/test/kotlin/bakery/RelatedArticlesInjectionTest.kt` — 2 nouveaux UT (custom graphFilePath + default path)
+- `src/test/features/19_related_articles_graph_consumption.feature` — créé (3 scénarios BDD)
+- `src/test/scenarios/bakery/scenarios/GraphConsumptionSteps.kt` — créé (4 steps Cucumber)
+
+== État BKG-0
+- BKG-0.1 (ArticleNode description) ✅ TERMINÉ
+- BKG-0.2 (tag co-occurrence + entity overlap) ✅ TERMINÉ
+- BKG-0.3 (Cucumber BDD) ✅ TERMINÉ
+- BKG-0.4 (sortie graph.json enrichi section blog_articles) ✅ TERMINÉ
+
+== État BKG-1
+- BKG-1.1 (RelatedArticlesConfig + DSL graphFilePath) ✅ TERMINÉ
+- BKG-1.2 (BakeryPlugin lit graph.json, injection jbake.properties) ✅ TERMINÉ
+- BKG-1.3 (Cucumber 19_related_articles_graph_consumption.feature) ✅ TERMINÉ
+
+== Prochaine session
+Possibilités :
+- BKG-1.4 (optionnel) : Modifier post.thyme pour consommer le graphe (th:if guard + lookup slug→relatedIds)
+- BKG-2 : Ontologie émergente (8 pts, P2 optionnel)
+- Autres EPICs : BKY-IA-4 (génération article), BKY-N3-7 (contrat metadata), BKY-TRN-9 (formation)

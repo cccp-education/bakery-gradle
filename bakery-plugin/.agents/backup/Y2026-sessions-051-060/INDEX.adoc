@@ -194,10 +194,8 @@ Pattern LENTILLE : ségrégation (SubgraphExtractor) → enrichissement
 |===
 
 *Phase 1 (LENS-1→3)* : 12 pts — P0 Ségrégation + Enrichissement + Reconnect
-*Phase 2 (LENS-4)* : 3 pts — P1 Réécriture Cucumber ✅ TERMINÉ
+*Phase 2 (LENS-4)* : 3 pts — P1 Réécriture Cucumber
 *Phase 3 (LENS-5→6)* : 6 pts — P1-P2 N3 + Templates
-
-_Localisation active_ : `.agents/backup/Y2026-sessions-051-060/` (rotation session 060)
 | EPIC | Pts | Priorite | Cause racine
 | EPIC 15 — PluginApplicationTest NPE | 3 | *P0 ✅ TERMINÉ* | `siteType` déjà stubbé dans BakeryTestFixture
 | EPIC 16 — Cucumber Scaffolding steps | 2 | *P0 ✅ TERMINÉ* | Step déjà corrigé dans .feature (session 027)

@@ -1,0 +1,50 @@
+= Session 049 — CONV-1.4 vérifié + CONV-1.5 FT cascade
+
+== Date
+2026-06-02
+
+== Type
+feat + test + vérification
+
+== Score
+8/10
+
+== Résumé
+
+Reprise de bakery-gradle avec chargement complet du contexte de gouvernance (PROMPT_REPRISE, AGENT, INDEX, BACKLOG, CODE_REVIEW, session 047).
+
+**CONV-1.4** : Vérification complète — la migration ConfigResolver dans SiteManager est **DÉJÀ RÉALISÉE**. Les 9 méthodes `inject*IntoJbakeProperties` ont été fusionnées en une seule méthode générique `injectResolvedConfigIntoJbakeProperties` avec un resolver lambda. Toutes les configs sont résolues via `ConfigResolver.resolve*` (lignes 181-189). La méthode `injectRelatedArticlesConfigIntoJbakeProperties` reste séparée légitimement (lecture fichier graphe BKG-1.4).
+
+**CONV-1.5** : Création de 3 tests fonctionnels dans `ScaffoldFunctionalTests.ConfigResolverCascadeTest` :
+
+1. `CONV-1 DSL overrides default when explicitly set` — DSL formId surcharge les defaults ✅
+2. `CONV-1 gradle.properties overrides DSL and defaults` — gradle.properties surcharge DSL ✅
+3. `CONV-1 defaults are injected when no config provided` — defaults injectés quand aucune config ✅
+
+Création du fichier feature Cucumber `20_config_resolver_cascade.feature` (2 scénarios basiques — la cascade complète est testée en FT, pas en Cucumber E2E car TestKit ne permet pas facilement de tester `-P` CLI props).
+
+Compilation ✅. Tests FT ✅ (3/3 PASS).
+
+== EPIC concerné
+BKY-CONV-1 (P0) — Steps 4-5 partiellement complétés
+
+== Fichiers créés/modifiés
+
+* `src/test/features/20_config_resolver_cascade.feature` — NOUVEAU (2 scénarios Cucumber)
+* `src/test/scenarios/bakery/scenarios/ConfigResolverSteps.kt` — NOUVEAU (steps Cucumber)
+* `src/functionalTest/kotlin/bakery/ScaffoldFunctionalTests.kt` — MODIFIÉ (+3 FT ConfigResolverCascadeTest)
+* `src/functionalTest/kotlin/bakery/ScaffoldFunctionalTests.kt` — MODIFIÉ (git diff — 2 tests existants modifiés pour CONV-1 defaults)
+
+== Constats et Décisions
+
+1. **CONV-1.4 était déjà fait** : La session 047 avait déjà migré toutes les configs vers ConfigResolver. La méthode unifiée `injectResolvedConfigIntoJbakeProperties` remplace les 9 méthodes `inject*`. Seul `injectRelatedArticlesConfigIntoJbakeProperties` reste séparé (lecture fichier graphe).
+2. **Cucumber vs FT pour la cascade ConfigResolver** : Les tests Cucumber E2E ne sont pas idéaux pour tester la cascade multi-couches car TestKit ne permet pas facilement de simuler `-P` CLI props. Les tests fonctionnels dédiés sont plus adaptés. La feature Cucumber 20 reste minimaliste (2 scénarios).
+3. **Tests fonctionnels existants déjà adaptés** : Deux tests existants dans ScaffoldFunctionalTests ont été modifiés pour refléter le nouveau comportement CONV-1 (defaults injectés au lieu de "pas d'injection").
+4. **saveConfiguration() reste vide** (CRITIQUE 3 de la code review) — toujours non implémenté après 30+ sessions. À adresser en CONV-1.6 ou EPIC séparé.
+
+== Prochaines étapes (Session 050)
+
+1. CONV-1.6 : Documentation — mettre à jour AGENT.adoc (section ordre de surcharge), INDEX.adoc, BACKLOG.adoc
+2. CONV-1.7 (nouveau) : Implémenter `saveConfiguration()` dans ConfigPrompts — CRITIQUE 3 de la code review
+3. Supprimer la dépendance graphify inutilisée (GRAVE 4 de la code review)
+4. Supprimer les tests `@SupersededBy` (GRAVE 5)

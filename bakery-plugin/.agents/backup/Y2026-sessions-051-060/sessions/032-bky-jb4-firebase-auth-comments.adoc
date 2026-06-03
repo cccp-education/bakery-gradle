@@ -1,0 +1,84 @@
+= Session 032 — BKY-JB-4 Firebase Auth + Comments
+:jbake-status: draft
+
+== Objet
+
+BKY-JB-4 — Firebase Auth + Comments : header login/logout, section commentaires Firestore, injection config jbake.properties.
+
+== Méthodologie
+
+Baby steps DDD/TDD/BDD Agile Software Craftsmanship — 5 étapes séquentielles, validation compile après chaque modification.
+
+== Réalisations
+
+=== Étape 1 — DDD : Modèle domaine
+
+* `FirebaseAuthConfig` data class (apiKey, authDomain, projectId) dans `SiteConfiguration.kt`
+* `CommentsConfig` data class (enabled, collection) dans `SiteConfiguration.kt`
+* Champs `firebaseAuth: FirebaseAuthConfig?` et `comments: CommentsConfig?` ajoutés à `SiteConfiguration`
+* `FirebaseAuthDsl` open class (apiKey, authDomain, projectId)
+* `CommentsDsl` open class (enabled, collection)
+* DSL `bakery { firebaseAuth { ... } }` et `bakery { commentsConfig { ... } }` dans `BakeryExtension`
+
+**TDD** : `FirebaseAuthConfigTest` — 5 tests PASS
+
+=== Étape 2 — TDD : Fragments Thymeleaf
+
+* `auth-header.thyme` — bouton login/logout avec `th:if` guard sur `firebaseAuthApiKey`
+* `comments.thyme` — section commentaires Firestore avec `th:if` guard sur `commentsEnabled`
+* `firebase-auth-compat.js` ajouté dans `footer.thyme`
+* `FIREBASE_CONFIG` enrichi avec `authDomain` + `firebase.initializeApp()` dans footer
+* `menu.thyme` : intégration `auth-header.thyme`
+* `post.thyme` : remplacement Disqus → `comments.thyme`
+* `page.thyme` : ajout `comments.thyme`
+
+**TDD** : `FirebaseAuthTemplateTest` — 8 tests PASS
+
+=== Étape 3 — TDD : Injection config
+
+* `injectFirebaseAuthConfigIntoJbakeProperties()` dans `SiteManager`
+* `injectCommentsConfigIntoJbakeProperties()` dans `SiteManager`
+* Injection de `firebaseAuthApiKey`, `firebaseAuthDomain`, `firebaseAuthProjectId`, `commentsEnabled`, `commentsCollection`
+
+**TDD** : `FirebaseAuthInjectionTest` — 3 tests PASS
+
+=== Étape 4 — FT : Tests fonctionnels
+
+**FT** : `ScaffoldFunctionalTests.FirebaseAuthCommentsTest` — 2 tests PASS
+
+=== Étape 5 — BDD : Scénarios Cucumber
+
+* `12_firebase_auth_comments.feature` — 3 scénarios (happy-path, no-config, integration)
+* Steps réutilisés : `ThymeleafComponentSteps`, `GoogleFormsSteps`
+
+**BDD** : 3/3 scénarios Cucumber PASS
+
+== Métriques
+
+| Suite | Tests | Statut
+| test (UT) | 213+ (16 nouveaux) | ✅ PASS
+| functionalTest | 2 nouveaux | ✅ PASS
+| cucumberTest | 3 scénarios nouveaux | ✅ PASS
+
+== Fichiers modifiés
+
+| Fichier | Action
+| `SiteConfiguration.kt` | +FirebaseAuthConfig, +CommentsConfig, +champs dans SiteConfiguration
+| `BakeryExtension.kt` | +firebaseAuth DSL, +commentsConfig DSL
+| `FirebaseAuthDsl.kt` | CRÉÉ
+| `SiteManager.kt` | +injectFirebaseAuthConfigIntoJbakeProperties, +injectCommentsConfigIntoJbakeProperties
+| `footer.thyme` | +firebase-auth-compat.js, +authDomain, +firebase.initializeApp
+| `menu.thyme` | +auth-header.thyme fragment
+| `post.thyme` | Disqus → comments.thyme
+| `page.thyme` | +comments.thyme fragment
+| `auth-header.thyme` | CRÉÉ
+| `comments.thyme` | CRÉÉ
+| `FirebaseAuthConfigTest.kt` | CRÉÉ (5 UT)
+| `FirebaseAuthTemplateTest.kt` | CRÉÉ (8 UT)
+| `FirebaseAuthInjectionTest.kt` | CRÉÉ (3 UT)
+| `ScaffoldFunctionalTests.kt` | +FirebaseAuthCommentsTest (2 FT)
+| `12_firebase_auth_comments.feature` | CRÉÉ (3 scénarios)
+
+== Score
+
+9/10 — Méthodologie baby steps respectée, 100% des tests verts, publication mavenLocal OK.

@@ -1,0 +1,46 @@
+= Session 047 — BKY-CONV-1 ConfigResolver 4 couches
+
+== Date
+2026-06-02
+
+== Type
+feat + test + DDD
+
+== Score
+9/10
+
+== Résumé
+
+Démarrage BKY-CONV-1 : Surcharge Configuration Multi-Couche.
+Audit complet des 9+ configs bakery : aucune n'a de mécanisme de surcharge multi-couche (9/10 n'utilisent que le YAML).
+Référence trouvée : plantuml-gradle ConfigMerger (5 couches).
+
+Création de `ConfigResolver.kt` avec résolution 4 couches :
+`CLI (-P) > gradle.properties > DSL > site.yml > defaults`
+
+4 types primitifs : resolveString, resolveInt, resolveBoolean, resolveEnum
+3 méthodes de résolution par config : resolveGoogleFormsConfig, resolveAnalyticsConfig, resolveRelatedArticlesConfig
+50 UT PASS (7 nested classes).
+
+Build complet : 451 UT (397 préexistants + 50 ConfigResolver + 4 autres).
+
+== Épic concerné
+BKY-CONV-1 (P0)
+
+== Fichiers créés/modifiés
+
+* `src/main/kotlin/bakery/ConfigResolver.kt` — NOUVEAU (resolveString/Int/Boolean/Enum + resolveGoogleForms/Analytics/RelatedArticles + loadProperties/loadPropertiesFromMap)
+* `src/test/kotlin/bakery/ConfigResolverTest.kt` — NOUVEAU (50 UT, 7 nested classes)
+
+== Constats et Décisions
+
+1. **Audit cross-borough** : plantuml-gradle a un ConfigMerger explicite à 5 couches (CLI > ENV > gradle.properties > YAML > defaults). codebase-gradle utilise `providers.gradleProperty().orElse(extension)`. slider-gradle est YAML-centric avec override CLI ponctuel.
+2. **Décision architecture** : Bakery adopte 4 couches (CLI+gradle.properties > DSL > YAML > defaults) car ENV vars ne sont pas pertinentes pour un plugin Gradle build-time.
+3. **Pattern innovant** : `dslValue != default` comme heuristique pour détecter qu'un DSL a été explicitement configuré. Permet à un DSL vide de "tomber" vers YAML, et à un DSL configuré de surcharger YAML.
+4. **9/10 configs n'ont aucun override** : Seul `articleIntention` a un vrai mécanisme CLI > DSL > defaults via `GenerateArticleTask.resolveIntention()`.
+
+== Prochaines étapes (Session 048)
+
+1. CONV-1.4 : Migrer les 9+ méthodes `inject*IntoJbakeProperties` dans SiteManager pour utiliser ConfigResolver
+2. CONV-1.5 : 3 scénarios Cucumber BDD
+3. CONV-1.6 : Documentation AGENT.adoc + BACKLOG

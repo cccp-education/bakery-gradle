@@ -1,0 +1,76 @@
+= Session 037 — BKY-JB-9 Phase B : Playwright E2E Setup + Borough-isation
+:date: 2026-06-02
+:type: feat + test + infra
+:score: 8/10
+
+== Objectif
+
+Continuer BKY-JB-9 Phase B : ajouter Playwright-jvm comme dépendance E2E,
+créer la tâche Gradle `e2eTest`, et écrire les premiers tests E2E browser.
+
+== Baby Steps Complétés
+
+=== JB-9.7 : Playwright-jvm + Tâche Gradle e2eTest
+
+- **build.gradle.kts** : ajout du sourceSet `e2eTest` (kotlin + resources)
+- **build.gradle.kts** : tâche `e2eTest` (Test) avec JUnit5, headless chromium, timeout 10min
+- **build.gradle.kts** : tâche `installPlaywright` (NpxTask) installe Chromium automatiquement
+- **libs.versions.toml** : playwright 1.52.0, node-gradle plugin
+- **plugin `com.github.node-gradle.node`** : ajouté dans plugins block
+- Séparation stricte : `e2eTest` n'est PAS dans `check` — doit être lancé explicitement via `./gradlew e2eTest`
+
+=== E2E Test Classes (6 fichiers)
+
+| Fichier | Rôle | Tests |
+|---------|------|-------|
+| `PlaywrightSanityTest.kt` | Sanity check (factory + chromium headless) | 2 |
+| `PlaywrightHelper.kt` | Availability check (isAvailable) | — |
+| `E2ETestBase.kt` | HTTP server + Thymeleaf rendering + Playwright lifecycle | — |
+| `E2EGoogleFormsTest.kt` | Google Forms iframe visible/absent | 2 |
+| `E2EAnalyticsNewsletterTest.kt` | Plausible, Matomo, newsletter visible/absent | 5 |
+| `E2EAuthCommentsTest.kt` | Auth button visible/absent, comments visible/absent | 4 |
+
+== Chiffres
+
+- **13/13 E2E tests PASS** (Playwright Chromium headless)
+- **297 UT PASS** (inchangé)
+- **39 Cucumber PASS** (inchangé)
+- **Build compile** OK (2m 2s pour test, 1m 28s pour e2eTest)
+
+== Fichiers créés
+
+| Fichier | Changement |
+|---------|-----------|
+| `build.gradle.kts` | +sourceSet e2eTest, +tâche e2eTest, +tâche installPlaywright, +plugin node-gradle |
+| `gradle/libs.versions.toml` | +playwright 1.52.0, +node-gradle plugin |
+| `src/e2eTest/kotlin/bakery/e2e/PlaywrightSanityTest.kt` | Créé (2 sanity tests) |
+| `src/e2eTest/kotlin/bakery/e2e/E2ETestBase.kt` | Créé (HTTP server + Thymeleaf + lifecycle) |
+| `src/e2eTest/kotlin/bakery/e2e/PlaywrightHelper.kt` | Créé (availability check) |
+| `src/e2eTest/kotlin/bakery/e2e/E2EGoogleFormsTest.kt` | Créé (2 tests) |
+| `src/e2eTest/kotlin/bakery/e2e/E2EAnalyticsNewsletterTest.kt` | Créé (5 tests) |
+| `src/e2eTest/kotlin/bakery/e2e/E2EAuthCommentsTest.kt` | Créé (4 tests) |
+
+== Décisions
+
+- *E2E = JUnit5 + Playwright, PAS Cucumber* : les tests E2E utilisent JUnit5 directement,
+  pas de wrapper Cucumber. La couche BDD couvre déjà les user journeys via les 39 scénarios
+  Cucumber existants. Les E2E tests valident le rendu browser réel (JS, CSS, iframe).
+- *Séparation check/e2eTest* : `e2eTest` est volontairement hors du cycle `check`
+  (trop lourd, nécessite Chromium). À lancer explicitement ou en CI séparée.
+- *NpxTask pour installPlaywright* : pattern capsule-gradle réutilisé.
+  Installe Chromium automatiquement avant les tests.
+
+== Prochaines baby steps — BKY-JB-9 Phase B (reste)
+
+| Step | Description | Pts |
+|-------|-------------|-----|
+| JB-9.8 | Scénarios Cucumber E2E OU validation JUnit5 suffisante | 2 |
+| JB-9.9 | CI workflow e2eTest sur push main (headless Chrome) | 1 |
+
+== EPICs disponibles (priorité décroissante)
+
+| EPIC | Pts | Prio | Description |
+|------|-----|------|-------------|
+| BKY-JB-9 (Phase B reste) | 3 | P1 | Cucumber E2E + CI workflow |
+| BKY-JB-7 | 3 | P2 | Layouts (full-width, sidebar, centered) |
+| BKY-JB-8 | 13 | P0 | Article assisté IA via codebase |

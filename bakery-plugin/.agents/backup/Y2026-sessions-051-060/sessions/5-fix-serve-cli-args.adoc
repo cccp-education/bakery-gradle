@@ -1,0 +1,45 @@
+= Session 7 — Fix arg CLI JBake dans la tâche `serve`
+:date: 2026-04-27
+:resultat: OK
+
+== Contexte
+
+Après un crash système, l'utilisateur avait fait 4 screenshots comparant le rendu local (`./gradlew serve`) avec le rendu en ligne (`publishSite`). Le rendu local était visuellement différent : boutons rectangulaires, texte illisible, CSS manquant.
+
+== Diagnostic
+
+La tâche `serve` du plugin Bakery passait les arguments CLI JBake avec une syntaxe incorrecte :
+
+[source,kotlin]
+----
+// BUG — syntaxe paire clé/valeur
+args = listOf("-b", src, "-s", dest)
+----
+
+JBake CLI attend des arguments positionnels (`src`, `dest`, puis les flags). Le `-s` était interprété comme un flag booléen qui lance le serveur, pas comme un setter de destination. Résultat : JBake servait un répertoire temporaire au lieu de `build/bake/`.
+
+== Correction
+
+[source,kotlin]
+----
+// FIX — arguments positionnels + flag en dernier
+args = listOf(src, dest, "-s")
+----
+
+Fichier modifié : `bakery-plugin/src/main/kotlin/bakery/SiteManager.kt`
+
+== Actions réalisées
+
+1. ✅ Fix des arguments CLI JBake dans `SiteManager.kt`
+2. ✅ Plugin republié en local via `./gradlew publishToMavenLocal`
+3. ✅ Test validé : `./gradlew serve` affiche désormais le même rendu que la version en ligne
+4. ✅ Réactivation du plugin `readme` et restauration de `settings.gradle.kts`
+5. ✅ Bump version `bakery = "0.1.1"` dans `gradle/libs.versions.toml`
+6. ✅ Article rédigé et publié sur cheroliv.com :
+   `blog/2026/0107_jbake_serve_rendering_bug_fix_post.adoc`
+7. ✅ Screenshots ajoutés dans l'article (4 captures comparatives)
+
+== Notes
+
+* L'utilisateur s'occupe de la publication du plugin `0.1.1` sur le Gradle Plugin Portal (credentials déjà configurés).
+* Les tests unitaires passent (cucumber + functional) timeout parfois sur environnement lent mais pas lié au fix.

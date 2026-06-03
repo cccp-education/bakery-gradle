@@ -1,0 +1,123 @@
+= Session 058 — BKY-LENS-3 Budget + Injection JBake (Reconnect)
+
+== Date
+2026-06-03
+
+== Type
+feat + TDD + BDD + cleanup
+
+== Score
+9/10
+
+== Contexte
+Reprise de bakery-gradle session 058. BKY-LENS-3 (Budget + Injection JBake + Nettoyage BKG).
+LENS-1 ✅ et LENS-2 ✅ déjà implémentés et testés (52+ UT). 54 échecs Cucumber pré-existants.
+
+== Tâches réalisées
+
+=== LENS-3.1 — LensBudget data class + DSL
+
+* [x] Créer `LensBudget` data class (`maxArticlesPerPage: Int = 4`, `minSimilarity: Double = 0.7`)
+* [x] Ajouter méthode `apply(scoredNodes)` : filtre par minSimilarity + troncature maxArticlesPerPage
+* [x] Enrichir `AugmentedContextDsl` avec bloc `budget { }` DSL (en remplacement des propriétés directes)
+* [x] Migrer `maxArticles` et `minSimilarity` de `AugmentedContextDsl` vers `LensBudget`
+
+=== LENS-3.1 — TDD LensBudget
+
+* [x] `LensBudgetTest` — 13 tests PASS :
+  - Defaults (2) : maxArticlesPerPage=4, minSimilarity=0.7
+  - Mutation (2) : propriétés modifiables
+  - DataClassCopy (1) : copie avec modifications
+  - ApplyBudget (6) : default keeps 3/5, maxArticles=2, minSimilarity=0.9, empty list, inclusive threshold, exclusive below threshold
+  - BudgetDsl (2) : AugmentedContextDsl.budget type, budget DSL via Action
+* [x] `LensBudgetInjectionTest` — 4 tests PASS :
+  - enabled → injecte 3 propriétés jbake
+  - custom budget → valeurs custom
+  - disabled → pas d'injection
+  - existing properties updated
+
+=== LENS-3.2 — Tâche LENS + Injection JBake
+
+* [x] Créer `registerCollectAugmentedContextTask()` dans SiteManager (remplace `registerCollectRelatedArticlesTask`)
+  - Pipeline LENS complet : load composite-context → extract subgraph → scoring hybride → rules → budget → JSON
+  - Tâche Gradle `collectAugmentedContext` (groupe COLLECT, dependsOn collectSiteContext)
+* [x] Ajouter `injectLensBudgetIntoJbakeProperties()` dans SiteManager
+  - Injecte : augmentedContextEnabled, lensBudgetMaxArticlesPerPage, lensBudgetMinSimilarity, augmentedContextData
+* [x] Brancher injection LENS dans `copySiteResources()` (si augmentedContext.enabled)
+* [x] Mise à jour `BakeryPlugin.kt` : import `registerCollectAugmentedContextTask`, appel avec `bakeryExtension.augmentedContext`
+
+=== LENS-3.3 — Nettoyage BKG legacy
+
+* [x] Supprimer 4 fichiers source BKG :
+  - `kgraph/RelatedArticlesService.kt` (254 lignes)
+  - `kgraph/RelatedArticlesGraph.kt` (107 lignes)
+  - `kgraph/RelatedArticlesResolver.kt` (63 lignes)
+  - `RelatedArticlesDsl.kt` (29 lignes)
+* [x] Supprimer 7 fichiers tests BKG :
+  - `kgraph/RelatedArticlesServiceTest.kt`
+  - `kgraph/RelatedArticlesGraphTest.kt`
+  - `kgraph/RelatedArticlesResolverTest.kt`
+  - `kgraph/RelatedArticlesOutputTest.kt`
+  - `RelatedArticlesInjectionTest.kt`
+  - `RelatedArticlesTemplateTest.kt`
+  - `RelatedArticlesConfigTest.kt`
+* [x] Supprimer 2 fichiers steps Cucumber BKG (à réécrire en LENS-4) :
+  - `GraphConsumptionSteps.kt` (Feature 19)
+  - `KgEnrichedSteps.kt` (Feature 18)
+* [x] Nettoyer `BakeryExtension.kt` : supprimer `relatedArticles` DSL block
+* [x] Nettoyer `SiteManager.kt` : supprimer `injectRelatedArticlesConfigIntoJbakeProperties`, résolution BKG dans `copySiteResources`
+* [x] Nettoyer `ConfigResolver.kt` : supprimer `resolveRelatedArticlesConfig`
+* [x] Nettoyer `SiteConfiguration.kt` : supprimer `RelatedArticlesConfig` data class + champ `relatedArticles`
+* [x] Nettoyer `ConfigResolverTest.kt` : supprimer `ResolveRelatedArticlesConfigTest` (4 tests)
+* [x] Nettoyer `ThymeleafRenderingTest.kt` : supprimer `RelatedArticlesRenderingTest` nested class
+
+== Fichiers créés
+
+| Fichier | Rôle |
+| `src/main/kotlin/bakery/lens/LensBudget.kt` | LensBudget data class + apply() |
+| `src/test/kotlin/bakery/lens/LensBudgetTest.kt` | 13 tests TDD |
+| `src/test/kotlin/bakery/lens/LensBudgetInjectionTest.kt` | 4 tests injection jbake.properties |
+
+== Fichiers modifiés
+
+| Fichier | Changement |
+| `src/main/kotlin/bakery/lens/AugmentedContextDsl.kt` | Migration maxArticles/minSimilarity → LensBudget, ajout budget { } DSL |
+| `src/main/kotlin/bakery/SiteManager.kt` | registerCollectAugmentedContextTask + injectLensBudgetIntoJbakeProperties + suppression BKG |
+| `src/main/kotlin/bakery/BakeryPlugin.kt` | Import registerCollectAugmentedContextTask, remplacement appel BKG |
+| `src/main/kotlin/bakery/BakeryExtension.kt` | Suppression relatedArticles DSL block |
+| `src/main/kotlin/bakery/ConfigResolver.kt` | Suppression resolveRelatedArticlesConfig |
+| `src/main/kotlin/bakery/SiteConfiguration.kt` | Suppression RelatedArticlesConfig + champ relatedArticles |
+| `src/test/kotlin/bakery/lens/LensConfigTest.kt` | Mise à jour références maxArticles → budget.maxArticlesPerPage |
+| `src/test/kotlin/bakery/ConfigResolverTest.kt` | Suppression ResolveRelatedArticlesConfigTest |
+| `src/test/kotlin/bakery/ThymeleafRenderingTest.kt` | Suppression RelatedArticlesRenderingTest |
+
+== Fichiers supprimés
+
+13 fichiers BKG legacy (4 source + 7 tests + 2 cucumber steps)
+
+== Résultats
+
+* LensBudgetTest : 13/13 PASS ✅
+* LensBudgetInjectionTest : 4/4 PASS ✅
+* LensConfigTest : PASS (mise à jour maxArticles→budget) ✅
+* AugmentedArticlesServiceTest : 25/25 PASS ✅
+* AugmentedContextResolverTest : 16/16 PASS ✅
+* LensRulesTest : 11/11 PASS ✅
+* SubgraphExtractorTest : 13/13 PASS ✅
+* Total lens tests : 82+ UT PASS ✅
+* Compile ✅, publishToMavenLocal ✅
+* 53 échecs Cucumber pré-existants (Features 17-19 BKG legacy + autres) → à traiter par LENS-4
+
+== Méthodologie
+
+Baby steps DDD/TDD/BDD respectée :
+1. LensBudget data class + apply() → 13 tests TDD ✅
+2. LensBudgetInjectionTest → 4 tests injection ✅
+3. registerCollectAugmentedContextTask →SiteManager ✅
+4. injectLensBudgetIntoJbakeProperties → jbake.properties ✅
+5. Nettoyage BKG legacy (13 fichiers + refs) → compile ✅
+6. publishToMavenLocal → ✅
+
+== Prochaine session
+
+LENS-4 : Réécriture Cucumber Features 17-19 → Features LENS (augmented_context_lens, subgraph_extraction, lens_hybrid_scoring)

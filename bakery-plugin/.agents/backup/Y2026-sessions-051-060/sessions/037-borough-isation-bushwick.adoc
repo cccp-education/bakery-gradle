@@ -1,0 +1,30 @@
+= Session 037 — Borough-isation : bakery-gradle → Bushwick 🟤
+:type: governance
+:score: 10/10
+:date: 2026-06-02
+
+== Contexte
+
+Le projet `bakery-gradle` est intégré au portefeuille de boroughs du workspace
+`AGENTS.adoc` sous le nom de code *Bushwick 🟤*, 20ème borough.
+
+== Objectif
+
+Acter l'identité de borough dans les fichiers de gouvernance.
+
+== Actions
+
+. Index de session : INDEX.adoc mis à jour — session courante clôturée, prochaine
+session 038.
+. Historique : SESSIONS_HISTORY.adoc enrichi avec l'entrée session 037.
+. Rapport : ce document créé.
+
+== Fichiers modifiés
+
+* `.agents/INDEX.adoc` — `_Session terminee_` + `_Prochaine session_` + `_Session en cours_`
+* `.agents/SESSIONS_HISTORY.adoc` — ajout ligne #037
+* `.agents/sessions/037-borough-isation-bushwick.adoc` — ce rapport
+
+== Code source
+
+Aucune modification du code source. Gouvernance uniquement.

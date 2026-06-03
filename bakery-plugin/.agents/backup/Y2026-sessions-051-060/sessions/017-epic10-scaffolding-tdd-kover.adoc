@@ -1,0 +1,84 @@
+= Session 017 — EPIC 10 Scaffolding (TDD complet) + Kover
+
+_Date_ : 2026-05-07
+_Type_ : feat + test + quality
+_EPIC_ : EPIC 10 (Scaffolding), EPIC 11 (Optimisation tests)
+
+== Objectif
+
+Implémenter le scaffolding de site via TDD : pouvoir créer un dossier
+`office/sites/<siteName>/` contenant `site/`, `maquette/`, `site.yml`,
+`.gitignore`, `.gitattributes` quand on applique `initSite` avec les propriétés
+`sitesBaseDir` et `siteName` dans la DSL bakery.
+
+== Réalisations
+
+=== Phase RED — Tests écrits avant code (4 fichiers de test)
+
+1. Cucumber feature `6_site_scaffolding.feature` : 5 scénarios Gherkin (UJ1 à UJ5)
+2. Step definitions `ScaffoldSteps.kt` : glue Cucumber pour les nouveaux steps
+3. Tests unitaires `SiteScaffolderTest.kt` : 10 tests en isolation (resolveSiteTargetDir + validateSiteTargetDoesNotExist)
+4. Tests fonctionnels `ScaffoldFunctionalTests.kt` : 5 tests Gradle TestKit end-to-end
+
+=== Modification minimum pour compiler les tests
+
+* `BakeryExtension.kt` : ajout `sitesBaseDir` (Property<String>) et `siteName` (Property<String>)
+
+=== Phase GREEN — Implémentation
+
+1. `SiteScaffolder.kt` (créé) :
+   * `resolveSiteTargetDir()` — logique de résolution du dossier cible
+   * `validateSiteTargetDoesNotExist()` — validation que le dossier n'existe pas encore
+   * `Project.resolveAndValidateSiteTarget()` — extension sur Project
+
+2. `SiteManager.kt` (modifié) :
+   * `registerInitSiteTask(targetDir: File = projectDir)` — paramètre optionnel
+   * Toutes les méthodes privées (`createAndConfigureSiteYml`, `setupGitIgnore`, `setupGitAttributes`, `copySiteResources`, `injectFirebaseConfigIntoJbakeProperties`) acceptent maintenant `targetDir` au lieu d'utiliser `projectDir` en dur
+
+3. `BakeryPlugin.kt` (modifié) :
+   * `apply()` → bloc `afterEvaluate` → appel `SiteScaffolder.resolveSiteTargetDir()`
+   * Validation `validateSiteTargetDoesNotExist()` si targetDir != projectDir
+   * `registerInitSiteTask(targetDir)` avec le dossier résolu
+
+=== Intégration Kover
+
+* `gradle/libs.versions.toml` : ajout `kover = "0.9.1"` + alias plugin
+* `build.gradle.kts` : plugin kover, config (main + functionalTest), rapports HTML/XML, `koverThresholdCheck` (seuil 75%)
+* Couverture initiale : 57% instruction (sous le seuil, attendu en phase red)
+
+=== Résultat des tests
+
+| Niveau | Résultat |
+|--------|----------|
+| Unitaires (SiteScaffolderTest) | 10/10 ✅ |
+| Fonctionnels (ScaffoldFunctionalTests) | 5/5 ✅ |
+| Cucumber existants (1-5) | 10/10 ✅ |
+| Cucumber scaffolding (6) | 2/5, 3 en échec ❌ |
+
+=== 3 échecs Cucumber restants
+
+Scénarios `siteNameOnly` et `backwardCompat` du feature 6 — conflit entre
+les nouvelles step definitions `ScaffoldSteps` et les existantes `InitSiteSteps`
+quand aucune propriété de scaffolding n'est définie (UJ5 rétrocompatibilité).
+
+== Fichiers créés (6)
+
+* `src/main/kotlin/bakery/SiteScaffolder.kt`
+* `src/test/kotlin/bakery/SiteScaffolderTest.kt`
+* `src/functionalTest/kotlin/bakery/ScaffoldFunctionalTests.kt`
+* `src/test/features/6_site_scaffolding.feature`
+* `src/test/scenarios/bakery/scenarios/ScaffoldSteps.kt`
+
+== Fichiers modifiés (5)
+
+* `src/main/kotlin/bakery/BakeryExtension.kt` — +2 propriétés
+* `src/main/kotlin/bakery/SiteManager.kt` — registerInitSiteTask(targetDir)
+* `src/main/kotlin/bakery/BakeryPlugin.kt` — appel SiteScaffolder
+* `gradle/libs.versions.toml` — +kover
+* `build.gradle.kts` — +kover plugin + config + threshold
+
+== Problèmes connus
+
+1. **Durée des tests intenable** : 3-6 min par run, ajouté en EPIC 11
+2. **3 scénarios Cucumber en échec** : à corriger en session 15
+3. **Couverture 57% < 75%** : à atteindre après correction Cucumber

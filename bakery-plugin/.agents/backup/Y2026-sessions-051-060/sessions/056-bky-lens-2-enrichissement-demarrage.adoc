@@ -1,0 +1,63 @@
+= Session 056 — BKY-LENS-2 Enrichissement (Démarrage)
+
+== Contexte
+
+Reprise de bakery-gradle, session 056. Démarrage de l'EPIC BKY-LENS-2
+(AugmentedArticlesService — Enrichissement). BKY-LENS-1 (SubgraphExtractor)
+est ENTIEREMENT implémenté et committé (session 055).
+
+== Tâches réalisées
+
+* [x] LENS-2.1 — `LensRules` data class créée (excludeDrafts, excludeTags, prioritizeCrossReferences, crossRefBonus, communityAffinity)
+* [x] LENS-2.1 — `LensRagConfig` data class créée (enabled, similarityThreshold, topK)
+* [x] LENS-2.1 — `LensConfig` enrichi avec `rules` et `rag` + DSL actions
+* [x] LENS-2.1 — `AugmentedContextDsl` enrichi avec `minSimilarity` + documentation mise à jour
+* [x] LENS-2.1 — `AugmentedContextResolver` créé (resolve composite-context.json, extractChannels EAGER/RAG/GRAPHIFY/DOCS)
+* [x] Compilation validée — `./gradlew compileKotlin` BUILD SUCCESSFUL
+
+== Tâches en cours / Non terminées
+
+* [ ] LENS-2.2 — `AugmentedArticlesService` (scoring hybride α=0.4/β=0.3/γ=0.15/δ=0.15)
+* [ ] LENS-2.3 — Tests unitaires LensRules, AugmentedContextResolver, AugmentedArticlesService (TDD)
+* [ ] LENS-2.3 — Cucumber Features pour LENS-2 (BDD)
+
+== Fichiers créés
+
+| Fichier | Lignes | Rôle |
+| `src/main/kotlin/bakery/lens/LensRules.kt` | 36 | Règles métier éditoriales (excludeDrafts, excludeTags, prioritizeCrossReferences, crossRefBonus, communityAffinity) |
+| `src/main/kotlin/bakery/lens/AugmentedContextResolver.kt` | 85 | Résolveur de contexte augmenté (resolve composite-context.json, extractChannels) |
+
+== Fichiers modifiés
+
+| Fichier | Changement |
+| `src/main/kotlin/bakery/lens/LensConfig.kt` | +LensRules rules, +LensRagConfig rag, +2 DSL actions, +import Action |
+| `src/main/kotlin/bakery/lens/AugmentedContextDsl.kt` | +minSimilarity, documentation enrichie (3 couches LENTILLE) |
+
+== Architecture LENS-2 (en cours)
+
+```
+composite-context.json (runner-gradle N3)
+    ↓ AugmentedContextResolver.resolve()  ← NOUVEAU
+    ├── EAGER : gouvernance déterministe (.adoc)
+    ├── RAG   : similarité vectorielle (pgvector)
+    ├── GRAPHIFY : relations structurelles (graphe)
+    └── DOCS  : corpus documentaire (codex pgvector)
+    ↓ AugmentedArticlesService.score()   ← À IMPLÉMENTER
+    site-graph enrichi (~200 nœuds, ~500 edges)
+```
+
+== Scoring hybride LENS-2 (formule)
+
+```
+score = α × ragSimilarité      // 0.40
+      + β × graphProximité     // 0.30
+      + γ × tagRecouvrement   // 0.15
+      + δ × crossRefCount     // 0.15
+
+  + bonus crossRefBonus (0.2) si prioritizeCrossReferences
+  + bonus communityAffinity (0.3) si même communauté
+```
+
+== Score session
+
+7/10 — Bon démarrage DDD, infrastructure LENS-2 solide, mais pas encore de tests TDD ni de scoring hybride implémenté.

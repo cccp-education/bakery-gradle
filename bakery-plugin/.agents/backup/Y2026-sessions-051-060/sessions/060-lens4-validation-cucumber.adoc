@@ -1,0 +1,89 @@
+= Session 060 — BKY-LENS-4 Validation Cucumber + Fix 4 échecs
+:session: 060
+:date: 2026-06-03
+:type: fix + TDD + BDD
+:epic: BKY-LENS-4
+:score: 9/10
+
+== Mission
+
+Valider Features 17-19 Cucumber LENS et fixer les échecs restants (objectif : 71/71 PASS).
+
+== Contexte
+
+- Session 059 : 3 features BKG orphelines réécrites en LENS. Fix DuplicateStepDefinition → 65/71 Cucumber PASS (6 échecs annoncés, 4 réels).
+- LENS-1 ✅ SubgraphExtractor, LENS-2 ✅ AugmentedArticlesService, LENS-3 ✅ LensBudget + Injection JBake
+- LENS-4 en cours : Features 17-19 nécessitent validation
+
+== Diagnostic des 4 échecs
+
+=== Échecs 1-3 : Feature 17 `17_augmented_context_lens.feature` (3 scénarios)
+
+**Cause racine** : Les steps Cucumber `the bakery DSL defines augmentedContext as enabled/disabled`
+utilisaient `Regex("(bakery\\s*\\{)")` pour injecter un bloc DSL APRÈS l'ouverture `bakery {`.
+Mais `BakeryWorld.createGradleProject()` génère une seule ligne :
+
+----
+plugins { id("education.cccp.bakery") }
+bakery { configPath = file("site.yml").absolutePath }
+----
+
+La regex insère après `bakery {`, ce qui donne :
+
+----
+bakery { augmentedContext { enabled = true ... } configPath = file("site.yml").absolutePath }
+----
+
+→ Le `configPath` est après le `}` fermant du bloc augmentedContext = syntaxe invalide Kotlin.
+→ Erreur : `Expecting an element` ligne 9.
+
+**Fix** : Création de `DslInjectionHelper.insertBeforeClosingBrace()` qui compte les accolades
+pour trouver le `}` fermant du bloc `bakery { }` et insère le nouveau bloc juste avant.
+Testé avec 6 UT TDD (single-line, multi-line, nested blocks, edge cases).
+
+=== Échec 4 : Feature 18 `18_subgraph_extraction.feature` Scénario 3
+
+**Cause racine** : Le step `When I extract a subgraph with communities "custom-community"`
+utilisait `projectDir.resolve("office/graph.json")` en dur comme `graphFilePath`,
+ignorant complètement le custom path `"custom/graph.json"` créé par le
+step `Given a graph.json file at custom path "custom/graph.json" with 5 nodes`.
+Le fichier `office/graph.json` n'existait pas → `loadGraph` retourne un GraphModel vide → 0 nœuds.
+
+**Fix** : Ajout d'une variable d'état `graphFilePath` dans `LensSteps` mise à jour
+par les steps `Given` créant le fichier graph.json. Les steps `When` l'utilisent
+avec fallback sur `office/graph.json`.
+
+== Résultats
+
+| Métrique | Avant | Après |
+| Cucumber PASS | 65/71 (4 échecs) | **71/71** ✅ |
+| UT PASS | 545 | **551** (+6 DslInjectionHelper) |
+| Compilation | ✅ | ✅ |
+| publishToMavenLocal | ✅ | ✅ |
+
+== Fichiers modifiés
+
+| Fichier | Action | Détail |
+| `src/test/scenarios/bakery/scenarios/LensSteps.kt` | Modification | Fix regex → `DslInjectionHelper.insertBeforeClosingBrace()`, ajout `graphFilePath` state var, steps `When` utilisent `graphFilePath` avec fallback |
+| `src/test/kotlin/bakery/lens/DslInjectionHelperTest.kt` | **Création** | 6 UT TDD : single-line (2), multi-line (2), edge cases (2) |
+| `src/test/kotlin/bakery/lens/DslInjectionHelper.kt` | (inclus dans test) | `DslInjectionHelper` object avec `insertBeforeClosingBrace()` — comptage accolades + insertion avant `}` |
+
+== EPIC LENS — Statut après session
+
+| EPIC | Statut |
+| BKY-LENS-1 (SubgraphExtractor) | ✅ TERMINÉ |
+| BKY-LENS-2 (AugmentedArticlesService) | ✅ TERMINÉ |
+| BKY-LENS-3 (Budget + Injection JBake) | ✅ TERMINÉ |
+| **BKY-LENS-4 (Cucumber Features 17-19)** | **✅ TERMINÉ** |
+| BKY-LENS-5 (Connect N3 - Composite Context) | P1 — prochain |
+| BKY-LENS-6 (Templates Augmentés) | P2 |
+
+== Leçons apprises
+
+1. **Regex fragile pour injection DSL** : `Regex("(bakery\\s*\\{)")` ne fonctionne
+   que si le bloc bakery est sur plusieurs lignes. Il faut compter les accolades
+   pour trouver le bon point d'insertion. → `insertBeforeClosingBrace` robuste.
+
+2. **État partagé Cucumber** : Les steps `When` ne doivent jamais utiliser
+   des chemin en dur quand les steps `Given` créent un fichier à un chemin variable.
+   → Variable d'état `graphFilePath` avec fallback.

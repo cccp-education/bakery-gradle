@@ -1,0 +1,84 @@
+= Session 12 — 2026-05-01 — EPIC 4 Formulaire de contact Firebase (maquette + site + tests)
+
+**Type** : feat
+**Score** : 8/10
+
+== Contexte
+
+EPIC 4 etait liste comme "A faire" dans le BACKLOG. En realite, l'infrastructure etait deja largement en place (SiteConfiguration avec modele Firebase, SiteManager.injectFirebaseConfigIntoJbakeProperties, footer.thyme avec injection FIREBASE_CONFIG). Le travail restant etait de stabiliser le formulaire dans la maquette puis de le transferer dans le template JBake, et de combler les gaps de test.
+
+_Directives utilisateur_ :
+- Ne pas modifier directement le template Thymeleaf du `site/`
+- Stabiliser d'abord le formulaire dans la **maquette** (`src/main/resources/maquette/index.html`)
+- Source de reference : `/home/cheroliv/workspace/foundry/cheroliv.com/site/jbake/`
+- Remplacer le mock Firebase par du Firestore reel
+- Une fois fonctionnel, transferer dans le template JBake
+
+== Realisations
+
+=== Phase 1 : Maquette (standalone HTML) — déjà faite avant cette session
+
+* [x] Section `#contact` + formulaire HTML dans `maquette/index.html`
+* [x] Lien `Contact` dans la navbar (`href="#contact"`)
+* [x] Bloc `<script type="module">` Firebase SDK init (modular) exposant `window.__FIREBASE__`
+* [x] `maquette/js/contact.js` — validation + `addDoc` vers collection `contacts`
+* [x] CSS `.contact-form` deja present dans `styles.css`
+
+=== Phase 2 : Transfert vers le template site (JBake + Thymeleaf)
+
+* [x] Creation de `site/templates/contact.thyme` (fragment Thymeleaf `contact-section`)
+* [x] Inclusion dans `index.thyme` via `th:replace="~{contact.thyme::contact-section}"`
+* [x] Ajout lien `Contact` dans `menu.thyme` (href="#contact")
+* [x] Remplacement du mock par Firebase compat SDK reel dans `site/assets/js/contact.js`
+* [x] `footer.thyme` deja a jour (SDK compat + injection `FIREBASE_CONFIG` via Thymeleaf)
+* [x] `contact.js` reference dans `footer.thyme` deja present
+
+=== Phase 3 : Verification du flow Plugin
+
+* [x] `SiteConfiguration.kt` a deja `firebase: FirebaseContactFormConfig?` complet
+* [x] `SiteManager.injectFirebaseConfigIntoJbakeProperties()` fonctionnel
+* [x] `jbake.properties` expose `firebaseApiKey` et `firebaseProjectId`
+* [x] Aucune reference Supabase residuelle
+* [ ] Reste : insertion cle API reelle dans `site.yml` consommateur (formalite)
+
+=== Gap 1 : Tests unitaires `injectFirebaseConfigIntoJbakeProperties`
+
+5 tests ajoutes dans `BakeryPluginTest.kt:FirebaseConfigInjectionTest` :
+* [x] Injection normale (firebaseApiKey + firebaseProjectId)
+* [x] Fichier jbake.properties absent → ne leve pas d'exception
+* [x] `site.firebase == null` → n'ecrit rien
+* [x] Cles existantes → mise a jour inline (pas de doublon)
+* [x] Cles absentes → append en fin de fichier
+
+=== Gap 2-3 : Tests rendering templates
+
+4 tests ajoutes dans `BakeryPluginTest.kt:FirebaseTemplateRenderingTest` :
+* [x] `footer.thyme` contient `FIREBASE_CONFIG`, `firebaseApiKey`, `firebaseProjectId`, `th:inline="javascript"`
+* [x] `contact.thyme` contient le fragment `contact-section`, `id="contact-form"`, messages success/error
+* [x] `index.thyme` inclut `contact.thyme::contact-section`
+* [x] `menu.thyme` contient le lien `#contact`
+
+=== Gap 4 : Cucumber pipeline complet
+
+* [x] Nouveau scenario `initSite` deploys contact form templates into site directory (5 assertions)
+* [x] 2 nouvelles step definitions dans `FirebaseSteps.kt` (`fileShouldExist`, `fileShouldContain`)
+
+== Fichiers modifies
+
+* `src/main/resources/maquette/index.html` — section contact + Firebase SDK (phase 1)
+* `src/main/resources/maquette/js/contact.js` — Firestore reel (cree)
+* `src/main/resources/site/templates/contact.thyme` — fragment formulaire (cree)
+* `src/main/resources/site/templates/index.thyme` — inclusion contact fragment
+* `src/main/resources/site/templates/menu.thyme` — lien Contact nav
+* `src/main/resources/site/assets/js/contact.js` — remplacement mock par Firebase reel
+* `src/test/kotlin/bakery/BakeryPluginTest.kt` — +9 tests (FirebaseConfigInjectionTest + FirebaseTemplateRenderingTest)
+* `src/test/features/4_contact_form.feature` — +1 scenario pipeline
+* `src/test/scenarios/bakery/scenarios/FirebaseSteps.kt` — +2 step definitions
+* `BACKLOG.adoc` — EPIC 4 mis a jour avec etat reel et phases
+
+== Resultats
+
+* Compilation Kotlin OK
+* EPIC 4 quasi termine (reste formalite cle API)
+* 9 nouveaux tests unitaires + 1 scenario Cucumber
+* Flow complet : `site.yml` → `SiteManager.injectFirebaseConfigIntoJbakeProperties` → `jbake.properties` → Thymeleaf inline `FIREBASE_CONFIG` → `contact.js` Firestore `addDoc`

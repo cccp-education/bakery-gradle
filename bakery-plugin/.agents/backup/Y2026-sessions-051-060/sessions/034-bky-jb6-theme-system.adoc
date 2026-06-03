@@ -1,0 +1,80 @@
+= Session 034 — BKY-JB-6 Système de thème
+
+== Type
+feat + test
+
+== Date
+2026-06-01
+
+== EPIC
+BKY-JB-6 — Système de thème (5 pts, P1)
+
+== Objectif
+Ajouter un système de thème CSS custom properties (dark/light/auto mode, custom font, logo, favicon) au plugin bakery, piloté par la config YAML `site.yml`.
+
+== Méthodologie
+Baby steps DDD/TDD/BDD — 5 étapes strictes, chaque étape compile + tests verts avant de passer à la suivante.
+
+== Résultats
+
+=== Étape 1 — DDD (1 pt)
+* `ThemeConfig` data class (mode, primaryColor, secondaryColor, fontFamily, logoUrl, faviconUrl)
+* `ThemeDsl` open class
+* `BakeryExtension.theme` DSL
+* **7 UT** : ThemeConfigTest — parsing YAML avec/sans thème, defaults, light/dark, logo/favicon, combiné analytics+theme
+
+=== Étape 2 — TDD (1 pt)
+* `theme-script.thyme` — CSS :root variables (--bakery-primary, --bakery-secondary) + font-family conditionnel
+* `header.thyme` — thème + favicon conditionnel (th:if/th:unless)
+* `menu.thyme` — navbar-brand conditionnel (logo img vs texte)
+* Variantes `site-basic/` : theme-script.thyme, header, menu alignés
+* **6 UT** : ThemeTemplateTest — guards th:if, CSS variables, favicon, logo
+
+=== Étape 3 — TDD (1 pt)
+* `SiteManager.injectThemeConfigIntoJbakeProperties()` — 6 propriétés injectées
+* **3 UT** : ThemeInjectionTest — full injection, no theme, minimal config
+
+=== Étape 4 — FT (1 pt)
+* 2 tests fonctionnels ScaffoldFunctionalTests.ThemeSystemTest
+  - template déployé + contenu vérifié
+  - pas d'injection jbake.properties sans config theme
+
+=== Étape 5 — BDD (1 pt)
+* `14_theme_system.feature` — 3 scénarios (happy-path, no-config, integration header)
+* Steps réutilisés : ThymeleafComponentSteps, GoogleFormsSteps, MinimalSteps, InitSiteSteps
+* **3 Cucumber** PASS
+
+== Tests ajoutés
+* 7 UT (ThemeConfigTest) + 6 UT (ThemeTemplateTest) + 3 UT (ThemeInjectionTest) = **16 UT**
+* 2 FT (ThemeSystemTest) = **2 FT**
+* 3 Cucumber = **3 BDD**
+* **Total : 21 tests**, tous PASS
+
+== Fichiers créés (7)
+* `src/main/kotlin/bakery/ThemeDsl.kt`
+* `src/main/resources/site/templates/theme-script.thyme`
+* `src/main/resources/site-basic/templates/theme-script.thyme`
+* `src/test/kotlin/bakery/ThemeConfigTest.kt`
+* `src/test/kotlin/bakery/ThemeTemplateTest.kt`
+* `src/test/kotlin/bakery/ThemeInjectionTest.kt`
+* `src/test/features/14_theme_system.feature`
+
+== Fichiers modifiés (8)
+* `src/main/kotlin/bakery/SiteConfiguration.kt` — +ThemeConfig, +theme
+* `src/main/kotlin/bakery/BakeryExtension.kt` — +theme DSL
+* `src/main/kotlin/bakery/SiteManager.kt` — +injectThemeConfigIntoJbakeProperties
+* `src/main/resources/site/templates/header.thyme` — +theme-script, +favicon cond.
+* `src/main/resources/site/templates/menu.thyme` — +logo cond.
+* `src/main/resources/site-basic/templates/header.thyme` — +theme-script, +favicon cond.
+* `src/main/resources/site-basic/templates/menu.thyme` — +logo cond.
+* `src/functionalTest/kotlin/bakery/ScaffoldFunctionalTests.kt` — +ThemeSystemTest
+
+== Phase C JBake — État
+| EPIC | Pts | Statut |
+| BKY-JB-6 Système de thème | 5 | ✅ TERMINÉ |
+| BKY-JB-7 Layouts | 3 | À faire (P2) |
+
+Phase C : 5/8 pts (62%).
+
+== Score
+9/10

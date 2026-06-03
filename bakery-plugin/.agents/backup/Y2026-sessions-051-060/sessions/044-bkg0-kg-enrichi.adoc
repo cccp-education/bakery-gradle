@@ -1,0 +1,43 @@
+= Session 044 — BKG-0 KG Enrichi (co-occurrence + entity overlap)
+
+== Date
+2026-06-02
+
+== Type
+feat + test + BDD
+
+== Score
+9/10
+
+== Résumé
+Session 044 : BKG-0 Knowledge Graph enrichi — tag co-occurrence + entity overlap (TF-IDF sur descriptions).
+
+Baby steps DDD/TDD/BDD 3/3 :
+
+**Step 1 — DDD** : Étendre `ArticleNode` avec `description` (jbake-description). 3 UT (RelatedArticlesGraphTest).
+**Step 2 — TDD** : Enrichir `RelatedArticlesService.buildGraph()` avec :
+- `buildTagCooccurrenceMap()` : paires de tags fréquemment co-occurrentes → reasons `cooccurrence:tag1,tag2`
+- `computeCooccurrenceScore()` : bonus 0.3 par co-occurrence (plafond 5)
+- `entityOverlap()` : TF-IDF simplifié sur descriptions → reasons `entity:word` (+0.3 par entité commune)
+- Mise à jour `computeScore()` et `buildReasons()` pour combiner les 4 facteurs (tags + titre + co-occurrence + entités)
+- Ajout stop words français
+- 6 UT nouveaux (Tag co-occurrence 2, Entity overlap 3) + correction test existant (scoring exact → >=)
+**Step 3 — BDD** : Feature Cucumber `18_related_articles_kg_enriched.feature` + `KgEnrichedSteps.kt` — 3 scénarios PASS.
+
+== Fichiers modifiés
+- `src/main/kotlin/bakery/kgraph/RelatedArticlesGraph.kt` — ArticleNode.description ajouté
+- `src/main/kotlin/bakery/kgraph/RelatedArticlesService.kt` — Co-occurrence, entity overlap, stop words FR
+- `src/main/kotlin/bakery/SiteManager.kt` — collectRelatedArticles: extraction description depuis metadata.json
+- `src/test/kotlin/bakery/kgraph/RelatedArticlesGraphTest.kt` — 3 nouveaux UT (description)
+- `src/test/kotlin/bakery/kgraph/RelatedArticlesServiceTest.kt` — 6 nouveaux UT + correction test existant
+- `src/test/features/18_related_articles_kg_enriched.feature` — créé (3 scénarios BDD)
+- `src/test/scenarios/bakery/scenarios/KgEnrichedSteps.kt` — créé (steps Cucumber)
+
+== État BKG-0
+- BKG-0.1 (ArticleNode description) ✅ TERMINÉ
+- BKG-0.2 (tag co-occurrence + entity overlap) ✅ TERMINÉ
+- BKG-0.3 (Cucumber BDD) ✅ TERMINÉ
+- BKG-0.4 (sortie graph.json enrichi section blog_articles) ❌ À faire
+
+== Prochaine session
+BKG-0.4 — Enrichir la sortie `related-articles.json` avec la section `blog_articles` contenant les métadonnées JBake parsées.

@@ -1,0 +1,66 @@
+= Archive de Session 10 — 2026-04-27
+
+== Contexte
+
+Session de solidification du plugin `bakery-gradle` et de sa couverture de test avant release. Suite directe de la session 9 (fix critique `publishProfile` force-push).
+
+== Objectifs
+
+* [x] Augmenter la couverture de test du plugin
+* [x] Refactoriser `PublishProfileTask` pour le rendre testable
+* [x] Corriger le timeout qui bloquait les tests complets
+
+== Taches Realisees
+
+1. **Corriger timeout des tests** :
+   - Passage du timeout de la task `test` de 60s a 3min dans `build.gradle.kts`
+
+2. **Refactoriser `PublishProfileTask`** :
+   - Extraction de `resolveCredentials`, `copyProfileFiles`, `withCredentials` dans un nouvel objet `ProfilePublisher.kt`
+   - `PublishProfileTask` n'a plus que de l'orchestration Gradle
+
+3. **Tests unitaires `ProfilePublisherTest`** (15 tests) :
+   - `resolveCredentials` : CLI, config, mix, erreur quand les deux sont blancs
+   - `copyProfileFiles` : copie depuis `projectDir` ou sous-repertoire `from`, erreur si `from` inexistant/pas un directory, erreur si fichiers interdits, erreur si fichier manquant, copie multiple, overwrite
+   - `withCredentials` : creation d'une copie immuable avec credentials mis a jour
+
+4. **Tests unitaires `GitServiceTest` enrichis** (6 tests) :
+   - clone+overlay conserve fichiers distants
+   - force-push ecrase
+   - fallback sur clone invalide
+   - clone quand `repoDir` est vide
+   - overlay ecrase un fichier distant par le local
+   - nested directories preservees apres overlay
+
+5. **Tests unitaires `FileSystemManagerTest`** (8 tests) :
+   - `createRepoDir` : crée/efface/recrée, gère fichier préexistant, gestion erreur suppression
+   - `copyBakedFilesToRepo` : copie simple, copie nested, echec si bakeDir inexistant, overwrite
+
+6. **Tests complets** :
+   - `./gradlew test` passe en ~33s (7 scenario Cucumber + 53+ tests unitaires)
+
+7. **`publishToMavenLocal`** effectue avec succes
+
+== Fichiers Modifies
+
+* `build.gradle.kts` — timeout `test` 60s -> 3min
+* `src/main/kotlin/bakery/PublishProfileTask.kt` — refactor pour appeler `ProfilePublisher`
+* `src/main/kotlin/bakery/ProfilePublisher.kt` — nouveau fichier (logique extraite)
+* `src/test/kotlin/bakery/GitServiceTest.kt` — enrichi (6 tests)
+* `src/test/kotlin/bakery/ProfilePublisherTest.kt` — nouveau fichier (15 tests)
+* `src/test/kotlin/bakery/FileSystemManagerTest.kt` — nouveau fichier (8 tests)
+* `PROMPT_REPRISE.adoc` — mis a jour pour session 11
+
+== Resultats
+
+* Couverture de test significativement amelioree sur le flux `publishProfile`
+* Refactoring reussi — separation orchestation Gradle / logique metier pure
+* Build stable (timeout corrige)
+
+== Prochaine Session (Session 11)
+
+* Continuer augmentation couverture de tests (options : `SiteManager`, edge cases YAML, test end-to-end `publishProfile` avec JGit local simule)
+
+== Score
+
+7/10 — Bonne solidification, mais tests Cucumber end-to-end pour `publishProfile` restent a completer.

@@ -1,21 +1,21 @@
-= PROMPT_REPRISE — Session 060 : BKY-LENS-4 Validation Cucumber + Fix 6 échecs
+= PROMPT_REPRISE — Session 061 : BKY-LENS-5 Connect N3 Composite Context
 
-== Mission (Session 060)
+== Mission (Session 061)
 
-1. **Valider Feature 17** — Lancer `./gradlew cucumberTest` et vérifier les 3 scénarios LENS injection jbake
-   - Si UndefinedStepException : vérifier que les steps refactorisés matchent la Feature Gherkin
-2. **Valider Feature 18** — Vérifier que le Background `Given a new Bakery project` résout les `IllegalStateException`
-3. **Valider Feature 19** — Déjà 3/3 PASS, confirmer stabilité
-4. **Fix** les échecs restants (objectif : 71/71 PASS ou < 3 échecs)
+1. **BKY-LENS-5** — Brancher le pipeline LENS sur le N3 runner-gradle
+   - Extension DSL `bakery { augmentedContext { enabled, contextPath, maxArticles } }`
+   - `SiteContextCollector` enrichi : lit `composite-context.json` → ajoute `augmentedEntries` dans metadata.json
+   - Cucumber : `22_augmented_context.feature` (3 scénarios)
+2. Valider que `composite-context.json` est lu correctement par `AugmentedContextResolver`
+3. Vérifier le contrat DAG bakery (N2) → runner-gradle (N3)
 
-== État actuel (Session 059)
+== État actuel (Session 060)
 
-- LENS-1 ✅ SubgraphExtractor (7 src, 30 UT)
-- LENS-2 ✅ AugmentedArticlesService + LensRules + AugmentedContextResolver (52+ UT)
-- LENS-3 ✅ LensBudget + injection JBake + nettoyage BKG (82+ UT)
-- LENS-4 : Features 17-19 réécrites, 6 échecs Cucumber à valider
-- Build compile ✅, publishToMavenLocal ✅
-- **Fix majeur** : DuplicateStepDefinition supprimé (53→6 échecs Cucumber)
+- **BKY-LENS-4 TERMINÉ** ✅ — 71/71 Cucumber PASS
+- LENS-1 ✅ SubgraphExtractor, LENS-2 ✅ AugmentedArticlesService, LENS-3 ✅ LensBudget + Injection JBake
+- Fix majeur : `DslInjectionHelper.insertBeforeClosingBrace()` remplace la regex fragile d'injection DSL
+- Fix Feature 18 : custom graph file path mémorisé via `graphFilePath` state var
+- 551 UT PASS + 71 Cucumber PASS
 
 == Architecture LENS — Rappel
 
@@ -25,14 +25,16 @@ graph.json (203k nœuds) ← ✅ LENS-1
     ↓ + RAG pgvector + règles métier ← ✅ LENS-2
 site-graph (~200 nœuds, ~500 edges)
     ↓ LensBudget (4-6 articles/page, minSimilarity=0.7) ← ✅ LENS-3
-jbake.properties (augmentedContextData)
+jbake.properties (augmentedContextData) ← ✅ LENS-3
     ↓
-post.thyme (AUGMENTÉ) (LENS-6)
+composite-context.json (runner-gradle N3) ← 🔜 LENS-5
+    ↓
+AugmentedContextResolver → augmentedEntries in metadata.json ← 🔜 LENS-5
 ```
 
 == Points d'attention
 
-- Les 6 échecs sont probablement des problèmes de step matching (Feature 17) et d'initialisation (Feature 18)
-- Le step `the file {string} should contain {string}` est maintenant UNIQUEMENT dans ConfigResolverSteps
+- `composite-context.json` est produit par runner-gradle (N3) via `assembleCompositeContext`
+- Bakery (N2) le consomme en lecture seule via `AugmentedContextResolver.resolve()`
+- RAG scores viendront de pgvector — pour l'instant RAG=emptyMap
 - Ne pas lancer `./gradlew test` sans permission explicite
-- RAG scores viendront de pgvector en LENS-5 — pour l'instant RAG=emptyMap

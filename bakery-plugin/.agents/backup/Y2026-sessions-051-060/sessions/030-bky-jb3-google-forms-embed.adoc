@@ -1,0 +1,73 @@
+= Session 030 — BKY-JB-3 Google Forms Embed
+
+== Date
+2026-06-01
+
+== Type
+feat + test (DDD/TDD/BDD baby steps)
+
+== Sujet
+BKY-JB-3 : Composant Thymeleaf Google Forms embed — iframe responsive piloté par config YAML `googleForms:`.
+
+== Objectifs
+Créer un fragment Thymeleaf `google-forms.thyme` qui embarque un Google Form en iframe responsive, piloté par la config YAML `site.yml` (clé `googleForms:`). Premier EPIC de la Phase B (services JBake).
+
+== Résultats
+
+=== Étape 1 — DDD : Modèle domaine ✅
+- `GoogleFormsConfig` data class dans `SiteConfiguration.kt` (formId, width, height, allowMultiple)
+- `GoogleFormsDsl` open class pour le DSL Gradle (`bakery { googleForms { } }`)
+- Champ `googleForms: GoogleFormsConfig?` dans `SiteConfiguration`
+- 2 UT : parsing YAML avec/sans googleForms
+
+=== Étape 2 — TDD : Fragment Thymeleaf ✅
+- `google-forms.thyme` avec iframe responsive (CSS aspect-ratio)
+- `th:if="${googleFormsFormId != null and googleFormsFormId != ''}"` pour cacher quand pas config
+- 2 UT : iframe avec formId présent, fragment vide sans formId
+
+=== Étape 3 — TDD : Injection config → template ✅
+- `injectGoogleFormsConfigIntoJbakeProperties()` dans `SiteManager` (même pattern que Firebase)
+- Injection `googleFormsFormId`, `googleFormsWidth`, `googleFormsHeight` dans `jbake.properties`
+- Intégration `google-forms.thyme` dans `page.thyme` via `th:replace`
+- 2 UT : injection avec/sans config
+
+=== Étape 4 — FT : Tests fonctionnels ✅
+- 2 FT dans `ScaffoldFunctionalTests` (GoogleFormsEmbedTest nested class)
+- Template déployé dans le site + pas d'injection jbake.properties sans config
+
+=== Étape 5 — BDD : Scénarios Cucumber ✅
+- Feature `11_google_forms_embed.feature` (3 scénarios : happy-path, no-config, th:if guard)
+- `GoogleFormsSteps.kt` avec step réutilisable `the file {string} should not contain {string}`
+- Réutilisation steps existants : `ThymeleafComponentSteps`, `MinimalSteps`
+
+== Métriques
+- **11 tests** : 6 UT + 2 FT + 3 Cucumber
+- **0 régression** (les 3 échecs préexistants sont le bug date GenerateArticleTaskTest)
+- **7 fichiers créés**, **4 fichiers modifiés**
+
+== Fichiers créés
+- `src/main/kotlin/bakery/GoogleFormsDsl.kt`
+- `src/main/resources/site/templates/google-forms.thyme`
+- `src/test/kotlin/bakery/GoogleFormsConfigTest.kt`
+- `src/test/kotlin/bakery/GoogleFormsTemplateTest.kt`
+- `src/test/kotlin/bakery/GoogleFormsInjectionTest.kt`
+- `src/test/features/11_google_forms_embed.feature`
+- `src/test/scenarios/bakery/scenarios/GoogleFormsSteps.kt`
+
+== Fichiers modifiés
+- `src/main/kotlin/bakery/SiteConfiguration.kt` — +`GoogleFormsConfig` + champ `googleForms`
+- `src/main/kotlin/bakery/BakeryExtension.kt` — +bloc DSL `googleForms { }`
+- `src/main/kotlin/bakery/SiteManager.kt` — +`injectGoogleFormsConfigIntoJbakeProperties()`
+- `src/main/resources/site/templates/page.thyme` — +`th:replace google-forms`
+- `BACKLOG.adoc` — doc BKY-JB-3 baby steps DDD/TDD/BDD
+
+== Bugs préexistants (hors périmètre)
+- 3 tests `GenerateArticleTaskTest` échouent : chemin hardcodé `content/blog/2026/5` (mai) au lieu de mois dynamique. Bug de date préexistant session 029.
+
+== Décisions techniques
+- Séparation domaine/DSL : `GoogleFormsConfig` (data class, immutable, parsing YAML) vs `GoogleFormsDsl` (open class, mutable, extension Gradle)
+- Injection jbake.properties suivant le même pattern que Firebase (`updateProperty` helper)
+- Step Cucumber réutilisable `the file should not contain` ajouté dans `GoogleFormsSteps`
+
+== Score : 8/10
+Baby steps DDD/TDD/BDD respectés. Un point en moins car les FT auraient pu tester l'injection complète (site.yml avec googleForms → jbake.properties avec les clés) via un second run. Un point en moins car le step `should not contain` aurait pu être mis dans `ThymeleafComponentSteps` (générique).

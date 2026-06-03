@@ -1,0 +1,66 @@
+= Session 027 — Analyse et planification des 12 échecs de test + BACKLOG enrichi
+
+*Date* : 2026-05-31
+*Type* : analyse + documentation + planification
+*Score* : 8/10
+
+== Objectif
+
+Analyser les 12 échecs de test préexistants (non liés à l'EPIC courant) pour :
+1. Comprendre les causes racines de chaque groupe d'échecs
+2. Documenter les User Journeys complètes
+3. Créer les EPICs dans le BACKLOG avec baby-steps DDD/TDD/BDD
+4. Modifier les ports LLM dans les tests (11434→11465, etc.) et IaConfig (11434→11464)
+
+== Travail effectué
+
+=== Analyse approfondie des 12 échecs
+
+. **EPIC 15 — PluginApplicationTest + PublishingTest (4 NPE)**
+  - Cause racine : `bakeryExtension.siteType` non stubbé dans `BakeryTestFixture` → `null.orNull` → NPE
+  - Point d'impact : `SiteScaffolder.resolveSiteType()` ligne 70
+  - 3 baby-steps identifiés (mock, null-safety, ProjectBuilder)
+
+. **EPIC 16 — Cucumber Scaffolding (7 UndefinedStepException)**
+  - Cause racine : **une seule divergence** — préfixe `the gradle project ` en trop dans le .feature
+  - 3 scénarios bloqués (UJ1, UJ4, UJ5), 2 scénarios déjà verts (UJ2, UJ3)
+  - 2 baby-steps (correction feature, boundary tests)
+
+. **EPIC 17 — generateArticle fails gracefully (1 AssertionError, 3 bugs superposés)**
+  - Bug 1 (scénario) : `createGradleProjectWithSiteConfigured()` en mode IA par défaut
+  - Bug 2 (production) : `IaConfig.enabled = true` par défaut, code mort
+  - Bug 3 (assertion) : `buildShouldFail()` passe pour `ConnectException` pas pour `IllegalStateException`
+  - 5 baby-steps (prod, step, vérif, robustesse, boundary)
+
+=== Modifications apportées
+
+. **Ports LLM** (changement modèle deepseek→gpt-oss + ports) :
+  - `OllamaLlmServiceTest.kt` : 11434→11465, deepseek-v4-pro→gpt-oss:120b-cloud
+  - `IaConfigTest.kt` : 11434→11464 (ligne 14), 11434→11463 (lignes 58, 62)
+  - `IaFunctionalTests.kt` : 11434→11462
+  - `IaConfig.kt` (prod) : valeur par défaut 11434→11464 alignée
+
+. **Dépendance readme plugin** : version 0.0.0→0.0.1 dans `gradle/libs.versions.toml`
+
+. **BACKLOG** : +218 lignes, 3 EPICs (EPIC 15, 16, 17) avec User Journeys Gherkin, conditions aux limites, baby-steps DDD/TDD/BDD
+
+== Résultats des tests modifiés
+
+- `bakery.llm.*` (14 tests) : ✅ 100% PASS
+- `IaFunctionalTests` : ✅ PASS
+
+Les 12 autres échecs sont préexistants et documentés dans les EPICs 15-17.
+
+== Avancement EPICs
+
+| EPIC | Progression | Priorité |
+|---|---|---|
+| EPIC 15 — PluginApplicationTest NPE | 0% (analyse faite) | P0 |
+| EPIC 16 — Cucumber Scaffolding | 0% (analyse faite) | P0 |
+| EPIC 17 — generateArticle graceful fail | 0% (analyse faite) | P0 |
+
+== Prochaine session
+
+Session 028 : attaquer EPIC 16 (le plus simple : 1 step à corriger dans le .feature)
+→ `6_site_scaffolding.feature` lignes 15, 60, 79
+→ `./gradlew cucumberTest --tests "*CucumberTestRunner*"`
