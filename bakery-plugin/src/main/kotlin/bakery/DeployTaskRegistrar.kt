@@ -93,7 +93,7 @@ object DeployTaskRegistrar {
     }
 
     internal fun Project.registerDeployProfileTask(site: SiteConfiguration) {
-        tasks.register("deployProfile", PublishProfileTask::class.java) { task ->
+        tasks.register("deployProfile", DeployProfileTask::class.java) { task ->
             task.apply {
                 group = BakeryConstants.DEPLOY_GROUP
                 description = "Push profile files (e.g. README.md) to GitHub repository"

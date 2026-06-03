@@ -83,12 +83,13 @@ _Source de reference pour le formulaire_ : `/home/cheroliv/workspace/foundry/che
 
 == EPIC 6 : Integration tache publishProfil dans le plugin
 
-**Statut** : TERMINE (session 068 — code existant a 100%, statut documentaire mis a jour)
+**Statut** : ✅ TERMINE (session 072 — validation + renommage taxonomique DEPLOYER + tests complets)
 **Priorite** : P1
+**Score** : 4.2/5 → 4.5/5
 
 _Code source de reference_ : `cheroliv.com/build.gradle.kts` (tache `publishProfil` inline + data classes `ProfileSiteConf`/`ProfilePushConf`/`ProfileRepoConf`/`ProfileCreds` + credential resolution `profileCredentials`)
 
-_Objectif_ : Migrer la gestion du profil GitHub du build script inline vers le plugin bakery en tant que tache a part entiere (`PublishProfileTask`), en suivant les patterns existants du plugin (`GitService`, `SiteConfiguration`, `SiteManager`).
+_Objectif_ : Migrer la gestion du profil GitHub du build script inline vers le plugin bakery en tant que tache a part entiere (`DeployProfileTask`), en suivant les patterns existants du plugin (`GitService`, `SiteConfiguration`, `SiteManager`).
 
 === Analyse du code source a migrer
 
@@ -104,33 +105,33 @@ La tache `publishProfil` dans `cheroliv.com/build.gradle.kts` fait :
 
 ==== 1. Etendre SiteConfiguration.kt — Ajouter le mode profil
 
-* [ ] Ajouter une section `pushProfile` dans `SiteConfiguration` (type `GitPushConfiguration` existant ou nouveau modele dedie si la structure YAML differe)
-* [ ] Le schema YAML dans `site.yml` est deja compatible : `pushPage.repo.credentials` est utilise par `publishSite` et peut servir de base. Le profil GitHub a potentiellement son propre repo/credentials (`pushProfile.repo.repository`, `pushProfile.repo.credentials`)
-* [ ] Ajouter un champ `profileFiles` (liste de fichiers a pousser, ex: `["README.md", "README_fr.md"]`)
+* [x] Ajouter une section `pushProfile` dans `SiteConfiguration` (type `GitPushConfiguration` existant ou nouveau modele dedie si la structure YAML differe)
+* [x] Le schema YAML dans `site.yml` est deja compatible : `pushPage.repo.credentials` est utilise par `publishSite` et peut servir de base. Le profil GitHub a potentiellement son propre repo/credentials (`pushProfile.repo.repository`, `pushProfile.repo.credentials`)
+* [x] Ajouter un champ `profileFiles` (liste de fichiers a pousser, ex: `["README.md", "README_fr.md"]`)
 
-==== 2. Creer PublishProfileTask.kt
+==== 2. Creer DeployProfileTask.kt
 
-* [ ] Creer `src/main/kotlin/bakery/PublishProfileTask.kt`
-* [ ] Implementer une tache Gradle typee (`abstract class PublishProfileTask : DefaultTask`) avec inputs/outputs annotes
-* [ ] Utiliser `GitService` existant pour le push (refactor si besoin pour supporter le pattern profil : init temp repo + copy files + force push)
-* [ ] Gerer la resolution des credentials : priorite project properties (`-PprofileToken`, `-PprofileUsername`) > `site.yml` > erreur
+* [x] Creer `src/main/kotlin/bakery/DeployProfileTask.kt` (renomme depuis `PublishProfileTask.kt` session 072)
+* [x] Implementer une tache Gradle typee (`abstract class DeployProfileTask : DefaultTask()`) avec inputs/outputs annotes
+* [x] Utiliser `GitService` existant pour le push (refactor si besoin pour supporter le pattern profil : init temp repo + copy files + force push)
+* [x] Gerer la resolution des credentials : priorite project properties (`-PprofileToken`, `-PprofileUsername`) > `site.yml` > erreur
 
 ==== 3. Refactoriser GitService.kt si necessaire
 
-* [ ] Verifier si `GitService.pushPages()` peut etre reutilise tel quel ou s'il faut extraire une methode generique `pushToRemote(repoDir, remoteUrl, branch, credentials)` utilisable a la fois par `publishSite`, `publishMaquette` et `publishProfil`
-* [ ] La difference cle : `publishProfil` copie des fichiers specifiques du projet (pas le contenu baked), tandis que `publishSite` copie le contenu de `build/bake/`
+* [x] Verifier si `GitService.pushPages()` peut etre reutilise tel quel ou s'il faut extraire une methode generique `pushToRemote(repoDir, remoteUrl, branch, credentials)` utilisable a la fois par `publishSite`, `publishMaquette` et `publishProfil`
+* [x] La difference cle : `publishProfil` copie des fichiers specifiques du projet (pas le contenu baked), tandis que `publishSite` copie le contenu de `build/bake/`
 
-==== 4. Enregistrer la tache dans SiteManager.kt
+==== 4. Enregistrer la tache dans DeployTaskRegistrar.kt
 
-* [ ] Ajouter `registerPublishProfileTask(site: SiteConfiguration)` dans `SiteManager.kt`
-* [ ] Groupe : `"profile"`, description : `"Push profile README files to GitHub profile repository."`
-* [ ] Condition : ne registrer que si `site.pushProfile` est present dans `site.yml`
+* [x] Ajouter `registerDeployProfileTask(site: SiteConfiguration)` dans `DeployTaskRegistrar.kt`
+* [x] Groupe : `"deploy"`, description : `"Push profile files (e.g. README.md) to GitHub repository"`
+* [x] Condition : ne registrer que si `site.pushProfile` est present dans `site.yml`
 
 ==== 5. Tests
 
-* [ ] Ajouter un test unitaire pour la resolution des credentials (priority: project properties > YAML > erreur)
-* [ ] Ajouter un scenario Cucumber pour valider que la tache est registree quand `pushProfile` est present dans `site.yml`
-* [ ] Ajouter un scenario Cucumber pour valider que la tache n'est PAS registree quand `pushProfile` est absent
+* [x] Ajouter un test unitaire pour la resolution des credentials (priority: project properties > YAML > erreur) — `ProfilePublisherTest.kt` 11 UT PASS
+* [x] Ajouter un scenario Cucumber pour valider que la tache est registree quand `pushProfile` est present dans `site.yml` — Feature 5
+* [x] Ajouter un scenario Cucumber pour valider que la tache n'est PAS registree quand `pushProfile` est absent — Feature 5
 
 ==== 6. Nettoyage cheroliv.com
 
@@ -140,6 +141,13 @@ La tache `publishProfil` dans `cheroliv.com/build.gradle.kts` fait :
 ** Supprimer la tache `tasks.register("publishProfil")`
 ** Supprimer le bloc `buildscript` (les dependances JGit/Jackson sont deja fournies par le plugin)
 ** Configurer le plugin via `bakery { configPath = file("site.yml").absolutePath }` (deja existant)
+
+==== 7. Taxonomie EPIC K — Renommage DEPLOYER
+
+* [x] Renommer `PublishProfileTask.kt` → `DeployProfileTask.kt` (alignement taxonomique K-1 : verbe DEPLOYER)
+* [x] Renommer `publishProfile()` → `deployProfile()` dans la tache
+* [x] Mettre a jour le message d'erreur `ProfilePublisher` ("publishProfile" → "deployProfile")
+* [x] Mettre a jour le commentaire `BakeryWorld.kt`
 
 == EPIC 7 : Tolerance parsing YAML (champs inconnus)
 

@@ -12,10 +12,10 @@ import org.gradle.work.DisableCachingByDefault
 import org.slf4j.Logger
 
 @DisableCachingByDefault(because = "Push Git — side effect, non-cacheable")
-abstract class PublishProfileTask : DefaultTask() {
+abstract class DeployProfileTask : DefaultTask() {
 
     @TaskAction
-    fun publishProfile() {
+    fun deployProfile() {
         val profileToken: String = project.findProperty("profileToken")?.toString() ?: ""
         val profileUsername: String = project.findProperty("profileUsername")?.toString() ?: ""
 

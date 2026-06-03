@@ -1,0 +1,56 @@
+= Session 072 — 2026-06-04 — EPIC 6 Validation + CS-12 Taxonomie DEPLOYER
+
+**Contexte** : Finalisation Bakery — validation EPIC 6 (publishProfile/deployProfile) + application taxonomie EPIC K (verbe DEPLOYER).
+
+**Tâches réalisées** :
+
+. ✅ **CS-12 — Renommage taxonomique EPIC K** :
+  - `PublishProfileTask.kt` → `DeployProfileTask.kt` (fichier renommé)
+  - `PublishProfileTask` class → `DeployProfileTask` class
+  - `publishProfile()` method → `deployProfile()` method
+  - Mise à jour référence `DeployTaskRegistrar.kt` (`tasks.register("deployProfile", DeployProfileTask::class.java)`)
+  - Message d'erreur `ProfilePublisher` : "publishProfile" → "deployProfile"
+  - Commentaire `BakeryWorld.kt` : "publishProfile" → "deployProfile"
+  - Alignement verbe `DEPLOYER` (taxonomie EPIC K-1)
+
+. ✅ **EPIC 6 — Validation finale** :
+  - `DeployProfileTask.kt` (41l) — tâche Gradle typee, `@DisableCachingByDefault`, `@TaskAction deployProfile()`
+  - `ProfilePublisher.kt` (77l) — service métier : `resolveCredentials()`, `copyProfileFiles()`, `withCredentials()`
+  - `ProfilePublisherTest.kt` (256l, 14 UT) — 3 nested classes : ResolveCredentialsTest (4 UT), CopyProfileFilesTest (9 UT), WithCredentialsTest (1 UT)
+  - Wiring `DeployTaskRegistrar.registerDeployProfileTask()` — conditionnel sur `site.pushProfile != null`
+  - Wiring `BakeryPlugin.kt` — appel dans branche `else` (site existant)
+  - Feature 5 Cucumber (3 scénarios) : enregistrement tâche + absence + E2E simulated remote
+  - `PublishProfileSteps.kt` (182l) — steps Cucumber avec JGit simulated remote
+  - **Pas de FT ajouté** : duplication avec Cucumber évité (anti-pattern)
+
+. ✅ **BKY-IA-2 — Vérification** :
+  - `ThemeIntentionFunctionalTests` 5/5 FT PASS
+  - Feature 27 Cucumber (3 scénarios) PASS
+  - `GenerateThemeTask.kt` (245l) stable — pas de modification
+  - `ThemeCatalog.kt`, `ThemePreset.kt`, `ThemeVariant.kt`, `ThemeIntention.kt`, `ThemeIntentionDsl.kt` stables
+
+. ✅ **Documents mis à jour** :
+  - `BACKLOG.adoc` — EPIC 6 statut mis à jour ✅ TERMINE avec 7 tâches cochées + taxonomie
+  - `PROMPT_REPRISE.adoc` — Session 073 : CS-4..CS-11 + EPIC 13 + BKY-IA-3
+
+**Fichiers modifiés** :
+| Fichier | Changement |
+| `src/main/kotlin/bakery/DeployProfileTask.kt` | Renommé depuis `PublishProfileTask.kt`, class + method rename |
+| `src/main/kotlin/bakery/ProfilePublisher.kt` | Message erreur "publishProfile" → "deployProfile" |
+| `src/main/kotlin/bakery/DeployTaskRegistrar.kt` | Référence `PublishProfileTask::class.java` → `DeployProfileTask::class.java` |
+| `src/test/scenarios/bakery/scenarios/BakeryWorld.kt` | Commentaire "publishProfile" → "deployProfile" |
+| `BACKLOG.adoc` | EPIC 6 ✅ TERMINE + taxonomie DEPLOYER |
+| `PROMPT_REPRISE.adoc` | Mission Session 073 |
+
+**Fichiers créés** : Aucun (FT DeployProfileFunctionalTests créé puis supprimé — duplication Cucumber)
+
+**Tests** :
+- 14/14 `ProfilePublisherTest` PASS
+- 5/5 `ThemeIntentionFunctionalTests` PASS
+- Feature 5 Cucumber (3 scénarios) — stable
+- Feature 27 Cucumber (3 scénarios) — stable
+- Compilation BUILD SUCCESSFUL, publishToMavenLocal OK
+
+**Score** : 9/10 — CS-12 résolu proprement, EPIC 6 validé, BKY-IA-2 stable. Bakery 95% complet.
+
+**Prochaine session** : 073 — CS-4..CS-11 (1-2 code smells) + EPIC 13 coverage + BKY-IA-3

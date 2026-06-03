@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
  _Derniere mise a jour_ : 2026-06-04
- _Session terminee_ : 071 — CS-1 SiteManager Split + CS-10 Cleanup + EPIC 13 Coverage
- _Prochaine session_ : 072 — EPIC 6 Validation + BKY-IA-2 Suite
- _Session en cours_ : 072
+ _Session terminee_ : 072 — EPIC 6 Validation + CS-12 Taxonomie DEPLOYER
+ _Prochaine session_ : 073 — CS-4..CS-11 + EPIC 13 + BKY-IA-3
+ _Session en cours_ : 073
 
 '''
 

@@ -1,5 +1,35 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 072 — 2026-06-04 — EPIC 6 Validation Finale + CS-12 Taxonomie DEPLOYER
+
+**Contexte** : Finalisation Bakery — validation EPIC 6 (publishProfile/deployProfile) + application taxonomie EPIC K (verbe DEPLOYER).
+
+**Tâches réalisées** :
+
+* [x] CS-12 — Renommage taxonomique EPIC K :
+  ** `PublishProfileTask.kt` → `DeployProfileTask.kt` (fichier renommé)
+  ** `PublishProfileTask` class → `DeployProfileTask` class
+  ** `publishProfile()` method → `deployProfile()` method
+  ** Mise à jour référence `DeployTaskRegistrar.kt`
+  ** Message d'erreur `ProfilePublisher` : "publishProfile" → "deployProfile"
+  ** Commentaire `BakeryWorld.kt` : "publishProfile" → "deployProfile"
+  ** Alignement verbe `DEPLOYER` (taxonomie EPIC K-1)
+* [x] EPIC 6 — Validation finale :
+  ** `DeployProfileTask.kt` (41l) — tâche Gradle typee, `@DisableCachingByDefault`, `@TaskAction deployProfile()`
+  ** `ProfilePublisher.kt` (77l) — service métier : `resolveCredentials()`, `copyProfileFiles()`, `withCredentials()`
+  ** `ProfilePublisherTest.kt` (256l, 14 UT) — 3 nested classes : ResolveCredentialsTest (4 UT), CopyProfileFilesTest (9 UT), WithCredentialsTest (1 UT)
+  ** Wiring `DeployTaskRegistrar.registerDeployProfileTask()` — conditionnel sur `site.pushProfile != null`
+  ** Feature 5 Cucumber (3 scénarios) : enregistrement tâche + absence + E2E simulated remote
+  ** Pas de FT ajouté (duplication avec Cucumber évité — anti-pattern)
+* [x] BKY-IA-2 — Vérification stable : `ThemeIntentionFunctionalTests` 5/5 FT PASS, Feature 27 Cucumber PASS
+* [x] Documents mis à jour : `BACKLOG.adoc`, `PROMPT_REPRISE.adoc`, `INDEX.adoc`, `SESSIONS_HISTORY.adoc`
+
+**Fichiers modifiés** : DeployProfileTask.kt, ProfilePublisher.kt, DeployTaskRegistrar.kt, BakeryWorld.kt, BACKLOG.adoc, PROMPT_REPRISE.adoc, INDEX.adoc, SESSIONS_HISTORY.adoc
+**Fichiers créés** : `.agents/sessions/072-epic6-validation-cs12-deploy.adoc`
+**Fichiers renommés** : `PublishProfileTask.kt` → `DeployProfileTask.kt`
+
+**Résultats** : BUILD SUCCESSFUL, 14/14 ProfilePublisherTest PASS, 5/5 ThemeIntentionFunctionalTests PASS, Cucumber stable, publishToMavenLocal OK. Bakery 95% complet.
+
 == Session 071 — 2026-06-04 — CS-1 SiteManager Split + CS-10 Cleanup + EPIC 13 Coverage
 
 **Contexte** : Finalisation Bakery — derniers items de la code review v2 (CS-1 god class split, CS-10 TODO tasks, EPIC 13 coverage).

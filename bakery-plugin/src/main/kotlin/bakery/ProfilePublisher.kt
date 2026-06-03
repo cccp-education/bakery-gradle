@@ -45,7 +45,7 @@ object ProfilePublisher {
         if (intersect.isNotEmpty()) {
             throw IllegalStateException(
                 "Forbidden profile files detected from plugin directory: $intersect. " +
-                    "Ensure publishProfile is executed from the consumer project, not the plugin itself."
+                    "Ensure deployProfile is executed from the consumer project, not the plugin itself."
             )
         }
 

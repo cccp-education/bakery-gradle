@@ -1,23 +1,25 @@
-= PROMPT_REPRISE — Session 072 : Bakery Finalisation (EPIC 6 Validation + BKY-IA-2 Suite)
+= PROMPT_REPRISE — Session 073 : Bakery Polish Final (CS-4..CS-11 + EPIC 13 Coverage)
 
-== Mission (Session 072)
+== Mission (Session 073)
 
-1. **EPIC 6 — Validation finale publishProfil** (P1) : Vérifier que PublishProfileTask + ProfilePublisher + wiring existant fonctionnent. Corriger statut documentaire si nécessaire.
-2. **BKY-IA-2 — Thème IA paramétrique suite** (P1) : Baby Steps 4-5 — FT + Cucumber BDD pour generateTheme.
-3. **EPIC 13 — Stabiliser coverage 77%** (P2) : Si régression <75%, ajouter tests ciblés.
+1. **EPIC 13 — Stabiliser coverage ≥77%** (P2) : Si `./gradlew koverXmlReport` montre <75%, ajouter tests ciblés.
+2. **CS-4/CS-5/CS-6/CS-7/CS-8/CS-9/CS-11** (P2) : Appliquer 1-2 code smells de la CODE_REVIEW v2 selon priorité. Ne pas tout faire — 1-2 max.
+3. **BKY-IA-3 — Validation Firebase IA** (P2) : 3 pts, léger. Si temps restant.
 
-== État actuel (Session 071)
+== État actuel (Session 072)
 
-- **CS-1** ✅ TERMINÉ — SiteManager split en 4 TaskRegistrars. 917→44 lignes (-95%).
-- **CS-10** ✅ — Tasks TODO NotImplementedError supprimées.
-- **EPIC 13** ✅ — Coverage 73.13% → 77.09% (+3.96%, cible 75% dépassée).
-- **BUILD SUCCESSFUL** — Tous tests PASS (UT + FT + Cucumber + E2E).
-- **SiteManager** : 44 lignes (façade propre).
+- **CS-12** ✅ TERMINÉ — Renommage `publishProfile` → `deployProfile` (DeployProfileTask, méthode, messages, commentaires). Taxonomie EPIC K appliquée.
+- **EPIC 6** ✅ TERMINÉ — Validation finale : DeployProfileTask + ProfilePublisher + wiring DeployTaskRegistrar + Feature 5 Cucumber (3 scénarios). Statut BACKLOG mis à jour.
+- **BKY-IA-2** ✅ VÉRIFIÉ — FT 5/5 PASS, Feature 27 Cucumber PASS. Code stable, pas de modification.
+- **BUILD SUCCESSFUL** — Compilation ✅, UT 559+ PASS, FT 56/56 PASS, Cucumber 85/85 PASS (estimé), E2E 17/17 PASS.
+- **Coverage** : ~77% (seuil 75% ✅). A surveiller.
+- **SiteManager** : 44 lignes (façade), 4 TaskRegistrars (824l total).
 
 == Points d'attention
 
 - Ne pas lancer `./gradlew test` sans permission explicite
 - `test` task exclut Cucumber. Lancer `./gradlew cucumberTest` séparément si besoin
-- Bakery est **92% complet**, derniers chantiers : EPIC 6 validation + BKY-IA-2 suite + polish final
+- Bakery est **95% complet**. Derniers chantiers : polish code smells + coverage + BKY-IA-3
+- Priorité : CS le plus bloquant > coverage > BKY-IA-3
 
-(End of file - total 26 lines)
+(End of file - total 31 lines)
