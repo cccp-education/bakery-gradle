@@ -1,6 +1,8 @@
 package bakery.scaffold
 
 import bakery.llm.LlmService
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
 /**
  * Service domaine de scaffolding assiste par IA.
@@ -92,6 +94,8 @@ class ScaffoldGenerator {
 
     /**
      * Extrait le bloc JSON d'une reponse qui peut contenir du texte avant/apres.
+     *
+     * Garde car le LLM peut entourer le JSON de texte explicatif.
      */
     internal fun extractJson(response: String): String {
         val startIndex = response.indexOf('{')
@@ -103,39 +107,37 @@ class ScaffoldGenerator {
     }
 
     /**
-     * Parse un bloc JSON en [ScaffoldOutput].
+     * Parse un bloc JSON en [ScaffoldOutput] via Jackson.
+     *
+     * Remplace l'ancien parsing regex maison (CS-3) par jacksonObjectMapper
+     * avec FAIL_ON_UNKNOWN_PROPERTIES=false pour la tolérance.
      */
     private fun parseJsonOutput(json: String, intention: ScaffoldIntention): ScaffoldOutput {
-        // Simple JSON parsing without external library dependency
-        // (bakery already uses Jackson but we keep this pure domain)
-        val siteType = extractJsonValue(json, "siteType")
+        val mapper = jacksonObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+
+        val dto = try {
+            mapper.readValue(json, ScaffoldOutputDto::class.java)
+        } catch (_: Exception) {
+            return fallbackOutput(intention)
+        }
+
+        val siteType = dto.siteType
             ?.let { ScaffoldSiteType.fromStringOrDefault(it) }
             ?: intention.siteType
 
-        val projectName = extractJsonValue(json, "projectName")
+        val projectName = dto.projectName
             ?.takeIf { it.isNotBlank() }
             ?: intention.projectName.ifBlank { intention.description.slugify() }
 
-        val description = extractJsonValue(json, "description")
-            ?: intention.description
+        val description = dto.description ?: intention.description
 
-        val templates = extractJsonArray(json, "templates")
-            .ifEmpty { defaultTemplatesFor(siteType) }
+        val templates = dto.templates
+            ?.filter { it.isNotBlank() }
+            ?.ifEmpty { null }
+            ?: defaultTemplatesFor(siteType)
 
-        val metadataTitle = extractNestedJsonValue(json, "metadata", "title")
-            ?: projectName
-
-        val metadataDescription = extractNestedJsonValue(json, "metadata", "description")
-            ?: description
-
-        val metadataTags = extractNestedJsonArray(json, "metadata", "tags")
-            .ifEmpty { listOf(intention.description.slugify()) }
-
-        val metadataLayout = extractNestedJsonValue(json, "metadata", "layout")
-            ?: "post"
-
-        val metadataLanguage = extractNestedJsonValue(json, "metadata", "language")
-            ?: intention.lang
+        val metadata = dto.metadata
 
         return ScaffoldOutput(
             siteType = siteType,
@@ -143,11 +145,12 @@ class ScaffoldGenerator {
             description = description,
             templates = templates,
             metadata = ScaffoldMetadata(
-                title = metadataTitle,
-                description = metadataDescription,
-                tags = metadataTags,
-                layout = metadataLayout,
-                language = metadataLanguage
+                title = metadata?.title?.takeIf { it.isNotBlank() } ?: projectName,
+                description = metadata?.description?.takeIf { it.isNotBlank() } ?: description,
+                tags = metadata?.tags?.filter { it.isNotBlank() }?.ifEmpty { null }
+                    ?: listOf(intention.description.slugify()),
+                layout = metadata?.layout?.takeIf { it.isNotBlank() } ?: "post",
+                language = metadata?.language?.takeIf { it.isNotBlank() } ?: intention.lang
             )
         )
     }
@@ -175,61 +178,6 @@ class ScaffoldGenerator {
             language = intention.lang
         )
     )
-
-    // ── JSON parsing helpers (lightweight, no external deps) ──────────
-
-    private fun extractJsonValue(json: String, key: String): String? {
-        val pattern = """"$key"\s*:\s*"""
-        val regex = Regex(pattern)
-        val match = regex.find(json) ?: return null
-        val afterKey = json.substring(match.range.last + 1).trimStart()
-        return when {
-            afterKey.startsWith('"') -> {
-                val endQuote = afterKey.indexOf('"', 1)
-                if (endQuote > 0) afterKey.substring(1, endQuote) else null
-            }
-            afterKey.startsWith('[') || afterKey.startsWith('{') -> null
-            else -> {
-                val end = afterKey.indexOfAny(charArrayOf(',', '}', '\n'))
-                if (end > 0) afterKey.substring(0, end).trim().trim('"') else null
-            }
-        }
-    }
-
-    private fun extractJsonArray(json: String, key: String): List<String> {
-        val pattern = """"$key"\s*:\s*\["""
-        val regex = Regex(pattern)
-        val match = regex.find(json) ?: return emptyList()
-        val afterBracket = json.substring(match.range.last + 1)
-        val endBracket = afterBracket.indexOf(']')
-        if (endBracket < 0) return emptyList()
-        val arrayContent = afterBracket.substring(0, endBracket)
-        return arrayContent.split(",")
-            .map { it.trim().trim('"') }
-            .filter { it.isNotBlank() }
-    }
-
-    private fun extractNestedJsonValue(json: String, parent: String, key: String): String? {
-        val parentPattern = """"$parent"\s*:\s*\{"""
-        val parentRegex = Regex(parentPattern)
-        val parentMatch = parentRegex.find(json) ?: return null
-        val afterParentOpen = json.substring(parentMatch.range.last + 1)
-        val parentClose = afterParentOpen.indexOf('}')
-        if (parentClose < 0) return null
-        val parentBlock = afterParentOpen.substring(0, parentClose + 1)
-        return extractJsonValue(parentBlock, key)
-    }
-
-    private fun extractNestedJsonArray(json: String, parent: String, key: String): List<String> {
-        val parentPattern = """"$parent"\s*:\s*\{"""
-        val parentRegex = Regex(parentPattern)
-        val parentMatch = parentRegex.find(json) ?: return emptyList()
-        val afterParentOpen = json.substring(parentMatch.range.last + 1)
-        val parentClose = afterParentOpen.indexOf('}')
-        if (parentClose < 0) return emptyList()
-        val parentBlock = afterParentOpen.substring(0, parentClose + 1)
-        return extractJsonArray(parentBlock, key)
-    }
 
     private fun String.slugify(): String {
         return this.lowercase()

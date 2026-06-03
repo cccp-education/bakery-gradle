@@ -16,6 +16,8 @@ import bakery.SiteManager.registerDeploySiteTask
 import bakery.SiteManager.registerGenerateArticleTask
 import bakery.SiteManager.registerGenerateSiteFromIntentionTask
 import bakery.SiteManager.registerGenerateSiteTask
+import bakery.SiteManager.registerGenerateThemeTask
+import bakery.SiteManager.registerValidateFirebaseConfigTask
 
 import bakery.SiteManager.registerPagefindTask
 import bakery.SiteManager.registerServeTask
@@ -85,6 +87,8 @@ class BakeryPlugin : Plugin<Project> {
                 project.registerCollectSiteContextTask(site, bakeryExtension.augmentedContext)
                 project.registerCollectAugmentedContextTask(site, bakeryExtension.augmentedContext)
                 project.registerGenerateArticleTask(site, bakeryExtension.ia, bakeryExtension.articleIntention)
+                project.registerGenerateThemeTask(site, bakeryExtension.themeIntention)
+                project.registerValidateFirebaseConfigTask(site, bakeryExtension.ia, bakeryExtension.firebaseAuth)
             }
         }
     }

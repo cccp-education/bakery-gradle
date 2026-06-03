@@ -679,14 +679,24 @@ bakery → assembleTrainingSite → site statique complet :
 
 === BKY-IA-3 — Validation Firebase Assistée par IA
 
-*Statut* : À faire — *P2*
+*Statut* : ✅ TERMINÉ — *P2, session 070 (audit révèle code déjà complet)*
 *Priorité* : P2 — EPIC 4 (Firebase mécanique) déjà à 95%, l'IA ajoute validation + suggestions
-*Charge* : 3 pts
+*Charge* : 3 pts ✅
 *Dépend de* : BKY-IA-0, EPIC 4
 
-*Tâches* :
-. `BKY-IA-3.1` — Tâche `validateFirebaseConfig` : LLM vérifie cohérence bloc `firebase:` dans `site.yml`
-. `BKY-IA-3.2` — Suggester : "tu as un formulaire de contact, veux-tu aussi une newsletter ?"
+*Tâches terminées* :
+. ✅ `BKY-IA-3.1` — Tâche `validateFirebaseConfig` : validation mécanique (apiKey/authDomain/projectId) + validation LLM optionnelle
+. ✅ `BKY-IA-3.2` — Suggester : warnings si config incohérente (cross-field coherence)
+
+*Fichiers* :
+- `src/main/kotlin/bakery/firebase/ValidateFirebaseConfigTask.kt` — tâche Gradle (236 lignes)
+- `src/main/kotlin/bakery/firebase/FirebaseConfigValidator.kt` — validation mécanique pure (85 lignes)
+- `src/main/kotlin/bakery/firebase/FirebaseValidationResult.kt` — data classes (31 lignes)
+- `src/test/kotlin/bakery/firebase/FirebaseConfigValidatorTest.kt` — 18 UT (8 Auth + 7 Contact + 3 Result)
+- `src/test/kotlin/bakery/firebase/ValidateFirebaseConfigTaskTest.kt` — 11 UT (5 task + 2 prompt + 2 parsing + 2 mechanical)
+- `src/functionalTest/kotlin/bakery/ValidateFirebaseConfigFunctionalTests.kt` — 5 FT
+- `src/test/features/28_validate_firebase_config.feature` — 3 scénarios Cucumber
+- `src/test/scenarios/bakery/scenarios/ValidateFirebaseConfigSteps.kt` — steps Cucumber
 
 == EPIC 15 : Réparation PluginApplicationTest + PublishingTest (4 NPE)
 

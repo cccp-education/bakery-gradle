@@ -1,0 +1,26 @@
+
+90 tests completed, 1 failed
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':cucumberTest'.
+> There were failing tests. See the report at: file:///home/cheroliv/workspace/foundry/public/bakery-gradle/bakery-plugin/build/reports/tests/cucumberTest/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 2m 33s
+
+90 tests completed, 1 failed
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':cucumberTest'.
+> There were failing tests. See the report at: file:///home/cheroliv/workspace/foundry/public/bakery-gradle/bakery-plugin/build/reports/tests/cucumberTest/index.html
+
+* Try:
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+
+BUILD FAILED in 2m 33s

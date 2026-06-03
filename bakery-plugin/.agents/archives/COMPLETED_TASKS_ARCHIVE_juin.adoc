@@ -1,5 +1,22 @@
 = COMPLETED_TASKS_ARCHIVE — Juin 2026
 
+== Session 070 — CS-2 LensPipelineService + CS-3 Jackson + Audit IA-3 (2026-06-04)
+
+* [x] CS-2 — Extraction `LensPipelineService` du `doLast` de `SiteManager.registerCollectAugmentedContextTask`
+  * `LensPipelineOutput` data class + `BudgetSummary`
+  * `LensPipelineService.execute()` — 6 étapes pipeline LENTILLE (resolver → extractor → RAG → score → rules → budget → JSON)
+  * `LensPipelineServiceTest` : 6 UT PASS (disabled, missing files, full pipeline, budget, output model)
+  * SiteManager doLast : 79 → 10 lignes (-87%). SiteManager total : 977 → 916 lignes (-6.2%)
+* [x] CS-3 — Migration parse JSON maison `ScaffoldGenerator` → Jackson
+  * `ScaffoldOutputDto` + `ScaffoldMetadataDto` DTOs intermédiaires
+  * `jacksonObjectMapper` avec `FAIL_ON_UNKNOWN_PROPERTIES=false`
+  * 4 méthodes regex privées supprimées (extractJsonValue, extractJsonArray, extractNestedJsonValue, extractNestedJsonArray)
+  * 16/16 ScaffoldGeneratorTest PASS (compatibilité totale)
+* [x] Audit BKY-IA-3 : code déjà complet — statut mis à jour TERMINÉ
+  * ValidateFirebaseConfigTask (236 lignes) + FirebaseConfigValidator (85 lignes) + FirebaseValidationResult (31 lignes)
+  * 18 UT + 5 FT + 3 Cucumber scénarios — tous verts
+* [x] BUILD SUCCESSFUL. `publishToMavenLocal` OK.
+
 == Session 060 — BKY-LENS-4 Validation Cucumber (2026-06-03)
 
 * [x] LENS-4.1 — Fix Feature 17 `17_augmented_context_lens.feature` : Regex injection DSL → `DslInjectionHelper.insertBeforeClosingBrace()` (comptage accolades, insertion avant `}` fermant)

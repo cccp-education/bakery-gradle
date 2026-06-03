@@ -5,6 +5,9 @@ import bakery.llm.IaConfig
 import bakery.llm.OllamaLlmService
 import bakery.scaffold.GenerateSiteFromIntentionTask
 import bakery.scaffold.ScaffoldIntentionDsl
+import bakery.firebase.ValidateFirebaseConfigTask
+import bakery.theme.GenerateThemeTask
+import bakery.theme.ThemeIntentionDsl
 import bakery.ConfigPrompts.getOrPrompt
 import bakery.ConfigPrompts.saveConfiguration
 import bakery.FileSystemManager.copyResourceDirectory
@@ -33,6 +36,7 @@ object SiteManager {
     const val TRANSFORM_GROUP = "transform"
     const val INFO_GROUP = "info"
     const val COLLECT_GROUP = "collect"
+    const val VALIDATE_GROUP = "validate"
     const val BAKE_TASK = "bake"
     const val ASCIIDOCTOR_OPTION_REQUIRES = "asciidoctor.option.requires"
     const val ASCIIDOCTOR_DIAGRAM = "asciidoctor-diagram"
@@ -660,6 +664,93 @@ object SiteManager {
         }
     }
 
+// ==================== Generate Theme Task (BKY-IA-2) ====================
+
+    /**
+     * Enregistre la tâche `generateTheme` pour la sélection de variante de thème.
+     *
+     * @param site Configuration du site (utilise bake.srcPath pour le répertoire cible)
+     * @param themeIntentionDsl Configuration intention thème depuis `bakery { themeIntention { ... } }`
+     */
+    internal fun Project.registerGenerateThemeTask(
+        site: SiteConfiguration,
+        themeIntentionDsl: bakery.theme.ThemeIntentionDsl? = null
+    ) {
+        val contentRoot = project.projectDir.resolve(site.bake.srcPath)
+        tasks.register("generateTheme", GenerateThemeTask::class.java) { task ->
+            task.group = GENERATE_GROUP
+            task.description = "Génère un thème à partir du catalogue — résolution variante + surcharges"
+            task.targetDir = contentRoot
+
+            task.themeVariant.set(project.providers.gradleProperty("themeVariant").orElse(""))
+            task.themeDescription.set(project.providers.gradleProperty("themeDescription").orElse(""))
+            task.themePrimaryColor.set(project.providers.gradleProperty("themePrimaryColor").orElse(""))
+            task.themeSecondaryColor.set(project.providers.gradleProperty("themeSecondaryColor").orElse(""))
+            task.themeAccentColor.set(project.providers.gradleProperty("themeAccentColor").orElse(""))
+            task.themeBackgroundColor.set(project.providers.gradleProperty("themeBackgroundColor").orElse(""))
+            task.themeTextColor.set(project.providers.gradleProperty("themeTextColor").orElse(""))
+            task.themeFontFamily.set(project.providers.gradleProperty("themeFontFamily").orElse(""))
+            task.themeHeadingFont.set(project.providers.gradleProperty("themeHeadingFont").orElse(""))
+
+            // Inject DSL intention if configured
+            themeIntentionDsl?.let { dsl ->
+                if (dsl.description.isNotBlank()) {
+                    task.dslIntention = try {
+                        dsl.toIntention()
+                    } catch (_: IllegalArgumentException) {
+                        null
+                    }
+                }
+            }
+
+            project.logger.info("[BakeryPlugin] generateTheme tâche enregistrée (variante=${themeIntentionDsl?.variant ?: "par défaut"})")
+        }
+    }
+
+// ==================== Validate Firebase Config Task (BKY-IA-3) ====================
+
+    /**
+     * Enregistre la tâche `validateFirebaseConfig` pour la validation de la configuration Firebase.
+     *
+     * @param site Configuration du site (résolution ConfigResolver pour les deux configs)
+     * @param iaConfig Configuration IA (injecte LLM si ia.enabled = true via DSL ou CLI)
+     * @param props Properties issues de loadProperties (CLI + gradle.properties)
+     */
+    internal fun Project.registerValidateFirebaseConfigTask(
+        site: SiteConfiguration,
+        iaConfig: IaConfig = IaConfig(),
+        firebaseAuthDsl: FirebaseAuthDsl = FirebaseAuthDsl(),
+        props: Map<String, String> = emptyMap()
+    ) {
+        tasks.register("validateFirebaseConfig", ValidateFirebaseConfigTask::class.java) { task ->
+            task.group = VALIDATE_GROUP
+            task.description = "Valide la cohérence de la configuration Firebase (mécanique + IA optionnelle)"
+
+            // Résoudre les configs via ConfigResolver 4-layer cascade
+            val resolvedFirebaseAuth = ConfigResolver.resolveFirebaseAuthConfig(
+                props, firebaseAuthDsl, site.firebaseAuth
+            )
+            val resolvedFirebaseContact = site.firebase
+
+            task.resolvedAuthConfig = resolvedFirebaseAuth
+            task.resolvedContactConfig = resolvedFirebaseContact
+
+            if (iaConfig.enabled) {
+                task.llmService = OllamaLlmService.create(
+                    baseUrl = iaConfig.baseUrl,
+                    modelName = iaConfig.modelName,
+                    timeout = iaConfig.timeout
+                )
+                project.logger.info(
+                    "[BakeryPlugin] validateFirebaseConfig IA activé : {} @ {}",
+                    iaConfig.modelName, iaConfig.baseUrl
+                )
+            } else {
+                project.logger.info("[BakeryPlugin] validateFirebaseConfig IA désactivé (ia.enabled = false)")
+            }
+        }
+    }
+
 // ==================== Collect Site Config Task ====================
 
     internal fun Project.registerCollectSiteConfigTask(
@@ -773,75 +864,15 @@ object SiteManager {
                     }
 
                     val outputDir = layout.buildDirectory.get().asFile.resolve("bakery")
-                    outputDir.mkdirs()
+                    val contextFile = projectDir.resolve(augmentedContextDsl.contextPath)
+                    val graphFile = projectDir.resolve(augmentedContextDsl.lens.graphFilePath)
 
-                    // 1. Charger le composite-context.json (si disponible)
-                    val contextPath = augmentedContextDsl.contextPath
-                    val contextFile = projectDir.resolve(contextPath)
-                    val resolver = bakery.lens.AugmentedContextResolver()
-                    val compositeContext = resolver.resolve(contextFile.absolutePath)
-                    if (compositeContext == null && contextFile.exists()) {
-                        logger.info("[collectAugmentedContext] composite-context.json trouvé mais invalide à $contextPath.")
-                    } else if (!contextFile.exists()) {
-                        logger.info("[collectAugmentedContext] composite-context.json non trouvé à $contextPath. RAG désactivé.")
-                    }
-
-                    // 2. Extraire le sous-graphe depuis graph.json
-                    val graphFilePath = augmentedContextDsl.lens.graphFilePath
-                    val graphFile = projectDir.resolve(graphFilePath)
-                    val extractor = bakery.lens.SubgraphExtractor()
-                    val subgraph = if (graphFile.exists()) {
-                        val fullGraph = extractor.loadGraph(graphFile.absolutePath)
-                        extractor.extract(fullGraph, augmentedContextDsl.lens)
-                    } else {
-                        logger.info("[collectAugmentedContext] graph.json non trouvé à $graphFilePath. Sous-graphe vide.")
-                        bakery.lens.SiteSubgraph(emptyList(), emptyList(), emptyList())
-                    }
-
-                    // 3. RAG results — le canal RAG du composite-context fournit le contenu
-                    // textuel, pas des scores structurés. Les scores RAG viendront de pgvector
-                    // via codebase-gradle (connexion N3 en BKY-LENS-5). Pour l'instant, RAG=vide.
-                    val ragResults: Map<String, Double> = emptyMap()
-                    if (compositeContext != null) {
-                        val channels = resolver.extractChannels(compositeContext)
-                        val ragContent = channels[contracts.context.ChannelType.RAG]
-                        if (ragContent != null) {
-                            logger.info("[collectAugmentedContext] Canal RAG disponible ({} caractères). Scoring RAG via pgvector à venir (BKY-LENS-5).", ragContent.length)
-                        }
-                    }
-
-                    // 4. Scoring hybride
-                    val service = bakery.lens.AugmentedArticlesService()
-                    val allScored = service.scoreAll(
-                        subgraph = subgraph,
-                        ragResults = ragResults,
-                        lensRules = augmentedContextDsl.lens.rules
-                    )
-
-                    // 5. Filtrer par règles + budget
-                    val filtered = service.applyRules(allScored, augmentedContextDsl.lens.rules)
-                    val budgeted = augmentedContextDsl.budget.apply(filtered)
-
-                    // 6. Écrire le résultat
-                    val mapper = com.fasterxml.jackson.module.kotlin.jacksonObjectMapper()
-                    val output = mapOf(
-                        "version" to "1.0",
-                        "pipeline" to "LENS",
-                        "budget" to mapOf(
-                            "maxArticlesPerPage" to augmentedContextDsl.budget.maxArticlesPerPage,
-                            "minSimilarity" to augmentedContextDsl.budget.minSimilarity
-                        ),
-                        "scoredNodes" to budgeted,
-                        "totalCandidates" to allScored.size,
-                        "totalAfterRules" to filtered.size,
-                        "totalAfterBudget" to budgeted.size
-                    )
-                    mapper.writerWithDefaultPrettyPrinter()
-                        .writeValue(outputDir.resolve("augmented-context.json"), output)
+                    val service = bakery.lens.LensPipelineService()
+                    val result = service.execute(augmentedContextDsl, contextFile, graphFile, outputDir)
 
                     logger.lifecycle(
                         "[collectAugmentedContext] {} nœuds scorés → {} après règles → {} après budget → {}",
-                        allScored.size, filtered.size, budgeted.size,
+                        result.totalCandidates, result.totalAfterRules, result.totalAfterBudget,
                         outputDir.resolve("augmented-context.json").absolutePath
                     )
                 }

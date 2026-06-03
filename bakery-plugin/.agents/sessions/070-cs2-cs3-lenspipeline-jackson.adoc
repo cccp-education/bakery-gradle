@@ -1,0 +1,62 @@
+= Session 070 — CS-2 LensPipelineService + CS-3 Jackson + Audit IA-3
+
+== Date
+2026-06-04
+
+== Type
+refactor + TDD + audit
+
+== Score
+9/10
+
+== Résumé
+
+Session de refactoring des deux code smells critiques (P0) identifiés en code review v2
+(session 067), plus audit révélant que BKY-IA-3 était déjà terminé.
+
+=== Accomplissements
+
+1. **BKY-IA-3 Audit** : Code déjà complet — ValidateFirebaseConfigTask (236 lignes),
+   FirebaseConfigValidator (85 lignes), FirebaseValidationResult (31 lignes), 18 UT,
+   5 FT, 3 Cucumber scénarios. Statut BACKLOG mis à jour : "À faire" → "TERMINÉ".
+
+2. **CS-2 — LensPipelineService** : Extraction du pipeline LENTILLE du `doLast` de
+   `SiteManager.registerCollectAugmentedContextTask` (79 → 10 lignes, -87%).
+   - `LensPipelineOutput` data class + `BudgetSummary`
+   - `LensPipelineService.execute()` — 6 étapes orchestrées dans un service testable
+   - 6 UT PASS (disabled, missing files, full pipeline, budget, output model)
+   - Le `doLast` devient 3 lignes : `val service = LensPipelineService(); val result = service.execute(...)`
+
+3. **CS-3 — Jackson parse JSON** : Remplacement du parse regex maison dans `ScaffoldGenerator`
+   par `jacksonObjectMapper` avec `FAIL_ON_UNKNOWN_PROPERTIES=false`.
+   - `ScaffoldOutputDto` + `ScaffoldMetadataDto` DTOs intermédiaires
+   - 4 méthodes privées regex supprimées (extractJsonValue, extractJsonArray, extractNestedJsonValue, extractNestedJsonArray)
+   - 16/16 ScaffoldGeneratorTest PASS (compatibilité totale)
+
+=== Métriques
+
+- **SiteManager** : 977 → 916 lignes (-61, -6.2%)
+- **Fichiers créés** : 3 (LensPipelineOutput.kt, LensPipelineService.kt, LensPipelineServiceTest.kt, ScaffoldOutputDto.kt)
+- **Fichiers modifiés** : 2 (SiteManager.kt, ScaffoldGenerator.kt)
+- **Fichiers nettoyés** : 0 (méthodes privées supprimées dans ScaffoldGenerator.kt)
+- **UT ajoutées** : 6 (LensPipelineServiceTest)
+- **UT migrés** : 0 (les tests existants ScaffoldGeneratorTest passent inchangés)
+- **BUILD** : SUCCESSFUL
+- **publishToMavenLocal** : OK
+
+=== Points d'attention
+
+- Aucune modification fonctionnelle — refactoring pur (même comportement, meilleure structure)
+- Les tests existants (lens, scaffold, firebase) passent tous sans modification
+- Le DTO ScaffoldOutputDto est `internal` — pas exposé publiquement
+- LensPipelineService n'a pas de dépendance Gradle (File, Logger via SLF4J)
+
+== Prochaine Session (071)
+
+SiteManager split (CS-1) en 4 TaskRegistrars :
+- SiteTaskRegistrar → generateSite, serve, collectSiteConfig
+- DeployTaskRegistrar → deploySite, deployMaquette, deployProfile
+- ContentTaskRegistrar → generateArticle, generateSiteFromIntention, generateTheme
+- LensTaskRegistrar → collectSiteContext, collectAugmentedContext
+
+Plus CS-10 (retirer tasks TODO NotImplementedError).

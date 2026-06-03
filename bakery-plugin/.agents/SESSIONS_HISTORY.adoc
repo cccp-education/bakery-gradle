@@ -3,6 +3,7 @@
 _Derniere mise a jour : 2026-06-03 — Session 068_
 
 |===
+| 070 | 2026-06-04 | refactor + TDD + audit | CS-2 LensPipelineService — extraction pipeline LENS du doLast SiteManager (79→10 lignes, -87%). 6/6 UT PASS. CS-3 Jackson — migration parse JSON maison → jacksonObjectMapper + ScaffoldOutputDto. 16/16 ScaffoldGeneratorTest PASS. Audit IA-3 : code déjà complet (ValidateFirebaseConfigTask + FirebaseConfigValidator + 18 UT + 5 FT + 3 Cucumber) — statut mis à jour TERMINÉ. SiteManager : 977→916 lignes (-61, -6.2%). BUILD SUCCESSFUL tous tests PASS. | 9/10
 | 068 | 2026-06-03 | feat + TDD + DDD | BKY-IA-2 Baby Steps 1-3 Thème IA paramétrique — ThemeVariant enum (5), ThemeCatalog (5 presets + résolution), ThemePreset/ThemeOverrides/ThemeIntention/ThemeIntentionDsl (DDD), ConfigResolver variant cascade (8 UT), ThemeTemplate IA-2 (4 UT). EPIC 6 fantôme corrigé (100% implémenté). 50 UT ajoutés. | 8/10
 
 |===

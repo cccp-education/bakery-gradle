@@ -1,0 +1,65 @@
+= Session 069 — BKY-IA-2 Baby Steps 4-5 (GenerateThemeTask + FT + Cucumber)
+
+== Date
+2026-06-03
+
+== Type
+feat + TDD + BDD
+
+== Succès (9/10)
+
+=== Contexte
+Reprise bakery avec backlog et code review. Méthodologie DDD/TDD/BDD baby steps appliquée.
+
+=== Réalisations
+
+1. **BKY-IA-2 Baby Step 4a** ✅ — `GenerateThemeTask.kt` créé (237 lignes)
+   - Pattern identique à `GenerateArticleTask` et `GenerateSiteFromIntentionTask`
+   - Résolution cascade CLI > DSL > defaults
+   - 8 propriétés CLI (`themeVariant`, `themeAccentColor`, etc.)
+   - `resolveIntention()` → `ThemeCatalog.resolve()` → injection dans `jbake.properties`
+
+2. **BKY-IA-2 Baby Step 4b** ✅ — `registerGenerateThemeTask()` dans SiteManager + BakeryPlugin
+   - Branché dans la branche `else` (site configuré) du plugin
+   - Enregistrement conditionnel `iaConfig.enabled`
+
+3. **BKY-IA-2 Baby Step 4c** ✅ — `ThemeIntentionFunctionalTests` (5/5 PASS)
+   - DSL compile avec description seule
+   - DSL compile avec config complète
+   - Task enregistrée avec themeIntention DSL
+   - Variant injecte preset colors dans jbake.properties
+   - Backward compat sans themeIntention
+
+4. **BKY-IA-2 Baby Step 5** ✅ — Cucumber Feature 27 (3/3 PASS)
+   - `27_theme_intention.feature` : variante catalogue, accentColor override DSL, defaults
+   - `ThemeIntentionSteps.kt` : 3 steps dédiés (theme variant, accentColor, variant DSL)
+   - Réutilise les steps partagés (ConfigResolverSteps, MinimalSteps, InitSiteSteps)
+
+=== Fichiers créés
+- `src/main/kotlin/bakery/theme/GenerateThemeTask.kt` (237 lignes)
+- `src/functionalTest/kotlin/bakery/ThemeIntentionFunctionalTests.kt` (217 lignes)
+- `src/test/features/27_theme_intention.feature` (41 lignes)
+- `src/test/scenarios/bakery/scenarios/ThemeIntentionSteps.kt` (72 lignes)
+
+=== Fichiers modifiés
+- `src/main/kotlin/bakery/SiteManager.kt` (+32 lignes : registerGenerateThemeTask)
+- `src/main/kotlin/bakery/BakeryPlugin.kt` (+2 lignes : import + appel)
+
+=== Métriques
+- 87/87 Cucumber PASS (+2 scénarios)
+- 5/5 FT PASS
+- BUILD SUCCESSFUL
+- `publishToMavenLocal` OK
+
+== Leçons apprises
+
+1. **DuplicateStepDefinition** — Déclarer un step `@Then("the file ... should contain ...")` dans 2 fichiers Cucumber crée une DuplicateStepDefinitionException qui empêche TOUS les steps d'être enregistrés. Solution : réutiliser les steps partagés.
+
+2. **Cucumber DSL insertion** — Insérer un bloc DSL dans `build.gradle.kts` via `lastIndexOf('}')` nécessite un `\n` avant le bloc inséré, sinon la syntaxe Kotlin est invalide (deux éléments sur la même ligne).
+
+3. **Cucumber Background** — Les features BKY-IA-2 fonctionnent avec la branche scaffolding (`does not have 'site.yml'`), pas la branche site configuré. `generateSite` injecte les propriétés thème via `ConfigResolver` dans les deux branches.
+
+=== Prochaine session
+- BKY-IA-3 (Validation Firebase IA, 3 pts)
+- EPIC 13 (coverage 73→75%)
+- Code smells P0 (CS-2, CS-3)

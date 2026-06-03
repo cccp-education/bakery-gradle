@@ -1,27 +1,26 @@
-= PROMPT_REPRISE — Session 069 : BKY-IA-2 Étapes 3-5 (GenerateThemeTask + FT + Cucumber)
+= PROMPT_REPRISE — Session 071 : Finalisation Bakery (Polish + SiteManager Split)
 
-== Mission (Session 069)
+== Mission (Session 071)
 
-1. **BKY-IA-2 Baby Step 3** — `GenerateThemeTask` : tâche Gradle qui résout la variante thème via ConfigResolver, injecte les variables CSS dans `jbake.properties`. Tester via FT.
-2. **BKY-IA-2 Baby Step 4** — FT : tests fonctionnels `ThemeIntentionFunctionalTests` (enregistrement tâche, config injectée).
-3. **BKY-IA-2 Baby Step 5** — BDD : Cucumber Feature 27 (sélection variante, injection propriétés thème étendues, résolution cascade CLI>DSL>YAML>preset>defaults).
-4. **Priorité P2** si temps : BKY-IA-3 Validation Firebase IA + EPIC 13 coverage 73→75%.
+1. **CS-1 — Split SiteManager** (P1) : Extraire 4 TaskRegistrars spécialisés
+   - `SiteTaskRegistrar` → generateSite, serve, collectSiteConfig
+   - `DeployTaskRegistrar` → deploySite, deployMaquette, deployProfile
+   - `ContentTaskRegistrar` → generateArticle, generateSiteFromIntention, generateTheme
+   - `LensTaskRegistrar` → collectSiteContext, collectAugmentedContext
+2. **CS-10 — Retirer tasks TODO NotImplementedError**
+3. **EPIC 13 — Coverage 73→75%** (si possible après split)
 
-== État actuel (Session 068)
+== État actuel (Session 070)
 
-- **EPIC 6** ✅ — Code existait à 100% (14 UT + 3 Cucumber). Fantôme documentaire corrigé. Statut mis à jour.
-- **BKY-IA-2 Baby Steps 1-3** ✅ — DDD (ThemeVariant, ThemeCatalog, ThemeIntention, ThemePreset, ThemeOverrides, ThemeIntentionDsl) + TDD (38 UT theme + 8 UT ConfigResolver variant + 4 UT ThemeTemplate IA-2) + ConfigResolver enrichi (variant preset cascade) + SiteManager injection 5 nouvelles propriétés.
-- **ThemeDsl** enrichi (variant, accentColor, backgroundColor, textColor, headingFont)
-- **ThemeConfig** enrichi (mêmes 5 champs)
-- **theme-script.thyme** enrichi (accent, bg, text, heading CSS variables)
-- **Fichiers créés** : `theme/ThemeVariant.kt`, `theme/ThemeCatalog.kt`, `theme/ThemePreset.kt`, `theme/ThemeIntention.kt`, `theme/ThemeIntentionDsl.kt`, `theme/ThemeOverrides.kt`
-- **Fichiers modifiés** : `ThemeDsl.kt`, `BakeryExtension.kt`, `SiteConfiguration.kt`, `ConfigResolver.kt`, `SiteManager.kt`, `theme-script.thyme`
-- BUILD SUCCESSFUL. `publishToMavenLocal` OK.
+- **BKY-IA-3** ✅ TERMINÉ — ValidateFirebaseConfigTask + FirebaseConfigValidator + 18 UT + 5 FT + 3 Cucumber — DÉJÀ IMPLÉMENTÉ avant la session (fichiers existaient)
+- **CS-2** ✅ — `LensPipelineService` créé (lens package), `LensPipelineOutput`/`BudgetSummary` data classes, 6 UT PASS. SiteManager doLast réduit de 79 → 10 lignes (-87%).
+- **CS-3** ✅ — `ScaffoldOutputDto` créé, `parseJsonOutput` migre vers `jacksonObjectMapper` avec `FAIL_ON_UNKNOWN_PROPERTIES=false`. 4 méthodes regex privées supprimées. 16/16 ScaffoldGeneratorTest PASS.
+- **SiteManager** : 977 → 916 lignes (-61, -6.2%)
+- **BUILD SUCCESSFUL** — Tous les tests PASS. `publishToMavenLocal` OK.
 
 == Points d'attention
 
 - Ne pas lancer `./gradlew test` sans permission explicite
-- `test` task exclut Cucumber (38s). Lancer `./gradlew cucumberTest` séparément si besoin
-- EPIC 6 est TERMINÉ — ne pas le rouvrir
-- Le cascade ConfigResolver thème variante fonctionne : CLI > DSL (si explicitement modifié) > YAML > Preset > Defaults
-- Les nouvelles propriétés DSL (accentColor, textColor, etc.) ont des valeurs par défaut vides, ce qui permet au preset de prendre le relais correctement
+- `test` task exclut Cucumber. Lancer `./gradlew cucumberTest` séparément si besoin
+- Tous les EPICs terminés : BKY-JB-0→9, BKY-LENS-1→6, BKY-IA-0→3, CONV-1
+- Bakery est **88% complet**, vrai chantier restant : SiteManager split (CS-1) + polish
