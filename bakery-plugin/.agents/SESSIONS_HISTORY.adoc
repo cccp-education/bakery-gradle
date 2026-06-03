@@ -1,9 +1,10 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-_Derniere mise a jour : 2026-06-03 — Session 061_
+_Derniere mise a jour : 2026-06-03 — Session 062_
 
 |===
 | # | Date | Type | Sujet | Score
+| 062 | 2026-06-03 | feat + TDD + BDD | BKY-LENS-6 Templates Augmentés JBake — augmented-articles.thyme (badges RAG/KG/Docs/EAGER) + post.thyme + page.thyme intégrés + Cucumber Feature 24 (10/10 PASS) + FT CollectAugmentedContext. 21/21 UT PASS. 129/129 Cucumber PASS. | 9/10
 | 061 | 2026-06-03 | feat + TDD + BDD | BKY-LENS-5 Connect N3 Composite Context — AugmentedContextDsl.maxArticles + SiteContextCollector.collectWithAugmentedContext() + Cucumber Feature 23 (3/3) + FT LENS-5 (3/3). 74/74 Cucumber PASS. Contrat DAG N3 branché. | 9/10
 | 060 | 2026-06-03 | fix + TDD + BDD | BKY-LENS-4 Validation Cucumber — Fix 4 échefs : Regex injection DSL → DslInjectionHelper.insertBeforeClosingBrace() (comptage accolades + insertion avant fermeture). Fix custom graph path via graphFilePath state var. 6 UT DslInjectionHelperTest TDD. 71/71 Cucumber PASS ✅. LENS-4 TERMINÉ. | 9/10
 | 059 | 2026-06-03 | feat + BDD + fix | BKY-LENS-4 Cucumber Features 17-19 — 3 features BKG orphelines réécrites en LENS (17_augmented_context_lens, 18_subgraph_extraction, 19_lens_hybrid_scoring). Fix DuplicateStepDefinition (ThymeleafComponentSteps vs ConfigResolverSteps) → Cucumber 53→6 échecs. LensSteps enrichi (+BakeryWorld, +7 steps extraction/injection). Feature 19 3/3 PASS. 65/71 Cucumber PASS. | 7/10

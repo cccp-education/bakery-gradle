@@ -1,0 +1,73 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<!--/*
+  Augmented Articles component — BKY-LENS-6.
+
+  Displays related workspace articles enriched with LENS pipeline data,
+  showing source badges (RAG, KG, Docs, EAGER) for each article.
+
+  Replaces the legacy related-articles.thyme (BKG) that only showed
+  chronologically-ordered suggestions. This fragment consumes
+  `augmentedContextData` (JSON from jbake.properties) produced by
+  the LENS pipeline (SubgraphExtractor → AugmentedArticlesService → LensBudget).
+
+  Usage: <div th:replace="~{augmented-articles.thyme::augmented-articles}"/>
+
+  Required jbake.properties:
+    - augmentedContextEnabled=true
+    - augmentedContextData (JSON string with scoredNodes)
+    - lensBudgetMaxArticlesPerPage (integer, default 4)
+*/-->
+<aside th:fragment="augmented-articles" class="related-articles augmented-articles mt-4"
+        th:if="${augmentedContextEnabled != null && augmentedContextEnabled == 'true' and augmentedContextData != null and augmentedContextData != ''}"
+        th:data-augmented-context="${augmentedContextData}"
+        th:data-max-results="${lensBudgetMaxArticlesPerPage}">
+  <h3 class="related-articles-heading" th:text="${relatedArticlesHeading != null ? relatedArticlesHeading : 'Articles connexes du workspace'}">Articles connexes du workspace</h3>
+  <ul class="related-articles-list" id="augmented-articles-list">
+    <!-- Populated by JavaScript from augmentedContextData JSON -->
+  </ul>
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+    (function() {
+      var aside = document.currentScript.closest('aside.augmented-articles');
+      if (!aside || !aside.dataset.augmentedContext) return;
+      try {
+        var data = JSON.parse(aside.dataset.augmentedContext);
+        var maxResults = parseInt(aside.dataset.maxResults || '4', 10);
+        var nodes = data.scoredNodes || [];
+        var list = document.getElementById('augmented-articles-list');
+        if (!list) return;
+
+        nodes.slice(0, maxResults).forEach(function(node) {
+          var li = document.createElement('li');
+          li.className = 'related-article-item';
+
+          // Article link
+          var a = document.createElement('a');
+          a.href = node.uri;
+          a.textContent = node.title;
+          li.appendChild(a);
+
+          // Source badges
+          var channels = node.channels || [];
+          channels.forEach(function(ch) {
+            var badge = document.createElement('span');
+            badge.className = 'badge badge-source-' + ch;
+            badge.setAttribute('data-channel', ch);
+            badge.textContent = ch;
+            li.appendChild(badge);
+          });
+
+          list.appendChild(li);
+        });
+
+        if (nodes.length === 0) {
+          aside.style.display = 'none';
+        }
+      } catch(e) {
+        if (aside) aside.style.display = 'none';
+      }
+    })();
+    /*]]>*/
+  </script>
+</aside>

@@ -24,6 +24,7 @@
 							<p th:utext='${content.body}'>body</p>
 
 							<div th:replace="~{google-forms.thyme::google-forms}"/>
+							<div th:replace="~{augmented-articles.thyme::augmented-articles}"/>
 							<div th:replace="~{comments.thyme::comments}"/>
 						</div>
 					</div>

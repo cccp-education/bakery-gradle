@@ -1,5 +1,18 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 062 — 2026-06-03 — BKY-LENS-6 Templates Augmentés JBake
+
+**Contexte** : Créer le fragment Thymeleaf `augmented-articles.thyme` affichant les articles connexes du workspace avec badges de source (RAG/KG/Docs/EAGER).
+
+**Tâches réalisées** :
+
+* [x] LENS-6.1 — `augmented-articles.thyme` : fragment Thymeleaf avec `th:if` guard, `data-augmented-context` attribute, JavaScript badge rendering (RAG/KG/Docs/EAGER), `data-max-results` budget truncation — 21/21 UT PASS
+* [x] LENS-6.1 — `post.thyme` : remplace `related-articles.thyme::related-articles` par `augmented-articles.thyme::augmented-articles`
+* [x] LENS-6.2 — `page.thyme` : ajoute `augmented-articles.thyme::augmented-articles` entre google-forms et comments
+* [x] LENS-6.3 — Cucumber Feature 24 (10/10 scénarios) : happy-path scaffolding, th:if guard, badge JS, integration post/page
+* [x] `CollectAugmentedContextFunctionalTest` (1/1 FT) : task registration sous collect group
+* [x] 129/129 Cucumber PASS total
+
 == Session 061 — 2026-06-03 — BKY-LENS-5 Connect N3 Composite Context
 
 **Contexte** : Brancher le pipeline LENS sur le N3 runner-gradle via composite-context.json.

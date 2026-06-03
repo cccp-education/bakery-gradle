@@ -423,11 +423,11 @@ _Dépend de_ : BKY-LENS-1, BKY-LENS-2, BKY-LENS-3
 
 _Dépend de_ : BKY-LENS-3, pilot-plugin (N4)
 
-==== BKY-LENS-6 : Templates Augmentés — JBake (3 pts)
+==== BKY-LENS-6 : Templates Augmentés — JBake (3 pts) ✅ TERMINÉ
 
-* [ ] BKY-LENS-6.1 — `post.thyme` : section « Articles connexes du workspace » avec badges de source (RAG/KG/Docs)
-* [ ] BKY-LENS-6.2 — `page.thyme` : bloc « Contexte augmenté » injecté via data-attributes
-* [ ] BKY-LENS-6.3 — E2E Playwright : vérifier rendu augmenté sur une page bake
+* [x] BKY-LENS-6.1 — `post.thyme` : section « Articles connexes du workspace » avec badges de source (RAG/KG/Docs)
+* [x] BKY-LENS-6.2 — `page.thyme` : bloc « Contexte augmenté » injecté via data-attributes
+* [ ] BKY-LENS-6.3 — E2E Playwright : vérifier rendu augmenté sur une page bake (Cucumber validé, E2E Playwright à faire)
 
 _Dépend de_ : BKY-LENS-5
 
