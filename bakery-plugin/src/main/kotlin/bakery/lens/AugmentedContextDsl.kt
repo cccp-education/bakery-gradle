@@ -8,7 +8,7 @@ import org.gradle.api.Action
  * 3 couches :
  * 1. SÉGRÉGATION : lens { scope, communities, ... }
  * 2. ENRICHISSEMENT : lens { rules { ... }, rag { ... } }
- * 3. BUDGET : maxArticles, minSimilarity (LENS-3)
+ * 3. BUDGET : budget { maxArticlesPerPage, minSimilarity } (LENS-3)
  *
  * Usage:
  * ```
@@ -28,6 +28,10 @@ import org.gradle.api.Action
  *                 topK = 20
  *             }
  *         }
+ *         budget {
+ *             maxArticlesPerPage = 4
+ *             minSimilarity = 0.7
+ *         }
  *     }
  * }
  * ```
@@ -40,11 +44,8 @@ open class AugmentedContextDsl {
     /** Chemin vers le fichier composite-context.json (sortie de runner-gradle N3). */
     var contextPath: String = "build/bakery/composite-context.json"
 
-    /** Nombre max d'articles connexes par page (défaut: 4). */
-    var maxArticles: Int = 4
-
-    /** Seuil de similarité minimum pour les suggestions (défaut: 0.7). */
-    var minSimilarity: Double = 0.7
+    /** Configuration du budget LENS (maxArticlesPerPage + minSimilarity) — BKY-LENS-3 */
+    val budget: LensBudget = LensBudget()
 
     /** Configuration de la lentille (ségrégation + enrichissement). */
     val lens: LensConfig = LensConfig()
@@ -52,5 +53,10 @@ open class AugmentedContextDsl {
     /** DSL : bakery { augmentedContext { lens { ... } } } */
     fun lens(action: Action<LensConfig>) {
         action.execute(lens)
+    }
+
+    /** DSL : bakery { augmentedContext { budget { ... } } } — BKY-LENS-3 */
+    fun budget(action: Action<LensBudget>) {
+        action.execute(budget)
     }
 }

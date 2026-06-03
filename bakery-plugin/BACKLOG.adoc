@@ -286,9 +286,9 @@ RelatedArticlesResolver, kgraph/ package (4 fichiers)._
 
 == EPIC BKY-LENS : Pattern LENTILLE — Réalité Augmentée pour Bakery
 
-**Statut** : À faire — *P0, cadré session 053*
+**Statut** : En cours — *P0, cadré session 053*
 **Priorité** : P0 — remplace BKY-BKG par un pipeline hybride RAG+KG+ségrégation+règles
-**Charge** : 21 pts (6 sous-EPICs)
+**Charge** : 21 pts (6 sous-EPICs) — 12 pts terminés (LENS-1 ✅ LENS-2 ✅ LENS-3 ✅)
 **Dépend de** : graphify-plugin (N0, déjà en `implementation`), codebase-contracts (N0)
 **Rapport détaillé** : `.agents/sessions/053-audit-lentille-contexte-augmente.adoc`
 
@@ -382,28 +382,28 @@ score = α × ragSimilarité      // 0.40 — similarité sémantique (pgvector)
 
 === Sous-EPICs
 
-==== BKY-LENS-1 : SubgraphExtractor — Ségrégation (5 pts)
+==== BKY-LENS-1 : SubgraphExtractor — Ségrégation (5 pts) ✅ TERMINÉ
 
-* [ ] BKY-LENS-1.1 — Importer `codebase-contracts` (N0) dans bakery : `CompositeContext`, `ChannelBudget`, `ContextChannel`
-* [ ] BKY-LENS-1.2 — Créer `LensConfig` data class + DSL `bakery { augmentedContext { lens { ... } } }`
-* [ ] BKY-LENS-1.3 — Créer `SubgraphExtractor` : lit `graph.json`, filtre par communautés/types/edges/depth
-* [ ] BKY-LENS-1.4 — Tests : `SubgraphExtractorTest` avec fixtures `graph.json` mock (3 communautés, 50 nœuds)
+* [x] BKY-LENS-1.1 — Importer `codebase-contracts` (N0) dans bakery : `CompositeContext`, `ChannelBudget`, `ContextChannel`
+* [x] BKY-LENS-1.2 — Créer `LensConfig` data class + DSL `bakery { augmentedContext { lens { ... } } }`
+* [x] BKY-LENS-1.3 — Créer `SubgraphExtractor` : lit `graph.json`, filtre par communautés/types/edges/depth
+* [x] BKY-LENS-1.4 — Tests : `SubgraphExtractorTest` avec fixtures `graph.json` mock (3 communautés, 50 nœuds)
 
 _Dépend de_ : `graphify-plugin` (déjà en `implementation`)
 
-==== BKY-LENS-2 : AugmentedArticlesService — Enrichissement (4 pts)
+==== BKY-LENS-2 : AugmentedArticlesService — Enrichissement (4 pts) ✅ TERMINÉ
 
-* [ ] BKY-LENS-2.1 — Créer `AugmentedContextResolver` : lit `bakery.context.txt`, extrait les canaux EAGER/RAG/GRAPHIFY/DOCS
-* [ ] BKY-LENS-2.2 — Créer `AugmentedArticlesService` : scoring hybride RAG+KG+tags+xref, formule α=0.4/β=0.3/γ=0.15/δ=0.15
-* [ ] BKY-LENS-2.3 — Règles métier : `LensRules` (excludeDrafts, excludeTags, prioritizeCrossReferences, crossRefBonus, communityAffinity)
+* [x] BKY-LENS-2.1 — Créer `AugmentedContextResolver` : lit `composite-context.json`, extrait les canaux EAGER/RAG/GRAPHIFY/DOCS
+* [x] BKY-LENS-2.2 — Créer `AugmentedArticlesService` : scoring hybride RAG+KG+tags+xref, formule α=0.4/β=0.3/γ=0.15/δ=0.15
+* [x] BKY-LENS-2.3 — Règles métier : `LensRules` (excludeDrafts, excludeTags, prioritizeCrossReferences, crossRefBonus, communityAffinity)
 
 _Dépend de_ : BKY-LENS-1, `codebase-contracts`
 
-==== BKY-LENS-3 : Budget + Injection JBake — Reconnect (3 pts)
+==== BKY-LENS-3 : Budget + Injection JBake — Reconnect (3 pts) ✅ TERMINÉ
 
-* [ ] BKY-LENS-3.1 — `LensBudget` data class + injection dans `jbake.properties` (`relatedArticlesData`)
-* [ ] BKY-LENS-3.2 — Remplacer `SiteManager.registerCollectRelatedArticlesTask()` : appeler `AugmentedArticlesService` au lieu de `RelatedArticlesService`
-* [ ] BKY-LENS-3.3 — Nettoyage : supprimer `RelatedArticlesService`, `RelatedArticlesGraph`, `RelatedArticlesResolver`, `kgraph/` (4 fichiers)
+* [x] BKY-LENS-3.1 — `LensBudget` data class + injection dans `jbake.properties` (`augmentedContextData`) + budget { } DSL
+* [x] BKY-LENS-3.2 — Remplacer `SiteManager.registerCollectRelatedArticlesTask()` par `registerCollectAugmentedContextTask()` (pipeline LENS complet)
+* [x] BKY-LENS-3.3 — Nettoyage : supprimer BKG legacy (4 src kgraph/ + RelatedArticlesDsl + 7 tests + 2 cucumber steps + refs)
 
 _Dépend de_ : BKY-LENS-2
 
@@ -431,15 +431,20 @@ _Dépend de_ : BKY-LENS-3, pilot-plugin (N4)
 
 _Dépend de_ : BKY-LENS-5
 
-=== Impact sur l'existant
+=== Impact sur l'existant (session 058 — BKG legacy SUPPRIMÉ)
 
-| Élément existant | Action | Justification
-| `RelatedArticlesService` (254 lignes) | **Supprimer** | Remplacé par `AugmentedArticlesService` (scoring hybride RAG+KG)
-| `RelatedArticlesGraph` (107 lignes) | **Supprimer** | Redondant avec `SiteSubgraph` (N0 contract)
-| `RelatedArticlesResolver` (63 lignes) | **Remplacer** | Par `AugmentedContextResolver`
-| `kgraph/` package (4 fichiers) | **Supprimer** | Logique migrée vers canaux N0
-| `graphify-plugin` dependency | **Conserver** | Maintenant RÉELLEMENT utilisée par `SubgraphExtractor`
-| Feature Cucumber 17-19 | **Réécrire** | Pipeline BKG change fondamentalement
+| Élément existant | Action | Statut
+| `RelatedArticlesService` (254 lignes) | **Supprimé** | ✅ LENS-3.3
+| `RelatedArticlesGraph` (107 lignes) | **Supprimé** | ✅ LENS-3.3
+| `RelatedArticlesResolver` (63 lignes) | **Supprimé** | ✅ LENS-3.3
+| `kgraph/` package (4 fichiers) | **Supprimé** | ✅ LENS-3.3
+| `RelatedArticlesDsl` (29 lignes) | **Supprimé** | ✅ LENS-3.3
+| `RelatedArticlesConfig` (SiteConfiguration) | **Supprimé** | ✅ LENS-3.3
+| `registerCollectRelatedArticlesTask` | **Remplacé** par `registerCollectAugmentedContextTask` | ✅ LENS-3.2
+| `injectRelatedArticlesConfigIntoJbakeProperties` | **Remplacé** par `injectLensBudgetIntoJbakeProperties` | ✅ LENS-3.2
+| `resolveRelatedArticlesConfig` (ConfigResolver) | **Supprimé** | ✅ LENS-3.3
+| Feature Cucumber 17-19 | **À réécrire** (LENS-4) | ⏳
+| `graphify-plugin` dependency | **Conserver** | ✅ (utilisé par SubgraphExtractor)
 
 == EPIC 14 : Capacités IA Bakery — Roadmap Session 022 (Brainstorm BAKERY_AUDIT.adoc)
 

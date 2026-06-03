@@ -1,5 +1,19 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 058 — 2026-06-03 — BKY-LENS-3 Budget + Injection JBake (Reconnect) + Nettoyage BKG
+
+**Contexte** : Reprise de bakery-gradle session 058. BKY-LENS-3 (Budget + Injection JBake + Nettoyage). LENS-1 ✅ LENS-2 ✅ déjà terminés.
+
+**Tâches réalisées** :
+
+* [x] LENS-3.1 — LensBudget data class (maxArticlesPerPage=4, minSimilarity=0.7) + apply(List<ScoredNode>) + budget { } DSL dans AugmentedContextDsl
+* [x] LENS-3.1 — LensBudgetTest 13/13 PASS + LensBudgetInjectionTest 4/4 PASS
+* [x] LENS-3.2 — registerCollectAugmentedContextTask() dans SiteManager (pipeline LENS complet : composite-context → subgraph → scoring → rules → budget → JSON)
+* [x] LENS-3.2 — injectLensBudgetIntoJbakeProperties() : augmentedContextEnabled, lensBudgetMaxArticlesPerPage, lensBudgetMinSimilarity, augmentedContextData
+* [x] LENS-3.3 — Nettoyage BKG legacy : 4 source (kgraph/ + RelatedArticlesDsl) + 7 tests + 2 cucumber steps + refs SiteManager/BakeryExtension/ConfigResolver/SiteConfiguration/ConfigResolverTest/ThymeleafRenderingTest
+
+**Résultat** : 82+ UT lens PASS, compile ✅, publishToMavenLocal ✅, BKG legacy entièrement supprimé.
+
 == Session 057 — 2026-06-03 — BKY-LENS-2.3 TDD + BDD (Scoring Hybride Boundary Cases + Feature 22 Fix)
 
 **Contexte** : Reprise de bakery-gradle session 057. BKY-LENS-2 (AugmentedArticlesService scoring hybride) implémenté en session 056 mais sans tests TDD. Feature 22 Cucumber avait 2/3 scénarios (scénario 2 en PendingException).

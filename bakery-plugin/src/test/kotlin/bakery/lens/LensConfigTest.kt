@@ -136,10 +136,17 @@ class LensConfigTest {
         }
 
         @Test
-        @DisplayName("AugmentedContextDsl maxArticles par défaut = 4")
-        fun `default maxArticles is 4`() {
+        @DisplayName("AugmentedContextDsl budget.maxArticlesPerPage par défaut = 4")
+        fun `default budget maxArticlesPerPage is 4`() {
             val dsl = AugmentedContextDsl()
-            assertThat(dsl.maxArticles).isEqualTo(4)
+            assertThat(dsl.budget.maxArticlesPerPage).isEqualTo(4)
+        }
+
+        @Test
+        @DisplayName("AugmentedContextDsl budget.minSimilarity par défaut = 0.7")
+        fun `default budget minSimilarity is 0_7`() {
+            val dsl = AugmentedContextDsl()
+            assertThat(dsl.budget.minSimilarity).isEqualTo(0.7)
         }
 
         @Test
@@ -174,9 +181,9 @@ class LensConfigTest {
         fun `enabled can be set to true`() {
             val dsl = AugmentedContextDsl()
             dsl.enabled = true
-            dsl.maxArticles = 6
+            dsl.budget.maxArticlesPerPage = 6
             assertThat(dsl.enabled).isTrue()
-            assertThat(dsl.maxArticles).isEqualTo(6)
+            assertThat(dsl.budget.maxArticlesPerPage).isEqualTo(6)
         }
     }
 

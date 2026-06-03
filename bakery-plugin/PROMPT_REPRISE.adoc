@@ -1,23 +1,24 @@
-= PROMPT_REPRISE — Session 058 : BKY-LENS-3 Budget + Injection JBake (Reconnect)
+= PROMPT_REPRISE — Session 059 : BKY-LENS-4 Cucumber Features 17-19 (Réécriture LENS)
 
-== Mission (Session 058)
+== Mission (Session 059)
 
-1. **LENS-3.1** — Créer `LensBudget` data class : maxArticlesPerPage (4), minSimilarity (0.7)
-   - Injection dans `jbake.properties` (`relatedArticlesData`)
-   - `AugmentedContextDsl` enrichi avec `budget { }` DSL
-2. **LENS-3.2** — Remplacer `SiteManager.registerCollectRelatedArticlesTask()` : appeler `AugmentedArticlesService` au lieu de `RelatedArticlesService`
-   - Tâche Gradle `collectRelatedArticles` → utilise LENTILLE pipeline
-3. **LENS-3.3** — Nettoyage : supprimer `RelatedArticlesService`, `RelatedArticlesGraph`, `RelatedArticlesResolver`, `kgraph/` (4 fichiers)
-   - ⚠️ Feature Cucumber 17-19 doivent être réécrites (LENS-4) — ne pas les lancer avant
+1. **LENS-4.1** — Réécrire Feature 17 : `17_related_articles_kg.feature` → `17_augmented_context_lens.feature`
+   - 3 scénarios LENS : augmentedContext enabled + budget injection + disabled
+2. **LENS-4.2** — Réécrire Feature 18 : `18_related_articles_kg_enriched.feature` → `18_subgraph_extraction.feature`
+   - 3 scénarios SubgraphExtractor : communauté filtrée + graphFilePath custom + scope FULL
+3. **LENS-4.3** — Réécrire Feature 19 : `19_related_articles_graph_consumption.feature` → `19_lens_hybrid_scoring.feature`
+   - 3 scénarios scoring hybride : scoring RAG+KG+tags → règles filtrage → budget troncature
 
-== État actuel (Session 057 — LENS-2.3 TDD + BDD)
+== État actuel (Session 058 — LENS-3 Budget + Injection JBake)
 
 - LENS-1 ✅ ENTIEREMENT IMPLÉMENTÉ ET TESTÉ (30 tests PASS)
 - LENS-2.1 ✅ IMPLÉMENTÉ (LensRules, LensRagConfig, AugmentedContextResolver, LensConfig enrichi)
 - LENS-2.2 ✅ IMPLÉMENTÉ + TESTÉ (AugmentedArticlesService 25 UT, ScoredNode, scoring hybride)
 - LENS-2.3 ✅ TESTÉ (7 boundary AugmentedArticlesService + 4 boundary AugmentedContextResolver + Feature 22 fix 3/3)
+- LENS-3 ✅ ENTIEREMENT IMPLÉMENTÉ (LensBudget 13 UT + injection 4 UT + tâche LENS + nettoyage BKG 13 fichiers)
+- BKG legacy SUPPRIMÉ : kgraph/, RelatedArticlesDsl, RelatedArticlesConfig, injection BKG
 - Build compile ✅, publishToMavenLocal ✅
-- 54 échecs Cucumber pré-existants (non liés à LENS, à traiter par LENS-4)
+- 53 échecs Cucumber pré-existants (dont Features 17-19 BKG orphelines) → LENS-4
 
 == Architecture LENS — Rappel
 
@@ -26,8 +27,8 @@ graph.json (203k nœuds) ← ✅ LENS-1
     ↓ SubgraphExtractor → site-subgraph (~200 nœuds)
     ↓ + RAG pgvector + règles métier ← ✅ LENS-2
 site-graph (~200 nœuds, ~500 edges)
-    ↓ LensBudget (4-6 articles/page, minSimilarity=0.7) ← SESSION 058
-jbake.properties (relatedArticlesData)
+    ↓ LensBudget (4-6 articles/page, minSimilarity=0.7) ← ✅ LENS-3
+jbake.properties (augmentedContextData)
     ↓
 post.thyme (AUGMENTÉ) (LENS-6)
 ```
@@ -45,6 +46,6 @@ post.thyme (AUGMENTÉ) (LENS-6)
 == Attention
 
 - Ne pas lancer `./gradlew test` sans permission explicite
-- BKY-BKG (RelatedArticlesService, RelatedArticlesGraph, RelatedArticlesResolver, kgraph/) sera supprimé en LENS-3.3 — sauvegarder avant suppression
-- Les 54 échecs Cucumber pré-existants seront traités par LENS-4 (réécriture Features 17-19)
-- L'import de `CompositeContext`, `ChannelBudget`, `ContextChannel` (codebase-contracts) se fait dans AugmentedArticlesService (LENS-2.2), pas dans LENS-1
+- Les Features 17-19 BKG orphelines (step definitions supprimées en LENS-3.3) doivent être réécrites AVANT de lancer cucumberTest
+- RAG scores viendront de pgvector en LENS-5 (connexion N3) — pour l'instant RAG=emptyMap
+- L'import de `CompositeContext`, `ContextChannel` (codebase-contracts) se fait dans AugmentedContextResolver

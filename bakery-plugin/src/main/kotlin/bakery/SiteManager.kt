@@ -186,7 +186,6 @@ object SiteManager {
         val resolvedNewsletter = ConfigResolver.resolveNewsletterConfig(props, ext.newsletter, site.newsletter)
         val resolvedTheme = ConfigResolver.resolveThemeConfig(props, ext.theme, site.theme)
         val resolvedLayout = ConfigResolver.resolveLayoutConfig(props, ext.layout, site.layout)
-        val resolvedRelatedArticles = ConfigResolver.resolveRelatedArticlesConfig(props, ext.relatedArticles, site.relatedArticles)
 
         injectResolvedConfigIntoJbakeProperties(targetDir, site) { key, value ->
             when (key) {
@@ -217,8 +216,10 @@ object SiteManager {
             }
         }
 
-        // BKG-1.4: Inject relatedArticlesData from the graph file
-        injectRelatedArticlesConfigIntoJbakeProperties(targetDir, site, resolvedRelatedArticles)
+        // BKY-LENS-3: Inject augmented context budget into jbake.properties
+        if (ext.augmentedContext.enabled) {
+            injectLensBudgetIntoJbakeProperties(targetDir, site, ext.augmentedContext)
+        }
 
         logger.lifecycle("✓ Site scaffolded (type: ${siteType.alias}) from resource: $resourcePath")
     }
@@ -311,10 +312,19 @@ object SiteManager {
         }
     }
 
-    private fun Project.injectRelatedArticlesConfigIntoJbakeProperties(
+    /**
+     * BKY-LENS-3: Inject LensBudget properties into jbake.properties.
+     *
+     * Injecte :
+     * - augmentedContextEnabled=true
+     * - lensBudgetMaxArticlesPerPage=4
+     * - lensBudgetMinSimilarity=0.7
+     * - augmentedContextData (JSON du fichier augmented-context.json, si présent)
+     */
+    private fun Project.injectLensBudgetIntoJbakeProperties(
         targetDir: File,
         site: SiteConfiguration,
-        resolvedRelatedArticles: RelatedArticlesConfig
+        augmentedContext: bakery.lens.AugmentedContextDsl
     ) {
         val jbakeProps = targetDir.resolve(site.bake.srcPath)
             .resolve("jbake.properties")
@@ -322,29 +332,27 @@ object SiteManager {
             logger.warn("jbake.properties not found at ${jbakeProps.absolutePath}")
             return
         }
-        if (!resolvedRelatedArticles.enabled && resolvedRelatedArticles.heading.isBlank()) return
         val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
 
-        updateProperty(lines, "relatedArticlesEnabled", resolvedRelatedArticles.enabled.toString())
-        updateProperty(lines, "relatedArticlesMaxResults", resolvedRelatedArticles.maxResults.toString())
-        updateProperty(lines, "relatedArticlesHeading", resolvedRelatedArticles.heading)
-        updateProperty(lines, "relatedArticlesGraphFilePath", resolvedRelatedArticles.graphFilePath)
+        updateProperty(lines, "augmentedContextEnabled", augmentedContext.enabled.toString())
+        updateProperty(lines, "lensBudgetMaxArticlesPerPage", augmentedContext.budget.maxArticlesPerPage.toString())
+        updateProperty(lines, "lensBudgetMinSimilarity", augmentedContext.budget.minSimilarity.toString())
 
-        // BKG-1.4: Inject relatedArticlesData from the graph file
-        val graphFile = projectDir.resolve(resolvedRelatedArticles.graphFilePath)
-        if (graphFile.exists()) {
-            val graphData = graphFile.readText(UTF_8)
+        // Inject augmentedContextData from the augmented-context.json file (if baked)
+        val augmentedContextFile = projectDir.resolve("build/bakery/augmented-context.json")
+        if (augmentedContextFile.exists()) {
+            val contextData = augmentedContextFile.readText(UTF_8)
                 .replace("\\", "\\\\")
                 .replace("\n", "\\n")
                 .replace("\t", "\\t")
-            updateProperty(lines, "relatedArticlesData", graphData)
+            updateProperty(lines, "augmentedContextData", contextData)
         } else {
-            logger.info("[BakeryPlugin] relatedArticlesData: graph file not found at ${graphFile.absolutePath}, skipping injection")
-            updateProperty(lines, "relatedArticlesData", "")
+            logger.info("[BakeryPlugin] augmentedContextData: file not found at ${augmentedContextFile.absolutePath}, skipping injection")
+            updateProperty(lines, "augmentedContextData", "")
         }
 
         jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
-        logger.lifecycle("✓ Injected RelatedArticles config into jbake.properties (graphFilePath=${resolvedRelatedArticles.graphFilePath})")
+        logger.lifecycle("✓ Injected LensBudget config into jbake.properties (maxArticlesPerPage=${augmentedContext.budget.maxArticlesPerPage}, minSimilarity=${augmentedContext.budget.minSimilarity})")
     }
 
 // ==================== Bakery Tasks Configuration ====================
@@ -661,57 +669,107 @@ object SiteManager {
         }
     }
 
-// ==================== Collect Related Articles Task (BKY-BKG) ====================
+// ==================== Collect Augmented Context Task (BKY-LENS-3) ====================
 
-    internal fun Project.registerCollectRelatedArticlesTask(site: SiteConfiguration) {
-        tasks.register("collectRelatedArticles") { task ->
+    /**
+     * Enregistre la tâche `collectAugmentedContext` — Pattern LENTILLE.
+     *
+     * Orchestre le pipeline LENS :
+     * 1. Charge composite-context.json (AugmentedContextResolver)
+     * 2. Extrait le sous-graphe (SubgraphExtractor)
+     * 3. Score les nœuds (AugmentedArticlesService)
+     * 4. Applique le budget (LensBudget)
+     * 5. Écrit le JSON augmenté → build/bakery/augmented-context.json
+     *
+     * Remplace `registerCollectRelatedArticlesTask` (BKG legacy, supprimé en LENS-3.3).
+     */
+    internal fun Project.registerCollectAugmentedContextTask(
+        site: SiteConfiguration,
+        augmentedContextDsl: bakery.lens.AugmentedContextDsl? = null
+    ) {
+        tasks.register("collectAugmentedContext") { task ->
             task.apply {
                 group = COLLECT_GROUP
-                description = "Construit le graphe KG d'articles connexes (tags + mots-clés titre) → build/bakery/related-articles.json."
+                description = "Collecte le contexte augmenté LENS (ségrégation + enrichissement + budget) → build/bakery/augmented-context.json."
                 dependsOn("collectSiteContext")
 
                 doLast {
-                    val outputDir = layout.buildDirectory.get().asFile.resolve("bakery")
-                    val metadataFile = outputDir.resolve("metadata.json")
-
-                    if (!metadataFile.exists()) {
-                        logger.warn("[collectRelatedArticles] metadata.json not found. Run collectSiteContext first.")
+                    if (augmentedContextDsl == null || !augmentedContextDsl.enabled) {
+                        logger.info("[collectAugmentedContext] AugmentedContext désactivé. Skip.")
                         return@doLast
                     }
 
-                    val mapper = com.fasterxml.jackson.module.kotlin.jacksonObjectMapper()
-                    val metadata: Map<String, Any> = mapper.readValue(metadataFile, object : com.fasterxml.jackson.core.type.TypeReference<Map<String, Any>>() {})
+                    val outputDir = layout.buildDirectory.get().asFile.resolve("bakery")
+                    outputDir.mkdirs()
 
-                    @Suppress("UNCHECKED_CAST")
-                    val rawArticles = metadata["articles"] as? List<Map<String, Any>> ?: emptyList()
-
-                    val articles = rawArticles.map { art ->
-                        @Suppress("UNCHECKED_CAST")
-                        val tags = (art["tags"] as? List<String>) ?: emptyList()
-                        bakery.kgraph.ArticleNode(
-                            url = art["url"] as? String ?: "",
-                            title = art["title"] as? String ?: "",
-                            date = art["date"] as? String ?: "",
-                            tags = tags,
-                            description = art["description"] as? String ?: "",
-                            author = art["author"] as? String ?: ""
-                        )
+                    // 1. Charger le composite-context.json (si disponible)
+                    val contextPath = augmentedContextDsl.contextPath
+                    val contextFile = projectDir.resolve(contextPath)
+                    val resolver = bakery.lens.AugmentedContextResolver()
+                    val compositeContext = resolver.resolve(contextFile.absolutePath)
+                    if (compositeContext == null && contextFile.exists()) {
+                        logger.info("[collectAugmentedContext] composite-context.json trouvé mais invalide à $contextPath.")
+                    } else if (!contextFile.exists()) {
+                        logger.info("[collectAugmentedContext] composite-context.json non trouvé à $contextPath. RAG désactivé.")
                     }
 
-                    logger.lifecycle("[collectRelatedArticles] {} articles loaded from metadata.json", articles.size)
+                    // 2. Extraire le sous-graphe depuis graph.json
+                    val graphFilePath = augmentedContextDsl.lens.graphFilePath
+                    val graphFile = projectDir.resolve(graphFilePath)
+                    val extractor = bakery.lens.SubgraphExtractor()
+                    val subgraph = if (graphFile.exists()) {
+                        val fullGraph = extractor.loadGraph(graphFile.absolutePath)
+                        extractor.extract(fullGraph, augmentedContextDsl.lens)
+                    } else {
+                        logger.info("[collectAugmentedContext] graph.json non trouvé à $graphFilePath. Sous-graphe vide.")
+                        bakery.lens.SiteSubgraph(emptyList(), emptyList(), emptyList())
+                    }
 
-                    val service = bakery.kgraph.RelatedArticlesService()
-                    val graph = service.buildGraph(articles)
-                    val output = service.toSuggestions(graph)
+                    // 3. RAG results — le canal RAG du composite-context fournit le contenu
+                    // textuel, pas des scores structurés. Les scores RAG viendront de pgvector
+                    // via codebase-gradle (connexion N3 en BKY-LENS-5). Pour l'instant, RAG=vide.
+                    val ragResults: Map<String, Double> = emptyMap()
+                    if (compositeContext != null) {
+                        val channels = resolver.extractChannels(compositeContext)
+                        val ragContent = channels[contracts.context.ChannelType.RAG]
+                        if (ragContent != null) {
+                            logger.info("[collectAugmentedContext] Canal RAG disponible ({} caractères). Scoring RAG via pgvector à venir (BKY-LENS-5).", ragContent.length)
+                        }
+                    }
 
+                    // 4. Scoring hybride
+                    val service = bakery.lens.AugmentedArticlesService()
+                    val allScored = service.scoreAll(
+                        subgraph = subgraph,
+                        ragResults = ragResults,
+                        lensRules = augmentedContextDsl.lens.rules
+                    )
+
+                    // 5. Filtrer par règles + budget
+                    val filtered = service.applyRules(allScored, augmentedContextDsl.lens.rules)
+                    val budgeted = augmentedContextDsl.budget.apply(filtered)
+
+                    // 6. Écrire le résultat
+                    val mapper = com.fasterxml.jackson.module.kotlin.jacksonObjectMapper()
+                    val output = mapOf(
+                        "version" to "1.0",
+                        "pipeline" to "LENS",
+                        "budget" to mapOf(
+                            "maxArticlesPerPage" to augmentedContextDsl.budget.maxArticlesPerPage,
+                            "minSimilarity" to augmentedContextDsl.budget.minSimilarity
+                        ),
+                        "scoredNodes" to budgeted,
+                        "totalCandidates" to allScored.size,
+                        "totalAfterRules" to filtered.size,
+                        "totalAfterBudget" to budgeted.size
+                    )
                     mapper.writerWithDefaultPrettyPrinter()
-                        .writeValue(outputDir.resolve("related-articles.json"), output)
+                        .writeValue(outputDir.resolve("augmented-context.json"), output)
 
-                    val totalEdges = output.suggestions.values.sumOf { it.size }
-                    val articleCount = output.suggestions.size
                     logger.lifecycle(
-                        "[collectRelatedArticles] {} article(s) avec {} suggestion(s) au total → {}",
-                        articleCount, totalEdges, outputDir.absolutePath
+                        "[collectAugmentedContext] {} nœuds scorés → {} après règles → {} après budget → {}",
+                        allScored.size, filtered.size, budgeted.size,
+                        outputDir.resolve("augmented-context.json").absolutePath
                     )
                 }
             }

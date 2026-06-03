@@ -616,60 +616,6 @@ class ConfigResolverTest {
     }
 
     @Nested
-    inner class ResolveRelatedArticlesConfigTest {
-
-        @Test
-        fun `CLI overrides enabled boolean`() {
-            val props = mapOf("bakery.relatedArticles.enabled" to "true")
-            val result = ConfigResolver.resolveRelatedArticlesConfig(
-                props,
-                dsl = RelatedArticlesDsl(enabled = false),
-                yaml = RelatedArticlesConfig(enabled = false),
-                default = RelatedArticlesConfig()
-            )
-            assertTrue(result.enabled)
-        }
-
-        @Test
-        fun `DSL overrides maxResults when non-default`() {
-            val props = emptyMap<String, String>()
-            val result = ConfigResolver.resolveRelatedArticlesConfig(
-                props,
-                dsl = RelatedArticlesDsl(maxResults = 8),
-                yaml = RelatedArticlesConfig(maxResults = 6),
-                default = RelatedArticlesConfig()
-            )
-            assertEquals(8, result.maxResults)
-        }
-
-        @Test
-        fun `YAML maxResults wins when DSL is default`() {
-            val props = emptyMap<String, String>()
-            val result = ConfigResolver.resolveRelatedArticlesConfig(
-                props,
-                dsl = RelatedArticlesDsl(),  // maxResults=4 == default 4
-                yaml = RelatedArticlesConfig(maxResults = 10),
-                default = RelatedArticlesConfig()
-            )
-            assertEquals(10, result.maxResults)
-        }
-
-        @Test
-        fun `full cascade for all fields`() {
-            val props = mapOf("bakery.relatedArticles.enabled" to "true")
-            val result = ConfigResolver.resolveRelatedArticlesConfig(
-                props,
-                dsl = RelatedArticlesDsl(maxResults = 8, heading = "DSL heading"),
-                yaml = RelatedArticlesConfig(enabled = false, maxResults = 6, heading = "YAML heading"),
-                default = RelatedArticlesConfig()
-            )
-            assertTrue(result.enabled)          // CLI wins
-            assertEquals(8, result.maxResults)  // DSL wins (non-default)
-            assertEquals("DSL heading", result.heading)  // DSL wins (non-default)
-        }
-    }
-
-    @Nested
     inner class ResolveFirebaseAuthConfigTest {
 
         @Test

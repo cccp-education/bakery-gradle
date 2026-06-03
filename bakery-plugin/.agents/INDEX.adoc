@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-06-03
-_Session terminee_ : 057 — BKY-LENS-2.3 Scoring Hybride TDD + BDD (Feature 22 fix + 11 boundary tests)
-_Prochaine session_ : 058 — BKY-LENS-3 Budget + Injection JBake (Reconnect)
-_Session en cours_ : 058
+_Session terminee_ : 058 — BKY-LENS-3 Budget + Injection JBake (Reconnect) + Nettoyage BKG
+_Prochaine session_ : 059 — BKY-LENS-4 Cucumber Features 17-19 (Réécriture LENS)
+_Session en cours_ : 059
 
 '''
 
@@ -70,6 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | # | Date | Type | Sujet | Score
+| 058 | 2026-06-03 | feat + TDD + BDD + cleanup | BKY-LENS-3 Budget + Injection JBake (Reconnect) — LensBudget data class + apply() + budget { } DSL + registerCollectAugmentedContextTask + injectLensBudgetIntoJbakeProperties + Nettoyage BKG legacy (13 fichiers supprimés). 82+ UT lens PASS. | 9/10
 | 057 | 2026-06-03 | feat + TDD + BDD | BKY-LENS-2.3 Scoring Hybride TDD + BDD — Fix Feature 22 Scénario 2 (guillemets), 7 boundary tests AugmentedArticlesService, 4 boundary tests AugmentedContextResolver. Feature 22 3/3 PASS. 52+ UT lens PASS. | 8/10
 | 055 | 2026-06-02 | reprise + vérification | Reprise Bakery LENS-1 — vérification complète. BKY-LENS-1 ENTIEREMENT implémenté (7 fichiers, 30 tests PASS). LensConfig + AugmentedContextDsl + SubgraphExtractor + SiteSubgraph + BakeryExtension.augmentedContext. | 8/10
 | 053 | 2026-06-02 | fix + BDD | EPIC 17 TERMINÉ — generateArticle graceful fail : 2 scénarios Cucumber corrigés (step "without IA"). 70/70 Cucumber PASS ✅ | 9/10
@@ -184,7 +185,7 @@ Pattern LENTILLE : ségrégation (SubgraphExtractor) → enrichissement
 | EPIC | Axe | Pts | Priorite | Depend de
 | *BKY-LENS-1* | SubgraphExtractor (Ségrégation) | 5 | *P0 ✅ TERMINÉ* | graphify-plugin
 | *BKY-LENS-2* | AugmentedArticlesService (Enrichissement) | 4 | *P0 ✅ TERMINÉ* | BKY-LENS-1, codebase-contracts
-| *BKY-LENS-3* | Budget + Injection JBake (Reconnect) | 3 | *P0* | BKY-LENS-2
+| *BKY-LENS-3* | Budget + Injection JBake (Reconnect) | 3 | *P0 ✅ TERMINÉ* | BKY-LENS-2
 | *BKY-LENS-4* | Cucumber Features 17-19 (Réécriture) | 3 | *P1* | BKY-LENS-1,2,3
 | *BKY-LENS-5* | Connect N3 Composite Context | 3 | *P1* | BKY-LENS-3, pilot-plugin
 | *BKY-LENS-6* | Templates Augmentés JBake | 3 | *P2* | BKY-LENS-5

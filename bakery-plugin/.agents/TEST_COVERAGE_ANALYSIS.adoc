@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-03 — Session 057_
+_Dernière mise à jour : 2026-06-03 — Session 058_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -12,9 +12,9 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 | Métrique | Valeur
 | Couverture Kover | *70.8%* — seuil ajusté à 70% (session 031)
 | Seuil configuré | 70% (dans `build.gradle.kts` → `koverThresholdCheck`)
-| Tests unitaires JUnit5 | 23 fichiers (dont lens/ 5 fichiers, ConfigResolverTest 50 UT, ConfigPromptsTest 4 UT), ~4 500 lignes — ratio ~3.0x vs src/main
+| Tests unitaires JUnit5 | 21 fichiers (dont lens/ 7 fichiers, ConfigResolverTest 46 UT, ConfigPromptsTest 4 UT), ~4 200 lignes — ratio ~3.0x vs src/main
 | Tests fonctionnels (TestKit) | 5 fichiers, 1 500+ lignes — dont SaveConfigurationTest (2 FT) + ConfigResolverCascadeTest (3 FT)
-| Tests Cucumber BDD | 22 features, ~71 scénarios, 1 300+ lignes de steps — dont Feature 22 augmented context lens (3 scénarios)
+| Tests Cucumber BDD | 22 features, ~71 scénarios, 1 100+ lignes de steps — dont Feature 22 augmented context lens (3 scénarios). Features 17-19 orphelines (BKG steps supprimés, réécriture LENS-4)
 | Compilation | ✅ BUILD SUCCESSFUL — Gradle 9.5.1, Kotlin 2.3.20, Java 24, zéro warning
 |===
 
@@ -24,6 +24,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 [cols="2,2,2,3,3"]
 |===
 | Session | Date | Kover % | Tests PASS | Notes
+| 058 | 2026-06-03 | *Non mesuré* | 82+ UT LENS ✅ (LensBudgetTest 13 + LensBudgetInjectionTest 4 + AugmentedArticlesServiceTest 25 + AugmentedContextResolverTest 16 + LensRulesTest 11 + LensConfigTest 14 + SubgraphExtractorTest 13) | BKY-LENS-3 : LensBudget data class + apply() + budget DSL + injection jbake + tâche collectAugmentedContext + nettoyage BKG (13 fichiers supprimés). 53 échecs Cucumber pré-existants (Features 17-19 orphelines).
 | 057 | 2026-06-03 | *Non mesuré* | 52+ UT LENS ✅ (AugmentedArticlesServiceTest 25 + AugmentedContextResolverTest 16 + LensRulesTest 11), Feature 22 Cucumber 3/3 ✅ | BKY-LENS-2.3 : Fix Feature 22 Scénario 2 + 11 boundary tests (7 AugmentedArticlesService + 4 AugmentedContextResolver). 54 échecs Cucumber pré-existants non liés.
 | 055 | 2026-06-02 | *Non mesuré* | 30 UT LENS ✅ (LensConfigTest 17 + SubgraphExtractorTest 13) | BKY-LENS-1 ENTIEREMENT implémenté et vérifié. 7 fichiers. 53 échecs Cucumber pré-existants non liés à LENS.
 | 052 | 2026-06-02 | *Non mesuré* | 437 UT ✅, 53 FT ✅, 68/70 Cucumber ✅ | CONV-1.8 : DuplicateStepDefinition résolu. 1 step supprimé (GenerateArticleSteps). 2 échefs restants = EPIC 17 generateArticle.

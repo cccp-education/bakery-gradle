@@ -187,24 +187,6 @@ object ConfigResolver {
     }
 
     /**
-     * Resolves a RelatedArticlesConfig through the 4-layer cascade.
-     */
-    fun resolveRelatedArticlesConfig(
-        props: Map<String, String>,
-        dsl: RelatedArticlesDsl,
-        yaml: RelatedArticlesConfig?,
-        default: RelatedArticlesConfig = RelatedArticlesConfig()
-    ): RelatedArticlesConfig {
-        val prefix = "bakery.relatedArticles"
-        return RelatedArticlesConfig(
-            enabled = resolveBoolean(props, prefix, "enabled", dsl.enabled, yaml?.enabled, default.enabled),
-            maxResults = resolveInt(props, prefix, "maxResults", dsl.maxResults, yaml?.maxResults, default.maxResults),
-            heading = resolveString(props, prefix, "heading", dsl.heading, yaml?.heading, default.heading),
-            graphFilePath = resolveString(props, prefix, "graphFilePath", dsl.graphFilePath, yaml?.graphFilePath, default.graphFilePath),
-        )
-    }
-
-    /**
      * Resolves a FirebaseAuthConfig through the 4-layer cascade.
      */
     fun resolveFirebaseAuthConfig(

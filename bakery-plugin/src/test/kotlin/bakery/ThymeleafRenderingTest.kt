@@ -429,29 +429,4 @@ class ThymeleafRenderingTest {
             assertThat(html).doesNotContain("newsletter-section")
         }
     }
-
-    @Nested
-    @DisplayName("related-articles.thyme — rendering with context")
-    inner class RelatedArticlesRenderingTest {
-
-        @Test
-        fun `renders related-articles section when enabled`() {
-            val html = factory.render("related-articles", mapOf(
-                "relatedArticlesEnabled" to "true",
-                "relatedArticlesHeading" to "Articles connexes"
-            ))
-
-            assertThat(html).contains("related-articles")
-            assertThat(html).contains("Articles connexes")
-            assertThat(html).doesNotContain("th:if")
-        }
-
-        @Test
-        fun `renders nothing when relatedArticlesEnabled is absent`() {
-            val html = factory.render("related-articles")
-
-            assertThat(html).doesNotContain("related-articles-heading")
-            assertThat(html).doesNotContain("related-articles-list")
-        }
-    }
 }

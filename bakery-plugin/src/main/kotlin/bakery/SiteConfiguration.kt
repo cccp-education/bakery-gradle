@@ -43,7 +43,6 @@ data class SiteConfiguration(
     val newsletter: NewsletterConfig? = null,
     val theme: ThemeConfig? = null,
     val layout: LayoutConfig? = null,
-    val relatedArticles: RelatedArticlesConfig? = null,
 )
 
 data class BakeConfiguration(
@@ -130,12 +129,5 @@ data class ThemeConfig(
 
 data class LayoutConfig(
     val layoutType: LayoutType = LayoutType.FULL_WIDTH,
-)
-
-data class RelatedArticlesConfig(
-    val enabled: Boolean = false,
-    val maxResults: Int = 4,
-    val heading: String = "Articles connexes",
-    val graphFilePath: String = "build/bakery/related-articles.json",
 )
 
