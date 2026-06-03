@@ -605,65 +605,8 @@ class ScaffoldFunctionalTests {
         }
     }
 
-    @Nested
-    @DisplayName("generateSite with Related Articles KG (BKY-BKG)")
-    inner class RelatedArticlesTest {
-
-        @TempDir
-        lateinit var projectDir: File
-
-        @Test
-        fun `should scaffold blog site with related-articles template deployed`() {
-            createMinimalBakeryProject(
-                projectDir,
-                sitesBaseDir = null,
-                siteName = "related-articles-test",
-                siteType = "blog"
-            )
-
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
-
-            val templatesDir = projectDir.resolve("related-articles-test/site/templates")
-            assertThat(templatesDir.resolve("related-articles.thyme")).exists().isFile
-            assertThat(templatesDir.resolve("related-articles.thyme").readText(UTF_8))
-                .contains("related-articles")
-                .contains("relatedArticlesEnabled")
-                .contains("th:if")
-            assertThat(templatesDir.resolve("post.thyme").readText(UTF_8))
-                .contains("related-articles.thyme::related-articles")
-            assertThat(result.output).contains("BUILD SUCCESSFUL")
-        }
-
-        @Test
-        fun `should scaffold site with relatedArticles defaults when site yml has no relatedArticles`() {
-            createMinimalBakeryProject(
-                projectDir,
-                sitesBaseDir = null,
-                siteName = "no-related-articles",
-                siteType = "blog"
-            )
-
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
-
-            val siteDir = projectDir.resolve("no-related-articles")
-            val jbakeProps = siteDir.resolve("site/jbake.properties")
-            assertThat(jbakeProps).exists().isFile
-            // CONV-1: ConfigResolver injects defaults when no config provided
-            assertThat(jbakeProps.readText(UTF_8))
-                .contains("relatedArticlesEnabled=false")
-                .contains("relatedArticlesMaxResults=4")
-
-            assertThat(result.output).contains("BUILD SUCCESSFUL")
-        }
-    }
+    // RelatedArticlesTest removed in LENS-3.3 — replaced by AugmentedContextFunctionalTest (LENS-5)
+    // BKG legacy: related-articles.thyme, RelatedArticlesConfig, collectRelatedArticles task all removed
 
     @Nested
     @DisplayName("CONV-1: ConfigResolver 4-layer cascade (CLI > gradle.properties > DSL > YAML > defaults)")
@@ -760,12 +703,11 @@ class ScaffoldFunctionalTests {
             val siteDir = projectDir.resolve("defaults-test")
             val jbakeProps = siteDir.resolve("site/jbake.properties")
             assertThat(jbakeProps).exists().isFile
-            // CONV-1: defaults are injected when no config
+            // CONV-1: defaults are injected when no config (LENS-3.3: relatedArticlesMaxResults removed, replaced by LENS budget)
             val propsContent = jbakeProps.readText(UTF_8)
             assertThat(propsContent).contains("themeMode=auto")
             assertThat(propsContent).contains("themePrimaryColor=#0d6efd")
             assertThat(propsContent).contains("layoutType=FULL_WIDTH")
-            assertThat(propsContent).contains("relatedArticlesMaxResults=4")
 
             assertThat(result.output).contains("BUILD SUCCESSFUL")
         }

@@ -1,5 +1,20 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 063 — 2026-06-03 — BKY-LENS-6.3 Nettoyage FT Legacy BKG + E2E Playwright
+
+**Contexte** : Nettoyer les tests fonctionnels legacy BKG (3 échecs préexistants depuis LENS-3.3) et implémenter LENS-6.3 (E2E Playwright rendu augmenté).
+
+**Tâches réalisées** :
+
+* [x] Suppression `CollectRelatedArticlesFunctionalTest.kt` — 3 tests référençant `collectRelatedArticles` (tâche supprimée en LENS-3.3, remplacée par `registerCollectAugmentedContextTask`)
+* [x] Suppression inner class `RelatedArticlesTest` dans `ScaffoldFunctionalTests.kt` — 2 tests référençant `related-articles.thyme` (remplacé par `augmented-articles.thyme`)
+* [x] Correction test `CONV-1 defaults` dans `ScaffoldFunctionalTests.ConfigResolverCascadeTest` — retirée assertion `relatedArticlesMaxResults=4` (propriété supprimée en LENS-3.3)
+* [x] Suppression template legacy `related-articles.thyme` — remplacé par `augmented-articles.thyme` en LENS-6
+* [x] LENS-6.3 — Cucumber BDD : +2 scénarios de rendu Thymeleaf dans Feature 24 (augmented-articles rendu avec data-attributes, pas de section quand désactivé)
+* [x] LENS-6.3 — E2E Playwright : `E2EAugmentedArticlesTest.kt` créé (4 tests : section visible, pas de section, scoredNodes vide, heading customisé)
+
+**Résultats** : 56/56 FT PASS, 81/81 Cucumber PASS, 17/17 E2E PASS. 0 dette technique FT legacy.
+
 == Session 062 — 2026-06-03 — BKY-LENS-6 Templates Augmentés JBake
 
 **Contexte** : Créer le fragment Thymeleaf `augmented-articles.thyme` affichant les articles connexes du workspace avec badges de source (RAG/KG/Docs/EAGER).

@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-06-03
-_Session terminee_ : 062 — BKY-LENS-6 Templates Augmentés JBake
-_Prochaine session_ : 063 — Nettoyage FT Legacy BKG + LENS-6 E2E Playwright
-_Session en cours_ : 063
+_Session terminee_ : 063 — BKY-LENS-6.3 Nettoyage FT Legacy BKG + E2E Playwright
+_Prochaine session_ : 064 — BKY-IA-0 Service LLM Partagé ou EPIC backlog suivant
+_Session en cours_ : 064
 
 '''
 
@@ -70,6 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | # | Date | Type | Sujet | Score
+| 063 | 2026-06-03 | fix + TDD + BDD + E2E | BKY-LENS-6.3 Nettoyage FT Legacy BKG + E2E Playwright — 3 tests CollectRelatedArticles supprimés, 2 tests RelatedArticlesTest supprimés, CONV-1 defaults corrigé, related-articles.thyme supprimé, 4 tests E2E Playwright augmentés, +2 scénarios Cucumber rendu. 56/56 FT PASS, 81/81 Cucumber PASS, 17/17 E2E PASS. | 9/10
 | 062 | 2026-06-03 | feat + TDD + BDD | BKY-LENS-6 Templates Augmentés JBake — augmented-articles.thyme (badges RAG/KG/Docs/EAGER) + post.thyme + page.thyme intégrés + Cucumber Feature 24 (10/10) + FT CollectAugmentedContext. 129/129 Cucumber PASS. | 9/10
 | 059 | 2026-06-03 | feat + BDD + fix | BKY-LENS-4 Cucumber Features 17-19 — 3 features BKG orphelines réécrites en LENS. Fix DuplicateStepDefinition (ThymeleafComponentSteps vs ConfigResolverSteps) → 53→6 échecs Cucumber. Feature 19 3/3 PASS. LensSteps enrichi (+7 steps). | 7/10
 | 058 | 2026-06-03 | feat + TDD + BDD + cleanup | BKY-LENS-3 Budget + Injection JBake (Reconnect) — LensBudget data class + apply() + budget { } DSL + registerCollectAugmentedContextTask + injectLensBudgetIntoJbakeProperties + Nettoyage BKG legacy (13 fichiers supprimés). 82+ UT lens PASS. | 9/10

@@ -1,25 +1,23 @@
-= PROMPT_REPRISE — Session 063 : Nettoyage FT Legacy BKG + LENS-6 E2E Playwright
+= PROMPT_REPRISE — Session 064 : BKY-IA-0 Service LLM Partagé ou EPIC backlog suivant
 
-== Mission (Session 063)
+== Mission (Session 064)
 
-1. **Nettoyer FT legacy BKG** — `CollectRelatedArticlesFunctionalTest` (3 échecs préexistants, référence tâche supprimée LENS-3.3)
-   - Supprimer ou marquer `@Disabled` les 3 tests de `CollectRelatedArticlesFunctionalTest`
-   - Corriger `ConfigResolverCascadeTest.CONV-1 defaults` qui attend `relatedArticlesMaxResults=4` (supprimé en LENS-3.3)
-2. **BKY-LENS-6.3** — E2E Playwright : vérifier rendu augmenté sur une page bake
-   - Scénario Playwright : naviguer sur une page bake → vérifier `data-augmented-context` attribute sur `aside.augmented-articles`
-3. Vérifier que 129/129 Cucumber PASS après nettoyage
+Dépiler l'EPIC suivant dans le backlog bakery :
+1. **BKY-IA-0** (Service LLM partagé LangChain4j + Ollama) — P0 prérequis pour tous les EPICs IA
+2. Ou **BKY-N3-7** (metadata.json structuré pour runner-gradle N3) — P0 architecture
 
-== État actuel (Session 062)
+== État actuel (Session 063)
 
-- **BKY-LENS-6.1 TERMINÉ** ✅ — `augmented-articles.thyme` créé avec badges RAG/KG/Docs/EAGER
-- **BKY-LENS-6.2 TERMINÉ** ✅ — `post.thyme` et `page.thyme` référencent `augmented-articles.thyme`
-- 21/21 UT AugmentedArticlesTemplateTest PASS
-- 10/10 Cucumber Feature 24 PASS
-- 129/129 Cucumber total PASS
-- 1/1 FT CollectAugmentedContextFunctionalTest PASS
-- 3 FT legacy BKG en échec (préexistant, non lié à LENS-6)
+- **BKY-LENS-6.3 TERMINÉ** ✅ — E2E Playwright : 4 tests PASS (rendu augmenté avec data-attributes, badges, heading custom, scoredNodes vide)
+- **FT Legacy BKG nettoyé** ✅ — 6 tests en échec résolus (56/56 FT PASS)
+- **Template legacy supprimé** ✅ — `related-articles.thyme` remplacé par `augmented-articles.thyme`
+- **Cucumber Feature 24 enrichi** ✅ — 5→7 scénarios (2 scénarios rendu Thymeleaf ajoutés)
+- **81/81 Cucumber PASS** ✅
+- **17/17 E2E Playwright PASS** ✅
+- **56/56 FT PASS** ✅ (0 échec)
+- **publishToMavenLocal** ✅
 
-== Architecture LENS — Rappel
+== Architecture LENS — Pipeline complet TERMINÉ
 
 ```
 graph.json (203k nœuds) ← ✅ LENS-1
@@ -34,10 +32,25 @@ composite-context.json (runner-gradle N3) ← ✅ LENS-5
 AugmentedContextResolver → augmentedEntries in metadata.json ← ✅ LENS-5
     ↓
 post.thyme / page.thyme → badges RAG/KG/Docs ← ✅ LENS-6
+    ↓
+E2E Playwright (data-attributes, badges, JS runtime) ← ✅ LENS-6.3
 ```
+
+== EPICs restants (par priorité)
+
+| EPIC | Axe | Priorité | Dépend de |
+|------|-----|----------|-----------|
+| BKY-IA-0 | Service LLM partagé LangChain4j + Ollama | P0 | — |
+| BKY-N3-7 | metadata.json structuré (runner-gradle N3) | P0 | — |
+| BKY-IA-4 | Génération d'article assistée IA | P0 | BKY-IA-0 (✅ via BKY-JB-8) |
+| BKY-IA-1 | Scaffolding assisté par IA | P0 | BKY-IA-0, EPIC 10 |
+| EPIC 6 | Intégration publishProfil | P1 | — |
+| EPIC 11 | Optimisation durée tests | P1 | — |
+| BKY-IA-5 | Google Forms embed | P0 MVP0 | BKY-IA-0 |
+| BKY-TRN-9 | Intégration formation assembleTrainingSite | P0 MVP0 | BKY-N3-7 |
 
 == Points d'attention
 
-- Les badges sont rendus par JavaScript côté client (data-attributes injectés par Thymeleaf)
-- `CollectRelatedArticlesFunctionalTest` référence la tâche `collectRelatedArticles` supprimée en LENS-3.3
+- Tous les EPICs LENS (LENS-1 à LENS-6) sont TERMINÉS ✅
+- Aucune dette technique FT legacy BKG restante
 - Ne pas lancer `./gradlew test` sans permission explicite

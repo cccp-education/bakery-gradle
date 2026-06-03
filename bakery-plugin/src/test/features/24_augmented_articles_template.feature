@@ -43,3 +43,22 @@ Feature: Augmented Articles Template — BKY-LENS-6
     And does not have 'site.yml' for site configuration
     When I am executing the task 'generateSite'
     Then the file 'site/templates/page.thyme' should contain 'augmented-articles'
+
+  # ─── Thymeleaf Rendering (LENS-6.3) ──────────────────────────────────
+
+  @rendering @lens-augmented-templates
+  Scenario: Augmented-articles — Rendered HTML shows section with data-attributes when context enabled
+    Given the template context has "augmentedContextEnabled" = "true"
+    And the template context has "augmentedContextData" = '{"scoredNodes":[{"uri":"/post1","title":"Post 1","channels":["RAG","KG"]},{"uri":"/post2","title":"Post 2","channels":["Docs"]}]}'
+    And the template context has "lensBudgetMaxArticlesPerPage" = "4"
+    When I render the template "augmented-articles"
+    Then the rendered HTML should contain "augmented-articles"
+    And the rendered HTML should contain "data-augmented-context"
+    And the rendered HTML should contain "scoredNodes"
+    And the rendered HTML should not contain "th:if"
+
+  @rendering @lens-augmented-templates
+  Scenario: Augmented-articles — No section when context not enabled
+    When I render the template "augmented-articles"
+    Then the rendered HTML should not contain "augmented-articles"
+    And the rendered HTML should not contain "data-augmented-context"

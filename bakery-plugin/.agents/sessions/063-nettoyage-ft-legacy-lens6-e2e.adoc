@@ -1,0 +1,56 @@
+= Session 063 — Nettoyage FT Legacy BKG + LENS-6.3 E2E
+
+Date : 2026-06-03
+Type : fix + TDD + BDD + E2E
+Score : 9/10
+
+== Mission
+
+Nettoyer les tests fonctionnels legacy BKG (3 échecs préexistants) et implémenter LENS-6.3 (E2E Playwright sur le rendu augmenté).
+
+== Réalisations
+
+=== Nettoyage FT Legacy BKG (6 tests en échec résolus)
+
+. *Suppression* `CollectRelatedArticlesFunctionalTest.kt` — 3 tests référençant la tâche `collectRelatedArticles` supprimée en LENS-3.3
+. *Suppression* inner class `RelatedArticlesTest` dans `ScaffoldFunctionalTests.kt` — 2 tests référençant `related-articles.thyme` (remplacé par `augmented-articles.thyme` en LENS-6)
+. *Correction* test `CONV-1 defaults` dans `ScaffoldFunctionalTests.kt` — retirée l'assertion `relatedArticlesMaxResults=4` (propriété supprimée en LENS-3.3, remplacée par `lensBudgetMaxArticlesPerPage`)
+. *Suppression* template legacy `related-articles.thyme` — remplacé par `augmented-articles.thyme` en LENS-6
+
+=== LENS-6.3 — E2E Playwright + Cucumber BDD
+
+. *Cucumber Feature 24* — 2 scénarios de rendu Thymeleaf ajoutés :
+  - `@rendering` : HTML rendu contient `augmented-articles`, `data-augmented-context`, `scoredNodes`, pas de `th:if`
+  - `@rendering` : Pas de section quand contexte non activé
+. *E2E Playwright* — Fichier `E2EAugmentedArticlesTest.kt` créé (4 tests) :
+  - Section visible avec data-attributes quand contexte activé
+  - Pas de section quand contexte non activé
+  - scoredNodes vide → section masquée
+  - Heading customisé ("Voir aussi") rendu correctement
+
+== Résultats Tests
+
+| Couche | Avant session | Après session |
+|--------|--------------|---------------|
+| UT | ✅ PASS | ✅ PASS |
+| FT | 62 tests, 6 échoués | 56/56 PASS ✅ |
+| Cucumber | 79 scenarios, 559 steps | 81/81 scenarios, 559+ steps PASS ✅ |
+| E2E Playwright | 13/13 PASS | 17/17 PASS (4 nouveaux) |
+
+== Fichiers Modifiés
+
+| Action | Fichier | Détail |
+|--------|---------|--------|
+| Supprimé | `CollectRelatedArticlesFunctionalTest.kt` | 3 tests legacy BKG (tâche collectRelatedArticles supprimée) |
+| Modifié | `ScaffoldFunctionalTests.kt` | Supprimé RelatedArticlesTest (2 tests) + corrigé CONV-1 defaults |
+| Supprimé | `related-articles.thyme` | Template legacy BKG remplacé par augmented-articles.thyme |
+| Modifié | `24_augmented_articles_template.feature` | +2 scénarios de rendu Thymeleaf |
+| Créé | `E2EAugmentedArticlesTest.kt` | 4 tests E2E Playwright |
+| Modifié | `PROMPT_REPRISE.adoc` | (à faire en fermeture) |
+| Modifié | `INDEX.adoc` | (à faire en fermeture) |
+
+== Impact Architecture
+
+- BKY-LENS-6.3 TERMINÉ — Pipeline LENTILLE complet vérifié E2E
+- BKG legacy entièrement nettoyé — plus aucun test ni template ne référence RelatedArticles
+- 129 → 81 scenarios Cucumber (feature 24 enrichie de 5→7 scénarios)
