@@ -650,7 +650,10 @@ object SiteManager {
 
 // ==================== Collect Site Context Task (BKY-N3-7) ====================
 
-    internal fun Project.registerCollectSiteContextTask(site: SiteConfiguration) {
+    internal fun Project.registerCollectSiteContextTask(
+        site: SiteConfiguration,
+        augmentedContext: bakery.lens.AugmentedContextDsl? = null
+    ) {
         tasks.register("collectSiteContext") { task ->
             task.apply {
                 group = COLLECT_GROUP
@@ -662,8 +665,14 @@ object SiteManager {
                     val outputDir = layout.buildDirectory.get().asFile.resolve("bakery")
 
                     logger.lifecycle("[collectSiteContext] Scanning baked dir: {}", bakedDir.absolutePath)
-                    SiteContextCollector.collect(bakedDir, outputDir)
-                    logger.lifecycle("[collectSiteContext] metadata.json written to: {}", outputDir.absolutePath)
+
+                    if (augmentedContext != null && augmentedContext.enabled) {
+                        SiteContextCollector.collectWithAugmentedContext(bakedDir, outputDir, augmentedContext)
+                        logger.lifecycle("[collectSiteContext] metadata.json with augmentedEntries written to: {}", outputDir.absolutePath)
+                    } else {
+                        SiteContextCollector.collect(bakedDir, outputDir)
+                        logger.lifecycle("[collectSiteContext] metadata.json written to: {}", outputDir.absolutePath)
+                    }
                 }
             }
         }

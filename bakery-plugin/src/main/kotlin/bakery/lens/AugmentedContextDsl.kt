@@ -50,6 +50,11 @@ open class AugmentedContextDsl {
     /** Configuration de la lentille (ségrégation + enrichissement). */
     val lens: LensConfig = LensConfig()
 
+    /** Nombre maximum d'augmented entries à injecter dans metadata.json (BKY-LENS-5).
+     *  Défaut = budget.maxArticlesPerPage. 0 = pas de limite.
+     */
+    var maxArticles: Int = budget.maxArticlesPerPage
+
     /** DSL : bakery { augmentedContext { lens { ... } } } */
     fun lens(action: Action<LensConfig>) {
         action.execute(lens)

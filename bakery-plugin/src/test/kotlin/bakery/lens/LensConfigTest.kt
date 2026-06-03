@@ -159,6 +159,38 @@ class LensConfigTest {
     }
 
     @Nested
+    @DisplayName("AugmentedContextDsl — maxArticles (BKY-LENS-5)")
+    inner class AugmentedContextDslMaxArticles {
+
+        @Test
+        @DisplayName("AugmentedContextDsl maxArticles par défaut = budget.maxArticlesPerPage = 4")
+        fun `default maxArticles equals budget maxArticlesPerPage`() {
+            val dsl = AugmentedContextDsl()
+            assertThat(dsl.maxArticles).isEqualTo(dsl.budget.maxArticlesPerPage)
+            assertThat(dsl.maxArticles).isEqualTo(4)
+        }
+
+        @Test
+        @DisplayName("AugmentedContextDsl maxArticles peut être configuré indépendamment du budget")
+        fun `maxArticles can be set independently of budget`() {
+            val dsl = AugmentedContextDsl()
+            dsl.enabled = true
+            dsl.maxArticles = 10
+            dsl.budget.maxArticlesPerPage = 6
+            assertThat(dsl.maxArticles).isEqualTo(10)
+            assertThat(dsl.budget.maxArticlesPerPage).isEqualTo(6)
+        }
+
+        @Test
+        @DisplayName("AugmentedContextDsl maxArticles = 0 signifie pas de limite")
+        fun `maxArticles zero means no limit`() {
+            val dsl = AugmentedContextDsl()
+            dsl.maxArticles = 0
+            assertThat(dsl.maxArticles).isEqualTo(0)
+        }
+    }
+
+    @Nested
     @DisplayName("AugmentedContextDsl — Modification via Action")
     inner class AugmentedContextDslMutation {
 

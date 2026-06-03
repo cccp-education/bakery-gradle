@@ -1,21 +1,20 @@
-= PROMPT_REPRISE — Session 061 : BKY-LENS-5 Connect N3 Composite Context
+= PROMPT_REPRISE — Session 062 : BKY-LENS-6 Templates Augmentés JBake
 
-== Mission (Session 061)
+== Mission (Session 062)
 
-1. **BKY-LENS-5** — Brancher le pipeline LENS sur le N3 runner-gradle
-   - Extension DSL `bakery { augmentedContext { enabled, contextPath, maxArticles } }`
-   - `SiteContextCollector` enrichi : lit `composite-context.json` → ajoute `augmentedEntries` dans metadata.json
-   - Cucumber : `22_augmented_context.feature` (3 scénarios)
-2. Valider que `composite-context.json` est lu correctement par `AugmentedContextResolver`
-3. Vérifier le contrat DAG bakery (N2) → runner-gradle (N3)
+1. **BKY-LENS-6** — Templates Augmentés JBake
+   - `post.thyme` : section « Articles connexes du workspace » avec badges de source (RAG/KG/Docs)
+   - `page.thyme` : bloc « Contexte augmenté » injecté via data-attributes
+   - E2E Playwright : vérifier rendu augmenté sur une page bake
+2. Nettoyer les FT legacy BKG (CollectRelatedArticlesFunctionalTest — 5 échecs préexistants)
+3. Vérifier le contrat DAG bakery (N2) → templates JBake Thymeleaf
 
-== État actuel (Session 060)
+== État actuel (Session 061)
 
-- **BKY-LENS-4 TERMINÉ** ✅ — 71/71 Cucumber PASS
-- LENS-1 ✅ SubgraphExtractor, LENS-2 ✅ AugmentedArticlesService, LENS-3 ✅ LensBudget + Injection JBake
-- Fix majeur : `DslInjectionHelper.insertBeforeClosingBrace()` remplace la regex fragile d'injection DSL
-- Fix Feature 18 : custom graph file path mémorisé via `graphFilePath` state var
-- 551 UT PASS + 71 Cucumber PASS
+- **BKY-LENS-5 TERMINÉ** ✅ — 74/74 Cucumber PASS, 3 FT LENS-5 PASS
+- LENS-5.1 ✅ maxArticles DSL, LENS-5.2 ✅ collectWithAugmentedContext, LENS-5.3 ✅ Cucumber + FT
+- Contrat DAG N3 branché : `composite-context.json` → `AugmentedContextResolver` → `metadata.json.augmentedEntries`
+- 559+ UT PASS, 5 FT legacy BKG en échec (préexistant, non lié à LENS-5)
 
 == Architecture LENS — Rappel
 
@@ -27,14 +26,15 @@ site-graph (~200 nœuds, ~500 edges)
     ↓ LensBudget (4-6 articles/page, minSimilarity=0.7) ← ✅ LENS-3
 jbake.properties (augmentedContextData) ← ✅ LENS-3
     ↓
-composite-context.json (runner-gradle N3) ← 🔜 LENS-5
+composite-context.json (runner-gradle N3) ← ✅ LENS-5
     ↓
-AugmentedContextResolver → augmentedEntries in metadata.json ← 🔜 LENS-5
+AugmentedContextResolver → augmentedEntries in metadata.json ← ✅ LENS-5
+    ↓
+post.thyme / page.thyme → badges RAG/KG/Docs ← 🔜 LENS-6
 ```
 
 == Points d'attention
 
-- `composite-context.json` est produit par runner-gradle (N3) via `assembleCompositeContext`
-- Bakery (N2) le consomme en lecture seule via `AugmentedContextResolver.resolve()`
-- RAG scores viendront de pgvector — pour l'instant RAG=emptyMap
+- Les templates Thymeleaf consomment `augmentedContextData` depuis `jbake.properties` (LENS-3)
+- Les `augmentedEntries` dans `metadata.json` sont la source N3 pour les badges de source
 - Ne pas lancer `./gradlew test` sans permission explicite

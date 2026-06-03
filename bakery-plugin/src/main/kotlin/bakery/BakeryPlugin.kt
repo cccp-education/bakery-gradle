@@ -78,7 +78,7 @@ class BakeryPlugin : Plugin<Project> {
                 project.registerServeTask(site, jbakeRuntime)
                 project.registerUtilityTasks()
                 project.registerCollectSiteConfigTask(site, isGradlePropertiesEnabled)
-                project.registerCollectSiteContextTask(site)
+                project.registerCollectSiteContextTask(site, bakeryExtension.augmentedContext)
                 project.registerCollectAugmentedContextTask(site, bakeryExtension.augmentedContext)
                 project.registerGenerateArticleTask(site, bakeryExtension.ia, bakeryExtension.articleIntention)
             }

@@ -1,5 +1,7 @@
 package bakery
 
+import bakery.lens.AugmentedContextDsl
+import bakery.lens.AugmentedContextResolver
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import java.io.File
 import java.time.Instant
@@ -37,6 +39,76 @@ object SiteContextCollector {
         val mapper = jacksonObjectMapper()
         mapper.writerWithDefaultPrettyPrinter()
             .writeValue(outputDir.resolve("metadata.json"), metadata)
+    }
+
+    /**
+     * BKY-LENS-5 : Collecte le contexte du site baké + enrichit avec le composite-context.
+     *
+     * Lit le fichier composite-context.json (sortie de runner-gradle N3) via
+     * [AugmentedContextResolver], extrait les canaux disponibles, et injecte
+     * `augmentedEntries` dans metadata.json.
+     *
+     * @param bakedDir Répertoire du site baké
+     * @param outputDir Répertoire de sortie pour metadata.json
+     * @param augmentedContext Configuration du contexte augmenté (enabled, contextPath, maxArticles)
+     */
+    fun collectWithAugmentedContext(
+        bakedDir: File,
+        outputDir: File,
+        augmentedContext: AugmentedContextDsl
+    ) {
+        // 1. Collecte standard
+        collect(bakedDir, outputDir)
+
+        // 2. Si disabled, ne pas enrichir
+        if (!augmentedContext.enabled) return
+
+        // 3. Résoudre le composite-context.json
+        val resolver = AugmentedContextResolver()
+        val channels = resolver.extractChannelsFromPath(augmentedContext.contextPath)
+
+        if (channels.isEmpty()) {
+            // Pas de composite-context → augmentedEntries vide (signale fonctionnalité active sans source N3)
+            enrichMetadataWithAugmentedEntries(outputDir, mapOf("channels" to emptyList<Any>()))
+            return
+        }
+
+        // 4. Construire les augmented entries
+        val channelsList = channels.map { (type, content) ->
+            mapOf("channel" to type.name, "content" to content)
+        }
+
+        // 5. Appliquer maxArticles (troncature)
+        val truncated = if (augmentedContext.maxArticles > 0) {
+            channelsList.take(augmentedContext.maxArticles)
+        } else {
+            channelsList
+        }
+
+        val augmentedEntries = mapOf("channels" to truncated)
+        enrichMetadataWithAugmentedEntries(outputDir, augmentedEntries)
+    }
+
+    /**
+     * Enrichit le metadata.json existant avec les augmentedEntries.
+     */
+    private fun enrichMetadataWithAugmentedEntries(
+        outputDir: File,
+        augmentedEntries: Map<String, Any>
+    ) {
+        val metadataFile = outputDir.resolve("metadata.json")
+        if (!metadataFile.exists()) return
+
+        val mapper = jacksonObjectMapper()
+        val metadata: MutableMap<String, Any> = mapper.readValue(metadataFile, MutableMap::class.java)
+            as MutableMap<String, Any>
+
+        if (augmentedEntries.isNotEmpty()) {
+            metadata["augmentedEntries"] = augmentedEntries
+        }
+
+        mapper.writerWithDefaultPrettyPrinter()
+            .writeValue(metadataFile, metadata)
     }
 
     private fun parseFeed(bakedDir: File): List<Map<String, Any>> {

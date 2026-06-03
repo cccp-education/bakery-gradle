@@ -415,11 +415,11 @@ _Dépend de_ : BKY-LENS-2
 
 _Dépend de_ : BKY-LENS-1, BKY-LENS-2, BKY-LENS-3
 
-==== BKY-LENS-5 : Connect N3 — Composite Context Branché (3 pts)
+==== BKY-LENS-5 : Connect N3 — Composite Context Branché (3 pts) ✅ TERMINÉ
 
-* [ ] BKY-LENS-5.1 — Extension DSL `bakery { augmentedContext { enabled, contextPath, maxArticles } }`
-* [ ] BKY-LENS-5.2 — `SiteContextCollector` enrichi : lit `composite-context.json` → ajoute `augmentedEntries` dans metadata.json
-* [ ] BKY-LENS-5.3 — Cucumber : `22_augmented_context.feature` (3 scénarios)
+* [x] BKY-LENS-5.1 — Extension DSL `bakery { augmentedContext { enabled, contextPath, maxArticles } }`
+* [x] BKY-LENS-5.2 — `SiteContextCollector` enrichi : lit `composite-context.json` → ajoute `augmentedEntries` dans metadata.json
+* [x] BKY-LENS-5.3 — Cucumber : `23_augmented_context_n3.feature` (3 scénarios)
 
 _Dépend de_ : BKY-LENS-3, pilot-plugin (N4)
 

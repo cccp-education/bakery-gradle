@@ -1,0 +1,68 @@
+= Session 061 — BKY-LENS-5 Connect N3 Composite Context
+
+== Date
+2026-06-03
+
+== Type
+feat + TDD + BDD
+
+== Score
+9/10
+
+== Résumé
+Brancher le pipeline LENS sur le N3 runner-gradle (composite-context.json).
+SiteContextCollector enrichit maintenant metadata.json avec les augmentedEntries
+lorsque augmentedContext.enabled=true.
+
+== EPIC
+BKY-LENS-5 — Connect N3 Composite Context (3 pts)
+
+== Sous-tâches réalisées
+
+=== LENS-5.1 — Extension DSL augmentedContext
+- Ajout `maxArticles: Int` sur `AugmentedContextDsl` (défaut = budget.maxArticlesPerPage = 4, 0 = pas de limite)
+- 3 UT baby steps : default, configurable indépendamment du budget, 0 = no limit
+
+=== LENS-5.2 — SiteContextCollector.collectWithAugmentedContext()
+- Nouvelle méthode `collectWithAugmentedContext(bakedDir, outputDir, augmentedContextDsl)` dans `SiteContextCollector`
+- Lit `composite-context.json` via `AugmentedContextResolver.resolve()`
+- Extrait les canaux via `AugmentedContextResolver.extractChannels()`
+- Injecte `augmentedEntries` dans metadata.json (troncature par `maxArticles`)
+- Si composite-context absent → `augmentedEntries` avec channels vide (signal diagnostic)
+- Si enabled=false → pas d'augmentedEntries dans metadata.json
+- 5 UT baby steps
+
+=== LENS-5.3 — Cucumber + FT + SiteManager
+- `registerCollectSiteContextTask` accepte maintenant `AugmentedContextDsl?` et route vers `collectWithAugmentedContext` quand enabled
+- `BakeryPlugin.kt` passe `bakeryExtension.augmentedContext` au task
+- Feature Cucumber 23 : `23_augmented_context_n3.feature` (3 scénarios BDD)
+- Steps Cucumber : `AugmentedContextN3Steps.kt`
+- FT `CollectSiteContextFunctionalTest` : 3 nouveaux tests LENS-5
+
+== Fichiers modifiés
+|===
+| Fichier | Action
+| `src/main/kotlin/bakery/lens/AugmentedContextDsl.kt` | Ajout `maxArticles: Int = budget.maxArticlesPerPage`
+| `src/main/kotlin/bakery/SiteContextCollector.kt` | Ajout `collectWithAugmentedContext()` + `enrichMetadataWithAugmentedEntries()`
+| `src/main/kotlin/bakery/SiteManager.kt` | `registerCollectSiteContextTask` accepte `AugmentedContextDsl?`, route vers enrichissement
+| `src/main/kotlin/bakery/BakeryPlugin.kt` | Appel `registerCollectSiteContextTask(site, bakeryExtension.augmentedContext)`
+| `src/test/kotlin/bakery/lens/LensConfigTest.kt` | 3 UT `maxArticles`
+| `src/test/kotlin/bakery/SiteContextCollectorTest.kt` | 5 UT `collectWithAugmentedContext`
+| `src/functionalTest/kotlin/bakery/CollectSiteContextFunctionalTest.kt` | 3 FT LENS-5
+| `src/test/features/23_augmented_context_n3.feature` | Créé (3 scénarios BDD)
+| `src/test/scenarios/bakery/scenarios/AugmentedContextN3Steps.kt` | Créé (Steps Cucumber)
+|===
+
+== Tests
+- UT : 559+ PASS (aucune régression)
+- Cucumber : 74/74 PASS (71 existants + 3 nouveaux)
+- FT : 3/3 LENS-5 PASS (5 FT legacy BKG échouent — préexistant, non lié à LENS-5)
+
+== Contrat DAG
+bakery (N2) → runner-gradle (N3) : ✅ Valide.
+bakery lit `composite-context.json` en lecture seule via `AugmentedContextResolver`.
+Le contrat est unidirectionnel : N3 produit, N2 consomme.
+
+== Prochaines étapes
+- BKY-LENS-6 : Templates Augmentés JBake (injection augmentedEntries dans post.thyme/page.thyme)
+- Nettoyage FT legacy BKG (CollectRelatedArticlesFunctionalTest)

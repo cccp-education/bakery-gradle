@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
 _Derniere mise a jour_ : 2026-06-03
-_Session terminee_ : 060 — BKY-LENS-4 Validation Cucumber + Fix 4 échecs
-_Prochaine session_ : 061 — BKY-LENS-5 Connect N3 Composite Context
-_Session en cours_ : 061
+_Session terminee_ : 061 — BKY-LENS-5 Connect N3 Composite Context
+_Prochaine session_ : 062 — BKY-LENS-6 Templates Augmentés JBake
+_Session en cours_ : 062
 
 '''
 
@@ -70,7 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | # | Date | Type | Sujet | Score
-| 060 | 2026-06-03 | fix + TDD + BDD | BKY-LENS-4 Validation Cucumber — Fix 4 échefs (Regex injection DSL → DslInjectionHelper.insertBeforeClosingBrace + custom graph path state var). 6 UT DslInjectionHelperTest TDD. 71/71 Cucumber PASS ✅. LENS-4 TERMINÉ. | 9/10
+| 061 | 2026-06-03 | feat + TDD + BDD | BKY-LENS-5 Connect N3 Composite Context — AugmentedContextDsl.maxArticles + SiteContextCollector.collectWithAugmentedContext() + Cucumber Feature 23 + FT LENS-5. 74/74 Cucumber PASS. Contrat DAG N3 branché. | 9/10
 | 059 | 2026-06-03 | feat + BDD + fix | BKY-LENS-4 Cucumber Features 17-19 — 3 features BKG orphelines réécrites en LENS. Fix DuplicateStepDefinition (ThymeleafComponentSteps vs ConfigResolverSteps) → 53→6 échecs Cucumber. Feature 19 3/3 PASS. LensSteps enrichi (+7 steps). | 7/10
 | 058 | 2026-06-03 | feat + TDD + BDD + cleanup | BKY-LENS-3 Budget + Injection JBake (Reconnect) — LensBudget data class + apply() + budget { } DSL + registerCollectAugmentedContextTask + injectLensBudgetIntoJbakeProperties + Nettoyage BKG legacy (13 fichiers supprimés). 82+ UT lens PASS. | 9/10
 | 057 | 2026-06-03 | feat + TDD + BDD | BKY-LENS-2.3 Scoring Hybride TDD + BDD — Fix Feature 22 Scénario 2 (guillemets), 7 boundary tests AugmentedArticlesService, 4 boundary tests AugmentedContextResolver. Feature 22 3/3 PASS. 52+ UT lens PASS. | 8/10
@@ -189,13 +189,14 @@ Pattern LENTILLE : ségrégation (SubgraphExtractor) → enrichissement
 | *BKY-LENS-2* | AugmentedArticlesService (Enrichissement) | 4 | *P0 ✅ TERMINÉ* | BKY-LENS-1, codebase-contracts
 | *BKY-LENS-3* | Budget + Injection JBake (Reconnect) | 3 | *P0 ✅ TERMINÉ* | BKY-LENS-2
 | *BKY-LENS-4* | Cucumber Features 17-19 (Réécriture) | 3 | *P0 ✅ TERMINÉ* | BKY-LENS-1,2,3
-| *BKY-LENS-5* | Connect N3 Composite Context | 3 | *P1* | BKY-LENS-3, pilot-plugin
+| *BKY-LENS-5* | Connect N3 Composite Context | 3 | *P0 ✅ TERMINÉ* | BKY-LENS-3, pilot-plugin
 | *BKY-LENS-6* | Templates Augmentés JBake | 3 | *P2* | BKY-LENS-5
 |===
 
-*Phase 1 (LENS-1→3)* : 12 pts — P0 Ségrégation + Enrichissement + Reconnect
+*Phase 1 (LENS-1→3)* : 12 pts — P0 Ségrégation + Enrichissement + Reconnect ✅ TERMINÉ
 *Phase 2 (LENS-4)* : 3 pts — P1 Réécriture Cucumber ✅ TERMINÉ
-*Phase 3 (LENS-5→6)* : 6 pts — P1-P2 N3 + Templates
+*Phase 3 (LENS-5)* : 3 pts — P1 N3 Composite Context ✅ TERMINÉ
+*Phase 4 (LENS-6)* : 3 pts — P2 Templates Augmentés JBake
 
 _Localisation active_ : `.agents/backup/Y2026-sessions-051-060/` (rotation session 060)
 | EPIC | Pts | Priorite | Cause racine

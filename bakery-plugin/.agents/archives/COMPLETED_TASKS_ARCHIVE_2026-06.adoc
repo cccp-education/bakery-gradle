@@ -1,5 +1,18 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 061 — 2026-06-03 — BKY-LENS-5 Connect N3 Composite Context
+
+**Contexte** : Brancher le pipeline LENS sur le N3 runner-gradle via composite-context.json.
+
+**Tâches réalisées** :
+
+* [x] LENS-5.1 — Extension DSL `AugmentedContextDsl.maxArticles` (Int, défaut=budget.maxArticlesPerPage, 0=no-limit) — 3 UT PASS
+* [x] LENS-5.2 — `SiteContextCollector.collectWithAugmentedContext()` : lit composite-context.json via AugmentedContextResolver, extrait canaux, injecte augmentedEntries dans metadata.json — 5 UT PASS
+* [x] LENS-5.3 — Cucumber Feature 23 (3 scénarios BDD) + FT LENS-5 (3/3) + registerCollectSiteContextTask mis à jour
+* [x] Contrat DAG N3 branché : bakery (N2) consomme composite-context.json (runner-gradle N3) en lecture seule
+
+**Résultat** : 559+ UT PASS, 74/74 Cucumber PASS, 3 FT LENS-5 PASS. BKY-LENS-5 TERMINÉ.
+
 == Session 059 — 2026-06-03 — BKY-LENS-4 Cucumber Features 17-19 (Réécriture LENS)
 
 **Contexte** : Reprise de bakery-gradle session 059. Les Features Cucumber 17-19 (BKG legacy orphelines depuis LENS-3.3) doivent être réécrites en LENS.
