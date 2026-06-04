@@ -51,16 +51,32 @@ object ConfigResolver {
         return props.filterKeys { it.startsWith("bakery.") }
     }
 
+    private fun <T> resolve(
+        props: Map<String, String>,
+        prefix: String,
+        key: String,
+        dslValue: T,
+        yamlValue: T?,
+        default: T,
+        parseCli: (String) -> T?,
+        isExplicitlySet: (T, T) -> Boolean,
+        isPresent: (T?) -> Boolean
+    ): T {
+        val cliValue = props["${prefix}.${key}"]
+        if (cliValue != null) {
+            return parseCli(cliValue) ?: default
+        }
+        if (isExplicitlySet(dslValue, default)) {
+            return dslValue
+        }
+        if (isPresent(yamlValue)) {
+            return yamlValue!!
+        }
+        return default
+    }
+
     /**
      * Resolves a String property through the 4-layer cascade.
-     *
-     * @param props     Properties map (CLI + gradle.properties merged)
-     * @param prefix    The property prefix (e.g. "bakery.googleForms")
-     * @param key       The property key (e.g. "formId")
-     * @param dslValue  The value from the DSL extension
-     * @param yamlValue The value from site.yml (may be null if absent)
-     * @param default   The hardcoded default value
-     * @return The resolved value following the priority chain
      */
     fun resolveString(
         props: Map<String, String>,
@@ -69,26 +85,12 @@ object ConfigResolver {
         dslValue: String,
         yamlValue: String?,
         default: String = ""
-    ): String {
-        // Layer 1+2: CLI / gradle.properties
-        val cliValue = props["${prefix}.${key}"]
-        if (cliValue != null) {
-            return cliValue
-        }
-
-        // Layer 3: DSL (non-blank and different from default means explicitly set)
-        if (dslValue.isNotBlank() && dslValue != default) {
-            return dslValue
-        }
-
-        // Layer 4: YAML
-        if (!yamlValue.isNullOrBlank()) {
-            return yamlValue
-        }
-
-        // Layer 5: Default
-        return default
-    }
+    ): String = resolve(
+        props, prefix, key, dslValue, yamlValue, default,
+        parseCli = { it },
+        isExplicitlySet = { dsl, def -> dsl.isNotBlank() && dsl != def },
+        isPresent = { it != null && it.isNotBlank() }
+    )
 
     /**
      * Resolves an Int property through the 4-layer cascade.
@@ -100,26 +102,12 @@ object ConfigResolver {
         dslValue: Int,
         yamlValue: Int?,
         default: Int
-    ): Int {
-        // Layer 1+2: CLI / gradle.properties
-        val cliValue = props["${prefix}.${key}"]
-        if (cliValue != null) {
-            return cliValue.toIntOrNull() ?: default
-        }
-
-        // Layer 3: DSL (different from default means explicitly set)
-        if (dslValue != default) {
-            return dslValue
-        }
-
-        // Layer 4: YAML
-        if (yamlValue != null) {
-            return yamlValue
-        }
-
-        // Layer 5: Default
-        return default
-    }
+    ): Int = resolve(
+        props, prefix, key, dslValue, yamlValue, default,
+        parseCli = { it.toIntOrNull() },
+        isExplicitlySet = { dsl, def -> dsl != def },
+        isPresent = { it != null }
+    )
 
     /**
      * Resolves a Boolean property through the 4-layer cascade.
@@ -131,26 +119,32 @@ object ConfigResolver {
         dslValue: Boolean,
         yamlValue: Boolean?,
         default: Boolean
-    ): Boolean {
-        // Layer 1+2: CLI / gradle.properties
-        val cliValue = props["${prefix}.${key}"]
-        if (cliValue != null) {
-            return cliValue.toBooleanStrictOrNull() ?: default
-        }
+    ): Boolean = resolve(
+        props, prefix, key, dslValue, yamlValue, default,
+        parseCli = { it.toBooleanStrictOrNull() },
+        isExplicitlySet = { dsl, def -> dsl != def },
+        isPresent = { it != null }
+    )
 
-        // Layer 3: DSL (different from default means explicitly set)
-        if (dslValue != default) {
-            return dslValue
-        }
-
-        // Layer 4: YAML
-        if (yamlValue != null) {
-            return yamlValue
-        }
-
-        // Layer 5: Default
-        return default
+    private class Scope(
+        val props: Map<String, String>,
+        val prefix: String
+    ) {
+        fun string(key: String, dsl: String, yaml: String?, default: String = "") =
+            resolveString(props, prefix, key, dsl, yaml, default)
+        fun int(key: String, dsl: Int, yaml: Int?, default: Int) =
+            resolveInt(props, prefix, key, dsl, yaml, default)
+        fun boolean(key: String, dsl: Boolean, yaml: Boolean?, default: Boolean) =
+            resolveBoolean(props, prefix, key, dsl, yaml, default)
+        inline fun <reified E : Enum<E>> enum(key: String, dsl: E, yaml: E?, default: E) =
+            resolveEnum(props, prefix, key, dsl, yaml, default)
     }
+
+    private inline fun <T> resolveConfig(
+        props: Map<String, String>,
+        prefix: String,
+        block: Scope.() -> T
+    ): T = Scope(props, prefix).block()
 
     /**
      * Resolves a GoogleFormsConfig through the 4-layer cascade.
@@ -161,13 +155,12 @@ object ConfigResolver {
         dsl: GoogleFormsDsl,
         yaml: GoogleFormsConfig?,
         default: GoogleFormsConfig = GoogleFormsConfig()
-    ): GoogleFormsConfig {
-        val prefix = "bakery.googleForms"
-        return GoogleFormsConfig(
-            formId = resolveString(props, prefix, "formId", dsl.formId, yaml?.formId, default.formId),
-            width = resolveString(props, prefix, "width", dsl.width, yaml?.width, default.width),
-            height = resolveString(props, prefix, "height", dsl.height, yaml?.height, default.height),
-            allowMultiple = resolveBoolean(props, prefix, "allowMultiple", dsl.allowMultiple, yaml?.allowMultiple, default.allowMultiple),
+    ): GoogleFormsConfig = resolveConfig(props, "bakery.googleForms") {
+        GoogleFormsConfig(
+            formId = string("formId", dsl.formId, yaml?.formId, default.formId),
+            width = string("width", dsl.width, yaml?.width, default.width),
+            height = string("height", dsl.height, yaml?.height, default.height),
+            allowMultiple = boolean("allowMultiple", dsl.allowMultiple, yaml?.allowMultiple, default.allowMultiple),
         )
     }
 
@@ -179,12 +172,11 @@ object ConfigResolver {
         dsl: AnalyticsDsl,
         yaml: AnalyticsConfig?,
         default: AnalyticsConfig = AnalyticsConfig()
-    ): AnalyticsConfig {
-        val prefix = "bakery.analytics"
-        return AnalyticsConfig(
-            provider = resolveString(props, prefix, "provider", dsl.provider, yaml?.provider, default.provider),
-            domain = resolveString(props, prefix, "domain", dsl.domain, yaml?.domain, default.domain),
-            scriptSrc = resolveString(props, prefix, "scriptSrc", dsl.scriptSrc, yaml?.scriptSrc, default.scriptSrc),
+    ): AnalyticsConfig = resolveConfig(props, "bakery.analytics") {
+        AnalyticsConfig(
+            provider = string("provider", dsl.provider, yaml?.provider, default.provider),
+            domain = string("domain", dsl.domain, yaml?.domain, default.domain),
+            scriptSrc = string("scriptSrc", dsl.scriptSrc, yaml?.scriptSrc, default.scriptSrc),
         )
     }
 
@@ -196,12 +188,11 @@ object ConfigResolver {
         dsl: FirebaseAuthDsl,
         yaml: FirebaseAuthConfig?,
         default: FirebaseAuthConfig = FirebaseAuthConfig()
-    ): FirebaseAuthConfig {
-        val prefix = "bakery.firebaseAuth"
-        return FirebaseAuthConfig(
-            apiKey = resolveString(props, prefix, "apiKey", dsl.apiKey, yaml?.apiKey, default.apiKey),
-            authDomain = resolveString(props, prefix, "authDomain", dsl.authDomain, yaml?.authDomain, default.authDomain),
-            projectId = resolveString(props, prefix, "projectId", dsl.projectId, yaml?.projectId, default.projectId),
+    ): FirebaseAuthConfig = resolveConfig(props, "bakery.firebaseAuth") {
+        FirebaseAuthConfig(
+            apiKey = string("apiKey", dsl.apiKey, yaml?.apiKey, default.apiKey),
+            authDomain = string("authDomain", dsl.authDomain, yaml?.authDomain, default.authDomain),
+            projectId = string("projectId", dsl.projectId, yaml?.projectId, default.projectId),
         )
     }
 
@@ -213,11 +204,10 @@ object ConfigResolver {
         dsl: CommentsDsl,
         yaml: CommentsConfig?,
         default: CommentsConfig = CommentsConfig()
-    ): CommentsConfig {
-        val prefix = "bakery.comments"
-        return CommentsConfig(
-            enabled = resolveBoolean(props, prefix, "enabled", dsl.enabled, yaml?.enabled, default.enabled),
-            collection = resolveString(props, prefix, "collection", dsl.collection, yaml?.collection, default.collection),
+    ): CommentsConfig = resolveConfig(props, "bakery.comments") {
+        CommentsConfig(
+            enabled = boolean("enabled", dsl.enabled, yaml?.enabled, default.enabled),
+            collection = string("collection", dsl.collection, yaml?.collection, default.collection),
         )
     }
 
@@ -229,12 +219,11 @@ object ConfigResolver {
         dsl: NewsletterDsl,
         yaml: NewsletterConfig?,
         default: NewsletterConfig = NewsletterConfig()
-    ): NewsletterConfig {
-        val prefix = "bakery.newsletter"
-        return NewsletterConfig(
-            enabled = resolveBoolean(props, prefix, "enabled", dsl.enabled, yaml?.enabled, default.enabled),
-            provider = resolveString(props, prefix, "provider", dsl.provider, yaml?.provider, default.provider),
-            endpoint = resolveString(props, prefix, "endpoint", dsl.endpoint, yaml?.endpoint, default.endpoint),
+    ): NewsletterConfig = resolveConfig(props, "bakery.newsletter") {
+        NewsletterConfig(
+            enabled = boolean("enabled", dsl.enabled, yaml?.enabled, default.enabled),
+            provider = string("provider", dsl.provider, yaml?.provider, default.provider),
+            endpoint = string("endpoint", dsl.endpoint, yaml?.endpoint, default.endpoint),
         )
     }
 
@@ -278,10 +267,9 @@ object ConfigResolver {
         dsl: LayoutDsl,
         yaml: LayoutConfig?,
         default: LayoutConfig = LayoutConfig()
-    ): LayoutConfig {
-        val prefix = "bakery.layout"
-        return LayoutConfig(
-            layoutType = resolveEnum(props, prefix, "layoutType", dsl.layoutType, yaml?.layoutType, default.layoutType),
+    ): LayoutConfig = resolveConfig(props, "bakery.layout") {
+        LayoutConfig(
+            layoutType = enum("layoutType", dsl.layoutType, yaml?.layoutType, default.layoutType),
         )
     }
 

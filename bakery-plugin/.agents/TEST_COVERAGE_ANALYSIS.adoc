@@ -94,3 +94,4 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 . *EPIC 15* : ✅ RÉSOLU (session 028)
 . *EPIC 16* : ✅ RÉSOLU (session 028)
 . *EPIC 17* : ✅ RÉSOLU (session 028)
+. *Session 074* : tests inchangés (ConfigResolverTest 62/62, tests injection 14/14). Couverture stable ~77%.

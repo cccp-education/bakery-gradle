@@ -1,0 +1,39 @@
+= Session 074 — CS-4 Pattern Strategy + CS-5 Générifier ConfigResolver
+
+== Résumé
+
+Refactoring double : extraction Pattern Strategy pour l'injection config (CS-4) puis générification des méthodes `resolve*` de ConfigResolver (CS-5). Zéro régression, compilation OK, tests existants verts.
+
+== Fichiers créés
+
+* `src/main/kotlin/bakery/injection/ConfigInjector.kt` — `fun interface ConfigInjector` (5 lignes)
+* `src/main/kotlin/bakery/injection/DomainConfigInjectors.kt` — 8 injecteurs par domaine + registre `configInjectors` (98 lignes)
+* `src/main/kotlin/bakery/injection/PropertyUpdater.kt` — `updateProperty()` partagé (10 lignes)
+
+== Fichiers modifiés
+
+* `src/main/kotlin/bakery/SiteTaskRegistrar.kt` — `injectResolvedConfigIntoJbakeProperties()` 79→22 lignes (-72%). Suppression de la méthode `updateProperty()` interne (déplacée vers `PropertyUpdater.kt`).
+* `src/main/kotlin/bakery/ConfigResolver.kt` — Factorisation des 3 primitives (String, Int, Boolean) via `resolve<T>` générique + Scope pattern pour 5 aggrégats simples. 339→327 lignes. `resolveThemeConfig` et `resolveFirebaseConfig` conservés intacts (logique spécifique).
+* `PROMPT_REPRISE.adoc` — Mise à jour mission CS-5→TERMINÉ.
+
+== Métriques
+
+| | Avant | Après | Δ |
+| SiteTaskRegistrar.kt `injectResolvedConfig` | 79 lignes | 22 lignes | -72% |
+| ConfigResolver.kt total | 339 lignes | 327 lignes | -3.5% |
+| Duplication logique (4 cascades × 3 primitives) | ~233 lignes | ~76 lignes | -67% |
+| Compilation | BUILD SUCCESSFUL | BUILD SUCCESSFUL | Stable |
+| ConfigResolverTest | 62/62 PASS | 62/62 PASS | Zéro régression |
+| Tests injection existants | 14/14 PASS | 14/14 PASS | Zéro régression |
+| publishToMavenLocal | ✅ | ✅ | OK |
+
+== Décisions de conception
+
+1. **ConfigInjector = fun interface** — pas de sealed class. Chaque injecteur est un `object` singleton sans état.
+2. **resolve<T> avec 3 lambdas** — `parseCli`, `isExplicitlySet`, `isPresent`. Plus simple que sealed class ou fun interface pour les primitives.
+3. **Scope pattern pour aggrégats** — `Scope` encapsule `props` + `prefix`, expose `string()`, `int()`, `boolean()`, `enum()`. Élimine la répétition `val prefix = "bakery.xxx"`.
+4. **Theme et Firebase non touchés** — Clarity over cleverness. Leur logique spécifique (ThemeCatalog preset, `yaml?.project`) ne se prête pas à la généralisation simple.
+
+== Score
+
+9/10 — 2 refactors propres, zéro régression, approche baby-step respectée.

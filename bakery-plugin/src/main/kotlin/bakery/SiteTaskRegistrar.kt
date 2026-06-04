@@ -2,6 +2,8 @@ package bakery
 
 import bakery.ConfigPrompts.getOrPrompt
 import bakery.ConfigPrompts.saveConfiguration
+import bakery.injection.configInjectors
+import bakery.injection.updateProperty
 import bakery.FileSystemManager.copyResourceDirectory
 import bakery.FileSystemManager.from
 import bakery.FileSystemManager.yamlMapper
@@ -173,8 +175,7 @@ object SiteTaskRegistrar {
 
     /**
      * Generic injection of resolved config properties into jbake.properties.
-     * Replaces the previous pattern of separate inject*IntoJbakeProperties methods.
-     * All config resolution goes through ConfigResolver 4-layer cascade.
+     * Uses the Strategy pattern: each domain has its own ConfigInjector.
      */
     private fun Project.injectResolvedConfigIntoJbakeProperties(
         targetDir: File,
@@ -189,80 +190,10 @@ object SiteTaskRegistrar {
         }
         val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
 
-        // Firebase contact form
-        val firebaseResolved = resolver("firebaseApiKey", "")
-        if (firebaseResolved.isNotBlank()) {
-            updateProperty(lines, "firebaseApiKey", firebaseResolved)
-            updateProperty(lines, "firebaseProjectId", resolver("firebaseProjectId", ""))
-        }
-
-        // Google Forms
-        val gfFormId = resolver("googleFormsFormId", "")
-        if (gfFormId.isNotBlank()) {
-            updateProperty(lines, "googleFormsFormId", gfFormId)
-            updateProperty(lines, "googleFormsWidth", resolver("googleFormsWidth", "640"))
-            updateProperty(lines, "googleFormsHeight", resolver("googleFormsHeight", "800"))
-        }
-
-        // Firebase Auth
-        val fAuthKey = resolver("firebaseAuthApiKey", "")
-        if (fAuthKey.isNotBlank()) {
-            updateProperty(lines, "firebaseAuthApiKey", fAuthKey)
-            updateProperty(lines, "firebaseAuthDomain", resolver("firebaseAuthDomain", ""))
-            updateProperty(lines, "firebaseAuthProjectId", resolver("firebaseAuthProjectId", ""))
-        }
-
-        // Comments
-        val commentsEnabled = resolver("commentsEnabled", "false")
-        if (commentsEnabled != "false" || resolver("commentsCollection", "comments") != "comments") {
-            updateProperty(lines, "commentsEnabled", commentsEnabled)
-            updateProperty(lines, "commentsCollection", resolver("commentsCollection", "comments"))
-        }
-
-        // Analytics
-        val analyticsProvider = resolver("analyticsProvider", "")
-        if (analyticsProvider.isNotBlank()) {
-            updateProperty(lines, "analyticsProvider", analyticsProvider)
-            updateProperty(lines, "analyticsDomain", resolver("analyticsDomain", ""))
-            updateProperty(lines, "analyticsScriptSrc", resolver("analyticsScriptSrc", ""))
-        }
-
-        // Newsletter
-        val newsletterEnabled = resolver("newsletterEnabled", "false")
-        if (newsletterEnabled != "false" || resolver("newsletterProvider", "").isNotBlank()) {
-            updateProperty(lines, "newsletterEnabled", newsletterEnabled)
-            updateProperty(lines, "newsletterProvider", resolver("newsletterProvider", ""))
-            updateProperty(lines, "newsletterEndpoint", resolver("newsletterEndpoint", ""))
-        }
-
-        // Theme
-        updateProperty(lines, "themeMode", resolver("themeMode", "auto"))
-        updateProperty(lines, "themePrimaryColor", resolver("themePrimaryColor", "#0d6efd"))
-        updateProperty(lines, "themeSecondaryColor", resolver("themeSecondaryColor", "#6c757d"))
-        updateProperty(lines, "themeFontFamily", resolver("themeFontFamily", ""))
-        updateProperty(lines, "themeLogoUrl", resolver("themeLogoUrl", ""))
-        updateProperty(lines, "themeFaviconUrl", resolver("themeFaviconUrl", ""))
-        // Theme BKY-IA-2 — variante catalogue + propriétés étendues
-        updateProperty(lines, "themeVariant", resolver("themeVariant", ""))
-        updateProperty(lines, "themeAccentColor", resolver("themeAccentColor", ""))
-        updateProperty(lines, "themeBackgroundColor", resolver("themeBackgroundColor", ""))
-        updateProperty(lines, "themeTextColor", resolver("themeTextColor", ""))
-        updateProperty(lines, "themeHeadingFont", resolver("themeHeadingFont", ""))
-
-        // Layout
-        updateProperty(lines, "layoutType", resolver("layoutType", "FULL_WIDTH"))
+        configInjectors.values.forEach { it.inject(lines, resolver) }
 
         jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
         logger.lifecycle("✓ Injected resolved config into jbake.properties")
-    }
-
-    private fun updateProperty(lines: MutableList<String>, key: String, value: String) {
-        val idx = lines.indexOfFirst { it.startsWith("$key=") }
-        if (idx >= 0) {
-            lines[idx] = "$key=$value"
-        } else {
-            lines.add("$key=$value")
-        }
     }
 
     /**

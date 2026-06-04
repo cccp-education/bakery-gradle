@@ -903,3 +903,8 @@ Session polish courte. 1 code smell résolu + 1 audité = faux positif.
 === Leçon
 
 CS-9 a révélé que la "code review" brute (grep var) n'est pas toujours applicable sans contexte d'architecture. Les DSL Gradle sont un cas d'exception validé. La méthodologie baby-step (compilation + tests entre chaque changement) a permis de détecter le faux positif avant toute modification.
+
+== Session 074 — 2026-06-04
+
+* [x] CS-4 Pattern Strategy injectConfig — `injectResolvedConfigIntoJbakeProperties()` 79→22 lignes. 3 fichiers créés (`injection/` package).
+* [x] CS-5 Générifier ConfigResolver — `resolve<T>` générique + Scope pattern. 339→327 lignes.
