@@ -2,6 +2,7 @@ package bakery
 
 import bakery.article.GenerateArticleTask
 import bakery.llm.IaConfig
+import bakery.llm.LlmService
 import bakery.llm.OllamaLlmService
 import bakery.scaffold.GenerateSiteFromIntentionTask
 import bakery.scaffold.ScaffoldIntentionDsl
@@ -47,19 +48,8 @@ object ContentTaskRegistrar {
                 }
             }
 
-            if (iaConfig.enabled) {
-                task.llmService = OllamaLlmService.create(
-                    baseUrl = iaConfig.baseUrl,
-                    modelName = iaConfig.modelName,
-                    timeout = iaConfig.timeout
-                )
-                project.logger.info(
-                    "[BakeryPlugin] generateArticle IA activé : {} @ {}",
-                    iaConfig.modelName, iaConfig.baseUrl
-                )
-            } else {
-                project.logger.info("[BakeryPlugin] generateArticle IA désactivé (ia.enabled = false)")
-            }
+            createLlmServiceIfEnabled(iaConfig) { task.llmService = it }
+            project.logger.info("[BakeryPlugin] generateArticle IA ${if (iaConfig.enabled) "activé" else "désactivé (ia.enabled = false)"}")
         }
     }
 
@@ -95,19 +85,8 @@ object ContentTaskRegistrar {
                 }
             }
 
-            if (iaConfig.enabled) {
-                task.llmService = OllamaLlmService.create(
-                    baseUrl = iaConfig.baseUrl,
-                    modelName = iaConfig.modelName,
-                    timeout = iaConfig.timeout
-                )
-                project.logger.info(
-                    "[BakeryPlugin] generateSiteFromIntention IA activé : {} @ {}",
-                    iaConfig.modelName, iaConfig.baseUrl
-                )
-            } else {
-                project.logger.info("[BakeryPlugin] generateSiteFromIntention IA désactivé (ia.enabled = false)")
-            }
+            createLlmServiceIfEnabled(iaConfig) { task.llmService = it }
+            project.logger.info("[BakeryPlugin] generateSiteFromIntention IA ${if (iaConfig.enabled) "activé" else "désactivé (ia.enabled = false)"}")
         }
     }
 
@@ -178,19 +157,23 @@ object ContentTaskRegistrar {
             task.resolvedAuthConfig = resolvedFirebaseAuth
             task.resolvedContactConfig = resolvedFirebaseContact
 
-            if (iaConfig.enabled) {
-                task.llmService = OllamaLlmService.create(
-                    baseUrl = iaConfig.baseUrl,
-                    modelName = iaConfig.modelName,
-                    timeout = iaConfig.timeout
-                )
-                project.logger.info(
-                    "[BakeryPlugin] validateFirebaseConfig IA activé : {} @ {}",
-                    iaConfig.modelName, iaConfig.baseUrl
-                )
-            } else {
-                project.logger.info("[BakeryPlugin] validateFirebaseConfig IA désactivé (ia.enabled = false)")
-            }
+            createLlmServiceIfEnabled(iaConfig) { task.llmService = it }
+            project.logger.info("[BakeryPlugin] validateFirebaseConfig IA ${if (iaConfig.enabled) "activé" else "désactivé (ia.enabled = false)"}")
+        }
+    }
+
+    /** Construit un [LlmService] si l'IA est activée et l'injecte via [applyService]. */
+    private inline fun createLlmServiceIfEnabled(
+        iaConfig: IaConfig,
+        applyService: (LlmService) -> Unit
+    ) {
+        if (iaConfig.enabled) {
+            val service = OllamaLlmService.create(
+                baseUrl = iaConfig.baseUrl,
+                modelName = iaConfig.modelName,
+                timeout = iaConfig.timeout
+            )
+            applyService(service)
         }
     }
 }

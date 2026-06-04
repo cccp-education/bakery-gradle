@@ -30,6 +30,7 @@ import java.io.File
 class LensPipelineService {
 
     private val logger: Logger = Logging.getLogger(LensPipelineService::class.java)
+    private val mapper = jacksonObjectMapper()
 
     /**
      * Exécute le pipeline LENTILLE complet.
@@ -70,10 +71,6 @@ class LensPipelineService {
             null
         }
 
-        if (compositeContext == null && contextFile.exists()) {
-            logger.info("[LensPipeline] composite-context.json trouvé mais invalide à {}.", contextFile.absolutePath)
-        }
-
         // 2. Extraire le sous-graphe depuis graph.json
         val extractor = SubgraphExtractor()
         val subgraph = if (graphFile.exists()) {
@@ -86,6 +83,7 @@ class LensPipelineService {
 
         // 3. RAG results — le canal RAG du composite-context fournit le contenu textuel,
         //    pas des scores structurés. Les scores RAG viendront de pgvector via codebase-gradle.
+        // MVP0 — RAG scoring via pgvector pas encore implémenté. Viendra de codebase-gradle (N1).
         val ragResults: Map<String, Double> = emptyMap()
         if (compositeContext != null) {
             val channels = resolver.extractChannels(compositeContext)
@@ -121,21 +119,8 @@ class LensPipelineService {
 
         // 7. Écrire le JSON
         outputDir.mkdirs()
-        val mapper = jacksonObjectMapper()
-        val jsonMap = mapOf(
-            "version" to output.version,
-            "pipeline" to output.pipeline,
-            "budget" to mapOf(
-                "maxArticlesPerPage" to output.budget.maxArticlesPerPage,
-                "minSimilarity" to output.budget.minSimilarity
-            ),
-            "scoredNodes" to output.scoredNodes,
-            "totalCandidates" to output.totalCandidates,
-            "totalAfterRules" to output.totalAfterRules,
-            "totalAfterBudget" to output.totalAfterBudget
-        )
         mapper.writerWithDefaultPrettyPrinter()
-            .writeValue(outputDir.resolve("augmented-context.json"), jsonMap)
+            .writeValue(outputDir.resolve("augmented-context.json"), output)
 
         logger.info(
             "[LensPipeline] {} nœuds scorés → {} après règles → {} après budget → {}",

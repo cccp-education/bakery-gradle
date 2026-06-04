@@ -1,5 +1,22 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 081 — 2026-06-04 — CS-FIN-2 Jackson + CS-FIN-3 Nettoyage DRY
+
+**Contexte** : Derniers 2.5 pts de finalisation bakery — 28/28 EPICs ✅, 22/22 code smells résolus.
+
+**Tâches réalisées** :
+
+* [x] CS-FIN-2 (P1, 1.5 pts) — Jackson sérialisation directe `LensPipelineOutput` via `mapper.writeValue(file, output)`
+* [x] CS-FIN-3 (P2, 1 pt) — 5 micro-fix : CS-14 code mort supprimé, CS-15 commentaire ragResults MVP0, CS-17 println→logger, CS-19 mapper champ privé, CS-20 extraction `createLlmServiceIfEnabled`
+* [x] Test unitaire `LensPipelineServiceTest.serializes directly via Jackson with complex content` — round-trip désérialisation
+
+**Fichiers modifiés** : `LensPipelineService.kt`, `DeployTaskRegistrar.kt`, `ContentTaskRegistrar.kt`, `LensPipelineServiceTest.kt`
+**Fichiers créés** : `.agents/sessions/081-cs-fin-2-3-jackson-cleanup.adoc`
+
+**Résultats** : 664+ JUnit5 PASS, 129 Cucumber PASS, 17 E2E PASS. BUILD SUCCESSFUL. Bakery 100% terminé.
+
+'''
+
 == Session 076 — 2026-06-04 — Investigation BKY-IA-2 + Préparation EPIC 13
 
 **Contexte** : Reprise bakery avec PROMPT_REPRISE. BKY-IA-2 déjà TERMINÉ (divergence documentaire BACKLOG/PROMPT_REPRISE corrigée). Préparation EPIC 13 coverage 73%→75%.

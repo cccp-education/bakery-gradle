@@ -82,12 +82,10 @@ object DeployTaskRegistrar {
 
         // Logging et copie
         uiDir.absolutePath
-            .apply(logger::info)
-            .run(::println)
+            .apply(logger::lifecycle)
 
         uiBuildDir.path
-            .apply(logger::info)
-            .run(::println)
+            .apply(logger::lifecycle)
 
         uiDir.copyRecursively(uiBuildDir, overwrite = true)
     }

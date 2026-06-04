@@ -180,6 +180,46 @@ class LensPipelineServiceTest {
     }
 
     @Nested
+    @DisplayName("Jackson Serialization — CS-FIN-2")
+    inner class JacksonSerialization {
+
+        @Test
+        @DisplayName("sérialise LensPipelineOutput directement via Jackson avec contenu complexe")
+        fun `serializes directly via Jackson with complex content`() {
+            val config = dsl(enabled = true)
+            val outputDir = tempDir.resolve("output")
+            createEmptyGraphJson()
+            createEmptyCompositeContext()
+
+            val result = service.execute(
+                config,
+                tempDir.resolve("composite-context.json"),
+                tempDir.resolve("graph.json"),
+                outputDir
+            )
+
+            // Le JSON doit être lisible et désérialisable
+            val jsonFile = outputDir.resolve("augmented-context.json")
+            assertThat(jsonFile).exists()
+
+            val mapper = com.fasterxml.jackson.module.kotlin.jacksonObjectMapper()
+            val roundTrip = mapper.readValue(
+                jsonFile.readText(Charsets.UTF_8),
+                LensPipelineOutput::class.java
+            )
+
+            assertThat(roundTrip.version).isEqualTo("1.0")
+            assertThat(roundTrip.pipeline).isEqualTo("LENS")
+            assertThat(roundTrip.budget.maxArticlesPerPage).isEqualTo(4)
+            assertThat(roundTrip.budget.minSimilarity).isEqualTo(0.7)
+            assertThat(roundTrip.totalCandidates).isEqualTo(0)
+            assertThat(roundTrip.totalAfterRules).isEqualTo(0)
+            assertThat(roundTrip.totalAfterBudget).isEqualTo(0)
+            assertThat(roundTrip.scoredNodes).isEmpty()
+        }
+    }
+
+    @Nested
     @DisplayName("LensPipelineOutput — data class")
     inner class OutputModel {
 

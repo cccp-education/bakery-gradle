@@ -10,15 +10,14 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 [cols="2,3"]
 |===
 | Métrique | Valeur
-| Couverture Kover | *77.09%* — seuil 70% (session 071, après split CS-1)
+| Couverture Kover | *~77%* — seuil 70% (stable, session 081)
 | Seuil configuré | 70% (dans `build.gradle.kts` → `koverThresholdCheck`)
-| Tests unitaires JUnit5 | 136 fichiers, 559+ tests — ~38s (session 068, Cucumber exclu de `test` task)
-| Tests fonctionnels (TestKit) | 7 fichiers, 61/61 FT PASS (0 échec) — ajouts : ScaffoldIntentionFunctionalTests (5 FT)
-| Tests Cucumber BDD | 26 features, 84 scénarios — ajouts : Feature 25 (3 scénarios scaffold IA)
+| Tests unitaires JUnit5 | 137 fichiers, 664+ tests — ~38s (Cucumber exclu de `test` task)
+| Tests fonctionnels (TestKit) | 7 fichiers, 61/61 FT PASS
+| Tests Cucumber BDD | 26 features, 129 scénarios — tous PASS
 | Tests E2E Playwright | 5 fichiers, 17/17 PASS — séparés de `check`
 | Compilation | ✅ BUILD SUCCESSFUL — Gradle 9.5.1, Kotlin 2.3.20, Java 24, zéro warning
-| Évolution EPIC 11 | ✅ Session 064 — `test` task 2m46s→38s (-77%). Cucumber séparé dans `cucumberTest` dédiée. `koverThresholdCheck` fixé (dependsOn koverXmlReport).
-| Évolution Session 080 | ✅ CS-FIN-1 : 2 tests `AbsentConfigPathTest` + 7 tests `JsonEscapeForPropertiesTest` = +9 tests JUnit5 (656→663). 0 régression. BUILD SUCCESSFUL.
+| Évolution Session 081 | ✅ CS-FIN-2 + CS-FIN-3 terminés. Aucun test ajouté hormis 1 UT LensPipelineService. Coverage stable ~77%.
 |===
 | Métrique | Valeur
 | Couverture Kover | *73.13%* — seuil 70% (session 064)

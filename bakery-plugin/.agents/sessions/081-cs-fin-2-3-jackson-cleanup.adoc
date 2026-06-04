@@ -1,0 +1,32 @@
+= Session 081 — 2026-06-04 — CS-FIN-2 (Jackson direct) + CS-FIN-3 (Nettoyage DRY)
+
+**Contexte** : Reprise bakery-gradle avec PROMPT_REPRISE. Derniers 2.5 pts de finalisation — bakery 100% polish.
+
+**Tâches réalisées** :
+
+* [x] CS-FIN-2 (P1, 1.5 pts) — Jackson sérialisation directe :
+  ** `LensPipelineService.kt` : champ privé `mapper = jacksonObjectMapper()` (CS-19) + remplacement `mapOf` manuel par `mapper.writeValue(file, output)`
+  ** `LensPipelineServiceTest.kt` : nouveau test `serializes directly via Jackson with complex content` — round-trip désérialisation `LensPipelineOutput`
+* [x] CS-FIN-3 (P2, 1 pt) — 5 micro-fix nettoyage :
+  ** CS-14 : suppression code mort `compositeContext == null && contextFile.exists()` (lignes 73-75)
+  ** CS-15 : commentaire KDoc `ragResults = emptyMap()` — « MVP0 — RAG scoring via pgvector pas encore implémenté. Viendra de codebase-gradle (N1). »
+  ** CS-17 : `println()` → `logger.lifecycle()` dans `DeployTaskRegistrar.kt` (2 lignes)
+  ** CS-19 : `jacksonObjectMapper()` champ privé réutilisé dans `LensPipelineService`
+  ** CS-20 : extraction `createLlmServiceIfEnabled(iaConfig, applyService)` inline privée dans `ContentTaskRegistrar.kt`, 3 duplications remplacées
+
+**Fichiers modifiés** :
+* `src/main/kotlin/bakery/lens/LensPipelineService.kt` — 148→133 lignes (-15, -10%)
+* `src/main/kotlin/bakery/DeployTaskRegistrar.kt` — `println` → `logger.lifecycle`
+* `src/main/kotlin/bakery/ContentTaskRegistrar.kt` — extraction `createLlmServiceIfEnabled`
+* `src/test/kotlin/bakery/lens/LensPipelineServiceTest.kt` — +1 test JacksonSerialization
+
+**Résultats** :
+* Compilation : ✅ BUILD SUCCESSFUL, zero warning
+* Tests unitaires : 664+ JUnit5 PASS (7 LensPipelineService dont 1 nouveau)
+* Tests Cucumber : 129 PASS
+* Tests E2E : 17 PASS
+* Coverage : >75% seuil ✅ (pas de régression)
+
+**Décisions** :
+* Bakery est maintenant 100% terminé — 28/28 EPICs ✅, 22/22 code smells résolus (12 historiques + 10 v3)
+* Prochaine action : switch borough (suggestion : runner-gradle N3 ou codebase-gradle N1)

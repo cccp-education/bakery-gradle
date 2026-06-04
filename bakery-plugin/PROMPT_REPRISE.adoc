@@ -1,33 +1,22 @@
-= PROMPT_REPRISE — Session 081 : CS-FIN-2 (JSON escape Jackson) + CS-FIN-3 (nettoyage DRY)
+= PROMPT_REPRISE — Bakery 100% TERMINÉ
 
-== Mission (Session 081)
+== Mission
 
-**Objectif** : Terminer les 2 derniers code smells de finalisation (CS-FIN-2 + CS-FIN-3, 2.5 pts).
+Bakery-gradle est **100% complet** — 28/28 EPICs ✅, 22/22 code smells résolus.
 
-*CS-FIN-2 (P1, 1.5 pts)* :
-- LensPipelineService ligne 125-136 : remplacer le `mapOf` manuel par `mapper.writeValue(file, output)` (LensPipelineOutput data class)
-- Ajouter test unitaire avec JSON complexe (Unicode, guillemets, `\n` littéral)
+== Statut
 
-*CS-FIN-3 (P2, 1 pt)* :
-- CS-14 : Supprimer code mort LensPipelineService.kt:73-75 (condition impossible)
-- CS-15 : Documenter `ragResults: Map<String, Double> = emptyMap()` avec commentaire
-- CS-17 : Remplacer `println()` par `logger.lifecycle()` dans DeployTaskRegistrar
-- CS-19 : Réutiliser `jacksonObjectMapper()` comme champ privé dans LensPipelineService
-- CS-20 : Extraire `createLlmServiceIfEnabled(iaConfig, logger)` dans ContentTaskRegistrar
+- EPICs : 28/28 ✅ (100%)
+- Code smells : 22/22 ✅ (100%)
+- Tests : 664+ JUnit5 PASS, 129 Cucumber PASS, 17 E2E PASS
+- Coverage : >75% ✅
+- Build : zero warning
 
-== État bakery (Session 080)
+== Prochaine session
 
-- **EPICs** : 28/28 ✅ (100%)
-- **Code smells** : 10/22 résolus (CS-FIN-1 ✅, CS-1→12 ✅)
-- **Smells restants** : 8 → CS-FIN-2 (1.5 pts), CS-FIN-3 (1 pt), CS-18 accepté
-- **Build** : ✅ Zéro warning
-- **Tests** : 663 JUnit5 PASS, 129 Cucumber PASS, ~55 FT PASS, ~17 E2E PASS
-- **Coverage** : 77.25% (seuil 75% ✅)
+Switch borough recommandé :
+- `runner-gradle` (New Jersey, N3) — assembleCompositeContext à migrer
+- `codebase-gradle` (Queens, N1) — RAG socle pgvector
+- `training-gradle` (Newark, N2) — pipeline formation
 
-== Méthodologie obligatoire — Baby Steps DDD/TDD/BDD
-
-1. DDD — Identifier le comportement manquant
-2. TDD — Test unitaire AVANT implémentation
-3. BDD — Cucumber si comportement utilisateur
-4. Vérification — `./gradlew test` après chaque fichier
-5. Coverage — `./gradlew koverXmlReport koverPrintCoverage` après chaque ajout
+Aucune tâche bakery restante.
