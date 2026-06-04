@@ -58,6 +58,25 @@ class BakeryWorld {
         .also { buildResult = it }
 
     /**
+     * Exécute une tâche Gradle en capturant l'exception si elle échoue.
+     * Utile pour les scénarios Cucumber qui testent les cas d'erreur.
+     */
+    fun executeGradleExpectingFailure(vararg tasks: String) {
+        require(projectDir != null) { "Project directory must be initialized" }
+        log.info("Starting Gradle execution (expecting failure): ${tasks.joinToString(" ")}")
+        try {
+            buildResult = create()
+                .withProjectDir(projectDir!!)
+                .withArguments(tasks.toList() + "--stacktrace")
+                .withPluginClasspath()
+                .build()
+        } catch (e: Exception) {
+            log.error("Gradle build failed as expected", e)
+            exception = e
+        }
+    }
+
+    /**
      * Exécute une action avec un timeout
      */
     suspend fun <T> withTimeout(seconds: Long, block: suspend () -> T)

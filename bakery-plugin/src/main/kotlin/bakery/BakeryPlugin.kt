@@ -28,6 +28,14 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import java.io.File
 
+internal fun Project.registerVerifyConfigurationMappingTask(configPath: String) {
+    tasks.register("verifyConfigurationMapping", VerifyConfigurationMappingTask::class.java) { task ->
+        task.group = "verification"
+        task.description = "Valide le mapping YAML site.yml → SiteConfiguration et masque les secrets"
+        task.configPath.set(configPath)
+    }
+}
+
 
 class BakeryPlugin : Plugin<Project> {
 
@@ -47,6 +55,16 @@ class BakeryPlugin : Plugin<Project> {
             val isGradlePropertiesEnabled = bakeryExtension.configPath.isPresent
 
             project.configureConfigPath(bakeryExtension, isGradlePropertiesEnabled)
+
+            // US-61a — verifyConfigurationMapping est enregistrée AVANT le
+            // branchement scaffold/fullPipeline pour être disponible dans les
+            // deux modes. Si configPath est absent, on n'enregistre pas la tâche
+            // (elle n'a pas de fichier à vérifier).
+            if (bakeryExtension.configPath.isPresent) {
+                project.registerVerifyConfigurationMappingTask(
+                    bakeryExtension.configPath.get()
+                )
+            }
 
             // CS-FIN-1 (CS-21) — Guard `isPresent` avant `get()`.
             // Si l'utilisateur n'a défini `configPath` NI dans le DSL, NI dans

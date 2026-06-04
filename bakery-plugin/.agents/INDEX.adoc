@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-04 — Session 081 (CS-FIN-2 Jackson + CS-FIN-3 cleanup)
-  _Session terminee_ : 081
-  _Prochaine session_ : — Bakery 100% TERMINÉ, switch borough recommandé
+  _Derniere mise a jour_ : 2026-06-04 — Session 082 (US-61a VerifyConfigurationMapping)
+  _Session terminee_ : 082
+  _Prochaine session_ : 083 — US-61b phone field OR switch borough
   _Session en cours_ : — (fermee)
 
 '''

@@ -1,0 +1,93 @@
+= Session 082 — US-61a : VerifyConfigurationMappingTask — Tâche de vérification YAML sécurisé
+
+*Date* : 2026-06-04
+*Type* : feat + TDD + BDD + refactor
+*Score* : 9/10
+
+== Résumé
+
+Implémentation de l'US préliminaire US-61a — couverture de test pour le mapping Jackson YAML ↔ Gradle properties sécurisé. Cette tâche valide que `site.yml` se parse correctement en `SiteConfiguration`, masque les secrets dans les logs, et est intégrée dans le pipeline `verification`.
+
+== Problème identifié et résolu
+
+La tâche `verifyConfigurationMapping` était mentionnée dans `TODO.adoc` mais n'existait pas dans le code. L'`@xp` a identifié que la tâche devait être enregistrée dans `afterEvaluate` **avant** le branchement `if (!configFile.exists())` pour être disponible dans les deux modes (scaffoldOnly et fullPipeline).
+
+== Fichiers créés/modifiés
+
+|===
+| Fichier | Action
+| `src/main/kotlin/bakery/VerifyConfigurationMappingTask.kt` | **NOUVEAU** — Tâche Gradle `DefaultTask` custom avec `@Input configPath`, validation champs requis, masquage secrets (`***`)
+| `src/main/kotlin/bakery/BakeryPlugin.kt` | **Modifié** — Enregistrement tâche dans `afterEvaluate` avant branchement scaffold/fullPipeline (+18 lignes)
+| `src/test/kotlin/bakery/VerifyConfigurationMappingTaskTest.kt` | **NOUVEAU** — 11 tests unitaires (ValidConfig 4 + ErrorHandling 3 + Masking 2 + EdgeCases 2)
+| `src/functionalTest/kotlin/bakery/VerifyConfigurationMappingFunctionalTest.kt` | **NOUVEAU** — 3 tests fonctionnels Gradle TestKit (succeeds, fails missing, registered in verification group)
+| `src/test/features/verify_configuration_mapping.feature` | **NOUVEAU** — 3 scénarios Gherkin (valid config + malformed YAML + missing file)
+| `src/test/scenarios/bakery/scenarios/VerifyConfigurationMappingSteps.kt` | **NOUVEAU** — Steps Cucumber avec capture d'exception
+| `src/test/scenarios/bakery/scenarios/BakeryWorld.kt` | **Modifié** — Ajout `executeGradleExpectingFailure()` (+19 lignes)
+|===
+
+== Baby Steps DDD/TDD/BDD
+
+. **DDD** — Définir le comportement : tâche `verification` groupe, parse YAML, valide champs requis, masque secrets
+. **TDD Unit** — 11 tests RED→GREEN : parsing valide, champs manquants, YAML malformé, masquage credentials.password + firebase.apiKey
+. **TDD Functional** — 3 FT Gradle TestKit : succeeds, fails, group verification
+. **BDD Cucumber** — 3 scénarios Gherkin + steps avec `@TempDir`
+. **Intégration** — Hook dans `BakeryPlugin.kt` (`afterEvaluate` avant branchement)
+. **Vérification** — `BUILD SUCCESSFUL`, tous tests PASS
+
+== Résultats
+
+```
+BUILD SUCCESSFUL in 9m 21s
+24 actionable tasks: 13 executed, 11 up-to-date
+
+Instruction coverage: 76.15% (missed=28925, covered=92330)
+✅ Au-dessus du seuil 70%
+```
+
+* Tests unitaires JUnit5 : 673+ PASS (+11 nouveaux)
+* Tests fonctionnels : 55+ PASS (+3 nouveaux)
+* Tests Cucumber : 132 PASS (+3 nouveaux, 129 existants)
+* Tests E2E Playwright : 17 PASS (inchangé)
+* Coverage Kover : 76.15% (+1.15pp)
+* Compilation : zero warning
+
+== Décisions techniques
+
+. **Groupe `verification`** — conforme à la spec `TODO.adoc`
+. **DefaultTask custom** — pas d'héritage de `Test`
+. **Masquage `***`** — credentials.password + pushMaquette.password + firebase.apiKey
+. **`@TempDir`** dans tous les tests — zero touch au `site.yml` réel
+. **`DisableCachingByDefault`** — résultat dépend du fichier de configuration
+. **Enregistrement avant branchement** — disponible en mode scaffoldOnly ET fullPipeline
+
+== Code Smells résolus
+
+* `TODO.adoc` item "verifyConfigurationMapping" — ✅ implémenté
+* Absence de tâche de validation YAML dans le pipeline — ✅ comblée
+
+== Métriques
+
+|===
+| Métrique | Valeur
+| Tests JUnit5 | 673 PASS (+11)
+| Tests fonctionnels | 55 PASS (+3)
+| Cucumber | 132 PASS (+3)
+| E2E | 17 PASS (inchangé)
+| Coverage Kover | 76.15%
+| Warnings compile | 0
+| Fichiers créés | 5
+| Fichiers modifiés | 2
+|===
+
+== Apprentissage
+
+. La tâche doit être enregistrée **avant** le branchement `if (!configFile.exists())` pour être accessible dans les deux modes.
+. `@DisableCachingByDefault` est requis sur les tâches de validation de fichiers externes pour éviter les faux positifs en cache.
+. Le masquage des secrets dans les logs est une responsabilité de la tâche elle-même, pas du plugin — cela garantit la sécurité même en mode `--info`.
+. `ProjectBuilder` + `@TempDir` permettent de tester la tâche sans toucher au `site.yml` réel qui contient des secrets.
+
+== Prochaine session
+
+* Prochain numéro de session : **083**
+* US-61b : Ajouter le champ `phone` dans le formulaire de contact (template `contact.thyme` + `site.yml` schema + validation)
+* OU switch borough recommandé (runner-gradle, codebase-gradle, training-gradle)

@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise a jour : 2026-06-04 — Session 071_
+_Dernière mise à jour : 2026-06-04 — Session 082_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -10,14 +10,14 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 [cols="2,3"]
 |===
 | Métrique | Valeur
-| Couverture Kover | *~77%* — seuil 70% (stable, session 081)
+| Couverture Kover | *76.15%* — seuil 70% (session 082, +1.15pp)
 | Seuil configuré | 70% (dans `build.gradle.kts` → `koverThresholdCheck`)
-| Tests unitaires JUnit5 | 137 fichiers, 664+ tests — ~38s (Cucumber exclu de `test` task)
-| Tests fonctionnels (TestKit) | 7 fichiers, 61/61 FT PASS
-| Tests Cucumber BDD | 26 features, 129 scénarios — tous PASS
+| Tests unitaires JUnit5 | 138 fichiers, 673+ tests — ~38s (Cucumber exclu de `test` task)
+| Tests fonctionnels (TestKit) | 8 fichiers, 61/61 FT PASS (+3 VerifyConfigurationMapping)
+| Tests Cucumber BDD | 27 features, 132 scénarios — tous PASS (+3)
 | Tests E2E Playwright | 5 fichiers, 17/17 PASS — séparés de `check`
 | Compilation | ✅ BUILD SUCCESSFUL — Gradle 9.5.1, Kotlin 2.3.20, Java 24, zéro warning
-| Évolution Session 081 | ✅ CS-FIN-2 + CS-FIN-3 terminés. Aucun test ajouté hormis 1 UT LensPipelineService. Coverage stable ~77%.
+| Évolution Session 082 | ✅ US-61a terminée. VerifyConfigurationMappingTask + 17 tests. Coverage 76.15%.
 |===
 | Métrique | Valeur
 | Couverture Kover | *73.13%* — seuil 70% (session 064)
