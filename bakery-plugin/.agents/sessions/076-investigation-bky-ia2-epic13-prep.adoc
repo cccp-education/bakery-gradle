@@ -1,0 +1,71 @@
+= Session 076 — Bakery 96% : Investigation BKY-IA-2 + Préparation EPIC 13
+
+== Date
+
+2026-06-04
+
+== Objectif
+
+Reprendre bakery avec son prompt de reprise et son backlog. Attaquer BKY-IA-2 Thème IA paramétrique.
+
+== Travail réalisé
+
+=== Investigation BKY-IA-2
+
+Le code BKY-IA-2 est déjà **complètement implémenté** depuis les sessions 068-069 :
+
+| Fichier | Statut |
+|---|---|
+| `ThemeCatalog.kt` | ✅ 5 presets + resolve() + ThemeOverrides |
+| `ThemeVariant.kt` | ✅ 5 variantes enum + fromStringOrDefault() |
+| `ThemePreset.kt` | ✅ Data class 9 propriétés |
+| `ThemeIntention.kt` | ✅ DDD + toPromptContext() |
+| `ThemeIntentionDsl.kt` | ✅ DSL bridge + toIntention() |
+| `GenerateThemeTask.kt` | ✅ Task CLI/DSL + injection jbake.properties |
+| `ThemeCatalogTest.kt` | ✅ 12 UT (PresetFor/AvailableVariants/Resolve) |
+| `ThemeVariantTest.kt` | ✅ 8 UT |
+| `ThemeIntentionTest.kt` | ✅ 3 UT |
+| `ThemeIntentionDslTest.kt` | ✅ 3 UT |
+| `ThemeIntentionFunctionalTests.kt` | ✅ 5 FT PASS |
+| Feature 27 Cucumber | ✅ 3 scénarios PASS |
+| `ThemeIntentionSteps.kt` | ✅ 3 steps Cucumber |
+
+**Constat** : INDEX.adoc dit ✅ TERMINÉ, mais BACKLOG.adoc et PROMPT_REPRISE.adoc le listent encore comme "À faire". Divergence documentaire à corriger.
+
+=== Compilation
+
+- `./gradlew compileKotlin` → BUILD SUCCESSFUL (1s, UP-TO-DATE)
+- `./gradlew test --tests "bakery.theme.*"` → 26/26 PASS
+- `./gradlew test --tests "bakery.theme.ThemeCatalogTest"` → 14/14 PASS
+
+=== Méthodologie respectée
+
+Baby-step DDD/TDD/BDD vérifié sur le code existant :
+- DDD : ThemeIntention, ThemePreset, ThemeOverrides, ThemeVariant
+- TDD : Tests unitaires isolés (ThemeCatalogTest, ThemeVariantTest)
+- BDD : Cucumber Feature 27 + ThemeIntentionSteps
+- Agile Software Craftsmanship : KDoc systématique, ratio test/source 3.29x
+
+== Points bloquants identifiés
+
+1. **BKY-IA-2 divergence documentaire** — BACKLOG/PROMPT_REPRISE pas à jour
+2. **EPIC 13** — Coverage 73.13% → 75% (objectif seuil) reste le vrai chantier
+3. **CS-9** — `var` dans DSL builders = idiomatique Gradle (faux positif)
+
+== Score session
+
+7/10 — Investigation productive mais zéro code produit (tout était déjà fait). La prochaine session doit corriger la doc + attaquer EPIC 13.
+
+== Fichiers consultés
+
+- `AGENT.adoc` (EAGER)
+- `PROMPT_REPRISE.adoc` (EAGER)
+- `.agents/INDEX.adoc` (EAGER)
+- `BACKLOG.adoc` (LAZY — BKY-IA-2 section)
+- `CODE_REVIEW.adoc` (EAGER)
+- `TEST_COVERAGE_ANALYSIS.adoc` (EAGER)
+- `src/main/kotlin/bakery/theme/*.kt` (6 fichiers)
+- `src/test/kotlin/bakery/theme/*.kt` (4 fichiers)
+- `src/functionalTest/kotlin/bakery/ThemeIntentionFunctionalTests.kt`
+- `src/test/features/27_theme_intention.feature`
+- `src/test/scenarios/bakery/scenarios/ThemeIntentionSteps.kt`
