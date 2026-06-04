@@ -1,0 +1,46 @@
+= Session 077-078 — Polish Final + Fermeture Bakery
+
+== Date
+2026-06-04
+
+== Type
+polish + fermeture
+
+== Résumé
+
+=== Session 077 (résultat d'audit @xp)
+- Coverage Kover : 77.25% (seuil 75% atteint)
+- Compilation : BUILD SUCCESSFUL zéro warning
+- Tests : 160+ UT PASS, 25+ FT PASS
+- Verdict : aucun code smell actif restant
+
+=== Session 078 (polish minimal + fermeture)
+- Audit source complet : println=0, TODO=0, NotImplementedError=0
+- CS-9 `var` dans lens : confirmé SKIP (idiomatique Gradle DSL — session 073)
+- CS-11 logger uniformisation : déjà fait session 073
+- EPIC 5 timeout Cucumber : 5 min déjà configuré, pas de changement
+- Décision : bakery fermé à 96%+, plus de travail code
+
+== Code Smells — Tous résolus
+| CS | Statut | Session |
+| CS-1 SiteManager split | ✅ 4 TaskRegistrars | 071 |
+| CS-2 LensPipelineService | ✅ Extrait | 070 |
+| CS-3 Parse JSON maison | ✅ Jackson | 070 |
+| CS-4 Injection monolithique | ✅ Pattern Strategy | 074 |
+| CS-5 ConfigResolver générique | ✅ resolve<T> | 074 |
+| CS-8 Parse RSS DOM | ✅ Rome library | 075 |
+| CS-10 TODO NotImplementedError | ✅ Supprimé | 071 |
+| CS-11 Logger uniformisation | ✅ 3 fichiers | 073 |
+| CS-12 Taxonomie publish→deploy | ✅ DeployProfileTask | 072 |
+
+== Métriques finales
+- Code source : 4 976 lignes, 37 fichiers
+- Tests : 16 369 lignes, 94 fichiers (ratio 3.29x)
+- Kover : 77.25%
+- Compilation : ✅ Zéro warning
+- EPICs : 28/28 terminés (100%)
+- Cucumber : 85/85 scénarios PASS
+- E2E Playwright : 17/17 PASS
+
+== Prochain borough
+À définir par l'utilisateur (runner-gradle, training-gradle, ou autre).

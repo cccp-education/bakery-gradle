@@ -43,3 +43,6 @@
 |===
 
 _Archives_ : Sessions 7-039 archivées dans `.agents/backup/Y2026-sessions-051-060/`
+
+| 077 | 2026-06-04 | polish | EPIC 13 coverage 73%→77.25% + audit final | 9/10 |
+| 078 | 2026-06-04 | fermeture | Audit source complet, bakery fermé à 96%+ | — |

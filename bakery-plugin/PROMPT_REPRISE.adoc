@@ -1,27 +1,27 @@
-= PROMPT_REPRISE — Session 078 : Bakery Polish Final ou Switch Borough
+= PROMPT_REPRISE — Session 079 : Switch Borough (à définir)
 
-== Mission (Session 078)
+== Mission (Session 079)
 
-**EPIC 13 ✅ TERMINÉ** — Coverage 73.13% → 77.25% (seuil 75% atteint).
-Bakery est maintenant **96%+ complet**. Tous les EPICs P0 terminés.
+**Bakery est FERMÉ** — 28/28 EPICs terminés, 77.25% coverage.
+Prochaine mission : reprendre un autre borough du workspace.
 
-== État actuel (Session 077 TERMINÉE)
+== État de fermeture Bakery (Session 078)
 
-- **EPIC 13** ✅ TERMINÉ — 4 tests ajoutés, coverage +4.12pp
-- **Bakery global** : 96% complet, 25/28 EPICs terminés, 3 restants = polish
-- **Reste** :
-  * CS-9 : `var` → `val` dans lens package (0.5 session, P2) — immutabilité
-  * CS-11 : Uniformisation logger `println` restants (0.5 session, P2)
-  * EPIC 6 : Nettoyage build consommateur cheroliv.com (hors périmètre bakery)
-- **Tests** : 77.25% Kover, tous PASS (UT/FT/Cucumber/E2E)
+- **EPICs** : 28/28 ✅ (100%)
+- **Coverage** : 77.25% Kover
+- **Tests** : 160+ UT + 25 FT + 85 Cucumber + 17 E2E = tous PASS
+- **Build** : ✅ Zéro warning
+- **Code smells** : Tous résolus (CS-1→12)
 
-== Décision à prendre en début de session
+== Boroughs candidats (priorité à définir par l'utilisateur)
 
-| Option | Action | Durée |
-|---|---|---|
-| A — Polish | CS-9 `var`→`val` + CS-11 logger cleanup | 1 session |
-| B — Switch | Fermer bakery, passer à autre borough (runner-gradle, training-gradle, etc.) | 0 |
-| C — Mix | 1 polish rapide (CS-9) puis switch | 0.5 session |
+| Borough | Projet | DAG | Statut | Pourquoi le reprendre |
+|---|---|---|---|---|
+| New Jersey | `runner-gradle` | N3 | Session 011 — EPIC B clean | Orchestration DAG, provisioning CLI, deploy gh-pages. Cœur du pipeline MVP0. |
+| Newark 🔴 | `training-gradle` | N2 | Session 010 — 6/8 EPICs | Pipeline formation SPG→Slides→Formulaires→Factures. Livrable MVP0 Graal. |
+| Brooklyn | `codex-gradle` | N2 | Session 018 — CDX-12 pgvector e2e | Asciidoctor→PDF, pipeline documentaire. Dépend du MVP0. |
+| Manhattan | `planner-gradle` | N2 | Session 008 — 24/24 tests PASS | LLM SPG/SPD generation. Point d'entrée MVP0. |
+| Queens | `codebase-gradle` | N1 | Session 046 — EPIC G + 3 | RAG socle, pgvector, anonymisation. Foundation N0/N1. |
 
 == Méthodologie obligatoire — Baby Steps DDD/TDD/BDD
 
@@ -31,8 +31,10 @@ Bakery est maintenant **96%+ complet**. Tous les EPICs P0 terminés.
 4. **Vérification** — `./gradlew test` doit passer après chaque fichier modifié
 5. **Coverage** — `./gradlew koverXmlReport koverPrintCoverage` après chaque ajout
 
-== Points d'attention
+== Procédure d'ouverture borough cible
 
-- **NE PAS** ajouter de nouvelle fonctionnalité — bakery est en mode polish/fermeture
-- **Rappel code review** : CS-4/CS-5/CS-8 déjà terminés. CS-1 (SiteManager split) déjà fait.
-- **But** : Atteindre 100% épurement bakery OU switcher avec un borough propre.
+1. Lire `SESSION_CHECKLIST.adoc` du borough cible
+2. Lire `AGENT.adoc` + `INDEX.adoc` + `PROMPT_REPRISE.adoc` du borough
+3. `git status` + `./gradlew compileKotlin` (ou `tasks`)
+4. Vérifier que le build compile avant de coder
+5. Identifier l'EPIC prioritaire dans le BACKLOG

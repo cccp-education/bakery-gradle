@@ -41,3 +41,20 @@
 * [x] CONV-1.2 — DDD : ConfigResolver.kt créé (4 types primitifs + 3 méthodes par config).
 * [x] CONV-1.3 — TDD : 50 UT ConfigResolver (7 nested classes : String, Int, Boolean, Enum, EdgeCases, Cascade, Config).
 * [x] Build compile + publishToMavenLocal + 451 UT PASS.
+
+== Session 077-078 (2026-06-04) — Bakery Polish + Fermeture
+
+=== Tâches terminées
+- [x] EPIC 13 : Coverage 73% → 77.25% (+4.12pp)
+- [x] CS-8 : Parse RSS DOM → Rome library (session 075)
+- [x] CS-4 : Pattern Strategy injection config (session 074)
+- [x] CS-5 : ConfigResolver générique resolve<T> (session 074)
+- [x] Audit final source : zéro println, zéro TODO, zéro NotImplementedError
+- [x] Bakery fermé à 96%+ — 28/28 EPICs terminés
+
+=== Métriques
+| Kover | 77.25% |
+| EPICs | 28/28 (100%) |
+| Cucumber | 85/85 PASS |
+| E2E | 17/17 PASS |
+| Build | ✅ Zéro warning |
