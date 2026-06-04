@@ -18,7 +18,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 | Tests E2E Playwright | 5 fichiers, 17/17 PASS — séparés de `check`
 | Compilation | ✅ BUILD SUCCESSFUL — Gradle 9.5.1, Kotlin 2.3.20, Java 24, zéro warning
 | Évolution EPIC 11 | ✅ Session 064 — `test` task 2m46s→38s (-77%). Cucumber séparé dans `cucumberTest` dédiée. `koverThresholdCheck` fixé (dependsOn koverXmlReport).
-| Évolution EPIC 13 | ✅ Session 071 — Coverage 73.13%→77.09% (+3.96%) après split SiteManager en 4 TaskRegistrars. Cible 75% dépassée sans nouveau test (FT/Cucumber couvrent indirectement les registrars).
+| Évolution EPIC 13 | ✅ Session 077 — Coverage 73.13%→77.25% (+4.12pp). 4 tests ajoutés ciblés (GitService.cleanupDir 3 + FileSystemManager.copyResourceDirectory 1). Baby steps DDD/TDD. Seuil 75% ✅ dépassé.
 |===
 | Métrique | Valeur
 | Couverture Kover | *73.13%* — seuil 70% (session 064)

@@ -3,6 +3,7 @@
   _Derniere mise a jour : 2026-06-04 — Session 076_
 
   |===
+  | 077 | 2026-06-04 | TDD + coverage | EPIC 13 TERMINÉ — Coverage Kover 73.13%→77.25% (+4.12pp). Baby steps DDD/TDD : 3 tests GitService.cleanupDir + 1 test FileSystemManager.copyResourceDirectory edge-case. Seuil 75% ✅ dépassé. Bakery 96%+ complet. | 8/10
   | 076 | 2026-06-04 | audit + investigation | Bakery 96% — Investigation BKY-IA-2 (déjà TERMINÉ — divergence doc corrigée). Préparation EPIC 13 coverage 73%→75%. Compilation OK. 26/26 theme tests PASS. | 7/10
   | 075 | 2026-06-04 | refactor + TDD | CS-8 Rome RSS parser — `SiteContextCollector.parseFeed()` DocumentBuilderFactory DOM 35 lignes → Rome (`SyndFeedInput` + `XmlReader`) 12 lignes. `parseRssDate()` supprimé (Rome gère nativement). `normalizeUrl()` extrait. Dépendance `com.rometools:rome:2.1.0` ajoutée. Compilation zéro warning. 7/7 SiteContextCollectorTest PASS, tests JUnit5 globaux PASS. Score 9/10. | 9/10
   | 074 | 2026-06-04 | refactor + TDD | CS-4 Pattern Strategy injectConfig — `injectResolvedConfigIntoJbakeProperties()` 79→22 lignes (-72%). 3 fichiers créés (`injection/` package : ConfigInjector, DomainConfigInjectors, PropertyUpdater). CS-5 Générifier ConfigResolver — `resolve<T>` générique + Scope pattern pour 5 aggrégats. 339→327 lignes. Theme/Firebase non touchés (logique spécifique). Compilation ✅, ConfigResolverTest 62/62 PASS, tests injection 14/14 PASS. publishToMavenLocal OK. | 9/10

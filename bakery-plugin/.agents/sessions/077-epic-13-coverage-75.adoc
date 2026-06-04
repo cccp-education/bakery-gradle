@@ -1,0 +1,36 @@
+= Session 077 — EPIC 13 : Couverture de tests 73%→77.25%
+
+== Résumé
+
+EPIC 13 TERMINÉ. Coverage Kover passé de **73.13%** à **77.25%** (+4.12pp).
+Seuil 75% ✅ DÉPASSÉ.
+
+== Méthodologie — Baby Steps DDD/TDD/BDD
+
+| Step | Zone | DDD (comportement) | TDD (test AVANT) | BDD (Cucumber si visible) |
+|---|---|---|---|---|
+| 1 | `GitService.cleanupDir` | 3 scénarios : delete existant, silent absent, catch exception | `CleanupDirTest` 3 tests | Non (interne) |
+| 2 | `FileSystemManager.copyResourceDirectory` | Resource inexistante → IllegalArgumentException | `CopyResourceDirectoryEdgeCaseTest` 1 test | Non (interne) |
+| 3 | `ConfigResolver.loadProperties` | Déjà couvert par tests existants (ligne 464) | — | Non |
+| 4 | `SiteConfiguration.resolvePaths` | Couvert indirectement via FT existants | — | Non |
+
+== Fichiers modifiés
+
+* `src/test/kotlin/bakery/GitServiceTest.kt` — `CleanupDirTest` inner class (+3 tests)
+* `src/test/kotlin/bakery/FileSystemManagerTest.kt` — `CopyResourceDirectoryEdgeCaseTest` (+1 test)
+
+== Résultat des tests
+
+* `./gradlew test --tests '*CleanupDirTest*'` : **3/3 PASS**
+* `./gradlew test --tests '*FileSystemManagerTest*'` : **13/13 PASS** (nouveau + existants)
+* `./gradlew koverLogJvm` : **77.2488%** (seuil 70% ✅, objectif 75% ✅)
+
+== Décision post-session
+
+Bakery est maintenant **96%+ complet**. Tous les EPICs P0 terminés.
+Prochaine session = décision switch borough ou polish final (CS-9 `var`→`val` lens, 0.5 session).
+
+== Score : 8/10
+
+* (+) Baby steps respectés, tests unitaires ciblés, coverage objectif atteint
+* (-) Pas de Cucumber ajouté (pas de comportement utilisateur visible dans cette session)

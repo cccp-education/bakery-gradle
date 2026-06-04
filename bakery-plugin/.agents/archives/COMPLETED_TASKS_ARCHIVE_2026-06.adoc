@@ -16,6 +16,26 @@
 
 '''
 
+== Session 077 — 2026-06-04 — EPIC 13 Couverture Tests 73%→77.25%
+
+**Contexte** : Reprise bakery avec PROMPT_REPRISE. Mission EPIC 13 : passer Kover de 73.13% à 75% (seuil).
+
+**Tâches réalisées** :
+
+* [x] Baby Step 1 — TDD `GitService.cleanupDir` : `CleanupDirTest` 3 tests (delete existant, silent absent, catch exception)
+* [x] Baby Step 2 — TDD `FileSystemManager.copyResourceDirectory` : `CopyResourceDirectoryEdgeCaseTest` 1 test (resource inexistante)
+* [x] Baby Step 3 — ConfigResolver : `loadPropertiesFromMap` déjà couvert (tests existants ligne 464)
+* [x] Baby Step 4 — `SiteConfiguration.resolvePaths` : couvert indirectement via FT existants
+* [x] Vérification coverage : `./gradlew koverLogJvm` → **77.2488%** (seuil 75% ✅ dépassé)
+
+**Fichiers modifiés** :
+* `src/test/kotlin/bakery/GitServiceTest.kt` — `CleanupDirTest` (+3 tests, import `assertThatCode`)
+* `src/test/kotlin/bakery/FileSystemManagerTest.kt` — `CopyResourceDirectoryEdgeCaseTest` (+1 test)
+
+**Fichiers créés** : `.agents/sessions/077-epic-13-coverage-75.adoc`
+
+'''
+
 == Session 072 — 2026-06-04 — EPIC 6 Validation Finale + CS-12 Taxonomie DEPLOYER
 
 **Contexte** : Finalisation Bakery — validation EPIC 6 (publishProfile/deployProfile) + application taxonomie EPIC K (verbe DEPLOYER).

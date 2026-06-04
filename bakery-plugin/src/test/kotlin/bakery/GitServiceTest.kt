@@ -1,6 +1,7 @@
 package bakery
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatCode
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.revwalk.RevCommit
@@ -15,6 +16,51 @@ import java.io.File
 class GitServiceTest {
 
     private val logger = LoggerFactory.getLogger(GitServiceTest::class.java)
+
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class CleanupDirTest {
+
+        @TempDir
+        lateinit var tempDir: File
+
+        @Test
+        fun `cleanupDir deletes existing directory`() {
+            val target = tempDir.resolve("toDelete").apply { mkdirs() }
+            target.resolve("file.txt").writeText("content")
+            assertThat(target).exists()
+
+            GitService.cleanupDir(target, logger)
+
+            assertThat(target).doesNotExist()
+        }
+
+        @Test
+        fun `cleanupDir is silent when directory does not exist`() {
+            val nonExistent = tempDir.resolve("neverExisted")
+            assertThat(nonExistent).doesNotExist()
+
+            GitService.cleanupDir(nonExistent, logger)
+
+            assertThat(nonExistent).doesNotExist()
+        }
+
+        @Test
+        fun `cleanupDir catches exception and logs error without throwing`() {
+            val target = tempDir.resolve("lockedDir").apply { mkdirs() }
+            target.resolve("file.txt").apply {
+                writeText("content")
+                setReadOnly()
+            }
+            target.setReadOnly()
+
+            assertThatCode {
+                GitService.cleanupDir(target, logger)
+            }.doesNotThrowAnyException()
+
+            target.setWritable(true)
+        }
+    }
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)

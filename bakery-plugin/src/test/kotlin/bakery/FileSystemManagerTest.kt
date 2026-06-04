@@ -154,5 +154,24 @@ class FileSystemManagerTest {
             assertThat("".isYmlUri).isFalse()
         }
     }
+
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class CopyResourceDirectoryEdgeCaseTest {
+
+        @TempDir
+        lateinit var tempDir: File
+
+        @Test
+        fun `throws IllegalArgumentException when resource path does not exist`() {
+            val project = org.gradle.testfixtures.ProjectBuilder.builder().withProjectDir(tempDir).build()
+            val targetDir = tempDir.resolve("target")
+
+            assertThatThrownBy {
+                FileSystemManager.copyResourceDirectory("nonexistent-resource-path-xyz", targetDir, project)
+            }.isInstanceOf(IllegalArgumentException::class.java)
+                .hasMessageContaining("Resource directory not found")
+        }
+    }
 }
 

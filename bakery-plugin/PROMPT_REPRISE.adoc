@@ -1,26 +1,27 @@
-= PROMPT_REPRISE — Session 077 : Bakery EPIC 13 — Coverage 73%→75%
+= PROMPT_REPRISE — Session 078 : Bakery Polish Final ou Switch Borough
 
-== Mission (Session 077)
+== Mission (Session 078)
 
-**EPIC 13 : Couverture de tests — lacunes P1**
-Objectif : passer Kover de 73.13% à 75% (seuil) en ajoutant des tests ciblés sur les zones non couvertes.
+**EPIC 13 ✅ TERMINÉ** — Coverage 73.13% → 77.25% (seuil 75% atteint).
+Bakery est maintenant **96%+ complet**. Tous les EPICs P0 terminés.
 
-== État actuel (Session 076 TERMINÉE)
+== État actuel (Session 077 TERMINÉE)
 
-- **BKY-IA-2** ✅ DÉJÀ TERMINÉ — Divergence documentaire corrigée. Code complet (6 src + 26 tests + Feature 27 Cucumber).
-- **CS-8** ✅ TERMINÉ (session 075) — Rome RSS parser.
-- **CS-4** ✅, **CS-5** ✅, **CS-11** ✅, **CS-12** ✅, **CS-10** ✅, **CS-2** ✅, **CS-3** ✅
-- **Coverage** : 73.13% (seuil 75% ❌ — 1.87pp manquants)
-- **Bakery** : 96% complet. Tous les EPICs P0 terminés.
+- **EPIC 13** ✅ TERMINÉ — 4 tests ajoutés, coverage +4.12pp
+- **Bakery global** : 96% complet, 25/28 EPICs terminés, 3 restants = polish
+- **Reste** :
+  * CS-9 : `var` → `val` dans lens package (0.5 session, P2) — immutabilité
+  * CS-11 : Uniformisation logger `println` restants (0.5 session, P2)
+  * EPIC 6 : Nettoyage build consommateur cheroliv.com (hors périmètre bakery)
+- **Tests** : 77.25% Kover, tous PASS (UT/FT/Cucumber/E2E)
 
-== Zones non couvertes à cibler (priorisées par risque)
+== Décision à prendre en début de session
 
-| Zone | Risque | Fichier clé |
+| Option | Action | Durée |
 |---|---|---|
-| `FileSystemManager.copyResourceDirectory` | Initialisation site | `FileSystemManager.kt` |
-| `GitService.cleanupDir` | Nettoyage temp dirs | `GitService.kt` |
-| `BakeryPlugin.resolvePaths` | Résolution chemins | `BakeryPlugin.kt` |
-| `ConfigResolver` branches edge-case | Config cascade | `ConfigResolver.kt` |
+| A — Polish | CS-9 `var`→`val` + CS-11 logger cleanup | 1 session |
+| B — Switch | Fermer bakery, passer à autre borough (runner-gradle, training-gradle, etc.) | 0 |
+| C — Mix | 1 polish rapide (CS-9) puis switch | 0.5 session |
 
 == Méthodologie obligatoire — Baby Steps DDD/TDD/BDD
 
@@ -32,7 +33,6 @@ Objectif : passer Kover de 73.13% à 75% (seuil) en ajoutant des tests ciblés s
 
 == Points d'attention
 
-- **NE PAS** toucher au code existant si les tests passent déjà — ajouter des tests, pas refactorer
-- **NE PAS** ajouter de nouvelle fonctionnalité — c'est du remplissage de coverage
-- **Rappel code review** : CS-1 (SiteManager split) déjà fait session 071. CS-4/CS-5/CS-8 déjà faits.
-- **But** : Atteindre 75% Kover = bakery passe au vert. Puis décision fin ou switch borough.
+- **NE PAS** ajouter de nouvelle fonctionnalité — bakery est en mode polish/fermeture
+- **Rappel code review** : CS-4/CS-5/CS-8 déjà terminés. CS-1 (SiteManager split) déjà fait.
+- **But** : Atteindre 100% épurement bakery OU switcher avec un borough propre.
