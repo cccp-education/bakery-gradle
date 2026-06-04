@@ -977,4 +977,36 @@ CS-9 a révélé que la "code review" brute (grep var) n'est pas toujours applic
 == Session 074 — 2026-06-04
 
 * [x] CS-4 Pattern Strategy injectConfig — `injectResolvedConfigIntoJbakeProperties()` 79→22 lignes. 3 fichiers créés (`injection/` package).
+
+'''
+
+== Session 079 — 2026-06-04 — Code Review v3 + Nettoyage Backlog + Gouvernance
+
+**Contexte** : Bakery fermé (28/28 EPICs). Session de gouvernance pure — code review profonde,
+nettoyage du backlog, mise à jour des fichiers de gouvernance.
+
+**Tâches réalisées** :
+
+* [x] **Code Review v3** — Lecture directe des 56 fichiers source (6091 lignes). Croisement avec 3 revues existantes. 10 nouveaux code smells identifiés (CS-13→CS-22) :
+  - 🔴 2 CRITIQUE : CS-21 configPath.get() sans isPresent (bug dormant depuis création), CS-16 isGradlePropertiesEnabled timing (DSL ignoré)
+  - 🟠 2 MODÉRÉ : CS-13 JSON escape maison fragile, CS-22 mapOf manuelle → data class
+  - 🟡 5 LÉGER : CS-14 code mort, CS-15 RAG doc, CS-17 println, CS-19 mapper, CS-20 DRY
+  - 🟢 1 ACCEPTÉ : CS-18 boilerplate DSL (idiomatique Gradle)
+* [x] **Backlog Nettoyage** — BACKLOG.adoc 1375→200 lignes (-85%) :
+  - 44 EPICs documentés comme terminés avec dates de clôture
+  - Statuts corrigés : EPIC 5, BKY-JB-5, BKY-JB-9, BKY-CONV-1 (étaient EN COURS/A FAIRE, en réalité TERMINÉS)
+  - 3 nouveaux EPICs de finalisation : CS-FIN-1 (P0, 2 pts), CS-FIN-2 (P1, 1.5 pts), CS-FIN-3 (P2, 1 pt)
+  - 4 EPICs transférés hors périmètre
+* [x] **TODO.adoc Nettoyage** — 4 entrées obsolètes marquées [x]
+* [x] **INDEX.adoc Mise à jour** — Session 079→080, section code smells enrichie (12 historiques + 10 nouveaux)
+* [x] **PROMPT_REPRISE.adoc** — Session 080 (CS-FIN-1 ou switch borough)
+* [x] **Historisation** — BACKLOG avant nettoyage archivé dans `.agents/backup/Y2026-sessions-061-079/`
+
+**Analyse cross-borough** :
+* Dépendances N0 vérifiées : graphify-plugin + codebase-contracts → Conforme
+* Sortie N3 : collectSiteContext + collectAugmentedContext → Conforme
+* Aucune violation DAG
+
+**Fichiers modifiés** : BACKLOG.adoc, TODO.adoc, .agents/INDEX.adoc, PROMPT_REPRISE.adoc, .agents/SESSIONS_HISTORY.adoc, .agents/archives/COMPLETED_TASKS_ARCHIVE_2026-06.adoc
+**Fichiers créés** : `.agents/sessions/079-code-review-v3-backlog-cleanup.adoc`, `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 * [x] CS-5 Générifier ConfigResolver — `resolve<T>` générique + Scope pattern. 339→327 lignes.

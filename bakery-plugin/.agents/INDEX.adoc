@@ -2,10 +2,10 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-04
-  _Session terminee_ : 078
-  _Prochaine session_ : 079 — Switch borough (à définir)
-  _Session en cours_ : — (bakery fermé)
+  _Derniere mise a jour_ : 2026-06-04 — Session 079 (code review v3 + nettoyage backlog)
+  _Session terminee_ : 079
+  _Prochaine session_ : 080 — CS-FIN-1 (fix critique configPath) ou switch borough (à définir)
+  _Session en cours_ : — (backlog nettoyé, 4.5 pts restants)
 
 '''
 
@@ -216,18 +216,47 @@ _Localisation active_ : `.agents/backup/Y2026-sessions-051-060/` (rotation sessi
 |===
 
 *Priorite P0* : ✅ Tous les EPICs de réparation terminés (EPIC 15, 16, 17)
+*Charge restante* : 4.5 pts (CS-FIN-1→3, voir BACKLOG.adoc)
+*Prochaine session* : 080 — CS-FIN-1 (fix critique configPath) ou switch borough
 
-*Prochaine session* : 054 — (à définir selon BACKLOG)
+=== Code Smells — Historique CODE_REVIEW v2 (12/12 ✅ résolus)
 
-=== Code Smells — CODE_REVIEW v2
-
-*Source* : `CODE_REVIEW.adoc` (12 code smells : 3 CRITIQUE, 4 MODÉRÉ, 5 LÉGER)
+*Source* : `.agents/CODE_REVIEW.adoc` v2 (Session 067).
+*Résolution* : Sessions 070→078. Tous résolus. Voir `CODE_REVIEW.adoc` pour le détail complet.
 
 |===
-| CS | Priorité | Statut | Description
-| CS-4 | MODÉRÉ | ✅ TERMINÉ (session 074) | `injectResolvedConfigIntoJbakeProperties()` 79→22 lignes — Pattern Strategy (`injection/` package)
-| CS-5 | MODÉRÉ | ✅ TERMINÉ (session 074) | `ConfigResolver` générifié — `resolve<T>` générique + Scope pattern, 339→327 lignes
-| CS-8 | LÉGER | ✅ TERMINÉ (session 075) | `SiteContextCollector.parseFeed()` DocumentBuilderFactory DOM → Rome library (`SyndFeedInput`), 35→12 lignes
+| CS | Priorité | Résolu | Description
+| CS-1 | CRITIQUE | ✅ S071 | God Class SiteManager 917→44 lignes (-95%) — split en 4 TaskRegistrars
+| CS-2 | CRITIQUE | ✅ S070 | Logique métier inline doLast → extraction LensPipelineService (-87%)
+| CS-3 | CRITIQUE | ✅ S070 | Parse JSON maison ScaffoldGenerator → Jackson (FAIL_ON_UNKNOWN_PROPERTIES=false)
+| CS-4 | MODÉRÉ | ✅ S074 | Injection config monolithique → Pattern Strategy (`injection/` package), 79→22 lignes
+| CS-5 | MODÉRÉ | ✅ S074 | ConfigResolver copies conformes → `resolve<T>` générique + Scope pattern
+| CS-6 | MODÉRÉ | ✅ Accepté | BakeryExtension 11 DSL blocks — idiomatique Gradle/Kotlin
+| CS-7 | MODÉRÉ | ✅ S076 | BKY-IA-0 non dépilé — divergence doc corrigée (LLM reste dans bakery)
+| CS-8 | LÉGER | ✅ S075 | Parse RSS DOM fragile → Rome library, 35→12 lignes
+| CS-9 | LÉGER | ✅ S073 | `var` dans package lens → accepté (pattern builder Gradle idiomatique)
+| CS-10 | LÉGER | ✅ S071 | Tasks TODO NotImplementedError → supprimées
+| CS-11 | LÉGER | ✅ S073 | Logger incohérent println+logger → uniformisé logger.lifecycle
+| CS-12 | LÉGER | ✅ S072 | publishProfile→deployProfile (taxonomie DEPLOYER EPIC K)
+|===
+
+=== Code Smells — CODE_REVIEW v3 (Session 079)
+
+*Source* : Lecture directe du code source + `last_code_review.adoc` (racine) + `.agents/CODE_REVIEW.adoc` v2.
+*Statut* : 10 nouveaux smells identifiés → 3 EPICs de finalisation dans `BACKLOG.adoc`.
+
+|===
+| CS | Priorité | Statut | Description | EPIC
+| CS-21 | 🔴 P0 | ☐ À faire | `configPath.get()` sans `isPresent` — MissingPropertyException si absent | CS-FIN-1
+| CS-16 | 🔴 P0 | ☐ À faire | `isGradlePropertiesEnabled` calculé trop tôt → DSL ignoré | CS-FIN-1
+| CS-13 | 🟠 P1 | ☐ À faire | Échappement JSON maison fragile (3 replace) → utiliser Jackson | CS-FIN-2
+| CS-22 | 🟠 P1 | ☐ À faire | Sérialisation manuelle mapOf → sérialiser directement data class | CS-FIN-2
+| CS-14 | 🟡 P2 | ☐ À faire | Code mort LensPipelineService (condition impossible) | CS-FIN-3
+| CS-15 | 🟡 P2 | ☐ À faire | `ragResults` toujours emptyMap sans explication | CS-FIN-3
+| CS-17 | 🟡 P2 | ☐ À faire | `println()` résiduel dans DeployTaskRegistrar | CS-FIN-3
+| CS-19 | 🟡 P2 | ☐ À faire | `jacksonObjectMapper()` instancié à chaque appel | CS-FIN-3
+| CS-20 | 🟡 P2 | ☐ À faire | Duplication création OllamaLlmService (3 appels identiques) | CS-FIN-3
+| CS-18 | 🟢 P3 | ✅ Accepté | BakeryExtension 11 DSL blocks — idiomatique, pas de dette | —
 |===
 
 === EPICs Transférés (hors périmètre bakery)

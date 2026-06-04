@@ -1,1375 +1,215 @@
 = Backlog — Bakery Gradle Plugin
-
-== EPIC 1 : Integration gouvernance agent
-
-**Statut** : TERMINE
-**Priorite** : P0
-
-* [x] Creer la structure `.agents/` (sessions/, archives/)
-* [x] Creer AGENT.adoc adapte a bakery-plugin
-* [x] Creer PROMPT_REPRISE.adoc
-* [x] Creer AGENT_MODUS_OPERANDI.adoc
-* [x] Creer INDEX.adoc
-
-== EPIC 2 : Migration Supabase -> Firebase + corrections tests
-
-**Statut** : TERMINE
-**Priorite** : P0
-
-* [x] Corriger les 9 tests en echec (valeurs site.yml vs attentes)
-* [x] Remplacer Supabase par Firebase pour le formulaire de contact
-* [x] Mettre a jour SiteConfiguration.kt (modeles de donnees Supabase -> Firebase)
-* [x] Mettre a jour site.yml (supabase -> firebase, placeholder sans vraie API key)
-* [x] Mock/stub Firebase dans les tests (API key fournie plus tard pour tests reels)
-* [x] Mettre a jour les tests en consequence
-* [x] Verifier que tous les tests passent avec `./gradlew test`
-
-== EPIC 3 : Amelioration build.gradle.kts
-
-**Statut** : TERMINE
-**Priorite** : P1
-
-* [x] ajouter timeouts sur les taches Test
-* [x] ajouter optimisations JVM (SerialGC, TieredStopAtLevel, etc.)
-* [x] ajouter cleanup dans cucumberTest
-
-== EPIC 4 : Formulaire de contact Firebase (maquette puis site)
-
-**Statut** : TERMINE (reste formalite : insertion cle API reelle dans site.yml consommateur)
-
-=== Tests ajoutes en session N+
-
-* [x] `FirebaseConfigInjectionTest` (5 tests unitaires) — edge cases: fichier absent, firebase null, cles existantes inline, append
-* [x] `FirebaseTemplateRenderingTest` (4 tests unitaires) — footer.thyme contient FIREBASE_CONFIG, contact.thyme contient le fragment, index.thyme inclut contact, menu.thyme a le lien #contact
-* [x] Cucumber scenario pipeline complet — `initSite` deploye contact.thyme/footer.thyme/index.thyme/menu.thyme avec le contenu Firebase attendu
-**Priorite** : P1
-
-_Contexte (directives utilisateur — Session N+)_ : Ne pas travailler directement dans le template Thymeleaf du `site/`. Stabiliser d'abord le formulaire de contact Firebase dans la **maquette** (`src/main/resources/maquette/index.html`), puis une fois fonctionnel, le transferer dans le template JBake (`src/main/resources/site/templates/`). Les dossiers `site/` et `maquette/` dans `src/main/resources/` sont preserves pour la tache de scaffolding du plugin. La maquette est un site HTML standalone, le site est un template JBake + Thymeleaf.
-
-_Source de reference pour le formulaire_ : `/home/cheroliv/workspace/foundry/cheroliv.com/site/jbake/` — `templates/contact.thyme` (HTML), `templates/footer.thyme` (Firebase SDK init), `assets/js/contact.js` (logique JS). Le `contact.js` actuel utilise un mock — on veut du Firebase Firestore reel.
-
-=== Phase 1 : Maquette (standalone HTML) [✅ TERMINEE]
-
-* [x] Ajouter la section `#contact` dans `maquette/index.html` (formulaire HTML + messages success/error)
-* [x] Ajouter le lien `Contact` dans la navbar de la maquette (href="#contact")
-* [x] Ajouter le bloc `<script type="module">` Firebase SDK dans la maquette (init Firestore, exposer `window.__FIREBASE__`)
-* [x] Creer `maquette/js/contact.js` avec logique Firestore reelle (pas de mock) — validation, `addDoc` vers collection `contacts`
-* [x] Verifier le CSS `.contact-form` existant dans `maquette/css/styles.css` (deja present)
-
-=== Phase 2 : Transfert vers le template site (JBake + Thymeleaf) [✅ TERMINEE]
-
-* [x] Creer `site/templates/contact.thyme` (fragment Thymeleaf `contact-section`)
-* [x] Inclure `contact.thyme` dans `site/templates/index.thyme` (via th:replace)
-* [x] Remplacer le mock par Firebase compat SDK reel dans `site/assets/js/contact.js` (Firestore `addDoc` via `FIREBASE_CONFIG`)
-* [x] Ajouter le lien `Contact` dans `site/templates/menu.thyme` (href="#contact")
-* [x] `footer.thyme` deja a jour : Firebase compat SDK + injection `FIREBASE_CONFIG` via Thymeleaf inline JS
-* [x] `contact.js` reference dans `footer.thyme` deja present
-
-=== Phase 3 : Plugin / SiteManager [✅ FLOW EXISTANT FONCTIONNEL]
-
-* [x] `SiteConfiguration.kt` a deja `firebase: FirebaseContactFormConfig?` avec modeles complets
-* [x] `SiteManager.injectFirebaseConfigIntoJbakeProperties()` injecte `firebaseApiKey`/`firebaseProjectId` dans `jbake.properties`
-* [x] `jbake.properties` expose `firebaseApiKey=FIREBASE_API_KEY_PLACEHOLDER` + `firebaseProjectId=bakery-contact-form`
-* [x] Aucune reference Supabase residuelle dans le code/site
-* [ ] Ajouter une vraie Firebase API key dans le site.yml consommateur (formalite, quand disponible)
-
-== EPIC 5 : Correction timeout Cucumber
-
-**Statut** : A faire
-**Priorite** : P2
-
-* [ ] Augmenter timeout Cucumber de 1 min a 5 min ou desactiver
-* [ ] Verifier que les tests Cucumber passent
-
-== EPIC 6 : Integration tache publishProfil dans le plugin
-
-**Statut** : ✅ TERMINE (session 072 — validation + renommage taxonomique DEPLOYER + tests complets)
-**Priorite** : P1
-**Score** : 4.2/5 → 4.5/5
-
-_Code source de reference_ : `cheroliv.com/build.gradle.kts` (tache `publishProfil` inline + data classes `ProfileSiteConf`/`ProfilePushConf`/`ProfileRepoConf`/`ProfileCreds` + credential resolution `profileCredentials`)
-
-_Objectif_ : Migrer la gestion du profil GitHub du build script inline vers le plugin bakery en tant que tache a part entiere (`DeployProfileTask`), en suivant les patterns existants du plugin (`GitService`, `SiteConfiguration`, `SiteManager`).
-
-=== Analyse du code source a migrer
-
-La tache `publishProfil` dans `cheroliv.com/build.gradle.kts` fait :
-. Lit les credentials depuis `site.yml` via Jackson (`ProfileSiteConf` -> `ProfilePushConf` -> `ProfileRepoConf` -> `ProfileCreds`), avec fallback sur les project properties `-PprofileToken` et `-PprofileUsername`
-. Copie `README.md` et `README_fr.md` du projet vers un repertoire temporaire `build/cvs-profil/`
-. Initialise un depot git dans ce repertoire avec `Git.init()` (branche `main`)
-. Ajoute le remote `origin` pointant vers `https://github.com/cheroliv/cheroliv.git`
-. Force-push vers `origin/main` avec `UsernamePasswordCredentialsProvider`
-. Nettoie le repertoire temporaire
-
-=== Taches de migration
-
-==== 1. Etendre SiteConfiguration.kt — Ajouter le mode profil
-
-* [x] Ajouter une section `pushProfile` dans `SiteConfiguration` (type `GitPushConfiguration` existant ou nouveau modele dedie si la structure YAML differe)
-* [x] Le schema YAML dans `site.yml` est deja compatible : `pushPage.repo.credentials` est utilise par `publishSite` et peut servir de base. Le profil GitHub a potentiellement son propre repo/credentials (`pushProfile.repo.repository`, `pushProfile.repo.credentials`)
-* [x] Ajouter un champ `profileFiles` (liste de fichiers a pousser, ex: `["README.md", "README_fr.md"]`)
-
-==== 2. Creer DeployProfileTask.kt
-
-* [x] Creer `src/main/kotlin/bakery/DeployProfileTask.kt` (renomme depuis `PublishProfileTask.kt` session 072)
-* [x] Implementer une tache Gradle typee (`abstract class DeployProfileTask : DefaultTask()`) avec inputs/outputs annotes
-* [x] Utiliser `GitService` existant pour le push (refactor si besoin pour supporter le pattern profil : init temp repo + copy files + force push)
-* [x] Gerer la resolution des credentials : priorite project properties (`-PprofileToken`, `-PprofileUsername`) > `site.yml` > erreur
-
-==== 3. Refactoriser GitService.kt si necessaire
-
-* [x] Verifier si `GitService.pushPages()` peut etre reutilise tel quel ou s'il faut extraire une methode generique `pushToRemote(repoDir, remoteUrl, branch, credentials)` utilisable a la fois par `publishSite`, `publishMaquette` et `publishProfil`
-* [x] La difference cle : `publishProfil` copie des fichiers specifiques du projet (pas le contenu baked), tandis que `publishSite` copie le contenu de `build/bake/`
-
-==== 4. Enregistrer la tache dans DeployTaskRegistrar.kt
-
-* [x] Ajouter `registerDeployProfileTask(site: SiteConfiguration)` dans `DeployTaskRegistrar.kt`
-* [x] Groupe : `"deploy"`, description : `"Push profile files (e.g. README.md) to GitHub repository"`
-* [x] Condition : ne registrer que si `site.pushProfile` est present dans `site.yml`
-
-==== 5. Tests
-
-* [x] Ajouter un test unitaire pour la resolution des credentials (priority: project properties > YAML > erreur) — `ProfilePublisherTest.kt` 11 UT PASS
-* [x] Ajouter un scenario Cucumber pour valider que la tache est registree quand `pushProfile` est present dans `site.yml` — Feature 5
-* [x] Ajouter un scenario Cucumber pour valider que la tache n'est PAS registree quand `pushProfile` est absent — Feature 5
-
-==== 6. Nettoyage cheroliv.com
-
-* [ ] Une fois le plugin mis a jour et publie (`publishToMavenLocal`), retirer le code inline de `cheroliv.com/build.gradle.kts` :
-** Supprimer les data classes `ProfileSiteConf`, `ProfilePushConf`, `ProfileRepoConf`, `ProfileCreds`
-** Supprimer la propriete `profileCredentials`
-** Supprimer la tache `tasks.register("publishProfil")`
-** Supprimer le bloc `buildscript` (les dependances JGit/Jackson sont deja fournies par le plugin)
-** Configurer le plugin via `bakery { configPath = file("site.yml").absolutePath }` (deja existant)
-
-==== 7. Taxonomie EPIC K — Renommage DEPLOYER
-
-* [x] Renommer `PublishProfileTask.kt` → `DeployProfileTask.kt` (alignement taxonomique K-1 : verbe DEPLOYER)
-* [x] Renommer `publishProfile()` → `deployProfile()` dans la tache
-* [x] Mettre a jour le message d'erreur `ProfilePublisher` ("publishProfile" → "deployProfile")
-* [x] Mettre a jour le commentaire `BakeryWorld.kt`
-
-== EPIC 7 : Tolerance parsing YAML (champs inconnus)
-
-**Statut** : TERMINE
-**Priorite** : P2
-**Depend de** : EPIC 6 (Session 9 bakery-plugin)
-
-_Probleme_ : Le plugin crash (`UnrecognizedPropertyException`) quand le `site.yml` contient d'anciens champs supprimes (ex: `supabase:` remplace par `firebase:`). Le secret GitHub `CHEROLIV_CONFIG` contenait encore `supabase:`, causant l'echec du workflow CI `Publish website`.
-
-_Solution_ : Ajouter `@JsonIgnoreProperties(ignoreUnknown = true)` sur la classe `SiteConfiguration` pour ignorer les champs non reconnus au lieu de planter.
-
-=== Taches
-
-* [x] Ajouter `@JsonIgnoreProperties(ignoreUnknown = true)` sur `SiteConfiguration` — déjà présent depuis session 016
-* [x] Ajouter un test unitaire qui valide qu'un `site.yml` avec un champ inconnu ne fait pas planter le parsing — session 029 (3 tests YamlToleranceTest)
-* [x] Vérifier que cela ne masque pas d'erreurs réelles de configuration (typos dans les champs valides) — test documentant la limitation
-
-== EPIC 10 : Scaffolding — Création de site dans `office/sites/<siteName>/`
-
-**Statut** : TERMINE (8 UT + 8 FT + 5 Cucumber tous verts)
-**Priorité** : P0
-
-_Problème_ : initSite crée tout dans `project.projectDir`. Pour scripter un
-nouveau site statique propulsé par bakery, il faut un `sitesBaseDir` (ex:
-`office/sites`) et un `siteName` pour créer le dossier `office/sites/<nom>/`
-contenant `site/`, `maquette/`, `site.yml`, `.gitignore`, `.gitattributes`.
-
-=== User Journeys
-
-* UJ1 — sitesBaseDir + siteName → crée `<baseDir>/<siteName>/` avec toute la structure
-* UJ2 — sitesBaseDir sans siteName → erreur `siteName must be defined`
-* UJ3 — site cible déjà existant → erreur `already exists`
-* UJ4 — siteName seul (sans sitesBaseDir) → crée `projectDir/<siteName>/`
-* UJ5 — ni sitesBaseDir ni siteName → rétrocompatibilité (comportement actuel)
-
-=== Tâches
-
-* [x] Ajouter `sitesBaseDir` et `siteName` à `BakeryExtension`
-* [x] Créer `SiteScaffolder.kt` avec `resolveSiteTargetDir()` + `validateSiteTargetDoesNotExist()`
-* [x] Modifier `SiteManager.registerInitSiteTask()` pour accepter un `targetDir`
-* [x] Modifier `BakeryPlugin.apply()` pour appeler le scaffolding
-* [x] Tests unitaires SiteScaffolderTest (10 tests)
-* [x] Tests fonctionnels ScaffoldFunctionalTests (5 tests)
-* [x] Cucumber feature 6_site_scaffolding.feature (5 scénarios)
-* [x] Faire passer les 3 scénarios Cucumber encore en échec (`siteNameOnly` et `backwardCompat`) — corrigé session 028
-* [x] Vérifier couverture Kover >= 75% — validé session 029
-
-=== Fichiers
-
-* `src/main/kotlin/bakery/BakeryExtension.kt` — ajout `sitesBaseDir`, `siteName`
-* `src/main/kotlin/bakery/SiteScaffolder.kt` — créé
-* `src/main/kotlin/bakery/SiteManager.kt` — `registerInitSiteTask(targetDir)`
-* `src/main/kotlin/bakery/BakeryPlugin.kt` — appel `SiteScaffolder`
-* `src/test/kotlin/bakery/SiteScaffolderTest.kt` — créé
-* `src/functionalTest/kotlin/bakery/ScaffoldFunctionalTests.kt` — créé
-* `src/test/features/6_site_scaffolding.feature` — créé
-* `src/test/scenarios/bakery/scenarios/ScaffoldSteps.kt` — créé
-
-== EPIC 11 : Optimisation durée d'exécution des tests
-
-**Statut** : TERMINÉ (Session 064)
-**Priorité** : P0
-
-_Problème critique_ : Les tests prennent 3 à 6 minutes par run, ce qui est
-intenable en boucle TDD. `koverXmlReport` met 5 min, `cucumberTest` 3 min,
-`functionalTest` 2 min. Chaque `check` complet > 5 min.
-
-_Résultat_ : `test` de 2m46s → 38s (-77%). `check` de ~8m30s → 7m (-18% cold, +cache warm 7s).
-
-=== Résolution (Session 064)
-
-* [x] **Étape 1 — Séparer Cucumber de JUnit5** : `test` task exclut `cucumber` engine + `filter { excludeTestsMatching("bakery.scenarios.*") }`. Les 81 scénarios Cucumber n'étaient exécutés QUE dans `cucumberTest`. Gain : `test` de 2m46s à 38s (-77%).
-* [x] **Étape 2 — Nettoyer `gradle.properties`** : Suppression du bruit CSS, ajout de `org.gradle.caching=true`, `org.gradle.workers.max=4`, `org.gradle.jvmargs=-XX:+UseParallelGC -Xmx1g`.
-* [x] **Étape 2b — Fix `koverThresholdCheck`** : Ajout de `dependsOn("koverXmlReport")` pour que le XML report soit généré avant le check. Coverage : 73.13% > seuil 70%.
-* [ ] **Étape 3 — Configuration-cache** : Incompatible avec `koverThresholdCheck` (utilise `project` qui n'est pas sérialisable). À réévaluer quand Kover sera compatible.
-
-=== Pistes d'optimisation restantes
-
-* [ ] Configuration-cache : bloqué par `koverThresholdCheck` (utilise `project`), à réévaluer quand Kover migrera
-* [ ] `functionalTest` : chaque test lance un Gradle daemon (~3s chacun), envisager un shared daemon TestKit
-* [ ] `cucumberTest` : `maxParallelForks = 1`, investiguer si parallélisation possible
-
-== EPIC 9 : Architecture d'orchestration LLM — Dispatcher + Experts spécialisés
-
-**Statut** : A faire
-**Priorité** : P0
-**Lien** : `WHAT_THE_GAMES_BEEN_MISSING.adoc` (v10, 2 mai 2026), `WORKSPACE_AS_PRODUCT.adoc`
-
-_Objectif_ : Mettre en place l'architecture dispatcher (deepseek-v4-pro) +
-experts métiers fine-tunés (CDA/FPA) avec persistance LangChain4j partagée
-et boucle qualité ONNX.
-
-=== Contexte
-
-Validation par la littérature :
-* Anthropic "Building Effective Agents" (Dec 2024) — pattern Orchestrator-workers + Evaluator-optimizer
-* arXiv 2402.05120 "More Agents Is All You Need" (TMLR 2024) — scaling linéaire avec nombre d'agents
-* arXiv 2408.03314 "Scaling LLM Test-Time Compute Optimally" (DeepMind 2024) — petit modèle + allocation optimale > 14x plus gros
-* arXiv 2311.08545 "Efficient Continual Pre-training" (ACL 2024) — 10% corpus > from scratch
-
-=== Responsabilités par projet
-
-**codebase-gradle** (propriétaire fine-tuning) :
-* Préparation datasets depuis `office/books-collection/` + `office/data-engineering/`
-* Fine-tuning experts CDA (Kotlin/Gradle/JHipster) et FPA (pédagogie/Qualiopi/Bloom)
-* Exposition modèles fine-tunés via Ollama
-* Wiring LangChain4j avec persistance PostgreSQL partagée
-* Intégration ONNX pour boucle de validation
-
-**bakery-plugin** (ce projet) :
-* Adapter l'intégration LLM pour router vers l'expert approprié selon le domaine
-* Protocole de communication dispatcher → expert (format de tâche strict)
-* Orchestration des appels LLM dans le pipeline de génération
-
-=== Tâches
-
-* [ ] Définir le protocole de communication dispatcher → expert (JSON Schema)
-* [ ] Router les appels LLM du plugin vers l'expert approprié (CDA vs FPA)
-* [ ] Intégrer la persistance LangChain4j partagée
-* [ ] Wiring ONNX dans la boucle de validation des outputs
-* [ ] Test du pipeline complet : décomposition → batch expert → validation → synthèse
-
-== EPIC 12 : Articles connexes par Knowledge Graph + Ontologie émergente
-
-**Statut** : ⚠️ SUPERSEDÉ par EPIC BKY-LENS (session 053)
-**Priorité** : P1 → SUPERSEDÉ
-**Lien** : `/home/cheroliv/workspace/ARTICLES_CONNEXES_KNOWLEDGE_GRAPH.adoc`
-
-_Note_ : L'EPIC 12 original a été implémenté en sessions 042-046 sous le nom BKY-BKG
-(sous-EPICs BKG-0, BKG-1, BKG-2). L'audit de session 053 a révélé que le KG interne
- bakery (`RelatedArticlesService`, `RelatedArticlesGraph`) est **strictement inférieur**
-au pipeline augmenté codebase+graphify. BKY-BKG est supersédé par BKY-LENS.
-
-_Voir EPIC BKY-LENS ci-dessous pour la nouvelle architecture Pattern LENTILLE._
-
-== EPIC BKY-BKG : Articles Connexes par Knowledge Graph (reprise EPIC 12)
-
-**Statut** : ⚠️ SUPERSEDÉ par BKY-LENS (session 053)
-**Priorité** : P0 → SUPERSEDÉ
-**Charge** : 16 pts → migrés vers BKY-LENS (21 pts)
-
-_Sous-EPICs existants (sessions 042-046, À REMPLACER)_ :
-
-- BKG-0 : Enrichissement graphify → 🔴 SUPPRIMER (SubgraphExtractor remplace)
-- BKG-1 : Consommation graphe dans bakery → 🔴 SUPPRIMER (AugmentedArticlesService remplace)
-- BKG-2 : Ontologie émergente → 🔴 SUPPRIMER (RAG pgvector remplace le clustering NLP)
-
-_Le code existant sera supprimé en BKY-LENS-3.3 : RelatedArticlesService, RelatedArticlesGraph,
-RelatedArticlesResolver, kgraph/ package (4 fichiers)._
-
-== EPIC BKY-LENS : Pattern LENTILLE — Réalité Augmentée pour Bakery
-
-**Statut** : ✅ TERMINÉ — *P0, cadré session 053, terminé session 062*
-**Priorité** : P0 — remplace BKY-BKG par un pipeline hybride RAG+KG+ségrégation+règles
-**Charge** : 21 pts (6 sous-EPICs) — ✅ 21 pts terminés (LENS-1 ✅ LENS-2 ✅ LENS-3 ✅ LENS-4 ✅ LENS-5 ✅ LENS-6 ✅)
-**Dépend de** : graphify-plugin (N0, déjà en `implementation`), codebase-contracts (N0)
-**Rapport détaillé** : `.agents/sessions/053-audit-lentille-contexte-augmente.adoc`
-
-_Problème_ : Bakery a réinventé la roue du Knowledge Graph. Le scoring maison
-(`RelatedArticlesService` : tags littéraux + TF-IDF + co-occurrences bornées) est
-strictement inférieur au pipeline augmenté codebase+graphify (RAG pgvector 384-dim +
-graphe structurel 203k nœuds + similarité sémantique + règles éditoriales).
-
-_Solution_ : Pattern LENTILLE — 3 couches (ségrégation → enrichissement → budget)
-qui combine le graphe structurel (graphify), la similarité sémantique (pgvector),
-et les règles métier éditoriales (bakery DSL). Le ratio signal/bruit passe de
-~1:30000 (203k nœuds brut) à ~1:1 (4-6 articles pertinents par page).
-
-=== Architecture LENTILLE
-
-----
-┌──────────┐    SÉGRÉGATION     ┌──────────────┐   ENRICHISSEMENT   ┌──────────────┐
-│ graph.json│───filtre communautés──▶│ site-subgraph│───+RAG+rules────▶│  site-graph   │
-│ 203k nœuds│    +type+edges       │  ~200 nœuds │                  │  ~200 nœuds   │
-│ 188k edges│                     │  ~300 edges  │                  │  ~500 edges   │
-└──────────┘                     └──────────────┘                  └──────────────┘
-                                       │                                  │
-┌──────────┐                           │                                  │
-│ codebase  │───RAG similarité──────────┤                          BUDGET  │
-│ pgvector  │   (top-K=20, sim>0.7)     │                     ┌──────────────┐
-└──────────┘                           │                     │ maxArticles  │
-                                       │                     │ = 4-6/page    │
-┌──────────┐                           │                     │ minSimilarity│
-│ site.yml  │───règles éditoriales──────┤                     │ = 0.7         │
-│ bakery DSL│   excludeDrafts          │                     └──────────────┘
-└──────────┘                           │                           │
-                                       ▼                           ▼
-                                ┌──────────────┐           ┌──────────────┐
-                                │ jbake.props  │           │  post.thyme   │
-                                │ relatedData  │           │  AUGMENTÉ     │
-                                └──────────────┘           └──────────────┘
-----
-
-=== Contrat DAG
-
-| bakery → codebase-contracts | N2 → N0 | ✅ Valide
-| bakery → graphify-plugin | N2 → N0 | ✅ Valide (déjà en implementation)
-| codebase → graphify-plugin | N1 → N0 | ✅ Valide (canal GRAPHIFY existant)
-| runner → bakery | N3 → N2 | ✅ Valide (assembleCompositeContext)
-
-=== DSL Proposée
-
-```kotlin
-bakery {
-    augmentedContext {
-        enabled = true
-        lens {
-            scope = SUBGRAPH                    // SUBGRAPH | FULL | SEMANTIC_ONLY
-            communities = ["bakery-gradle", "codebase-gradle", "slider-gradle"]
-            nodeTypes = ["file"]
-            edgeTypes = ["reference", "agent_reference"]
-            maxDepth = 2
-            fileExtensions = ["adoc", "md", "html"]
-            rag {
-                enabled = true
-                similarityThreshold = 0.7
-                topK = 20
-            }
-            rules {
-                excludeDrafts = true
-                excludeTags = ["wip", "draft"]
-                prioritizeCrossReferences = true
-                crossRefBonus = 0.2
-                communityAffinity = 0.3
-            }
-            budget {
-                maxArticlesPerPage = 4
-                maxTokensPerArticle = 200
-            }
-        }
-    }
-}
-```
-
-=== Scoring Hybride
-
-----
-score = α × ragSimilarité      // 0.40 — similarité sémantique (pgvector)
-      + β × graphProximité     // 0.30 — voisinage structurel (graphify depth)
-      + γ × tagRecouvrement   // 0.15 — tags éditoriaux partagés (JBake metadata)
-      + δ × crossRefCount     // 0.15 — références croisées AsciiDoc (xref)
-
-  + bonus 0.2 si même communauté (communityAffinity)
-  + bonus 0.2 si cross-reference AsciiDoc vérifiée (prioritizeCrossReferences)
-----
-
-=== Sous-EPICs
-
-==== BKY-LENS-1 : SubgraphExtractor — Ségrégation (5 pts) ✅ TERMINÉ
-
-* [x] BKY-LENS-1.1 — Importer `codebase-contracts` (N0) dans bakery : `CompositeContext`, `ChannelBudget`, `ContextChannel`
-* [x] BKY-LENS-1.2 — Créer `LensConfig` data class + DSL `bakery { augmentedContext { lens { ... } } }`
-* [x] BKY-LENS-1.3 — Créer `SubgraphExtractor` : lit `graph.json`, filtre par communautés/types/edges/depth
-* [x] BKY-LENS-1.4 — Tests : `SubgraphExtractorTest` avec fixtures `graph.json` mock (3 communautés, 50 nœuds)
-
-_Dépend de_ : `graphify-plugin` (déjà en `implementation`)
-
-==== BKY-LENS-2 : AugmentedArticlesService — Enrichissement (4 pts) ✅ TERMINÉ
-
-* [x] BKY-LENS-2.1 — Créer `AugmentedContextResolver` : lit `composite-context.json`, extrait les canaux EAGER/RAG/GRAPHIFY/DOCS
-* [x] BKY-LENS-2.2 — Créer `AugmentedArticlesService` : scoring hybride RAG+KG+tags+xref, formule α=0.4/β=0.3/γ=0.15/δ=0.15
-* [x] BKY-LENS-2.3 — Règles métier : `LensRules` (excludeDrafts, excludeTags, prioritizeCrossReferences, crossRefBonus, communityAffinity)
-
-_Dépend de_ : BKY-LENS-1, `codebase-contracts`
-
-==== BKY-LENS-3 : Budget + Injection JBake — Reconnect (3 pts) ✅ TERMINÉ
-
-* [x] BKY-LENS-3.1 — `LensBudget` data class + injection dans `jbake.properties` (`augmentedContextData`) + budget { } DSL
-* [x] BKY-LENS-3.2 — Remplacer `SiteManager.registerCollectRelatedArticlesTask()` par `registerCollectAugmentedContextTask()` (pipeline LENS complet)
-* [x] BKY-LENS-3.3 — Nettoyage : supprimer BKG legacy (4 src kgraph/ + RelatedArticlesDsl + 7 tests + 2 cucumber steps + refs)
-
-_Dépend de_ : BKY-LENS-2
-
-==== BKY-LENS-4 : Cucumber — Réécriture Features 17-19 (3 pts) ✅ TERMINÉ
-
-* [x] BKY-LENS-4.1 — Réécrire Feature 17 : `17_related_articles_kg.feature` → `17_augmented_context_lens.feature` ✅ 3/3 PASS
-* [x] BKY-LENS-4.2 — Réécrire Feature 18 : `18_related_articles_kg_enriched.feature` → `18_subgraph_extraction.feature` ✅ 3/3 PASS
-* [x] BKY-LENS-4.3 — Réécrire Feature 19 : `19_related_articles_graph_consumption.feature` → `19_lens_hybrid_scoring.feature` ✅ 3/3 PASS
-
-_Dépend de_ : BKY-LENS-1, BKY-LENS-2, BKY-LENS-3
-
-==== BKY-LENS-5 : Connect N3 — Composite Context Branché (3 pts) ✅ TERMINÉ
-
-* [x] BKY-LENS-5.1 — Extension DSL `bakery { augmentedContext { enabled, contextPath, maxArticles } }`
-* [x] BKY-LENS-5.2 — `SiteContextCollector` enrichi : lit `composite-context.json` → ajoute `augmentedEntries` dans metadata.json
-* [x] BKY-LENS-5.3 — Cucumber : `23_augmented_context_n3.feature` (3 scénarios)
-
-_Dépend de_ : BKY-LENS-3, pilot-plugin (N4)
-
-==== BKY-LENS-6 : Templates Augmentés — JBake (3 pts) ✅ TERMINÉ
-
-* [x] BKY-LENS-6.1 — `post.thyme` : section « Articles connexes du workspace » avec badges de source (RAG/KG/Docs)
-* [x] BKY-LENS-6.2 — `page.thyme` : bloc « Contexte augmenté » injecté via data-attributes
-* [ ] BKY-LENS-6.3 — E2E Playwright : vérifier rendu augmenté sur une page bake (Cucumber validé, E2E Playwright à faire)
-
-_Dépend de_ : BKY-LENS-5
-
-=== Impact sur l'existant (session 058 — BKG legacy SUPPRIMÉ)
-
-| Élément existant | Action | Statut
-| `RelatedArticlesService` (254 lignes) | **Supprimé** | ✅ LENS-3.3
-| `RelatedArticlesGraph` (107 lignes) | **Supprimé** | ✅ LENS-3.3
-| `RelatedArticlesResolver` (63 lignes) | **Supprimé** | ✅ LENS-3.3
-| `kgraph/` package (4 fichiers) | **Supprimé** | ✅ LENS-3.3
-| `RelatedArticlesDsl` (29 lignes) | **Supprimé** | ✅ LENS-3.3
-| `RelatedArticlesConfig` (SiteConfiguration) | **Supprimé** | ✅ LENS-3.3
-| `registerCollectRelatedArticlesTask` | **Remplacé** par `registerCollectAugmentedContextTask` | ✅ LENS-3.2
-| `injectRelatedArticlesConfigIntoJbakeProperties` | **Remplacé** par `injectLensBudgetIntoJbakeProperties` | ✅ LENS-3.2
-| `resolveRelatedArticlesConfig` (ConfigResolver) | **Supprimé** | ✅ LENS-3.3
-| Feature Cucumber 17-19 | **Réécrites** (LENS-4) | ✅ LENS-4
-| `graphify-plugin` dependency | **Conserver** | ✅ (utilisé par SubgraphExtractor)
-
-== EPIC 14 : Capacités IA Bakery — Roadmap Session 022 (Brainstorm BAKERY_AUDIT.adoc)
-
-*Cadrage* : session 022 (2026-05-29), document `BAKERY_AUDIT.adoc` Partie II.
-9 EPICs cadrés (~73 pts). Règle d'or : DOGFOOD FIRST, SAAS LATER.
-Prérequis transverse : BKY-IA-0 (service LLM partagé LangChain4j + Ollama).
-
-[cols="1,3,2,2", options="header"]
+:description: Backlog prioritaire — EPICs restants + Code Smells de finalisation (Session 079)
+:toc: left
+:toclevels: 4
+:icons: font
+:sectnums:
+
+_Dernière mise à jour : 2026-06-04 — Session 079 (code review v3 + nettoyage historique)_
+_Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
+_Code review source_ : `.agents/CODE_REVIEW.adoc` + `last_code_review.adoc` (racine bakery-gradle/) + analyse directe du code source
+
+[CAUTION]
+====
+**28/28 EPICs terminés.** Le backlog ne contient plus que les 10 code smells
+de finalisation (CS-13→CS-22) identifiés par la code review v3 (Session 079).
+Bakery est en phase de **polish final** avant switch borough.
+====
+
+'''
+
+== HISTORIQUE — EPICs Terminés (28/28)
+
+_Tous les EPICs ci-dessous sont clos. Conservés ici pour traçabilité.
+Les détails d'implémentation sont dans les archives de sessions et le backlog historisé._
+
+[cols="1,3,2,3"]
 |===
-| EPIC | Axe | Pts | Priorité
-| *BKY-IA-0* | Service LLM partagé (LangChain4j + Ollama) | 5 | *P0 — Prérequis*
-| *BKY-N3-7* | Contrat N3 : collectSiteContext → metadata.json | 5 | *P0 — Architecture*
-| *BKY-BKG* | Articles connexes par Knowledge Graph | 16 | *P0 — Quick win*
-| *BKY-IA-4* | Génération d'article assistée par IA | 8 | *P0 — Valeur immédiate*
-| *BKY-IA-1* | Scaffolding assisté par IA | 5 | *P0 ✅ TERMINÉ*
-| *BKY-IA-5* | Formulaire Google Forms (recette → Edster → CI/CD → Drive user) | 8 | *P0 — MVP0*
-| *BKY-TRN-9* | Intégration formation : assembleTrainingSite | 21 | *P0 — MVP0 Graal*
-| *BKY-IA-2* | Personnalisation thème IA (paramétrique) | 8 | *P1*
-| *BKY-IA-3* | Validation Firebase IA | 3 | *P2*
+| EPIC | Description | Pts | Clôture
+| EPIC 1 | Intégration gouvernance agent | — | Sess. 001
+| EPIC 2 | Migration Supabase → Firebase | — | Sess. 002
+| EPIC 3 | Amélioration build.gradle.kts | — | Sess. 003
+| EPIC 4 | Formulaire de contact Firebase | — | Sess. 012
+| EPIC 5 | Correction timeout Cucumber | — | ✅ Implémenté (timeout 5min)
+| EPIC 6 | Intégration deployProfile | 13→3 | Sess. 072 (CS-12 renommage DEPLOYER)
+| EPIC 7 | Tolérance parsing YAML | — | Sess. 029
+| EPIC 8 | Bumper version 0.1.4 | — | Sess. 016
+| EPIC 9 | Orchestration LLM | — | ⚠️ SUPERSEDÉ par BKY-IA-0 (LLM local)
+| EPIC 10 | Scaffolding TDD | — | Sess. 029 (100%)
+| EPIC 11 | Optimisation durée tests | — | Sess. 064 (-77%, 2m46→38s)
+| EPIC 12 | Articles connexes KG | — | ⚠️ SUPERSEDÉ par BKY-LENS
+| EPIC 13 | Couverture tests 73%→77.25% | 5→3 | Sess. 077 (>75% seuil ✅)
+| EPIC 14 | Roadmap IA (9 EPICs) | 73 | Sessions 022→069
+| EPIC 15 | PluginApplicationTest NPE | 3 | Sess. 028 (siteType déjà stubbé)
+| EPIC 16 | Cucumber Scaffolding steps | 2 | Sess. 028 (step déjà corrigé)
+| EPIC 17 | generateArticle graceful fail | 5 | Sess. 053 (70/70 Cucumber PASS)
+| BKY-JB-0 | Scaffolding site JBake | 5 | Sess. 026
+| BKY-JB-2 | Composants Thymeleaf | 5 | Sess. 029
+| BKY-JB-3 | Google Forms embed | 5 | Sess. 030
+| BKY-JB-4 | Firebase Auth + Comments | 5 | Sess. 032
+| BKY-JB-5 | Analytics + Newsletter | 3 | Sess. 033 ✅ (BACKLOG corrigé — était EN COURS)
+| BKY-JB-6 | Système de thème | 5 | Sess. 034
+| BKY-JB-7 | Layouts | 3 | Sess. 039
+| BKY-JB-8 | Article IA | 13 | Sess. 040
+| BKY-JB-9 | E2E Tests Playwright | 8 | Sess. 038 ✅ (BACKLOG corrigé — était PROPOSITION)
+| BKY-CONV-1 | ConfigResolver 4 couches | 5 | Sess. 049 ✅ (BACKLOG corrigé — était EN COURS)
+| BKY-IA-0 | Service LLM partagé | 5 | Sess. 023
+| BKY-N3-7 | Contrat N3 metadata.json | 5 | Sess. 024
+| BKY-IA-4 | Génération article IA | 8 | Remplacé par BKY-JB-8
+| BKY-IA-1 | Scaffolding assisté IA | 5 | Sess. 065-066
+| BKY-IA-2 | Thème IA paramétrique | 8 | Sess. 068-069 ✅ (divergence doc corrigée S076)
+| BKY-IA-3 | Validation Firebase IA | 3 | Sess. 070 (code déjà complet)
+| BKY-BKG | Articles connexes KG | 16 | SUPERSEDÉ par BKY-LENS
+| BKY-LENS-1 | SubgraphExtractor | 5 | Sess. 055
+| BKY-LENS-2 | AugmentedArticlesService | 4 | Sess. 057
+| BKY-LENS-3 | Budget + Injection JBake | 3 | Sess. 058
+| BKY-LENS-4 | Cucumber Features 17-19 | 3 | Sess. 059
+| BKY-LENS-5 | Connect N3 Composite Context | 3 | Sess. 061
+| BKY-LENS-6 | Templates Augmentés JBake | 3 | Sess. 062
 |===
 
-=== BKY-IA-0 — Service LLM Partagé (Prérequis Transverse)
+'''
 
-*Statut* : ✅ TERMINÉ — *P0, session 023*
-*Priorité* : P0 — tous les autres EPICs IA en dépendent
-*Charge* : 5 pts
-*Dépend de* : —
+== EPICs Transférés (hors périmètre bakery)
 
-*Objectif* : Mettre en place le wrapper LangChain4j + Ollama dans bakery,
-même pattern que slider-gradle et plantuml-gradle.
+[cols="1,3,2,3"]
+|===
+| EPIC | Destination | Raison | Statut
+| BKY-IA-5 | **KINGSTON** `foundry/private/gsuite-gradle` | Expert Google Suite (clasp, Forms, Sheets, Drive) | 🔄 À créer
+| BKY-TRN-9 | **training-gradle** TRN-9 🔒 | Domaine métier formation (portail) | 🔄 Dans Newark
+| BKY-JB-1 | **training-gradle** TRN-TEMP | Templates métier formation | 🔄 Transféré
+| EPIC 6 — tâche 6 | **cheroliv.com** `build.gradle.kts` | Nettoyage code inline publishProfile | ☐ À faire (pas bakery)
+|===
 
-*Architecture* :
-```kotlin
-// BakeryExtension.kt — nouveau bloc DSL
-open class BakeryExtension {
-    val ia: IaConfig = IaConfig()  // NOUVEAU
-}
-open class IaConfig {
-    var provider: String = "deepseek-v4-pro"
-    var ollamaUrl: String = "http://localhost:11434"
-    var temperature: Double = 0.7
-    var maxTokens: Int = 4096
-}
+'''
 
-// LlmService.kt — NOUVEAU fichier
-class LlmService(config: IaConfig) {
-    private val model = OllamaChatModel.builder()...
-    fun generate(prompt: String): String
-    fun generateStructured(prompt: String, schema: JsonSchema): JsonNode
-}
-```
+== FINALISATION — Code Smells issus de la Code Review v3 (Session 079)
 
-*Tâches* :
-. `BKY-IA-0.1` — Ajouter `langchain4j-ollama` dans `build.gradle.kts`
-. `BKY-IA-0.2` — `LlmService.kt` : wrapper LangChain4j + Ollama
-. `BKY-IA-0.3` — `IaConfig` dans `BakeryExtension` (bloc DSL `bakery { ia { ... } }`)
-. `BKY-IA-0.4` — Tests : mock du LLM (pattern slider-gradle — interface + stub)
+_Ces 10 code smells ont été identifiés par la relecture directe du code source
+actuel (2026-06-04), croisée avec `last_code_review.adoc` (racine) et
+`.agents/CODE_REVIEW.adoc` v2. Les 12 smells historiques (CS-1→12) sont résolus._
 
-=== BKY-N3-7 — Contrat N3 : metadata.json Structuré
+=== 🔴 P0 — Bloquant (bug dormant)
 
-*Statut* : À faire — *P0, peut démarrer en parallèle de BKY-IA-0*
-*Priorité* : P0 — obligation architecturale : sans ça, bakery est invisible pour runner-gradle
-*Charge* : 5 pts
-*Dépend de* : —
+==== CS-FIN-1 : Fix bug critique BakeryPlugin — `configPath.get()` sans `isPresent` (CS-21 + CS-16)
 
-*Objectif* : Exposer un `metadata.json` standardisé pour que runner-gradle (N3)
-puisse agréger bakery dans le vecteur composite (`assembleCompositeContext`).
-
-*Sortie* : tâche `collectSiteContext` (COLLECTER) → `build/bakery/metadata.json`
-```json
-{
-  "borough": "bakery", "dag_level": "N2",
-  "sites": { "cheroliv.com": { "type": "blog", "articles": 147, ... } },
-  "tasks": ["generateSite", "collectSiteConfig", "bake", "deploySite", ...],
-  "ia_capabilities": ["generateArticle", "generateTheme", "generateFormRecipe"]
-}
-```
-
-*Tâches* :
-. `BKY-N3-7.1` — `SiteContext.kt` data class (modèle metadata.json)
-. `BKY-N3-7.2` — Tâche `collectSiteContext` (groupe COLLECTER) : scanne les sites → JSON
-. `BKY-N3-7.3` — Alignement format pivot `Metadata.kt` (EPIC K-2) + contrat runner-gradle
-
-=== BKY-BKG — Articles Connexes par Knowledge Graph (reprise EPIC 12)
-
-*Statut* : À faire — *P0, cadré en session 13bis, non démarré*
-*Priorité* : P0 — dépendance graphify déjà dans le build mais inutilisée (dette technique)
-*Charge* : 16 pts (BKG-0 = 5, BKG-1 = 3, BKG-2 = 8 optionnel P2)
-*Dépend de* : graphify-gradle (N0, déjà en `implementation`)
-
-*Principe* : remplacer les « Articles connexes » chronologiques par un scoring
-basé sur le Knowledge Graph. Le linking sémantique est une valeur différenciante
-qu'aucun autre outil de site statique ne propose.
-
-*Sous-EPICs* (déjà détaillés dans EPIC 12 ci-dessus) :
-- BKG-0 : Enrichissement graphify pour contenu éditorial (5 pts)
-- BKG-1 : Consommation graphe dans bakery (3 pts)
-- BKG-2 : Ontologie émergente (8 pts, P2 optionnel)
-
-=== BKY-IA-4 — Génération d'Article Assistée par IA
-
-*Statut* : ✅ REMPLACÉ par BKY-JB-8 (bakery) — ArticleIntention DDD + Generator enrichi + DSL + CLI (session 040)
-*Priorité* : P0 — valeur immédiate pour cheroliv.com (principal consommateur)
-*Charge* : 8 pts → implémenté dans BKY-JB-8 (13 pts)
-
-*Objectif* : Tâche `generateArticle` qui prend un topic + corpus → article
-AsciiDoc avec header JBake. Workflow : ébauche IA → relecture humaine → publication.
-
-*Tâches* :
-. `BKY-IA-4.1` — `ArticleIntention` data class (topic, audience, ton, longueur, mots-clés)
-. `BKY-IA-4.2` — Tâche `generateArticle` : intention → LLM → article AsciiDoc + header JBake
-. `BKY-IA-4.3` — Intégration LangChain4j + Ollama (DeepSeek-v4-pro via `LlmService`)
-. `BKY-IA-4.4` — Prompt engineering : template éditorial forçant style + structure + métadonnées
-. `BKY-IA-4.5` — Tests : AsciiDoc valide, header JBake parsable, contenu non vide
-
-=== BKY-IA-1 — Scaffolding Assisté par IA
-
-*Statut* : ✅ TERMINÉ — *P0, étapes 1-5 complètes (sessions 065-066)*
-*Priorité* : P0 — couche IA au-dessus du scaffolding mécanique (EPIC 10 ✅)
-*Charge* : 5 pts (3/5 terminés)
-*Dépend de* : BKY-IA-0 (✅), EPIC 10 (✅)
-
-*Objectif* : Le LLM choisit la structure du site (templates, métadonnées JBake)
-en fonction d'une intention exprimée en langage naturel. Pattern : plantuml-gradle
-faisait déjà « décris ton diagramme → je génère le PlantUML ».
-
-*Tâches* :
-. `BKY-IA-1.1` ✅ — `ScaffoldIntention` data class + `ScaffoldSiteType` enum + `ScaffoldOutput` + `ScaffoldMetadata` + `ScaffoldIntentionDsl` (17 UT PASS)
-. `BKY-IA-1.2` ✅ — `ScaffoldGenerator` : prompt LLM + parse JSON + fallback + `ScaffoldGeneratorTest` (18 UT PASS + compact JSON)
-. `BKY-IA-1.3` ✅ — `GenerateSiteFromIntentionTask` + DSL `bakery { scaffoldIntention { ... } }` + wiring `BakeryExtension` + `SiteManager` + `BakeryPlugin` (13 UT PASS)
-. `BKY-IA-1.4` ✅ — FT : Tests fonctionnels (5 FT ScaffoldIntentionFunctionalTests — scaffold IA vs classique, rétro-compatibilité, IA+LLM cohabitation)
-. `BKY-IA-1.5` ✅ — BDD : Cucumber Feature 25 (3 scénarios : intention IA → task enregistrée, sans IA → scaffolding classique, intention vide → build OK)
-
-*Architecture* :
-----
-bakery { scaffoldIntention { description = "Blog tech Kotlin"; siteType = "blog"; lang = "fr"; projectName = "kotlin-blog" } }
-     ↓ resolveIntention (CLI > DSL > defaults)
-     ↓ ScaffoldGenerator.generate(intention, llm)
-     ↓ JSON response → ScaffoldOutput
-     ↓ applyScaffoldOutput → site.yml suggéré
-----
-
-=== BKY-IA-5 — Formulaire Google Forms : Recette → Edster → CI/CD → Drive User
-
-*Statut* : À faire — *P0 pour MVP0 formation*
-*Priorité* : P0 — brique du livrable MVP0 Graal (formulaires d'évaluation)
-*Charge* : 8 pts
-*Dépend de* : BKY-IA-0
-*Stratégie mock* : Edster + CI/CD mockés en MVP0. Runner-gradle exécute clasp localement
-  (npx @google/clasp) avec le token cheroliv. Switch Edster = 1 ligne :
-  `ClaspLocalExecutor` → `EdsterApiClient`.
-
-*Architecture 3 couches* :
-----
-Bakery (N2)        → generateFormRecipe → recipe.json
-Runner-gradle (N3) → lit recipe.json → MVP0: npx clasp local / MVP1: POST Edster
-Edster (N3 SaaS)   → provisionne CI/CD + secrets (CLASP_TOKEN)
-CI/CD utilisateur  → clasp push/deploy → formulaire dans Drive user
-Runner-gradle      → callback URL → bakery.deployFormUrl(url)
-Bakery (N2)        → injecte URL dans la page → bake → deploy
-----
-
-*Responsabilités* :
-- Bakery (N2) : génère la recette (code Apps Script + FormIntention). Injecte l'URL.
-  Ne connaît PAS Edster.
-- Runner-gradle (N3) : orchestre le flux (recette → Edster → callback → injection)
-- Edster (N3 SaaS) : provisionne le job CI/CD, gère les credentials, facture
-- CI/CD utilisateur : exécute clasp, token OAuth scopé Drive user, possède le formulaire
-- RGPD : formulaire et réponses dans le compte Google du formateur. Bakery ne voit rien.
-
-*Tâches* :
-. `BKY-IA-5.1` — `FormIntention` data class (type : contact, évaluation, inscription ; questions QCM/texte/échelle ; googleAccount cible)
-. `BKY-IA-5.2` — `FormGenerator.kt` (GENERER) : intention → LLM → `Code.gs` + `appsscript.json` + `recipe.json`
-. `BKY-IA-5.3` — Tâche `generateFormRecipe` : LLM → recipe.json dans `build/bakery/forms/<formId>/`
-. `BKY-IA-5.4` — Tâche `deployFormUrl` : reçoit l'URL (depuis runner-gradle) → injecte dans la page Thymeleaf
-. `BKY-IA-5.5` — Extension DSL `bakery { forms { googleAccount = "..." } }`
-. `BKY-IA-5.6` — Tests : mock LLM → recipe.json valide, injection URL ok. Cucumber : génération recette → Apps Script parsable
-
-=== BKY-TRN-9 — Intégration Formation : assembleTrainingSite
-
-*Statut* : À faire — *P0 pour MVP0 Graal, dernier EPIC du pipeline formation*
-*Priorité* : P0 — raison d'être de bakery dans le pipeline MVP0
-*Charge* : 21 pts (le plus gros EPIC IA)
-*Dépend de* : BKY-N3-7 (metadata.json), training-gradle, slider-gradle, codex-gradle, quizz-benchmark
-
-*Objectif* : Bakery reçoit un répertoire structuré d'artefacts N2
-(SPG, SPDs, slides, PDFs, quiz) → assemble un site de formation complet.
-
-*Flux* :
-----
-runner-gradle (N3) → collecte artefacts N2 → répertoire structuré :
-  formation-portal/
-  ├── spg.adoc              (planner-gradle)
-  ├── spds/*.adoc           (planner-gradle)
-  ├── slides/*.html         (slider-gradle)
-  ├── pdfs/*.pdf            (codex-gradle)
-  ├── quiz/*.json           (quizz-benchmark)
-  └── metadata.json         (runner-gradle agrégé)
-bakery → assembleTrainingSite → site statique complet :
-  - Page d'accueil (SPG) + navigation par session
-  - Slides embarquées (iframe) + PDFs téléchargeables
-  - Quiz interactifs intégrés + formulaire évaluation Google Forms
-  - Page de certification/attestation
-----
-
-*Tâches* :
-. `BKY-TRN-9.1` — `TrainingSiteConfig` data class (structure répertoire, navigation, sections)
-. `BKY-TRN-9.2` — Template Thymeleaf `formation` (layout, menu, slides iframe, PDF download)
-. `BKY-TRN-9.3` — Tâche `assembleTrainingSite` (TRANSFORMER) : parse répertoire → génère pages
-. `BKY-TRN-9.4` — Intégration quiz : embed player quizz-benchmark dans la page
-. `BKY-TRN-9.5` — Page attestation : template conditionnel si certification activée
-. `BKY-TRN-9.6` — Tests Cucumber : pipeline complet → site de formation valide
-
-=== BKY-IA-2 — Personnalisation de Thème IA (Paramétrique)
-
-*Statut* : ✅ TERMINÉ — sessions 068-069 (implémentation), session 076 (divergence documentaire corrigée)
-*Priorité* : P1 — approche paramétrique (catalogue + variables) plutôt que générative (CSS from scratch)
-*Charge* : 8 pts ✅
-*Dépend de* : BKY-IA-0
-
-*Tâches terminées* :
-. ✅ `BKY-IA-2.1` — Catalogue de thèmes Thymeleaf (5 variantes : minimal, magazine, doc, portfolio, formation)
-. ✅ `BKY-IA-2.2` — Variables de thème (couleurs, polices, logo, favicon)
-. ✅ `BKY-IA-2.3` — Tâche `generateTheme` : intention → sélection thème + variables
-. ✅ `BKY-IA-2.4` — Tests : templates générés compilent avec Thymeleaf (26 UT + 5 FT + 3 Cucumber)
-
-=== BKY-IA-3 — Validation Firebase Assistée par IA
-
-*Statut* : ✅ TERMINÉ — *P2, session 070 (audit révèle code déjà complet)*
-*Priorité* : P2 — EPIC 4 (Firebase mécanique) déjà à 95%, l'IA ajoute validation + suggestions
-*Charge* : 3 pts ✅
-*Dépend de* : BKY-IA-0, EPIC 4
-
-*Tâches terminées* :
-. ✅ `BKY-IA-3.1` — Tâche `validateFirebaseConfig` : validation mécanique (apiKey/authDomain/projectId) + validation LLM optionnelle
-. ✅ `BKY-IA-3.2` — Suggester : warnings si config incohérente (cross-field coherence)
-
-*Fichiers* :
-- `src/main/kotlin/bakery/firebase/ValidateFirebaseConfigTask.kt` — tâche Gradle (236 lignes)
-- `src/main/kotlin/bakery/firebase/FirebaseConfigValidator.kt` — validation mécanique pure (85 lignes)
-- `src/main/kotlin/bakery/firebase/FirebaseValidationResult.kt` — data classes (31 lignes)
-- `src/test/kotlin/bakery/firebase/FirebaseConfigValidatorTest.kt` — 18 UT (8 Auth + 7 Contact + 3 Result)
-- `src/test/kotlin/bakery/firebase/ValidateFirebaseConfigTaskTest.kt` — 11 UT (5 task + 2 prompt + 2 parsing + 2 mechanical)
-- `src/functionalTest/kotlin/bakery/ValidateFirebaseConfigFunctionalTests.kt` — 5 FT
-- `src/test/features/28_validate_firebase_config.feature` — 3 scénarios Cucumber
-- `src/test/scenarios/bakery/scenarios/ValidateFirebaseConfigSteps.kt` — steps Cucumber
-
-== EPIC 15 : Réparation PluginApplicationTest + PublishingTest (4 NPE)
-
-*Statut* : Analyse terminée — *P0*
-*Charge* : 3 pts
-*Priorité* : P0 — bloque la confiance dans la suite de tests unitaires
-*Fichiers concernés* : `BakeryTestFixture.kt`, `BakeryPluginTest.kt`, `BakeryPlugin.kt`, `SiteScaffolder.kt`
-
-=== Analyse de la cause racine
-
-Le `BakeryTestFixture` mocke `BakeryExtension` avec Mockito mais omet la propriété `siteType`.
-
-```
-mockBakeryExtension()                ← CAUSE RACINE : siteType non-stubbé
-  ↓
-bakeryExtension.siteType = null      ← Mockito retourne null par défaut
-  ↓
-SiteScaffolder.resolveSiteType()     ← MAILLON FAIBLE : pas de null-check
-  ↓
-null.orNull                          → NPE à SiteScaffolder.kt:70
-  ↓
-BakeryPlugin.kt:64 (afterEvaluate)   ← POINT D'APPEL
-  ↓
-BakeryPluginTest.kt:32/39/46/265    ← 4 tests échouent
-```
-
-**4 tests NPE** :
-- `PluginApplicationTest > plugin creates bakery extension()`
-- `PluginApplicationTest > plugin manager is configured on apply()`
-- `PluginApplicationTest > plugin reads config path from extension()`
-- `PublishingTest > check_publishing()`
-
-=== User Journeys BDD
-
-```gherkin
-Feature: Réparation PluginApplicationTest
-  En tant que développeur bakery
-  Je veux que l'application du plugin sur un projet mocké minimal fonctionne
-  Afin d'avoir une suite de tests unitaires fiable en TDD
-
-  Scenario: Le plugin s'applique sans NPE sur un projet mocké
-    Given un BakeryTestFixture avec tous les mocks nécessaires
-      (configPath, sitesBaseDir, siteName, siteType, ia)
-    When BakeryPlugin().apply(fixture.project) est appelé
-    Then l'appel réussit sans exception
-    And pluginManager.apply("com.github.node-gradle.node") a été appelé
-    And extensions.create("bakery", BakeryExtension::class.java) a été appelé
-    And configPath.get() retourne "site.yml"
-```
-
-=== Conditions aux limites
-
-- `siteType = null` sur l'extension → doit être géré dans `resolveSiteType()`
-- `configPath` non défini → `isGradlePropertiesEnabled = false` → comportement par défaut
-- `site.yml` inexistant → branche scaffolding (prise par le mock)
-- `site.yml` existant → branche site config (bloque la résolution des chemins)
-
-=== Baby Steps DDD/TDD
-
-. **Étape 1 — Mock** (1 pt) : Ajouter `siteType` dans `BakeryTestFixture.mockBakeryExtension()`
-  - [ ] Stubber `ext.siteType` avec `mockProperty("blog", present = true)`
-  - [ ] Vérifier que les 4 NPE disparaissent (`./gradlew test --tests "*PluginApplicationTest*" --tests "*PublishingTest*"`)
-
-. **Étape 2 — Null-safety** (1 pt) : Ajouter une protection dans `SiteScaffolder.resolveSiteType()`
-  - [ ] Ajouter un null-check : `val rawType = bakeryExtension.siteType?.orNull`
-  - [ ] Ajouter un test unitaire pour `resolveSiteType` avec extension null
-
-. **Étape 3 — UTs complets** (1 pt) : Remplacer les mocks Mockito par `ProjectBuilder` réel
-  - [ ] Migrer `PluginApplicationTest` vers `ProjectBuilder` (sans `afterEvaluate`)
-  - [ ] Ajouter `@TempDir` + `ProjectBuilder.builder().withProjectDir(tempDir).build()`
-  - [ ] Tester les 2 branches : scaffolding (sans `site.yml`) vs site config (avec `site.yml`)
-
-== EPIC 16 : Correction Cucumber Scaffolding — Step manquant (7 UndefinedStepException)
-
-*Statut* : Analyse terminée — *P0*
+*Priorité* : P0 — crash utilisateur si configPath non défini
 *Charge* : 2 pts
-*Priorité* : P0 — 3 User Journeys scaffolding bloquées (UJ1, UJ4, UJ5)
-*Fichiers concernés* : `6_site_scaffolding.feature`
+*Fichiers* : `BakeryPlugin.kt`
 
-=== Analyse de la cause racine
+_Problème_ : Deux bugs superposés dans l'initialisation du plugin :
 
-**Divergence unique** entre le fichier `.feature` et l'annotation Cucumber :
+. **CS-21** : `bakeryExtension.configPath.get()` (ligne 47) lève `MissingPropertyException` si configPath n'est jamais défini (ni DSL, ni gradle.properties, ni -P). Bug dormant depuis la création du plugin — jamais déclenché car l'usage réel fournit toujours un configPath. Identifié dans `revue_de_code_last.adoc` il y a des mois, jamais corrigé.
 
-```diff
-# Lignes 15, 60, 79 du feature (6_site_scaffolding.feature) :
-- And the gradle project does not have 'site.yml' for site configuration
-# Annotation dans InitSiteSteps.kt ligne 90 :
-+ @And("does not have {string} for site configuration")
-```
+. **CS-16** : `isGradlePropertiesEnabled` (ligne 40) est calculé **dans `apply()` avant `afterEvaluate`**. À ce stade, le DSL utilisateur n'est pas encore exécuté → `configPath.isPresent` retourne toujours `false`. Conséquence : `configureConfigPath` cherche dans `gradle.properties` même quand le DSL définit `configPath`, pouvant écraser silencieusement la config DSL.
 
-Le préfixe `the gradle project ` est présent dans le `.feature` mais absent de l'annotation.
+_Tâches_ :
 
-**Scénarios affectés** (3/5) :
-- UJ1 `Scaffold a new site into the sites base directory` (ligne 15)
-- UJ4 `Scaffold into project directory when only siteName is defined` (ligne 60)
-- UJ5 `Scaffold into project root when no scaffolding properties are defined` (ligne 79)
-
-**Scénarios OK** (2/5) :
-- UJ2 `Scaffold fails when siteName is missing` — pas d'étape concernée
-- UJ3 `Scaffold fails when the site already exists` — pas d'étape concernée
-
-Les autres features (`2_init_site_task.feature`, `4_contact_form.feature`) utilisent la forme correcte `does not have` sans préfixe.
-
-=== User Journeys BDD
-
-```gherkin
-Feature: Correction Scaffolding Cucumber
-
-  UJ1 — Scaffolder site complet (sitesBaseDir + siteName)
-  Scenario: Scaffold a new site into the sites base directory
-    Given a new Bakery project
-    And does not have 'site.yml' for site configuration    ← step corrigé
-    And the bakery extension defines 'sitesBaseDir' as 'office/sites'
-    And the bakery extension defines 'siteName' as 'my-company'
-    When I am executing the task 'generateSite'
-    Then the project directory 'office/sites/my-company' should exist
-
-  UJ4 — Scaffold dans projectDir avec siteName seul
-  Scenario: Scaffold into project directory when only siteName is defined
-    Given a new Bakery project
-    And does not have 'site.yml' for site configuration    ← step corrigé
-    And the bakery extension defines 'siteName' as 'mysite'
-    When I am executing the task 'generateSite'
-    Then the project directory 'mysite' should exist
-
-  UJ5 — Rétrocompatibilité (ni sitesBaseDir ni siteName)
-  Scenario: Scaffold into project root (backward compat)
-    Given a new Bakery project
-    And does not have 'site.yml' for site configuration    ← step corrigé
-    When I am executing the task 'generateSite'
-    Then the project should have a 'site.yml' file for site configuration
-```
-
-=== Conditions aux limites
-
-- `site.yml` déjà présent → la tâche `generateSite` crée-t-elle quand même ?
-- `site/` dossier existant mais pas `maquette/` → comportement partiel
-- `siteName` avec caractères spéciaux / chemin relatif (`../`) → validation ?
-- `.gitignore` / `.gitattributes` déjà présents → écrasement ou append ?
-
-=== Baby Steps DDD/TDD
-
-. **Étape 1 — Correction unique** (1 pt) : Aligner le `.feature` sur l'annotation existante
-  - [ ] Lignes 15, 60, 79 : remplacer `the gradle project does not have` → `does not have`
-  - [ ] Vérifier : `./gradlew cucumberTest --tests "*CucumberTestRunner*"` → UJ1, UJ4, UJ5 passent
-
-. **Étape 2 — Boundary tests** (1 pt) : Ajouter les cas aux limites
-  - [ ] UJ1b : `site.yml` préexistant ne bloque pas `generateSite`
-  - [ ] UJ5b : `.gitignore` déjà présent avec `site.yml` dédupliqué (append vs écrasement)
-
-== EPIC 17 : Réparation generateArticle — Fails gracefully (1 AssertionError, 3 bugs superposés)
-
-*Statut* : ✅ TERMINÉ (Session 053)
-*Charge* : 5 pts (3 pts réalisés — bugs #1 et #2 déjà résolus avant la session)
-*Priorité* : P0 — ✅ RÉSOLU
-
-=== Résolution (Session 053)
-
-. **Bug #1 (couche scénario)** : Le step `Given a new Bakery project with site configured` (ConfigResolverSteps) ne créait pas un projet avec site/maquette dirs. Résolu en ajoutant `@Given("a new Bakery project with site configured but without IA")` dans `GenerateArticleSteps.kt` qui appelle `world.createGradleProjectWithSiteConfigured(iaEnabled = false)`.
-
-. **Bug #2 (couche production)** : `IaConfig.enabled = false` était **déjà corrigé** (défaut à `false` depuis une session antérieure). Le `if (iaConfig.enabled)` dans `registerGenerateArticleTask` fonctionne correctement.
-
-. **Bug #3 (couche assertion)** : `buildShouldFail()` + `outputShouldContain("LlmService")` passent maintenant car le projet de test n'a pas de bloc `ia { }`, donc `llmService = null` → `IllegalStateException("Aucun LlmService injecté...")`.
-
-=== Fichiers modifiés (Session 053)
-
-* `src/test/features/9_generate_article.feature` — 2 scénarios mis à jour (step `without IA`)
-* `src/test/scenarios/bakery/scenarios/GenerateArticleSteps.kt` — ajout step `@Given("a new Bakery project with site configured but without IA")`
-
-=== Résultat : 70/70 Cucumber PASS ✅
-
-== BKY-JB-2 : Composants Thymeleaf réutilisables
-
-**Statut** : TERMINE
-**Priorite** : P0
-**Charge** : 5 pts
-
-_Objectif_ : Créer 4 fragments Thymeleaf réutilisables pour enrichir les pages bakery : breadcrumb, toc-sidebar, progress-bar, pdf-viewer.
-
-=== Tâches
-
-* [x] Créer `breadcrumb.thyme` — fil d'Ariane (Accueil > Blog > Article)
-* [x] Créer `toc-sidebar.thyme` — table des matières extraite des headings h2/h3
-* [x] Créer `progress-bar.thyme` — barre de progression de lecture (scroll)
-* [x] Créer `pdf-viewer.thyme` — embed PDF responsive avec condition `th:if`
-* [x] Intégrer breadcrumb + progress-bar + toc-sidebar dans `post.thyme`
-* [x] Intégrer breadcrumb + progress-bar + pdf-viewer dans `page.thyme`
-* [x] Tests fonctionnels : 4 tests ScaffoldFunctionalTests (composants déployés)
-* [x] Tests Cucumber : 5 scénarios (10_thymeleaf_components.feature)
-* [x] Steps Cucumber : ThymeleafComponentSteps (2 steps réutilisables)
-
-=== Fichiers
-
-* `src/main/resources/site/templates/breadcrumb.thyme` — créé
-* `src/main/resources/site/templates/toc-sidebar.thyme` — créé
-* `src/main/resources/site/templates/progress-bar.thyme` — créé
-* `src/main/resources/site/templates/pdf-viewer.thyme` — créé
-* `src/main/resources/site/templates/post.thyme` — modifié (breadcrumb + progress-bar + toc-sidebar)
-* `src/main/resources/site/templates/page.thyme` — modifié (breadcrumb + progress-bar + pdf-viewer)
-* `src/functionalTest/kotlin/bakery/ScaffoldFunctionalTests.kt` — 4 tests ajoutés
-* `src/test/features/10_thymeleaf_components.feature` — 5 scénarios Cucumber
-* `src/test/scenarios/bakery/scenarios/ThymeleafComponentSteps.kt` — 2 steps Cucumber
-
-== BKY-JB-3 : Google Forms Embed — Composant iframe responsive dans templates JBake
-
-**Statut** : TERMINE
-**Priorite** : P0
-**Charge** : 5 pts
-**Depend de** : BKY-JB-0 (TERMINE), BKY-JB-2 (TERMINE)
-
-_Objectif_ : Créer un fragment Thymeleaf `google-forms.thyme` qui embarque un Google Form en iframe responsive, piloté par la config YAML `site.yml` (clé `googleForms:`). C'est le premier EPIC de la Phase B (services JBake).
-
-=== Architecture cible
-
-----
-site.yml:
-  googleForms:
-    formId: "1ABCDEF-x1234567890"
-    width: "640"
-    height: "800"
-    allowMultiple: false
-
-google-forms.thyme:
-  <div th:if="${googleFormsFormId}" class="google-form-container">
-    <iframe src="https://docs.google.com/forms/d/e/{formId}/viewform?embedded=true"
-            width="{width}" height="{height}" frameborder="0" marginheight="0" marginwidth="0">Chargement…</iframe>
-  </div>
-----
-
-=== User Journeys BDD
-
-```gherkin
-Feature: Google Forms Embed — BKY-JB-3
-
-  En tant que formateur utilisant bakery
-  Je veux embarquer un Google Form dans une page JBake
-  Afin de collecter des évaluations ou des inscriptions directement sur mon site
-
-  UJ1 — Site avec Google Forms configuré
-  Scenario: Google Form embed dans une page JBake
-    Given a new Bakery project with site configured
-    And the site configuration contains a googleForms block with formId "1ABC-x12345"
-    When I am executing the task 'generateSite'
-    Then the site should contain a 'google-forms.thyme' template
-    And the rendered page should contain an iframe with src containing "1ABC-x12345"
-
-  UJ2 — Site sans Google Forms
-  Scenario: Pas d'iframe si Google Forms non configuré
-    Given a new Bakery project with site configured
-    And the site configuration does NOT contain a googleForms block
-    When I am executing the task 'generateSite'
-    Then the site should contain a 'google-forms.thyme' template
-    And the rendered page should NOT contain any iframe element
-
-  UJ3 — Google Forms dans page formation
-  Scenario: Google Form embed avec un formId spécifique dans une page formation
-    Given a new Bakery project with site configured
-    And the site configuration contains a googleForms block with formId "1XYZ-98765"
-    And the page type is "formation"
-    When I am executing the task 'generateSite'
-    Then the rendered page should contain an iframe with src containing "1XYZ-98765"
-```
-
-=== Baby Steps DDD/TDD/BDD — Méthodologie Agile Software Craftsmanship
-
-_Règle_ : Chaque étape doit compiler ET faire passer ses tests AVANT de passer à la suivante. 1 fichier à la fois. Validation immédiate après chaque modification.
-
-==== Étape 1 — DDD : Modèle domaine (1 pt)
-
-_Objectif_ : Modéliser le domaine Google Forms embed dans la configuration bakery.
-
-* [x] Créer `GoogleFormsConfig` data class dans `SiteConfiguration.kt`
-  - `formId: String` — identifiant du formulaire Google
-  - `width: String = "640"` — largeur iframe (défaut)
-  - `height: String = "800"` — hauteur iframe (défaut)
-  - `allowMultiple: Boolean = false` — autoriser plusieurs réponses
-* [x] Ajouter `googleForms: GoogleFormsConfig?` dans `SiteConfiguration`
-* [x] Ajouter bloc DSL `googleForms { }` dans `BakeryExtension`
-* [x] **TDD — 2 tests unitaires** : `GoogleFormsConfigTest`
-  - `parse site.yml avec googleForms → config=formId+defaults`
-  - `parse site.yml sans googleForms → config=null`
-
-==== Étape 2 — TDD : Fragment Thymeleaf (1 pt)
-
-_Objectif_ : Créer le fragment `google-forms.thyme` avec iframe responsive.
-
-* [x] Créer `src/main/resources/site/templates/google-forms.thyme`
-  - Container div avec `th:if="${googleFormsFormId}"`
-  - Iframe responsive (CSS aspect-ratio ou padding-bottom trick)
-  - Attributs Thymeleaf : `th:src`, `th:width`, `th:height`
-* [x] **TDD — 2 tests unitaires** : `GoogleFormsTemplateTest`
-  - Rendu avec formId → HTML contient iframe src avec formId
-  - Rendu sans formId (th:if=false) → fragment vide, pas d'iframe
-
-==== Étape 3 — TDD : Injection config → template (1 pt)
-
-_Objectif_ : Brancher la config YAML vers les propriétés JBake lues par le template.
-
-* [x] Ajouter `injectGoogleFormsConfigIntoJbakeProperties()` dans `SiteManager`
-  - Injecte `googleFormsFormId`, `googleFormsWidth`, `googleFormsHeight` dans `jbake.properties`
-* [x] Intégrer `google-forms.thyme` dans `page.thyme` (via `th:replace`)
-* [x] **TDD — 2 tests unitaires** : `GoogleFormsInjectionTest`
-  - `site.yml avec googleForms → jbake.properties contient les 3 clés`
-  - `site.yml sans googleForms → jbake.properties ne contient PAS les clés googleForms`
-
-==== Étape 4 — FT : Tests fonctionnels (1 pt)
-
-_Objectif_ : Valider end-to-end que le scaffolding déploye le composant.
-
-* [x] Test fonctionnel : `generateSite` → `google-forms.thyme` déployé dans le site
-* [x] Test fonctionnel : `generateSite` sans googleForms → pas d'injection dans jbake.properties
-* [x] **FT — 2 tests fonctionnels** dans `ScaffoldFunctionalTests.kt`
-
-==== Étape 5 — BDD : Scénarios Cucumber (1 pt)
-
-_Objectif_ : Valider les 3 User Journeys en Gherkin exécutable.
-
-* [x] Créer `src/test/features/11_google_forms_embed.feature` (3 scénarios)
-* [x] Créer `src/test/scenarios/bakery/scenarios/GoogleFormsSteps.kt`
-* [x] Réutiliser steps existants : `ThymeleafComponentSteps`, `MinimalSteps`
-* [x] **BDD — 3 scénarios Cucumber** : happy-path, no-config, th:if guard
-
-=== Conditions aux limites
-
-| Condition | Comportement attendu |
-|---|---|
-| `googleForms:` absent de `site.yml` | Pas d'iframe, fragment Thymeleaf rendu vide (th:if=false) |
-| `googleForms.formId` vide ou manquant | Erreur de validation : formId est requis |
-| `width`/`height` non spécifiés | Valeurs par défaut : 640×800 |
-| `allowMultiple = true` | Ajouter `?usp=pp_url` ou param de duplication Google Forms |
-| Plusieurs formulaires sur une page | Pas supporté en MVP — 1 formId global par site |
-
-=== Fichiers prévus
-
-* `src/main/kotlin/bakery/SiteConfiguration.kt` — ajout `GoogleFormsConfig`
-* `src/main/kotlin/bakery/BakeryExtension.kt` — bloc DSL `googleForms { }`
-* `src/main/resources/site/templates/google-forms.thyme` — créé
-* `src/main/resources/site/templates/page.thyme` — modifié (th:replace google-forms)
-* `src/main/kotlin/bakery/SiteManager.kt` — injection props JBake
-* `src/test/kotlin/bakery/GoogleFormsConfigTest.kt` — 1 UT
-* `src/test/kotlin/bakery/GoogleFormsTemplateTest.kt` — 2 UT
-* `src/test/kotlin/bakery/GoogleFormsInjectionTest.kt` — 2 UT
-* `src/functionalTest/kotlin/bakery/ScaffoldFunctionalTests.kt` — 2 FT
-* `src/test/features/11_google_forms_embed.feature` — 3 scénarios
-* `src/test/scenarios/bakery/scenarios/GoogleFormsSteps.kt` — steps Cucumber
-
-== BKY-JB-4 : Firebase Auth + Comments — Header login/logout + Commentaires Firestore
-
-**Statut** : TERMINE
-**Priorite** : P0
-**Charge** : 5 pts
-**Depend de** : BKY-JB-0 (TERMINE)
-
-_Objectif_ : Ajouter Firebase Authentication (login/logout bouton dans la navbar) et une section commentaires Firestore (remplaçant Disqus) pilotés par la config YAML `site.yml` (clés `firebaseAuth:` et `comments:`). Deuxième EPIC de la Phase B (services JBake).
-
-=== Architecture cible
-
-----
-site.yml:
-  firebaseAuth:
-    apiKey: "AIzaSy..."
-    authDomain: "my-app.firebaseapp.com"
-    projectId: "my-app"
-  comments:
-    enabled: true
-    collection: "comments"
-
-auth-header.thyme → bouton login/logout (th:if="${firebaseAuthApiKey}")
-comments.thyme → section commentaires Firestore (th:if="${commentsEnabled == 'true'}")
-footer.thyme → +firebase-auth-compat.js, +authDomain, +firebase.initializeApp()
-----
-
-=== Baby Steps DDD/TDD/BDD — Méthodologie Agile Software Craftsmanship
-
-==== Étape 1 — DDD : Modèle domaine (1 pt)
-
-* [x] Créer `FirebaseAuthConfig` data class dans `SiteConfiguration.kt`
-* [x] Créer `CommentsConfig` data class dans `SiteConfiguration.kt`
-* [x] Ajouter `firebaseAuth: FirebaseAuthConfig?` et `comments: CommentsConfig?` dans `SiteConfiguration`
-* [x] Créer `FirebaseAuthDsl` open class
-* [x] Créer `CommentsDsl` open class
-* [x] Ajouter DSL `bakery { firebaseAuth { ... } }` et `bakery { commentsConfig { ... } }` dans `BakeryExtension`
-* [x] **TDD — 5 tests unitaires** : `FirebaseAuthConfigTest`
-
-==== Étape 2 — TDD : Fragments Thymeleaf (1 pt)
-
-* [x] Créer `auth-header.thyme` — bouton login/logout avec `th:if` guard sur `firebaseAuthApiKey`
-* [x] Créer `comments.thyme` — section commentaires Firestore avec `th:if` guard sur `commentsEnabled`
-* [x] Intégrer `firebase-auth-compat.js` dans `footer.thyme`
-* [x] Enrichir `FIREBASE_CONFIG` avec `authDomain` + `firebase.initializeApp()`
-* [x] Intégrer `auth-header.thyme` dans `menu.thyme`
-* [x] Remplacer Disqus par `comments.thyme` dans `post.thyme`
-* [x] Ajouter `comments.thyme` dans `page.thyme`
-* [x] **TDD — 8 tests unitaires** : `FirebaseAuthTemplateTest`
-
-==== Étape 3 — TDD : Injection config → template (1 pt)
-
-* [x] Ajouter `injectFirebaseAuthConfigIntoJbakeProperties()` dans `SiteManager`
-* [x] Ajouter `injectCommentsConfigIntoJbakeProperties()` dans `SiteManager`
-* [x] **TDD — 3 tests unitaires** : `FirebaseAuthInjectionTest`
-
-==== Étape 4 — FT : Tests fonctionnels (1 pt)
-
-* [x] Test fonctionnel : `generateSite` → `auth-header.thyme` et `comments.thyme` déployés
-* [x] Test fonctionnel : `generateSite` sans config → pas d'injection dans jbake.properties
-* [x] **FT — 2 tests fonctionnels** dans `ScaffoldFunctionalTests.FirebaseAuthCommentsTest`
-
-==== Étape 5 — BDD : Scénarios Cucumber (1 pt)
-
-* [x] Créer `src/test/features/12_firebase_auth_comments.feature` (3 scénarios)
-* [x] Réutiliser steps existants : `ThymeleafComponentSteps`, `GoogleFormsSteps`
-* [x] **BDD — 3 scénarios Cucumber** : happy-path, no-config, integration
-
-=== Fichiers
-
-* `src/main/kotlin/bakery/SiteConfiguration.kt` — +FirebaseAuthConfig, +CommentsConfig
-* `src/main/kotlin/bakery/BakeryExtension.kt` — +firebaseAuth DSL, +commentsConfig DSL
-* `src/main/kotlin/bakery/FirebaseAuthDsl.kt` — créé
-* `src/main/kotlin/bakery/SiteManager.kt` — +injectFirebaseAuthConfigIntoJbakeProperties, +injectCommentsConfigIntoJbakeProperties
-* `src/main/resources/site/templates/auth-header.thyme` — créé
-* `src/main/resources/site/templates/comments.thyme` — créé
-* `src/main/resources/site/templates/footer.thyme` — modifié (+firebase-auth-compat, +authDomain, +firebase.initializeApp)
-* `src/main/resources/site/templates/menu.thyme` — modifié (+auth-header.thyme)
-* `src/main/resources/site/templates/post.thyme` — modifié (Disqus → comments.thyme)
-* `src/main/resources/site/templates/page.thyme` — modifié (+comments.thyme)
-* `src/test/kotlin/bakery/FirebaseAuthConfigTest.kt` — 5 UT
-* `src/test/kotlin/bakery/FirebaseAuthTemplateTest.kt` — 8 UT
-* `src/test/kotlin/bakery/FirebaseAuthInjectionTest.kt` — 3 UT
-* `src/functionalTest/kotlin/bakery/ScaffoldFunctionalTests.kt` — 2 FT
-* `src/test/features/12_firebase_auth_comments.feature` — 3 scénarios
-
-== BKY-JB-5 : Analytics + Newsletter — Plausible/Matomo, formulaire mail footer
-
-**Statut** : EN COURS (session 033)
-**Priorite** : P1
-**Charge** : 3 pts
-**Depend de** : BKY-JB-0 (TERMINE)
-
-_Objectif_ : Ajouter un fragment Thymeleaf `analytics-script.thyme` (script Plausible/Matomo) et un fragment `newsletter-form.thyme` (formulaire mail footer) pilotés par la config YAML `site.yml` (clés `analytics:` et `newsletter:`). Troisième EPIC de la Phase B (services JBake).
-
-=== Architecture cible
-
-----
-site.yml:
-  analytics:
-    provider: "plausible"
-    domain: "my-site.com"
-    scriptSrc: "https://plausible.io/js/script.js"
-  newsletter:
-    enabled: true
-    provider: "mailchimp"
-    endpoint: "https://mailchimp.us1.list-manage.com/subscribe/post?u=xxx&id=yyy"
-
-analytics-script.thyme → <script> Plausible ou Matomo (th:if="${analyticsProvider}")
-newsletter-form.thyme → formulaire email footer (th:if="${newsletterEnabled == 'true'}")
-footer.thyme → +analytics-script fragment, +newsletter-form fragment
-----
-
-=== Baby Steps DDD/TDD/BDD — Méthodologie Agile Software Craftsmanship
-
-==== Étape 1 — DDD : Modèle domaine (1 pt)
-
-* [x] Créer `AnalyticsConfig` data class dans `SiteConfiguration.kt` (provider, domain, scriptSrc)
-* [x] Créer `NewsletterConfig` data class dans `SiteConfiguration.kt` (enabled, provider, endpoint)
-* [x] Ajouter `analytics: AnalyticsConfig?` et `newsletter: NewsletterConfig?` dans `SiteConfiguration`
-* [x] Créer `AnalyticsDsl` open class
-* [x] Créer `NewsletterDsl` open class
-* [x] Ajouter DSL `bakery { analytics { ... } }` et `bakery { newsletter { ... } }` dans `BakeryExtension`
-* [x] **TDD — 7 tests unitaires** : `AnalyticsNewsletterConfigTest`
-
-==== Étape 2 — TDD : Fragments Thymeleaf (1 pt)
-
-* [x] Créer `analytics-script.thyme` — script Plausible/Matomo avec `th:if` guard sur `analyticsProvider`
-* [x] Créer `newsletter-form.thyme` — formulaire mail footer avec `th:if` guard sur `newsletterEnabled`
-* [x] Intégrer `analytics-script.thyme` dans `footer.thyme` (via th:replace)
-* [x] Intégrer `newsletter-form.thyme` dans `footer.thyme` (via th:replace)
-* [x] **TDD — 8 tests unitaires** : `AnalyticsNewsletterTemplateTest`
-
-==== Étape 3 — TDD : Injection config → template (1 pt)
-
-* [x] Ajouter `injectAnalyticsConfigIntoJbakeProperties()` dans `SiteManager`
-* [x] Ajouter `injectNewsletterConfigIntoJbakeProperties()` dans `SiteManager`
-* [x] **TDD — 3 tests unitaires** : `AnalyticsNewsletterInjectionTest`
-
-==== Étape 4 — FT : Tests fonctionnels (0.5 pt)
-
-* [x] Test fonctionnel : `generateSite` → `analytics-script.thyme` et `newsletter-form.thyme` déployés
-* [x] Test fonctionnel : `generateSite` sans config → pas d'injection dans jbake.properties
-* [x] **FT — 2 tests fonctionnels** dans `ScaffoldFunctionalTests.AnalyticsNewsletterTest`
-
-==== Étape 5 — BDD : Scénarios Cucumber (0.5 pt)
-
-* [x] Créer `src/test/features/13_analytics_newsletter.feature` (3 scénarios)
-* [x] Réutiliser steps existants : `ThymeleafComponentSteps`, `MinimalSteps` — aucun steps dédié nécessaire
-* [x] **BDD — 3 scénarios Cucumber** : happy-path, no-config, integration — tous PASS (session 033/035 vérifié)
-
-=== Conditions aux limites
-
-| Condition | Comportement attendu |
-|---|---|
-| `analytics:` absent de `site.yml` | Pas de script, fragment rendu vide (th:if=false) |
-| `analytics.provider` vide | Pas de script (th:if guard sur analyticsProvider) |
-| `newsletter:` absent de `site.yml` | Pas de formulaire (th:if=false) |
-| `newsletter.enabled = false` | Fragment rendu vide, formulaire invisible |
-| `newsletter.endpoint` vide | Formulaire visible mais action="" (comportement navigateur natif) |
-| Provider inconnu (ni plausible ni matomo) | Script plausible ignoré, matomo ignoré — rien ne s'injecte |
-
-=== Fichiers
-
-* `src/main/kotlin/bakery/SiteConfiguration.kt` — +AnalyticsConfig, +NewsletterConfig
-* `src/main/kotlin/bakery/BakeryExtension.kt` — +analytics DSL, +newsletter DSL
-* `src/main/kotlin/bakery/AnalyticsDsl.kt` — créé
-* `src/main/kotlin/bakery/SiteManager.kt` — +injectAnalyticsConfigIntoJbakeProperties, +injectNewsletterConfigIntoJbakeProperties
-* `src/main/resources/site/templates/analytics-script.thyme` — créé
-* `src/main/resources/site/templates/newsletter-form.thyme` — créé
-* `src/main/resources/site/templates/footer.thyme` — modifié (+analytics-script, +newsletter-form)
-* `src/test/kotlin/bakery/AnalyticsNewsletterConfigTest.kt` — 7 UT
-* `src/test/kotlin/bakery/AnalyticsNewsletterTemplateTest.kt` — 8 UT
-* `src/test/kotlin/bakery/AnalyticsNewsletterInjectionTest.kt` — 3 UT
-* `src/functionalTest/kotlin/bakery/ScaffoldFunctionalTests.kt` — 2 FT
-* `src/test/features/13_analytics_newsletter.feature` — 3 scénarios (à créer)
-
-== BKY-JB-9 : E2E Tests — Playwright-jvm + Thymeleaf Rendering Tests
-
-**Statut** : PROPOSITION
-**Priorite** : P1
-**Charge** : 8 pts
-**Depend de** : BKY-JB-5 (en cours), BKY-JB-6 (thème)
-
-=== Problème
-
-La pyramide de tests de bakery a un **trou critique** : les templates Thymeleaf ne sont jamais _rendus_ dans les tests.
-
-| Couche | Testé aujourd'hui | Manquant |
-|---|---|---|
-| UT (JUnit5) | `template.readText().contains("th:if")` — test de fichier | ❌ Rendu Thymeleaf avec vraies données |
-| FT (Gradle TestKit) | `generateSite` déploie fichiers, jbake.properties injecté | ❌ HTML résultant correct dans un navigateur |
-| BDD (Cucumber) | Scénarios → même chose que FT, différent langage | ❌ Visibilité humaine des composants |
-
-Nos "template tests" vérifient que le _texte source_ contient les bonnes chaînes, mais jamais que Thymeleaf l'évalue correctement avec `firebaseAuthApiKey != null`.
-
-=== Architecture cible — 2 couches
-
-==== Couche 1 : Thymeleaf Rendering Tests (UT rapide, ~1s)
-
+* [ ] **CS-21** — Ajouter `isPresent` guard avant `configPath.get()` :
 ```kotlin
-val engine = TemplateEngine()
-val context = Context(mapOf(
-    "analyticsProvider" to "plausible",
-    "analyticsDomain" to "my-site.com",
-    "analyticsScriptSrc" to "https://plausible.io/js/script.js"
-))
-val html = engine.process(FileTemplateSource("analytics-script.thyme"), context)
-assertThat(html).contains("""data-domain="my-site.com"""")
-assertThat(html).doesNotContain("th:if")  // th:if résolu, pas visible dans HTML
+if (!bakeryExtension.configPath.isPresent) {
+    logger.warn("configPath not set. Only scaffold tasks available.")
+    scaffoldOnly(project, bakeryExtension)
+    return@afterEvaluate
+}
 ```
-
-Avantage : JVM only, 0 infra, ~1s par test. Couvre 80% du besoin.
-Inconvénient : Ne teste pas le JS.
-
-==== Couche 2 : Playwright-jvm E2E (Cucumber + Browser, ~30s)
-
-```gherkin
-Feature: E2E Analytics — BKY-JB-9
-
-  Scenario: Plausible script is visible when analytics is configured
-    Given a baked bakery site with analytics configured as plausible
-    When I navigate to the homepage
-    Then I see a script tag with data-domain "my-site.com"
-
-  Scenario: Newsletter form is visible when enabled
-    Given a baked bakery site with newsletter enabled
-    When I navigate to the homepage
-    Then I see a newsletter form with email input
-    And I see a subscribe button labeled "S'inscrire"
+* [ ] **CS-16** — Déplacer `isGradlePropertiesEnabled` DANS `afterEvaluate` :
+```kotlin
+project.afterEvaluate {
+    val isGradlePropertiesEnabled = bakeryExtension.configPath.isPresent
+    // ...
+}
 ```
+* [ ] Vérifier que `./gradlew test` passe (BakeryPluginTest + PluginApplicationTest)
+* [ ] Tester manuellement : appliquer le plugin SANS DSL ni config → pas de crash, message warning
 
-Avantage : Vrai navigateur, vraie interaction, couvre JS aussi.
-Inconvénient : Lourd (Node.js + browser binary), ~30s par test.
+'''
 
-=== Baby Steps DDD/TDD/BDD
+=== 🟠 P1 — Qualité/Robustesse
 
-==== Phase A — Thymeleaf Rendering Tests (3 pts)
+==== CS-FIN-2 : Remplacer échappement JSON maison par Jackson (CS-13 + CS-22)
 
-. **JB-9.1** : Ajouter `org.thymeleaf:thymeleaf` en `testImplementation`
-. **JB-9.2** : Créer `ThymeleafRenderingTestFactory` — helper qui configure `TemplateEngine` + résout les templates depuis `src/main/resources/site/templates/`
-. **JB-9.3** : Migrer les tests template existants (analytics, newsletter, auth, google-forms, breadcrumb, etc.) vers des rendering tests
-. **JB-9.4** : Supprimer les `template.readText().contains()` — remplacer par `html.contains()`
+*Priorité* : P1 — corruption JSON sur cas complexes
+*Charge* : 1.5 pts
+*Fichiers* : `SiteTaskRegistrar.kt`, `LensPipelineService.kt`
 
-==== Phase B — Playwright-jvm E2E + Cucumber BDD (5 pts) ✅ TERMINÉE
+_Problème_ :
 
-. **JB-9.5** ✅ : Ajouter `com.microsoft.playwright:playwright` en `e2eImplementation`
-. **JB-9.6** ✅ : Créer tâche Gradle `e2eTest` : start serv → Playwright tests → stop serv
-. **JB-9.7** ✅ : Scénarios Playwright E2E : analytics visible, newsletter visible, auth buttons, Google Forms iframe (13/13 PASS)
-. **JB-9.8** ✅ : Scénarios Cucumber E2E : 10 scénarios Thymeleaf rendering BDD (feature 15_e2e_thymeleaf_components.feature + E2eThymeleafSteps.kt)
-. **JB-9.9** ✅ : CI workflow : `test.yml` (build + check + e2eTest) sur push main
-
-=== Référence croisée
-
-* capsule-gradle utilise déjà Playwright pour la capture vidéo — pattern réutilisable
-* quizz-benchmark a des CLI tests mais pas de browser
-*codebase-gradle a des tests pgvector (infra lourde) — même patterns d'orchestration Testcontainers
-
-== BKY-CONV-1 : Surcharge Configuration Multi-Couche — Standardiser le pattern foundry/public
-
-**Statut** : EN COURS (Session 047 : Steps 1-3 terminés)
-**Priorite** : P0
-**Charge** : 5 pts (3/5 terminés)
-**Dépend de** : —
-
-_Problème_ : L'ordre de précédence de surcharge de configuration n'est pas standardisé ni documenté dans bakery. Les autres projets foundry/public ont un pattern établi qu'il faut appliquer.
-
-_Objectif_ : Standardiser et documenter l'ordre de résolution des propriétés de configuration dans tout le plugin bakery, aligné sur les autres projets foundry/public. Chaque propriété doit pouvoir être surchargée par la couche_supérieure.
-
-=== Ordre de précédence — AUDIT COMPLET (Session 047)
-
+. **CS-13** : `injectLensBudgetIntoJbakeProperties()` (lignes 226-236) échappe le JSON avec 3 `replace()` manuels :
+```kotlin
+.replace("\\", "\\\\").replace("\n", "\\n").replace("\t", "\\t")
 ```
-CLI (-Pbakery.xxx) > gradle.properties > DSL bakery { xxx { ... } } > site.yml > defaults
-```
+Fragile sur guillemets imbriqués, Unicode, séquences déjà échappées. Déjà identifié par `last_code_review.adoc`.
 
-_Audité et confirmé_ : plantuml-gradle (ConfigMerger 5 couches), codebase-gradle (4 couches natives Gradle), slider-gradle (3 couches YAML-centric). Bakery aligne sur l'ordre 4 couches ci-dessus.
+. **CS-22** : `LensPipelineService.execute()` (lignes 125-136) reconstruit un `mapOf` manuel au lieu de sérialiser directement la data class `LensPipelineOutput`. Si un champ est ajouté, il faut penser à le mettre dans le `mapOf`.
 
-=== État de la migration (Session 047)
+_Tâches_ :
 
-* [x] **CONV-1.1** — Audit : Analysé 9/10 configs sans override. Seul `articleIntention` a un vrai override CLI>DSL>defaults.
-* [x] **CONV-1.2** — DDD : `ConfigResolver.kt` créé (4 types primitifs + 3 méthodes par config). 50 UT PASS.
-* [x] **CONV-1.3** — TDD : 50 UT couvrent String/Int/Boolean/Enum/GoogleForms/Analytics/RelatedArticles.
-* [x] **CONV-1.4** — Migration : ConfigResolver branché dans SiteManager (9+ méthodes `inject*IntoJbakeProperties`). Vérifié session 049.
-* [x] **CONV-1.5** — BDD : 3 FT cascade(ConfigResolverCascadeTest) + Feature Cucumber 20 (2 scénarios). Vérifié session 049.
-* [x] **CONV-1.6** — Documentation : Section "Ordre de Surcharge Configuration" ajoutée dans AGENT.adoc. Cascade 5 couches documentée. BACKLOG mis à jour.
+* [ ] **CS-13** — Remplacer par `jacksonObjectMapper().writeValueAsString(text).removeSurrounding("\"", "\"")`
+* [ ] **CS-22** — Sérialiser directement `output` avec `mapper.writeValue(file, output)` + `@JsonProperty` si nécessaire
+* [ ] Ajouter un test unitaire avec JSON complexe (Unicode, guillemets, `\n` littéral)
+* [ ] Vérifier que `./gradlew test` passe (LensPipelineServiceTest + SiteTaskRegistrar tests)
 
-=== User Journeys BDD
+'''
 
-```gherkin
-Feature: Surcharge Configuration Multi-Couche — BKY-CONV-1
+=== 🟡 P2 — Nettoyage / Clarté
 
-  En tant que développeur utilisant bakery
-  Je veux que chaque propriété de configuration soit surchargeable par la couche supérieure
-  Afin de pouvoir adapter le comportement sans modifier site.yml
+==== CS-FIN-3 : Nettoyer code mort, logs dupliqués, println résiduels, DRY (CS-14, CS-15, CS-17, CS-19, CS-20)
 
-  Scenario: CLI -P surcharge tout
-    Given un site.yml avec relatedArticles.enabled = true
-    And le DSL bakery { relatedArticles { enabled = true } }
-    And gradle.properties avec bakery.relatedArticles.enabled = true
-    When j'exécute ./gradlew bake -Pbakery.relatedArticles.enabled=false
-    Then relatedArticles.enabled vaut false
+*Priorité* : P2 — aucun risque fonctionnel, pure qualité de code
+*Charge* : 1 pt
+*Fichiers* : `LensPipelineService.kt`, `DeployTaskRegistrar.kt`, `ContentTaskRegistrar.kt`
 
-  Scenario: gradle.properties surcharge DSL et YAML
-    Given un site.yml avec relatedArticles.enabled = true
-    And le DSL bakery { relatedArticles { enabled = true } }
-    And gradle.properties avec bakery.relatedArticles.enabled = false
-    When j'exécute ./gradlew bake
-    Then relatedArticles.enabled vaut false
+_Tâches groupées_ (5 micro-fix, ~20 min total) :
 
-  Scenario: DSL surcharge YAML
-    Given un site.yml avec relatedArticles.enabled = true
-    And le DSL bakery { relatedArticles { enabled = false } }
-    When j'exécute ./gradlew bake
-    Then relatedArticles.enabled vaut false
-```
+* [ ] **CS-14** — Supprimer code mort `LensPipelineService.kt:73-75` (condition impossible : `compositeContext == null && contextFile.exists()` — le `else` de la ligne 68 gère déjà le cas `!exists()`)
+* [ ] **CS-15** — Documenter `ragResults: Map<String, Double> = emptyMap()` avec un commentaire explicite : « MVP0 — RAG scoring via pgvector pas encore implémenté. Viendra de codebase-gradle (N1). »
+* [ ] **CS-17** — Remplacer `println()` par `logger.lifecycle()` dans `DeployTaskRegistrar.prepareAndCopyMaquette()` (lignes 86-90)
+* [ ] **CS-19** — Réutiliser `jacksonObjectMapper()` comme champ privé dans `LensPipelineService` (thread-safe, coûteux à instancier à chaque appel)
+* [ ] **CS-20** — Extraire `createLlmServiceIfEnabled(iaConfig, logger)` privé dans `ContentTaskRegistrar` (3 appels dupliqués : generateArticle, generateSiteFromIntention, validateFirebaseConfig)
 
-=== Baby Steps DDD/TDD/BDD
+'''
 
-. **CONV-1.1** — Audit : Lire l'ordre de précédence réel dans slider-gradle, plantuml-gradle, codebase-gradle (1 pt)
-. **CONV-1.2** — Documenter : Ajouter section "Ordre de surcharge" dans AGENT.adoc + BACKLOG (0.5 pt)
-. **CONV-1.3** — Standardiser : Créer `ConfigResolver` générique qui applique l'ordre CLI > gradle.properties > DSL > YAML > defaults (2 pts)
-. **CONV-1.4** — Migrer : Appliquer ConfigResolver sur les 9+ configs existantes (firebase, googleForms, analytics, newsletter, theme, layout, comments, firebaseAuth, relatedArticles) (1 pt)
-. **CONV-1.5** — Tests : 5+ UT par config + 3 Cucumber sur l'ordre de résolution (0.5 pt)
+=== 🟢 P3 — Accepté / Non-action
+
+==== CS-18 : BakeryExtension boilerplate (11 DSL blocks)
+
+*Décision* : **Accepté.** Le pattern `val xxx = XxxDsl(); fun xxx(action: Action<XxxDsl>) { action.execute(xxx) }` est idiomatique Gradle/Kotlin. Réduire le boilerplate nécessiterait un annotation processor ou une reflection — complexité disproportionnée pour 22 lignes gagnées. Aucun risque.
+
+'''
+
+== Dette Technique Résiduelle (TODO.adoc)
+
+. *cheroliv.com* : Nettoyer le code inline `publishProfil` dans `build.gradle.kts` — retirer les data classes `ProfileSiteConf`/`ProfilePushConf`/`ProfileRepoConf`/`ProfileCreds` et la tâche `tasks.register("publishProfil")`. Remplacer par le plugin bakery (`deployProfile`). Bloqué par : aucune urgence, code existant fonctionnel.
+
+. *TODO.adoc* obsolète : Les 4 entrées du TODO.adoc sont toutes résolues — à archiver.
+
+'''
+
+== Synthèse — Charge restante
+
+[cols="1,3,2,2"]
+|===
+| EPIC | Contenu | Pts | Priorité
+| CS-FIN-1 | Fix configPath.get() + isGradlePropertiesEnabled timing | 2 | 🔴 P0
+| CS-FIN-2 | Échappement JSON Jackson + sérialisation data class | 1.5 | 🟠 P1
+| CS-FIN-3 | Nettoyage code mort/logs/println/DRY | 1 | 🟡 P2
+| CS-18 | BakeryExtension boilerplate | — | 🟢 Accepté
+|===
+
+*Total restant* : **4.5 pts** (~2 sessions de travail).
+*Tous les EPICs historiques* : 28/28 ✅ (100%).
+*Score de santé* : 8.0/10 après code review v3 (était 8.5/10 — baisse due à CS-21 dormant).
+
+'''
+
+== Métadonnées
+
+[cols="2,3"]
+|===
+| Document | `BACKLOG.adoc`
+| Version | 3.0 — nettoyage Session 079
+| Historisé dans | `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
+| Basé sur | Code review v3 (lecture directe du code source 2026-06-04)
+| Prochaine màj | Après résolution CS-FIN-1→3
+|===

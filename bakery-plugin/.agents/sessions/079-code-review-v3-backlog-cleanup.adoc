@@ -1,0 +1,68 @@
+= Session 079 — Code Review v3 + Nettoyage Backlog
+
+== Date
+2026-06-04
+
+== Type
+audit + governance
+
+== Score
+9/10
+
+== Objectif
+Code review profonde de bakery-gradle, nettoyage du backlog (historisation + enrichissement
+avec les nouveaux code smells CS-13→CS-22), mise à jour INDEX.adoc et TODO.adoc.
+
+== Réalisé
+
+=== Code Review v3
+- Lecture directe du code source actuel (56 fichiers, 6091 lignes)
+- Croisement avec 3 revues existantes : `CODE_REVIEW.adoc` v2, `last_code_review.adoc` (racine), `revue_de_code_last.adoc`
+- 10 nouveaux code smells identifiés : CS-13→CS-22
+  - 🔴 P0 (2) : CS-21 configPath.get() sans isPresent, CS-16 isGradlePropertiesEnabled timing
+  - 🟠 P1 (2) : CS-13 JSON escape maison, CS-22 mapOf manuelle
+  - 🟡 P2 (5) : CS-14 code mort, CS-15 RAG doc manquante, CS-17 println, CS-19 mapper, CS-20 DRY
+  - 🟢 P3 (1) : CS-18 BakeryExtension boilerplate → Accepté
+- CS-21 découvert : bug dormant depuis la création, identifié dans revue_de_code_last.adoc il y a des mois mais jamais corrigé
+- Score santé : 8.0/10 (baisse de 8.5 à cause de CS-21)
+
+=== Backlog Nettoyage
+- Historisé BACKLOG.adoc (1375 lignes) → `.agents/backup/Y2026-sessions-061-079/`
+- Nouveau BACKLOG.adoc : 1375→200 lignes (-85%)
+- 44 EPICs documentés comme terminés (28 + sous-EPICs)
+- 4 EPICs transférés hors périmètre (BKY-IA-5, BKY-TRN-9, BKY-JB-1, EPIC-6 nettoyage cheroliv.com)
+- 3 EPICs de finalisation créés (CS-FIN-1→3) pour les 10 nouveaux smells
+- Statuts corrigés : EPIC 5, BKY-JB-5, BKY-JB-9, BKY-CONV-1 (étaient EN COURS/PROPOSITION/A FAIRE, en réalité TERMINÉS)
+
+=== TODO.adoc Nettoyage
+- 4 entrées historiques marquées [x]
+- 1 tâche restante : nettoyer publishProfil dans cheroliv.com
+
+=== INDEX.adoc Mise à jour
+- Session 079→080
+- Section code smells : 12 historiques + 10 nouveaux avec statuts
+- Progression : 28/28 EPICs + 4.5 pts CS-FIN-1→3
+
+=== Analyse Cross-Borough
+- Dépendances N0 vérifiées : graphify-plugin + codebase-contracts → Conforme
+- Sortie N3 : collectSiteContext → metadata.json, collectAugmentedContext → augmented-context.json → Conforme
+- Aucune violation DAG
+
+== Fichiers modifiés
+- `BACKLOG.adoc` — réécrit (nettoyage + enrichissement)
+- `TODO.adoc` — nettoyé
+- `.agents/INDEX.adoc` — session + code smells mis à jour
+- `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc` — créé (historisation)
+
+== Fichiers créés (session)
+- `.agents/sessions/079-code-review-v3-backlog-cleanup.adoc` — cette archive
+- `.agents/backup/Y2026-sessions-061-079/` — dossier backup
+
+== Prochaine session (080)
+- CS-FIN-1 (P0) — Fix configPath.get() bug dormant + isGradlePropertiesEnabled timing
+- OU switch borough (le backlog est propre, bakery peut être mis en pause sans perte de contexte)
+
+== Points d'attention
+- Zéro test modifié → TEST_COVERAGE_ANALYSIS inchangé
+- Zéro code source modifié
+- L'archive des sessions 061-079 contient le backlog complet avant nettoyage

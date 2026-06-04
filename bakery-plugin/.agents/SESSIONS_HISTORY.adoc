@@ -1,8 +1,10 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-  _Derniere mise a jour : 2026-06-04 — Session 076_
+  _Derniere mise a jour : 2026-06-04 — Session 079_
 
   |===
+  | 079 | 2026-06-04 | audit + governance | Code Review v3 (10 nouveaux smells CS-13→22) + Nettoyage Backlog (1375→200 lignes, -85%) + TODO.adoc nettoyé + INDEX.adoc mis à jour. Backlog historisé dans `.agents/backup/Y2026-sessions-061-079/`. | 9/10
+  | 078 | 2026-06-04 | fermeture | Audit source complet, bakery fermé à 96%+ | —
   | 077 | 2026-06-04 | TDD + coverage | EPIC 13 TERMINÉ — Coverage Kover 73.13%→77.25% (+4.12pp). Baby steps DDD/TDD : 3 tests GitService.cleanupDir + 1 test FileSystemManager.copyResourceDirectory edge-case. Seuil 75% ✅ dépassé. Bakery 96%+ complet. | 8/10
   | 076 | 2026-06-04 | audit + investigation | Bakery 96% — Investigation BKY-IA-2 (déjà TERMINÉ — divergence doc corrigée). Préparation EPIC 13 coverage 73%→75%. Compilation OK. 26/26 theme tests PASS. | 7/10
   | 075 | 2026-06-04 | refactor + TDD | CS-8 Rome RSS parser — `SiteContextCollector.parseFeed()` DocumentBuilderFactory DOM 35 lignes → Rome (`SyndFeedInput` + `XmlReader`) 12 lignes. `parseRssDate()` supprimé (Rome gère nativement). `normalizeUrl()` extrait. Dépendance `com.rometools:rome:2.1.0` ajoutée. Compilation zéro warning. 7/7 SiteContextCollectorTest PASS, tests JUnit5 globaux PASS. Score 9/10. | 9/10

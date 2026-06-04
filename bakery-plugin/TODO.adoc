@@ -1,6 +1,14 @@
 = TODO — Bakery Plugin
+:description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-* Implementer la generation du code client Firebase dans les templates
-* Ajouter une vraie Firebase API key quand disponible
-* Corriger le timeout Cucumber (1 min -> 5 min)
-* Verifier coherence des 3 fichiers site.yml
+_Dernière mise à jour : 2026-06-04 — Session 079 (nettoyage post-code review)_
+
+* [x] Implementer la generation du code client Firebase dans les templates (→ BKY-JB-4, session 032)
+* [x] Ajouter une vraie Firebase API key quand disponible (→ EPIC 4, formalité restante côté consommateur cheroliv.com)
+* [x] Corriger le timeout Cucumber (1 min -> 5 min) (→ résolu, timeout 5min depuis longtemps)
+* [x] Verifier coherence des 3 fichiers site.yml (→ résolu, ConfigResolver 4 couches)
+
+== Restant
+
+* [ ] Nettoyer le code inline `publishProfil` dans `cheroliv.com/build.gradle.kts` — remplacer par le plugin bakery `deployProfile`
+* [ ] Archiver ce TODO.adoc une fois le nettoyage cheroliv.com fait (plus aucune tâche legacy restante)

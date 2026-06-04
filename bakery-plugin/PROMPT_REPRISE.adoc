@@ -1,40 +1,51 @@
-= PROMPT_REPRISE — Session 079 : Switch Borough (à définir)
+= PROMPT_REPRISE — Session 080 : CS-FIN-1 (fix critique) ou Switch Borough
 
-== Mission (Session 079)
+== Mission (Session 080)
 
-**Bakery est FERMÉ** — 28/28 EPICs terminés, 77.25% coverage.
-Prochaine mission : reprendre un autre borough du workspace.
+**Deux options au choix de l'utilisateur :**
 
-== État de fermeture Bakery (Session 078)
+*Option A — Finir bakery* : Résoudre CS-FIN-1 (P0, 2 pts) → corriger le bug dormant
+`configPath.get()` sans `isPresent` + `isGradlePropertiesEnabled` timing dans
+`BakeryPlugin.kt`. ~30 min. Puis CS-FIN-2 (P1, JSON escape, 1.5 pts).
+
+*Option B — Switch borough* : Le backlog est propre, bakery est à 28/28 EPICs.
+Reprendre un autre borough du workspace (New Jersey, Newark, Brooklyn, Manhattan...).
+
+== État bakery (Session 079)
 
 - **EPICs** : 28/28 ✅ (100%)
-- **Coverage** : 77.25% Kover
-- **Tests** : 160+ UT + 25 FT + 85 Cucumber + 17 E2E = tous PASS
+- **Backlog** : Nettoyé — 200 lignes (était 1375, -85%)
+- **Code smells historiques** : 12/12 résolus (CS-1→12 ✅)
+- **Nouveaux smells** : 10 (CS-13→22) → 3 EPICs de finalisation (4.5 pts)
 - **Build** : ✅ Zéro warning
-- **Code smells** : Tous résolus (CS-1→12)
+- **Coverage** : 77.25% (seuil 75% ✅)
 
-== Boroughs candidats (priorité à définir par l'utilisateur)
+== CS-FIN-1 — Bug critique (P0, 2 pts)
 
-| Borough | Projet | DAG | Statut | Pourquoi le reprendre |
+*Fichier* : `BakeryPlugin.kt`
+
+Deux bugs superposés :
+1. **CS-21** : `configPath.get()` (ligne 47) lève `MissingPropertyException` si configPath jamais défini
+2. **CS-16** : `isGradlePropertiesEnabled` (ligne 40) calculé dans `apply()` → toujours `false`,
+   écrasement silencieux de la config DSL
+
+*Correction* :
+- Ajouter `isPresent` guard avant `configPath.get()`
+- Déplacer `isGradlePropertiesEnabled` dans `afterEvaluate`
+
+== Boroughs candidats (si switch)
+
+| Borough | Projet | DAG | Statut | Pourquoi |
 |---|---|---|---|---|
-| New Jersey | `runner-gradle` | N3 | Session 011 — EPIC B clean | Orchestration DAG, provisioning CLI, deploy gh-pages. Cœur du pipeline MVP0. |
-| Newark 🔴 | `training-gradle` | N2 | Session 010 — 6/8 EPICs | Pipeline formation SPG→Slides→Formulaires→Factures. Livrable MVP0 Graal. |
-| Brooklyn | `codex-gradle` | N2 | Session 018 — CDX-12 pgvector e2e | Asciidoctor→PDF, pipeline documentaire. Dépend du MVP0. |
-| Manhattan | `planner-gradle` | N2 | Session 008 — 24/24 tests PASS | LLM SPG/SPD generation. Point d'entrée MVP0. |
-| Queens | `codebase-gradle` | N1 | Session 046 — EPIC G + 3 | RAG socle, pgvector, anonymisation. Foundation N0/N1. |
+| New Jersey | `runner-gradle` | N3 | Sess 011 | Orchestration DAG, cœur MVP0 |
+| Newark 🔴 | `training-gradle` | N2 | Sess 010 (6/8) | Pipeline formation, livrable Graal |
+| Brooklyn | `codex-gradle` | N2 | Sess 018 | Asciidoctor→PDF, pipeline doc |
+| Manhattan | `planner-gradle` | N2 | Sess 008 | LLM SPG/SPD, point d'entrée MVP0 |
 
 == Méthodologie obligatoire — Baby Steps DDD/TDD/BDD
 
-1. **DDD** — Identifier le comportement manquant (data class / service / edge case)
-2. **TDD** — Écrire le test unitaire AVANT l'implémentation (JUnit5 + AssertJ)
-3. **BDD** — Si le comportement est visible utilisateur → Cucumber scenario
-4. **Vérification** — `./gradlew test` doit passer après chaque fichier modifié
-5. **Coverage** — `./gradlew koverXmlReport koverPrintCoverage` après chaque ajout
-
-== Procédure d'ouverture borough cible
-
-1. Lire `SESSION_CHECKLIST.adoc` du borough cible
-2. Lire `AGENT.adoc` + `INDEX.adoc` + `PROMPT_REPRISE.adoc` du borough
-3. `git status` + `./gradlew compileKotlin` (ou `tasks`)
-4. Vérifier que le build compile avant de coder
-5. Identifier l'EPIC prioritaire dans le BACKLOG
+1. DDD — Identifier le comportement manquant
+2. TDD — Test unitaire AVANT implémentation
+3. BDD — Cucumber si comportement utilisateur
+4. Vérification — `./gradlew test` après chaque fichier
+5. Coverage — `./gradlew koverXmlReport koverPrintCoverage` après chaque ajout
