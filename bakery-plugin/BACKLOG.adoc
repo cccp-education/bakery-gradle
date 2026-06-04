@@ -674,16 +674,16 @@ bakery → assembleTrainingSite → site statique complet :
 
 === BKY-IA-2 — Personnalisation de Thème IA (Paramétrique)
 
-*Statut* : À faire — *P1*
+*Statut* : ✅ TERMINÉ — sessions 068-069 (implémentation), session 076 (divergence documentaire corrigée)
 *Priorité* : P1 — approche paramétrique (catalogue + variables) plutôt que générative (CSS from scratch)
-*Charge* : 8 pts
+*Charge* : 8 pts ✅
 *Dépend de* : BKY-IA-0
 
-*Tâches* :
-. `BKY-IA-2.1` — Catalogue de thèmes Thymeleaf (5-10 variantes : minimal, magazine, doc, portfolio, formation)
-. `BKY-IA-2.2` — Variables de thème (couleurs, polices, logo, favicon)
-. `BKY-IA-2.3` — Tâche `generateTheme` : intention → sélection thème + variables
-. `BKY-IA-2.4` — Tests : templates générés compilent avec Thymeleaf
+*Tâches terminées* :
+. ✅ `BKY-IA-2.1` — Catalogue de thèmes Thymeleaf (5 variantes : minimal, magazine, doc, portfolio, formation)
+. ✅ `BKY-IA-2.2` — Variables de thème (couleurs, polices, logo, favicon)
+. ✅ `BKY-IA-2.3` — Tâche `generateTheme` : intention → sélection thème + variables
+. ✅ `BKY-IA-2.4` — Tests : templates générés compilent avec Thymeleaf (26 UT + 5 FT + 3 Cucumber)
 
 === BKY-IA-3 — Validation Firebase Assistée par IA
 

@@ -1,26 +1,38 @@
-= PROMPT_REPRISE — Session 076 : Bakery 96% — Decision Next
+= PROMPT_REPRISE — Session 077 : Bakery EPIC 13 — Coverage 73%→75%
 
-== Mission (Session 076)
+== Mission (Session 077)
 
-Bakery est **96% complet** — CS-8 (Rome RSS parser) terminé. Derniers points ouverts :
+**EPIC 13 : Couverture de tests — lacunes P1**
+Objectif : passer Kover de 73.13% à 75% (seuil) en ajoutant des tests ciblés sur les zones non couvertes.
 
-| Point | Pts | Priorité |
-|---|---|---|
-| BKY-IA-2 Thème IA paramétrique | 8 pts | P1 |
-| EPIC 13 Coverage 73%→75% | ~3 pts | P1 |
-| EPIC 6 fantôme (nettoyage cheroliv.com) | ~3 pts | P1 |
+== État actuel (Session 076 TERMINÉE)
 
-**Option A** : Attaquer BKY-IA-2 (catalogue thèmes + variables CSS + generateTheme task) — valeur métier maximale.
-**Option B** : Switch borough selon PLAN_GLOBAL.adoc (runner-gradle N3, training-gradle N2).
-
-== État actuel (Session 075 TERMINÉE)
-
-- **CS-8** ✅ TERMINÉ — Rome RSS parser. `parseFeed()` 35→12 lignes. `parseRssDate()` supprimé. Compilation zéro warning. 7/7 tests PASS.
+- **BKY-IA-2** ✅ DÉJÀ TERMINÉ — Divergence documentaire corrigée. Code complet (6 src + 26 tests + Feature 27 Cucumber).
+- **CS-8** ✅ TERMINÉ (session 075) — Rome RSS parser.
 - **CS-4** ✅, **CS-5** ✅, **CS-11** ✅, **CS-12** ✅, **CS-10** ✅, **CS-2** ✅, **CS-3** ✅
-- **Coverage** : 77.09% (seuil 75% ✅)
-- **Bakery** : 96% complet. Tous les code smells critiques résolus.
+- **Coverage** : 73.13% (seuil 75% ❌ — 1.87pp manquants)
+- **Bakery** : 96% complet. Tous les EPICs P0 terminés.
+
+== Zones non couvertes à cibler (priorisées par risque)
+
+| Zone | Risque | Fichier clé |
+|---|---|---|
+| `FileSystemManager.copyResourceDirectory` | Initialisation site | `FileSystemManager.kt` |
+| `GitService.cleanupDir` | Nettoyage temp dirs | `GitService.kt` |
+| `BakeryPlugin.resolvePaths` | Résolution chemins | `BakeryPlugin.kt` |
+| `ConfigResolver` branches edge-case | Config cascade | `ConfigResolver.kt` |
+
+== Méthodologie obligatoire — Baby Steps DDD/TDD/BDD
+
+1. **DDD** — Identifier le comportement manquant (data class / service / edge case)
+2. **TDD** — Écrire le test unitaire AVANT l'implémentation (JUnit5 + AssertJ)
+3. **BDD** — Si le comportement est visible utilisateur → Cucumber scenario
+4. **Vérification** — `./gradlew test` doit passer après chaque fichier modifié
+5. **Coverage** — `./gradlew koverXmlReport koverPrintCoverage` après chaque ajout
 
 == Points d'attention
 
-- Tous les EPICs P0 sont terminés. Restent des P1/P2 de polish.
-- BKY-IA-2 a le plus de valeur différenciante (thème paramétrique IA).
+- **NE PAS** toucher au code existant si les tests passent déjà — ajouter des tests, pas refactorer
+- **NE PAS** ajouter de nouvelle fonctionnalité — c'est du remplissage de coverage
+- **Rappel code review** : CS-1 (SiteManager split) déjà fait session 071. CS-4/CS-5/CS-8 déjà faits.
+- **But** : Atteindre 75% Kover = bakery passe au vert. Puis décision fin ou switch borough.

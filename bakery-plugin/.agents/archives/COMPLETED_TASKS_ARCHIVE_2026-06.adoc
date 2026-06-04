@@ -1,5 +1,21 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 076 — 2026-06-04 — Investigation BKY-IA-2 + Préparation EPIC 13
+
+**Contexte** : Reprise bakery avec PROMPT_REPRISE. BKY-IA-2 déjà TERMINÉ (divergence documentaire BACKLOG/PROMPT_REPRISE corrigée). Préparation EPIC 13 coverage 73%→75%.
+
+**Tâches réalisées** :
+
+* [x] Investigation BKY-IA-2 — 6 fichiers src + 26 tests + Feature 27 Cucumber vérifiés
+* [x] Correction divergence documentaire : BACKLOG.adoc BKY-IA-2 → TERMINÉ, PROMPT_REPRISE.adoc → Session 077 EPIC 13
+* [x] Vérification compilation : `./gradlew compileKotlin` BUILD SUCCESSFUL
+* [x] Vérification tests theme : `./gradlew test --tests "bakery.theme.*"` 26/26 PASS
+
+**Fichiers modifiés** : PROMPT_REPRISE.adoc, BACKLOG.adoc, INDEX.adoc, SESSIONS_HISTORY.adoc
+**Fichiers créés** : `.agents/sessions/076-investigation-bky-ia2-epic13-prep.adoc`
+
+'''
+
 == Session 072 — 2026-06-04 — EPIC 6 Validation Finale + CS-12 Taxonomie DEPLOYER
 
 **Contexte** : Finalisation Bakery — validation EPIC 6 (publishProfile/deployProfile) + application taxonomie EPIC K (verbe DEPLOYER).

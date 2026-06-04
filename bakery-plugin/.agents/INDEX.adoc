@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
   _Derniere mise a jour_ : 2026-06-04
-  _Session terminee_ : 075 — CS-8 Rome RSS parser
-  _Prochaine session_ : 076 — BKY-IA-2 ou Switch Borough
-  _Session en cours_ : 076
+  _Session terminee_ : 076 — Investigation BKY-IA-2 + Prep EPIC 13
+  _Prochaine session_ : 077 — EPIC 13 Coverage 73%→75%
+  _Session en cours_ : 077
 
 '''
 
