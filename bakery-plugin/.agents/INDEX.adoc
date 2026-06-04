@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-05 — Session 083 (US-61b phone field)
-  _Session terminee_ : 083
-  _Prochaine session_ : 084 — switch borough OR cleanup CS-FIN
+  _Derniere mise a jour_ : 2026-06-05 — Session 084 (enrichissement code review V3)
+  _Session terminee_ : 084
+  _Prochaine session_ : 085 — switch borough OR CS-FIN-4 (ConfigResolver DRY)
   _Session en cours_ : — (fermee)
 
 '''
@@ -216,8 +216,9 @@ _Localisation active_ : `.agents/backup/Y2026-sessions-051-060/` (rotation sessi
 |===
 
 *Priorite P0* : ✅ Tous les EPICs de réparation terminés (EPIC 15, 16, 17)
-*Charge restante* : 4.5 pts (CS-FIN-1→3, voir BACKLOG.adoc)
-*Prochaine session* : 080 — CS-FIN-1 (fix critique configPath) ou switch borough
+*Charge complétée* : CS-FIN-1/2/3 = 4.5 pts ✅ (S080-081)
+*Charge post-v1.0* : CS-FIN-4→10 + ARROW-1 = 15 pts (~5-7 sessions). Voir `BACKLOG.adoc`.
+*Prochaine session* : 085 — switch borough OR CS-FIN-4 (ConfigResolver DRY, P1, 3 pts)
 
 === Code Smells — Historique CODE_REVIEW v2 (12/12 ✅ résolus)
 
@@ -240,23 +241,31 @@ _Localisation active_ : `.agents/backup/Y2026-sessions-051-060/` (rotation sessi
 | CS-12 | LÉGER | ✅ S072 | publishProfile→deployProfile (taxonomie DEPLOYER EPIC K)
 |===
 
-=== Code Smells — CODE_REVIEW v3 (Session 079)
+=== Code Smells — CODE_REVIEW v3 (Session 084)
 
-*Source* : Lecture directe du code source + `last_code_review.adoc` (racine) + `.agents/CODE_REVIEW.adoc` v2.
-*Statut* : 10 nouveaux smells identifiés → 3 EPICs de finalisation dans `BACKLOG.adoc`.
+*Source* : Lecture directe du code source + `last_code_review.adoc` (racine, 1508 lignes) + `.agents/CODE_REVIEW.adoc` v2.
+*Statut* : 10 smells v3 identifiés → CS-FIN-1/2/3 ✅ résolus (S080-081) + 8 nouveaux CS-FIN-4→10 (V3) + ARROW-1 dans BACKLOG.
 
 |===
 | CS | Priorité | Statut | Description | EPIC
-| CS-21 | 🔴 P0 | ☐ À faire | `configPath.get()` sans `isPresent` — MissingPropertyException si absent | CS-FIN-1
-| CS-16 | 🔴 P0 | ☐ À faire | `isGradlePropertiesEnabled` calculé trop tôt → DSL ignoré | CS-FIN-1
-| CS-13 | 🟠 P1 | ☐ À faire | Échappement JSON maison fragile (3 replace) → utiliser Jackson | CS-FIN-2
-| CS-22 | 🟠 P1 | ☐ À faire | Sérialisation manuelle mapOf → sérialiser directement data class | CS-FIN-2
-| CS-14 | 🟡 P2 | ☐ À faire | Code mort LensPipelineService (condition impossible) | CS-FIN-3
-| CS-15 | 🟡 P2 | ☐ À faire | `ragResults` toujours emptyMap sans explication | CS-FIN-3
-| CS-17 | 🟡 P2 | ☐ À faire | `println()` résiduel dans DeployTaskRegistrar | CS-FIN-3
-| CS-19 | 🟡 P2 | ☐ À faire | `jacksonObjectMapper()` instancié à chaque appel | CS-FIN-3
-| CS-20 | 🟡 P2 | ☐ À faire | Duplication création OllamaLlmService (3 appels identiques) | CS-FIN-3
-| CS-18 | 🟢 P3 | ✅ Accepté | BakeryExtension 11 DSL blocks — idiomatique, pas de dette | —
+| CS-21 | 🔴 P0 | ✅ S080 | `configPath.get()` sans `isPresent` | CS-FIN-1
+| CS-16 | 🔴 P0 | ✅ S080 | `isGradlePropertiesEnabled` timing `afterEvaluate` | CS-FIN-1
+| CS-13 | 🟠 P1 | ✅ S080-081 | Échappement JSON → `escapeJsonForJavaProperties()` + Jackson | CS-FIN-2
+| CS-22 | 🟠 P1 | ✅ S081 | Sérialisation directe `LensPipelineOutput` → Jackson | CS-FIN-2
+| CS-14 | 🟡 P2 | ✅ S081 | Code mort LensPipelineService (condition impossible) | CS-FIN-3
+| CS-15 | 🟡 P2 | ✅ S081 | `ragResults` emptyMap → commentaire MVP0 | CS-FIN-3
+| CS-17 | 🟡 P2 | ✅ S081 | `println()` → `logger.lifecycle()` | CS-FIN-3
+| CS-19 | 🟡 P2 | ✅ S081 | `jacksonObjectMapper()` → champ privé | CS-FIN-3
+| CS-20 | 🟡 P2 | ✅ S081 | Extraction `createLlmServiceIfEnabled()` | CS-FIN-3
+| CS-18 | 🟢 P3 | ✅ Accepté | BakeryExtension 11 DSL blocks | —
+| CS-25 | 🟠 P1 | ☐ À faire | ConfigResolver 8 resolve* DRY → `ResolvedConfigs` | CS-FIN-4
+| CS-33 | 🟡 P2 | ☐ À faire | registerGenerateSiteTask mixing → `GenerateSiteService` | CS-FIN-5
+| CS-34 | 🟡 P2 | ☐ À faire | GitService.pushPages sans validation préalable | CS-FIN-6
+| CS-38 | 🟡 P2 | ☐ À faire | ConfigPrompts non testables → Reader monad | CS-FIN-7
+| CS-35 | 🟢 P3 | ☐ À faire | FileSystemManager exceptions → Either | CS-FIN-8
+| CS-36 | 🟢 P3 | ☐ À faire | BFS O(n²) → LazyList | CS-FIN-9
+| CS-31-bis | 🟢 P3 | ☐ À faire | Masquage secrets étendu (LLM keys, GitHub tokens) | CS-FIN-10
+| — | 🟢 P3 | ☐ À faire | Arrow-kt 2.2.3 v1.1.0 roadmap | ARROW-1
 |===
 
 === EPICs Transférés (hors périmètre bakery)

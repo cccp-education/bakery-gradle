@@ -1,7 +1,7 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-06-04 — Session 079 (nettoyage post-code review)_
+_Dernière mise à jour : 2026-06-05 — Session 084 (enrichissement code review V3)_
 
 * [x] Implementer la generation du code client Firebase dans les templates (→ BKY-JB-4, session 032)
 * [x] Ajouter une vraie Firebase API key quand disponible (→ EPIC 4, formalité restante côté consommateur cheroliv.com)
@@ -12,3 +12,14 @@ _Dernière mise à jour : 2026-06-04 — Session 079 (nettoyage post-code review
 
 * [ ] Nettoyer le code inline `publishProfil` dans `cheroliv.com/build.gradle.kts` — remplacer par le plugin bakery `deployProfile`
 * [ ] Archiver ce TODO.adoc une fois le nettoyage cheroliv.com fait (plus aucune tâche legacy restante)
+
+== Post-v1.0 — Code Review V3
+
+* [ ] **CS-25 V3** : ConfigResolver cascade DRY — 8 resolve* répétés dans SiteTaskRegistrar (lignes 121-131). Refactorer avec `ResolvedConfigs` + Strategy pattern. ~3 pts, 1 session.
+* [ ] **CS-33 V3** : registerGenerateSiteTask mixing concerns — extraire logique métier vers `GenerateSiteService`. ~1.5 pts, 0.5 session.
+* [ ] **CS-34 V3** : GitService.pushPages sans validation préalable. Ajouter `validatePrePush()`. ~1 pt.
+* [ ] **CS-38 V3** : ConfigPrompts pas testables — `println()`/`readLine()` en dur. Reader monad avec `ConfigPromptEnvironment`. ~2 pts.
+* [ ] **CS-35 V3** : FileSystemManager.copyResourceDirectory() exceptions → `Either<IOException, Unit>`. ~1 pt.
+* [ ] **CS-36 V3** : BFS O(n²) dans AugmentedArticlesService → LazyList. ~1 pt.
+* [ ] **CS-31-bis V3** : Masquage secrets VerifyConfigurationMappingTask — ajouter LLM keys, GitHub tokens. ~0.5 pt.
+* [ ] **ARROW-KT v1.1.0** : Ajouter Arrow-kt 2.2.3 → refactorer 6 composants avec Either/Validation/Option/Reader. EPIC 5 pts, 3-4 sessions. Voir `last_code_review.adoc` Parties 3-4.

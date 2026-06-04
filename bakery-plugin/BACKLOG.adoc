@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-04 — Session 079 (code review v3 + nettoyage historique)_
+_Dernière mise à jour : 2026-06-05 — Session 084 (enrichissement post-code review V3)_
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` + `last_code_review.adoc` (racine bakery-gradle/) + analyse directe du code source
 
@@ -169,6 +169,126 @@ _Tâches groupées_ (5 micro-fix, ~20 min total) :
 
 '''
 
+==== CS-FIN-4 : ConfigResolver cascade DRY — Refactorer les 8 resolve* répétés (CS-25 V3)
+
+*Priorité* : P1 — duplication fragilise la maintenance
+*Charge* : 3 pts
+*Fichiers* : `SiteTaskRegistrar.kt`, `ConfigResolver.kt`
+
+_Problème_ : Les lignes 121-131 de `SiteTaskRegistrar.kt` contiennent 8 appels presque identiques :
+`resolvedFirebase`, `resolvedGoogleForms`, `resolvedFirebaseAuth`, `resolvedComments`,
+`resolvedAnalytics`, `resolvedNewsletter`, `resolvedTheme`, `resolvedLayout`.
+Si une config échoue, pas de propagation d'erreur centralisée. DRY violation : 50 lignes pour 8 appels.
+
+_Solution proposée_ (code review V3 section 3.1) :
+- Data class `ResolvedConfigs` regroupant les 8 configs
+- Pattern `mapOrAccumulate` pour accumuler les erreurs
+- Wrapper `validateAndResolve()` pour chaque resolver
+- Alternative sans Arrow-kt : Strategy pattern avec `Map<String, ConfigInjector>`
+
+_Baby steps DDD/TDD/BDD_ :
+. [ ] DDD : Créer `ResolvedConfigs` data class + `ConfigResolutionError` sealed class
+. [ ] TDD : 3 tests unitaires (`resolves all 8 configs`, `accumulates errors`, `partial failure`)
+. [ ] TDD : Test d'intégration ConfigResolver → ResolvedConfigs
+. [ ] BDD : Cucumber Feature 29 — `config_resolution_cascade.feature` (3 scénarios : all valid, partial failure, full failure)
+. [ ] Refactor : Remplacer les 8 appels dans `SiteTaskRegistrar.copySiteResources()`
+
+'''
+
+==== CS-FIN-5 : registerGenerateSiteTask mixing concerns — Extraire logique métier (CS-33 V3)
+
+*Priorité* : P2 — clarté du code
+*Charge* : 1.5 pts
+*Fichiers* : `SiteTaskRegistrar.kt` (lignes 45-64)
+
+_Problème_ : La méthode `registerGenerateSiteTask()` mélange l'enregistrement de tâche Gradle
+avec la logique métier JBake. Pattern recommandé : Reader monad ou extraction vers un service dédié.
+
+_Baby steps_ :
+. [ ] DDD : `GenerateSiteService` data class + interface
+. [ ] TDD : 2 tests unitaires du service extrait
+. [ ] Refactor : `registerGenerateSiteTask()` → délègue à `GenerateSiteService`
+
+'''
+
+==== CS-FIN-6 : GitService.pushPages sans validation préalable (CS-34 V3)
+
+*Priorité* : P2 — robustness
+*Charge* : 1 pt
+*Fichiers* : `GitService.kt` (lignes 50-65)
+
+_Problème_ : `pushPages()` tente un push sans vérifier que le repo local est dans un état cohérent
+(branch checkout, remote configuré, dirty state). Pattern recommandé : `Validation<Error, Unit>`.
+
+_Baby steps_ :
+. [ ] DDD : `PrePushValidation` sealed class (RemoteNotConfigured, DirtyWorkspace, etc.)
+. [ ] TDD : 3 tests unitaires (remote OK, remote absent, dirty workspace)
+. [ ] Refactor : Ajouter `validatePrePush()` avant `pushPages()`
+
+'''
+
+=== 🟡 P2/P3 — Améliorations post-v1.0 (low priority, nice-to-have)
+
+==== CS-FIN-7 : ConfigPrompts non testables — side effects directs (CS-38 V3)
+
+*Priorité* : P2 — testabilité
+*Charge* : 2 pts
+*Fichiers* : `ConfigPrompts.kt`
+
+_Problème_ : Les prompts CLI utilisent `println()` et `readLine()` directement — impossible à tester unitairement.
+Pattern recommandé (code review V3 section 3.5) : Reader monad avec `ConfigPromptEnvironment`.
+
+_Baby steps_ :
+. [ ] DDD : `ConfigPromptEnvironment` data class (input: () → String?, output: (String) → Unit)
+. [ ] TDD : 3 tests unitaires avec mock d'environnement
+. [ ] Refactor : `getOrPrompt()` → `ConfigPromptM<String>`
+
+==== CS-FIN-8 : FileSystemManager exceptions → Either<IOException, Unit> (CS-35 V3)
+
+*Priorité* : P3 — style fonctionnel
+*Charge* : 1 pt
+*Fichiers* : `FileSystemManager.kt` (lignes 60-85)
+
+_Problème_ : `copyResourceDirectory()` lève des exceptions au lieu de retourner `Either`.
+Pattern recommandé : `Either.catch { }` pour composer les opérations fichier.
+
+==== CS-FIN-9 : BFS calculation O(n²) → LazyList (CS-36 V3)
+
+*Priorité* : P3 — performance
+*Charge* : 1 pt
+*Fichiers* : `AugmentedArticlesService.kt` (ligne 79)
+
+_Problème_ : Le calcul BFS a une complexité O(n²) — pas critique vu la taille des sites JBake (~50 articles),
+mais documenté comme dette d'optimisation. Pattern recommandé : `LazyList` + lazy evaluation.
+
+==== CS-FIN-10 : Masquage secrets étendu — LLM keys, GitHub tokens (CS-31-bis V3)
+
+*Priorité* : P3 — sécurité cosmétique
+*Charge* : 0.5 pt
+*Fichiers* : `VerifyConfigurationMappingTask.kt`
+
+_Problème_ : Le masquage actuel (US-61a) couvre `credentials.password` et `firebaseApiKey`,
+mais pas les LLM API keys (Ollama) ni les GitHub tokens. Pattern recommandé : ADT `SecretField`.
+
+==== CS-18-bis : Arrow-kt v1.1.0 — Roadmap fonctionnelle (post-v1.0)
+
+*Priorité* : P3 — roadmap
+*Charge* : 5 pts (EPIC complet, 3-4 sessions)
+*Fichiers* : `build.gradle.kts`, `libs.versions.toml`, multiples sources
+
+_Problème_ : 15+ opportunités d'utiliser Arrow-kt (Either, Option, Validation, Reader, Raise DSL)
+identifiées dans la code review V3 Partie 3. Non prioritaire pour v1.0, mais transformerait bakery
+en gold standard Kotlin FP.
+
+_Baby steps_ (EPIC ARROW-1) :
+. [ ] Ajouter Arrow-kt 2.2.3 à `libs.versions.toml` + `build.gradle.kts`
+. [ ] Refactorer CS-FIN-4 avec `mapOrAccumulate` (Validation monad)
+. [ ] Refactorer CS-FIN-8 avec `Either.catch { }` 
+. [ ] Refactorer CS-FIN-6 avec `Validated<Error, Unit>`
+. [ ] Ajouter 15+ tests pour nouvelles monades
+
+'''
+
 === 🟢 P3 — Accepté / Non-action
 
 ==== CS-18 : BakeryExtension boilerplate (11 DSL blocks)
@@ -190,15 +310,24 @@ _Tâches groupées_ (5 micro-fix, ~20 min total) :
 [cols="1,3,2,2"]
 |===
 | EPIC | Contenu | Pts | Priorité
-| CS-FIN-1 | Fix configPath.get() + isGradlePropertiesEnabled timing | 2 | 🔴 P0
-| CS-FIN-2 | Échappement JSON Jackson + sérialisation data class | 1.5 | 🟠 P1
-| CS-FIN-3 | Nettoyage code mort/logs/println/DRY | 1 | 🟡 P2
+| CS-FIN-1 | Fix configPath.get() + isGradlePropertiesEnabled timing | 2 | 🔴 P0 ✅ S080
+| CS-FIN-2 | Échappement JSON Jackson + sérialisation data class | 1.5 | 🟠 P1 ✅ S081
+| CS-FIN-3 | Nettoyage code mort/logs/println/DRY | 1 | 🟡 P2 ✅ S081
+| CS-FIN-4 | ConfigResolver cascade DRY (CS-25 V3) | 3 | 🟠 P1 ☐
+| CS-FIN-5 | registerGenerateSiteTask mixing (CS-33 V3) | 1.5 | 🟡 P2 ☐
+| CS-FIN-6 | GitService.pushPages validation (CS-34 V3) | 1 | 🟡 P2 ☐
+| CS-FIN-7 | ConfigPrompts testabilité (CS-38 V3) | 2 | 🟡 P2 ☐
+| CS-FIN-8 | FileSystemManager Either (CS-35 V3) | 1 | 🟢 P3 ☐
+| CS-FIN-9 | BFS O(n²) → LazyList (CS-36 V3) | 1 | 🟢 P3 ☐
+| CS-FIN-10 | Masquage secrets étendu (CS-31-bis V3) | 0.5 | 🟢 P3 ☐
+| ARROW-1 | Arrow-kt v1.1.0 roadmap | 5 | 🟢 P3 ☐
 | CS-18 | BakeryExtension boilerplate | — | 🟢 Accepté
 |===
 
-*Total restant* : **4.5 pts** (~2 sessions de travail).
-*Tous les EPICs historiques* : 28/28 ✅ (100%).
-*Score de santé* : 8.0/10 après code review v3 (était 8.5/10 — baisse due à CS-21 dormant).
+*Total complété* : CS-FIN-1/2/3 = 4.5 pts ✅
+*Total post-v1.0* : CS-FIN-4→10 + ARROW-1 = 15 pts (~5-7 sessions)
+*Tous les EPICs historiques* : 28/28 ✅ (100%)
+*Score de santé* : 8.5/10 après enrichissement code review V3 (remonté de 8.0 car CS-21 résolu)
 
 '''
 
@@ -207,8 +336,8 @@ _Tâches groupées_ (5 micro-fix, ~20 min total) :
 [cols="2,3"]
 |===
 | Document | `BACKLOG.adoc`
-| Version | 3.0 — nettoyage Session 079
+| Version | 4.0 — enrichissement Session 084 (code review V3)
 | Historisé dans | `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 | Basé sur | Code review v3 (lecture directe du code source 2026-06-04)
-| Prochaine màj | Après résolution CS-FIN-1→3
+| Prochaine màj | Après résolution CS-FIN-4
 |===

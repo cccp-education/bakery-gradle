@@ -1,5 +1,18 @@
 = COMPLETED_TASKS_ARCHIVE — Juin 2026
 
+== Session 084 — Enrichissement Backlog + TODO post Code Review V3 (2026-06-05)
+
+* [x] Lecture corpus complet bakery (PROMPT_REPRISE, AGENT, BACKLOG, TODO, INDEX, SESSIONS_HISTORY, CODE_REVIEW v2 500 lignes, last_code_review V3 1508 lignes)
+* [x] Analyse croisée 15 code smells V3 (CS-25→38 + ARROW-1) → 7 déjà résolus (CS-FIN-1/2/3), 8 inédits
+* [x] BACKLOG.adoc : 214→343 lignes. +7 EPICs : CS-FIN-4 (3 pts), CS-FIN-5 (1.5), CS-FIN-6 (1), CS-FIN-7 (2), CS-FIN-8 (1), CS-FIN-9 (1), CS-FIN-10 (0.5), ARROW-1 (5). Synthèse recalculée. Version 4.0.
+* [x] TODO.adoc : 14→25 lignes. +8 items post-v1.0. Correction Arrow-kt 1.2.4→2.2.3.
+* [x] INDEX.adoc : Session 084, smells v3 reflétés (CS-FIN-1/2/3 ✅, CS-FIN-4→10 ☐, ARROW-1 ☐)
+* [x] SESSIONS_HISTORY.adoc : + session 084
+* [x] PROMPT_REPRISE.adoc : → Session 085 (switch borough OR CS-FIN-4)
+* [x] TEST_COVERAGE_ANALYSIS.adoc : date MAJ (aucun test modifié)
+* [x] Score santé : 8.5/10 (remonté de 8.0)
+* [x] Aucun code source modifié, zéro régression
+
 == Session 070 — CS-2 LensPipelineService + CS-3 Jackson + Audit IA-3 (2026-06-04)
 
 * [x] CS-2 — Extraction `LensPipelineService` du `doLast` de `SiteManager.registerCollectAugmentedContextTask`

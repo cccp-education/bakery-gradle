@@ -1,0 +1,49 @@
+= Session 084 — Enrichissement Backlog + TODO post Code Review V3
+:date: 2026-06-05
+:type: governance + audit
+:score: 9/10
+
+== Contexte
+
+Session d'enrichissement documentaire. La code review V3 (`last_code_review.adoc`, 1508 lignes)
+identifiait 15 code smells (CS-25→CS-38 + ARROW-1) dont seulement 7 étaient couverts par
+le BACKLOG actuel (CS-FIN-1/2/3). 8 items inédits à ajouter.
+
+== Actions réalisées
+
+. Lecture complète du corpus bakery : PROMPT_REPRISE, AGENT, BACKLOG, TODO, INDEX,
+  SESSIONS_HISTORY, CODE_REVIEW (v2, 500 lignes), last_code_review (V3, 1508 lignes)
+. Analyse croisée V3 ↔ BACKLOG : mapping des 15 smells vers les EPICs existants
+. **BACKLOG.adoc** enrichi : +7 EPICs (CS-FIN-4→10 + ARROW-1), 147 insertions
+  - Tableau SYNTHÈSE mis à jour : 4.5 pts complétés, 15 pts post-v1.0
+  - Score de santé remonté à 8.5/10
+  - Version bump → 4.0
+. **TODO.adoc** enrichi : 8 nouveaux items post-v1.0, date mise à jour
+. **Correction Arrow-kt** : 1.2.4 → 2.2.3 (dernière version stable) dans BACKLOG + TODO
+. Aucun code source modifié, aucun test touché
+
+== Nouveaux EPICs ajoutés
+
+[cols="1,3,2,2"]
+|===
+| EPIC | Description | Pts | Priorité
+| CS-FIN-4 | ConfigResolver cascade DRY (CS-25 V3) | 3 | 🟠 P1
+| CS-FIN-5 | registerGenerateSiteTask mixing (CS-33 V3) | 1.5 | 🟡 P2
+| CS-FIN-6 | GitService.pushPages validation (CS-34 V3) | 1 | 🟡 P2
+| CS-FIN-7 | ConfigPrompts testabilité (CS-38 V3) | 2 | 🟡 P2
+| CS-FIN-8 | FileSystemManager Either (CS-35 V3) | 1 | 🟢 P3
+| CS-FIN-9 | BFS O(n²) → LazyList (CS-36 V3) | 1 | 🟢 P3
+| CS-FIN-10 | Masquage secrets étendu (CS-31-bis V3) | 0.5 | 🟢 P3
+| ARROW-1 | Arrow-kt 2.2.3 v1.1.0 | 5 | 🟢 P3
+|===
+
+== Fichiers modifiés
+
+- `bakery-plugin/BACKLOG.adoc` : 214 → 343 lignes (+147)
+- `bakery-plugin/TODO.adoc` : 14 → 25 lignes (+13)
+
+== Prochaine session (085)
+
+Option A : Switch borough (runner-gradle, codebase-gradle, training-gradle)
+Option B : Attaquer CS-FIN-4 (P1, 3 pts) — ConfigResolver cascade DRY
+Option C : Attaquer CS-FIN-5 (P2, 1.5 pts) — registerGenerateSiteTask mixing

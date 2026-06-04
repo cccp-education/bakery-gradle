@@ -2,23 +2,28 @@
 
 == Mission en cours
 
-**US-61b TERMINÉ** — Champ `phone` dans le formulaire de contact. Tous les tests PASS.
+**Session 084 TERMINÉ** — Enrichissement Backlog + TODO post Code Review V3.
+8 nouveaux EPICs ajoutés (CS-FIN-4→10 + ARROW-1), 0 code modifié, 0 test touché.
 
 == Statut
 
-- EPICs : 28/28 ✅ (100%) + US-61a ✅ + US-61b ✅
-- Code smells : 22/22 ✅ (100%) + CS-FIN-1 ✅ + CS-FIN-2 ✅ + CS-FIN-3 ✅
+- EPICs : 28/28 ✅ (100%) + CS-FIN-1/2/3 ✅ + CS-FIN-4→10 ☐ + ARROW-1 ☐
+- Code smells : 22/22 CS historiques ✅ + 8 nouveaux CS-FIN identifiés
 - Tests : 676+ JUnit5 PASS, 133+ Cucumber PASS, 17 E2E PASS
 - Coverage : 76.15%+ ✅
 - Build : zero warning
 
 == Contexte de reprise
 
-Session 083 a livré l'alignement complet `telephone` → `phone` (template, schema, validation, tests).
-4 `site.yml` alignés. `ValidateFirebaseConfigSteps.kt` enrichi. `publishToMavenLocal` OK.
+Session 084 a enrichi le BACKLOG (214→343 lignes) et TODO (14→25 lignes) avec
+les 8 code smells inédits de la code review V3 (`last_code_review.adoc`, 1508 lignes).
+Correction Arrow-kt 1.2.4 → 2.2.3.
 
-== Prochaine session (084)
+Backlog complet : 28 EPICs historiques ✅ + CS-FIN-1/2/3 ✅ + 8 nouveaux post-v1.0 (15 pts).
+
+== Prochaine session (085)
 
 Option A : Switch borough (runner-gradle N3, codebase-gradle RAG, training-gradle)
-Option B : Cleanup CS-FIN restants (Jackson sérialisation, micro-fixes)
-Option C : Nouvelle feature si demandée
+Option B : CS-FIN-4 (P1, 3 pts) — ConfigResolver cascade DRY, `ResolvedConfigs` + Strategy pattern
+Option C : CS-FIN-5 (P2, 1.5 pts) — registerGenerateSiteTask mixing → `GenerateSiteService`
+Option D : CS-FIN-6 (P2, 1 pt) — GitService.pushPages validation préalable
