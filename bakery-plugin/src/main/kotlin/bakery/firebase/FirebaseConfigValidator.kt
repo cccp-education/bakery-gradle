@@ -80,6 +80,19 @@ object FirebaseConfigValidator {
             current = current.addWarning(ValidationIssue("firestore.messages.fields", "messages collection has no fields defined", IssueSeverity.WARNING))
         }
 
+        // Validate phone field type if present
+        config.firestore.contacts.fields.find { it.name == "phone" }?.let { phoneField ->
+            if (phoneField.type != "string") {
+                current = current.addWarning(
+                    ValidationIssue(
+                        "firestore.contacts.fields.phone",
+                        "phone field should be of type 'string' (found: '${phoneField.type}')",
+                        IssueSeverity.WARNING
+                    )
+                )
+            }
+        }
+
         return current
     }
 }

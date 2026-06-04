@@ -42,6 +42,24 @@
 * [x] CONV-1.3 — TDD : 50 UT ConfigResolver (7 nested classes : String, Int, Boolean, Enum, EdgeCases, Cascade, Config).
 * [x] Build compile + publishToMavenLocal + 451 UT PASS.
 
+== Session 083 — US-61b Champ phone formulaire contact (2026-06-05)
+
+* [x] Alignement `telephone` → `phone` dans 3 `site.yml` (main/resources, racine bakery-gradle, racine foundry/public)
+* [x] BakeryPluginTest : 2 assertions alignées (`contacts properties` + `field types mapping`) — 33/33 PASS
+* [x] Cucumber : Step `contactFormFirestoreHasPhoneFieldWithType` ajouté dans `ValidateFirebaseConfigSteps.kt`
+* [x] Feature 28 : Scénario `@phone-validation` PASS (24/24 globaux Cucumber)
+* [x] FirebaseConfigValidatorTest : 3 tests phone PASS (string OK / non-string warning / missing OK)
+* [x] FirebaseAuthTemplateTest : 1 test template phone PASS
+* [x] publishToMavenLocal obligatoire respecté
+* [x] Coverage Kover stable 76.15%+
+
+=== Métriques
+| Tests JUnit5 | 676+ PASS |
+| Tests FT | 61/61 PASS |
+| Cucumber | 133+ PASS |
+| E2E | 17/17 PASS |
+| Build | ✅ Zéro warning |
+
 == Session 077-078 (2026-06-04) — Bakery Polish + Fermeture
 
 === Tâches terminées

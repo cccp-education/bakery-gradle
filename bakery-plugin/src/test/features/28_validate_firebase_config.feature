@@ -27,3 +27,12 @@ Feature: Firebase Configuration Validation — BKY-IA-3
     When I am executing the task 'validateFirebaseConfig'
     Then the build should succeed
     And the output should contain "Validation IA désactivée"
+
+  #noinspection CucumberUndefinedStep
+  @phone-validation
+  Scenario: Phone field with wrong type produces warning
+    Given the firebaseAuth DSL is configured with apiKey "AIzaSyB-test" and authDomain "test-project.firebaseapp.com" and projectId "test-project"
+    And the contact form firestore has a phone field with type "number"
+    When I am executing the task 'validateFirebaseConfig'
+    Then the build should succeed
+    And the output should contain "phone field should be of type 'string'"

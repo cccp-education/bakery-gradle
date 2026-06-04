@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-04 — Session 082 (US-61a VerifyConfigurationMapping)
-  _Session terminee_ : 082
-  _Prochaine session_ : 083 — US-61b phone field OR switch borough
+  _Derniere mise a jour_ : 2026-06-05 — Session 083 (US-61b phone field)
+  _Session terminee_ : 083
+  _Prochaine session_ : 084 — switch borough OR cleanup CS-FIN
   _Session en cours_ : — (fermee)
 
 '''

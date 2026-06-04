@@ -208,8 +208,8 @@ class BakeryPluginTest {
                 .isEqualTo("contacts")
 
             assertThat(config.firebase!!.firestore.contacts.fields.map { it.name })
-                .describedAs("SiteConfiguration.firebase.firestore.contacts.fields should contains 'id', 'created_at', 'name', 'email', 'telephone'")
-                .contains("id", "created_at", "name", "email", "telephone")
+                .describedAs("SiteConfiguration.firebase.firestore.contacts.fields should contains 'id', 'created_at', 'name', 'email', 'phone'")
+                .contains("id", "created_at", "name", "email", "phone")
 
             assertThat(config.firebase!!.firestore.contacts.rulesEnabled).isTrue
         }
@@ -244,7 +244,7 @@ class BakeryPluginTest {
                 "created_at" to "timestamp",
                 "name" to "string",
                 "email" to "string",
-                "telephone" to "string"
+                "phone" to "string"
             )
 
             assertThat(fields).hasSize(expectedTypes.size)

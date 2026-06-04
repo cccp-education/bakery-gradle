@@ -10,6 +10,16 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 [cols="2,3"]
 |===
 | Métrique | Valeur
+| Couverture Kover | *76.15%* — seuil 70% (session 083, stable)
+| Seuil configuré | 70% (dans `build.gradle.kts` → `koverThresholdCheck`)
+| Tests unitaires JUnit5 | 138 fichiers, 676+ tests — ~38s (Cucumber exclu de `test` task)
+| Tests fonctionnels (TestKit) | 8 fichiers, 61/61 FT PASS (inchangé)
+| Tests Cucumber BDD | 28 features, 133 scénarios — tous PASS (+1)
+| Tests E2E Playwright | 5 fichiers, 17/17 PASS — séparés de `check`
+| Compilation | ✅ BUILD SUCCESSFUL — Gradle 9.5.1, Kotlin 2.3.20, Java 24, zéro warning
+| Évolution Session 083 | ✅ US-61b terminée. Champ `phone` aligné. 4 UT + 1 Cucumber nouveau. Coverage 76.15% stable.
+|===
+| Métrique | Valeur
 | Couverture Kover | *76.15%* — seuil 70% (session 082, +1.15pp)
 | Seuil configuré | 70% (dans `build.gradle.kts` → `koverThresholdCheck`)
 | Tests unitaires JUnit5 | 138 fichiers, 673+ tests — ~38s (Cucumber exclu de `test` task)

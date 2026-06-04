@@ -36,4 +36,41 @@ class ValidateFirebaseConfigSteps(private val world: BakeryWorld) {
         }
         buildFile.writeText(updatedContent, UTF_8)
     }
+
+    @Given("the contact form firestore has a phone field with type {string}")
+    fun contactFormFirestoreHasPhoneFieldWithType(type: String) {
+        val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
+        val siteYml = projectDir.resolve("site.yml")
+
+        val firebaseBlock = """
+firebase:
+  project:
+    projectId: "test-project"
+    apiKey: "AIzaSyB-test"
+  firestore:
+    contacts:
+      name: "contacts"
+      fields:
+        - name: "name"
+          type: "string"
+        - name: "phone"
+          type: "$type"
+      rulesEnabled: true
+    messages:
+      name: "messages"
+      fields:
+        - name: "text"
+          type: "string"
+      rulesEnabled: true
+  callable:
+    name: "sendMessage"
+    params:
+      - name: "message"
+        type: "string"
+""".trimIndent()
+
+        val currentContent = if (siteYml.exists()) siteYml.readText(UTF_8) else ""
+        val newContent = currentContent + "\n" + firebaseBlock
+        siteYml.writeText(newContent, UTF_8)
+    }
 }

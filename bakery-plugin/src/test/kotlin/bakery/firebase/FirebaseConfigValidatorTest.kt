@@ -93,7 +93,7 @@ class FirebaseConfigValidatorTest {
         private val validContactConfig = FirebaseContactFormConfig(
             project = FirebaseProjectInfo(projectId = "my-project", apiKey = "AIzaSyB-abc123"),
             firestore = FirebaseFirestoreSchema(
-                contacts = FirebaseCollection(name = "contacts", fields = listOf(FirebaseField("name", "string")), rulesEnabled = true),
+                contacts = FirebaseCollection(name = "contacts", fields = listOf(FirebaseField("name", "string"), FirebaseField("phone", "string")), rulesEnabled = true),
                 messages = FirebaseCollection(name = "messages", fields = listOf(FirebaseField("text", "string")), rulesEnabled = true)
             ),
             callable = FirebaseCallableFunction(name = "sendMessage", params = listOf(FirebaseCallableParam("message", "string")))
@@ -163,6 +163,36 @@ class FirebaseConfigValidatorTest {
             val result = FirebaseConfigValidator.validateContactConfig(config)
             assertEquals(2, result.warnings.size)
             assertTrue(result.isValid) // warnings don't block validity
+        }
+
+        @Test
+        fun `phone field with type string is valid`() {
+            val result = FirebaseConfigValidator.validateContactConfig(validContactConfig)
+            assertTrue(result.isValid)
+            assertEquals(0, result.errors.filter { it.field == "firestore.contacts.fields.phone" }.size)
+        }
+
+        @Test
+        fun `phone field with non-string type is a warning`() {
+            val config = validContactConfig.copy(
+                firestore = validContactConfig.firestore.copy(
+                    contacts = FirebaseCollection(name = "contacts", fields = listOf(FirebaseField("name", "string"), FirebaseField("phone", "number")), rulesEnabled = true)
+                )
+            )
+            val result = FirebaseConfigValidator.validateContactConfig(config)
+            assertTrue(result.isValid) // warnings don't block validity
+            assertEquals(1, result.warnings.filter { it.field == "firestore.contacts.fields.phone" }.size)
+        }
+
+        @Test
+        fun `phone field missing does not block`() {
+            val config = validContactConfig.copy(
+                firestore = validContactConfig.firestore.copy(
+                    contacts = FirebaseCollection(name = "contacts", fields = listOf(FirebaseField("name", "string")), rulesEnabled = true)
+                )
+            )
+            val result = FirebaseConfigValidator.validateContactConfig(config)
+            assertTrue(result.isValid)
         }
     }
 

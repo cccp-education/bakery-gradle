@@ -103,4 +103,15 @@ class FirebaseAuthTemplateTest {
         val content = template.readText()
         assertTrue(content.contains("comments.thyme"), "page must include comments fragment")
     }
+
+    @Test
+    fun `contact thyme template contains phone field with tel type`() {
+        val template = templatesDir.resolve("contact.thyme")
+        assertTrue(template.exists(), "contact.thyme must exist")
+        val content = template.readText()
+        assertTrue(content.contains("type=\"tel\""), "must have phone input with type='tel'")
+        assertTrue(content.contains("name=\"phone\""), "must have phone input with name='phone'")
+        assertTrue(content.contains("id=\"phone\""), "must have phone input with id='phone'")
+        assertTrue(content.contains("Optionnel") || content.contains("optionnel"), "phone field should indicate it's optional")
+    }
 }

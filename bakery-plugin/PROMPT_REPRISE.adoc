@@ -2,33 +2,23 @@
 
 == Mission en cours
 
-**US-61b** — Ajouter le champ `phone` dans le formulaire de contact.
-- Template `contact.thyme` : champ phone après email
-- `site.yml` schema : ajouter `phone` dans `firebase.firestore.contacts.fields`
-- Validation Firebase config : phone field type = "string"
-- Tests DDD/TDD/BDD : unit + functional + Cucumber
+**US-61b TERMINÉ** — Champ `phone` dans le formulaire de contact. Tous les tests PASS.
 
 == Statut
 
-- EPICs : 28/28 ✅ (100%) + US-61a ✅ (verifyConfigurationMapping)
-- Code smells : 22/22 ✅ (100%)
-- Tests : 673+ JUnit5 PASS, 132 Cucumber PASS, 17 E2E PASS
-- Coverage : 76.15% ✅
+- EPICs : 28/28 ✅ (100%) + US-61a ✅ + US-61b ✅
+- Code smells : 22/22 ✅ (100%) + CS-FIN-1 ✅ + CS-FIN-2 ✅ + CS-FIN-3 ✅
+- Tests : 676+ JUnit5 PASS, 133+ Cucumber PASS, 17 E2E PASS
+- Coverage : 76.15%+ ✅
 - Build : zero warning
 
 == Contexte de reprise
 
-Session 082 a livré `VerifyConfigurationMappingTask` (17 tests nouveaux, coverage +1.15pp).
-Le plugin est stable. Prochaine tâche : US-61b (champ phone formulaire contact).
+Session 083 a livré l'alignement complet `telephone` → `phone` (template, schema, validation, tests).
+4 `site.yml` alignés. `ValidateFirebaseConfigSteps.kt` enrichi. `publishToMavenLocal` OK.
 
-== Fichiers de référence
+== Prochaine session (084)
 
-- `src/main/resources/site/templates/contact.thyme` — template formulaire
-- `src/main/kotlin/bakery/firebase/FirebaseConfigValidator.kt` — validation schema
-- `src/test/kotlin/bakery/FirebaseAuthTemplateTest.kt` — tests template
-- `src/test/kotlin/bakery/firebase/FirebaseConfigValidatorTest.kt` — tests validation
-
-== Prochaine session
-
-Option A : US-61b (phone field) — bakery
-Option B : Switch borough (runner-gradle, codebase-gradle, training-gradle)
+Option A : Switch borough (runner-gradle N3, codebase-gradle RAG, training-gradle)
+Option B : Cleanup CS-FIN restants (Jackson sérialisation, micro-fixes)
+Option C : Nouvelle feature si demandée

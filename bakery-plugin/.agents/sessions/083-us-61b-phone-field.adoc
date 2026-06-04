@@ -1,0 +1,80 @@
+= Session 083 — US-61b : Champ phone dans le formulaire de contact
+
+*Date* : 2026-06-05
+*Type* : feat + TDD + BDD
+*Score* : 9/10
+
+== Résumé
+
+Finalisation de l'US-61b : ajout du champ `phone` dans le formulaire de contact JBake, validation Firebase schema, et alignement de tous les `site.yml` (resources + racine + foundry/public).
+
+== Problèmes identifiés et résolus
+
+. **2 `site.yml` contenaient encore `telephone`** — le test `BakeryPluginTest` pointait `../../site.yml` qui résolvait vers `/home/cheroliv/workspace/foundry/public/site.yml`, PAS `bakery-gradle/site.yml`. Les deux ont été alignés `telephone` → `phone`.
+
+. **Step Cucumber `contact form firestore has a phone field with type` absent** — ajouté dans `ValidateFirebaseConfigSteps.kt` avec injection YAML inline.
+
+. **`FirebaseAuthTemplateTest` attendait `telephone`** — remplacé par `phone`+`tel`, id/placeholder vérifiés.
+
+== Fichiers créés/modifiés
+
+|===
+| Fichier | Action
+| `bakery-plugin/src/test/scenarios/bakery/scenarios/ValidateFirebaseConfigSteps.kt` | **Modifié** — Step Cucumber `contactFormFirestoreHasPhoneFieldWithType` (+33 lignes)
+| `bakery-plugin/src/main/resources/site.yml` | **Modifié** — `telephone` → `phone`
+| `bakery-plugin/src/test/kotlin/bakery/BakeryPluginTest.kt` | **Modifié** — 2 assertions alignées : `contacts properties` + field types mapping
+| `site.yml` (racine bakery-gradle) | **Modifié** — `telephone` → `phone`
+| `site.yml` (racine foundry/public) | **Modifié** — `telephone` → `phone`
+| `bakery-plugin/src/main/kotlin/bakery/firebase/FirebaseConfigValidator.kt` | **Préexistant session précédente** — Validation type phone
+| `bakery-plugin/src/test/kotlin/bakery/firebase/FirebaseConfigValidatorTest.kt` | **Préexistant session précédente** — 3 tests phone
+| `bakery-plugin/src/test/kotlin/bakery/FirebaseAuthTemplateTest.kt` | **Préexistant session précédente** — 1 test template phone
+| `bakery-plugin/src/test/features/28_validate_firebase_config.feature` | **Préexistant session précédente** — Scénario @phone-validation
+|===
+
+== Baby Steps DDD/TDD/BDD
+
+. **DDD** — Aligner domaine : `telephone` → `phone` partout (template, schema, validation, tests)
+. **TDD Unit** — 4 tests Firebase phone PASS (`FirebaseConfigValidatorTest` 3 + `FirebaseAuthTemplateTest` 1)
+. **TDD Integration** — `BakeryPluginTest` 33/33 PASS (2 assertions corrigées)
+. **BDD Cucumber** — Feature 28 scénario phone PASS (24/24 scénarios globaux)
+. **publishToMavenLocal** — Obligation absolue respectée
+
+== Résultats
+
+```
+BUILD SUCCESSFUL
+
+Tests unitaires JUnit5 : 676+ PASS (+3 nouveaux)
+Tests fonctionnels : 61/61 PASS (inchangé)
+Tests Cucumber : 133+ PASS (+1 nouveau Feature 28)
+Tests E2E Playwright : 17 PASS (inchangé)
+Coverage Kover : 76.15%+ (stable)
+Compilation : zero warning
+```
+
+== Métriques
+
+|===
+| Métrique | Valeur
+| Tests JUnit5 | 676+ PASS (+3)
+| Tests fonctionnels | 61 PASS (inchangé)
+| Cucumber | 133+ PASS (+1)
+| E2E | 17 PASS (inchangé)
+| Coverage Kover | 76.15%+ (stable)
+| Warnings compile | 0
+| Fichiers modifiés | 6
+| Secrets exposés | 0
+|===
+
+== Apprentissage
+
+. Le test `BakeryPluginTest` lit `../../site.yml` depuis `src/test/kotlin/bakery/` ; il peut y avoir divergence entre le `site.yml` consommé et celui attendu. Vérifier la résolution via `realpath`.
+. Lors d'un renommage de champ de configuration, penser à aligner : template HTML, schema YAML (tous les `site.yml` en scope), validation métier, tests unitaires, tests fonctionnels, tests Cucumber.
+. `publishToMavenLocal` obligatoire après toute modification source — même si ce sont "juste" des tests.
+
+== Prochaine session
+
+* Prochain numéro de session : **084**
+* Option A : Switch borough recommandé (runner-gradle N3, codebase-gradle RAG, training-gradle formation)
+* Option B : Cleanup technique bakery (debt session 079 CS-FIN-2/3 restants)
+* Option C : Nouvelle feature bakery (si backlog identifié)
