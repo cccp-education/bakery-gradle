@@ -68,18 +68,14 @@ object SiteTaskRegistrar {
     ): File = targetDir
         .resolve("site.yml").apply {
             createNewFile()
-            "create config file."
-                .apply(::println)
-                .let(logger::info)
+            logger.lifecycle("create config file.")
             SiteConfiguration(
                 bake = BakeConfiguration(resourcePathForType(siteType), "bake"),
                 pushPage = GitPushConfiguration(from = resourcePathForType(siteType), to = "cvs"),
                 pushMaquette = GitPushConfiguration(from = "maquette", to = "cvs")
             ).run(yamlMapper::writeValueAsString)
                 .run(::writeText)
-            "write config file."
-                .apply(::println)
-                .let(project.logger::info)
+            logger.lifecycle("write config file.")
         }
 
 

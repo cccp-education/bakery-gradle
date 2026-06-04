@@ -54,9 +54,9 @@ class BakeryPlugin : Plugin<Project> {
                                     !configDir.resolve(pushMaquette.from).exists()
                         })
             ) {
-                "config file does not exists or site and maquette directories do not exist."
-                    .apply(::println)
-                    .let(project.logger::info)
+                project.logger.lifecycle(
+                    "config file does not exists or site and maquette directories do not exist."
+                )
                 val targetDir = SiteScaffolder.resolveSiteTargetDir(
                     bakeryExtension,
                     project.projectDir

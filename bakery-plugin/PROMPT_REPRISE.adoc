@@ -1,25 +1,20 @@
-= PROMPT_REPRISE — Session 073 : Bakery Polish Final (CS-4..CS-11 + EPIC 13 Coverage)
+= PROMPT_REPRISE — Session 074 : Bakery Polish Suite (CS-4 ou CS-5)
 
-== Mission (Session 073)
+== Mission (Session 074)
 
-1. **EPIC 13 — Stabiliser coverage ≥77%** (P2) : Si `./gradlew koverXmlReport` montre <75%, ajouter tests ciblés.
-2. **CS-4/CS-5/CS-6/CS-7/CS-8/CS-9/CS-11** (P2) : Appliquer 1-2 code smells de la CODE_REVIEW v2 selon priorité. Ne pas tout faire — 1-2 max.
-3. **BKY-IA-3 — Validation Firebase IA** (P2) : 3 pts, léger. Si temps restant.
+1. **CS-4 — Pattern Strategy injectConfig** (P2, 1 session) : Extraire `injectResolvedConfigIntoJbakeProperties()` en `Map<String, ConfigInjector>` avec `fun interface ConfigInjector`. Réduction 70→~25 lignes.
+2. **OU CS-5 — Générifier ConfigResolver** (P2, 1 session) : Remplacer 9 méthodes `resolve*` quasi-identiques par `inline fun <reified T> resolve()`. Réduction ~200→50 lignes.
 
-== État actuel (Session 072)
+== État actuel (Session 073)
 
-- **CS-12** ✅ TERMINÉ — Renommage `publishProfile` → `deployProfile` (DeployProfileTask, méthode, messages, commentaires). Taxonomie EPIC K appliquée.
-- **EPIC 6** ✅ TERMINÉ — Validation finale : DeployProfileTask + ProfilePublisher + wiring DeployTaskRegistrar + Feature 5 Cucumber (3 scénarios). Statut BACKLOG mis à jour.
-- **BKY-IA-2** ✅ VÉRIFIÉ — FT 5/5 PASS, Feature 27 Cucumber PASS. Code stable, pas de modification.
-- **BUILD SUCCESSFUL** — Compilation ✅, UT 559+ PASS, FT 56/56 PASS, Cucumber 85/85 PASS (estimé), E2E 17/17 PASS.
-- **Coverage** : ~77% (seuil 75% ✅). A surveiller.
-- **SiteManager** : 44 lignes (façade), 4 TaskRegistrars (824l total).
+- **CS-11** ✅ TERMINÉ — Logger uniformisé (println+logger → logger.lifecycle), 3 fichiers, 0 régression.
+- **CS-9** ⏭️ SKIPPED — Faux positif (DSL builders Gradle idiomatiques avec var).
+- **Coverage** : 77.09% (seuil 75% ✅).
+- **Bakery** : 95% complet. 2-3 CS restants (CS-4, CS-5, CS-8 XML fragile).
 
 == Points d'attention
 
 - Ne pas lancer `./gradlew test` sans permission explicite
-- `test` task exclut Cucumber. Lancer `./gradlew cucumberTest` séparément si besoin
-- Bakery est **95% complet**. Derniers chantiers : polish code smells + coverage + BKY-IA-3
-- Priorité : CS le plus bloquant > coverage > BKY-IA-3
-
-(End of file - total 31 lines)
+- Priorité : CS-4 > CS-5 (CS-4 réduit la duplication visible, CS-5 est du refactoring interne)
+- Méthodologie baby-step : 1 fichier à la fois, compile + test entre chaque étape
+- Si CS-4 trop gros → switch borough (bakery considéré clos à 95%)

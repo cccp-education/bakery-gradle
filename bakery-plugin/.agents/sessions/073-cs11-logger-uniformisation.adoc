@@ -1,0 +1,53 @@
+= Session 073 — CS-11 Logger Uniformisation + CS-9 Audit
+:date: 2026-06-04
+:type: refactor + audit
+:score: 8/10
+
+== Résumé
+
+Session courte (polish). Application de 1 code smell de la CODE_REVIEW v2 + audit de faisabilité d'un second.
+
+=== CS-11 ✅ — Logger Uniformisation (P2)
+
+*Problème* : `.apply(::println).let(logger::info)` pattern dupliqué dans BakeryPlugin.kt, SiteTaskRegistrar.kt, GitService.kt
+
+*Action* :
+- `BakeryPlugin.kt:57-59` → `project.logger.lifecycle("config file does not exists or site and maquette directories do not exist.")`
+- `SiteTaskRegistrar.kt:71-73` → `logger.lifecycle("create config file.")`
+- `SiteTaskRegistrar.kt:80-82` → `logger.lifecycle("write config file.")`
+- `GitService.kt:98-100` → suppression du `println(resultString)` en double (conservation `logger.info` SLF4J)
+
+*Tests* : Compilation ✅, tests ciblés PASS (BakeryPluginTest, SiteManagerTest, GitServiceTest, LensPipelineServiceTest, ProfilePublisherTest)
+
+=== CS-9 ⏭️ SKIPPED — Audit faisabilité
+
+*Problème* : `var` dans LensConfig, LensBudget, LensRules, LensRagConfig, AugmentedContextDsl
+
+*Décision* : **SKIP** — Ces classes sont des DSL builders Gradle (pattern `bakery { lens { communities = ... } }`). Le `var` est idiomatique pour les DSLs Gradle — sans `var`, les blocs de configuration `lens { }` ne fonctionneraient pas. La `copy()` est déjà disponible (data class) et testée. La mutation directe via `.copy()` dans les tests changerait la sémantique des tests DSL. Code review priorité "basse" confirmée.
+
+*Impact* : zéro — pas de modification, pas de régression.
+
+== Fichiers modifiés
+
+|===
+| Fichier | Lignes | Action
+| `bakery/BakeryPlugin.kt` | -2 | Remplacement pattern println+logger par logger.lifecycle
+| `bakery/SiteTaskRegistrar.kt` | -4 | Idem ×2 occurrences
+| `bakery/GitService.kt` | -1 | Suppression println en double
+|===
+
+== Métriques
+
+|===
+| Coverage | 77.09% (inchangé, seuil 75% ✅)
+| Compilation | ✅ BUILD SUCCESSFUL, zéro warning
+| Tests ciblés | 63/63 PASS
+|===
+
+== Leçon
+
+CS-9 a révélé que la "code review" brute (grep var) n'est pas toujours applicable sans contexte d'architecture. Les DSL Gradle sont un cas d'exception validé. La méthodologie baby-step (compilation + tests entre chaque changement) a permis de détecter le faux positif avant toute modification.
+
+== Prochaine session (074)
+
+CS-4 (Pattern Strategy injectConfig) ou CS-5 (Générifier ConfigResolver) selon priorité — ou switch borough si bakery est considéré clos à 95%.

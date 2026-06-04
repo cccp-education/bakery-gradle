@@ -97,7 +97,6 @@ object GitService {
         )?.forEach { pushResult ->
             val resultString = pushResult.toString()
             logger.info(resultString)
-            println(resultString)
         }
         logger.info("Git push completed.")
     }

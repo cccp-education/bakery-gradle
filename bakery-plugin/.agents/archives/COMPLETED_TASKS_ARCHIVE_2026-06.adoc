@@ -865,3 +865,41 @@ Priorité claire : finir bakery (~1 jour).
 * `.agents/archives/COMPLETED_TASKS_ARCHIVE_2026-06.adoc` — Cette entrée
 
 **Résultat** : Aucun code source modifié — audit et conception uniquement. BKY-LENS supersède BKY-BKG.
+
+== Session 073 — 2026-06-04 — CS-11 Logger Uniformisation + CS-9 Audit
+
+**Score** : 8/10
+
+=== Contexte
+Session polish courte. 1 code smell résolu + 1 audité = faux positif.
+
+=== CS-11 ✅ — Logger Uniformisation
+
+*Problème* : Pattern `.apply(::println).let(logger::info)` dupliqué + `println` en double dans GitService.kt
+
+*Action* :
+- `BakeryPlugin.kt:57-59` → `project.logger.lifecycle(...)`
+- `SiteTaskRegistrar.kt:71-73` → `logger.lifecycle("create config file.")`
+- `SiteTaskRegistrar.kt:80-82` → `logger.lifecycle("write config file.")`
+- `GitService.kt:98-100` → suppression `println(resultString)` (conservation `logger.info` SLF4J)
+
+*Tests* : Compilation ✅, tests ciblés 63/63 PASS. Coverage 77.09% inchangé.
+
+=== CS-9 ⏭️ SKIPPED — Audit faisabilité
+
+*Problème* : `var` dans LensConfig, LensBudget, LensRules, etc.
+
+*Décision* : **SKIP** — Ces classes sont des DSL builders Gradle. `var` est idiomatique pour les DSLs Gradle. Sans `var`, les blocs `lens { communities = ... }` ne fonctionneraient pas. La `copy()` est déjà testée. Priorité "basse" de CODE_REVIEW confirmée.
+
+=== Fichiers modifiés
+
+|===
+| Fichier | Lignes | Action
+| `bakery/BakeryPlugin.kt` | -2 | Remplacement pattern println+logger par logger.lifecycle
+| `bakery/SiteTaskRegistrar.kt` | -4 | Idem ×2 occurrences
+| `bakery/GitService.kt` | -1 | Suppression println en double
+|===
+
+=== Leçon
+
+CS-9 a révélé que la "code review" brute (grep var) n'est pas toujours applicable sans contexte d'architecture. Les DSL Gradle sont un cas d'exception validé. La méthodologie baby-step (compilation + tests entre chaque changement) a permis de détecter le faux positif avant toute modification.
