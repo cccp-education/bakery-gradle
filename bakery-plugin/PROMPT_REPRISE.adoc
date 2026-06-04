@@ -1,27 +1,26 @@
-= PROMPT_REPRISE — Session 075 : Bakery Clos → Switch Borough
+= PROMPT_REPRISE — Session 076 : Bakery 96% — Decision Next
 
-== Mission (Session 075)
+== Mission (Session 076)
 
-Bakery est considéré **clos à 95%+**. CS-4 (Strategy injectConfig) et CS-5 (Générifier ConfigResolver) terminés.
+Bakery est **96% complet** — CS-8 (Rome RSS parser) terminé. Derniers points ouverts :
 
-**Option A** : CS-8 Parse XML RSS/DOM fragile (P2, 0.5 session) — `SiteContextCollector.parseFeed()` DocumentBuilderFactory → Rome library. Léger, non bloquant.
+| Point | Pts | Priorité |
+|---|---|---|
+| BKY-IA-2 Thème IA paramétrique | 8 pts | P1 |
+| EPIC 13 Coverage 73%→75% | ~3 pts | P1 |
+| EPIC 6 fantôme (nettoyage cheroliv.com) | ~3 pts | P1 |
 
-**Option B** : Switch borough selon priorité workspace (runner-gradle N3, training-gradle N2, ou autre EPIC actif).
+**Option A** : Attaquer BKY-IA-2 (catalogue thèmes + variables CSS + generateTheme task) — valeur métier maximale.
+**Option B** : Switch borough selon PLAN_GLOBAL.adoc (runner-gradle N3, training-gradle N2).
 
-== État actuel (Session 074 TERMINÉE)
+== État actuel (Session 075 TERMINÉE)
 
-- **CS-4** ✅ TERMINÉ — Pattern Strategy injectConfig. `injectResolvedConfigIntoJbakeProperties()` 79→22 lignes (-72%).
-- **CS-5** ✅ TERMINÉ — Générifier ConfigResolver. `resolve<T>` générique + Scope pattern. 339→327 lignes.
-- **CS-11** ✅ TERMINÉ — Logger uniformisé (session 073).
-- **CS-9** ⏭️ SKIPPED — Faux positif.
-- **CS-12** ✅ TERMINÉ — Renommage publishProfile→deployProfile (session 072).
-- **CS-10** ✅ TERMINÉ — Tasks TODO supprimées (session 071).
-- **CS-2** ✅ TERMINÉ — LensPipelineService (session 070).
-- **CS-3** ✅ TERMINÉ — Jackson parse JSON maison (session 070).
-- **Coverage** : 77.09% (seuil 75% ✅).
-- **Bakery** : 95%+ complet. Seul CS-8 reste (P2, non bloquant).
+- **CS-8** ✅ TERMINÉ — Rome RSS parser. `parseFeed()` 35→12 lignes. `parseRssDate()` supprimé. Compilation zéro warning. 7/7 tests PASS.
+- **CS-4** ✅, **CS-5** ✅, **CS-11** ✅, **CS-12** ✅, **CS-10** ✅, **CS-2** ✅, **CS-3** ✅
+- **Coverage** : 77.09% (seuil 75% ✅)
+- **Bakery** : 96% complet. Tous les code smells critiques résolus.
 
 == Points d'attention
 
-- Bakery est clos. Ne pas y revenir sauf bug critique ou besoin métier formation.
-- Priorité workspace : suivre INDEX.adoc global et PLAN_GLOBAL.adoc.
+- Tous les EPICs P0 sont terminés. Restent des P1/P2 de polish.
+- BKY-IA-2 a le plus de valeur différenciante (thème paramétrique IA).

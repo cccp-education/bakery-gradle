@@ -42,6 +42,9 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.jdk8)
 
+    // RSS parsing — Rome (CS-8 remplace DocumentBuilderFactory DOM fragile)
+    implementation(libs.rome)
+
     // Coroutines — IMPORTANT pour les tests asynchrones
     testImplementation(libs.bundles.coroutines)
 

@@ -1,8 +1,9 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-  _Derniere mise a jour : 2026-06-04 — Session 074_
+  _Derniere mise a jour : 2026-06-04 — Session 075_
 
   |===
+  | 075 | 2026-06-04 | refactor + TDD | CS-8 Rome RSS parser — `SiteContextCollector.parseFeed()` DocumentBuilderFactory DOM 35 lignes → Rome (`SyndFeedInput` + `XmlReader`) 12 lignes. `parseRssDate()` supprimé (Rome gère nativement). `normalizeUrl()` extrait. Dépendance `com.rometools:rome:2.1.0` ajoutée. Compilation zéro warning. 7/7 SiteContextCollectorTest PASS, tests JUnit5 globaux PASS. Score 9/10. | 9/10
   | 074 | 2026-06-04 | refactor + TDD | CS-4 Pattern Strategy injectConfig — `injectResolvedConfigIntoJbakeProperties()` 79→22 lignes (-72%). 3 fichiers créés (`injection/` package : ConfigInjector, DomainConfigInjectors, PropertyUpdater). CS-5 Générifier ConfigResolver — `resolve<T>` générique + Scope pattern pour 5 aggrégats. 339→327 lignes. Theme/Firebase non touchés (logique spécifique). Compilation ✅, ConfigResolverTest 62/62 PASS, tests injection 14/14 PASS. publishToMavenLocal OK. | 9/10
   | 073 | 2026-06-04 | refactor + audit | CS-11 Logger uniformisation (3 fichiers : BakeryPlugin, SiteTaskRegistrar, GitService) — suppression pattern `.apply(::println).let(logger::info)` et `println` en double. CS-9 audité = faux positif (DSL builders Gradle idiomatiques avec `var`). Compilation ✅, tests ciblés 63/63 PASS. Coverage 77.09% inchangé. | 8/10
   | 072 | 2026-06-04 | refactor + TDD | CS-12 Taxonomie EPIC K : publishProfile → deployProfile (DeployProfileTask rename + method + messages). EPIC 6 validation finale — code complet (DeployProfileTask 41l, ProfilePublisher 77l, 14 UT, Feature 5 Cucumber 3 scénarios). BKY-IA-2 vérifié stable (FT 5/5 PASS, Feature 27 PASS). BACKLOG + PROMPT_REPRISE mis à jour. BUILD SUCCESSFUL, publishToMavenLocal OK. | 9/10

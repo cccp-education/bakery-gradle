@@ -27,6 +27,7 @@ codebase-contracts = "0.1.0"
 langchain4j = "1.14.1"
 thymeleaf = "3.0.14.RELEASE"
 playwright = "1.52.0"
+rome = "2.1.0"
 
 
 [libraries]
@@ -63,6 +64,7 @@ codebase-contracts = { module = "education.cccp:codebase-contracts", version.ref
 langchain4j-ollama = { module = "dev.langchain4j:langchain4j-ollama", version.ref = "langchain4j" }
 thymeleaf = { module = "org.thymeleaf:thymeleaf", version.ref = "thymeleaf" }
 playwright = { module = "com.microsoft.playwright:playwright", version.ref = "playwright" }
+rome = { module = "com.rometools:rome", version.ref = "rome" }
 
 
 [plugins]

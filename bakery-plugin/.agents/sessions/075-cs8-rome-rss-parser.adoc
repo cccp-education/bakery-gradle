@@ -1,0 +1,32 @@
+= Session 075 — CS-8 Parse XML RSS/DOM fragile → Rome
+
+== Résumé
+
+Refactoring du parser RSS dans `SiteContextCollector.parseFeed()` : remplacement de `DocumentBuilderFactory` + DOM traversal manuel par la bibliothèque **Rome** (`com.rometools:rome:2.1.0`).
+
+== Modifications
+
+| Fichier | Action |
+|---|---|
+| `gradle/libs.versions.toml` | Ajout version `rome = "2.1.0"` + library `rome` |
+| `build.gradle.kts` | `implementation(libs.rome)` |
+| `SiteContextCollector.kt` | `parseFeed()` réécrit avec `SyndFeedInput` + `XmlReader` |
+| `SiteContextCollector.kt` | `parseRssDate()` supprimé (Rome gère nativement les formats RSS) |
+| `SiteContextCollector.kt` | `normalizeUrl()` extrait comme méthode privée réutilisable |
+
+== Métriques
+
+* Avant : `parseFeed()` 35 lignes (DOM manuel) + `parseRssDate()` 10 lignes
+* Après : `parseFeed()` 12 lignes (Rome) + `normalizeUrl()` 3 lignes
+* Code supprimé : ~40 lignes DOM fragile
+* Tests : 7/7 SiteContextCollectorTest PASS, compilation zéro warning
+
+== Décisions
+
+* Rome 2.1.0 choisi car mature, API simple, gère RSS 1.0/2.0/Atom nativement
+* `parseSitemap()` laissé en DOM (sitemap.xml est simple et stable, pas de valeur ajoutée Rome)
+* Aucun test modifié — les fixtures XML existantes restent le garde-fou contractuel
+
+== Score : 9/10
+
+Rapide, propre, zero régression. Le dernier code smell critique de la code review est fermé.

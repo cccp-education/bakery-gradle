@@ -3,21 +3,17 @@ package bakery
 import bakery.lens.AugmentedContextDsl
 import bakery.lens.AugmentedContextResolver
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.rometools.rome.io.SyndFeedInput
+import com.rometools.rome.io.XmlReader
 import java.io.File
 import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
-import java.util.Locale
 import javax.xml.parsers.DocumentBuilderFactory
 
 object SiteContextCollector {
 
-    private val rssDateFormats = listOf(
-        DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss Z", Locale.ENGLISH),
-        DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.ENGLISH),
-        DateTimeFormatter.ofPattern("dd MMM yyyy", Locale.ENGLISH)
-    )
     private val isoDate = DateTimeFormatter.ISO_LOCAL_DATE
 
     fun collect(bakedDir: File, outputDir: File) {
@@ -116,54 +112,30 @@ object SiteContextCollector {
         if (!feedFile.exists()) return emptyList()
 
         return runCatching {
-            val doc = DocumentBuilderFactory.newInstance()
-                .newDocumentBuilder()
-                .parse(feedFile)
-            val items = doc.getElementsByTagName("item")
-            (0 until items.length).map { i ->
-                val item = items.item(i)
+            SyndFeedInput().build(XmlReader(feedFile)).entries.map { entry ->
+                val title: String = entry.title as? String ?: ""
+                val url: String = (entry.link as? String)?.let { normalizeUrl(it) } ?: ""
+                val date: String = (entry.publishedDate as? java.util.Date)?.let {
+                    isoDate.format(it.toInstant().atZone(ZoneId.systemDefault()).toLocalDate())
+                } ?: ""
+                val tags: List<String> = entry.categories.map { (it.name as? String)?.trim() ?: "" }.filter { it.isNotBlank() }
+                val author: String = entry.author as? String ?: ""
+
                 mapOf(
-                    "title" to item.childNodes.let { nodes ->
-                        (0 until nodes.length).firstNotNullOfOrNull { j ->
-                            if (nodes.item(j).nodeName == "title") nodes.item(j).textContent else null
-                        } ?: ""
-                    },
-                    "url" to item.childNodes.let { nodes ->
-                        val link = (0 until nodes.length).firstNotNullOfOrNull { j ->
-                            if (nodes.item(j).nodeName == "link") nodes.item(j).textContent.trim() else null
-                        } ?: ""
-                        "/" + link.substringAfter("://")
-                            .substringAfter("/")
-                            .removePrefix("/")
-                    },
-                    "date" to item.childNodes.let { nodes ->
-                        val raw = (0 until nodes.length).firstNotNullOfOrNull { j ->
-                            if (nodes.item(j).nodeName == "pubDate") nodes.item(j).textContent else null
-                        } ?: ""
-                        parseRssDate(raw)
-                    },
-                    "tags" to item.childNodes.let { nodes ->
-                        (0 until nodes.length).filter { j ->
-                            nodes.item(j).nodeName == "category"
-                        }.map { j -> nodes.item(j).textContent.trim() }
-                    },
-                    "author" to ""
+                    "title" to title,
+                    "url" to url,
+                    "date" to date,
+                    "tags" to tags,
+                    "author" to author
                 )
             }
         }.getOrDefault(emptyList())
     }
 
-    private fun parseRssDate(raw: String): String {
-        if (raw.isBlank()) return ""
-        for (fmt in rssDateFormats) {
-            try {
-                val temporal = fmt.parseBest(raw, LocalDate::from, { it })
-                return isoDate.format(temporal as? LocalDate ?: return "")
-            } catch (_: DateTimeParseException) { continue }
-        }
-        val isoMatch = Regex("""\d{4}-\d{2}-\d{2}""").find(raw)
-        return isoMatch?.value ?: ""
-    }
+    private fun normalizeUrl(link: String): String =
+        "/" + link.substringAfter("://")
+            .substringAfter("/")
+            .removePrefix("/")
 
     private fun parseSitemap(bakedDir: File): List<String> {
         val sitemapFile = bakedDir.resolve("sitemap.xml")

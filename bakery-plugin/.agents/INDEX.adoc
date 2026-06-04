@@ -3,9 +3,9 @@
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
   _Derniere mise a jour_ : 2026-06-04
-  _Session terminee_ : 074 — CS-4 Pattern Strategy + CS-5 Générifier ConfigResolver
-  _Prochaine session_ : 075 — CS-8 ou Switch Borough
-  _Session en cours_ : 075
+  _Session terminee_ : 075 — CS-8 Rome RSS parser
+  _Prochaine session_ : 076 — BKY-IA-2 ou Switch Borough
+  _Session en cours_ : 076
 
 '''
 
@@ -70,6 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
  | # | Date | Type | Sujet | Score
+ | 075 | 2026-06-04 | refactor + TDD | **CS-8** Rome RSS parser — `SiteContextCollector.parseFeed()` DOM 35l → Rome 12l. `parseRssDate()` supprimé. `normalizeUrl()` extrait. Dépendance `com.rometools:rome:2.1.0`. Compilation zéro warning. 7/7 tests PASS. | 9/10
  | 074 | 2026-06-04 | refactor | **CS-4** Pattern Strategy injectConfig — `injectResolvedConfigIntoJbakeProperties()` 79→22 lignes. 3 fichiers créés (`injection/` package). **CS-5** Générifier ConfigResolver — `resolve<T>` générique + Scope pattern. 339→327 lignes. | 9/10
  | 073 | 2026-06-04 | polish | **CS-11** Logger uniformisation (`println`→`logger.lifecycle`, 3 fichiers). **CS-9** SKIP — `var` dans DSL builders = idiomatique Gradle. 63/63 PASS. Coverage 77.09%. | 8/10
  | 072 | 2026-06-04 | feat + refactor | **EPIC 6** Validation finale — `DeployProfileTask` (41l) + `ProfilePublisher` (77l) + 14 UT + 3 Cucumber. **CS-12** Taxonomie DEPLOYER : `publishProfile`→`deployProfile` (6 refs). BUILD SUCCESSFUL. | 9/10
@@ -226,6 +227,7 @@ _Localisation active_ : `.agents/backup/Y2026-sessions-051-060/` (rotation sessi
 | CS | Priorité | Statut | Description
 | CS-4 | MODÉRÉ | ✅ TERMINÉ (session 074) | `injectResolvedConfigIntoJbakeProperties()` 79→22 lignes — Pattern Strategy (`injection/` package)
 | CS-5 | MODÉRÉ | ✅ TERMINÉ (session 074) | `ConfigResolver` générifié — `resolve<T>` générique + Scope pattern, 339→327 lignes
+| CS-8 | LÉGER | ✅ TERMINÉ (session 075) | `SiteContextCollector.parseFeed()` DocumentBuilderFactory DOM → Rome library (`SyndFeedInput`), 35→12 lignes
 |===
 
 === EPICs Transférés (hors périmètre bakery)

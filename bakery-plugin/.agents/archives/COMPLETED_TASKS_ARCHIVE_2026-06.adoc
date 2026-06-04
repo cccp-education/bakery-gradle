@@ -904,6 +904,40 @@ Session polish courte. 1 code smell résolu + 1 audité = faux positif.
 
 CS-9 a révélé que la "code review" brute (grep var) n'est pas toujours applicable sans contexte d'architecture. Les DSL Gradle sont un cas d'exception validé. La méthodologie baby-step (compilation + tests entre chaque changement) a permis de détecter le faux positif avant toute modification.
 
+== Session 075 — 2026-06-04 — CS-8 Rome RSS Parser
+
+**Score** : 9/10
+
+**Contexte** : Dernier code smell critique de CODE_REVIEW v2. `SiteContextCollector.parseFeed()` utilisait `DocumentBuilderFactory` + DOM traversal manuel — fragile et verbeux.
+
+**Tâches réalisées** :
+
+* [x] Dépendance `com.rometools:rome:2.1.0` ajoutée (libs.versions.toml + build.gradle.kts)
+* [x] `parseFeed()` réécrit : 35 lignes DOM → 12 lignes Rome (`SyndFeedInput` + `XmlReader`)
+* [x] `parseRssDate()` supprimé — Rome gère nativement les formats RSS (RFC 822, ISO 8601)
+* [x] `normalizeUrl()` extrait comme méthode privée réutilisable (pattern DRY)
+* [x] `parseSitemap()` laissé en DOM (sitemap.xml est simple, pas de valeur ajoutée Rome)
+
+**Tests** :
+
+* 7/7 SiteContextCollectorTest PASS (aucun test modifié — fixtures XML inchangées)
+* Compilation zéro warning
+* `./gradlew test` JUnit5 global PASS
+
+**Décisions** :
+
+* Rome choisi car mature (2005+), API simple, gère RSS 1.0/2.0/Atom nativement
+* Aucun test modifié — le contrat XML fixture → JSON metadata.json reste identique
+* Suppression `rssDateFormats` (3 `DateTimeFormatter`) et `parseRssDate()` (10 lignes)
+
+**Fichiers modifiés** :
+
+| Fichier | Lignes | Action |
+|---|---|---|
+| `gradle/libs.versions.toml` | +2 | Version + library Rome |
+| `build.gradle.kts` | +1 | `implementation(libs.rome)` |
+| `SiteContextCollector.kt` | -23 | parseFeed refactor, parseRssDate supprimé, normalizeUrl extrait |
+
 == Session 074 — 2026-06-04
 
 * [x] CS-4 Pattern Strategy injectConfig — `injectResolvedConfigIntoJbakeProperties()` 79→22 lignes. 3 fichiers créés (`injection/` package).
