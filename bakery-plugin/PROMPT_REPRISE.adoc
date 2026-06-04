@@ -1,46 +1,28 @@
-= PROMPT_REPRISE — Session 080 : CS-FIN-1 (fix critique) ou Switch Borough
+= PROMPT_REPRISE — Session 081 : CS-FIN-2 (JSON escape Jackson) + CS-FIN-3 (nettoyage DRY)
 
-== Mission (Session 080)
+== Mission (Session 081)
 
-**Deux options au choix de l'utilisateur :**
+**Objectif** : Terminer les 2 derniers code smells de finalisation (CS-FIN-2 + CS-FIN-3, 2.5 pts).
 
-*Option A — Finir bakery* : Résoudre CS-FIN-1 (P0, 2 pts) → corriger le bug dormant
-`configPath.get()` sans `isPresent` + `isGradlePropertiesEnabled` timing dans
-`BakeryPlugin.kt`. ~30 min. Puis CS-FIN-2 (P1, JSON escape, 1.5 pts).
+*CS-FIN-2 (P1, 1.5 pts)* :
+- LensPipelineService ligne 125-136 : remplacer le `mapOf` manuel par `mapper.writeValue(file, output)` (LensPipelineOutput data class)
+- Ajouter test unitaire avec JSON complexe (Unicode, guillemets, `\n` littéral)
 
-*Option B — Switch borough* : Le backlog est propre, bakery est à 28/28 EPICs.
-Reprendre un autre borough du workspace (New Jersey, Newark, Brooklyn, Manhattan...).
+*CS-FIN-3 (P2, 1 pt)* :
+- CS-14 : Supprimer code mort LensPipelineService.kt:73-75 (condition impossible)
+- CS-15 : Documenter `ragResults: Map<String, Double> = emptyMap()` avec commentaire
+- CS-17 : Remplacer `println()` par `logger.lifecycle()` dans DeployTaskRegistrar
+- CS-19 : Réutiliser `jacksonObjectMapper()` comme champ privé dans LensPipelineService
+- CS-20 : Extraire `createLlmServiceIfEnabled(iaConfig, logger)` dans ContentTaskRegistrar
 
-== État bakery (Session 079)
+== État bakery (Session 080)
 
 - **EPICs** : 28/28 ✅ (100%)
-- **Backlog** : Nettoyé — 200 lignes (était 1375, -85%)
-- **Code smells historiques** : 12/12 résolus (CS-1→12 ✅)
-- **Nouveaux smells** : 10 (CS-13→22) → 3 EPICs de finalisation (4.5 pts)
+- **Code smells** : 10/22 résolus (CS-FIN-1 ✅, CS-1→12 ✅)
+- **Smells restants** : 8 → CS-FIN-2 (1.5 pts), CS-FIN-3 (1 pt), CS-18 accepté
 - **Build** : ✅ Zéro warning
+- **Tests** : 663 JUnit5 PASS, 129 Cucumber PASS, ~55 FT PASS, ~17 E2E PASS
 - **Coverage** : 77.25% (seuil 75% ✅)
-
-== CS-FIN-1 — Bug critique (P0, 2 pts)
-
-*Fichier* : `BakeryPlugin.kt`
-
-Deux bugs superposés :
-1. **CS-21** : `configPath.get()` (ligne 47) lève `MissingPropertyException` si configPath jamais défini
-2. **CS-16** : `isGradlePropertiesEnabled` (ligne 40) calculé dans `apply()` → toujours `false`,
-   écrasement silencieux de la config DSL
-
-*Correction* :
-- Ajouter `isPresent` guard avant `configPath.get()`
-- Déplacer `isGradlePropertiesEnabled` dans `afterEvaluate`
-
-== Boroughs candidats (si switch)
-
-| Borough | Projet | DAG | Statut | Pourquoi |
-|---|---|---|---|---|
-| New Jersey | `runner-gradle` | N3 | Sess 011 | Orchestration DAG, cœur MVP0 |
-| Newark 🔴 | `training-gradle` | N2 | Sess 010 (6/8) | Pipeline formation, livrable Graal |
-| Brooklyn | `codex-gradle` | N2 | Sess 018 | Asciidoctor→PDF, pipeline doc |
-| Manhattan | `planner-gradle` | N2 | Sess 008 | LLM SPG/SPD, point d'entrée MVP0 |
 
 == Méthodologie obligatoire — Baby Steps DDD/TDD/BDD
 

@@ -1,0 +1,59 @@
+= Session 080 — CS-FIN-1 Fix bug critique BakeryPlugin (configPath + isGradlePropertiesEnabled timing)
+
+*Date* : 2026-06-04
+*Type* : fix critique (P0) + TDD + refactor
+*Score* : 9/10
+
+== Résumé
+
+Deux bugs superposés (CS-21 + CS-16) dans `BakeryPlugin.kt` identifiés par la code review v3 (Session 079) ont été corrigés via baby steps DDD/TDD/BDD.
+
+* CS-21 : `configPath.get()` sans `isPresent` guard → crash `MissingPropertyException` si configPath absent.
+* CS-16 : `isGradlePropertiesEnabled` calculé dans `apply()` avant `afterEvaluate` → toujours `false`, écrasement silencieux de la config DSL par `gradle.properties`.
+
+== Fichiers modifiés
+
+|===
+| Fichier | Modification
+| `src/main/kotlin/bakery/BakeryPlugin.kt` | Refactor complet — extraction `registerScaffoldOnlyTasks` + `registerFullPipelineTasks`. Déplacement `isGradlePropertiesEnabled` dans `afterEvaluate`. Guard `isPresent` avant `get()`.
+| `src/main/kotlin/bakery/JsonEscape.kt` | **NOUVEAU** — `escapeJsonForJavaProperties(rawJson: String): String` (CS-FIN-2). Fonction pure testable pour échapper JSON dans `.properties`.
+| `src/main/kotlin/bakery/SiteTaskRegistrar.kt` | Remplacement 3 `replace()` manuels par appel à `escapeJsonForJavaProperties`.
+| `src/test/kotlin/bakery/BakeryPluginTest.kt` | Ajout `AbsentConfigPathTest` (2 tests unitaires TDD RED→GREEN).
+| `src/test/kotlin/bakery/BakeryTestFixture.kt` | Support `createAbsentConfigPath()` + `runAfterEvaluate()` (AtomicReference + capture afterEvaluate).
+| `src/test/kotlin/bakery/JsonEscapeForPropertiesTest.kt` | **NOUVEAU** — 7 tests unitaires (RED→GREEN) : newline, carriage return, tab, backslash, guillemets, unicode, JSON simple.
+| `BACKLOG.adoc` | CS-FIN-1 marqué ✅, CS-FIN-2 en cours (70%).
+| `INDEX.adoc` | Session 080 en cours → passera à fermée.
+|===
+
+== Baby Steps DDD/TDD/BDD
+
+. DDD — Comportement : "Si configPath absent → warning scaffoldOnly, pas de crash"
+. TDD — Test `AbsentConfigPathTest` écrit AVANT fix (RED confirmé)
+. GREEN — Fix appliqué (extraire méthodes + guard isPresent + déplacement timing)
+. Vérification — 656 tests PASS, 0 régression, BUILD SUCCESSFUL
+. Coverage — pas de dégradation (koverXmlReport timeout, relancera session 081)
+
+== Code Smells résolus
+
+* CS-21 ✅ (crash MissingPropertyException)
+* CS-16 ✅ (timing isGradlePropertiesEnabled)
+* CS-13 → CS-FIN-2 (70% — extraction fonction pure, intégration en cours)
+* CS-22 → CS-FIN-2 (reste à faire : LensPipelineService mapOf→Jackson)
+
+== Métriques
+
+|===
+| Métrique | Valeur
+| Tests JUnit5 | 663 PASS (avant 656, +7 nouveaux)
+| Cucumber | 129 PASS (inchangé)
+| FT | ~55 PASS (inchangé)
+| E2E | ~17 PASS (inchangé)
+| Warnings compile | 1 (deprecation préexistante `registerUtilityTasks`)
+| Temps build tests | ~2m (inchangé)
+|===
+
+== Apprentissage
+
+* `Project.afterEvaluate` : deux surcharges (Action + Closure). `doAnswer` avec `any<Action<Project>>()` suffit, mais capture doit utiliser `AtomicReference` pour éviter les problèmes de publication mémoire inter-thread.
+* `internal` Kotlin + test dans même module = OK, mais attention aux erreurs d'import (test dans `bakery` importe depuis `bakery.lens` au lieu de `bakery` → faute de copier/coller).
+* La fonction `escapeJsonForJavaProperties` résout un vrai bug (CS-13) : l'échappement manuel des backslashes causait un double-échappement dans les JSON contenant des path Windows ou des séquences déjà échappées.

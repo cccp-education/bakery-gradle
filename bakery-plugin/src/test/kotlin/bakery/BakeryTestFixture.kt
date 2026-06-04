@@ -33,11 +33,20 @@ import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.whenever
 
-class BakeryTestFixture(val project: Project, val pluginContainer: PluginContainer) {
+class BakeryTestFixture(
+    val project: Project,
+    val pluginContainer: PluginContainer,
+    private val afterEvaluateActionRef: java.util.concurrent.atomic.AtomicReference<Action<Project>?>
+) {
 
     companion object {
-        fun create(): BakeryTestFixture {
-            val cpProp = mockProperty("site.yml", present = true)
+        fun create(): BakeryTestFixture = createInternal(configPathPresent = true)
+
+        /** Fixture où `bakeryExtension.configPath` n'est PAS défini (Property absente). */
+        fun createAbsentConfigPath(): BakeryTestFixture = createInternal(configPathPresent = false)
+
+        private fun createInternal(configPathPresent: Boolean): BakeryTestFixture {
+            val cpProp = mockProperty("site.yml", present = configPathPresent)
             val bakeryExt = mockBakeryExtension(cpProp)
             val extContainer = mockExtensionContainer(bakeryExt)
             val confContainer = mockConfigurationContainer()
@@ -47,6 +56,10 @@ class BakeryTestFixture(val project: Project, val pluginContainer: PluginContain
             val projectLayout = mockProjectLayout()
             val logger = mockLogger()
 
+            // AtomicReference : Mockito peut invoquer le stub sur un thread différent
+            // ou après le retour de la méthode appelante. Un AtomicReference évite
+            // les problèmes de publication mémoire.
+            val capturedActionRef = java.util.concurrent.atomic.AtomicReference<Action<Project>?>(null)
             val project = mockProject(
                 extContainer = extContainer,
                 confContainer = confContainer,
@@ -54,11 +67,22 @@ class BakeryTestFixture(val project: Project, val pluginContainer: PluginContain
                 taskContainer = taskContainer,
                 pluginContainer = pluginContainer,
                 projectLayout = projectLayout,
-                logger = logger
+                logger = logger,
+                onAfterEvaluate = { action -> capturedActionRef.set(action) }
             )
 
-            return BakeryTestFixture(project, pluginContainer)
+            return BakeryTestFixture(project, pluginContainer, capturedActionRef)
         }
+    }
+
+    /**
+     * Déclenche manuellement le bloc `project.afterEvaluate { ... }` capturé par le mock.
+     * Utile pour tester la logique qui s'exécute après évaluation du DSL utilisateur.
+     */
+    fun runAfterEvaluate() {
+        val action = afterEvaluateActionRef.get()
+            ?: error("afterEvaluate action was not captured by the mock — was the plugin applied?")
+        action.execute(project)
     }
 }
 
@@ -162,7 +186,8 @@ private fun mockProject(
     taskContainer: TaskContainer,
     pluginContainer: PluginContainer,
     projectLayout: ProjectLayout,
-    logger: Logger
+    logger: Logger,
+    onAfterEvaluate: (Action<Project>) -> Unit = { /* default: run inline */ }
 ): Project {
     val project = mock<Project>()
     val pluginManager = mock<org.gradle.api.plugins.PluginManager>()
@@ -181,7 +206,7 @@ private fun mockProject(
 
     doAnswer { inv ->
         val action = inv.arguments[0] as Action<Project>
-        action.execute(project)
+        onAfterEvaluate(action)
         null
     }.whenever(project).afterEvaluate(any<Action<Project>>())
 

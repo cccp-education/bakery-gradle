@@ -225,10 +225,9 @@ object SiteTaskRegistrar {
         // Inject augmentedContextData from the augmented-context.json file (if baked)
         val augmentedContextFile = projectDir.resolve("build/bakery/augmented-context.json")
         if (augmentedContextFile.exists()) {
-            val contextData = augmentedContextFile.readText(UTF_8)
-                .replace("\\", "\\\\")
-                .replace("\n", "\\n")
-                .replace("\t", "\\t")
+            val contextData = escapeJsonForJavaProperties(
+                augmentedContextFile.readText(UTF_8)
+            )
             updateProperty(lines, "augmentedContextData", contextData)
         } else {
             logger.info("[BakeryPlugin] augmentedContextData: file not found at ${augmentedContextFile.absolutePath}, skipping injection")

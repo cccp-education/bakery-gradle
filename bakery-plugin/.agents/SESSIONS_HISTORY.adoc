@@ -3,6 +3,7 @@
   _Derniere mise a jour : 2026-06-04 — Session 079_
 
   |===
+  | 080 | 2026-06-04 | fix critique TDD | CS-FIN-1 : Fix `configPath.get()` sans `isPresent` + `isGradlePropertiesEnabled` timing dans `afterEvaluate`. Refactor BakeryPlugin : extraction `registerScaffoldOnlyTasks` + `registerFullPipelineTasks`. CS-FIN-2 lancé : `escapeJsonForJavaProperties()` nouvelle fonction pure (7 UT). 663 JUnit5 PASS, 0 régression. BUILD SUCCESSFUL. | 9/10
   | 079 | 2026-06-04 | audit + governance | Code Review v3 (10 nouveaux smells CS-13→22) + Nettoyage Backlog (1375→200 lignes, -85%) + TODO.adoc nettoyé + INDEX.adoc mis à jour. Backlog historisé dans `.agents/backup/Y2026-sessions-061-079/`. | 9/10
   | 078 | 2026-06-04 | fermeture | Audit source complet, bakery fermé à 96%+ | —
   | 077 | 2026-06-04 | TDD + coverage | EPIC 13 TERMINÉ — Coverage Kover 73.13%→77.25% (+4.12pp). Baby steps DDD/TDD : 3 tests GitService.cleanupDir + 1 test FileSystemManager.copyResourceDirectory edge-case. Seuil 75% ✅ dépassé. Bakery 96%+ complet. | 8/10

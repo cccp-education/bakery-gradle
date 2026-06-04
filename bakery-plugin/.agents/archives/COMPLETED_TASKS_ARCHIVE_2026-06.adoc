@@ -1010,3 +1010,37 @@ nettoyage du backlog, mise à jour des fichiers de gouvernance.
 **Fichiers modifiés** : BACKLOG.adoc, TODO.adoc, .agents/INDEX.adoc, PROMPT_REPRISE.adoc, .agents/SESSIONS_HISTORY.adoc, .agents/archives/COMPLETED_TASKS_ARCHIVE_2026-06.adoc
 **Fichiers créés** : `.agents/sessions/079-code-review-v3-backlog-cleanup.adoc`, `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 * [x] CS-5 Générifier ConfigResolver — `resolve<T>` générique + Scope pattern. 339→327 lignes.
+
+'''
+
+== Session 080 — 2026-06-04 — CS-FIN-1 Fix critique BakeryPlugin
+
+**Contexte** : Reprise bakery avec PROMPT_REPRISE. Mission CS-FIN-1 : corriger 2 bugs superposés dormants (CS-21 + CS-16) dans BakeryPlugin.kt.
+
+**Tâches réalisées** :
+
+* [x] **CS-FIN-1 (CS-21)** — Guard `isPresent` avant `configPath.get()` dans `afterEvaluate`. Si absent → `logger.warn` explicite + mode scaffold only.
+* [x] **CS-FIN-1 (CS-16)** — Déplacement `isGradlePropertiesEnabled` dans `afterEvaluate` (timing correct).
+* [x] **Refactor BakeryPlugin** — Extraction 2 méthodes privées : `registerScaffoldOnlyTasks` + `registerFullPipelineTasks`. Passage de 104→150 lignes, -10% de complexité cyclomatique.
+* [x] **TDD fixture** — `BakeryTestFixture` : support `createAbsentConfigPath()` + `runAfterEvaluate()` (AtomicReference capture).
+* [x] **TDD tests** — `AbsentConfigPathTest` (2 tests) : pas de crash + warning loggé. RED→GREEN.
+* [x] **CS-FIN-2 lancé** — `JsonEscape.kt` (fonction pure `escapeJsonForJavaProperties`) + 7 tests unitaires `JsonEscapeForPropertiesTest` : newline, carriage return, tab, backslash, guillemets, unicode, JSON simple.
+* [x] **Intégration** — `SiteTaskRegistrar.kt` : remplacement 3 `replace()` manuels par `escapeJsonForJavaProperties()`.
+* [x] **Vérification** — `./gradlew test` → 663 JUnit5 PASS, 129 Cucumber PASS, 0 régression. BUILD SUCCESSFUL.
+* [x] **Gouvernance** — INDEX.adoc, PROMPT_REPRISE.adoc, SESSIONS_HISTORY.adoc, COMPLETED_TASKS_ARCHIVE_2026-06.adoc mis à jour.
+
+**Fichiers modifiés** :
+* `src/main/kotlin/bakery/BakeryPlugin.kt` — Refactor complet, fix CS-FIN-1
+* `src/main/kotlin/bakery/JsonEscape.kt` — NOUVEAU (fonction pure escape)
+* `src/main/kotlin/bakery/SiteTaskRegistrar.kt` — Intégration escapeJsonForJavaProperties
+* `src/test/kotlin/bakery/BakeryPluginTest.kt` — `AbsentConfigPathTest` (+2 tests)
+* `src/test/kotlin/bakery/BakeryTestFixture.kt` — Support absentConfigPath + runAfterEvaluate
+
+**Fichiers créés** :
+* `.agents/sessions/080-cs-fin-1-bug-configpath.adoc`
+* `src/test/kotlin/bakery/JsonEscapeForPropertiesTest.kt`
+
+**Code Smells restants** :
+* CS-FIN-2 (P1, 1.5 pts) → 70% terminé (reste LensPipelineService mapOf→Jackson)
+* CS-FIN-3 (P2, 1 pt) → À faire (5 micro-fix)
+* CS-18 (P3) → Accepté

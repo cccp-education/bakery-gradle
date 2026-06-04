@@ -2,10 +2,10 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-04 — Session 079 (code review v3 + nettoyage backlog)
-  _Session terminee_ : 079
-  _Prochaine session_ : 080 — CS-FIN-1 (fix critique configPath) ou switch borough (à définir)
-  _Session en cours_ : — (backlog nettoyé, 4.5 pts restants)
+  _Derniere mise a jour_ : 2026-06-04 — Session 080 (CS-FIN-1 fix critique configPath)
+  _Session terminee_ : 080
+  _Prochaine session_ : 081 — CS-FIN-2 (JSON escape Jackson) + CS-FIN-3 (nettoyage DRY)
+  _Session en cours_ : — (fermee)
 
 '''
 

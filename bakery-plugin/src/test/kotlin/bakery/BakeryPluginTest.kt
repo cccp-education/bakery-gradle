@@ -4,6 +4,7 @@ import bakery.FileSystemManager.createCnameFile
 import bakery.FileSystemManager.yamlMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatCode
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.*
@@ -14,6 +15,58 @@ import java.io.File
 import kotlin.text.Charsets.UTF_8
 
 class BakeryPluginTest {
+
+    @Nested
+    @TestInstance(PER_CLASS)
+    inner class AbsentConfigPathTest {
+
+        private lateinit var fixture: BakeryTestFixture
+
+        @BeforeEach
+        fun setUp() {
+            fixture = BakeryTestFixture.createAbsentConfigPath()
+        }
+
+        /**
+         * CS-FIN-1 (CS-21) — Quand l'utilisateur applique le plugin bakery SANS
+         * définir `configPath` (ni DSL, ni gradle.properties, ni -P), le
+         * `afterEvaluate` NE DOIT PAS lever `MissingPropertyException` en
+         * accédant à `configPath.get()`.
+         *
+         * Comportement attendu :
+         * . aucune exception levée
+         * . un warning est loggé via `logger.warn` (pas `lifecycle` — la
+         *   distinction est importante pour le filtrage Gradle)
+         */
+        @Test
+        fun `plugin does not throw when configPath is absent after evaluate`() {
+            val plugin = BakeryPlugin()
+            plugin.apply(fixture.project)
+            // On capture l'action afterEvaluate via la fixture, puis on la déclenche
+            // pour reproduire le chemin d'exécution qui lit `configPath.get()`.
+            assertThatCode { fixture.runAfterEvaluate() }
+                .doesNotThrowAnyException()
+        }
+
+        /**
+         * CS-FIN-1 (CS-21) — En l'absence de configPath, un warning clair
+         * doit être loggé pour informer l'utilisateur que seules les tâches
+         * de scaffold sont disponibles.
+         */
+        @Test
+        fun `plugin logs a warning when configPath is absent after evaluate`() {
+            val plugin = BakeryPlugin()
+            plugin.apply(fixture.project)
+            fixture.runAfterEvaluate()
+            // org.gradle.api.logging.Logger.warn(String, Throwable?)
+            verify(fixture.project.logger).warn(
+                org.mockito.kotlin.argThat { msg: String ->
+                    msg.contains("configPath", ignoreCase = true)
+                },
+                org.mockito.kotlin.any<Throwable>()
+            )
+        }
+    }
 
     @Nested
     @TestInstance(PER_CLASS)
