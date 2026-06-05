@@ -9,26 +9,19 @@ jbake = "2.7.0"
 xz = "1.10"
 asciidoctorj-diagram = "3.0.1"
 asciidoctorj-diagram-plantuml = "1.2026.2"
-kotlin = "2.2.20"
-junit-platform-launcher = "1.10.2"
+kotlin = "2.3.20"
 mockito-kotlin = "5.3.1"
 mockito-jupiter = "5.12.0"
 gradle = "9.5.1"
 assertj = "3.27.6"
-plugin-publish = "1.3.1"
-cucumber = "7.33.0"
-junit_platform = "1.14.2"
-jackson = "2.21.0"
+plugin-publish = "2.1.0"
 coroutines = "1.10.2"
 node-gradle = "7.1.0"
 kover = "0.9.8"
 codebase = "0.0.1"
 codebase-contracts = "0.1.0"
-langchain4j = "1.14.1"
 thymeleaf = "3.0.14.RELEASE"
-playwright = "1.52.0"
 rome = "2.1.0"
-arrow = "2.2.2"
 
 
 [libraries]
@@ -47,27 +40,26 @@ jgit-archive = { group = "org.eclipse.jgit", name = "org.eclipse.jgit.archive", 
 xz = { group = "org.tukaani", name = "xz", version.ref = "xz" }
 jbake = { group = "org.jbake", name = "jbake-core", version.ref = "jbake" }
 gradle-tooling-api = { group = "org.gradle", name = "gradle-tooling-api", version.ref = "gradle" }
-cucumber-java = { module = "io.cucumber:cucumber-java", version.ref = "cucumber" }
-cucumber-junit-platform-engine = { module = "io.cucumber:cucumber-junit-platform-engine", version.ref = "cucumber" }
-cucumber-picocontainer = { module = "io.cucumber:cucumber-picocontainer", version.ref = "cucumber" }
-junit-platform-suite = { module = "org.junit.platform:junit-platform-suite", version.ref = "junit_platform" }
-jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
-jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
-#TODO: migrate to tools.jackson
-#    implementation("tools.jackson.module:jackson-module-kotlin:3.0.4")
-#    implementation("tools.jackson.dataformat:jackson-dataformat-yaml:3.0.4")
-kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+cucumber-java = { module = "io.cucumber:cucumber-java" }
+cucumber-junit-platform-engine = { module = "io.cucumber:cucumber-junit-platform-engine" }
+cucumber-picocontainer = { module = "io.cucumber:cucumber-picocontainer" }
+junit-platform-suite = { module = "org.junit.platform:junit-platform-suite" }
+jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin" }
+jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core" }
 kotlinx-coroutines-jdk8 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8", version.ref = "coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+logback-classic = { module = "ch.qos.logback:logback-classic" }
 node-gradle = { module = "com.github.node-gradle:gradle-node-plugin", version.ref = "node-gradle" }
 graphify-plugin = { module = "education.cccp:graphify-plugin", version.ref = "graphify" }
 codebase-contracts = { module = "education.cccp:codebase-contracts", version.ref = "codebase-contracts" }
-langchain4j-ollama = { module = "dev.langchain4j:langchain4j-ollama", version.ref = "langchain4j" }
+langchain4j-ollama = { module = "dev.langchain4j:langchain4j-ollama" }
 thymeleaf = { module = "org.thymeleaf:thymeleaf", version.ref = "thymeleaf" }
-playwright = { module = "com.microsoft.playwright:playwright", version.ref = "playwright" }
+playwright = { module = "com.microsoft.playwright:playwright" }
 rome = { module = "com.rometools:rome", version.ref = "rome" }
-arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
-arrow-fx-coroutines = { module = "io.arrow-kt:arrow-fx-coroutines", version.ref = "arrow" }
+arrow-core = { module = "io.arrow-kt:arrow-core" }
+arrow-fx-coroutines = { module = "io.arrow-kt:arrow-fx-coroutines" }
 
 
 [plugins]

@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-05 — Session 093 (ARROW-1, 757 UT PASS, Arrow-kt 2.2.2)_
+_Dernière mise à jour : 2026-06-05 — Session 094 (Alignement workspace-bom, 757 UT PASS, Kotlin 2.3.20, BOM importé)_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -19,6 +19,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 | Compilation | ✅ BUILD SUCCESSFUL — Gradle 9.5.1, Kotlin 2.3.20, Java 24, zéro warning
 | Évolution Session 092 | ✅ CS-FIN-7 terminée
 | Évolution Session 093 | ✅ ARROW-1 terminé. Arrow-kt 2.2.2 déployé. 12/12 code smells résolus. Bakery 100%.
+| Évolution Session 094 | ✅ workspace-bom importé (education.cccp:workspace-bom:0.1.0). Kotlin 2.3.20. 6 versions BOM-managées retirées. 757 UT PASS.
 |===
 | Métrique | Valeur
 | Couverture Kover | *76.15%* — seuil 70% (session 082, +1.15pp)

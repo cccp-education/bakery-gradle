@@ -24,6 +24,10 @@ repositories {
 }
 
 dependencies {
+    // BOM — workspace version alignment (workspace-bom, MEMPHIS)
+    implementation(platform("education.cccp:workspace-bom:0.1.0"))
+    testImplementation(platform("education.cccp:workspace-bom:0.1.0"))
+
     implementation(kotlin("stdlib-jdk8"))
 
     api(libs.bundles.jbake)
@@ -53,8 +57,8 @@ dependencies {
 
     testImplementation(kotlin("test-junit5"))
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.slf4j:slf4j-api:2.0.17")
-    testRuntimeOnly("ch.qos.logback:logback-classic:1.5.26")
+    testImplementation(libs.slf4j.api)
+    testRuntimeOnly(libs.logback.classic)
 
     testImplementation(libs.assertj.core)
     testImplementation(libs.mockito.kotlin)
@@ -112,13 +116,15 @@ val functionalTest: SourceSet by sourceSets.creating {
 
 // 2. Ajouter GradleTestKit à functionalTest (SANS hériter de testImplementation)
 dependencies {
+    add(functionalTest.implementationConfigurationName, platform("education.cccp:workspace-bom:0.1.0"))
+
     add(functionalTest.implementationConfigurationName, gradleTestKit())
     add(functionalTest.implementationConfigurationName, kotlin("stdlib-jdk8"))
     add(functionalTest.implementationConfigurationName, kotlin("test-junit5"))
 
     // Ajouter les dépendances nécessaires explicitement
-    add(functionalTest.implementationConfigurationName, "org.slf4j:slf4j-api:2.0.17")
-    add(functionalTest.runtimeOnlyConfigurationName, "ch.qos.logback:logback-classic:1.5.26")
+    add(functionalTest.implementationConfigurationName, libs.slf4j.api)
+    add(functionalTest.runtimeOnlyConfigurationName, libs.logback.classic)
     add(functionalTest.runtimeOnlyConfigurationName, "org.junit.platform:junit-platform-launcher")
 
     // CORRECTION: Ajouter AssertJ pour les assertions
@@ -174,6 +180,8 @@ val e2eTest: SourceSet by sourceSets.creating {
 
 // 2. Dépendances e2eTest : Playwright + JUnit5 + AssertJ + full test runtime
 dependencies {
+    add(e2eTest.implementationConfigurationName, platform("education.cccp:workspace-bom:0.1.0"))
+
     add(e2eTest.implementationConfigurationName, sourceSets.main.get().output)
     add(e2eTest.implementationConfigurationName, sourceSets.test.get().output)
     add(e2eTest.implementationConfigurationName, libs.playwright)
@@ -191,10 +199,10 @@ dependencies {
     add(e2eTest.implementationConfigurationName, libs.codebase.contracts)
     add(e2eTest.implementationConfigurationName, libs.bundles.coroutines)
     add(e2eTest.implementationConfigurationName, libs.kotlinx.coroutines.test)
-    add(e2eTest.implementationConfigurationName, "org.slf4j:slf4j-api:2.0.17")
+    add(e2eTest.implementationConfigurationName, libs.slf4j.api)
     add(e2eTest.implementationConfigurationName, libs.mockito.kotlin)
     add(e2eTest.implementationConfigurationName, libs.mockito.junit.jupiter)
-    add(e2eTest.runtimeOnlyConfigurationName, "ch.qos.logback:logback-classic:1.5.26")
+    add(e2eTest.runtimeOnlyConfigurationName, libs.logback.classic)
     add(e2eTest.runtimeOnlyConfigurationName, "org.junit.platform:junit-platform-launcher")
 }
 

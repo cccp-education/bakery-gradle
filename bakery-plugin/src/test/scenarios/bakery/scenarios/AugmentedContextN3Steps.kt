@@ -9,6 +9,7 @@ import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
 import org.assertj.core.api.Assertions.assertThat
 import java.io.File
+import java.nio.file.Files
 
 /**
  * Cucumber steps pour BKY-LENS-5 — N3 Composite Context.
@@ -27,7 +28,7 @@ class AugmentedContextN3Steps {
 
     @Given("a minimal baked site directory")
     fun `a minimal baked site directory`() {
-        val tempRoot = createTempDir("bakery-lens5-test-")
+        val tempRoot = Files.createTempDirectory("bakery-lens5-test-").toFile()
         tempRoot.deleteOnExit()
         bakedDir = tempRoot.resolve("bake")
         bakedDir.mkdirs()
