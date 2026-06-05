@@ -66,6 +66,10 @@ class VerifyConfigurationMappingSteps(private val world: BakeryWorld) {
                 params:
                   - name: "p_name"
                     type: "string"
+            firebaseAuth:
+              apiKey: "AIzaSy-test-api-key"
+              authDomain: "test-project.firebaseapp.com"
+              projectId: "test-project"
         """.trimIndent())
     }
 
@@ -93,7 +97,8 @@ class VerifyConfigurationMappingSteps(private val world: BakeryWorld) {
         assertThat(world.buildResult).isNotNull
         assertThat(world.buildResult!!.output).contains("Configuration OK")
         assertThat(world.buildResult!!.output).contains("credentials.password=***")
-        assertThat(world.buildResult!!.output).contains("firebase.apiKey=***")
+        assertThat(world.buildResult!!.output).contains("firebase.apiKey=AIza***-key")
+        assertThat(world.buildResult!!.output).contains("firebaseAuth.apiKey=AIza***-key")
         assertThat(world.buildResult!!.output).doesNotContain("secret-token-42")
         assertThat(world.buildResult!!.output).doesNotContain("AIzaSy-test-api-key")
     }

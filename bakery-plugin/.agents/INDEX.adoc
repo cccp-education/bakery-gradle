@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-05 — Session 089 (CS-FIN-8 FileSystemManager FileSystemOperationResult)
-  _Session terminee_ : 089
-  _Prochaine session_ : 090 — CS-FIN-9 (BFS LazyList) ou CS-FIN-10 (Masquage secrets) ou ARROW-1 ou switch borough
+  _Derniere mise a jour_ : 2026-06-05 — Session 090 (CS-FIN-10 SecretField ADT)
+  _Session terminee_ : 090
+  _Prochaine session_ : 091 — CS-FIN-9 (BFS LazyList) ou ARROW-1 ou switch borough
   _Session en cours_ : — (fermee)
 
 '''
@@ -70,6 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
  | # | Date | Type | Sujet | Score
+  | 090 | 2026-06-05 | refactor + TDD + BDD | **CS-FIN-10** Masquage secrets étendu SecretField ADT — Password→`***`/ApiKey→prefix***suffix/Token→`***[N chars]`/Blank→`(not set)`. 9+6 UT. Zero regression. | 9/10
   | 089 | 2026-06-05 | refactor + TDD | **CS-FIN-8** FileSystemManager FileSystemOperationResult — Sealed class Success/Failure, 716/716 UT PASS, zero regression. | 9/10
  | 088 | 2026-06-05 | refactor + TDD | **CS-FIN-7** ConfigPrompts Testabilité Reader Monad — ConfigPromptEnvironment data class + resolveConfigValue() pure function + 4 UT mockés (interactif, sensitive, default, env var). 19/19 ConfigPrompts PASS. Zéro régression. | 9/10
  | 087 | 2026-06-05 | refactor + TDD | **CS-FIN-6** GitService PrePush Validation — PrePushValidation sealed class (Valid, RemoteNotConfigured, ContentAbsent) + validatePrePush() + 4 UT + intégration pushPages(). 15/15 GitServiceTest PASS. | 9/10
@@ -220,9 +221,9 @@ _Localisation active_ : `.agents/backup/Y2026-sessions-051-060/` (rotation sessi
 |===
 
 *Priorite P0* : ✅ Tous les EPICs de réparation terminés (EPIC 15, 16, 17)
-*Charge complétée* : CS-FIN-1/2/3/4/5/6/7 = 10 pts ✅ (S080-088)
-*Charge post-v1.0* : CS-FIN-8→10 + ARROW-1 = 7.5 pts (~3-4 sessions). Voir `BACKLOG.adoc`.
-*Prochaine session* : 089 — CS-FIN-8 (FileSystemManager Either) ou CS-FIN-9 (BFS LazyList) ou switch borough
+*Charge complétée* : CS-FIN-1/2/3/4/5/6/7/8/10 = 9.5 pts ✅
+*Charge post-v1.0* : CS-FIN-9 + ARROW-1 = 6 pts (~2-3 sessions). Voir `BACKLOG.adoc`.
+*Prochaine session* : 091 — CS-FIN-9 (BFS LazyList) ou ARROW-1 ou switch borough
 
 === Code Smells — Historique CODE_REVIEW v2 (12/12 ✅ résolus)
 
@@ -268,7 +269,7 @@ _Localisation active_ : `.agents/backup/Y2026-sessions-051-060/` (rotation sessi
 | CS-38 | 🟡 P2 | ✅ S088 | ConfigPrompts non testables → ConfigPromptEnvironment + resolveConfigValue() | CS-FIN-7
 | CS-35 | 🟢 P3 | ✅ S089 | FileSystemManager exceptions → Either | CS-FIN-8
 | CS-36 | 🟢 P3 | ☐ À faire | BFS O(n²) → LazyList | CS-FIN-9
-| CS-31-bis | 🟢 P3 | ☐ À faire | Masquage secrets étendu (LLM keys, GitHub tokens) | CS-FIN-10
+| CS-31-bis | 🟢 P3 | ✅ S090 | Masquage secrets étendu (SecretField ADT: Password/ApiKey/Token) | CS-FIN-10
 | — | 🟢 P3 | ☐ À faire | Arrow-kt 2.2.3 v1.1.0 roadmap | ARROW-1
 |===
 

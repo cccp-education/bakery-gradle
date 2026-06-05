@@ -1,6 +1,7 @@
 Feature: Verify Configuration Mapping
 
   US-61a — Couverture de test pour le mapping Jackson YAML ↔ Gradle properties sécurisé
+  CS-FIN-10 — Masquage secrets étendu (SecretField ADT: Password → ***, ApiKey → préfixe***suffixe, Token → ***[N chars])
 
   Scenario: Valid site.yml with secrets
     Given a valid site.yml with secrets

@@ -86,9 +86,10 @@ abstract class VerifyConfigurationMappingTask : DefaultTask() {
         val repo = site.pushPage.repo.name
         val branch = site.pushPage.branch
 
-        val credentialsPassword = mask(site.pushPage.repo.credentials.password)
-        val pushMaquettePassword = mask(site.pushMaquette.repo.credentials.password)
-        val firebaseApiKey = mask(site.firebase?.project?.apiKey ?: "")
+        val credentialsPassword = maskSecret(SecretField.Password(site.pushPage.repo.credentials.password))
+        val pushMaquettePassword = maskSecret(SecretField.Password(site.pushMaquette.repo.credentials.password))
+        val firebaseApiKey = maskSecret(SecretField.ApiKey(site.firebase?.project?.apiKey ?: ""))
+        val firebaseAuthApiKey = maskSecret(SecretField.ApiKey(site.firebaseAuth?.apiKey ?: ""))
 
         return buildString {
             append("srcPath=$srcPath, destDirPath=$destDirPath")
@@ -97,9 +98,7 @@ abstract class VerifyConfigurationMappingTask : DefaultTask() {
             append(", credentials.password=$credentialsPassword")
             append(", pushMaquette.password=$pushMaquettePassword")
             if (firebaseApiKey.isNotBlank()) append(", firebase.apiKey=$firebaseApiKey")
+            if (firebaseAuthApiKey.isNotBlank()) append(", firebaseAuth.apiKey=$firebaseAuthApiKey")
         }
     }
-
-    internal fun mask(value: String): String =
-        if (value.isBlank()) "(not set)" else "***"
 }

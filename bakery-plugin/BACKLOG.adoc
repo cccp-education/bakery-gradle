@@ -5,16 +5,16 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-05 — Session 087 (CS-FIN-6 GitService PrePush Validation)_
+_Dernière mise à jour : 2026-06-05 — Session 090 (CS-FIN-10 SecretField ADT)_
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` + `last_code_review.adoc` (racine bakery-gradle/) + analyse directe du code source
 
 [CAUTION]
 ====
-**28/28 EPICs terminés.** Le backlog ne contient plus que les 10 code smells
-de finalisation (CS-FIN-1→10 + ARROW-1) identifiés par la code review v3 (Session 079).
+**28/28 EPICs terminés.** Le backlog ne contient plus que les code smells
+de finalisation (CS-FIN-9 + ARROW-1) identifiés par la code review v3 (Session 079).
 Bakery est en phase de **polish final** avant switch borough.
-*6/10 code smells résolus* : CS-FIN-1/2/3/4/5/6 ✅
+*7/10 code smells résolus* : CS-FIN-1/2/3/4/5/6/8/10 ✅
 ====
 
 '''
@@ -248,14 +248,19 @@ Pattern recommandé : `Either.catch { }` pour composer les opérations fichier.
 _Problème_ : Le calcul BFS a une complexité O(n²) — pas critique vu la taille des sites JBake (~50 articles),
 mais documenté comme dette d'optimisation. Pattern recommandé : `LazyList` + lazy evaluation.
 
-==== CS-FIN-10 : Masquage secrets étendu — LLM keys, GitHub tokens (CS-31-bis V3)
+==== CS-FIN-10 : Masquage secrets étendu — LLM keys, GitHub tokens (CS-31-bis V3) ✅
 
 *Priorité* : P3 — sécurité cosmétique
 *Charge* : 0.5 pt
-*Fichiers* : `VerifyConfigurationMappingTask.kt`
+*Fichiers* : `VerifyConfigurationMappingTask.kt`, `SecretField.kt` (NOUVEAU), `SiteConfiguration.kt`, `SiteTaskRegistrar.kt`
 
-_Problème_ : Le masquage actuel (US-61a) couvre `credentials.password` et `firebaseApiKey`,
-mais pas les LLM API keys (Ollama) ni les GitHub tokens. Pattern recommandé : ADT `SecretField`.
+*Résolu* : Session 090 (2026-06-05)
+
+_Baby steps_ :
+. [x] DDD : `SecretField` sealed class (Password, ApiKey, Token) + `maskSecret()` fonction pure
+. [x] TDD : 9 tests `SecretFieldTest` + 6 tests étendus
+. [x] Refactor : `VerifyConfigurationMappingTask` + `SiteTaskRegistrar` + `RepositoryCredentials.toString()` migrés
+. [x] BDD : Feature Cucumber + Steps mis à jour (firebaseAuth.apiKey)
 
 ==== CS-18-bis : Arrow-kt v1.1.0 — Roadmap fonctionnelle (post-v1.0)
 
@@ -304,15 +309,15 @@ _Baby steps_ (EPIC ARROW-1) :
 | CS-FIN-5 | registerGenerateSiteTask mixing (CS-33 V3) | 1.5 | 🟡 P2 ✅ S086
 | CS-FIN-6 | GitService.pushPages validation (CS-34 V3) | 1 | 🟡 P2 ✅ S087
 | CS-FIN-7 | ConfigPrompts testabilité (CS-38 V3) | 2 | 🟡 P2 ☐
-| CS-FIN-8 | FileSystemManager Either (CS-35 V3) | 1 | 🟢 P3 ☐
+| CS-FIN-8 | FileSystemManager Either (CS-35 V3) | 1 | 🟢 P3 ✅ S089
 | CS-FIN-9 | BFS O(n²) → LazyList (CS-36 V3) | 1 | 🟢 P3 ☐
-| CS-FIN-10 | Masquage secrets étendu (CS-31-bis V3) | 0.5 | 🟢 P3 ☐
+| CS-FIN-10 | Masquage secrets étendu (CS-31-bis V3) | 0.5 | 🟢 P3 ✅ S090
 | ARROW-1 | Arrow-kt v1.1.0 roadmap | 5 | 🟢 P3 ☐
 | CS-18 | BakeryExtension boilerplate | — | 🟢 Accepté
 |===
 
-*Total complété* : CS-FIN-1/2/3/4/5/6 = 8.5 pts ✅
-*Total post-v1.0* : CS-FIN-7→10 + ARROW-1 = 11 pts (~4-5 sessions)
+*Total complété* : CS-FIN-1/2/3/4/5/6/7/8/10 = 9.5 pts ✅
+*Total post-v1.0* : CS-FIN-9 + ARROW-1 = 6 pts (~2-3 sessions)
 *Tous les EPICs historiques* : 28/28 ✅ (100%)
 *Score de santé* : 8.5/10 après enrichissement code review V3 (remonté de 8.0 car CS-21 résolu)
 

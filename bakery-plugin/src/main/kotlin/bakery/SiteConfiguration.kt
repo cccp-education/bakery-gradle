@@ -23,7 +23,8 @@ data class RepositoryConfiguration(
 }
 
 data class RepositoryCredentials(val username: String = "", val password: String = "") {
-    override fun toString(): String = "RepositoryCredentials(username='$username', password='***')"
+    override fun toString(): String =
+        "RepositoryCredentials(username='${maskSecret(SecretField.Token(username))}', password='${maskSecret(SecretField.Password(password))}')"
 }
 
 @JsonIgnoreProperties(ignoreUnknown = true)

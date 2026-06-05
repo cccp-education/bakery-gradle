@@ -84,6 +84,46 @@ class VerifyConfigurationMappingTaskTest {
                 params:
                   - name: "p_name"
                     type: "string"
+            firebaseAuth:
+              apiKey: "AIzaSy-auth-api-key"
+              authDomain: "test-project.firebaseapp.com"
+              projectId: "test-project"
+            """.trimIndent()
+        )
+    }
+
+    private fun writeSiteYmlWithFirebaseAuth(file: File) {
+        file.writeText(
+            """
+            bake:
+              srcPath: "site"
+              destDirPath: "build/bake"
+            pushPage:
+              from: "site"
+              to: "cvs"
+              repo:
+                name: "test-site"
+                repository: "https://github.com/user/repo.git"
+                credentials:
+                  username: "user"
+                  password: "secret"
+              branch: "main"
+              message: "Deploy test"
+            pushMaquette:
+              from: "maquette"
+              to: "cvs"
+              repo:
+                name: "test-maquette"
+                repository: "https://github.com/user/maquette.git"
+                credentials:
+                  username: "user"
+                  password: "secret2"
+              branch: "main"
+              message: "Deploy maquette"
+            firebaseAuth:
+              apiKey: "AIzaSy-auth-api-key"
+              authDomain: "test-project.firebaseapp.com"
+              projectId: "test-project"
             """.trimIndent()
         )
     }
@@ -123,7 +163,7 @@ class VerifyConfigurationMappingTaskTest {
         }
 
         @Test
-        fun `task masks firebase apiKey in output`() {
+        fun `task masks firebase apiKey with first and last 4 chars`() {
             val siteYml = tempDir.resolve("site.yml")
             writeValidSiteYml(siteYml)
 
@@ -132,8 +172,22 @@ class VerifyConfigurationMappingTaskTest {
                 FileSystemManager.yamlMapper.readValue(siteYml)
             )
 
-            assertThat(summary).contains("firebase.apiKey=***")
+            assertThat(summary).contains("firebase.apiKey=AIza***-key")
             assertThat(summary).doesNotContain("AIzaSy-test-api-key")
+        }
+
+        @Test
+        fun `task masks firebaseAuth apiKey with first and last 4 chars`() {
+            val siteYml = tempDir.resolve("site.yml")
+            writeSiteYmlWithFirebaseAuth(siteYml)
+
+            val task = createTask()
+            val summary = task.buildMaskedSummary(
+                FileSystemManager.yamlMapper.readValue(siteYml)
+            )
+
+            assertThat(summary).contains("firebaseAuth.apiKey=AIza***-key")
+            assertThat(summary).doesNotContain("AIzaSy-auth-api-key")
         }
 
         @Test
@@ -220,16 +274,24 @@ class VerifyConfigurationMappingTaskTest {
     inner class MaskingUnitTest {
 
         @Test
-        fun `mask returns not set for blank value`() {
-            val task = createTask()
-            assertThat(task.mask("")).isEqualTo("(not set)")
-            assertThat(task.mask("   ")).isEqualTo("(not set)")
+        fun `maskSecret Password returns not set for blank`() {
+            assertThat(maskSecret(SecretField.Password(""))).isEqualTo("(not set)")
+            assertThat(maskSecret(SecretField.Password("   "))).isEqualTo("(not set)")
         }
 
         @Test
-        fun `mask returns stars for non blank value`() {
-            val task = createTask()
-            assertThat(task.mask("secret")).isEqualTo("***")
+        fun `maskSecret Password returns stars for non blank`() {
+            assertThat(maskSecret(SecretField.Password("secret"))).isEqualTo("***")
+        }
+
+        @Test
+        fun `maskSecret ApiKey shows first and last 4 chars`() {
+            assertThat(maskSecret(SecretField.ApiKey("AIzaSy-test-api-key"))).isEqualTo("AIza***-key")
+        }
+
+        @Test
+        fun `maskSecret Token shows char count`() {
+            assertThat(maskSecret(SecretField.Token("ghp_longtoken123456"))).isEqualTo("***[19 chars]")
         }
     }
 }

@@ -156,7 +156,7 @@ object SiteTaskRegistrar {
                     logger.lifecycle("  Username: $username")
                     logger.lifecycle("  Repository: $repo")
                     logger.lifecycle("  Config Path: $configPath")
-                    logger.lifecycle("  Token: ${if (token.isNotEmpty()) "***configured***" else "not set"}")
+                    logger.lifecycle("  Token: ${maskSecret(SecretField.Token(token))}")
 
                     val siteYmlFile = file(configPath)
                     projectDir.saveConfiguration(site, siteYmlFile, username, repo, token)

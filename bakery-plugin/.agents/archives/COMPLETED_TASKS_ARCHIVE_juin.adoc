@@ -1,5 +1,30 @@
 = COMPLETED_TASKS_ARCHIVE — Juin 2026
 
+== Session 090 — CS-FIN-10 Masquage secrets étendu SecretField ADT (2026-06-05)
+
+* [x] DDD : `SecretField` sealed class (Password, ApiKey, Token) + `maskSecret()` fonction pure
+* [x] TDD : 9 tests `SecretFieldTest` (Password blank/non-blank, ApiKey blank/prefix-suffix, Token blank/char-count)
+* [x] TDD : 4 tests MaskingUnitTest migrés de `mask()` vers `maskSecret()`
+* [x] TDD : 1 test `firebaseAuth.apiKey` ajouté dans VerifyConfigurationMappingTaskTest
+* [x] TDD : 2 tests RepositoryCredentialsTest adaptés (username=Token, password=Password)
+* [x] Refactor : `VerifyConfigurationMappingTask` — `mask()` supprimé → `maskSecret(SecretField.Password/ApiKey)` + `firebaseAuth.apiKey` ajouté
+* [x] Refactor : `SiteTaskRegistrar` — token GitHub → `maskSecret(SecretField.Token(token))`
+* [x] Refactor : `RepositoryCredentials.toString()` — username=Token + password=Password
+* [x] BDD : Feature Cucumber + Steps mis à jour (firebaseAuth + SecretField ADT descriptions)
+* [x] 716+ JUnit5 PASS — zéro régression
+* [x] Compilation OK, publishToMavenLocal OK
+
+=== Fichiers modifiés
+- `SecretField.kt` — NOUVEAU (sealed class + maskSecret)
+- `VerifyConfigurationMappingTask.kt` — mask() supprimé, buildMaskedSummary() via SecretField + firebaseAuth.apiKey
+- `SiteConfiguration.kt` — RepositoryCredentials.toString() via maskSecret
+- `SiteTaskRegistrar.kt` — Token GitHub via maskSecret
+- `SecretFieldTest.kt` — NOUVEAU (9 tests)
+- `VerifyConfigurationMappingTaskTest.kt` — MaskingUnitTest migré + firebaseAuth test
+- `RepositoryCredentialsTest.kt` — adapté SecretField
+- `verify_configuration_mapping.feature` — description CS-FIN-10
+- `VerifyConfigurationMappingSteps.kt` — firebaseAuth + assertions SecretField
+
 == Session 089 — CS-FIN-8 FileSystemManager exceptions → FileSystemOperationResult (2026-06-05)
 
 * [x] DDD : Sealed class `FileSystemOperationResult` (Success data object, Failure data class) dans `FileSystemManager.kt`

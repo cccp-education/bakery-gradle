@@ -1,8 +1,9 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-  _Derniere mise a jour : 2026-06-05 — Session 089_
+  _Derniere mise a jour : 2026-06-05 — Session 090_
 
   |===
+  | 090 | 2026-06-05 | refactor + TDD + BDD | CS-FIN-10 Masquage secrets étendu (SecretField ADT) — DDD : `SecretField` sealed class (Password/ApiKey/Token) + `maskSecret()` fonction pure. TDD : 9 UT `SecretFieldTest` + 4 UT étendus `VerifyConfigurationMappingTaskTest` + 2 UT `RepositoryCredentialsTest`. Refactor : `VerifyConfigurationMappingTask.buildMaskedSummary()` + `SiteTaskRegistrar` token + `RepositoryCredentials.toString()` migrés. BDD : Feature Cucumber + Steps mis à jour (firebaseAuth.apiKey). 716+ UT PASS. Zéro régression. | 9/10
   | 089 | 2026-06-05 | refactor + TDD | CS-FIN-8 FileSystemManager exceptions → FileSystemOperationResult — DDD : Sealed class `FileSystemOperationResult` (Success, Failure). `copyResourceDirectory()`/`copyFromJar()`/`copyFromFileSystem()` ne lèvent plus d'exceptions. TDD : 2 tests (Failure + Success). Intégration : `SiteTaskRegistrar` adapté. 716/716 UT PASS. Zéro régression. | 9/10
   | 088 | 2026-06-05 | refactor + TDD | CS-FIN-7 ConfigPrompts Testabilité Reader Monad — DDD : `ConfigPromptEnvironment` data class (readInput, readPassword, writeOutput, logger) + `resolveConfigValue()` pure function (sans side effects). TDD : 4 tests mockés (interactif, sensitive, default prioritaire, env var prioritaire). Refactor : `getOrPrompt()` délègue à `resolveConfigValue(ConfigPromptEnvironment.defaultFor(logger), ...)`. 19/19 ConfigPrompts PASS. Zéro régression. | 9/10
   | 087 | 2026-06-05 | refactor + TDD | CS-FIN-6 GitService PrePush Validation — DDD : `PrePushValidation` sealed class (Valid, RemoteNotConfigured, ContentAbsent) + `validatePrePush()` fonction pure. TDD : 4 UT RED→GREEN (remote OK, remote absent, empty content, nonexistent dir). Refactor : intégration dans `pushPages()` en amont du copy+push. 15/15 GitServiceTest PASS. | 9/10

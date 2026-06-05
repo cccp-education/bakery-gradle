@@ -2,32 +2,28 @@
 
 == Mission en cours
 
-*Session 089 TERMINÉE* — CS-FIN-8 FileSystemManager exceptions → FileSystemOperationResult.
-Sealed class Success/Failure, copyResourceDirectory/copyFromJar/copyFromFileSystem
-ne lèvent plus d'exceptions. 716 UT PASS, zéro régression.
+*Session 090 TERMINÉE* — CS-FIN-10 Masquage secrets étendu → SecretField ADT.
+Sealed class Password/ApiKey/Token + maskSecret() fonction pure. 716+ UT PASS, zéro régression.
 
 == Statut
 
-- EPICs : 28/28 ✅ (100%) + CS-FIN-1/2/3/4/5/6/7/8 ✅ + CS-FIN-9/10 ☐ + ARROW-1 ☐
-- Code smells : CS historiques ✅ + CS-FIN-1→8 ✅ (14 pts)
-- Tests : 716 JUnit5 PASS, 133~ Cucumber, 17 E2E
+- EPICs : 28/28 ✅ (100%) + CS-FIN-1/2/3/4/5/6/7/8/10 ✅ + CS-FIN-9 ☐ + ARROW-1 ☐
+- Code smells : CS historiques ✅ + CS-FIN-1→8+10 ✅ (15 pts)
+- Tests : 716+ JUnit5 PASS, ~133 Cucumber, 17 E2E
 - Coverage : ~76%
 - Build : zero warning, unit tests PASS
 
 == Contexte de reprise
 
-Session 089 a rendu FileSystemManager fonctionnellement pur :
-- FileSystemOperationResult sealed class (Success, Failure)
-- copyResourceDirectory() retourne un résultat au lieu de throw
-- copyFromJar() et copyFromFileSystem() try/catch → Failure
-- SiteTaskRegistrar adapté (check Failure → IllegalStateException pour backward compat)
-- 2 tests TDD (Failure + Success)
+Session 090 a remplacé le masquage uniforme `mask(): "***"` par un ADT `SecretField` :
+- Password → `***` (masquage total)
+- ApiKey → `AIza***-key` (préfixe/suffixe visibles)
+- Token → `***[17 chars]` (longueur uniquement)
+- Blank → `(not set)`
+Trois consommateurs migrés : VerifyConfigurationMappingTask, SiteTaskRegistrar, RepositoryCredentials.
 
-== Prochaine session (090)
+== Prochaine session (091)
 
-Option A : CS-FIN-9 (P3, 1 pt) — BFS O(n²) → LazyList
-Option B : CS-FIN-10 (P3, 0.5 pt) — Masquage secrets étendu
-Option C : ARROW-1 (P3, 5 pts) — Arrow-kt v1.1.0 EPIC complet
-Option D : Switch borough
-
-(End of file - total 28 lines)
+Option A : CS-FIN-9 (P3, 1 pt) — BFS O(n²) → LazyList dans AugmentedArticlesService
+Option B : ARROW-1 (P3, 5 pts) — Arrow-kt v1.1.0 EPIC complet
+Option C : Switch borough

@@ -6,20 +6,20 @@ import org.junit.jupiter.api.Test
 class RepositoryCredentialsTest {
 
     @Test
-    fun `toString masks password`() {
-        val creds = RepositoryCredentials("user", "ghp_secretToken12345")
+    fun `toString masks password and token`() {
+        val creds = RepositoryCredentials("ghp_longtoken12345678", "my-password")
         assertThat(creds.toString())
-            .contains("username='user'")
+            .contains("username='***[21 chars]'")
             .contains("password='***'")
-            .doesNotContain("secretToken")
+            .doesNotContain("longtoken")
+            .doesNotContain("my-password")
     }
 
     @Test
-    fun `toString shows empty user`() {
-        val creds = RepositoryCredentials("", "someToken")
+    fun `toString shows not set for empty values`() {
+        val creds = RepositoryCredentials("", "")
         assertThat(creds.toString())
-            .contains("username=''")
-            .contains("password='***'")
-            .doesNotContain("someToken")
+            .contains("username='(not set)'")
+            .contains("password='(not set)'")
     }
 }
