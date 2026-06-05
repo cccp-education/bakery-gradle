@@ -1,0 +1,55 @@
+= Session 085 — CS-FIN-4 ConfigResolver DRY Refactor
+
+== Date
+2026-06-05
+
+== Type
+Refactor + DDD/TDD/BDD
+
+== EPIC
+CS-FIN-4 — ConfigResolver cascade DRY (CS-25 V3)
+
+== Résumé
+Refactor DRY des 8 appels `resolve*` répétés dans `SiteTaskRegistrar.copySiteResources()`.
+Méthodologie baby step DDD/TDD/BDD en 5 étapes.
+
+== Baby Steps
+
+=== Step 1 — DDD
+- Créé `ResolvedConfigs` data class (8 configs résolues)
+- Créé `ConfigResolutionError` sealed class (MissingRequiredField, InvalidValue, DomainFailure)
+- Ajouté `ConfigResolver.resolveAll()` retourne `Pair<ResolvedConfigs, List<ConfigResolutionError>>`
+
+=== Step 2 — TDD (12 tests unitaires)
+- 5 tests `ResolveAllConfigsTest` (defaults, CLI override, YAML, DSL, cascade 3 couches)
+- 1 test `ResolveAllAccumulatesErrorsTest` (empty errors)
+- 2 tests `ResolvedConfigsDataClassTest` (equality, copy)
+- 4 tests `ConfigResolutionErrorTest` (3 sous-classes + exhaustive when)
+
+=== Step 3 — TDD Intégration (3 tests)
+- `toResolver feeds all 8 configInjectors without missing keys`
+- `toResolver returns defaultValue for unknown keys`
+- `toResolver maps all property keys from SiteTaskRegistrar when block`
+
+=== Step 4 — BDD
+- Feature 29 `29_config_resolution_cascade.feature` (3 scénarios)
+- Steps `ConfigResolutionCascadeSteps.kt`
+
+=== Step 5 — Refactor
+- `SiteTaskRegistrar.copySiteResources()` : 8 appels `resolve*` + when 33 lignes → 2 lignes (`resolveAll()` + `toResolver()`)
+- Supprimé le bloc `when` de 33 lignes
+- `ResolvedConfigs.toResolver()` méthode qui élimine le couplage direct
+
+== Fichiers modifiés
+- `src/main/kotlin/bakery/ResolvedConfigs.kt` — NOUVEAU
+- `src/main/kotlin/bakery/ConfigResolver.kt` — ajout `resolveAll()` (60 lignes)
+- `src/main/kotlin/bakery/SiteTaskRegistrar.kt` — refactor L121-166 → 3 lignes
+- `src/test/kotlin/bakery/ResolvedConfigsTest.kt` — NOUVEAU (15 tests)
+- `src/test/features/29_config_resolution_cascade.feature` — NOUVEAU
+- `src/test/scenarios/bakery/scenarios/ConfigResolutionCascadeSteps.kt` — NOUVEAU
+
+== Score
+9/10
+
+== Prochaine session (086)
+CS-FIN-5 (registerGenerateSiteTask mixing → GenerateSiteService, 1.5 pts) OU CS-FIN-6 (GitService.pushPages validation, 1 pt)

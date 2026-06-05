@@ -1,6 +1,6 @@
 = Analyse de Couverture des Tests — Bakery Gradle Plugin
 
-_Derniere mise a jour_ : 2026-06-01 (Session 032)
+_Derniere mise a jour_ : 2026-06-05 (Session 085)
 
 '''
 
@@ -145,5 +145,26 @@ Total Cucumber : 15 scenarios (12 PASS, 3 FAIL)
 |===
 
 **Total Session 032 Cucumber** : 3 scenarios PASS
+
+== Tests Unitaires — Session 085 (CS-FIN-4 ConfigResolver DRY)
+
+|===
+| Classe | Tests | Statut | Notes
+| ResolvedConfigsTest — ResolveAllConfigsTest | 5 | PASS | defaults, CLI override, YAML, DSL, 3-layer cascade
+| ResolvedConfigsTest — ResolveAllAccumulatesErrorsTest | 1 | PASS | empty errors
+| ResolvedConfigsTest — ResolvedConfigsDataClassTest | 2 | PASS | equality, copy
+| ResolvedConfigsTest — ConfigResolutionErrorTest | 4 | PASS | MissingRequiredField, InvalidValue, DomainFailure, exhaustive when
+| ResolvedConfigsTest — ToResolverIntegrationTest | 3 | PASS | configInjectors, unknown keys, all property mappings
+|===
+
+**Total Session 085 unitaires** : 15 nouveaux tests PASS
+
+== Tests Cucumber — Session 085 (CS-FIN-4 ConfigResolver DRY)
+
+| Feature | Scenarios | Statut | Notes
+| 29_config_resolution_cascade | 3 | PASS | all defaults, CLI override, toResolver injection
+|===
+
+**Total Session 085 Cucumber** : 3 scenarios PASS
 
 

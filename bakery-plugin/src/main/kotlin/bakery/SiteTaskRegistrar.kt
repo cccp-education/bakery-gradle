@@ -118,52 +118,12 @@ object SiteTaskRegistrar {
         // Copier le répertoire maquette (partagé entre tous les types)
         copyResourceDirectory(site.pushMaquette.from, targetDir, project)
 
-        // Resolve all configs through ConfigResolver 4-layer cascade:
+        // Resolve all 8 configs through ConfigResolver 4-layer cascade:
         // CLI (-P) > gradle.properties > DSL (BakeryExtension) > site.yml (YAML) > defaults
         val ext = extension ?: BakeryExtension(project.objects)
-        val resolvedFirebase = ConfigResolver.resolveFirebaseConfig(props, site.firebase)
-        val resolvedGoogleForms = ConfigResolver.resolveGoogleFormsConfig(props, ext.googleForms, site.googleForms)
-        val resolvedFirebaseAuth = ConfigResolver.resolveFirebaseAuthConfig(props, ext.firebaseAuth, site.firebaseAuth)
-        val resolvedComments = ConfigResolver.resolveCommentsConfig(props, ext.commentsConfig, site.comments)
-        val resolvedAnalytics = ConfigResolver.resolveAnalyticsConfig(props, ext.analytics, site.analytics)
-        val resolvedNewsletter = ConfigResolver.resolveNewsletterConfig(props, ext.newsletter, site.newsletter)
-        val resolvedTheme = ConfigResolver.resolveThemeConfig(props, ext.theme, site.theme)
-        val resolvedLayout = ConfigResolver.resolveLayoutConfig(props, ext.layout, site.layout)
+        val (resolvedConfigs, _) = ConfigResolver.resolveAll(props, ext, site)
 
-        injectResolvedConfigIntoJbakeProperties(targetDir, site) { key, value ->
-            when (key) {
-                "firebaseApiKey" -> resolvedFirebase.apiKey
-                "firebaseProjectId" -> resolvedFirebase.projectId
-                "googleFormsFormId" -> resolvedGoogleForms.formId
-                "googleFormsWidth" -> resolvedGoogleForms.width
-                "googleFormsHeight" -> resolvedGoogleForms.height
-                "firebaseAuthApiKey" -> resolvedFirebaseAuth.apiKey
-                "firebaseAuthDomain" -> resolvedFirebaseAuth.authDomain
-                "firebaseAuthProjectId" -> resolvedFirebaseAuth.projectId
-                "commentsEnabled" -> resolvedComments.enabled.toString()
-                "commentsCollection" -> resolvedComments.collection
-                "analyticsProvider" -> resolvedAnalytics.provider
-                "analyticsDomain" -> resolvedAnalytics.domain
-                "analyticsScriptSrc" -> resolvedAnalytics.scriptSrc
-                "newsletterEnabled" -> resolvedNewsletter.enabled.toString()
-                "newsletterProvider" -> resolvedNewsletter.provider
-                "newsletterEndpoint" -> resolvedNewsletter.endpoint
-                "themeMode" -> resolvedTheme.mode
-                "themePrimaryColor" -> resolvedTheme.primaryColor
-                "themeSecondaryColor" -> resolvedTheme.secondaryColor
-                "themeFontFamily" -> resolvedTheme.fontFamily
-                "themeLogoUrl" -> resolvedTheme.logoUrl
-                "themeFaviconUrl" -> resolvedTheme.faviconUrl
-                // Theme BKY-IA-2 — variante catalogue + propriétés étendues
-                "themeVariant" -> resolvedTheme.variant
-                "themeAccentColor" -> resolvedTheme.accentColor
-                "themeBackgroundColor" -> resolvedTheme.backgroundColor
-                "themeTextColor" -> resolvedTheme.textColor
-                "themeHeadingFont" -> resolvedTheme.headingFont
-                "layoutType" -> resolvedLayout.layoutType.name
-                else -> value
-            }
-        }
+        injectResolvedConfigIntoJbakeProperties(targetDir, site, resolvedConfigs.toResolver())
 
         // BKY-LENS-3: Inject augmented context budget into jbake.properties
         if (ext.augmentedContext.enabled) {

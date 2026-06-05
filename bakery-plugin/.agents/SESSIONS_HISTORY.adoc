@@ -1,8 +1,9 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-  _Derniere mise a jour : 2026-06-05 — Session 084_
+  _Derniere mise a jour : 2026-06-05 — Session 085_
 
   |===
+  | 085 | 2026-06-05 | refactor + DDD/TDD/BDD | CS-FIN-4 ConfigResolver DRY Refactor — Baby steps 5/5. DDD : ResolvedConfigs data class + ConfigResolutionError sealed class. TDD : 15 JUnit5 tests (ResolveAllConfigs 5, AccummulatesErrors 1, DataClass 2, ConfigResolutionError 4, ToResolverIntegration 3). BDD : Feature 29 Cucumber (3 scénarios). Refactor : SiteTaskRegistrar 8 resolve* + when 33 lignes → 3 lignes (resolveAll + toResolver). 691+ JUnit5 PASS, 0 régression. | 9/10
   | 084 | 2026-06-05 | governance + audit | Enrichissement Backlog + TODO post Code Review V3. Lecture corpus complet (PROMPT_REPRISE, AGENT, BACKLOG, TODO, INDEX, SESSIONS_HISTORY, CODE_REVIEW v2, last_code_review V3 1508 lignes). Analyse croisée 15 smells V3 → 7 déjà résolus, 8 inédits. BACKLOG.adoc 214→343 lignes (+7 EPICs : CS-FIN-4→10 + ARROW-1). TODO.adoc 14→25 lignes (+8 items). Correction Arrow-kt 1.2.4 → 2.2.3. Synthèse : 4.5 pts ✅, 15 pts post-v1.0. Score santé 8.5/10. | 9/10
   | 083 | 2026-06-05 | feat + TDD + BDD | US-61b : Champ `phone` formulaire contact — Alignement `telephone` → `phone` (template, schema, validation, 4 `site.yml`, tests). 4 UT + 1 Cucumber nouveau. BakeryPluginTest 33/33 PASS. Feature 28 @phone-validation PASS. 676+ JUnit5 PASS, 133+ Cucumber PASS, 17 E2E PASS. Coverage 76.15%+ stable. publishToMavenLocal OK. | 9/10
   | 082 | 2026-06-04 | feat + TDD + BDD | US-61a : VerifyConfigurationMappingTask — Tâche Gradle `verification` custom. 11 UT + 3 FT + 3 Cucumber. Parse YAML, valide champs requis, masque secrets (`***`). Enregistrement dans `afterEvaluate` avant branchement scaffold/fullPipeline. Coverage 76.15% (+1.15pp). BUILD SUCCESSFUL. | 9/10

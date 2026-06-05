@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-05 — Session 084 (enrichissement code review V3)
-  _Session terminee_ : 084
-  _Prochaine session_ : 085 — switch borough OR CS-FIN-4 (ConfigResolver DRY)
+  _Derniere mise a jour_ : 2026-06-05 — Session 085 (CS-FIN-4 ConfigResolver DRY Refactor)
+  _Session terminee_ : 085
+  _Prochaine session_ : 086 — CS-FIN-5 (GenerateSiteService) ou CS-FIN-6 (GitService validation)
   _Session en cours_ : — (fermee)
 
 '''
@@ -216,9 +216,9 @@ _Localisation active_ : `.agents/backup/Y2026-sessions-051-060/` (rotation sessi
 |===
 
 *Priorite P0* : ✅ Tous les EPICs de réparation terminés (EPIC 15, 16, 17)
-*Charge complétée* : CS-FIN-1/2/3 = 4.5 pts ✅ (S080-081)
-*Charge post-v1.0* : CS-FIN-4→10 + ARROW-1 = 15 pts (~5-7 sessions). Voir `BACKLOG.adoc`.
-*Prochaine session* : 085 — switch borough OR CS-FIN-4 (ConfigResolver DRY, P1, 3 pts)
+*Charge complétée* : CS-FIN-1/2/3/4 = 7.5 pts ✅ (S080-081, S085)
+*Charge post-v1.0* : CS-FIN-5→10 + ARROW-1 = 12 pts (~4-6 sessions). Voir `BACKLOG.adoc`.
+*Prochaine session* : 086 — CS-FIN-5 (GenerateSiteService) ou CS-FIN-6 (GitService validation)
 
 === Code Smells — Historique CODE_REVIEW v2 (12/12 ✅ résolus)
 
@@ -244,7 +244,7 @@ _Localisation active_ : `.agents/backup/Y2026-sessions-051-060/` (rotation sessi
 === Code Smells — CODE_REVIEW v3 (Session 084)
 
 *Source* : Lecture directe du code source + `last_code_review.adoc` (racine, 1508 lignes) + `.agents/CODE_REVIEW.adoc` v2.
-*Statut* : 10 smells v3 identifiés → CS-FIN-1/2/3 ✅ résolus (S080-081) + 8 nouveaux CS-FIN-4→10 (V3) + ARROW-1 dans BACKLOG.
+*Statut* : 10 smells v3 identifiés → CS-FIN-1/2/3 ✅ résolus (S080-081) + CS-FIN-4 ✅ résolu (S085) + 7 restants CS-FIN-5→10 + ARROW-1.
 
 |===
 | CS | Priorité | Statut | Description | EPIC
@@ -258,7 +258,7 @@ _Localisation active_ : `.agents/backup/Y2026-sessions-051-060/` (rotation sessi
 | CS-19 | 🟡 P2 | ✅ S081 | `jacksonObjectMapper()` → champ privé | CS-FIN-3
 | CS-20 | 🟡 P2 | ✅ S081 | Extraction `createLlmServiceIfEnabled()` | CS-FIN-3
 | CS-18 | 🟢 P3 | ✅ Accepté | BakeryExtension 11 DSL blocks | —
-| CS-25 | 🟠 P1 | ☐ À faire | ConfigResolver 8 resolve* DRY → `ResolvedConfigs` | CS-FIN-4
+| CS-25 | 🟠 P1 | ✅ S085 | ConfigResolver 8 resolve* DRY → `ResolvedConfigs` | CS-FIN-4
 | CS-33 | 🟡 P2 | ☐ À faire | registerGenerateSiteTask mixing → `GenerateSiteService` | CS-FIN-5
 | CS-34 | 🟡 P2 | ☐ À faire | GitService.pushPages sans validation préalable | CS-FIN-6
 | CS-38 | 🟡 P2 | ☐ À faire | ConfigPrompts non testables → Reader monad | CS-FIN-7

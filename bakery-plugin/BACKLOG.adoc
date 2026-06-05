@@ -169,29 +169,19 @@ _Tâches groupées_ (5 micro-fix, ~20 min total) :
 
 '''
 
-==== CS-FIN-4 : ConfigResolver cascade DRY — Refactorer les 8 resolve* répétés (CS-25 V3)
+==== CS-FIN-4 : ConfigResolver cascade DRY — Refactorer les 8 resolve* répétés (CS-25 V3) ✅
 
 *Priorité* : P1 — duplication fragilise la maintenance
 *Charge* : 3 pts
-*Fichiers* : `SiteTaskRegistrar.kt`, `ConfigResolver.kt`
+*Fichiers* : `SiteTaskRegistrar.kt`, `ConfigResolver.kt`, `ResolvedConfigs.kt` (NOUVEAU)
 
-_Problème_ : Les lignes 121-131 de `SiteTaskRegistrar.kt` contiennent 8 appels presque identiques :
-`resolvedFirebase`, `resolvedGoogleForms`, `resolvedFirebaseAuth`, `resolvedComments`,
-`resolvedAnalytics`, `resolvedNewsletter`, `resolvedTheme`, `resolvedLayout`.
-Si une config échoue, pas de propagation d'erreur centralisée. DRY violation : 50 lignes pour 8 appels.
-
-_Solution proposée_ (code review V3 section 3.1) :
-- Data class `ResolvedConfigs` regroupant les 8 configs
-- Pattern `mapOrAccumulate` pour accumuler les erreurs
-- Wrapper `validateAndResolve()` pour chaque resolver
-- Alternative sans Arrow-kt : Strategy pattern avec `Map<String, ConfigInjector>`
+*Résolu* : Session 085 (2026-06-05)
 
 _Baby steps DDD/TDD/BDD_ :
-. [ ] DDD : Créer `ResolvedConfigs` data class + `ConfigResolutionError` sealed class
-. [ ] TDD : 3 tests unitaires (`resolves all 8 configs`, `accumulates errors`, `partial failure`)
-. [ ] TDD : Test d'intégration ConfigResolver → ResolvedConfigs
-. [ ] BDD : Cucumber Feature 29 — `config_resolution_cascade.feature` (3 scénarios : all valid, partial failure, full failure)
-. [ ] Refactor : Remplacer les 8 appels dans `SiteTaskRegistrar.copySiteResources()`
+* [x] **DDD** — `ResolvedConfigs` data class + `ConfigResolutionError` sealed class + `ConfigResolver.resolveAll()`
+* [x] **TDD** — 15 tests unitaires `ResolvedConfigsTest` (5 ResolveAllConfigs + 1 Errors + 2 DataClass + 4 ErrorSealedClass + 3 ToResolverIntegration)
+* [x] **BDD** — Cucumber Feature 29 `config_resolution_cascade.feature` (3 scénarios)
+* [x] **Refactor** — `SiteTaskRegistrar.copySiteResources()` : 8 resolve* + when 33 lignes → 3 lignes (`resolveAll()` + `toResolver()`)
 
 '''
 
@@ -313,7 +303,7 @@ _Baby steps_ (EPIC ARROW-1) :
 | CS-FIN-1 | Fix configPath.get() + isGradlePropertiesEnabled timing | 2 | 🔴 P0 ✅ S080
 | CS-FIN-2 | Échappement JSON Jackson + sérialisation data class | 1.5 | 🟠 P1 ✅ S081
 | CS-FIN-3 | Nettoyage code mort/logs/println/DRY | 1 | 🟡 P2 ✅ S081
-| CS-FIN-4 | ConfigResolver cascade DRY (CS-25 V3) | 3 | 🟠 P1 ☐
+| CS-FIN-4 | ConfigResolver cascade DRY (CS-25 V3) | 3 | 🟠 P1 ✅ S085
 | CS-FIN-5 | registerGenerateSiteTask mixing (CS-33 V3) | 1.5 | 🟡 P2 ☐
 | CS-FIN-6 | GitService.pushPages validation (CS-34 V3) | 1 | 🟡 P2 ☐
 | CS-FIN-7 | ConfigPrompts testabilité (CS-38 V3) | 2 | 🟡 P2 ☐
@@ -324,8 +314,8 @@ _Baby steps_ (EPIC ARROW-1) :
 | CS-18 | BakeryExtension boilerplate | — | 🟢 Accepté
 |===
 
-*Total complété* : CS-FIN-1/2/3 = 4.5 pts ✅
-*Total post-v1.0* : CS-FIN-4→10 + ARROW-1 = 15 pts (~5-7 sessions)
+*Total complété* : CS-FIN-1/2/3/4 = 7.5 pts ✅
+*Total post-v1.0* : CS-FIN-5→10 + ARROW-1 = 12 pts (~4-6 sessions)
 *Tous les EPICs historiques* : 28/28 ✅ (100%)
 *Score de santé* : 8.5/10 après enrichissement code review V3 (remonté de 8.0 car CS-21 résolu)
 
@@ -336,8 +326,8 @@ _Baby steps_ (EPIC ARROW-1) :
 [cols="2,3"]
 |===
 | Document | `BACKLOG.adoc`
-| Version | 4.0 — enrichissement Session 084 (code review V3)
+| Version | 4.1 — Session 085 (CS-FIN-4 ConfigResolver DRY)
 | Historisé dans | `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 | Basé sur | Code review v3 (lecture directe du code source 2026-06-04)
-| Prochaine màj | Après résolution CS-FIN-4
+| Prochaine màj | Après résolution CS-FIN-5
 |===

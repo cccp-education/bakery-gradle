@@ -324,4 +324,79 @@ object ConfigResolver {
         // Layer 5: Default
         return default
     }
+
+    fun resolveAll(
+        props: Map<String, String>,
+        extension: BakeryExtension,
+        site: SiteConfiguration
+    ): Pair<ResolvedConfigs, List<ConfigResolutionError>> {
+        val errors = mutableListOf<ConfigResolutionError>()
+
+        val resolvedFirebase = try {
+            resolveFirebaseConfig(props, site.firebase)
+        } catch (e: Exception) {
+            errors.add(ConfigResolutionError.DomainFailure("firebase", e.message ?: "Unknown error", e))
+            FirebaseProjectInfo(projectId = "", apiKey = "")
+        }
+
+        val resolvedGoogleForms = try {
+            resolveGoogleFormsConfig(props, extension.googleForms, site.googleForms)
+        } catch (e: Exception) {
+            errors.add(ConfigResolutionError.DomainFailure("googleForms", e.message ?: "Unknown error", e))
+            GoogleFormsConfig()
+        }
+
+        val resolvedFirebaseAuth = try {
+            resolveFirebaseAuthConfig(props, extension.firebaseAuth, site.firebaseAuth)
+        } catch (e: Exception) {
+            errors.add(ConfigResolutionError.DomainFailure("firebaseAuth", e.message ?: "Unknown error", e))
+            FirebaseAuthConfig()
+        }
+
+        val resolvedComments = try {
+            resolveCommentsConfig(props, extension.commentsConfig, site.comments)
+        } catch (e: Exception) {
+            errors.add(ConfigResolutionError.DomainFailure("comments", e.message ?: "Unknown error", e))
+            CommentsConfig()
+        }
+
+        val resolvedAnalytics = try {
+            resolveAnalyticsConfig(props, extension.analytics, site.analytics)
+        } catch (e: Exception) {
+            errors.add(ConfigResolutionError.DomainFailure("analytics", e.message ?: "Unknown error", e))
+            AnalyticsConfig()
+        }
+
+        val resolvedNewsletter = try {
+            resolveNewsletterConfig(props, extension.newsletter, site.newsletter)
+        } catch (e: Exception) {
+            errors.add(ConfigResolutionError.DomainFailure("newsletter", e.message ?: "Unknown error", e))
+            NewsletterConfig()
+        }
+
+        val resolvedTheme = try {
+            resolveThemeConfig(props, extension.theme, site.theme)
+        } catch (e: Exception) {
+            errors.add(ConfigResolutionError.DomainFailure("theme", e.message ?: "Unknown error", e))
+            ThemeConfig()
+        }
+
+        val resolvedLayout = try {
+            resolveLayoutConfig(props, extension.layout, site.layout)
+        } catch (e: Exception) {
+            errors.add(ConfigResolutionError.DomainFailure("layout", e.message ?: "Unknown error", e))
+            LayoutConfig()
+        }
+
+        return ResolvedConfigs(
+            firebase = resolvedFirebase,
+            googleForms = resolvedGoogleForms,
+            firebaseAuth = resolvedFirebaseAuth,
+            comments = resolvedComments,
+            analytics = resolvedAnalytics,
+            newsletter = resolvedNewsletter,
+            theme = resolvedTheme,
+            layout = resolvedLayout
+        ) to errors.toList()
+    }
 }
