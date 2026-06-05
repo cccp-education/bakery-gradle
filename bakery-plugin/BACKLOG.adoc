@@ -5,16 +5,16 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-05 — Session 091 (CS-FIN-9 BfsProximityCache)_
+_Dernière mise à jour : 2026-06-05 — Session 092 (CS-FIN-7 ConfigPromptM)_
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` + `last_code_review.adoc` (racine bakery-gradle/) + analyse directe du code source
 
 [CAUTION]
 ====
-**28/28 EPICs terminés.** Le backlog ne contient plus que les code smells
-de finalisation (ARROW-1) identifiés par la code review v3 (Session 079).
+**29/28 EPICs terminés + 11/12 code smells résolus.** Le backlog ne contient plus qu'1 code smell
+de finalisation (ARROW-1) identifié par la code review v3 (Session 079).
 Bakery est en phase de **polish final** avant switch borough.
-*9/10 code smells résolus* : CS-FIN-1/2/3/4/5/6/8/9/10 ✅
+*11/11 code smells résolus* : CS-FIN-1/2/3/4/5/6/7/8/9/10 ✅
 ====
 
 '''
@@ -216,19 +216,18 @@ _Baby steps_ :
 
 === 🟡 P2/P3 — Améliorations post-v1.0 (low priority, nice-to-have)
 
-==== CS-FIN-7 : ConfigPrompts non testables — side effects directs (CS-38 V3)
+==== CS-FIN-7 : ConfigPrompts testabilité — Reader monad (CS-38 V3) ✅
 
 *Priorité* : P2 — testabilité
 *Charge* : 2 pts
-*Fichiers* : `ConfigPrompts.kt`
+*Fichiers* : `ConfigPrompts.kt`, `ConfigPromptM.kt` (NOUVEAU), `ConfigPromptEnvironment.kt` (NOUVEAU)
 
-_Problème_ : Les prompts CLI utilisent `println()` et `readLine()` directement — impossible à tester unitairement.
-Pattern recommandé (code review V3 section 3.5) : Reader monad avec `ConfigPromptEnvironment`.
+*Résolu* : Session 092 (2026-06-05)
 
 _Baby steps_ :
-. [ ] DDD : `ConfigPromptEnvironment` data class (input: () → String?, output: (String) → Unit)
-. [ ] TDD : 3 tests unitaires avec mock d'environnement
-. [ ] Refactor : `getOrPrompt()` → `ConfigPromptM<String>`
+. [x] DDD : `ConfigPromptM<A>` fun interface (run, map, flatMap) + `ConfigPromptEnvironment` data class top-level
+. [x] TDD : 19 UT `ConfigPromptMTests` (Pure, Map, FlatMap, FromCli, FromCliOrPrompt, Prompt, PromptSensitive, Composition)
+. [x] Refactor : `ConfigPrompts.kt` 162→55 lignes (-66%), `resolveConfigValue()` supprimé, 4 tests migrés
 
 ==== CS-FIN-8 : FileSystemManager exceptions → Either<IOException, Unit> (CS-35 V3)
 
@@ -313,7 +312,7 @@ _Baby steps_ (EPIC ARROW-1) :
 | CS-FIN-4 | ConfigResolver cascade DRY (CS-25 V3) | 3 | 🟠 P1 ✅ S085
 | CS-FIN-5 | registerGenerateSiteTask mixing (CS-33 V3) | 1.5 | 🟡 P2 ✅ S086
 | CS-FIN-6 | GitService.pushPages validation (CS-34 V3) | 1 | 🟡 P2 ✅ S087
-| CS-FIN-7 | ConfigPrompts testabilité (CS-38 V3) | 2 | 🟡 P2 ☐
+| CS-FIN-7 | ConfigPrompts Reader monad (CS-38 V3) | 2 | 🟡 P2 ✅ S092
 | CS-FIN-8 | FileSystemManager Either (CS-35 V3) | 1 | 🟢 P3 ✅ S089
 | CS-FIN-9 | BFS O(n²) → BfsProximityCache (CS-36 V3) | 1 | 🟢 P3 ✅ S091
 | CS-FIN-10 | Masquage secrets étendu (CS-31-bis V3) | 0.5 | 🟢 P3 ✅ S090
@@ -321,7 +320,7 @@ _Baby steps_ (EPIC ARROW-1) :
 | CS-18 | BakeryExtension boilerplate | — | 🟢 Accepté
 |===
 
-*Total complété* : CS-FIN-1/2/3/4/5/6/7/8/9/10 = 11.5 pts ✅
+*Total complété* : CS-FIN-1/2/3/4/5/6/7/8/9/10 = 13.5 pts ✅
 *Total post-v1.0* : ARROW-1 = 5 pts (~2-3 sessions)
 *Tous les EPICs historiques* : 28/28 ✅ (100%)
 *Score de santé* : 8.5/10 après enrichissement code review V3 (remonté de 8.0 car CS-21 résolu)
@@ -333,7 +332,7 @@ _Baby steps_ (EPIC ARROW-1) :
 [cols="2,3"]
 |===
 | Document | `BACKLOG.adoc`
-| Version | 4.3 — Session 091 (CS-FIN-9 BfsProximityCache)
+| Version | 4.4 — Session 092 (CS-FIN-7 ConfigPromptM)
 | Historisé dans | `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 | Basé sur | Code review v3 (lecture directe du code source 2026-06-04)
 | Prochaine màj | Après résolution CS-FIN-7

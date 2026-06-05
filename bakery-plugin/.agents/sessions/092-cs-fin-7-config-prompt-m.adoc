@@ -1,0 +1,62 @@
+= Session 092 — CS-FIN-7 ConfigPromptM Reader Monad
+
+== Contexte
+
+CS-FIN-7 (P2, 2 pts) — ConfigPrompts testabilité. Suite de la session 088
+qui avait créé ConfigPromptEnvironment + resolveConfigValue() comme fonction
+pure. Il manquait la monade Reader (ConfigPromptM) pour composer les opérations
+de prompting comme des valeurs pures.
+
+== Réalisation — Baby Steps DDD/TDD
+
+=== Baby Step 1 — DDD : ConfigPromptM + ConfigPromptEnvironment
+
+* `ConfigPromptM<A>` — fun interface (Reader monad)
+  - `run(env: ConfigPromptEnvironment): A`
+  - `map(f: (A) -> B): ConfigPromptM<B>`
+  - `flatMap(f: (A) -> ConfigPromptM<B>): ConfigPromptM<B>`
+  - Companion : `pure`, `fromCli`, `prompt`, `promptSensitive`, `fromCliOrPrompt`
+* `ConfigPromptEnvironment` — data class top-level (extrait de nested class)
+  - `readInput: () -> String?`
+  - `readPassword: () -> CharArray?`
+  - `writeOutput: (String) -> Unit`
+  - `logger: Logger`
+  - `project: Project` (nouveau champ pour accès CLI properties)
+  - `defaultFor(logger, project)` factory
+
+=== Baby Step 2 — TDD : 19 UT ConfigPromptM
+
+| Nested class | Tests | Description |
+| Pure | 1 | Retourne la valeur wrappée |
+| Map | 2 | Transformation + chaîne de maps |
+| FlatMap | 2 | Chaîne deux prompts + prompt fallthrough |
+| FromCli | 2 | Résolution CLI + exception si absent |
+| FromCliOrPrompt | 4 | CLI prioritaire, default, interactif, sensitive |
+| Prompt | 3 | Input utilisateur, example text, retry on blank |
+| PromptSensitive | 2 | Password input, retry on empty |
+| Composition | 3 | flatMap composé + loi identité + loi composition fonctorielle |
+
+=== Baby Step 3 — Refactor
+
+* `ConfigPrompts.getOrPrompt()` délègue à `ConfigPromptM.fromCliOrPrompt().run(env)`
+* `resolveConfigValue()` (déprécié session 088) → supprimé
+* 4 tests `ResolveConfigValueWithMockEnv` migrés vers `ConfigPromptM` API
+* `ConfigPrompts.kt` : 162 → 55 lignes (-66%)
+
+=== Baby Step 4 — Fix
+
+* 2 assertions `.repo.credentials.repository` → `.repo.repository` (bug préexistant dans SaveConfiguration tests)
+
+== Résultats
+
+* 757 UT PASS (738 + 19 nouveaux)
+* Zéro régression
+* BUILD SUCCESSFUL
+
+== Fichiers
+
+| Fichier | Action | Lignes |
+| ConfigPromptM.kt | NOUVEAU | 96 |
+| ConfigPromptEnvironment.kt | NOUVEAU | 49 |
+| ConfigPrompts.kt | MODIFIÉ | 162→55 (-66%) |
+| ConfigPromptsTest.kt | MODIFIÉ | 331→616 (+19 UT + 4 migrés) |

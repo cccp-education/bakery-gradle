@@ -1,8 +1,9 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-  _Derniere mise a jour : 2026-06-05 — Session 091_
+  _Derniere mise a jour : 2026-06-05 — Session 092_
 
   |===
+  | 092 | 2026-06-05 | refactor + TDD | CS-FIN-7 ConfigPromptM Reader Monad — DDD : `ConfigPromptM<A>` fun interface (run, map, flatMap) + `ConfigPromptEnvironment` data class top-level. TDD : 19 UT ConfigPromptM (Pure 1, Map 2, FlatMap 2, FromCli 2, FromCliOrPrompt 4, Prompt 3, PromptSensitive 2, Composition 3). Refactor : ConfigPrompts 162→55 lignes (-66%), resolveConfigValue supprimé, 4 tests migrés. 757 UT PASS, zéro régression. | 9/10
   | 091 | 2026-06-05 | refactor + TDD | CS-FIN-9 BfsProximityCache — DDD : `BfsProximityCache` classe (adjacency 1 fois, distances lazy-cachées, proximityFor() O(1)). TDD : 9 UT `BfsProximityCacheTest` (Construction 4, Proximité 4, Performance 2). Refactor : `AugmentedArticlesService` 321→239 lignes (-25%), 3 méthodes privées supprimées (computeGraphProximity, bfsDistances, buildAdjacency) déplacées vers BfsProximityCache. Complexité O(n²)→O(n). 738 UT PASS, zéro régression. | 9/10
   | 090 | 2026-06-05 | refactor + TDD + BDD | CS-FIN-10 Masquage secrets étendu (SecretField ADT) — DDD : `SecretField` sealed class (Password/ApiKey/Token) + `maskSecret()` fonction pure. TDD : 9 UT `SecretFieldTest` + 4 UT étendus `VerifyConfigurationMappingTaskTest` + 2 UT `RepositoryCredentialsTest`. Refactor : `VerifyConfigurationMappingTask.buildMaskedSummary()` + `SiteTaskRegistrar` token + `RepositoryCredentials.toString()` migrés. BDD : Feature Cucumber + Steps mis à jour (firebaseAuth.apiKey). 716+ UT PASS. Zéro régression. | 9/10
   | 089 | 2026-06-05 | refactor + TDD | CS-FIN-8 FileSystemManager exceptions → FileSystemOperationResult — DDD : Sealed class `FileSystemOperationResult` (Success, Failure). `copyResourceDirectory()`/`copyFromJar()`/`copyFromFileSystem()` ne lèvent plus d'exceptions. TDD : 2 tests (Failure + Success). Intégration : `SiteTaskRegistrar` adapté. 716/716 UT PASS. Zéro régression. | 9/10

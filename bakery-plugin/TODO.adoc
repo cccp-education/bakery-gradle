@@ -1,7 +1,7 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-06-05 — Session 091 (CS-FIN-9 BfsProximityCache)_
+_Dernière mise à jour : 2026-06-05 — Session 092 (CS-FIN-7 ConfigPromptM)_
 
 * [x] Implementer la generation du code client Firebase dans les templates (→ BKY-JB-4, session 032)
 * [x] Ajouter une vraie Firebase API key quand disponible (→ EPIC 4, formalité restante côté consommateur cheroliv.com)
@@ -18,5 +18,5 @@ _Dernière mise à jour : 2026-06-05 — Session 091 (CS-FIN-9 BfsProximityCache
 * [x] **CS-25 V3** : ConfigResolver cascade DRY — 8 resolve* répétés dans SiteTaskRegistrar (lignes 121-131). Refactorer avec `ResolvedConfigs` + Strategy pattern. ~3 pts, 1 session.
 * [x] **CS-33 V3** : registerGenerateSiteTask mixing concerns — extraire logique métier vers `GenerateSiteService`. ~1.5 pts, 0.5 session.
 * [x] **CS-34 V3** : GitService.pushPages sans validation préalable. Ajouter `validatePrePush()`. ~1 pt.
-* [ ] **CS-38 V3** : ConfigPrompts pas testables — `println()`/`readLine()` en dur. Reader monad avec `ConfigPromptEnvironment`. ~2 pts.
+* [x] **CS-38 V3** : ConfigPrompts pas testables — Reader monad `ConfigPromptM<A>` + `ConfigPromptEnvironment` top-level. 19 UT. ✅ S092
 * [ ] **ARROW-KT v1.1.0** : Ajouter Arrow-kt 2.2.3 → refactorer 6 composants avec Either/Validation/Option/Reader. EPIC 5 pts, 3-4 sessions. Voir `last_code_review.adoc` Parties 3-4.

@@ -2,28 +2,27 @@
 
 == Mission en cours
 
-*Session 091 TERMINÉE* — CS-FIN-9 BfsProximityCache — O(n²)→O(n).
-BfsProximityCache lazy cache + scoreWithCache(). 9 UT PASS, zéro régression.
+*Session 092 TERMINÉE* — CS-FIN-7 ConfigPromptM Reader Monad — `ConfigPromptM<A>` fun interface (run/map/flatMap) + `ConfigPromptEnvironment` top-level. 19 UT PASS. ConfigPrompts 162→55 lignes (-66%). 757 UT PASS, zéro régression.
 
 == Statut
 
-- EPICs : 28/28 ✅ (100%) + CS-FIN-1/2/3/4/5/6/8/9/10 ✅ + CS-FIN-7 ☐ + ARROW-1 ☐
-- Code smells : CS historiques ✅ + CS-FIN-1→9 + CS-FIN-10 ✅ (10/12 résolus)
-- Tests : 738 UT PASS, 9 BfsProximityCache, ~133 Cucumber (65 échecs préexistants)
+- EPICs : 28/28 ✅ (100%) + CS-FIN-1/2/3/4/5/6/7/8/9/10 ✅ (11/12 résolus)
+- Code smells : CS historiques ✅ + CS-FIN-1→10 ✅ (seul ARROW-1 reste, P3)
+- Tests : 757 UT PASS, 19 ConfigPromptM, ~133 Cucumber (65 échecs préexistants)
 - Coverage : ~76%
 - Build : zero warning, unit tests PASS
 
 == Contexte de reprise
 
-Session 091 a remplacé le BFS O(n²) par un BfsProximityCache :
-- Adjacency map construite 1 fois (plus de n reconstructions)
-- Distances BFS lazy-cachées par nœud (getOrPut)
-- scoreAll() construit le cache une fois, appelle scoreWithCache()
-- 3 méthodes privées supprimées d'AugmentedArticlesService (déplacées vers BfsProximityCache)
-- Test de cohérence : proximityFor() produit les mêmes valeurs que l'ancien computeGraphProximity()
+Session 092 a introduit la monade Reader `ConfigPromptM<A>` :
+- `ConfigPromptM<A>` — fun interface avec `run(env)`, `map()`, `flatMap()`
+- `ConfigPromptEnvironment` — data class top-level (extrait de ConfigPrompts nested class)
+- Constructeurs : `pure`, `fromCli`, `prompt`, `promptSensitive`, `fromCliOrPrompt`
+- `resolveConfigValue()` supprimé (déprécié session 088, remplacé par ConfigPromptM)
+- `ConfigPrompts.kt` : 162→55 lignes (-66%)
+- Fix bug préexistant : `.repo.credentials.repository` → `.repo.repository` dans 2 tests
 
-== Prochaine session (092)
+== Prochaine session (093)
 
-Option A : ARROW-1 (P3, 5pts) — Arrow-kt v1.1.0 EPIC complet
-Option B : CS-FIN-7 (P2, 2pts) — ConfigPrompts Reader monad
-Option C : Switch borough
+Option A : ARROW-1 (P3, 5pts) — Arrow-kt v1.1.0 EPIC complet (Either, Option, Validation, Reader, Raise DSL)
+Option B : Switch borough

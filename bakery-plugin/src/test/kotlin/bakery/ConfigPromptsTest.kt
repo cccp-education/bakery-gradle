@@ -111,7 +111,7 @@ class ConfigPromptsTest {
     }
 
     // =========================================================================
-    // saveConfiguration — persister les valeurs dans site.yml
+    // saveConfiguration
     // =========================================================================
 
     @Nested
@@ -148,7 +148,6 @@ class ConfigPromptsTest {
                 tempDir.saveConfiguration(site, siteYml, "newuser", "https://github.com/new/repo.git", "ghp_token123")
             }
 
-            // Re-read to verify round-trip
             val updated = FileSystemManager.yamlMapper.readValue(siteYml, SiteConfiguration::class.java)
             assertThat(updated.pushPage.repo.credentials.username).isEqualTo("newuser")
             assertThat(updated.pushPage.repo.repository).isEqualTo("https://github.com/new/repo.git")
@@ -217,13 +216,12 @@ class ConfigPromptsTest {
                 tempDir.saveConfiguration(site, siteYml, "", "", "")
             }
 
-            // File should be unchanged when no credentials provided
             assertThat(File(tempDir, "site.yml").readText()).isEqualTo(originalContent)
         }
     }
 
     // =========================================================================
-    // resolveConfigValue with mock environment (CS-FIN-7)
+    // resolveConfigValue with mock environment (CS-FIN-7 legacy)
     // =========================================================================
 
     @Nested
@@ -237,23 +235,25 @@ class ConfigPromptsTest {
         }
 
         private fun envWithInput(
+            project: Project,
             input: () -> String?,
             password: () -> CharArray? = { null },
             output: (String) -> Unit = silentOutput,
             logger: Logger = mockLogger
-        ) = ConfigPrompts.ConfigPromptEnvironment(
+        ) = ConfigPromptEnvironment(
             readInput = input,
             readPassword = password,
             writeOutput = output,
-            logger = logger
+            logger = logger,
+            project = project
         )
 
         @Test
         fun `prompts interactively when no CLI env or default`() {
             val project = mockProjectNoProps()
-            val env = envWithInput(input = { "my-answer" })
+            val env = envWithInput(project, input = { "my-answer" })
 
-            val result = ConfigPrompts.resolveConfigValue(env, project, "Name", "name")
+            val result = ConfigPromptM.fromCliOrPrompt("Name", "name").run(env)
 
             assertThat(result).isEqualTo("my-answer")
         }
@@ -262,13 +262,14 @@ class ConfigPromptsTest {
         fun `prompts for sensitive value via readPassword`() {
             val project = mockProjectNoProps()
             val env = envWithInput(
+                project,
                 input = { null },
                 password = { "secret123".toCharArray() }
             )
 
-            val result = ConfigPrompts.resolveConfigValue(
-                env, project, "GitHub Token", "githubToken", sensitive = true
-            )
+            val result = ConfigPromptM.fromCliOrPrompt(
+                "GitHub Token", "githubToken", sensitive = true
+            ).run(env)
 
             assertThat(result).isEqualTo("secret123")
         }
@@ -276,11 +277,11 @@ class ConfigPromptsTest {
         @Test
         fun `default still takes priority over interactive prompt`() {
             val project = mockProjectNoProps()
-            val env = envWithInput(input = { "should-not-use-this" })
+            val env = envWithInput(project, input = { "should-not-use-this" })
 
-            val result = ConfigPrompts.resolveConfigValue(
-                env, project, "Name", "name", default = "default-wins"
-            )
+            val result = ConfigPromptM.fromCliOrPrompt(
+                "Name", "name", default = "default-wins"
+            ).run(env)
 
             assertThat(result).isEqualTo("default-wins")
         }
@@ -288,13 +289,297 @@ class ConfigPromptsTest {
         @Test
         fun `env var takes priority over interactive prompt`() {
             val project = mockProjectNoProps()
-            val env = envWithInput(input = { "should-not-be-called" })
+            val env = envWithInput(project, input = { "should-not-be-called" })
 
-            val result = ConfigPrompts.resolveConfigValue(
-                env, project, "Config Path", "configPath", default = "site.yml"
-            )
+            val result = ConfigPromptM.fromCliOrPrompt(
+                "Config Path", "configPath", default = "site.yml"
+            ).run(env)
 
             assertThat(result).isEqualTo("site.yml")
+        }
+    }
+
+    // =========================================================================
+    // ConfigPromptM — Reader monad (CS-FIN-7)
+    // =========================================================================
+
+    @Nested
+    inner class ConfigPromptMTests {
+
+        private val mockLogger: Logger = mock {
+            whenever(it.info(any())).then {}
+            whenever(it.warn(any())).then {}
+            whenever(it.lifecycle(any())).then {}
+        }
+
+        private fun testEnv(
+            project: Project,
+            input: () -> String? = { null },
+            password: () -> CharArray? = { null },
+            output: (String) -> Unit = {}
+        ) = ConfigPromptEnvironment(
+            readInput = input,
+            readPassword = password,
+            writeOutput = output,
+            logger = mockLogger,
+            project = project
+        )
+
+        // --- pure ---
+
+        @Nested
+        inner class Pure {
+
+            @Test
+            fun `pure returns the wrapped value`() {
+                val m = ConfigPromptM.pure("hello")
+                assertThat(m.run(testEnv(mockProjectNoProps()))).isEqualTo("hello")
+            }
+        }
+
+        // --- map ---
+
+        @Nested
+        inner class Map {
+
+            @Test
+            fun `map transforms the result`() {
+                val m = ConfigPromptM.pure("hello").map { it.uppercase() }
+                assertThat(m.run(testEnv(mockProjectNoProps()))).isEqualTo("HELLO")
+            }
+
+            @Test
+            fun `map chains multiple transformations`() {
+                val m = ConfigPromptM.pure("hello")
+                    .map { it.uppercase() }
+                    .map { it.length }
+                assertThat(m.run(testEnv(mockProjectNoProps()))).isEqualTo(5)
+            }
+        }
+
+        // --- flatMap ---
+
+        @Nested
+        inner class FlatMap {
+
+            @Test
+            fun `flatMap chains two prompts`() {
+                val project = mockProjectWithProperty("firstName", "John")
+                val env = testEnv(project)
+
+                val firstName = ConfigPromptM.fromCli("First Name", "firstName")
+                val greeting = firstName.flatMap { name ->
+                    ConfigPromptM.pure("Hello, $name!")
+                }
+
+                assertThat(greeting.run(env)).isEqualTo("Hello, John!")
+            }
+
+            @Test
+            fun `flatMap with prompt fallthrough`() {
+                val project = mockProjectWithProperty("username", "alice")
+                val env = testEnv(project, input = { "interactive-value" })
+
+                val username = ConfigPromptM.fromCli("Username", "username")
+                val result = username.flatMap { name ->
+                    ConfigPromptM.pure("User: $name")
+                }
+
+                assertThat(result.run(env)).isEqualTo("User: alice")
+            }
+        }
+
+        // --- fromCli ---
+
+        @Nested
+        inner class FromCli {
+
+            @Test
+            fun `fromCli resolves property from project`() {
+                val project = mockProjectWithProperty("githubRepo", "my-repo")
+                val env = testEnv(project)
+
+                val result = ConfigPromptM.fromCli("GitHub Repo", "githubRepo").run(env)
+
+                assertThat(result).isEqualTo("my-repo")
+            }
+
+            @Test
+            fun `fromCli throws when property not found`() {
+                val project = mockProjectNoProps()
+                val env = testEnv(project)
+
+                val m = ConfigPromptM.fromCli("Missing", "missingProp")
+
+                Assertions.assertThrows(IllegalStateException::class.java) {
+                    m.run(env)
+                }
+            }
+        }
+
+        // --- fromCliOrPrompt ---
+
+        @Nested
+        inner class FromCliOrPrompt {
+
+            @Test
+            fun `resolves from CLI property first`() {
+                val project = mockProjectWithProperty("configPath", "my-config.yml")
+                val env = testEnv(project)
+
+                val result = ConfigPromptM.fromCliOrPrompt(
+                    "Config Path", "configPath", default = "site.yml"
+                ).run(env)
+
+                assertThat(result).isEqualTo("my-config.yml")
+            }
+
+            @Test
+            fun `falls back to default when no CLI property`() {
+                val project = mockProjectNoProps()
+                val env = testEnv(project)
+
+                val result = ConfigPromptM.fromCliOrPrompt(
+                    "Config Path", "configPath", default = "site.yml"
+                ).run(env)
+
+                assertThat(result).isEqualTo("site.yml")
+            }
+
+            @Test
+            fun `falls back to interactive prompt when no CLI and no default`() {
+                val project = mockProjectNoProps()
+                val env = testEnv(project, input = { "typed-value" })
+
+                val result = ConfigPromptM.fromCliOrPrompt(
+                    "Name", "name"
+                ).run(env)
+
+                assertThat(result).isEqualTo("typed-value")
+            }
+
+            @Test
+            fun `sensitive prompt uses readPassword`() {
+                val project = mockProjectNoProps()
+                val env = testEnv(project, password = { "secret123".toCharArray() })
+
+                val result = ConfigPromptM.fromCliOrPrompt(
+                    "GitHub Token", "githubToken", sensitive = true
+                ).run(env)
+
+                assertThat(result).isEqualTo("secret123")
+            }
+        }
+
+        // --- prompt ---
+
+        @Nested
+        inner class Prompt {
+
+            @Test
+            fun `prompt returns user input`() {
+                val env = testEnv(mockProjectNoProps(), input = { "my-answer" })
+
+                val result = ConfigPromptM.prompt("Name").run(env)
+
+                assertThat(result).isEqualTo("my-answer")
+            }
+
+            @Test
+            fun `prompt with example includes example text`() {
+                val outputs = mutableListOf<String>()
+                val env = testEnv(mockProjectNoProps(), input = { "repo" }, output = { outputs.add(it) })
+
+                ConfigPromptM.prompt("Repo", example = "owner/repo").run(env)
+
+                assertThat(outputs.any { it.contains("owner/repo") }).isTrue()
+            }
+
+            @Test
+            fun `prompt retries on blank input`() {
+                var callCount = 0
+                val env = testEnv(mockProjectNoProps(), input = {
+                    callCount++
+                    if (callCount == 1) "" else "valid-input"
+                })
+
+                val result = ConfigPromptM.prompt("Name").run(env)
+
+                assertThat(result).isEqualTo("valid-input")
+                assertThat(callCount).isEqualTo(2)
+            }
+        }
+
+        // --- promptSensitive ---
+
+        @Nested
+        inner class PromptSensitive {
+
+            @Test
+            fun `promptSensitive returns password input`() {
+                val env = testEnv(mockProjectNoProps(), password = { "my-secret".toCharArray() })
+
+                val result = ConfigPromptM.promptSensitive("Token").run(env)
+
+                assertThat(result).isEqualTo("my-secret")
+            }
+
+            @Test
+            fun `promptSensitive retries on empty input`() {
+                var callCount = 0
+                val env = testEnv(
+                    mockProjectNoProps(),
+                    input = { if (callCount == 0) null else "fallback" },
+                    password = {
+                        callCount++
+                        if (callCount == 1) charArrayOf() else "secret".toCharArray()
+                    }
+                )
+
+                val result = ConfigPromptM.promptSensitive("Token").run(env)
+
+                assertThat(result).isEqualTo("secret")
+            }
+        }
+
+        // --- Composition ---
+
+        @Nested
+        inner class Composition {
+
+            @Test
+            fun `compose multiple prompts with flatMap`() {
+                val project = mockProjectWithProperty("username", "alice")
+                val env = testEnv(project, input = { "my-repo" })
+
+                val username = ConfigPromptM.fromCli("Username", "username")
+                val repo = ConfigPromptM.fromCliOrPrompt("Repo", "repo", example = "owner/repo")
+
+                val combined = username.flatMap { user ->
+                    repo.flatMap { r ->
+                        ConfigPromptM.pure("$user/$r")
+                    }
+                }
+
+                assertThat(combined.run(env)).isEqualTo("alice/my-repo")
+            }
+
+            @Test
+            fun `map identity law`() {
+                val m = ConfigPromptM.pure("test")
+                val identity = m.map { it }
+                assertThat(identity.run(testEnv(mockProjectNoProps()))).isEqualTo("test")
+            }
+
+            @Test
+            fun `map composition law`() {
+                val m = ConfigPromptM.pure("hello")
+                val f: (String) -> String = { it.uppercase() }
+                val g: (String) -> Int = { it.length }
+                val left = m.map { g(f(it)) }
+                val right = m.map(f).map(g)
+                assertThat(left.run(testEnv(mockProjectNoProps()))).isEqualTo(right.run(testEnv(mockProjectNoProps())))
+            }
         }
     }
 
