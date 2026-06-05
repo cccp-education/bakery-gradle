@@ -1,5 +1,6 @@
 package bakery
 
+import arrow.core.Either
 import bakery.FileSystemManager.createCnameFile
 import bakery.GitService.pushPages
 import org.gradle.api.Project
@@ -26,6 +27,7 @@ object DeployTaskRegistrar {
                 doFirst { doFirstAction(this) }
                 doLast {
                     pushPages(fromPath, toPath, gitConfig, logger)
+                        .onLeft { throw IllegalStateException(it) }
                 }
             }
         }

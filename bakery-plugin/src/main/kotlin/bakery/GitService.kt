@@ -1,9 +1,10 @@
 package bakery
 
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 import bakery.FileSystemManager.copyBakedFilesToRepo
 import bakery.FileSystemManager.createRepoDir
-import bakery.GitService.FileOperationResult.Failure
-import bakery.GitService.FileOperationResult.Success
 import bakery.RepositoryConfiguration.Companion.ORIGIN
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.revwalk.RevCommit
@@ -47,36 +48,21 @@ object GitService {
         return PrePushValidation.Valid
     }
 
-    sealed class FileOperationResult {
-        sealed class GitOperationResult {
-            data class Success(
-                val commit: RevCommit, val pushResults: MutableIterable<PushResult>?
-            ) : GitOperationResult()
-
-            data class Failure(val error: String) : GitOperationResult()
-        }
-
-        object Success : FileOperationResult()
-        data class Failure(val error: String) : FileOperationResult()
-    }
-
     fun pushPages(
         destPath: () -> String,
         pathTo: () -> String,
         git: GitPushConfiguration,
         logger: Logger
-    ) {
+    ): Either<String, Unit> {
         when (validatePrePush(destPath, git)) {
             PrePushValidation.RemoteNotConfigured -> {
                 logger.error("Git push validation failed: repository URL is not configured.")
-                throw IllegalStateException(
-                    "Repository URL is not configured. Set git.repo.repository in site.yml or via DSL."
-                )
+                return "Repository URL is not configured. Set git.repo.repository in site.yml or via DSL.".left()
             }
 
             PrePushValidation.ContentAbsent -> {
                 logger.error("Git push validation failed: no content found in ${destPath()}.")
-                throw IllegalStateException("No baked content to deploy. Run the bake task first.")
+                return "No baked content to deploy. Run the bake task first.".left()
             }
 
             PrePushValidation.Valid -> {
@@ -86,17 +72,21 @@ object GitService {
 
         val repoDir: File = createRepoDir(pathTo(), logger)
         try {
-            when (val copyResult = copyBakedFilesToRepo(destPath(), repoDir, logger)) {
-                is Success -> {
+            return copyBakedFilesToRepo(destPath(), repoDir, logger).fold(
+                ifLeft = { error ->
+                    logger.error("Failed to copy baked files: $error")
+                    error.left()
+                },
+                ifRight = {
                     logger.info("Successfully copied files to publication repository.")
-                    pushToRemote(repoDir, git, logger)
+                    try {
+                        pushToRemote(repoDir, git, logger)
+                        Unit.right()
+                    } catch (e: Exception) {
+                        (e.message ?: "Unknown error during push").left()
+                    }
                 }
-
-                is Failure -> {
-                    logger.error("Failed to copy baked files: ${copyResult.error}")
-                    throw Exception("Publication failed during file copy: ${copyResult.error}")
-                }
-            }
+            )
         } finally {
             cleanupPublicationArtifacts(repoDir, destPath(), logger)
         }

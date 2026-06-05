@@ -1,5 +1,6 @@
 package bakery
 
+import arrow.core.Either
 import bakery.ConfigPrompts.getOrPrompt
 import bakery.ConfigPrompts.saveConfiguration
 import bakery.FileSystemManager.copyResourceDirectory
@@ -51,14 +52,14 @@ object SiteTaskRegistrar {
     ) {
         val site = from(configFile.absolutePath)
         val result1 = copyResourceDirectory(resourcePath, targetDir, project)
-        if (result1 is FileSystemManager.FileSystemOperationResult.Failure) {
-            logger.error("Failed to copy resource '$resourcePath': ${result1.error}")
-            throw IllegalStateException(result1.error)
+        if (result1 is Either.Left) {
+            logger.error("Failed to copy resource '$resourcePath': ${result1.value}")
+            throw IllegalStateException(result1.value)
         }
         val result2 = copyResourceDirectory(site.pushMaquette.from, targetDir, project)
-        if (result2 is FileSystemManager.FileSystemOperationResult.Failure) {
-            logger.error("Failed to copy maquette '${site.pushMaquette.from}': ${result2.error}")
-            throw IllegalStateException(result2.error)
+        if (result2 is Either.Left) {
+            logger.error("Failed to copy maquette '${site.pushMaquette.from}': ${result2.value}")
+            throw IllegalStateException(result2.value)
         }
 
         val ext = extension ?: BakeryExtension(project.objects)

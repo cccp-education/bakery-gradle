@@ -2,27 +2,22 @@
 
 == Mission en cours
 
-*Session 092 TERMINÉE* — CS-FIN-7 ConfigPromptM Reader Monad — `ConfigPromptM<A>` fun interface (run/map/flatMap) + `ConfigPromptEnvironment` top-level. 19 UT PASS. ConfigPrompts 162→55 lignes (-66%). 757 UT PASS, zéro régression.
+*Session 093 TERMINÉE* — ARROW-1 Arrow-kt Migration — Arrow-kt 2.2.2 déployé (libs.versions.toml + build.gradle.kts).
+`FileSystemOperationResult`/`FileOperationResult` → `Either<String, Unit>`.
+`ConfigResolver.resolveAll` 8 try/catch → `Either.catch` + `fold`.
+`GitService.pushPages` returns `Either` (no throw) + `DeployTaskRegistrar.onLeft`.
+8 fichiers modifiés. 757 UT PASS, zéro régression.
 
 == Statut
 
-- EPICs : 28/28 ✅ (100%) + CS-FIN-1/2/3/4/5/6/7/8/9/10 ✅ (11/12 résolus)
-- Code smells : CS historiques ✅ + CS-FIN-1→10 ✅ (seul ARROW-1 reste, P3)
-- Tests : 757 UT PASS, 19 ConfigPromptM, ~133 Cucumber (65 échecs préexistants)
+- EPICs : 28/28 ✅ (100%)
+- Code smells : 12/12 ✅ (CS historiques + CS-FIN-1→10 + ARROW-1)
+- Tests : 757 UT PASS, ~133 Cucumber (65 échecs préexistants), 11 FT échecs préexistants
 - Coverage : ~76%
 - Build : zero warning, unit tests PASS
+- Arrow-kt : 2.2.2, 3 points d'application (Either, Either.catch, onLeft)
 
-== Contexte de reprise
+== Prochaine session (094)
 
-Session 092 a introduit la monade Reader `ConfigPromptM<A>` :
-- `ConfigPromptM<A>` — fun interface avec `run(env)`, `map()`, `flatMap()`
-- `ConfigPromptEnvironment` — data class top-level (extrait de ConfigPrompts nested class)
-- Constructeurs : `pure`, `fromCli`, `prompt`, `promptSensitive`, `fromCliOrPrompt`
-- `resolveConfigValue()` supprimé (déprécié session 088, remplacé par ConfigPromptM)
-- `ConfigPrompts.kt` : 162→55 lignes (-66%)
-- Fix bug préexistant : `.repo.credentials.repository` → `.repo.repository` dans 2 tests
-
-== Prochaine session (093)
-
-Option A : ARROW-1 (P3, 5pts) — Arrow-kt v1.1.0 EPIC complet (Either, Option, Validation, Reader, Raise DSL)
-Option B : Switch borough
+*SWITCH BOROUGH* — Bakery est 100% terminé (28/28 EPICs, 12/12 code smells, 0 dette technique résiduelle).
+Option : passer au borough suivant dans le pipeline MVP0.

@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-05 — Session 092 (CS-FIN-7 ConfigPromptM)
-  _Session terminee_ : 092
-  _Prochaine session_ : 093 — ARROW-1 ou switch borough
+  _Derniere mise a jour_ : 2026-06-05 — Session 093 (ARROW-1 Arrow-kt Migration)
+  _Session terminee_ : 093
+  _Prochaine session_ : 094 — Switch borough (bakery 100% terminé)
   _Session en cours_ : — (fermee)
 
 '''
@@ -70,6 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
  | # | Date | Type | Sujet | Score
+  | 093 | 2026-06-05 | feat + refactor + TDD | **ARROW-1** Arrow-kt 2.2.2 Migration — `FileSystemOperationResult`/`FileOperationResult` → `Either<String, Unit>`, `resolveAll` 8 try/catch → `Either.catch+fold`, `pushPages` returns `Either` (no throw). 8 fichiers modifiés. 757 UT PASS, zéro régression. 12/12 code smells ✅. Bakery 100%. | 9/10
   | 092 | 2026-06-05 | refactor + TDD | **CS-FIN-7** ConfigPromptM Reader Monad — `ConfigPromptM<A>` fun interface (run/map/flatMap) + `ConfigPromptEnvironment` top-level + 19 UT + ConfigPrompts 162→55 lignes (-66%). 757 UT PASS, zéro régression. | 9/10
   | 091 | 2026-06-05 | refactor + TDD | CS-FIN-9 BfsProximityCache — Adjacency 1 fois, distances lazy-cachées, proximityFor() O(1). 321→239 lignes (-25%). O(n²)→O(n). 9 UT + 738 total PASS. | 9/10
   | 090 | 2026-06-05 | refactor + TDD + BDD | **CS-FIN-10** Masquage secrets étendu SecretField ADT — Password→`***`/ApiKey→prefix***suffix/Token→`***[N chars]`/Blank→`(not set)`. 9+6 UT. Zero regression. | 9/10

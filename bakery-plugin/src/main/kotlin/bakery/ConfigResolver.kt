@@ -1,5 +1,6 @@
 package bakery
 
+import arrow.core.Either
 import bakery.theme.ThemeCatalog
 import bakery.theme.ThemeVariant
 import org.gradle.api.Project
@@ -332,61 +333,57 @@ object ConfigResolver {
     ): Pair<ResolvedConfigs, List<ConfigResolutionError>> {
         val errors = mutableListOf<ConfigResolutionError>()
 
-        val resolvedFirebase = try {
-            resolveFirebaseConfig(props, site.firebase)
-        } catch (e: Exception) {
-            errors.add(ConfigResolutionError.DomainFailure("firebase", e.message ?: "Unknown error", e))
+        fun <T> resolveDomain(
+            domain: String,
+            block: () -> T,
+            fallback: T
+        ): T = Either.catch(block).fold(
+            ifLeft = { e ->
+                errors.add(ConfigResolutionError.DomainFailure(domain, e.message ?: "Unknown error", e as? Exception))
+                fallback
+            },
+            ifRight = { it }
+        )
+
+        val resolvedFirebase = resolveDomain("firebase",
+            { resolveFirebaseConfig(props, site.firebase) },
             FirebaseProjectInfo(projectId = "", apiKey = "")
-        }
+        )
 
-        val resolvedGoogleForms = try {
-            resolveGoogleFormsConfig(props, extension.googleForms, site.googleForms)
-        } catch (e: Exception) {
-            errors.add(ConfigResolutionError.DomainFailure("googleForms", e.message ?: "Unknown error", e))
+        val resolvedGoogleForms = resolveDomain("googleForms",
+            { resolveGoogleFormsConfig(props, extension.googleForms, site.googleForms) },
             GoogleFormsConfig()
-        }
+        )
 
-        val resolvedFirebaseAuth = try {
-            resolveFirebaseAuthConfig(props, extension.firebaseAuth, site.firebaseAuth)
-        } catch (e: Exception) {
-            errors.add(ConfigResolutionError.DomainFailure("firebaseAuth", e.message ?: "Unknown error", e))
+        val resolvedFirebaseAuth = resolveDomain("firebaseAuth",
+            { resolveFirebaseAuthConfig(props, extension.firebaseAuth, site.firebaseAuth) },
             FirebaseAuthConfig()
-        }
+        )
 
-        val resolvedComments = try {
-            resolveCommentsConfig(props, extension.commentsConfig, site.comments)
-        } catch (e: Exception) {
-            errors.add(ConfigResolutionError.DomainFailure("comments", e.message ?: "Unknown error", e))
+        val resolvedComments = resolveDomain("comments",
+            { resolveCommentsConfig(props, extension.commentsConfig, site.comments) },
             CommentsConfig()
-        }
+        )
 
-        val resolvedAnalytics = try {
-            resolveAnalyticsConfig(props, extension.analytics, site.analytics)
-        } catch (e: Exception) {
-            errors.add(ConfigResolutionError.DomainFailure("analytics", e.message ?: "Unknown error", e))
+        val resolvedAnalytics = resolveDomain("analytics",
+            { resolveAnalyticsConfig(props, extension.analytics, site.analytics) },
             AnalyticsConfig()
-        }
+        )
 
-        val resolvedNewsletter = try {
-            resolveNewsletterConfig(props, extension.newsletter, site.newsletter)
-        } catch (e: Exception) {
-            errors.add(ConfigResolutionError.DomainFailure("newsletter", e.message ?: "Unknown error", e))
+        val resolvedNewsletter = resolveDomain("newsletter",
+            { resolveNewsletterConfig(props, extension.newsletter, site.newsletter) },
             NewsletterConfig()
-        }
+        )
 
-        val resolvedTheme = try {
-            resolveThemeConfig(props, extension.theme, site.theme)
-        } catch (e: Exception) {
-            errors.add(ConfigResolutionError.DomainFailure("theme", e.message ?: "Unknown error", e))
+        val resolvedTheme = resolveDomain("theme",
+            { resolveThemeConfig(props, extension.theme, site.theme) },
             ThemeConfig()
-        }
+        )
 
-        val resolvedLayout = try {
-            resolveLayoutConfig(props, extension.layout, site.layout)
-        } catch (e: Exception) {
-            errors.add(ConfigResolutionError.DomainFailure("layout", e.message ?: "Unknown error", e))
+        val resolvedLayout = resolveDomain("layout",
+            { resolveLayoutConfig(props, extension.layout, site.layout) },
             LayoutConfig()
-        }
+        )
 
         return ResolvedConfigs(
             firebase = resolvedFirebase,

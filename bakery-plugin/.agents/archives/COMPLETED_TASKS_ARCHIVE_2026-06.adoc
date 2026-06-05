@@ -1,5 +1,22 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 093 — 2026-06-05 — ARROW-1 Arrow-kt Migration
+
+**Contexte** : Dernier code smell du backlog. Arrow-kt 2.2.2 déployé dans bakery pour standardiser les types monadiques.
+
+**Tâches réalisées** :
+
+* [x] ARROW-1.0 — Arrow-kt 2.2.2 ajouté (`libs.versions.toml` + `build.gradle.kts`)
+* [x] ARROW-1.2 — `FileSystemOperationResult`/`FileOperationResult` → `Either<String, Unit>` (CS-FIN-8)
+* [x] ARROW-1.1 — `ConfigResolver.resolveAll` 8 try/catch → `Either.catch` + `fold` (CS-FIN-4)
+* [x] ARROW-1.3 — `GitService.pushPages` returns `Either` (no throw) + `DeployTaskRegistrar.onLeft` (CS-FIN-6)
+
+**Fichiers modifiés** : `libs.versions.toml`, `build.gradle.kts`, `ConfigResolver.kt`, `DeployTaskRegistrar.kt`, `FileSystemManager.kt`, `GitService.kt`, `SiteTaskRegistrar.kt`, `FileSystemManagerTest.kt`
+
+**Résultats** : 757 UT PASS, zéro régression. 12/12 code smells ✅. Bakery 100% terminé.
+
+'''
+
 == Session 092 — 2026-06-05 — CS-FIN-7 ConfigPromptM Reader Monad
 
 **Contexte** : ConfigPrompts testabilité — side effects directs (println/readLine) dans getOrPrompt(). Session 088 avait créé ConfigPromptEnvironment + resolveConfigValue(), mais la monade Reader manquait.

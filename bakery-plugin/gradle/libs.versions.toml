@@ -28,6 +28,7 @@ langchain4j = "1.14.1"
 thymeleaf = "3.0.14.RELEASE"
 playwright = "1.52.0"
 rome = "2.1.0"
+arrow = "2.2.2"
 
 
 [libraries]
@@ -65,6 +66,8 @@ langchain4j-ollama = { module = "dev.langchain4j:langchain4j-ollama", version.re
 thymeleaf = { module = "org.thymeleaf:thymeleaf", version.ref = "thymeleaf" }
 playwright = { module = "com.microsoft.playwright:playwright", version.ref = "playwright" }
 rome = { module = "com.rometools:rome", version.ref = "rome" }
+arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
+arrow-fx-coroutines = { module = "io.arrow-kt:arrow-fx-coroutines", version.ref = "arrow" }
 
 
 [plugins]
@@ -99,4 +102,8 @@ coroutines = [
     "kotlinx-coroutines-core",
     "kotlinx-coroutines-jdk8",
     "kotlinx-coroutines-test"
+]
+arrow = [
+    "arrow-core",
+    "arrow-fx-coroutines"
 ]

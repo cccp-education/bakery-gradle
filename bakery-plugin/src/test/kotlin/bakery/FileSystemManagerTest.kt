@@ -1,5 +1,7 @@
 package bakery
 
+import arrow.core.Either.Left
+import arrow.core.Either.Right
 import bakery.FileSystemManager.copyBakedFilesToRepo
 import bakery.FileSystemManager.createRepoDir
 import bakery.FileSystemManager.isYmlUri
@@ -89,7 +91,7 @@ class FileSystemManagerTest {
 
             val result = copyBakedFilesToRepo(bakeDir.absolutePath, repoDir, logger)
 
-            assertThat(result).isEqualTo(GitService.FileOperationResult.Success)
+            assertThat(result).isInstanceOf(Right::class.java)
             assertThat(repoDir.resolve("index.html")).exists().hasContent("hello")
             assertThat(bakeDir).doesNotExist()
         }
@@ -104,7 +106,7 @@ class FileSystemManagerTest {
                 logger
             )
 
-            assertThat(result).isInstanceOf(GitService.FileOperationResult.Failure::class.java)
+            assertThat(result).isInstanceOf(Left::class.java)
         }
 
         @Test
@@ -116,7 +118,7 @@ class FileSystemManagerTest {
 
             val result = copyBakedFilesToRepo(bakeDir.absolutePath, repoDir, logger)
 
-            assertThat(result).isEqualTo(GitService.FileOperationResult.Success)
+            assertThat(result).isInstanceOf(Right::class.java)
             assertThat(repoDir.resolve("assets/style.css")).exists().hasContent("body{}")
             assertThat(bakeDir).doesNotExist()
         }
@@ -169,9 +171,8 @@ class FileSystemManagerTest {
 
             val result = FileSystemManager.copyResourceDirectory("nonexistent-resource-path-xyz", targetDir, project)
 
-            assertThat(result).isInstanceOf(FileSystemManager.FileSystemOperationResult.Failure::class.java)
-            val failure = result as FileSystemManager.FileSystemOperationResult.Failure
-            assertThat(failure.error).contains("Resource directory not found")
+            assertThat(result).isInstanceOf(Left::class.java)
+            assertThat((result as Left).value).contains("Resource directory not found")
         }
 
         @Test
@@ -183,7 +184,7 @@ class FileSystemManagerTest {
                 "site", targetDir, project
             )
 
-            assertThat(result).isEqualTo(FileSystemManager.FileSystemOperationResult.Success)
+            assertThat(result).isInstanceOf(Right::class.java)
             assertThat(targetDir.resolve("site")).exists().isDirectory
         }
     }

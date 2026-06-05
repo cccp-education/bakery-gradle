@@ -5,16 +5,15 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-05 — Session 092 (CS-FIN-7 ConfigPromptM)_
+_Dernière mise à jour : 2026-06-05 — Session 093 (ARROW-1 terminé, Bakery 100%)_
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` + `last_code_review.adoc` (racine bakery-gradle/) + analyse directe du code source
 
 [CAUTION]
 ====
-**29/28 EPICs terminés + 11/12 code smells résolus.** Le backlog ne contient plus qu'1 code smell
-de finalisation (ARROW-1) identifié par la code review v3 (Session 079).
-Bakery est en phase de **polish final** avant switch borough.
-*11/11 code smells résolus* : CS-FIN-1/2/3/4/5/6/7/8/9/10 ✅
+**29/28 EPICs terminés + 12/12 code smells résolus.** Bakery est 100% terminé.
+Phase de polish final achevée. Prêt pour switch borough.
+*12/12 code smells résolus* : CS-FIN-1/2/3/4/5/6/7/8/9/10 ✅ + ARROW-1 ✅
 ====
 
 '''
@@ -316,7 +315,7 @@ _Baby steps_ (EPIC ARROW-1) :
 | CS-FIN-8 | FileSystemManager Either (CS-35 V3) | 1 | 🟢 P3 ✅ S089
 | CS-FIN-9 | BFS O(n²) → BfsProximityCache (CS-36 V3) | 1 | 🟢 P3 ✅ S091
 | CS-FIN-10 | Masquage secrets étendu (CS-31-bis V3) | 0.5 | 🟢 P3 ✅ S090
-| ARROW-1 | Arrow-kt v1.1.0 roadmap | 5 | 🟢 P3 ☐
+| ARROW-1 | Arrow-kt v1.1.0 roadmap | 5 | 🟢 P3 ✅ S093
 | CS-18 | BakeryExtension boilerplate | — | 🟢 Accepté
 |===
 

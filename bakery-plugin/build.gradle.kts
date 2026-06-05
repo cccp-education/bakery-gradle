@@ -42,6 +42,9 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.jdk8)
 
+    // Arrow-kt — functional programming (Either, Validation, Option, Raise DSL)
+    implementation(libs.bundles.arrow)
+
     // RSS parsing — Rome (CS-8 remplace DocumentBuilderFactory DOM fragile)
     implementation(libs.rome)
 
