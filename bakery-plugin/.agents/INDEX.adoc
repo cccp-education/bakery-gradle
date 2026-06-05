@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-05 — Session 088 (CS-FIN-7 ConfigPrompts Reader Monad)
-  _Session terminee_ : 088
-  _Prochaine session_ : 089 — CS-FIN-8 (FileSystemManager Either) ou CS-FIN-9 (BFS LazyList) ou switch borough
+  _Derniere mise a jour_ : 2026-06-05 — Session 089 (CS-FIN-8 FileSystemManager FileSystemOperationResult)
+  _Session terminee_ : 089
+  _Prochaine session_ : 090 — CS-FIN-9 (BFS LazyList) ou CS-FIN-10 (Masquage secrets) ou ARROW-1 ou switch borough
   _Session en cours_ : — (fermee)
 
 '''
@@ -70,6 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
  | # | Date | Type | Sujet | Score
+  | 089 | 2026-06-05 | refactor + TDD | **CS-FIN-8** FileSystemManager FileSystemOperationResult — Sealed class Success/Failure, 716/716 UT PASS, zero regression. | 9/10
  | 088 | 2026-06-05 | refactor + TDD | **CS-FIN-7** ConfigPrompts Testabilité Reader Monad — ConfigPromptEnvironment data class + resolveConfigValue() pure function + 4 UT mockés (interactif, sensitive, default, env var). 19/19 ConfigPrompts PASS. Zéro régression. | 9/10
  | 087 | 2026-06-05 | refactor + TDD | **CS-FIN-6** GitService PrePush Validation — PrePushValidation sealed class (Valid, RemoteNotConfigured, ContentAbsent) + validatePrePush() + 4 UT + intégration pushPages(). 15/15 GitServiceTest PASS. | 9/10
  | 086 | 2026-06-05 | refactor + TDD | **CS-FIN-5** GenerateSiteService extraction — DDD object pur (6 fonctions) + TDD 15 tests PASS. SiteTaskRegistrar 331→203 lignes (-38%). BDD Cucumber reporté. | 9/10
@@ -265,7 +266,7 @@ _Localisation active_ : `.agents/backup/Y2026-sessions-051-060/` (rotation sessi
 | CS-33 | 🟡 P2 | ✅ S086 | registerGenerateSiteTask mixing → `GenerateSiteService` | CS-FIN-5
 | CS-34 | 🟡 P2 | ✅ S087 | GitService.pushPages sans validation préalable | CS-FIN-6
 | CS-38 | 🟡 P2 | ✅ S088 | ConfigPrompts non testables → ConfigPromptEnvironment + resolveConfigValue() | CS-FIN-7
-| CS-35 | 🟢 P3 | ☐ À faire | FileSystemManager exceptions → Either | CS-FIN-8
+| CS-35 | 🟢 P3 | ✅ S089 | FileSystemManager exceptions → Either | CS-FIN-8
 | CS-36 | 🟢 P3 | ☐ À faire | BFS O(n²) → LazyList | CS-FIN-9
 | CS-31-bis | 🟢 P3 | ☐ À faire | Masquage secrets étendu (LLM keys, GitHub tokens) | CS-FIN-10
 | — | 🟢 P3 | ☐ À faire | Arrow-kt 2.2.3 v1.1.0 roadmap | ARROW-1

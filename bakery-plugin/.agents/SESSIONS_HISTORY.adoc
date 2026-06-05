@@ -1,8 +1,9 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-  _Derniere mise a jour : 2026-06-05 — Session 088_
+  _Derniere mise a jour : 2026-06-05 — Session 089_
 
   |===
+  | 089 | 2026-06-05 | refactor + TDD | CS-FIN-8 FileSystemManager exceptions → FileSystemOperationResult — DDD : Sealed class `FileSystemOperationResult` (Success, Failure). `copyResourceDirectory()`/`copyFromJar()`/`copyFromFileSystem()` ne lèvent plus d'exceptions. TDD : 2 tests (Failure + Success). Intégration : `SiteTaskRegistrar` adapté. 716/716 UT PASS. Zéro régression. | 9/10
   | 088 | 2026-06-05 | refactor + TDD | CS-FIN-7 ConfigPrompts Testabilité Reader Monad — DDD : `ConfigPromptEnvironment` data class (readInput, readPassword, writeOutput, logger) + `resolveConfigValue()` pure function (sans side effects). TDD : 4 tests mockés (interactif, sensitive, default prioritaire, env var prioritaire). Refactor : `getOrPrompt()` délègue à `resolveConfigValue(ConfigPromptEnvironment.defaultFor(logger), ...)`. 19/19 ConfigPrompts PASS. Zéro régression. | 9/10
   | 087 | 2026-06-05 | refactor + TDD | CS-FIN-6 GitService PrePush Validation — DDD : `PrePushValidation` sealed class (Valid, RemoteNotConfigured, ContentAbsent) + `validatePrePush()` fonction pure. TDD : 4 UT RED→GREEN (remote OK, remote absent, empty content, nonexistent dir). Refactor : intégration dans `pushPages()` en amont du copy+push. 15/15 GitServiceTest PASS. | 9/10
   | 086 | 2026-06-05 | refactor + TDD | CS-FIN-5 GenerateSiteService Extraction — DDD : `bakery/site/GenerateSiteService.kt` object pur (6 fonctions, zéro Gradle). TDD : 15 tests unitaires RED→GREEN (ResourcePath, Description, SiteYml, GitIgnore, GitAttributes, InjectConfig). Refactor : suppression 7 méthodes privées SiteTaskRegistrar, 331→203 lignes (-38%), imports nettoyés. BDD Cucumber reporté. 706+ JUnit5 PASS. | 9/10

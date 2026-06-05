@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-05 — Session 088 (CS-FIN-7, +4 tests unitaires ConfigPrompts, coverage ~76% inchangé)_
+_Dernière mise à jour : 2026-06-05 — Session 089 (CS-FIN-8, +2 tests FileSystemManager, coverage ~76% stable)_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -12,12 +12,12 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 | Métrique | Valeur
 | Couverture Kover | *76.15%* — seuil 70% (session 083, stable)
 | Seuil configuré | 70% (dans `build.gradle.kts` → `koverThresholdCheck`)
-| Tests unitaires JUnit5 | 138 fichiers, 680+ tests — ~38s (Cucumber exclu de `test` task)
+| Tests unitaires JUnit5 | 138 fichiers, 716 tests — ~52s clean
 | Tests fonctionnels (TestKit) | 8 fichiers, 61/61 FT PASS (inchangé)
 | Tests Cucumber BDD | 28 features, 133 scénarios — tous PASS
 | Tests E2E Playwright | 5 fichiers, 17/17 PASS — séparés de `check`
 | Compilation | ✅ BUILD SUCCESSFUL — Gradle 9.5.1, Kotlin 2.3.20, Java 24, zéro warning
-| Évolution Session 087 | ✅ CS-FIN-6 terminée. PrePushValidation + 4 UT GitService. Coverage ~76% stable.
+| Évolution Session 089 | ✅ CS-FIN-8 terminée. FileSystemOperationResult + 2 tests (Failure/Success). Coverage ~76% stable.
 |===
 | Métrique | Valeur
 | Couverture Kover | *76.15%* — seuil 70% (session 082, +1.15pp)

@@ -163,14 +163,28 @@ class FileSystemManagerTest {
         lateinit var tempDir: File
 
         @Test
-        fun `throws IllegalArgumentException when resource path does not exist`() {
+        fun `returns Failure when resource path does not exist`() {
             val project = org.gradle.testfixtures.ProjectBuilder.builder().withProjectDir(tempDir).build()
             val targetDir = tempDir.resolve("target")
 
-            assertThatThrownBy {
-                FileSystemManager.copyResourceDirectory("nonexistent-resource-path-xyz", targetDir, project)
-            }.isInstanceOf(IllegalArgumentException::class.java)
-                .hasMessageContaining("Resource directory not found")
+            val result = FileSystemManager.copyResourceDirectory("nonexistent-resource-path-xyz", targetDir, project)
+
+            assertThat(result).isInstanceOf(FileSystemManager.FileSystemOperationResult.Failure::class.java)
+            val failure = result as FileSystemManager.FileSystemOperationResult.Failure
+            assertThat(failure.error).contains("Resource directory not found")
+        }
+
+        @Test
+        fun `returns Success when copying valid filesystem resource`() {
+            val project = org.gradle.testfixtures.ProjectBuilder.builder().withProjectDir(tempDir).build()
+            val targetDir = tempDir.resolve("target")
+
+            val result = FileSystemManager.copyResourceDirectory(
+                "site", targetDir, project
+            )
+
+            assertThat(result).isEqualTo(FileSystemManager.FileSystemOperationResult.Success)
+            assertThat(targetDir.resolve("site")).exists().isDirectory
         }
     }
 }

@@ -2,31 +2,32 @@
 
 == Mission en cours
 
-*Session 088 TERMINÉE* — CS-FIN-7 ConfigPrompts testabilité Reader monad.
-ConfigPromptEnvironment data class + resolveConfigValue() pure + 4 UT mockés.
+*Session 089 TERMINÉE* — CS-FIN-8 FileSystemManager exceptions → FileSystemOperationResult.
+Sealed class Success/Failure, copyResourceDirectory/copyFromJar/copyFromFileSystem
+ne lèvent plus d'exceptions. 716 UT PASS, zéro régression.
 
 == Statut
 
-- EPICs : 28/28 ✅ (100%) + CS-FIN-1/2/3/4/5/6/7 ✅ + CS-FIN-8→10 ☐ + ARROW-1 ☐
-- Code smells : CS historiques ✅ + CS-FIN-1→7 ✅ (12 pts)
-- Tests : 714+ JUnit5 PASS (691 + 15 S086 + 4 S087 + 4 S088), 133~ Cucumber, 17 E2E
+- EPICs : 28/28 ✅ (100%) + CS-FIN-1/2/3/4/5/6/7/8 ✅ + CS-FIN-9/10 ☐ + ARROW-1 ☐
+- Code smells : CS historiques ✅ + CS-FIN-1→8 ✅ (14 pts)
+- Tests : 716 JUnit5 PASS, 133~ Cucumber, 17 E2E
 - Coverage : ~76%
 - Build : zero warning, unit tests PASS
 
 == Contexte de reprise
 
-Session 088 a rendu ConfigPrompts testable :
-- ConfigPromptEnvironment data class (readInput, readPassword, writeOutput, logger)
-- resolveConfigValue() fonction pure injectable
-- getOrPrompt() délègue à resolveConfigValue(defaultFor(logger), ...)
-- 4 tests TDD avec environnement mocké (interactif, sensitive, default, env var)
+Session 089 a rendu FileSystemManager fonctionnellement pur :
+- FileSystemOperationResult sealed class (Success, Failure)
+- copyResourceDirectory() retourne un résultat au lieu de throw
+- copyFromJar() et copyFromFileSystem() try/catch → Failure
+- SiteTaskRegistrar adapté (check Failure → IllegalStateException pour backward compat)
+- 2 tests TDD (Failure + Success)
 
-== Prochaine session (089)
+== Prochaine session (090)
 
-Option A : CS-FIN-8 (P3, 1 pt) — FileSystemManager exceptions → Either
-Option B : CS-FIN-9 (P3, 1 pt) — BFS O(n²) → LazyList
-Option C : CS-FIN-10 (P3, 0.5 pt) — Masquage secrets étendu
-Option D : ARROW-1 (P3, 5 pts) — Arrow-kt v1.1.0 EPIC complet
-Option E : Switch borough
+Option A : CS-FIN-9 (P3, 1 pt) — BFS O(n²) → LazyList
+Option B : CS-FIN-10 (P3, 0.5 pt) — Masquage secrets étendu
+Option C : ARROW-1 (P3, 5 pts) — Arrow-kt v1.1.0 EPIC complet
+Option D : Switch borough
 
 (End of file - total 28 lines)

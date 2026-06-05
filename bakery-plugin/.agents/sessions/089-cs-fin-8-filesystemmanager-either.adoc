@@ -1,0 +1,40 @@
+= Session 089 — CS-FIN-8 FileSystemManager exceptions → FileSystemOperationResult
+:date: 2026-06-05
+:type: refactor + TDD
+:score: 9/10
+
+== Résumé
+
+Refactoring de `FileSystemManager.copyResourceDirectory()` pour retourner
+un `FileSystemOperationResult` (Success | Failure) au lieu de lever des exceptions.
+
+== Baby Steps DDD/TDD
+
+=== DDD
+. Sealed class `FileSystemOperationResult` (Success data object, Failure data class)
+  dans `FileSystemManager.kt`
+. `copyResourceDirectory()` retourne `FileSystemOperationResult` au lieu de throw
+. `copyFromJar()` retourne `FileSystemOperationResult` (try/catch → Failure)
+. `copyFromFileSystem()` retourne `FileSystemOperationResult` (early returns + try/catch)
+
+=== TDD
+. Test existant "throws IllegalArgumentException" → "returns Failure" avec assertion
+  sur `FileSystemOperationResult.Failure.error`
+. Nouveau test "returns Success" avec ressource "site" → Success + vérifie répertoire créé
+
+=== Intégration
+. `SiteTaskRegistrar.copySiteResources()` checke `Failure` et throw `IllegalStateException`
+  pour backward-compatibilité Cucumber generateSite qui attendent des failures
+
+== Résultats
+
+- Compilation : BUILD SUCCESSFUL, zéro warning
+- Unit tests : 716/716 PASS (zero régression)
+- Functional tests : pré-existants échouent (DuplicateStepDefinitionException, non lié)
+- Cucumber : pré-existants échouent (DuplicateStepDefinitionException, non lié)
+
+== Fichiers modifiés
+
+- `src/main/kotlin/bakery/FileSystemManager.kt` — Ajout sealed class + refactoring méthodes
+- `src/main/kotlin/bakery/SiteTaskRegistrar.kt` — Adapte appelant copyResourceDirectory
+- `src/test/kotlin/bakery/FileSystemManagerTest.kt` — Test refactoré + nouveau test Success

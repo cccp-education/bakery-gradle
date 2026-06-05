@@ -1,5 +1,25 @@
 = COMPLETED_TASKS_ARCHIVE — Juin 2026
 
+== Session 089 — CS-FIN-8 FileSystemManager exceptions → FileSystemOperationResult (2026-06-05)
+
+* [x] DDD : Sealed class `FileSystemOperationResult` (Success data object, Failure data class) dans `FileSystemManager.kt`
+* [x] DDD : `copyResourceDirectory()` retourne `FileSystemOperationResult` (was throwing IllegalArgumentException)
+* [x] DDD : `copyFromJar()` try/catch → `FileSystemOperationResult.Failure`
+* [x] DDD : `copyFromFileSystem()` early returns + try/catch → `FileSystemOperationResult`
+* [x] TDD : Test "throws" → "returns Failure" + assert on error message
+* [x] TDD : Nouveau test "returns Success" avec ressource `site`
+* [x] Integration : `SiteTaskRegistrar.copySiteResources()` check Failure → throw IllegalStateException
+* [x] 716/716 JUnit5 PASS — zero regression
+* [x] Compilation OK, Gradle 9.5.1, Kotlin 2.3.20, Java 24, zero warning
+* [x] FT + Cucumber : echecs pre-existants (DuplicateStepDefinitionException) non lies
+
+=== Fichiers modifies
+- `FileSystemManager.kt` : +FileSystemOperationResult sealed class + refactored copyResourceDirectory/copyFromJar/copyFromFileSystem
+- `SiteTaskRegistrar.kt` : Adapted callers to handle FileSystemOperationResult return type
+- `FileSystemManagerTest.kt` : Updated edge-case test + new Success test
+
+=== CS-FIN completes : 8/10 ✅ | Restant : CS-FIN-9/10 + ARROW-1 = 6.5 pts
+
 == Session 088 — CS-FIN-7 ConfigPrompts Testabilité Reader Monad (2026-06-05)
 
 * [x] DDD : `ConfigPromptEnvironment` data class (readInput, readPassword, writeOutput, logger) + `resolveConfigValue()` fonction pure injectable

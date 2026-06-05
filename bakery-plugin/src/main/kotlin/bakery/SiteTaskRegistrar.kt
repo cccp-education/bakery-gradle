@@ -50,8 +50,16 @@ object SiteTaskRegistrar {
         props: Map<String, String> = emptyMap()
     ) {
         val site = from(configFile.absolutePath)
-        copyResourceDirectory(resourcePath, targetDir, project)
-        copyResourceDirectory(site.pushMaquette.from, targetDir, project)
+        val result1 = copyResourceDirectory(resourcePath, targetDir, project)
+        if (result1 is FileSystemManager.FileSystemOperationResult.Failure) {
+            logger.error("Failed to copy resource '$resourcePath': ${result1.error}")
+            throw IllegalStateException(result1.error)
+        }
+        val result2 = copyResourceDirectory(site.pushMaquette.from, targetDir, project)
+        if (result2 is FileSystemManager.FileSystemOperationResult.Failure) {
+            logger.error("Failed to copy maquette '${site.pushMaquette.from}': ${result2.error}")
+            throw IllegalStateException(result2.error)
+        }
 
         val ext = extension ?: BakeryExtension(project.objects)
         val (resolvedConfigs, _) = ConfigResolver.resolveAll(props, ext, site)
