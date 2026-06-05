@@ -19,6 +19,68 @@ class GitServiceTest {
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class ValidatePrePushTest {
+
+        @TempDir
+        lateinit var tempDir: File
+
+        @Test
+        fun `validatePrePush returns Valid when dest has content and remote is configured`() {
+            val destPath = tempDir.resolve("dest").apply {
+                mkdirs()
+                resolve("index.html").writeText("<h1>Hello</h1>")
+            }
+            val git = GitPushConfiguration(
+                repo = RepositoryConfiguration(repository = "https://github.com/test/test.git")
+            )
+
+            val result = GitService.validatePrePush({ destPath.absolutePath }, git)
+
+            assertThat(result).isEqualTo(GitService.PrePushValidation.Valid)
+        }
+
+        @Test
+        fun `validatePrePush returns RemoteNotConfigured when repository URL is blank`() {
+            val destPath = tempDir.resolve("dest").apply {
+                mkdirs()
+                resolve("index.html").writeText("<h1>Hello</h1>")
+            }
+            val git = GitPushConfiguration(
+                repo = RepositoryConfiguration(repository = "")
+            )
+
+            val result = GitService.validatePrePush({ destPath.absolutePath }, git)
+
+            assertThat(result).isEqualTo(GitService.PrePushValidation.RemoteNotConfigured)
+        }
+
+        @Test
+        fun `validatePrePush returns ContentAbsent when dest directory is empty`() {
+            val destPath = tempDir.resolve("dest").apply { mkdirs() }
+            val git = GitPushConfiguration(
+                repo = RepositoryConfiguration(repository = "https://github.com/test/test.git")
+            )
+
+            val result = GitService.validatePrePush({ destPath.absolutePath }, git)
+
+            assertThat(result).isEqualTo(GitService.PrePushValidation.ContentAbsent)
+        }
+
+        @Test
+        fun `validatePrePush returns ContentAbsent when dest directory does not exist`() {
+            val destPath = tempDir.resolve("nonexistent")
+            val git = GitPushConfiguration(
+                repo = RepositoryConfiguration(repository = "https://github.com/test/test.git")
+            )
+
+            val result = GitService.validatePrePush({ destPath.absolutePath }, git)
+
+            assertThat(result).isEqualTo(GitService.PrePushValidation.ContentAbsent)
+        }
+    }
+
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class CleanupDirTest {
 
         @TempDir

@@ -1,0 +1,43 @@
+= Session 087 — CS-FIN-6 GitService PrePush Validation
+:type: refactor + TDD
+:date: 2026-06-05
+:score: 9/10
+:epic: CS-FIN-6 (P2, 1 pt)
+
+== Objectif
+Ajouter une validation pré-push dans `GitService.pushPages()` pour éviter des
+erreurs silencieuses quand le repo n'est pas configuré ou que le contenu
+est absent.
+
+== Baby Steps DDD/TDD
+
+=== Step 1 — DDD : PrePushValidation sealed class
+`GitService.kt` enrichi d'une sealed class :
+- `PrePushValidation.Valid` — tout OK
+- `PrePushValidation.RemoteNotConfigured` — URL remote vide
+- `PrePushValidation.ContentAbsent` — dossier dest vide ou inexistant
+
+Fonction `validatePrePush(destPath, git): PrePushValidation` pure, testable.
+
+=== Step 2 — TDD : 4 tests unitaires RED→GREEN
+`GitServiceTest.ValidatePrePushTest` :
+- `validatePrePush returns Valid when dest has content and remote is configured` ✅
+- `validatePrePush returns RemoteNotConfigured when repository URL is blank` ✅
+- `validatePrePush returns ContentAbsent when dest directory is empty` ✅
+- `validatePrePush returns ContentAbsent when dest directory does not exist` ✅
+
+=== Step 3 — Refactor : Intégration dans pushPages()
+`when (validatePrePush(destPath, git)) { ... }` en début de `pushPages()`.
+- `RemoteNotConfigured` → `IllegalStateException` avec message clair
+- `ContentAbsent` → `IllegalStateException` avec instruction "run the bake task first"
+- `Valid` → log info + poursuite normale
+
+== Résultats
+- 4 nouveaux tests ValidatePrePush + 11 existants = *15/15 GitServiceTest PASS*
+- Full test suite PASS (0 régression)
+- Compilation ✅ zéro warning
+- publishToMavenLocal OK
+
+== Fichiers modifiés
+- `src/main/kotlin/bakery/GitService.kt` : +22 lignes (PrePushValidation + validatePrePush + intégration pushPages)
+- `src/test/kotlin/bakery/GitServiceTest.kt` : +69 lignes (ValidatePrePushTest nested class)

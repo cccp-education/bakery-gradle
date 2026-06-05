@@ -5,15 +5,16 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-05 — Session 084 (enrichissement post-code review V3)_
+_Dernière mise à jour : 2026-06-05 — Session 087 (CS-FIN-6 GitService PrePush Validation)_
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` + `last_code_review.adoc` (racine bakery-gradle/) + analyse directe du code source
 
 [CAUTION]
 ====
 **28/28 EPICs terminés.** Le backlog ne contient plus que les 10 code smells
-de finalisation (CS-13→CS-22) identifiés par la code review v3 (Session 079).
+de finalisation (CS-FIN-1→10 + ARROW-1) identifiés par la code review v3 (Session 079).
 Bakery est en phase de **polish final** avant switch borough.
+*6/10 code smells résolus* : CS-FIN-1/2/3/4/5/6 ✅
 ====
 
 '''
@@ -185,35 +186,31 @@ _Baby steps DDD/TDD/BDD_ :
 
 '''
 
-==== CS-FIN-5 : registerGenerateSiteTask mixing concerns — Extraire logique métier (CS-33 V3)
+==== CS-FIN-5 : registerGenerateSiteTask mixing concerns — Extraire logique métier (CS-33 V3) ✅
 
 *Priorité* : P2 — clarté du code
 *Charge* : 1.5 pts
 *Fichiers* : `SiteTaskRegistrar.kt` (lignes 45-64)
 
-_Problème_ : La méthode `registerGenerateSiteTask()` mélange l'enregistrement de tâche Gradle
-avec la logique métier JBake. Pattern recommandé : Reader monad ou extraction vers un service dédié.
+*Résolu* : Session 086 (2026-06-05)
 
 _Baby steps_ :
-. [ ] DDD : `GenerateSiteService` data class + interface
-. [ ] TDD : 2 tests unitaires du service extrait
-. [ ] Refactor : `registerGenerateSiteTask()` → délègue à `GenerateSiteService`
+. [x] DDD : `GenerateSiteService` object pur (6 fonctions, zéro Gradle)
+. [x] TDD : 15 tests unitaires RED→GREEN (ResourcePath, Description, SiteYml, GitIgnore, GitAttributes, InjectConfig)
+. [x] Refactor : suppression 7 méthodes privées SiteTaskRegistrar, 331→203 lignes (-38%)
 
-'''
-
-==== CS-FIN-6 : GitService.pushPages sans validation préalable (CS-34 V3)
+==== CS-FIN-6 : GitService.pushPages sans validation préalable (CS-34 V3) ✅
 
 *Priorité* : P2 — robustness
 *Charge* : 1 pt
 *Fichiers* : `GitService.kt` (lignes 50-65)
 
-_Problème_ : `pushPages()` tente un push sans vérifier que le repo local est dans un état cohérent
-(branch checkout, remote configuré, dirty state). Pattern recommandé : `Validation<Error, Unit>`.
+*Résolu* : Session 087 (2026-06-05)
 
 _Baby steps_ :
-. [ ] DDD : `PrePushValidation` sealed class (RemoteNotConfigured, DirtyWorkspace, etc.)
-. [ ] TDD : 3 tests unitaires (remote OK, remote absent, dirty workspace)
-. [ ] Refactor : Ajouter `validatePrePush()` avant `pushPages()`
+. [x] DDD : `PrePushValidation` sealed class (Valid, RemoteNotConfigured, ContentAbsent) + `validatePrePush()` fonction pure
+. [x] TDD : 4 tests unitaires (remote OK, remote absent, content empty, directory nonexistent)
+. [x] Refactor : intégration dans `pushPages()` avec messages d'erreur explicites
 
 '''
 
@@ -304,8 +301,8 @@ _Baby steps_ (EPIC ARROW-1) :
 | CS-FIN-2 | Échappement JSON Jackson + sérialisation data class | 1.5 | 🟠 P1 ✅ S081
 | CS-FIN-3 | Nettoyage code mort/logs/println/DRY | 1 | 🟡 P2 ✅ S081
 | CS-FIN-4 | ConfigResolver cascade DRY (CS-25 V3) | 3 | 🟠 P1 ✅ S085
-| CS-FIN-5 | registerGenerateSiteTask mixing (CS-33 V3) | 1.5 | 🟡 P2 ☐
-| CS-FIN-6 | GitService.pushPages validation (CS-34 V3) | 1 | 🟡 P2 ☐
+| CS-FIN-5 | registerGenerateSiteTask mixing (CS-33 V3) | 1.5 | 🟡 P2 ✅ S086
+| CS-FIN-6 | GitService.pushPages validation (CS-34 V3) | 1 | 🟡 P2 ✅ S087
 | CS-FIN-7 | ConfigPrompts testabilité (CS-38 V3) | 2 | 🟡 P2 ☐
 | CS-FIN-8 | FileSystemManager Either (CS-35 V3) | 1 | 🟢 P3 ☐
 | CS-FIN-9 | BFS O(n²) → LazyList (CS-36 V3) | 1 | 🟢 P3 ☐
@@ -314,8 +311,8 @@ _Baby steps_ (EPIC ARROW-1) :
 | CS-18 | BakeryExtension boilerplate | — | 🟢 Accepté
 |===
 
-*Total complété* : CS-FIN-1/2/3/4 = 7.5 pts ✅
-*Total post-v1.0* : CS-FIN-5→10 + ARROW-1 = 12 pts (~4-6 sessions)
+*Total complété* : CS-FIN-1/2/3/4/5/6 = 8.5 pts ✅
+*Total post-v1.0* : CS-FIN-7→10 + ARROW-1 = 11 pts (~4-5 sessions)
 *Tous les EPICs historiques* : 28/28 ✅ (100%)
 *Score de santé* : 8.5/10 après enrichissement code review V3 (remonté de 8.0 car CS-21 résolu)
 
@@ -326,8 +323,8 @@ _Baby steps_ (EPIC ARROW-1) :
 [cols="2,3"]
 |===
 | Document | `BACKLOG.adoc`
-| Version | 4.1 — Session 085 (CS-FIN-4 ConfigResolver DRY)
+| Version | 4.2 — Session 087 (CS-FIN-6 GitService PrePush Validation)
 | Historisé dans | `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 | Basé sur | Code review v3 (lecture directe du code source 2026-06-04)
-| Prochaine màj | Après résolution CS-FIN-5
+| Prochaine màj | Après résolution CS-FIN-7
 |===

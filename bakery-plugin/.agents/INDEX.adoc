@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-05 — Session 086 (CS-FIN-5 GenerateSiteService)
-  _Session terminee_ : 086
-  _Prochaine session_ : 087 — CS-FIN-6 (GitService validation) ou CS-FIN-7 (ConfigPrompts Reader)
+  _Derniere mise a jour_ : 2026-06-05 — Session 087 (CS-FIN-6 GitService PrePush Validation)
+  _Session terminee_ : 087
+  _Prochaine session_ : 088 — CS-FIN-7 (ConfigPrompts Reader) ou CS-FIN-8 (FileSystemManager Either)
   _Session en cours_ : — (fermee)
 
 '''
@@ -70,6 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
  | # | Date | Type | Sujet | Score
+ | 087 | 2026-06-05 | refactor + TDD | **CS-FIN-6** GitService PrePush Validation — PrePushValidation sealed class (Valid, RemoteNotConfigured, ContentAbsent) + validatePrePush() + 4 UT + intégration pushPages(). 15/15 GitServiceTest PASS. | 9/10
  | 086 | 2026-06-05 | refactor + TDD | **CS-FIN-5** GenerateSiteService extraction — DDD object pur (6 fonctions) + TDD 15 tests PASS. SiteTaskRegistrar 331→203 lignes (-38%). BDD Cucumber reporté. | 9/10
  | 075 | 2026-06-04 | refactor + TDD | **CS-8** Rome RSS parser — `SiteContextCollector.parseFeed()` DOM 35l → Rome 12l. `parseRssDate()` supprimé. `normalizeUrl()` extrait. Dépendance `com.rometools:rome:2.1.0`. Compilation zéro warning. 7/7 tests PASS. | 9/10
  | 074 | 2026-06-04 | refactor | **CS-4** Pattern Strategy injectConfig — `injectResolvedConfigIntoJbakeProperties()` 79→22 lignes. 3 fichiers créés (`injection/` package). **CS-5** Générifier ConfigResolver — `resolve<T>` générique + Scope pattern. 339→327 lignes. | 9/10
@@ -219,7 +220,7 @@ _Localisation active_ : `.agents/backup/Y2026-sessions-051-060/` (rotation sessi
 *Priorite P0* : ✅ Tous les EPICs de réparation terminés (EPIC 15, 16, 17)
 *Charge complétée* : CS-FIN-1/2/3/4 = 7.5 pts ✅ (S080-081, S085)
 *Charge post-v1.0* : CS-FIN-5→10 + ARROW-1 = 12 pts (~4-6 sessions). Voir `BACKLOG.adoc`.
-*Prochaine session* : 086 — CS-FIN-5 (GenerateSiteService) ou CS-FIN-6 (GitService validation)
+*Prochaine session* : 088 — CS-FIN-7 (ConfigPrompts Reader) ou CS-FIN-8 (FileSystemManager Either)
 
 === Code Smells — Historique CODE_REVIEW v2 (12/12 ✅ résolus)
 
@@ -260,8 +261,8 @@ _Localisation active_ : `.agents/backup/Y2026-sessions-051-060/` (rotation sessi
 | CS-20 | 🟡 P2 | ✅ S081 | Extraction `createLlmServiceIfEnabled()` | CS-FIN-3
 | CS-18 | 🟢 P3 | ✅ Accepté | BakeryExtension 11 DSL blocks | —
 | CS-25 | 🟠 P1 | ✅ S085 | ConfigResolver 8 resolve* DRY → `ResolvedConfigs` | CS-FIN-4
-| CS-33 | 🟡 P2 | ☐ À faire | registerGenerateSiteTask mixing → `GenerateSiteService` | CS-FIN-5
-| CS-34 | 🟡 P2 | ☐ À faire | GitService.pushPages sans validation préalable | CS-FIN-6
+| CS-33 | 🟡 P2 | ✅ S086 | registerGenerateSiteTask mixing → `GenerateSiteService` | CS-FIN-5
+| CS-34 | 🟡 P2 | ✅ S087 | GitService.pushPages sans validation préalable | CS-FIN-6
 | CS-38 | 🟡 P2 | ☐ À faire | ConfigPrompts non testables → Reader monad | CS-FIN-7
 | CS-35 | 🟢 P3 | ☐ À faire | FileSystemManager exceptions → Either | CS-FIN-8
 | CS-36 | 🟢 P3 | ☐ À faire | BFS O(n²) → LazyList | CS-FIN-9

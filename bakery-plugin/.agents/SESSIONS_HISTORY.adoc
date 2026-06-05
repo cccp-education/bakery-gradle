@@ -1,8 +1,9 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-  _Derniere mise a jour : 2026-06-05 — Session 086_
+  _Derniere mise a jour : 2026-06-05 — Session 087_
 
   |===
+  | 087 | 2026-06-05 | refactor + TDD | CS-FIN-6 GitService PrePush Validation — DDD : `PrePushValidation` sealed class (Valid, RemoteNotConfigured, ContentAbsent) + `validatePrePush()` fonction pure. TDD : 4 UT RED→GREEN (remote OK, remote absent, empty content, nonexistent dir). Refactor : intégration dans `pushPages()` en amont du copy+push. 15/15 GitServiceTest PASS. | 9/10
   | 086 | 2026-06-05 | refactor + TDD | CS-FIN-5 GenerateSiteService Extraction — DDD : `bakery/site/GenerateSiteService.kt` object pur (6 fonctions, zéro Gradle). TDD : 15 tests unitaires RED→GREEN (ResourcePath, Description, SiteYml, GitIgnore, GitAttributes, InjectConfig). Refactor : suppression 7 méthodes privées SiteTaskRegistrar, 331→203 lignes (-38%), imports nettoyés. BDD Cucumber reporté. 706+ JUnit5 PASS. | 9/10
   | 085 | 2026-06-05 | refactor + DDD/TDD/BDD | CS-FIN-4 ConfigResolver DRY Refactor — Baby steps 5/5. DDD : ResolvedConfigs data class + ConfigResolutionError sealed class. TDD : 15 JUnit5 tests (ResolveAllConfigs 5, AccummulatesErrors 1, DataClass 2, ConfigResolutionError 4, ToResolverIntegration 3). BDD : Feature 29 Cucumber (3 scénarios). Refactor : SiteTaskRegistrar 8 resolve* + when 33 lignes → 3 lignes (resolveAll + toResolver). 691+ JUnit5 PASS, 0 régression. | 9/10
   | 084 | 2026-06-05 | governance + audit | Enrichissement Backlog + TODO post Code Review V3. Lecture corpus complet (PROMPT_REPRISE, AGENT, BACKLOG, TODO, INDEX, SESSIONS_HISTORY, CODE_REVIEW v2, last_code_review V3 1508 lignes). Analyse croisée 15 smells V3 → 7 déjà résolus, 8 inédits. BACKLOG.adoc 214→343 lignes (+7 EPICs : CS-FIN-4→10 + ARROW-1). TODO.adoc 14→25 lignes (+8 items). Correction Arrow-kt 1.2.4 → 2.2.3. Synthèse : 4.5 pts ✅, 15 pts post-v1.0. Score santé 8.5/10. | 9/10

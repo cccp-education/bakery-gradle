@@ -30,6 +30,23 @@ object GitService {
     *.jar           binary
     """
 
+    sealed class PrePushValidation {
+        data object Valid : PrePushValidation()
+        data object RemoteNotConfigured : PrePushValidation()
+        data object ContentAbsent : PrePushValidation()
+    }
+
+    fun validatePrePush(
+        destPath: () -> String,
+        git: GitPushConfiguration
+    ): PrePushValidation {
+        if (git.repo.repository.isBlank()) return PrePushValidation.RemoteNotConfigured
+        val dest = File(destPath())
+        if (!dest.exists() || !dest.isDirectory || dest.listFiles()?.isEmpty() != false)
+            return PrePushValidation.ContentAbsent
+        return PrePushValidation.Valid
+    }
+
     sealed class FileOperationResult {
         sealed class GitOperationResult {
             data class Success(
@@ -49,6 +66,24 @@ object GitService {
         git: GitPushConfiguration,
         logger: Logger
     ) {
+        when (validatePrePush(destPath, git)) {
+            PrePushValidation.RemoteNotConfigured -> {
+                logger.error("Git push validation failed: repository URL is not configured.")
+                throw IllegalStateException(
+                    "Repository URL is not configured. Set git.repo.repository in site.yml or via DSL."
+                )
+            }
+
+            PrePushValidation.ContentAbsent -> {
+                logger.error("Git push validation failed: no content found in ${destPath()}.")
+                throw IllegalStateException("No baked content to deploy. Run the bake task first.")
+            }
+
+            PrePushValidation.Valid -> {
+                logger.info("Pre-push validation passed.")
+            }
+        }
+
         val repoDir: File = createRepoDir(pathTo(), logger)
         try {
             when (val copyResult = copyBakedFilesToRepo(destPath(), repoDir, logger)) {

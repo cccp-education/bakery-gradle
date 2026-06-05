@@ -1,6 +1,22 @@
 = COMPLETED_TASKS_ARCHIVE — Juin 2026
 
-== Session 084 — Enrichissement Backlog + TODO post Code Review V3 (2026-06-05)
+== Session 087 — CS-FIN-6 GitService PrePush Validation (2026-06-05)
+
+* [x] DDD : `PrePushValidation` sealed class (Valid, RemoteNotConfigured, ContentAbsent) + `validatePrePush()` fonction pure
+* [x] TDD : 4 tests unitaires `ValidatePrePushTest` (remote OK, remote absent, empty content, nonexistent dir) — RED→GREEN
+* [x] Refactor : Intégration `validatePrePush()` dans `pushPages()` — 3 branches (Valid/RemoteNotConfigured/ContentAbsent) avec IllegalStateException explicites
+* [x] 15/15 GitServiceTest PASS — 4 nouveaux + 11 existants inchangés
+* [x] Full test suite PASS (0 régression)
+* [x] Compilation ✅, publishToMavenLocal OK, Gradle 9.5.1, Kotlin 2.3.20, Java 24, zéro warning
+* [x] BACKLOG + INDEX + PROMPT_REPRISE + SESSIONS_HISTORY + TEST_COVERAGE_ANALYSIS + archives mis à jour
+
+=== Fichiers modifiés
+- `GitService.kt` : +22 lignes (PrePushValidation sealed class + validatePrePush + intégration pushPages)
+- `GitServiceTest.kt` : +69 lignes (ValidatePrePushTest nested class avec 4 tests)
+
+=== CS-FIN complétés : 6/10 ✅ | Restant : CS-FIN-7→10 + ARROW-1 = 11 pts
+
+== Session 086 — CS-FIN-5 GenerateSiteService Extraction (2026-06-05)
 
 * [x] Lecture corpus complet bakery (PROMPT_REPRISE, AGENT, BACKLOG, TODO, INDEX, SESSIONS_HISTORY, CODE_REVIEW v2 500 lignes, last_code_review V3 1508 lignes)
 * [x] Analyse croisée 15 code smells V3 (CS-25→38 + ARROW-1) → 7 déjà résolus (CS-FIN-1/2/3), 8 inédits

@@ -2,30 +2,29 @@
 
 == Mission en cours
 
-**Session 086 TERMINÉE** — CS-FIN-5 GenerateSiteService extraction (DDD/TDD).
-Service pur testable + 15 tests unitaires + SiteTaskRegistrar -128 lignes (-38%).
+*Session 087 TERMINÉE* — CS-FIN-6 GitService PrePush Validation (DDD/TDD).
+PrePushValidation sealed class + validatePrePush() + 4 UT + intégration pushPages().
 
 == Statut
 
-- EPICs : 28/28 ✅ (100%) + CS-FIN-1/2/3/4/5 ✅ + CS-FIN-6→10 ☐ + ARROW-1 ☐
-- Code smells : CS historiques ✅ + CS-FIN-1/2/3/4/5 ✅ (9 pts)
-- Tests : 706+ JUnit5 PASS (691 existants + 15 GenerateSiteServiceTest), 133~ Cucumber, 17 E2E
+- EPICs : 28/28 ✅ (100%) + CS-FIN-1/2/3/4/5/6 ✅ + CS-FIN-7→10 ☐ + ARROW-1 ☐
+- Code smells : CS historiques ✅ + CS-FIN-1/2/3/4/5/6 ✅ (10 pts)
+- Tests : 710+ JUnit5 PASS (691 + 15 S086 + 4 S087), 133~ Cucumber, 17 E2E
 - Coverage : ~76%
 - Build : zero warning, unit tests PASS
 
 == Contexte de reprise
 
-Session 086 a extrait la logique métier du doLast de registerGenerateSiteTask() dans bakery.site.GenerateSiteService :
-- 6 méthodes pures (resourcePathForType, createAndConfigureSiteYml, setupGitIgnore, setupGitAttributes, injectConfigIntoJbakeProperties, injectLensBudget)
-- 15 tests unitaires TDD
-- SiteTaskRegistrar : 331→203 lignes (-38%)
-- Cucumber Feature GenerateSiteService reportée (baby step 4 non fait)
+Session 087 a ajouté une validation pré-push dans GitService.pushPages() :
+- PrePushValidation sealed class (Valid, RemoteNotConfigured, ContentAbsent)
+- validatePrePush() fonction pure testable
+- 4 tests unitaires TDD (remote OK, remote absent, content empty, dir nonexistent)
+- Intégration dans pushPages() en amont du copy+push
 
-== Prochaine session (087)
+== Prochaine session (088)
 
-Option A : CS-FIN-6 (P2, 1 pt) — GitService.pushPages validation préalable
-Option B : CS-FIN-7 (P2, 2 pts) — ConfigPrompts testabilité Reader monad
-Option C : CS-FIN-8 (P3, 1 pt) — FileSystemManager exceptions → Either
-Option D : Switch borough
+Option A : CS-FIN-7 (P2, 2 pts) — ConfigPrompts testabilité Reader monad
+Option B : CS-FIN-8 (P3, 1 pt) — FileSystemManager exceptions → Either
+Option C : Switch borough
 
-(End of file - total 27 lines)
+(End of file - total 28 lines)
