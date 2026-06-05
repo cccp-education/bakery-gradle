@@ -2,25 +2,30 @@
 
 == Mission en cours
 
-**Session 085 TERMINÉE** — CS-FIN-4 ConfigResolver DRY Refactor (5/5 baby steps DDD/TDD/BDD).
-ResolvedConfigs + ConfigResolutionError + resolveAll() + toResolver() + refactor SiteTaskRegistrar.
+**Session 086 TERMINÉE** — CS-FIN-5 GenerateSiteService extraction (DDD/TDD).
+Service pur testable + 15 tests unitaires + SiteTaskRegistrar -128 lignes (-38%).
 
 == Statut
 
-- EPICs : 28/28 ✅ (100%) + CS-FIN-1/2/3 ✅ + CS-FIN-4 ✅ + CS-FIN-5→10 ☐ + ARROW-1 ☐
-- Code smells : 22/22 CS historiques ✅ + CS-FIN-1/2/3 ✅ + CS-FIN-4 ✅ (4.5+3=7.5 pts)
-- Tests : 691+ JUnit5 PASS (676 existants + 15 ResolvedConfigsTest), 133+ Cucumber, 17 E2E
-- Coverage : 76.15%+
+- EPICs : 28/28 ✅ (100%) + CS-FIN-1/2/3/4/5 ✅ + CS-FIN-6→10 ☐ + ARROW-1 ☐
+- Code smells : CS historiques ✅ + CS-FIN-1/2/3/4/5 ✅ (9 pts)
+- Tests : 706+ JUnit5 PASS (691 existants + 15 GenerateSiteServiceTest), 133~ Cucumber, 17 E2E
+- Coverage : ~76%
 - Build : zero warning, unit tests PASS
 
 == Contexte de reprise
 
-Session 085 a refactoré CS-FIN-4 (3 pts) : les 8 appels resolve* dans SiteTaskRegistrar
-sont remplacés par `ConfigResolver.resolveAll()` → `ResolvedConfigs` + `toResolver()`.
-Le grand `when` de 33 lignes est éliminé. 15 tests JUnit5 + Feature 29 Cucumber (3 scénarios).
+Session 086 a extrait la logique métier du doLast de registerGenerateSiteTask() dans bakery.site.GenerateSiteService :
+- 6 méthodes pures (resourcePathForType, createAndConfigureSiteYml, setupGitIgnore, setupGitAttributes, injectConfigIntoJbakeProperties, injectLensBudget)
+- 15 tests unitaires TDD
+- SiteTaskRegistrar : 331→203 lignes (-38%)
+- Cucumber Feature GenerateSiteService reportée (baby step 4 non fait)
 
-== Prochaine session (086)
+== Prochaine session (087)
 
-Option A : CS-FIN-5 (P2, 1.5 pts) — registerGenerateSiteTask mixing → `GenerateSiteService`
-Option B : CS-FIN-6 (P2, 1 pt) — GitService.pushPages validation préalable
-Option C : Switch borough
+Option A : CS-FIN-6 (P2, 1 pt) — GitService.pushPages validation préalable
+Option B : CS-FIN-7 (P2, 2 pts) — ConfigPrompts testabilité Reader monad
+Option C : CS-FIN-8 (P3, 1 pt) — FileSystemManager exceptions → Either
+Option D : Switch borough
+
+(End of file - total 27 lines)

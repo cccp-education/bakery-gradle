@@ -1,0 +1,64 @@
+= Session 086 — CS-FIN-5 GenerateSiteService Extraction
+:date: 2026-06-05
+:type: refactor + TDD
+:score: 9/10
+:epic: CS-FIN-5
+
+== Objectif
+
+Extraire la logique métier du `doLast` de `registerGenerateSiteTask()` dans un service pur testable.
+
+== Baby Steps DDD/TDD/BDD
+
+=== Baby Step 1 — DDD (GenerateSiteService)
+
+`bakery/site/GenerateSiteService.kt` — object Kotlin pur, zéro dépendance Gradle :
+- `resourcePathForType(siteType)` — remplace la méthode privée
+- `defaultSiteDescription(siteType)` — remplace la méthode privée
+- `createAndConfigureSiteYml(siteYmlFile, siteType)` — extrait de `createAndConfigureSiteYml(Project...)`
+- `setupGitIgnore(targetDir): Boolean` — extrait de `setupGitIgnore(Project...)`
+- `setupGitAttributes(targetDir): Boolean` — extrait de `setupGitAttributes(Project...)`
+- `injectConfigIntoJbakeProperties(targetDir, site, resolvedConfigs, augmentedContext?)` — fusionne `injectResolvedConfigIntoJbakeProperties` + `injectLensBudgetIntoJbakeProperties`
+
+=== Baby Step 2 — TDD (15 tests RED→GREEN)
+
+`GenerateSiteServiceTest.kt` — 5 @Nested, 15 tests PASS :
+- ResourcePathForTypeTest (2) : BLOG→"site", BASIC→"site-basic"
+- DefaultSiteDescriptionTest (2) : contient "Blog"/"JBake", contient "Site"/"minimal"
+- CreateAndConfigureSiteYmlTest (2) : BLOG/BASIC génèrent le bon YAML
+- SetupGitIgnoreTest (3) : crée, append site.yml, déjà présent→false
+- SetupGitAttributesTest (2) : crée, déjà existant→false
+- InjectConfigIntoJbakePropertiesTest (4) : fichier absent→false, injection basique, lens enabled, lens disabled
+
+=== Baby Step 3 — Refactor SiteTaskRegistrar
+
+- Suppression de 6 méthodes privées (`resourcePathForType`, `defaultSiteDescription`, `createAndConfigureSiteYml`, `setupGitIgnore`, `setupGitAttributes`, `injectResolvedConfigIntoJbakeProperties`, `injectLensBudgetIntoJbakeProperties`)
+- `doLast` : 3 appels → `GenerateSiteService.*`
+- `copySiteResources` : injection déléguée à `GenerateSiteService.injectConfigIntoJbakeProperties`
+- SiteTaskRegistrar : 331→203 lignes (-128, -38%)
+- Nettoyage imports inutilisés (configInjectors, updateProperty, yamlMapper, GIT_ATTRIBUTES_CONTENT, separator, UTF_8)
+
+=== Baby Step 4 — BDD (reporté)
+
+Cucumber Feature pour GenerateSiteService non faite. 6 étapes de fermeture obligatoires.
+
+== Résultats
+
+- Compilation : zéro warning
+- Tests unitaires : tous PASS (dont 15 nouveaux)
+- Fonctionnels : 64/75 PASS (11 échecs préexistants hors scope)
+- Cucumber : échecs préexistants hors scope
+- Coverage : inchangé (~76%)
+
+== Fichiers modifiés
+
+- `src/main/kotlin/bakery/site/GenerateSiteService.kt` — NOUVEAU (99 lignes)
+- `src/test/kotlin/bakery/site/GenerateSiteServiceTest.kt` — NOUVEAU (250 lignes)
+- `src/main/kotlin/bakery/SiteTaskRegistrar.kt` — MODIFIÉ (332→203 lignes, -38%)
+
+== Prochaine session (087)
+
+Option A : CS-FIN-6 GitService.pushPages validation préalable (P2, 1 pt)
+Option B : CS-FIN-7 ConfigPrompts testabilité Reader monad (P2, 2 pts)
+Option C : CS-FIN-8 FileSystemManager Either (P3, 1 pt)
+Option D : Switch borough

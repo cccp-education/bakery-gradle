@@ -89,3 +89,39 @@
 | Cucumber | 85/85 PASS |
 | E2E | 17/17 PASS |
 | Build | ✅ Zéro warning |
+
+'''
+
+== Session 085 — CS-FIN-4 ConfigResolver DRY Refactor (2026-06-05)
+
+=== Tâches complétées
+
+* [x] DDD : `ResolvedConfigs` data class (8 champs) + `ConfigResolutionError` sealed class (3 variants) + `ConfigResolver.resolveAll()`
+* [x] TDD : 15 tests JUnit5 `ResolvedConfigsTest` — ResolveAllConfigs (5), AccummulatesErrors (1), DataClass (2), ConfigResolutionError (4), ToResolverIntegration (3)
+* [x] BDD : Cucumber Feature 29 `config_resolution_cascade.feature` (3 scénarios)
+* [x] Refactor : `SiteTaskRegistrar.copySiteResources()` — 8 resolve* + when 33 lignes → resolveAll() + toResolver() 3 lignes
+
+=== Métriques
+| JUnit5 | 691+ PASS |
+| Cucumber | 133+ PASS |
+| Build | ✅ Zéro warning |
+
+'''
+
+== Session 086 — CS-FIN-5 GenerateSiteService Extraction (2026-06-05)
+
+=== Tâches complétées
+
+* [x] DDD : `bakery/site/GenerateSiteService.kt` — object Kotlin pur (6 fonctions, zéro dépendance Gradle)
+* [x] TDD : 15 tests `GenerateSiteServiceTest` — ResourcePath (2), Description (2), SiteYml (2), GitIgnore (3), GitAttributes (2), InjectConfig (4)
+* [x] Refactor : Suppression 7 méthodes privées `SiteTaskRegistrar` (resourcePathForType, defaultSiteDescription, createAndConfigureSiteYml, setupGitIgnore, setupGitAttributes, injectResolvedConfigIntoJbakeProperties, injectLensBudgetIntoJbakeProperties)
+* [x] doLast + copySiteResources délégués à `GenerateSiteService.*`
+* [x] Nettoyage imports inutilisés (configInjectors, updateProperty, yamlMapper, GIT_ATTRIBUTES_CONTENT, etc.)
+* [x] SiteTaskRegistrar : 331→203 lignes (-128, -38%)
+* [ ] BDD : Cucumber Feature GenerateSiteService — reporté (baby step 4)
+
+=== Métriques
+| JUnit5 | 706+ PASS (+15 nouveaux) |
+| Cucumber | inchangé (BDD reportée) |
+| Functional | 64/75 PASS (11 échecs préexistants) |
+| Build | ✅ Zéro warning |
