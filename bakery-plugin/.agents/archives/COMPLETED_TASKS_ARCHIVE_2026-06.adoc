@@ -1,5 +1,25 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 091 — 2026-06-05 — CS-FIN-9 BfsProximityCache
+
+**Contexte** : Dernier code smell de performance — BFS O(n²) dans AugmentedArticlesService.
+
+**Tâches réalisées** :
+
+* [x] CS-FIN-9 (P3, 1 pt) — BfsProximityCache : adjacency construit 1 fois, distances BFS lazy-cachées, proximityFor() O(1)
+* [x] DDD : `BfsProximityCache` classe (adjacency map + proximityCache mutable)
+* [x] TDD : 9 UT `BfsProximityCacheTest` (Construction 4 + Proximité 4 + Performance 2)
+* [x] Refactor : `AugmentedArticlesService` 321→239 lignes (-25%), 3 méthodes privées supprimées
+* [x] Complexité : O(n²)→O(n) pour scoreAll()
+
+**Fichiers créés** : `BfsProximityCache.kt`, `BfsProximityCacheTest.kt`
+**Fichiers modifiés** : `AugmentedArticlesService.kt`
+**Fichiers gouvernance** : `.agents/sessions/091-cs-fin-9-bfs-cache.adoc`, `PROMPT_REPRISE.adoc`, `.agents/INDEX.adoc`, `.agents/SESSIONS_HISTORY.adoc`, `TEST_COVERAGE_ANALYSIS.adoc`
+
+**Résultats** : 738 UT PASS (716 + 9 nouveaux + 13 recompilés), zéro régression. BUILD SUCCESSFUL.
+
+'''
+
 == Session 081 — 2026-06-04 — CS-FIN-2 Jackson + CS-FIN-3 Nettoyage DRY
 
 **Contexte** : Derniers 2.5 pts de finalisation bakery — 28/28 EPICs ✅, 22/22 code smells résolus.

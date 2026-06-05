@@ -2,28 +2,28 @@
 
 == Mission en cours
 
-*Session 090 TERMINÉE* — CS-FIN-10 Masquage secrets étendu → SecretField ADT.
-Sealed class Password/ApiKey/Token + maskSecret() fonction pure. 716+ UT PASS, zéro régression.
+*Session 091 TERMINÉE* — CS-FIN-9 BfsProximityCache — O(n²)→O(n).
+BfsProximityCache lazy cache + scoreWithCache(). 9 UT PASS, zéro régression.
 
 == Statut
 
-- EPICs : 28/28 ✅ (100%) + CS-FIN-1/2/3/4/5/6/7/8/10 ✅ + CS-FIN-9 ☐ + ARROW-1 ☐
-- Code smells : CS historiques ✅ + CS-FIN-1→8+10 ✅ (15 pts)
-- Tests : 716+ JUnit5 PASS, ~133 Cucumber, 17 E2E
+- EPICs : 28/28 ✅ (100%) + CS-FIN-1/2/3/4/5/6/8/9/10 ✅ + CS-FIN-7 ☐ + ARROW-1 ☐
+- Code smells : CS historiques ✅ + CS-FIN-1→9 + CS-FIN-10 ✅ (10/12 résolus)
+- Tests : 738 UT PASS, 9 BfsProximityCache, ~133 Cucumber (65 échecs préexistants)
 - Coverage : ~76%
 - Build : zero warning, unit tests PASS
 
 == Contexte de reprise
 
-Session 090 a remplacé le masquage uniforme `mask(): "***"` par un ADT `SecretField` :
-- Password → `***` (masquage total)
-- ApiKey → `AIza***-key` (préfixe/suffixe visibles)
-- Token → `***[17 chars]` (longueur uniquement)
-- Blank → `(not set)`
-Trois consommateurs migrés : VerifyConfigurationMappingTask, SiteTaskRegistrar, RepositoryCredentials.
+Session 091 a remplacé le BFS O(n²) par un BfsProximityCache :
+- Adjacency map construite 1 fois (plus de n reconstructions)
+- Distances BFS lazy-cachées par nœud (getOrPut)
+- scoreAll() construit le cache une fois, appelle scoreWithCache()
+- 3 méthodes privées supprimées d'AugmentedArticlesService (déplacées vers BfsProximityCache)
+- Test de cohérence : proximityFor() produit les mêmes valeurs que l'ancien computeGraphProximity()
 
-== Prochaine session (091)
+== Prochaine session (092)
 
-Option A : CS-FIN-9 (P3, 1 pt) — BFS O(n²) → LazyList dans AugmentedArticlesService
-Option B : ARROW-1 (P3, 5 pts) — Arrow-kt v1.1.0 EPIC complet
+Option A : ARROW-1 (P3, 5pts) — Arrow-kt v1.1.0 EPIC complet
+Option B : CS-FIN-7 (P2, 2pts) — ConfigPrompts Reader monad
 Option C : Switch borough

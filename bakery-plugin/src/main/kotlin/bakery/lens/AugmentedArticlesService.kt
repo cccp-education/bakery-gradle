@@ -17,14 +17,14 @@ import kotlin.math.min
  * - Community (+0.2) : même communauté que la page courante
  * - CrossRef (+0.2) : xref AsciiDoc vérifiée (si prioritizeCrossReferences)
  *
- * Architecture :
+ * Architecture (CS-FIN-9 : cache BFS O(n) au lieu de O(n²)) :
  * ```
  * ragResults (pgvector) ───────┐
- * subgraph (graphify) ────────┼──▶ score() ──▶ ScoredNode
- * nodeTags (JBake metadata) ──┤       │
- * currentPageCommunity ─────────┘       ↓
- *                                    scoreAll()
- *                                  applyRules()
+ * subgraph (graphify) ────────┼──▶ BfsProximityCache ──▶ score() ──▶ ScoredNode
+ * nodeTags (JBake metadata) ──┤                              │
+ * currentPageCommunity ─────────┘                              ↓
+ *                                                        scoreAll()
+ *                                                      applyRules()
  * ```
  */
 class AugmentedArticlesService {
@@ -59,6 +59,33 @@ class AugmentedArticlesService {
         currentPageCommunity: String? = null,
         lensRules: LensRules = LensRules()
     ): ScoredNode {
+        val proximityCache = BfsProximityCache(subgraph)
+        return scoreWithCache(
+            nodeId = nodeId,
+            subgraph = subgraph,
+            proximityCache = proximityCache,
+            ragResults = ragResults,
+            nodeTags = nodeTags,
+            currentPageTags = currentPageTags,
+            currentPageCommunity = currentPageCommunity,
+            lensRules = lensRules
+        )
+    }
+
+    /**
+     * Score un nœud en réutilisant un cache de proximités BFS.
+     * Utilisé par [scoreAll] pour éviter la reconstruction O(n²) de l'adjacency.
+     */
+    fun scoreWithCache(
+        nodeId: String,
+        subgraph: SiteSubgraph,
+        proximityCache: BfsProximityCache,
+        ragResults: Map<String, Double> = emptyMap(),
+        nodeTags: Map<String, List<String>> = emptyMap(),
+        currentPageTags: List<String> = emptyList(),
+        currentPageCommunity: String? = null,
+        lensRules: LensRules = LensRules()
+    ): ScoredNode {
         val node = subgraph.nodes.find { it.id == nodeId }
             ?: return ScoredNode(
                 nodeId = nodeId,
@@ -72,28 +99,19 @@ class AugmentedArticlesService {
                 score = 0.0
             )
 
-        // 1. RAG Similarity (α × ragSimilarity)
         val ragSimilarity = ragResults[nodeId] ?: 0.0
-
-        // 2. Graph Proximity (β × graphProximity) — BFS distance normalisée
-        val graphProximity = computeGraphProximity(nodeId, subgraph)
-
-        // 3. Tag Overlap (γ × tagOverlap) — Jaccard index
+        val graphProximity = proximityCache.proximityFor(nodeId)
         val nodeTagList = nodeTags[nodeId] ?: emptyList()
         val tagOverlap = jaccardSimilarity(currentPageTags, nodeTagList)
-
-        // 4. Cross-ref Count (δ × crossRefCount) — agent_reference edges vers ce nœud
         val crossRefCount = subgraph.edges.count {
             it.type == "agent_reference" && (it.target == nodeId || it.source == nodeId)
         }
 
-        // Score composite pondéré (avant bonuses)
         var score = ALPHA * ragSimilarity +
             BETA * graphProximity +
             GAMMA * tagOverlap +
-            DELTA * min(1.0, crossRefCount / 3.0) // Normalisé sur 3 références
+            DELTA * min(1.0, crossRefCount / 3.0)
 
-        // Bonus communauté
         if (lensRules.communityAffinity > 0 &&
             currentPageCommunity != null &&
             node.community == currentPageCommunity
@@ -101,12 +119,10 @@ class AugmentedArticlesService {
             score += lensRules.communityAffinity
         }
 
-        // Bonus cross-reference
         if (lensRules.prioritizeCrossReferences && crossRefCount > 0) {
             score += lensRules.crossRefBonus
         }
 
-        // Clamp score dans [0.0, 1.0] (les bonuses peuvent dépasser)
         score = min(1.0, max(0.0, score))
 
         return ScoredNode(
@@ -123,15 +139,11 @@ class AugmentedArticlesService {
     }
 
     /**
-     * Score tous les nœuds du sous-graphe.
+     * Score tous les nœuds du sous-graphe — O(n) grâce au cache BFS.
      *
-     * @param subgraph Sous-graphe contenant les nœuds à scorer
-     * @param ragResults Map nodeId → similarité RAG
-     * @param nodeTags Map nodeId → liste de tags
-     * @param currentPageTags Tags de la page courante
-     * @param currentPageCommunity Communauté de la page courante
-     * @param lensRules Règles métier
-     * @return Liste de [ScoredNode] triée par score décroissant
+     * CS-FIN-9 : Construit [BfsProximityCache] une seule fois,
+     * puis l'utilise pour chaque nœud. L'adjacency map et les
+     * distances BFS sont calculées à la demande et mises en cache.
      */
     fun scoreAll(
         subgraph: SiteSubgraph,
@@ -141,11 +153,13 @@ class AugmentedArticlesService {
         currentPageCommunity: String? = null,
         lensRules: LensRules = LensRules()
     ): List<ScoredNode> {
+        val proximityCache = BfsProximityCache(subgraph)
         return subgraph.nodes
             .map { node ->
-                score(
+                scoreWithCache(
                     nodeId = node.id,
                     subgraph = subgraph,
+                    proximityCache = proximityCache,
                     ragResults = ragResults,
                     nodeTags = nodeTags,
                     currentPageTags = currentPageTags,
@@ -182,102 +196,6 @@ class AugmentedArticlesService {
 
             draftOk && tagsOk
         }
-    }
-
-    // ──────────────────────────────────────────────────
-    // Méthodes privées — Calculs de proximité
-    // ──────────────────────────────────────────────────
-
-    /**
-     * Calcule la proximité graphique normalisée [0.0–1.0] depuis un nœud source.
-     *
-     * Distance BFS → proximité inverse.
-     * - distance 0 (le nœud lui-même) = 1.0
-     * - distance 1 (voisins directs) = 0.7
-     * - distance 2 = 0.4
-     * - distance 3+ = 0.1
-     * - impossible d'atteindre = 0.0
-     *
-     * @param nodeId Nœud cible (distance depuis le nœud avec le plus court chemin depuis les autres)
-     * Attendu : on passe le nodeId de la page courante comme source implicite,
-     * mais ici on calcule la "centralité" relative dans le graphe.
-     */
-    private fun computeGraphProximity(
-        nodeId: String,
-        subgraph: SiteSubgraph
-    ): Double {
-        // Si le nœud n'est pas dans le sous-graphe → 0
-        if (nodeId !in subgraph.nodeIds) return 0.0
-
-        // BFS depuis le nœud pour calculer les distances vers tous les autres
-        val distances = bfsDistances(nodeId, subgraph)
-
-        // Proximité moyenne pondérée : plus c'est proche de beaucoup de nœuds, plus c'est haut
-        if (distances.isEmpty()) return 1.0 // nœud isolé mais présent
-
-        val totalNodes = subgraph.nodes.size.toDouble()
-        if (totalNodes <= 1) return 1.0
-
-        val proximityScore = distances.values.sumOf { distance ->
-            when {
-                distance == 0 -> 1.0
-                distance == 1 -> 0.7
-                distance == 2 -> 0.4
-                distance >= 3 -> 0.1
-                else -> 0.0
-            }
-        } / totalNodes
-
-        return min(1.0, proximityScore)
-    }
-
-    /**
-     * BFS distances depuis un nœud source dans le sous-graphe.
-     * Retourne une map nodeId → distance en nombre d'edges.
-     * Limite à [maxBfsDepth] sauts.
-     */
-    private fun bfsDistances(
-        sourceId: String,
-        subgraph: SiteSubgraph
-    ): Map<String, Int> {
-        val adjacency = buildAdjacency(subgraph)
-        val distances = mutableMapOf<String, Int>()
-        val queue = ArrayDeque<String>()
-        val visited = mutableSetOf<String>()
-
-        queue.add(sourceId)
-        visited.add(sourceId)
-        distances[sourceId] = 0
-
-        while (queue.isNotEmpty()) {
-            val current = queue.removeFirst()
-            val currentDepth = distances[current] ?: 0
-            for (neighbor in adjacency[current] ?: emptyList()) {
-                if (neighbor !in visited) {
-                    visited.add(neighbor)
-                    distances[neighbor] = currentDepth + 1
-                    queue.add(neighbor)
-                }
-            }
-        }
-
-        return distances
-    }
-
-    /**
-     * Construit une map d'adjacence bidirectionnelle depuis le sous-graphe.
-     */
-    private fun buildAdjacency(subgraph: SiteSubgraph): Map<String, List<String>> {
-        val adjacency = mutableMapOf<String, MutableList<String>>()
-        for (edge in subgraph.edges) {
-            adjacency.getOrPut(edge.source) { mutableListOf() }.add(edge.target)
-            adjacency.getOrPut(edge.target) { mutableListOf() }.add(edge.source)
-        }
-        // Assurer que tous les nœuds ont une entrée (même isolés)
-        for (node in subgraph.nodes) {
-            adjacency.getOrPut(node.id) { mutableListOf() }
-        }
-        return adjacency
     }
 
     /**

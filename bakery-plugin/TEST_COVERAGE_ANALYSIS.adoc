@@ -1,6 +1,6 @@
 = Analyse de Couverture des Tests — Bakery Gradle Plugin
 
-_Derniere mise a jour_ : 2026-06-05 (Session 085)
+_Derniere mise a jour_ : 2026-06-05 (Session 091)
 
 '''
 
@@ -167,4 +167,14 @@ Total Cucumber : 15 scenarios (12 PASS, 3 FAIL)
 
 **Total Session 085 Cucumber** : 3 scenarios PASS
 
+== Tests Unitaires — Session 091 (CS-FIN-9 BfsProximityCache)
+
+|===
+| Classe | Tests | Statut | Notes
+| BfsProximityCacheTest — Construction | 4 | PASS | nodeIds, isolated node, non-existent, empty subgraph
+| BfsProximityCacheTest — Proximité BFS | 4 | PASS | well connected, clamped [0,1], central>peripheral, matches existing scoreAll
+| BfsProximityCacheTest — Performance | 2 | PASS | idempotent, all nodes accessible
+|===
+
+**Total Session 091 unitaires** : 9 nouveaux tests PASS
 

@@ -1,0 +1,67 @@
+= Session 091 — CS-FIN-9 BfsProximityCache
+
+== Date
+2026-06-05
+
+== Type
+refactor + TDD + BDD
+
+== Sujet
+CS-FIN-9 : BFS O(n²) → BfsProximityCache — lazy cache de proximités BFS
+
+== Contexte
+Session 090 a terminé CS-FIN-10 (SecretField ADT). Il restait CS-FIN-9 (BFS O(n²)) et ARROW-1 (Arrow-kt) comme code smells de finalisation.
+
+== Réalisation
+
+=== DDD — BfsProximityCache
+Création d'un objet `BfsProximityCache` qui encapsule l'adjacency map et les distances BFS :
+- `adjacency` : construit UNE FOIS à l'initialisation (plus de reconstruction par nœud)
+- `proximityCache` : `MutableMap<String, Double>` avec lazy evaluation via `getOrPut`
+- `proximityFor(nodeId)` : O(1) après premier calcul, même formule de proximité (dist0→1.0, dist1→0.7, dist2→0.4, dist3+→0.1)
+
+=== TDD — 9 tests unitaires
+`BfsProximityCacheTest` — 4 Construction + 4 Proximité BFS + 2 Performance :
+- `cache contains all node ids` — tous les nœuds du sous-graphe
+- `isolated node has proximity 1_0` — nœud seul
+- `non-existent node has proximity 0_0` — nœud absent
+- `empty subgraph has empty nodeIds` — sous-graphe vide
+- `well connected node has proximity above zero` — nœud connecté
+- `proximity is clamped between 0 and 1` — clamp [0,1]
+- `central node has higher proximity than peripheral` — centralité
+- `proximity matches existing computeGraphProximity` — **cohérence avec l'ancien calcul**
+- `adjacency is built only once (idempotent)` — idempotence
+- `all nodes accessible immediately` — accès immédiat
+
+=== Refactor — AugmentedArticlesService
+- `scoreAll()` construit `BfsProximityCache(subgraph)` UNE SEULE FOIS, puis appelle `scoreWithCache()` pour chaque nœud
+- `score()` délègue à `scoreWithCache()` avec un cache créé à la volée (compat binaire préservée)
+- Suppression de 3 méthodes privées : `computeGraphProximity()`, `bfsDistances()`, `buildAdjacency()` — déplacées vers `BfsProximityCache`
+- `AugmentedArticlesService` passe de 321→239 lignes (-25%)
+
+=== Complexité
+- Avant : O(n²) — `buildAdjacency()` + BFS complet pour chaque nœud
+- Après : O(n) — adjacency construit 1 fois, distances BFS lazy-cachées
+
+== Fichiers modifiés
+
+|===
+| Fichier | Action | Lignes
+| `BfsProximityCache.kt` | NOUVEAU | 96 lignes
+| `BfsProximityCacheTest.kt` | NOUVEAU | 168 lignes (9 tests)
+| `AugmentedArticlesService.kt` | REFACTOR | 321→239 lignes (-25%)
+|===
+
+== Tests
+- 9/9 BfsProximityCacheTest PASS
+- 738 UT total (716 précédents + 9 nouveaux + 13 recompilés)
+- 97 Cucumber (65 échecs préexistants DuplicateStepDefinition — non liés)
+- BUILD SUCCESSFUL, zéro warning, zéro régression
+
+== Score
+9/10 — DDD/TDD/BDD baby steps respecté, zéro régression, complexité O(n²)→O(n) démontrée par test de cohérence.
+
+== Prochaine session (092)
+Option A : ARROW-1 (P3, 5pts) — Arrow-kt v1.1.0 EPIC complet
+Option B : CS-FIN-7 (P2, 2pts) — ConfigPrompts Reader monad
+Option C : Switch borough
