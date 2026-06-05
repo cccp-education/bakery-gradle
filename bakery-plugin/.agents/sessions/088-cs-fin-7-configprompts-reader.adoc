@@ -1,0 +1,43 @@
+= Session 088 — CS-FIN-7 ConfigPrompts Testabilité Reader Monad
+:type: refactor + TDD
+:date: 2026-06-05
+:score: 9/10
+:epic: CS-FIN-7 (P2, 2 pts)
+
+== Objectif
+Rendre `ConfigPrompts.getOrPrompt()` testable en extrayant les side effects
+(print/readLine/console.readPassword) via une data class `ConfigPromptEnvironment`
+injectable.
+
+== Baby Steps DDD/TDD
+
+=== Step 1 — DDD : ConfigPromptEnvironment data class
+`ConfigPrompts.ConfigPromptEnvironment` data class :
+- `readInput: () → String?` — lecture input standard
+- `readPassword: () → CharArray?` — lecture mot de passe masqué
+- `writeOutput: (String) → Unit` — écriture output
+- `logger: Logger` — journalisation
+
+`companion object.defaultFor(logger)` : factory détectant `System.console()`.
+
+=== Step 2 — DDD : resolveConfigValue() fonction pure
+`ConfigPrompts.resolveConfigValue(env, project, propertyName, cliProperty, ...)` —
+toute la logique métier extraite en fonction prenant l'environnement en paramètre.
+`getOrPrompt()` délègue à `resolveConfigValue()` avec `defaultFor(logger)`.
+
+=== Step 3 — TDD : 4 tests avec environnement mocké
+`ResolveConfigValueWithMockEnv` nested class :
+- `prompts interactively when no CLI env or default` ✅
+- `prompts for sensitive value via readPassword` ✅
+- `default still takes priority over interactive prompt` ✅
+- `env var takes priority over interactive prompt` ✅
+
+== Résultats
+- ConfigPrompts : 19/19 PASS (15 existants + 4 nouveaux)
+- Full test suite : 0 régression (11 FT et Cucumber pré-existants)
+- Compilation ✅ zéro warning
+- publishToMavenLocal OK
+
+== Fichiers modifiés
+- `src/main/kotlin/bakery/ConfigPrompts.kt` : +ConfigPromptEnvironment data class + resolveConfigValue() pure + getOrPrompt() → délégation
+- `src/test/kotlin/bakery/ConfigPromptsTest.kt` : +ResolveConfigValueWithMockEnv (4 tests)

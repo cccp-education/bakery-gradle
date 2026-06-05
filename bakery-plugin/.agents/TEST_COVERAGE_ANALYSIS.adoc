@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-05 — Session 087 (CS-FIN-6, +4 tests unitaires GitService, coverage ~76% inchangé)_
+_Dernière mise à jour : 2026-06-05 — Session 088 (CS-FIN-7, +4 tests unitaires ConfigPrompts, coverage ~76% inchangé)_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -46,6 +46,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 [cols="2,2,2,3,3"]
 |===
 | Session | Date | Kover % | Tests PASS | Notes
+| 088 | 2026-06-05 | *Non mesuré* | 19/19 ConfigPromptsTest ✅ (+4 UT ResolveConfigValueWithMockEnv) | CS-FIN-7 : ConfigPromptEnvironment + resolveConfigValue() pure. 4 tests mockés (interactif, sensitive, default, env var). Full suite PASS 0 régression.
 | 087 | 2026-06-05 | *Non mesuré* | 15/15 GitServiceTest ✅ (+4 UT ValidatePrePush) | CS-FIN-6 : PrePushValidation sealed class + 4 UT + pushPages intégration. Full suite PASS, 0 régression.
 | 086 | 2026-06-05 | *Non mesuré* | 15/15 UT GenerateSiteService ✅ | CS-FIN-5 : GenerateSiteService extraction DDD/TDD. 15 UT RED->GREEN. SiteTaskRegistrar -128 lignes. Cucumber reporté.
 | 085 | 2026-06-05 | *Non mesuré* | 15/15 UT ConfigResolver DRY ✅ | CS-FIN-4 : ResolvedConfigs + resolveAll() + toResolver(). SiteTaskRegistrar 33→3 lignes.

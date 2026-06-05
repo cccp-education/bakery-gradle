@@ -3,7 +3,6 @@ package bakery
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import java.io.BufferedReader
-import java.io.Console
 import java.io.File
 import java.io.InputStreamReader
 import java.lang.System.console
@@ -20,91 +19,99 @@ object ConfigPrompts {
         sensitive: Boolean = false,
         example: String? = null,
         default: String? = null
+    ): String = resolveConfigValue(
+        ConfigPromptEnvironment.defaultFor(logger),
+        this,
+        propertyName,
+        cliProperty,
+        sensitive,
+        example,
+        default
+    )
+
+    fun resolveConfigValue(
+        env: ConfigPromptEnvironment,
+        project: Project,
+        propertyName: String,
+        cliProperty: String,
+        sensitive: Boolean = false,
+        example: String? = null,
+        default: String? = null
     ): String {
-        // 1. Vérifier les propriétés du projet (-P)
-        if (hasProperty(cliProperty)) {
-            val value = property(cliProperty) as String
-            if (value.isNotBlank()) return value
+        if (project.hasProperty(cliProperty)) {
+            val value = (project.property(cliProperty) as? String)
+            if (!value.isNullOrBlank()) return value
         }
 
-        // 2. Vérifier les variables d'environnement
-        val envVar: String = cliProperty
+        val envVar = cliProperty
             .replace(Regex(REGEX_ALPHA), REGEX_REPLACEMENT)
             .uppercase()
 
         getenv(envVar)?.takeIf { it.isNotBlank() }?.let { return it }
 
-        // 3. Utiliser la valeur par défaut si fournie
         default?.let { return it }
 
-        // 4. Demander interactivement
-        return console().let {
-            if (it != null) {
-                if (sensitive) promptSensitive(it, propertyName, logger)
-                else promptNormal(it, propertyName, example, logger)
-            } else promptFallback(propertyName, sensitive, example, logger)
-        }
+        if (sensitive) return promptSensitiveValue(env, propertyName)
+        return promptNormalValue(env, propertyName, example)
     }
 
-    private fun promptSensitive(
-        console: Console,
-        propertyName: String,
-        logger: Logger
+    private fun promptSensitiveValue(
+        env: ConfigPromptEnvironment,
+        propertyName: String
     ): String {
         var input: CharArray?
         do {
-            print("Enter $propertyName (hidden): ")
-            input = console.readPassword()
+            env.writeOutput("Enter $propertyName (hidden): ")
+            input = env.readPassword()
             if (input == null || input.isEmpty())
-                logger.warn("$propertyName cannot be empty. Please try again.")
+                env.logger.warn("$propertyName cannot be empty. Please try again.")
         } while (input == null || input.isEmpty())
-
-        return String(input).also {
-            input.fill('0')
-        }
+        return String(input).also { input.fill('0') }
     }
 
-    private fun promptNormal(
-        console: Console,
+    private fun promptNormalValue(
+        env: ConfigPromptEnvironment,
         propertyName: String,
-        example: String?,
-        logger: Logger
+        example: String?
     ): String {
         val exampleText = example?.let { " (e.g., $it)" } ?: ""
         var input: String?
         do {
-            print("Enter $propertyName$exampleText: ")
-            input = console.readLine()
+            env.writeOutput("Enter $propertyName$exampleText: ")
+            input = env.readInput()
             if (input.isNullOrBlank())
-                logger.warn("$propertyName cannot be empty. Please try again.")
+                env.logger.warn("$propertyName cannot be empty. Please try again.")
         } while (input.isNullOrBlank())
         return input
     }
 
-    private fun promptFallback(
-        propertyName: String,
-        sensitive: Boolean,
-        example: String?,
-        logger: Logger
-    ): String {
-        val exampleText = example?.let { " (e.g., $it)" } ?: ""
-        val sensitiveNote = if (sensitive) " (will be visible)" else ""
-
-        logger.lifecycle("Console not available. Using standard input.")
-        print("Enter $propertyName$exampleText$sensitiveNote: ")
-
-        var input: String?
-
-        val reader = BufferedReader(InputStreamReader(System.`in`))
-        do {
-            input = reader.readLine()
-            if (input.isNullOrBlank()) {
-                logger.warn("$propertyName cannot be empty. Please try again.")
-                print("Enter $propertyName$exampleText: ")
+    data class ConfigPromptEnvironment(
+        val readInput: () -> String?,
+        val readPassword: () -> CharArray?,
+        val writeOutput: (String) -> Unit,
+        val logger: Logger
+    ) {
+        companion object {
+            fun defaultFor(logger: Logger): ConfigPromptEnvironment {
+                val console = console()
+                val fallbackReader = BufferedReader(InputStreamReader(System.`in`))
+                return if (console != null) {
+                    ConfigPromptEnvironment(
+                        readInput = { console.readLine() },
+                        readPassword = { console.readPassword() },
+                        writeOutput = { print(it) },
+                        logger = logger
+                    )
+                } else {
+                    ConfigPromptEnvironment(
+                        readInput = { fallbackReader.readLine() },
+                        readPassword = { null },
+                        writeOutput = { print(it); logger.lifecycle("Console not available. Using standard input.") },
+                        logger = logger
+                    )
+                }
             }
-        } while (input.isNullOrBlank())
-
-        return input
+        }
     }
 
     /**

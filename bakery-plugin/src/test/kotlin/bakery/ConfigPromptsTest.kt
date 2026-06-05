@@ -2,10 +2,12 @@ package bakery
 
 import org.assertj.core.api.Assertions.assertThat
 import org.gradle.api.Project
+import org.gradle.api.logging.Logger
 import org.junit.jupiter.api.*
 import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.api.parallel.Execution
 import org.junit.jupiter.api.parallel.ExecutionMode
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import java.io.File
@@ -20,10 +22,11 @@ class ConfigPromptsTest {
     ): Project = mock {
         whenever(it.hasProperty(cliProperty)).thenReturn(hasProp)
         if (value != null) whenever(it.property(cliProperty)).thenReturn(value)
+        whenever(it.logger).thenReturn(mock())
     }
 
     private fun mockProjectNoProps(): Project = mock {
-        whenever(it.hasProperty(org.mockito.kotlin.any())).thenReturn(false)
+        whenever(it.hasProperty(any())).thenReturn(false)
         whenever(it.logger).thenReturn(mock())
     }
 
@@ -54,6 +57,7 @@ class ConfigPromptsTest {
         fun `not called when -P is not present`() {
             val project = mock<Project> {
                 whenever(it.hasProperty("githubRepo")).thenReturn(false)
+                whenever(it.logger).thenReturn(mock())
             }
             val result = with(ConfigPrompts) {
                 project.getOrPrompt("GitHub Repo", "githubRepo", default = "from-default")
@@ -215,6 +219,82 @@ class ConfigPromptsTest {
 
             // File should be unchanged when no credentials provided
             assertThat(File(tempDir, "site.yml").readText()).isEqualTo(originalContent)
+        }
+    }
+
+    // =========================================================================
+    // resolveConfigValue with mock environment (CS-FIN-7)
+    // =========================================================================
+
+    @Nested
+    inner class ResolveConfigValueWithMockEnv {
+
+        private val silentOutput: (String) -> Unit = {}
+        private val mockLogger: Logger = mock {
+            whenever(it.info(any())).then {}
+            whenever(it.warn(any())).then {}
+            whenever(it.lifecycle(any())).then {}
+        }
+
+        private fun envWithInput(
+            input: () -> String?,
+            password: () -> CharArray? = { null },
+            output: (String) -> Unit = silentOutput,
+            logger: Logger = mockLogger
+        ) = ConfigPrompts.ConfigPromptEnvironment(
+            readInput = input,
+            readPassword = password,
+            writeOutput = output,
+            logger = logger
+        )
+
+        @Test
+        fun `prompts interactively when no CLI env or default`() {
+            val project = mockProjectNoProps()
+            val env = envWithInput(input = { "my-answer" })
+
+            val result = ConfigPrompts.resolveConfigValue(env, project, "Name", "name")
+
+            assertThat(result).isEqualTo("my-answer")
+        }
+
+        @Test
+        fun `prompts for sensitive value via readPassword`() {
+            val project = mockProjectNoProps()
+            val env = envWithInput(
+                input = { null },
+                password = { "secret123".toCharArray() }
+            )
+
+            val result = ConfigPrompts.resolveConfigValue(
+                env, project, "GitHub Token", "githubToken", sensitive = true
+            )
+
+            assertThat(result).isEqualTo("secret123")
+        }
+
+        @Test
+        fun `default still takes priority over interactive prompt`() {
+            val project = mockProjectNoProps()
+            val env = envWithInput(input = { "should-not-use-this" })
+
+            val result = ConfigPrompts.resolveConfigValue(
+                env, project, "Name", "name", default = "default-wins"
+            )
+
+            assertThat(result).isEqualTo("default-wins")
+        }
+
+        @Test
+        fun `env var takes priority over interactive prompt`() {
+            val project = mockProjectNoProps()
+            val env = envWithInput(input = { "should-not-be-called" })
+
+            val result = ConfigPrompts.resolveConfigValue(
+                env, project, "Config Path", "configPath", default = "site.yml"
+            )
+
+            assertThat(result).isEqualTo("site.yml")
         }
     }
 

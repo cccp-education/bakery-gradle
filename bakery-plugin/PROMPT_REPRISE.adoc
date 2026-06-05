@@ -2,29 +2,31 @@
 
 == Mission en cours
 
-*Session 087 TERMINÉE* — CS-FIN-6 GitService PrePush Validation (DDD/TDD).
-PrePushValidation sealed class + validatePrePush() + 4 UT + intégration pushPages().
+*Session 088 TERMINÉE* — CS-FIN-7 ConfigPrompts testabilité Reader monad.
+ConfigPromptEnvironment data class + resolveConfigValue() pure + 4 UT mockés.
 
 == Statut
 
-- EPICs : 28/28 ✅ (100%) + CS-FIN-1/2/3/4/5/6 ✅ + CS-FIN-7→10 ☐ + ARROW-1 ☐
-- Code smells : CS historiques ✅ + CS-FIN-1/2/3/4/5/6 ✅ (10 pts)
-- Tests : 710+ JUnit5 PASS (691 + 15 S086 + 4 S087), 133~ Cucumber, 17 E2E
+- EPICs : 28/28 ✅ (100%) + CS-FIN-1/2/3/4/5/6/7 ✅ + CS-FIN-8→10 ☐ + ARROW-1 ☐
+- Code smells : CS historiques ✅ + CS-FIN-1→7 ✅ (12 pts)
+- Tests : 714+ JUnit5 PASS (691 + 15 S086 + 4 S087 + 4 S088), 133~ Cucumber, 17 E2E
 - Coverage : ~76%
 - Build : zero warning, unit tests PASS
 
 == Contexte de reprise
 
-Session 087 a ajouté une validation pré-push dans GitService.pushPages() :
-- PrePushValidation sealed class (Valid, RemoteNotConfigured, ContentAbsent)
-- validatePrePush() fonction pure testable
-- 4 tests unitaires TDD (remote OK, remote absent, content empty, dir nonexistent)
-- Intégration dans pushPages() en amont du copy+push
+Session 088 a rendu ConfigPrompts testable :
+- ConfigPromptEnvironment data class (readInput, readPassword, writeOutput, logger)
+- resolveConfigValue() fonction pure injectable
+- getOrPrompt() délègue à resolveConfigValue(defaultFor(logger), ...)
+- 4 tests TDD avec environnement mocké (interactif, sensitive, default, env var)
 
-== Prochaine session (088)
+== Prochaine session (089)
 
-Option A : CS-FIN-7 (P2, 2 pts) — ConfigPrompts testabilité Reader monad
-Option B : CS-FIN-8 (P3, 1 pt) — FileSystemManager exceptions → Either
-Option C : Switch borough
+Option A : CS-FIN-8 (P3, 1 pt) — FileSystemManager exceptions → Either
+Option B : CS-FIN-9 (P3, 1 pt) — BFS O(n²) → LazyList
+Option C : CS-FIN-10 (P3, 0.5 pt) — Masquage secrets étendu
+Option D : ARROW-1 (P3, 5 pts) — Arrow-kt v1.1.0 EPIC complet
+Option E : Switch borough
 
 (End of file - total 28 lines)

@@ -1,5 +1,20 @@
 = COMPLETED_TASKS_ARCHIVE — Juin 2026
 
+== Session 088 — CS-FIN-7 ConfigPrompts Testabilité Reader Monad (2026-06-05)
+
+* [x] DDD : `ConfigPromptEnvironment` data class (readInput, readPassword, writeOutput, logger) + `resolveConfigValue()` fonction pure injectable
+* [x] Refactor : `getOrPrompt()` → délégation à `resolveConfigValue(ConfigPromptEnvironment.defaultFor(logger), ...)`
+* [x] TDD : 4 tests `ResolveConfigValueWithMockEnv` — interactif, sensitive, default prioritaire, env var prioritaire
+* [x] 19/19 ConfigPromptsTest PASS — 15 existants + 4 nouveaux
+* [x] Full test suite PASS (0 régression, 11 FT + Cucumber pré-existants)
+* [x] Compilation ✅, publishToMavenLocal OK, Gradle 9.5.1, Kotlin 2.3.20, Java 24, zéro warning
+
+=== Fichiers modifiés
+- `ConfigPrompts.kt` : +ConfigPromptEnvironment data class + resolveConfigValue() + promptSensitiveValue/promptNormalValue
+- `ConfigPromptsTest.kt` : +ResolveConfigValueWithMockEnv nested class (4 tests)
+
+=== CS-FIN complétés : 7/10 ✅ | Restant : CS-FIN-8→10 + ARROW-1 = 7.5 pts
+
 == Session 087 — CS-FIN-6 GitService PrePush Validation (2026-06-05)
 
 * [x] DDD : `PrePushValidation` sealed class (Valid, RemoteNotConfigured, ContentAbsent) + `validatePrePush()` fonction pure
