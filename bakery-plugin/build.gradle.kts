@@ -137,6 +137,10 @@ dependencies {
     libs.bundles.coroutines.get().forEach { dep ->
         add(functionalTest.implementationConfigurationName, dep)
     }
+
+    libs.bundles.jgit.get().forEach { dep ->
+        add(functionalTest.implementationConfigurationName, dep)
+    }
 }
 
 // 3. Tâche pour les tests fonctionnels

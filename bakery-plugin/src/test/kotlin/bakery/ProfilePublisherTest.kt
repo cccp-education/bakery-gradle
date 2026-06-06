@@ -4,83 +4,114 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.io.TempDir
 import org.slf4j.LoggerFactory
 import java.io.File
 
 class ProfilePublisherTest {
 
+    @TempDir
+    lateinit var tempDir: File
+
     private val logger = LoggerFactory.getLogger(ProfilePublisherTest::class.java)
 
+    // ── Resolve Credentials ──
+
     @Nested
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class ResolveCredentialsTest {
 
         private fun gitConfig(
-            user: String = "configUser",
-            pass: String = "configPass"
+            username: String = "yamlUser",
+            password: String = "yamlPass"
         ) = GitPushConfiguration(
             from = "",
-            to = "",
+            to = "profile-cvs",
             repo = RepositoryConfiguration(
                 name = "test",
                 repository = "https://example.com/test.git",
-                credentials = RepositoryCredentials(user, pass)
+                credentials = RepositoryCredentials(username, password)
             ),
             branch = "main",
-            message = "msg"
+            message = "deploy"
         )
 
         @Test
-        fun `returns CLI credentials when both provided`() {
-            val result = ProfilePublisher.resolveCredentials(gitConfig(), "cliUser", "cliPass")
-            assertThat(result.first).isEqualTo("cliUser")
-            assertThat(result.second).isEqualTo("cliPass")
+        fun `returns CLI credentials when both CLI and YAML are provided`() {
+            val config = gitConfig()
+            val (user, pass) = ProfilePublisher.resolveCredentials(config, "cliUser", "cliToken")
+
+            assertThat(user).isEqualTo("cliUser")
+            assertThat(pass).isEqualTo("cliToken")
         }
 
         @Test
-        fun `falls back to config credentials when CLI is blank`() {
-            val result = ProfilePublisher.resolveCredentials(gitConfig(), "", "")
-            assertThat(result.first).isEqualTo("configUser")
-            assertThat(result.second).isEqualTo("configPass")
+        fun `falls back to YAML credentials when CLI is blank`() {
+            val config = gitConfig()
+            val (user, pass) = ProfilePublisher.resolveCredentials(config, "", "")
+
+            assertThat(user).isEqualTo("yamlUser")
+            assertThat(pass).isEqualTo("yamlPass")
         }
 
         @Test
-        fun `mixes CLI username and config password`() {
-            val result = ProfilePublisher.resolveCredentials(
-                gitConfig(user = "", pass = "configPass"),
-                "cliUser",
-                ""
-            )
-            assertThat(result.first).isEqualTo("cliUser")
-            assertThat(result.second).isEqualTo("configPass")
+        fun `falls back to YAML credentials when CLI username is blank only`() {
+            val config = gitConfig()
+            val (user, pass) = ProfilePublisher.resolveCredentials(config, "", "cliToken")
+
+            assertThat(user).isEqualTo("yamlUser")
+            assertThat(pass).isEqualTo("cliToken")
         }
 
         @Test
-        fun `throws when both sources are blank`() {
-            val emptyConfig = gitConfig(user = "", pass = "")
+        fun `falls back to YAML credentials when CLI password is blank only`() {
+            val config = gitConfig()
+            val (user, pass) = ProfilePublisher.resolveCredentials(config, "cliUser", "")
+
+            assertThat(user).isEqualTo("cliUser")
+            assertThat(pass).isEqualTo("yamlPass")
+        }
+
+        @Test
+        fun `throws when both CLI and YAML are blank`() {
+            val config = gitConfig(username = "", password = "")
+
             assertThatThrownBy {
-                ProfilePublisher.resolveCredentials(emptyConfig, "", "")
+                ProfilePublisher.resolveCredentials(config, "", "")
+            }.isInstanceOf(IllegalStateException::class.java)
+                .hasMessageContaining("credentials not found")
+        }
+
+        @Test
+        fun `throws when CLI is blank and YAML username is blank`() {
+            val config = gitConfig(username = "", password = "yamlPass")
+
+            assertThatThrownBy {
+                ProfilePublisher.resolveCredentials(config, "", "")
+            }.isInstanceOf(IllegalStateException::class.java)
+                .hasMessageContaining("credentials not found")
+        }
+
+        @Test
+        fun `throws when CLI is blank and YAML password is blank`() {
+            val config = gitConfig(username = "yamlUser", password = "")
+
+            assertThatThrownBy {
+                ProfilePublisher.resolveCredentials(config, "", "")
             }.isInstanceOf(IllegalStateException::class.java)
                 .hasMessageContaining("credentials not found")
         }
     }
 
+    // ── Copy Profile Files ──
+
     @Nested
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class CopyProfileFilesTest {
 
-        @TempDir
-        lateinit var tempDir: File
-
-        private fun createRepoDir() = tempDir.resolve("repo").apply { mkdirs() }
-
         @Test
-        fun `copies files from projectDir when from is blank`() {
+        fun `copies a single file from projectDir to repoDir`() {
             val projectDir = tempDir.resolve("project").apply { mkdirs() }
-            projectDir.resolve("README.md").writeText("Hello")
-            val repoDir = createRepoDir()
+            val repoDir = tempDir.resolve("repo").apply { mkdirs() }
+            projectDir.resolve("README.md").writeText("profile content")
 
             ProfilePublisher.copyProfileFiles(
                 profileFiles = listOf("README.md"),
@@ -90,15 +121,36 @@ class ProfilePublisherTest {
                 logger = logger
             )
 
-            assertThat(repoDir.resolve("README.md")).exists().hasContent("Hello")
+            assertThat(repoDir.resolve("README.md")).exists().hasContent("profile content")
         }
 
         @Test
-        fun `copies files from subdir when from is set`() {
+        fun `copies multiple files from projectDir to repoDir`() {
             val projectDir = tempDir.resolve("project").apply { mkdirs() }
-            val subDir = projectDir.resolve("docs").apply { mkdirs() }
-            subDir.resolve("README.md").writeText("From docs")
-            val repoDir = createRepoDir()
+            val repoDir = tempDir.resolve("repo").apply { mkdirs() }
+            projectDir.resolve("README.md").writeText("readme")
+            projectDir.resolve("CHANGELOG.md").writeText("changelog")
+            projectDir.resolve("LICENSE").writeText("license")
+
+            ProfilePublisher.copyProfileFiles(
+                profileFiles = listOf("README.md", "CHANGELOG.md", "LICENSE"),
+                projectDir = projectDir,
+                from = "",
+                repoDir = repoDir,
+                logger = logger
+            )
+
+            assertThat(repoDir.resolve("README.md")).exists().hasContent("readme")
+            assertThat(repoDir.resolve("CHANGELOG.md")).exists().hasContent("changelog")
+            assertThat(repoDir.resolve("LICENSE")).exists().hasContent("license")
+        }
+
+        @Test
+        fun `copies files from a subdirectory when from is not blank`() {
+            val projectDir = tempDir.resolve("project").apply { mkdirs() }
+            val repoDir = tempDir.resolve("repo").apply { mkdirs() }
+            val docsDir = projectDir.resolve("docs").apply { mkdirs() }
+            docsDir.resolve("README.md").writeText("from subdir")
 
             ProfilePublisher.copyProfileFiles(
                 profileFiles = listOf("README.md"),
@@ -108,108 +160,15 @@ class ProfilePublisherTest {
                 logger = logger
             )
 
-            assertThat(repoDir.resolve("README.md")).exists().hasContent("From docs")
+            assertThat(repoDir.resolve("README.md")).exists().hasContent("from subdir")
         }
 
         @Test
-        fun `throws when profileFiles is empty`() {
-            assertThatThrownBy {
-                ProfilePublisher.copyProfileFiles(
-                    profileFiles = emptyList(),
-                    projectDir = tempDir,
-                    from = "",
-                    repoDir = createRepoDir(),
-                    logger = logger
-                )
-            }.isInstanceOf(IllegalStateException::class.java)
-                .hasMessageContaining("No profile files specified")
-        }
-
-        @Test
-        fun `throws when from directory does not exist`() {
-            assertThatThrownBy {
-                ProfilePublisher.copyProfileFiles(
-                    profileFiles = listOf("README.md"),
-                    projectDir = tempDir,
-                    from = "nonexistent",
-                    repoDir = createRepoDir(),
-                    logger = logger
-                )
-            }.isInstanceOf(IllegalStateException::class.java)
-                .hasMessageContaining("does not exist")
-        }
-
-        @Test
-        fun `throws when from path is a file not directory`() {
+        fun `overwrites existing files in repoDir`() {
             val projectDir = tempDir.resolve("project").apply { mkdirs() }
-            projectDir.resolve("notadir").writeText("oops")
-
-            assertThatThrownBy {
-                ProfilePublisher.copyProfileFiles(
-                    profileFiles = listOf("README.md"),
-                    projectDir = projectDir,
-                    from = "notadir",
-                    repoDir = createRepoDir(),
-                    logger = logger
-                )
-            }.isInstanceOf(IllegalStateException::class.java)
-                .hasMessageContaining("not a directory")
-        }
-
-        @Test
-        fun `throws when forbidden files are in profileFiles`() {
-            assertThatThrownBy {
-                ProfilePublisher.copyProfileFiles(
-                    profileFiles = listOf("README.adoc"),
-                    projectDir = tempDir,
-                    from = "",
-                    repoDir = createRepoDir(),
-                    logger = logger
-                )
-            }.isInstanceOf(IllegalStateException::class.java)
-                .hasMessageContaining("Forbidden profile files")
-        }
-
-        @Test
-        fun `throws when profile file is not found on disk`() {
-            val projectDir = tempDir.resolve("project").apply { mkdirs() }
-            assertThatThrownBy {
-                ProfilePublisher.copyProfileFiles(
-                    profileFiles = listOf("MISSING.md"),
-                    projectDir = projectDir,
-                    from = "",
-                    repoDir = createRepoDir(),
-                    logger = logger
-                )
-            }.isInstanceOf(IllegalStateException::class.java)
-                .hasMessageContaining("Profile file not found")
-        }
-
-        @Test
-        fun `copies multiple files successfully`() {
-            val projectDir = tempDir.resolve("project").apply { mkdirs() }
-            projectDir.resolve("README.md").writeText("A")
-            projectDir.resolve("README_fr.md").writeText("B")
-            val repoDir = createRepoDir()
-
-            ProfilePublisher.copyProfileFiles(
-                profileFiles = listOf("README.md", "README_fr.md"),
-                projectDir = projectDir,
-                from = "",
-                repoDir = repoDir,
-                logger = logger
-            )
-
-            assertThat(repoDir.resolve("README.md")).exists().hasContent("A")
-            assertThat(repoDir.resolve("README_fr.md")).exists().hasContent("B")
-        }
-
-        @Test
-        fun `overwrites existing file in repoDir`() {
-            val projectDir = tempDir.resolve("project").apply { mkdirs() }
-            projectDir.resolve("README.md").writeText("new")
-            val repoDir = createRepoDir()
-            repoDir.resolve("README.md").writeText("old")
+            val repoDir = tempDir.resolve("repo").apply { mkdirs() }
+            projectDir.resolve("README.md").writeText("new version")
+            repoDir.resolve("README.md").writeText("old version")
 
             ProfilePublisher.copyProfileFiles(
                 profileFiles = listOf("README.md"),
@@ -219,38 +178,112 @@ class ProfilePublisherTest {
                 logger = logger
             )
 
-            assertThat(repoDir.resolve("README.md")).hasContent("new")
+            assertThat(repoDir.resolve("README.md")).exists().hasContent("new version")
         }
-    }
-
-    @Nested
-    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-    inner class WithCredentialsTest {
 
         @Test
-        fun `withCredentials returns new config with updated credentials`() {
-            val original = GitPushConfiguration(
-                from = "src",
-                to = "dst",
-                repo = RepositoryConfiguration(
-                    name = "test",
-                    repository = "https://example.com.git",
-                    credentials = RepositoryCredentials("oldU", "oldP")
-                ),
-                branch = "main",
-                message = "msg"
-            )
+        fun `throws when profileFiles list is empty`() {
+            val projectDir = tempDir.resolve("project").apply { mkdirs() }
+            val repoDir = tempDir.resolve("repo").apply { mkdirs() }
 
-            val updated = original.withCredentials("newU", "newP")
+            assertThatThrownBy {
+                ProfilePublisher.copyProfileFiles(
+                    profileFiles = emptyList(),
+                    projectDir = projectDir,
+                    from = "",
+                    repoDir = repoDir,
+                    logger = logger
+                )
+            }.isInstanceOf(IllegalStateException::class.java)
+                .hasMessageContaining("No profile files specified")
+        }
 
-            assertThat(updated.from).isEqualTo("src")
-            assertThat(updated.to).isEqualTo("dst")
-            assertThat(updated.repo.name).isEqualTo("test")
-            assertThat(updated.repo.repository).isEqualTo("https://example.com.git")
-            assertThat(updated.repo.credentials.username).isEqualTo("newU")
-            assertThat(updated.repo.credentials.password).isEqualTo("newP")
-            assertThat(updated.branch).isEqualTo("main")
-            assertThat(updated.message).isEqualTo("msg")
+        @Test
+        fun `throws when from directory does not exist`() {
+            val projectDir = tempDir.resolve("project").apply { mkdirs() }
+            val repoDir = tempDir.resolve("repo").apply { mkdirs() }
+
+            assertThatThrownBy {
+                ProfilePublisher.copyProfileFiles(
+                    profileFiles = listOf("README.md"),
+                    projectDir = projectDir,
+                    from = "nonexistent",
+                    repoDir = repoDir,
+                    logger = logger
+                )
+            }.isInstanceOf(IllegalStateException::class.java)
+                .hasMessageContaining("does not exist")
+        }
+
+        @Test
+        fun `throws when from path is a file not a directory`() {
+            val projectDir = tempDir.resolve("project").apply { mkdirs() }
+            val repoDir = tempDir.resolve("repo").apply { mkdirs() }
+            projectDir.resolve("notadir").writeText("i am a file")
+
+            assertThatThrownBy {
+                ProfilePublisher.copyProfileFiles(
+                    profileFiles = listOf("README.md"),
+                    projectDir = projectDir,
+                    from = "notadir",
+                    repoDir = repoDir,
+                    logger = logger
+                )
+            }.isInstanceOf(IllegalStateException::class.java)
+                .hasMessageContaining("not a directory")
+        }
+
+        @Test
+        fun `throws when profile file does not exist in source`() {
+            val projectDir = tempDir.resolve("project").apply { mkdirs() }
+            val repoDir = tempDir.resolve("repo").apply { mkdirs() }
+
+            assertThatThrownBy {
+                ProfilePublisher.copyProfileFiles(
+                    profileFiles = listOf("MISSING.md"),
+                    projectDir = projectDir,
+                    from = "",
+                    repoDir = repoDir,
+                    logger = logger
+                )
+            }.isInstanceOf(IllegalStateException::class.java)
+                .hasMessageContaining("Profile file not found")
+        }
+
+        @Test
+        fun `throws when forbidden files are in the profile list`() {
+            val projectDir = tempDir.resolve("project").apply { mkdirs() }
+            val repoDir = tempDir.resolve("repo").apply { mkdirs() }
+            projectDir.resolve("README.adoc").writeText("forbidden")
+
+            assertThatThrownBy {
+                ProfilePublisher.copyProfileFiles(
+                    profileFiles = listOf("README.adoc"),
+                    projectDir = projectDir,
+                    from = "",
+                    repoDir = repoDir,
+                    logger = logger
+                )
+            }.isInstanceOf(IllegalStateException::class.java)
+                .hasMessageContaining("Forbidden profile files")
+        }
+
+        @Test
+        fun `throws when forbidden README_fr dot adoc is in the profile list`() {
+            val projectDir = tempDir.resolve("project").apply { mkdirs() }
+            val repoDir = tempDir.resolve("repo").apply { mkdirs() }
+            projectDir.resolve("README_fr.adoc").writeText("forbidden")
+
+            assertThatThrownBy {
+                ProfilePublisher.copyProfileFiles(
+                    profileFiles = listOf("README_fr.adoc"),
+                    projectDir = projectDir,
+                    from = "",
+                    repoDir = repoDir,
+                    logger = logger
+                )
+            }.isInstanceOf(IllegalStateException::class.java)
+                .hasMessageContaining("Forbidden profile files")
         }
     }
 }

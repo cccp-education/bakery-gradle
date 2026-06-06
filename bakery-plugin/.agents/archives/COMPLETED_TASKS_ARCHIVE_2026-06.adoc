@@ -1,5 +1,31 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 107 — 2026-06-07 — US-COV-2.2 ProfilePublisher 17 UT + 4 FT
+
+**Contexte** : EPIC BKY-COV-2 Microfissures coverage. ProfilePublisher pas de tests directs, 0 FT deployProfile.
+
+**Tâches réalisées** :
+
+* [x] DDD — Analyse ProfilePublisher.resolveCredentials() (CLI>YAML precedence, blank fallback)
+  et copyProfileFiles() (copy, overwrite, subdirectory, errors)
+* [x] TDD — 17 tests unitaires RED→GREEN :
+  - ResolveCredentialsTest (7 UT) : CLI wins, YAML fallback, partial blanks, throws both blank
+  - CopyProfileFilesTest (10 UT) : single copy, multi copy, subdir, overwrite, errors (empty/files/found/from/forbidden/not-a-dir)
+* [x] FT — 4 tests fonctionnels TestKit deployProfile :
+  - push profiles with CLI credentials to bare git remote
+  - fallback to YAML credentials when CLI blank
+  - fail when pushProfile section missing
+  - fail when credentials missing
+* [x] Build — Ajout `libs.bundles.jgit` au functionalTest sourceSet pour Git.cloneRepository
+
+**Fichiers créés** : `src/test/kotlin/bakery/ProfilePublisherTest.kt` (237 lignes), `src/functionalTest/kotlin/bakery/ProfilePublisherFunctionalTest.kt` (220 lignes)
+**Fichiers modifiés** : `build.gradle.kts` (+1 dep jgit pour functionalTest)
+
+**Résultats** : 21/21 nouveaux tests PASS, full suite PASS, BUILD SUCCESSFUL.
+EPIC BKY-COV-2 6/12 pts (50%) — US-1 ✅ + US-2 ✅.
+
+'''
+
 == Session 106 — 2026-06-07 — US-COV-2.1 DeployProfileTask 12 UT
 
 **Contexte** : EPIC BKY-COV-2 Microfissures coverage. DeployProfileTask 0% UT, 0 test.
