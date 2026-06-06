@@ -1,0 +1,68 @@
+= Session 100 — US-KOV-2 GenerateThemeTask 0% → 95.7%
+:date: 2026-06-06
+:type: TDD + coverage
+:score: 9/10
+
+== Objectif
+
+EPIC BKY-KOV-1 — US-KOV-2 : GenerateThemeTask 0% → tests unitaires.
+Cible >= 80% d'instructions. ~629 instructions manquées.
+
+== Baby Steps DDD/TDD
+
+=== DDD — Analyse du domaine theme
+
+Fichiers lus :
+- `bakery/theme/GenerateThemeTask.kt` (245 lignes) — tâche Gradle, 6 propriétés CLI + DSL.
+- `bakery/theme/ThemeCatalog.kt` (145 lignes) — 5 variantes MINIMAL/MAGAZINE/DOCUMENTATION/PORTFOLIO/FORMATION.
+- `bakery/theme/ThemeVariant.kt` (29 lignes) — enum avec fromStringOrDefault().
+- `bakery/theme/ThemePreset.kt` (22 lignes) — data class 10 champs.
+- `bakery/theme/ThemeIntention.kt` (49 lignes) — modele DDD avec toPromptContext().
+- `bakery/theme/ThemeOverrides.kt` — data class 9 champs nullable.
+- `bakery/theme/ThemeIntentionDsl.kt` (46 lignes) — bridge Gradle → domaine.
+- `bakery/ThemeDsl.kt` (51 lignes) — DSL builder.
+
+=== TDD — GenerateThemeTaskTest
+
+Pattern suivi : GenerateArticleTaskTest (ProjectBuilder + FakeLlmService).
+19 tests dans 3 classes @Nested :
+
+*TaskRegistration (2 tests)* :
+. task registration avec group/description
+. initialisation des proprietes avec defaults vides
+
+*ResolveIntention (10 tests)* :
+. CLI description when set
+. falls back to DSL when CLI blank
+. default description quand les deux absents
+. CLI wins over DSL (description)
+. CLI variant wins over DSL
+. DSL variant when CLI blank
+. unknown variant → MINIMAL
+. CLI overrides win over DSL
+. DSL overrides when CLI blanks
+. null DSL overrides stay null
+
+*ExecuteGenerate (7 tests)* :
+. throws quand targetDir null
+. ecrit dans jbake.properties existant
+. cree nouvelles props quand key absente
+. warning quand jbake.properties manquant
+. overrides CLI colors
+. empty variant → MINIMAL fallback
+. DSL intention quand pas de CLI
+
+== Résultat
+
+- GenerateThemeTask INSTRUCTION : 0% → 95.7% (cible 80% ✅)
+- Coverage globale : 78.1% → 83.72% (+5.62pp)
+- Tous les tests PASS (JUnit5 full suite + functionalTest + Cucumber + E2E)
+- 19/19 nouveaux tests PASS
+
+== Fichiers modifiés
+
+- `src/test/kotlin/bakery/theme/GenerateThemeTaskTest.kt` (NOUVEAU, 472 lignes)
+
+== Prochaine étape
+
+Session 101 — US-KOV-3 : FileSystemManager 56% → 85% (~210 instructions).

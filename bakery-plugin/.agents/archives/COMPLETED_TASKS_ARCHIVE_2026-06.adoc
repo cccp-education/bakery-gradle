@@ -1,5 +1,28 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 100 — 2026-06-06 — US-KOV-2 GenerateThemeTask tests unitaires
+
+**Contexte** : EPIC BKY-KOV-1 Kover Coverage 90%. GenerateThemeTask etait a 0% de couverture.
+
+**Taches realisees** :
+
+* [x] DDD — Lecture du domaine theme (GenerateThemeTask, ThemeCatalog, ThemeVariant, ThemePreset, ThemeIntention, ThemeOverrides, ThemeIntentionDsl)
+* [x] TDD — GenerateThemeTaskTest 19 tests dans 3 classes @Nested:
+  - TaskRegistration (2 tests : group/description + defaults)
+  - ResolveIntention (10 tests : cascade CLI>DSL>defaults, overrides, unknown variant)
+  - ExecuteGenerate (7 tests : throw null targetDir, ecrire props, creer nouveaux, missing props, CLI overrides, empty fallback, DSL intention)
+* [x] Pattern suivi : GenerateArticleTaskTest (ProjectBuilder + FakeLlmService)
+
+**Fichiers modifies** : `src/test/kotlin/bakery/theme/GenerateThemeTaskTest.kt` (NOUVEAU, 472 lignes)
+
+**Resultats** :
+- GenerateThemeTask INSTRUCTION : 0% → 95.7% (cible >= 80% ✅)
+- Coverage globale : 78.1% → 83.72% (+5.62pp)
+- 19/19 nouveaux tests PASS — full suite PASS
+- BUILD SUCCESSFUL
+
+'''
+
 == Session 094 — 2026-06-05 — Alignement workspace-bom (MEMPHIS)
 
 **Contexte** : Bakery gérait ses dépendances en silo. Import du workspace-bom

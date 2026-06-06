@@ -2,8 +2,8 @@
 
 == Mission en cours
 
-*Session 099 TERMINÉE* — Audit Kover + réparation complète des tests.
-Tests verts (unit/fonctionnel/Cucumber), coverage 78.1% mesuré, cibles US-KOV-2→6 identifiées.
+*Session 100 TERMINÉE* — US-KOV-2 GenerateThemeTask 0% → 95.7%.
+19 tests unitaires ajoutés. Coverage globale 78.1% → 83.72% (+5.62pp).
 
 == Statut
 
@@ -12,22 +12,21 @@ Tests verts (unit/fonctionnel/Cucumber), coverage 78.1% mesuré, cibles US-KOV-2
 - BOM workspace : ✅ aligné
 - Tests : ✅ Tous PASS (JUnit5 + functionalTest + Cucumber + E2E)
 - Build : BUILD SUCCESSFUL
-- Coverage : *78.1%* (cible 90%, gap +11.9pp)
+- Coverage : *83.72%* (cible 90%, gap +6.28pp)
 
-== Prochaine session (100)
+== Prochaine session (101)
 
-=== EPIC BKY-KOV-1 — US-KOV-2 : GenerateThemeTask 0% → tests unitaires
+=== EPIC BKY-KOV-1 — US-KOV-3 : FileSystemManager 56% → 85%
 
-Priorité P0 — 629 instructions manquées, tout le package theme est à 50%.
-Fichier : `bakery/theme/GenerateThemeTask.kt`.
+Priorité P1 — ~210 instructions manquées.
+Fichier : `bakery/FileSystemManager.kt` (copier, lire, écrire, jar).
 Baby steps DDD/TDD :
-. Lire GenerateThemeTask + ThemeTemplate + ThemeCatalog
-. Écrire GenerateThemeTaskTest (mock LLM, couvrir les branches)
-. Target : 0% → ≥80%
+. Lire FileSystemManager + ses appelants (SiteTaskRegistrar, BakeryPlugin)
+. Écrire FileSystemManagerTest (copier repertoire, edge-cases permissions, jar absent)
+. Target : 56% → ≥85%
 
-=== En attente (sessions 101+)
+=== En attente (sessions 102+)
 
-- BKY-KOV-1 US-KOV-3 : FileSystemManager 56% → 85% (~210 instructions)
 - BKY-KOV-1 US-KOV-4 : GitService 66% → 85% (~120 instructions)
 - BKY-KOV-1 US-KOV-5 : BakeryPlugin 37% → 70% (~100 instructions)
 - BKY-KOV-1 US-KOV-6 : SiteScaffolder 69% → 90% (~30 instructions)
