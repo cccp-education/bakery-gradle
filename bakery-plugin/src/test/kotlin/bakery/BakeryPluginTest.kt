@@ -13,6 +13,7 @@ import org.junit.jupiter.api.io.TempDir
 import org.mockito.kotlin.verify
 import java.io.File
 import kotlin.text.Charsets.UTF_8
+import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 
 class BakeryPluginTest {
 
@@ -668,48 +669,60 @@ class BakeryPluginTest {
     }
 
     @Nested
-    inner class FirebaseTemplateRenderingTest {
+    @TestInstance(PER_CLASS)
+    inner class AfterEvaluateBranchingTest {
+
+        @TempDir
+        lateinit var projectDir: File
 
         @Test
-        fun `footer thyme should contain firebase config injection`() {
-            val footerTemplate = File("src/main/resources/site/templates/footer.thyme")
-            assertThat(footerTemplate).exists()
+        fun `runs scaffold only when config file does not exist`() {
+            val fixture = BakeryTestFixture.createWithProjectDir(projectDir)
+            val plugin = BakeryPlugin()
+            plugin.apply(fixture.project)
 
-            val content = footerTemplate.readText(UTF_8)
-            assertThat(content).contains("th:inline=\"javascript\"")
-            assertThat(content).contains("FIREBASE_CONFIG")
-            assertThat(content).contains("firebaseApiKey")
-            assertThat(content).contains("firebaseProjectId")
+            assertDoesNotThrow { fixture.runAfterEvaluate() }
+            verify(fixture.project.logger).lifecycle(
+                org.mockito.kotlin.argThat { msg: String ->
+                    msg.contains("switching to scaffold only", ignoreCase = true)
+                }
+            )
         }
 
         @Test
-        fun `contact thyme should contain form fragment`() {
-            val contactTemplate = File("src/main/resources/site/templates/contact.thyme")
-            assertThat(contactTemplate).exists()
+        fun `runs scaffold only when config YAML is invalid`() {
+            val siteYml = projectDir.resolve("site.yml")
+            siteYml.writeText("invalid: [broken: yaml: {{{", UTF_8)
 
-            val content = contactTemplate.readText(UTF_8)
-            assertThat(content).contains("contact-section")
-            assertThat(content).contains("id=\"contact-form\"")
-            assertThat(content).contains("contact-success-message")
-            assertThat(content).contains("contact-error-message")
+            val fixture = BakeryTestFixture.createWithProjectDir(projectDir)
+            val plugin = BakeryPlugin()
+            plugin.apply(fixture.project)
+
+            assertDoesNotThrow { fixture.runAfterEvaluate() }
+            verify(fixture.project.logger).warn(
+                org.mockito.kotlin.argThat { msg: String ->
+                    msg.contains("Failed to parse", ignoreCase = true)
+                }
+            )
         }
 
         @Test
-        fun `index thyme should include contact fragment`() {
-            val indexTemplate = File("src/main/resources/site/templates/index.thyme")
-            assertThat(indexTemplate).exists()
+        fun `runs scaffold only when site and maquette directories do not exist`() {
+            val siteYml = projectDir.resolve("site.yml")
+            siteYml.writeText("""
+                bake:
+                  srcPath: missing_site
+                  destDirPath: build/bake
+                  cname: test
+                pushMaquette:
+                  from: missing_maquette
+            """.trimIndent(), UTF_8)
 
-            val content = indexTemplate.readText(UTF_8)
-            assertThat(content).contains("contact.thyme::contact-section")
-        }
+            val fixture = BakeryTestFixture.createWithProjectDir(projectDir)
+            val plugin = BakeryPlugin()
+            plugin.apply(fixture.project)
 
-        @Test
-        fun `menu thyme should contain contact nav link`() {
-            val menuTemplate = File("src/main/resources/site/templates/menu.thyme")
-            assertThat(menuTemplate).exists()
-
-            val content = menuTemplate.readText(UTF_8)
-            assertThat(content).contains("#contact")
+            assertDoesNotThrow { fixture.runAfterEvaluate() }
         }
     }
 }

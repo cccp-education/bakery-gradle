@@ -2,31 +2,32 @@
 
 == Mission en cours
 
-*Session 102 TERMINÉE* — US-KOV-4 GitService 66% → 86.0%.
-Coverage globale 85.24% → 85.19%. 4 tests unitaires (3 PushPages + 1 force push).
+*Session 103 TERMINEE* — US-KOV-5 BakeryPlugin 37% → 52.8% (+15.8pp).
+Coverage globale 85.19% → 85.76%. 3 nouveaux tests unitaires.
+BakeryPluginFunctionalTests couvre le full pipeline a 89.4%.
 
 == Statut
 
 - EPICs : 28/28 ✅ (100%)
 - Code smells : 24/24 ✅
-- BOM workspace : ✅ aligné
+- BOM workspace : ✅ aligne
 - Tests : ✅ Tous PASS (JUnit5 + functionalTest + Cucumber + E2E)
 - Build : BUILD SUCCESSFUL
-- Coverage : *85.19%* (cible 90%, gap 4.81pp)
+- Coverage : *85.76%* (cible 90%, gap 4.24pp)
 
-== Prochaine session (103)
+== Prochaine session (104)
 
-=== EPIC BKY-KOV-1 — US-KOV-5 : BakeryPlugin 37% → 70%
+=== EPIC BKY-KOV-1 — US-KOV-6 : SiteScaffolder 69% → 90%
 
-Priorité P1 — ~100 instructions manquées.
-Fichier : `bakery/BakeryPlugin.kt`.
+Priorite P1 — ~30 instructions.
+Fichier : `bakery/SiteScaffolder.kt`.
 Baby steps DDD/TDD :
-. Lire BakeryPlugin + son appelant (SiteManager)
-. Écrire BakeryPluginTest complété (branches après configPath guard, scaffoldOnly, fullPipeline)
-. Target : 37% → ≥70%
+. Lire SiteScaffolder + ses appelants (BakeryPlugin.registerScaffoldOnlyTasks)
+. Identifier les branches non couvertes via Kover XML
+. Ecrire SiteScaffolderTest (siteTargetDir, validateSiteTarget, resolveSiteType edges)
+. Target : 69% → ≥90%
 
-=== En attente (sessions 104+)
+=== En attente (sessions 105+)
 
-- BKY-KOV-1 US-KOV-6 : SiteScaffolder 69% → 90% (~30 instructions)
 - BKY-KOV-1 US-KOV-7 : Validation finale + bump seuil 70→90
-- BKY-PUB-1 : Publication Maven Central + Gradle Plugin Portal (8 pts, bloqué par achat domaine cccp.education)
+- BKY-PUB-1 : Publication Maven Central + Gradle Plugin Portal (8 pts, bloque par achat domaine cccp.education)

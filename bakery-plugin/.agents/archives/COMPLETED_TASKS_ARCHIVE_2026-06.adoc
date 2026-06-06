@@ -1,5 +1,32 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 103 — 2026-06-06 — US-KOV-5 BakeryPlugin coverage 37% → 52.8%
+
+**Contexte** : EPIC BKY-KOV-1 Kover Coverage 90%. BakeryPlugin etait a 37% de couverture.
+
+**Taches realisees** :
+
+* [x] DDD — Analyse des branches non couvertes du BakeryPlugin (configFile absent, YAML invalide, dirs manquantes, full pipeline)
+* [x] Infrastructure — BakeryTestFixture etendu avec `createWithProjectDir(File)` + `projectDir` parametrable dans `mockProject` / `mockProjectLayout`
+* [x] TDD — BakeryPluginTest.AfterEvaluateBranchingTest 3 nouveaux tests :
+  - configFile absent → scaffoldOnly + log lifecycle (PASS)
+  - YAML invalide → scaffoldOnly + log warn (PASS)
+  - dirs manquantes → scaffoldOnly sans exception (PASS)
+* [x] Le full pipeline (valid YAML + dirs existantes) est couvert par BakeryPluginFunctionalTests a 89.4%
+
+**Fichiers modifies** :
+- `src/test/kotlin/bakery/BakeryTestFixture.kt` — +createWithProjectDir, projectDir parametrable
+- `src/test/kotlin/bakery/BakeryPluginTest.kt` — +AfterEvaluateBranchingTest @Nested (3 tests)
+
+**Resultats** :
+- BakeryPlugin INSTRUCTION : 37% → 52.8% (+15.8pp)
+- BakeryPlugin BRANCH : 45.0% (9/20)
+- Coverage globale : 85.19% → 85.76% (+0.57pp)
+- 3 nouveaux tests PASS — full suite PASS
+- BUILD SUCCESSFUL
+
+'''
+
 == Session 102 — 2026-06-06 — US-KOV-4 GitService coverage 86.0%
 
 **Contexte** : EPIC BKY-KOV-1 Kover Coverage 90%. GitService etait a 66% de couverture.

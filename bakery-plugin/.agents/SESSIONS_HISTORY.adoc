@@ -1,8 +1,10 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-  _Derniere mise a jour : 2026-06-06 — Session 102_
+  _Derniere mise a jour : 2026-06-06 — Session 103_
 
   |===
+  | 103 | 2026-06-06 | TDD + coverage | **US-KOV-5** BakeryPlugin 37% → 52.8% — TDD : 3 nouveaux tests (configFile absent + YAML invalide + dirs manquants). BakeryTestFixture etendu (createWithProjectDir + projectDir parametrable). Coverage globale 85.19% → 85.76% (+0.57pp). BakeryPluginFunctionalTests couvre le full pipeline a 89.4%. | 8/10
+
   | 102 | 2026-06-06 | TDD + coverage | **US-KOV-4** GitService 66% → 86.0% — TDD : 4 nouveaux tests (3 PushPages : succès + RemoteNotConfigured + ContentAbsent ; 1 forcePush sans history). GitService : 485/564 insn. Coverage globale 85.19% (gap cible 90%: 4.81pp). 19/19 GitServiceTest PASS, full suite PASS. | 9/10
   | 101 | 2026-06-06 | TDD + coverage | **US-KOV-3** FileSystemManager 56% → 90.45% — DDD : extraction copyFromJarUrl/copyFromFileSystemUrl/copyFromResourceUrl internes + suppression dead code privé. TDD : 23 tests unitaires (copyFromJar 5 + copyFromFS 3 + copyFromResourceUrl dispatch 1 + existants 14). Coverage globale 78.1%→85.24% (+7.14pp). Tous tests PASS. BUILD SUCCESSFUL. | 9/10
   | 100 | 2026-06-06 | TDD + coverage | **US-KOV-2** GenerateThemeTask 0% → 95.7% — 19 tests (TaskRegistration 2 + ResolveIntention 10 + ExecuteGenerate 7). DDD/TDD baby steps. Coverage globale 78.1%→83.72% (+5.62pp). Tous tests PASS. | 9/10

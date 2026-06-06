@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-06 — Session 102 (US-KOV-4 GitService 86.0%)
-  _Session terminee_ : 102
-  _Prochaine session_ : 103 — BKY-KOV-1 US-KOV-5 BakeryPlugin 37% → 70%
+  _Derniere mise a jour_ : 2026-06-06 — Session 103 (US-KOV-5 BakeryPlugin 52.8%)
+  _Session terminee_ : 103
+  _Prochaine session_ : 104 — US-KOV-6 SiteScaffolder 69% → 90%
   _Session en cours_ : — (fermee)
 
 '''
@@ -70,6 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 103 | 2026-06-06 | TDD + coverage | **US-KOV-5** BakeryPlugin 37% → 52.8% — 3 tests (configFile absent/YAML invalide/dirs manquants). BakeryTestFixture étendu. Coverage 85.19%→85.76%. FT couvre full pipeline 89.4%. | 8/10
   | 102 | 2026-06-06 | TDD + coverage | **US-KOV-4** GitService 66% → 86.0% — TDD : 4 nouveaux tests (3 PushPages succès/RemoteNotConfigured/ContentAbsent + 1 forcePush sans history). Coverage globale 85.19% (gap cible 90%: 4.81pp). 19/19 GitServiceTest PASS. | 9/10
   | 101 | 2026-06-06 | TDD + coverage | **US-KOV-3** FileSystemManager 56% → 90.45% — 23 tests unitaires (copyFromJarUrl 5 + copyFromFS 3 + copyFromResourceUrl dispatch 1). Coverage globale 78.1%→85.24% (+7.14pp). | 9/10
   | 100 | 2026-06-06 | TDD + coverage | **US-KOV-2** GenerateThemeTask 0→95.7% — 19 tests (TaskRegistration + ResolveIntention + ExecuteGenerate). Coverage globale 78.1→83.72%. Tous tests PASS. | 9/10
@@ -305,7 +306,7 @@ Zéro dette technique. Prêt à switcher de borough.
 
 |===
 | EPIC | Progression | Priorite
-| BKY-KOV-1 : Kover Coverage 77% → 90% (+13%) | 50% | *P0 🔄 US-1 ✅, US-KOV-2 ✅, US-KOV-3 ✅, US-KOV-4 ✅, US-KOV-5→7 restantes (~2 sessions)*
+| BKY-KOV-1 : Kover Coverage 77% → 90% (+13%) | 62% | *P0 🔄 US-1 ✅, US-KOV-2 ✅, US-KOV-3 ✅, US-KOV-4 ✅, US-KOV-5 ✅, US-KOV-6→7 restantes (~1-2 sessions)*
 | BKY-PUB-1 : Publication Maven Central + Gradle Plugin Portal (cccp.education) | 0% | *P0 ☐* (~2 sessions, bloqué par achat domaine)
 |===
 

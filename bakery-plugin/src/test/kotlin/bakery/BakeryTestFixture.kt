@@ -45,7 +45,13 @@ class BakeryTestFixture(
         /** Fixture où `bakeryExtension.configPath` n'est PAS défini (Property absente). */
         fun createAbsentConfigPath(): BakeryTestFixture = createInternal(configPathPresent = false)
 
-        private fun createInternal(configPathPresent: Boolean): BakeryTestFixture {
+        fun createWithProjectDir(projectDir: File): BakeryTestFixture =
+            createInternal(configPathPresent = true, projectDir = projectDir)
+
+        private fun createInternal(
+            configPathPresent: Boolean,
+            projectDir: File = File(".").canonicalFile
+        ): BakeryTestFixture {
             val cpProp = mockProperty("site.yml", present = configPathPresent)
             val bakeryExt = mockBakeryExtension(cpProp)
             val extContainer = mockExtensionContainer(bakeryExt)
@@ -53,7 +59,7 @@ class BakeryTestFixture(
             val depHandler = mockDependencyHandler()
             val taskContainer = mockTaskContainer()
             val pluginContainer = mockPluginContainer()
-            val projectLayout = mockProjectLayout()
+            val projectLayout = mockProjectLayout(projectDir)
             val logger = mockLogger()
 
             // AtomicReference : Mockito peut invoquer le stub sur un thread différent
@@ -68,7 +74,8 @@ class BakeryTestFixture(
                 pluginContainer = pluginContainer,
                 projectLayout = projectLayout,
                 logger = logger,
-                onAfterEvaluate = { action -> capturedActionRef.set(action) }
+                onAfterEvaluate = { action -> capturedActionRef.set(action) },
+                projectDir = projectDir
             )
 
             return BakeryTestFixture(project, pluginContainer, capturedActionRef)
@@ -168,6 +175,7 @@ private fun mockTaskContainer(): TaskContainer {
     whenever(taskContainer.withType(JBakeTask::class.java)).thenReturn(jbakeTaskCollection)
 
     whenever(taskContainer.register(any<String>(), any<Action<Task>>())).thenReturn(mock())
+
     whenever(taskContainer.register(eq("deploySite"), any<Action<Task>>())).thenReturn(mock())
     whenever(taskContainer.register(eq("deployMaquette"), any<Action<Task>>())).thenReturn(mock())
     whenever(taskContainer.register(eq("collectSiteConfig"), any<Action<Task>>())).thenReturn(mock())
@@ -187,7 +195,8 @@ private fun mockProject(
     pluginContainer: PluginContainer,
     projectLayout: ProjectLayout,
     logger: Logger,
-    onAfterEvaluate: (Action<Project>) -> Unit = { /* default: run inline */ }
+    onAfterEvaluate: (Action<Project>) -> Unit = { /* default: run inline */ },
+    projectDir: File = File(".").canonicalFile
 ): Project {
     val project = mock<Project>()
     val pluginManager = mock<org.gradle.api.plugins.PluginManager>()
@@ -199,9 +208,9 @@ private fun mockProject(
     whenever(project.pluginManager).thenReturn(pluginManager)
     whenever(project.layout).thenReturn(projectLayout)
     whenever(project.logger).thenReturn(logger)
-    whenever(project.projectDir).thenReturn(File(".").canonicalFile)
+    whenever(project.projectDir).thenReturn(projectDir)
     whenever(project.file(any<String>())).thenAnswer { inv ->
-        File(File(".").canonicalFile, inv.arguments[0] as String)
+        File(projectDir, inv.arguments[0] as String)
     }
 
     doAnswer { inv ->
@@ -213,18 +222,18 @@ private fun mockProject(
     return project
 }
 
-private fun mockProjectLayout(): ProjectLayout {
+private fun mockProjectLayout(projectDir: File = File(".").canonicalFile): ProjectLayout {
     val layout = mock<ProjectLayout>()
-    val projectDir = mock<Directory>()
+    val projectDirMock = mock<Directory>()
     val buildDir = mock<Directory>()
     val buildDirProp = mock<DirectoryProperty>()
 
-    whenever(projectDir.asFile).thenReturn(File(".").canonicalFile)
-    whenever(buildDir.asFile).thenReturn(File(".", "build"))
+    whenever(projectDirMock.asFile).thenReturn(projectDir)
+    whenever(buildDir.asFile).thenReturn(File(projectDir, "build"))
     whenever(buildDirProp.get()).thenReturn(buildDir)
 
     val asFileProvider = mock<Provider<File>>()
-    whenever(asFileProvider.get()).thenReturn(File(".", "build"))
+    whenever(asFileProvider.get()).thenReturn(File(projectDir, "build"))
     whenever(buildDirProp.asFile).thenReturn(asFileProvider)
 
                 doAnswer { inv ->
@@ -232,12 +241,12 @@ private fun mockProjectLayout(): ProjectLayout {
                     val path = inv.arguments[0] as String
                     val dir = mock<Directory>()
                     val dirProvider: Provider<Directory> = mock()
-                    whenever(dir.asFile).thenReturn(File(File(".", "build"), path))
+                    whenever(dir.asFile).thenReturn(File(File(projectDir, "build"), path))
                     whenever(dirProvider.get()).thenReturn(dir)
                     dirProvider
                 }.whenever(buildDirProp).dir(org.mockito.kotlin.any<String>())
 
-    whenever(layout.projectDirectory).thenReturn(projectDir)
+    whenever(layout.projectDirectory).thenReturn(projectDirMock)
     whenever(layout.buildDirectory).thenReturn(buildDirProp)
 
     return layout
