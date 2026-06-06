@@ -2,18 +2,30 @@
 
 == Mission en cours
 
-*Session 097 TERMINÉE* — POLISH V4 complet. 9/9 code smells V4 résolus
-+ 3/3 RECOs architecturales implémentées. Bakery 100% terminé.
+*Session 098 TERMINÉE* — Planification Feedback + EPICs PUB + KOV.
+Bakery 100% terminé côté code. Charge restante : 24 pts de publication.
 
 == Statut
 
 - EPICs : 28/28 ✅ (100%)
-- Code smells : 12/12 V2+V3 ✅ + 9/9 V4 ✅ + 3/3 RECOs ✅
+- Code smells : 24/24 ✅ (12 V2+V3 + 9 V4 + 3 RECOs)
 - BOM workspace : ✅ aligné (education.cccp:workspace-bom:0.1.0)
 - Tests : tous PASS (JUnit5 + Cucumber + E2E)
 - Build : BUILD SUCCESSFUL
+- Coverage : 77% — cible 90%
 
-== Prochaine session (098)
+== Prochaine session (099)
 
-*SWITCH BOROUGH* — Bakery 100% terminé (28/28 EPICs + 24/24 code smells résolus).
-Plus aucune dette technique. Passer au borough suivant.
+=== EPIC BKY-KOV-1 — US-KOV-1 : Audit couverture Kover
+
+. `./gradlew koverHtmlReport`
+. Ouvrir `build/reports/kover/html/index.html`
+. Lister les packages/modules sous 75% de coverage
+. Prioriser par complexité (nb branches) + risque (tâches Gradle, I/O)
+. Rapporter les cibles précises pour les US-KOV-2→6
+
+=== En attente (sessions 100+)
+
+- BKY-KOV-1 US-KOV-2→6 : Tests par package sous-couvert (15 pts, ~4 sessions)
+- BKY-KOV-1 US-KOV-7 : Validation finale + bump seuil 70→90
+- BKY-PUB-1 : Publication Maven Central + Gradle Plugin Portal (8 pts, bloqué par achat domaine cccp.education)

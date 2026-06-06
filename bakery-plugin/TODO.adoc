@@ -10,8 +10,7 @@ _Dernière mise à jour : 2026-06-06 — Session 097 (POLISH V4 complet)_
 
 == Restant
 
-* [ ] Nettoyer le code inline `publishProfil` dans `cheroliv.com/build.gradle.kts` — remplacer par le plugin bakery `deployProfile`
-* [ ] Archiver ce TODO.adoc une fois le nettoyage cheroliv.com fait (plus aucune tâche legacy restante)
+_Tout le backlog est terminé. 28/28 EPICs + 24/24 code smells résolus. Bakery 100%._
 
 == Post-v1.0 — Code Review V3
 
@@ -21,27 +20,27 @@ _Dernière mise à jour : 2026-06-06 — Session 097 (POLISH V4 complet)_
 * [x] **CS-38 V3** : ConfigPrompts pas testables — Reader monad ConfigPromptM<A>. → ✅ S092
 * [x] **ARROW-KT v1.1.0** : Arrow-kt 2.2.3 migration. → ✅ S093
 
-== NOUVEAU — Code Review V4 (Session 096, 8 smells + 3 RECOs)
+== NOUVEAU — Code Review V4 (Session 097, 9 smells + 3 RECOs — TOUS TERMINÉS)
 
 === EPIC CS-V4-P1 — Bugs et Robustesse (7 min)
 
-* [ ] **US-V4-1** : Supprimer `Throwable(...)` fantôme dans `BakeryPlugin.kt:79` — alloué mais jamais loggé
-* [ ] **US-V4-2** : Fix `projectDir.resolve()` dans `VerifyConfigurationMappingTask.kt:44` — Path CWD vs projectDir
+* [x] **US-V4-1** : Supprimer `Throwable(...)` fantôme dans `BakeryPlugin.kt:79` — alloué mais jamais loggé. → ✅ S097
+* [x] **US-V4-2** : Fix `projectDir.resolve()` dans `VerifyConfigurationMappingTask.kt:44` — Path CWD vs projectDir. → ✅ S097
 
 === EPIC CS-V4-P2 — Clarté et Fiabilité (23 min)
 
-* [ ] **US-V4-3** : Nettoyer `SiteManager.configureConfigPath()` — 2 niveaux d'imbrication + `run` inutile
-* [ ] **US-V4-4** : Vérifier et configurer `DeployProfileTask` — tâche enregistrée sans propriétés configurées
-* [ ] **US-V4-5** : Remplacer `getByName()` → `findByName()` sécurisé dans `configureBakeTask`
+* [x] **US-V4-3** : Nettoyer `SiteManager.configureConfigPath()` — 2 niveaux d'imbrication + `run` inutile. → ✅ S097
+* [x] **US-V4-4** : Vérifier et configurer `DeployProfileTask` — investigué, pas de bug. → ✅ S097
+* [x] **US-V4-5** : Remplacer `getByName()` → `findByName()` sécurisé dans `configureBakeTask`. → ✅ S097
 
 === EPIC CS-V4-P3 — Polish et Documentation (18 min)
 
-* [ ] **US-V4-7** : Rename `fromCliOrPrompt` → `resolveOrPrompt` dans `ConfigPromptM.kt`
-* [ ] **US-V4-8** : Logger `dsl.toIntention()` catch muet dans `ContentTaskRegistrar.kt` (3 occurrences)
-* [ ] **US-V4-9** : Documenter non-idempotence `escapeJsonForJavaProperties()` (KDoc + test double appel)
+* [x] **US-V4-7** : Rename `fromCliOrPrompt` → `resolveOrPrompt` dans `ConfigPromptM.kt`. → ✅ S097
+* [x] **US-V4-8** : Logger `dsl.toIntention()` catch muet dans `ContentTaskRegistrar.kt` (3 occurrences). → ✅ S097
+* [x] **US-V4-9** : Documenter non-idempotence `escapeJsonForJavaProperties()` (KDoc + test double appel). → ✅ S097
 
 === EPIC CS-V4-ARCH — Recommandations Architecturales (40 min)
 
-* [ ] **RECO-1** : Wrapper parse YAML `BakeryPlugin.kt:93` dans `Either.catch`
-* [ ] **RECO-2** : Documenter parallélisme potentiel tâches Gradle (`mustRunAfter`/`shouldRunAfter`)
-* [ ] **RECO-3** : `configureConfigPath()` retourner `Either<String, Unit>` + log succès/échec
+* [x] **RECO-1** : Wrapper parse YAML `BakeryPlugin.kt:93` dans `Either.catch`. → ✅ S097
+* [x] **RECO-2** : Documenter parallélisme potentiel tâches Gradle (`mustRunAfter`/`shouldRunAfter`). → ✅ S097
+* [x] **RECO-3** : `configureConfigPath()` retourner `Either<String, Unit>` + log succès/échec. → ✅ S097

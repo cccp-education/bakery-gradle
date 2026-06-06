@@ -170,4 +170,67 @@ Production-ready. Zéro changement code source.
 
 '''
 
+== Session 098 — 2026-06-06 — Feedback Agent + Planification PUB + KOV
+
+**Contexte** : Session 097 terminée (POLISH V4 complet). Session de gouvernance pure :
+feedback agent sur la maturité du borough, planification des 2 derniers kilomètres.
+
+**Tâches réalisées** :
+
+* [x] Feedback agent — analyse maturité Bakery (score 9.5/10). Borough le plus mature
+  du workspace après plantuml-gradle. 97 sessions, 28/28 EPICs, 24/24 code smells,
+  129 Cucumber PASS, 77% coverage.
+* [x] Nettoyage dette cheroliv.com — projet supprimé (data séparée du moteur).
+  TODO.adoc, BACKLOG.adoc et INDEX.adoc portefeuille nettoyés.
+* [x] Cadrage EPIC BKY-PUB-1 — Publication Maven Central + Gradle Plugin Portal (8 pts).
+  7 US : achat domaine cccp.education → vérification Sonatype → config keys →
+  validation Maven Central → validation Plugin Portal → bump 1.0.0 → CI/CD.
+* [x] Cadrage EPIC BKY-KOV-1 — Kover Coverage 77% → 90% (16 pts).
+  7 US : audit Kover HTML → 5 US tests par package (deploy, lens, content, config,
+  scaffold) → bump seuil 70→90 dans build.gradle.kts.
+* [x] Mise à jour gouvernance (PROMPT_REPRISE, INDEX, SESSIONS_HISTORY,
+  TEST_COVERAGE_ANALYSIS, BACKLOG, TODO)
+
+**Fichiers modifiés** : `TODO.adoc`, `BACKLOG.adoc` (+2 EPICs), `PROMPT_REPRISE.adoc`,
+`.agents/INDEX.adoc`, `.agents/SESSIONS_HISTORY.adoc`, `.agents/TEST_COVERAGE_ANALYSIS.adoc`
+**Fichiers créés** : `.agents/sessions/098-planification-pub-kov.adoc`
+
+**Résultats** : Charge restante 24 pts (PUB 8 + KOV 16). Prochaine session : 099 —
+BKY-KOV-1 US-1 Audit couverture Kover.
+
+'''
+== Session 097 — 2026-06-06 — POLISH V4 Complet
+
+**Contexte** : Session 096 avait livré une Code Review V4 (second regard expert post-Copilot)
+identifiant 9 code smells + 3 RECOs architecturales. Session 097 résout l'intégralité.
+
+**Tâches réalisées** :
+
+* [x] CS-V4-P1 — US-V4-1 : Suppression `Throwable(...)` fantôme dans `BakeryPlugin.kt:79`
+* [x] CS-V4-P1 — US-V4-2 : Fix `File(path)` → `project.projectDir.resolve(path)` dans
+  `VerifyConfigurationMappingTask.kt:44`
+* [x] CS-V4-P2 — US-V4-3 : Refactor `SiteManager.configureConfigPath()` (guard clauses,
+  suppression `properties.run{}` inutile)
+* [x] CS-V4-P2 — US-V4-4 : Investigé `DeployProfileTask` — pas de bug (pattern valide,
+  lecture dynamique dans @TaskAction)
+* [x] CS-V4-P2 — US-V4-5 : `getByName("bake")` → `findByName("bake")?.apply{}` + warning
+* [x] CS-V4-P3 — US-V4-7 : Rename `fromCliOrPrompt` → `resolveOrPrompt` (3 fichiers, 13 occurrences)
+* [x] CS-V4-P3 — US-V4-8 : 3 catch muets → `logger.warn(e.message)` dans
+  `ContentTaskRegistrar.kt`
+* [x] CS-V4-P3 — US-V4-9 : KDoc "PAS idempotente" + test double appel dans `JsonEscape.kt`
+* [x] CS-V4-ARCH — RECO-1 : YAML parse → `Either.catch` + fold(ifLeft, ifRight)
+* [x] CS-V4-ARCH — RECO-2 : KDoc parallélisme potentiel dans `registerFullPipelineTasks()`
+* [x] CS-V4-ARCH — RECO-3 : `configureConfigPath()` retourne `Either<String, Unit>` + log succès/échec
+* [x] Tests adaptés : BakeryPluginTest, SiteManagerTest, ConfigPromptsTest,
+  JsonEscapeForPropertiesTest (+1 test double appel)
+
+**Fichiers modifiés** : `BakeryPlugin.kt`, `VerifyConfigurationMappingTask.kt`,
+`SiteManager.kt`, `SiteTaskRegistrar.kt`, `ConfigPromptM.kt`, `ConfigPrompts.kt`,
+`ContentTaskRegistrar.kt`, `JsonEscape.kt`, `BakeryPluginTest.kt`,
+`SiteManagerTest.kt`, `ConfigPromptsTest.kt`, `JsonEscapeForPropertiesTest.kt`
+
+**Résultats** : 9/9 code smells V4 + 3/3 RECOs résolues. Full test suite PASS.
+BUILD SUCCESSFUL. Bakery 100% terminé.
+
+'''
 == Session 081 — 2026-06-04 — CS-FIN-2 Jackson + CS-FIN-3 Nettoyage DRY
