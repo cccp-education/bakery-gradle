@@ -2,8 +2,8 @@
 
 == Mission en cours
 
-*Session 101 TERMINÉE* — US-KOV-3 FileSystemManager 56% → 90.45%.
-Coverage globale 78.1% → 85.24% (+7.14pp). 23 tests unitaires.
+*Session 102 TERMINÉE* — US-KOV-4 GitService 66% → 86.0%.
+Coverage globale 85.24% → 85.19%. 4 tests unitaires (3 PushPages + 1 force push).
 
 == Statut
 
@@ -12,22 +12,21 @@ Coverage globale 78.1% → 85.24% (+7.14pp). 23 tests unitaires.
 - BOM workspace : ✅ aligné
 - Tests : ✅ Tous PASS (JUnit5 + functionalTest + Cucumber + E2E)
 - Build : BUILD SUCCESSFUL
-- Coverage : *85.24%* (cible 90%, gap +4.76pp)
+- Coverage : *85.19%* (cible 90%, gap 4.81pp)
 
-== Prochaine session (102)
+== Prochaine session (103)
 
-=== EPIC BKY-KOV-1 — US-KOV-4 : GitService 66% → 85%
+=== EPIC BKY-KOV-1 — US-KOV-5 : BakeryPlugin 37% → 70%
 
-Priorité P1 — ~120 instructions manquées.
-Fichier : `bakery/GitService.kt`.
+Priorité P1 — ~100 instructions manquées.
+Fichier : `bakery/BakeryPlugin.kt`.
 Baby steps DDD/TDD :
-. Lire GitService + ses appelants (DeployTaskRegistrar)
-. Écrire GitServiceTest (clone, push, branches edge-cases, cleanup)
-. Target : 66% → ≥85%
+. Lire BakeryPlugin + son appelant (SiteManager)
+. Écrire BakeryPluginTest complété (branches après configPath guard, scaffoldOnly, fullPipeline)
+. Target : 37% → ≥70%
 
-=== En attente (sessions 103+)
+=== En attente (sessions 104+)
 
-- BKY-KOV-1 US-KOV-5 : BakeryPlugin 37% → 70% (~100 instructions)
 - BKY-KOV-1 US-KOV-6 : SiteScaffolder 69% → 90% (~30 instructions)
 - BKY-KOV-1 US-KOV-7 : Validation finale + bump seuil 70→90
 - BKY-PUB-1 : Publication Maven Central + Gradle Plugin Portal (8 pts, bloqué par achat domaine cccp.education)

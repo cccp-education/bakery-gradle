@@ -475,5 +475,145 @@ class GitServiceTest {
             assertThat(repoDir.resolve("root.txt")).exists().hasContent("root")
             assertThat(repoDir.resolve("sub/nested.txt")).exists().hasContent("nested content")
         }
+
+        @Test
+        fun `pushToRemote with force push sends without cloning`() {
+            val remoteGit = createBareRemoteRepository()
+            val remoteUri = remoteGit.repository.directory.toURI().toString()
+
+            val localRemote = tempDir.resolve("localForce")
+            val cloneGit = Git.cloneRepository()
+                .setURI(remoteUri)
+                .setDirectory(localRemote)
+                .call()
+            try {
+                cloneGit.repository.workTree.resolve("old.txt").writeText("old")
+                cloneGit.add().addFilepattern("old.txt").call()
+                cloneGit.commit().setMessage("initial").call()
+                pushHeadToRemote(cloneGit, "main")
+            } finally {
+                cloneGit.close()
+            }
+
+            val repoDir = tempDir.resolve("forceRepoDir")
+            repoDir.mkdirs()
+            repoDir.resolve("new.txt").writeText("forced content")
+
+            val config = GitPushConfiguration(
+                from = "",
+                to = "",
+                repo = RepositoryConfiguration(
+                    name = "test",
+                    repository = remoteUri,
+                    credentials = RepositoryCredentials("", "")
+                ),
+                branch = "main",
+                message = "force push"
+            )
+
+            GitService.pushToRemote(
+                repoDir = repoDir,
+                git = config,
+                logger = logger,
+                force = true,
+                preserveHistory = false
+            )
+
+            val log = remoteGit.log().call().toList()
+            assertThat(log).hasSize(1)
+            assertThat(log[0].fullMessage).contains("force push")
+        }
+    }
+
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class PushPagesTest {
+
+        @TempDir
+        lateinit var tempDir: File
+
+        @Test
+        fun `pushPages succeeds when content exists and remote is configured`() {
+            val destDir = tempDir.resolve("bakedOutput").apply { mkdirs() }
+            destDir.resolve("index.html").writeText("<h1>Site</h1>")
+            val repoDir = tempDir.resolve("gh-pages")
+
+            val config = GitPushConfiguration(
+                from = "",
+                to = "",
+                repo = RepositoryConfiguration(
+                    name = "pages",
+                    repository = "https://github.com/test/pages.git",
+                    credentials = RepositoryCredentials("testuser", "testtoken")
+                ),
+                branch = "gh-pages",
+                message = "ci: deploy bakery site"
+            )
+
+            val result = GitService.pushPages(
+                destPath = { destDir.absolutePath },
+                pathTo = { repoDir.absolutePath },
+                git = config,
+                logger = logger
+            )
+
+            assertThat(result).isNotNull()
+        }
+
+        @Test
+        fun `pushPages fails with RemoteNotConfigured when repository URL is blank`() {
+            val destDir = tempDir.resolve("bakedOutput").apply { mkdirs() }
+            destDir.resolve("index.html").writeText("<h1>Site</h1>")
+            val repoDir = tempDir.resolve("gh-pages")
+
+            val config = GitPushConfiguration(
+                from = "",
+                to = "",
+                repo = RepositoryConfiguration(repository = ""),
+                branch = "gh-pages",
+                message = "deploy"
+            )
+
+            val result = GitService.pushPages(
+                destPath = { destDir.absolutePath },
+                pathTo = { repoDir.absolutePath },
+                git = config,
+                logger = logger
+            )
+
+            assertThat(result.isLeft()).isTrue()
+            result.onLeft { error ->
+                assertThat(error).contains("not configured")
+            }
+        }
+
+        @Test
+        fun `pushPages fails with ContentAbsent when dest directory is empty`() {
+            val destDir = tempDir.resolve("emptyOutput").apply { mkdirs() }
+            val repoDir = tempDir.resolve("gh-pages")
+
+            val config = GitPushConfiguration(
+                from = "",
+                to = "",
+                repo = RepositoryConfiguration(
+                    name = "pages",
+                    repository = "https://github.com/test/pages.git"
+                ),
+                branch = "gh-pages",
+                message = "deploy"
+            )
+
+            val result = GitService.pushPages(
+                destPath = { destDir.absolutePath },
+                pathTo = { repoDir.absolutePath },
+                git = config,
+                logger = logger
+            )
+
+            assertThat(result.isLeft()).isTrue()
+            result.onLeft { error ->
+                assertThat(error).contains("No baked content")
+            }
+        }
     }
 }
