@@ -133,7 +133,7 @@ bakery { configPath = file("$CONFIG_FILE").absolutePath }
         "name:", "contacts",
         "fields:", "string", "timestamp", "id",
         "created_at", "name", "email",
-        "telephone", "rulesEnabled: true",
+        "phone", "rulesEnabled: true",
         "messages:", "messages", "callable:",
         "name:", "params:",
         "contact_id", "subject", "message",

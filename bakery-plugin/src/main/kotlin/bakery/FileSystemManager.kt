@@ -66,6 +66,7 @@ object FileSystemManager {
 
             JarFile(File(toURI())).use { jar ->
                 val normalizedPath = resourcePath.removeSuffix("/") + "/"
+                val destDir = targetDir.resolve(resourcePath)
                 var copiedCount = 0
 
                 jar.entries()
@@ -76,7 +77,7 @@ object FileSystemManager {
                                 entry.name != normalizedPath
                     }.forEach { entry ->
                         val relativePath = entry.name.removePrefix(normalizedPath)
-                        val targetFile = targetDir.resolve(relativePath)
+                        val targetFile = destDir.resolve(relativePath)
 
                         @Suppress("LoggingSimilarMessage")
                         project.logger.info("Copying: ${entry.name} -> ${targetFile.absolutePath}")
@@ -88,7 +89,7 @@ object FileSystemManager {
                         }
                         copiedCount++
                     }
-                project.logger.lifecycle("✓ Copied $copiedCount files from $resourcePath to ${targetDir.absolutePath}")
+                project.logger.lifecycle("✓ Copied $copiedCount files from $resourcePath to ${destDir.absolutePath}")
             }
         }
         Unit.right()

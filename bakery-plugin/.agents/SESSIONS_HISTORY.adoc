@@ -1,8 +1,9 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-  _Derniere mise a jour : 2026-06-06 — Session 098_
+  _Derniere mise a jour : 2026-06-06 — Session 099_
 
   |===
+  | 099 | 2026-06-06 | fix + audit | BKY-KOV-1 US-1 Audit couverture Kover. Phase 1 : réparation tests (FT telephone→phone + Cucumber DuplicateStepDefinition + copyFromJar path fix). Phase 2 : audit Kover XML — coverage 78.1%, cibles US-KOV-2→6 identifiées (GenerateThemeTask 0%, FileSystemManager 56%, GitService 66%, BakeryPlugin 37%, SiteScaffolder 69%). Plan 5 sessions résiduelles. 4 fichiers modifiés. Tous tests greens. | 8/10
   | 098 | 2026-06-06 | governance + planification | Feedback agent + nettoyage cheroliv.com + planification EPIC BKY-PUB-1 (Publication Maven Central, 8 pts) + EPIC BKY-KOV-1 (Coverage 90%, 16 pts). TODO.adoc/BACKLOG.adoc/INDEX.adoc/TEST_COVERAGE_ANALYSIS/PROMPT_REPRISE/SESSIONS_HISTORY mis a jour. Charge restante : 24 pts. | 9/10
   | 097 | 2026-06-06 | polish + refactor + TDD | POLISH V4 Complet — 9/9 smells V4 + 3/3 RECOs resolus. Bakery 100% termine. | 9/10
   | 096 | 2026-06-06 | code review | Code Review V4 — Second regard expert post-Copilot. Contrepoint review Copilot (obsolete, 5 sessions de retard). 9 nouveaux smells V4 decouverts (CS-V4-1→9 : 0 critique, 2 moderes, 7 legers). Document `.agents/CODE_REVIEW_V4.adoc` 277 lignes. Zero changement code source. | 8/10

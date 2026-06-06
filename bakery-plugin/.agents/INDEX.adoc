@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-06 — Session 098 (Planification PUB + KOV)
-  _Session terminee_ : 098
-  _Prochaine session_ : 099 — BKY-KOV-1 US-1 Audit couverture Kover
+  _Derniere mise a jour_ : 2026-06-06 — Session 099 (Audit KOV + réparation tests)
+  _Session terminee_ : 099
+  _Prochaine session_ : 100 — BKY-KOV-1 US-KOV-2 GenerateThemeTask 0% → tests unitaires
   _Session en cours_ : — (fermee)
 
 '''
@@ -70,6 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
  | # | Date | Type | Sujet | Score
+  | 099 | 2026-06-06 | fix + audit | **Audit Kover + réparation tests** — Phase 1: FT telephone→phone, Cucumber DuplicateStepDefinition fix, copyFromJar path fix. Phase 2: Audit Kover coverage 78.1%, cibles US-KOV-2→6 identifiées. 4 fichiers modifiés. Tous tests greens. | 8/10
   | 096 | 2026-06-06 | code review | **Code Review V4** — Second regard expert post-Copilot. Contrepoint review Copilot (obsolète). 9 nouveaux smells V4 (CS-V4-1→9 : 0 critique, 2 modérés, 7 légers). Document `.agents/CODE_REVIEW_V4.adoc` (277 lignes). Zéro changement code. | 8/10
   | 095 | 2026-06-06 | docs + branding | **README maj + cccp-education** — Reecriture complete README.adoc (351→670 lignes) : Quick Facts, Tasks par categorie, Pattern LENTILLE, Theme System, IA Scaffolding, Firebase, CI/CD, Architecture. Correction repo `cccp-education/bakery-gradle` + website `cccp-education.github.io` + copyright `cccp.education`. `build.gradle.kts` website mis a jour. 2 fichiers modifies, zero changement code source. | 9/10
   | 094 | 2026-06-05 | refactor + governance | **Alignement workspace-bom** — BOM importé `education.cccp:workspace-bom:0.1.0` (4 configurations). Retiré 6 versions BOM-managées du catalog (jackson, langchain4j, arrow, playwright, cucumber, junit_platform). Kotlin 2.2.20→2.3.20, plugin-publish 1.3.1→2.1.0. slf4j/logback dur→catalog. Fix createTempDir Kotlin 2.3.20. 3 fichiers modifiés. 757 UT PASS, zéro régression. | 9/10
@@ -301,7 +302,7 @@ Zéro dette technique. Prêt à switcher de borough.
 
 |===
 | EPIC | Progression | Priorite
-| BKY-KOV-1 : Kover Coverage 77% → 90% (+13%) | 0% | *P0 ☐* (~4-5 sessions)
+| BKY-KOV-1 : Kover Coverage 77% → 90% (+13%) | 20% | *P0 🔄 US-1 TERMINÉ (audit) — US-KOV-2→7 restantes (~4 sessions)*
 | BKY-PUB-1 : Publication Maven Central + Gradle Plugin Portal (cccp.education) | 0% | *P0 ☐* (~2 sessions, bloqué par achat domaine)
 |===
 

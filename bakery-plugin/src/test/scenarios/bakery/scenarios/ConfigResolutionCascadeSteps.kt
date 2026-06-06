@@ -16,7 +16,7 @@ class ConfigResolutionCascadeSteps {
     private var resolvedConfigs: ResolvedConfigs? = null
     private var errors: List<ConfigResolutionError> = emptyList()
 
-    @Given("a new Bakery project")
+    @Given("a new in-memory Bakery project for config cascade resolution")
     fun createNewBakeryProject() {
         val tempDir = File(System.getProperty("java.io.tmpdir"), "bakery-cascade-test-${System.currentTimeMillis()}").apply { mkdirs() }
         project = ProjectBuilder.builder().withProjectDir(tempDir).build()

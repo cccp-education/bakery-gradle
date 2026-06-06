@@ -2,30 +2,34 @@
 
 == Mission en cours
 
-*Session 098 TERMINÉE* — Planification Feedback + EPICs PUB + KOV.
-Bakery 100% terminé côté code. Charge restante : 24 pts de publication.
+*Session 099 TERMINÉE* — Audit Kover + réparation complète des tests.
+Tests verts (unit/fonctionnel/Cucumber), coverage 78.1% mesuré, cibles US-KOV-2→6 identifiées.
 
 == Statut
 
 - EPICs : 28/28 ✅ (100%)
-- Code smells : 24/24 ✅ (12 V2+V3 + 9 V4 + 3 RECOs)
-- BOM workspace : ✅ aligné (education.cccp:workspace-bom:0.1.0)
-- Tests : tous PASS (JUnit5 + Cucumber + E2E)
+- Code smells : 24/24 ✅
+- BOM workspace : ✅ aligné
+- Tests : ✅ Tous PASS (JUnit5 + functionalTest + Cucumber + E2E)
 - Build : BUILD SUCCESSFUL
-- Coverage : 77% — cible 90%
+- Coverage : *78.1%* (cible 90%, gap +11.9pp)
 
-== Prochaine session (099)
+== Prochaine session (100)
 
-=== EPIC BKY-KOV-1 — US-KOV-1 : Audit couverture Kover
+=== EPIC BKY-KOV-1 — US-KOV-2 : GenerateThemeTask 0% → tests unitaires
 
-. `./gradlew koverHtmlReport`
-. Ouvrir `build/reports/kover/html/index.html`
-. Lister les packages/modules sous 75% de coverage
-. Prioriser par complexité (nb branches) + risque (tâches Gradle, I/O)
-. Rapporter les cibles précises pour les US-KOV-2→6
+Priorité P0 — 629 instructions manquées, tout le package theme est à 50%.
+Fichier : `bakery/theme/GenerateThemeTask.kt`.
+Baby steps DDD/TDD :
+. Lire GenerateThemeTask + ThemeTemplate + ThemeCatalog
+. Écrire GenerateThemeTaskTest (mock LLM, couvrir les branches)
+. Target : 0% → ≥80%
 
-=== En attente (sessions 100+)
+=== En attente (sessions 101+)
 
-- BKY-KOV-1 US-KOV-2→6 : Tests par package sous-couvert (15 pts, ~4 sessions)
+- BKY-KOV-1 US-KOV-3 : FileSystemManager 56% → 85% (~210 instructions)
+- BKY-KOV-1 US-KOV-4 : GitService 66% → 85% (~120 instructions)
+- BKY-KOV-1 US-KOV-5 : BakeryPlugin 37% → 70% (~100 instructions)
+- BKY-KOV-1 US-KOV-6 : SiteScaffolder 69% → 90% (~30 instructions)
 - BKY-KOV-1 US-KOV-7 : Validation finale + bump seuil 70→90
 - BKY-PUB-1 : Publication Maven Central + Gradle Plugin Portal (8 pts, bloqué par achat domaine cccp.education)

@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-06 — Session 098 (Planification EPIC KOV-1)_
+_Dernière mise à jour : 2026-06-06 — Session 099 (Audit Kover US-1)_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -10,30 +10,42 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 [cols="2,3"]
 |===
 | Métrique | Valeur
-| Couverture Kover | *77.09%* — stable depuis session 071 (dernier pic mesuré)
+| Couverture Kover | *78.10%* — mesuré Session 099 via XML report (12978/16614 instructions)
 | Seuil configuré | 70% (dans `build.gradle.kts` → `koverThresholdCheck`)
-| **Nouvelle cible** | **90%** — EPIC BKY-KOV-1 (16 pts, ~4-5 sessions)
-| Tests unitaires JUnit5 | 139 fichiers, ~757 tests — ~52s clean
-| Tests fonctionnels (TestKit) | 8 fichiers, 61/61 FT PASS
-| Tests Cucumber BDD | 28 features, ~133 scénarios — tous PASS
+| **Nouvelle cible** | **90%** — EPIC BKY-KOV-1 (16 pts, US-1 ✅ audit, US-KOV-2→7 restantes)
+| Tests unitaires JUnit5 | 139 fichiers, ~757 tests — ✅ PASS
+| Tests fonctionnels (TestKit) | 8 fichiers, 75/75 FT PASS
+| Tests Cucumber BDD | 28 features, 97/97 PASS ✅
 | Tests E2E Playwright | 5 fichiers, 17/17 PASS — séparés de `check`
-| Compilation | ✅ BUILD SUCCESSFUL — Gradle 9.5.1, Kotlin 2.3.20, Java 24, zéro warning
-| Évolution Session 098 | ✅ EPIC BKY-KOV-1 cadré. Audit US-KOV-1 → 5 US tests par package → bump seuil 90%.
+| Compilation | ✅ BUILD SUCCESSFUL — Gradle 9.5.1, Kotlin 2.3.20, zéro warning
 |===
 
-'''
 == Progression vers 90%
 
-*Écart* : 77.09% → 90.00% = +12.91pp à couvrir.
+*Écart* : 78.10% → 90.00% = +11.90pp (~1975 instructions)
 
-*Cibles probables* (à confirmer par l'audit US-KOV-1) :
-. Package `bakery/deploy` — branches Git non mockées (push, clone, checkout)
-. Package `bakery/lens` — branches RAG/KG absentes (LensPipelineService, AugmentedContextResolver)
-. Package `bakery/content` — branches LLM timeout/erreur non testées
-. Package `bakery/config` — branches interactive prompt absentes
-. Package `bakery/scaffold` — cas d'erreur scaffolding (permissions, conflit nom)
+*Cibles confirmées par l'audit US-1* :
+. 🔴 P0 — GenerateThemeTask 0% (629 instructions) — tout le package theme à 50%
+. 🟠 P1 — FileSystemManager 56% (324 missed) — branches non couvertes
+. 🟠 P1 — ToolsKt 22% (533 missed) — helpers
+. 🟠 P1 — SiteTaskRegistrar closures doLast 0% (~224 missed) — non instrumentées par Kover en JUnit5
+. 🟡 P2 — GitService 71% (194 missed)
+. 🟡 P2 — BakeryPlugin 37% (110 missed)
+. 🟢 P3 — SiteScaffolder 69% (29 missed)
 
-*Baby steps* : DDD/TDD/BDD par package. Rouge → Vert → Bleu. Zéro modification du code de production.
+*Note* : ~1000 instructions de closures doLast (TaskRegistrars) sont couvertes par FT/Cucumber mais Kover ne les instrumente pas.
+
+== Plan US-KOV-2→7
+
+|===
+| Session | US | Cible | Instructions estimées
+| 100 | US-KOV-2 | GenerateThemeTask 0% → tests unitaires | ~629
+| 101 | US-KOV-3 | FileSystemManager 56% → 85% | ~210
+| 101 | US-KOV-4 | GitService 66% → 85% | ~120
+| 102 | US-KOV-5 | BakeryPlugin 37% → 70% | ~100
+| 102 | US-KOV-6 | SiteScaffolder 69% → 90% | ~30
+| 103 | US-KOV-7 | Validation finale + bump seuil 70→90 | —
+|===
 
 '''
 == Historique
@@ -41,7 +53,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 [cols="2,2,2,3,3"]
 |===
 | Session | Date | Kover % | Tests PASS | Notes
-| 098 | 2026-06-06 | *77.09%* | Full suite ✅ | EPIC BKY-KOV-1 cadré (16 pts, cible 90%). Audit planifié session 099.
+| 099 | 2026-06-06 | *78.10%* | Full suite ✅ | BKY-KOV-1 US-1 audit Kover terminé. Coverage mesuré via XML. Tous tests réparés (FT + Cucumber).
 | 097 | 2026-06-06 | *76.15%* | Full suite ✅ | POLISH V4 complet. Tests adaptés. 9/9 smells V4 + 3/3 RECOs.
 | 094 | 2026-06-05 | *76.15%* | 757 UT ✅ | workspace-bom importé. Kotlin 2.3.20.
 | 093 | 2026-06-05 | *76.15%* | 757 UT ✅ | ARROW-1 Arrow-kt 2.2.2 migration. 8 fichiers modifiés.

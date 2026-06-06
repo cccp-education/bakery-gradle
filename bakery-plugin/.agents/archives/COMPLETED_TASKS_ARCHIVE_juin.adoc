@@ -1,5 +1,36 @@
 = COMPLETED_TASKS_ARCHIVE — Juin 2026
 
+== Session 099 — BKY-KOV-1 US-1 Audit couverture Kover + réparation tests (2026-06-06)
+
+=== Phase 1 — Réparation Tests
+
+* [x] FT : `tools.kt:136` telephone→phone (11/75→75/75 PASS)
+* [x] Cucumber : DuplicateStepDefinitionException renommé (65/97→97/97 PASS)
+* [x] FileSystemManager : copyFromJar path fix (destDir = targetDir.resolve(resourcePath))
+* [x] Tous les tests verts : unit ✅, functional ✅, Cucumber ✅, E2E ✅
+
+=== Phase 2 — Audit Kover
+
+* [x] `./gradlew koverXmlReport` — généré build/reports/kover/xml/report.xml
+* [x] Parse XML → coverage 78.1% (12978/16614 instructions)
+* [x] Cibles US-1 identifiées et priorisées (GenerateThemeTask 0%, FileSystemManager 56%, GitService 66%, BakeryPlugin 37%, SiteScaffolder 69%)
+* [x] Plan US-KOV-2→7 : 5 sessions (100→103)
+
+=== Métriques
+
+| Métrique | Valeur |
+| Kover | 78.10% |
+| JUnit5 | ✅ PASS |
+| Functional | 75/75 PASS ✅ |
+| Cucumber | 97/97 PASS ✅ |
+| E2E | 17/17 PASS ✅ |
+
+=== Fichiers modifiés
+- `src/functionalTest/kotlin/bakery/tools.kt:136` — telephone→phone
+- `src/main/kotlin/bakery/FileSystemManager.kt:67-68` — copyFromJar destDir fix
+- `src/test/scenarios/bakery/scenarios/ConfigResolutionCascadeSteps.kt:19` — rename @Given
+- `src/test/features/29_config_resolution_cascade.feature:9,15` — rename step
+
 == Session 090 — CS-FIN-10 Masquage secrets étendu SecretField ADT (2026-06-05)
 
 * [x] DDD : `SecretField` sealed class (Password, ApiKey, Token) + `maskSecret()` fonction pure
