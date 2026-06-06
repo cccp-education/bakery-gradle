@@ -5,13 +5,15 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-06 — Session 104 (BKY-KOV-1 TERMINE)_
+_Dernière mise à jour : 2026-06-06 — Session 105 (Code Review gaps fonctionnels)_
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
 [CAUTION]
 ====
-**29/29 EPICs terminés + 12/12 code smells v3 + 9/9 code smells V4 + 3/3 RECOs résolues.** Bakery est 100% terminé. Zéro dette.
+**29/29 EPICs terminés + 12/12 code smells v3 + 9/9 code smells V4 + 3/3 RECOs résolues.**
+Bakery est 100% terminé fonctionnellement. Zéro dette technique.
+Des microfissures de couverture de tests subsistent (BKY-COV-2, ~12 pts). Voir ci-dessous.
 ====
 
 '''
@@ -635,15 +637,72 @@ a probablement déjà été créé lors de la session 046 (EPIC G Audit publicat
 // ── PUBLICATION Maven Central ──
 | BKY-PUB-1 | Publication Maven Central + Gradle Plugin Portal | 8 | 🔴 P0 ☐
 // ── COUVERTURE 90% ──
-| BKY-KOV-1 | Kover Coverage 77% → 90% (+13%) | 16 | 🔴 P0 ☐
+| BKY-KOV-1 | Kover Coverage 77% → 90% (+13%) | 16 | 🔴 P0 ✅ TERMINÉ (85.88%)
+// ── MICROFISSURES COVERAGE ──
+| BKY-COV-2 | Gaps fonctionnels coverage (DeployProfileTask, ProfilePublisher, BakeryPlugin) | 12 | 🟠 P2 ☐
 |===
 
 *Total V3 complété* : CS-FIN-1→10 + ARROW-1 = 18.5 pts ✅
 *Total V4 complété* : CS-V4-P1/P2/P3/ARCH = 5.5 pts ✅ S097
-*Total PUB restant* : BKY-PUB-1 = 8 pts + BKY-KOV-1 = 16 pts → 24 pts (~6-7 sessions)
-*Tous les EPICs historiques* : 28/28 ✅ (100%)
+*Total KOV complété* : BKY-KOV-1 = 16 pts ✅ S104
+*Total PUB restant* : BKY-PUB-1 = 8 pts ❄️ (bloqué par achat domaine)
+*Total COV-2 restant* : BKY-COV-2 = 12 pts ☐ (~3-4 sessions)
+*Tous les EPICs historiques* : 29/29 ✅ (100%)
 *Code smells résolus* : 24/24 ✅ (12 V2+V3 + 9 V4 + 3 RECOs)
-*Bakery 100% terminé* — prêt à switcher.
+*Bakery 100% fonctionnel* — microfissures coverage documentées dans BKY-COV-2.
+
+'''
+
+== EPIC BKY-COV-2 : Microfissures de couverture (Code Review Externe)
+
+*Découverte* : Session 105 — Code review approfondie par un agent externe.
+*Objectif* : Combler les vrais gaps fonctionnels non couverts par les tests.
+*Charge* : ~12 pts (~3-4 sessions)
+*Priorité* : P2 — Pas bloquant pour la production mais abaisse la confiance.
+
+[cols="1,4,2,2"]
+|===
+| US | Description | Pts | Priorité
+
+| US-COV-2.1
+| **DeployProfileTask** (0% coverage) — 8-10 UT sur les chemins :
+  config valide, pushProfile absent, credentials CLI vs YAML,
+  forçage README, fromDir inexistant, cleanup en finally.
+| 3
+| 🟠 P1
+
+| US-COV-2.2
+| **ProfilePublisher** tests d'intégration — 2 FT deployProfile
+  avec/sans preservation d'historique. Coverage Kover >95%.
+| 2
+| 🟡 P2
+
+| US-COV-2.3
+| **DeployProfileTask full pipeline FT** — 3 functional tests
+  (TestKit) : pipeline deployProfile → copyProfileFiles →
+  pushToRemote → cleanupDir de bout en bout.
+| 3
+| 🟡 P2
+
+| US-COV-2.4
+| **BakeryPlugin** coverage 52.8% → 70% — 2-3 UT supplémentaires
+  pour branches else (YAML invalide, dirs manquants).
+| 2
+| 🟡 P2
+
+| US-COV-2.5
+| **ToolsKt** coverage 22% → 50% — fonctions utilitaires.
+  Priorité basse mais couverture misérable.
+| 1
+| 🟢 P3
+
+| US-COV-2.6
+| **Closures doLast TaskRegistrars** — Documenter la limitation
+  Kover (couvert par FT, invisible à l'instrumentation).
+  Aucun changement code requis.
+| 1
+| 🟢 P3
+|===
 
 '''
 
@@ -652,7 +711,7 @@ a probablement déjà été créé lors de la session 046 (EPIC G Audit publicat
 [cols="2,3"]
 |===
 | Document | `BACKLOG.adoc`
-| Version | 5.2 — Session 097 (Feedback + EPIC PUB Maven Central)
+| Version | 5.3 — Session 105 (Code Review gaps fonctionnels BKY-COV-2)
 | Historisé dans | `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
-| Basé sur | Code review V4 (`.agents/CODE_REVIEW_V4.adoc`, 2026-06-06)
-| Prochaine màj | Plus aucune. Bakery 100% terminé.
+| Basé sur | Code review V4 (`.agents/CODE_REVIEW_V4.adoc`, 2026-06-06) + Session 105
+| Prochaine màj | Session 106 — BKY-COV-2 US-1 DeployProfileTask

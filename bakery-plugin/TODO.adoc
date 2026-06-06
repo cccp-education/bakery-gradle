@@ -1,16 +1,32 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-06-06 — Session 097 (POLISH V4 complet)_
+_Dernière mise à jour : 2026-06-06 — Session 105 (Code Review gaps fonctionnels)_
 
 * [x] Implementer la generation du code client Firebase dans les templates (→ BKY-JB-4, session 032)
 * [x] Ajouter une vraie Firebase API key quand disponible (→ EPIC 4, formalité restante côté consommateur cheroliv.com)
 * [x] Corriger le timeout Cucumber (1 min -> 5 min) (→ résolu, timeout 5min depuis longtemps)
 * [x] Verifier coherence des 3 fichiers site.yml (→ résolu, ConfigResolver 4 couches)
 
+== Gaps fonctionnels identifiés par Code Review Session 105
+
+* [ ] **DeployProfileTask** — 0 test unitaire. La tâche lit ses propriétés dynamiquement
+  dans `@TaskAction` (`project.findProperty`, `project.extensions.findByType`).
+  Aucune couverture Kover. Créer DeployProfileTaskTest (8-10 UT : config valide,
+  pushProfile absent, credentials CLI vs YAML, forçage README, fromDir inexistant).
+* [ ] **ProfilePublisher** — coverage >90% mais pas de test d'intégration avec un vrai
+  GitService.pushToRemote. Ajouter 2 FT deployProfile (with + without preservation).
+* [ ] **DeployProfileTask full pipeline FT** — 0 functional test. Le pipeline
+  deployProfile → copyProfileFiles → pushToRemote → cleanupDir n'est pas testé
+  de bout en bout. Créer DeployProfileFunctionalTest (3 FT).
+* [ ] **BakeryPlugin (52.8%)** — les branches `else` (configPath absent, YAML invalide,
+  répertoires manquants) sont partiellement couvertes. Coverage cible 70% pour la classe.
+* [ ] **ToolsKt (22%)** — fonctions utilitaires. Priorité basse mais couverture misérable.
+
 == Restant
 
-_Tout le backlog est terminé. 28/28 EPICs + 24/24 code smells résolus. Bakery 100%._
+_Tout le backlog historique est terminé. 29/29 EPICs + 24/24 code smells résolus.
+Les gaps ci-dessus sont des microfissures identifiées par la code review externe._
 
 == Post-v1.0 — Code Review V3
 

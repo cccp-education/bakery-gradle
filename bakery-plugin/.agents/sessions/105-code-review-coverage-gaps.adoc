@@ -1,0 +1,75 @@
+= Session 105 — Code Review Externe — Gaps Fonctionnels de Couverture
+:date: 2026-06-06
+:author: agent externe opencode
+:session: 105
+:status: TERMINÉE
+:borough: Bushwick (bakery-gradle)
+:type: code-review + governance
+
+== Contexte
+
+Code review approfondie du borough Bakery par un agent externe (opencode).
+Objectif : évaluer la maturité du projet et identifier les vrais gaps
+fonctionnels non couverts par les tests.
+
+== Feedback — Maturité Globale
+
+**Score : 9.0/10 — Production-ready.**
+
+Bakery est le borough le plus mature du workspace. Architecture propre
+(pipeline LENTILLE, TaskRegistrars, Arrow-kt), méthodologie DDD/TDD/BDD
+exemplaire, 5 couches de test (UT/FT/Cucumber/E2E/functionalTest).
+
+29/29 EPICs terminés. 24/24 code smells résolus. Couverture 85.88%.
+
+== Gaps Fonctionnels Identifiés
+
+=== Critique
+
+1. **DeployProfileTask — 0 test unitaire**
+   La tâche lit ses propriétés dynamiquement dans `@TaskAction`
+   (`project.findProperty`, `project.extensions.findByType`).
+   Aucun test unitaire. Zéro couverture Kover.
+
+2. **ProfilePublisher — pas de test d'intégration**
+   Coverage >90% mais pas de test avec un vrai GitService.pushToRemote.
+
+=== Modéré
+
+3. **DeployProfileTask full pipeline — 0 functional test**
+   Le pipeline deployProfile → copyProfileFiles → pushToRemote → cleanupDir
+   n'est pas testé de bout en bout.
+
+4. **BakeryPlugin (52.8%) — branches else**
+   Les chemins configPath absent, YAML invalide, répertoires manquants
+   sont partiellement couverts. Cible 70%.
+
+=== Léger
+
+5. **ToolsKt (22%)** — fonctions utilitaires.
+6. **Closures doLast TaskRegistrars** — limitation Kover documentée.
+
+== Actions Réalisées
+
+* [x] Code review complète du projet (47 fichiers source, 146 fichiers Kotlin)
+* [x] Analyse des métriques Kover, Cucumber, JUnit5, E2E
+* [x] Lecture des 3 code reviews existantes (V2, V3, V4)
+* [x] Mise à jour `TODO.adoc` — 5 nouveaux items de gaps fonctionnels
+* [x] Mise à jour `BACKLOG.adoc` — Nouvel EPIC **BKY-COV-2** (12 pts, 6 US)
+* [x] Mise à jour gouvernance (INDEX, SESSIONS_HISTORY, PROMPT_REPRISE, archives)
+
+== Fichiers Modifiés
+
+* `TODO.adoc` — +5 items gaps fonctionnels
+* `BACKLOG.adoc` — +EPIC BKY-COV-2 (6 US, 12 pts)
+* `PROMPT_REPRISE.adoc` — Session 105 terminée, session 106 cadrée
+* `.agents/INDEX.adoc` — Session 105, roadmap, statut
+* `.agents/SESSIONS_HISTORY.adoc` — Entrée session 105
+* `.agents/archives/COMPLETED_TASKS_ARCHIVE_2026-06.adoc` — Archive session 105
+
+== Résultats
+
+- Nouvel EPIC BKY-COV-2 créé : 12 pts, 6 US
+- Charge restante : BKY-PUB-1 (8 pts, ❄️) + BKY-COV-2 (12 pts, ☐) = 20 pts
+- Aucun changement code source
+- Aucun test modifié

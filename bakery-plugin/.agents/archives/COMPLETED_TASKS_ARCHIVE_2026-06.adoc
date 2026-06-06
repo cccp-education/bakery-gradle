@@ -1,5 +1,36 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 105 — 2026-06-06 — Code Review gaps fonctionnels + BKY-COV-2
+
+**Contexte** : Code review approfondie par agent externe (opencode).
+28/28 EPICs terminés, 100% fonctionnel. Mais des microfissures de
+couverture subsistent, invisibles dans le backlog.
+
+**Tâches réalisées** :
+
+* [x] Code review complète du projet (47 fichiers source, 146 .kt)
+* [x] Analyse Kover 85.88%, gaps identifiés :
+  - DeployProfileTask : 0% coverage (0 UT, 0 FT)
+  - ProfilePublisher : pas de test d'intégration GitService
+  - DeployProfileTask full pipeline : 0 FT
+  - BakeryPlugin : 52.8% (branches else non couvertes)
+  - ToolsKt : 22% (utilitaires)
+  - Closures doLast : Kover blind spot documenté
+* [x] BACKLOG.adoc — +EPIC BKY-COV-2 (12 pts, 6 US)
+* [x] TODO.adoc — +5 items gaps fonctionnels
+* [x] Mise à jour gouvernance complète
+
+**Fichiers modifiés** : `TODO.adoc`, `BACKLOG.adoc`, `PROMPT_REPRISE.adoc`,
+`.agents/INDEX.adoc`, `.agents/SESSIONS_HISTORY.adoc`,
+`.agents/TEST_COVERAGE_ANALYSIS.adoc`,
+`.agents/archives/COMPLETED_TASKS_ARCHIVE_2026-06.adoc`
+**Fichiers créés** : `.agents/sessions/105-code-review-coverage-gaps.adoc`
+
+**Résultats** : Zéro changement code source. Nouvel EPIC BKY-COV-2 (12 pts).
+Charge restante : BKY-PUB-1 (8 pts ❄️) + BKY-COV-2 (12 pts ☐) = 20 pts.
+
+'''
+
 == Session 103 — 2026-06-06 — US-KOV-5 BakeryPlugin coverage 37% → 52.8%
 == Session 104 — 2026-06-06 — US-KOV-6+7 SiteScaffolder 100% + bump seuil 85%
 

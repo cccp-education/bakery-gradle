@@ -2,31 +2,29 @@
 
 == Mission en cours
 
-*Session 104 TERMINEE* — US-KOV-6 SiteScaffolder 68.8% → 100% (+31.2pp).
-US-KOV-7 seuil Kover 70→85 valide. EPIC BKY-KOV-1 TERMINE (16/16 pts).
-Coverage globale 85.76% → 85.88%.
+*Session 105 TERMINEE* — Code review externe gaps fonctionnels couverture.
+Nouvel EPIC BKY-COV-2 cree : 6 US, 12 pts (DeployProfileTask 0% coverage,
+ProfilePublisher integration, BakeryPlugin 52.8%→70%, ToolsKt 22%→50%).
+BACKLOG/TODO mis a jour. Zero changement code source.
 
 == Statut
 
-- EPICs : 29/29 ✅ (100%) — BKY-KOV-1 termine
+- EPICs : 29/29 ✅ (100%)
 - Code smells : 24/24 ✅
-- BOM workspace : ✅ aligne
+- BKY-KOV-1 : ✅ TERMINE (85.88%) 
+- BKY-COV-2 : ☐ 0/12 pts — cree, pas commence
+- BKY-PUB-1 : ❄️ 0/8 pts — bloque par achat domaine cccp.education
 - Tests : ✅ Tous PASS (JUnit5 + functionalTest + Cucumber 129/129 + E2E)
-- Build : BUILD SUCCESSFUL
 - Coverage : *85.88%* — seuil 85% ✅ depasse
 
-== Prochaine session (105)
+== Prochaine session (106)
 
-=== EPIC BKY-PUB-1 : Publication Maven Central + Gradle Plugin Portal (8 pts)
+=== EPIC BKY-COV-2 : Microfissures coverage (12 pts)
 
-Priorite P0 — bloque par achat domaine cccp.education.
-Baby steps :
-. US-PUB-1 : Acheter domaine cccp.education (OVH/Gandi) + config DNS
-. US-PUB-2 : Ticket Sonatype OSSRH pour education.cccp (si pas deja fait)
-. US-PUB-3 : Configurer gradle.publish.key/secret pour cccp-education
-. US-PUB-4 : Valider publication Maven Central (staging → close → release)
-. US-PUB-5 : Valider publication Gradle Plugin Portal
-. US-PUB-6 : Bumper 0.1.4 → 1.0.0 (semver release publique)
-. US-PUB-7 : CI/CD GitHub Actions publication automatisee (tag v*)
-
-Configuration Sonatype deja en place dans build.gradle.kts (signing + maven-publish).
+Baby steps proposees :
+. US-COV-2.1 : DeployProfileTaskTest (8-10 UT, coverage 0%→85%)
+. US-COV-2.2 : ProfilePublisher integration FT (2 tests)
+. US-COV-2.3 : DeployProfileTask full pipeline FT (3 tests TestKit)
+. US-COV-2.4 : BakeryPlugin coverage 52.8%→70% (2-3 UT)
+. US-COV-2.5 : ToolsKt coverage 22%→50% (1 session)
+. US-COV-2.6 : Documentation limitation Kover closures doLast
