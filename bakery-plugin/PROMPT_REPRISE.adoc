@@ -2,19 +2,18 @@
 
 == Mission en cours
 
-*Session 094 TERMINÉE* — Alignement workspace-bom (MEMPHIS). BOM importé comme
-plateforme sur 4 configurations. 6 versions BOM-managées retirées du catalog.
-Kotlin 2.2.20→2.3.20, plugin-publish 1.3.1→2.1.0. slf4j/logback dur→catalog.
-Fix createTempDir pour Kotlin 2.3.20. 3 fichiers modifiés. 757 UT PASS.
+*Session 095 TERMINÉE* — Mise à jour README.adoc (reflet état actuel 0.1.4,
+28/28 EPICs, LENTILLE, IA, Firebase) + correction branding cccp-education
+(repo GitHub, website, copyright). 2 fichiers modifiés, zéro changement code.
 
 == Statut
 
 - EPICs : 28/28 ✅ (100%)
 - Code smells : 12/12 ✅
 - BOM workspace : ✅ aligné (education.cccp:workspace-bom:0.1.0)
-- Tests : 757 UT PASS, zéro régression
-- Build : zero warning, unit tests PASS
+- Tests : 757 UT PASS, 133 Cucumber PASS, 17 E2E PASS (inchangé)
+- Build : zero warning, unit tests PASS (non ré-exécutés, pas de modif source)
 
-== Prochaine session (095)
+== Prochaine session (096)
 
 *SWITCH BOROUGH* — Bakery 100% terminé, BOM aligné. Passer au borough suivant.

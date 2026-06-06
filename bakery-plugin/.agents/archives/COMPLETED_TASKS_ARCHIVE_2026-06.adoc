@@ -83,4 +83,27 @@ comme plateforme de versions homogénéisée cross-borough.
 
 '''
 
+== Session 095 — 2026-06-06 — README maj + Branding cccp-education
+
+**Contexte** : Le README.adoc n'était plus à jour (version 0.1.0 annoncée,
+fonctionnalités documentées incomplètes). Le repo avait migré de
+`cheroliv/bakery-gradle` vers `cccp-education/bakery-gradle`.
+
+**Tâches réalisées** :
+
+* [x] Réécriture complète README.adoc (351→670 lignes)
+* [x] Sections : Quick Facts, Features, Tasks par catégorie, Quick Start,
+  Pattern LENTILLE, Theme System, IA Scaffolding, Firebase, CI/CD,
+  Troubleshooting, Architecture + diagramme PlantUML
+* [x] Repo GitHub changé : `cheroliv/bakery-gradle` → `cccp-education/bakery-gradle`
+* [x] Website Gradle Portal : `https://cheroliv.com` → `https://cccp-education.github.io/`
+* [x] Copyright : `cheroliv` → `cccp.education`
+
+**Fichiers modifiés** : `README.adoc`, `bakery-plugin/build.gradle.kts`
+**Fichiers gouvernance** : `.agents/sessions/095-readme-maj.adoc`, `PROMPT_REPRISE.adoc`, `.agents/INDEX.adoc`, `.agents/SESSIONS_HISTORY.adoc`
+
+**Résultats** : README à jour reflétant l'état 0.1.4 (28 EPICs, LENTILLE, IA, Firebase). Zéro changement code source.
+
+'''
+
 == Session 081 — 2026-06-04 — CS-FIN-2 Jackson + CS-FIN-3 Nettoyage DRY

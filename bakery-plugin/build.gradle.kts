@@ -423,7 +423,7 @@ gradlePlugin {
             tags.set(listOf("jbake", "static-site-generator", "blog", "jgit", "asciidoc", "markdown", "thymeleaf"))
         }
     }
-    website = "https://cheroliv.com"
+    website = "https://cccp-education.github.io/"
     vcsUrl = "https://github.com/cheroliv/bakery-gradle.git"
     testSourceSets(functionalTest)
 }
