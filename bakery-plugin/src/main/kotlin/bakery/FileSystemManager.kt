@@ -39,15 +39,13 @@ object FileSystemManager {
             return errorMsg.left()
         }
 
+        return copyFromResourceUrl(resourcePath, targetDir, project, resource)
+    }
+
+    internal fun copyFromResourceUrl(resourcePath: String, targetDir: File, project: Project, resource: java.net.URL): FsResult {
         return when (resource.protocol) {
-            "jar" -> {
-                project.logger.info("Copying from JAR...")
-                copyFromJar(resourcePath, targetDir, project)
-            }
-            "file" -> {
-                project.logger.info("Copying from file system...")
-                copyFromFileSystem(resourcePath, targetDir, project)
-            }
+            "jar" -> copyFromJarUrl(resourcePath, targetDir, project, resource)
+            "file" -> copyFromFileSystemUrl(resourcePath, targetDir, project, resource)
             else -> {
                 val errorMsg = "Unsupported resource protocol: ${resource.protocol}"
                 project.logger.error(errorMsg)
@@ -56,41 +54,38 @@ object FileSystemManager {
         }
     }
 
-    private fun copyFromJar(
+    internal fun copyFromJarUrl(
         resourcePath: String,
         targetDir: File,
-        project: Project
+        project: Project,
+        jarUrl: java.net.URL
     ): FsResult = try {
-        BakeryPlugin::class.java.protectionDomain.codeSource.location.run {
-            project.logger.info("JAR URL: $this")
+        JarFile(File(jarUrl.toURI())).use { jar ->
+            val normalizedPath = resourcePath.removeSuffix("/") + "/"
+            val destDir = targetDir.resolve(resourcePath)
+            var copiedCount = 0
 
-            JarFile(File(toURI())).use { jar ->
-                val normalizedPath = resourcePath.removeSuffix("/") + "/"
-                val destDir = targetDir.resolve(resourcePath)
-                var copiedCount = 0
+            jar.entries()
+                .asSequence()
+                .filter { entry ->
+                    entry.name.startsWith(normalizedPath) &&
+                            !entry.isDirectory &&
+                            entry.name != normalizedPath
+                }.forEach { entry ->
+                    val relativePath = entry.name.removePrefix(normalizedPath)
+                    val targetFile = destDir.resolve(relativePath)
 
-                jar.entries()
-                    .asSequence()
-                    .filter { entry ->
-                        entry.name.startsWith(normalizedPath) &&
-                                !entry.isDirectory &&
-                                entry.name != normalizedPath
-                    }.forEach { entry ->
-                        val relativePath = entry.name.removePrefix(normalizedPath)
-                        val targetFile = destDir.resolve(relativePath)
+                    @Suppress("LoggingSimilarMessage")
+                    project.logger.info("Copying: ${entry.name} -> ${targetFile.absolutePath}")
 
-                        @Suppress("LoggingSimilarMessage")
-                        project.logger.info("Copying: ${entry.name} -> ${targetFile.absolutePath}")
+                    targetFile.parentFile.mkdirs()
 
-                        targetFile.parentFile.mkdirs()
-
-                        jar.getInputStream(entry).use { input ->
-                            targetFile.outputStream().use { output -> input.copyTo(output) }
-                        }
-                        copiedCount++
+                    jar.getInputStream(entry).use { input ->
+                        targetFile.outputStream().use { output -> input.copyTo(output) }
                     }
-                project.logger.lifecycle("✓ Copied $copiedCount files from $resourcePath to ${destDir.absolutePath}")
-            }
+                    copiedCount++
+                }
+            project.logger.lifecycle("✓ Copied $copiedCount files from $resourcePath to ${destDir.absolutePath}")
         }
         Unit.right()
     } catch (e: Exception) {
@@ -98,43 +93,39 @@ object FileSystemManager {
         (e.message ?: "Unknown error copying from JAR").left()
     }
 
-    private fun copyFromFileSystem(
+    internal fun copyFromFileSystemUrl(
         resourcePath: String,
         targetDir: File,
-        project: Project
-    ): FsResult {
-        return try {
-            val resource = BakeryPlugin::class.java.classLoader.getResource(resourcePath)
-                ?: return "Resource not found: $resourcePath".left()
+        project: Project,
+        resource: java.net.URL
+    ): FsResult = try {
+        val sourceDir = File(resource.toURI())
+        val destDir = targetDir.resolve(resourcePath)
 
-            val sourceDir = File(resource.toURI())
-            val destDir = targetDir.resolve(resourcePath)
+        project.logger.info("Source: ${sourceDir.absolutePath}")
+        project.logger.info("Destination: ${destDir.absolutePath}")
 
-            project.logger.info("Source: ${sourceDir.absolutePath}")
-            project.logger.info("Destination: ${destDir.absolutePath}")
-
-            if (!sourceDir.exists())
-                return "Source directory does not exist: ${sourceDir.absolutePath}".left()
-            if (!sourceDir.isDirectory)
-                return "Source is not a directory: ${sourceDir.absolutePath}".left()
-            destDir.parentFile.mkdirs()
-            val copiedCount = sourceDir
-                .walkTopDown()
-                .filter { it.isFile }
-                .count { sourceFile ->
-                    val relativePath = sourceFile.relativeTo(sourceDir).path
-                    val targetFile = destDir.resolve(relativePath)
-                    project.logger.info("Copying: ${sourceFile.absolutePath} -> ${targetFile.absolutePath}")
-                    targetFile.parentFile.mkdirs()
-                    sourceFile.copyTo(targetFile, overwrite = true)
-                    true
-                }
-            project.logger.lifecycle("✓ Copied $copiedCount files from $resourcePath to ${destDir.absolutePath}")
-            Unit.right()
-        } catch (e: Exception) {
-            project.logger.error("Error copying from file system: ${e.message}", e)
-            (e.message ?: "Unknown error copying from file system").left()
-        }
+        if (!sourceDir.exists())
+            return "Source directory does not exist: ${sourceDir.absolutePath}".left()
+        if (!sourceDir.isDirectory)
+            return "Source is not a directory: ${sourceDir.absolutePath}".left()
+        destDir.parentFile.mkdirs()
+        val copiedCount = sourceDir
+            .walkTopDown()
+            .filter { it.isFile }
+            .count { sourceFile ->
+                val relativePath = sourceFile.relativeTo(sourceDir).path
+                val targetFile = destDir.resolve(relativePath)
+                project.logger.info("Copying: ${sourceFile.absolutePath} -> ${targetFile.absolutePath}")
+                targetFile.parentFile.mkdirs()
+                sourceFile.copyTo(targetFile, overwrite = true)
+                true
+            }
+        project.logger.lifecycle("✓ Copied $copiedCount files from $resourcePath to ${destDir.absolutePath}")
+        Unit.right()
+    } catch (e: Exception) {
+        project.logger.error("Error copying from file system: ${e.message}", e)
+        (e.message ?: "Unknown error copying from file system").left()
     }
 
     // Publishing logic

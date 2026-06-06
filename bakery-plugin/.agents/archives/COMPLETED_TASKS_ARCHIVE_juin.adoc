@@ -1,6 +1,39 @@
 = COMPLETED_TASKS_ARCHIVE — Juin 2026
 
-== Session 099 — BKY-KOV-1 US-1 Audit couverture Kover + réparation tests (2026-06-06)
+== Session 101 — US-KOV-3 FileSystemManager Coverage 56% → 90.45% (2026-06-06)
+
+=== DDD — Extraction méthode pour testabilité
+
+* [x] `copyFromJarUrl(resourcePath, targetDir, project, jarUrl)` → internal
+* [x] `copyFromFileSystemUrl(resourcePath, targetDir, project, resource)` → internal
+* [x] `copyFromResourceUrl(resourcePath, targetDir, project, resource)` → internal (dispatch when protocol)
+* [x] Supprimé dead code : `copyFromJar` (private wrapper, 37 missed) + `copyFromFileSystem` (private wrapper)
+
+=== TDD — Tests
+
+* [x] CopyFromJarUrlTest (5 tests) : copies files from JAR, trailing slash, skip dirs, nonexistent JAR, directory URL
+* [x] CopyFromFileSystemUrlTest (3 tests) : source doesn't exist, source is file not dir, copy single file
+* [x] CopyFromResourceUrlTest (1 test) : unsupported protocol returns Failure
+* [x] ReadInvalidYamlTest (1 test) : malformed YAML returns default SiteConfiguration
+
+=== Métriques
+
+* [x] FileSystemManager : 56% → 90.45% (+34.45pp, cible 85% dépassée)
+* [x] Coverage globale : 78.1% → 85.24% (+7.14pp)
+* [x] Kover threshold check : PASS (seuil 70%, réel 84.73%)
+* [x] BUILD SUCCESSFUL, tous tests PASS
+* [x] publishToMavenLocal OK
+
+=== Fichiers modifiés
+
+* [x] `FileSystemManager.kt` : extraction internal, suppression dead code
+* [x] `FileSystemManagerTest.kt` : 23 tests couvrant toutes les branches principales
+* [x] `PROMPT_REPRISE.adoc` : session 102 US-KOV-4 GitService
+* [x] `SESSIONS_HISTORY.adoc` : ajout session 101
+* [x] `INDEX.adoc` : ajout session 101, MAJ BKY-KOV-1 progression 40%
+* [x] `TEST_COVERAGE_ANALYSIS.adoc` : +US-KOV-3, +historique
+
+=== Session 099 — BKY-KOV-1 US-1 Audit couverture Kover + réparation tests (2026-06-06)
 
 === Phase 1 — Réparation Tests
 

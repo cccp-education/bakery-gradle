@@ -2,8 +2,8 @@
 
 == Mission en cours
 
-*Session 100 TERMINÉE* — US-KOV-2 GenerateThemeTask 0% → 95.7%.
-19 tests unitaires ajoutés. Coverage globale 78.1% → 83.72% (+5.62pp).
+*Session 101 TERMINÉE* — US-KOV-3 FileSystemManager 56% → 90.45%.
+Coverage globale 78.1% → 85.24% (+7.14pp). 23 tests unitaires.
 
 == Statut
 
@@ -12,22 +12,21 @@
 - BOM workspace : ✅ aligné
 - Tests : ✅ Tous PASS (JUnit5 + functionalTest + Cucumber + E2E)
 - Build : BUILD SUCCESSFUL
-- Coverage : *83.72%* (cible 90%, gap +6.28pp)
+- Coverage : *85.24%* (cible 90%, gap +4.76pp)
 
-== Prochaine session (101)
+== Prochaine session (102)
 
-=== EPIC BKY-KOV-1 — US-KOV-3 : FileSystemManager 56% → 85%
+=== EPIC BKY-KOV-1 — US-KOV-4 : GitService 66% → 85%
 
-Priorité P1 — ~210 instructions manquées.
-Fichier : `bakery/FileSystemManager.kt` (copier, lire, écrire, jar).
+Priorité P1 — ~120 instructions manquées.
+Fichier : `bakery/GitService.kt`.
 Baby steps DDD/TDD :
-. Lire FileSystemManager + ses appelants (SiteTaskRegistrar, BakeryPlugin)
-. Écrire FileSystemManagerTest (copier repertoire, edge-cases permissions, jar absent)
-. Target : 56% → ≥85%
+. Lire GitService + ses appelants (DeployTaskRegistrar)
+. Écrire GitServiceTest (clone, push, branches edge-cases, cleanup)
+. Target : 66% → ≥85%
 
-=== En attente (sessions 102+)
+=== En attente (sessions 103+)
 
-- BKY-KOV-1 US-KOV-4 : GitService 66% → 85% (~120 instructions)
 - BKY-KOV-1 US-KOV-5 : BakeryPlugin 37% → 70% (~100 instructions)
 - BKY-KOV-1 US-KOV-6 : SiteScaffolder 69% → 90% (~30 instructions)
 - BKY-KOV-1 US-KOV-7 : Validation finale + bump seuil 70→90

@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-06 — Session 100 (US-KOV-2 GenerateThemeTask 95.7%)
-  _Session terminee_ : 100
-  _Prochaine session_ : 101 — BKY-KOV-1 US-KOV-3 FileSystemManager 56% → 85%
+  _Derniere mise a jour_ : 2026-06-06 — Session 101 (US-KOV-3 FileSystemManager 90.45%)
+  _Session terminee_ : 101
+  _Prochaine session_ : 102 — BKY-KOV-1 US-KOV-4 GitService 66% → 85%
   _Session en cours_ : — (fermee)
 
 '''
@@ -68,8 +68,9 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 == Sessions Recentes
 
- |===
+  |===
   | # | Date | Type | Sujet | Score
+  | 101 | 2026-06-06 | TDD + coverage | **US-KOV-3** FileSystemManager 56% → 90.45% — 23 tests unitaires (copyFromJarUrl 5 + copyFromFS 3 + copyFromResourceUrl dispatch 1). Coverage globale 78.1%→85.24% (+7.14pp). | 9/10
   | 100 | 2026-06-06 | TDD + coverage | **US-KOV-2** GenerateThemeTask 0→95.7% — 19 tests (TaskRegistration + ResolveIntention + ExecuteGenerate). Coverage globale 78.1→83.72%. Tous tests PASS. | 9/10
   | 099 | 2026-06-06 | fix + audit | **Audit Kover + réparation tests** — Phase 1: FT telephone→phone, Cucumber DuplicateStepDefinition fix, copyFromJar path fix. Phase 2: Audit Kover coverage 78.1%, cibles US-KOV-2→6 identifiées. 4 fichiers modifiés. Tous tests greens. | 8/10
   | 096 | 2026-06-06 | code review | **Code Review V4** — Second regard expert post-Copilot. Contrepoint review Copilot (obsolète). 9 nouveaux smells V4 (CS-V4-1→9 : 0 critique, 2 modérés, 7 légers). Document `.agents/CODE_REVIEW_V4.adoc` (277 lignes). Zéro changement code. | 8/10
@@ -303,7 +304,7 @@ Zéro dette technique. Prêt à switcher de borough.
 
 |===
 | EPIC | Progression | Priorite
-| BKY-KOV-1 : Kover Coverage 77% → 90% (+13%) | 20% | *P0 🔄 US-1 TERMINÉ (audit) — US-KOV-2→7 restantes (~4 sessions)*
+| BKY-KOV-1 : Kover Coverage 77% → 90% (+13%) | 40% | *P0 🔄 US-1 ✅, US-KOV-2 ✅, US-KOV-3 ✅, US-KOV-4→7 restantes (~3 sessions)*
 | BKY-PUB-1 : Publication Maven Central + Gradle Plugin Portal (cccp.education) | 0% | *P0 ☐* (~2 sessions, bloqué par achat domaine)
 |===
 

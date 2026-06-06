@@ -1,8 +1,9 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-  _Derniere mise a jour : 2026-06-06 — Session 100_
+  _Derniere mise a jour : 2026-06-06 — Session 101_
 
   |===
+  | 101 | 2026-06-06 | TDD + coverage | **US-KOV-3** FileSystemManager 56% → 90.45% — DDD : extraction copyFromJarUrl/copyFromFileSystemUrl/copyFromResourceUrl internes + suppression dead code privé. TDD : 23 tests unitaires (copyFromJar 5 + copyFromFS 3 + copyFromResourceUrl dispatch 1 + existants 14). Coverage globale 78.1%→85.24% (+7.14pp). Tous tests PASS. BUILD SUCCESSFUL. | 9/10
   | 100 | 2026-06-06 | TDD + coverage | **US-KOV-2** GenerateThemeTask 0% → 95.7% — 19 tests (TaskRegistration 2 + ResolveIntention 10 + ExecuteGenerate 7). DDD/TDD baby steps. Coverage globale 78.1%→83.72% (+5.62pp). Tous tests PASS. | 9/10
   | 099 | 2026-06-06 | fix + audit | BKY-KOV-1 US-1 Audit couverture Kover. Phase 1 : réparation tests (FT telephone→phone + Cucumber DuplicateStepDefinition + copyFromJar path fix). Phase 2 : audit Kover XML — coverage 78.1%, cibles US-KOV-2→6 identifiées (GenerateThemeTask 0%, FileSystemManager 56%, GitService 66%, BakeryPlugin 37%, SiteScaffolder 69%). Plan 5 sessions résiduelles. 4 fichiers modifiés. Tous tests greens. | 8/10
   | 098 | 2026-06-06 | governance + planification | Feedback agent + nettoyage cheroliv.com + planification EPIC BKY-PUB-1 (Publication Maven Central, 8 pts) + EPIC BKY-KOV-1 (Coverage 90%, 16 pts). TODO.adoc/BACKLOG.adoc/INDEX.adoc/TEST_COVERAGE_ANALYSIS/PROMPT_REPRISE/SESSIONS_HISTORY mis a jour. Charge restante : 24 pts. | 9/10
