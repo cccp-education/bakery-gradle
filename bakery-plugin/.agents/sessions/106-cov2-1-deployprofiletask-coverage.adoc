@@ -1,0 +1,70 @@
+= Session 106 — BKY-COV-2 US-1 : DeployProfileTask Coverage 0→12 tests
+:type: TDD + coverage
+:date: 2026-06-07
+:toc: left
+
+== Contexte
+
+EPIC BKY-COV-2 Microfissures coverage — US-COV-2.1 DeployProfileTask.
+0% couverture, 0 test. 12 tests TDD baby steps.
+
+== Baby Steps DDD/TDD
+
+=== DDD — Analyse des branches
+
+DeployProfileTask.deployProfile() (41 lignes) orchestre :
+. Résolution credentials (CLI findProperty vs YAML fallback)
+. Validation pushProfile présent
+. copyProfileFiles (profileFiles, fromDir, forbidden files)
+. pushToRemote avec preserveHistory=true
+. cleanup finally
+
+Branches à couvrir : pushProfile absent, CLI vs YAML creds,
+creds manquants, profileFiles vide, fromDir inexistant,
+forbidden files, from path != directory, happy path multi-files,
+cleanup après erreur.
+
+Pattern test : ProjectBuilder + bare remote Git + `ext.extraProperties`
+pour simuler `project.findProperty`.
+
+=== TDD — 12 tests RED→GREEN
+
+Fichier créé : `src/test/kotlin/bakery/DeployProfileTaskTest.kt` (368 lignes).
+
+PushProfileMissing (1 test) :
+- throws when pushProfile section is missing from site yml
+
+CredentialsResolution (4 tests) :
+- uses CLI credentials when provided via project properties
+- falls back to YAML credentials when CLI properties are blank
+- throws when no credentials found both CLI and YAML blank
+- uses CLI credentials even when YAML credentials are also set
+
+ProfileFilesValidation (6 tests) :
+- throws when profileFiles is empty
+- throws when from directory does not exist
+- throws when profile file is not found on disk
+- throws when forbidden files are in profileFiles
+- throws when from path is a file not a directory
+
+CleanupAfterError (1 test) :
+- cleans up repoDir even when copyProfileFiles throws
+
+HappyPathWithMultipleFiles (1 test) :
+- deploys multiple profile files to simulated remote and cleans up repoDir
+
+== Résultats
+
+- 12/12 tests PASS
+- BUILD SUCCESSFUL
+- Tous les autres tests inchangés (test complet 31s, zéro régression)
+- compileTestKotlin OK
+- Zero changement code source (test only)
+
+Helper : `makeSiteYml()` companion factory avec profileFilesYaml paramétrable
+(+ variante inline `[]` vs block `  - item`).
+
+== Prochaine session
+
+US-COV-2.2 : ProfilePublisher integration FT (2 tests — deployProfile
+avec/sans preservation d'historique).

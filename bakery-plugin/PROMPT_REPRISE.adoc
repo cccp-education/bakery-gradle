@@ -2,28 +2,24 @@
 
 == Mission en cours
 
-*Session 105 TERMINEE* — Code review externe gaps fonctionnels couverture.
-Nouvel EPIC BKY-COV-2 cree : 6 US, 12 pts (DeployProfileTask 0% coverage,
-ProfilePublisher integration, BakeryPlugin 52.8%→70%, ToolsKt 22%→50%).
-BACKLOG/TODO mis a jour. Zero changement code source.
+*Session 106 TERMINEE* — US-COV-2.1 DeployProfileTask 12 tests (0%→12 UT).
+TDD baby steps. EPIC BKY-COV-2 : 3/12 pts.
 
 == Statut
 
 - EPICs : 29/29 ✅ (100%)
 - Code smells : 24/24 ✅
-- BKY-KOV-1 : ✅ TERMINE (85.88%) 
-- BKY-COV-2 : ☐ 0/12 pts — cree, pas commence
+- BKY-KOV-1 : ✅ TERMINE (85.88%)
+- BKY-COV-2 : 🔄 3/12 pts — US-COV-2.1 ✅
 - BKY-PUB-1 : ❄️ 0/8 pts — bloque par achat domaine cccp.education
-- Tests : ✅ Tous PASS (JUnit5 + functionalTest + Cucumber 129/129 + E2E)
-- Coverage : *85.88%* — seuil 85% ✅ depasse
+- Tests : ✅ Tous PASS (JUnit5 12+ + functionalTest + Cucumber 129/129 + E2E)
 
-== Prochaine session (106)
+== Prochaine session (107)
 
 === EPIC BKY-COV-2 : Microfissures coverage (12 pts)
 
-Baby steps proposees :
-. US-COV-2.1 : DeployProfileTaskTest (8-10 UT, coverage 0%→85%)
-. US-COV-2.2 : ProfilePublisher integration FT (2 tests)
+. ✅ US-COV-2.1 : DeployProfileTask 12 UT (0%→couvert)
+. US-COV-2.2 : ProfilePublisher integration FT (2 tests deployProfile)
 . US-COV-2.3 : DeployProfileTask full pipeline FT (3 tests TestKit)
 . US-COV-2.4 : BakeryPlugin coverage 52.8%→70% (2-3 UT)
 . US-COV-2.5 : ToolsKt coverage 22%→50% (1 session)

@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-06 — Session 105 (Code Review — Nouvel EPIC BKY-COV-2)_
+_Dernière mise à jour : 2026-06-07 — Session 106 (US-COV-2.1 DeployProfileTask 12 UT)_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -39,7 +39,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 
 |===
 | US | Cible | Coverage actuel | Cible | Priorité
-| US-COV-2.1 | DeployProfileTask | 0% | 85% | 🟠 P1
+| US-COV-2.1 | DeployProfileTask | 0% | 85% | *✅ Session 106* — 12 UT PASS
 | US-COV-2.2 | ProfilePublisher integration FT | — | 2 FT | 🟡 P2
 | US-COV-2.3 | DeployProfileTask full pipeline FT | 0 FT | 3 FT | 🟡 P2
 | US-COV-2.4 | BakeryPlugin | 52.8% | 70% | 🟡 P2
@@ -67,7 +67,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 [cols="2,2,2,3,3"]
 |===
 | Session | Date | Kover % | Tests PASS | Notes
-| 102 | 2026-06-06 | *85.19%* | Full suite ✅ | **US-KOV-4** GitService 66%→86.0%. TDD : 4 nouveaux tests (PushPages : succès + RemoteNotConfigured + ContentAbsent ; forcePush sans history). 19/19 GitServiceTest PASS.
+| 106 | 2026-06-07 | *85.88%* | Full suite ✅ | **US-COV-2.1** DeployProfileTask 12 UT (0%→couvert). TDD baby steps. PushProfileMissing + CredentialsResolution 4 + ProfileFilesValidation 6 + Cleanup + HappyPath.
 | 101 | 2026-06-06 | *85.24%* | Full suite ✅ | **US-KOV-3** FileSystemManager 56%→90.45%. DDD : extraction copyFromJarUrl/copyFromFileSystemUrl/copyFromResourceUrl + suppression dead code. TDD : 23 tests. Coverage +7.14pp.
 | 100 | 2026-06-06 | *83.72%* | Full suite ✅ | **US-KOV-2** GenerateThemeTask 0%→95.7% (19 tests : TaskRegistration + ResolveIntention + ExecuteGenerate). Coverage +5.62pp.
 | 099 | 2026-06-06 | *78.10%* | Full suite ✅ | BKY-KOV-1 US-1 audit Kover terminé. Coverage mesuré via XML. Tous tests réparés (FT + Cucumber).

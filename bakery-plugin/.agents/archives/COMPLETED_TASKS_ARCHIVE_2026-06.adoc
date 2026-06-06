@@ -1,5 +1,31 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 106 — 2026-06-07 — US-COV-2.1 DeployProfileTask 12 UT
+
+**Contexte** : EPIC BKY-COV-2 Microfissures coverage. DeployProfileTask 0% UT, 0 test.
+
+**Tâches réalisées** :
+
+* [x] DDD — Analyse des branches DeployProfileTask.deployProfile() : pushProfile absent,
+  credentials CLI vs YAML, credentials manquants, profileFiles vide, fromDir inexistant,
+  forbidden files, from path != directory, happy path multi-files, cleanup finally
+* [x] TDD — 12 tests RED→GREEN avec ProjectBuilder + bare remote Git + ext.extraProperties :
+  - PushProfileMissing (1 test) : throws when pushProfile section is missing
+  - CredentialsResolution (4 tests) : CLI creds, YAML fallback, no creds throw, CLI priority
+  - ProfileFilesValidation (6 tests) : empty, fromDir nonexistent, file not found,
+    forbidden files, from path is file not dir, profileFiles empty
+  - CleanupAfterError (1 test) : repoDir deleted even after copyProfileFiles throws
+  - HappyPathWithMultipleFiles (1 test) : multi-files deploy + cleanup verify
+* [x] Helper : `makeSiteYml()` companion factory avec `profileFilesYaml` parametrable
+
+**Fichiers créés** : `src/test/kotlin/bakery/DeployProfileTaskTest.kt` (368 lignes)
+**Fichiers modifiés** : aucun — test only
+
+**Résultats** : 12/12 DeployProfileTaskTest PASS, full suite PASS, BUILD SUCCESSFUL.
+EPIC BKY-COV-2 3/12 pts ✅.
+
+'''
+
 == Session 105 — 2026-06-06 — Code Review gaps fonctionnels + BKY-COV-2
 
 **Contexte** : Code review approfondie par agent externe (opencode).

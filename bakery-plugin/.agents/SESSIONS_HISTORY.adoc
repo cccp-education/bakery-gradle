@@ -1,8 +1,9 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-  _Derniere mise a jour : 2026-06-06 — Session 105_
+  _Derniere mise a jour : 2026-06-07 — Session 106_
 
   |===
+  | 106 | 2026-06-07 | TDD + coverage | **US-COV-2.1** DeployProfileTask 12 UT (0%→couvert). TDD : 12 tests (PushProfileMissing 1 + CredentialsResolution 4 + ProfileFilesValidation 6 + CleanupAfterError 1 + HappyPathMultipleFiles 1). Pattern ProjectBuilder + bare Git remote + ext.extraProperties. Zero changement code source. BUILD SUCCESSFUL. | 9/10
   | 105 | 2026-06-06 | code review + governance | **Code Review externe** — Gaps fonctionnels couverture. Nouvel EPIC BKY-COV-2 (12 pts, 6 US) : DeployProfileTask 0% UT, ProfilePublisher integration FT, BakeryPlugin 52.8%→70%, ToolsKt 22%→50%, Kover blind spot documented. BACKLOG/TODO mis à jour. Zéro changement code. | 9/10
   | 104 | 2026-06-06 | TDD + coverage + threshold | **US-KOV-6+7** SiteScaffolder 68.8% → 100% (+31.2pp) + bump seuil 70→85. EPIC BKY-KOV-1 TERMINE (16/16 pts). Coverage globale 85.76% → 85.88%. | 9/10
 
