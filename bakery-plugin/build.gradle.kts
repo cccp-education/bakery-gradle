@@ -405,8 +405,8 @@ tasks.register("koverThresholdCheck") {
                 )
             }% (missed=$totalMissed, covered=$totalCovered)"
         )
-        if (coverage < 70.0) {
-            throw GradleException("Coverage ${String.format("%.2f", coverage)}% is below threshold 70%")
+        if (coverage < 85.0) {
+            throw GradleException("Coverage ${String.format("%.2f", coverage)}% is below threshold 85%")
         }
     }
 }

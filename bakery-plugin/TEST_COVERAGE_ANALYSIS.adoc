@@ -178,3 +178,11 @@ Total Cucumber : 15 scenarios (12 PASS, 3 FAIL)
 
 **Total Session 091 unitaires** : 9 nouveaux tests PASS
 
+== Tests Unitaires — Session 104 (US-KOV-6+7 SiteScaffolder 100%)
+
+|===
+| Classe | Tests | Statut | Notes
+| SiteScaffolderTest.ResolveAndValidateSiteTargetTest | 3 | PASS | both baseDir+siteName, only siteName, baseDir sans siteName throw
+| SiteScaffolderTest.ResolveSiteTypeTest (edge null) | 1 | PASS | siteType Property null → BLOG
+|===
+

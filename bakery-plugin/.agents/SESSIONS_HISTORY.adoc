@@ -1,8 +1,10 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-  _Derniere mise a jour : 2026-06-06 — Session 103_
+  _Derniere mise a jour : 2026-06-06 — Session 104_
 
   |===
+  | 104 | 2026-06-06 | TDD + coverage + threshold | **US-KOV-6+7** SiteScaffolder 68.8% → 100% (+31.2pp) + bump seuil 70→85. EPIC BKY-KOV-1 TERMINE (16/16 pts). Coverage globale 85.76% → 85.88%. | 9/10
+
   | 103 | 2026-06-06 | TDD + coverage | **US-KOV-5** BakeryPlugin 37% → 52.8% — TDD : 3 nouveaux tests (configFile absent + YAML invalide + dirs manquants). BakeryTestFixture etendu (createWithProjectDir + projectDir parametrable). Coverage globale 85.19% → 85.76% (+0.57pp). BakeryPluginFunctionalTests couvre le full pipeline a 89.4%. | 8/10
 
   | 102 | 2026-06-06 | TDD + coverage | **US-KOV-4** GitService 66% → 86.0% — TDD : 4 nouveaux tests (3 PushPages : succès + RemoteNotConfigured + ContentAbsent ; 1 forcePush sans history). GitService : 485/564 insn. Coverage globale 85.19% (gap cible 90%: 4.81pp). 19/19 GitServiceTest PASS, full suite PASS. | 9/10

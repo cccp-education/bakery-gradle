@@ -1,6 +1,34 @@
 = Archive des Taches Terminees — Juin 2026
 
 == Session 103 — 2026-06-06 — US-KOV-5 BakeryPlugin coverage 37% → 52.8%
+== Session 104 — 2026-06-06 — US-KOV-6+7 SiteScaffolder 100% + bump seuil 85%
+
+**Contexte** : EPIC BKY-KOV-1 finalisation. SiteScaffolder etait a 68.8% instruction.
+US-KOV-7 : bump seuil Kover 70->85.
+
+**Taches realisees** :
+
+* [x] DDD — Refactor BakeryPlugin.registerScaffoldOnlyTasks : remplace inlining resolveSiteTargetDir + validateSiteTargetDoesNotExist par appel a resolveAndValidateSiteTarget()
+* [x] TDD — SiteScaffolderTest 4 nouveaux tests :
+  - ResolveAndValidateSiteTargetTest (3 tests) : both baseDir+siteName, only siteName, baseDir sans siteName throw
+  - resolveSiteType edge : Property<String> null -> BLOG
+* [x] US-KOV-7 — build.gradle.kts : coverage < 70.0 -> coverage < 85.0
+* [x] koverThresholdCheck -> PASS (85.88%)
+
+**Fichiers modifies** :
+- `src/main/kotlin/bakery/BakeryPlugin.kt` — +import + appel resolveAndValidateSiteTarget
+- `src/test/kotlin/bakery/SiteScaffolderTest.kt` — +4 tests
+- `build.gradle.kts` — seuil 70->85
+
+**Resultats** :
+- SiteScaffolder : 68.8% -> 100% instruction (93/93), 100% method (4/4)
+- Coverage globale : 85.76% -> 85.88% (+0.12pp)
+- EPIC BKY-KOV-1 TERMINE — 16/16 pts
+- Tous tests PASS (JUnit5 + functionalTest + Cucumber 129/129)
+- BUILD SUCCESSFUL
+
+'''
+
 
 **Contexte** : EPIC BKY-KOV-1 Kover Coverage 90%. BakeryPlugin etait a 37% de couverture.
 

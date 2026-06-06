@@ -4,6 +4,7 @@ import bakery.FileSystemManager.from
 import bakery.FileSystemManager.yamlMapper
 import bakery.BakeryConstants.BAKERY_GROUP
 import bakery.SiteManager.configureConfigPath
+import bakery.SiteScaffolder.resolveAndValidateSiteTarget
 import bakery.SiteManager.createJBakeRuntimeConfiguration
 import bakery.SiteManager.registerUtilityTasks
 import bakery.SiteTaskRegistrar.configureBakeTask
@@ -136,13 +137,7 @@ class BakeryPlugin : Plugin<Project> {
         bakeryExtension: BakeryExtension,
         @Suppress("UNUSED_PARAMETER") jbakeRuntime: Configuration
     ) {
-        val targetDir = SiteScaffolder.resolveSiteTargetDir(
-            bakeryExtension,
-            project.projectDir
-        )
-        if (targetDir != project.projectDir) {
-            SiteScaffolder.validateSiteTargetDoesNotExist(targetDir)
-        }
+        val targetDir = project.resolveAndValidateSiteTarget()
         val siteType = SiteScaffolder.resolveSiteType(bakeryExtension)
         project.registerGenerateSiteTask(targetDir, siteType, bakeryExtension)
         project.registerGenerateSiteFromIntentionTask(

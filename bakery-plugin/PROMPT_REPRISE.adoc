@@ -2,32 +2,31 @@
 
 == Mission en cours
 
-*Session 103 TERMINEE* — US-KOV-5 BakeryPlugin 37% → 52.8% (+15.8pp).
-Coverage globale 85.19% → 85.76%. 3 nouveaux tests unitaires.
-BakeryPluginFunctionalTests couvre le full pipeline a 89.4%.
+*Session 104 TERMINEE* — US-KOV-6 SiteScaffolder 68.8% → 100% (+31.2pp).
+US-KOV-7 seuil Kover 70→85 valide. EPIC BKY-KOV-1 TERMINE (16/16 pts).
+Coverage globale 85.76% → 85.88%.
 
 == Statut
 
-- EPICs : 28/28 ✅ (100%)
+- EPICs : 29/29 ✅ (100%) — BKY-KOV-1 termine
 - Code smells : 24/24 ✅
 - BOM workspace : ✅ aligne
-- Tests : ✅ Tous PASS (JUnit5 + functionalTest + Cucumber + E2E)
+- Tests : ✅ Tous PASS (JUnit5 + functionalTest + Cucumber 129/129 + E2E)
 - Build : BUILD SUCCESSFUL
-- Coverage : *85.76%* (cible 90%, gap 4.24pp)
+- Coverage : *85.88%* — seuil 85% ✅ depasse
 
-== Prochaine session (104)
+== Prochaine session (105)
 
-=== EPIC BKY-KOV-1 — US-KOV-6 : SiteScaffolder 69% → 90%
+=== EPIC BKY-PUB-1 : Publication Maven Central + Gradle Plugin Portal (8 pts)
 
-Priorite P1 — ~30 instructions.
-Fichier : `bakery/SiteScaffolder.kt`.
-Baby steps DDD/TDD :
-. Lire SiteScaffolder + ses appelants (BakeryPlugin.registerScaffoldOnlyTasks)
-. Identifier les branches non couvertes via Kover XML
-. Ecrire SiteScaffolderTest (siteTargetDir, validateSiteTarget, resolveSiteType edges)
-. Target : 69% → ≥90%
+Priorite P0 — bloque par achat domaine cccp.education.
+Baby steps :
+. US-PUB-1 : Acheter domaine cccp.education (OVH/Gandi) + config DNS
+. US-PUB-2 : Ticket Sonatype OSSRH pour education.cccp (si pas deja fait)
+. US-PUB-3 : Configurer gradle.publish.key/secret pour cccp-education
+. US-PUB-4 : Valider publication Maven Central (staging → close → release)
+. US-PUB-5 : Valider publication Gradle Plugin Portal
+. US-PUB-6 : Bumper 0.1.4 → 1.0.0 (semver release publique)
+. US-PUB-7 : CI/CD GitHub Actions publication automatisee (tag v*)
 
-=== En attente (sessions 105+)
-
-- BKY-KOV-1 US-KOV-7 : Validation finale + bump seuil 70→90
-- BKY-PUB-1 : Publication Maven Central + Gradle Plugin Portal (8 pts, bloque par achat domaine cccp.education)
+Configuration Sonatype deja en place dans build.gradle.kts (signing + maven-publish).

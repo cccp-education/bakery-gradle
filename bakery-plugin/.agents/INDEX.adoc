@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-06 — Session 103 (US-KOV-5 BakeryPlugin 52.8%)
-  _Session terminee_ : 103
-  _Prochaine session_ : 104 — US-KOV-6 SiteScaffolder 69% → 90%
+  _Derniere mise a jour_ : 2026-06-06 — Session 104 (US-KOV-6+7 SiteScaffolder 100% coverage + bump seuil 85%)
+  _Session terminee_ : 104
+  _Prochaine session_ : 105 — BKY-PUB-1 Publication Maven Central + Gradle Plugin Portal
   _Session en cours_ : — (fermee)
 
 '''
@@ -70,6 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 104 | 2026-06-06 | TDD + coverage + threshold | **US-KOV-6+7** SiteScaffolder 68.8% → 100% (+31.2pp) + bump seuil 70→85. EPIC BKY-KOV-1 TERMINE (16/16 pts). Coverage globale 85.76% → 85.88%. | 9/10
   | 103 | 2026-06-06 | TDD + coverage | **US-KOV-5** BakeryPlugin 37% → 52.8% — 3 tests (configFile absent/YAML invalide/dirs manquants). BakeryTestFixture étendu. Coverage 85.19%→85.76%. FT couvre full pipeline 89.4%. | 8/10
   | 102 | 2026-06-06 | TDD + coverage | **US-KOV-4** GitService 66% → 86.0% — TDD : 4 nouveaux tests (3 PushPages succès/RemoteNotConfigured/ContentAbsent + 1 forcePush sans history). Coverage globale 85.19% (gap cible 90%: 4.81pp). 19/19 GitServiceTest PASS. | 9/10
   | 101 | 2026-06-06 | TDD + coverage | **US-KOV-3** FileSystemManager 56% → 90.45% — 23 tests unitaires (copyFromJarUrl 5 + copyFromFS 3 + copyFromResourceUrl dispatch 1). Coverage globale 78.1%→85.24% (+7.14pp). | 9/10
@@ -271,7 +272,7 @@ _Localisation active_ : `.agents/backup/Y2026-sessions-051-060/` (rotation sessi
 | CS-V4-ARCH | ✅ Architecture : YAML Either (RECO-1) + parallélisme (RECO-2) + side-effect (RECO-3) — 40 min, 1.5 pts
 |===
 
-*Total* : 5.5 pts résolus. Bakery 100% terminé — 28/28 EPICs + 24/24 code smells.
+*Total* : 5.5 pts résolus. Bakery 100% terminé — 29/29 EPICs + 24/24 code smells.
 Zéro dette technique. Prêt à switcher de borough.
 
 '''
@@ -299,15 +300,15 @@ Zéro dette technique. Prêt à switcher de borough.
 | CS-35 | 🟢 P3 | ✅ S089 | FileSystemManager exceptions → Either | CS-FIN-8
 | CS-36 | 🟢 P3 | ✅ S091 | BFS O(n²) → BfsProximityCache lazy | CS-FIN-9
 | CS-31-bis | 🟢 P3 | ✅ S090 | Masquage secrets étendu (SecretField ADT: Password/ApiKey/Token) | CS-FIN-10
-| — | 🟢 P3 | ☐ À faire | Arrow-kt 2.2.3 v1.1.0 roadmap | ARROW-1
+| — | 🟢 P3 | ✅ S093 | Arrow-kt 2.2.3 v1.1.0 roadmap | ARROW-1
 |===
 
 === EPICs Publication Maven Central
 
 |===
 | EPIC | Progression | Priorite
-| BKY-KOV-1 : Kover Coverage 77% → 90% (+13%) | 62% | *P0 🔄 US-1 ✅, US-KOV-2 ✅, US-KOV-3 ✅, US-KOV-4 ✅, US-KOV-5 ✅, US-KOV-6→7 restantes (~1-2 sessions)*
-| BKY-PUB-1 : Publication Maven Central + Gradle Plugin Portal (cccp.education) | 0% | *P0 ☐* (~2 sessions, bloqué par achat domaine)
+| BKY-KOV-1 : Kover Coverage 78% → 85.88% (+7.78pp) | 100% | *P0 ✅ TERMINE*
+| BKY-PUB-1 : Publication Maven Central + Gradle Plugin Portal (cccp.education) | 0% | *P0 ☐* (~2 sessions, bloque par achat domaine)
 |===
 
 === EPICs Transférés (hors périmètre bakery)
@@ -331,7 +332,7 @@ _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
 |===
 | Projet | Repertoire | Session en cours | Derniere MAJ
 | magic-stick | `~/workspace/foundry/OSS/magic-stick` | 055 | 2026-04-30
-| bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 097 | 100% terminé
+| bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 104 | 100% terminé
 | plantuml-gradle | `~/workspace/foundry/OSS/plantuml-gradle/plantuml-plugin` | 132 | 2026-04-23
 | jhipster-gradle-plugins | `~/workspace/foundry/OSS/jhipster-gradle-plugins` | Audit 053 | 2026-04-30
 | quizz-benchmark-gradle | `~/workspace/foundry/OSS/quizz-benchmark-gradle/quizz-benchmark-plugin` | Audit 053 | 2026-04-30

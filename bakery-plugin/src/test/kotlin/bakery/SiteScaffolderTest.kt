@@ -1,5 +1,6 @@
 package bakery
 
+import bakery.SiteScaffolder.resolveAndValidateSiteTarget
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.gradle.api.Project
@@ -185,6 +186,39 @@ class SiteScaffolderTest {
     }
 
     @Nested
+    inner class ResolveAndValidateSiteTargetTest {
+
+        @TempDir
+        lateinit var tempDir: File
+
+        @Test
+        fun `should resolve and validate when both sitesBaseDir and siteName are set`() {
+            val project = ProjectBuilder.builder().withProjectDir(tempDir).build()
+            project.extensions.add("bakery", mockBakeryExtension("office/sites", "my-company", null))
+            val target = project.resolveAndValidateSiteTarget()
+            assertThat(target).isEqualTo(tempDir.resolve("office/sites/my-company"))
+            assertThat(target.exists()).isFalse
+        }
+
+        @Test
+        fun `should resolve to siteName without validation when only siteName is set`() {
+            val project = ProjectBuilder.builder().withProjectDir(tempDir).build()
+            project.extensions.add("bakery", mockBakeryExtension(null, "mysite", null))
+            val target = project.resolveAndValidateSiteTarget()
+            assertThat(target).isEqualTo(tempDir.resolve("mysite"))
+        }
+
+        @Test
+        fun `should throw when sitesBaseDir is set but siteName is absent`() {
+            val project = ProjectBuilder.builder().withProjectDir(tempDir).build()
+            project.extensions.add("bakery", mockBakeryExtension("office/sites", null, null))
+            assertThatThrownBy { project.resolveAndValidateSiteTarget() }
+                .isInstanceOf(IllegalStateException::class.java)
+                .hasMessageContaining("siteName must be defined")
+        }
+    }
+
+    @Nested
     inner class ResolveSiteTypeTest {
 
         @TempDir
@@ -217,6 +251,13 @@ class SiteScaffolderTest {
         @Test
         fun `resolveSiteType should fallback to BLOG for unknown type`() {
             val ext = mockBakeryExtension(null, null, "nonsense")
+            assertThat(SiteScaffolder.resolveSiteType(ext)).isEqualTo(SiteType.BLOG)
+        }
+
+        @Test
+        fun `resolveSiteType should return BLOG when siteType property is null`() {
+            val ext = mockBakeryExtension(null, null, null)
+            org.mockito.kotlin.whenever(ext.siteType).thenReturn(null)
             assertThat(SiteScaffolder.resolveSiteType(ext)).isEqualTo(SiteType.BLOG)
         }
     }
