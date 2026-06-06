@@ -1,0 +1,49 @@
+= Session 108 — US-COV-2.3 DeployProfileTask Full Pipeline FT
+:date: 2026-06-07
+:type: TDD + FT
+:score: 9/10
+
+== Contexte
+
+EPIC BKY-COV-2 Microfissures coverage. US-COV-2.1 (DeployProfileTask 12 UT) et
+US-COV-2.2 (ProfilePublisher 17 UT + 4 FT) déjà terminés. Manquait 3 tests
+fonctionnels TestKit couvrant le pipeline complet de bout en bout.
+
+== Baby steps DDD/TDD/BDD
+
+=== DDD — Analyse du pipeline deployProfile
+
+Analyse de `DeployProfileTask.deployProfile()` :
+1. resolveCredentials(CLI > YAML) → Pair<String, String>
+2. withCredentials() → GitPushConfiguration
+3. createRepoDir() → repoDir
+4. copyProfileFiles(site.profileFiles, projectDir, from, repoDir) → copies
+5. pushToRemote(repoDir, gitConfig, preserveHistory=true) → push
+6. finally: cleanupDir(repoDir)
+7. repoDir est créé dans buildDir + pushProfile.to
+
+=== TDD — 3 nouveaux tests fonctionnels TestKit
+
+1. **History preservation** — double deployProfile, vérifie que le 2ème push
+   conserve l'historique Git (log > 1 commit). Clone, vérifie v2 content,
+   puis itère le log.
+
+2. **Custom from subdirectory** — deployProfile avec pushProfile.from = "profile-assets".
+   Les fichiers sont dans un sous-répertoire, pas à la racine du projet.
+   Vérifie que README.md et CONTRIBUTING.md sont déployés depuis le sous-répertoire.
+
+3. (Existing 4 FT de US-COV-2.2 — non modifiés)
+
+=== Résultats
+
+6/6 ProfilePublisherFunctionalTest PASS (2 happy path + 2 failure + 2 new pipeline).
+BUILD SUCCESSFUL. EPIC BKY-COV-2 9/12 pts (75%).
+
+== Fichiers modifiés
+
+- `src/functionalTest/kotlin/bakery/ProfilePublisherFunctionalTest.kt` — +2 @Nested (FullPipelineHistoryPreservation + FullPipelineCustomFrom), 2 nouveaux tests TestKit
+- Zéro modification du code source métier
+
+== Prochaine session
+
+US-COV-2.4 — BakeryPlugin coverage 52.8% → 70% (2-3 UT)

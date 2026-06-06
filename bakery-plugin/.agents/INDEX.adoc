@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-07 — Session 107 (US-COV-2.2 ProfilePublisher 17 UT + 4 FT)
-  _Session terminee_ : 107
-  _Prochaine session_ : 108 — BKY-COV-2 US-3 DeployProfileTask full pipeline FT
+  _Derniere mise a jour_ : 2026-06-07 — Session 108 (US-COV-2.3 DeployProfileTask full pipeline FT)
+  _Session terminee_ : 108
+  _Prochaine session_ : 109 — US-COV-2.4 BakeryPlugin coverage 52.8%→70%
   _Session en cours_ : — (fermee)
 
 '''
@@ -70,6 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 108 | 2026-06-07 | TDD + FT | **US-COV-2.3** DeployProfileTask full pipeline FT — 2 tests TestKit : history preservation (double deploy → log > 1 commit) + custom from subdirectory (profile-assets → README.md + CONTRIBUTING.md). 6/6 ProfilePublisher FT PASS. EPIC BKY-COV-2 9/12 pts. | 9/10
   | 107 | 2026-06-07 | TDD + FT | **US-COV-2.2** ProfilePublisher 17 UT + 4 FT TestKit (resolveCredentials 7 + copyProfileFiles 10 + FT happy path 2 + failure 2). build.gradle.kts : jgit bundle ajoute au functionalTest. 21 nouveaux tests. Tous PASS. EPIC BKY-COV-2 6/12 pts. | 9/10
   | 106 | 2026-06-07 | TDD + coverage | **US-COV-2.1** DeployProfileTask 12 UT (0%→couvert). TDD baby steps. 12 tests (PushProfileMissing + CredentialsResolution 4 + ProfileFilesValidation 6 + Cleanup + HappyPath). Pattern ProjectBuilder + bare Git. BUILD SUCCESSFUL. | 9/10
   | 105 | 2026-06-06 | code review + governance | **Code Review externe** — Gaps fonctionnels couverture. Nouvel EPIC BKY-COV-2 (12 pts, 6 US). DeployProfileTask 0% UT, ProfilePublisher integration, BakeryPlugin 52.8%→70%, ToolsKt 22%. BACKLOG/TODO mis à jour. Zéro changement code. | 8/10
@@ -312,7 +313,7 @@ Zéro dette technique. Prêt à switcher de borough.
 | EPIC | Progression | Priorite
 | BKY-KOV-1 : Kover Coverage 78% → 85.88% (+7.78pp) | 100% | *P0 ✅ TERMINE*
 | BKY-PUB-1 : Publication Maven Central + Gradle Plugin Portal (cccp.education) | 0% | *P0 ❄️* (bloque par achat domaine)
-| BKY-COV-2 : Microfissures coverage — DeployProfileTask, ProfilePublisher, BakeryPlugin, ToolsKt | 50% | *P2 ☐* (~2-3 sessions)
+| BKY-COV-2 : Microfissures coverage — DeployProfileTask, ProfilePublisher, BakeryPlugin, ToolsKt | 75% | *P2 ☐* (~1-2 sessions)
 |===
 
 === EPICs Transférés (hors périmètre bakery)

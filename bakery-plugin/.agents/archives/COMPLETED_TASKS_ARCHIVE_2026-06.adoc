@@ -1,5 +1,28 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 108 — 2026-06-07 — US-COV-2.3 DeployProfileTask Full Pipeline FT
+
+**Contexte** : EPIC BKY-COV-2 Microfissures coverage. US-COV-2.1 et US-COV-2.2 terminés.
+Manquait des tests fonctionnels TestKit couvrant le pipeline complet deployProfile de bout en bout.
+
+**Tâches réalisées** :
+
+* [x] DDD — Analyse du pipeline DeployProfileTask.deployProfile()
+  (resolveCredentials→createRepoDir→copyProfileFiles→pushToRemote→cleanupDir)
+* [x] FT — 2 nouveaux tests fonctionnels TestKit RED→GREEN :
+  - History preservation : double deployProfile, vérifie log > 1 commit,
+    clone le bare remote, vérifie v2 content. Couvre pushToRemote(preserveHistory=true).
+  - Custom from subdirectory : pushProfile.from = "profile-assets", fichiers
+    dans un sous-répertoire, pas à la racine. Vérifie README.md + CONTRIBUTING.md
+    déployés depuis le sous-répertoire
+
+**Fichiers modifiés** : `src/functionalTest/kotlin/bakery/ProfilePublisherFunctionalTest.kt` — +2 @Nested (FullPipelineHistoryPreservation + FullPipelineCustomFrom), +2 tests
+
+**Résultats** : 6/6 ProfilePublisher FT PASS, BUILD SUCCESSFUL.
+EPIC BKY-COV-2 9/12 pts (75%).
+
+'''
+
 == Session 107 — 2026-06-07 — US-COV-2.2 ProfilePublisher 17 UT + 4 FT
 
 **Contexte** : EPIC BKY-COV-2 Microfissures coverage. ProfilePublisher pas de tests directs, 0 FT deployProfile.
