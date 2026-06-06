@@ -87,5 +87,16 @@ class JsonEscapeForPropertiesTest {
             val json = """{"scoredNodes":[],"total":0}"""
             assertThat(escapeJsonForJavaProperties(json)).isEqualTo(json)
         }
+
+        @Test
+        @DisplayName("non-idempotent — double appel corrompt (\\\\ → \\\\\\\\)")
+        fun `double call corrupts backslash sequences`() {
+            val json = """{"path":"C:\\Users\\file"}"""
+            val once = escapeJsonForJavaProperties(json)
+            val twice = escapeJsonForJavaProperties(once)
+            assertThat(once).isEqualTo("""{"path":"C:\\\\Users\\\\file"}""")
+            assertThat(twice).isNotEqualTo(once)
+            assertThat(twice).contains("""\\\\\\\\""")
+        }
     }
 }

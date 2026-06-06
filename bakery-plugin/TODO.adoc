@@ -1,7 +1,7 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-06-05 — Session 092 (CS-FIN-7 ConfigPromptM)_
+_Dernière mise à jour : 2026-06-06 — Session 097 (POLISH V4 complet)_
 
 * [x] Implementer la generation du code client Firebase dans les templates (→ BKY-JB-4, session 032)
 * [x] Ajouter une vraie Firebase API key quand disponible (→ EPIC 4, formalité restante côté consommateur cheroliv.com)
@@ -15,8 +15,33 @@ _Dernière mise à jour : 2026-06-05 — Session 092 (CS-FIN-7 ConfigPromptM)_
 
 == Post-v1.0 — Code Review V3
 
-* [x] **CS-25 V3** : ConfigResolver cascade DRY — 8 resolve* répétés dans SiteTaskRegistrar (lignes 121-131). Refactorer avec `ResolvedConfigs` + Strategy pattern. ~3 pts, 1 session.
-* [x] **CS-33 V3** : registerGenerateSiteTask mixing concerns — extraire logique métier vers `GenerateSiteService`. ~1.5 pts, 0.5 session.
-* [x] **CS-34 V3** : GitService.pushPages sans validation préalable. Ajouter `validatePrePush()`. ~1 pt.
-* [x] **CS-38 V3** : ConfigPrompts pas testables — Reader monad `ConfigPromptM<A>` + `ConfigPromptEnvironment` top-level. 19 UT. ✅ S092
-* [ ] **ARROW-KT v1.1.0** : Ajouter Arrow-kt 2.2.3 → refactorer 6 composants avec Either/Validation/Option/Reader. EPIC 5 pts, 3-4 sessions. Voir `last_code_review.adoc` Parties 3-4.
+* [x] **CS-25 V3** : ConfigResolver cascade DRY — 8 resolve* répétés dans SiteTaskRegistrar. → ✅ S085
+* [x] **CS-33 V3** : registerGenerateSiteTask mixing concerns → GenerateSiteService. → ✅ S086
+* [x] **CS-34 V3** : GitService.pushPages sans validation préalable. → ✅ S087
+* [x] **CS-38 V3** : ConfigPrompts pas testables — Reader monad ConfigPromptM<A>. → ✅ S092
+* [x] **ARROW-KT v1.1.0** : Arrow-kt 2.2.3 migration. → ✅ S093
+
+== NOUVEAU — Code Review V4 (Session 096, 8 smells + 3 RECOs)
+
+=== EPIC CS-V4-P1 — Bugs et Robustesse (7 min)
+
+* [ ] **US-V4-1** : Supprimer `Throwable(...)` fantôme dans `BakeryPlugin.kt:79` — alloué mais jamais loggé
+* [ ] **US-V4-2** : Fix `projectDir.resolve()` dans `VerifyConfigurationMappingTask.kt:44` — Path CWD vs projectDir
+
+=== EPIC CS-V4-P2 — Clarté et Fiabilité (23 min)
+
+* [ ] **US-V4-3** : Nettoyer `SiteManager.configureConfigPath()` — 2 niveaux d'imbrication + `run` inutile
+* [ ] **US-V4-4** : Vérifier et configurer `DeployProfileTask` — tâche enregistrée sans propriétés configurées
+* [ ] **US-V4-5** : Remplacer `getByName()` → `findByName()` sécurisé dans `configureBakeTask`
+
+=== EPIC CS-V4-P3 — Polish et Documentation (18 min)
+
+* [ ] **US-V4-7** : Rename `fromCliOrPrompt` → `resolveOrPrompt` dans `ConfigPromptM.kt`
+* [ ] **US-V4-8** : Logger `dsl.toIntention()` catch muet dans `ContentTaskRegistrar.kt` (3 occurrences)
+* [ ] **US-V4-9** : Documenter non-idempotence `escapeJsonForJavaProperties()` (KDoc + test double appel)
+
+=== EPIC CS-V4-ARCH — Recommandations Architecturales (40 min)
+
+* [ ] **RECO-1** : Wrapper parse YAML `BakeryPlugin.kt:93` dans `Either.catch`
+* [ ] **RECO-2** : Documenter parallélisme potentiel tâches Gradle (`mustRunAfter`/`shouldRunAfter`)
+* [ ] **RECO-3** : `configureConfigPath()` retourner `Either<String, Unit>` + log succès/échec

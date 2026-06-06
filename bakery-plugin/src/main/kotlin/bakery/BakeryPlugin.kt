@@ -26,6 +26,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import arrow.core.Either
 import java.io.File
 
 internal fun Project.registerVerifyConfigurationMappingTask(configPath: String) {
@@ -55,6 +56,10 @@ class BakeryPlugin : Plugin<Project> {
             val isGradlePropertiesEnabled = bakeryExtension.configPath.isPresent
 
             project.configureConfigPath(bakeryExtension, isGradlePropertiesEnabled)
+                .fold(
+                    ifLeft = { project.logger.info("[bakery] $it") },
+                    ifRight = { /* configPath loaded from gradle.properties — logged in SiteManager */ }
+                )
 
             // US-61a — verifyConfigurationMapping est enregistrée AVANT le
             // branchement scaffold/fullPipeline pour être disponible dans les
@@ -75,8 +80,7 @@ class BakeryPlugin : Plugin<Project> {
                 project.logger.warn(
                     "[bakery] configPath is not set — only scaffold tasks will be available. " +
                         "Define it via DSL (`bakery { configPath = \"site.yml\" }`), " +
-                        "`gradle.properties` (`bakery.config.path=site.yml`), or `-Pbakery.config.path=...`.",
-                    Throwable("configPath absent — stack trace for debugging")
+                        "`gradle.properties` (`bakery.config.path=site.yml`), or `-Pbakery.config.path=...`."
                 )
                 registerScaffoldOnlyTasks(project, bakeryExtension, jbakeRuntime)
                 return@afterEvaluate
@@ -89,18 +93,34 @@ class BakeryPlugin : Plugin<Project> {
                 .toFile()
             val configDir = configFile.parentFile
 
-            if (!configFile.exists() || (configFile.exists() &&
-                        yamlMapper.readValue<SiteConfiguration>(configFile).run {
-                            !configDir.resolve(bake.srcPath).exists() &&
-                                    !configDir.resolve(pushMaquette.from).exists()
-                        })
-            ) {
-                project.logger.lifecycle(
-                    "config file does not exists or site and maquette directories do not exist."
-                )
+            if (!configFile.exists()) {
+                project.logger.lifecycle("Config file does not exist at $configFile — switching to scaffold only.")
                 registerScaffoldOnlyTasks(project, bakeryExtension, jbakeRuntime)
             } else {
-                registerFullPipelineTasks(project, bakeryExtension, jbakeRuntime, isGradlePropertiesEnabled)
+                val parseResult = Either.catch {
+                    yamlMapper.readValue<SiteConfiguration>(configFile)
+                }
+                parseResult.fold(
+                    ifLeft = { error ->
+                        project.logger.warn(
+                            "Failed to parse configuration file '${configFile.absolutePath}': ${error.message}. " +
+                                "Falling back to scaffold only."
+                        )
+                        registerScaffoldOnlyTasks(project, bakeryExtension, jbakeRuntime)
+                    },
+                    ifRight = { site ->
+                        if (!configDir.resolve(site.bake.srcPath).exists() &&
+                            !configDir.resolve(site.pushMaquette.from).exists()
+                        ) {
+                            project.logger.lifecycle(
+                                "Site and maquette directories do not exist — switching to scaffold only."
+                            )
+                            registerScaffoldOnlyTasks(project, bakeryExtension, jbakeRuntime)
+                        } else {
+                            registerFullPipelineTasks(project, bakeryExtension, jbakeRuntime, isGradlePropertiesEnabled)
+                        }
+                    }
+                )
             }
         }
     }
@@ -133,6 +153,14 @@ class BakeryPlugin : Plugin<Project> {
     /**
      * Pipeline complet : JBake + déploiement + utilities. Utilisé quand un
      * fichier de configuration valide pointe vers un site existant.
+     *
+     * Tâches indépendantes (parallélisables par Gradle, pas de `dependsOn`) :
+     * - collectSiteContext ∥ generateTheme ∥ generateArticle
+     * - deployMaquette ∥ deployProfile
+     * - pagefind ∥ validateFirebaseConfig ∥ serve
+     *
+     * Chaîne séquentielle déjà configurée via `dependsOn` :
+     * bake → pagefind → deploySite → deploySite (via registerDeploySiteTask)
      */
     private fun registerFullPipelineTasks(
         project: Project,

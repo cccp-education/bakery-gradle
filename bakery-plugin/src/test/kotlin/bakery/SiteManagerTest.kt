@@ -305,19 +305,23 @@ class SiteManagerTest {
         }
 
         @Test
-        fun `should resolve config path from gradle properties`() {
+        fun `should return Either when gradle properties found but not loaded by test fixture`() {
             val gradleProperties = tempDir.resolve("gradle.properties")
             gradleProperties.writeText("bakery.config.path=my-site.yml")
 
-            project.configureConfigPath(mock(), false)
+            val result = project.configureConfigPath(mock(), false)
+
+            assertThat(result.isLeft()).isTrue()
         }
 
         @Test
-        fun `should not override when gradle properties is enabled via DSL`() {
+        fun `should return right when gradle properties is enabled via DSL`() {
             val gradleProperties = tempDir.resolve("gradle.properties")
             gradleProperties.writeText("bakery.config.path=my-site.yml")
 
-            project.configureConfigPath(mock(), true)
+            val result = project.configureConfigPath(mock(), true)
+
+            assertThat(result.isRight()).isTrue()
         }
     }
 

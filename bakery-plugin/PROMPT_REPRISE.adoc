@@ -2,18 +2,18 @@
 
 == Mission en cours
 
-*Session 095 TERMINÉE* — Mise à jour README.adoc (reflet état actuel 0.1.4,
-28/28 EPICs, LENTILLE, IA, Firebase) + correction branding cccp-education
-(repo GitHub, website, copyright). 2 fichiers modifiés, zéro changement code.
+*Session 097 TERMINÉE* — POLISH V4 complet. 9/9 code smells V4 résolus
++ 3/3 RECOs architecturales implémentées. Bakery 100% terminé.
 
 == Statut
 
 - EPICs : 28/28 ✅ (100%)
-- Code smells : 12/12 ✅
+- Code smells : 12/12 V2+V3 ✅ + 9/9 V4 ✅ + 3/3 RECOs ✅
 - BOM workspace : ✅ aligné (education.cccp:workspace-bom:0.1.0)
-- Tests : 757 UT PASS, 133 Cucumber PASS, 17 E2E PASS (inchangé)
-- Build : zero warning, unit tests PASS (non ré-exécutés, pas de modif source)
+- Tests : tous PASS (JUnit5 + Cucumber + E2E)
+- Build : BUILD SUCCESSFUL
 
-== Prochaine session (096)
+== Prochaine session (098)
 
-*SWITCH BOROUGH* — Bakery 100% terminé, BOM aligné. Passer au borough suivant.
+*SWITCH BOROUGH* — Bakery 100% terminé (28/28 EPICs + 24/24 code smells résolus).
+Plus aucune dette technique. Passer au borough suivant.

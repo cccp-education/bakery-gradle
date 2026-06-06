@@ -58,12 +58,10 @@ class BakeryPluginTest {
             val plugin = BakeryPlugin()
             plugin.apply(fixture.project)
             fixture.runAfterEvaluate()
-            // org.gradle.api.logging.Logger.warn(String, Throwable?)
             verify(fixture.project.logger).warn(
                 org.mockito.kotlin.argThat { msg: String ->
                     msg.contains("configPath", ignoreCase = true)
-                },
-                org.mockito.kotlin.any<Throwable>()
+                }
             )
         }
     }

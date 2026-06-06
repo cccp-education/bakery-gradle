@@ -106,4 +106,68 @@ fonctionnalités documentées incomplètes). Le repo avait migré de
 
 '''
 
+== Session 097 — 2026-06-06 — POLISH V4 Complet
+
+**Contexte** : Session 096 avait livré une Code Review V4 identifiant 9 code
+smells + 3 RECOs architecturales. Session 097 résout l'intégralité.
+
+**Tâches réalisées** :
+
+=== CS-V4-P1 (Bugs)
+* [x] US-V4-1 — Supprimer `Throwable(...)` fantôme dans BakeryPlugin.kt:79
+* [x] US-V4-2 — Fix `File(path)` → `project.projectDir.resolve(path)` dans
+  VerifyConfigurationMappingTask.kt:44
+
+=== CS-V4-P2 (Clarté)
+* [x] US-V4-3 — Refactor configureConfigPath() guard clauses + suppression run{}
+* [x] US-V4-4 — Investiguer DeployProfileTask — pattern valide, pas de bug
+* [x] US-V4-5 — getByName() → findByName() + warning
+
+=== CS-V4-P3 (Polish)
+* [x] US-V4-7 — Rename fromCliOrPrompt → resolveOrPrompt (3 fichiers, 13 occurrences)
+* [x] US-V4-8 — Logger 3 catch muets ContentTaskRegistrar (e.message)
+* [x] US-V4-9 — KDoc non-idempotence JsonEscape + test double appel
+
+=== CS-V4-ARCH (Architecture)
+* [x] RECO-1 — Wrapper YAML parse dans Either.catch + fold
+* [x] RECO-2 — KDoc parallélisme registerFullPipelineTasks()
+* [x] RECO-3 — configureConfigPath() retourne Either<String, Unit>
+
+**Fichiers modifiés** : BakeryPlugin.kt, VerifyConfigurationMappingTask.kt,
+SiteManager.kt, SiteTaskRegistrar.kt, ConfigPromptM.kt, ConfigPrompts.kt,
+ContentTaskRegistrar.kt, JsonEscape.kt (8 src) + BakeryPluginTest.kt,
+SiteManagerTest.kt, ConfigPromptsTest.kt, JsonEscapeForPropertiesTest.kt (4 test)
+
+**Résultats** : BUILD SUCCESSFUL, tous les tests PASS. 9/9 smells V4 ✅ + 3/3 RECOs ✅.
+Bakery 100% terminé — 28/28 EPICs + 24/24 code smells. Zéro dette technique.
+
+'''
+== Session 096 — 2026-06-06 — Code Review V4 (Second Regard Expert Post-Copilot)
+
+**Contexte** : Code review approfondie demandée — second regard par-dessus une
+review Copilot qui datait de 5 sessions en arrière (pré-ARROW-1). Lecture
+exhaustive de 17 fichiers source, contrepoint systématique.
+
+**Tâches réalisées** :
+
+* [x] Lecture des 3 code reviews existantes (V2 CODE_REVIEW.adoc, V3 last_code_review.adoc,
+  historique revue_de_code.adoc)
+* [x] Contrepoint review Copilot — 3 problèmes qu'elle identifie déjà résolus
+  (JSON escape ✅ S081, ConfigResolver DRY ✅ S085, RAG logic ✅ documenté)
+* [x] Identification de 9 nouveaux code smells V4 non couverts par les reviews précédentes
+  (CS-V4-1→9 : 0 critique, 2 modérés, 7 légers)
+* [x] Rédaction `.agents/CODE_REVIEW_V4.adoc` (277 lignes) — métriques, KDoc inline,
+  plan d'action 45 min
+* [x] Archivage session + mise à jour gouvernance
+
+**Fichiers créés** : `.agents/CODE_REVIEW_V4.adoc` (277 lignes),
+`.agents/sessions/096-code-review-v4-second-regard.adoc`
+**Fichiers modifiés** : `PROMPT_REPRISE.adoc`, `.agents/INDEX.adoc`,
+`.agents/SESSIONS_HISTORY.adoc`, `.agents/archives/COMPLETED_TASKS_ARCHIVE_2026-06.adoc`
+
+**Résultats** : Score global 8.7/10. 28/28 EPICs, 9 smells V4 résiduels (aucun bloquant).
+Production-ready. Zéro changement code source.
+
+'''
+
 == Session 081 — 2026-06-04 — CS-FIN-2 Jackson + CS-FIN-3 Nettoyage DRY

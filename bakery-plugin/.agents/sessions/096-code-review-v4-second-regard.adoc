@@ -1,0 +1,47 @@
+= Session 096 — Code Review V4 (Second Regard Expert Post-Copilot)
+
+== Contexte
+
+Code review approfondie sur demande — second regard par-dessus une review
+Copilot qui datait de 5 sessions en arrière (pré-ARROW-1, pré-ConfigPromptM,
+pré-BfsProximityCache, pré-SecretField ADT).
+
+== Actions
+
+* [x] Lecture exhaustive de 17 fichiers source (.kt) pour analyse fraîche
+* [x] Lecture des 3 code reviews existantes (CODE_REVIEW.adoc V2, last_code_review.adoc V3, revue_de_code.adoc)
+* [x] Contrepoint à la review Copilot — 3 problèmes qu'elle identifie déjà résolus (JSON escape, ConfigResolver DRY, RAG logic)
+* [x] Identification de 9 nouveaux code smells V4 (CS-V4-1 à CS-V4-9) non couverts par les reviews précédentes
+* [x] Rédaction `.agents/CODE_REVIEW_V4.adoc` (277 lignes) — document complet avec KDoc inline, métriques, plan d'action
+
+== Smells V4 découverts
+
+|===
+| ID | Sévérité | Fichier | Description
+| CS-V4-1 | P1 🔴 | BakeryPlugin.kt:79 | `Throwable(...)` alloué mais jamais loggé par Logger.warn
+| CS-V4-2 | P1 🟠 | VerifyConfigurationMappingTask.kt:44 | Path CWD au lieu de projectDir (déjà identifié CS-27, non résolu)
+| CS-V4-3 | P2 🟠 | SiteManager.kt:20-37 | 2 niveaux d'imbrication + `run` inutile
+| CS-V4-4 | P2 🟡 | DeployTaskRegistrar.kt:95-102 | DeployProfileTask coquille vide (aucune propriété configurée)
+| CS-V4-5 | P2 🟡 | SiteTaskRegistrar.kt:89-99 | `getByName()` fragile (jette si tâche absente)
+| CS-V4-6 | P3 🟢 | BakeryExtension.kt:79-136 | 12 méthodes Action<X> identiques (accepté — Gradle idiomatique)
+| CS-V4-7 | P3 🟢 | ConfigPromptM.kt:30-38 | Nom `fromCliOrPrompt` ne reflète pas la source env var
+| CS-V4-8 | P3 🟢 | ContentTaskRegistrar.kt:44-49 | catch muet sur `dsl.toIntention()` (3 occurrences)
+| CS-V4-9 | P3 🟢 | JsonEscape.kt:33-38 | `escapeJsonForJavaProperties` non idempotente (documenter)
+|===
+
+*Total* : 0 critique, 2 modérés, 7 légers. ~45 min de travail.
+
+== Fichiers modifiés
+
+* `.agents/CODE_REVIEW_V4.adoc` — Nouveau (277 lignes)
+* `.agents/sessions/096-code-review-v4-second-regard.adoc` — Ce fichier
+
+== Non modifiés
+
+* Code source : 0 changement (review only)
+* Tests : non exécutés (review only, pas de modif code)
+
+== Score de session
+
+8/10 — Revue experte complète, mais 2 smells (CS-V4-2, CS-V4-4) auraient
+dû être corrigés immédiatement plutôt que documentés.

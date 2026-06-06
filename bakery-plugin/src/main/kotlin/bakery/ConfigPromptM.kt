@@ -27,7 +27,7 @@ fun interface ConfigPromptM<out A> {
             promptSensitiveValue(env, propertyName)
         }
 
-        fun fromCliOrPrompt(
+        fun resolveOrPrompt(
             propertyName: String,
             cliProperty: String,
             sensitive: Boolean = false,

@@ -253,7 +253,7 @@ class ConfigPromptsTest {
             val project = mockProjectNoProps()
             val env = envWithInput(project, input = { "my-answer" })
 
-            val result = ConfigPromptM.fromCliOrPrompt("Name", "name").run(env)
+            val result = ConfigPromptM.resolveOrPrompt("Name", "name").run(env)
 
             assertThat(result).isEqualTo("my-answer")
         }
@@ -267,7 +267,7 @@ class ConfigPromptsTest {
                 password = { "secret123".toCharArray() }
             )
 
-            val result = ConfigPromptM.fromCliOrPrompt(
+            val result = ConfigPromptM.resolveOrPrompt(
                 "GitHub Token", "githubToken", sensitive = true
             ).run(env)
 
@@ -279,7 +279,7 @@ class ConfigPromptsTest {
             val project = mockProjectNoProps()
             val env = envWithInput(project, input = { "should-not-use-this" })
 
-            val result = ConfigPromptM.fromCliOrPrompt(
+            val result = ConfigPromptM.resolveOrPrompt(
                 "Name", "name", default = "default-wins"
             ).run(env)
 
@@ -291,7 +291,7 @@ class ConfigPromptsTest {
             val project = mockProjectNoProps()
             val env = envWithInput(project, input = { "should-not-be-called" })
 
-            val result = ConfigPromptM.fromCliOrPrompt(
+            val result = ConfigPromptM.resolveOrPrompt(
                 "Config Path", "configPath", default = "site.yml"
             ).run(env)
 
@@ -417,7 +417,7 @@ class ConfigPromptsTest {
             }
         }
 
-        // --- fromCliOrPrompt ---
+        // --- resolveOrPrompt ---
 
         @Nested
         inner class FromCliOrPrompt {
@@ -427,7 +427,7 @@ class ConfigPromptsTest {
                 val project = mockProjectWithProperty("configPath", "my-config.yml")
                 val env = testEnv(project)
 
-                val result = ConfigPromptM.fromCliOrPrompt(
+                val result = ConfigPromptM.resolveOrPrompt(
                     "Config Path", "configPath", default = "site.yml"
                 ).run(env)
 
@@ -439,7 +439,7 @@ class ConfigPromptsTest {
                 val project = mockProjectNoProps()
                 val env = testEnv(project)
 
-                val result = ConfigPromptM.fromCliOrPrompt(
+                val result = ConfigPromptM.resolveOrPrompt(
                     "Config Path", "configPath", default = "site.yml"
                 ).run(env)
 
@@ -451,7 +451,7 @@ class ConfigPromptsTest {
                 val project = mockProjectNoProps()
                 val env = testEnv(project, input = { "typed-value" })
 
-                val result = ConfigPromptM.fromCliOrPrompt(
+                val result = ConfigPromptM.resolveOrPrompt(
                     "Name", "name"
                 ).run(env)
 
@@ -463,7 +463,7 @@ class ConfigPromptsTest {
                 val project = mockProjectNoProps()
                 val env = testEnv(project, password = { "secret123".toCharArray() })
 
-                val result = ConfigPromptM.fromCliOrPrompt(
+                val result = ConfigPromptM.resolveOrPrompt(
                     "GitHub Token", "githubToken", sensitive = true
                 ).run(env)
 
@@ -553,7 +553,7 @@ class ConfigPromptsTest {
                 val env = testEnv(project, input = { "my-repo" })
 
                 val username = ConfigPromptM.fromCli("Username", "username")
-                val repo = ConfigPromptM.fromCliOrPrompt("Repo", "repo", example = "owner/repo")
+                val repo = ConfigPromptM.resolveOrPrompt("Repo", "repo", example = "owner/repo")
 
                 val combined = username.flatMap { user ->
                     repo.flatMap { r ->

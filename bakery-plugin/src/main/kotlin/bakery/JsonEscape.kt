@@ -22,6 +22,12 @@ package bakery
  * - `\r` (0x0D) → `\r` (séquence properties)
  * - `\t` (0x09) → `\t` (séquence properties)
  *
+ * **ATTENTION : cette fonction n'est PAS idempotente.**
+ * Un double appel corrompt le JSON (\\ → \\\\, puis \\\\\\\\). Appeler
+ * UNE seule fois par valeur JSON. Si vous devez propager une valeur
+ * déjà échappée, la repasser dans la fonction d'origine (Jackson)
+ * avant de la ré-échapper.
+ *
  * @param rawJson string JSON produit par Jackson (séquences d'échappement
  *                 JSON déjà en place : `\n`, `\"`, `\\`, etc.)
  * @return string prêt à être écrit comme valeur dans un fichier

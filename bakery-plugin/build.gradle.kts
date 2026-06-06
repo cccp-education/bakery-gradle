@@ -424,7 +424,7 @@ gradlePlugin {
         }
     }
     website = "https://cccp-education.github.io/"
-    vcsUrl = "https://github.com/cheroliv/bakery-gradle.git"
+    vcsUrl = "https://github.com/cccp-education/bakery-gradle.git"
     testSourceSets(functionalTest)
 }
 

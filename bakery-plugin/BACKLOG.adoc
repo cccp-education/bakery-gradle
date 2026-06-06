@@ -1,19 +1,20 @@
 = Backlog — Bakery Gradle Plugin
-:description: Backlog prioritaire — EPICs restants + Code Smells de finalisation (Session 079)
+:description: Backlog prioritaire — EPICs restants + Code Smells de finalisation (Session 096 V4)
 :toc: left
 :toclevels: 4
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-05 — Session 093 (ARROW-1 terminé, Bakery 100%)_
+_Dernière mise à jour : 2026-06-06 — Session 097 (POLISH V4 complet)_
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
-_Code review source_ : `.agents/CODE_REVIEW.adoc` + `last_code_review.adoc` (racine bakery-gradle/) + analyse directe du code source
+_Code review source_ : `.agents/CODE_REVIEW.adoc` + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
 [CAUTION]
 ====
-**29/28 EPICs terminés + 12/12 code smells résolus.** Bakery est 100% terminé.
-Phase de polish final achevée. Prêt pour switch borough.
+**28/28 EPICs terminés + 12/12 code smells v3 résolus.** Bakery est 100% terminé.
+Phase de polish V4 : 8 code smells inédits + 3 recommandations architecturales.
 *12/12 code smells résolus* : CS-FIN-1/2/3/4/5/6/7/8/9/10 ✅ + ARROW-1 ✅
+*Restant V4* : 3 EPICs (CS-V4-P1, CS-V4-P2, CS-V4-P3) + 1 EPIC Architecture (CS-V4-ARCH)
 ====
 
 '''
@@ -292,6 +293,225 @@ _Baby steps_ (EPIC ARROW-1) :
 
 '''
 
+== NOUVEAU — Code Smells V4 (Session 096 — Code Review experte post-Copilot)
+
+_Source_ : `.agents/CODE_REVIEW_V4.adoc` — Second regard indépendant corrigeant
+la review Copilot (obsolète, snapshot pré-ARROW-1). 8 code smells inédits
+et 3 recommandations architecturales. Aucun blocage production. ~45 min total.
+
+Score V4 : 8.7/10 — 0 critique, 2 modéré, 7 léger.
+
+'''
+
+=== EPIC CS-V4-P1 : Priorité Haute — Bugs et Robustesse (2 US, 7 min)
+
+*Charge* : 1 pt
+*Impact* : Performance + UX utilisateur
+*Sessions estimées* : 0.5
+
+==== US-V4-1 : Supprimer Throwable fantôme dans BakeryPlugin ☐
+
+*Priorité* : P1 🔴
+*Fichiers* : `BakeryPlugin.kt:79`
+*Charge* : 0.2 pt
+
+_Problème_ : `project.logger.warn(msg, Throwable("configPath absent..."))` — le
+`Throwable` est passé comme vararg `Object`, pas comme second paramètre
+`Throwable`. Résultat : stack trace jamais loggé, mais allocation mémoire +
+fill de stack exécutés inutilement.
+
+_Tâches_ :
+* [ ] Supprimer le paramètre `Throwable(...)` — artefact de debug
+* [ ] Ou utiliser `logger.warn("message", exception)` si vraiment utile
+* [ ] Vérifier que le warning est toujours affiché dans les logs
+
+==== US-V4-2 : Fix Path CWD dans VerifyConfigurationMappingTask ☐
+
+*Priorité* : P1 🟠
+*Fichiers* : `VerifyConfigurationMappingTask.kt:44`
+*Charge* : 0.3 pt
+
+_Problème_ : `File(configPath.get())` résout le chemin relativement au CWD,
+pas au `projectDir`. Si l'utilisateur exécute depuis un sous-répertoire,
+`GradleException("file not found")` est levé alors que le fichier existe.
+
+_Cause racine_ : Déjà identifié comme CS-27 dans `last_code_review.adoc` V3.
+Non résolu à ce jour.
+
+_Tâches_ :
+* [ ] Remplacer `File(path)` par `project.projectDir.resolve(path)`
+* [ ] Ajouter un test unitaire avec `projectDir` != CWD
+* [ ] Vérifier que `./gradlew verifyConfigurationMapping` fonctionne depuis un sous-répertoire
+
+'''
+
+=== EPIC CS-V4-P2 : Priorité Modérée — Clarté et Fiabilité (3 US, 23 min)
+
+*Charge* : 2 pts
+*Impact* : Maintenabilité + Robustesse
+*Sessions estimées* : 0.5
+
+==== US-V4-3 : Nettoyer configureConfigPath — imbrication + run inutile ☐
+
+*Priorité* : P2 🟠
+*Fichiers* : `SiteManager.kt:20-37`
+*Charge* : 0.5 pt
+
+_Problème_ : `properties.run { }` est inutile (Map<String, *> en lecture seule,
+pas de scope function requis). Triple condition sur une ligne illisible.
+`else` rattaché au `if` externe rend la lecture difficile.
+
+_Tâches_ :
+* [ ] Supprimer `properties.run { }` — extraire la valeur directement
+* [ ] Remplacer `if(gradlePropertiesFile.exists()) ... else` par un guard clause `if(!exists()) return`
+* [ ] Extraire validation YAML dans une condition lisible
+* [ ] Vérifier que le comportement est identique (tests ConfigPrompts existants)
+
+==== US-V4-4 : Vérifier et compléter DeployProfileTask ☐
+
+*Priorité* : P2 🟡
+*Fichiers* : `DeployTaskRegistrar.kt:95-102`, `DeployProfileTask.kt`
+*Charge* : 0.3 pt
+
+_Problème_ : La tâche `deployProfile` est enregistrée mais aucune propriété
+(`site`, `configPath`, `profileFiles`) n'est configurée dans `registerDeployProfileTask()`.
+
+_Investigation nécessaire_ :
+* [ ] Lire `DeployProfileTask.kt` — quelles sont les `@Input` properties ?
+* [ ] Si `abstract val` → le build plantera (à fixer)
+* [ ] Si valeurs par défaut vides → la tâche tourne dans le vide (à corriger)
+* [ ] Configurer `site` et `configPath` dans `registerDeployProfileTask()`
+
+==== US-V4-5 : Remplacer getByName() par findByName() sécurisé ☐
+
+*Priorité* : P2 🟡
+*Fichiers* : `SiteTaskRegistrar.kt:89-99`
+*Charge* : 0.2 pt
+
+_Problème_ : `tasks.withType(JBakeTask::class.java).getByName(BakeryConstants.BAKE_TASK)`
+lève `UnknownTaskException` si la tâche bake est absente. Crash silencieux au
+runtime si le plugin JBake change sa convention de nommage.
+
+_Tâches_ :
+* [ ] Remplacer `getByName` par `findByName` + `?.apply { ... }`
+* [ ] Logger un warning si la tâche est absente (`logger.warn("bake task not found")`)
+
+'''
+
+=== EPIC CS-V4-P3 : Priorité Basse — Polish et Documentation (3 US, 18 min)
+
+*Charge* : 1 pt
+*Impact* : Qualité documentaire
+*Sessions estimées* : 0.25
+
+==== US-V4-7 : Rename fromCliOrPrompt → resolveOrPrompt ☐
+
+*Priorité* : P3 🟢
+*Fichiers* : `ConfigPromptM.kt:30-38`
+*Charge* : 0.2 pt
+
+_Problème_ : Le nom `fromCliOrPrompt` ne reflète pas la 3ème source (variables
+d'environnement via `System.getenv`). `resolveOrPrompt` capture mieux l'intention.
+
+_Tâches_ :
+* [ ] Rename `fromCliOrPrompt` → `resolveOrPrompt` (méthode + tous les appels)
+* [ ] Mettre à jour les 19 tests `ConfigPromptMTests` avec le nouveau nom
+* [ ] Vérifier que `./gradlew test --tests "ConfigPromptMTests"` passe
+
+==== US-V4-8 : Logger l'exception dans les catch muets de ContentTaskRegistrar ☐
+
+*Priorité* : P3 🟢
+*Fichiers* : `ContentTaskRegistrar.kt` (3 occurrences : `registerGenerateArticleTask`,
+`registerGenerateSiteFromIntentionTask`, `registerGenerateThemeTask`)
+*Charge* : 0.2 pt
+
+_Problème_ : `try { dsl.toIntention() } catch (_: IllegalArgumentException) { null }`
+avale l'exception sans feedback. Si les données DSL sont invalides, la tâche
+s'exécute sans intention configurée → résultat inattendu sans diagnostic.
+
+_Tâches_ :
+* [ ] Remplacer `catch (_: IllegalArgumentException)` par `catch (e: IllegalArgumentException)`
+* [ ] Logger `project.logger.warn("Failed to parse article intention from DSL: ${e.message}")`
+* [ ] 3 occurrences à corriger
+* [ ] Vérifier que les tests existants passent toujours
+
+==== US-V4-9 : Documenter non-idempotence escapeJsonForJavaProperties ☐
+
+*Priorité* : P3 🟢
+*Fichiers* : `JsonEscape.kt:33-38`
+*Charge* : 0.2 pt
+
+_Problème_ : `escapeJsonForJavaProperties()` n'est pas idempotente. Double appel
+corrompt le JSON (`\\` → `\\\\`, `\n` → `\\n`). Actuellement appelée une seule
+fois dans `injectLensBudgetIntoJbakeProperties()`, donc pas de bug. Mais la
+fonction ne protège pas contre un usage futur incorrect.
+
+_Tâches_ :
+* [ ] Ajouter KDoc : « **ATTENTION : cette fonction n'est PAS idempotente.**
+Un double appel corrompt le JSON (\\ → \\\\). Appeler UNE seule fois. »
+* [ ] Ajouter un test unitaire qui démontre la corruption en double appel
+* [ ] Évaluer : ajouter un flag `alreadyEscaped` ? (probablement overkill)
+
+==== US-V4-6 : BakeryExtension 12 DSL blocks (ACCEPTÉ, pas d'action)
+
+*Décision* : **Accepté.** 12 méthodes `Action<X>` identiques = idiomatique Gradle.
+Tous les plugins officiels Gradle font ça. Ce n'est pas une dette technique,
+c'est une convention. Aucun changement.
+
+'''
+
+=== EPIC CS-V4-ARCH : Recommandations Architecturales (3 RECOs, 40 min)
+
+*Charge* : 1.5 pts — Analyse et planification uniquement
+*Impact* : Robustesse + Performance
+*Sessions estimées* : 0.5 (si implémentation différée)
+
+==== RECO-1 : Wrapper parse YAML BakeryPlugin dans Either.catch ☐
+
+*Priorité* : P2 🟡
+*Fichiers* : `BakeryPlugin.kt:93`
+*Charge* : 0.5 pt
+
+_Problème_ : `yamlMapper.readValue<SiteConfiguration>(configFile)` jeté
+directement dans `apply()`. Si le YAML est invalide, `readValue` jette et le
+plugin ne s'enregistre pas.
+
+_Recommandation_ :
+* [ ] Wrapper dans `Either.catch` comme `FileSystemManager.read()`
+* [ ] Logger un message explicite en cas d'échec (au lieu d'un crash silencieux)
+* [ ] Garder le branchement scaffoldOnly en fallback
+
+==== RECO-2 : Documenter parallélisme potentiel entre tâches Gradle ☐
+
+*Priorité* : P3 🟢
+*Fichiers* : `SiteTaskRegistrar.kt`
+*Charge* : 0.3 pt
+
+_Problème_ : Toutes les tâches du pipeline full sont séquentielles. Certaines
+sont indépendantes : `collectSiteContext` || `generateTheme`, `pagefind` ||
+`validateFirebaseConfig`.
+
+_Recommandation_ :
+* [ ] Ajouter `mustRunAfter` / `shouldRunAfter` pour documenter les dépendances réelles
+* [ ] Laisser Gradle paralleliser automatiquement les tâches indépendantes
+* [ ] Ne PAS forcer le parallélisme — juste documenter l'absence de dépendance
+
+==== RECO-3 : Side-effect traçable dans configureConfigPath ☐
+
+*Priorité* : P3 🟢
+*Fichiers* : `SiteManager.kt:configureConfigPath`
+*Charge* : 0.3 pt
+
+_Problème_ : La méthode modifie `bakeryExtension.configPath` en side-effect
+sans retour. Si `gradle.properties` est mal formé, aucun feedback.
+
+_Recommandation_ :
+* [ ] Retourner un `Either<String, Unit>` depuis `configureConfigPath()`
+* [ ] Logger succès/échec avec le message correspondant
+* [ ] Aligné avec le pattern Arrow-kt déjà en place dans le codebase
+
+'''
+
 == Dette Technique Résiduelle (TODO.adoc)
 
 . *cheroliv.com* : Nettoyer le code inline `publishProfil` dans `build.gradle.kts` — retirer les data classes `ProfileSiteConf`/`ProfilePushConf`/`ProfileRepoConf`/`ProfileCreds` et la tâche `tasks.register("publishProfil")`. Remplacer par le plugin bakery (`deployProfile`). Bloqué par : aucune urgence, code existant fonctionnel.
@@ -317,12 +537,17 @@ _Baby steps_ (EPIC ARROW-1) :
 | CS-FIN-10 | Masquage secrets étendu (CS-31-bis V3) | 0.5 | 🟢 P3 ✅ S090
 | ARROW-1 | Arrow-kt v1.1.0 roadmap | 5 | 🟢 P3 ✅ S093
 | CS-18 | BakeryExtension boilerplate | — | 🟢 Accepté
+// ── NOUVEAU V4 (Session 096) ──
+| CS-V4-P1 | 🔴 Bugs : Throwable fantôme + Path CWD | 1 | 🔴 P1
+| CS-V4-P2 | 🟠 Clarté : imbrication + DeployProfile + getByName | 2 | 🟠 P2
+| CS-V4-P3 | 🟢 Polish : rename + catch muet + doc idempotence | 1 | 🟢 P3
+| CS-V4-ARCH | 🟡 Architecture : YAML Either + parallélisme + side-effect | 1.5 | 🟡 P2/P3
 |===
 
-*Total complété* : CS-FIN-1/2/3/4/5/6/7/8/9/10 = 13.5 pts ✅
-*Total post-v1.0* : ARROW-1 = 5 pts (~2-3 sessions)
+*Total V3 complété* : CS-FIN-1→10 + ARROW-1 = 18.5 pts ✅
+*Total V4 restant* : CS-V4-P1/P2/P3/ARCH = 5.5 pts (~1.5 session)
 *Tous les EPICs historiques* : 28/28 ✅ (100%)
-*Score de santé* : 8.5/10 après enrichissement code review V3 (remonté de 8.0 car CS-21 résolu)
+*Score de santé* : 8.7/10 (V4)
 
 '''
 
@@ -331,8 +556,7 @@ _Baby steps_ (EPIC ARROW-1) :
 [cols="2,3"]
 |===
 | Document | `BACKLOG.adoc`
-| Version | 4.4 — Session 092 (CS-FIN-7 ConfigPromptM)
+| Version | 5.0 — Session 096 (Code Review V4 — peuplement backlog V4)
 | Historisé dans | `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
-| Basé sur | Code review v3 (lecture directe du code source 2026-06-04)
-| Prochaine màj | Après résolution CS-FIN-7
-|===
+| Basé sur | Code review V4 (`.agents/CODE_REVIEW_V4.adoc`, 2026-06-06)
+| Prochaine màj | Après résolution CS-V4-P1 (session 097)

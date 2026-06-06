@@ -88,14 +88,14 @@ object SiteTaskRegistrar {
 
     internal fun Project.configureBakeTask(site: SiteConfiguration) {
         tasks.withType(JBakeTask::class.java)
-            .getByName(BakeryConstants.BAKE_TASK).apply {
+            .findByName(BakeryConstants.BAKE_TASK)?.apply {
                 group = BakeryConstants.GENERATE_GROUP
                 input = file(site.bake.srcPath)
                 output = layout.buildDirectory
                     .dir(site.bake.destDirPath)
                     .get()
                     .asFile
-            }
+            } ?: logger.warn("[bakery] bake task not found — JBake task configuration skipped. Is the JBake plugin applied?")
     }
 
     internal fun Project.registerPagefindTask(site: SiteConfiguration) {

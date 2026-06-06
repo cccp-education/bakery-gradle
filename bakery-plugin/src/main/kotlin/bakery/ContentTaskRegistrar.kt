@@ -42,7 +42,8 @@ object ContentTaskRegistrar {
                 if (dsl.topic.isNotBlank()) {
                     task.dslIntention = try {
                         dsl.toIntention()
-                    } catch (_: IllegalArgumentException) {
+                    } catch (e: IllegalArgumentException) {
+                        project.logger.warn("[BakeryPlugin] Failed to parse article intention from DSL: ${e.message}")
                         null
                     }
                 }
@@ -79,7 +80,8 @@ object ContentTaskRegistrar {
                 if (dsl.description.isNotBlank()) {
                     task.dslIntention = try {
                         dsl.toIntention()
-                    } catch (_: IllegalArgumentException) {
+                    } catch (e: IllegalArgumentException) {
+                        project.logger.warn("[BakeryPlugin] Failed to parse scaffold intention from DSL: ${e.message}")
                         null
                     }
                 }
@@ -121,7 +123,8 @@ object ContentTaskRegistrar {
                 if (dsl.description.isNotBlank()) {
                     task.dslIntention = try {
                         dsl.toIntention()
-                    } catch (_: IllegalArgumentException) {
+                    } catch (e: IllegalArgumentException) {
+                        project.logger.warn("[BakeryPlugin] Failed to parse theme intention from DSL: ${e.message}")
                         null
                     }
                 }

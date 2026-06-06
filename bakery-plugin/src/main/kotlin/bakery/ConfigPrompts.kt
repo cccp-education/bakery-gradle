@@ -11,7 +11,7 @@ object ConfigPrompts {
         sensitive: Boolean = false,
         example: String? = null,
         default: String? = null
-    ): String = ConfigPromptM.fromCliOrPrompt(
+    ): String = ConfigPromptM.resolveOrPrompt(
         propertyName, cliProperty, sensitive, example, default
     ).run(ConfigPromptEnvironment.defaultFor(logger, this))
 

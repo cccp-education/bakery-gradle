@@ -41,7 +41,7 @@ abstract class VerifyConfigurationMappingTask : DefaultTask() {
     @TaskAction
     fun verify() {
         val path = configPath.get()
-        val configFile = File(path)
+        val configFile = project.projectDir.resolve(path)
 
         if (!configFile.exists()) {
             throw GradleException("Configuration file not found: $path")
