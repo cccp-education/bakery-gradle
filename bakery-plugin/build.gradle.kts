@@ -1,4 +1,5 @@
 import com.github.gradle.node.npm.task.NpxTask
+import org.gradle.api.file.DuplicatesStrategy.EXCLUDE
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import java.time.Duration
 
@@ -26,7 +27,6 @@ repositories {
 dependencies {
     // BOM — workspace version alignment (workspace-bom, MEMPHIS)
     implementation(platform("education.cccp:workspace-bom:0.1.0"))
-    testImplementation(platform("education.cccp:workspace-bom:0.1.0"))
 
     implementation(kotlin("stdlib-jdk8"))
 
@@ -91,14 +91,10 @@ tasks.named<Test>("test") {
 
     systemProperty("gradle.plugin.repository", project.rootDir.resolve("build/libs").absolutePath)
 
-    useJUnitPlatform {
-        excludeEngines("cucumber")
-    }
+    useJUnitPlatform { excludeEngines("cucumber") }
 
     // Exclude Cucumber step definitions and runner from unit test discovery
-    filter {
-        excludeTestsMatching("bakery.scenarios.*")
-    }
+    filter { excludeTestsMatching("bakery.scenarios.*") }
 
     maxParallelForks = 2
 }
@@ -106,12 +102,8 @@ tasks.named<Test>("test") {
 
 // 1. Créer le SourceSet functionalTest
 val functionalTest: SourceSet by sourceSets.creating {
-    java {
-        srcDirs("src/functionalTest/kotlin")
-    }
-    resources {
-        srcDirs("src/functionalTest/resources")
-    }
+    java { srcDirs("src/functionalTest/kotlin") }
+    resources { srcDirs("src/functionalTest/resources") }
 }
 
 // 2. Ajouter GradleTestKit à functionalTest (SANS hériter de testImplementation)
@@ -134,13 +126,9 @@ dependencies {
     add(functionalTest.implementationConfigurationName, libs.mockito.kotlin)
     add(functionalTest.implementationConfigurationName, libs.mockito.junit.jupiter)
 
-    libs.bundles.coroutines.get().forEach { dep ->
-        add(functionalTest.implementationConfigurationName, dep)
-    }
+    libs.bundles.coroutines.get().forEach { add(functionalTest.implementationConfigurationName, it) }
 
-    libs.bundles.jgit.get().forEach { dep ->
-        add(functionalTest.implementationConfigurationName, dep)
-    }
+    libs.bundles.jgit.get().forEach { add(functionalTest.implementationConfigurationName, it) }
 }
 
 // 3. Tâche pour les tests fonctionnels
@@ -164,9 +152,7 @@ val functionalTestTask = tasks.register<Test>("functionalTest") {
 }
 
 // CORRECTION: Gérer les duplications de ressources pour functionalTest
-tasks.named<ProcessResources>(functionalTest.processResourcesTaskName) {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
+tasks.named<ProcessResources>(functionalTest.processResourcesTaskName) { duplicatesStrategy = EXCLUDE }
 
 // ────────────────────────────────────────────────────────────
 // E2E Test SourceSet + Playwright (BKY-JB-9 Phase B)
@@ -174,12 +160,8 @@ tasks.named<ProcessResources>(functionalTest.processResourcesTaskName) {
 
 // 1. Créer le SourceSet e2eTest
 val e2eTest: SourceSet by sourceSets.creating {
-    java {
-        srcDirs("src/e2eTest/kotlin")
-    }
-    resources {
-        srcDirs("src/e2eTest/resources")
-    }
+    java { srcDirs("src/e2eTest/kotlin") }
+    resources { srcDirs("src/e2eTest/resources") }
 }
 
 // 2. Dépendances e2eTest : Playwright + JUnit5 + AssertJ + full test runtime
@@ -250,7 +232,7 @@ tasks.register<NpxTask>("installPlaywright") {
 
 // 5. Gérer les duplications de ressources pour e2eTest
 tasks.named<ProcessResources>(e2eTest.processResourcesTaskName) {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    duplicatesStrategy = EXCLUDE
 }
 
 // NOTE : e2eTest n'est PAS dans tasks.check{} — il doit être lancé explicitement
@@ -260,12 +242,9 @@ tasks.named<ProcessResources>(e2eTest.processResourcesTaskName) {
 // 4. Configurer les sources sets pour Cucumber (test standard)
 sourceSets {
     test {
-        resources {
-            srcDir("src/test/features")
-        }
-        java {
-            srcDir("src/test/scenarios")  // Steps dans scenarios/
-        }
+        resources { srcDir("src/test/features") }
+        // Steps dans scenarios/
+        java { srcDir("src/test/scenarios") }
     }
 }
 
@@ -279,18 +258,12 @@ configurations.named("testRuntimeOnly").configure {
 }
 
 // 6. Ajouter les classes compilées de functionalTest au classpath de test
-dependencies {
-    testImplementation(functionalTest.output)
-}
+dependencies { testImplementation(functionalTest.output) }
 
 configurations {
     // Exclure logback-classic du classpath de test
-    named("testRuntimeClasspath") {
-        exclude(group = "ch.qos.logback", module = "logback-classic")
-    }
-    named("testImplementation") {
-        exclude(group = "ch.qos.logback", module = "logback-classic")
-    }
+    named("testRuntimeClasspath") { exclude(group = "ch.qos.logback", module = "logback-classic") }
+    named("testImplementation") { exclude(group = "ch.qos.logback", module = "logback-classic") }
     // Exclure logback-classic du classpath de functionalTest
     named(functionalTest.runtimeClasspathConfigurationName) {
         exclude(group = "ch.qos.logback", module = "logback-classic")
@@ -305,10 +278,10 @@ val cucumberTest = tasks.register<Test>("cucumberTest") {
     testClassesDirs = sourceSets.test.get().output.classesDirs
 
     classpath = configurations.testRuntimeClasspath.get() +
-            sourceSets.test.get().output +
-            functionalTest.output +
-            sourceSets.main.get().output +
-            files(tasks.jar.get().archiveFile)
+        sourceSets.test.get().output +
+        functionalTest.output +
+        sourceSets.main.get().output +
+        files(tasks.jar.get().archiveFile)
 
     dependsOn(tasks.classes)
 
@@ -341,13 +314,12 @@ val cucumberTest = tasks.register<Test>("cucumberTest") {
 
         tempDir.listFiles { file ->
             file.isDirectory && file.name.startsWith("gradle-test-") &&
-            file.lastModified() < oneHourAgo
+                file.lastModified() < oneHourAgo
         }?.forEach { oldDir ->
             try {
-                if (oldDir.deleteRecursively()) {
-                    println("  Cleaned: ${oldDir.name}")
-                }
-            } catch (_: Exception) {}
+                if (oldDir.deleteRecursively()) println("  Cleaned: ${oldDir.name}")
+            } catch (_: Exception) {
+            }
         }
     }
 }
@@ -383,6 +355,7 @@ kover {
 }
 
 tasks.register("koverThresholdCheck") {
+    description = "kover threshold check"
     dependsOn("koverXmlReport")
 
     doLast {
