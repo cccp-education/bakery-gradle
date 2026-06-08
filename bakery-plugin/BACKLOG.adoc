@@ -642,6 +642,67 @@ a probablement déjà été créé lors de la session 046 (EPIC G Audit publicat
 | BKY-COV-2 | Gaps fonctionnels coverage (DeployProfileTask, ProfilePublisher, BakeryPlugin) | 12 | 🟠 P2 ☐
 |===
 
+'''
+
+== EPIC PUB — Publication Maven Central + Plugin Portal
+
+_Source : configuration/EPIC_PUB.adoc (Session 096)_
+
+=== PUB-2.2 — Mettre a jour le commentaire relocation
+
+Dans le `build.gradle.kts`, remplacer :
+```kotlin
+// RELOCATION : prepare la migration du groupId education.cccp →
+// <futur-domaine>. Activer avec -Prem relocationGroup="io.github.cccp-education"
+// Effet : injecte <distributionManagement><relocation><groupId>...</groupId></relocation>
+// dans le POM publie. Les consommateurs existants seront rediriges automatiquement
+// vers le nouveau groupId lors de la prochaine maj de dependance.
+```
+Par :
+```kotlin
+// RELOCATION : garde comme echappatoire future.
+// Activable avec -Prem relocationGroup="<futur-namespace>"
+```
+
+=== PUB-3.14 — bakery-plugin
+
+*Artefact* : `education.cccp.bakery` + `education.cccp:bakery-plugin`
+
+```bash
+cd foundry/public/bakery-gradle && ./gradlew publish closeAndRelease
+```
+
+=== PUB-4.1 — Demande suppression ancien plugin
+
+Ouvrir une issue sur https://github.com/gradle/plugin-portal-requests/issues/new :
+
+. Template "Delete a plugin"
+. Plugin ID : `com.cheroliv.bakery`
+. Raison : "Renamed to education.cccp.bakery, old repo made private"
+
+*NOTE* : L'ancien plugin `com.cheroliv.bakery` sera supprime du Portal.
+Le repo `cheroliv/bakery-gradle` est passe en prive.
+
+=== PUB-4.2 — Publier education.cccp.bakery sur Portal
+
+```bash
+cd foundry/public/bakery-gradle/bakery-plugin && ./gradlew publishPlugins
+```
+
+=== PUB-5.14 — Verification
+
+.Verification Maven Central
+
+| Artefact | URL |
+|---|---|
+| bakery-plugin | https://central.sonatype.com/artifact/education.cccp/bakery-plugin |
+
+.Verification Plugin Portal
+
+| Plugin | URL |
+|---|---|
+| bakery | https://plugins.gradle.org/plugin/education.cccp.bakery |
+
 *Total V3 complété* : CS-FIN-1→10 + ARROW-1 = 18.5 pts ✅
 *Total V4 complété* : CS-V4-P1/P2/P3/ARCH = 5.5 pts ✅ S097
 *Total KOV complété* : BKY-KOV-1 = 16 pts ✅ S104
