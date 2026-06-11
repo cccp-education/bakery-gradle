@@ -1,10 +1,11 @@
 = PROMPT_REPRISE — Bakery
 
-== Mission en cours
+== Mission accomplie
 
-*Session 108 TERMINEE* — US-COV-2.3 DeployProfileTask full pipeline FT.
-2 nouveaux tests TestKit (history preservation + custom from subdir).
-EPIC BKY-COV-2 : 9/12 pts (75%).
+*Session 109 TERMINÉE* — Publication Maven Central 0.0.1.
+Version 0.0.1 hardcodée, codebase-contracts→0.0.1, workspace-bom→0.0.1.
+POM sans guard, Sonatype→nmcp, settings nmcp avec mavenCentral first.
+`education.cccp:bakery-gradle:0.0.1` publié sur Maven Central ✅
 
 == Statut
 
@@ -12,16 +13,12 @@ EPIC BKY-COV-2 : 9/12 pts (75%).
 - Code smells : 24/24 ✅
 - BKY-KOV-1 : ✅ TERMINE (85.88%)
 - BKY-COV-2 : 🔄 9/12 pts — US-COV-2.1 ✅, US-COV-2.2 ✅, US-COV-2.3 ✅
-- BKY-PUB-1 : ❄️ 0/8 pts — bloque par achat domaine cccp.education
+- BKY-PUB-1 : ✅ TERMINE — Session 109 (nmcp, 0.0.1)
 - Tests : ✅ Tous PASS (JUnit5 780+ + functionalTest 81+ + Cucumber 129/129 + E2E)
+- Version publiée: 0.0.1 (Maven Central)
 
-== Prochaine session (109)
+== Prochaine session (110)
 
-=== EPIC BKY-COV-2 : Microfissures coverage (12 pts)
-
-. ✅ US-COV-2.1 : DeployProfileTask 12 UT (0%→couvert)
-. ✅ US-COV-2.2 : ProfilePublisher 17 UT + 4 FT (TestKit deployProfile)
-. ✅ US-COV-2.3 : DeployProfileTask full pipeline FT (2 tests TestKit)
-. US-COV-2.4 : BakeryPlugin coverage 52.8%→70% (2-3 UT)
-. US-COV-2.5 : ToolsKt coverage 22%→50% (1 session)
-. US-COV-2.6 : Documentation limitation Kover closures doLast
+À définir :
+- BKY-COV-2 : US-COV-2.4 BakeryPlugin 52.8%→70%, US-COV-2.5 ToolsKt 22%→50%
+- Switch borough

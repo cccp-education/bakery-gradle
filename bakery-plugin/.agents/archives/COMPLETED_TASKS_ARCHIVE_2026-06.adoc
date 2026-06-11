@@ -1,5 +1,28 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 109 — 2026-06-11 — Publication Maven Central 0.0.1
+
+**Contexte** : Publication du plugin bakery-gradle sur Maven Central via nmcp.
+VAGUE 4.5 — Bushwick.
+
+**Tâches réalisées** :
+
+* [x] Version `0.1.4` → `0.0.1` hardcodée dans `build.gradle.kts`
+* [x] Dépendance `codebase-contracts` → `0.0.1`
+* [x] Dépendance `workspace-bom` → `0.0.1`
+* [x] POM sans guard — `withType<MavenPublication>` (nom, description, licence Apache 2.0, developer cccp-education, SCM)
+* [x] Migration Sonatype staging → nmcp : `repositories { mavenCentral() }`
+* [x] `settings.gradle.kts` : plugin `com.gradleup.nmcp.settings` 1.5.0 + `nmcpSettings { centralPortal { ... publishingType = "AUTOMATIC" } }` + mavenCentral first
+* [x] `signing { useGpgCmd() }`
+* [x] Build vérifié : `./gradlew build -x test`
+* [x] Publication : `./gradlew publishAggregationToCentralPortal --no-daemon` — ✅ succès
+
+**Fichiers modifiés** : `build.gradle.kts`, `settings.gradle.kts`
+
+**Résultats** : `education.cccp:bakery-gradle:0.0.1` publié sur Maven Central ✅
+
+'''
+
 == Session 108 — 2026-06-07 — US-COV-2.3 DeployProfileTask Full Pipeline FT
 
 **Contexte** : EPIC BKY-COV-2 Microfissures coverage. US-COV-2.1 et US-COV-2.2 terminés.
@@ -253,7 +276,7 @@ comme plateforme de versions homogénéisée cross-borough.
 * [x] CS-FIN-7 (P2, 2 pts) — ConfigPromptM Reader monad + ConfigPromptEnvironment extraction
 * [x] DDD : `ConfigPromptM<A>` fun interface (Reader monad) avec `run()`, `map()`, `flatMap()`
 * [x] DDD : `ConfigPromptEnvironment` data class top-level (extrait de nested class `ConfigPrompts.ConfigPromptEnvironment`)
-* [x] DDD : Constructeurs `pure`, `fromCli`, `prompt`, `promptSensitive`, `fromCliOrPrompt`
+* [x] Constructeurs `pure`, `fromCli`, `prompt`, `promptSensitive`, `fromCliOrPrompt`
 * [x] TDD : 19 UT `ConfigPromptMTests` (Pure 1, Map 2, FlatMap 2, FromCli 2, FromCliOrPrompt 4, Prompt 3, PromptSensitive 2, Composition 3)
 * [x] Refactor : `ConfigPrompts.getOrPrompt()` délègue à `ConfigPromptM.fromCliOrPrompt().run(env)`
 * [x] Refactor : `resolveConfigValue()` déprécié supprimé
@@ -348,6 +371,7 @@ SiteManagerTest.kt, ConfigPromptsTest.kt, JsonEscapeForPropertiesTest.kt (4 test
 Bakery 100% terminé — 28/28 EPICs + 24/24 code smells. Zéro dette technique.
 
 '''
+
 == Session 096 — 2026-06-06 — Code Review V4 (Second Regard Expert Post-Copilot)
 
 **Contexte** : Code review approfondie demandée — second regard par-dessus une
@@ -405,38 +429,5 @@ feedback agent sur la maturité du borough, planification des 2 derniers kilomè
 BKY-KOV-1 US-1 Audit couverture Kover.
 
 '''
-== Session 097 — 2026-06-06 — POLISH V4 Complet
 
-**Contexte** : Session 096 avait livré une Code Review V4 (second regard expert post-Copilot)
-identifiant 9 code smells + 3 RECOs architecturales. Session 097 résout l'intégralité.
-
-**Tâches réalisées** :
-
-* [x] CS-V4-P1 — US-V4-1 : Suppression `Throwable(...)` fantôme dans `BakeryPlugin.kt:79`
-* [x] CS-V4-P1 — US-V4-2 : Fix `File(path)` → `project.projectDir.resolve(path)` dans
-  `VerifyConfigurationMappingTask.kt:44`
-* [x] CS-V4-P2 — US-V4-3 : Refactor `SiteManager.configureConfigPath()` (guard clauses,
-  suppression `properties.run{}` inutile)
-* [x] CS-V4-P2 — US-V4-4 : Investigé `DeployProfileTask` — pas de bug (pattern valide,
-  lecture dynamique dans @TaskAction)
-* [x] CS-V4-P2 — US-V4-5 : `getByName("bake")` → `findByName("bake")?.apply{}` + warning
-* [x] CS-V4-P3 — US-V4-7 : Rename `fromCliOrPrompt` → `resolveOrPrompt` (3 fichiers, 13 occurrences)
-* [x] CS-V4-P3 — US-V4-8 : 3 catch muets → `logger.warn(e.message)` dans
-  `ContentTaskRegistrar.kt`
-* [x] CS-V4-P3 — US-V4-9 : KDoc "PAS idempotente" + test double appel dans `JsonEscape.kt`
-* [x] CS-V4-ARCH — RECO-1 : YAML parse → `Either.catch` + fold(ifLeft, ifRight)
-* [x] CS-V4-ARCH — RECO-2 : KDoc parallélisme potentiel dans `registerFullPipelineTasks()`
-* [x] CS-V4-ARCH — RECO-3 : `configureConfigPath()` retourne `Either<String, Unit>` + log succès/échec
-* [x] Tests adaptés : BakeryPluginTest, SiteManagerTest, ConfigPromptsTest,
-  JsonEscapeForPropertiesTest (+1 test double appel)
-
-**Fichiers modifiés** : `BakeryPlugin.kt`, `VerifyConfigurationMappingTask.kt`,
-`SiteManager.kt`, `SiteTaskRegistrar.kt`, `ConfigPromptM.kt`, `ConfigPrompts.kt`,
-`ContentTaskRegistrar.kt`, `JsonEscape.kt`, `BakeryPluginTest.kt`,
-`SiteManagerTest.kt`, `ConfigPromptsTest.kt`, `JsonEscapeForPropertiesTest.kt`
-
-**Résultats** : 9/9 code smells V4 + 3/3 RECOs résolues. Full test suite PASS.
-BUILD SUCCESSFUL. Bakery 100% terminé.
-
-'''
 == Session 081 — 2026-06-04 — CS-FIN-2 Jackson + CS-FIN-3 Nettoyage DRY

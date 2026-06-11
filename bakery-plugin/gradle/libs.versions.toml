@@ -1,6 +1,6 @@
 [versions]
 graphify = "0.0.2"
-bakery = "0.1.4"
+bakery = "0.0.1"
 commons-io = "2.13.0"
 jgit = "6.10.0.202406032230-r"
 slf4j = "2.0.17"
@@ -19,7 +19,7 @@ coroutines = "1.10.2"
 node-gradle = "7.1.0"
 kover = "0.9.8"
 codebase = "0.0.1"
-codebase-contracts = "0.1.0"
+codebase-contracts = "0.0.1"
 thymeleaf = "3.0.14.RELEASE"
 rome = "2.1.0"
 

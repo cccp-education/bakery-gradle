@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-07 — Session 108 (US-COV-2.3 DeployProfileTask full pipeline FT)
-  _Session terminee_ : 108
-  _Prochaine session_ : 109 — US-COV-2.4 BakeryPlugin coverage 52.8%→70%
+  _Derniere mise a jour_ : 2026-06-11 — Session 109 (Publication Maven Central 0.0.1)
+  _Session terminee_ : 109
+  _Prochaine session_ : 110 — À définir
   _Session en cours_ : — (fermee)
 
 '''
@@ -70,80 +70,17 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
-  | 108 | 2026-06-07 | TDD + FT | **US-COV-2.3** DeployProfileTask full pipeline FT — 2 tests TestKit : history preservation (double deploy → log > 1 commit) + custom from subdirectory (profile-assets → README.md + CONTRIBUTING.md). 6/6 ProfilePublisher FT PASS. EPIC BKY-COV-2 9/12 pts. | 9/10
-  | 107 | 2026-06-07 | TDD + FT | **US-COV-2.2** ProfilePublisher 17 UT + 4 FT TestKit (resolveCredentials 7 + copyProfileFiles 10 + FT happy path 2 + failure 2). build.gradle.kts : jgit bundle ajoute au functionalTest. 21 nouveaux tests. Tous PASS. EPIC BKY-COV-2 6/12 pts. | 9/10
-  | 106 | 2026-06-07 | TDD + coverage | **US-COV-2.1** DeployProfileTask 12 UT (0%→couvert). TDD baby steps. 12 tests (PushProfileMissing + CredentialsResolution 4 + ProfileFilesValidation 6 + Cleanup + HappyPath). Pattern ProjectBuilder + bare Git. BUILD SUCCESSFUL. | 9/10
-  | 105 | 2026-06-06 | code review + governance | **Code Review externe** — Gaps fonctionnels couverture. Nouvel EPIC BKY-COV-2 (12 pts, 6 US). DeployProfileTask 0% UT, ProfilePublisher integration, BakeryPlugin 52.8%→70%, ToolsKt 22%. BACKLOG/TODO mis à jour. Zéro changement code. | 8/10
-  | 104 | 2026-06-06 | TDD + coverage + threshold | **US-KOV-6+7** SiteScaffolder 68.8% → 100% (+31.2pp) + bump seuil 70→85. EPIC BKY-KOV-1 TERMINE (16/16 pts). Coverage globale 85.76% → 85.88%. | 9/10
-  | 103 | 2026-06-06 | TDD + coverage | **US-KOV-5** BakeryPlugin 37% → 52.8% — 3 tests (configFile absent/YAML invalide/dirs manquants). BakeryTestFixture étendu. Coverage 85.19%→85.76%. FT couvre full pipeline 89.4%. | 8/10
-  | 102 | 2026-06-06 | TDD + coverage | **US-KOV-4** GitService 66% → 86.0% — TDD : 4 nouveaux tests (3 PushPages succès/RemoteNotConfigured/ContentAbsent + 1 forcePush sans history). Coverage globale 85.19% (gap cible 90%: 4.81pp). 19/19 GitServiceTest PASS. | 9/10
-  | 101 | 2026-06-06 | TDD + coverage | **US-KOV-3** FileSystemManager 56% → 90.45% — 23 tests unitaires (copyFromJarUrl 5 + copyFromFS 3 + copyFromResourceUrl dispatch 1). Coverage globale 78.1%→85.24% (+7.14pp). | 9/10
-  | 100 | 2026-06-06 | TDD + coverage | **US-KOV-2** GenerateThemeTask 0→95.7% — 19 tests (TaskRegistration + ResolveIntention + ExecuteGenerate). Coverage globale 78.1→83.72%. Tous tests PASS. | 9/10
-  | 099 | 2026-06-06 | fix + audit | **Audit Kover + réparation tests** — Phase 1: FT telephone→phone, Cucumber DuplicateStepDefinition fix, copyFromJar path fix. Phase 2: Audit Kover coverage 78.1%, cibles US-KOV-2→6 identifiées. 4 fichiers modifiés. Tous tests greens. | 8/10
-  | 096 | 2026-06-06 | code review | **Code Review V4** — Second regard expert post-Copilot. Contrepoint review Copilot (obsolète). 9 nouveaux smells V4 (CS-V4-1→9 : 0 critique, 2 modérés, 7 légers). Document `.agents/CODE_REVIEW_V4.adoc` (277 lignes). Zéro changement code. | 8/10
-  | 095 | 2026-06-06 | docs + branding | **README maj + cccp-education** — Reecriture complete README.adoc (351→670 lignes) : Quick Facts, Tasks par categorie, Pattern LENTILLE, Theme System, IA Scaffolding, Firebase, CI/CD, Architecture. Correction repo `cccp-education/bakery-gradle` + website `cccp-education.github.io` + copyright `cccp.education`. `build.gradle.kts` website mis a jour. 2 fichiers modifies, zero changement code source. | 9/10
-  | 094 | 2026-06-05 | refactor + governance | **Alignement workspace-bom** — BOM importé `education.cccp:workspace-bom:0.1.0` (4 configurations). Retiré 6 versions BOM-managées du catalog (jackson, langchain4j, arrow, playwright, cucumber, junit_platform). Kotlin 2.2.20→2.3.20, plugin-publish 1.3.1→2.1.0. slf4j/logback dur→catalog. Fix createTempDir Kotlin 2.3.20. 3 fichiers modifiés. 757 UT PASS, zéro régression. | 9/10
-  | 093 | 2026-06-05 | feat + refactor + TDD | **ARROW-1** Arrow-kt 2.2.2 Migration — `FileSystemOperationResult`/`FileOperationResult` → `Either<String, Unit>`, `resolveAll` 8 try/catch → `Either.catch+fold`, `pushPages` returns `Either` (no throw). 8 fichiers modifiés. 757 UT PASS, zéro régression. 12/12 code smells ✅. Bakery 100%. | 9/10
-  | 092 | 2026-06-05 | refactor + TDD | **CS-FIN-7** ConfigPromptM Reader Monad — `ConfigPromptM<A>` fun interface (run/map/flatMap) + `ConfigPromptEnvironment` top-level + 19 UT + ConfigPrompts 162→55 lignes (-66%). 757 UT PASS, zéro régression. | 9/10
-  | 091 | 2026-06-05 | refactor + TDD | CS-FIN-9 BfsProximityCache — Adjacency 1 fois, distances lazy-cachées, proximityFor() O(1). 321→239 lignes (-25%). O(n²)→O(n). 9 UT + 738 total PASS. | 9/10
-  | 090 | 2026-06-05 | refactor + TDD + BDD | **CS-FIN-10** Masquage secrets étendu SecretField ADT — Password→`***`/ApiKey→prefix***suffix/Token→`***[N chars]`/Blank→`(not set)`. 9+6 UT. Zero regression. | 9/10
-  | 089 | 2026-06-05 | refactor + TDD | **CS-FIN-8** FileSystemManager FileSystemOperationResult — Sealed class Success/Failure, 716/716 UT PASS, zero regression. | 9/10
- | 088 | 2026-06-05 | refactor + TDD | **CS-FIN-7** ConfigPrompts Testabilité Reader Monad — ConfigPromptEnvironment data class + resolveConfigValue() pure function + 4 UT mockés (interactif, sensitive, default, env var). 19/19 ConfigPrompts PASS. Zéro régression. | 9/10
- | 087 | 2026-06-05 | refactor + TDD | **CS-FIN-6** GitService PrePush Validation — PrePushValidation sealed class (Valid, RemoteNotConfigured, ContentAbsent) + validatePrePush() + 4 UT + intégration pushPages(). 15/15 GitServiceTest PASS. | 9/10
- | 086 | 2026-06-05 | refactor + TDD | **CS-FIN-5** GenerateSiteService extraction — DDD object pur (6 fonctions) + TDD 15 tests PASS. SiteTaskRegistrar 331→203 lignes (-38%). BDD Cucumber reporté. | 9/10
- | 075 | 2026-06-04 | refactor + TDD | **CS-8** Rome RSS parser — `SiteContextCollector.parseFeed()` DOM 35l → Rome 12l. `parseRssDate()` supprimé. `normalizeUrl()` extrait. Dépendance `com.rometools:rome:2.1.0`. Compilation zéro warning. 7/7 tests PASS. | 9/10
- | 074 | 2026-06-04 | refactor | **CS-4** Pattern Strategy injectConfig — `injectResolvedConfigIntoJbakeProperties()` 79→22 lignes. 3 fichiers créés (`injection/` package). **CS-5** Générifier ConfigResolver — `resolve<T>` générique + Scope pattern. 339→327 lignes. | 9/10
- | 073 | 2026-06-04 | polish | **CS-11** Logger uniformisation (`println`→`logger.lifecycle`, 3 fichiers). **CS-9** SKIP — `var` dans DSL builders = idiomatique Gradle. 63/63 PASS. Coverage 77.09%. | 8/10
- | 072 | 2026-06-04 | feat + refactor | **EPIC 6** Validation finale — `DeployProfileTask` (41l) + `ProfilePublisher` (77l) + 14 UT + 3 Cucumber. **CS-12** Taxonomie DEPLOYER : `publishProfile`→`deployProfile` (6 refs). BUILD SUCCESSFUL. | 9/10
- | 071 | 2026-06-04 | refactor + TDD | **CS-1** `SiteManager` split en 4 TaskRegistrars — `SiteTaskRegistrar` (446l), `DeployTaskRegistrar` (103l), `ContentTaskRegistrar` (196l), `LensTaskRegistrar` (79l). SiteManager : 917→44 lignes (-95%). **CS-10** Tasks TODO `NotImplementedError` supprimées. **EPIC 13** coverage 73.13%→77.09% (+3.96%). BUILD SUCCESSFUL tous tests PASS. | 9/10
- | 070 | 2026-06-04 | refactor + TDD + audit | **CS-2** `LensPipelineService` créé — extraction pipeline LENS du doLast de SiteManager (79 → 10 lignes, -87%). 6/6 UT PASS. **CS-3** `ScaffoldOutputDto` — migration parse JSON maison → Jackson (FAIL_ON_UNKNOWN_PROPERTIES=false). 4 méthodes regex privées supprimées. 16/16 ScaffoldGeneratorTest PASS. **Audit IA-3** : code déjà complet (ValidateFirebaseConfigTask + FirebaseConfigValidator + 18 UT + 5 FT + 3 Cucumber) — statut mis à jour TERMINÉ. SiteManager : 977 → 916 lignes (-61, -6.2%). BUILD SUCCESSFUL tous tests PASS. | 9/10
-| 069 | 2026-06-03 | feat + TDD + BDD | BKY-IA-2 Baby Steps 4-5 — GenerateThemeTask + ThemeIntentionFunctionalTests (5 FT) + Feature 27 Cucumber (3 scénarios). 87/87 Cucumber PASS. | 9/10
-| 064 | 2026-06-03 | perf + fix | EPIC 11 Optimisation durée tests — Séparation Cucumber/JUnit5 (test 2m46s→38s, -77%), nettoyage gradle.properties, fix koverThresholdCheck dependsOn. Coverage 73.13%. | 9/10
-| 063 | 2026-06-03 | fix + TDD + BDD + E2E | BKY-LENS-6.3 Nettoyage FT Legacy BKG + E2E Playwright — 3 tests CollectRelatedArticles supprimés, 2 tests RelatedArticlesTest supprimés, CONV-1 defaults corrigé, related-articles.thyme supprimé, 4 tests E2E Playwright augmentés, +2 scénarios Cucumber rendu. 56/56 FT PASS, 81/81 Cucumber PASS, 17/17 E2E PASS. | 9/10
-| 062 | 2026-06-03 | feat + TDD + BDD | BKY-LENS-6 Templates Augmentés JBake — augmented-articles.thyme (badges RAG/KG/Docs/EAGER) + post.thyme + page.thyme intégrés + Cucumber Feature 24 (10/10) + FT CollectAugmentedContext. 129/129 Cucumber PASS. | 9/10
-| 059 | 2026-06-03 | feat + BDD + fix | BKY-LENS-4 Cucumber Features 17-19 — 3 features BKG orphelines réécrites en LENS. Fix DuplicateStepDefinition (ThymeleafComponentSteps vs ConfigResolverSteps) → 53→6 échecs Cucumber. Feature 19 3/3 PASS. LensSteps enrichi (+7 steps). | 7/10
-| 058 | 2026-06-03 | feat + TDD + BDD + cleanup | BKY-LENS-3 Budget + Injection JBake (Reconnect) — LensBudget data class + apply() + budget { } DSL + registerCollectAugmentedContextTask + injectLensBudgetIntoJbakeProperties + Nettoyage BKG legacy (13 fichiers supprimés). 82+ UT lens PASS. | 9/10
-| 057 | 2026-06-03 | feat + TDD + BDD | BKY-LENS-2.3 Scoring Hybride TDD + BDD — Fix Feature 22 Scénario 2 (guillemets), 7 boundary tests AugmentedArticlesService, 4 boundary tests AugmentedContextResolver. Feature 22 3/3 PASS. 52+ UT lens PASS. | 8/10
-| 055 | 2026-06-02 | reprise + vérification | Reprise Bakery LENS-1 — vérification complète. BKY-LENS-1 ENTIEREMENT implémenté (7 fichiers, 30 tests PASS). LensConfig + AugmentedContextDsl + SubgraphExtractor + SiteSubgraph + BakeryExtension.augmentedContext. | 8/10
-| 053 | 2026-06-02 | fix + BDD | EPIC 17 TERMINÉ — generateArticle graceful fail : 2 scénarios Cucumber corrigés (step "without IA"). 70/70 Cucumber PASS ✅ | 9/10
-| 052 | 2026-06-02 | fix + test | CONV-1.8 DuplicateStepDefinition résolu (1 step supprimé GenerateArticleSteps). 437 UT + 53 FT + 68/70 Cucumber PASS (2 échefs = EPIC 17). | 9/10
-| 051 | 2026-06-02 | feat + test + BDD | CONV-1.7 saveConfiguration() FT + Cucumber — 2 FT (SaveConfigurationTest : credentials persistence + bake config preservation) + 2 Cucumber (Feature 21 : save credentials + preserve config). Dette Cucumber identifiée : DuplicateStepDefinitionException. | 8/10
-| 049 | 2026-06-02 | vérification + test + FT | CONV-1.4 vérifié (migration déjà faite) + CONV-1.5 : 3 FT cascade ConfigResolver (DSL override, gradle.properties override, defaults) PASS. Feature Cucumber 20 créée. | 8/10
-| 046 | 2026-06-02 | feat + test + BDD | BKG-1.4 post.thyme consommation graphe — related-articles.thyme data-attributes + JavaScript + injection relatedArticlesData (2 UT template + 2 UT injection + 2 Cucumber). 397 UT + 53 FT + 66 Cucumber. | 9/10
-| 045 | 2026-06-02 | feat + test + BDD | BKG-0.4 + BKG-1.1-1.3 — BlogArticleSummary data class + RelatedArticlesOutput.blogArticles + graphFilePath DSL + injection jbake.properties + Cucumber 19 (3/3 PASS). 395 UT + 53 FT + 64 Cucumber. | 9/10
-| 044 | 2026-06-02 | feat + test + BDD | BKG-0 KG Enrichi — ArticleNode.description + tag co-occurrence + entity overlap (TF-IDF descriptions). RelatedArticlesService enrichi (4 facteurs). Feature Cucumber 18 (3/3 PASS). 6 UT nouveaux + 3 UT description. | 9/10
-| 043 | 2026-06-02 | feat + test + pivot | BKY-BKG BKG-1 COMPLETE — RelatedArticlesDsl + jbake.properties + post.thyme intégré. 6 steps baby steps DDD/TDD/BDD. jsoup supprimé. Anti-pattern post-bake retiré. | 4/10
-| 042 | 2026-06-02 | feat + test + pivot | BKY-BKG Resolver + Pivot Architecture — RelatedArticlesResolver (8 UT PASS), tentative post-bake HTML injection (anti-pattern détecté), pivot vers Extension DSL + jbake.properties + Thymeleaf côté serveur. Score 4/10 (anti-pattern détecté tard). | 4/10
-| 040 | 2026-06-02 | feat + test | BKY-JB-8 Article IA COMPLETE — ArticleIntention DDD (topic+ton+audience+keywords+lang), Generator.generate(intention) + buildPrompt(intention) enrichi, resolveIntention() CLI>DSL>défauts, ArticleIntentionDsl bridge, BakeryExtension.articleIntention DSL. 29 UT + 4 FT + 3 Cucumber (55 total). Baby steps 5/5. | 9/10
-| 039 | 2026-06-02 | feat + test | BKY-JB-7 Layouts COMPLETE — LayoutType enum (4), LayoutConfig+Dsl, 4 layout-*.thyme (th:if guards), injection jbake.properties, post.thyme+page.thyme intégrés. 16 UT + 2 FT + 3 Cucumber. 52 Cucumber total. Baby steps DDD/TDD/BDD 5/5. | 9/10
-| 038 | 2026-06-02 | feat + test + ci | BKY-JB-9 Phase B COMPLETE — Cucumber E2E 10 scénarios (15_e2e_thymeleaf_components.feature + E2eThymeleafSteps.kt), CI workflow test.yml (build + e2eTest). 49 Cucumber PASS. JB-9.8 + JB-9.9 ✅ | 9/10
-| 037 | 2026-06-02 | feat + test + infra | BKY-JB-9 Phase B Setup — Playwright E2E (sourceSet e2eTest, tâche e2eTest + installPlaywright NpxTask, 13/13 E2E tests PASS). Borough-isation bakery-gradle → Bushwick (20ème borough). | 8/10
-| 036 | 2026-06-02 | feat + test + bugfix | BKY-JB-9 Phase A suite — DualConventionResolver (.thyme.thyme bug), 15 rendering tests (header, menu, footer, breadcrumb, toc, progress, pdf). 4 TemplateTest marqués @SupersededBy. 297 UT PASS. | 9/10
-| 035 | 2026-06-01 | feat + test + bugfix | BKY-JB-9 Phase A — ThymeleafRenderingTestFactory + 17 rendering tests. 5 bugs templates (3x SpEL→OGNL, Elvis, CSS→JS). 282 UT PASS. | 9/10
-| 034 | 2026-06-01 | feat + test | BKY-JB-6 Système de thème — ThemeConfig (mode/colors/font/logo/favicon), theme-script.thyme (CSS :root variables), header favicon cond., menu logo cond., site-basic aligné. 16 UT + 2 FT + 3 Cucumber. Baby steps 5/5. | 9/10
-| 033 | 2026-06-01 | feat + test + backlog | BKY-JB-5 Analytics + Newsletter — AnalyticsConfig + NewsletterConfig, analytics-script.thyme (Plausible/Matomo), newsletter-form.thyme, 18 UT + 2 FT + 3 Cucumber PASS. Baby steps 5/5. EPIC BKY-JB-9 cadré. Phase B 100%. | 9/10
-| 029 | 2026-06-01 | feat + test + cleanup | EPIC 7 YAML tolerance (3 tests), EPIC 10 80%→100%, BKY-JB-2 composants Thymeleaf (4 fragments, 4 FT, 5 Cucumber). Bug date GenerateArticleTaskTest découvert. | 8/10
-| 027 | 2026-05-31 | analyse + doc + plan | Analyse 12 echecs tests → EPIC 15 (NPE), EPIC 16 (Cucumber Scaffolding), EPIC 17 (generateArticle graceful fail). 3 EPICs dans BACKLOG avec User Journeys Gherkin + baby-steps DDD/TDD/BDD. Ports LLM 11434→11465/64/63/62. | 8/10
-| 026 | 2026-05-30 | feat + test | BKY-JB-0 Scaffolding site JBake — SiteType enum (BLOG/BASIC), ressources site-basic/, resolveSiteType() DSL, 22 tests (17 UT + 4 FT + 1 blog explicite) PASS | 8/10
-| 025 | 2026-05-30 | feat + test | BKY-BKG Step 1-3 — ArticleGraph + RelatedArticlesService (scoring tags/titres, stop words) + tâche collectRelatedArticles (18UT+3FT PASS) | 8/10
-| 024 | 2026-05-30 | feat + test | BKY-N3-7 Contrat N3 — collectSiteContext → metadata.json (SiteContextCollector, feed+sitemap, 3UT+1FT) | 9/10
-| 023 | 2026-05-29 | feat + test | BKY-IA-0 Service LLM partagé (LlmService, OllamaLlmService, IaConfig DSL) | 8/10
-| 020 | 2026-05-18 | chore | Gitignore — ajout pattern **/site.yml (racine + plugin) | 10/10
-| 019 | 2026-05-07 | chore | Migration chemins foundry/ → foundry/OSS/ (granularisation OSS/CSS) | —
-| 018 | 2026-05-07 | perf | Optimisation durée tests -52% (JVM + @Nested plantuml pattern) | 9/10
-| 017 | 2026-05-07 | feat + test + quality | EPIC 10 Scaffolding TDD complet + Kover 0.9.1 | 7/10
-| 016 | 2026-05-07 | test + fix + feat | Couverture P1/P2/P3 + fix CI + EPIC 7 YAML tolerance | 8/10
-| 015 | 2026-05-07 | test + fix | ConfigPrompts tests + bugfix camelCase | 8/10
-| 014 | 2026-05-04 | governance | Renommage openclaw→quizz-benchmark | -
-| 13bis | 2026-05-02 | fix + vision | NpxTask Pagefind + Architecture orchestration LLM | 8/10
-| 13 | 2026-05-02 | feat + fix | Pagefind search + CI workflow fix (secret supabase) | 7/10
-| 12 | 2026-05-01 | feat | EPIC 4 Formulaire de contact Firebase (maquette + site + tests) | 8/10
-| 11 | 2026-04-27 | solidification | Cucumber e2e publishProfile + fix FileSystemManager | 8/10
-| 10 | 2026-04-27 | solidification | Augmentation couverture de tests + refactoring ProfilePublisher | 7/10
-| 9 | 2026-04-27 | fix | Fix critique publishProfile - clone avant push | 8/10
-| 7 | 2026-04-27 | fix | Fix arg CLI JBake serve - version 0.1.1 | 6/10
-| 5 | 2026-04-25 | feat | EPIC 6 Integration tache publishProfil | 7/10
-|===
+  | 109 | 2026-06-11 | publish | **Publication Maven Central 0.0.1** — version 0.1.4→0.0.1, codebase-contracts→0.0.1, workspace-bom→0.0.1, POM sans guard, Sonatype→nmcp, settings nmcp mavenCentral first. Publié ✅ | 9/10
+  | 108 | 2026-06-07 | TDD + FT | **US-COV-2.3** DeployProfileTask full pipeline FT — 2 tests TestKit. EPIC BKY-COV-2 9/12 pts. | 9/10
+  | 107 | 2026-06-07 | TDD + FT | **US-COV-2.2** ProfilePublisher 17 UT + 4 FT TestKit. EPIC BKY-COV-2 6/12 pts. | 9/10
+  | 106 | 2026-06-07 | TDD + coverage | **US-COV-2.1** DeployProfileTask 12 UT (0%→couvert). | 9/10
+  | 105 | 2026-06-06 | code review + governance | **Code Review externe** — Gaps fonctionnels couverture. EPIC BKY-COV-2 (12 pts). | 8/10
+  | 104 | 2026-06-06 | TDD + coverage + threshold | **US-KOV-6+7** SiteScaffolder 100% + bump seuil 85. EPIC BKY-KOV-1 TERMINE. | 9/10
+  | 103 | 2026-06-06 | TDD + coverage | **US-KOV-5** BakeryPlugin 37% → 52.8%. Coverage 85.76%. | 8/10
+  | 102 | 2026-06-06 | TDD + coverage | **US-KOV-4** GitService 66% → 86.0%. | 9/10
+  | 101 | 2026-06-06 | TDD + coverage | **US-KOV-3** FileSystemManager 56% → 90.45%. | 9/10
+  | 100 | 2026-06-06 | TDD + coverage | **US-KOV-2** GenerateThemeTask 0% → 95.7%. | 9/10
+  |===
 
 '''
 
@@ -158,153 +95,31 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 | EPIC 3 : Amelioration build.gradle.kts | 100% | P1 - TERMINE
 | EPIC 4 : Formulaire de contact Firebase (maquette + site) | 95% | P1 - TERMINE (formalite cle API)
 | EPIC 5 : Correction timeout Cucumber | 100% | P2 - TERMINE
-| EPIC 6 : Integration tache publishProfil dans le plugin | 100% | P1 - TERMINE (code existait deja, fantome documentaire corrige session 068)
+| EPIC 6 : Integration tache publishProfil dans le plugin | 100% | P1 - TERMINE
 | EPIC 7 : Tolerance parsing YAML (champs inconnus) | 100% | P2 - TERMINE
 | EPIC 8 : Bumper version 0.1.4 et release | 100% | P2 - TERMINE
 | EPIC 9 : Architecture d'orchestration LLM | 0% | P0 - SUPERSEDE par EPIC 14 (BKY-IA-*)
 | EPIC 10 : Scaffolding TDD (sitesBaseDir + siteName) | 100% | P0 - TERMINE
 | EPIC 11 : Optimisation duree des tests | 100% | P0 - TERMINE
-| EPIC 12 : Articles connexes par Knowledge Graph | 0% | P1 - ⚠️ SUPERSEDE par BKY-LENS (session 053)
-| EPIC 13 : Couverture de tests — lacunes P1 | 100% | P1 - ✅ TERMINÉ (session 077 — coverage 73.13%→77.25%, +4.12pp)
+| EPIC 12 : Articles connexes par Knowledge Graph | 0% | P1 - SUPERSEDE par BKY-LENS (session 053)
+| EPIC 13 : Couverture de tests — lacunes P1 | 100% | P1 - TERMINE (session 077)
 |===
 
 === Nouveau Cap — Roadmap Expert Métier JBake
 
 *Cadrage* : 2026-05-30. Vision complète dans `BAKERY_ROADMAP_JBake.adoc`.
-*Principe* : bakery est l'expert métier JBake (site statique). Monter en puissance dans son domaine (templates, services, thème, scaffolding) avant d'être utilisé dans la formation.
-*IA centralisee* : codebase (N1) est le SEUL provider IA. BKY-IA-0 (LLM service) à dépiler.
 
 |===
 | EPIC | Axe | Pts | Priorite | Depend de
-| *BKY-JB-0* | Scaffolding site JBake : generateSite enrichi, structure, templates par defaut | 5 | *P0 ✅ TERMINE* | —
-| *BKY-JB-1* | ❌ DÉPLACÉ vers training-gradle (TRN-TEMP) — les templates formation ne sont pas du domaine bakery | — | — | —
-| *BKY-JB-2* | Composants Thymeleaf : toc-sidebar, breadcrumb, progress-bar, pdf-viewer | 5 | *P0 ✅ TERMINÉ* | BKY-JB-0
-| *BKY-JB-3* | Google Forms embed : composant iframe responsive dans templates JBake | 5 | *P0 ✅ TERMINÉ* | BKY-JB-0
-| *BKY-JB-4* | Firebase Auth + Comments : header login/logout, commentaires Firestore | 5 | *P0 ✅ TERMINÉ* | BKY-JB-0
-| *BKY-JB-5* | Analytics + Newsletter : Plausible/Matomo, formulaire mail footer | 3 | *P0 ✅ TERMINÉ* | BKY-JB-0
-| *BKY-JB-6* | Systeme de theme : CSS variables, dark/light mode, logo custom, favicon | 5 | *P1 ✅ TERMINÉ* | BKY-JB-0
-| *BKY-JB-7* | Layouts : full-width, sidebar droite/gauche, centered — choix par page | 3 | *P2 ✅ TERMINÉ* | BKY-JB-0
-| *BKY-JB-8* | Generation d'article assistee IA : ArticleIntention DDD + Generator enrichi (ton/audience/keywords/lang) + CLI>DSL>défauts. Depile BKY-IA-0. | 13 | *P0 ✅ TERMINÉ* | BKY-JB-0→3
-| *BKY-JB-9* | E2E Tests : Phase A Thymeleaf Rendering + Phase B Playwright-jvm + Cucumber BDD | 8 | *P1 ✅ TERMINÉ* | BKY-JB-5, JB-6
-|===
-
-*Total JBake* : 10 EPICs, ~55 pts.
-*Phase A (JB-0→2)* : ✅ COMPLÈTE — scaffolding + templates + composants = 10 pts terminés.
-*Phase B (JB-3→5)* : ✅ COMPLÈTE — 13/13 pts (JB-3 ✅ + JB-4 ✅ + JB-5 ✅ = 13 pts terminés).
-*Phase C (JB-6→7)* : ✅ COMPLÈTE — thème ✅ + layouts ✅ = 8/8 pts (100%).
-*Phase C+ (JB-9)* : ✅ TERMINÉ — Phase A ✅ + Phase B Playwright E2E (13/13 PASS) + Cucumber BDD (10 scénarios) + CI workflow.
-*Phase D (JB-8)* : ✅ TERMINÉ — ArticleIntention DDD + Generator enrichi + DSL + CLI = 13 pts (100%).
-
-=== EPICs de Réparation (tests legacy) — ✅ TERMINÉS
-
-|===
-| EPIC | Pts | Priorite | Cause racine
-| EPIC 15 — PluginApplicationTest NPE | 3 | *P0 ✅ TERMINÉ* | `siteType` déjà stubbé dans BakeryTestFixture
-| EPIC 16 — Cucumber Scaffolding steps | 2 | *P0 ✅ TERMINÉ* | Step déjà corrigé dans .feature (session 027)
-| EPIC 17 — generateArticle graceful fail | 5 | *P0 ✅ TERMINÉ* | IaConfig.enabled corrigé, LlmService error OK
-|===
-
-=== EPIC LENTILLE — Réalité Augmentée pour Bakery (21 pts)
-
-*Cadrage* : session 053 (audit). Le KG interne (`RelatedArticlesService`) est
-strictement inférieur au pipeline codebase+graphify. BKY-BKG supersédé.
-Pattern LENTILLE : ségrégation (SubgraphExtractor) → enrichissement
-(AugmentedArticlesService, scoring hybride RAG+KG+tags+xref) → budget
-(LensBudget, 4-6 articles/page).
-*Rapport détaillé* : `.agents/sessions/053-audit-lentille-contexte-augmente.adoc`
-
-|===
-| EPIC | Axe | Pts | Priorite | Depend de
-| *BKY-LENS-1* | SubgraphExtractor (Ségrégation) | 5 | *P0 ✅ TERMINÉ* | graphify-plugin
-| *BKY-LENS-2* | AugmentedArticlesService (Enrichissement) | 4 | *P0 ✅ TERMINÉ* | BKY-LENS-1, codebase-contracts
-| *BKY-LENS-3* | Budget + Injection JBake (Reconnect) | 3 | *P0 ✅ TERMINÉ* | BKY-LENS-2
-| *BKY-LENS-4* | Cucumber Features 17-19 (Réécriture) | 3 | *P0 ✅ TERMINÉ* | BKY-LENS-1,2,3
-| *BKY-LENS-5* | Connect N3 Composite Context | 3 | *P0 ✅ TERMINÉ* | BKY-LENS-3, pilot-plugin
-| *BKY-LENS-6* | Templates Augmentés JBake | 3 | *P0 ✅ TERMINÉ* | BKY-LENS-5
-| *BKY-IA-2* | Thème IA paramétrique (catalogue + variables) | 8 | *P1 ✅ TERMINÉ* | BKY-IA-0
-|===
-
-*Phase 1 (LENS-1→3)* : 12 pts — P0 Ségrégation + Enrichissement + Reconnect ✅ TERMINÉ
-*Phase 2 (LENS-4)* : 3 pts — P1 Réécriture Cucumber ✅ TERMINÉ
-*Phase 3 (LENS-5)* : 3 pts — P1 N3 Composite Context ✅ TERMINÉ
-*Phase 4 (LENS-6)* : 3 pts — P2 Templates Augmentés ✅ TERMINÉ
-
-_Localisation active_ : `.agents/backup/Y2026-sessions-051-060/` (rotation session 060)
-| EPIC | Pts | Priorite | Cause racine
-| EPIC 15 — PluginApplicationTest NPE | 3 | *P0 ✅ TERMINÉ* | `siteType` déjà stubbé dans BakeryTestFixture
-| EPIC 16 — Cucumber Scaffolding steps | 2 | *P0 ✅ TERMINÉ* | Step déjà corrigé dans .feature (session 027)
-| EPIC 17 — generateArticle graceful fail | 5 | *P0 ✅ TERMINÉ* | IaConfig.enabled=false + 2 Cucumber scénarios (70/70 PASS)
-|===
-
-*Priorite P0* : ✅ Tous les EPICs de réparation terminés (EPIC 15, 16, 17)
-*Charge complétée* : CS-FIN-1/2/3/4/5/6/7/8/9/10 = 13.5 pts ✅
-*Charge post-v1.0* : ARROW-1 = 5 pts (~3-4 sessions). Voir `BACKLOG.adoc`.
-*Prochaine session* : 093 — ARROW-1 ou switch borough
-
-=== Code Smells — Historique CODE_REVIEW v2 (12/12 ✅ résolus)
-
-*Source* : `.agents/CODE_REVIEW.adoc` v2 (Session 067).
-*Résolution* : Sessions 070→078. Tous résolus. Voir `CODE_REVIEW.adoc` pour le détail complet.
-
-|===
-| CS | Priorité | Résolu | Description
-| CS-1 | CRITIQUE | ✅ S071 | God Class SiteManager 917→44 lignes (-95%) — split en 4 TaskRegistrars
-| CS-2 | CRITIQUE | ✅ S070 | Logique métier inline doLast → extraction LensPipelineService (-87%)
-| CS-3 | CRITIQUE | ✅ S070 | Parse JSON maison ScaffoldGenerator → Jackson (FAIL_ON_UNKNOWN_PROPERTIES=false)
-| CS-4 | MODÉRÉ | ✅ S074 | Injection config monolithique → Pattern Strategy (`injection/` package), 79→22 lignes
-| CS-5 | MODÉRÉ | ✅ S074 | ConfigResolver copies conformes → `resolve<T>` générique + Scope pattern
-| CS-6 | MODÉRÉ | ✅ Accepté | BakeryExtension 11 DSL blocks — idiomatique Gradle/Kotlin
-| CS-7 | MODÉRÉ | ✅ S076 | BKY-IA-0 non dépilé — divergence doc corrigée (LLM reste dans bakery)
-| CS-8 | LÉGER | ✅ S075 | Parse RSS DOM fragile → Rome library, 35→12 lignes
-| CS-9 | LÉGER | ✅ S073 | `var` dans package lens → accepté (pattern builder Gradle idiomatique)
-| CS-10 | LÉGER | ✅ S071 | Tasks TODO NotImplementedError → supprimées
-| CS-11 | LÉGER | ✅ S073 | Logger incohérent println+logger → uniformisé logger.lifecycle
-| CS-12 | LÉGER | ✅ S072 | publishProfile→deployProfile (taxonomie DEPLOYER EPIC K)
-|===
-
-=== Code Smells — CODE_REVIEW V4 (Session 096-097)
-
-*Source* : `.agents/CODE_REVIEW_V4.adoc` (second regard post-Copilot, post-ARROW-1).
-*Statut* : **9/9 smells ✅ + 3/3 RECOs ✅** — résolus Session 097.
-
-[cols="1,3"]
-|===
-| EPIC | Contenu
-| CS-V4-P1 | ✅ P1 Bugs : Throwable fantôme (US-V4-1) + Path CWD (US-V4-2) — 7 min, 1 pt
-| CS-V4-P2 | ✅ P2 Clarté : configureConfigPath (US-V4-3) + DeployProfile (US-V4-4) + getByName (US-V4-5) — 23 min, 2 pts
-| CS-V4-P3 | ✅ P3 Polish : rename (US-V4-7) + catch muet (US-V4-8) + doc idempotence (US-V4-9) — 18 min, 1 pt
-| CS-V4-ARCH | ✅ Architecture : YAML Either (RECO-1) + parallélisme (RECO-2) + side-effect (RECO-3) — 40 min, 1.5 pts
-|===
-
-*Total* : 5.5 pts résolus. Bakery 100% terminé — 29/29 EPICs + 24/24 code smells.
-Zéro dette technique. Prêt à switcher de borough.
-
-'''
-=== Code Smells — CODE_REVIEW v3 (Session 084)
-
-*Source* : Lecture directe du code source + `last_code_review.adoc` (racine, 1508 lignes) + `.agents/CODE_REVIEW.adoc` v2.
-*Statut* : 10 smells v3 identifiés → CS-FIN-1/2/3 ✅ résolus (S080-081) + CS-FIN-4 ✅ résolu (S085) + CS-FIN-5/6/7/8 ✅ résolus (S086-089) + CS-FIN-9 ✅ résolu (S091) + CS-FIN-10 ✅ résolu (S090). Restant : ARROW-1 ☐.
-
-|===
-| CS | Priorité | Statut | Description | EPIC
-| CS-21 | 🔴 P0 | ✅ S080 | `configPath.get()` sans `isPresent` | CS-FIN-1
-| CS-16 | 🔴 P0 | ✅ S080 | `isGradlePropertiesEnabled` timing `afterEvaluate` | CS-FIN-1
-| CS-13 | 🟠 P1 | ✅ S080-081 | Échappement JSON → `escapeJsonForJavaProperties()` + Jackson | CS-FIN-2
-| CS-22 | 🟠 P1 | ✅ S081 | Sérialisation directe `LensPipelineOutput` → Jackson | CS-FIN-2
-| CS-14 | 🟡 P2 | ✅ S081 | Code mort LensPipelineService (condition impossible) | CS-FIN-3
-| CS-15 | 🟡 P2 | ✅ S081 | `ragResults` emptyMap → commentaire MVP0 | CS-FIN-3
-| CS-17 | 🟡 P2 | ✅ S081 | `println()` → `logger.lifecycle()` | CS-FIN-3
-| CS-19 | 🟡 P2 | ✅ S081 | `jacksonObjectMapper()` → champ privé | CS-FIN-3
-| CS-20 | 🟡 P2 | ✅ S081 | Extraction `createLlmServiceIfEnabled()` | CS-FIN-3
-| CS-18 | 🟢 P3 | ✅ Accepté | BakeryExtension 11 DSL blocks | —
-| CS-25 | 🟠 P1 | ✅ S085 | ConfigResolver 8 resolve* DRY → `ResolvedConfigs` | CS-FIN-4
-| CS-33 | 🟡 P2 | ✅ S086 | registerGenerateSiteTask mixing → `GenerateSiteService` | CS-FIN-5
-| CS-34 | 🟡 P2 | ✅ S087 | GitService.pushPages sans validation préalable | CS-FIN-6
-| CS-38 | 🟡 P2 | ✅ S088+S092 | ConfigPrompts non testables → ConfigPromptEnvironment + ConfigPromptM Reader monad | CS-FIN-7
-| CS-35 | 🟢 P3 | ✅ S089 | FileSystemManager exceptions → Either | CS-FIN-8
-| CS-36 | 🟢 P3 | ✅ S091 | BFS O(n²) → BfsProximityCache lazy | CS-FIN-9
-| CS-31-bis | 🟢 P3 | ✅ S090 | Masquage secrets étendu (SecretField ADT: Password/ApiKey/Token) | CS-FIN-10
-| — | 🟢 P3 | ✅ S093 | Arrow-kt 2.2.3 v1.1.0 roadmap | ARROW-1
+| *BKY-JB-0* | Scaffolding site JBake | 5 | *P0 ✅ TERMINE* | —
+| *BKY-JB-2* | Composants Thymeleaf | 5 | *P0 ✅ TERMINÉ* | BKY-JB-0
+| *BKY-JB-3* | Google Forms embed | 5 | *P0 ✅ TERMINÉ* | BKY-JB-0
+| *BKY-JB-4* | Firebase Auth + Comments | 5 | *P0 ✅ TERMINÉ* | BKY-JB-0
+| *BKY-JB-5* | Analytics + Newsletter | 3 | *P0 ✅ TERMINÉ* | BKY-JB-0
+| *BKY-JB-6* | Systeme de theme | 5 | *P1 ✅ TERMINÉ* | BKY-JB-0
+| *BKY-JB-7* | Layouts | 3 | *P2 ✅ TERMINÉ* | BKY-JB-0
+| *BKY-JB-8* | Generation d'article assistee IA | 13 | *P0 ✅ TERMINÉ* | BKY-JB-0→3
+| *BKY-JB-9* | E2E Tests | 8 | *P1 ✅ TERMINÉ* | BKY-JB-5, JB-6
 |===
 
 === EPICs Publication Maven Central
@@ -312,19 +127,26 @@ Zéro dette technique. Prêt à switcher de borough.
 |===
 | EPIC | Progression | Priorite
 | BKY-KOV-1 : Kover Coverage 78% → 85.88% (+7.78pp) | 100% | *P0 ✅ TERMINE*
-| BKY-PUB-1 : Publication Maven Central + Gradle Plugin Portal (cccp.education) | 0% | *P0 ❄️* (bloque par achat domaine)
+| BKY-PUB-1 : Publication Maven Central (cccp.education) | 100% | *P0 ✅ TERMINE — Session 109 (nmcp, 0.0.1)*
 | BKY-COV-2 : Microfissures coverage — DeployProfileTask, ProfilePublisher, BakeryPlugin, ToolsKt | 75% | *P2 ☐* (~1-2 sessions)
 |===
 
-=== EPICs Transférés (hors périmètre bakery)
+=== EPIC LENTILLE — ✅ TERMINÉ
 
 |===
-| BKY-TRN-9 assembleTrainingSite | 🔄 0% → **TRN-9** | `training-gradle` (Newark, 🔒 privé) | L'assemblage du portail formation est du métier formation (training-gradle). Bakery fournit le moteur JBake, pas les templates métier.
-| BKY-IA-5 generateFormRecipe / clasp | 🔄 0% → **KINGSTON** (à créer) | `foundry/private/gsuite-gradle` 🔒 (borough à créer) | L'expertise Google Suite (clasp, Forms, Sheets, Drive) vivra dans son propre borough KINGSTON, pas dans bakery
-| BKY-IA-4 Génération d'article | ✅ REMPLACÉ | BKY-JB-8 (bakery) | Remplacé dans le périmètre bakery par JB-8 (ArticleIntention DDD + Generator enrichi)
-| BKY-IA-5 Google Forms embed | ✅ REMPLACÉ | BKY-JB-3 (bakery) | Remplacé dans le périmètre bakery par JB-3 (iframe responsive + th:if guard)
-| BKY-BKG Articles connexes KG | ⚠️ SUPERSEDÉ | BKY-LENS (bakery) | Le scoring maison (tags+TF-IDF) est inférieur au pipeline RAG+KG hybride. Remplacé par BKY-LENS (Pattern LENTILLE).
+| EPIC | Axe | Pts | Priorite
+| *BKY-LENS-1* | SubgraphExtractor (Ségrégation) | 5 | *P0 ✅ TERMINÉ*
+| *BKY-LENS-2* | AugmentedArticlesService (Enrichissement) | 4 | *P0 ✅ TERMINÉ*
+| *BKY-LENS-3* | Budget + Injection JBake (Reconnect) | 3 | *P0 ✅ TERMINÉ*
+| *BKY-LENS-4* | Cucumber Features 17-19 (Réécriture) | 3 | *P0 ✅ TERMINÉ*
+| *BKY-LENS-5* | Connect N3 Composite Context | 3 | *P0 ✅ TERMINÉ*
+| *BKY-LENS-6* | Templates Augmentés JBake | 3 | *P0 ✅ TERMINÉ*
+| *BKY-IA-2* | Thème IA paramétrique | 8 | *P1 ✅ TERMINÉ*
 |===
+
+=== Code Smells — 24/24 ✅ résolus
+
+Tous résolus. Voir `CODE_REVIEW.adoc` + `CODE_REVIEW_V4.adoc` pour le détail.
 
 '''
 
@@ -337,9 +159,9 @@ _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
 |===
 | Projet | Repertoire | Session en cours | Derniere MAJ
 | magic-stick | `~/workspace/foundry/OSS/magic-stick` | 055 | 2026-04-30
-| bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 104 | 100% terminé
-| plantuml-gradle | `~/workspace/foundry/OSS/plantuml-gradle/plantuml-plugin` | 132 | 2026-04-23
-| jhipster-gradle-plugins | `~/workspace/foundry/OSS/jhipster-gradle-plugins` | Audit 053 | 2026-04-30
+| bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 110 | 2026-06-11
+| plantuml-gradle | `~/workspace/foundry/OSS/plantuml-gradle/plantuml-plugin` | 148 | 2026-06-11
+| jhipster-gradle-plugins | `~/workspace/foundry/OSS/jhipster-gradle-plugins` | 9 | 2026-06-11
 | quizz-benchmark-gradle | `~/workspace/foundry/OSS/quizz-benchmark-gradle/quizz-benchmark-plugin` | Audit 053 | 2026-04-30
 | runner-gradle | `~/workspace/foundry/OSS/runner-gradle` | 2 | 2026-05-07
 |===
