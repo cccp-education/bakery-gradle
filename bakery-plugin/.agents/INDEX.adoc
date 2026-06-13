@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-11 — Session 109 (Publication Maven Central 0.0.1)
-  _Session terminee_ : 109
-  _Prochaine session_ : 110 — À définir
+  _Derniere mise a jour_ : 2026-06-13 — Session 110 (BKY-COV-2 Finalisation)
+  _Session terminee_ : 110
+  _Prochaine session_ : 111 — Switch borough (Bakery dormant)
   _Session en cours_ : — (fermee)
 
 '''
@@ -70,6 +70,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 110 | 2026-06-13 | TDD + coverage + doc | **BKY-COV-2 Finalisation** — US-COV-2.4 resolvePath/resolvePaths 100%, US-COV-2.5 ToolsKt 9 UT, US-COV-2.6 doc Kover. EPIC 12/12 pts TERMINÉ. Bakery 100%. | 9/10
   | 109 | 2026-06-11 | publish | **Publication Maven Central 0.0.1** — version 0.1.4→0.0.1, codebase-contracts→0.0.1, workspace-bom→0.0.1, POM sans guard, Sonatype→nmcp, settings nmcp mavenCentral first. Publié ✅ | 9/10
   | 108 | 2026-06-07 | TDD + FT | **US-COV-2.3** DeployProfileTask full pipeline FT — 2 tests TestKit. EPIC BKY-COV-2 9/12 pts. | 9/10
   | 107 | 2026-06-07 | TDD + FT | **US-COV-2.2** ProfilePublisher 17 UT + 4 FT TestKit. EPIC BKY-COV-2 6/12 pts. | 9/10
@@ -128,7 +129,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 | EPIC | Progression | Priorite
 | BKY-KOV-1 : Kover Coverage 78% → 85.88% (+7.78pp) | 100% | *P0 ✅ TERMINE*
 | BKY-PUB-1 : Publication Maven Central (cccp.education) | 100% | *P0 ✅ TERMINE — Session 109 (nmcp, 0.0.1)*
-| BKY-COV-2 : Microfissures coverage — DeployProfileTask, ProfilePublisher, BakeryPlugin, ToolsKt | 75% | *P2 ☐* (~1-2 sessions)
+| BKY-COV-2 : Microfissures coverage — DeployProfileTask, ProfilePublisher, BakeryPlugin, ToolsKt | 100% | *P2 ✅ TERMINE — Session 110*
 |===
 
 === EPIC LENTILLE — ✅ TERMINÉ

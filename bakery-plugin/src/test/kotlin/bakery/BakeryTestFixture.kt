@@ -174,7 +174,18 @@ private fun mockTaskContainer(): TaskContainer {
     whenever(jbakeTaskCollection.getByName("bake")).thenReturn(jbakeTask)
     whenever(taskContainer.withType(JBakeTask::class.java)).thenReturn(jbakeTaskCollection)
 
-    whenever(taskContainer.register(any<String>(), any<Action<Task>>())).thenReturn(mock())
+    // 2-arg: register(name, action)
+    whenever(taskContainer.register(any<String>(), any<Action<Task>>())).thenAnswer {
+        mock<org.gradle.api.tasks.TaskProvider<Task>>()
+    }
+
+    // 3-arg: register(name, type, action) — used by VerifyConfigurationMapping, serve (JavaExec), pagefind (NpxTask), etc.
+    val typedProvider = mock<org.gradle.api.tasks.TaskProvider<Task>>()
+    whenever(taskContainer.register(
+        org.mockito.ArgumentMatchers.anyString(),
+        org.mockito.ArgumentMatchers.any<Class<Task>>(),
+        org.mockito.ArgumentMatchers.any<Action<Task>>()
+    )).thenReturn(typedProvider)
 
     whenever(taskContainer.register(eq("deploySite"), any<Action<Task>>())).thenReturn(mock())
     whenever(taskContainer.register(eq("deployMaquette"), any<Action<Task>>())).thenReturn(mock())

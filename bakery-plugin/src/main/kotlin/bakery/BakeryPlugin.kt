@@ -190,12 +190,12 @@ class BakeryPlugin : Plugin<Project> {
     }
 }
 
-private fun SiteConfiguration.resolvePaths(base: File): SiteConfiguration = copy(
+internal fun SiteConfiguration.resolvePaths(base: File): SiteConfiguration = copy(
     bake = bake.copy(srcPath = resolvePath(base, bake.srcPath)),
     pushMaquette = pushMaquette.copy(from = resolvePath(base, pushMaquette.from)),
     pushPage = pushPage.copy(from = resolvePath(base, pushPage.from)),
     pushProfile = pushProfile?.copy(from = resolvePath(base, pushProfile.from)),
 )
 
-private fun resolvePath(base: File, path: String): String =
+internal fun resolvePath(base: File, path: String): String =
     if (path.isBlank() || File(path).isAbsolute) path else base.resolve(path).absolutePath

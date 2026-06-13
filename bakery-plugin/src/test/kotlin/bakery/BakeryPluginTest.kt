@@ -724,5 +724,71 @@ class BakeryPluginTest {
 
             assertDoesNotThrow { fixture.runAfterEvaluate() }
         }
+
+    }
+
+    @Nested
+    @TestInstance(PER_CLASS)
+    inner class ResolvePathsTest {
+
+        private val base = java.io.File(".")
+
+        @Test
+        fun `resolvePath resolves relative path against base`() {
+            val result = resolvePath(base, "site")
+            assertThat(result).isEqualTo(base.resolve("site").absolutePath)
+        }
+
+        @Test
+        fun `resolvePath keeps absolute paths unchanged`() {
+            val result = resolvePath(base, "/abs/site")
+            assertThat(result).isEqualTo("/abs/site")
+        }
+
+        @Test
+        fun `resolvePath keeps blank paths unchanged`() {
+            val result = resolvePath(base, "  ")
+            assertThat(result).isEqualTo("  ")
+        }
+
+        @Test
+        fun `resolvePaths resolves all fields`() {
+            val config = SiteConfiguration(
+                bake = BakeConfiguration("my_site", "output", "test.com"),
+                pushMaquette = GitPushConfiguration(
+                    from = "maquette", to = "cvs",
+                    repo = RepositoryConfiguration("test", "https://github.com/test/repo.git",
+                        RepositoryCredentials("u", "p")),
+                    branch = "main", message = "deploy"
+                ),
+                pushPage = GitPushConfiguration(
+                    from = "bake_output", to = "cvs",
+                    repo = RepositoryConfiguration("test-pages", "https://github.com/test/pages.git",
+                        RepositoryCredentials("u", "p")),
+                    branch = "gh-pages", message = "pages"
+                ),
+                pushProfile = GitPushConfiguration(
+                    from = "profile_src", to = "cvs",
+                    repo = RepositoryConfiguration("profile", "https://github.com/test/profile.git",
+                        RepositoryCredentials("u", "p")),
+                    branch = "main", message = "profile"
+                )
+            )
+            val resolved = config.resolvePaths(base)
+
+            assertThat(resolved.bake.srcPath).isEqualTo(base.resolve("my_site").absolutePath)
+            assertThat(resolved.pushMaquette.from).isEqualTo(base.resolve("maquette").absolutePath)
+            assertThat(resolved.pushPage.from).isEqualTo(base.resolve("bake_output").absolutePath)
+            assertThat(resolved.pushProfile!!.from).isEqualTo(base.resolve("profile_src").absolutePath)
+        }
+
+        @Test
+        fun `resolvePaths preserves pushProfile null`() {
+            val config = SiteConfiguration(
+                BakeConfiguration("site", "build/bake", "test.com")
+            )
+            val resolved = config.resolvePaths(base)
+            assertThat(resolved.pushProfile).isNull()
+        }
     }
 }

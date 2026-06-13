@@ -1,8 +1,9 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-  _Derniere mise a jour : 2026-06-11 — Session 109_
+  _Derniere mise a jour : 2026-06-13 — Session 110_
 
   |===
+  | 110 | 2026-06-13 | TDD + coverage + doc | **BKY-COV-2 Finalisation** — US-COV-2.4 BakeryPlugin resolvePath/resolvePaths 100% (5 tests, private→internal). US-COV-2.5 ToolsKt 9 tests unitaires (createBuildScriptFile, createSettingsFile, createDependenciesFile, FuncTestsConstants). US-COV-2.6 Limitation Kover closures doLast documentée dans TEST_COVERAGE_ANALYSIS. EPIC BKY-COV-2 12/12 pts TERMINÉ. Bakery 100% terminé. | 9/10
   | 109 | 2026-06-11 | publish | **Publication Maven Central 0.0.1** — version 0.1.4→0.0.1 hardcodé, codebase-contracts→0.0.1, workspace-bom→0.0.1, POM sans guard, Sonatype→nmcp, settings nmcp mavenCentral first. Publié ✅ | 9/10
   | 108 | 2026-06-07 | TDD + FT | **US-COV-2.3** DeployProfileTask full pipeline FT — 2 tests TestKit : history preservation (double deploy → log > 1 commit) + custom from subdirectory (profile-assets → README.md + CONTRIBUTING.md). 6/6 ProfilePublisher FT PASS. EPIC BKY-COV-2 9/12 pts. | 9/10
   | 107 | 2026-06-07 | TDD + FT | **US-COV-2.2** ProfilePublisher 17 UT + 4 FT TestKit (resolveCredentials 7 + copyProfileFiles 10 + FT happy path 2 + failure 2). build.gradle.kts : jgit bundle ajoute au functionalTest sourceSet. Tous tests PASS. EPIC BKY-COV-2 6/12 pts. | 9/10

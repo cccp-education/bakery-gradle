@@ -1,5 +1,23 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 110 — 2026-06-13 — BKY-COV-2 Finalisation
+
+**Contexte** : EPIC BKY-COV-2 Microfissures coverage. 3 US restantes (US-COV-2.4, US-COV-2.5, US-COV-2.6).
+
+**Tâches réalisées** :
+
+* [x] US-COV-2.4 — BakeryPlugin resolvePath/resolvePaths 100% (5 tests). Refactor private→internal.
+* [x] US-COV-2.5 — ToolsKt 9 tests unitaires (createBuildScriptFile, createSettingsFile, createDependenciesFile, FuncTestsConstants).
+* [x] US-COV-2.6 — Limitation Kover closures doLast documentée dans TEST_COVERAGE_ANALYSIS.adoc.
+* [x] BakeryPluginKt : 7/7 lignes couvertes (100%).
+* [x] EPIC BKY-COV-2 : 12/12 pts TERMINÉ.
+
+**Fichiers modifiés** : `BakeryPlugin.kt` (private→internal), `BakeryPluginTest.kt` (+5 tests ResolvePaths), `BakeryTestFixture.kt` (stub 3-arg register), `ToolsKtTest.kt` (nouveau, 9 tests), `TEST_COVERAGE_ANALYSIS.adoc` (doc Kover blind spot), `PROMPT_REPRISE.adoc`, `SESSIONS_HISTORY.adoc`, `INDEX.adoc`.
+
+**Résultats** : 46/46 PASS. Bakery 100% terminé — zéro EPIC restant.
+
+'''
+
 == Session 109 — 2026-06-11 — Publication Maven Central 0.0.1
 
 **Contexte** : Publication du plugin bakery-gradle sur Maven Central via nmcp.

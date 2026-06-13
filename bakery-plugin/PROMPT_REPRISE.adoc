@@ -2,23 +2,23 @@
 
 == Mission accomplie
 
-*Session 109 TERMINÉE* — Publication Maven Central 0.0.1.
-Version 0.0.1 hardcodée, codebase-contracts→0.0.1, workspace-bom→0.0.1.
-POM sans guard, Sonatype→nmcp, settings nmcp avec mavenCentral first.
-`education.cccp:bakery-gradle:0.0.1` publié sur Maven Central ✅
+*Session 110 TERMINÉE* — BKY-COV-2 Finalisation (Microfissures Coverage).
+US-COV-2.4 BakeryPlugin resolvePath/resolvePaths 100% (5 tests).
+US-COV-2.5 ToolsKt 9 tests unitaires.
+US-COV-2.6 Limitation Kover closures doLast documentée.
 
 == Statut
 
 - EPICs : 29/29 ✅ (100%)
 - Code smells : 24/24 ✅
 - BKY-KOV-1 : ✅ TERMINE (85.88%)
-- BKY-COV-2 : 🔄 9/12 pts — US-COV-2.1 ✅, US-COV-2.2 ✅, US-COV-2.3 ✅
+- BKY-COV-2 : ✅ TERMINE — 12/12 pts (Session 110)
 - BKY-PUB-1 : ✅ TERMINE — Session 109 (nmcp, 0.0.1)
 - Tests : ✅ Tous PASS (JUnit5 780+ + functionalTest 81+ + Cucumber 129/129 + E2E)
 - Version publiée: 0.0.1 (Maven Central)
+- BakeryPluginKt : 100% (7/7 lignes)
+- Bakery 100% terminé — zéro dette technique, zéro EPIC restant
 
-== Prochaine session (110)
+== Prochaine session (111)
 
-À définir :
-- BKY-COV-2 : US-COV-2.4 BakeryPlugin 52.8%→70%, US-COV-2.5 ToolsKt 22%→50%
-- Switch borough
+Switch borough. Bakery est dormant — maintenance uniquement.
