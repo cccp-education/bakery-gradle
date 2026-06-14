@@ -1,5 +1,42 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 113 — 2026-06-14 — US-I18N-2 Messages properties 10 langues
+
+**Contexte** : US-I18N-1 terminé en S112. Création des fichiers messages
+pour les 10 langues cibles.
+
+**Tâches réalisées** :
+
+* [x] Extraction ~65 clés depuis 37 templates Thymeleaf
+* [x] 20 fichiers messages_{code}.properties créés (10 langues × 2 dossiers)
+* [x] messages_fr.properties (référence), messages_en.properties (anglais)
+* [x] 8 autres langues : zh, hi, es, ar, bn, pt, ru, ur
+* [x] I18nMessagesTest — 6 tests (existence, cohérence clés, valeurs non-blanches)
+
+**Fichiers créés** : 20 fichiers messages_*.properties, `I18nMessagesTest.kt`
+
+**Résultats** : 6/6 tests PASS, BUILD SUCCESSFUL. BKY-I18N 8/23 pts.
+
+'''
+
+== Session 112 — 2026-06-14 — US-I18N-1 JBake properties injection
+
+**Contexte** : US-I18N-0 déjà implémenté en S111. Implementation de
+l'injection site.language dans jbake.properties.
+
+**Tâches réalisées** :
+
+* [x] DDD : LanguageInjector dans DomainConfigInjectors.kt
+* [x] site.language=fr dans les jbake.properties par défaut (site + site-basic)
+* [x] Bug fix : resolveSupportedLanguages CLI vide → fallback DSL
+* [x] TDD : 18 tests (ConfigResolver 11 + ResolvedConfigs 3 + GenerateSiteService 4)
+
+**Fichiers modifiés** : DomainConfigInjectors.kt, ConfigResolver.kt, jbake.properties (site + site-basic), ConfigResolverTest.kt, ResolvedConfigsTest.kt, GenerateSiteServiceTest.kt
+
+**Résultats** : BUILD SUCCESSFUL, tous tests PASS. BKY-I18N 5/23 pts.
+
+'''
+
 == Session 111 — 2026-06-14 — EPIC BKY-I18N Cadrage + US-0
 
 **Contexte** : Bakery 100% terminé. Nouveau cap : internationalisation 10 langues.

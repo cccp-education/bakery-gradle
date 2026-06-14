@@ -2,10 +2,11 @@
 
 == Mission accomplie
 
-*Session 111 TERMINÉE* — US-I18N-0 Configuration layer implémenté.
-SiteConfiguration.language/supportedLanguages, BakeryExtension DSL,
-ConfigResolver.resolveLanguage/resolveSupportedLanguages, ResolvedConfigs enrichi.
-Dépendance i18n-contracts N0 ajoutée. Parallèle MEMPHIS MEM-3 créé.
+*Session 113 TERMINÉE* — US-I18N-2 Messages properties 10 langues.
+20 fichiers messages_{code}.properties créés (10 langues × 2 dossiers).
+~65 clés extraites des 37 templates Thymeleaf.
+6 tests I18nMessagesTest (existence, cohérence clés, valeurs non-blanches).
+BKY-I18N : 8/23 pts (US-0 ✅, US-1 ✅, US-2 ✅).
 
 == Statut
 
@@ -14,14 +15,14 @@ Dépendance i18n-contracts N0 ajoutée. Parallèle MEMPHIS MEM-3 créé.
 - BKY-KOV-1 : ✅ TERMINE (85.88%)
 - BKY-COV-2 : ✅ TERMINE — 12/12 pts (Session 110)
 - BKY-PUB-1 : ✅ TERMINE — Session 109 (nmcp, 0.0.1)
-- BKY-I18N : 🔄 3/23 pts (US-I18N-0 ✅, US-I18N-1→6 restants)
+- BKY-I18N : 🔄 8/23 pts (US-0→2 ✅, US-3→6 restants)
 - Tests : ✅ Tous PASS
 - Version publiée: 0.0.1 (Maven Central)
 
-== Prochaine session (113)
+== Prochaine session (114)
 
-BKY-I18N US-I18N-1 — JBake properties injection :
-- Ajouter `LanguageInjector` dans `DomainConfigInjectors.kt`
-- Injecter `site.language={code}` dans `jbake.properties`
-- Ajouter `site.language=fr` dans les `jbake.properties` par défaut (site + site-basic)
-- 2 pts, ~1 session
+BKY-I18N US-I18N-3 — Template migration 36 fichiers (8 pts) :
+- Remplacer texte hardcodé dans 28 templates site/ + 8 site-basic/
+- `#{message.key}` Thymeleaf partout
+- `th:lang="${config.site_language}"`
+- Dates formatées selon locale
