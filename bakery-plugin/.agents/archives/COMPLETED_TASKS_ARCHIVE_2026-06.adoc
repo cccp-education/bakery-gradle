@@ -1,5 +1,26 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 111 — 2026-06-14 — EPIC BKY-I18N Cadrage + US-0
+
+**Contexte** : Bakery 100% terminé. Nouveau cap : internationalisation 10 langues.
+
+**Tâches réalisées** :
+
+* [x] Cadrage EPIC BKY-I18N — BACKLOG.adoc enrichi (7 US, 23 pts, 10 langues)
+* [x] US-I18N-0 — SiteConfiguration.language/supportedLanguages
+* [x] US-I18N-0 — BakeryExtension DSL language/supportedLanguages
+* [x] US-I18N-0 — ConfigResolver.resolveLanguage/resolveSupportedLanguages (cascade 5 couches)
+* [x] US-I18N-0 — ResolvedConfigs enrichi (language/supportedLanguages + toResolver)
+* [x] Dépendance i18n-contracts N0 ajoutée (build.gradle.kts + libs.versions.toml)
+* [x] Parallèle MEMPHIS MEM-3 i18n-contracts créé (5 classes, 28 tests PASS)
+* [x] AGENTS.adoc racine mis à jour (Bushwick + MEMPHIS + historique)
+
+**Fichiers modifiés** : `BACKLOG.adoc`, `.agents/INDEX.adoc`, `PROMPT_REPRISE.adoc`, `SiteConfiguration.kt`, `BakeryExtension.kt`, `ConfigResolver.kt`, `ResolvedConfigs.kt`, `build.gradle.kts`, `gradle/libs.versions.toml`, `AGENTS.adoc` (racine).
+
+**Résultats** : Compilation OK, tous tests existants PASS. BKY-I18N 3/23 pts.
+
+'''
+
 == Session 110 — 2026-06-13 — BKY-COV-2 Finalisation
 
 **Contexte** : EPIC BKY-COV-2 Microfissures coverage. 3 US restantes (US-COV-2.4, US-COV-2.5, US-COV-2.6).

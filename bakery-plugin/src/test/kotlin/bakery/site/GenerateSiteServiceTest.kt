@@ -235,6 +235,93 @@ class GenerateSiteServiceTest {
             val content = jbakeProps.readText()
             assertFalse(content.contains("augmentedContextEnabled="))
         }
+
+        @Test
+        fun `injects site dot language from resolved configs`() {
+            val siteDir = tempDir.resolve("site")
+            siteDir.mkdirs()
+            val jbakeProps = siteDir.resolve("jbake.properties")
+            jbakeProps.writeText("blog.version=1.0\n")
+
+            val site = SiteConfiguration(bake = bakery.BakeConfiguration("site", "build"))
+            val configs = ResolvedConfigs(
+                firebase = FirebaseProjectInfo(projectId = "", apiKey = ""),
+                googleForms = GoogleFormsConfig(),
+                firebaseAuth = FirebaseAuthConfig(),
+                comments = CommentsConfig(),
+                analytics = AnalyticsConfig(),
+                newsletter = NewsletterConfig(),
+                theme = ThemeConfig(),
+                layout = LayoutConfig(),
+                language = "en"
+            )
+
+            val result = GenerateSiteService.injectConfigIntoJbakeProperties(
+                tempDir, site, configs
+            )
+
+            assertTrue(result)
+            val content = jbakeProps.readText()
+            assertTrue(content.contains("site.language=en"))
+        }
+
+        @Test
+        fun `injects site dot language with default fr`() {
+            val siteDir = tempDir.resolve("site")
+            siteDir.mkdirs()
+            val jbakeProps = siteDir.resolve("jbake.properties")
+            jbakeProps.writeText("blog.version=1.0\n")
+
+            val site = SiteConfiguration(bake = bakery.BakeConfiguration("site", "build"))
+            val configs = ResolvedConfigs(
+                firebase = FirebaseProjectInfo(projectId = "", apiKey = ""),
+                googleForms = GoogleFormsConfig(),
+                firebaseAuth = FirebaseAuthConfig(),
+                comments = CommentsConfig(),
+                analytics = AnalyticsConfig(),
+                newsletter = NewsletterConfig(),
+                theme = ThemeConfig(),
+                layout = LayoutConfig()
+            )
+
+            val result = GenerateSiteService.injectConfigIntoJbakeProperties(
+                tempDir, site, configs
+            )
+
+            assertTrue(result)
+            val content = jbakeProps.readText()
+            assertTrue(content.contains("site.language=fr"))
+        }
+
+        @Test
+        fun `updates existing site dot language property`() {
+            val siteDir = tempDir.resolve("site")
+            siteDir.mkdirs()
+            val jbakeProps = siteDir.resolve("jbake.properties")
+            jbakeProps.writeText("blog.version=1.0\nsite.language=fr\n")
+
+            val site = SiteConfiguration(bake = bakery.BakeConfiguration("site", "build"))
+            val configs = ResolvedConfigs(
+                firebase = FirebaseProjectInfo(projectId = "", apiKey = ""),
+                googleForms = GoogleFormsConfig(),
+                firebaseAuth = FirebaseAuthConfig(),
+                comments = CommentsConfig(),
+                analytics = AnalyticsConfig(),
+                newsletter = NewsletterConfig(),
+                theme = ThemeConfig(),
+                layout = LayoutConfig(),
+                language = "ar"
+            )
+
+            val result = GenerateSiteService.injectConfigIntoJbakeProperties(
+                tempDir, site, configs
+            )
+
+            assertTrue(result)
+            val content = jbakeProps.readText()
+            assertTrue(content.contains("site.language=ar"))
+            assertFalse(content.contains("site.language=fr"))
+        }
     }
 
     private fun createDefaultResolvedConfigs() = ResolvedConfigs(

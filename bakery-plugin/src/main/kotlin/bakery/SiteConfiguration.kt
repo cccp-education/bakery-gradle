@@ -44,6 +44,8 @@ data class SiteConfiguration(
     val newsletter: NewsletterConfig? = null,
     val theme: ThemeConfig? = null,
     val layout: LayoutConfig? = null,
+    val language: String = "fr",
+    val supportedLanguages: List<String> = listOf("fr"),
 )
 
 data class BakeConfiguration(

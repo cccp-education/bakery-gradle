@@ -7,6 +7,7 @@ import bakery.scaffold.ScaffoldIntentionDsl
 import bakery.theme.ThemeIntentionDsl
 import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import javax.inject.Inject
 
@@ -74,6 +75,12 @@ open class BakeryExtension @Inject constructor(objects: ObjectFactory) {
 
     /** Configuration Theme Intention (description, variante, surcharges) — BKY-IA-2 */
     val themeIntention: ThemeIntentionDsl = ThemeIntentionDsl()
+
+    /** Langue active du site (code ISO 639-1, ex: "fr", "en", "ar") — BKY-I18N */
+    val language: Property<String> = objects.property(String::class.java)
+
+    /** Langues supportées (liste de codes ISO 639-1) — BKY-I18N */
+    val supportedLanguages: ListProperty<String> = objects.listProperty(String::class.java)
 
     /** DSL : bakery { googleForms { ... } } */
     fun googleForms(action: Action<GoogleFormsDsl>) {

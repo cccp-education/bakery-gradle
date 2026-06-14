@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-13 — Session 110 (US-COV-2.4 BakeryPlugin + US-COV-2.5 ToolsKt + US-COV-2.6 doc Kover)_
+_Dernière mise à jour : 2026-06-14 — Session 111 (EPIC BKY-I18N US-0)_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''

@@ -9,6 +9,8 @@ data class ResolvedConfigs(
     val newsletter: NewsletterConfig,
     val theme: ThemeConfig,
     val layout: LayoutConfig,
+    val language: String = "fr",
+    val supportedLanguages: List<String> = listOf("fr"),
 ) {
     fun toResolver(): (String, String) -> String = { key, defaultValue ->
         when (key) {
@@ -41,6 +43,8 @@ data class ResolvedConfigs(
             "themeTextColor" -> theme.textColor
             "themeHeadingFont" -> theme.headingFont
             "layoutType" -> layout.layoutType.name
+            "language" -> language
+            "supportedLanguages" -> supportedLanguages.joinToString(",")
             else -> defaultValue
         }
     }

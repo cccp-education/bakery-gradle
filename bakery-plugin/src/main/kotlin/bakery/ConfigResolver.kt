@@ -385,6 +385,16 @@ object ConfigResolver {
             LayoutConfig()
         )
 
+        val resolvedLanguage = resolveDomain("language",
+            { resolveLanguage(props, extension, site) },
+            "fr"
+        )
+
+        val resolvedSupportedLanguages = resolveDomain("supportedLanguages",
+            { resolveSupportedLanguages(props, extension, site) },
+            listOf("fr")
+        )
+
         return ResolvedConfigs(
             firebase = resolvedFirebase,
             googleForms = resolvedGoogleForms,
@@ -393,7 +403,42 @@ object ConfigResolver {
             analytics = resolvedAnalytics,
             newsletter = resolvedNewsletter,
             theme = resolvedTheme,
-            layout = resolvedLayout
+            layout = resolvedLayout,
+            language = resolvedLanguage,
+            supportedLanguages = resolvedSupportedLanguages
         ) to errors.toList()
+    }
+
+    fun resolveLanguage(
+        props: Map<String, String>,
+        extension: BakeryExtension,
+        site: SiteConfiguration
+    ): String {
+        val prefix = "bakery.language"
+        val dslValue = extension.language.orNull ?: ""
+        val yamlValue = site.language
+        val default = "fr"
+        return resolveString(props, prefix, "language", dslValue, yamlValue, default)
+    }
+
+    fun resolveSupportedLanguages(
+        props: Map<String, String>,
+        extension: BakeryExtension,
+        site: SiteConfiguration
+    ): List<String> {
+        val prefix = "bakery.supportedLanguages"
+        val cliValue = props["${prefix}.supportedLanguages"]
+        if (cliValue != null && cliValue.isNotBlank()) {
+            return cliValue.split(",").map { it.trim() }.filter { it.isNotBlank() }
+        }
+        val dslValue = extension.supportedLanguages.orNull
+        if (dslValue != null && dslValue.isNotEmpty()) {
+            return dslValue
+        }
+        val yamlValue = site.supportedLanguages
+        if (yamlValue.isNotEmpty()) {
+            return yamlValue
+        }
+        return listOf("fr")
     }
 }

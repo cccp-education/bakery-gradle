@@ -24,7 +24,7 @@ class ResolvedConfigsTest {
     }
 
     private fun createExtension(): BakeryExtension =
-        project.extensions.create("bakery_test", BakeryExtension::class.java) as BakeryExtension
+        project.extensions.create("bakery_test", BakeryExtension::class.java)
 
     private fun createSite(): SiteConfiguration = SiteConfiguration()
 
@@ -300,10 +300,77 @@ class ResolvedConfigsTest {
     }
 
     @Nested
+    inner class LanguageInjectorIntegrationTest {
+
+        @Test
+        fun `injects site dot language with default fr`() {
+            val configs = ResolvedConfigs(
+                firebase = FirebaseProjectInfo(projectId = "", apiKey = ""),
+                googleForms = GoogleFormsConfig(),
+                firebaseAuth = FirebaseAuthConfig(),
+                comments = CommentsConfig(),
+                analytics = AnalyticsConfig(),
+                newsletter = NewsletterConfig(),
+                theme = ThemeConfig(),
+                layout = LayoutConfig()
+            )
+            val resolver = configs.toResolver()
+            val lines = mutableListOf("site.language=")
+
+            configInjectors["language"]!!.inject(lines, resolver)
+
+            assertEquals("fr", lines.find { it.startsWith("site.language=") }?.substringAfter("="))
+        }
+
+        @Test
+        fun `injects site dot language with custom value`() {
+            val configs = ResolvedConfigs(
+                firebase = FirebaseProjectInfo(projectId = "", apiKey = ""),
+                googleForms = GoogleFormsConfig(),
+                firebaseAuth = FirebaseAuthConfig(),
+                comments = CommentsConfig(),
+                analytics = AnalyticsConfig(),
+                newsletter = NewsletterConfig(),
+                theme = ThemeConfig(),
+                layout = LayoutConfig(),
+                language = "ar"
+            )
+            val resolver = configs.toResolver()
+            val lines = mutableListOf("site.language=")
+
+            configInjectors["language"]!!.inject(lines, resolver)
+
+            assertEquals("ar", lines.find { it.startsWith("site.language=") }?.substringAfter("="))
+        }
+
+        @Test
+        fun `adds site dot language when not present in properties`() {
+            val configs = ResolvedConfigs(
+                firebase = FirebaseProjectInfo(projectId = "", apiKey = ""),
+                googleForms = GoogleFormsConfig(),
+                firebaseAuth = FirebaseAuthConfig(),
+                comments = CommentsConfig(),
+                analytics = AnalyticsConfig(),
+                newsletter = NewsletterConfig(),
+                theme = ThemeConfig(),
+                layout = LayoutConfig(),
+                language = "zh"
+            )
+            val resolver = configs.toResolver()
+            val lines = mutableListOf("blog.version=1.0")
+
+            configInjectors["language"]!!.inject(lines, resolver)
+
+            assertTrue(lines.any { it.startsWith("site.language=") })
+            assertEquals("zh", lines.find { it.startsWith("site.language=") }?.substringAfter("="))
+        }
+    }
+
+    @Nested
     inner class ResolvedConfigsToResolverIntegrationTest {
 
         @Test
-        fun `toResolver feeds all 8 configInjectors without missing keys`() {
+        fun `toResolver feeds all 9 configInjectors without missing keys`() {
             val configs = ResolvedConfigs(
                 firebase = FirebaseProjectInfo(projectId = "proj-1", apiKey = "key-1"),
                 googleForms = GoogleFormsConfig(formId = "form-1", width = "800", height = "600"),
@@ -312,7 +379,8 @@ class ResolvedConfigsTest {
                 analytics = AnalyticsConfig(provider = "matomo", domain = "stats.example.com", scriptSrc = "https://cdn.matomo"),
                 newsletter = NewsletterConfig(enabled = true, provider = "mailchimp", endpoint = "https://api.mc"),
                 theme = ThemeConfig(mode = "dark", primaryColor = "#333", variant = "magazine"),
-                layout = LayoutConfig(layoutType = LayoutType.SIDEBAR_LEFT)
+                layout = LayoutConfig(layoutType = LayoutType.SIDEBAR_LEFT),
+                language = "en"
             )
 
             val resolver = configs.toResolver()
@@ -344,7 +412,8 @@ class ResolvedConfigsTest {
                 "themeBackgroundColor=",
                 "themeTextColor=",
                 "themeHeadingFont=",
-                "layoutType="
+                "layoutType=",
+                "site.language="
             )
 
             configInjectors.values.forEach { it.inject(lines, resolver) }
@@ -358,7 +427,8 @@ class ResolvedConfigsTest {
                 { assertEquals("matomo", lines.find { it.startsWith("analyticsProvider=") }?.substringAfter("=")) },
                 { assertEquals("true", lines.find { it.startsWith("newsletterEnabled=") }?.substringAfter("=")) },
                 { assertEquals("dark", lines.find { it.startsWith("themeMode=") }?.substringAfter("=")) },
-                { assertEquals("SIDEBAR_LEFT", lines.find { it.startsWith("layoutType=") }?.substringAfter("=")) }
+                { assertEquals("SIDEBAR_LEFT", lines.find { it.startsWith("layoutType=") }?.substringAfter("=")) },
+                { assertEquals("en", lines.find { it.startsWith("site.language=") }?.substringAfter("=")) }
             )
         }
 

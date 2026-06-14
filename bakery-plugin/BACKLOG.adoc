@@ -767,12 +767,131 @@ cd foundry/public/bakery-gradle/bakery-plugin && ./gradlew publishPlugins
 
 '''
 
+== EPIC BKY-I18N : Internationalisation (i18n) — 10 Langues
+
+*Découverte* : Session 111 — Ajout support multilingue pour les 10 langues les plus parlées.
+*Objectif* : Remplacer le français hardcodé dans les 36 templates Thymeleaf par un système
+d'i18n standard (Thymeleaf message externalization + `site.language` dans `jbake.properties`).
+*Charge* : ~23 pts (~5-6 sessions)
+*Priorité* : P1 — Bakery est 100% fonctionnel mais monolingue (fr/en). L'i18n est le prochain
+cap majeur pour rendre le plugin utilisable internationalement.
+*Dépend de* : `education.cccp:i18n-contracts:0.0.1` (MEM-3, workspace-bom) — artefact N0
+fournissant `SupportedLanguage`, `LanguageCatalog`, `I18nConfig`, `MessageBundle`, `LocaleResolver`.
+
+=== Langues supportées (10)
+
+[cols="1,3,2"]
+|===
+| Rang | Langue | Locuteurs (approx.)
+| 1 | Anglais (English) | 1,53 milliard
+| 2 | Chinois Mandarin (中文) | 1,14 milliard
+| 3 | Hindi (हिन्दी) | 630 millions
+| 4 | Espagnol (Español) | 560 millions
+| 5 | Français (Français) | 417 millions
+| 6 | Arabe Standard (العربية) | 272 millions
+| 7 | Bengali (বাংলা) | 273 millions
+| 8 | Portugais (Português) | 265 millions
+| 9 | Russe (Русский) | 255 millions
+| 10 | Ourdou (اردو) | 234 millions
+|===
+
+=== Architecture i18n
+
+*Principe* : Thymeleaf message externalization standard.
+Chaque langue a un fichier `messages_{code}.properties` dans `src/main/resources/site/templates/`.
+Les templates utilisent `#{key}` au lieu de texte hardcodé.
+La langue active est déterminée par `site.language` dans `jbake.properties`, résolu via
+la cascade ConfigResolver 5 couches (CLI > gradle.properties > DSL > site.yml > default `fr`).
+
+=== Codes de langue
+
+[cols="1,2"]
+|===
+| Langue | Code
+| Anglais | `en`
+| Chinois Mandarin | `zh`
+| Hindi | `hi`
+| Espagnol | `es`
+| Français | `fr`
+| Arabe Standard | `ar`
+| Bengali | `bn`
+| Portugais | `pt`
+| Russe | `ru`
+| Ourdou | `ur`
+|===
+
+=== User Stories
+
+[cols="1,4,2,2"]
+|===
+| US | Description | Pts | Priorité
+
+| US-I18N-0
+| **Configuration layer** — Ajouter `language` (String, default `"fr"`) et
+  `supportedLanguages` (List<String>, default `["fr"]`) à `SiteConfiguration`.
+  Ajouter propriété DSL `language` dans `BakeryExtension`.
+  Ajouter `resolveLanguage()` dans `ConfigResolver` (cascade 5 couches).
+  Valider que le code langue est dans `SUPPORTED_LANGS`.
+| 3
+| ✅ S111
+
+| US-I18N-1
+| **JBake properties injection** — Injecter `site.language={code}` dans
+  `jbake.properties` via `GenerateSiteService.injectConfigIntoJbakeProperties()`.
+  Ajouter `site.language=fr` dans les `jbake.properties` par défaut (site + site-basic).
+  JBake expose `${config.site_language}` dans les templates Thymeleaf.
+| 2
+| ✅ S112
+
+| US-I18N-2
+| **Messages properties — 10 langues** — Créer `messages_{code}.properties`
+  pour chaque langue dans `src/main/resources/site/templates/`.
+  Extraire toutes les chaînes hardcodées des 28 templates `site/` + 8 templates
+  `site-basic/` → clés de message (ex: `menu.home`, `contact.name`, `blog.read_more`).
+  Template de référence : `messages_fr.properties` (traduction complète).
+| 3
+| 🟠 P1
+
+| US-I18N-3
+| **Template migration — 36 fichiers** — Remplacer tout le texte hardcodé
+  français dans les 28 templates `site/` + 8 templates `site-basic/` par
+  `#{message.key}` Thymeleaf. Remplacer `<html lang="fr">` par
+  `th:lang="${config.site_language}"`. Mettre à jour `feed.thyme` `<language>`.
+  Dates formatées selon locale (ex: `#dates.format(date, 'dd MMMM yyyy', locale)`).
+| 8
+| 🟠 P1
+
+| US-I18N-4
+| **Scaffold IA — Expansion SUPPORTED_LANGS** — Étendre `SUPPORTED_LANGS` dans
+  `ScaffoldIntention.kt` de `setOf("fr", "en")` aux 10 codes langue.
+  Mettre à jour `ArticleIntention.lang` avec la même expansion.
+  Le `ScaffoldMetadata.language` est déjà plumbé dans `site.yml` généré.
+| 2
+| 🟡 P2
+
+| US-I18N-5
+| **Cucumber BDD — Scénarios i18n** — Feature `i18n_language_switch.feature` :
+  scaffolding en `zh`/`ar`/`hi`, génération site multilingue, fallback `fr`
+  si langue non supportée, injection `site.language` dans `jbake.properties`.
+  6-8 scénarios Cucumber.
+| 3
+| 🟡 P2
+
+| US-I18N-6
+| **Documentation + E2E** — Mettre à jour `BAKERY_ROADMAP_JBake.adoc` avec
+  la section i18n. Ajouter 2 tests E2E Playwright (site en anglais, site en
+  arabe — vérifier RTL si applicable). Mettre à jour `README.adoc`.
+| 2
+| 🟢 P3
+|===
+
+'''
 == Métadonnées
 
 [cols="2,3"]
 |===
 | Document | `BACKLOG.adoc`
-| Version | 5.3 — Session 105 (Code Review gaps fonctionnels BKY-COV-2)
+| Version | 6.0 — Session 111 (EPIC BKY-I18N — 10 langues)
 | Historisé dans | `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
-| Basé sur | Code review V4 (`.agents/CODE_REVIEW_V4.adoc`, 2026-06-06) + Session 105
-| Prochaine màj | Session 106 — BKY-COV-2 US-1 DeployProfileTask
+| Basé sur | Code review V4 (`.agents/CODE_REVIEW_V4.adoc`, 2026-06-06) + Session 105 + Session 111
+| Prochaine màj | Session 112 — BKY-I18N US-I18N-0 Configuration layer

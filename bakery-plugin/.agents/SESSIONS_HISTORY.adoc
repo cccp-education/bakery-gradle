@@ -1,8 +1,9 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-  _Derniere mise a jour : 2026-06-13 — Session 110_
+  _Derniere mise a jour : 2026-06-14 — Session 111_
 
   |===
+  | 111 | 2026-06-14 | cadrage + dev | **EPIC BKY-I18N Cadrage + US-0** — BACKLOG enrichi (7 US, 23 pts, 10 langues). US-I18N-0 implémenté : SiteConfiguration.language/supportedLanguages, BakeryExtension DSL, ConfigResolver.resolveLanguage/resolveSupportedLanguages, ResolvedConfigs enrichi. Dépendance i18n-contracts N0 ajoutée. Parallèle MEMPHIS MEM-3 i18n-contracts créé (5 classes, 28 tests PASS). AGENTS.adoc racine mis à jour. | 9/10
   | 110 | 2026-06-13 | TDD + coverage + doc | **BKY-COV-2 Finalisation** — US-COV-2.4 BakeryPlugin resolvePath/resolvePaths 100% (5 tests, private→internal). US-COV-2.5 ToolsKt 9 tests unitaires (createBuildScriptFile, createSettingsFile, createDependenciesFile, FuncTestsConstants). US-COV-2.6 Limitation Kover closures doLast documentée dans TEST_COVERAGE_ANALYSIS. EPIC BKY-COV-2 12/12 pts TERMINÉ. Bakery 100% terminé. | 9/10
   | 109 | 2026-06-11 | publish | **Publication Maven Central 0.0.1** — version 0.1.4→0.0.1 hardcodé, codebase-contracts→0.0.1, workspace-bom→0.0.1, POM sans guard, Sonatype→nmcp, settings nmcp mavenCentral first. Publié ✅ | 9/10
   | 108 | 2026-06-07 | TDD + FT | **US-COV-2.3** DeployProfileTask full pipeline FT — 2 tests TestKit : history preservation (double deploy → log > 1 commit) + custom from subdirectory (profile-assets → README.md + CONTRIBUTING.md). 6/6 ProfilePublisher FT PASS. EPIC BKY-COV-2 9/12 pts. | 9/10

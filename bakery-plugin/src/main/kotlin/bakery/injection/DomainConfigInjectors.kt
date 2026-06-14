@@ -8,7 +8,8 @@ val configInjectors: Map<String, ConfigInjector> = mapOf(
     "analytics" to AnalyticsInjector,
     "newsletter" to NewsletterInjector,
     "theme" to ThemeInjector,
-    "layout" to LayoutInjector
+    "layout" to LayoutInjector,
+    "language" to LanguageInjector
 )
 
 object FirebaseInjector : ConfigInjector {
@@ -94,5 +95,11 @@ object ThemeInjector : ConfigInjector {
 object LayoutInjector : ConfigInjector {
     override fun inject(lines: MutableList<String>, resolver: (String, String) -> String) {
         updateProperty(lines, "layoutType", resolver("layoutType", "FULL_WIDTH"))
+    }
+}
+
+object LanguageInjector : ConfigInjector {
+    override fun inject(lines: MutableList<String>, resolver: (String, String) -> String) {
+        updateProperty(lines, "site.language", resolver("language", "fr"))
     }
 }

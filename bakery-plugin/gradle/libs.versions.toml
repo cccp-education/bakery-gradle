@@ -20,6 +20,7 @@ node-gradle = "7.1.0"
 kover = "0.9.8"
 codebase = "0.0.1"
 codebase-contracts = "0.0.1"
+i18n-contracts = "0.0.1"
 thymeleaf = "3.0.14.RELEASE"
 rome = "2.1.0"
 
@@ -54,6 +55,7 @@ logback-classic = { module = "ch.qos.logback:logback-classic" }
 node-gradle = { module = "com.github.node-gradle:gradle-node-plugin", version.ref = "node-gradle" }
 graphify-plugin = { module = "education.cccp:graphify-plugin", version.ref = "graphify" }
 codebase-contracts = { module = "education.cccp:codebase-contracts", version.ref = "codebase-contracts" }
+i18n-contracts = { module = "education.cccp:i18n-contracts", version.ref = "i18n-contracts" }
 langchain4j-ollama = { module = "dev.langchain4j:langchain4j-ollama" }
 thymeleaf = { module = "org.thymeleaf:thymeleaf", version.ref = "thymeleaf" }
 playwright = { module = "com.microsoft.playwright:playwright" }

@@ -2,10 +2,10 @@
 
 == Mission accomplie
 
-*Session 110 TERMINÉE* — BKY-COV-2 Finalisation (Microfissures Coverage).
-US-COV-2.4 BakeryPlugin resolvePath/resolvePaths 100% (5 tests).
-US-COV-2.5 ToolsKt 9 tests unitaires.
-US-COV-2.6 Limitation Kover closures doLast documentée.
+*Session 111 TERMINÉE* — US-I18N-0 Configuration layer implémenté.
+SiteConfiguration.language/supportedLanguages, BakeryExtension DSL,
+ConfigResolver.resolveLanguage/resolveSupportedLanguages, ResolvedConfigs enrichi.
+Dépendance i18n-contracts N0 ajoutée. Parallèle MEMPHIS MEM-3 créé.
 
 == Statut
 
@@ -14,11 +14,14 @@ US-COV-2.6 Limitation Kover closures doLast documentée.
 - BKY-KOV-1 : ✅ TERMINE (85.88%)
 - BKY-COV-2 : ✅ TERMINE — 12/12 pts (Session 110)
 - BKY-PUB-1 : ✅ TERMINE — Session 109 (nmcp, 0.0.1)
-- Tests : ✅ Tous PASS (JUnit5 780+ + functionalTest 81+ + Cucumber 129/129 + E2E)
+- BKY-I18N : 🔄 3/23 pts (US-I18N-0 ✅, US-I18N-1→6 restants)
+- Tests : ✅ Tous PASS
 - Version publiée: 0.0.1 (Maven Central)
-- BakeryPluginKt : 100% (7/7 lignes)
-- Bakery 100% terminé — zéro dette technique, zéro EPIC restant
 
-== Prochaine session (111)
+== Prochaine session (113)
 
-Switch borough. Bakery est dormant — maintenance uniquement.
+BKY-I18N US-I18N-1 — JBake properties injection :
+- Ajouter `LanguageInjector` dans `DomainConfigInjectors.kt`
+- Injecter `site.language={code}` dans `jbake.properties`
+- Ajouter `site.language=fr` dans les `jbake.properties` par défaut (site + site-basic)
+- 2 pts, ~1 session

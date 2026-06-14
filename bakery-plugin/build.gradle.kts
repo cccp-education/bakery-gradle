@@ -37,6 +37,7 @@ dependencies {
 
     implementation(libs.graphify.plugin)
     implementation(libs.codebase.contracts)
+    implementation(libs.i18n.contracts)
 
     // LLM — LangChain4j + Ollama (BKY-IA-0)
     implementation(libs.langchain4j.ollama)

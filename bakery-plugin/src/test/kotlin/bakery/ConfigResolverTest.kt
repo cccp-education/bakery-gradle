@@ -966,6 +966,124 @@ class ConfigResolverTest {
         }
     }
 
+    @Nested
+    inner class ResolveLanguageTest {
+
+        @Test
+        fun `CLI overrides DSL and YAML`() {
+            val props = mapOf("bakery.language.language" to "en")
+            val extension = createExtension()
+            extension.language.set("fr")
+            val site = SiteConfiguration(language = "es")
+            val result = ConfigResolver.resolveLanguage(props, extension, site)
+            assertEquals("en", result)
+        }
+
+        @Test
+        fun `DSL overrides YAML when non-default`() {
+            val props = emptyMap<String, String>()
+            val extension = createExtension()
+            extension.language.set("en")
+            val site = SiteConfiguration(language = "es")
+            val result = ConfigResolver.resolveLanguage(props, extension, site)
+            assertEquals("en", result)
+        }
+
+        @Test
+        fun `YAML overrides default when DSL is empty`() {
+            val props = emptyMap<String, String>()
+            val extension = createExtension()
+            val site = SiteConfiguration(language = "ar")
+            val result = ConfigResolver.resolveLanguage(props, extension, site)
+            assertEquals("ar", result)
+        }
+
+        @Test
+        fun `default fr when nothing is set`() {
+            val props = emptyMap<String, String>()
+            val extension = createExtension()
+            val site = SiteConfiguration()
+            val result = ConfigResolver.resolveLanguage(props, extension, site)
+            assertEquals("fr", result)
+        }
+
+        @Test
+        fun `DSL blank falls through to YAML`() {
+            val props = emptyMap<String, String>()
+            val extension = createExtension()
+            extension.language.set("")
+            val site = SiteConfiguration(language = "zh")
+            val result = ConfigResolver.resolveLanguage(props, extension, site)
+            assertEquals("zh", result)
+        }
+    }
+
+    @Nested
+    inner class ResolveSupportedLanguagesTest {
+
+        @Test
+        fun `CLI comma-separated overrides all`() {
+            val props = mapOf("bakery.supportedLanguages.supportedLanguages" to "en,fr,ar")
+            val extension = createExtension()
+            extension.supportedLanguages.set(listOf("fr"))
+            val site = SiteConfiguration(supportedLanguages = listOf("es"))
+            val result = ConfigResolver.resolveSupportedLanguages(props, extension, site)
+            assertEquals(listOf("en", "fr", "ar"), result)
+        }
+
+        @Test
+        fun `DSL overrides YAML when non-empty`() {
+            val props = emptyMap<String, String>()
+            val extension = createExtension()
+            extension.supportedLanguages.set(listOf("en", "zh"))
+            val site = SiteConfiguration(supportedLanguages = listOf("fr"))
+            val result = ConfigResolver.resolveSupportedLanguages(props, extension, site)
+            assertEquals(listOf("en", "zh"), result)
+        }
+
+        @Test
+        fun `YAML overrides default when DSL is empty`() {
+            val props = emptyMap<String, String>()
+            val extension = createExtension()
+            val site = SiteConfiguration(supportedLanguages = listOf("en", "ar", "hi"))
+            val result = ConfigResolver.resolveSupportedLanguages(props, extension, site)
+            assertEquals(listOf("en", "ar", "hi"), result)
+        }
+
+        @Test
+        fun `default listOf(fr) when nothing is set`() {
+            val props = emptyMap<String, String>()
+            val extension = createExtension()
+            val site = SiteConfiguration()
+            val result = ConfigResolver.resolveSupportedLanguages(props, extension, site)
+            assertEquals(listOf("fr"), result)
+        }
+
+        @Test
+        fun `CLI with whitespace trims values`() {
+            val props = mapOf("bakery.supportedLanguages.supportedLanguages" to " en , fr , ar ")
+            val extension = createExtension()
+            val site = SiteConfiguration()
+            val result = ConfigResolver.resolveSupportedLanguages(props, extension, site)
+            assertEquals(listOf("en", "fr", "ar"), result)
+        }
+
+        @Test
+        fun `CLI empty string falls through to DSL`() {
+            val props = mapOf("bakery.supportedLanguages.supportedLanguages" to "")
+            val extension = createExtension()
+            extension.supportedLanguages.set(listOf("en", "es"))
+            val site = SiteConfiguration()
+            val result = ConfigResolver.resolveSupportedLanguages(props, extension, site)
+            assertEquals(listOf("en", "es"), result)
+        }
+    }
+
+    private fun createExtension(): BakeryExtension {
+        val project = org.gradle.testfixtures.ProjectBuilder.builder().build()
+        return project.extensions.create("bakery_test", BakeryExtension::class.java)
+    }
+
     // BKY-IA-2 — Theme variant resolution with preset cascade
 
     @Nested

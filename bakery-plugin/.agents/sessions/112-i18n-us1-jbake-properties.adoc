@@ -1,0 +1,51 @@
+= Session 112 — US-I18N-1 JBake Properties Injection
+:date: 2026-06-14
+:type: DDD + TDD
+:score: 9/10
+
+== Contexte
+
+US-I18N-0 déjà implémenté en Session 111 (gouvernance décalée — PROMPT_REPRISE
+pointait encore sur US-I18N-0). Correction gouvernance + implémentation US-I18N-1.
+
+== Tâches réalisées
+
+=== Gouvernance (correction décalage)
+* [x] PROMPT_REPRISE.adoc — US-I18N-0 marqué fait, next = US-I18N-1
+* [x] INDEX.adoc — session 112 en cours, progression BKY-I18N 13%
+* [x] BACKLOG.adoc — US-I18N-0 marqué ✅ S111
+
+=== DDD — LanguageInjector
+* [x] `LanguageInjector` dans `DomainConfigInjectors.kt` — injecte `site.language`
+* [x] `configInjectors` map enrichi avec entrée `"language"`
+* [x] `site.language=fr` ajouté dans `site/jbake.properties` et `site-basic/jbake.properties`
+
+=== TDD — 18 nouveaux tests
+* [x] ConfigResolverTest — 11 tests (ResolveLanguageTest 5 + ResolveSupportedLanguagesTest 6)
+* [x] ResolvedConfigsTest — 3 tests LanguageInjectorIntegrationTest
+* [x] GenerateSiteServiceTest — 4 tests injection language
+
+=== Bug fix
+* [x] `resolveSupportedLanguages` — CLI vide `""` tombait sur liste vide au lieu de fallback DSL.
+  Fix : `cliValue != null && cliValue.isNotBlank()` au lieu de `cliValue != null`.
+
+== Fichiers modifiés
+
+* `PROMPT_REPRISE.adoc` — gouvernance corrigée
+* `.agents/INDEX.adoc` — session 112, progression BKY-I18N
+* `BACKLOG.adoc` — US-I18N-0 ✅, US-I18N-1 ✅
+* `src/main/kotlin/bakery/injection/DomainConfigInjectors.kt` — +LanguageInjector
+* `src/main/kotlin/bakery/ConfigResolver.kt` — fix resolveSupportedLanguages
+* `src/main/resources/site/jbake.properties` — +site.language=fr
+* `src/main/resources/site-basic/jbake.properties` — +site.language=fr
+* `src/test/kotlin/bakery/ConfigResolverTest.kt` — +11 tests
+* `src/test/kotlin/bakery/ResolvedConfigsTest.kt` — +3 tests
+* `src/test/kotlin/bakery/site/GenerateSiteServiceTest.kt` — +4 tests
+
+== Résultats
+
+* BUILD SUCCESSFUL
+* Tous tests PASS (JUnit5 + functionalTest)
+* publishToMavenLocal OK
+* BKY-I18N : 5/23 pts (US-I18N-0 ✅ S111, US-I18N-1 ✅ S112)
+* Prochaine : US-I18N-2 Messages properties 10 langues
