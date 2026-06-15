@@ -11,7 +11,7 @@
   <div class="card">
     <div class="card-header">
       <h5 class="mb-0">
-        <i class="bi bi-ui-checks-grid me-2"></i>Formulaire
+        <i class="bi bi-ui-checks-grid me-2"></i><span th:text="#{google.forms.heading}">Formulaire</span>
       </h5>
     </div>
     <div class="card-body p-0">
@@ -22,9 +22,9 @@
                 frameborder="0"
                 marginheight="0"
                 marginwidth="0"
-                title="Google Form"
+                th:title="#{google.forms.title}" title="Google Form"
                 loading="lazy">
-          Chargement…
+          <span th:text="#{google.forms.loading}">Chargement…</span>
         </iframe>
       </div>
     </div>

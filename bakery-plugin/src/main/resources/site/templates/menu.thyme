@@ -8,8 +8,8 @@
             <nav class="navbar navbar-expand-lg fixed-top">
                 <div class="container">
                     <a class="navbar-brand fw-bold" th:href="${isIndexPage ? '#home' : content.rootpath + 'index.html#home'}">
-                        <img th:if="${themeLogoUrl}" th:src="${themeLogoUrl}" alt="Logo" class="navbar-logo me-2" style="height:32px;" />
-                        <span th:unless="${themeLogoUrl}"><i class="bi bi-code-slash me-2"></i>Blog Template</span>
+                        <img th:if="${themeLogoUrl}" th:src="${themeLogoUrl}" th:alt="#{image.alt.logo}" alt="Logo" class="navbar-logo me-2" style="height:32px;" />
+                        <span th:unless="${themeLogoUrl}"><i class="bi bi-code-slash me-2"></i><span th:text="#{site.title}">Blog Template</span></span>
                     </a>
 
                     <button class="navbar-toggler"
@@ -18,20 +18,20 @@
                             data-bs-target="#navbarNav"
                             aria-controls="navbarNav"
                             aria-expanded="false"
-                            aria-label="Toggle navigation">
+                                                         th:attr="aria-label=#{a11y.toggle.navigation}" aria-label="Toggle navigation">
                         <span class="navbar-toggler-icon"></span>
                     </button>
 
                     <div class="collapse navbar-collapse" id="navbarNav">
                         <ul class="navbar-nav ms-auto align-items-start">
                             <li class="nav-item">
-                                <a class="nav-link" th:href="${isIndexPage ? '#home' : content.rootpath + 'index.html#home'}">Accueil</a>
+                                <a class="nav-link" th:href="${isIndexPage ? '#home' : content.rootpath + 'index.html#home'}" th:text="#{nav.home}">Accueil</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" th:href="${isIndexPage ? '#blog' : content.rootpath + 'blog.html'}">Blog</a>
+                                <a class="nav-link" th:href="${isIndexPage ? '#blog' : content.rootpath + 'blog.html'}" th:text="#{nav.blog}">Blog</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" th:href="${isIndexPage ? '#contact' : content.rootpath + 'index.html#contact'}">Contact</a>
+                                <a class="nav-link" th:href="${isIndexPage ? '#contact' : content.rootpath + 'index.html#contact'}" th:text="#{nav.contact}">Contact</a>
                             </li>
                         </ul>
                         <!-- Theme Switcher moved outside the ul for simpler flexbox calculation -->
@@ -41,21 +41,21 @@
                                     id="themeDropdown"
                                     data-bs-toggle="dropdown"
                                     aria-expanded="false"
-                                    aria-label="Sélectionner le thème de l'interface">
+                                     th:attr="aria-label=#{a11y.theme.switcher}" aria-label="Sélectionner le thème de l'interface">
                                 <i class="bi bi-sun"></i>
-                                <span id="current-theme" class="visually-hidden">Light</span>
+                                <span id="current-theme" class="visually-hidden" th:text="#{theme.light}">Light</span>
                             </button>
                             <ul class="dropdown-menu" aria-labelledby="themeDropdown">
                                 <li><button class="dropdown-item theme-option"
                                        type="button"
                                        data-theme="light">
-                                    <i class="bi bi-sun me-2"></i>Light
+                                     <i class="bi bi-sun me-2"></i><span th:text="#{theme.light}">Light</span>
                                 </button></li>
                                 <li><button class="dropdown-item theme-option" type="button" data-theme="dark">
-                                    <i class="bi bi-moon me-2"></i>Dark
+                                     <i class="bi bi-moon me-2"></i><span th:text="#{theme.dark}">Dark</span>
                                 </button></li>
                                 <li><button class="dropdown-item theme-option" type="button" data-theme="high-contrast">
-                                    <i class="bi bi-circle-half me-2"></i>High Contrast
+                                     <i class="bi bi-circle-half me-2"></i><span th:text="#{theme.high.contrast}">High Contrast</span>
                                 </button></li>
                             </ul>
                         </div>

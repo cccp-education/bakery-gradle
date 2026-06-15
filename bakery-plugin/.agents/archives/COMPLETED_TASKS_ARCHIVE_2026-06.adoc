@@ -1,5 +1,24 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 114 — 2026-06-15 — US-I18N-3 Template migration 36 fichiers
+
+**Contexte** : US-I18N-2 terminé en S113. Migration du texte hardcodé dans
+tous les templates Thymeleaf vers `#{message.key}`.
+
+**Tâches réalisées** :
+
+* [x] Lot 1 (header, footer, menu, index) — 16 remplacements + 2 `th:lang`
+* [x] Lot 2 (blog, post, archive, tags, contact) — 36 remplacements + 3 `th:lang`
+* [x] Lot 3 (comments, auth-header, newsletter, google-forms, pdf-viewer, hero,
+      breadcrumb, toc, progress-bar, augmented) — 30 remplacements + 1 `th:lang`
+* [x] Lot 4 (site-basic: index, page, header, footer, menu) — 15 remplacements
+* [x] Fix ThymeleafRenderingTestFactory : ClasspathMessageResolver (UTF-8) +
+      injection config.site_language dans le contexte
+* [x] I18nTemplateMigrationTest — 5 tests (MessageKeyUsage, LangAttribute,
+      I18nAttributePresence)
+* [x] BUILD SUCCESSFUL — 853 tests PASS, 0 échec
+* [x] publishToMavenLocal OK
+
 == Session 113 — 2026-06-14 — US-I18N-2 Messages properties 10 langues
 
 **Contexte** : US-I18N-1 terminé en S112. Création des fichiers messages

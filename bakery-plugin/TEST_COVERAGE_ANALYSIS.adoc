@@ -1,6 +1,18 @@
 = Analyse de Couverture des Tests — Bakery Gradle Plugin
 
-_Derniere mise a jour_ : 2026-06-05 (Session 091)
+_Derniere mise a jour_ : 2026-06-15 (Session 114)
+
+'''
+
+== Session 114 — US-I18N-3 Template migration
+
+|===
+| Classe | Tests | Statut | Notes
+| I18nTemplateMigrationTest | 5 | OK | MessageKeyUsage (site + site-basic), LangAttribute, I18nAttributePresence (site + site-basic)
+| ThymeleafRenderingTest (modifié) | 40+ | OK | Ajustement "Blog Template" → "Blog - template", ClasspathMessageResolver
+| AugmentedArticlesTemplateTest (modifié) | 20+ | OK | Tous verts après split th:if/th:unless
+|===
+
 
 '''
 

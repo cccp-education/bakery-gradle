@@ -9,9 +9,9 @@
 <div th:fragment="auth-header" class="nav-item ms-lg-2"
      th:if="${firebaseAuthApiKey != null && firebaseAuthApiKey != ''}">
   <button id="auth-btn" class="btn btn-outline-primary btn-sm"
-          type="button" aria-label="Se connecter">
+          type="button" th:attr="aria-label=#{auth.login.aria}" aria-label="Se connecter">
     <i class="bi bi-box-arrow-in-right me-1"></i>
-    <span id="auth-label">Connexion</span>
+    <span id="auth-label" th:text="#{auth.login.label}">Connexion</span>
   </button>
   <script th:inline="javascript">
     /*<![CDATA[*/
@@ -22,12 +22,12 @@
 
       function updateUI(user) {
         if (user) {
-          label.textContent = 'Déconnexion';
+          label.textContent = '[[#{auth.logout.label}]]';
           btn.classList.remove('btn-outline-primary');
           btn.classList.add('btn-outline-danger');
           btn.querySelector('i').className = 'bi bi-box-arrow-right me-1';
         } else {
-          label.textContent = 'Connexion';
+          label.textContent = '[[#{auth.login.label}]]';
           btn.classList.remove('btn-outline-danger');
           btn.classList.add('btn-outline-primary');
           btn.querySelector('i').className = 'bi bi-box-arrow-in-right me-1';

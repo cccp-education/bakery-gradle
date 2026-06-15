@@ -1,6 +1,6 @@
 <footer class="bg-dark text-white mt-5 py-4" th:fragment="footer">
     <div class="container text-center">
-        <p class="mb-0">&copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span> Mon Site. Tous droits réservés.</p>
+        <p class="mb-0">&copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span> <span th:text="#{site.title.fallback}">Mon Site. Tous droits réservés.</span></p>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

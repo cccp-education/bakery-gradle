@@ -1,7 +1,7 @@
 <!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org"
-      lang="fr" data-bs-theme="light">
+      th:lang="${config.site_language}" data-bs-theme="light">
 <body>
 <!-- =============================================================================================================== -->
 <!-- Hero Section -->
@@ -15,10 +15,10 @@
             <div class="col-lg-6">
                 <div class="hero-content">
                     <h1 class="display-4 fw-bold mb-4">
-                        Bakery
-                        <span class="text-primary">Template</span>
+                        <span th:text="#{hero.brand}">Bakery</span>
+                        <span class="text-primary" th:text="#{hero.brand.sub}">Template</span>
                     </h1>
-                    <p class="lead mb-4">
+                    <p class="lead mb-4" th:text="#{hero.description}">
                         A simple and elegant space to share your knowledge, stories, and passions with the world..
                     </p>
                     <div class="hero-buttons d-grid d-lg-inline-flex gap-3">
@@ -27,14 +27,14 @@
                            target="_blank"
                            rel="noopener noreferrer">
                             <i class="bi bi-rocket me-2"></i>
-                            Project
+                            <span th:text="#{hero.button.project}">Project</span>
                         </a>
                         <a href="https://github.com/cheroliv/bakery-gradle-plugin/tree/main/site"
                            target="_blank"
                            rel="noopener noreferrer"
                            class="btn btn-outline-primary btn-hero-style">
                             <i class="bi bi-envelope me-2"></i>
-                            Template
+                            <span th:text="#{hero.button.template}">Template</span>
                         </a>
                     </div>
                 </div>
@@ -44,8 +44,8 @@
                     <div class="hero-card">
                         <div class="card-body text-center">
                             <i class="bi bi-laptop display-1 text-primary mb-3"></i>
-                            <h3>Start Writing</h3>
-                            <p>Powered by the robustness of Bootstrap 5, this template offers you a seamless publishing experience and a fully responsive design, perfect for all your readers..</p>
+                            <h3 th:text="#{hero.card.call.to.action}">Start Writing</h3>
+                            <p th:text="#{hero.card.description}">Powered by the robustness of Bootstrap 5, this template offers you a seamless publishing experience and a fully responsive design, perfect for all your readers..</p>
                         </div>
                     </div>
                 </div>

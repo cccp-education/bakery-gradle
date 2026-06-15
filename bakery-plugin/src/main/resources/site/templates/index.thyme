@@ -2,7 +2,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org"
-      lang="fr" data-bs-theme="light">
+      th:lang="${config.site_language}" data-bs-theme="light">
 
 <head th:replace="header.thyme::head" />
 
@@ -37,7 +37,7 @@
 <div th:replace="footer.thyme::footer" />
 <!-- =============================================================================================================== -->
 <!-- Scroll to Top Button -->
-<button id="scrollToTopBtn" class="btn btn-primary shadow-sm" aria-label="Retour en haut de page">
+<button id="scrollToTopBtn" class="btn btn-primary shadow-sm" th:attr="aria-label=#{action.scroll.top}" aria-label="Retour en haut de page">
     <i class="bi bi-arrow-up"></i>
 </button>
 </body>

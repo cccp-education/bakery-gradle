@@ -1,9 +1,9 @@
 <!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-transitional-thymeleaf-4.dtd">
-<html lang="fr">
+<html th:lang="${config.site_language}">
     <head th:fragment="head">
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-        <title>Blog - template</title>
+        <title th:text="#{site.title}">Blog - template</title>
 
         <script th:inline="javascript">
           // IIFE to avoid polluting global scope
@@ -62,8 +62,8 @@
         
 
         <!-- Meta tags pour SEO -->
-        <meta name="description" content="Développeur formateur spécialisé en ingénierie pédagogique. Conception et développement de solutions e-learning innovantes."/>
-        <meta name="keywords" content="développement, formation, e-learning, ingénierie pédagogique, JavaScript, Bootstrap"/>
-        <meta name="author" content="Cheroliv"/>
+        <meta name="description" th:content="#{meta.description}" content="Développeur formateur spécialisé en ingénierie pédagogique. Conception et développement de solutions e-learning innovantes."/>
+        <meta name="keywords" th:content="#{meta.keywords}" content="développement, formation, e-learning, ingénierie pédagogique, JavaScript, Bootstrap"/>
+        <meta name="author" th:content="#{meta.author}" content="Cheroliv"/>
     </head>
 </html>

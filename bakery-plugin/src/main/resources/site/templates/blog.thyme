@@ -1,6 +1,6 @@
 <!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="fr">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" th:lang="${config.site_language}">
 <head th:replace="header.thyme::head"/>
 <body >
     <div th:replace="menu.thyme::menu"/>
@@ -8,8 +8,8 @@
         <div class="container">
 			<div class="row">
 				<div class="col-lg-12 text-center mb-5">
-					<h1 class="display-5 fw-bold">Blog</h1>
-					<p class="text-muted">Derniers articles et ressources</p>
+					<h1 class="display-5 fw-bold" th:text="#{nav.blog}">Blog</h1>
+					<p class="text-muted" th:text="#{label.blog.latest}">Derniers articles et ressources</p>
 				</div>
 			</div>
 			<div class="row">
@@ -17,14 +17,14 @@
 					<div class="hero-buttons">
 						<a href="archive.html" class="btn btn-secondary me-3">
 							<i class="bi bi-archive me-2"></i>
-							Archives
+							<span th:text="#{nav.archives}">Archives</span>
 						</a>
 						<a href="#searchModal"
 						   class="btn btn-custom-blue"
 						   data-bs-toggle="modal"
 						   data-bs-target="#searchModal">
 							<i class="bi bi-search me-2"></i>
-							Rechercher
+							<span th:text="#{action.search}">Rechercher</span>
 						</a>
 <!--                        <div class="btn-group ms-3">-->
 <!--                            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">-->
@@ -43,15 +43,15 @@
                         <div class="btn-group ms-3">
                             <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="bi bi-journal-bookmark me-2"></i>
-                                Mémo
+                                <span th:text="#{nav.memo}">Mémo</span>
                             </button>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#"><i class="fa-solid fa-code me-2"></i>Guides de Développement</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="fa-solid fa-book me-2"></i>Tutoriels</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="fa-solid fa-lightbulb me-2"></i>Astuces & Conseils</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fa-solid fa-code me-2"></i><span th:text="#{nav.memo.dev.guides}">Guides de Développement</span></a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fa-solid fa-book me-2"></i><span th:text="#{nav.memo.tutorials}">Tutoriels</span></a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fa-solid fa-lightbulb me-2"></i><span th:text="#{nav.memo.tips}">Astuces & Conseils</span></a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#"><i class="fa-solid fa-bookmark me-2"></i>Ressources Utiles</a></li>
-                                <li><a class="dropdown-item" href="#"><i class="fa-solid fa-link me-2"></i>Liens Externes</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fa-solid fa-bookmark me-2"></i><span th:text="#{nav.memo.resources}">Ressources Utiles</span></a></li>
+                                <li><a class="dropdown-item" href="#"><i class="fa-solid fa-link me-2"></i><span th:text="#{nav.memo.external.links}">Liens Externes</span></a></li>
                             </ul>
                         </div>
 
@@ -79,8 +79,7 @@
 									parcours d'apprentissage...</p>
 							</div>
 							<div class="mt-auto">
-								<a th:href='${content.rootpath+post.uri}' href="#" class="btn btn-outline-primary btn-sm">Lire
-									la suite</a>
+								<a th:href='${content.rootpath+post.uri}' href="#" class="btn btn-outline-primary btn-sm"><span th:text="#{action.read.more}">Lire la suite</span></a>
 							</div>
 						</div>
 					</div>
@@ -96,7 +95,7 @@
 			<div class="modal-dialog modal-lg">
 				<div class="modal-content">
 					<div class="modal-header">
-						<h5 class="modal-title" id="searchModalLabel">Rechercher un Article</h5>
+						<h5 class="modal-title" id="searchModalLabel" th:text="#{action.search.article}">Rechercher un Article</h5>
 						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 					</div>
 					<div class="modal-body">
@@ -109,9 +108,8 @@
 
 <div th:replace="footer.thyme::footer"></div>
 <!-- Scroll to Top Button -->
-<button id="scrollToTopBtn" class="btn btn-primary shadow-sm" aria-label="Retour en haut de page">
+<button id="scrollToTopBtn" class="btn btn-primary shadow-sm" th:attr="aria-label=#{action.scroll.top}" aria-label="Retour en haut de page">
 	<i class="bi bi-arrow-up"></i>
 </button>
-</body>
 </body>
 </html>

@@ -11,7 +11,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-md-6">
-                    <p>Blog-Template</p>
+                    <p th:text="#{site.title}">Blog-Template</p>
                 </div>
                 <div class="col-md-6 text-md-end">
                     <a href="https://github.com/username" target="_blank" class="me-3" aria-label="Profil GitHub" data-bs-toggle="tooltip" data-bs-placement="top" title="github/username"><i class="fa-brands fa-github fa-lg"></i></a>

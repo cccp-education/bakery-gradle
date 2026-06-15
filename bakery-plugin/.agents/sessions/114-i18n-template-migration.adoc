@@ -1,0 +1,61 @@
+= Session 114 — US-I18N-3 Template Migration (36 fichiers)
+:date: 2026-06-15
+:epic: BKY-I18N
+:points: 8/8 pts
+:status: termine
+
+== Objectif
+
+Remplacer le texte français hardcodé dans les 36 templates (28 site/ + 8 site-basic/)
+par `#{message.key}` Thymeleaf et `th:lang="${config.site_language}"`.
+
+== Travail effectué
+
+=== Lot 1 — Templates de navigation (header, footer, menu, index)
+- header.thyme : `lang="fr"` → `th:lang`, `th:text`/`th:content` sur title/meta
+- footer.thyme : `th:text="#{site.title}"`
+- menu.thyme : 12 remplacements (nav links, logo alt, theme switcher, aria-label)
+- index.thyme : `th:lang` + `th:attr="aria-label=#{action.scroll.top}"`
+
+=== Lot 2 — Templates de contenu (blog, post, archive, tags, contact)
+- blog.thyme : 16 remplacements (headings, liens, dropdown Mémo, search modal)
+- post.thyme : `th:lang` + `th:text="#{label.published.on} + ${dates}"`
+- archive.thyme : `th:lang` + 4 remplacements (heading, empty, published, scroll)
+- tags.thyme : `th:lang` + `#{tags.prefix}`
+- contact.thyme : 12 remplacements (heading, placeholders, submit, success/error)
+
+=== Lot 3 — Composants et widgets (comments, auth-header, newsletter, google-forms, pdf-viewer, hero, breadcrumb, toc, progress-bar, augmented)
+- comments.thyme : 10 remplacements (HTML + JS inline `[[#{key}]]`)
+- auth-header.thyme : 3 remplacements (aria-label + JS inline)
+- newsletter-form.thyme : 4 remplacements
+- google-forms.thyme : 3 remplacements (`th:title` + fallback text)
+- pdf-viewer.thyme : 3 remplacements
+- hero_section.thyme : 7 remplacements (brand, buttons, card) + `th:lang`
+- breadcrumb.thyme : 2 remplacements
+- toc-sidebar.thyme : `#{toc.heading}`
+- progress-bar.thyme : `th:attr="aria-label=#{progress.bar.label}"`
+- augmented-articles.thyme : `#{augmented.articles.heading}` (split en 2 balises `th:if`/`th:unless` pour compatibilité OGNL)
+
+=== Lot 4 — Templates site-basic (index, page, header, footer, menu)
+- index.thyme : 4 remplacements (title, welcome, description, content)
+- page.thyme : `th:utext="... ?: #{page.title.fallback}"` (Elvis)
+- header.thyme : `th:text="${content.title} ?: #{brand.fallback}"` (Elvis)
+- footer.thyme : `th:text="#{site.title.fallback}"`
+- menu.thyme : 5 remplacements (logo alt, brand, nav links)
+
+=== Corrections infrastructure test
+- `ThymeleafRenderingTestFactory` : ajout `ClasspathMessageResolver` (charge `messages_fr.properties` en UTF-8) + injection `config.site_language` dans le contexte
+- `ThymeleafRenderingTest` : ajustement assert `"Blog Template"` → `"Blog - template"`
+- `AugmentedArticlesTemplateTest` : tous les tests verts après split en 2 h3
+
+=== TDD — I18nTemplateMigrationTest
+5 tests créés : MessageKeyUsage (site + site-basic), LangAttribute, I18nAttributePresence (site + site-basic). Tous PASS.
+
+== Résultat
+- 27 fichiers modifiés (21 templates + 1 test factory + 1 test rendering + 1 nouveau test)
+- 853 tests PASS, 0 échec
+- BUILD SUCCESSFUL
+- publishToMavenLocal OK
+
+== Prochaine session
+115 — BKY-I18N US-I18N-4 Scaffold IA expansion SUPPORTED_LANGS (2 pts)

@@ -1,17 +1,17 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark" th:fragment="menu">
     <div class="container">
         <a class="navbar-brand" th:href="@{/}">
-            <img th:if="${themeLogoUrl}" th:src="@{${themeLogoUrl}}" alt="Logo" class="me-2" style="height:32px;" />
-            <span th:unless="${themeLogoUrl}">Mon Site</span>
+            <img th:if="${themeLogoUrl}" th:src="@{${themeLogoUrl}}" th:alt="#{image.alt.logo}" alt="Logo" class="me-2" style="height:32px;" />
+            <span th:unless="${themeLogoUrl}" th:text="#{brand.fallback}">Mon Site</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-auto">
-                <li class="nav-item"><a class="nav-link" th:href="@{/}">Accueil</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/about.html}">À propos</a></li>
-                <li class="nav-item"><a class="nav-link" th:href="@{/contact.html}">Contact</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/}" th:text="#{nav.home}">Accueil</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/about.html}" th:text="#{nav.about}">À propos</a></li>
+                <li class="nav-item"><a class="nav-link" th:href="@{/contact.html}" th:text="#{nav.contact}">Contact</a></li>
             </ul>
         </div>
     </div>

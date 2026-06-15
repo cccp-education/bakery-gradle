@@ -8,10 +8,10 @@
 <nav aria-label="breadcrumb" th:fragment="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item">
-      <a th:href="${content.rootpath}" href="/">Accueil</a>
+      <a th:href="${content.rootpath}" href="/" th:text="#{nav.home}">Accueil</a>
     </li>
     <li class="breadcrumb-item">
-      <a th:href="${content.rootpath} + 'blog.html'" href="/blog.html">Blog</a>
+      <a th:href="${content.rootpath} + 'blog.html'" href="/blog.html" th:text="#{nav.blog}">Blog</a>
     </li>
     <li class="breadcrumb-item active" aria-current="page" th:text="${content.title}">Article</li>
   </ol>

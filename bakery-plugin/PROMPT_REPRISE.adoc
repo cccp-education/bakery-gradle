@@ -2,11 +2,12 @@
 
 == Mission accomplie
 
-*Session 113 TERMINÉE* — US-I18N-2 Messages properties 10 langues.
-20 fichiers messages_{code}.properties créés (10 langues × 2 dossiers).
-~65 clés extraites des 37 templates Thymeleaf.
-6 tests I18nMessagesTest (existence, cohérence clés, valeurs non-blanches).
-BKY-I18N : 8/23 pts (US-0 ✅, US-1 ✅, US-2 ✅).
+*Session 114 TERMINÉE* — US-I18N-3 Template migration 36 fichiers.
+27 fichiers modifiés (21 templates + test factory + rendering test + nouveau test).
+~85 remplacements `#{message.key}` dans 25 templates.
+5 `<html>` fixes `th:lang="${config.site_language}"`.
+5 tests I18nTemplateMigrationTest créés (PASS).
+BKY-I18N : 16/23 pts (US-0 ✅, US-1 ✅, US-2 ✅, US-3 ✅).
 
 == Statut
 
@@ -15,14 +16,12 @@ BKY-I18N : 8/23 pts (US-0 ✅, US-1 ✅, US-2 ✅).
 - BKY-KOV-1 : ✅ TERMINE (85.88%)
 - BKY-COV-2 : ✅ TERMINE — 12/12 pts (Session 110)
 - BKY-PUB-1 : ✅ TERMINE — Session 109 (nmcp, 0.0.1)
-- BKY-I18N : 🔄 8/23 pts (US-0→2 ✅, US-3→6 restants)
-- Tests : ✅ Tous PASS
+- BKY-I18N : 🔄 16/23 pts (US-0→3 ✅, US-4→6 restants)
+- Tests : 853 PASS, 0 échec
 - Version publiée: 0.0.1 (Maven Central)
 
-== Prochaine session (114)
+== Prochaine session (115)
 
-BKY-I18N US-I18N-3 — Template migration 36 fichiers (8 pts) :
-- Remplacer texte hardcodé dans 28 templates site/ + 8 site-basic/
-- `#{message.key}` Thymeleaf partout
-- `th:lang="${config.site_language}"`
-- Dates formatées selon locale
+BKY-I18N US-I18N-4 — Scaffold IA expansion SUPPORTED_LANGS (2 pts) :
+- Étendre `SUPPORTED_LANGS` dans `ScaffoldIntention.kt` de `setOf("fr", "en")` aux 10 codes
+- Mettre à jour `ArticleIntention.lang` avec la même expansion

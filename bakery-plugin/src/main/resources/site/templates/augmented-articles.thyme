@@ -22,7 +22,8 @@
         th:if="${augmentedContextEnabled != null && augmentedContextEnabled == 'true' and augmentedContextData != null and augmentedContextData != ''}"
         th:data-augmented-context="${augmentedContextData}"
         th:data-max-results="${lensBudgetMaxArticlesPerPage}">
-  <h3 class="related-articles-heading" th:text="${relatedArticlesHeading != null ? relatedArticlesHeading : 'Articles connexes du workspace'}">Articles connexes du workspace</h3>
+  <h3 class="related-articles-heading" th:if="${relatedArticlesHeading != null}" th:text="${relatedArticlesHeading}">Articles connexes du workspace</h3>
+  <h3 class="related-articles-heading" th:unless="${relatedArticlesHeading != null}" th:text="#{augmented.articles.heading}">Articles connexes du workspace</h3>
   <ul class="related-articles-list" id="augmented-articles-list">
     <!-- Populated by JavaScript from augmentedContextData JSON -->
   </ul>

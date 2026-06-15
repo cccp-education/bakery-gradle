@@ -1,16 +1,16 @@
 <!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" th:lang="${config.site_language}">
 <head th:replace="~{header.thyme::head}"/>
 <body>
 <div class="main-content-wrapper">
     <div th:replace="~{menu.thyme::menu}"/>
     <main class="container main-content-padding mb-5" id="main-content">
         <div class="page-header mb-4">
-            <h1 class="display-5">Archives du Blog</h1>
+            <h1 class="display-5" th:text="#{archive.heading}">Archives du Blog</h1>
         </div>
 
         <th:block th:if="${#lists.isEmpty(published_posts)}">
-            <p class="lead">Aucun article n'a encore été publié.</p>
+            <p class="lead" th:text="#{archive.no.posts}">Aucun article n'a encore été publié.</p>
         </th:block>
 
         <th:block th:unless="${#lists.isEmpty(published_posts)}">
@@ -25,7 +25,7 @@
                     <a th:href="@{${content.rootpath} + ${post.uri}}" class="themed-list-group-item d-flex justify-content-between align-items-start">
                         <div class="ms-2 me-auto">
                             <div class="fw-bold" th:text="${post.title}">Titre de l'article</div>
-                            <small th:text="'Publié le ' + ${#dates.format(post.date, 'dd MMMM yyyy')}"></small>
+                            <small th:text="#{label.published.on} + ${#dates.format(post.date, 'dd MMMM yyyy')}"></small>
                         </div>
                         <span class="badge bg-primary rounded-pill" th:text="${#dates.format(post.date, 'dd')}">14</span>
                     </a>

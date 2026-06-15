@@ -8,7 +8,7 @@
 
 <div class="container mt-5">
     <h1 th:text="${content.title}">Page title</h1>
-    <div th:utext="${content.body}">Contenu de la page</div>
+    <div th:utext="${content.body} ?: #{page.title.fallback}">Contenu de la page</div>
 </div>
 
 <div th:include="footer.thyme :: footer"></div>

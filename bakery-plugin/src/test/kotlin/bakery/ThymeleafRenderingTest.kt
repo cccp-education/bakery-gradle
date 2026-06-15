@@ -250,7 +250,7 @@ class ThymeleafRenderingTest {
             ))
 
             assertThat(html).doesNotContain("navbar-logo")
-            assertThat(html).contains("Blog Template")
+            assertThat(html).contains("Blog - template")
         }
     }
 

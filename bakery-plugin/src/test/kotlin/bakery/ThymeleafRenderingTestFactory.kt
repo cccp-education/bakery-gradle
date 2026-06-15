@@ -3,10 +3,12 @@ package bakery
 import org.thymeleaf.IEngineConfiguration
 import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
+import org.thymeleaf.messageresolver.IMessageResolver
 import org.thymeleaf.templatemode.TemplateMode
 import org.thymeleaf.templateresolver.AbstractConfigurableTemplateResolver
 import org.thymeleaf.templateresolver.FileTemplateResolver
 import java.io.File
+import java.io.InputStreamReader
 import java.util.*
 
 /**
@@ -26,10 +28,12 @@ class ThymeleafRenderingTestFactory {
 
     private val engine: TemplateEngine = TemplateEngine().apply {
         setTemplateResolver(DualConventionResolver(templatesDir))
+        setMessageResolver(ClasspathMessageResolver())
     }
 
     fun render(templateName: String, variables: Map<String, Any?> = emptyMap()): String {
         val context = Context()
+        context.setVariable("config", mapOf("site_language" to "fr"))
         variables.forEach { (key, value) -> context.setVariable(key, value) }
         return engine.process(templateName, context)
     }
@@ -91,4 +95,31 @@ private class DualConventionResolver(private val templatesDir: File) : FileTempl
 
         return resourceName // let Thymeleaf raise the proper error
     }
+}
+
+private class ClasspathMessageResolver : IMessageResolver {
+
+    private val properties: Properties = Properties().apply {
+        val stream = ThymeleafRenderingTestFactory::class.java.classLoader
+            .getResourceAsStream("site/templates/messages_fr.properties")
+        stream?.use { load(InputStreamReader(it, Charsets.UTF_8)) }
+    }
+
+    override fun getName(): String = "ClasspathMessageResolver"
+
+    override fun getOrder(): Int? = 0
+
+    override fun resolveMessage(
+        context: org.thymeleaf.context.ITemplateContext?,
+        origin: Class<*>?,
+        key: String,
+        messageParameters: Array<out Any>?
+    ): String? = properties.getProperty(key)
+
+    override fun createAbsentMessageRepresentation(
+        context: org.thymeleaf.context.ITemplateContext?,
+        target: Class<*>?,
+        key: String,
+        messageParameters: Array<out Any>?
+    ): String = "??${key}??"
 }

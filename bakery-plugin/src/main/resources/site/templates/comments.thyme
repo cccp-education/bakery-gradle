@@ -10,23 +10,23 @@
 <div th:fragment="comments" class="comments-section mt-5"
      th:if="${commentsEnabled != null && commentsEnabled == 'true'}">
   <h3 id="comments-title">
-    <i class="bi bi-chat-dots me-2"></i>Commentaires
+    <i class="bi bi-chat-dots me-2"></i><span th:text="#{comments.heading}">Commentaires</span>
   </h3>
   <div id="comments-list" class="mb-4">
-    <p class="text-muted">Chargement des commentaires…</p>
+    <p class="text-muted" th:text="#{comments.loading}">Chargement des commentaires…</p>
   </div>
   <div id="comment-form" class="card">
     <div class="card-body">
       <div class="mb-3">
-        <label for="comment-text" class="form-label">Votre commentaire</label>
+        <label for="comment-text" class="form-label" th:text="#{comments.form.label}">Votre commentaire</label>
         <textarea id="comment-text" class="form-control" rows="3"
-                  placeholder="Écrivez votre commentaire…"></textarea>
+                  th:placeholder="#{comments.form.placeholder}" placeholder="Écrivez votre commentaire…"></textarea>
       </div>
       <button id="comment-submit" class="btn btn-primary" type="button">
-        <i class="bi bi-send me-1"></i>Envoyer
+        <i class="bi bi-send me-1"></i><span th:text="#{comments.form.submit}">Envoyer</span>
       </button>
       <div id="comment-login-hint" class="mt-2 text-muted" style="display:none;">
-        <i class="bi bi-info-circle me-1"></i>Connectez-vous pour commenter.
+        <i class="bi bi-info-circle me-1"></i><span th:text="#{comments.login.hint}">Connectez-vous pour commenter.</span>
       </div>
     </div>
   </div>
@@ -46,7 +46,7 @@
           .get()
           .then(function(snap) {
             if (snap.empty) {
-              listEl.innerHTML = '<p class="text-muted">Aucun commentaire pour l\'instant.</p>';
+              listEl.innerHTML = '<p class="text-muted">[[#{comments.empty}]]</p>';
               return;
             }
             listEl.innerHTML = '';
@@ -55,14 +55,14 @@
               var div = document.createElement('div');
               div.className = 'card mb-2';
               div.innerHTML = '<div class="card-body">'
-                + '<h6 class="card-subtitle mb-1 text-muted">' + (d.authorName || 'Anonyme') + '</h6>'
+                + '<h6 class="card-subtitle mb-1 text-muted">' + (d.authorName || '[[#{comments.anonymous}]]') + '</h6>'
                 + '<p class="card-text">' + (d.text || '') + '</p>'
                 + '</div>';
               listEl.appendChild(div);
             });
           })
           .catch(function(err) {
-            listEl.innerHTML = '<p class="text-danger">Erreur de chargement des commentaires.</p>';
+            listEl.innerHTML = '<p class="text-danger">[[#{comments.error.load}]]</p>';
             console.error('Comments load error:', err);
           });
       }
@@ -85,7 +85,7 @@
         submitBtn.addEventListener('click', function() {
           var user = (typeof firebase !== 'undefined' && firebase.auth) ? firebase.auth().currentUser : null;
           if (!user) {
-            alert('Veuillez vous connecter pour commenter.');
+            alert('[[#{comments.error.auth}]]');
             return;
           }
           var text = document.getElementById('comment-text').value.trim();

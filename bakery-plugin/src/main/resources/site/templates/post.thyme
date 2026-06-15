@@ -1,5 +1,5 @@
 <!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" th:lang="${config.site_language}">
 <head th:replace="~{header.thyme::head}"/>
 <body>
 <div class="main-content-wrapper">
@@ -17,7 +17,7 @@
                                     <header class="page-header mb-4">
                                         <h1 class="h2" th:text="${content.title}">Titre de l'article</h1>
                                         <p class="lead">
-                                            <em th:text="'Publié le ' + ${#dates.format(content.date, 'dd MMMM yyyy')}">Date de publication</em>
+                                            <em th:text="#{label.published.on} + ${#dates.format(content.date, 'dd MMMM yyyy')}">Date de publication</em>
                                         </p>
                                     </header>
 

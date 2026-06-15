@@ -1,6 +1,6 @@
 <!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" th:lang="${config.site_language}">
 	<head th:replace="header.thyme::head"/>
 	<body onload="prettyPrint()">
 	<div id="wrap">
@@ -8,7 +8,7 @@
 		<div class="container">
 	
 			<div class="page-header">
-				<h1 th:text="'Tag: '+${tag}">tag</h1>
+				<h1 th:text="#{tags.prefix} + ${tag}">tag</h1>
 			</div>
 		
 			<th:block th:with="total_posts = *{#lists.size(tag_posts)}">
