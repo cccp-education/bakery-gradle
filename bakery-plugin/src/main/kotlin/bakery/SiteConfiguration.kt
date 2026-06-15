@@ -55,40 +55,40 @@ data class BakeConfiguration(
 )
 
 data class FirebaseContactFormConfig(
-    val project: FirebaseProjectInfo,
-    val firestore: FirebaseFirestoreSchema,
-    val callable: FirebaseCallableFunction
+    val project: FirebaseProjectInfo = FirebaseProjectInfo(),
+    val firestore: FirebaseFirestoreSchema = FirebaseFirestoreSchema(),
+    val callable: FirebaseCallableFunction = FirebaseCallableFunction()
 )
 
 data class FirebaseProjectInfo(
-    val projectId: String,
-    val apiKey: String
+    val projectId: String = "",
+    val apiKey: String = ""
 )
 
 data class FirebaseFirestoreSchema(
-    val contacts: FirebaseCollection,
-    val messages: FirebaseCollection
+    val contacts: FirebaseCollection = FirebaseCollection(),
+    val messages: FirebaseCollection = FirebaseCollection()
 )
 
 data class FirebaseCollection(
-    val name: String,
-    val fields: List<FirebaseField>,
-    val rulesEnabled: Boolean
+    val name: String = "",
+    val fields: List<FirebaseField> = emptyList(),
+    val rulesEnabled: Boolean = false
 )
 
 data class FirebaseField(
-    val name: String,
-    val type: String
+    val name: String = "",
+    val type: String = ""
 )
 
 data class FirebaseCallableFunction(
-    val name: String,
-    val params: List<FirebaseCallableParam>
+    val name: String = "",
+    val params: List<FirebaseCallableParam> = emptyList()
 )
 
 data class FirebaseCallableParam(
-    val name: String,
-    val type: String
+    val name: String = "",
+    val type: String = ""
 )
 
 data class GoogleFormsConfig(

@@ -183,13 +183,12 @@ object FileSystemManager {
     }
 
 
-    fun Project.from(configPath: String): SiteConfiguration = read(file(configPath))
+    fun Project.from(configPath: String): Either<Exception, SiteConfiguration> = read(file(configPath))
 
-    fun Project.read(configFile: File): SiteConfiguration = try {
-        yamlMapper.readValue(configFile)
+    fun Project.read(configFile: File): Either<Exception, SiteConfiguration> = try {
+        yamlMapper.readValue<SiteConfiguration>(configFile).right()
     } catch (e: Exception) {
-        logger.error("Failed to read site configuration from ${configFile.absolutePath}", e)
-        // Return a default/empty configuration to avoid build failure
-        SiteConfiguration()
+        logger.warn("Failed to read site configuration from ${configFile.absolutePath}: ${e.message}")
+        e.left()
     }
 }

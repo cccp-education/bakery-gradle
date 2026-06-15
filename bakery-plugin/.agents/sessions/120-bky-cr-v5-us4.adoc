@@ -1,0 +1,73 @@
+= Session 120 — BKY-CR-V5 US-4 (Refactor + Either + Nullable)
+:date: 2026-06-15
+:type: DDD + TDD + refactor
+:score: 9/10
+
+== Mission
+
+US-CR-V5-4 (3 pts, P1) — 4 baby steps :
+. Refactor `ResolvedConfigs.toResolver()` when 35 branches → data-driven Map
+. `FileSystemManager.read()` catch muet → `Either<Exception, SiteConfiguration>` + log warning
+. `ConfigPromptM.resolveWithoutPrompt()` throw → return null + fallback prompt
+. `FirebaseContactFormConfig` champs non-nullable → defaults ou nullable
+
+== Résultat
+
+=== 4a — ResolvedConfigs.toResolver() data-driven
+
+`ResolvedConfigs.kt` : `toResolver()` when 35 branches remplacé par `propertyMap: Map<String, String>` lazy + lookup `propertyMap[key] ?: defaultValue`.
+Net : -35 lignes de when, +32 lignes de mapOf. Structure data-driven, extensible sans toucher la logique.
+
+=== 4b — FileSystemManager.read() → Either
+
+`FileSystemManager.kt` : `Project.read()` retourne `Either<Exception, SiteConfiguration>` au lieu de `SiteConfiguration` avec catch muet.
+`logger.error` → `logger.warn` (pas une erreur fatale, juste un warning).
+Callers mis à jour :
+- `BakeryPlugin.kt:172` → `.fold({ warn + SiteConfiguration() }, { it })`
+- `DeployProfileTask.kt:24` → `.fold({ throw IllegalStateException }, { it })`
+- `SiteTaskRegistrar.kt:53` → `.fold({ warn + SiteConfiguration() }, { it })`
+- `SiteManagerTest.kt:374` → `.fold({ throw AssertionError }, { it })`
+- `FileSystemManagerTest.kt:399` → assert `Left` au lieu de `SiteConfiguration` par défaut
+
+=== 4c — ConfigPromptM.resolveWithoutPrompt() → null
+
+`ConfigPromptM.kt` : `resolveWithoutPrompt()` retourne `String?` au lieu de throw `IllegalStateException`.
+`fromCli` → `ConfigPromptM<String?>`.
+`ConfigPromptsTest.kt` : test "throws when property not found" → "returns null when property not found".
+
+=== 4d — FirebaseContactFormConfig defaults
+
+`SiteConfiguration.kt` : `FirebaseContactFormConfig` + 6 sous-classes (`FirebaseProjectInfo`, `FirebaseFirestoreSchema`, `FirebaseCollection`, `FirebaseField`, `FirebaseCallableFunction`, `FirebaseCallableParam`) → tous champs avec valeurs par défaut (Strings vides, listes vides, booléens false).
+
+== Fichiers modifiés
+
+[cols="1,3"]
+|===
+| Fichier | Changement
+| `ResolvedConfigs.kt` | toResolver() when→Map data-driven
+| `FileSystemManager.kt` | read()→Either, logger.error→warn
+| `ConfigPromptM.kt` | resolveWithoutPrompt() throw→null, fromCli→String?
+| `SiteConfiguration.kt` | FirebaseContactFormConfig + 6 sous-classes defaults
+| `BakeryPlugin.kt` | from()→.fold()
+| `DeployProfileTask.kt` | from()→.fold()
+| `SiteTaskRegistrar.kt` | from()→.fold()
+| `ConfigPromptsTest.kt` | test throw→null
+| `FileSystemManagerTest.kt` | test default→Left
+| `SiteManagerTest.kt` | from()→.fold()
+|===
+
+10 fichiers, net +13 lignes.
+
+== Tests
+
+- `ResolvedConfigsTest` : 15/15 PASS
+- `FileSystemManagerTest` : PASS
+- `ConfigPromptsTest` : PASS
+- `SiteManagerTest` : PASS
+- `DeployProfileTaskTest` : PASS
+- Compilation : BUILD SUCCESSFUL
+- publishToMavenLocal : OK
+
+== Statut BKY-CR-V5
+
+10/24 pts (US-1+2+3+4 ✅). Prochaine : US-CR-V5-5 (P2, 5 pts).

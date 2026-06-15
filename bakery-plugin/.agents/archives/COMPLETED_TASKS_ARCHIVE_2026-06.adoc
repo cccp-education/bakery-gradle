@@ -1,5 +1,23 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 120 — 2026-06-15 — BKY-CR-V5 US-4 (toResolver data-driven + Either + Nullable)
+
+**Contexte** : Session 119 a terminé US-3. PROMPT_REPRISE : US-CR-V5-4 (3 pts).
+
+**Tâches réalisées** :
+
+* [x] US-CR-V5-4a — `ResolvedConfigs.kt` : `toResolver()` when 35 branches → `propertyMap` lazy + lookup `?: defaultValue`
+* [x] US-CR-V5-4b — `FileSystemManager.kt` : `read()` catch muet → `Either<Exception, SiteConfiguration>` + `logger.warn`
+* [x] US-CR-V5-4b — Callers adaptés : `BakeryPlugin.kt`, `DeployProfileTask.kt`, `SiteTaskRegistrar.kt` → `.fold()`
+* [x] US-CR-V5-4c — `ConfigPromptM.kt` : `resolveWithoutPrompt()` throw → return `null`, `fromCli` → `ConfigPromptM<String?>`
+* [x] US-CR-V5-4d — `SiteConfiguration.kt` : `FirebaseContactFormConfig` + 6 sous-classes → tous champs avec defaults
+* [x] Tests adaptés : `FileSystemManagerTest` (Left au lieu de default), `ConfigPromptsTest` (null au lieu de throw), `SiteManagerTest` (.fold())
+* [x] `./gradlew compileKotlin` → BUILD SUCCESSFUL
+* [x] `./gradlew -q publishToMavenLocal` → OK
+* [x] `./gradlew test --tests ResolvedConfigsTest --tests FileSystemManagerTest --tests ConfigPromptsTest --tests SiteManagerTest --tests DeployProfileTaskTest` → tous PASS
+* [x] 10 fichiers modifiés (7 source + 3 test)
+* [x] BKY-CR-V5 : 10/24 pts
+
 == Session 119 — 2026-06-15 — BKY-CR-V5 US-3 (entries.first{}→firstOrNull{} + println→logger + secrets LLM + ObjectMapper cache)
 
 **Contexte** : Session 118 a terminé US-1+2. PROMPT_REPRISE : US-CR-V5-3 (3 pts).

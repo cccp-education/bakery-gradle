@@ -372,6 +372,7 @@ class SiteManagerTest {
                     "superbase: \"legacy-field\"\nunknownSection:\n  key: value\n")
 
             val site: SiteConfiguration = project.from(siteYml.path)
+                .fold({ throw AssertionError("Should parse: ${it.message}") }, { it })
 
             assertThat(site.bake).isNotNull
             assertThat(site.bake.srcPath).isEqualTo("site")

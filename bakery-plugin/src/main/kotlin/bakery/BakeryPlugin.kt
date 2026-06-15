@@ -170,6 +170,10 @@ class BakeryPlugin : Plugin<Project> {
             .toFile()
             .parentFile
         val rawSite = project.from(bakeryExtension.configPath.get())
+            .fold(
+                { project.logger.warn("Failed to read site config, using defaults: ${it.message}"); SiteConfiguration() },
+                { it }
+            )
         val site = rawSite.resolvePaths(configDir)
         project.configureJBakePlugin(site)
         project.configureBakeTask(site)

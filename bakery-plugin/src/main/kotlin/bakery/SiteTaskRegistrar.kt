@@ -51,6 +51,10 @@ object SiteTaskRegistrar {
         props: Map<String, String> = emptyMap()
     ) {
         val site = from(configFile.absolutePath)
+            .fold(
+                { logger.warn("Failed to read site config, using defaults: ${it.message}"); SiteConfiguration() },
+                { it }
+            )
         val result1 = copyResourceDirectory(resourcePath, targetDir, project)
         if (result1 is Either.Left) {
             logger.error("Failed to copy resource '$resourcePath': ${result1.value}")

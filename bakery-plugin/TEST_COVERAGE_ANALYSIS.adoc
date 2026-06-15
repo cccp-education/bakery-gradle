@@ -1,8 +1,21 @@
 = Analyse de Couverture des Tests — Bakery Gradle Plugin
 
-_Derniere mise a jour_ : 2026-06-15 (Session 114)
+_Derniere mise a jour_ : 2026-06-15 (Session 120)
 
 '''
+
+== Session 120 — US-CR-V5-4 Refactor + Either + Nullable
+
+|===
+| Classe | Tests | Statut | Notes
+| ResolvedConfigsTest | 15 | OK | toResolver() data-driven Map — tous les tests inchangés PASS
+| FileSystemManagerTest.ReadInvalidYamlTest | 1 | OK | read()→Either — assert Left au lieu de SiteConfiguration par défaut
+| ConfigPromptsTest.FromCli | 2 | OK | fromCli returns null (au lieu de throw) quand propriété absente
+| SiteManagerTest.YAMLToleranceTest | 1 | OK | from()→.fold() adapté
+| DeployProfileTaskTest | 12 | OK | from()→.fold() adapté
+|===
+
+**Total Session 120** : tests existants adaptés, zéro nouveau test, tous PASS.
 
 == Session 114 — US-I18N-3 Template migration
 

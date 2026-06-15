@@ -390,7 +390,7 @@ class FileSystemManagerTest {
         lateinit var tempDir: File
 
         @Test
-        fun `returns default SiteConfiguration when YAML is invalid`() {
+        fun `returns Left when YAML is invalid`() {
             val project = ProjectBuilder.builder().withProjectDir(tempDir).build()
             val malformedFile = tempDir.resolve("malformed.yml").apply {
                 writeText("bake: { invalid: \n\t\tbad: [unclosed")
@@ -398,8 +398,7 @@ class FileSystemManagerTest {
 
             val result = project.read(malformedFile)
 
-            assertThat(result).isNotNull
-            assertThat(result.bake.destDirPath).isEmpty()
+            assertThat(result).isInstanceOf(Left::class.java)
         }
     }
 }

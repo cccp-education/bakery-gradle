@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-15 — Session 119 (BKY-CR-V5 US-3)_
+_Dernière mise à jour : 2026-06-15 — Session 120 (BKY-CR-V5 US-4)_
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -1049,14 +1049,14 @@ cascade CLI > DSL > defaults, DDD Intention→Dsl→Task→Service.
 | BKY-PUB-1 | Publication Maven Central 0.0.1 | 8 | ✅ S109
 | BKY-I18N | i18n 10 langues | 23 | ✅ S116
 // ── EN COURS V5 (Session 117-118) ──
-| BKY-CR-V5 | Code smells V5 (60 smells) | 17 | 🔴 P0 🔄 (7/24 pts — US-1+2+3 ✅ S118-119)
+| BKY-CR-V5 | Code smells V5 (60 smells) | 14 | 🔴 P0 🔄 (10/24 pts — US-1+2+3+4 ✅ S118-120)
 | BKY-I18N-MIG | Tâche migrateToI18n | 16 | 🟠 P1 ☐
-| *Total restant* | | *36* |
+| *Total restant* | | *33* |
 |===
 
 *Tous les EPICs historiques* : 30/30 ✅ (100%)
 *Code smells résolus* : 24/24 ✅ (V2+V3+V4)
-*Code smells V5* : 58 ☐ (US-1 faux positif, US-2 résolue)
+*Code smells V5* : 50 ☐ (US-1 faux positif, US-2+3+4 résolues)
 *Bakery 100% fonctionnel* — les smells V5 sont qualitatifs, pas fonctionnels.
 
 '''

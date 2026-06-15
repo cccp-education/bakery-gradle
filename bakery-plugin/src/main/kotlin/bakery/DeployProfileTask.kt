@@ -22,6 +22,10 @@ abstract class DeployProfileTask : DefaultTask() {
         val configPath = project.extensions.findByType(BakeryExtension::class.java)
             ?.configPath?.orNull ?: "site.yml"
         val site = project.from(configPath)
+            .fold(
+                { throw IllegalStateException("Failed to read site.yml: ${it.message}", it) },
+                { it }
+            )
         val pushProfile = site.pushProfile
             ?: throw IllegalStateException("pushProfile section not found in site.yml")
 

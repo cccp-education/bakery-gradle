@@ -405,15 +405,14 @@ class ConfigPromptsTest {
             }
 
             @Test
-            fun `fromCli throws when property not found`() {
+            fun `fromCli returns null when property not found`() {
                 val project = mockProjectNoProps()
                 val env = testEnv(project)
 
                 val m = ConfigPromptM.fromCli("Missing", "missingProp")
+                val result = m.run(env)
 
-                Assertions.assertThrows(IllegalStateException::class.java) {
-                    m.run(env)
-                }
+                assertThat(result).isNull()
             }
         }
 

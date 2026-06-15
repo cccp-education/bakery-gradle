@@ -11,7 +11,7 @@ fun interface ConfigPromptM<out A> {
     companion object {
         fun pure(value: String): ConfigPromptM<String> = ConfigPromptM { value }
 
-        fun fromCli(propertyName: String, cliProperty: String): ConfigPromptM<String> =
+        fun fromCli(propertyName: String, cliProperty: String): ConfigPromptM<String?> =
             ConfigPromptM { env ->
                 resolveWithoutPrompt(env, propertyName, cliProperty)
             }
@@ -43,7 +43,7 @@ private fun resolveWithoutPrompt(
     env: ConfigPromptEnvironment,
     propertyName: String,
     cliProperty: String
-): String {
+): String? {
     if (env.project.hasProperty(cliProperty)) {
         val value = env.project.property(cliProperty) as? String
         if (!value.isNullOrBlank()) return value
@@ -52,7 +52,7 @@ private fun resolveWithoutPrompt(
         .replace(Regex("([a-z])([A-Z])"), "$1_$2")
         .uppercase()
     System.getenv(envVar)?.takeIf { it.isNotBlank() }?.let { return it }
-    throw IllegalStateException("No value found for $propertyName (cliProperty=$cliProperty)")
+    return null
 }
 
 private fun promptNormalValue(
