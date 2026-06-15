@@ -30,6 +30,8 @@ import org.gradle.api.Project
  */
 object ConfigResolver {
 
+    val SUPPORTED_LANGS = setOf("fr", "en", "zh", "hi", "es", "ar", "bn", "pt", "ru", "ur")
+
     /**
      * Loads all bakery-related properties from the Gradle project.
      * Merges CLI -P params and gradle.properties into a single map.
@@ -418,7 +420,8 @@ object ConfigResolver {
         val dslValue = extension.language.orNull ?: ""
         val yamlValue = site.language
         val default = "fr"
-        return resolveString(props, prefix, "language", dslValue, yamlValue, default)
+        val resolved = resolveString(props, prefix, "language", dslValue, yamlValue, default)
+        return if (resolved in SUPPORTED_LANGS) resolved else default
     }
 
     fun resolveSupportedLanguages(

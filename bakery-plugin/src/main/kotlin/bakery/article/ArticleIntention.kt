@@ -8,7 +8,7 @@ package bakery.article
  * - *ton* : registre stylistique (informatif, technique, pédagogique, convaincre)
  * - *audience* : public cible (grand public, développeur, formateur)
  * - *keywords* : termes clés pour le SEO et le RAG
- * - *lang* : langue de l'article (fr, en)
+ * - *lang* : langue de l'article (fr, en, zh, hi, es, ar, bn, pt, ru, ur)
  *
  * Usage :
  * ```
@@ -56,7 +56,7 @@ data class ArticleIntention(
     }
 
     companion object {
-        private val SUPPORTED_LANGS = setOf("fr", "en")
+        private val SUPPORTED_LANGS = setOf("fr", "en", "zh", "hi", "es", "ar", "bn", "pt", "ru", "ur")
     }
 }
 

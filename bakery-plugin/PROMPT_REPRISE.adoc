@@ -2,26 +2,24 @@
 
 == Mission accomplie
 
-*Session 114 TERMINÉE* — US-I18N-3 Template migration 36 fichiers.
-27 fichiers modifiés (21 templates + test factory + rendering test + nouveau test).
-~85 remplacements `#{message.key}` dans 25 templates.
-5 `<html>` fixes `th:lang="${config.site_language}"`.
-5 tests I18nTemplateMigrationTest créés (PASS).
-BKY-I18N : 16/23 pts (US-0 ✅, US-1 ✅, US-2 ✅, US-3 ✅).
+*Session 115 TERMINÉE* — US-I18N-4 + US-I18N-5 : Scaffold IA Expansion + Cucumber BDD i18n.
+8 fichiers modifiés/créés. 8 scénarios Cucumber PASS.
+BKY-I18N : 21/23 pts (US-0→5 ✅).
 
 == Statut
 
 - EPICs : 29/29 ✅ (100%)
 - Code smells : 24/24 ✅
 - BKY-KOV-1 : ✅ TERMINE (85.88%)
-- BKY-COV-2 : ✅ TERMINE — 12/12 pts (Session 110)
-- BKY-PUB-1 : ✅ TERMINE — Session 109 (nmcp, 0.0.1)
-- BKY-I18N : 🔄 16/23 pts (US-0→3 ✅, US-4→6 restants)
-- Tests : 853 PASS, 0 échec
+- BKY-COV-2 : ✅ TERMINE — 12/12 pts
+- BKY-PUB-1 : ✅ TERMINE — 0.0.1 (Maven Central)
+- BKY-I18N : 🔄 21/23 pts (US-0→5 ✅, US-6 restant)
+- Tests : 8 nouveaux scénarios Cucumber PASS
 - Version publiée: 0.0.1 (Maven Central)
 
-== Prochaine session (115)
+== Prochaine session (116)
 
-BKY-I18N US-I18N-4 — Scaffold IA expansion SUPPORTED_LANGS (2 pts) :
-- Étendre `SUPPORTED_LANGS` dans `ScaffoldIntention.kt` de `setOf("fr", "en")` aux 10 codes
-- Mettre à jour `ArticleIntention.lang` avec la même expansion
+BKY-I18N US-I18N-6 — Documentation + E2E (2 pts) :
+- Mettre à jour `BAKERY_ROADMAP_JBake.adoc` avec section i18n
+- Ajouter 2 tests E2E Playwright (site en anglais, site en arabe — vérifier RTL)
+- Mettre à jour `README.adoc`

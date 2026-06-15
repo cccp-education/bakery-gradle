@@ -1,0 +1,81 @@
+= Session 115 — US-I18N-4 + US-I18N-5 : Scaffold IA Expansion + Cucumber BDD i18n
+:date: 2026-06-15
+:score: 9/10
+:epic: BKY-I18N
+:pts: 5 (US-4: 2 + US-5: 3)
+
+== Objectif
+
+US-I18N-4 : Étendre `SUPPORTED_LANGS` de `{"fr", "en"}` aux 10 codes langue.
+US-I18N-5 : Créer Feature Cucumber `30_i18n_language_switch.feature` (8 scénarios).
+
+== US-I18N-4 — Scaffold IA Expansion SUPPORTED_LANGS (2 pts)
+
+=== DDD
+
+- `ScaffoldIntention.kt:36` : `setOf("fr", "en")` → `setOf("fr", "en", "zh", "hi", "es", "ar", "bn", "pt", "ru", "ur")`
+- `ArticleIntention.kt:59` : idem
+- `ArticleIntentionDsl.kt:36` : KDoc `fr | en` → `fr, en, zh, hi, es, ar, bn, pt, ru, ur`
+
+=== TDD
+
+- `ScaffoldIntentionTest.kt` : test `lang accepts en and fr only` → `lang accepts all 10 supported languages` (boucle forEach)
+- `ArticleIntentionTest.kt` : idem
+
+=== Vérification
+
+- `./gradlew compileKotlin` ✅
+- `./gradlew test --tests "ScaffoldIntentionTest" --tests "ArticleIntentionTest"` ✅
+- `./gradlew publishToMavenLocal` ✅
+
+== US-I18N-5 — Cucumber BDD i18n (3 pts)
+
+=== Feature
+
+`features/30_i18n_language_switch.feature` — 8 scénarios :
+. Langue par défaut fr
+. Anglais explicite via site.yml
+. Chinois (zh) via site.yml
+. Arabe (ar) — RTL
+. Hindi (hi) — devanagari
+. Fallback fr quand langue non supportée (de)
+. Surcharge DSL (es)
+. Scaffolding IA avec intention en portugais (pt)
+
+=== Steps
+
+`I18nSteps.kt` — 3 step definitions :
+- `siteConfigContainsLanguage(lang)` — injecte `language: "xx"` dans site.yml
+- `bakeryDslDefinesLanguage(lang)` — injecte `language = "xx"` dans bakery DSL
+- `createBakeryProjectWithScaffoldIntentionAndLang(description, siteType, lang)` — scaffold IA avec lang
+
+=== Bugs découverts et corrigés
+
+. **ConfigResolver.resolveLanguage()** — pas de validation SUPPORTED_LANGS → `de` passait through.
+  Fix : `SUPPORTED_LANGS` extrait en constante publique + guard `if (resolved in SUPPORTED_LANGS) resolved else default`
+. **I18nSteps regex DSL** — `bakery {` → `bakery {\n    language = "es"` concaténait avec `configPath`.
+  Fix : regex `(bakery\s*\{\s*)(configPath)` → `$1language = "es"\n    $2`
+
+=== Résultat
+
+- Cucumber 8/8 PASS ✅
+- `./gradlew publishToMavenLocal` ✅
+
+== Fichiers modifiés/créés
+
+[cols="2,3,2"]
+|===
+| Fichier | Changement | Type
+| `ScaffoldIntention.kt` | SUPPORTED_LANGS 2→10 | modifié
+| `ArticleIntention.kt` | SUPPORTED_LANGS 2→10 + KDoc | modifié
+| `ArticleIntentionDsl.kt` | KDoc lang codes | modifié
+| `ConfigResolver.kt` | SUPPORTED_LANGS extrait + guard resolveLanguage() | modifié
+| `ScaffoldIntentionTest.kt` | test 10 langues | modifié
+| `ArticleIntentionTest.kt` | test 10 langues | modifié
+| `30_i18n_language_switch.feature` | 8 scénarios Cucumber | créé
+| `I18nSteps.kt` | 3 step definitions | créé
+|===
+
+== Statut BKY-I18N
+
+21/23 pts (US-0→5 ✅), reste US-6 (Doc+E2E, 2 pts).

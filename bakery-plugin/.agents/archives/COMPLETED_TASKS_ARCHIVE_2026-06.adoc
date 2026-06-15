@@ -1,5 +1,22 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 115 — 2026-06-15 — US-I18N-4+5 Scaffold IA Expansion + Cucumber BDD
+
+**Contexte** : US-I18N-3 terminé en S114. Expansion SUPPORTED_LANGS + Feature Cucumber i18n.
+
+**Tâches réalisées** :
+
+* [x] US-I18N-4 DDD : SUPPORTED_LANGS 2→10 dans ScaffoldIntention.kt + ArticleIntention.kt
+* [x] US-I18N-4 DDD : KDoc ArticleIntentionDsl.kt mis à jour
+* [x] US-I18N-4 TDD : ScaffoldIntentionTest.kt + ArticleIntentionTest.kt — test 10 langues
+* [x] US-I18N-5 Feature : 30_i18n_language_switch.feature (8 scénarios)
+* [x] US-I18N-5 Steps : I18nSteps.kt (3 step definitions)
+* [x] Bug fix : ConfigResolver.resolveLanguage() guard SUPPORTED_LANGS (de→fr fallback)
+* [x] Bug fix : I18nSteps regex DSL concaténation
+* [x] Cucumber 8/8 PASS
+* [x] publishToMavenLocal OK
+* [x] BKY-I18N 21/23 pts
+
 == Session 114 — 2026-06-15 — US-I18N-3 Template migration 36 fichiers
 
 **Contexte** : US-I18N-2 terminé en S113. Migration du texte hardcodé dans

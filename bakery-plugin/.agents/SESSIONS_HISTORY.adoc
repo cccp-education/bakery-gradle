@@ -1,8 +1,9 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-  _Derniere mise a jour : 2026-06-15 — Session 114_
+  _Derniere mise a jour : 2026-06-15 — Session 115_
 
   |===
+  | 115 | 2026-06-15 | DDD + TDD + BDD | **US-I18N-4+5 Scaffold IA Expansion + Cucumber BDD i18n** — SUPPORTED_LANGS 2→10 dans ScaffoldIntention + ArticleIntention. Feature 30_i18n_language_switch.feature (8 scénarios). I18nSteps.kt (3 steps). Bug fix ConfigResolver.resolveLanguage() guard SUPPORTED_LANGS. Cucumber 8/8 PASS. BKY-I18N 21/23 pts. | 9/10
   | 114 | 2026-06-15 | DDD + TDD + template migration | **US-I18N-3 Template migration 36 fichiers** — 27 fichiers modifiés (21 templates + factory + rendering test + nouveau test). ~85 remplacements `#{message.key}` dans 25 templates. 5 `<html>` fixes `th:lang`. Tests : 1 nouveau test I18nTemplateMigrationTest (5 PASS) + fix ThymeleafRenderingTestFactory (ClasspathMessageResolver UTF-8 + config.site_language). BUILD SUCCESSFUL, publishToMavenLocal OK. BKY-I18N 16/23 pts. | 9/10
   | 113 | 2026-06-14 | DDD + TDD | **US-I18N-2 Messages properties 10 langues** — 20 fichiers messages_{code}.properties créés (10 langues × 2 dossiers templates). ~65 clés extraites des 37 templates Thymeleaf. 6 tests I18nMessagesTest (existence, cohérence clés, valeurs non-blanches). BUILD SUCCESSFUL. BKY-I18N 8/23 pts. | 9/10
   | 112 | 2026-06-14 | DDD + TDD + fix | **US-I18N-1 JBake properties injection** — LanguageInjector + site.language=fr dans jbake.properties par défaut. 18 tests (ConfigResolver 11 + ResolvedConfigs 3 + GenerateSiteService 4). Bug fix resolveSupportedLanguages CLI vide. BKY-I18N 5/23 pts. | 9/10

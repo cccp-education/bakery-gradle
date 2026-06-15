@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-15 — Session 114 (US-I18N-3 Template migration 36 fichiers)
-  _Session terminee_ : 114
-  _Prochaine session_ : 115 — BKY-I18N US-I18N-4 Scaffold IA EXPANSION SUPPORTED_LANGS
+  _Derniere mise a jour_ : 2026-06-15 — Session 115 (US-I18N-4+5 Scaffold IA Expansion + Cucumber BDD)
+  _Session terminee_ : 115
+  _Prochaine session_ : 116 — BKY-I18N US-I18N-6 Documentation + E2E
 
 '''
 
@@ -69,6 +69,10 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 115 | 2026-06-15 | DDD + TDD + BDD | **US-I18N-4+5** — SUPPORTED_LANGS 2→10 + Feature Cucumber 8 scénarios i18n. BKY-I18N 21/23 pts. | 9/10
+  | 114 | 2026-06-15 | DDD + TDD + template migration | **US-I18N-3** Template migration 36 fichiers. ~85 remplacements `#{message.key}`. BKY-I18N 16/23 pts. | 9/10
+  | 113 | 2026-06-14 | DDD + TDD | **US-I18N-2** Messages properties 10 langues. 20 fichiers créés. BKY-I18N 8/23 pts. | 9/10
+  | 112 | 2026-06-14 | DDD + TDD + fix | **US-I18N-1** JBake properties injection. LanguageInjector + site.language=fr. BKY-I18N 5/23 pts. | 9/10
   | 111 | 2026-06-14 | cadrage | **EPIC BKY-I18N** — Cadrage i18n 10 langues (Anglais, Chinois, Hindi, Espagnol, Français, Arabe, Bengali, Portugais, Russe, Ourdou). 23 pts, 7 US. | 9/10
   | 110 | 2026-06-13 | TDD + coverage + doc | **BKY-COV-2 Finalisation** — US-COV-2.4 resolvePath/resolvePaths 100%, US-COV-2.5 ToolsKt 9 UT, US-COV-2.6 doc Kover. EPIC 12/12 pts TERMINÉ. Bakery 100%. | 9/10
   | 109 | 2026-06-11 | publish | **Publication Maven Central 0.0.1** — version 0.1.4→0.0.1, codebase-contracts→0.0.1, workspace-bom→0.0.1, POM sans guard, Sonatype→nmcp, settings nmcp mavenCentral first. Publié ✅ | 9/10
@@ -136,7 +140,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | EPIC | Progression | Priorite
-| BKY-I18N : i18n 10 langues (Anglais, Chinois, Hindi, Espagnol, Français, Arabe, Bengali, Portugais, Russe, Ourdou) | 13% (3/23 pts) | *P1 — US-I18N-0 ✅, US-I18N-1 🔄*
+| BKY-I18N : i18n 10 langues (Anglais, Chinois, Hindi, Espagnol, Français, Arabe, Bengali, Portugais, Russe, Ourdou) | 91% (21/23 pts) | *P1 — US-I18N-0→5 ✅, US-I18N-6 restant*
 |===
 
 === EPIC LENTILLE — ✅ TERMINÉ

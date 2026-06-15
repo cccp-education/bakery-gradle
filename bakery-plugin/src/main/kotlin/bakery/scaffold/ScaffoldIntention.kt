@@ -33,7 +33,7 @@ data class ScaffoldIntention(
     }
 
     companion object {
-        private val SUPPORTED_LANGS = setOf("fr", "en")
+        private val SUPPORTED_LANGS = setOf("fr", "en", "zh", "hi", "es", "ar", "bn", "pt", "ru", "ur")
     }
 }
 

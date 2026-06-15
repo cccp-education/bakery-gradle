@@ -126,11 +126,12 @@ class ArticleIntentionTest {
     }
 
     @Test
-    fun `lang accepts en and fr only`() {
-        val frIntention = ArticleIntention(topic = "Test", lang = "fr")
-        val enIntention = ArticleIntention(topic = "Test", lang = "en")
-        assertEquals("fr", frIntention.lang)
-        assertEquals("en", enIntention.lang)
+    fun `lang accepts all 10 supported languages`() {
+        val codes = setOf("fr", "en", "zh", "hi", "es", "ar", "bn", "pt", "ru", "ur")
+        codes.forEach { code ->
+            val intention = ArticleIntention(topic = "Test", lang = code)
+            assertEquals(code, intention.lang)
+        }
     }
 
     @Test

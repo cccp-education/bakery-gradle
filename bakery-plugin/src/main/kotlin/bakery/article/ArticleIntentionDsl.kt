@@ -32,7 +32,7 @@ open class ArticleIntentionDsl {
     /** Mots-clés SEO/RAG. */
     var keywords: List<String> = emptyList()
 
-    /** Langue de l'article : fr | en. */
+    /** Langue de l'article : fr, en, zh, hi, es, ar, bn, pt, ru, ur. */
     var lang: String = "fr"
 
     /**

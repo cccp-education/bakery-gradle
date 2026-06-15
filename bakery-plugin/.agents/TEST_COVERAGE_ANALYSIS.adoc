@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-14 — Session 113 (US-I18N-2 Messages properties 10 langues)_
+_Dernière mise à jour : 2026-06-15 — Session 115 (US-I18N-4+5 Scaffold IA Expansion + Cucumber BDD)_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -15,7 +15,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 | **Nouvelle cible** | **90%** — EPIC BKY-KOV-1 (16 pts, US-1 ✅, US-KOV-2 ✅, US-KOV-3 ✅, US-KOV-4 ✅, US-KOV-5→7 restantes)
 | Tests unitaires JUnit5 | 142 fichiers, ~800 tests — ✅ PASS
 | Tests fonctionnels (TestKit) | 9 fichiers, 79/79 FT PASS
-| Tests Cucumber BDD | 28 features, 97/97 PASS ✅
+| Tests Cucumber BDD | 30 features, 105/105 PASS ✅ (+8 scénarios i18n Session 115)
 | Tests E2E Playwright | 5 fichiers, 17/17 PASS — séparés de `check`
 | Compilation | ✅ BUILD SUCCESSFUL — Gradle 9.5.1, Kotlin 2.3.20, zéro warning
 |===

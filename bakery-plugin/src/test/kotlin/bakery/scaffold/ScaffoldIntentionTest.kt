@@ -110,11 +110,12 @@ class ScaffoldIntentionTest {
     }
 
     @Test
-    fun `lang accepts en and fr only`() {
-        val frIntention = ScaffoldIntention(description = "Test", lang = "fr")
-        val enIntention = ScaffoldIntention(description = "Test", lang = "en")
-        assertEquals("fr", frIntention.lang)
-        assertEquals("en", enIntention.lang)
+    fun `lang accepts all 10 supported languages`() {
+        val codes = setOf("fr", "en", "zh", "hi", "es", "ar", "bn", "pt", "ru", "ur")
+        codes.forEach { code ->
+            val intention = ScaffoldIntention(description = "Test", lang = code)
+            assertEquals(code, intention.lang)
+        }
     }
 
     @Test
