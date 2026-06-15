@@ -1,11 +1,8 @@
 package bakery.firebase
 
-/**
- * Result of Firebase configuration validation.
- *
- * Captures errors (blocking issues) and warnings (suggestions).
- * A valid configuration has zero errors; warnings are informational only.
- */
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class FirebaseValidationResult(
     val errors: List<ValidationIssue> = emptyList(),
     val warnings: List<ValidationIssue> = emptyList()
@@ -22,6 +19,7 @@ data class FirebaseValidationResult(
         copy(errors = errors + other.errors, warnings = warnings + other.warnings)
 }
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class ValidationIssue(
     val field: String,
     val message: String,

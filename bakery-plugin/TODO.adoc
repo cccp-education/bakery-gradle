@@ -1,7 +1,7 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-06-15 — Session 117 (Code Review V5 + Cadrage I18N-MIG)_
+_Dernière mise à jour : 2026-06-15 — Session 118 (BKY-CR-V5 US-1+2)_
 
 * [x] Implementer la generation du code client Firebase dans les templates (→ BKY-JB-4, session 032)
 * [x] Ajouter une vraie Firebase API key quand disponible (→ EPIC 4, formalité restante côté consommateur cheroliv.com)
@@ -22,8 +22,8 @@ _Tout le backlog historique est terminé. 30/30 EPICs + 24/24 code smells résol
 
 == NOUVEAU — Code Review V5 (Session 117, 60 smells)
 
-* [ ] **US-CR-V5-1** 🔴 P0 : Fix JsonEscape ordre remplacement (backslash avant newline → corruption JSON)
-* [ ] **US-CR-V5-2** 🟠 P1 : Extraire slugify() partagé + remplacer parser JSON maison ValidateFirebaseConfigTask par Jackson
+* [x] **US-CR-V5-1** 🔴 P0 : FAUX POSITIF — ordre replace() JsonEscape correct pour JSON Jackson
+* [x] **US-CR-V5-2** 🟠 P1 : Extraire slugify() partagé + remplacer parser JSON maison ValidateFirebaseConfigTask par Jackson
 * [ ] **US-CR-V5-3** 🟠 P1 : Fix entries.first{} unsafe + println→logger + secrets LLM + ObjectMapper cache
 * [ ] **US-CR-V5-4** 🟠 P1 : Refactor ResolvedConfigs.toResolver() 35-branches + FileSystemManager.read() Either
 * [ ] **US-CR-V5-5** 🟡 P2 : Déduplication SUPPORTED_LANGS + updateProperty() + pattern résolution

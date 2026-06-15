@@ -1,0 +1,67 @@
+= Session 118 — BKY-CR-V5 US-1+2 (Fix JsonEscape + slugify + Jackson parser)
+:date: 2026-06-15
+:type: DDD + TDD + refactor
+:score: 9/10
+
+== Contexte
+
+PROMPT_REPRISE Session 118 : BKY-CR-V5 US-1 (fix JsonEscape P0) + US-CR-V5-2
+(extraire slugify() + remplacer parser JSON maison par Jackson).
+
+== US-CR-V5-1 — Fix JsonEscape ordre remplacement (P0)
+
+*Résultat* : FAUX POSITIF. L'ordre actuel `\`→`\\` avant `\n`→`\\n` est correct
+pour du JSON produit par Jackson. Analyse caractère par caractère :
+
+- Input Jackson : `\n` = 2 caractères (backslash+n, échappement JSON)
+- `\`→`\\` transforme `\n` en `\\n` (3 chars) → properties → Jackson reparse `\n` = saut de ligne ✅
+- Si on inversait, un saut de ligne littéral (0x0A) serait corrompu : `\n`→`\\n` insère un `\`,
+  puis `\`→`\\` le double → `\\\n` ❌
+
+Les 8 tests `JsonEscapeForPropertiesTest` passent avec les deux ordres (input Jackson uniquement).
+Aucun changement code source.
+
+== US-CR-V5-2 — Extraire slugify() + remplacer parser JSON maison (P1)
+
+*Baby steps DDD/TDD* :
+
+. *DDD* — `bakery/util/Slugify.kt` créé : extension function `String.slugify()` pure,
+  extraite des 2 copies identiques dans `ArticleGenerator.kt` et `ScaffoldGenerator.kt`.
+
+. *Refactor* — Suppression des 2 `private fun String.slugify()` (12 lignes × 2 = 24 lignes).
+  Ajout `import bakery.util.slugify` dans les 2 fichiers.
+
+. *DDD* — `@JsonIgnoreProperties(ignoreUnknown = true)` sur `FirebaseValidationResult`
+  et `ValidationIssue` pour tolérance LLM output.
+
+. *Refactor* — `parseLlmResponse()` : remplacement du parser JSON maison 50 lignes
+  (`extractIssues()` + `extractValue()` avec indexOf/substring) par
+  `jacksonObjectMapper().readValue(jsonBlock)`.
+
+. *TDD* — Tests existants `ValidateFirebaseConfigTaskTest` (parseLlmResponse with errors,
+  parseLlmResponse with valid config) PASS sans modification.
+
+== Fichiers modifiés
+
+[cols="2,3,2"]
+|===
+| Fichier | Changement | Lignes
+| `bakery/util/Slugify.kt` | NOUVEAU — extension function slugify() | +14
+| `article/ArticleGenerator.kt` | Import slugify + suppression private fun | -14
+| `scaffold/ScaffoldGenerator.kt` | Import slugify + suppression private fun | -14
+| `firebase/FirebaseValidationResult.kt` | @JsonIgnoreProperties sur 2 data classes | +2
+| `firebase/ValidateFirebaseConfigTask.kt` | Jackson readValue remplace parser maison 50 lignes | -48
+|===
+
+*Total* : 5 fichiers, +16 / -76 lignes (net -60 lignes).
+
+== Vérification
+
+- `./gradlew compileKotlin` → BUILD SUCCESSFUL
+- `./gradlew test --tests "bakery.article.ArticleGeneratorTest" --tests "bakery.scaffold.ScaffoldGeneratorTest" --tests "bakery.firebase.ValidateFirebaseConfigTaskTest" --tests "bakery.JsonEscapeForPropertiesTest"` → BUILD SUCCESSFUL, tous PASS
+- `./gradlew -q publishToMavenLocal` → OK
+
+== Prochaine session (119)
+
+US-CR-V5-3 (P1, 3 pts) : `entries.first{}`→`firstOrNull{}`, `println()`→`logger.lifecycle()`,
+masquage `auth.apiKey` dans prompt LLM, `yamlMapper`→`lazy {}`.

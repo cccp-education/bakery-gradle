@@ -4,6 +4,8 @@ import bakery.ConfigResolver
 import bakery.FirebaseAuthConfig
 import bakery.FirebaseAuthDsl
 import bakery.llm.LlmService
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
@@ -163,50 +165,7 @@ abstract class ValidateFirebaseConfigTask : DefaultTask() {
     internal fun parseLlmResponse(response: String): FirebaseValidationResult {
         val jsonBlock = response.substringAfter("{").substringBeforeLast("}")
             .let { "{$it}" }
-        // Simple parsing — Jackson would be better (CS-3), but this is good enough for structured LLM output
-        val errors = extractIssues(jsonBlock, "errors")
-        val warnings = extractIssues(jsonBlock, "warnings")
-        return FirebaseValidationResult(errors = errors, warnings = warnings)
-    }
-
-    private fun extractIssues(json: String, key: String): List<ValidationIssue> {
-        val arrayStart = json.indexOf("\"$key\"")
-        if (arrayStart == -1) return emptyList()
-        val bracketStart = json.indexOf('[', arrayStart)
-        if (bracketStart == -1) return emptyList()
-        val bracketEnd = json.indexOf(']', bracketStart)
-        if (bracketEnd == -1) return emptyList()
-        val arrayContent = json.substring(bracketStart + 1, bracketEnd)
-        if (arrayContent.isBlank() || arrayContent.trim() == "") return emptyList()
-
-        // Parse each {...} block in the array
-        val issues = mutableListOf<ValidationIssue>()
-        var pos = 0
-        while (pos < arrayContent.length) {
-            val objStart = arrayContent.indexOf('{', pos)
-            if (objStart == -1) break
-            val objEnd = arrayContent.indexOf('}', objStart)
-            if (objEnd == -1) break
-            val obj = arrayContent.substring(objStart, objEnd + 1)
-            val field = extractValue(obj, "field") ?: "unknown"
-            val message = extractValue(obj, "message") ?: "unknown"
-            issues.add(ValidationIssue(field, message))
-            pos = objEnd + 1
-        }
-        return issues
-    }
-
-    private fun extractValue(json: String, key: String): String? {
-        val keyPattern = "\"$key\""
-        val keyIdx = json.indexOf(keyPattern)
-        if (keyIdx == -1) return null
-        val colonIdx = json.indexOf(':', keyIdx + keyPattern.length)
-        if (colonIdx == -1) return null
-        val quoteStart = json.indexOf('"', colonIdx + 1)
-        if (quoteStart == -1) return null
-        val quoteEnd = json.indexOf('"', quoteStart + 1)
-        if (quoteEnd == -1) return null
-        return json.substring(quoteStart + 1, quoteEnd)
+        return jacksonObjectMapper().readValue(jsonBlock)
     }
 
     private fun reportResult(result: FirebaseValidationResult) {

@@ -1,6 +1,7 @@
 package bakery.article
 
 import bakery.llm.LlmService
+import bakery.util.slugify
 import java.time.LocalDate
 
 /**
@@ -233,23 +234,4 @@ class ArticleGenerator {
             ?.takeIf { it.isNotBlank() }
     }
 
-    /**
-     * Convertit une chaîne en slug URL-friendly.
-     * Exemple : "Introduction à Kotlin !" → "introduction-a-kotlin"
-     *
-     * Normalise les accents avant de supprimer les caractères non-ASCII.
-     */
-    private fun String.slugify(): String {
-        return this.lowercase()
-            .replace(Regex("[éèêë]"), "e")
-            .replace(Regex("[àâä]"), "a")
-            .replace(Regex("[ùûü]"), "u")
-            .replace(Regex("[ôö]"), "o")
-            .replace(Regex("[îï]"), "i")
-            .replace(Regex("[ç]"), "c")
-            .replace(Regex("[^a-z0-9\\s-]"), "")
-            .replace(Regex("\\s+"), "-")
-            .replace(Regex("-+"), "-")
-            .trim('-')
-    }
 }

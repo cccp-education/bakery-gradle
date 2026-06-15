@@ -1,6 +1,7 @@
 package bakery.scaffold
 
 import bakery.llm.LlmService
+import bakery.util.slugify
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 
@@ -179,17 +180,4 @@ class ScaffoldGenerator {
         )
     )
 
-    private fun String.slugify(): String {
-        return this.lowercase()
-            .replace(Regex("[éèêë]"), "e")
-            .replace(Regex("[àâä]"), "a")
-            .replace(Regex("[ùûü]"), "u")
-            .replace(Regex("[ôö]"), "o")
-            .replace(Regex("[îï]"), "i")
-            .replace(Regex("[ç]"), "c")
-            .replace(Regex("[^a-z0-9\\s-]"), "")
-            .replace(Regex("\\s+"), "-")
-            .replace(Regex("-+"), "-")
-            .trim('-')
-    }
 }

@@ -1,5 +1,23 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 118 — 2026-06-15 — BKY-CR-V5 US-1+2 (Fix JsonEscape + slugify + Jackson parser)
+
+**Contexte** : Session 117 a cadré BKY-CR-V5 (60 smells, 24 pts) + BKY-I18N-MIG (16 pts).
+PROMPT_REPRISE : US-CR-V5-1 (P0) + US-CR-V5-2 (P1).
+
+**Tâches réalisées** :
+
+* [x] US-CR-V5-1 (P0) — FAUX POSITIF. Analyse caractère par caractère : ordre replace() actuel correct pour JSON Jackson. Aucun changement.
+* [x] US-CR-V5-2 (P1) — `bakery/util/Slugify.kt` créé (extension function partagée)
+* [x] Suppression 2 `private fun String.slugify()` dupliquées dans ArticleGenerator + ScaffoldGenerator
+* [x] `@JsonIgnoreProperties(ignoreUnknown = true)` sur FirebaseValidationResult + ValidationIssue
+* [x] `parseLlmResponse()` : parser JSON maison 50 lignes remplacé par `jacksonObjectMapper().readValue()`
+* [x] `extractIssues()` + `extractValue()` supprimées
+* [x] `./gradlew compileKotlin` → BUILD SUCCESSFUL
+* [x] `./gradlew test` (ArticleGeneratorTest, ScaffoldGeneratorTest, ValidateFirebaseConfigTaskTest, JsonEscapeForPropertiesTest) → tous PASS
+* [x] `./gradlew -q publishToMavenLocal` → OK
+* [x] 5 fichiers modifiés, net -60 lignes
+
 == Session 117 — 2026-06-15 — Code Review V5 + Cadrage I18N-MIG
 
 **Contexte** : Session 116 a terminé BKY-I18N. Bakery 30/30 EPICs, 100% fonctionnel.
