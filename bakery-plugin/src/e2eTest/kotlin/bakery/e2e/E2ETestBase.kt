@@ -145,10 +145,11 @@ abstract class E2ETestBase {
     protected fun serveHtml(
         templateName: String,
         context: Map<String, Any> = emptyMap(),
-        outputFileName: String = "$templateName.html"
+        outputFileName: String = "$templateName.html",
+        language: String = "fr"
     ): String {
         val factory = ThymeleafRenderingTestFactory()
-        val html = factory.render(templateName, context)
+        val html = factory.render(templateName, context, language)
 
         val wwwDir = tempDir!!.resolve("www").toFile()
         wwwDir.mkdirs()

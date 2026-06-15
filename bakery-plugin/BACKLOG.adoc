@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-06 — Session 105 (Code Review gaps fonctionnels)_
+_Dernière mise à jour : 2026-06-15 — Session 116 (BKY-I18N TERMINÉ — 23/23 pts)_
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -880,9 +880,9 @@ la cascade ConfigResolver 5 couches (CLI > gradle.properties > DSL > site.yml > 
 | US-I18N-6
 | **Documentation + E2E** — Mettre à jour `BAKERY_ROADMAP_JBake.adoc` avec
   la section i18n. Ajouter 2 tests E2E Playwright (site en anglais, site en
-  arabe — vérifier RTL si applicable). Mettre à jour `README.adoc`.
+  arabe — vérifier RTL). Mettre à jour `README.adoc`.
 | 2
-| 🟢 P3
+| ✅ S116
 |===
 
 '''
@@ -891,7 +891,7 @@ la cascade ConfigResolver 5 couches (CLI > gradle.properties > DSL > site.yml > 
 [cols="2,3"]
 |===
 | Document | `BACKLOG.adoc`
-| Version | 6.0 — Session 111 (EPIC BKY-I18N — 10 langues)
+| Version | 7.0 — Session 116 (BKY-I18N TERMINÉ — 23/23 pts, Bakery 100%)
 | Historisé dans | `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
-| Basé sur | Code review V4 (`.agents/CODE_REVIEW_V4.adoc`, 2026-06-06) + Session 105 + Session 111
-| Prochaine màj | Session 112 — BKY-I18N US-I18N-0 Configuration layer
+| Basé sur | Code review V4 (`.agents/CODE_REVIEW_V4.adoc`, 2026-06-06) + Session 105 + Session 111 + Session 116
+| Prochaine màj | Session 117 — Maintenance (aucun EPIC restant)

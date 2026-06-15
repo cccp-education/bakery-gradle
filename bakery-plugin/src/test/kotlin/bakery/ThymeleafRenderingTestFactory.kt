@@ -26,14 +26,16 @@ class ThymeleafRenderingTestFactory {
 
     private val templatesDir = File("src/main/resources/site/templates")
 
-    private val engine: TemplateEngine = TemplateEngine().apply {
-        setTemplateResolver(DualConventionResolver(templatesDir))
-        setMessageResolver(ClasspathMessageResolver())
-    }
+    fun render(templateName: String, variables: Map<String, Any?> = emptyMap()): String =
+        render(templateName, variables, "fr")
 
-    fun render(templateName: String, variables: Map<String, Any?> = emptyMap()): String {
+    fun render(templateName: String, variables: Map<String, Any?>, language: String): String {
+        val engine = TemplateEngine().apply {
+            setTemplateResolver(DualConventionResolver(templatesDir))
+            setMessageResolver(ClasspathMessageResolver(language))
+        }
         val context = Context()
-        context.setVariable("config", mapOf("site_language" to "fr"))
+        context.setVariable("config", mapOf("site_language" to language))
         variables.forEach { (key, value) -> context.setVariable(key, value) }
         return engine.process(templateName, context)
     }
@@ -97,11 +99,12 @@ private class DualConventionResolver(private val templatesDir: File) : FileTempl
     }
 }
 
-private class ClasspathMessageResolver : IMessageResolver {
+private class ClasspathMessageResolver(language: String) : IMessageResolver {
 
     private val properties: Properties = Properties().apply {
+        val resourcePath = "site/templates/messages_$language.properties"
         val stream = ThymeleafRenderingTestFactory::class.java.classLoader
-            .getResourceAsStream("site/templates/messages_fr.properties")
+            .getResourceAsStream(resourcePath)
         stream?.use { load(InputStreamReader(it, Charsets.UTF_8)) }
     }
 

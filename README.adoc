@@ -58,6 +58,7 @@ diagrams with PlantUML), eliminating the need for manual JBake installation.
 - *5-Layer Config Cascade*: CLI → gradle.properties → DSL → site.yml → defaults
 - *Arrow-kt*: Functional programming with `Either`, `Option`, `Raise DSL`
 - *Analytics & Newsletter*: Configurable Firebase Analytics + newsletter integration
+- *i18n*: Internationalization with 10 languages (English, Chinese, Hindi, Spanish, French, Arabic, Bengali, Portuguese, Russian, Urdu) via Thymeleaf message externalization
 
 == Prerequisites
 
@@ -476,6 +477,76 @@ bakery {
 ----
 ./gradlew generateTheme
 ----
+
+== Internationalization (i18n)
+
+The plugin supports 10 languages via Thymeleaf message externalization.
+Each language has a `messages_{code}.properties` file with ~65 translated keys.
+
+=== Supported Languages
+
+[cols="1,3,2"]
+|===
+| Code | Language | Direction
+| `en` | English | LTR
+| `zh` | Chinese Mandarin (中文) | LTR
+| `hi` | Hindi (हिन्दी) | LTR
+| `es` | Spanish (Español) | LTR
+| `fr` | French (Français) — default | LTR
+| `ar` | Arabic Standard (العربية) | RTL
+| `bn` | Bengali (বাংলা) | LTR
+| `pt` | Portuguese (Português) | LTR
+| `ru` | Russian (Русский) | LTR
+| `ur` | Urdu (اردو) | RTL
+|===
+
+=== Configuration
+
+The active language is resolved through the 5-layer cascade (default: `fr`):
+
+[source,bash]
+----
+# CLI (highest priority)
+./gradlew bake -Pbakery.language=en
+
+# gradle.properties
+bakery.language=ar
+
+# DSL
+bakery {
+    language = "zh"
+}
+
+# site.yml
+language: hi
+----
+
+The resolved language is injected as `site.language` in `jbake.properties`,
+exposed to templates as `${config.site_language}`.
+
+=== Template Usage
+
+Templates use `#{key}` for internationalized text:
+
+[source,html]
+----
+<a class="nav-link" th:href="..." th:text="#{nav.home}">Home</a>
+<h1 th:text="#{nav.blog}">Blog</h1>
+----
+
+The `<html>` tag automatically sets `lang` and `dir` attributes:
+
+[source,html]
+----
+<html th:lang="${config.site_language}"
+      th:dir="${#sets.contains({'ar','ur'}, config.site_language) ? 'rtl' : 'ltr'}">
+----
+
+=== Adding a New Language
+
+. Create `messages_{code}.properties` in `src/main/resources/site/templates/`
+. Translate all ~65 keys
+. Add the code to `SUPPORTED_LANGS` in `ScaffoldIntention.kt`
 
 == Firebase Integration
 

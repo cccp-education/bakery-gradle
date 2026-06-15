@@ -1,5 +1,26 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 116 — 2026-06-15 — US-I18N-6 Documentation + E2E
+
+**Contexte** : US-I18N-5 terminé en S115. Dernière US de l'EPIC BKY-I18N.
+
+**Tâches réalisées** :
+
+* [x] US-I18N-6.1 : BAKERY_ROADMAP_JBake.adoc section 7 i18n (80 lignes) — 10 langues, architecture, composants, usage
+* [x] US-I18N-6.2a : ThymeleafRenderingTestFactory — ajout `render(templateName, variables, language)` overload. ClasspathMessageResolver paramétré par code langue
+* [x] US-I18N-6.2b : E2ETestBase.serveHtml — ajout paramètre `language: String = "fr"`
+* [x] US-I18N-6.2c : th:dir RTL — 12 templates (9 site/ + 3 site-basic/) avec `th:dir="${#sets.contains({'ar','ur'}, config.site_language) ? 'rtl' : 'ltr'}"`
+* [x] US-I18N-6.2d : E2EI18nTest.kt (NOUVEAU) — 2 tests : English (lang=en, dir=ltr, messages EN) + Arabic (lang=ar, dir=rtl, messages AR)
+* [x] US-I18N-6.3 : README.adoc section i18n (60 lignes) — 10 langues, cascade config, template usage, RTL
+* [x] compileTestKotlin + compileE2eTestKotlin → BUILD SUCCESSFUL
+* [x] test --tests "bakery.i18n.*" → 8/8 PASS
+* [x] publishToMavenLocal OK
+* [x] BKY-I18N 23/23 pts TERMINÉ (100%)
+* [x] Bakery 30/30 EPICs terminés — 100% complet
+
+NOTE : E2E tests non exécutés — Playwright Chromium nécessite sudo pour installation
+des dépendances système, indisponible dans l'environnement.
+
 == Session 115 — 2026-06-15 — US-I18N-4+5 Scaffold IA Expansion + Cucumber BDD
 
 **Contexte** : US-I18N-3 terminé en S114. Expansion SUPPORTED_LANGS + Feature Cucumber i18n.

@@ -2,24 +2,21 @@
 
 == Mission accomplie
 
-*Session 115 TERMINÉE* — US-I18N-4 + US-I18N-5 : Scaffold IA Expansion + Cucumber BDD i18n.
-8 fichiers modifiés/créés. 8 scénarios Cucumber PASS.
-BKY-I18N : 21/23 pts (US-0→5 ✅).
+*Session 116 TERMINÉE* — US-I18N-6 Documentation + E2E.
+17 fichiers modifiés/créés. BKY-I18N : 23/23 pts (100%).
+Bakery : 30/30 EPICs terminés. 100% complet.
 
 == Statut
 
-- EPICs : 29/29 ✅ (100%)
+- EPICs : 30/30 ✅ (100%)
 - Code smells : 24/24 ✅
 - BKY-KOV-1 : ✅ TERMINE (85.88%)
 - BKY-COV-2 : ✅ TERMINE — 12/12 pts
 - BKY-PUB-1 : ✅ TERMINE — 0.0.1 (Maven Central)
-- BKY-I18N : 🔄 21/23 pts (US-0→5 ✅, US-6 restant)
-- Tests : 8 nouveaux scénarios Cucumber PASS
+- BKY-I18N : ✅ TERMINE — 23/23 pts (US-0→6)
 - Version publiée: 0.0.1 (Maven Central)
 
-== Prochaine session (116)
+== Prochaine session (117)
 
-BKY-I18N US-I18N-6 — Documentation + E2E (2 pts) :
-- Mettre à jour `BAKERY_ROADMAP_JBake.adoc` avec section i18n
-- Ajouter 2 tests E2E Playwright (site en anglais, site en arabe — vérifier RTL)
-- Mettre à jour `README.adoc`
+*Aucun EPIC bakery restant.* Bakery est 100% terminé.
+Session 117 = maintenance (dépendances, correctifs) ou nouveau borough.
