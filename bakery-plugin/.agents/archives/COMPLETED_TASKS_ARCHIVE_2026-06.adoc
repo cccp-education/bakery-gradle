@@ -1,5 +1,25 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 121 — 2026-06-16 — BKY-CR-V5 US-5 (Déduplication SUPPORTED_LANGS + updateProperty + resolveIntention)
+
+**Contexte** : Session 120 a terminé US-4. PROMPT_REPRISE : US-CR-V5-5 (5 pts).
+
+**Tâches réalisées** :
+
+* [x] US-CR-V5-5a — `BakeryConstants.kt` : ajout `val SUPPORTED_LANGS = setOf("fr", "en", "zh", "hi", "es", "ar", "bn", "pt", "ru", "ur")`
+* [x] US-CR-V5-5a — `ScaffoldIntention.kt` : suppression `companion object { private val SUPPORTED_LANGS }`, référence `BakeryConstants.SUPPORTED_LANGS` + import
+* [x] US-CR-V5-5a — `ArticleIntention.kt` : suppression `companion object { private val SUPPORTED_LANGS }`, référence `BakeryConstants.SUPPORTED_LANGS` + import
+* [x] US-CR-V5-5a — `ConfigResolver.kt` : `val SUPPORTED_LANGS` déprécié, délègue à `BakeryConstants.SUPPORTED_LANGS` ; `resolveLanguage()` utilise `BakeryConstants.SUPPORTED_LANGS`
+* [x] US-CR-V5-5b — `GenerateThemeTask.kt` : suppression `private fun updateProperty()` (7 lignes), ajout `import bakery.injection.updateProperty`
+* [x] US-CR-V5-5c — `ContentTaskRegistrar.kt` : extraction `private inline fun <D, T> Project.resolveIntention()` (13 lignes), remplacement 3 patterns DSL dupliqués
+* [x] TDD — `BakeryConstantsTest.kt` (NOUVEAU) : 3 tests (contenu 10 langues, immutabilité, présence individuelle)
+* [x] `./gradlew compileKotlin` → BUILD SUCCESSFUL (0 warning après fix ConfigResolver)
+* [x] `./gradlew -q publishToMavenLocal` → OK
+* [x] `./gradlew test --tests ScaffoldIntentionTest --tests ArticleIntentionTest --tests GenerateThemeTaskTest --tests BakeryConstantsTest` → 55/55 PASS
+* [x] 7 fichiers modifiés (6 source + 1 nouveau test)
+* [x] BKY-CR-V5 : 15/24 pts
+* [x] 3 échecs ThymeleafRenderingTest pré-existants (OGNL bug header.thyme Session 114, non lié)
+
 == Session 120 — 2026-06-15 — BKY-CR-V5 US-4 (toResolver data-driven + Either + Nullable)
 
 **Contexte** : Session 119 a terminé US-3. PROMPT_REPRISE : US-CR-V5-4 (3 pts).

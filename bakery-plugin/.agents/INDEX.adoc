@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-15 — Session 120 (BKY-CR-V5 US-4)
-  _Session terminee_ : 120
-  _Prochaine session_ : 121 — BKY-CR-V5 US-5 (Déduplication SUPPORTED_LANGS + updateProperty() + pattern résolution)
+  _Derniere mise a jour_ : 2026-06-16 — Session 121 (BKY-CR-V5 US-5)
+  _Session terminee_ : 121
+  _Prochaine session_ : 122 — BKY-CR-V5 US-6 (Déduplication pattern injection DSL + nettoyage code mort + champs morts)
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 121 | 2026-06-16 | DDD + TDD + refactor | **BKY-CR-V5 US-5** — Déduplication 3× : SUPPORTED_LANGS→BakeryConstants, updateProperty()→import, resolveIntention() helper. 6 fichiers + 1 test. BKY-CR-V5 15/24 pts. | 9/10
   | 120 | 2026-06-15 | DDD + TDD + refactor | **BKY-CR-V5 US-4** — toResolver() when→Map data-driven, read()→Either, resolveWithoutPrompt()→null, FirebaseContactFormConfig defaults. 10 fichiers, tests PASS. BKY-CR-V5 10/24 pts. | 9/10
   | 119 | 2026-06-15 | DDD + TDD + refactor | **BKY-CR-V5 US-3** — entries.first{}→firstOrNull{} + fallback, println()→logger.lifecycle(), auth.apiKey masqué via maskSecret, yamlMapper→by lazy{}. 5 fichiers, tests PASS. BKY-CR-V5 7/24 pts. | 9/10
   | 118 | 2026-06-15 | DDD + TDD + refactor | **BKY-CR-V5 US-1+2** — US-1 (P0) FAUX POSITIF : ordre replace() JsonEscape correct. US-2 (P1) : slugify() extrait dans `bakery/util/Slugify.kt` + parser JSON maison remplacé par Jackson. 5 fichiers, net -60 lignes. | 9/10
@@ -152,7 +153,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
 |===
 | EPIC | Progression | Priorite
-| BKY-CR-V5 : 60 code smells (1 P0, 10 P1, 37 P2, 12 P3) — audit exhaustif 63 fichiers | 42% (10/24 pts) — US-1+2+3+4 ✅ | *🔴 P0 — Session 121*
+| BKY-CR-V5 : 60 code smells (1 P0, 10 P1, 37 P2, 12 P3) — audit exhaustif 63 fichiers | 62% (15/24 pts) — US-1+2+3+4+5 ✅ | *🔴 P0 — Session 122*
 |===
 
 === EPIC BKY-I18N-MIG : Tâche migrateToI18n (NOUVEAU — Session 117)

@@ -1,8 +1,9 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-  _Derniere mise a jour : 2026-06-15 — Session 120_
+  _Derniere mise a jour : 2026-06-16 — Session 121_
 
   |===
+  | 121 | 2026-06-16 | DDD + TDD + refactor | **BKY-CR-V5 US-5** — Déduplication 3× : SUPPORTED_LANGS → BakeryConstants (ScaffoldIntention, ArticleIntention, ConfigResolver), updateProperty() supprimé dans GenerateThemeTask → import bakery.injection.updateProperty, pattern résolution DSL 3× → resolveIntention() helper dans ContentTaskRegistrar. 6 fichiers modifiés + 1 nouveau test BakeryConstantsTest. Compilation OK, tests cibles PASS. BKY-CR-V5 15/24 pts. | 9/10
   | 120 | 2026-06-15 | DDD + TDD + refactor | **BKY-CR-V5 US-4** — toResolver() when 35 branches → propertyMap lazy + lookup, FileSystemManager.read() → Either<Exception, SiteConfiguration> + logger.warn, resolveWithoutPrompt() throw → return null, FirebaseContactFormConfig + 6 sous-classes → defaults. 10 fichiers modifiés, compilation OK, tests cibles PASS. BKY-CR-V5 10/24 pts. | 9/10
   | 119 | 2026-06-15 | DDD + TDD + refactor | **BKY-CR-V5 US-3** — entries.first{}→firstOrNull{} + fallback INFORMATIF/GENERAL, println()→logger.lifecycle(), auth.apiKey masqué via maskSecret(SecretField.ApiKey(...)), yamlMapper→by lazy{}. 5 fichiers modifiés, compilation OK, tests cibles PASS. BKY-CR-V5 7/24 pts. | 9/10
   | 118 | 2026-06-15 | DDD + TDD + refactor | **BKY-CR-V5 US-1+2** — US-1 (P0) FAUX POSITIF : ordre replace() JsonEscape correct pour JSON Jackson. US-2 (P1) : slugify() extrait dans `bakery/util/Slugify.kt` (extension function partagée) + parser JSON maison 50 lignes remplacé par `jacksonObjectMapper().readValue()` dans ValidateFirebaseConfigTask. @JsonIgnoreProperties sur FirebaseValidationResult + ValidationIssue. 5 fichiers modifiés, net -60 lignes. Compile ✅, tests PASS ✅, publishToMavenLocal ✅. | 9/10

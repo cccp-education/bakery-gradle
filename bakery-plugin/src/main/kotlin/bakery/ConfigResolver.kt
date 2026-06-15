@@ -30,7 +30,8 @@ import org.gradle.api.Project
  */
 object ConfigResolver {
 
-    val SUPPORTED_LANGS = setOf("fr", "en", "zh", "hi", "es", "ar", "bn", "pt", "ru", "ur")
+    @Deprecated("Use BakeryConstants.SUPPORTED_LANGS instead", ReplaceWith("BakeryConstants.SUPPORTED_LANGS"))
+    val SUPPORTED_LANGS = BakeryConstants.SUPPORTED_LANGS
 
     /**
      * Loads all bakery-related properties from the Gradle project.
@@ -421,7 +422,7 @@ object ConfigResolver {
         val yamlValue = site.language
         val default = "fr"
         val resolved = resolveString(props, prefix, "language", dslValue, yamlValue, default)
-        return if (resolved in SUPPORTED_LANGS) resolved else default
+        return if (resolved in BakeryConstants.SUPPORTED_LANGS) resolved else default
     }
 
     fun resolveSupportedLanguages(

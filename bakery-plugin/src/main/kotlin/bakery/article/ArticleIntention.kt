@@ -1,5 +1,7 @@
 package bakery.article
 
+import bakery.BakeryConstants
+
 /**
  * Intention de génération d'article — modèle domaine DDD.
  *
@@ -30,7 +32,7 @@ data class ArticleIntention(
 ) {
     init {
         require(topic.isNotBlank()) { "Le sujet (topic) est obligatoire pour générer un article." }
-        require(lang in SUPPORTED_LANGS) { "Langue '$lang' non supportée. Utilisez : ${SUPPORTED_LANGS.joinToString()}." }
+        require(lang in BakeryConstants.SUPPORTED_LANGS) { "Langue '$lang' non supportée. Utilisez : ${BakeryConstants.SUPPORTED_LANGS.joinToString()}." }
     }
 
     /** Mots-clés nettoyés : trimmés, non-vides, dédupliqués. */
@@ -53,10 +55,6 @@ data class ArticleIntention(
         if (keywords.isNotEmpty()) {
             appendLine("Mots-clés : ${keywords.joinToString(", ")}")
         }
-    }
-
-    companion object {
-        private val SUPPORTED_LANGS = setOf("fr", "en", "zh", "hi", "es", "ar", "bn", "pt", "ru", "ur")
     }
 }
 

@@ -1,5 +1,7 @@
 package bakery.scaffold
 
+import bakery.BakeryConstants
+
 /**
  * Intention de scaffolding de site — modele domaine DDD.
  *
@@ -19,7 +21,7 @@ data class ScaffoldIntention(
 ) {
     init {
         require(description.isNotBlank()) { "La description est obligatoire pour le scaffolding assiste par IA." }
-        require(lang in SUPPORTED_LANGS) { "Langue '$lang' non supportee. Utilisez : ${SUPPORTED_LANGS.joinToString()}." }
+        require(lang in BakeryConstants.SUPPORTED_LANGS) { "Langue '$lang' non supportee. Utilisez : ${BakeryConstants.SUPPORTED_LANGS.joinToString()}." }
     }
 
     /**
@@ -30,10 +32,6 @@ data class ScaffoldIntention(
         appendLine("Type de site : ${siteType.label}")
         appendLine("Langue : $lang")
         if (projectName.isNotBlank()) appendLine("Nom du projet : $projectName")
-    }
-
-    companion object {
-        private val SUPPORTED_LANGS = setOf("fr", "en", "zh", "hi", "es", "ar", "bn", "pt", "ru", "ur")
     }
 }
 

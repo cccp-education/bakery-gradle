@@ -2,33 +2,36 @@
 
 == Mission accomplie
 
-*Session 120 TERMINÉE* — BKY-CR-V5 US-4 (3 pts).
-US-CR-V5-4a : toResolver() when 35 branches → propertyMap lazy + lookup.
-US-CR-V5-4b : FileSystemManager.read() → Either<Exception, SiteConfiguration> + logger.warn.
-US-CR-V5-4c : resolveWithoutPrompt() throw → return null, fromCli → ConfigPromptM<String?>.
-US-CR-V5-4d : FirebaseContactFormConfig + 6 sous-classes → tous champs avec defaults.
-10 fichiers modifiés, compilation OK, tests cibles PASS.
+*Session 121 TERMINÉE* — BKY-CR-V5 US-5 (5 pts).
+US-CR-V5-5a : SUPPORTED_LANGS 3× → BakeryConstants.SUPPORTED_LANGS (ScaffoldIntention, ArticleIntention, ConfigResolver).
+US-CR-V5-5b : updateProperty() dupliqué → supprimé dans GenerateThemeTask, import bakery.injection.updateProperty.
+US-CR-V5-5c : Pattern résolution DSL 3× → resolveIntention() helper dans ContentTaskRegistrar.
+6 fichiers modifiés + 1 nouveau test (BakeryConstantsTest), compilation OK, tests cibles PASS.
 
 == Statut
 
 - EPICs : 30/30 ✅ (100%)
 - Code smells résolus : 24/24 ✅ (V2-V4)
-- Code smells V5 : 50 ☐ (US-1 faux positif, US-2+3+4 résolues)
-- BKY-CR-V5 : 10/24 pts (US-1 1pt + US-2 3pts + US-3 3pts + US-4 3pts)
+- Code smells V5 : 45 ☐ (US-1 faux positif, US-2+3+4+5 résolues)
+- BKY-CR-V5 : 15/24 pts (US-1 1pt + US-2 3pts + US-3 3pts + US-4 3pts + US-5 5pts)
 - BKY-I18N-MIG : 0/16 pts ☐
 - Version publiée: 0.0.1 (Maven Central)
+- 3 échecs ThymeleafRenderingTest pré-existants (OGNL bug header.thyme, non lié)
 
-== Prochaine session (121)
+== Prochaine session (122)
 
-*Priorité P2* : BKY-CR-V5 — US-CR-V5-5 (5 pts).
-Déduplication SUPPORTED_LANGS 3× → BakeryConstants.SUPPORTED_LANGS,
-updateProperty() dupliqué 2× → supprimer copie GenerateThemeTask, importer bakery.injection.updateProperty,
-pattern résolution CLI>DSL>defaults dupliqué 3× → extraire ResolveIntention<T> helper.
+*Priorité P2* : BKY-CR-V5 — US-CR-V5-6 (3 pts).
+Déduplication pattern injection DSL + nettoyage code mort + champs morts.
+Pattern `dsl?.let { if (field.isNotBlank()) { try { toIntention() } catch { warn } } }`
+dupliqué 3× dans ContentTaskRegistrar → extraire helper.
+Supprimer `ConfigPrompts.saveConfiguration()` @Deprecated no-op.
+Supprimer `SiteManager.registerUtilityTasks()` @Deprecated no-op.
+Supprimer `IaConfig.poolPorts` + `IaConfig.poolModel` (jamais référencés).
 
 *Fichiers cibles* :
-- `ScaffoldIntention.kt` + `ArticleIntention.kt` — SUPPORTED_LANGS → BakeryConstants
-- `GenerateThemeTask.kt` — supprimer updateProperty() dupliqué
-- `ContentTaskRegistrar.kt` — pattern résolution → ResolveIntention<T>
+- `ContentTaskRegistrar.kt` — pattern injection DSL (déjà partiellement résolu par resolveIntention, vérifier si reste duplication)
+- `ConfigPrompts.kt` — supprimer saveConfiguration()
+- `SiteManager.kt` — supprimer registerUtilityTasks()
+- `IaConfig.kt` — supprimer poolPorts + poolModel
 
-*Vérification* : `./gradlew test` → ScaffoldIntentionTest, ArticleIntentionTest,
-GenerateThemeTaskTest, ContentTaskRegistrar tests PASS.
+*Vérification* : `./gradlew test` → tests affectés PASS.

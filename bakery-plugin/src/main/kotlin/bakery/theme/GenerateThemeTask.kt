@@ -1,5 +1,6 @@
 package bakery.theme
 
+import bakery.injection.updateProperty
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -232,14 +233,5 @@ abstract class GenerateThemeTask : DefaultTask() {
             variant = ThemeVariant.fromStringOrDefault(resolvedVariant),
             overrides = resolvedOverrides
         )
-    }
-
-    private fun updateProperty(lines: MutableList<String>, key: String, value: String) {
-        val idx = lines.indexOfFirst { it.startsWith("$key=") }
-        if (idx >= 0) {
-            lines[idx] = "$key=$value"
-        } else {
-            lines.add("$key=$value")
-        }
     }
 }

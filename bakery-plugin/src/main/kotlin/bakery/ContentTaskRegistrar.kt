@@ -37,17 +37,13 @@ object ContentTaskRegistrar {
             task.articleKeywords.set(project.providers.gradleProperty("articleKeywords").orElse(""))
             task.articleLang.set(project.providers.gradleProperty("articleLang").orElse("fr"))
 
-            // Inject DSL intention if configured
-            articleIntentionDsl?.let { dsl ->
-                if (dsl.topic.isNotBlank()) {
-                    task.dslIntention = try {
-                        dsl.toIntention()
-                    } catch (e: IllegalArgumentException) {
-                        project.logger.warn("[BakeryPlugin] Failed to parse article intention from DSL: ${e.message}")
-                        null
-                    }
-                }
-            }
+            resolveIntention(
+                dsl = articleIntentionDsl,
+                isConfigured = { it.topic.isNotBlank() },
+                toIntention = { it.toIntention() },
+                taskLabel = "article",
+                setIntention = { task.dslIntention = it }
+            )
 
             createLlmServiceIfEnabled(iaConfig) { task.llmService = it }
             project.logger.info("[BakeryPlugin] generateArticle IA ${if (iaConfig.enabled) "activé" else "désactivé (ia.enabled = false)"}")
@@ -75,17 +71,13 @@ object ContentTaskRegistrar {
             task.scaffoldLang.set(project.providers.gradleProperty("scaffoldLang").orElse("fr"))
             task.projectName.set(project.providers.gradleProperty("projectName").orElse(""))
 
-            // Inject DSL intention if configured
-            scaffoldIntentionDsl?.let { dsl ->
-                if (dsl.description.isNotBlank()) {
-                    task.dslIntention = try {
-                        dsl.toIntention()
-                    } catch (e: IllegalArgumentException) {
-                        project.logger.warn("[BakeryPlugin] Failed to parse scaffold intention from DSL: ${e.message}")
-                        null
-                    }
-                }
-            }
+            resolveIntention(
+                dsl = scaffoldIntentionDsl,
+                isConfigured = { it.description.isNotBlank() },
+                toIntention = { it.toIntention() },
+                taskLabel = "scaffold",
+                setIntention = { task.dslIntention = it }
+            )
 
             createLlmServiceIfEnabled(iaConfig) { task.llmService = it }
             project.logger.info("[BakeryPlugin] generateSiteFromIntention IA ${if (iaConfig.enabled) "activé" else "désactivé (ia.enabled = false)"}")
@@ -118,17 +110,13 @@ object ContentTaskRegistrar {
             task.themeFontFamily.set(project.providers.gradleProperty("themeFontFamily").orElse(""))
             task.themeHeadingFont.set(project.providers.gradleProperty("themeHeadingFont").orElse(""))
 
-            // Inject DSL intention if configured
-            themeIntentionDsl?.let { dsl ->
-                if (dsl.description.isNotBlank()) {
-                    task.dslIntention = try {
-                        dsl.toIntention()
-                    } catch (e: IllegalArgumentException) {
-                        project.logger.warn("[BakeryPlugin] Failed to parse theme intention from DSL: ${e.message}")
-                        null
-                    }
-                }
-            }
+            resolveIntention(
+                dsl = themeIntentionDsl,
+                isConfigured = { it.description.isNotBlank() },
+                toIntention = { it.toIntention() },
+                taskLabel = "theme",
+                setIntention = { task.dslIntention = it }
+            )
 
             project.logger.info("[BakeryPlugin] generateTheme tâche enregistrée (variante=${themeIntentionDsl?.variant ?: "par défaut"})")
         }
@@ -177,6 +165,26 @@ object ContentTaskRegistrar {
                 timeout = iaConfig.timeout
             )
             applyService(service)
+        }
+    }
+
+    /** Résout une intention DSL avec le pattern CLI>DSL>defaults et l'injecte dans la tâche. */
+    private inline fun <D, T> Project.resolveIntention(
+        dsl: D?,
+        isConfigured: (D) -> Boolean,
+        toIntention: (D) -> T,
+        taskLabel: String,
+        setIntention: (T?) -> Unit
+    ) {
+        dsl?.let { d ->
+            if (isConfigured(d)) {
+                setIntention(try {
+                    toIntention(d)
+                } catch (e: IllegalArgumentException) {
+                    logger.warn("[BakeryPlugin] Failed to parse $taskLabel intention from DSL: ${e.message}")
+                    null
+                })
+            }
         }
     }
 }

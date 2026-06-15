@@ -1,0 +1,68 @@
+= Session 121 — BKY-CR-V5 US-5 : Déduplication SUPPORTED_LANGS + updateProperty() + resolveIntention()
+:date: 2026-06-16
+:type: DDD + TDD + refactor
+:score: 9/10
+
+== Objectif
+
+US-CR-V5-5 (5 pts, P2) — 3 déduplications identifiées par Code Review V5 (Session 117).
+
+== Travail réalisé
+
+=== 1. SUPPORTED_LANGS 3× → BakeryConstants.SUPPORTED_LANGS
+
+- `BakeryConstants.kt` : ajout `val SUPPORTED_LANGS = setOf("fr", "en", "zh", "hi", "es", "ar", "bn", "pt", "ru", "ur")`
+- `ScaffoldIntention.kt` : suppression `companion object { private val SUPPORTED_LANGS }`, référence `BakeryConstants.SUPPORTED_LANGS` + import
+- `ArticleIntention.kt` : suppression `companion object { private val SUPPORTED_LANGS }`, référence `BakeryConstants.SUPPORTED_LANGS` + import
+- `ConfigResolver.kt` : `val SUPPORTED_LANGS` déprécié, délègue à `BakeryConstants.SUPPORTED_LANGS` ; `resolveLanguage()` utilise `BakeryConstants.SUPPORTED_LANGS`
+
+=== 2. updateProperty() dupliqué → supprimé dans GenerateThemeTask
+
+- `GenerateThemeTask.kt` : suppression `private fun updateProperty()` (7 lignes), ajout `import bakery.injection.updateProperty`
+- Les 11 appels dans `executeGenerate()` utilisent maintenant la fonction canonique de `PropertyUpdater.kt`
+
+=== 3. Pattern résolution DSL 3× → resolveIntention() helper
+
+- `ContentTaskRegistrar.kt` : extraction `private inline fun <D, T> Project.resolveIntention()` (13 lignes)
+- Remplacement des 3 blocs `dsl?.let { if (field.isNotBlank()) { try { toIntention() } catch { warn } } }` par `resolveIntention(dsl, isConfigured, toIntention, taskLabel, setIntention)`
+- 3 call sites : `registerGenerateArticleTask`, `registerGenerateSiteFromIntentionTask`, `registerGenerateThemeTask`
+
+=== TDD
+
+- `BakeryConstantsTest.kt` (NOUVEAU) : 3 tests — contenu 10 langues, immutabilité, présence individuelle
+
+== Fichiers modifiés
+
+[cols="1,3,2"]
+|===
+| Fichier | Changement | Lignes
+| `BakeryConstants.kt` | +2 (SUPPORTED_LANGS) | +2
+| `ScaffoldIntention.kt` | -4 (companion) +1 (import) | -3
+| `ArticleIntention.kt` | -4 (companion) +1 (import) | -3
+| `ConfigResolver.kt` | dépréciation + fix resolveLanguage() | ~0
+| `GenerateThemeTask.kt` | -7 (updateProperty privé) +1 (import) | -6
+| `ContentTaskRegistrar.kt` | -24 (3 patterns) +13 (helper) +15 (3 call sites) | +4
+| `BakeryConstantsTest.kt` | NOUVEAU | +30
+|===
+
+Net : ~+24 lignes (helper compensé par suppression des 3 patterns + companion objects).
+
+== Vérification
+
+- `./gradlew compileKotlin` → BUILD SUCCESSFUL (0 warning après fix ConfigResolver)
+- `./gradlew -q publishToMavenLocal` → OK
+- `./gradlew test --tests "bakery.scaffold.ScaffoldIntentionTest"` → 15/15 PASS
+- `./gradlew test --tests "bakery.article.ArticleIntentionTest"` → 15/15 PASS
+- `./gradlew test --tests "bakery.theme.GenerateThemeTaskTest"` → 22/22 PASS
+- `./gradlew test --tests "bakery.BakeryConstantsTest"` → 3/3 PASS
+- `./gradlew test` → 856 tests, 3 FAILED (ThymeleafRenderingTest header.thyme — OGNL `#sets.contains({'ar','ur'}, ...)` bug pré-existant Session 114, non lié)
+
+== Statut EPIC
+
+- BKY-CR-V5 : 15/24 pts (US-1+2+3+4+5 ✅)
+- Code smells V5 résolus : US-1 (faux positif), US-2 (slugify+Jackson), US-3 (firstOrNull+println+secrets+cache), US-4 (toResolver+Either+nullable+defaults), US-5 (déduplication 3×)
+- Restant : US-6 (3 pts), US-7 (3 pts), US-8 (3 pts)
+
+== Prochaine session (122)
+
+BKY-CR-V5 US-6 (3 pts, P2) — Déduplication pattern injection DSL + nettoyage code mort + champs morts.

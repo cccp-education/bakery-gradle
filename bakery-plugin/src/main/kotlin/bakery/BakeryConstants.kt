@@ -16,4 +16,6 @@ object BakeryConstants {
     const val ASCIIDOC_SOURCE_DIR = "sourceDir"
     const val BAKERY_CONFIG_PATH_KEY = "bakery.config.path"
     const val CNAME = "CNAME"
+
+    val SUPPORTED_LANGS = setOf("fr", "en", "zh", "hi", "es", "ar", "bn", "pt", "ru", "ur")
 }
