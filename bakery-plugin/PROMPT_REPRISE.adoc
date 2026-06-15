@@ -2,21 +2,31 @@
 
 == Mission accomplie
 
-*Session 116 TERMINÉE* — US-I18N-6 Documentation + E2E.
-17 fichiers modifiés/créés. BKY-I18N : 23/23 pts (100%).
-Bakery : 30/30 EPICs terminés. 100% complet.
+*Session 117 TERMINÉE* — Code Review V5 + Cadrage I18N-MIG.
+Audit exhaustif 63 fichiers Kotlin source (6 567 lignes). 60 code smells identifiés.
+EPIC BKY-CR-V5 (24 pts) + EPIC BKY-I18N-MIG (16 pts) cadrés dans BACKLOG.
+Design migrateToI18n documenté. Zéro changement code source.
 
 == Statut
 
 - EPICs : 30/30 ✅ (100%)
-- Code smells : 24/24 ✅
+- Code smells résolus : 24/24 ✅ (V2-V4)
+- Code smells V5 : 60 ☐ (nouveaux, Session 117)
 - BKY-KOV-1 : ✅ TERMINE (85.88%)
 - BKY-COV-2 : ✅ TERMINE — 12/12 pts
 - BKY-PUB-1 : ✅ TERMINE — 0.0.1 (Maven Central)
-- BKY-I18N : ✅ TERMINE — 23/23 pts (US-0→6)
+- BKY-I18N : ✅ TERMINE — 23/23 pts
 - Version publiée: 0.0.1 (Maven Central)
 
-== Prochaine session (117)
+== Prochaine session (118)
 
-*Aucun EPIC bakery restant.* Bakery est 100% terminé.
-Session 117 = maintenance (dépendances, correctifs) ou nouveau borough.
+*Priorité P0* : BKY-CR-V5 — US-CR-V5-1 (fix JsonEscape ordre remplacement, 1 pt)
++ US-CR-V5-2 (extraire slugify() + remplacer parser JSON maison par Jackson, 3 pts).
+
+*Fichiers cibles* :
+- `JsonEscape.kt` — corriger ordre des replace()
+- `ArticleGenerator.kt` + `ScaffoldGenerator.kt` — extraire slugify() → `bakery/util/Slugify.kt`
+- `ValidateFirebaseConfigTask.kt` — remplacer parseLlmResponse() manuel par Jackson
+
+*Vérification* : `./gradlew test` → tous les tests JsonEscapeForPropertiesTest,
+ArticleGeneratorTest, ScaffoldGeneratorTest, ValidateFirebaseConfigTaskTest PASS.

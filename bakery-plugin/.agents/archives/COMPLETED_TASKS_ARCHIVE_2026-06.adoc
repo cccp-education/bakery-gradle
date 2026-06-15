@@ -1,5 +1,26 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 117 — 2026-06-15 — Code Review V5 + Cadrage I18N-MIG
+
+**Contexte** : Session 116 a terminé BKY-I18N. Bakery 30/30 EPICs, 100% fonctionnel.
+Session de gouvernance pure — code review exhaustive + cadrage du prochain cap.
+
+**Tâches réalisées** :
+
+* [x] Audit exhaustif 63 fichiers Kotlin source (6 567 lignes) par agent externe
+* [x] 60 code smells identifiés : 1 P0, 10 P1, 37 P2, 12 P3 — score global 6.8/10
+* [x] EPIC BKY-CR-V5 cadré dans BACKLOG (24 pts, 8 US)
+* [x] EPIC BKY-I18N-MIG cadré dans BACKLOG (16 pts, 5 US) — tâche migrateToI18n
+* [x] Design migrateToI18n documenté : cascade CLI>DSL>defaults, DDD Intention→Dsl→Task→Service
+* [x] CODE_REVIEW.adoc — ajout section V5 (60 smells + 2 EPICs)
+* [x] BACKLOG.adoc — version 8.0, synthèse charge restante 40 pts
+* [x] INDEX.adoc — session 117, roadmap BKY-CR-V5 + BKY-I18N-MIG
+* [x] SESSIONS_HISTORY.adoc — entrée 117
+* [x] PROMPT_REPRISE.adoc — session 118 (BKY-CR-V5 US-1+2)
+* [x] TEST_COVERAGE_ANALYSIS.adoc — màj date
+* [x] COMPLETED_TASKS_ARCHIVE_2026-06.adoc — entrée 117 (ce fichier)
+* [x] Zéro changement code source — session purement gouvernance/cadrage
+
 == Session 116 — 2026-06-15 — US-I18N-6 Documentation + E2E
 
 **Contexte** : US-I18N-5 terminé en S115. Dernière US de l'EPIC BKY-I18N.

@@ -1,7 +1,7 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-06-15 — Session 116 (BKY-I18N TERMINÉ, Bakery 100%)_
+_Dernière mise à jour : 2026-06-15 — Session 117 (Code Review V5 + Cadrage I18N-MIG)_
 
 * [x] Implementer la generation du code client Firebase dans les templates (→ BKY-JB-4, session 032)
 * [x] Ajouter une vraie Firebase API key quand disponible (→ EPIC 4, formalité restante côté consommateur cheroliv.com)
@@ -10,23 +10,34 @@ _Dernière mise à jour : 2026-06-15 — Session 116 (BKY-I18N TERMINÉ, Bakery 
 
 == Gaps fonctionnels identifiés par Code Review Session 105
 
-* [ ] **DeployProfileTask** — 0 test unitaire. La tâche lit ses propriétés dynamiquement
-  dans `@TaskAction` (`project.findProperty`, `project.extensions.findByType`).
-  Aucune couverture Kover. Créer DeployProfileTaskTest (8-10 UT : config valide,
-  pushProfile absent, credentials CLI vs YAML, forçage README, fromDir inexistant).
-* [ ] **ProfilePublisher** — coverage >90% mais pas de test d'intégration avec un vrai
-  GitService.pushToRemote. Ajouter 2 FT deployProfile (with + without preservation).
-* [ ] **DeployProfileTask full pipeline FT** — 0 functional test. Le pipeline
-  deployProfile → copyProfileFiles → pushToRemote → cleanupDir n'est pas testé
-  de bout en bout. Créer DeployProfileFunctionalTest (3 FT).
-* [ ] **BakeryPlugin (52.8%)** — les branches `else` (configPath absent, YAML invalide,
-  répertoires manquants) sont partiellement couvertes. Coverage cible 70% pour la classe.
-* [ ] **ToolsKt (22%)** — fonctions utilitaires. Priorité basse mais couverture misérable.
+* [x] **DeployProfileTask** — 0 test unitaire. → ✅ S106 (12 UT)
+* [x] **ProfilePublisher** — coverage >90% mais pas de test d'intégration. → ✅ S107 (17 UT + 4 FT)
+* [x] **DeployProfileTask full pipeline FT** — 0 functional test. → ✅ S108 (2 FT TestKit)
+* [x] **BakeryPlugin (52.8%)** — branches else partiellement couvertes. → ✅ S110 (resolvePath/resolvePaths 100%)
+* [x] **ToolsKt (22%)** — fonctions utilitaires. → ✅ S110 (9 UT)
 
 == Restant
 
-_Tout le backlog historique est terminé. 29/29 EPICs + 24/24 code smells résolus.
-Les gaps ci-dessus sont des microfissures identifiées par la code review externe._
+_Tout le backlog historique est terminé. 30/30 EPICs + 24/24 code smells résolus._
+
+== NOUVEAU — Code Review V5 (Session 117, 60 smells)
+
+* [ ] **US-CR-V5-1** 🔴 P0 : Fix JsonEscape ordre remplacement (backslash avant newline → corruption JSON)
+* [ ] **US-CR-V5-2** 🟠 P1 : Extraire slugify() partagé + remplacer parser JSON maison ValidateFirebaseConfigTask par Jackson
+* [ ] **US-CR-V5-3** 🟠 P1 : Fix entries.first{} unsafe + println→logger + secrets LLM + ObjectMapper cache
+* [ ] **US-CR-V5-4** 🟠 P1 : Refactor ResolvedConfigs.toResolver() 35-branches + FileSystemManager.read() Either
+* [ ] **US-CR-V5-5** 🟡 P2 : Déduplication SUPPORTED_LANGS + updateProperty() + pattern résolution
+* [ ] **US-CR-V5-6** 🟡 P2 : Déduplication pattern injection DSL + nettoyage code mort + champs morts
+* [ ] **US-CR-V5-7** 🟡 P2 : Refactor ConfigResolver.resolveAll() + magic numbers + YAML→Jackson
+* [ ] **US-CR-V5-8** 🟢 P3 : Log warnings catch muets + divers P3
+
+== NOUVEAU — EPIC BKY-I18N-MIG (Session 117, 16 pts)
+
+* [ ] **US-I18N-MIG-1** : I18nMigrationIntention + Dsl + BakeryExtension
+* [ ] **US-I18N-MIG-2** : MigrateToI18nTask + ContentTaskRegistrar
+* [ ] **US-I18N-MIG-3** : I18nMigrationService — scan + extraction + messages.properties
+* [ ] **US-I18N-MIG-4** : Traductions LLM 9 langues non-fr
+* [ ] **US-I18N-MIG-5** : Cucumber BDD + tests unitaires
 
 == Post-v1.0 — Code Review V3
 
@@ -38,25 +49,14 @@ Les gaps ci-dessus sont des microfissures identifiées par la code review extern
 
 == NOUVEAU — Code Review V4 (Session 097, 9 smells + 3 RECOs — TOUS TERMINÉS)
 
-=== EPIC CS-V4-P1 — Bugs et Robustesse (7 min)
-
-* [x] **US-V4-1** : Supprimer `Throwable(...)` fantôme dans `BakeryPlugin.kt:79` — alloué mais jamais loggé. → ✅ S097
-* [x] **US-V4-2** : Fix `projectDir.resolve()` dans `VerifyConfigurationMappingTask.kt:44` — Path CWD vs projectDir. → ✅ S097
-
-=== EPIC CS-V4-P2 — Clarté et Fiabilité (23 min)
-
-* [x] **US-V4-3** : Nettoyer `SiteManager.configureConfigPath()` — 2 niveaux d'imbrication + `run` inutile. → ✅ S097
-* [x] **US-V4-4** : Vérifier et configurer `DeployProfileTask` — investigué, pas de bug. → ✅ S097
-* [x] **US-V4-5** : Remplacer `getByName()` → `findByName()` sécurisé dans `configureBakeTask`. → ✅ S097
-
-=== EPIC CS-V4-P3 — Polish et Documentation (18 min)
-
-* [x] **US-V4-7** : Rename `fromCliOrPrompt` → `resolveOrPrompt` dans `ConfigPromptM.kt`. → ✅ S097
-* [x] **US-V4-8** : Logger `dsl.toIntention()` catch muet dans `ContentTaskRegistrar.kt` (3 occurrences). → ✅ S097
-* [x] **US-V4-9** : Documenter non-idempotence `escapeJsonForJavaProperties()` (KDoc + test double appel). → ✅ S097
-
-=== EPIC CS-V4-ARCH — Recommandations Architecturales (40 min)
-
+* [x] **US-V4-1** : Supprimer `Throwable(...)` fantôme dans `BakeryPlugin.kt:79`. → ✅ S097
+* [x] **US-V4-2** : Fix `projectDir.resolve()` dans `VerifyConfigurationMappingTask.kt:44`. → ✅ S097
+* [x] **US-V4-3** : Nettoyer `SiteManager.configureConfigPath()`. → ✅ S097
+* [x] **US-V4-4** : Vérifier et configurer `DeployProfileTask`. → ✅ S097
+* [x] **US-V4-5** : Remplacer `getByName()` → `findByName()`. → ✅ S097
+* [x] **US-V4-7** : Rename `fromCliOrPrompt` → `resolveOrPrompt`. → ✅ S097
+* [x] **US-V4-8** : Logger `dsl.toIntention()` catch muet. → ✅ S097
+* [x] **US-V4-9** : Documenter non-idempotence `escapeJsonForJavaProperties()`. → ✅ S097
 * [x] **RECO-1** : Wrapper parse YAML `BakeryPlugin.kt:93` dans `Either.catch`. → ✅ S097
-* [x] **RECO-2** : Documenter parallélisme potentiel tâches Gradle (`mustRunAfter`/`shouldRunAfter`). → ✅ S097
-* [x] **RECO-3** : `configureConfigPath()` retourner `Either<String, Unit>` + log succès/échec. → ✅ S097
+* [x] **RECO-2** : Documenter parallélisme potentiel tâches Gradle. → ✅ S097
+* [x] **RECO-3** : `configureConfigPath()` retourner `Either<String, Unit>`. → ✅ S097

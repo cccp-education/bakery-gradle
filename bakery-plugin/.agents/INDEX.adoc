@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-15 — Session 116 (US-I18N-6 Documentation + E2E)
-  _Session terminee_ : 116
-  _Prochaine session_ : 117 — Maintenance ou nouveau borough (aucun EPIC bakery restant)
+  _Derniere mise a jour_ : 2026-06-15 — Session 117 (Code Review V5 + Cadrage I18N-MIG)
+  _Session terminee_ : 117
+  _Prochaine session_ : 118 — BKY-CR-V5 US-1+2 (fix JsonEscape P0 + slugify + parser JSON)
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 117 | 2026-06-15 | code review + governance + cadrage | **Code Review V5 + Cadrage I18N-MIG** — Audit exhaustif 63 fichiers Kotlin source (6 567 lignes). 60 code smells identifiés (1 P0, 10 P1, 37 P2, 12 P3). Score 6.8/10. EPIC BKY-CR-V5 (24 pts, 8 US) + EPIC BKY-I18N-MIG (16 pts, 5 US). Design migrateToI18n aligné patterns existants. Zéro changement code source. | 9/10
   | 116 | 2026-06-15 | DDD + TDD + E2E + doc | **US-I18N-6** — Doc i18n + E2E EN/AR RTL + README. BKY-I18N 23/23 pts TERMINÉ. Bakery 100%. | 9/10
   | 115 | 2026-06-15 | DDD + TDD + BDD | **US-I18N-4+5** — SUPPORTED_LANGS 2→10 + Feature Cucumber 8 scénarios i18n. BKY-I18N 21/23 pts. | 9/10
   | 114 | 2026-06-15 | DDD + TDD + template migration | **US-I18N-3** Template migration 36 fichiers. ~85 remplacements `#{message.key}`. BKY-I18N 16/23 pts. | 9/10
@@ -144,6 +145,20 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 | BKY-I18N : i18n 10 langues (Anglais, Chinois, Hindi, Espagnol, Français, Arabe, Bengali, Portugais, Russe, Ourdou) | 100% (23/23 pts) | *P1 ✅ TERMINE — Session 116*
 |===
 
+=== EPIC BKY-CR-V5 : Code Smells V5 (NOUVEAU — Session 117)
+
+|===
+| EPIC | Progression | Priorite
+| BKY-CR-V5 : 60 code smells (1 P0, 10 P1, 37 P2, 12 P3) — audit exhaustif 63 fichiers | 0% (0/24 pts) | *🔴 P0 — Session 118*
+|===
+
+=== EPIC BKY-I18N-MIG : Tâche migrateToI18n (NOUVEAU — Session 117)
+
+|===
+| EPIC | Progression | Priorite
+| BKY-I18N-MIG : Tâche migrateToI18n pour appliquer l'i18n aux sites existants | 0% (0/16 pts) | *🟠 P1*
+|===
+
 === EPIC LENTILLE — ✅ TERMINÉ
 
 |===
@@ -157,9 +172,10 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 | *BKY-IA-2* | Thème IA paramétrique | 8 | *P1 ✅ TERMINÉ*
 |===
 
-=== Code Smells — 24/24 ✅ résolus
+=== Code Smells — 24/24 ✅ résolus + 60 nouveaux V5
 
-Tous résolus. Voir `CODE_REVIEW.adoc` + `CODE_REVIEW_V4.adoc` pour le détail.
+24/24 smells V2-V4 résolus. 60 nouveaux smells V5 identifiés Session 117.
+Voir `CODE_REVIEW.adoc` section V5 pour le détail.
 
 '''
 
@@ -172,7 +188,7 @@ _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
 |===
 | Projet | Repertoire | Session en cours | Derniere MAJ
 | magic-stick | `~/workspace/foundry/OSS/magic-stick` | 055 | 2026-04-30
-| bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 110 | 2026-06-11
+| bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 117 | 2026-06-15
 | plantuml-gradle | `~/workspace/foundry/OSS/plantuml-gradle/plantuml-plugin` | 148 | 2026-06-11
 | jhipster-gradle-plugins | `~/workspace/foundry/OSS/jhipster-gradle-plugins` | 9 | 2026-06-11
 | quizz-benchmark-gradle | `~/workspace/foundry/OSS/quizz-benchmark-gradle/quizz-benchmark-plugin` | Audit 053 | 2026-04-30
