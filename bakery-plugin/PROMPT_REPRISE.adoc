@@ -2,31 +2,35 @@
 
 == Mission accomplie
 
-*Session 118 TERMINÉE* — BKY-CR-V5 US-1+2.
-US-CR-V5-1 (P0) : FAUX POSITIF — ordre replace() actuel correct pour JSON Jackson.
-US-CR-V5-2 (P1) : slugify() extrait dans `bakery/util/Slugify.kt` + parser JSON maison
-remplacé par Jackson dans ValidateFirebaseConfigTask. 5 fichiers modifiés, net -60 lignes.
+*Session 119 TERMINÉE* — BKY-CR-V5 US-3 (3 pts).
+US-CR-V5-3a : entries.first{} → firstOrNull{} + fallback INFORMATIF/GENERAL.
+US-CR-V5-3b : println() → logger.lifecycle().
+US-CR-V5-3c : auth.apiKey + contact.project.apiKey masqués via maskSecret(SecretField.ApiKey(...)).
+US-CR-V5-3d : yamlMapper → by lazy {}.
+5 fichiers modifiés, compilation OK, tests cibles PASS.
 
 == Statut
 
 - EPICs : 30/30 ✅ (100%)
 - Code smells résolus : 24/24 ✅ (V2-V4)
-- Code smells V5 : 58 ☐ (US-1 faux positif, US-2 résolue)
-- BKY-CR-V5 : 4/24 pts (US-1 1pt + US-2 3pts)
+- Code smells V5 : 55 ☐ (US-1 faux positif, US-2+3 résolues)
+- BKY-CR-V5 : 7/24 pts (US-1 1pt + US-2 3pts + US-3 3pts)
 - BKY-I18N-MIG : 0/16 pts ☐
 - Version publiée: 0.0.1 (Maven Central)
 
-== Prochaine session (119)
+== Prochaine session (120)
 
-*Priorité P1* : BKY-CR-V5 — US-CR-V5-3 (3 pts).
-Fix entries.first{} unsafe → firstOrNull{}, println() → logger.lifecycle(),
-masquage auth.apiKey dans prompt LLM, yamlMapper → lazy {}.
+*Priorité P1* : BKY-CR-V5 — US-CR-V5-4 (3 pts).
+Refactor ResolvedConfigs.toResolver() bloc when 35 branches → data-driven,
+FileSystemManager.read() catch muet → Either + log warning,
+ConfigPromptM.resolveWithoutPrompt() throw → return null + fallback prompt,
+FirebaseContactFormConfig champs non-nullable → defaults ou nullable.
 
 *Fichiers cibles* :
-- `GenerateArticleTask.kt:208` — `entries.first{}` → `firstOrNull{}` avec fallback
-- `SiteTaskRegistrar.kt:201` — `println()` → `logger.lifecycle()`
-- `ValidateFirebaseConfigTask.kt:140-161` — masquer `auth.apiKey` dans buildLlmPrompt()
-- `FileSystemManager.kt:165` — `yamlMapper` → `lazy {}`
+- `ResolvedConfigs.kt` — `toResolver()` bloc when 35 branches → Map data-driven
+- `FileSystemManager.kt:187-193` — `read()` catch muet → `Either<Exception, SiteConfiguration>` + log
+- `ConfigPromptM.kt` — `resolveWithoutPrompt()` throw → return null
+- `FirebaseContactFormConfig.kt` — champs non-nullable → defaults/nullable
 
-*Vérification* : `./gradlew test` → GenerateArticleTaskTest, SiteTaskRegistrar tests,
-ValidateFirebaseConfigTaskTest, FileSystemManagerTest PASS.
+*Vérification* : `./gradlew test` → ResolvedConfigsTest, FileSystemManagerTest,
+ConfigPromptMTests, FirebaseContactFormConfig tests PASS.

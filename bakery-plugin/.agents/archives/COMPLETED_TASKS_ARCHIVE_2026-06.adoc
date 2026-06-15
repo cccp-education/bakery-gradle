@@ -1,5 +1,20 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 119 — 2026-06-15 — BKY-CR-V5 US-3 (entries.first{}→firstOrNull{} + println→logger + secrets LLM + ObjectMapper cache)
+
+**Contexte** : Session 118 a terminé US-1+2. PROMPT_REPRISE : US-CR-V5-3 (3 pts).
+
+**Tâches réalisées** :
+
+* [x] US-CR-V5-3a — `GenerateArticleTask.kt:208-209` : `entries.first{}` → `firstOrNull{}` avec fallback `ArticleTon.INFORMATIF` / `ArticleAudience.GENERAL`
+* [x] US-CR-V5-3b — `SiteTaskRegistrar.kt:198-201` : `println()` → `logger.lifecycle()`
+* [x] US-CR-V5-3c — `ValidateFirebaseConfigTask.kt:150,157` : `auth.apiKey` + `contact.project.apiKey` masqués via `maskSecret(SecretField.ApiKey(...))`. Import `SecretField` + `maskSecret` ajouté. Test adapté (`AIzaSyB-test` → `AIza***test`)
+* [x] US-CR-V5-3d — `FileSystemManager.kt:165` : `yamlMapper` → `by lazy {}`
+* [x] `./gradlew compileKotlin` → BUILD SUCCESSFUL
+* [x] `./gradlew test --tests GenerateArticleTaskTest --tests ValidateFirebaseConfigTaskTest --tests FileSystemManagerTest` → tous PASS
+* [x] 5 fichiers modifiés (4 source + 1 test)
+* [x] BKY-CR-V5 : 7/24 pts
+
 == Session 118 — 2026-06-15 — BKY-CR-V5 US-1+2 (Fix JsonEscape + slugify + Jackson parser)
 
 **Contexte** : Session 117 a cadré BKY-CR-V5 (60 smells, 24 pts) + BKY-I18N-MIG (16 pts).

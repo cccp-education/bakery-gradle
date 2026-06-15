@@ -205,8 +205,10 @@ abstract class GenerateArticleTask : DefaultTask() {
 
         return ArticleIntention(
             topic = resolvedTopic,
-            ton = ArticleTon.entries.first { it.name.lowercase() == resolvedTon.lowercase() },
-            audience = ArticleAudience.entries.first { it.name.lowercase() == resolvedAudience.lowercase() },
+            ton = ArticleTon.entries.firstOrNull { it.name.lowercase() == resolvedTon.lowercase() }
+                ?: ArticleTon.INFORMATIF,
+            audience = ArticleAudience.entries.firstOrNull { it.name.lowercase() == resolvedAudience.lowercase() }
+                ?: ArticleAudience.GENERAL,
             rawKeywords = resolvedKeywords,
             lang = resolvedLang
         )

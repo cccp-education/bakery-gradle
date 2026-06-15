@@ -3,7 +3,9 @@ package bakery.firebase
 import bakery.ConfigResolver
 import bakery.FirebaseAuthConfig
 import bakery.FirebaseAuthDsl
+import bakery.SecretField
 import bakery.llm.LlmService
+import bakery.maskSecret
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import kotlinx.coroutines.runBlocking
@@ -145,14 +147,14 @@ abstract class ValidateFirebaseConfigTask : DefaultTask() {
         appendLine()
         resolvedAuthConfig?.let { auth ->
             appendLine("[Firebase Auth]")
-            appendLine("apiKey: ${auth.apiKey}")
+            appendLine("apiKey: ${maskSecret(SecretField.ApiKey(auth.apiKey))}")
             appendLine("authDomain: ${auth.authDomain}")
             appendLine("projectId: ${auth.projectId}")
         }
         resolvedContactConfig?.let { contact ->
             appendLine("[Firebase Contact Form]")
             appendLine("projectId: ${contact.project.projectId}")
-            appendLine("apiKey: ${contact.project.apiKey}")
+            appendLine("apiKey: ${maskSecret(SecretField.ApiKey(contact.project.apiKey))}")
             appendLine("firestore.contacts: ${contact.firestore.contacts.name}")
             appendLine("firestore.messages: ${contact.firestore.messages.name}")
         }

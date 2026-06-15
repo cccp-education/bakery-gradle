@@ -162,11 +162,12 @@ object FileSystemManager {
         (e.message ?: "An error occurred during file copy.").left()
     }
 
-    val yamlMapper: ObjectMapper
-        get() = YAMLFactory()
+    val yamlMapper: ObjectMapper by lazy {
+        YAMLFactory()
             .let(::ObjectMapper)
             .disable(WRITE_DATES_AS_TIMESTAMPS)
             .registerKotlinModule()
+    }
 
     fun SiteConfiguration.createCnameFile(project: Project) {
         project.layout.buildDirectory.get()

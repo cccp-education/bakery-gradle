@@ -66,7 +66,7 @@ class ValidateFirebaseConfigTaskTest {
                 projectId = "test-project"
             )
             val prompt = task.buildLlmPrompt()
-            assertTrue(prompt.contains("AIzaSyB-test"))
+            assertTrue(prompt.contains("AIza***test"))
             assertTrue(prompt.contains("test-project.firebaseapp.com"))
             assertTrue(prompt.contains("test-project"))
             assertTrue(prompt.contains("Firebase Auth"))

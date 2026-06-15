@@ -1,8 +1,9 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-  _Derniere mise a jour : 2026-06-15 — Session 118_
+  _Derniere mise a jour : 2026-06-15 — Session 119_
 
   |===
+  | 119 | 2026-06-15 | DDD + TDD + refactor | **BKY-CR-V5 US-3** — entries.first{}→firstOrNull{} + fallback INFORMATIF/GENERAL, println()→logger.lifecycle(), auth.apiKey masqué via maskSecret(SecretField.ApiKey(...)), yamlMapper→by lazy{}. 5 fichiers modifiés, compilation OK, tests cibles PASS. BKY-CR-V5 7/24 pts. | 9/10
   | 118 | 2026-06-15 | DDD + TDD + refactor | **BKY-CR-V5 US-1+2** — US-1 (P0) FAUX POSITIF : ordre replace() JsonEscape correct pour JSON Jackson. US-2 (P1) : slugify() extrait dans `bakery/util/Slugify.kt` (extension function partagée) + parser JSON maison 50 lignes remplacé par `jacksonObjectMapper().readValue()` dans ValidateFirebaseConfigTask. @JsonIgnoreProperties sur FirebaseValidationResult + ValidationIssue. 5 fichiers modifiés, net -60 lignes. Compile ✅, tests PASS ✅, publishToMavenLocal ✅. | 9/10
   | 117 | 2026-06-15 | code review + governance + cadrage | **Code Review V5 + Cadrage I18N-MIG** — Audit exhaustif 63 fichiers Kotlin source (6 567 lignes) par agent externe. 60 code smells identifiés (1 P0, 10 P1, 37 P2, 12 P3). Score global 6.8/10. EPIC BKY-CR-V5 (24 pts, 8 US) + EPIC BKY-I18N-MIG (16 pts, 5 US). Design migrateToI18n aligné patterns existants (cascade CLI>DSL>defaults, DDD Intention→Dsl→Task→Service). 6 fichiers gouvernance modifiés. Zéro changement code source. | 9/10
   | 116 | 2026-06-15 | DDD + TDD + E2E + doc | **US-I18N-6 Documentation + E2E** — BAKERY_ROADMAP_JBake section 7 i18n (80 lignes). README section i18n (60 lignes). E2EI18nTest.kt (2 tests EN + AR RTL). th:dir RTL 12 templates. ThymeleafRenderingTestFactory language param. BKY-I18N 23/23 pts TERMINÉ. Bakery 30/30 EPICs 100%. | 9/10

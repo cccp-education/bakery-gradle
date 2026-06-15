@@ -196,9 +196,7 @@ object SiteTaskRegistrar {
                 )
 
                 doFirst {
-                    "Serving $group at: https://localhost:8820/"
-                        .apply(logger::info)
-                        .run(::println)
+                    logger.lifecycle("Serving $group at: https://localhost:8820/")
                 }
             }
         }

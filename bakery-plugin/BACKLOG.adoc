@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-15 — Session 118 (BKY-CR-V5 US-1+2)_
+_Dernière mise à jour : 2026-06-15 — Session 119 (BKY-CR-V5 US-3)_
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -1049,7 +1049,7 @@ cascade CLI > DSL > defaults, DDD Intention→Dsl→Task→Service.
 | BKY-PUB-1 | Publication Maven Central 0.0.1 | 8 | ✅ S109
 | BKY-I18N | i18n 10 langues | 23 | ✅ S116
 // ── EN COURS V5 (Session 117-118) ──
-| BKY-CR-V5 | Code smells V5 (60 smells) | 20 | 🔴 P0 🔄 (4/24 pts — US-1+2 ✅ S118)
+| BKY-CR-V5 | Code smells V5 (60 smells) | 17 | 🔴 P0 🔄 (7/24 pts — US-1+2+3 ✅ S118-119)
 | BKY-I18N-MIG | Tâche migrateToI18n | 16 | 🟠 P1 ☐
 | *Total restant* | | *36* |
 |===
