@@ -1,0 +1,57 @@
+= Session 101 — US-KOV-3 FileSystemManager Coverage 56% → 90.45%
+
+== Résumé
+
+*Type* : TDD + coverage
+*EPIC* : BKY-KOV-1 — US-KOV-3
+*Date* : 2026-06-06
+*Score* : 9/10
+
+== Objectif
+
+Couvrir FileSystemManager de 56% à >=85% d'instructions.
+
+== Baby Steps DDD
+
+. Extraire `copyFromJarUrl(resourcePath, targetDir, project, jarUrl)` en `internal` — testable, paramètre URL injectable
+. Extraire `copyFromFileSystemUrl(resourcePath, targetDir, project, resource)` en `internal` — idem
+. Extraire `copyFromResourceUrl(resourcePath, targetDir, project, resource)` en `internal` — dispatch `when` protocol testable
+. Supprimer dead code : `copyFromJar` (private wrapper) et `copyFromFileSystem` (private wrapper) — plus appelés
+
+== Baby Steps TDD
+
+23 tests unitaires répartis :
+
+*CopyFromJarUrlTest* (5 tests) :
+- copies files from JAR to target directory (happy path)
+- copies files from JAR with trailing slash path
+- skips directory entries in JAR
+- returns Failure when JAR file does not exist
+- returns Failure when JAR URL points to a directory
+
+*CopyFromFileSystemUrlTest* (3 tests) :
+- returns Failure when source directory does not exist
+- returns Failure when source is a file not a directory
+- copies single file from filesystem to target
+
+*CopyFromResourceUrlTest* (1 test) :
+- returns Failure for unsupported protocol
+
+*Créés/existants* : createRepoDir (4), copyBaked (5), isYmlUri (2), copyResourceDirectory (2), readInvalidYaml (1)
+
+== Résultat
+
+- *FileSystemManager* : 56% → *90.45%* (644/712 instructions) — cible 85% dépassée
+- *Coverage globale* : 78.1% → *85.24%* (+7.14pp)
+- *Kover threshold check* : PASS (seuil 70%, réel 84.73%)
+- *BUILD SUCCESSFUL* tous tests PASS
+- *publishToMavenLocal* OK
+
+== Fichiers modifiés
+
+- `src/main/kotlin/bakery/FileSystemManager.kt` : + copyFromResourceUrl, copyFromFileSystemUrl internal, − copyFromJar/copyFromFileSystem privés morts
+- `src/test/kotlin/bakery/FileSystemManagerTest.kt` : 23 tests couvrant toutes les branches principales
+
+== Prochaine session (102)
+
+US-KOV-4 : GitService 66% → 85% (~120 instructions)

@@ -1,0 +1,72 @@
+= Session 111 — Cadrage EPIC BKY-I18N + US-0 Configuration Layer
+:date: 2026-06-14
+:type: cadrage + dev
+:score: 9/10
+
+== Contexte
+
+Bakery 100% terminé (29/29 EPICs, 24/24 code smells, publié Maven Central 0.0.1).
+Nouveau cap : internationalisation 10 langues.
+
+== Réalisations
+
+=== Cadrage EPIC BKY-I18N
+- BACKLOG.adoc enrichi : 7 US (23 pts), 10 langues avec codes ISO, architecture Thymeleaf message externalization
+- Dépendance documentée : `education.cccp:i18n-contracts:0.0.1` (MEM-3, workspace-bom)
+- INDEX.adoc mis à jour (session 111, EPIC BKY-I18N 0%)
+
+=== US-I18N-0 — Configuration Layer (implémenté)
+- `SiteConfiguration.kt` : + `language: String = "fr"`, `supportedLanguages: List<String> = listOf("fr")`
+- `BakeryExtension.kt` : + `language: Property<String>`, `supportedLanguages: ListProperty<String>`
+- `ConfigResolver.kt` : + `resolveLanguage()`, `resolveSupportedLanguages()` (cascade 5 couches)
+- `ResolvedConfigs.kt` : + champs `language`/`supportedLanguages` + clés `toResolver()`
+- `build.gradle.kts` : + `implementation(libs.i18n.contracts)`
+- `libs.versions.toml` : + `i18n-contracts = "0.0.1"`
+
+=== Parallèle MEMPHIS — MEM-3 i18n-contracts
+- Création `workspace-bom/i18n-contracts/` (6ème artefact N0, Tier 0, zéro dépendance)
+- 5 classes : `SupportedLanguage`, `LanguageCatalog` (10 langues), `I18nConfig`, `MessageBundle`, `LocaleResolver`
+- 28 tests JUnit5 PASS
+- Publié en `mavenLocal`
+- BACKLOG.adoc, INDEX.adoc, PROMPT_REPRISE.adoc MEMPHIS mis à jour
+
+=== Gouvernance transverse
+- `AGENTS.adoc` racine : Bushwick + MEMPHIS mis à jour, entrée historique Session 111 ajoutée
+
+== Fichiers modifiés
+
+*Bakery* :
+- `BACKLOG.adoc` — EPIC BKY-I18N (7 US, 23 pts)
+- `.agents/INDEX.adoc` — Session 111, EPIC BKY-I18N
+- `PROMPT_REPRISE.adoc` — Mission session 112
+- `src/main/kotlin/bakery/SiteConfiguration.kt` — + language/supportedLanguages
+- `src/main/kotlin/bakery/BakeryExtension.kt` — + language/supportedLanguages DSL
+- `src/main/kotlin/bakery/ConfigResolver.kt` — + resolveLanguage/resolveSupportedLanguages
+- `src/main/kotlin/bakery/ResolvedConfigs.kt` — + language/supportedLanguages
+- `build.gradle.kts` — + i18n-contracts dep
+- `gradle/libs.versions.toml` — + i18n-contracts
+
+*MEMPHIS* :
+- `i18n-contracts/build.gradle.kts` — NOUVEAU
+- `i18n-contracts/settings.gradle.kts` — NOUVEAU
+- `i18n-contracts/gradle/libs.versions.toml` — NOUVEAU
+- `i18n-contracts/src/main/kotlin/contracts/i18n/*.kt` — 5 classes NOUVEAU
+- `i18n-contracts/src/test/kotlin/contracts/i18n/*.kt` — 5 tests NOUVEAU
+- `BACKLOG.adoc` — EPIC MEM-3
+- `.agents/INDEX.adoc` — MEM-3
+- `PROMPT_REPRISE.adoc` — Session 006
+
+*Racine* :
+- `AGENTS.adoc` — Bushwick + MEMPHIS + historique
+
+== Tests
+
+- i18n-contracts : 28/28 JUnit5 PASS
+- Bakery : compile OK, tous tests existants PASS (aucune régression)
+
+== Prochaine session (112)
+
+BKY-I18N US-I18N-1 — JBake properties injection :
+- Injecter `site.language` dans `jbake.properties` via `GenerateSiteService`
+- Ajouter `site.language=fr` dans les `jbake.properties` par défaut
+- 2 pts

@@ -1,0 +1,139 @@
+= Session 117 — Code Review V5 + Cadrage I18N Migration
+:date: 2026-06-15
+:type: code review + governance + cadrage
+:score: 9/10
+:epics: BKY-CR-V5 (60 smells, 24 pts), BKY-I18N-MIG (16 pts)
+
+== Résumé
+
+Session de code review approfondie des 63 fichiers Kotlin source (6 567 lignes)
+du plugin bakery-gradle. Audit exhaustif par agent externe + analyse de tous
+les fichiers source. Cadrage de la tâche `migrateToI18n` pour appliquer l'i18n
+aux sites bakery existants du workspace.
+
+== Code Review V5 — 60 Smells Identifiés
+
+Score global : *6.8/10* (en baisse par rapport au 8.7/10 V4 — l'audit exhaustif
+révèle des problèmes que les reviews précédentes n'avaient pas vus).
+
+=== 🔴 P0 — 1 smell critique
+
+- *JsonEscape.kt:39-44* — Ordre de remplacement incorrect (backslash avant
+  newline). Un JSON déjà échappé `\n` devient `\\n` après step 1, puis step 2
+  cherche des newlines littérales (0x0A) qui n'existent plus. Corruption JSON
+  garantie sur séquences échappées.
+
+=== 🟠 P1 — 10 smells importants
+
+- *ArticleGenerator.kt:242-254 + ScaffoldGenerator.kt:182-194* — `slugify()`
+  dupliqué (2 copies identiques, 12 lignes avec normalisation accents français)
+- *ValidateFirebaseConfigTask.kt:163-210* — Parser JSON maison (50 lignes de
+  indexOf/substring) alors que Jackson est déjà une dépendance
+- *GenerateArticleTask.kt:208* — `entries.first {}` sans `firstOrNull` → crash
+  si typo dans le ton CLI
+- *SiteTaskRegistrar.kt:201* — `println()` au lieu de `logger.lifecycle()`
+- *ValidateFirebaseConfigTask.kt:140-161* — `auth.apiKey` envoyé en clair dans
+  le prompt LLM
+- *ResolvedConfigs.kt:15-50* — Bloc `when` de 35 branches, fragile
+- *FileSystemManager.kt:165-169* — Nouveau `ObjectMapper` à chaque accès
+  (pas de lazy/cache)
+- *FileSystemManager.kt:187-193* — `Project.read()` avale les erreurs YAML
+  silencieusement → retourne `SiteConfiguration()` vide
+- *ConfigPromptM.kt:55* — `resolveWithoutPrompt()` throw au lieu de fallback
+- *FirebaseContactFormConfig* — Champs non-nullable sans defaults → crash
+  Jackson si absents du YAML
+
+=== 🟡 P2 — 37 smells modérés
+
+Top 5 :
+- *SUPPORTED_LANGS* dupliqué 3 fois (ConfigResolver, ScaffoldIntention,
+  ArticleIntention)
+- *updateProperty()* dupliqué (PropertyUpdater.kt + GenerateThemeTask.kt)
+- Pattern résolution CLI>DSL>defaults dupliqué 3 fois (GenerateArticleTask,
+  GenerateSiteFromIntentionTask, GenerateThemeTask)
+- Pattern injection DSL intention dupliqué 3 fois (ContentTaskRegistrar)
+- *ConfigResolver.resolveAll()* — 9 blocs `resolveDomain` répétitifs
+
+Autres : code mort (ConfigPrompts.saveConfiguration, SiteManager.registerUtilityTasks),
+champs morts (IaConfig.poolPorts/poolModel), magic numbers (BfsProximityCache),
+`var` pour type immutable (FirebaseConfigValidator), YAML par concaténation
+string (GenerateSiteFromIntentionTask), texte français hardcodé
+(GenerateArticleTask), catch muets sans log (AugmentedContextResolver,
+SiteContextCollector), `entries.first {}` unsafe (GenerateArticleTask),
+`ConfigPromptM` monade over-engineered jamais chaînée avec flatMap,
+`createRepoDir` 6 branches conditionnelles, `copyBakedFilesToRepo` chaînage
+`.also{}.let{}.apply{}.run{}` illisible.
+
+=== 🟢 P3 — 12 smells légers
+
+Boilerplate DSL 12 méthodes `Action<X>` (idiomatique Gradle, accepté),
+`mutableListOf` inutile (OllamaLlmService), `executePushCommand()` retour
+nullable inutile, `initAddCommit()` chaînage over-fluent, `SiteType.fromString()`
+throw vs `fromStringOrDefault()` philosophies opposées, `inline fun` inutile
+(ContentTaskRegistrar), `applyRules()` filtre "draft" redondant,
+`buildSiteYml()` concaténation fragile, `ThemeInjector` injecte toujours
+les defaults.
+
+=== Cross-cutting smells (8)
+
+- CC-1 : `slugify()` dupliqué (P1)
+- CC-2 : `SUPPORTED_LANGS` dupliqué 3× (P2)
+- CC-3 : `updateProperty()` dupliqué 2× (P2)
+- CC-4 : Pattern résolution CLI>DSL>defaults dupliqué 3× (P2)
+- CC-5 : Pattern injection DSL intention dupliqué 3× (P2)
+- CC-6 : Silent error swallowing pattern (P2)
+- CC-7 : Dead code (P2)
+- CC-8 : Dead config fields (P2)
+
+== EPIC BKY-CR-V5 — Code Smells V5 (24 pts, ~5-6 sessions)
+
+[cols="1,4,2,2"]
+|===
+| US | Description | Pts | Priorité
+| US-CR-V5-1 | Fix JsonEscape ordre remplacement (P0) | 1 | 🔴 P0
+| US-CR-V5-2 | Extraire slugify() partagé + remplacer parser JSON maison ValidateFirebaseConfigTask par Jackson (P1) | 3 | 🟠 P1
+| US-CR-V5-3 | Fix entries.first{} unsafe + println→logger + secrets LLM prompt + ObjectMapper cache (P1) | 3 | 🟠 P1
+| US-CR-V5-4 | Refactor ResolvedConfigs.toResolver() 35-branches → data-driven + FileSystemManager.read() Either (P1) | 3 | 🟠 P1
+| US-CR-V5-5 | Déduplication SUPPORTED_LANGS + updateProperty() + extraction pattern résolution CLI>DSL>defaults (P2) | 5 | 🟡 P2
+| US-CR-V5-6 | Déduplication pattern injection DSL intention + nettoyage code mort + champs morts (P2) | 3 | 🟡 P2
+| US-CR-V5-7 | Refactor ConfigResolver.resolveAll() data-driven + magic numbers BfsProximityCache + YAML concaténation → Jackson (P2) | 3 | 🟡 P2
+| US-CR-V5-8 | Log warnings dans catch muets + fix texte hardcodé FR + divers P3 | 3 | 🟢 P3
+|===
+
+== EPIC BKY-I18N-MIG — Tâche migrateToI18n (16 pts, ~3-4 sessions)
+
+Design aligné sur les patterns existants (GenerateArticleTask, GenerateThemeTask) :
+cascade CLI > DSL > defaults, DDD Intention→Dsl→Task→Service.
+
+[cols="1,4,2,2"]
+|===
+| US | Description | Pts | Priorité
+| US-I18N-MIG-1 | I18nMigrationIntention + I18nMigrationIntentionDsl + BakeryExtension DSL | 2 | 🟠 P1
+| US-I18N-MIG-2 | MigrateToI18nTask + ContentTaskRegistrar.registerMigrateToI18nTask() | 3 | 🟠 P1
+| US-I18N-MIG-3 | I18nMigrationService — scan templates, extraction texte, génération messages.properties | 5 | 🟠 P1
+| US-I18N-MIG-4 | Traductions LLM (DeepSeek-v4-pro) pour les 9 langues non-fr | 3 | 🟡 P2
+| US-I18N-MIG-5 | Cucumber BDD + tests unitaires | 3 | 🟡 P2
+|===
+
+== Charge Totale Restante
+
+- BKY-CR-V5 : 24 pts (~5-6 sessions)
+- BKY-I18N-MIG : 16 pts (~3-4 sessions)
+- *Total* : 40 pts (~8-10 sessions)
+
+== Fichiers Modifiés
+
+- `.agents/sessions/117-code-review-v5.adoc` — créé (ce fichier)
+- `.agents/CODE_REVIEW.adoc` — ajout section V5 (60 smells)
+- `BACKLOG.adoc` — EPIC BKY-CR-V5 + EPIC BKY-I18N-MIG
+- `.agents/INDEX.adoc` — session 117, roadmap
+- `.agents/SESSIONS_HISTORY.adoc` — entrée 117
+- `PROMPT_REPRISE.adoc` — session 118
+- `.agents/TEST_COVERAGE_ANALYSIS.adoc` — màj date
+- `.agents/archives/COMPLETED_TASKS_ARCHIVE_2026-06.adoc` — entrée 117
+
+Zéro changement code source — session purement gouvernance/cadrage.
+
+== Prochaine Session (118)
+
+Attaquer BKY-CR-V5 — US-CR-V5-1 (fix JsonEscape P0) + US-CR-V5-2 (slugify + parser JSON).

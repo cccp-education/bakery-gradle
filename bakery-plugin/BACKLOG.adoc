@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-16 — Session 121 (BKY-CR-V5 US-5)_
+_Dernière mise à jour : 2026-06-16 — Session 123 (BKY-CR-V5 US-7)_
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -960,7 +960,7 @@ la cascade ConfigResolver 5 couches (CLI > gradle.properties > DSL > site.yml > 
   `GenerateSiteFromIntentionTask.buildSiteYml()` concaténation string → `yamlMapper.writeValueAsString()`.
   `GenerateArticleTask.buildArticleContent()` texte FR hardcodé → utiliser `article.lang`.
 | 3
-| 🟡 P2
+| 🟡 P2 ✅ S123
 
 | US-CR-V5-8
 | **Log warnings catch muets + divers P3** —
@@ -1049,14 +1049,14 @@ cascade CLI > DSL > defaults, DDD Intention→Dsl→Task→Service.
 | BKY-PUB-1 | Publication Maven Central 0.0.1 | 8 | ✅ S109
 | BKY-I18N | i18n 10 langues | 23 | ✅ S116
 // ── EN COURS V5 (Session 117-118) ──
-| BKY-CR-V5 | Code smells V5 (60 smells) | 15 | 🔴 P0 🔄 (15/24 pts — US-1+2+3+4+5 ✅ S118-121)
+| BKY-CR-V5 | Code smells V5 (60 smells) | 12 | 🟢 P3 🔄 (21/24 pts — US-1+2+3+4+5+6+7 ✅ S118-123)
 | BKY-I18N-MIG | Tâche migrateToI18n | 16 | 🟠 P1 ☐
-| *Total restant* | | *33* |
+| *Total restant* | | *12* |
 |===
 
 *Tous les EPICs historiques* : 30/30 ✅ (100%)
 *Code smells résolus* : 24/24 ✅ (V2+V3+V4)
-*Code smells V5* : 50 ☐ (US-1 faux positif, US-2+3+4 résolues)
+*Code smells V5* : 52 ☐ (US-1 faux positif, US-2+3+4+5+6+7 résolues)
 *Bakery 100% fonctionnel* — les smells V5 sont qualitatifs, pas fonctionnels.
 
 '''
@@ -1065,7 +1065,7 @@ cascade CLI > DSL > defaults, DDD Intention→Dsl→Task→Service.
 [cols="2,3"]
 |===
 | Document | `BACKLOG.adoc`
-| Version | 8.1 — Session 118 (BKY-CR-V5 US-1+2)
+| Version | 8.2 — Session 123 (BKY-CR-V5 US-7)
 | Historisé dans | `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 | Basé sur | Code review V5 (`.agents/CODE_REVIEW.adoc`, Session 117) + Session 105 + Session 111 + Session 116
-| Prochaine màj | Session 119 — BKY-CR-V5 US-3 (entries.first{}→firstOrNull{} + println→logger + secrets LLM + ObjectMapper cache)
+| Prochaine màj | Session 124 — BKY-CR-V5 US-8 (Log warnings catch muets + divers P3)

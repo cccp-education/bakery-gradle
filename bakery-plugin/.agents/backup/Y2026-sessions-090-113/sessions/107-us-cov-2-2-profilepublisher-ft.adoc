@@ -1,0 +1,54 @@
+= Session 107 — US-COV-2.2 ProfilePublisher Integration FT
+
+:session: 107
+:date: 2026-06-07
+:type: TDD + FT
+:sujet: ProfilePublisher tests unitaires + fonctionnels
+
+== Objectif
+
+US-COV-2.2 : Tests d'intégration ProfilePublisher — 2 FT deployProfile (avec/sans preservation d'historique).
+
+== Livrable
+
+=== Tests unitaires — ProfilePublisherTest.kt (17 tests)
+
+*ResolveCredentialsTest (7 UT)* :
+- CLI credentials win over YAML (both provided)
+- Fallback to YAML when CLI is blank
+- Fallback to YAML when CLI username blank only
+- Fallback to YAML when CLI password blank only
+- throws when both CLI and YAML blank
+- throws when CLI blank + YAML username blank
+- throws when CLI blank + YAML password blank
+
+*CopyProfileFilesTest (10 UT)* :
+- copies single file from projectDir to repoDir
+- copies multiple files
+- copies from subdirectory (from = "docs")
+- overwrites existing files in repoDir
+- throws when profileFiles empty
+- throws when from directory does not exist
+- throws when from is file not a directory
+- throws when profile file not found
+- throws when forbidden files (README.adoc)
+- throws when forbidden files (README_fr.adoc)
+
+=== Tests fonctionnels — ProfilePublisherFunctionalTest.kt (4 FT TestKit)
+
+- should push profile files to a bare git remote (CLI credentials)
+- should fallback to YAML credentials when CLI is blank
+- should fail when pushProfile section is missing from site yml
+- should fail when credentials are missing in both CLI and YAML
+
+=== Build — build.gradle.kts (1 modif)
+
+- Ajout `libs.bundles.jgit` au functionalTest sourceSet (nécessaire pour Git.cloneRepository dans les FT)
+
+== Résultat
+
+- 21 nouveaux tests PASS
+- Tous tests existants : JUnit5 780+ PASS, functionalTest PASS, Cucumber 129/129 PASS
+- BUILD SUCCESSFUL
+- EPIC BKY-COV-2 : 6/12 pts (50%) — US-1 ✅ + US-2 ✅
+- Coverage maintenu >85%

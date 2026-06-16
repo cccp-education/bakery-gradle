@@ -2,36 +2,43 @@
 
 == Mission accomplie
 
-*Session 122 TERMINÉE* — BKY-CR-V5 US-6 (3 pts).
-US-CR-V5-6a : resolveIntention() déjà extrait en US-5 → rien à faire.
-US-CR-V5-6b : ConfigPrompts.saveConfiguration() @Deprecated no-op supprimé.
-US-CR-V5-6c : SiteManager.registerUtilityTasks() @Deprecated no-op supprimé + appel BakeryPlugin.
-US-CR-V5-6d : IaConfig.poolPorts + poolModel supprimés + nettoyage Cucumber (BakeryWorld, IaSteps, feature).
-7 fichiers modifiés, net -67 lignes. Compilation OK, tests cibles PASS.
+*Session 123 TERMINÉE* — BKY-CR-V5 US-7 (3 pts).
+4 refactors qualitatifs :
+- ConfigResolver.resolveAll() 9 blocs resolveDomain → data-driven (liste DomainResolver + fold)
+- BfsProximityCache distances 1.0/0.7/0.4/0.1 → constantes nommées (PROXIMITY_SELF, PROXIMITY_DIRECT_NEIGHBOR, PROXIMITY_DISTANCE_2, PROXIMITY_DISTANCE_3_PLUS, PROXIMITY_UNREACHABLE)
+- GenerateSiteFromIntentionTask.buildSiteYml() concaténation string → yamlMapper.writeValueAsString()
+- GenerateArticleTask.buildArticleContent() texte FR hardcodé → articleGeneratedNote(lang) avec when(lang)
+4 fichiers modifiés. Compilation OK, tests cibles PASS, publishToMavenLocal OK.
 
 == Statut
 
 - EPICs : 30/30 ✅ (100%)
 - Code smells résolus : 24/24 ✅ (V2-V4)
-- Code smells V5 : 45 ☐ (US-1 faux positif, US-2+3+4+5+6 résolues)
-- BKY-CR-V5 : 18/24 pts (US-1 1pt + US-2 3pts + US-3 3pts + US-4 3pts + US-5 5pts + US-6 3pts)
+- Code smells V5 : 52 ☐ (US-1 faux positif, US-2+3+4+5+6+7 résolues)
+- BKY-CR-V5 : 21/24 pts (US-1 1pt + US-2 3pts + US-3 3pts + US-4 3pts + US-5 5pts + US-6 3pts + US-7 3pts)
 - BKY-I18N-MIG : 0/16 pts ☐
 - Version publiée: 0.0.1 (Maven Central)
 - 3 échecs ThymeleafRenderingTest pré-existants (OGNL bug header.thyme, non lié)
 
-== Prochaine session (123)
+== Prochaine session (124)
 
-*Priorité P2* : BKY-CR-V5 — US-CR-V5-7 (3 pts).
-Refactor ConfigResolver.resolveAll() + magic numbers + YAML→Jackson + texte FR hardcodé.
-resolveAll() 9 blocs resolveDomain répétitifs → data-driven (liste de DomainResolver).
-BfsProximityCache distances 1.0/0.7/0.4/0.1 → constantes nommées.
-GenerateSiteFromIntentionTask.buildSiteYml() concaténation string → yamlMapper.writeValueAsString().
-GenerateArticleTask.buildArticleContent() texte FR hardcodé → utiliser article.lang.
+*Priorité P3* : BKY-CR-V5 — US-CR-V5-8 (3 pts).
+Log warnings catch muets + divers P3 :
+- AugmentedContextResolver.resolve() catch(Exception) → log warning
+- SiteContextCollector.parseFeed()/parseSitemap() runCatching → log warning
+- OllamaLlmService.complete() mutableListOf → listOf
+- GitService.executePushCommand() retour nullable → non-nullable
+- ContentTaskRegistrar.createLlmServiceIfEnabled() inline inutile → supprimer inline
+- AugmentedArticlesService.applyRules() filtre "draft" redondant → supprimer excludeDrafts boolean
+- ThemeInjector injecte toujours defaults → documenter (simplicité > optimisation)
 
 *Fichiers cibles* :
-- `ConfigResolver.kt` — resolveAll() data-driven
-- `BfsProximityCache.kt` — constantes nommées
-- `GenerateSiteFromIntentionTask.kt` — YAML via Jackson
-- `GenerateArticleTask.kt` — texte FR → article.lang
+- `AugmentedContextResolver.kt`
+- `SiteContextCollector.kt`
+- `OllamaLlmService.kt`
+- `GitService.kt`
+- `ContentTaskRegistrar.kt`
+- `AugmentedArticlesService.kt`
+- `ThemeInjector.kt`
 
 *Vérification* : `./gradlew test` → tests affectés PASS.

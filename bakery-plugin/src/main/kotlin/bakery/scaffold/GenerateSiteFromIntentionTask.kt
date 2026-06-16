@@ -1,5 +1,6 @@
 package bakery.scaffold
 
+import bakery.FileSystemManager.yamlMapper
 import bakery.llm.LlmService
 import bakery.llm.OllamaLlmService
 import kotlinx.coroutines.runBlocking
@@ -211,27 +212,32 @@ abstract class GenerateSiteFromIntentionTask : DefaultTask() {
     /**
      * Construit le contenu du fichier site.yml suggere par l'IA.
      */
-    private fun buildSiteYml(output: ScaffoldOutput): String = buildString {
-        appendLine("# Site genere par bakery-gradle (scaffolding IA)")
-        appendLine("# Type : ${output.siteType.label}")
-        appendLine("# Description : ${output.description}")
-        appendLine()
-        appendLine("bake:")
-        appendLine("  srcPath: site")
-        appendLine()
-        appendLine("site:")
-        appendLine("  title: ${output.metadata.title}")
-        appendLine("  projectName: ${output.projectName}")
-        appendLine("  description: ${output.metadata.description}")
-        appendLine("  language: ${output.metadata.language}")
-        appendLine("  tags: ${output.metadata.tags.joinToString(", ")}")
-        appendLine()
-        if (output.templates.isNotEmpty()) {
-            appendLine("# Templates suggerees par l'IA :")
-            output.templates.forEach { template ->
-                appendLine("#   - $template")
-            }
+    private fun buildSiteYml(output: ScaffoldOutput): String {
+        val yml = mapOf(
+            "bake" to mapOf("srcPath" to "site"),
+            "site" to mapOf(
+                "title" to output.metadata.title,
+                "projectName" to output.projectName,
+                "description" to output.metadata.description,
+                "language" to output.metadata.language,
+                "tags" to output.metadata.tags.joinToString(", ")
+            )
+        )
+        val header = buildString {
+            appendLine("# Site genere par bakery-gradle (scaffolding IA)")
+            appendLine("# Type : ${output.siteType.label}")
+            appendLine("# Description : ${output.description}")
             appendLine()
         }
+        val templatesComment = if (output.templates.isNotEmpty()) {
+            buildString {
+                appendLine("# Templates suggerees par l'IA :")
+                output.templates.forEach { template ->
+                    appendLine("#   - $template")
+                }
+                appendLine()
+            }
+        } else ""
+        return header + yamlMapper.writeValueAsString(yml) + "\n" + templatesComment
     }
 }

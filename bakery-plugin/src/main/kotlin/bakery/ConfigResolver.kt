@@ -336,63 +336,51 @@ object ConfigResolver {
     ): Pair<ResolvedConfigs, List<ConfigResolutionError>> {
         val errors = mutableListOf<ConfigResolutionError>()
 
-        fun <T> resolveDomain(
-            domain: String,
-            block: () -> T,
-            fallback: T
-        ): T = Either.catch(block).fold(
-            ifLeft = { e ->
-                errors.add(ConfigResolutionError.DomainFailure(domain, e.message ?: "Unknown error", e as? Exception))
-                fallback
-            },
-            ifRight = { it }
-        )
+        fun <T> resolveDomain(domain: String, block: () -> T, fallback: T): T =
+            Either.catch(block).fold(
+                ifLeft = { e ->
+                    errors.add(ConfigResolutionError.DomainFailure(domain, e.message ?: "Unknown error", e as? Exception))
+                    fallback
+                },
+                ifRight = { it }
+            )
 
         val resolvedFirebase = resolveDomain("firebase",
             { resolveFirebaseConfig(props, site.firebase) },
             FirebaseProjectInfo(projectId = "", apiKey = "")
         )
-
         val resolvedGoogleForms = resolveDomain("googleForms",
             { resolveGoogleFormsConfig(props, extension.googleForms, site.googleForms) },
             GoogleFormsConfig()
         )
-
         val resolvedFirebaseAuth = resolveDomain("firebaseAuth",
             { resolveFirebaseAuthConfig(props, extension.firebaseAuth, site.firebaseAuth) },
             FirebaseAuthConfig()
         )
-
         val resolvedComments = resolveDomain("comments",
             { resolveCommentsConfig(props, extension.commentsConfig, site.comments) },
             CommentsConfig()
         )
-
         val resolvedAnalytics = resolveDomain("analytics",
             { resolveAnalyticsConfig(props, extension.analytics, site.analytics) },
             AnalyticsConfig()
         )
-
         val resolvedNewsletter = resolveDomain("newsletter",
             { resolveNewsletterConfig(props, extension.newsletter, site.newsletter) },
             NewsletterConfig()
         )
-
         val resolvedTheme = resolveDomain("theme",
             { resolveThemeConfig(props, extension.theme, site.theme) },
             ThemeConfig()
         )
-
         val resolvedLayout = resolveDomain("layout",
             { resolveLayoutConfig(props, extension.layout, site.layout) },
             LayoutConfig()
         )
-
         val resolvedLanguage = resolveDomain("language",
             { resolveLanguage(props, extension, site) },
             "fr"
         )
-
         val resolvedSupportedLanguages = resolveDomain("supportedLanguages",
             { resolveSupportedLanguages(props, extension, site) },
             listOf("fr")

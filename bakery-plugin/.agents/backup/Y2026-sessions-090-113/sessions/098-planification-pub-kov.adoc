@@ -1,0 +1,41 @@
+= Session 098 — Planification EPICs PUB + KOV
+:date: 2026-06-06
+:type: governance + planification + feedback
+:score: 9/10
+
+== Contexte
+
+Session 097 avait terminé POLISH V4 (9/9 smells + 3/3 RECOs). Bakery 100% terminé.
+Session 098 : feedback agent + planification des 2 derniers kilomètres avant publication.
+
+== Réalisation
+
+=== Feedback Agent
+Analyse mature du borough : score santé 9.5/10, gold standard Kotlin/Gradle.
+97 sessions, 28/28 EPICs, 24/24 code smells, 129 Cucumber PASS, coverage 77%.
+Stack Arrow-kt + langchain4j + workspace-bom aligné, Kotlin 2.3.20.
+
+=== Nettoyage dette cheroliv.com
+Projet cheroliv.com supprimé (data séparée du moteur). TODO.adoc et BACKLOG.adoc
+nettoyés de toute référence. INDEX.adoc portefeuille — entrée cheroliv.com retirée.
+
+=== EPIC BKY-PUB-1 — Publication Maven Central + Gradle Plugin Portal (8 pts)
+7 US : achat domaine cccp.education → vérification Sonatype → config publish keys →
+validation Maven Central → validation Plugin Portal → bump 1.0.0 → CI/CD.
+
+=== EPIC BKY-KOV-1 — Kover Coverage 90% (16 pts)
+7 US : audit Kover HTML → 5 US de tests par package sous-couvert (deploy, lens,
+content, config, scaffold) → bump seuil 70→90 dans build.gradle.kts.
+
+== Fichiers modifiés
+
+* TODO.adoc — suppression cheroliv.com + V4 coché ✅
+* BACKLOG.adoc — Feedback agent + EPIC PUB-1 + EPIC KOV-1 + synthèse
+* INDEX.adoc — cheroliv.com retiré portefeuille + section EPICs Publication
+* .agents/sessions/098-planification-pub-kov.adoc — ce fichier
+
+== Résultats
+
+* Charge restante : 24 pts (PUB 8 + KOV 16)
+* Bakery 100% terminé côté code
+* Prochaine session : 099 — BKY-KOV-1 US-1 Audit couverture Kover

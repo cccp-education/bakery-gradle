@@ -1,0 +1,39 @@
+= Session 113 — US-I18N-2 Messages Properties 10 Langues
+:date: 2026-06-14
+:type: DDD + TDD
+:score: 9/10
+
+== Contexte
+
+US-I18N-1 terminé S112. Création des fichiers messages_{code}.properties
+pour les 10 langues cibles (Anglais, Chinois, Hindi, Espagnol, Arabe,
+Bengali, Portugais, Russe, Ourdou) + Français comme référence.
+
+== Tâches réalisées
+
+=== DDD — Messages properties files
+* [x] Extraction de ~65 clés depuis les 37 templates Thymeleaf
+* [x] Création `messages_fr.properties` — référence complète (site/ + site-basic/)
+* [x] Création `messages_en.properties` — traduction anglaise
+* [x] Création des 8 autres langues via agent (zh, hi, es, ar, bn, pt, ru, ur)
+* [x] 20 fichiers créés (10 langues × 2 dossiers templates)
+
+=== TDD — I18nMessagesTest (6 tests)
+* [x] FileExistenceTest — 20 fichiers existent
+* [x] KeyConsistencyTest — clés identiques FR↔autres langues (site + site-basic)
+* [x] NonEmptyValuesTest — toutes les valeurs non-blanches
+* [x] KeyCountTest — nombre de clés attendu
+
+== Fichiers créés
+
+20 fichiers messages_*.properties dans :
+- `src/main/resources/site/templates/` (10 langues)
+- `src/main/resources/site-basic/templates/` (10 langues)
+- `src/test/kotlin/bakery/i18n/I18nMessagesTest.kt`
+
+== Résultats
+
+* BUILD SUCCESSFUL
+* 6/6 nouveaux tests PASS, full suite PASS
+* BKY-I18N : 8/23 pts (US-0 ✅, US-1 ✅, US-2 ✅)
+* Prochaine : US-I18N-3 Template migration 36 fichiers

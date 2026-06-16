@@ -1,0 +1,41 @@
+= Session 095 — Mise à jour README + Correction branding cccp-education
+
+_Date : 2026-06-06_
+
+== Objectif
+
+Mise à jour complète du `README.adoc` pour refléter l'état actuel du projet
+(version 0.1.4, 28/28 EPICs terminés, pipeline LENTILLE, IA, Firebase, etc.)
+et correction des références au branding cccp-education.
+
+== Modifications
+
+=== README.adoc — Réécriture complète
+
+- Structure modernisée : Quick Facts, Features, Tasks par catégorie, Quick Start
+- Documentation Pattern LENTILLE (6 étapes)
+- Documentation Theme System, IA Scaffolding, Firebase Integration
+- Documentation CI/CD (3 workflows)
+- Références de test (757 UT, 133 Cucumber, 17 E2E, 76.15% coverage)
+- Architecture + diagramme PlantUML
+- Repo GitHub : `cccp-education/bakery-gradle`
+- Copyright : `cccp.education`
+- 670 lignes (ancien README : 351 lignes)
+
+=== bakery-plugin/build.gradle.kts
+
+- `website` : `https://cccp-education.github.io/` (anciennement `https://cheroliv.com`)
+
+== Fichiers modifiés
+
+- `README.adoc` (+319 lignes)
+- `bakery-plugin/build.gradle.kts` : ligne 426 (website)
+
+== Tests
+
+Aucune modification de code source → pas de nouvelle exécution de tests.
+Dernier run session 094 : 757 UT PASS, 133 Cucumber PASS, 17 E2E PASS.
+
+== Score
+
+9/10 — Documentation complète et à jour, branding cccp-education aligné.

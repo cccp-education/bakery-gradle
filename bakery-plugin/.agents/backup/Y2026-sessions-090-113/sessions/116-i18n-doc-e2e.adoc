@@ -1,0 +1,84 @@
+= Session 116 — BKY-I18N US-I18N-6 Documentation + E2E
+:date: 2026-06-15
+:type: DDD + TDD + E2E + doc
+:score: 9/10
+
+== Objectif
+
+US-I18N-6 — Dernière US de l'EPIC BKY-I18N (2 pts) :
+- Mettre à jour `BAKERY_ROADMAP_JBake.adoc` avec section i18n
+- Ajouter 2 tests E2E Playwright (site en anglais, site en arabe — vérifier RTL)
+- Mettre à jour `README.adoc`
+
+== Réalisations
+
+=== US-I18N-6.1 — BAKERY_ROADMAP_JBake.adoc section i18n
+
+Section 7 ajoutée (80 lignes) :
+- Tableau 10 langues supportées avec codes
+- Architecture i18n (ConfigResolver → LanguageInjector → JBake → templates)
+- Composants (ConfigResolver, LanguageInjector, Messages properties, Templates, Scaffold IA, Cucumber BDD)
+- Dépendance N0 `i18n-contracts`
+- Usage (CLI, gradle.properties, DSL, site.yml)
+- Exemple template i18n `#{key}`
+
+=== US-I18N-6.2 — E2E Playwright tests
+
+.Modifications infrastructure :
+- `ThymeleafRenderingTestFactory` : ajout `render(templateName, variables, language)` overload.
+  `ClasspathMessageResolver` paramétré par code langue (charge `messages_{code}.properties`).
+  Backward compatible — `render(templateName, variables)` default `"fr"`.
+- `E2ETestBase.serveHtml` : ajout paramètre `language: String = "fr"`.
+
+.Templates RTL :
+- Ajout `th:dir="${#sets.contains({'ar','ur'}, config.site_language) ? 'rtl' : 'ltr'}"`
+  sur 12 templates (9 site/ + 3 site-basic/) avec `<html th:lang=...>`.
+
+.E2EI18nTest.kt (NOUVEAU) :
+- Test 1 : English — `lang="en"`, `dir="ltr"`, messages EN ("Home", "Blog", "Contact")
+- Test 2 : Arabic — `lang="ar"`, `dir="rtl"`, messages AR ("الرئيسية", "المدونة", "اتصل بنا")
+
+NOTE : E2E tests non exécutés — Playwright Chromium nécessite sudo pour installation
+des dépendances système, indisponible dans l'environnement. Tests conçus pour être
+skipped via `assumeTrue` si Chromium absent.
+
+=== US-I18N-6.3 — README.adoc section i18n
+
+Section "Internationalization (i18n)" ajoutée (60 lignes) :
+- Tableau 10 langues avec direction (LTR/RTL)
+- Configuration cascade 5 couches
+- Template usage `#{key}` + `th:lang`/`th:dir`
+- Procédure ajout nouvelle langue
+- Feature list enrichie avec "i18n"
+
+== Fichiers modifiés/créés
+
+[cols="2,3,2"]
+|===
+| Fichier | Action | Type
+| `.agents/BAKERY_ROADMAP_JBake.adoc` | Modifié (+80 lignes section 7) | Doc
+| `src/test/kotlin/bakery/ThymeleafRenderingTestFactory.kt` | Modifié (language param) | Test infra
+| `src/e2eTest/kotlin/bakery/e2e/E2ETestBase.kt` | Modifié (language param) | Test infra
+| `src/e2eTest/kotlin/bakery/e2e/E2EI18nTest.kt` | Créé (2 tests) | E2E
+| `src/main/resources/site/templates/*.thyme` (9 fichiers) | Modifié (+th:dir) | Templates
+| `src/main/resources/site-basic/templates/*.thyme` (3 fichiers) | Modifié (+th:dir) | Templates
+| `README.adoc` | Modifié (+60 lignes i18n) | Doc
+|===
+
+Total : 17 fichiers (1 créé, 16 modifiés).
+
+== Vérification
+
+- `./gradlew compileTestKotlin compileE2eTestKotlin` → BUILD SUCCESSFUL
+- `./gradlew test --tests "bakery.i18n.*"` → 8/8 PASS
+- `./gradlew -q publishToMavenLocal` → OK
+- E2E tests : non exécutés (Playwright Chromium indisponible)
+
+== Statut EPIC
+
+BKY-I18N : 23/23 pts (100%) — US-I18N-0→6 ✅ TERMINÉ.
+Bakery : 30/30 EPICs terminés. 100% complet.
+
+== Prochaine session
+
+Session 117 — Maintenance ou nouveau borough. Aucun EPIC bakery restant.

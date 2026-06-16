@@ -1,0 +1,30 @@
+= Session 119 — BKY-CR-V5 US-3 (entries.first{}→firstOrNull{} + println→logger + secrets LLM + ObjectMapper cache)
+:date: 2026-06-15
+:type: DDD + TDD + refactor
+:score: 9/10
+
+== Contexte
+
+PROMPT_REPRISE session 118 → US-CR-V5-3 (3 pts). 4 baby steps DDD/TDD/BDD.
+
+== Tâches réalisées
+
+* [x] US-CR-V5-3a — `GenerateArticleTask.kt:208-209` : `entries.first{}` → `firstOrNull{}` avec fallback `ArticleTon.INFORMATIF` / `ArticleAudience.GENERAL`
+* [x] US-CR-V5-3b — `SiteTaskRegistrar.kt:198-201` : `println()` → `logger.lifecycle()`
+* [x] US-CR-V5-3c — `ValidateFirebaseConfigTask.kt:150,157` : `auth.apiKey` + `contact.project.apiKey` masqués via `maskSecret(SecretField.ApiKey(...))`. Import `SecretField` + `maskSecret` ajouté. Test `buildLlmPrompt includes auth config fields` adapté (`AIzaSyB-test` → `AIza***test`)
+* [x] US-CR-V5-3d — `FileSystemManager.kt:165` : `yamlMapper` → `by lazy {}`
+* [x] `./gradlew compileKotlin` → BUILD SUCCESSFUL
+* [x] `./gradlew test --tests GenerateArticleTaskTest --tests ValidateFirebaseConfigTaskTest --tests FileSystemManagerTest` → tous PASS
+
+== Fichiers modifiés
+
+* `src/main/kotlin/bakery/article/GenerateArticleTask.kt` — firstOrNull + fallback
+* `src/main/kotlin/bakery/SiteTaskRegistrar.kt` — println → logger.lifecycle
+* `src/main/kotlin/bakery/firebase/ValidateFirebaseConfigTask.kt` — maskSecret apiKey + imports
+* `src/main/kotlin/bakery/FileSystemManager.kt` — yamlMapper by lazy
+* `src/test/kotlin/bakery/firebase/ValidateFirebaseConfigTaskTest.kt` — test adapté
+
+== Statut post-session
+
+* BKY-CR-V5 : 7/24 pts (US-1 faux positif, US-2, US-3)
+* Prochaine : US-CR-V5-4 (Refactor ResolvedConfigs.toResolver() + FileSystemManager.read() Either + ConfigPromptM + FirebaseContactFormConfig)

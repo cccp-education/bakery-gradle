@@ -1,0 +1,102 @@
+= Session 099 — BKY-KOV-1 US-1 Audit Couverture Kover
+:date: 2026-06-06
+:type: fix + audit
+:sujet: Fix tests + Audit couverture Kover
+:score: 8/10
+
+== Résumé
+
+Session 099 — Deux phases :
+. Réparation complète des tests (functional + Cucumber) cassés avant l'audit Kover
+. Audit Kover : génération rapport XML, identification cibles sous 75%, priorisation US-KOV-2→6
+
+== Phase 1 — Réparation des Tests
+
+=== Functional Tests (11 échecs)
+
+* *Cause* : `configListOfStringContained` contenait `"telephone"` mais le site.yml de référence a `"phone"`
+* *Fix* : `tools.kt:136` — `"telephone"` → `"phone"`
+* *Résultat* : 75/75 FT PASS ✅
+
+=== Cucumber Tests (~65 échecs)
+
+* *Cause 1* : `DuplicateStepDefinitionException` — `@Given("a new Bakery project")` défini dans MinimalSteps.kt ET ConfigResolutionCascadeSteps.kt
+* *Fix 1* : Renommage ConfigResolutionCascadeSteps → `@Given("a new in-memory Bakery project for config cascade resolution")` + 29_config_resolution_cascade.feature mis à jour
+* *Cause 2* : `FileSystemManager.copyFromJar()` copiait dans `targetDir/` au lieu de `targetDir/resourcePath/` comme `copyFromFileSystem()` — asymétrie de chemin
+* *Fix 2* : `copyFromJar:79` — `targetDir.resolve(relativePath)` → `destDir.resolve(relativePath)` où `destDir = targetDir.resolve(resourcePath)`
+* *Résultat* : 97/97 Cucumber PASS ✅ + 75/75 FT PASS ✅ + unit tests ✅
+
+=== Fichiers modifiés
+
+- `src/functionalTest/kotlin/bakery/tools.kt:136` — `"telephone"` → `"phone"`
+- `src/main/kotlin/bakery/FileSystemManager.kt:67-68` — `destDir = targetDir.resolve(resourcePath)` + `targetFile = destDir.resolve(relativePath)`
+- `src/test/scenarios/bakery/scenarios/ConfigResolutionCascadeSteps.kt:19` — `@Given` renommé
+- `src/test/features/29_config_resolution_cascade.feature:9,15` — step renommé
+
+== Phase 2 — Audit Couverture Kover
+
+=== Commande
+
+  ./gradlew koverXmlReport — génère build/reports/kover/xml/report.xml
+  Parse XML pour extraire coverage par package et par classe
+
+=== Résultats
+
+Couverture globale : *78.1%* (12978/16614 instructions)
+Seuil actuel : 70% — cible : 90% — gap : +11.9pp (~1975 instructions)
+
+|===
+| Package | Couverture | Missed | Verdict
+| bakery/injection | 100.0% | 0 | ✅ SATURÉ
+| bakery/llm | 100.0% | 0 | ✅ SATURÉ
+| bakery/site | 96.0% | 10 | ✅ OK
+| bakery/scaffold | 96.4% | 60 | ✅ OK
+| bakery/lens | 94.8% | 102 | ✅ OK
+| bakery/firebase | 93.0% | 80 | ✅ OK
+| bakery/article | 90.9% | 155 | ✅ ≥90%
+| bakery (package racine) | 78.1% | 3636 | 🔴 PRIORITAIRE
+| bakery/theme | 50.1% | 639 | 🔴 CRITIQUE
+|===
+
+=== Top 10 Cibles par Instructions Manquées
+
+[cols="1,3,2,1,3"]
+|===
+| Priorité | Classe | Cov % | Missed | Note
+| 🔴 P0 | GenerateThemeTask | 0.0% | 629 | bakery/theme — coverage 50% dû à cette classe
+| 🟠 P1 | ToolsKt | 21.6% | 533 | bakery — helpers
+| 🟠 P1 | FileSystemManager | 56.0% | 324 | bakery — branches non couvertes
+| 🟠 P1 | SiteTaskRegistrar (closures) | 0% | ~224 | doLast des tâches Gradle (non instrumenté par Kover en JUnit5)
+| 🟡 P2 | GitService | 71.4% | 194 | bakery — push/clone
+| 🟡 P2 | ContentTaskRegistrar | 9.5% | 133 | bakery — closures doLast
+| 🟡 P2 | DeployTaskRegistrar | 46.1% | 132 | bakery — closures doLast
+| 🟡 P2 | BakeryPlugin | 36.8% | 110 | bakery — apply/afterEvaluate
+| 🟢 P3 | LensTaskRegistrar (closures) | 0% | ~224 | idem closures
+| 🟢 P3 | SiteScaffolder | 68.8% | 29 | bakery
+|===
+
+=== Note sur les closures doLast
+
+Les closures `doLast` des TaskRegistrars ne sont pas couvertes par Kover car celui-ci n'instrumente que le sourceSet `main` et `functionalTest`. Or les closures Gradle sont exécutées dans le contexte build du TestKit (functionalTest/Cucumber), pas en JUnit5. Ces ~1000 instructions comptabilisées comme "non couvertes" le sont en réalité via les FT et Cucumber — Kover ne les voit juste pas.
+
+=== Plan US-KOV-2→6 proposé
+
+[cols="1,2,2,2"]
+|===
+| US | Cible | Instructions | Session estimée
+| US-KOV-2 | GenerateThemeTask 0% → tests unitaires | ~629 | Session 100
+| US-KOV-3 | FileSystemManager 56% → 85% | ~210 | Session 101
+| US-KOV-4 | GitService 66% → 85% | ~120 | Session 101
+| US-KOV-5 | BakeryPlugin 37% → 70% | ~100 | Session 102
+| US-KOV-6 | SiteScaffolder 69% → 90% | ~30 | Session 102
+| US-KOV-7 | Validation finale + bump seuil 70→90 | — | Session 103
+|===
+
+Progression projetée : 77.1% → ~85% après US-KOV-2→6, puis validation finale à 90%.
+
+== Fichiers modifiés
+
+- `src/test/scenarios/bakery/scenarios/ConfigResolutionCascadeSteps.kt` — rename step
+- `src/test/features/29_config_resolution_cascade.feature` — adapt steps
+- `src/functionalTest/kotlin/bakery/tools.kt` — fix telephone→phone
+- `src/main/kotlin/bakery/FileSystemManager.kt` — fix copyFromJar path

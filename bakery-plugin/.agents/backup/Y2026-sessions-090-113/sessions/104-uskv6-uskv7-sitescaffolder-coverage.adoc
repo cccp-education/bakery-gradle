@@ -1,0 +1,66 @@
+= Session 104 — US-KOV-6 + US-KOV-7 : SiteScaffolder 100% coverage + bump seuil 85%
+:date: 2026-06-06
+:type: TDD + coverage + threshold
+
+== Objectif
+
+US-KOV-6 : SiteScaffolder 68.8% instruction → >=90%
+US-KOV-7 : Bump seuil Kover 70→85 + validation finale
+
+== Baby Steps DDD/TDD/BDD
+
+=== Step 1 — Audit
+- Kover HTML report : SiteScaffolder 68.8% (64/93 instructions)
+- Branches non couvertes :
+  . resolveAndValidateSiteTarget() entièrement NC — méthode définie mais jamais appelée
+  . resolveSiteType edge : Property<String> null
+
+=== Step 2 — DDD Refactor
+- BakeryPlugin.registerScaffoldOnlyTasks : remplacé l'inlining de resolveSiteTargetDir + validateSiteTargetDoesNotExist par appel à resolveAndValidateSiteTarget()
+- Fichier modifié : BakeryPlugin.kt (ligne 139)
+- Import ajouté : import bakery.SiteScaffolder.resolveAndValidateSiteTarget
+
+=== Step 3 — TDD
+- 4 nouveaux tests SiteScaffolderTest :
+  . ResolveAndValidateSiteTargetTest (3 tests) :
+    - both sitesBaseDir + siteName → resolve + validate
+    - only siteName → resolve sans validation
+    - sitesBaseDir sans siteName → throw IllegalStateException
+  . resolveSiteType should return BLOG when siteType Property is null
+- Total SiteScaffolderTest : 28 tests (24 existants + 4 nouveaux)
+
+=== Step 4 — US-KOV-7 — Bump seuil
+- build.gradle.kts : coverage < 70.0 → coverage < 85.0
+- ./gradlew koverThresholdCheck → PASS (85.88%)
+
+== Resultats
+
+- SiteScaffolder : 68.8% → 100% instruction (93/93), 100% line (19/19), 100% method (4/4)
+- Coverage globale : 85.76% → 85.88% (+0.12pp)
+- Seuil 85% ✅ dépasse
+- Tous tests PASS (JUnit5 + functionalTest + Cucumber 129/129)
+- BUILD SUCCESSFUL
+- publishToMavenLocal OK
+
+== EPIC BKY-KOV-1 — Bilan
+
+- US-KOV-1 : Audit couverture ✅ S099
+- US-KOV-2 : GenerateThemeTask 0→95.7% ✅ S100
+- US-KOV-3 : FileSystemManager 56→90.45% ✅ S101
+- US-KOV-4 : GitService 66→86.0% ✅ S102
+- US-KOV-5 : BakeryPlugin 37→52.8% ✅ S103
+- US-KOV-6 : SiteScaffolder 69→100% ✅ S104
+- US-KOV-7 : Bump seuil 70→85 validation ✅ S104
+- Coverage initial 78.1% → final 85.88% (+7.78pp)
+- EPIC TERMINE — 16/16 pts
+
+== Fichiers modifies
+
+- BakeryPlugin.kt (ligne 139 + import)
+- SiteScaffolderTest.kt (4 nouveaux tests)
+- build.gradle.kts (seuil 70→85)
+
+== Prochaine session
+
+EPIC BKY-PUB-1 : Publication Maven Central + Gradle Plugin Portal (8 pts)
+Bloque par achat domaine cccp.education.

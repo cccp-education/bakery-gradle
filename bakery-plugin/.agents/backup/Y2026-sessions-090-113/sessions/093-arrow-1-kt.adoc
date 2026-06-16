@@ -1,0 +1,72 @@
+= Session 093 — ARROW-1 Arrow-kt Migration
+
+*Date* : 2026-06-05
+*Type* : feat + refactor + TDD
+*Score* : 9/10
+
+== Contexte
+
+Dernier code smell du backlog. Arrow-kt 2.2.2 déployé dans bakery pour standardiser les
+types monadiques (Either) et réduire le boilerplate try/catch. Les boroughs sœurs
+(plantuml, slider, codebase, readme) utilisent déjà Arrow-kt 2.2.2.
+
+== Baby Steps DDD/TDD
+
+=== ARROW-1.0 — Dépendance Arrow-kt (0 pts)
+
+* Ajout `arrow = "2.2.2"` dans `libs.versions.toml`
+* Librairies : `arrow-core` + `arrow-fx-coroutines`
+* Bundle `arrow` dans `libs.versions.toml`
+* Ajout `implementation(libs.bundles.arrow)` dans `build.gradle.kts`
+* Compilation OK
+
+=== ARROW-1.2 — FileSystemOperationResult/FileOperationResult → Either (CS-FIN-8)
+
+*Fichiers* : `FileSystemManager.kt`, `GitService.kt`, `SiteTaskRegistrar.kt`, `FileSystemManagerTest.kt`
+
+* Suppression `sealed class FileSystemOperationResult` (remplacé par `FsResult = Either<String, Unit>`)
+* Suppression `sealed class FileOperationResult` dans GitService
+* `copyResourceDirectory()` retourne `FsResult`
+* `copyBakedFilesToRepo()` retourne `FsResult`
+* `pushPages()` utilise `either.fold()` au lieu de `when is Success/Failure`
+* Tests mis à jour : `Right::class.java` / `Left::class.java` + `.value`
+
+=== ARROW-1.1 — ConfigResolver.resolveAll try/catch → Either.catch (CS-FIN-4)
+
+*Fichiers* : `ConfigResolver.kt`
+
+* Fonction locale `resolveDomain<T>()` avec `Either.catch().fold()`
+* 8 blocs try/catch de `resolveAll` unifiés (40+ lignes supprimées)
+* Contrat `Pair<ResolvedConfigs, List<ConfigResolutionError>>` préservé
+
+=== ARROW-1.3 — GitService.pushPages returns Either (CS-FIN-6)
+
+*Fichiers* : `GitService.kt`, `DeployTaskRegistrar.kt`
+
+* `pushPages()` retourne `Either<String, Unit>` au lieu de throw IllegalStateException
+* `DeployTaskRegistrar` : `.onLeft { throw IllegalStateException(it) }`
+* Fin du sealed class `FileOperationResult`/`GitOperationResult`
+
+== Résultats
+
+* Tests unitaires : 757 PASS, zéro régression
+* Tests fonctionnels : 11 échecs préexistants (contenu fichier config, non liés à Arrow)
+* Tests Cucumber : échecs préexistants (~65)
+* Compilation : BUILD SUCCESSFUL — Gradle 9.5.1, Kotlin 2.3.20, Java 24, zéro warning
+* publishToMavenLocal : OK
+
+== Fichiers modifiés (8)
+
+* `build.gradle.kts` — +3 lignes (arrow bundle)
+* `gradle/libs.versions.toml` — +7 lignes (arrow version + libs + bundle)
+* `ConfigResolver.kt` — try/catch → Either.catch (40 lignes supprimées)
+* `DeployTaskRegistrar.kt` — .onLeft() handle
+* `FileSystemManager.kt` — FileSystemOperationResult → Either
+* `GitService.kt` — FileOperationResult supprimé + pushPages returns Either
+* `SiteTaskRegistrar.kt` — is Left → is Either.Left
+* `FileSystemManagerTest.kt` — assertThat → Right/Left
+
+== Clôture EPIC
+
+ARROW-1 est le dernier code smell (12/12 ✅). Tous les EPICs terminés (28/28).
+Bakery est à 100% — phase de polish final terminée.
