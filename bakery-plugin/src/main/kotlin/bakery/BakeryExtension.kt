@@ -5,6 +5,7 @@ import bakery.article.ArticleIntentionDsl
 import bakery.lens.AugmentedContextDsl
 import bakery.scaffold.ScaffoldIntentionDsl
 import bakery.theme.ThemeIntentionDsl
+import bakery.i18n.I18nMigrationIntentionDsl
 import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
@@ -76,6 +77,9 @@ open class BakeryExtension @Inject constructor(objects: ObjectFactory) {
     /** Configuration Theme Intention (description, variante, surcharges) — BKY-IA-2 */
     val themeIntention: ThemeIntentionDsl = ThemeIntentionDsl()
 
+    /** Configuration I18n Migration Intention (siteDir, languages, defaultLanguage, dryRun) — BKY-I18N-MIG */
+    val i18nMigration: I18nMigrationIntentionDsl = I18nMigrationIntentionDsl()
+
     /** Langue active du site (code ISO 639-1, ex: "fr", "en", "ar") — BKY-I18N */
     val language: Property<String> = objects.property(String::class.java)
 
@@ -140,5 +144,10 @@ open class BakeryExtension @Inject constructor(objects: ObjectFactory) {
     /** DSL : bakery { themeIntention { ... } } — BKY-IA-2 */
     fun themeIntention(action: Action<ThemeIntentionDsl>) {
         action.execute(themeIntention)
+    }
+
+    /** DSL : bakery { i18nMigration { ... } } — BKY-I18N-MIG */
+    fun i18nMigration(action: Action<I18nMigrationIntentionDsl>) {
+        action.execute(i18nMigration)
     }
 }

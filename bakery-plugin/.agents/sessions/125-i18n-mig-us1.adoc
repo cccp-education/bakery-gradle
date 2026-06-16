@@ -1,0 +1,61 @@
+= Session 125 — BKY-I18N-MIG US-1 : I18nMigrationIntention + Dsl + BakeryExtension
+:date: 2026-06-16
+:type: DDD + TDD + BDD
+:score: 9/10
+
+== Résumé
+
+US-I18N-MIG-1 (2 pts) — Modèle domaine, DSL bridge, et intégration BakeryExtension
+pour la tâche `migrateToI18n`.
+
+== Baby Steps DDD/TDD/BDD
+
+=== DDD — Modèle domaine
+
+- `I18nMigrationIntention.kt` (30 lignes) : data class avec validation init{}
+  - `siteDir` (obligatoire, non-blank)
+  - `languages` (List<String>, default `["en"]`, validées contre `BakeryConstants.SUPPORTED_LANGS`)
+  - `defaultLanguage` (String, default `"fr"`, validée contre `SUPPORTED_LANGS`)
+  - `dryRun` (Boolean, default `true`)
+  - `toPromptContext()` : formatage pour prompt LLM
+
+- `I18nMigrationIntentionDsl.kt` (15 lignes) : open class, var mutables, `toIntention()`
+
+- `BakeryExtension.kt` : ajout `val i18nMigration` + `fun i18nMigration(action: Action<...>)`
+
+=== TDD — 10 tests unitaires
+
+- `I18nMigrationIntentionTest.kt` (10 tests) : minimal, full, siteDir blank/whitespace, languages empty, unsupported lang, unsupported defaultLang, all 10 langs, toPromptContext (dryRun true/false)
+- `I18nMigrationIntentionDslTest.kt` (5 tests) : toIntention full, defaults, siteDir blank, languages empty, unsupported lang
+
+=== BDD — 3 scénarios Cucumber
+
+- Feature `31_i18n_migration.feature` (3 scénarios) : DSL valide, siteDir vide, dryRun false
+- `I18nMigrationSteps.kt` (25 lignes) : step Given avec parsing languages + dryRun
+- `BakeryWorld.kt` : méthode `createGradleProjectWithI18nMigrationIntention()` (45 lignes)
+
+== Fichiers
+
+[cols="1,2,2"]
+|===
+| Fichier | Action | Lignes
+| `src/main/kotlin/bakery/i18n/I18nMigrationIntention.kt` | NOUVEAU | 30
+| `src/main/kotlin/bakery/i18n/I18nMigrationIntentionDsl.kt` | NOUVEAU | 15
+| `src/main/kotlin/bakery/BakeryExtension.kt` | MODIFIÉ | +9
+| `src/test/kotlin/bakery/i18n/I18nMigrationIntentionTest.kt` | NOUVEAU | 108
+| `src/test/kotlin/bakery/i18n/I18nMigrationIntentionDslTest.kt` | NOUVEAU | 72
+| `src/test/features/31_i18n_migration.feature` | NOUVEAU | 21
+| `src/test/scenarios/bakery/scenarios/I18nMigrationSteps.kt` | NOUVEAU | 25
+| `src/test/scenarios/bakery/scenarios/BakeryWorld.kt` | MODIFIÉ | +45
+|===
+
+== Vérification
+
+- `./gradlew compileKotlin` → BUILD SUCCESSFUL
+- `./gradlew test --tests "bakery.i18n.*"` → 15/15 PASS
+- `./gradlew cucumberTest` → 3/3 nouveaux scénarios PASS
+
+== Statut EPIC
+
+BKY-I18N-MIG : 2/16 pts (US-1 ✅)
+Prochaine US : US-I18N-MIG-2 — MigrateToI18nTask + ContentTaskRegistrar (3 pts)

@@ -1,5 +1,5 @@
 <!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-transitional-thymeleaf-4.dtd">
-<html th:lang="${config.site_language}" th:dir="${#sets.contains({'ar','ur'}, config.site_language) ? 'rtl' : 'ltr'}">
+<html th:lang="${config.site_language}" th:dir="${config.site_language == 'ar' or config.site_language == 'ur' ? 'rtl' : 'ltr'}">
     <head th:fragment="head">
         <meta charset="UTF-8"/>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>

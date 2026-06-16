@@ -1,7 +1,7 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-06-16 — Session 123 (BKY-CR-V5 US-7)_
+_Dernière mise à jour : 2026-06-16 — Session 125 (BKY-I18N-MIG US-1)_
 
 * [x] Implementer la generation du code client Firebase dans les templates (→ BKY-JB-4, session 032)
 * [x] Ajouter une vraie Firebase API key quand disponible (→ EPIC 4, formalité restante côté consommateur cheroliv.com)
@@ -27,13 +27,13 @@ _Tout le backlog historique est terminé. 30/30 EPICs + 24/24 code smells résol
 * [x] **US-CR-V5-3** 🟠 P1 : Fix entries.first{} unsafe + println→logger + secrets LLM + ObjectMapper cache
 * [x] **US-CR-V5-4** 🟠 P1 : Refactor ResolvedConfigs.toResolver() 35-branches + FileSystemManager.read() Either + ConfigPromptM.resolveWithoutPrompt() null + FirebaseContactFormConfig defaults
 * [x] **US-CR-V5-5** 🟡 P2 : Déduplication SUPPORTED_LANGS + updateProperty() + pattern résolution
-* [ ] **US-CR-V5-6** 🟡 P2 : Déduplication pattern injection DSL + nettoyage code mort + champs morts
+* [x] **US-CR-V5-6** 🟡 P2 : Déduplication pattern injection DSL + nettoyage code mort + champs morts
 * [x] **US-CR-V5-7** 🟡 P2 : Refactor ConfigResolver.resolveAll() + magic numbers + YAML→Jackson
 * [x] **US-CR-V5-8** 🟢 P3 : Log warnings catch muets + divers P3
 
 == NOUVEAU — EPIC BKY-I18N-MIG (Session 117, 16 pts)
 
-* [ ] **US-I18N-MIG-1** : I18nMigrationIntention + Dsl + BakeryExtension
+* [x] **US-I18N-MIG-1** : I18nMigrationIntention + Dsl + BakeryExtension ✅ S125
 * [ ] **US-I18N-MIG-2** : MigrateToI18nTask + ContentTaskRegistrar
 * [ ] **US-I18N-MIG-3** : I18nMigrationService — scan + extraction + messages.properties
 * [ ] **US-I18N-MIG-4** : Traductions LLM 9 langues non-fr

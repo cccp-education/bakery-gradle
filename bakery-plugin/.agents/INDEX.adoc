@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-16 — Session 123 (BKY-CR-V5 US-7)
-  _Session terminee_ : 123
-  _Prochaine session_ : 124 — BKY-CR-V5 US-8 (Log warnings catch muets + divers P3)
+  _Derniere mise a jour_ : 2026-06-16 — Session 125 (BKY-I18N-MIG US-1)
+  _Session terminee_ : 125
+  _Prochaine session_ : 126 — BKY-I18N-MIG US-2 (MigrateToI18nTask + ContentTaskRegistrar)
 
 '''
 
@@ -69,6 +69,8 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 125 | 2026-06-16 | DDD + TDD + BDD | **BKY-I18N-MIG US-1** — I18nMigrationIntention + Dsl + BakeryExtension. 2 fichiers source, 10 UT + 5 UT Dsl, 3 Cucumber, BakeryWorld +45. BKY-I18N-MIG 2/16 pts. | 9/10
+  | 124 | 2026-06-16 | DDD + TDD + refactor | **BKY-CR-V5 US-8** — Log warnings catch muets + divers P3. 7 refactors qualitatifs (AugmentedContextResolver, SiteContextCollector, OllamaLlmService, GitService, ContentTaskRegistrar, AugmentedArticlesService, ThemeInjector). 15 fichiers modifiés. BKY-CR-V5 24/24 pts TERMINÉ. | 9/10
   | 123 | 2026-06-16 | DDD + TDD + refactor | **BKY-CR-V5 US-7** — Refactor ConfigResolver.resolveAll() data-driven + BfsProximityCache constantes nommées + buildSiteYml()→yamlMapper + buildArticleContent() texte FR→article.lang. 4 fichiers, tests PASS. BKY-CR-V5 21/24 pts. | 9/10
   | 122 | 2026-06-16 | DDD + TDD + refactor | **BKY-CR-V5 US-6** — Déduplication pattern injection DSL + nettoyage code mort + champs morts. 7 fichiers, net -67 lignes. BKY-CR-V5 18/24 pts. | 9/10
   | 121 | 2026-06-16 | DDD + TDD + refactor | **BKY-CR-V5 US-5** — Déduplication 3× : SUPPORTED_LANGS→BakeryConstants, updateProperty()→import, resolveIntention() helper. 6 fichiers + 1 test. BKY-CR-V5 15/24 pts. | 9/10
@@ -141,14 +143,14 @@ _Archives_ : Sessions 100-113 archivées dans `.agents/backup/Y2026-sessions-090
 
 |===
 | EPIC | Progression | Priorite
-| BKY-CR-V5 : 60 code smells (1 P0, 10 P1, 37 P2, 12 P3) — audit exhaustif 63 fichiers | 87.5% (21/24 pts) — US-1+2+3+4+5+6+7 ✅ | *🟢 P3 — Session 124*
+| BKY-CR-V5 : 60 code smells (1 P0, 10 P1, 37 P2, 12 P3) — audit exhaustif 63 fichiers | 100% (24/24 pts) — US-1→8 ✅ | *✅ TERMINÉ — Session 124*
 |===
 
 === EPIC BKY-I18N-MIG : Tâche migrateToI18n (NOUVEAU — Session 117)
 
 |===
 | EPIC | Progression | Priorite
-| BKY-I18N-MIG : Tâche migrateToI18n pour appliquer l'i18n aux sites existants | 0% (0/16 pts) | *🟠 P1*
+| BKY-I18N-MIG : Tâche migrateToI18n pour appliquer l'i18n aux sites existants | 12.5% (2/16 pts) — US-1 ✅, US-2 en cours | *🟠 P1 — Session 126*
 |===
 
 === EPIC LENTILLE — ✅ TERMINÉ
@@ -180,7 +182,7 @@ _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
 |===
 | Projet | Repertoire | Session en cours | Derniere MAJ
 | magic-stick | `~/workspace/foundry/OSS/magic-stick` | 055 | 2026-04-30
-| bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 117 | 2026-06-15
+| bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 125 | 2026-06-16
 | plantuml-gradle | `~/workspace/foundry/OSS/plantuml-gradle/plantuml-plugin` | 148 | 2026-06-11
 | jhipster-gradle-plugins | `~/workspace/foundry/OSS/jhipster-gradle-plugins` | 9 | 2026-06-11
 | quizz-benchmark-gradle | `~/workspace/foundry/OSS/quizz-benchmark-gradle/quizz-benchmark-plugin` | Audit 053 | 2026-04-30

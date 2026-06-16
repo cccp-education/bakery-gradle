@@ -349,4 +349,49 @@ $scaffoldIntentionBlock
             return this
         }
     }
+
+    /**
+     * Crée un projet Gradle de test avec bloc i18nMigration DSL.
+     */
+    fun createGradleProjectWithI18nMigrationIntention(
+        siteDir: String,
+        languages: List<String>,
+        defaultLanguage: String,
+        dryRun: Boolean
+    ): File {
+        val pluginId = "education.cccp.bakery"
+        val langListStr = languages.joinToString(", ") { "\"$it\"" }
+        val i18nMigrationBlock = """
+            i18nMigration {
+                siteDir = "$siteDir"
+                languages = listOf($langListStr)
+                defaultLanguage = "$defaultLanguage"
+                dryRun = $dryRun
+            }
+        """.trimIndent()
+        val buildScriptContent = """
+            bakery {
+                configPath = file("site.yml").absolutePath
+                $i18nMigrationBlock
+            }
+        """.trimIndent()
+
+        createTempFile("gradle-test-", "").apply {
+            delete()
+            mkdirs()
+        }.run {
+            resolve("settings.gradle.kts")
+                .apply { createNewFile() }
+                .writeText(
+                    "pluginManagement.repositories.gradlePluginPortal()\n" +
+                            "rootProject.name = \"${name}\""
+                )
+            resolve("build.gradle.kts")
+                .apply { createNewFile() }
+                .writeText("plugins { id(\"$pluginId\") }\n$buildScriptContent")
+            createConfigFile()
+            projectDir = this
+            return this
+        }
+    }
 }

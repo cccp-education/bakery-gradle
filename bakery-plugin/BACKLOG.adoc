@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-16 — Session 123 (BKY-CR-V5 US-7)_
+_Dernière mise à jour : 2026-06-16 — Session 125 (BKY-I18N-MIG US-1)_
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -999,7 +999,7 @@ cascade CLI > DSL > defaults, DDD Intention→Dsl→Task→Service.
   DSL bridge `I18nMigrationIntentionDsl` (open class, var mutables, toIntention()).
   Ajout `i18nMigration` dans `BakeryExtension` + méthode DSL `fun i18nMigration(action: Action<...>)`.
 | 2
-| 🟠 P1
+| ✅ S125
 
 | US-I18N-MIG-2
 | **MigrateToI18nTask + ContentTaskRegistrar** —
@@ -1050,8 +1050,8 @@ cascade CLI > DSL > defaults, DDD Intention→Dsl→Task→Service.
 | BKY-I18N | i18n 10 langues | 23 | ✅ S116
 // ── EN COURS V5 (Session 117-118) ──
 | BKY-CR-V5 | Code smells V5 (60 smells) | 24 | ✅ S124 (US-1+2+3+4+5+6+7+8)
-| BKY-I18N-MIG | Tâche migrateToI18n | 16 | 🟠 P1 ☐
-| *Total restant* | | *16* |
+| BKY-I18N-MIG | Tâche migrateToI18n | 16 | 🟠 P1 ☐ (2/16 pts, US-1 ✅ S125)
+| *Total restant* | | *14* |
 |===
 
 *Tous les EPICs historiques* : 30/30 ✅ (100%)

@@ -677,6 +677,59 @@ BKY-KOV-1 US-1 Audit couverture Kover.
 
 == Session 081 — 2026-06-04 — CS-FIN-2 Jackson + CS-FIN-3 Nettoyage DRY
 
+'''
+
+== Session 125 — 2026-06-16 — BKY-I18N-MIG US-1 (I18nMigrationIntention + Dsl + BakeryExtension)
+
+**Contexte** : Session 124 a terminé BKY-CR-V5. PROMPT_REPRISE : US-I18N-MIG-1 (2 pts).
+
+**Tâches réalisées** :
+
+* [x] DDD — `I18nMigrationIntention.kt` (30 lignes) : data class, validation init{}, toPromptContext()
+* [x] DDD — `I18nMigrationIntentionDsl.kt` (15 lignes) : open class, var mutables, toIntention()
+* [x] DDD — `BakeryExtension.kt` : `val i18nMigration` + `fun i18nMigration(action: Action<...>)`
+* [x] TDD — `I18nMigrationIntentionTest.kt` (10 tests) : minimal, full, siteDir blank/whitespace, languages empty, unsupported lang, unsupported defaultLang, all 10 langs, toPromptContext (dryRun true/false)
+* [x] TDD — `I18nMigrationIntentionDslTest.kt` (5 tests) : toIntention full, defaults, siteDir blank, languages empty, unsupported lang
+* [x] BDD — `31_i18n_migration.feature` (3 scénarios) : DSL valide, siteDir vide, dryRun false
+* [x] BDD — `I18nMigrationSteps.kt` (25 lignes) : step Given avec parsing languages + dryRun
+* [x] BDD — `BakeryWorld.kt` : méthode `createGradleProjectWithI18nMigrationIntention()` (+45 lignes)
+* [x] `./gradlew compileKotlin` → BUILD SUCCESSFUL
+* [x] `./gradlew test --tests "bakery.i18n.*"` → 15/15 PASS
+* [x] `./gradlew cucumberTest` → 3/3 nouveaux scénarios PASS
+
+**Fichiers source** : `I18nMigrationIntention.kt` (NOUVEAU), `I18nMigrationIntentionDsl.kt` (NOUVEAU), `BakeryExtension.kt` (MODIFIÉ)
+**Fichiers test** : `I18nMigrationIntentionTest.kt` (NOUVEAU), `I18nMigrationIntentionDslTest.kt` (NOUVEAU), `31_i18n_migration.feature` (NOUVEAU), `I18nMigrationSteps.kt` (NOUVEAU), `BakeryWorld.kt` (MODIFIÉ)
+**Fichiers gouvernance** : `PROMPT_REPRISE.adoc`, `BACKLOG.adoc`, `TODO.adoc`, `.agents/INDEX.adoc`, `.agents/SESSIONS_HISTORY.adoc`, `TEST_COVERAGE_ANALYSIS.adoc`
+**Fichiers créés** : `.agents/sessions/125-i18n-mig-us1.adoc`
+
+**Résultats** : BKY-I18N-MIG 2/16 pts. Prochaine session : 126 — BKY-I18N-MIG US-2 (MigrateToI18nTask + ContentTaskRegistrar, 3 pts).
+
+'''
+
+== Session 124 — 2026-06-16 — BKY-CR-V5 US-8 (Log warnings catch muets + divers P3)
+
+**Contexte** : Session 123 a terminé US-7. PROMPT_REPRISE : US-CR-V5-8 (3 pts).
+
+**Tâches réalisées** :
+
+* [x] `AugmentedContextResolver.resolve()` catch(Exception) → log warning (catch muet → logger.warn)
+* [x] `SiteContextCollector.parseFeed()/parseSitemap()` runCatching → .onFailure { logger.warn }
+* [x] `OllamaLlmService.complete()` mutableListOf → listOf
+* [x] `GitService.executePushCommand()` retour nullable → non-nullable
+* [x] `ContentTaskRegistrar.createLlmServiceIfEnabled()` inline inutile → supprimer inline
+* [x] `AugmentedArticlesService.applyRules()` excludeDrafts boolean redondant → supprimé (excludeTags contient déjà "draft")
+* [x] `ThemeInjector` injecte toujours defaults → documenté (KDoc : simplicité > optimisation)
+* [x] `./gradlew compileKotlin` → BUILD SUCCESSFUL
+* [x] Tests unitaires + Cucumber PASS
+
+**Fichiers modifiés** : 15 fichiers (7 source + 5 test + 2 features + 1 steps)
+**Fichiers gouvernance** : `PROMPT_REPRISE.adoc`, `BACKLOG.adoc`, `TODO.adoc`, `.agents/INDEX.adoc`, `.agents/SESSIONS_HISTORY.adoc`
+**Fichiers créés** : `.agents/sessions/124-cr-v5-us8.adoc`
+
+**Résultats** : BKY-CR-V5 24/24 pts TERMINÉ. Prochaine session : 125 — BKY-I18N-MIG US-1.
+
+'''
+
 == Session 123 — 2026-06-16 — BKY-CR-V5 US-7 (Refactor ConfigResolver.resolveAll() + magic numbers + YAML→Jackson + texte FR hardcodé)
 
 **Contexte** : Session 122 a terminé US-6. PROMPT_REPRISE : US-CR-V5-7 (3 pts).

@@ -1,8 +1,26 @@
 = Analyse de Couverture des Tests — Bakery Gradle Plugin
 
-_Derniere mise a jour_ : 2026-06-15 (Session 120)
+_Derniere mise a jour_ : 2026-06-16 (Session 125)
 
 '''
+
+== Session 125 — US-I18N-MIG-1 I18nMigrationIntention + Dsl + BakeryExtension
+
+|===
+| Classe | Tests | Statut | Notes
+| I18nMigrationIntentionTest | 10 | OK | minimal, full, siteDir blank/whitespace, languages empty, unsupported lang, unsupported defaultLang, all 10 langs, toPromptContext (dryRun true/false)
+| I18nMigrationIntentionDslTest | 5 | OK | toIntention full, defaults, siteDir blank, languages empty, unsupported lang
+|===
+
+**Total Session 125 unitaires** : 15 nouveaux tests PASS
+
+== Tests Cucumber — Session 125
+
+| Feature | Scenarios | Statut | Notes
+| 31_i18n_migration | 3 | PASS | DSL valide, siteDir vide, dryRun false
+|===
+
+**Total Session 125 Cucumber** : 3 nouveaux scénarios PASS
 
 == Session 120 — US-CR-V5-4 Refactor + Either + Nullable
 
