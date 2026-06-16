@@ -1,0 +1,103 @@
+= Session 128 — BKY-I18N-MIG US-5 (Cucumber BDD + Tests Unitaires Finaux)
+:date: 2026-06-16
+:type: DDD + TDD + BDD
+:score: 9/10
+
+== Objectif
+
+US-I18N-MIG-5 (3 pts) — Enrichir les scénarios Cucumber existants avec
+des assertions post-exécution. La couverture unitaire était déjà complète
+(34 UT I18nMigrationServiceTest + 19 UT MigrateToI18nTaskTest = 53/53 PASS).
+US-5 = valider l'intégration Gradle via Cucumber avec des vérifications
+concrètes (fichiers créés, templates modifiés, dry-run no-op).
+
+== Travail Réalisé
+
+=== Feature 32_i18n_migration.feature — Enrichissement
+
+7 scénarios avec assertions post-exécution :
+
+. *@task-registered* — La tâche migrateToI18n est enregistrée (inchangé)
+. *@dry-run-preview* — Dry run : vérifie qu'aucun fichier messages n'est créé,
+  que les templates ne sont PAS modifiés, et que le log contient "DRY-RUN"
+. *@migration-real-write* — Migration réelle EN+AR : vérifie que
+  messages_en.properties et messages_ar.properties existent, que les
+  templates contiennent th:text=, et que site.language=fr est injecté
+  dans jbake.properties
+. *@migration-no-templates* — Site sans templates : vérifie que le log
+  contient "Aucun répertoire templates"
+. *@migration-already-i18n* — Site déjà i18n : vérifie "Clés extraites : 0"
+  et qu'aucun nouveau fichier messages n'est créé
+. *@migration-no-hardcoded* — Site sans texte hardcodé : vérifie
+  "Clés extraites : 0"
+. *@migration-cli-options* — Options CLI : vérifie que --i18nSite,
+  --i18nLangs, --i18nDryRun sont acceptés et que le log contient
+  "Clés extraites" et "DRY-RUN"
+
+=== Feature 31_i18n_migration.feature — Correction
+
+Les 3 scénarios US-1 corrigés : pattern `dryRun true`/`false` littéral
+→ `dryRun {word}` pour éviter l'ambiguïté Cucumber.
+
+=== I18nMigrationSteps.kt — Nouveaux Steps
+
+10 nouveaux steps (Given + And + Then/And) :
+
+*Given* :
+- `a real site directory {string} with templates containing hardcoded French text`
+- `a real site directory {string} with NO templates directory`
+- `a real site directory {string} with templates already using th:text message keys`
+- `a real site directory {string} with templates containing only empty divs`
+
+*And* :
+- `i18n migration DSL configured with siteDir pointing to the real site and languages {string} and defaultLanguage {string} and dryRun {word}`
+
+*When* :
+- `I am executing the task {string} with CLI options for the real site and languages {string} and dryRun {string}`
+
+*Then/And* :
+- `no messages_{word}.properties file should exist in the templates directory`
+- `the templates should NOT be modified`
+- `messages_{word}.properties should exist in the templates directory`
+- `the templates should contain th:text message keys`
+- `site.language={word} should be injected in jbake.properties`
+- `no new messages files should be created`
+
+=== BakeryWorld.kt — Extension
+
+- Champ `realSiteDir: File?` ajouté
+- Méthode `createRealSiteDirectory(name, withTemplates, alreadyI18n, emptyDivs)`
+  créant un vrai répertoire site avec templates et jbake.properties
+
+=== Correction Bug — configureI18nMigrationDslWithRealSite
+
+La première version appelait `createGradleProjectWithI18nMigrationIntention`
+qui créait un NOUVEAU projet temporaire, écrasant `projectDir` et perdant
+`realSiteDir`. Corrigé : réécriture directe du `build.gradle.kts` existant.
+
+=== Correction Ambiguïté Cucumber
+
+Les steps `dryRun true` et `dryRun false` (littéraux) créaient une ambiguïté
+avec `dryRun {word}`. Supprimés. Feature 31 utilise maintenant `dryRun true`
+(non quoté) matché par `{word}`.
+
+== Résultats
+
+- *10/10 scénarios i18n migration PASS* (3 US-1 + 7 US-5)
+- *114/114 Cucumber PASS* (total)
+- *Compilation OK* — Gradle 9.5.1, Kotlin 2.3.20
+- *publishToMavenLocal OK*
+
+== Statut EPIC
+
+- BKY-I18N-MIG : 13/16 pts (US-1 ✅, US-2 ✅, US-3 ✅, US-5 ✅, US-4 ⏸️)
+- US-4 (3 pts) : ⏸️ EN ATTENTE — dépend de codebase-gradle TranslationService (N1)
+- Tous les autres EPICs : 30/30 ✅ (100%)
+- Code smells : 24/24 ✅ (V2-V4) + 52/52 ✅ (V5)
+
+== Fichiers Modifiés
+
+- `src/test/features/32_i18n_migration.feature` — réécrit (7 scénarios enrichis)
+- `src/test/features/31_i18n_migration.feature` — corrigé (pattern dryRun)
+- `src/test/scenarios/bakery/scenarios/I18nMigrationSteps.kt` — réécrit (10 steps)
+- `src/test/scenarios/bakery/scenarios/BakeryWorld.kt` — +realSiteDir + createRealSiteDirectory()

@@ -25,6 +25,7 @@ class BakeryWorld {
     var simulatedRemoteDir: File? = null
     var simulatedRemoteUri: String? = null
     var migrationSiteDir: String? = null
+    var realSiteDir: File? = null
 
     // Jobs asynchrones en cours
     private val asyncJobs = mutableListOf<Deferred<BuildResult>>()
@@ -349,6 +350,45 @@ $scaffoldIntentionBlock
             projectDir = this
             return this
         }
+    }
+
+    /**
+     * Crée un vrai répertoire de site avec templates pour les tests Cucumber migrateToI18n.
+     * @param name nom du sous-répertoire
+     * @param withTemplates si true, crée templates/ avec .thyme hardcodé FR
+     * @param alreadyI18n si true, les templates utilisent déjà th:text
+     * @param emptyDivs si true, les templates n'ont que des divs vides
+     */
+    fun createRealSiteDirectory(
+        name: String,
+        withTemplates: Boolean = true,
+        alreadyI18n: Boolean = false,
+        emptyDivs: Boolean = false
+    ): File {
+        val siteDir = projectDir!!.resolve(name)
+        siteDir.mkdirs()
+        siteDir.resolve("jbake.properties").writeText("site.host=http://example.com\n")
+        if (withTemplates) {
+            val templatesDir = siteDir.resolve("templates")
+            templatesDir.mkdirs()
+            if (alreadyI18n) {
+                templatesDir.resolve("header.thyme").writeText(
+                    """<header><h1 th:text="#{header.title}">Mon Site</h1><nav><a href="/" th:text="#{nav.home}">Accueil</a></nav></header>"""
+                )
+            } else if (emptyDivs) {
+                templatesDir.resolve("header.thyme").writeText("<div></div>")
+                templatesDir.resolve("footer.thyme").writeText("<div></div>")
+            } else {
+                templatesDir.resolve("header.thyme").writeText(
+                    """<header><h1>Mon Site</h1><nav><a href="/">Accueil</a> <a href="/contact">Contact</a></nav></header>"""
+                )
+                templatesDir.resolve("footer.thyme").writeText(
+                    """<footer><p>© 2024 Mon Site. Tous droits réservés.</p></footer>"""
+                )
+            }
+        }
+        realSiteDir = siteDir
+        return siteDir
     }
 
     /**

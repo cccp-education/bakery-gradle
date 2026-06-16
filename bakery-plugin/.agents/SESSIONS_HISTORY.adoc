@@ -1,8 +1,9 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-  _Derniere mise a jour : 2026-06-16 — Session 127_
+  _Derniere mise a jour : 2026-06-16 — Session 128_
 
   |===
+  | 128 | 2026-06-16 | DDD + TDD + BDD | **BKY-I18N-MIG US-5** — Cucumber BDD + tests unitaires finaux. Feature 32 enrichie 7 scénarios avec assertions post-exécution (messages_*.properties, th:text=, site.language, dry-run no-op). Feature 31 corrigée (pattern dryRun). I18nMigrationSteps 10 nouveaux steps. BakeryWorld +realSiteDir + createRealSiteDirectory(). Bug fix configureI18nMigrationDslWithRealSite. 10/10 i18n migration PASS, 114/114 total PASS. BKY-I18N-MIG 13/16 pts. | 9/10
   | 127 | 2026-06-16 | DDD + TDD + BDD | **BKY-I18N-MIG US-3** — I18nMigrationService complet (scanTemplates, extractHardcodedText 6 extracteurs, generateMessageFiles, replaceHardcodedWithMessageKeys, writeMessageFiles, injectSiteLanguage). 34 UT I18nMigrationServiceTest + 19 UT MigrateToI18nTaskTest = 53/53 PASS. Feature Cucumber 8→12 scénarios. Décision archi : US-4 traduction LLM → codebase-gradle N1. BKY-I18N-MIG 10/16 pts. | 9/10
   | 126 | 2026-06-16 | DDD + TDD + BDD | **BKY-I18N-MIG US-2** — MigrateToI18nTask + ContentTaskRegistrar + BakeryPlugin. 4 CLI options, cascade CLI>DSL>defaults, llmService + dslIntention. 20 UT + 5 Cucumber PASS. BKY-I18N-MIG 5/16 pts. | 9/10
   | 125 | 2026-06-16 | DDD + TDD + BDD | **BKY-I18N-MIG US-1** — I18nMigrationIntention + Dsl + BakeryExtension. 2 fichiers source (30+15 lignes), 10 UT + 5 UT Dsl, 3 Cucumber, BakeryWorld +45 lignes. Compilation OK, tests PASS. BKY-I18N-MIG 2/16 pts. | 9/10

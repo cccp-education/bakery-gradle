@@ -1,19 +1,21 @@
 = PROMPT_REPRISE — Bakery
+:session: 129
+:date: 2026-06-16
 
 == Mission accomplie
 
-*Session 127 TERMINÉE* — BKY-I18N-MIG US-3 (5 pts).
+*Session 128 TERMINÉE* — BKY-I18N-MIG US-5 (3 pts).
 DDD/TDD/BDD baby-step :
-- `I18nMigrationService.kt` — implémentation complète (scanTemplates, extractHardcodedText,
-  generateMessageFiles, replaceHardcodedWithMessageKeys, writeMessageFiles, injectSiteLanguage)
-- `I18nMigrationResult.kt` — ajout champ `templatesModified`
-- `MigrateToI18nTask.kt` — suppression dépendance LlmService (US-3 n'en a pas besoin)
-- `I18nMigrationServiceTest.kt` — 34 UT (ScanTemplates 4, ExtractHardcodedText 11,
-  GenerateMessageFiles 3, ReplaceHardcodedWithMessageKeys 7, WriteMessageFiles 1,
-  InjectSiteLanguage 3, Migrate 5) PASS
-- `MigrateToI18nTaskTest.kt` — 19 UT (suppression test llmService, nettoyage imports) PASS
-- `32_i18n_migration.feature` — enrichi 8→12 scénarios Cucumber
-- `I18nMigrationSteps.kt` — nettoyé (suppression steps non-testables via TestKit)
+- `32_i18n_migration.feature` — 7 scénarios enrichis avec assertions post-exécution
+  (messages_*.properties exist/absent, th:text= présent/absent, site.language injecté,
+  dry-run no-op, already-i18n no-op, no-hardcoded zéro extraction)
+- `31_i18n_migration.feature` — 3 scénarios US-1 corrigés (pattern dryRun true/false)
+- `I18nMigrationSteps.kt` — 10 nouveaux steps (Given real site ×4, And DSL config,
+  When CLI options, Then/And assertions ×6)
+- `BakeryWorld.kt` — +realSiteDir + createRealSiteDirectory() (3 variantes)
+- Bug fix : configureI18nMigrationDslWithRealSite ne recrée plus le projet
+- Ambiguïté Cucumber résolue : suppression steps dryRun true/false littéraux
+- 10/10 i18n migration Cucumber PASS, 114/114 total PASS
 - publishToMavenLocal OK
 
 == Statut
@@ -21,29 +23,28 @@ DDD/TDD/BDD baby-step :
 - EPICs : 30/30 ✅ (100%)
 - Code smells résolus : 24/24 ✅ (V2-V4) + 52/52 ✅ (V5)
 - BKY-CR-V5 : 24/24 pts ✅
-- BKY-I18N-MIG : 10/16 pts (US-1 ✅ S125, US-2 ✅ S126, US-3 ✅ S127)
-- Version publiée: 0.0.1 (Maven Central)
+- BKY-I18N-MIG : 13/16 pts (US-1 ✅ S125, US-2 ✅ S126, US-3 ✅ S127, US-5 ✅ S128)
+- BKY-I18N : 23/23 pts ✅
+- BKY-KOV-1 : 16/16 pts ✅ (85.88%)
+- BKY-COV-2 : 12/12 pts ✅
+- BKY-PUB-1 : 8/8 pts ✅ (Maven Central 0.0.1)
+- Version publiée : 0.0.1 (Maven Central)
 
-== Prochaine session (128)
+== Prochaine session (129)
 
-*Priorité P2* : BKY-I18N-MIG — US-I18N-MIG-5 (3 pts).
-Cucumber BDD + tests unitaires finaux :
-- Feature `i18n_migration.feature` : scénarios dry run preview, migration EN+AR,
-  fallback LLM indisponible, site sans templates, site déjà i18n (no-op).
-- Tests unitaires : I18nMigrationServiceTest (scan, extract, replace, dryRun).
-  *NOTE* : La couverture unitaire est déjà complète (34 UT). US-5 = enrichir
-  les scénarios Cucumber existants avec des assertions post-exécution.
+*Priorité P3* : Maintenance / Polish — Bakery est 100% fonctionnel.
+Tous les EPICs sont terminés. US-I18N-MIG-4 (3 pts) est en attente
+de codebase-gradle TranslationService (N1).
 
-*Fichiers cibles* :
-- `32_i18n_migration.feature` (ENRICHIR, 12→15+ scénarios)
-- `I18nMigrationSteps.kt` (AJOUTER steps Then/And)
-
-*Vérification* : `./gradlew cucumberTest` → 120+ PASS.
+*Options* :
+- Revue de code post-I18N-MIG (vérifier cohérence globale)
+- Audit des 36 templates i18n (vérifier qu'aucun texte FR n'a été oublié)
+- Nettoyage final des steps Cucumber obsolètes (PendingException dans InitSiteSteps)
+- Attendre codebase-gradle TranslationService pour US-I18N-MIG-4
 
 == Note — US-I18N-MIG-4 (⏸️ EN ATTENTE)
 
-La traduction LLM des 9 langues non-fr est mise en attente. Décision architecturale
-(2026-06-16) : la traduction est une capacité transverse qui sera implémentée dans
-**codebase-gradle (N1)** comme `TranslationService` partagé (koog StateGraph +
-langchain4j OllamaChatModel), ou dans un artefact N0 dédié (`translation-contracts`).
-Bakery consommera ce service, ne l'implémentera pas.
+La traduction LLM des 9 langues non-fr est mise en attente. Dépend de :
+- `education.cccp:koog` (N0)
+- `education.cccp:llm-pool-contracts` (N0)
+- codebase-gradle `TranslationService` (N1, à créer)

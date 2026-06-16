@@ -1,5 +1,23 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 128 — 2026-06-16 — BKY-I18N-MIG US-5 (Cucumber BDD + Tests Unitaires Finaux)
+
+**Contexte** : Session 127 a terminé US-3. PROMPT_REPRISE : US-I18N-MIG-5 (3 pts).
+
+**Tâches réalisées** :
+
+* [x] `32_i18n_migration.feature` — 7 scénarios enrichis avec assertions post-exécution (messages_*.properties, th:text=, site.language, dry-run no-op, already-i18n no-op, no-hardcoded zéro extraction)
+* [x] `31_i18n_migration.feature` — 3 scénarios US-1 corrigés (pattern dryRun true/false → {word})
+* [x] `I18nMigrationSteps.kt` — 10 nouveaux steps (Given real site ×4, And DSL config, When CLI options, Then/And assertions ×6)
+* [x] `BakeryWorld.kt` — +realSiteDir + createRealSiteDirectory() (3 variantes : hardcoded FR, already i18n, empty divs)
+* [x] Bug fix : configureI18nMigrationDslWithRealSite ne recrée plus le projet (écrasait realSiteDir)
+* [x] Ambiguïté Cucumber résolue : suppression steps dryRun true/false littéraux (conflit avec {word})
+* [x] `./gradlew compileKotlin` → BUILD SUCCESSFUL
+* [x] `./gradlew cucumberTest` → 10/10 i18n migration PASS, 114/114 total PASS
+* [x] `./gradlew -q publishToMavenLocal` → OK
+* [x] BKY-I18N-MIG : 13/16 pts (US-1 ✅, US-2 ✅, US-3 ✅, US-5 ✅, US-4 ⏸️)
+* [x] 4 fichiers modifiés (2 features + 1 steps + 1 BakeryWorld)
+
 == Session 122 — 2026-06-16 — BKY-CR-V5 US-6 (Déduplication pattern injection DSL + nettoyage code mort + champs morts)
 
 **Contexte** : Session 121 a terminé US-5. PROMPT_REPRISE : US-CR-V5-6 (3 pts).
