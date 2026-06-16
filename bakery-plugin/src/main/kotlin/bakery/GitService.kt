@@ -119,7 +119,7 @@ object GitService {
             git,
             logger,
             effectiveForce
-        )?.forEach { pushResult ->
+        ).forEach { pushResult ->
             val resultString = pushResult.toString()
             logger.info(resultString)
         }
@@ -220,7 +220,7 @@ object GitService {
         gitConfig: GitPushConfiguration,
         logger: Logger,
         force: Boolean = true
-    ): MutableIterable<PushResult>? {
+    ): MutableIterable<PushResult> {
         logger.info("Preparing to push to remote '$ORIGIN' on branch '${gitConfig.branch}' (force=$force)")
         val credentialsProvider = UsernamePasswordCredentialsProvider(
             gitConfig.repo.credentials.username,

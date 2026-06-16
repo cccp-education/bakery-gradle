@@ -29,7 +29,7 @@ _Tout le backlog historique est terminé. 30/30 EPICs + 24/24 code smells résol
 * [x] **US-CR-V5-5** 🟡 P2 : Déduplication SUPPORTED_LANGS + updateProperty() + pattern résolution
 * [ ] **US-CR-V5-6** 🟡 P2 : Déduplication pattern injection DSL + nettoyage code mort + champs morts
 * [x] **US-CR-V5-7** 🟡 P2 : Refactor ConfigResolver.resolveAll() + magic numbers + YAML→Jackson
-* [ ] **US-CR-V5-8** 🟢 P3 : Log warnings catch muets + divers P3
+* [x] **US-CR-V5-8** 🟢 P3 : Log warnings catch muets + divers P3
 
 == NOUVEAU — EPIC BKY-I18N-MIG (Session 117, 16 pts)
 

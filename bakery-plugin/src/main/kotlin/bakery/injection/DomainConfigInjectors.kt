@@ -76,6 +76,14 @@ object NewsletterInjector : ConfigInjector {
     }
 }
 
+/**
+ * Injecteur de propriétés de thème dans jbake.properties.
+ *
+ * Injecte toujours toutes les propriétés de thème (même avec leurs valeurs par défaut)
+ * pour garantir que les templates Thymeleaf ont toutes les variables disponibles.
+ * Simplicité > optimisation : le coût d'injecter 11 propriétés par défaut est négligeable
+ * comparé à la complexité de détecter quelles propriétés ont été explicitement configurées.
+ */
 object ThemeInjector : ConfigInjector {
     override fun inject(lines: MutableList<String>, resolver: (String, String) -> String) {
         updateProperty(lines, "themeMode", resolver("themeMode", "auto"))

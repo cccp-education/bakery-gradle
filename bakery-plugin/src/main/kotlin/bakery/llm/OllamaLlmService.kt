@@ -27,7 +27,7 @@ import java.time.Duration
 class OllamaLlmService(private val model: ChatModel) : LlmService {
 
     override suspend fun complete(prompt: String): String {
-        val messages = mutableListOf<ChatMessage>(UserMessage.from(prompt))
+        val messages = listOf<ChatMessage>(UserMessage.from(prompt))
         val response = model.chat(messages)
         return response.aiMessage().text()
     }

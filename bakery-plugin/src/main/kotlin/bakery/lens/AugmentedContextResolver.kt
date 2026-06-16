@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import contracts.context.CompositeContext
 import contracts.context.CompositeContextConfig
 import contracts.context.ContextChannel
+import org.slf4j.LoggerFactory
 import java.io.File
 
 /**
@@ -30,6 +31,7 @@ import java.io.File
  */
 class AugmentedContextResolver {
 
+    private val logger = LoggerFactory.getLogger(AugmentedContextResolver::class.java)
     private val objectMapper = ObjectMapper().registerKotlinModule()
 
     /**
@@ -43,7 +45,8 @@ class AugmentedContextResolver {
         if (!file.exists()) return null
         return try {
             objectMapper.readValue(file, CompositeContext::class.java)
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            logger.warn("Failed to parse composite-context.json at {}: {}", contextFilePath, e.message)
             null
         }
     }

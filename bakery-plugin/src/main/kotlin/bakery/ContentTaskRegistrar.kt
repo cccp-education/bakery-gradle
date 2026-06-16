@@ -154,7 +154,7 @@ object ContentTaskRegistrar {
     }
 
     /** Construit un [LlmService] si l'IA est activée et l'injecte via [applyService]. */
-    private inline fun createLlmServiceIfEnabled(
+    private fun createLlmServiceIfEnabled(
         iaConfig: IaConfig,
         applyService: (LlmService) -> Unit
     ) {

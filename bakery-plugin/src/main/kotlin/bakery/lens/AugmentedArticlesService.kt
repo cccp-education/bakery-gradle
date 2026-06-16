@@ -174,7 +174,6 @@ class AugmentedArticlesService {
      * Applique les règles métier pour filtrer les nœuds scorés.
      *
      * Filtres :
-     * - [LensRules.excludeDrafts] : exclure les nœuds avec tag "draft"
      * - [LensRules.excludeTags] : exclure les nœuds contenant un tag interdit
      *
      * @param scoredNodes Liste de nœuds scorés
@@ -185,16 +184,9 @@ class AugmentedArticlesService {
         scoredNodes: List<ScoredNode>,
         lensRules: LensRules
     ): List<ScoredNode> {
+        val excludeTagsLower = lensRules.excludeTags.map { it.lowercase() }.toSet()
         return scoredNodes.filter { node ->
-            // excludeDrafts : exclure "draft" dans les tags du nœud
-            val draftOk = !lensRules.excludeDrafts ||
-                "draft" !in node.tags.map { it.lowercase() }
-
-            // excludeTags : aucun tag interdit dans les tags du nœud
-            val excludeTagsLower = lensRules.excludeTags.map { it.lowercase() }.toSet()
-            val tagsOk = node.tags.map { it.lowercase() }.none { it in excludeTagsLower }
-
-            draftOk && tagsOk
+            node.tags.map { it.lowercase() }.none { it in excludeTagsLower }
         }
     }
 

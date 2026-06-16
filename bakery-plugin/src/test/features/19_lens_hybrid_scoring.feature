@@ -16,7 +16,7 @@ Feature: Lens Hybrid Scoring — BKY-LENS-2
 
   Scenario: Lens rules exclude drafts and WIP articles from suggestions
     Given a list of scored nodes with tags "draft", "wip", and "published"
-    And lens rules with excludeDrafts enabled and excludeTags containing "wip"
+    And lens rules with excludeTags containing "wip, draft"
     When I apply lens rules to the scored nodes
     Then the result should not contain any node with tag "draft"
     And the result should not contain any node with tag "wip"

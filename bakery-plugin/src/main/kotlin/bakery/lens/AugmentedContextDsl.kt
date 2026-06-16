@@ -19,7 +19,7 @@ import org.gradle.api.Action
  *             scope = LensScope.SUBGRAPH
  *             communities = listOf("bakery-gradle")
  *             rules {
- *                 excludeDrafts = true
+ *                 excludeTags = listOf("wip", "draft")
  *                 prioritizeCrossReferences = true
  *             }
  *             rag {

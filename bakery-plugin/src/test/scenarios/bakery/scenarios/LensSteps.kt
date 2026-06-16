@@ -131,11 +131,10 @@ class LensSteps(private val world: BakeryWorld) {
         )
     }
 
-    @Given("lens rules with excludeDrafts enabled and excludeTags containing {string}")
-    fun `lens rules with excludeDrafts enabled and excludeTags containing`(excludedTag: String) {
+    @Given("lens rules with excludeTags containing {string}")
+    fun `lens rules with excludeTags containing`(excludedTags: String) {
         rules = LensRules(
-            excludeDrafts = true,
-            excludeTags = listOf(excludedTag)
+            excludeTags = excludedTags.split(",").map { it.trim() }
         )
     }
 

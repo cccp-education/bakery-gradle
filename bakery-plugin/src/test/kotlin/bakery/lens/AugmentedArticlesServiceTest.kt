@@ -312,36 +312,6 @@ class AugmentedArticlesServiceTest {
     inner class ApplyRules {
 
         @Test
-        @DisplayName("applyRules() — excludeDrafts filtre les nœuds avec tag draft")
-        fun `applyRules filters draft nodes`() {
-            val scoredNodes = listOf(
-                ScoredNode("a.md", "A", null, listOf("draft"), 0.5, 0.3, 0.1, 0, 0.5),
-                ScoredNode("b.md", "B", null, listOf("published"), 0.5, 0.3, 0.1, 0, 0.5),
-                ScoredNode("c.md", "C", null, emptyList(), 0.5, 0.3, 0.1, 0, 0.5)
-            )
-
-            val rules = LensRules(excludeDrafts = true)
-            val filtered = service.applyRules(scoredNodes, rules)
-
-            assertThat(filtered).hasSize(2)
-            assertThat(filtered.map { it.nodeId }).containsExactly("b.md", "c.md")
-        }
-
-        @Test
-        @DisplayName("applyRules() — excludeDrafts false ne filtre pas")
-        fun `applyRules does not filter when excludeDrafts is false`() {
-            val scoredNodes = listOf(
-                ScoredNode("a.md", "A", null, listOf("draft"), 0.5, 0.3, 0.1, 0, 0.5),
-                ScoredNode("b.md", "B", null, listOf("published"), 0.5, 0.3, 0.1, 0, 0.5)
-            )
-
-            val rules = LensRules(excludeDrafts = false, excludeTags = emptyList())
-            val filtered = service.applyRules(scoredNodes, rules)
-
-            assertThat(filtered).hasSize(2)
-        }
-
-        @Test
         @DisplayName("applyRules() — excludeTags filtre les tags interdits (insensible à la casse)")
         fun `applyRules filters excluded tags case insensitive`() {
             val scoredNodes = listOf(

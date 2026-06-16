@@ -972,7 +972,7 @@ la cascade ConfigResolver 5 couches (CLI > gradle.properties > DSL > site.yml > 
   `AugmentedArticlesService.applyRules()` filtre "draft" redondant → supprimer excludeDrafts boolean.
   `ThemeInjector` injecte toujours defaults → documenter (simplicité > optimisation).
 | 3
-| 🟢 P3
+| 🟢 P3 ✅ S124
 |===
 
 '''
@@ -1049,14 +1049,14 @@ cascade CLI > DSL > defaults, DDD Intention→Dsl→Task→Service.
 | BKY-PUB-1 | Publication Maven Central 0.0.1 | 8 | ✅ S109
 | BKY-I18N | i18n 10 langues | 23 | ✅ S116
 // ── EN COURS V5 (Session 117-118) ──
-| BKY-CR-V5 | Code smells V5 (60 smells) | 12 | 🟢 P3 🔄 (21/24 pts — US-1+2+3+4+5+6+7 ✅ S118-123)
+| BKY-CR-V5 | Code smells V5 (60 smells) | 24 | ✅ S124 (US-1+2+3+4+5+6+7+8)
 | BKY-I18N-MIG | Tâche migrateToI18n | 16 | 🟠 P1 ☐
-| *Total restant* | | *12* |
+| *Total restant* | | *16* |
 |===
 
 *Tous les EPICs historiques* : 30/30 ✅ (100%)
 *Code smells résolus* : 24/24 ✅ (V2+V3+V4)
-*Code smells V5* : 52 ☐ (US-1 faux positif, US-2+3+4+5+6+7 résolues)
+*Code smells V5* : 52 ☐ (US-1 faux positif, US-2+3+4+5+6+7+8 résolues)
 *Bakery 100% fonctionnel* — les smells V5 sont qualitatifs, pas fonctionnels.
 
 '''

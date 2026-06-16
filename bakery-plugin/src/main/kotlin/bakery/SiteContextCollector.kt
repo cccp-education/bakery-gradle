@@ -5,6 +5,7 @@ import bakery.lens.AugmentedContextResolver
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rometools.rome.io.SyndFeedInput
 import com.rometools.rome.io.XmlReader
+import org.slf4j.LoggerFactory
 import java.io.File
 import java.time.Instant
 import java.time.LocalDate
@@ -14,6 +15,7 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 object SiteContextCollector {
 
+    private val logger = LoggerFactory.getLogger(SiteContextCollector::class.java)
     private val isoDate = DateTimeFormatter.ISO_LOCAL_DATE
 
     fun collect(bakedDir: File, outputDir: File) {
@@ -129,6 +131,8 @@ object SiteContextCollector {
                     "author" to author
                 )
             }
+        }.onFailure { e ->
+            logger.warn("Failed to parse feed.xml at {}: {}", feedFile.absolutePath, e.message)
         }.getOrDefault(emptyList())
     }
 
@@ -152,6 +156,8 @@ object SiteContextCollector {
                     .substringAfter("/")
                     .removePrefix("/")
             }.filter { it.isNotBlank() }
+        }.onFailure { e ->
+            logger.warn("Failed to parse sitemap.xml at {}: {}", sitemapFile.absolutePath, e.message)
         }.getOrDefault(emptyList())
     }
 }

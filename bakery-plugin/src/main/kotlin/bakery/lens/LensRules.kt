@@ -14,7 +14,6 @@ package bakery.lens
  *     augmentedContext {
  *         lens {
  *             rules {
- *                 excludeDrafts = true
  *                 excludeTags = listOf("wip", "draft")
  *                 prioritizeCrossReferences = true
  *                 crossRefBonus = 0.2
@@ -26,9 +25,6 @@ package bakery.lens
  * ```
  */
 data class LensRules(
-    /** Exclure les articles en brouillon (jbake-status = draft). */
-    var excludeDrafts: Boolean = true,
-
     /** Tags éditoriaux à exclure du scoring (ex: ["wip", "draft"]). */
     var excludeTags: List<String> = listOf("wip", "draft"),
 

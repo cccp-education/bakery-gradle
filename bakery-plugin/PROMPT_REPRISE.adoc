@@ -2,43 +2,38 @@
 
 == Mission accomplie
 
-*Session 123 TERMINÉE* — BKY-CR-V5 US-7 (3 pts).
-4 refactors qualitatifs :
-- ConfigResolver.resolveAll() 9 blocs resolveDomain → data-driven (liste DomainResolver + fold)
-- BfsProximityCache distances 1.0/0.7/0.4/0.1 → constantes nommées (PROXIMITY_SELF, PROXIMITY_DIRECT_NEIGHBOR, PROXIMITY_DISTANCE_2, PROXIMITY_DISTANCE_3_PLUS, PROXIMITY_UNREACHABLE)
-- GenerateSiteFromIntentionTask.buildSiteYml() concaténation string → yamlMapper.writeValueAsString()
-- GenerateArticleTask.buildArticleContent() texte FR hardcodé → articleGeneratedNote(lang) avec when(lang)
-4 fichiers modifiés. Compilation OK, tests cibles PASS, publishToMavenLocal OK.
+*Session 124 TERMINÉE* — BKY-CR-V5 US-8 (3 pts).
+7 refactors qualitatifs P3 :
+- AugmentedContextResolver.resolve() catch(Exception) → log warning (catch muet → logger.warn)
+- SiteContextCollector.parseFeed()/parseSitemap() runCatching → .onFailure { logger.warn }
+- OllamaLlmService.complete() mutableListOf → listOf
+- GitService.executePushCommand() retour nullable → non-nullable
+- ContentTaskRegistrar.createLlmServiceIfEnabled() inline inutile → supprimer inline
+- AugmentedArticlesService.applyRules() excludeDrafts boolean redondant → supprimé (excludeTags contient déjà "draft")
+- ThemeInjector injecte toujours defaults → documenté (KDoc : simplicité > optimisation)
+15 fichiers modifiés (7 source + 5 test + 2 features + 1 steps). Compilation OK, tests unitaires + Cucumber PASS.
 
 == Statut
 
 - EPICs : 30/30 ✅ (100%)
 - Code smells résolus : 24/24 ✅ (V2-V4)
-- Code smells V5 : 52 ☐ (US-1 faux positif, US-2+3+4+5+6+7 résolues)
-- BKY-CR-V5 : 21/24 pts (US-1 1pt + US-2 3pts + US-3 3pts + US-4 3pts + US-5 5pts + US-6 3pts + US-7 3pts)
+- Code smells V5 : 52 ☐ (US-1 faux positif, US-2+3+4+5+6+7+8 résolues)
+- BKY-CR-V5 : 24/24 pts ✅ (US-1 1pt + US-2 3pts + US-3 3pts + US-4 3pts + US-5 5pts + US-6 3pts + US-7 3pts + US-8 3pts)
 - BKY-I18N-MIG : 0/16 pts ☐
 - Version publiée: 0.0.1 (Maven Central)
 - 3 échecs ThymeleafRenderingTest pré-existants (OGNL bug header.thyme, non lié)
 
-== Prochaine session (124)
+== Prochaine session (125)
 
-*Priorité P3* : BKY-CR-V5 — US-CR-V5-8 (3 pts).
-Log warnings catch muets + divers P3 :
-- AugmentedContextResolver.resolve() catch(Exception) → log warning
-- SiteContextCollector.parseFeed()/parseSitemap() runCatching → log warning
-- OllamaLlmService.complete() mutableListOf → listOf
-- GitService.executePushCommand() retour nullable → non-nullable
-- ContentTaskRegistrar.createLlmServiceIfEnabled() inline inutile → supprimer inline
-- AugmentedArticlesService.applyRules() filtre "draft" redondant → supprimer excludeDrafts boolean
-- ThemeInjector injecte toujours defaults → documenter (simplicité > optimisation)
+*Priorité P1* : BKY-I18N-MIG — US-I18N-MIG-1 (2 pts).
+I18nMigrationIntention + Dsl + BakeryExtension :
+- Modèle domaine `I18nMigrationIntention` (siteDir, languages, defaultLanguage, dryRun)
+- DSL bridge `I18nMigrationIntentionDsl` (open class, var mutables, toIntention())
+- Ajout `i18nMigration` dans `BakeryExtension` + méthode DSL `fun i18nMigration(action: Action<...>)`
 
 *Fichiers cibles* :
-- `AugmentedContextResolver.kt`
-- `SiteContextCollector.kt`
-- `OllamaLlmService.kt`
-- `GitService.kt`
-- `ContentTaskRegistrar.kt`
-- `AugmentedArticlesService.kt`
-- `ThemeInjector.kt`
+- `I18nMigrationIntention.kt` (NOUVEAU)
+- `I18nMigrationIntentionDsl.kt` (NOUVEAU)
+- `BakeryExtension.kt`
 
-*Vérification* : `./gradlew test` → tests affectés PASS.
+*Vérification* : `./gradlew compileKotlin` → BUILD SUCCESSFUL.

@@ -15,9 +15,9 @@ Feature: Augmented Context Lens — BKY-LENS-2
     And the scored node should have crossRefCount at least 0
     And the final score should be greater than 0.0
 
-  Scenario: Filtrage des règles excludeDrafts et excludeTags
+  Scenario: Filtrage des règles excludeTags
     Given a list of scored nodes with tags "draft", "wip", and "published"
-    And lens rules with excludeDrafts enabled and excludeTags containing "wip"
+    And lens rules with excludeTags containing "wip, draft"
     When I apply lens rules to the scored nodes
     Then the result should not contain any node with tag "draft"
     And the result should not contain any node with tag "wip"

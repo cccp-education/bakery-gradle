@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
  * BKY-LENS-2.2 — Tests unitaires pour LensRules.
  *
  * Valide les valeurs par défaut, la mutabilité, et le comportement des règles
- * éditoriales (excludeDrafts, excludeTags, etc.).
+ * éditoriales (excludeTags, etc.).
  *
  * Méthodologie : DDD/TDD baby steps — chaque test compile ET passe AVANT de passer au suivant.
  */
@@ -18,13 +18,6 @@ class LensRulesTest {
     @Nested
     @DisplayName("LensRules — Valeurs par défaut")
     inner class Defaults {
-
-        @Test
-        @DisplayName("excludeDrafts par défaut = true")
-        fun `default excludeDrafts is true`() {
-            val rules = LensRules()
-            assertThat(rules.excludeDrafts).isTrue()
-        }
 
         @Test
         @DisplayName("excludeTags par défaut = [wip, draft]")
@@ -58,14 +51,6 @@ class LensRulesTest {
     @Nested
     @DisplayName("LensRules — Modification des propriétés")
     inner class Mutation {
-
-        @Test
-        @DisplayName("excludeDrafts peut être désactivé")
-        fun `excludeDrafts can be set to false`() {
-            val rules = LensRules()
-            rules.excludeDrafts = false
-            assertThat(rules.excludeDrafts).isFalse()
-        }
 
         @Test
         @DisplayName("excludeTags peut être modifié")
@@ -109,19 +94,16 @@ class LensRulesTest {
         fun `LensRules can be copied with modifications`() {
             val original = LensRules()
             val modified = original.copy(
-                excludeDrafts = false,
                 excludeTags = listOf("deprecated"),
                 prioritizeCrossReferences = false,
                 crossRefBonus = 0.1,
                 communityAffinity = 0.0
             )
-            assertThat(modified.excludeDrafts).isFalse()
             assertThat(modified.excludeTags).containsExactly("deprecated")
             assertThat(modified.prioritizeCrossReferences).isFalse()
             assertThat(modified.crossRefBonus).isEqualTo(0.1)
             assertThat(modified.communityAffinity).isEqualTo(0.0)
             // Original unchanged
-            assertThat(original.excludeDrafts).isTrue()
             assertThat(original.excludeTags).containsExactly("wip", "draft")
             assertThat(original.prioritizeCrossReferences).isTrue()
             assertThat(original.crossRefBonus).isEqualTo(0.2)

@@ -28,7 +28,7 @@ import org.gradle.api.Action
  *             maxDepth = 2
  *             fileExtensions = listOf("adoc", "md", "html")
  *             rules {
- *                 excludeDrafts = true
+ *                 excludeTags = listOf("wip", "draft")
  *                 prioritizeCrossReferences = true
  *             }
  *             rag {
