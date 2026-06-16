@@ -24,6 +24,7 @@ class BakeryWorld {
     // Simulated remote for end-to-end deployProfile tests
     var simulatedRemoteDir: File? = null
     var simulatedRemoteUri: String? = null
+    var migrationSiteDir: String? = null
 
     // Jobs asynchrones en cours
     private val asyncJobs = mutableListOf<Deferred<BuildResult>>()

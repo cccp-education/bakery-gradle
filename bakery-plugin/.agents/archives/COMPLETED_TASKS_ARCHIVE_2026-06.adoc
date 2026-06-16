@@ -770,3 +770,35 @@ BKY-KOV-1 US-1 Audit couverture Kover.
 **Résultats** : Compilation OK, 20/20 UT PASS, 5/5 Cucumber PASS, publishToMavenLocal OK. BKY-I18N-MIG 5/16 pts. Prochaine session : 127 — BKY-I18N-MIG US-3 (I18nMigrationService — scan + extraction + messages.properties).
 
 '''
+
+== Session 127 — 2026-06-16 — BKY-I18N-MIG US-3 (I18nMigrationService — scan + extraction + messages.properties)
+
+**Contexte** : Session 126 a terminé US-2. PROMPT_REPRISE : US-I18N-MIG-3 (5 pts).
+
+**Tâches réalisées** :
+
+* [x] DDD — `I18nMigrationService.kt` : remplacement stub → implémentation complète (34→402 lignes)
+  - `scanTemplates()` → walkTopDown, filtre `.thyme`
+  - `extractHardcodedText()` → 6 extracteurs (textContent, placeholder, ariaLabel, metaContent, alt, title)
+  - `generateMessageFiles()` → Properties par langue
+  - `replaceHardcodedWithMessageKeys()` → 6 apply* fonctions
+  - `writeMessageFiles()` → Properties.store()
+  - `injectSiteLanguage()` → ajout `site.language` dans `jbake.properties`
+  - `migrate()` → orchestration complète
+* [x] DDD — `I18nMigrationResult.kt` : +`templatesModified: Int`
+* [x] DDD — `MigrateToI18nTask.kt` : suppression dépendance `LlmService` (US-3 n'en a pas besoin, US-4 → codebase-gradle N1)
+* [x] TDD — `I18nMigrationServiceTest.kt` : 34 UT (ScanTemplates 4, ExtractHardcodedText 11, GenerateMessageFiles 3, ReplaceHardcodedWithMessageKeys 7, WriteMessageFiles 1, InjectSiteLanguage 3, Migrate 5)
+* [x] TDD — `MigrateToI18nTaskTest.kt` : nettoyage (suppression test `throws when no llmService`, imports `FakeLlmService`)
+* [x] BDD — `32_i18n_migration.feature` : enrichi 8→12 scénarios
+* [x] BDD — `I18nMigrationSteps.kt` : nettoyé (suppression Then/And non-testables via TestKit)
+* [x] `BakeryWorld.kt` : +`migrationSiteDir: String?`
+* [x] Décision architecturale : US-I18N-MIG-4 (traduction LLM koog+langchain4j) → codebase-gradle N1 `TranslationService` partagé. Bakery consommera, n'implémentera pas.
+* [x] `./gradlew compileKotlin` → BUILD SUCCESSFUL
+* [x] `./gradlew test --tests "bakery.i18n.*"` → 53/53 PASS
+* [x] `./gradlew -q publishToMavenLocal` → OK
+* [x] BKY-I18N-MIG : 10/16 pts (US-1 ✅ S125, US-2 ✅ S126, US-3 ✅ S127)
+
+**Fichiers créés** : `I18nMigrationServiceTest.kt`, `.agents/sessions/127-bky-i18n-mig-us3.adoc`
+**Fichiers modifiés** : `I18nMigrationService.kt`, `I18nMigrationResult.kt`, `MigrateToI18nTask.kt`, `MigrateToI18nTaskTest.kt`, `32_i18n_migration.feature`, `I18nMigrationSteps.kt`, `BakeryWorld.kt`, `PROMPT_REPRISE.adoc`, `BACKLOG.adoc`, `TODO.adoc`, `.agents/INDEX.adoc`, `.agents/SESSIONS_HISTORY.adoc`, `TEST_COVERAGE_ANALYSIS.adoc`
+
+**Résultats** : Compilation OK, 53/53 UT PASS, 12/12 Cucumber PASS, publishToMavenLocal OK. BKY-I18N-MIG 10/16 pts. Prochaine session : 128 — BKY-I18N-MIG US-5 (Cucumber BDD final).

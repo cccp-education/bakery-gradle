@@ -74,13 +74,7 @@ abstract class MigrateToI18nTask : DefaultTask() {
             return
         }
 
-        val service = llmService
-            ?: throw IllegalStateException(
-                "Aucun LlmService injecté. Configurez bakery { ia { enabled = true ... } } " +
-                "ou injectez FakeLlmService en test."
-            )
-
-        val migrationService = I18nMigrationService(service)
+        val migrationService = I18nMigrationService()
         val result = migrationService.migrate(
             siteDir = siteDir,
             languages = intention.languages,

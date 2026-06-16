@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-16 — Session 126 (BKY-I18N-MIG US-2)
-  _Session terminee_ : 126
-  _Prochaine session_ : 127 — BKY-I18N-MIG US-3 (I18nMigrationService — scan + extraction + messages.properties)
+  _Derniere mise a jour_ : 2026-06-16 — Session 127 (BKY-I18N-MIG US-3)
+  _Session terminee_ : 127
+  _Prochaine session_ : 128 — BKY-I18N-MIG US-5 (Cucumber BDD final)
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 127 | 2026-06-16 | DDD + TDD + BDD | **BKY-I18N-MIG US-3** — I18nMigrationService complet (scan, extract 6 types, generate, replace, write, inject). 34 UT + 19 UT = 53/53 PASS. Feature 8→12 scénarios. Décision archi US-4 → codebase-gradle N1. BKY-I18N-MIG 10/16 pts. | 9/10
   | 126 | 2026-06-16 | DDD + TDD + BDD | **BKY-I18N-MIG US-2** — MigrateToI18nTask + ContentTaskRegistrar + BakeryPlugin. 4 CLI options, cascade CLI>DSL>defaults, llmService + dslIntention. 20 UT + 5 Cucumber PASS. BKY-I18N-MIG 5/16 pts. | 9/10
   | 125 | 2026-06-16 | DDD + TDD + BDD | **BKY-I18N-MIG US-1** — I18nMigrationIntention + Dsl + BakeryExtension. 2 fichiers source, 10 UT + 5 UT Dsl, 3 Cucumber, BakeryWorld +45. BKY-I18N-MIG 2/16 pts. | 9/10
   | 124 | 2026-06-16 | DDD + TDD + refactor | **BKY-CR-V5 US-8** — Log warnings catch muets + divers P3. 7 refactors qualitatifs (AugmentedContextResolver, SiteContextCollector, OllamaLlmService, GitService, ContentTaskRegistrar, AugmentedArticlesService, ThemeInjector). 15 fichiers modifiés. BKY-CR-V5 24/24 pts TERMINÉ. | 9/10
@@ -151,7 +152,7 @@ _Archives_ : Sessions 100-113 archivées dans `.agents/backup/Y2026-sessions-090
 
 |===
 | EPIC | Progression | Priorite
-| BKY-I18N-MIG : Tâche migrateToI18n pour appliquer l'i18n aux sites existants | 31.25% (5/16 pts) — US-1 ✅, US-2 ✅, US-3 en cours | *🟠 P1 — Session 127*
+| BKY-I18N-MIG : Tâche migrateToI18n pour appliquer l'i18n aux sites existants | 62.5% (10/16 pts) — US-1 ✅, US-2 ✅, US-3 ✅, US-4 ⏸️, US-5 en cours | *🟠 P1 — Session 128*
 |===
 
 === EPIC LENTILLE — ✅ TERMINÉ

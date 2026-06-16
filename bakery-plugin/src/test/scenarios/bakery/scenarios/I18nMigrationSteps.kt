@@ -4,7 +4,6 @@ import io.cucumber.java.en.Given
 import io.cucumber.java.en.When
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
-import org.gradle.testkit.runner.GradleRunner
 
 class I18nMigrationSteps(private val world: BakeryWorld) {
 
@@ -17,6 +16,7 @@ class I18nMigrationSteps(private val world: BakeryWorld) {
     ) {
         val dryRunBool = dryRun.toBooleanStrict()
         val langList = languages.split(",").map { it.trim() }.filter { it.isNotBlank() }
+        world.migrationSiteDir = siteDir
         world.createGradleProjectWithI18nMigrationIntention(
             siteDir = siteDir,
             languages = langList,

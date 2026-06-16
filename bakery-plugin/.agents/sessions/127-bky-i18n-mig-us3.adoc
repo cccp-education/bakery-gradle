@@ -1,0 +1,88 @@
+= Session 127 — BKY-I18N-MIG US-3 — I18nMigrationService
+:date: 2026-06-16
+:type: DDD + TDD + BDD
+:score: 9/10
+:epic: BKY-I18N-MIG
+:us: US-I18N-MIG-3
+:pts: 5
+
+== Objectif
+
+Implémenter `I18nMigrationService` — service métier pur (zéro Gradle) pour
+scanner les templates, extraire le texte hardcodé, générer les fichiers
+`messages_{lang}.properties`, remplacer le texte par `#{message.key}`,
+et injecter `site.language` dans `jbake.properties`.
+
+== Fichiers modifiés/créés
+
+[cols="2,3,2"]
+|===
+| Fichier | Action | Lignes
+| `I18nMigrationService.kt` | REMPLACÉ (stub → implémentation complète) | 34 → 402
+| `I18nMigrationResult.kt` | MODIFIÉ (+templatesModified) | 7 → 8
+| `MigrateToI18nTask.kt` | MODIFIÉ (suppression LlmService) | 138 → 132
+| `I18nMigrationServiceTest.kt` | NOUVEAU | 0 → 340
+| `MigrateToI18nTaskTest.kt` | MODIFIÉ (nettoyage imports, suppression test llmService) | 414 → 385
+| `32_i18n_migration.feature` | ENRICHI (8→12 scénarios) | 40 → 80
+| `I18nMigrationSteps.kt` | NETTOYÉ (suppression steps non-testables) | 40 → 40
+| `BakeryWorld.kt` | MODIFIÉ (+migrationSiteDir) | 397 → 398
+| `BACKLOG.adoc` | MODIFIÉ (US-3 ✅, US-4 ⏸️, synthèse) | 1071 → 1071
+| `TODO.adoc` | MODIFIÉ (US-3 ✅) | 62 → 62
+| `PROMPT_REPRISE.adoc` | MODIFIÉ (session 127→128) | 41 → 55
+|===
+
+== DDD — Domain-Driven Design
+
+`I18nMigrationService` — service métier pur, zéro dépendance Gradle :
+
+- `scanTemplates(templatesDir)` → `List<File>` — walkTopDown, filtre `.thyme`
+- `extractHardcodedText(templateFile)` → `MutableMap<String, String>` — 6 extracteurs :
+  textContent, placeholder, ariaLabel, metaContent, alt, title
+- `generateMessageFiles(allExtractions, languages, templatesDir)` → `Map<String, File>`
+- `replaceHardcodedWithMessageKeys(templateFile, extractions)` → `File` — 6 apply* fonctions
+- `writeMessageFiles(messageFiles, allExtractions)` — écrit Properties via `store()`
+- `injectSiteLanguage(siteDir, defaultLanguage)` → `Boolean`
+- `migrate(siteDir, languages, defaultLanguage, dryRun)` → `I18nMigrationResult`
+
+`I18nMigrationResult` enrichi : +`templatesModified: Int`.
+
+`MigrateToI18nTask` nettoyé : suppression `LlmService` (US-3 n'en a pas besoin,
+US-4 viendra de codebase-gradle N1).
+
+== TDD — Tests Unitaires
+
+53/53 PASS :
+
+- `I18nMigrationServiceTest` — 34 UT :
+  ScanTemplates 4, ExtractHardcodedText 11, GenerateMessageFiles 3,
+  ReplaceHardcodedWithMessageKeys 7, WriteMessageFiles 1,
+  InjectSiteLanguage 3, Migrate 5
+- `MigrateToI18nTaskTest` — 19 UT (suppression test `throws when no llmService`,
+  nettoyage imports `FakeLlmService`)
+
+== BDD — Cucumber
+
+Feature `32_i18n_migration.feature` enrichie 8→12 scénarios :
+task-registered, dry-run-preview, migration-en-ar, migration-cli-options,
+migration-no-templates, migration-dryrun-extract, migration-real-write,
+migration-already-i18n, migration-no-hardcoded.
+
+Steps `I18nMigrationSteps.kt` nettoyés — suppression Then/And non-testables
+via Gradle TestKit (la logique métier est couverte par les 53 UT).
+
+== Décision Architecturale
+
+US-I18N-MIG-4 (traduction LLM 9 langues non-fr, koog+langchain4j) mise en
+attente. La traduction est une capacité transverse → implémentée dans
+**codebase-gradle (N1)** comme `TranslationService` partagé, ou en N0 dédié.
+Bakery consommera ce service, ne l'implémentera pas.
+
+== Vérification
+
+- `./gradlew compileKotlin` → BUILD SUCCESSFUL
+- `./gradlew test --tests "bakery.i18n.*"` → 53/53 PASS
+- `./gradlew -q publishToMavenLocal` → OK
+
+== Prochaine session
+
+128 — BKY-I18N-MIG US-5 (3 pts) : Cucumber BDD final + enrichissement scénarios.

@@ -2,15 +2,18 @@
 
 == Mission accomplie
 
-*Session 126 TERMINÉE* — BKY-I18N-MIG US-2 (3 pts).
+*Session 127 TERMINÉE* — BKY-I18N-MIG US-3 (5 pts).
 DDD/TDD/BDD baby-step :
-- `MigrateToI18nTask.kt` (abstract class, 4 CLI options, cascade CLI>DSL>defaults, llmService + dslIntention)
-- `I18nMigrationService.kt` (stub, US-3 fera l'implémentation complète)
-- `I18nMigrationResult.kt` (data class)
-- `ContentTaskRegistrar.kt` : `registerMigrateToI18nTask()`
-- `BakeryPlugin.kt` : wiring dans `registerFullPipelineTasks()`
-- 20 UT (MigrateToI18nTaskTest) PASS
-- 5 Cucumber (32_i18n_migration.feature) PASS
+- `I18nMigrationService.kt` — implémentation complète (scanTemplates, extractHardcodedText,
+  generateMessageFiles, replaceHardcodedWithMessageKeys, writeMessageFiles, injectSiteLanguage)
+- `I18nMigrationResult.kt` — ajout champ `templatesModified`
+- `MigrateToI18nTask.kt` — suppression dépendance LlmService (US-3 n'en a pas besoin)
+- `I18nMigrationServiceTest.kt` — 34 UT (ScanTemplates 4, ExtractHardcodedText 11,
+  GenerateMessageFiles 3, ReplaceHardcodedWithMessageKeys 7, WriteMessageFiles 1,
+  InjectSiteLanguage 3, Migrate 5) PASS
+- `MigrateToI18nTaskTest.kt` — 19 UT (suppression test llmService, nettoyage imports) PASS
+- `32_i18n_migration.feature` — enrichi 8→12 scénarios Cucumber
+- `I18nMigrationSteps.kt` — nettoyé (suppression steps non-testables via TestKit)
 - publishToMavenLocal OK
 
 == Statut
@@ -18,24 +21,29 @@ DDD/TDD/BDD baby-step :
 - EPICs : 30/30 ✅ (100%)
 - Code smells résolus : 24/24 ✅ (V2-V4) + 52/52 ✅ (V5)
 - BKY-CR-V5 : 24/24 pts ✅
-- BKY-I18N-MIG : 5/16 pts (US-1 ✅ S125, US-2 ✅ S126)
+- BKY-I18N-MIG : 10/16 pts (US-1 ✅ S125, US-2 ✅ S126, US-3 ✅ S127)
 - Version publiée: 0.0.1 (Maven Central)
 
-== Prochaine session (127)
+== Prochaine session (128)
 
-*Priorité P1* : BKY-I18N-MIG — US-I18N-MIG-3 (5 pts).
-I18nMigrationService — scan + extraction + messages.properties :
-- `scanTemplates()` → liste les fichiers `.thyme` dans `templates/`
-- `extractHardcodedText()` → parse le texte hors `#{...}` et `th:*`
-- `generateMessageFiles()` → crée `messages_{lang}.properties` par langue
-- `replaceHardcodedWithMessageKeys()` → remplace texte par `#{key}`
-- `writeMessageFiles()` → écrit les fichiers properties
-- `injectSiteLanguage()` → ajoute `site.language` dans `jbake.properties`
-- Retourne `I18nMigrationResult` (keysExtracted, filesGenerated, dryRun)
+*Priorité P2* : BKY-I18N-MIG — US-I18N-MIG-5 (3 pts).
+Cucumber BDD + tests unitaires finaux :
+- Feature `i18n_migration.feature` : scénarios dry run preview, migration EN+AR,
+  fallback LLM indisponible, site sans templates, site déjà i18n (no-op).
+- Tests unitaires : I18nMigrationServiceTest (scan, extract, replace, dryRun).
+  *NOTE* : La couverture unitaire est déjà complète (34 UT). US-5 = enrichir
+  les scénarios Cucumber existants avec des assertions post-exécution.
 
 *Fichiers cibles* :
-- `I18nMigrationService.kt` (REMPLACER le stub)
-- `I18nMigrationServiceTest.kt` (NOUVEAU, ~15 UT)
-- `MigrateToI18nTaskTest.kt` (MODIFIÉ, enrichir tests executeMigration)
+- `32_i18n_migration.feature` (ENRICHIR, 12→15+ scénarios)
+- `I18nMigrationSteps.kt` (AJOUTER steps Then/And)
 
-*Vérification* : `./gradlew compileKotlin` → BUILD SUCCESSFUL.
+*Vérification* : `./gradlew cucumberTest` → 120+ PASS.
+
+== Note — US-I18N-MIG-4 (⏸️ EN ATTENTE)
+
+La traduction LLM des 9 langues non-fr est mise en attente. Décision architecturale
+(2026-06-16) : la traduction est une capacité transverse qui sera implémentée dans
+**codebase-gradle (N1)** comme `TranslationService` partagé (koog StateGraph +
+langchain4j OllamaChatModel), ou dans un artefact N0 dédié (`translation-contracts`).
+Bakery consommera ce service, ne l'implémentera pas.

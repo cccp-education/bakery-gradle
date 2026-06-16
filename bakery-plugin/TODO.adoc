@@ -35,7 +35,7 @@ _Tout le backlog historique est terminé. 30/30 EPICs + 24/24 code smells résol
 
 * [x] **US-I18N-MIG-1** : I18nMigrationIntention + Dsl + BakeryExtension ✅ S125
 * [x] **US-I18N-MIG-2** : MigrateToI18nTask + ContentTaskRegistrar ✅ S126
-* [ ] **US-I18N-MIG-3** : I18nMigrationService — scan + extraction + messages.properties
+* [x] **US-I18N-MIG-3** : I18nMigrationService — scan + extraction + messages.properties ✅ S127
 * [ ] **US-I18N-MIG-4** : Traductions LLM 9 langues non-fr
 * [ ] **US-I18N-MIG-5** : Cucumber BDD + tests unitaires
 

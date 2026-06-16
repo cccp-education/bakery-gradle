@@ -1016,17 +1016,23 @@ cascade CLI > DSL > defaults, DDD Intention→Dsl→Task→Service.
   Service métier pur (zéro Gradle) : `scanTemplates()` → `extractHardcodedText()` →
   `generateMessageFiles()` → `replaceHardcodedWithMessageKeys()` →
   `writeMessageFiles()` → `injectSiteLanguage()`.
-  Retourne `I18nMigrationResult` (keysExtracted, filesGenerated, dryRun).
+  Retourne `I18nMigrationResult` (keysExtracted, filesGenerated, templatesModified, dryRun).
 | 5
-| 🟠 P1
+| ✅ S127
 
 | US-I18N-MIG-4
-| **Traductions LLM 9 langues non-fr** —
-  Utiliser `OllamaLlmService` (DeepSeek-v4-pro) pour générer les traductions
-  initiales des 9 langues non-fr. Prompt structuré : clé + texte FR → traduction.
-  Fallback : template vide si LLM indisponible (l'humain complète).
+| **Traductions LLM 9 langues non-fr — koog+langchain4j** —
+  *DÉCISION ARCHITECTURALE (2026-06-16)* : La traduction LLM est une capacité
+  transverse (besoin bakery, document-gradle, slider-gradle, etc.). Elle sera
+  implémentée dans **codebase-gradle (N1)** comme `TranslationService` partagé
+  (koog StateGraph + langchain4j OllamaChatModel), ou dans un artefact N0 dédié
+  (`translation-contracts`). Bakery consommera ce service, ne l'implémentera pas.
+  *Impact* : US-I18N-MIG-4 est mise en attente jusqu'à ce que le service de
+  traduction transverse soit disponible dans codebase-gradle (N1) ou en N0.
+  *Dépend de* : `education.cccp:koog` (N0) + `education.cccp:llm-pool-contracts` (N0)
+  + codebase-gradle `TranslationService` (N1, à créer).
 | 3
-| 🟡 P2
+| 🟡 P2 ⏸️ EN ATTENTE (dépend de codebase-gradle TranslationService)
 
 | US-I18N-MIG-5
 | **Cucumber BDD + tests unitaires** —
@@ -1050,8 +1056,8 @@ cascade CLI > DSL > defaults, DDD Intention→Dsl→Task→Service.
 | BKY-I18N | i18n 10 langues | 23 | ✅ S116
 // ── EN COURS V5 (Session 117-118) ──
 | BKY-CR-V5 | Code smells V5 (60 smells) | 24 | ✅ S124 (US-1+2+3+4+5+6+7+8)
-| BKY-I18N-MIG | Tâche migrateToI18n | 16 | 🟠 P1 ☐ (5/16 pts, US-1 ✅ S125, US-2 ✅ S126)
-| *Total restant* | | *11* |
+| BKY-I18N-MIG | Tâche migrateToI18n | 16 | 🟠 P1 ☐ (10/16 pts, US-1 ✅ S125, US-2 ✅ S126, US-3 ✅ S127)
+| *Total restant* | | *6* |
 |===
 
 *Tous les EPICs historiques* : 30/30 ✅ (100%)

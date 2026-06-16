@@ -1,6 +1,5 @@
 package bakery.i18n
 
-import bakery.llm.FakeLlmService
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -284,27 +283,6 @@ class MigrateToI18nTaskTest {
         lateinit var testDir: File
 
         @Test
-        fun `throws when no llmService injected`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(testDir)
-                .withName("test-no-llm")
-                .build()
-            project.pluginManager.apply("java-base")
-
-            val siteDir = testDir.resolve("site")
-            siteDir.mkdirs()
-            siteDir.resolve("templates").mkdirs()
-            siteDir.resolve("templates/header.thyme").writeText("<html>")
-
-            val task = project.tasks.register("migrateToI18n", MigrateToI18nTask::class.java).get()
-            task.i18nSite.set(siteDir.absolutePath)
-
-            assertThrows<IllegalStateException> {
-                task.executeMigration()
-            }
-        }
-
-        @Test
         fun `warns when site directory does not exist`() {
             val project = ProjectBuilder.builder()
                 .withProjectDir(testDir)
@@ -314,7 +292,6 @@ class MigrateToI18nTaskTest {
 
             val task = project.tasks.register("migrateToI18n", MigrateToI18nTask::class.java).get()
             task.i18nSite.set("/nonexistent/path")
-            task.llmService = FakeLlmService("{}")
 
             task.executeMigration()
         }
@@ -332,7 +309,6 @@ class MigrateToI18nTaskTest {
 
             val task = project.tasks.register("migrateToI18n", MigrateToI18nTask::class.java).get()
             task.i18nSite.set(siteDir.absolutePath)
-            task.llmService = FakeLlmService("{}")
 
             task.executeMigration()
         }
@@ -352,13 +328,11 @@ class MigrateToI18nTaskTest {
             templatesDir.resolve("header.thyme").writeText("<html lang=\"fr\">")
             templatesDir.resolve("footer.thyme").writeText("<footer>")
 
-            val fakeLlm = FakeLlmService("{}")
             val task = project.tasks.register("migrateToI18n", MigrateToI18nTask::class.java).get()
             task.i18nSite.set(siteDir.absolutePath)
             task.i18nLangs.set("en,ar")
             task.i18nDefaultLang.set("fr")
             task.i18nDryRun.set("true")
-            task.llmService = fakeLlm
 
             task.executeMigration()
         }
@@ -380,7 +354,6 @@ class MigrateToI18nTaskTest {
             val task = project.tasks.register("migrateToI18n", MigrateToI18nTask::class.java).get()
             task.i18nSite.set(siteDir.absolutePath)
             task.i18nDryRun.set("true")
-            task.llmService = FakeLlmService("{}")
 
             task.executeMigration()
 
@@ -406,7 +379,6 @@ class MigrateToI18nTaskTest {
             val task = project.tasks.register("migrateToI18n", MigrateToI18nTask::class.java).get()
             task.contentRootDir = contentRoot
             task.i18nSite.set("my-site")
-            task.llmService = FakeLlmService("{}")
 
             task.executeMigration()
         }
