@@ -2,36 +2,36 @@
 
 == Mission accomplie
 
-*Session 121 TERMINÉE* — BKY-CR-V5 US-5 (5 pts).
-US-CR-V5-5a : SUPPORTED_LANGS 3× → BakeryConstants.SUPPORTED_LANGS (ScaffoldIntention, ArticleIntention, ConfigResolver).
-US-CR-V5-5b : updateProperty() dupliqué → supprimé dans GenerateThemeTask, import bakery.injection.updateProperty.
-US-CR-V5-5c : Pattern résolution DSL 3× → resolveIntention() helper dans ContentTaskRegistrar.
-6 fichiers modifiés + 1 nouveau test (BakeryConstantsTest), compilation OK, tests cibles PASS.
+*Session 122 TERMINÉE* — BKY-CR-V5 US-6 (3 pts).
+US-CR-V5-6a : resolveIntention() déjà extrait en US-5 → rien à faire.
+US-CR-V5-6b : ConfigPrompts.saveConfiguration() @Deprecated no-op supprimé.
+US-CR-V5-6c : SiteManager.registerUtilityTasks() @Deprecated no-op supprimé + appel BakeryPlugin.
+US-CR-V5-6d : IaConfig.poolPorts + poolModel supprimés + nettoyage Cucumber (BakeryWorld, IaSteps, feature).
+7 fichiers modifiés, net -67 lignes. Compilation OK, tests cibles PASS.
 
 == Statut
 
 - EPICs : 30/30 ✅ (100%)
 - Code smells résolus : 24/24 ✅ (V2-V4)
-- Code smells V5 : 45 ☐ (US-1 faux positif, US-2+3+4+5 résolues)
-- BKY-CR-V5 : 15/24 pts (US-1 1pt + US-2 3pts + US-3 3pts + US-4 3pts + US-5 5pts)
+- Code smells V5 : 45 ☐ (US-1 faux positif, US-2+3+4+5+6 résolues)
+- BKY-CR-V5 : 18/24 pts (US-1 1pt + US-2 3pts + US-3 3pts + US-4 3pts + US-5 5pts + US-6 3pts)
 - BKY-I18N-MIG : 0/16 pts ☐
 - Version publiée: 0.0.1 (Maven Central)
 - 3 échecs ThymeleafRenderingTest pré-existants (OGNL bug header.thyme, non lié)
 
-== Prochaine session (122)
+== Prochaine session (123)
 
-*Priorité P2* : BKY-CR-V5 — US-CR-V5-6 (3 pts).
-Déduplication pattern injection DSL + nettoyage code mort + champs morts.
-Pattern `dsl?.let { if (field.isNotBlank()) { try { toIntention() } catch { warn } } }`
-dupliqué 3× dans ContentTaskRegistrar → extraire helper.
-Supprimer `ConfigPrompts.saveConfiguration()` @Deprecated no-op.
-Supprimer `SiteManager.registerUtilityTasks()` @Deprecated no-op.
-Supprimer `IaConfig.poolPorts` + `IaConfig.poolModel` (jamais référencés).
+*Priorité P2* : BKY-CR-V5 — US-CR-V5-7 (3 pts).
+Refactor ConfigResolver.resolveAll() + magic numbers + YAML→Jackson + texte FR hardcodé.
+resolveAll() 9 blocs resolveDomain répétitifs → data-driven (liste de DomainResolver).
+BfsProximityCache distances 1.0/0.7/0.4/0.1 → constantes nommées.
+GenerateSiteFromIntentionTask.buildSiteYml() concaténation string → yamlMapper.writeValueAsString().
+GenerateArticleTask.buildArticleContent() texte FR hardcodé → utiliser article.lang.
 
 *Fichiers cibles* :
-- `ContentTaskRegistrar.kt` — pattern injection DSL (déjà partiellement résolu par resolveIntention, vérifier si reste duplication)
-- `ConfigPrompts.kt` — supprimer saveConfiguration()
-- `SiteManager.kt` — supprimer registerUtilityTasks()
-- `IaConfig.kt` — supprimer poolPorts + poolModel
+- `ConfigResolver.kt` — resolveAll() data-driven
+- `BfsProximityCache.kt` — constantes nommées
+- `GenerateSiteFromIntentionTask.kt` — YAML via Jackson
+- `GenerateArticleTask.kt` — texte FR → article.lang
 
 *Vérification* : `./gradlew test` → tests affectés PASS.

@@ -1,5 +1,25 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 122 — 2026-06-16 — BKY-CR-V5 US-6 (Déduplication pattern injection DSL + nettoyage code mort + champs morts)
+
+**Contexte** : Session 121 a terminé US-5. PROMPT_REPRISE : US-CR-V5-6 (3 pts).
+
+**Tâches réalisées** :
+
+* [x] US-CR-V5-6a — `ContentTaskRegistrar.kt` : `resolveIntention()` déjà extrait en US-5 → rien à faire
+* [x] US-CR-V5-6b — `ConfigPrompts.kt` : suppression `Project.saveConfiguration()` @Deprecated no-op (7 lignes)
+* [x] US-CR-V5-6c — `SiteManager.kt` : suppression `registerUtilityTasks()` @Deprecated no-op (5 lignes)
+* [x] US-CR-V5-6c — `BakeryPlugin.kt` : suppression import `registerUtilityTasks` + appel `project.registerUtilityTasks()`
+* [x] US-CR-V5-6d — `IaConfig.kt` : suppression `poolPorts` + `poolModel` (jamais référencés en prod), nettoyage KDoc
+* [x] US-CR-V5-6d — `BakeryWorld.kt` : suppression `createGradleProjectWithIAPool()` (33 lignes)
+* [x] US-CR-V5-6d — `IaSteps.kt` : suppression step `createProjectWithIaPoolBlock()` (6 lignes)
+* [x] US-CR-V5-6d — `8_ia_configuration.feature` : suppression scénario "IA pool block" (5 lignes)
+* [x] `./gradlew compileKotlin` → BUILD SUCCESSFUL
+* [x] `./gradlew test --tests ConfigPromptsTest --tests SiteManagerTest --tests BakeryPluginTest` → PASS
+* [x] 7 fichiers modifiés, net -67 lignes
+* [x] BKY-CR-V5 : 18/24 pts (US-1+2+3+4+5+6 ✅)
+* [x] 3 échecs ThymeleafRenderingTest pré-existants (OGNL bug header.thyme, non lié)
+
 == Session 121 — 2026-06-16 — BKY-CR-V5 US-5 (Déduplication SUPPORTED_LANGS + updateProperty + resolveIntention)
 
 **Contexte** : Session 120 a terminé US-4. PROMPT_REPRISE : US-CR-V5-5 (5 pts).

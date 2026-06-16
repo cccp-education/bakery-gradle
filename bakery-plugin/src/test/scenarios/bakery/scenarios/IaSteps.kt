@@ -11,10 +11,4 @@ class IaSteps(private val world: BakeryWorld) {
         world.createGradleProjectWithIA()
         assertThat(world.projectDir).exists()
     }
-
-    @Given("a new Bakery project with IA pool block")
-    fun createProjectWithIaPoolBlock() {
-        world.createGradleProjectWithIAPool()
-        assertThat(world.projectDir).exists()
-    }
 }

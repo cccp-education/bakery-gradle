@@ -1,8 +1,9 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-  _Derniere mise a jour : 2026-06-16 — Session 121_
+  _Derniere mise a jour : 2026-06-16 — Session 122_
 
   |===
+  | 122 | 2026-06-16 | DDD + TDD + refactor | **BKY-CR-V5 US-6** — Déduplication pattern injection DSL + nettoyage code mort + champs morts. 6a : resolveIntention() déjà extrait. 6b : ConfigPrompts.saveConfiguration() @Deprecated no-op supprimé. 6c : SiteManager.registerUtilityTasks() @Deprecated no-op supprimé + appel BakeryPlugin. 6d : IaConfig.poolPorts + poolModel supprimés + nettoyage Cucumber (BakeryWorld, IaSteps, feature). 7 fichiers modifiés, net -67 lignes. Compilation OK, tests cibles PASS. BKY-CR-V5 18/24 pts. | 9/10
   | 121 | 2026-06-16 | DDD + TDD + refactor | **BKY-CR-V5 US-5** — Déduplication 3× : SUPPORTED_LANGS → BakeryConstants (ScaffoldIntention, ArticleIntention, ConfigResolver), updateProperty() supprimé dans GenerateThemeTask → import bakery.injection.updateProperty, pattern résolution DSL 3× → resolveIntention() helper dans ContentTaskRegistrar. 6 fichiers modifiés + 1 nouveau test BakeryConstantsTest. Compilation OK, tests cibles PASS. BKY-CR-V5 15/24 pts. | 9/10
   | 120 | 2026-06-15 | DDD + TDD + refactor | **BKY-CR-V5 US-4** — toResolver() when 35 branches → propertyMap lazy + lookup, FileSystemManager.read() → Either<Exception, SiteConfiguration> + logger.warn, resolveWithoutPrompt() throw → return null, FirebaseContactFormConfig + 6 sous-classes → defaults. 10 fichiers modifiés, compilation OK, tests cibles PASS. BKY-CR-V5 10/24 pts. | 9/10
   | 119 | 2026-06-15 | DDD + TDD + refactor | **BKY-CR-V5 US-3** — entries.first{}→firstOrNull{} + fallback INFORMATIF/GENERAL, println()→logger.lifecycle(), auth.apiKey masqué via maskSecret(SecretField.ApiKey(...)), yamlMapper→by lazy{}. 5 fichiers modifiés, compilation OK, tests cibles PASS. BKY-CR-V5 7/24 pts. | 9/10

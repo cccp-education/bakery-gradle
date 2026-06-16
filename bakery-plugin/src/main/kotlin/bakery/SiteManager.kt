@@ -46,9 +46,4 @@ object SiteManager {
         return msg.left()
     }
 
-    @Deprecated("Utility tasks are not implemented yet. Use manual GitHub Pages repository setup.", level = DeprecationLevel.WARNING)
-    internal fun Project.registerUtilityTasks() {
-        // Previously contained createPagesRepository and updatePagesSecret with NotImplementedError.
-        // Removed per CS-10 to avoid runtime failures. Re-add when GitHub API integration is implemented.
-    }
 }

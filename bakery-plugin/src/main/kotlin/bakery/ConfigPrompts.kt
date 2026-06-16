@@ -39,11 +39,4 @@ object ConfigPrompts {
         FileSystemManager.yamlMapper.writeValue(siteYmlFile, updatedConfig)
     }
 
-    @Deprecated("Legacy signature — no-op. Use File.saveConfiguration directly.")
-    fun Project.saveConfiguration(
-        site: SiteConfiguration,
-        isGradlePropertiesEnabled: Boolean,
-    ) {
-        // No-op legacy
-    }
 }
