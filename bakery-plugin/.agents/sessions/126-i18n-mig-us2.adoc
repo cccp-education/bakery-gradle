@@ -1,0 +1,43 @@
+= Session 126 — BKY-I18N-MIG US-2 : MigrateToI18nTask + ContentTaskRegistrar + BakeryPlugin
+:date: 2026-06-16
+:type: DDD + TDD + BDD
+:score: 9/10
+:epic: BKY-I18N-MIG
+:us: US-2 (3 pts)
+:status: TERMINÉ
+
+== Résumé
+
+Tâche `migrateToI18n` enregistrée dans le pipeline full avec 4 options CLI
+(`--i18nSite`, `--i18nLangs`, `--i18nDefaultLang`, `--i18nDryRun`),
+cascade CLI > DSL > defaults, injection `llmService` + `dslIntention`.
+Pattern aligné sur `GenerateArticleTask`.
+
+== Fichiers créés/modifiés
+
+[cols="1,2,3"]
+|===
+| Fichier | Action | Lignes
+| `i18n/MigrateToI18nTask.kt` | NOUVEAU | 130
+| `i18n/I18nMigrationService.kt` | NOUVEAU (stub US-3) | 30
+| `i18n/I18nMigrationResult.kt` | NOUVEAU | 6
+| `ContentTaskRegistrar.kt` | MODIFIÉ (+registerMigrateToI18nTask) | +30
+| `BakeryPlugin.kt` | MODIFIÉ (wiring + import) | +3
+| `i18n/MigrateToI18nTaskTest.kt` | NOUVEAU (20 UT) | 416
+| `32_i18n_migration.feature` | NOUVEAU (5 scénarios) | 35
+| `I18nMigrationSteps.kt` | MODIFIÉ (+2 steps) | +20
+|===
+
+== Tests
+
+- 20/20 UT PASS (TaskRegistration 2, ResolveIntention 12, ExecuteMigration 6)
+- Cucumber 5/5 scénarios PASS
+- publishToMavenLocal OK
+
+== Progression EPIC
+
+BKY-I18N-MIG : 5/16 pts (US-1 ✅ S125 + US-2 ✅ S126)
+
+== Prochaine session
+
+US-I18N-MIG-3 (5 pts) : I18nMigrationService — scan + extraction + messages.properties

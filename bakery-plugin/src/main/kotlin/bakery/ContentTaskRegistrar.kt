@@ -9,6 +9,8 @@ import bakery.scaffold.ScaffoldIntentionDsl
 import bakery.theme.GenerateThemeTask
 import bakery.theme.ThemeIntentionDsl
 import bakery.firebase.ValidateFirebaseConfigTask
+import bakery.i18n.I18nMigrationIntentionDsl
+import bakery.i18n.MigrateToI18nTask
 import org.gradle.api.Project
 import java.io.File
 
@@ -150,6 +152,41 @@ object ContentTaskRegistrar {
 
             createLlmServiceIfEnabled(iaConfig) { task.llmService = it }
             project.logger.info("[BakeryPlugin] validateFirebaseConfig IA ${if (iaConfig.enabled) "activé" else "désactivé (ia.enabled = false)"}")
+        }
+    }
+
+    /**
+     * Enregistre la tâche `migrateToI18n` pour la migration i18n d'un site existant.
+     *
+     * @param site Configuration du site (utilise bake.srcPath pour le content root)
+     * @param iaConfig Configuration IA (Ollama baseUrl, modelName) depuis `bakery { ia { ... } }`
+     * @param i18nMigrationDsl Configuration intention migration depuis `bakery { i18nMigration { ... } }`
+     */
+    internal fun Project.registerMigrateToI18nTask(
+        site: SiteConfiguration,
+        iaConfig: IaConfig = IaConfig(),
+        i18nMigrationDsl: I18nMigrationIntentionDsl? = null
+    ) {
+        val contentRoot = project.projectDir.resolve(site.bake.srcPath)
+        tasks.register("migrateToI18n", MigrateToI18nTask::class.java) { task ->
+            task.group = BakeryConstants.TRANSFORM_GROUP
+            task.description = "Migre un site bakery existant vers l'i18n — scanne les templates, extrait le texte hardcodé, génère messages_{lang}.properties"
+            task.contentRootDir = contentRoot
+            task.i18nSite.set(project.providers.gradleProperty("i18nSite").orElse(""))
+            task.i18nLangs.set(project.providers.gradleProperty("i18nLangs").orElse(""))
+            task.i18nDefaultLang.set(project.providers.gradleProperty("i18nDefaultLang").orElse(""))
+            task.i18nDryRun.set(project.providers.gradleProperty("i18nDryRun").orElse(""))
+
+            resolveIntention(
+                dsl = i18nMigrationDsl,
+                isConfigured = { it.siteDir.isNotBlank() },
+                toIntention = { it.toIntention() },
+                taskLabel = "i18nMigration",
+                setIntention = { task.dslIntention = it }
+            )
+
+            createLlmServiceIfEnabled(iaConfig) { task.llmService = it }
+            project.logger.info("[BakeryPlugin] migrateToI18n IA ${if (iaConfig.enabled) "activé" else "désactivé (ia.enabled = false)"}")
         }
     }
 

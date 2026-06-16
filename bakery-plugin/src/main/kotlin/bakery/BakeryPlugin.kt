@@ -21,6 +21,7 @@ import bakery.LensTaskRegistrar.registerCollectSiteContextTask
 import bakery.ContentTaskRegistrar.registerGenerateArticleTask
 import bakery.ContentTaskRegistrar.registerGenerateSiteFromIntentionTask
 import bakery.ContentTaskRegistrar.registerGenerateThemeTask
+import bakery.ContentTaskRegistrar.registerMigrateToI18nTask
 import bakery.ContentTaskRegistrar.registerValidateFirebaseConfigTask
 import bakery.llm.OllamaLlmService
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -150,7 +151,7 @@ class BakeryPlugin : Plugin<Project> {
      * fichier de configuration valide pointe vers un site existant.
      *
      * Tâches indépendantes (parallélisables par Gradle, pas de `dependsOn`) :
-     * - collectSiteContext ∥ generateTheme ∥ generateArticle
+     * - collectSiteContext ∥ generateTheme ∥ generateArticle ∥ migrateToI18n
      * - deployMaquette ∥ deployProfile
      * - pagefind ∥ validateFirebaseConfig ∥ serve
      *
@@ -190,6 +191,7 @@ class BakeryPlugin : Plugin<Project> {
         project.registerGenerateArticleTask(site, bakeryExtension.ia, bakeryExtension.articleIntention)
         project.registerGenerateThemeTask(site, bakeryExtension.themeIntention)
         project.registerValidateFirebaseConfigTask(site, bakeryExtension.ia, bakeryExtension.firebaseAuth)
+        project.registerMigrateToI18nTask(site, bakeryExtension.ia, bakeryExtension.i18nMigration)
     }
 }
 

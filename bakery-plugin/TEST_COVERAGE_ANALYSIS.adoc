@@ -1,6 +1,6 @@
 = Analyse de Couverture des Tests — Bakery Gradle Plugin
 
-_Derniere mise a jour_ : 2026-06-16 (Session 125)
+_Derniere mise a jour_ : 2026-06-16 (Session 126)
 
 '''
 
@@ -228,4 +228,23 @@ Total Cucumber : 15 scenarios (12 PASS, 3 FAIL)
 | SiteScaffolderTest.ResolveAndValidateSiteTargetTest | 3 | PASS | both baseDir+siteName, only siteName, baseDir sans siteName throw
 | SiteScaffolderTest.ResolveSiteTypeTest (edge null) | 1 | PASS | siteType Property null → BLOG
 |===
+
+== Session 126 — US-I18N-MIG-2 MigrateToI18nTask + ContentTaskRegistrar + BakeryPlugin
+
+|===
+| Classe | Tests | Statut | Notes
+| MigrateToI18nTaskTest.TaskRegistration | 2 | PASS | group/description, CLI defaults
+| MigrateToI18nTaskTest.ResolveIntention | 12 | PASS | CLI siteDir, CLI langs, CLI defaultLang, CLI dryRun, DSL fallback, CLI wins siteDir/langs/defaultLang/dryRun, no siteDir throw, defaults, whitespace parsing
+| MigrateToI18nTaskTest.ExecuteMigration | 6 | PASS | no llmService throw, site dir absent warn, templates absent warn, dry-run true no files, relative siteDir, migration with FakeLlmService
+|===
+
+**Total Session 126 unitaires** : 20 nouveaux tests PASS
+
+== Tests Cucumber — Session 126
+
+| Feature | Scenarios | Statut | Notes
+| 32_i18n_migration | 5 | PASS | task registered, dry run preview, EN+AR DSL, CLI options, no templates
+|===
+
+**Total Session 126 Cucumber** : 5 nouveaux scénarios PASS
 

@@ -748,3 +748,25 @@ BKY-KOV-1 US-1 Audit couverture Kover.
 **Résultats** : Compilation OK, tests cibles PASS, publishToMavenLocal OK. BKY-CR-V5 21/24 pts. Prochaine session : 124 — BKY-CR-V5 US-8 (Log warnings catch muets + divers P3).
 
 '''
+
+== Session 126 — 2026-06-16 — BKY-I18N-MIG US-2 (MigrateToI18nTask + ContentTaskRegistrar + BakeryPlugin)
+
+**Contexte** : Session 125 a terminé US-1. PROMPT_REPRISE : US-I18N-MIG-2 (3 pts).
+
+**Tâches réalisées** :
+
+* [x] DDD — `MigrateToI18nTask.kt` : `@DisableCachingByDefault abstract class`, 4 CLI options (`--i18nSite`, `--i18nLangs`, `--i18nDefaultLang`, `--i18nDryRun`), cascade CLI>DSL>defaults, injection `llmService` + `dslIntention`, `resolveIntention()` + `resolveSiteDir()`
+* [x] DDD — `I18nMigrationService.kt` : stub (scan templates, retourne I18nMigrationResult — US-3 fera l'implémentation complète)
+* [x] DDD — `I18nMigrationResult.kt` : data class (keysExtracted, filesGenerated, dryRun)
+* [x] DDD — `ContentTaskRegistrar.kt` : `registerMigrateToI18nTask()` avec pattern `resolveIntention()` + `createLlmServiceIfEnabled()`
+* [x] DDD — `BakeryPlugin.kt` : wiring `registerMigrateToI18nTask()` dans `registerFullPipelineTasks()` + import + doc parallélisme
+* [x] TDD — `MigrateToI18nTaskTest.kt` : 20 UT (TaskRegistration 2, ResolveIntention 12, ExecuteMigration 6)
+* [x] BDD — `32_i18n_migration.feature` : 5 scénarios (task registered, dry run preview, EN+AR DSL, CLI options, no templates)
+* [x] BDD — `I18nMigrationSteps.kt` : +2 step definitions (`site fully configured`, `with arguments`)
+
+**Fichiers créés** : `MigrateToI18nTask.kt`, `I18nMigrationService.kt`, `I18nMigrationResult.kt`, `MigrateToI18nTaskTest.kt`, `32_i18n_migration.feature`, `.agents/sessions/126-i18n-mig-us2.adoc`
+**Fichiers modifiés** : `ContentTaskRegistrar.kt`, `BakeryPlugin.kt`, `I18nMigrationSteps.kt`, `PROMPT_REPRISE.adoc`, `BACKLOG.adoc`, `TODO.adoc`, `.agents/INDEX.adoc`, `.agents/SESSIONS_HISTORY.adoc`, `TEST_COVERAGE_ANALYSIS.adoc`
+
+**Résultats** : Compilation OK, 20/20 UT PASS, 5/5 Cucumber PASS, publishToMavenLocal OK. BKY-I18N-MIG 5/16 pts. Prochaine session : 127 — BKY-I18N-MIG US-3 (I18nMigrationService — scan + extraction + messages.properties).
+
+'''

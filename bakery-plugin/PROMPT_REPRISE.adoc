@@ -2,38 +2,40 @@
 
 == Mission accomplie
 
-*Session 125 TERMINÉE* — BKY-I18N-MIG US-1 (2 pts).
+*Session 126 TERMINÉE* — BKY-I18N-MIG US-2 (3 pts).
 DDD/TDD/BDD baby-step :
-- `I18nMigrationIntention.kt` (data class, validation init{}, toPromptContext())
-- `I18nMigrationIntentionDsl.kt` (open class, var mutables, toIntention())
-- `BakeryExtension.kt` : `val i18nMigration` + `fun i18nMigration(action)`
-- 10 UT (I18nMigrationIntentionTest + I18nMigrationIntentionDslTest) PASS
-- 3 Cucumber (31_i18n_migration.feature) PASS
-- 8 fichiers (4 nouveaux + 2 modifiés + 2 steps/world). Compilation OK.
+- `MigrateToI18nTask.kt` (abstract class, 4 CLI options, cascade CLI>DSL>defaults, llmService + dslIntention)
+- `I18nMigrationService.kt` (stub, US-3 fera l'implémentation complète)
+- `I18nMigrationResult.kt` (data class)
+- `ContentTaskRegistrar.kt` : `registerMigrateToI18nTask()`
+- `BakeryPlugin.kt` : wiring dans `registerFullPipelineTasks()`
+- 20 UT (MigrateToI18nTaskTest) PASS
+- 5 Cucumber (32_i18n_migration.feature) PASS
+- publishToMavenLocal OK
 
 == Statut
 
 - EPICs : 30/30 ✅ (100%)
 - Code smells résolus : 24/24 ✅ (V2-V4) + 52/52 ✅ (V5)
 - BKY-CR-V5 : 24/24 pts ✅
-- BKY-I18N-MIG : 2/16 pts (US-1 ✅)
+- BKY-I18N-MIG : 5/16 pts (US-1 ✅ S125, US-2 ✅ S126)
 - Version publiée: 0.0.1 (Maven Central)
-- 3 échecs ThymeleafRenderingTest pré-existants (OGNL bug header.thyme, non lié)
 
-== Prochaine session (126)
+== Prochaine session (127)
 
-*Priorité P1* : BKY-I18N-MIG — US-I18N-MIG-2 (3 pts).
-MigrateToI18nTask + ContentTaskRegistrar :
-- Tâche `@DisableCachingByDefault abstract class MigrateToI18nTask : DefaultTask()`
-- Options CLI (`--i18nSite`, `--i18nLangs`, `--i18nDefaultLang`, `--i18nDryRun`)
-- Résolution cascade CLI > DSL > defaults
-- Injection `dslIntention` + `llmService`
-- `ContentTaskRegistrar.registerMigrateToI18nTask()`
-- Enregistrement dans `BakeryPlugin.registerFullPipelineTasks()`
+*Priorité P1* : BKY-I18N-MIG — US-I18N-MIG-3 (5 pts).
+I18nMigrationService — scan + extraction + messages.properties :
+- `scanTemplates()` → liste les fichiers `.thyme` dans `templates/`
+- `extractHardcodedText()` → parse le texte hors `#{...}` et `th:*`
+- `generateMessageFiles()` → crée `messages_{lang}.properties` par langue
+- `replaceHardcodedWithMessageKeys()` → remplace texte par `#{key}`
+- `writeMessageFiles()` → écrit les fichiers properties
+- `injectSiteLanguage()` → ajoute `site.language` dans `jbake.properties`
+- Retourne `I18nMigrationResult` (keysExtracted, filesGenerated, dryRun)
 
 *Fichiers cibles* :
-- `MigrateToI18nTask.kt` (NOUVEAU)
-- `ContentTaskRegistrar.kt` (MODIFIÉ)
-- `BakeryPlugin.kt` (MODIFIÉ)
+- `I18nMigrationService.kt` (REMPLACER le stub)
+- `I18nMigrationServiceTest.kt` (NOUVEAU, ~15 UT)
+- `MigrateToI18nTaskTest.kt` (MODIFIÉ, enrichir tests executeMigration)
 
 *Vérification* : `./gradlew compileKotlin` → BUILD SUCCESSFUL.

@@ -1,7 +1,10 @@
 package bakery.scenarios
 
 import io.cucumber.java.en.Given
+import io.cucumber.java.en.When
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
+import org.gradle.testkit.runner.GradleRunner
 
 class I18nMigrationSteps(private val world: BakeryWorld) {
 
@@ -21,5 +24,17 @@ class I18nMigrationSteps(private val world: BakeryWorld) {
             dryRun = dryRunBool
         )
         assertThat(world.projectDir).exists()
+    }
+
+    @Given("a new Bakery project with site fully configured")
+    fun createBakeryProjectWithSiteFullyConfigured() {
+        world.createGradleProjectWithSiteConfigured(iaEnabled = true)
+        assertThat(world.projectDir).exists()
+    }
+
+    @When("I am executing the task {string} with arguments {string}")
+    fun runTaskWithArguments(taskName: String, arguments: String) = runBlocking {
+        val args = listOf(taskName) + arguments.split(" ").filter { it.isNotBlank() }
+        world.executeGradle(*args.toTypedArray())
     }
 }

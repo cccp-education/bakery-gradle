@@ -1,7 +1,7 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-06-16 — Session 125 (BKY-I18N-MIG US-1)_
+_Dernière mise à jour : 2026-06-16 — Session 126 (BKY-I18N-MIG US-2)_
 
 * [x] Implementer la generation du code client Firebase dans les templates (→ BKY-JB-4, session 032)
 * [x] Ajouter une vraie Firebase API key quand disponible (→ EPIC 4, formalité restante côté consommateur cheroliv.com)
@@ -34,7 +34,7 @@ _Tout le backlog historique est terminé. 30/30 EPICs + 24/24 code smells résol
 == NOUVEAU — EPIC BKY-I18N-MIG (Session 117, 16 pts)
 
 * [x] **US-I18N-MIG-1** : I18nMigrationIntention + Dsl + BakeryExtension ✅ S125
-* [ ] **US-I18N-MIG-2** : MigrateToI18nTask + ContentTaskRegistrar
+* [x] **US-I18N-MIG-2** : MigrateToI18nTask + ContentTaskRegistrar ✅ S126
 * [ ] **US-I18N-MIG-3** : I18nMigrationService — scan + extraction + messages.properties
 * [ ] **US-I18N-MIG-4** : Traductions LLM 9 langues non-fr
 * [ ] **US-I18N-MIG-5** : Cucumber BDD + tests unitaires

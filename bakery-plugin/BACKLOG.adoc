@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-16 — Session 125 (BKY-I18N-MIG US-1)_
+_Dernière mise à jour : 2026-06-16 — Session 126 (BKY-I18N-MIG US-2)_
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -1009,7 +1009,7 @@ cascade CLI > DSL > defaults, DDD Intention→Dsl→Task→Service.
   `ContentTaskRegistrar.registerMigrateToI18nTask()`.
   Enregistrement dans `BakeryPlugin.registerFullPipelineTasks()`.
 | 3
-| 🟠 P1
+| ✅ S126
 
 | US-I18N-MIG-3
 | **I18nMigrationService — scan + extraction + messages.properties** —
@@ -1050,8 +1050,8 @@ cascade CLI > DSL > defaults, DDD Intention→Dsl→Task→Service.
 | BKY-I18N | i18n 10 langues | 23 | ✅ S116
 // ── EN COURS V5 (Session 117-118) ──
 | BKY-CR-V5 | Code smells V5 (60 smells) | 24 | ✅ S124 (US-1+2+3+4+5+6+7+8)
-| BKY-I18N-MIG | Tâche migrateToI18n | 16 | 🟠 P1 ☐ (2/16 pts, US-1 ✅ S125)
-| *Total restant* | | *14* |
+| BKY-I18N-MIG | Tâche migrateToI18n | 16 | 🟠 P1 ☐ (5/16 pts, US-1 ✅ S125, US-2 ✅ S126)
+| *Total restant* | | *11* |
 |===
 
 *Tous les EPICs historiques* : 30/30 ✅ (100%)
@@ -1065,7 +1065,7 @@ cascade CLI > DSL > defaults, DDD Intention→Dsl→Task→Service.
 [cols="2,3"]
 |===
 | Document | `BACKLOG.adoc`
-| Version | 8.2 — Session 123 (BKY-CR-V5 US-7)
+| Version | 8.3 — Session 126 (BKY-I18N-MIG US-2)
 | Historisé dans | `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 | Basé sur | Code review V5 (`.agents/CODE_REVIEW.adoc`, Session 117) + Session 105 + Session 111 + Session 116
-| Prochaine màj | Session 124 — BKY-CR-V5 US-8 (Log warnings catch muets + divers P3)
+| Prochaine màj | Session 127 — BKY-I18N-MIG US-3 (I18nMigrationService)
