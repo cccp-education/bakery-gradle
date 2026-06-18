@@ -30,17 +30,33 @@ DDD/TDD/BDD baby-step :
 - BKY-PUB-1 : 8/8 pts ✅ (Maven Central 0.0.1)
 - Version publiée : 0.0.1 (Maven Central)
 
-== Prochaine session (129)
+== Prochaine session (129) — CRITIQUE
 
-*Priorité P3* : Maintenance / Polish — Bakery est 100% fonctionnel.
-Tous les EPICs sont terminés. US-I18N-MIG-4 (3 pts) est en attente
-de codebase-gradle TranslationService (N1).
+*Priorité P1* : **BKY-I18N-PROD-VAL** — Validation dry-run sur magic-stick.
 
-*Options* :
-- Revue de code post-I18N-MIG (vérifier cohérence globale)
-- Audit des 36 templates i18n (vérifier qu'aucun texte FR n'a été oublié)
-- Nettoyage final des steps Cucumber obsolètes (PendingException dans InitSiteSteps)
-- Attendre codebase-gradle TranslationService pour US-I18N-MIG-4
+*Problème* : La tâche migrateToI18n est codée et testée (68 UT + 10 Cucumber),
+mais **JAMAIS exécutée sur des templates réels**. Tous les tests utilisent des
+templates synthétiques dans des @TempDir.
+
+*Mission Session 129* (3 pts) :
+1. **US-VAL-1** : Dry-run magic-stick
+   ```bash
+   ./gradlew migrateToI18n \
+     --i18nSite=/home/cheroliv/workspace/office/sites/magic-stick/jbake \
+     --i18nLangs=fr,en \
+     --i18nDefaultLang=fr \
+     --i18nDryRun=true
+   ```
+2. **US-VAL-2** : Audit manuel des clés extraites
+   - Noms propres NON extraits (Magic Stick, cccp.education, Cheroliv)
+   - Termes techniques NON extraits (USB, CSS, Bootstrap, GitHub)
+   - URLs NON extraites (https://..., mailto:...)
+   - Clés sémantiques (header.title, footer.description, nav.home)
+3. **US-VAL-3** : Correction faux positifs (si nécessaire)
+   - Ajuster les 6 extracteurs dans I18nMigrationService.kt
+   - Ajouter whitelist noms propres / termes techniques
+
+*Livrable* : Rapport dry-run + audit clés + corrections (si faux positifs).
 
 == Note — US-I18N-MIG-4 (⏸️ EN ATTENTE)
 
@@ -48,3 +64,5 @@ La traduction LLM des 9 langues non-fr est mise en attente. Dépend de :
 - `education.cccp:koog` (N0)
 - `education.cccp:llm-pool-contracts` (N0)
 - codebase-gradle `TranslationService` (N1, à créer)
+
+*Référence* : `.agents/encyclopedies/I18N_MIGRATION_PROD.adoc` (16 pages)

@@ -1044,7 +1044,7 @@ cascade CLI > DSL > defaults, DDD Intention→Dsl→Task→Service.
 |===
 
 '''
-== Synthèse — Charge restante (Session 118)
+== Synthèse — Charge restante (Session 129)
 
 [cols="1,3,2,2"]
 |===
@@ -1054,16 +1054,22 @@ cascade CLI > DSL > defaults, DDD Intention→Dsl→Task→Service.
 | BKY-COV-2 | Microfissures coverage | 12 | ✅ S110
 | BKY-PUB-1 | Publication Maven Central 0.0.1 | 8 | ✅ S109
 | BKY-I18N | i18n 10 langues | 23 | ✅ S116
-// ── EN COURS V5 (Session 117-118) ──
+// ── EN COURS V5 (Session 117-128) ──
 | BKY-CR-V5 | Code smells V5 (60 smells) | 24 | ✅ S124 (US-1+2+3+4+5+6+7+8)
 | BKY-I18N-MIG | Tâche migrateToI18n | 16 | 🟠 P1 ☐ (13/16 pts, US-1 ✅ S125, US-2 ✅ S126, US-3 ✅ S127, US-5 ✅ S128, US-4 ⏸️)
-| *Total restant* | | *3* |
+// ── NOUVEAU — Migration Production (Session 129) ──
+| BKY-I18N-PROD-VAL | Validation dry-run (magic-stick) | 3 | 🟠 P1 ☐ (Session 129)
+| BKY-I18N-PROD-MIG | Migration magic-stick + traduction FR→EN | 5 | 🟠 P1 ☐ (Session 130)
+| BKY-I18N-PROD-GEN | Généralisation cccp.education + cheroliv.com | 8 | 🟡 P2 ☐ (Session 131)
+| BKY-I18N-MIG-4 | Service traduction transverse (codebase-gradle N1) | 3 | ⏸️ EN ATTENTE
+| *Total restant* | | *19* |
 |===
 
 *Tous les EPICs historiques* : 30/30 ✅ (100%)
 *Code smells résolus* : 24/24 ✅ (V2+V3+V4)
 *Code smells V5* : 52 ☐ (US-1 faux positif, US-2+3+4+5+6+7+8 résolues)
 *Bakery 100% fonctionnel* — les smells V5 sont qualitatifs, pas fonctionnels.
+*Nouveau cap* : Migration i18n des 3 sites de production (magic-stick, cccp.education, cheroliv.com).
 
 '''
 == Métadonnées

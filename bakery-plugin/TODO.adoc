@@ -36,8 +36,33 @@ _Tout le backlog historique est terminé. 30/30 EPICs + 24/24 code smells résol
 * [x] **US-I18N-MIG-1** : I18nMigrationIntention + Dsl + BakeryExtension ✅ S125
 * [x] **US-I18N-MIG-2** : MigrateToI18nTask + ContentTaskRegistrar ✅ S126
 * [x] **US-I18N-MIG-3** : I18nMigrationService — scan + extraction + messages.properties ✅ S127
-* [ ] **US-I18N-MIG-4** : Traductions LLM 9 langues non-fr
+* [ ] **US-I18N-MIG-4** : Traductions LLM 9 langues non-fr — ⏸️ EN ATTENTE (codebase-gradle N1)
 * [x] **US-I18N-MIG-5** : Cucumber BDD + tests unitaires ✅ S128
+
+== NOUVEAU — EPIC BKY-I18N-PROD : Migration Sites de Production (Session 129)
+
+*Risque critique* : La tâche migrateToI18n n'a **JAMAIS été testée sur des templates réels**.
+Tous les tests (68 UT + 10 Cucumber) utilisent des templates synthétiques dans des @TempDir.
+
+*Voir* : `.agents/encyclopedies/I18N_MIGRATION_PROD.adoc` (16 pages)
+
+=== EPIC BKY-I18N-PROD-VAL : Validation Dry-Run (3 pts)
+
+* [ ] **US-VAL-1** : Dry-run magic-stick — Exécuter migrateToI18n en dry-run. Vérifier nombre de clés, pas de crash, rapport lisible.
+* [ ] **US-VAL-2** : Audit clés extraites — Vérifier manuellement : noms propres NON extraits, termes techniques NON extraits, URLs NON extraites.
+* [ ] **US-VAL-3** : Correction faux positifs — Ajuster les 6 extracteurs si nécessaire (whitelist noms propres, termes techniques).
+
+=== EPIC BKY-I18N-PROD-MIG : Migration magic-stick (5 pts)
+
+* [ ] **US-MIG-1** : Migration réelle magic-stick — migrateToI18n avec dryRun=false. Vérifier fichiers créés, templates modifiés.
+* [ ] **US-MIG-2** : Traduction manuelle fr→en — Remplir messages_en.properties (40-60 clés).
+* [ ] **US-MIG-3** : Test de rendu FR/EN — Démarrer serve, tester les deux langues. Vérifier pas de régression.
+
+=== EPIC BKY-I18N-PROD-GEN : Généralisation (8 pts)
+
+* [ ] **US-GEN-1** : Migration cccp.education — Répéter US-MIG-1→3. 11 templates, ~30-40 clés.
+* [ ] **US-GEN-2** : Migration cheroliv.com — Répéter US-MIG-1→3. 20 templates, ~60-80 clés.
+* [ ] **US-GEN-3** : Traduction 8 langues restantes — messages_*.properties pour es, de, it, pt, nl, pl, ar, zh (via LLM ou manuel).
 
 == Post-v1.0 — Code Review V3
 

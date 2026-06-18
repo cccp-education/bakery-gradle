@@ -1,0 +1,593 @@
+= EPIC BKY-I18N-PROD : Migration i18n des Sites de Production
+:toc: left
+:toclevels: 4
+:date: 2026-06-16
+:author: cheroliv
+:status: ⏸️ EN ATTENTE — Tests unitaires OK, JAMAIS exécuté sur données réelles
+
+== Contexte
+
+La tâche `migrateToI18n` (BKY-I18N-MIG US-1→3, US-5 ✅ Sessions 125-128) est **codée et testée** :
+- 68 tests unitaires (I18nMigrationServiceTest + MigrateToI18nTaskTest)
+- 10 scénarios Cucumber BDD (Feature 31 + 32)
+- Couverture : scan, extraction 6 types, génération messages.properties, remplacement, injection site.language
+
+**PROBLÈME CRITIQUE** : Tous les tests utilisent des templates **synthétiques** dans des `@TempDir`.
+La migration n'a **JAMAIS été exécutée** sur un vrai site de production (`office/sites/*`).
+
+== État des Lieux — 3 Sites Concernés
+
+[cols="1,3,2,2", options="header"]
+|===
+| Site | Templates | Statut i18n | Priorité
+
+| **magic-stick**
+| `office/sites/magic-stick/jbake/templates/` (12 fichiers `.thyme`)
+| 🔴 100% français hardcodé, `lang="fr"` statique
+| P1 — Site doc technique, usage interne
+
+| **cccp.education**
+| `office/sites/cccp.education/jbake/templates/` (11 fichiers `.thyme`)
+| 🔴 100% français hardcodé, `lang="fr"` statique
+| P0 — Vitrine institutionnelle CCCP Education
+
+| **cheroliv.com**
+| `office/sites/cheroliv.com/jbake/templates/` (20 fichiers `.thyme` + TODO/)
+| 🔴 100% français hardcodé, `lang="fr"` statique
+| P0 — Site personnel, vitrine freelance
+|===
+
+=== Exemples de Texte Hardcodé (magic-stick)
+
+[source,html]
+----
+<!-- header.thyme:6 -->
+<title>Magic Stick</title>
+
+<!-- header.thyme:39 -->
+<meta name="description" content="Magic Stick — environnement portable standardise sur cle USB bootable"/>
+
+<!-- footer.thyme:15 -->
+<p class="footer-description">
+  Environnement portable standardise sur cle USB bootable.
+  Formation, diagnostic reseau, dev nomade.
+</p>
+
+<!-- footer.thyme:29 -->
+<li><a th:href="${content.rootpath} + 'quick-start.html'">
+  <i class="bi bi-chevron-right"></i>Demarrage rapide
+</a></li>
+----
+
+=== Exemples de Texte Hardcodé (cheroliv.com)
+
+[source,html]
+----
+<!-- header.thyme:6 -->
+<title>Cheroliv - Développeur Formateur | Ingénierie Pédagogique</title>
+
+<!-- header.thyme:53 -->
+<meta name="description" content="Développeur formateur spécialisé en ingénierie pédagogique.
+Conception et développement de solutions e-learning innovantes."/>
+----
+
+=== Exemples de Texte Hardcodé (cccp.education)
+
+[source,html]
+----
+<!-- header.thyme:6 -->
+<title>cccp.education</title>
+
+<!-- header.thyme:39 -->
+<meta name="description" content="cccp.education — Créateur de Contenus Commun Prolétaire.
+Briques logicielles libres pour créer du contenu autour de l'ecosysteme AsciiDoc, Gradle et Kotlin."/>
+----
+
+== Risques Identifiés
+
+=== Risque Technique — Templates Complexes
+
+Les templates réels ont des structures **non couvertes par les tests synthétiques** :
+
+- Expressions Thymeleaf imbriquées (`th:with`, `${content.rootpath}`, `th:if`)
+- Mix français/anglais (titres en français, termes techniques en anglais)
+- Textes dans des attributs complexes (`th:attr="aria-label=#{...}"` combiné avec d'autres attributs)
+- Sections conditionnelles (`th:if`, `th:unless`)
+- Boucles (`th:each`) avec texte hardcodé à l'intérieur
+- Fragments (`th:fragment`, `th:replace`, `th:insert`)
+
+=== Risque Fonctionnel — Faux Positifs/Négatifs
+
+L'extraction automatique peut :
+
+1. **Manquer du texte** (faux négatifs) :
+   - Texte dans des `<script>` ou `<style>` (déjà exclu, mais à vérifier)
+   - Texte dans des attributs non-standard (ex: `data-tooltip`, `data-label`)
+   - Texte concaténé dynamiquement
+
+2. **Extraire du texte à tort** (faux positifs) :
+   - Noms propres (Magic Stick, cccp.education, Cheroliv) → ne doivent PAS être traduits
+   - Termes techniques (USB, CSS, Bootstrap, GitHub) → ne doivent PAS être traduits
+   - URLs, chemins de fichiers, identifiants
+
+3. **Générer des clés inappropriées** :
+   - Clés trop longues ou avec caractères spéciaux
+   - Doublons de clés entre templates
+   - Clés non-sémantiques (`header.1`, `footer.23`)
+
+=== Risque Opérationnel — Dry-Run Non Validé
+
+Le mode `dryRun=true` (par défaut) n'a **JAMAIS été testé sur un vrai site** :
+
+- Le rapport d'extraction est-il lisible ?
+- Le nombre de clés extraites est-il cohérent ?
+- L'utilisateur peut-il valider l'extraction avant de lancer la migration réelle ?
+
+== Architecture de la Migration
+
+=== Phases de la Tâche `migrateToI18n`
+
+[source,kotlin]
+----
+I18nMigrationService.migrate(
+    siteDir = File("office/sites/magic-stick/jbake"),
+    languages = listOf("fr", "en", "es", "de", "it", "pt", "nl", "pl", "ar", "zh"),
+    defaultLanguage = "fr",
+    dryRun = true  // PAR DÉFAUT — SÉCURITÉ
+)
+
+// Phase 1: scanTemplates() → List<File>
+//   └─ Walk récursive du répertoire templates/
+//   └─ Filtre *.thyme
+//
+// Phase 2: extractHardcodedText(templateFile) → Map<key, value>
+//   └─ 6 extracteurs :
+//      1. Text content: <p>Texte</p>
+//      2. placeholder: placeholder="Votre nom"
+//      3. aria-label: aria-label="Fermer"
+//      4. meta content: <meta content="Description">
+//      5. alt: alt="Logo"
+//      6. title: title="Accueil"
+//   └─ Skips : th:text="#{...}, th:placeholder, th:attr, th:value, <script>, <style>
+//
+// Phase 3: generateMessageFiles(allExtractions, languages, templatesDir)
+//   └─ messages_fr.properties : valeurs originales françaises
+//   └─ messages_*.properties : valeurs vides (à traduire)
+//
+// Phase 4: replaceHardcodedWithMessageKeys(templateFile, extractions)
+//   └─ Remplace texte par th:text="#{key}"
+//   └─ Remplace placeholder par th:placeholder="#{key}"
+//   └─ etc. (6 types)
+//
+// Phase 5: writeMessageFiles(messageFiles, allExtractions)
+//   └─ Écrit les fichiers .properties dans templates/
+//
+// Phase 6: injectSiteLanguage(siteDir, defaultLanguage)
+//   └─ Ajoute site.language=fr dans jbake.properties
+----
+
+=== Cascade de Configuration
+
+[source]
+----
+CLI (-Pbakery.i18nMigration.siteDir=...)
+  > DSL (bakery { i18nMigration { siteDir = "..." } })
+  > defaults (dryRun = true, languages = ["fr"], defaultLanguage = "fr")
+----
+
+=== Exemple d'Usage (Dry-Run)
+
+[source,bash]
+----
+cd /home/cheroliv/workspace/foundry/public/bakery-gradle/bakery-plugin
+
+# Dry-run sur magic-stick (ne modifie AUCUN fichier)
+./gradlew migrateToI18n \
+  --i18nSite=/home/cheroliv/workspace/office/sites/magic-stick/jbake \
+  --i18nLangs=fr,en,es,de,it,pt,nl,pl,ar,zh \
+  --i18nDefaultLang=fr \
+  --i18nDryRun=true
+
+# Sortie attendue :
+# > Scanning templates...
+# > Found 12 template files
+# > Extracting hardcoded text...
+# > Clés extraites : 47
+# > DRY-RUN — aucun fichier modifié.
+# > Preview: messages_fr.properties, messages_en.properties, ... (10 fichiers)
+----
+
+=== Exemple d'Usage (Migration Réelle)
+
+[source,bash]
+----
+# Migration réelle (MODIFIE les fichiers)
+./gradlew migrateToI18n \
+  --i18nSite=/home/cheroliv/workspace/office/sites/magic-stick/jbake \
+  --i18nLangs=fr,en,es,de,it,pt,nl,pl,ar,zh \
+  --i18nDefaultLang=fr \
+  --i18nDryRun=false
+
+# Sortie attendue :
+# > Scanning templates...
+# > Found 12 template files
+# > Extracting hardcoded text...
+# > Clés extraites : 47
+# > Generating messages files...
+# > Created: templates/messages_fr.properties
+# > Created: templates/messages_en.properties
+# > ...
+# > Modifying templates...
+# > Modified: header.thyme, footer.thyme, index.thyme, ...
+# > Injecting site.language=fr into jbake.properties
+# > Migration complete: 47 keys, 10 files, 12 templates modified.
+----
+
+== Décision Architecturale — US-I18N-MIG-4
+
+=== Traduction LLM — Hors Périmètre Bakery
+
+**DÉCISION (Session 127, 2026-06-16)** : La traduction automatique des 9 langues non-françaises
+via LLM (koog+langchain4j) est **hors périmètre bakery-gradle**.
+
+**Raisons** :
+1. Capacité transverse : needed by document-gradle, slider-gradle, etc.
+2. Dépend de codebase-gradle (N1) : RAG pgvector, LLM pool, koog StateGraph
+3. Bakery = expert JBake, pas expert traduction IA
+
+**Solution** :
+- `messages_fr.properties` : valeurs françaises (extraction automatique)
+- `messages_*.properties` : valeurs **vides** (à remplir manuellement ou via service externe)
+- Service de traduction transverse à implémenter dans **codebase-gradle N1** ou **N0 dedicated**
+
+**Impact** :
+- US-I18N-MIG-4 (3 pts) = ⏸️ EN ATTENTE
+- Bakery consommera ce service via DSL ou CLI
+- Migration i18n **bloquent sans traduction** : un site avec 9 fichiers `.properties` vides est inutilisable
+
+== Plan de Validation — Avant Production
+
+=== Étape 1 : Dry-Run sur magic-stick (P1)
+
+[source,bash]
+----
+# Dry-run sur magic-stick
+./gradlew migrateToI18n \
+  --i18nSite=/home/cheroliv/workspace/office/sites/magic-stick/jbake \
+  --i18nLangs=fr,en \
+  --i18nDefaultLang=fr \
+  --i18nDryRun=true
+
+# Vérifications :
+# - Nombre de clés extraites cohérent (40-60 ?)
+# - Pas de crash sur expressions Thymeleaf complexes
+# - Rapport lisible
+----
+
+=== Étape 2 : Audit Manuel des Clés Extraites
+
+[source,bash]
+----
+# Après dry-run, inspecter le rapport
+# Vérifier :
+# - Noms propres NON extraits (Magic Stick, cccp.education, Cheroliv)
+# - Termes techniques NON extraits (USB, CSS, Bootstrap, GitHub)
+# - URLs NON extraites (https://..., mailto:...)
+# - Clés sémantiques (header.title, footer.description, nav.home)
+----
+
+=== Étape 3 : Migration Réelle sur magic-stick (P1)
+
+[source,bash]
+----
+# Migration réelle
+./gradlew migrateToI18n \
+  --i18nSite=/home/cheroliv/workspace/office/sites/magic-stick/jbake \
+  --i18nLangs=fr,en \
+  --i18nDefaultLang=fr \
+  --i18nDryRun=false
+
+# Vérifications :
+# - templates/messages_fr.properties créé (valeurs françaises)
+# - templates/messages_en.properties créé (valeurs vides)
+# - header.thyme modifié (th:text="#{...}")
+# - jbake.properties : site.language=fr ajouté
+# - git diff : voir les modifications avant commit
+----
+
+=== Étape 4 : Traduction Manuelle (fr→en)
+
+[source,bash]
+----
+# Éditer templates/messages_en.properties
+# Remplacer les valeurs vides par traductions anglaises
+# Exemple :
+# header.title=Magic Stick
+# header.description=Standardized portable environment on bootable USB drive
+# footer.documentation=Documentation
+# footer.quickStart=Quick Start
+# ...
+----
+
+=== Étape 5 : Test de Rendu
+
+[source,bash]
+----
+# Test rendu français
+cd /home/cheroliv/workspace/office/sites/magic-stick
+OFFICE_PATH=/home/cheroliv/workspace/office \
+  ../../foundry/public/runner-gradle/gradlew -p ../../foundry/public/runner-gradle \
+  serve -PsiteName=magic-stick
+
+# Ouvrir http://localhost:8000 — vérifier :
+# - Texte français affiché correctement
+# - Pas de régression visuelle
+# - Thymeleaf résout les clés #{...}
+
+# Test rendu anglais (après traduction)
+# Modifier jbake.properties : site.language=en
+# Redémarrer serve
+# Vérifier texte anglais
+----
+
+=== Étape 6 : Généralisation cccp.education + cheroliv.com
+
+[source,bash]
+----
+# Répéter étapes 1-5 pour cccp.education
+./gradlew migrateToI18n \
+  --i18nSite=/home/cheroliv/workspace/office/sites/cccp.education/jbake \
+  ...
+
+# Répéter étapes 1-5 pour cheroliv.com
+./gradlew migrateToI18n \
+  --i18nSite=/home/cheroliv/workspace/office/sites/cheroliv.com/jbake \
+  ...
+----
+
+== Découpage Agile — EPICs et Sessions
+
+=== EPIC BKY-I18N-PROD-VAL : Validation Dry-Run (3 pts)
+
+[cols="1,3,2,2", options="header"]
+|===
+| US | Description | Pts | Statut
+
+| US-VAL-1
+| **Dry-run magic-stick** — Exécuter migrateToI18n en dry-run sur magic-stick.
+  Vérifier nombre de clés, pas de crash, rapport lisible.
+| 1
+| ☐
+
+| US-VAL-2
+| **Audit clés extraites** — Vérifier manuellement :
+  - Noms propres NON extraits
+  - Termes techniques NON extraits
+  - URLs NON extraites
+  - Clés sémantiques
+| 1
+| ☐
+
+| US-VAL-3
+| **Correction faux positifs** — Ajuster les 6 extracteurs si nécessaire :
+  - whitelist noms propres
+  - whitelist termes techniques
+  - blacklist URLs
+  - clés sémantiques (header.title vs header.1)
+| 1
+| ☐
+|===
+
+=== EPIC BKY-I18N-PROD-MIG : Migration magic-stick (5 pts)
+
+[cols="1,3,2,2", options="header"]
+|===
+| US | Description | Pts | Statut
+
+| US-MIG-1
+| **Migration réelle magic-stick** — Exécuter migrateToI18n avec dryRun=false.
+  Vérifier fichiers créés, templates modifiés, site.language injecté.
+| 2
+| ☐
+
+| US-MIG-2
+| **Traduction manuelle fr→en** — Remplir messages_en.properties avec
+  traductions anglaises (40-60 clés).
+| 2
+| ☐
+
+| US-MIG-3
+| **Test de rendu FR/EN** — Démarrer serve, tester les deux langues.
+  Vérifier pas de régression, Thymeleaf résout correctement.
+| 1
+| ☐
+|===
+
+=== EPIC BKY-I18N-PROD-GEN : Généralisation cccp.education + cheroliv.com (8 pts)
+
+[cols="1,3,2,2", options="header"]
+|===
+| US | Description | Pts | Statut
+
+| US-GEN-1
+| **Migration cccp.education** — Répéter US-MIG-1→3 sur cccp.education.
+  11 templates, ~30-40 clés estimées.
+| 3
+| ☐
+
+| US-GEN-2
+| **Migration cheroliv.com** — Répéter US-MIG-1→3 sur cheroliv.com.
+  20 templates, ~60-80 clés estimées.
+| 3
+| ☐
+
+| US-GEN-3
+| **Traduction 8 langues restantes** — Remplir messages_*.properties
+  pour es, de, it, pt, nl, pl, ar, zh (via LLM service transverse ou manuel).
+| 2
+| ☐
+|===
+
+=== EPIC BKY-I18N-MIG-4 : Service de Traduction Transverse (3 pts)
+
+[cols="1,3,2,2", options="header"]
+|===
+| US | Description | Pts | Statut
+
+| US-TRAD-1
+| **Cadrage codebase-gradle** — Créer TranslationService dans codebase-gradle (N1).
+  koog StateGraph + langchain4j OllamaChatModel.
+| 1
+| ⏸️ EN ATTENTE
+
+| US-TRAD-2
+| **Implémentation** — Traduction fr→9 langues via LLM pool.
+  Cache, retry, rate limiting.
+| 1
+| ⏸️ EN ATTENTE
+
+| US-TRAD-3
+| **Consommation bakery** — bakery-gradle consomme TranslationService
+  via DSL ou CLI. Remplit automatiquement messages_*.properties.
+| 1
+| ⏸️ EN ATTENTE
+|===
+
+== Métriques de Succès
+
+[cols="2,3,2", options="header"]
+|===
+| Métrique | Cible | Mesure
+
+| Templates migrés
+| 43/43 (100%)
+| magic-stick (12) + cccp.education (11) + cheroliv.com (20)
+
+| Clés extraites
+| ~150-200 clés totales
+| magic-stick (~47) + cccp.education (~35) + cheroliv.com (~80)
+
+| Faux positifs
+| 0%
+| Noms propres, termes techniques, URLs NON extraits
+
+| Traductions FR→EN
+| 100%
+| messages_en.properties rempli pour les 3 sites
+
+| Rendu FR/EN
+| 100% fonctionnel
+| Tests manuels OK, pas de régression visuelle
+
+| Temps de migration
+| < 5 min par site
+| Temps d'exécution de migrateToI18n
+|===
+
+== Risques Résiduels
+
+=== Risque P0 — Traductions Manuelles Non Faites
+
+Si US-I18N-MIG-4 (service de traduction transverse) n'est pas implémenté,
+les traductions des 9 langues non-françaises doivent être faites **manuellement**.
+
+**Impact** :
+- messages_en.properties : ~150-200 clés à traduire (FR→EN)
+- messages_es.properties : ~150-200 clés (FR→ES)
+- ... × 8 langues = **1200-1600 traductions manuelles**
+
+**Coût estimé** :
+- FR→EN : 2-3 heures (révision humaine requise)
+- FR→8 autres langues : 16-24 heures (ou service LLM transverse)
+
+=== Risque P1 — Faux Positifs dans l'Extraction
+
+Si l'extraction automatique inclut des noms propres ou termes techniques,
+il faudra :
+1. Corriger les extracteurs (US-VAL-3)
+2. Re-lancer la migration
+3. Re-vérifier toutes les clés
+
+**Atténuation** : Dry-run + audit manuel avant migration réelle.
+
+=== Risque P2 — Régression Visuelle
+
+Si Thymeleaf ne résout pas correctement les clés `#{...}`, le rendu peut :
+- Afficher les clés brutes (`#{header.title}` au lieu de "Magic Stick")
+- Afficher des valeurs vides
+- Crash au rendu
+
+**Atténuation** : Test de rendu FR/EN avant déploiement (US-MIG-3, US-GEN-1, US-GEN-2).
+
+== Gouvernance — Mise à Jour Requise
+
+=== Fichiers à Créer
+
+- `.agents/encyclopedies/I18N_MIGRATION_PROD.adoc` (ce fichier)
+- `.agents/sessions/129-i18n-prod-val.adoc` (Session 129 — US-VAL-1→3)
+- `.agents/sessions/130-i18n-prod-mig.adoc` (Session 130 — US-MIG-1→3)
+- `.agents/sessions/131-i18n-prod-gen.adoc` (Session 131 — US-GEN-1→2)
+
+=== Fichiers à Mettre à Jour
+
+- `BACKLOG.adoc` — Ajouter EPICs BKY-I18N-PROD-VAL, BKY-I18N-PROD-MIG, BKY-I18N-PROD-GEN
+- `TODO.adoc` — Ajouter US-VAL-1→3, US-MIG-1→3, US-GEN-1→3
+- `PROMPT_REPRISE.adoc` — Session 129 : US-VAL-1 (dry-run magic-stick)
+- `.agents/INDEX.adoc` — Roadmap : ajouter EPICs BKY-I18N-PROD-*
+- `.agents/SESSIONS_HISTORY.adoc` — Sessions 129-131
+
+=== Décision Requise
+
+**Question** : Faut-il exécuter le dry-run sur magic-stick **maintenant** (Session 129) ?
+
+**Pour** :
+- Validation rapide (1-2 heures)
+- Détection précoce des faux positifs
+- Confiance accrue avant migration réelle
+
+**Contre** :
+- US-I18N-MIG-4 (traduction LLM) toujours en attente
+- Sans traduction, les 9 fichiers `.properties` vides sont inutiles
+- Risque de bloquer sur la traduction manuelle
+
+**Recommandation** :
+1. Session 129 : US-VAL-1→3 (dry-run + audit + corrections)
+2. Session 130 : US-MIG-1→3 (migration magic-stick + traduction FR→EN + tests)
+3. Session 131 : US-GEN-1→2 (migration cccp.education + cheroliv.com)
+4. Session 132+ : US-GEN-3 (traduction 8 langues, en attente de codebase-gradle TranslationService)
+
+== Historique des Décisions
+
+[cols="1,2,3,2", options="header"]
+|===
+| Date | Décision | Raison | Impact
+
+| 2026-06-16 (Session 127)
+| US-I18N-MIG-4 hors périmètre bakery
+| Traduction LLM = capacité transverse (needed by document-gradle, slider-gradle, etc.)
+| Traduction manuelle requise OU attente codebase-gradle TranslationService
+
+| 2026-06-16 (Session 128)
+| Documentation requise avant production
+| Tests unitaires OK, mais JAMAIS exécutés sur données réelles
+| Création de ce document + plan de validation en 3 étapes
+
+| 2026-06-16 (Session 129 — à venir)
+| ⏸️ EN ATTENTE de décision utilisateur
+| Faut-il lancer dry-run maintenant ou attendre traduction LLM ?
+| Blocage : migration sans traduction = sites inutilisables
+|===
+
+== Références
+
+- `src/main/kotlin/bakery/i18n/I18nMigrationService.kt` — Service métier (402 lignes)
+- `src/test/kotlin/bakery/i18n/I18nMigrationServiceTest.kt` — 34 tests unitaires
+- `src/test/kotlin/bakery/i18n/MigrateToI18nTaskTest.kt` — 19 tests unitaires
+- `src/test/features/31_i18n_migration.feature` — 3 scénarios Cucumber (US-1)
+- `src/test/features/32_i18n_migration.feature` — 7 scénarios Cucumber (US-5)
+- `src/test/scenarios/bakery/scenarios/I18nMigrationSteps.kt` — 10 steps
+- `src/test/scenarios/bakery/scenarios/BakeryWorld.kt` — createRealSiteDirectory()
+- `.agents/sessions/125-i18n-mig-us1.adoc` — US-1 (I18nMigrationIntention + Dsl)
+- `.agents/sessions/126-i18n-mig-us2.adoc` — US-2 (MigrateToI18nTask)
+- `.agents/sessions/127-bky-i18n-mig-us3.adoc` — US-3 (I18nMigrationService)
+- `.agents/sessions/128-i18n-mig-us5.adoc` — US-5 (Cucumber BDD)

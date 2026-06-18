@@ -4,7 +4,9 @@ import dev.langchain4j.data.message.ChatMessage
 import dev.langchain4j.data.message.UserMessage
 import dev.langchain4j.model.chat.ChatModel
 import dev.langchain4j.model.ollama.OllamaChatModel
+import dev.langchain4j.model.ollama.OllamaChatModel.builder
 import java.time.Duration
+import java.time.Duration.ofSeconds
 
 /**
  * Adaptateur LangChain4j → [LlmService] pour Ollama.
@@ -43,14 +45,12 @@ class OllamaLlmService(private val model: ChatModel) : LlmService {
         fun create(
             baseUrl: String,
             modelName: String,
-            timeout: Duration = Duration.ofSeconds(120)
-        ): OllamaLlmService {
-            val ollamaModel = OllamaChatModel.builder()
-                .baseUrl(baseUrl)
-                .modelName(modelName)
-                .timeout(timeout)
-                .build()
-            return OllamaLlmService(ollamaModel)
-        }
+            timeout: Duration = ofSeconds(120)
+        ): OllamaLlmService = OllamaLlmService(
+            builder()
+            .baseUrl(baseUrl)
+            .modelName(modelName)
+            .timeout(timeout)
+            .build())
     }
 }
