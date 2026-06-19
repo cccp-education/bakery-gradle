@@ -1,0 +1,37 @@
+= Session 129 — Add publishSite aggregate task (from runner)
+:session: 129
+:date: 2026-06-19
+:type: cleanup
+:score: 9/10
+
+== Contexte
+
+La tâche `publishSite` (convenience aggregate: bake + deploySite) était définie dans
+runner-gradle (N3 consommateur). Elle a été rapatriée dans le plugin bakery
+(où se trouve la logique métier).
+
+== Changements
+
+=== Code source
+- `BakeryConstants.kt` — ajout `const val PUBLISH_GROUP = "publish"`
+- `DeployTaskRegistrar.kt` — nouvelle fonction `registerPublishSiteTask()` :
+  - Enregistre `publishSite` (groupe `publish`, description "Bake and deploy site")
+  - Dépend de `bake` + `deploySite`
+- `BakeryPlugin.kt` — appel `registerPublishSiteTask()` dans `registerFullPipelineTasks`,
+  commentaire chaîne DAG mis à jour
+
+=== CI
+- `.github/workflows/website.yml` — `./gradlew -q -s publishSite` fonctionne désormais
+  (la tâche existe dans le plugin au lieu d'être définie par le consommateur)
+
+== Impact DAG
+
+```
+publishSite (convenience aggregate) ──┬── bake
+                                      └── deploySite ──┬── pagefind ──┬── bake
+                                                        └── (git push)
+```
+
+== Vérification
+
+- `./gradlew :bakery-plugin:compileKotlin` ✅ — seules erreurs préexistantes dans `lens/`

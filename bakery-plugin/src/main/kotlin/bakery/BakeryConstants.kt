@@ -4,6 +4,7 @@ object BakeryConstants {
     const val BAKERY_GROUP = "bakery"
     const val GENERATE_GROUP = "generate"
     const val DEPLOY_GROUP = "deploy"
+    const val PUBLISH_GROUP = "publish"
     const val TRANSFORM_GROUP = "transform"
     const val INFO_GROUP = "info"
     const val COLLECT_GROUP = "collect"

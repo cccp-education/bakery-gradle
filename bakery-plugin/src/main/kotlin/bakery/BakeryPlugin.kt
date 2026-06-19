@@ -16,6 +16,7 @@ import bakery.SiteTaskRegistrar.registerServeTask
 import bakery.DeployTaskRegistrar.registerDeployMaquetteTask
 import bakery.DeployTaskRegistrar.registerDeployProfileTask
 import bakery.DeployTaskRegistrar.registerDeploySiteTask
+import bakery.DeployTaskRegistrar.registerPublishSiteTask
 import bakery.LensTaskRegistrar.registerCollectAugmentedContextTask
 import bakery.LensTaskRegistrar.registerCollectSiteContextTask
 import bakery.ContentTaskRegistrar.registerGenerateArticleTask
@@ -156,7 +157,8 @@ class BakeryPlugin : Plugin<Project> {
      * - pagefind ∥ validateFirebaseConfig ∥ serve
      *
      * Chaîne séquentielle déjà configurée via `dependsOn` :
-     * bake → pagefind → deploySite → deploySite (via registerDeploySiteTask)
+      * bake → pagefind → deploySite → deploySite (via registerDeploySiteTask)
+      * publishSite (convenience aggregate) → bake + deploySite
      */
     private fun registerFullPipelineTasks(
         project: Project,
@@ -179,6 +181,7 @@ class BakeryPlugin : Plugin<Project> {
         project.configureJBakePlugin(site)
         project.configureBakeTask(site)
         project.registerDeploySiteTask(site)
+        project.registerPublishSiteTask()
         project.registerDeployMaquetteTask(site)
         project.registerPagefindTask(site)
         if (site.pushProfile != null) {

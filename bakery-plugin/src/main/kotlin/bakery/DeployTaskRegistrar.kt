@@ -92,6 +92,16 @@ object DeployTaskRegistrar {
         uiDir.copyRecursively(uiBuildDir, overwrite = true)
     }
 
+    internal fun Project.registerPublishSiteTask() {
+        tasks.register("publishSite") { task ->
+            task.apply {
+                group = BakeryConstants.PUBLISH_GROUP
+                description = "Bake and deploy site (convenience aggregate)"
+                dependsOn("bake", "deploySite")
+            }
+        }
+    }
+
     internal fun Project.registerDeployProfileTask(site: SiteConfiguration) {
         tasks.register("deployProfile", DeployProfileTask::class.java) { task ->
             task.apply {

@@ -5,16 +5,15 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-16 — Session 128 (BKY-I18N-MIG US-5)_
+_Dernière mise à jour : 2026-06-19 — Session 129 (publishSite aggregate task)_
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
 [CAUTION]
 ====
-**30/30 EPICs terminés + 24/24 code smells V2-V4 résolus.**
-Code Review V5 (Session 117) a révélé *60 nouveaux code smells* (1 P0, 10 P1, 37 P2, 12 P3)
-non détectés par les reviews précédentes. Score global : 6.8/10.
-Nouveaux EPICs : BKY-CR-V5 (24 pts) + BKY-I18N-MIG (16 pts). Total restant : 40 pts.
+**30/30 EPICs terminés + 24/24 code smells V2-V4 résolus + CR-V5 terminé + I18N-MIG 13/16 pts.**
+**Session 129** : publishSite aggregate task rapatriée de runner-gradle (N3 → N2).
+Prochaine session : I18N-MIG US-4 (traduction LLM) en attente codebase-gradle N1.
 ====
 
 '''

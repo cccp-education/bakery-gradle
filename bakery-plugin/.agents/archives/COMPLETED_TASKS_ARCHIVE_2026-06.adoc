@@ -820,3 +820,24 @@ BKY-KOV-1 US-1 Audit couverture Kover.
 **Fichiers modifiés** : `I18nMigrationService.kt`, `I18nMigrationResult.kt`, `MigrateToI18nTask.kt`, `MigrateToI18nTaskTest.kt`, `32_i18n_migration.feature`, `I18nMigrationSteps.kt`, `BakeryWorld.kt`, `PROMPT_REPRISE.adoc`, `BACKLOG.adoc`, `TODO.adoc`, `.agents/INDEX.adoc`, `.agents/SESSIONS_HISTORY.adoc`, `TEST_COVERAGE_ANALYSIS.adoc`
 
 **Résultats** : Compilation OK, 53/53 UT PASS, 12/12 Cucumber PASS, publishToMavenLocal OK. BKY-I18N-MIG 10/16 pts. Prochaine session : 128 — BKY-I18N-MIG US-5 (Cucumber BDD final).
+
+== Session 129 — 2026-06-19 — Add publishSite aggregate task (from runner)
+
+**Contexte** : La tâche `publishSite` (convenience aggregate: bake + deploySite) était définie
+dans runner-gradle (N3 consommateur) alors qu'elle doit vivre dans le plugin N2.
+
+**Tâches réalisées** :
+
+* [x] `BakeryConstants.kt` — ajout `PUBLISH_GROUP = "publish"`
+* [x] `DeployTaskRegistrar.kt` — nouvelle `registerPublishSiteTask()` enregistre `publishSite` (group=publish, dependsOn=bake + deploySite)
+* [x] `BakeryPlugin.kt` — appel à `registerPublishSiteTask()` dans `registerFullPipelineTasks`, commentaire DAG mis à jour
+* [x] `runner-gradle/build.gradle.kts` — supprimé le bloc `tasks.register("publishSite")` (runner nettoyé)
+* [x] CI `website.yml` — `./gradlew -q -s publishSite` fonctionne désormais (tâche fournie par le plugin)
+* [x] `./gradlew compileKotlin` — ✅ (seules erreurs préexistantes dans `lens/`)
+
+**Fichiers créés** : `.agents/sessions/129-publishSite-aggregate-task.adoc`
+
+**Fichiers modifiés** : `BakeryConstants.kt`, `DeployTaskRegistrar.kt`, `BakeryPlugin.kt`
+
+**Résultats** : Compilation OK (aucune erreur nouvelle). Runner allégé -5 lignes. publishSite désormais
+dans le périmètre du plugin bakery. Prochaine session : 130 — Maintenance/Polish (BKY-I18N-MIG US-4).
