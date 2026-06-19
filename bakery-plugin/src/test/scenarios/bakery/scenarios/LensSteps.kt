@@ -6,16 +6,15 @@ import bakery.lens.LensRules
 import bakery.lens.LensScope
 import bakery.lens.SiteSubgraph
 import bakery.lens.SubgraphExtractor
-import com.cheroliv.graphify.model.GraphCommunity
-import com.cheroliv.graphify.model.GraphEdge
-import com.cheroliv.graphify.model.GraphNode
+import graphify.model.GraphCommunity
+import graphify.model.GraphEdge
+import graphify.model.GraphNode
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
 import org.assertj.core.api.Assertions.assertThat
 import bakery.lens.ScoredNode
-import bakery.lens.LensBudget
-import com.fasterxml.jackson.module.kotlin.kotlinModule
+import graphify.model.GraphModel
 
 /**
  * Cucumber steps pour BKY-LENS — Pattern LENTILLE.
@@ -288,7 +287,7 @@ class LensSteps(private val world: BakeryWorld) {
         // Sérialiser en graph.json
         val objectMapper = com.fasterxml.jackson.databind.ObjectMapper()
             .registerModule(com.fasterxml.jackson.module.kotlin.kotlinModule())
-        val graphModel = com.cheroliv.graphify.model.GraphModel(nodes, edges, communitiesList)
+        val graphModel = GraphModel(nodes, edges, communitiesList)
         val graphFile = projectDir.resolve("office/graph.json")
         graphFile.parentFile.mkdirs()
         graphFile.writeText(objectMapper.writeValueAsString(graphModel), Charsets.UTF_8)
@@ -304,7 +303,7 @@ class LensSteps(private val world: BakeryWorld) {
             GraphNode("custom-node-$it.adoc", "Custom Node $it", "file", "custom-community")
         }
         val communitiesList = listOf(GraphCommunity("custom-community", "Custom Community", nodeCount))
-        val graphModel = com.cheroliv.graphify.model.GraphModel(nodes, emptyList(), communitiesList)
+        val graphModel = GraphModel(nodes, emptyList(), communitiesList)
         val graphFile = projectDir.resolve(customPath)
         graphFile.parentFile.mkdirs()
         graphFile.writeText(objectMapper.writeValueAsString(graphModel), Charsets.UTF_8)

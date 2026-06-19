@@ -1,6 +1,5 @@
 package bakery.lens
 
-import com.cheroliv.graphify.model.GraphNode
 import kotlin.math.max
 import kotlin.math.min
 
