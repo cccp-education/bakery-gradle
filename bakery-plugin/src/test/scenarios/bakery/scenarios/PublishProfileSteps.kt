@@ -18,6 +18,7 @@ import org.gradle.testkit.runner.GradleRunner.create
 import java.io.File
 import java.nio.file.Files
 import kotlin.text.Charsets.UTF_8
+import org.junit.jupiter.api.fail
 
 @Suppress("MemberVisibilityCanBePrivate")
 class PublishProfileSteps(private val world: BakeryWorld) {
@@ -120,17 +121,45 @@ class PublishProfileSteps(private val world: BakeryWorld) {
 
     @When("I execute the deployProfile task with credentials {string} and {string}")
     fun executeDeployProfileTask(username: String, token: String) = runBlocking {
-        val result = create()
-            .withProjectDir(world.projectDir!!)
-            .withPluginClasspath()
-            .withArguments(
-                "deployProfile",
-                "-PprofileUsername=$username",
-                "-PprofileToken=$token",
-                "--stacktrace"
-            )
-            .build()
-        world.buildResult = result
+        val args = mutableListOf(
+            "deployProfile",
+            "-PprofileUsername=$username",
+            "-PprofileToken=$token",
+            "--stacktrace"
+        )
+        if (username.isBlank() && token.isBlank()) {
+            world.executeGradleExpectingFailure(*args.toTypedArray())
+        } else {
+            val result = create()
+                .withProjectDir(world.projectDir!!)
+                .withPluginClasspath()
+                .withArguments(args)
+                .build()
+            world.buildResult = result
+        }
+    }
+
+    @And("the file {string} is removed from the project")
+    fun removeFileFromProject(fileName: String) {
+        val file = world.projectDir!!.resolve(fileName)
+        if (file.exists()) file.delete()
+    }
+
+    @Then("the deployProfile task should fail with message containing {string}")
+    fun deployProfileShouldFailWithMessage(expectedMessage: String) {
+        val result = world.buildResult
+        val exception = world.exception
+        when {
+            result != null && result.output.contains(expectedMessage) -> Unit
+            exception != null && exception.message?.contains(expectedMessage) == true -> Unit
+            result != null -> assertThat(result.output)
+                .describedAs("Build output should contain '$expectedMessage'")
+                .contains(expectedMessage)
+            exception != null -> assertThat(exception.message)
+                .describedAs("Exception message should contain '$expectedMessage'")
+                .contains(expectedMessage)
+            else -> fail("Expected deployProfile to fail with message containing '$expectedMessage', but no failure was captured")
+        }
     }
 
     @Then("the simulated remote should contain {string}")

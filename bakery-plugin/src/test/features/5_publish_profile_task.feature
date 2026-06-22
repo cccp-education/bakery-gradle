@@ -20,3 +20,18 @@ Feature: The deployProfile task pushes profile files to GitHub
     Then the simulated remote should contain "README.md"
     And the simulated remote should contain "README_fr.md"
     And the simulated remote should still contain "old.txt" with content "existing remote content"
+
+  Scenario: deployProfile fails when site.yml does not exist
+    Given an existing Bakery project with pushProfile configuration
+    And the project has profile files:
+      | README.md |
+    And the file "site.yml" is removed from the project
+    When I execute the deployProfile task with credentials "testuser" and "testtoken"
+    Then the deployProfile task should fail with message containing "Failed to read site.yml"
+
+  Scenario: deployProfile fails when no credentials are provided
+    Given an existing Bakery project with pushProfile pointing to a simulated remote
+    And the project has profile files:
+      | README.md |
+    When I execute the deployProfile task with credentials "" and ""
+    Then the deployProfile task should fail with message containing "credentials not found"

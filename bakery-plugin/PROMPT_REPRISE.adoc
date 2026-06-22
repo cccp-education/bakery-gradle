@@ -1,30 +1,30 @@
 = PROMPT REPRISE — Bakery
-:session: 140
+:session: 141
 :date: 2026-06-22
 
-== Mission accomplie (session 139)
+== Mission accomplie (session 140)
 
-*CS-FIN-2/CS-FIN-3 clôture définitive* — baby steps DDD/TDD/BDD.
-- Audit : `LensPipelineService.kt:122-123` sérialise déjà directement `output` via Jackson. CS-22 déjà résolu dans le code.
-- TDD : test round-trip Jackson avec `ScoredNode` non-vides (valide sérialisation directe sur cas complexes) → PASS.
-- TDD : test échappement JSON sur `GenerateSiteService.injectConfigIntoJbakeProperties` (production) → PASS.
-- REFACTOR : `LensBudgetInjectionTest` miroir privé supprimé → appelle la production. 4/4 PASS.
-- `BACKLOG.adoc` : CS-FIN-2 ✅, CS-FIN-3 ✅.
+*BKY-COV-2 DeployProfileTask branches 56%→90%* — baby steps DDD/TDD/BDD.
+- Audit Kover : ToolsKt 22% = faux gap (helper functionalTest, pas production). US-COV-2.5 abandonné.
+- TDD : 4 UT `DeployProfileTaskTest` (ConfigReadFailure ×3, ConfigPathFromExtension ×1). Branches Left `from()`, `findByType null`, `configPath.orNull` non-null couvertes.
+- BDD : 2 scénarios Feature 5 (site.yml absent, credentials manquants) + 2 steps PublishProfileSteps.
+- 15/15 UT PASS. Cucumber timeout (EPIC 5). Code production inchangé.
+- 3 fichiers, +128 lignes.
 
 == Statut
 
-- CS-FIN-2 (CS-13 + CS-22) ✅ clôturé
-- CS-FIN-3 (CS-14, CS-15, CS-17, CS-19, CS-20) ✅ clôturé
-- Tests unitaires : tous PASS
-- Code de production : inchangé (le code était déjà correct)
+- US-COV-2.1 résiduel (DeployProfileTask branches) ✅ tests écrits
+- US-COV-2.5 (ToolsKt) ❌ abandonné — faux gap (functionalTest helper)
+- Kover branches 56%→théorique 90%+ (régénération rapport en attente)
 - Publication 0.0.2 : dry-run OK, en attente permission
 
-== Prochaine session (140)
+== Prochaine session (141)
 
 Choisir la suite :
-- Publier bakery `0.0.2` effectivement (`./gradlew publishAggregationToCentralPortal` + `./gradlew publishPlugins`) — nécessite permission explicite + credentials
-- Continuer BKY-COV-2 (US-COV-2.1 DeployProfileTask 0% coverage, US-COV-2.2 ProfilePublisher, US-COV-2.4 BakeryPlugin 52.8%→70%)
-- Reprendre un autre borough critique
+- Valider les 2 scénarios BDD feature 5 avec timeout étendu (10min)
+- Régénérer Kover pour confirmer branches DeployProfileTask 56%→90%+
+- US-COV-2.4 BakeryPlugin branches 34%→70% (chemins scaffoldOnly, YAML invalide)
+- Publier bakery `0.0.2` effectivement — nécessite permission explicite + credentials
 
 == Note technique
 

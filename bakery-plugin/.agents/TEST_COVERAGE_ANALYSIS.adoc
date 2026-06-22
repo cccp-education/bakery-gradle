@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-22 — Session 139 (CS-FIN-2/CS-FIN-3 clôture définitive)_
+_Dernière mise à jour : 2026-06-22 — Session 140 (BKY-COV-2 DeployProfileTask branches)_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -13,9 +13,9 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 | Couverture Kover | *87.55%* — mesuré Session 136 via koverThresholdCheck (129680/148115 instructions environ)
 | Seuil configuré | 70% (dans `build.gradle.kts` → `koverThresholdCheck`)
 | **Nouvelle cible** | **90%** — EPIC BKY-KOV-1 (16 pts, US-1 ✅, US-KOV-2 ✅, US-KOV-3 ✅, US-KOV-4 ✅, US-KOV-5→7 restantes)
-| Tests unitaires JUnit5 | 143+ fichiers, ~880 tests — ✅ PASS (+9 UT i18n auto-translation Session 134)
+| Tests unitaires JUnit5 | 143+ fichiers, ~884 tests — ✅ PASS (+4 UT DeployProfileTaskTest Session 140)
 | Tests fonctionnels (TestKit) | 9 fichiers, 79/79 FT PASS
-| Tests Cucumber BDD | 35 features, 123/123 bakery scenarios PASS ✅ (+2 scénarios auto-translation Session 134)
+| Tests Cucumber BDD | 35 features, 123+2 scénarios bakery (125 théorique) — 2 nouveaux scénarios feature 5 Session 140 (validation timeout EPIC 5)
 | Tests E2E Playwright | 6 fichiers, 19/19 PASS — séparés de `check`
 | Compilation | ✅ BUILD SUCCESSFUL — Gradle 9.5.1, Kotlin 2.3.20, zéro warning
 |===
@@ -41,11 +41,11 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 
 |===
 | US | Cible | Coverage actuel | Cible | Priorité
-| US-COV-2.1 | DeployProfileTask | 0% | 85% | *✅ Session 106* — 12 UT PASS
+| US-COV-2.1 | DeployProfileTask | 0% | 85% | *✅ Session 106* — 12 UT PASS. *✅ Session 140* — 4 UT branches (ConfigReadFailure ×3, ConfigPathFromExtension ×1). Branches 56%→théorique 90%+ (régénération Kover en attente).
 | US-COV-2.2 | ProfilePublisher integration FT | — | 2 FT | *✅ Session 107* — 17 UT + 4 FT TestKit
 | US-COV-2.3 | DeployProfileTask full pipeline FT | 0 FT | 3 FT | *✅ Session 108* — 2 FT TestKit (history preservation + custom from subdir). 6/6 PASS.
 | US-COV-2.4 | BakeryPlugin | 52.8% → 34.2% class / 100% resolvePaths | 70% | *✅ Session 110* — resolvePath/resolvePaths 100% (5 tests). *🔄 Session 136* — suppression double lecture YAML, refactor `registerFullPipelineTasks(site)`.
-| US-COV-2.5 | ToolsKt | 22% | 50% | *✅ Session 110* — 9 tests unitaires. Source set functionalTest — Kover :test ne l'instrumente pas.
+| US-COV-2.5 | ToolsKt | 22% | 50% | *❌ Session 140* — Abandonné. Faux gap : `tools.kt` vit dans `src/functionalTest/` (helper de FT, pas production). Kover ne l'instrumente pas par défaut. US-COV-2.5 obsolète dans BACKLOG.
 | US-COV-2.6 | Closures doLast Kover blind spot | documenté | KDoc | *✅ Session 110* — Documenté ci-dessous.
 | US-COV-2.7 | GitService | 86.1% → 86.8% | 90% | *🔄 Session 136* — 1 test `pushPages` exception path.
 | US-COV-2.8 | I18nMigrationService | 91.9% → 95.4% | 95% | *🔄 Session 136* — suppression branche morte aria-label + tests injectSiteLanguage newline.

@@ -45,6 +45,79 @@ class DeployProfileTaskTest {
     ).get()
 
     @Nested
+    inner class ConfigReadFailureTest {
+
+        @Test
+        fun `throws when site yml file does not exist`() {
+            val project = createProject()
+            registerExtension(project)
+            project.extensions.extraProperties.set("profileToken", "token")
+            project.extensions.extraProperties.set("profileUsername", "user")
+
+            val task = createTask(project)
+
+            assertThatThrownBy { task.deployProfile() }
+                .isInstanceOf(IllegalStateException::class.java)
+                .hasMessageContaining("Failed to read site.yml")
+        }
+
+        @Test
+        fun `throws when site yml is invalid YAML`() {
+            val project = createProject()
+            registerExtension(project)
+            writeSiteYml(project.projectDir, ": : : not valid yaml : :")
+            project.extensions.extraProperties.set("profileToken", "token")
+            project.extensions.extraProperties.set("profileUsername", "user")
+
+            val task = createTask(project)
+
+            assertThatThrownBy { task.deployProfile() }
+                .isInstanceOf(IllegalStateException::class.java)
+                .hasMessageContaining("Failed to read site.yml")
+        }
+
+        @Test
+        fun `falls back to site yml default when bakery extension is not registered`() {
+            val project = createProject()
+            project.extensions.extraProperties.set("profileToken", "token")
+            project.extensions.extraProperties.set("profileUsername", "user")
+
+            val task = createTask(project)
+
+            assertThatThrownBy { task.deployProfile() }
+                .isInstanceOf(IllegalStateException::class.java)
+                .hasMessageContaining("Failed to read site.yml")
+        }
+    }
+
+    @Nested
+    inner class ConfigPathFromExtensionTest {
+
+        @Test
+        fun `uses configPath from bakery extension when set`() {
+            val project = createProject()
+            val extension = registerExtension(project)
+            val (_, remoteUri) = createBareRemote()
+            val customConfig = project.projectDir.resolve("custom-config.yml")
+            customConfig.writeText(makeSiteYml(remoteUri, profileFilesYaml = "  - README.md"))
+            extension.configPath.set(customConfig.absolutePath)
+            project.extensions.extraProperties.set("profileToken", "")
+            project.extensions.extraProperties.set("profileUsername", "")
+            project.projectDir.resolve("README.md").writeText("custom config path")
+
+            val task = createTask(project)
+            task.deployProfile()
+
+            val cloneDir = tempDir.resolve("clone-custom-config").apply { mkdirs() }
+            Git.cloneRepository()
+                .setURI(remoteUri)
+                .setDirectory(cloneDir)
+                .call().use { _ -> }
+            assertThat(cloneDir.resolve("README.md")).exists().hasContent("custom config path")
+        }
+    }
+
+    @Nested
     inner class PushProfileMissingTest {
 
         @Test
