@@ -1,0 +1,44 @@
+= Session 132 — BKY-I18N-PROD-GEN
+:date: 2026-06-22
+:type: DDD + TDD + BDD
+:score: 9/10
+
+== Sujet
+
+Généralisation de la tâche `migrateToI18n` aux fixtures `cccp-education` (vitrine OSS) et `cheroliv-com` (blog/portfolio) — US-GEN-1 → US-GEN-3.
+
+== Livrables
+
+* Fixtures i18n en test resources :
+** `src/test/resources/i18n-fixtures/cccp-education/jbake/` (+ 12 templates + jbake.properties)
+** `src/test/resources/i18n-fixtures/cheroliv-com/jbake/` (+ 10 templates + jbake.properties)
+** `.../cccp-education/translations_en.properties` (17 clés EN)
+** `.../cheroliv-com/translations_en.properties` (14 clés EN)
+* Ajustements `I18nMigrationService` :
+** `extractionWhitelist` enrichie de noms propres (`cheroliv.com`, `Olivier Chéron`, `Common Content Creator Proletarian`), marques/identifiants de projet (`plantuml-gradle`, `codex-gradle`, `bakery-gradle`, `codebase-gradle`, `runner-gradle`, `workspace-gradle`), termes métier (`SPG`, `FPA`, `Knowledge Work`, `workspace agent`, `Licence Apache 2.0`) et technologies (`Kotlin`, `Gradle`, `IA`).
+** `substringBlacklist` synchronisée pour bloquer ces termes dans les phrases longues.
+* Tests d'intégration JUnit5 (10 tests) :
+** `CccpEducationI18nMigrationIntegrationTest.kt` (5 tests)
+** `CherolivComI18nMigrationIntegrationTest.kt` (5 tests)
+* Feature Cucumber BDD : `34_i18n_migration_prod_gen.feature` (4 scénarios : migration réelle + dry-run pour chaque fixture).
+
+== Résultats tests
+
+* `./gradlew test --tests "bakery.i18n.*"` : 119 PASS (incluant nouveaux tests integration + MagicStick + I18nMigrationServiceTest + MigrateToI18nTaskTest).
+* `./gradlew cucumberTest` : 120 bakery scenarios PASS + 1 `initializationError` contracts runner connu (non régression).
+
+== Métriques
+
+* BKY-I18N-PROD-GEN : 8/8 pts ✅ (US-GEN-1 ✅, US-GEN-2 ✅, US-GEN-3 ✅)
+* BKY-I18N-PROD-MIG : 5/5 pts ✅ (déjà terminé)
+* BKY-I18N-PROD-VAL : 3/3 pts ✅ (déjà terminé)
+* BKY-I18N : 23/23 pts ✅ (déjà terminé)
+
+== Décisions
+
+* Les fixtures restent en test resources — pas de modification des sites de production (contrainte backlog).
+* Whitelist/blacklist augmentée de façon conservative : on exclut les noms propres/marques, on garde les phrases FR traduisibles même si elles contiennent un terme technique (ex: "Plugins Gradle, pipeline documentaire...").
+
+== Prochaine session (133)
+
+Priorité backlog : BKY-I18N-PROD-MIG US-4 (dépend codebase-gradle N1) OU nouveau EPIC si US-4 reste bloqué. Voir `PROMPT_REPRISE.adoc`.

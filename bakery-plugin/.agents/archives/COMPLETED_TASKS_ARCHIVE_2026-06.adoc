@@ -1,5 +1,64 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 133 — 2026-06-22 — Transition 132→133 (Gouvernance uniquement)
+
+**Contexte** : Session 132 a terminé BKY-I18N-PROD-GEN. PROMPT_REPRISE : BKY-I18N-PROD-MIG US-4 (traduction automatisée via codebase-gradle N1).
+
+**Audit d'ouverture** :
+
+* [x] Lecture PROMPT_REPRISE + INDEX + AGENT bakery
+* [x] Vérification état codebase-gradle N1 : PROMPT_REPRISE session 132 = EPIC V-LOCAL (boucle vibecoding locale), aucun `TranslationService` ou API de traduction dans les sources .kt
+* [x] Décision : US-4 reste ⏸️ — pas de traduction LLM inline dans bakery, attente contrat/service transverse N1
+
+**Tâches réalisées** :
+
+* [x] Mise à jour `PROMPT_REPRISE.adoc` — session 133 = polish/documentation, US-4 suspendue
+* [x] Mise à jour `.agents/INDEX.adoc` — session 133, statut US-4 codebase-gradle N1 non prêt
+* [x] Mise à jour `.agents/SESSIONS_HISTORY.adoc` — entrée 133
+* [x] Mise à jour `TEST_COVERAGE_ANALYSIS.adoc` — sessions 130, 131, 132 (intégration + Cucumber)
+* [x] Mise à jour `BACKLOG.adoc` — BKY-I18N-PROD-GEN ✅ S132, US-4 ⏸️ codebase-gradle N1 non prêt
+
+**Résultats** : Aucun changement code source. Gouvernance alignée sur la réalité du DAG N1→N2.
+
+**Prochaine session** : Dès que codebase-gradle fournit `TranslationService` (contrat N0 ou service N1), reprendre BKY-I18N-MIG US-4. Sinon polish/documentation bakery.
+
+== Session 132 — 2026-06-22 — BKY-I18N-PROD-GEN (Fixtures cccp-education + cheroliv-com)
+
+**Contexte** : Session 131 a migré magic-stick. PROMPT_REPRISE : BKY-I18N-PROD-GEN (8 pts).
+
+**Tâches réalisées** :
+
+* [x] US-GEN-1 : Création fixtures i18n en test resources
+  ** `src/test/resources/i18n-fixtures/cccp-education/jbake/` — 12 templates + jbake.properties (vitrine OSS)
+  ** `src/test/resources/i18n-fixtures/cheroliv-com/jbake/` — 10 templates + jbake.properties (blog/portfolio)
+* [x] US-GEN-2 : Dry-run migrateToI18n sur les 2 fixtures + ajustement whitelist/blacklist
+  ** `I18nMigrationService.kt` : ajout noms propres (`cheroliv.com`, `Olivier Chéron`, `Common Content Creator Proletarian`), identifiants projet (`plantuml-gradle`, `codex-gradle`, `bakery-gradle`, `codebase-gradle`, `runner-gradle`, `workspace-gradle`), termes métier (`SPG`, `FPA`, `Knowledge Work`, `workspace agent`), licences (`Licence Apache 2.0`), technologies (`Kotlin`, `Gradle`, `IA`)
+* [x] Traductions EN manuelles :
+  ** `translations_en.properties` cccp-education (17 clés)
+  ** `translations_en.properties` cheroliv-com (14 clés)
+* [x] US-GEN-3 : Migration réelle validée sur cccp-education
+  ** `CccpEducationI18nMigrationIntegrationTest.kt` — 5 tests (dry-run safe, noms propres non extraits, migration réelle génère messages, traductions couvrent toutes les clés, site.language injecté)
+  ** `CherolivComI18nMigrationIntegrationTest.kt` — 5 tests (même critères)
+  ** `34_i18n_migration_prod_gen.feature` — 4 scénarios Cucumber (migration réelle + dry-run pour chaque fixture)
+* [x] `./gradlew compileKotlin` → BUILD SUCCESSFUL
+* [x] `./gradlew test --tests "bakery.i18n.*"` → 119/119 PASS
+* [x] `./gradlew cucumberTest` → 120 bakery scenarios PASS (1 `initializationError` contracts runner connu, non régression)
+* [x] `./gradlew -q publishToMavenLocal` → OK
+* [x] BKY-I18N-PROD-GEN : 8/8 pts ✅
+* [x] BKY-I18N-PROD-MIG : 5/5 pts ✅
+* [x] BKY-I18N-PROD-VAL : 3/3 pts ✅
+* [x] Mise à jour gouvernance : INDEX.adoc, SESSIONS_HISTORY.adoc, PROMPT_REPRISE.adoc, TEST_COVERAGE_ANALYSIS.adoc, archive session 132
+
+**Métriques** :
+
+* Clés extraites cccp-education : 27
+* Clés traduites EN cccp-education : 17/17 (100%)
+* Clés extraites cheroliv-com : 26
+* Clés traduites EN cheroliv-com : 14/14 (100%)
+* Templates scannés : 12 + 10
+
+**Prochaine session** : BKY-I18N-PROD-MIG US-4 (traduction automatisée via codebase-gradle N1) ou nouveau EPIC selon état dépendances.
+
 == Session 131 — 2026-06-22 — BKY-I18N-PROD-MIG (Migration réelle fixture magic-stick)
 
 **Contexte** : Session 130 a validé le dry-run. PROMPT_REPRISE : BKY-I18N-PROD-MIG (5 pts).

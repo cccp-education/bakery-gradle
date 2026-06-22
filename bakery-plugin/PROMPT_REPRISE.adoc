@@ -1,20 +1,18 @@
 = PROMPT REPRISE — Bakery
-:session: 132
+:session: 133
 :date: 2026-06-22
 
 == Mission accomplie
 
-*Session 131 TERMINÉE* — BKY-I18N-PROD-MIG (5 pts) ✅.
-DDD/TDD/BDD sur fixture magic-stick :
-- `I18nTranslationApplier` — applique un map de traductions sur messages_en.properties
-- `translations_en.properties` — 45 traductions FR→EN couvrant toutes les clés extraites
-- `MagicStickI18nMigrationIntegrationTest` — 3 nouveaux tests migration réelle + 2 tests traduction
-- `ThymeleafI18nSyntaxTest` — 3 tests de cohérence syntaxique i18n post-migration
-- `I18nMigrationServiceTest` — 3 tests unitaires pour I18nTranslationApplier
-- Feature 33 `i18n_migration_magic_stick.feature` — 2 scénarios Cucumber (migration réelle + dry-run)
-- Fixture magic-stick enrichie d'un `jbake.properties` minimal
-- `BakeryWorld.copyRealSiteFromTestResources()` + step Cucumber dédié
-- 9/9 integration tests PASS, 3/3 syntax tests PASS, 116/116 Cucumber PASS, 36/36 I18nMigrationServiceTest PASS
+*Session 132 TERMINÉE* — BKY-I18N-PROD-GEN (8 pts) ✅.
+DDD/TDD/BDD sur fixtures cccp-education et cheroliv-com :
+- 2 nouvelles fixtures i18n en test resources (12 + 10 templates, jbake.properties)
+- `translations_en.properties` pour cccp-education (17 clés) et cheroliv-com (14 clés)
+- `I18nMigrationService` — whitelist/blacklist enrichies de noms propres, identifiants de projet, termes métier
+- `CccpEducationI18nMigrationIntegrationTest` — 5 tests d'intégration
+- `CherolivComI18nMigrationIntegrationTest` — 5 tests d'intégration
+- Feature 34 `i18n_migration_prod_gen.feature` — 4 scénarios Cucumber (migration réelle + dry-run × 2 fixtures)
+- 119/119 tests i18n unitaires/intégration PASS, 120/120 bakery Cucumber scenarios PASS
 
 == Statut
 
@@ -22,20 +20,21 @@ DDD/TDD/BDD sur fixture magic-stick :
 - BKY-I18N-MIG : 13/16 pts (US-1→3 ✅, US-5 ✅, US-4 ⏸️ codebase-gradle N1)
 - BKY-I18N-PROD-VAL : 3/3 pts ✅
 - BKY-I18N-PROD-MIG : 5/5 pts ✅
-- BKY-I18N-PROD-GEN : 0/8 pts ☐
+- BKY-I18N-PROD-GEN : 8/8 pts ✅
 
-== Prochaine session (132) — P1
+== Session en cours (133) — P1 Fallback Polish
 
-*Priorité* : **BKY-I18N-PROD-GEN** — Généralisation cccp.education + cheroliv.com.
+*Décision* : **BKY-I18N-MIG US-4 reste suspendue** — codebase-gradle N1 n'expose aucun `TranslationService` / API de traduction au moment de l'ouverture (PROMPT_REPRISE codebase session 132 = boucle vibecoding locale EPIC V-LOCAL, zéro mention translation). Le DAG N1→N2 n'est pas prêt.
 
-*Mission* (8 pts) :
-1. **US-GEN-1** : Créer fixtures i18n pour cccp.education (site vitrine) et cheroliv.com (blog/portfolio) en test resources.
-2. **US-GEN-2** : Exécuter `migrateToI18n` dry-run sur les 2 fixtures, ajuster whitelist/blacklist si faux positifs.
-3. **US-GEN-3** : Valider migration réelle + traduction EN sur cccp.education (copie, pas prod).
+*Mission* (clôture propre de la transition 132→133) :
+1. **P1-GOV-1** : Mettre à jour `BACKLOG.adoc` — statut US-4 ⏸️ codebase-gradle N1, charge restante réaliste.
+2. **P1-DOC-1** : Documenter la frontière bakery↔codebase pour la traduction (contrat attendu, fallback `FakeLlmService`).
+3. **P1-POLISH-1** : Nettoyer le workaround d'imports `graphify.model.*` si graphify-plugin 0.0.3 est disponible, OU documenter la dette temporaire.
+4. **P1-COV-1** : Compléter `TEST_COVERAGE_ANALYSIS.adoc` avec les 10 nouveaux tests d'intégration session 132.
 
-*Contrainte* : continuer sur les fixtures, pas sur les sites de production.
+*Contrainte* : zéro code métier avant que codebase-gradle ne fournisse un contrat/service de traduction. Pas de traduction LLM inline dans bakery.
 
 == Note technique
 
-- `./gradlew test` déclenche `CucumberTestRunner.initializationError` (runner suite sans engine cucumber car exclu du task test). Ce n'est pas une régression — les tests unitaires passent, la tâche `cucumberTest` est la référence BDD.
+- `./gradlew test` déclenche `CucumberTestRunner.initializationError` (runner suite contracts sans engine cucumber, exclu du task test). Ce n'est pas une régression — la tâche `cucumberTest` est la référence BDD.
 - Imports graphify workaround temporaire — revenir à `graphify.model.*` quand graphify-plugin 0.0.3 corrigera le package.

@@ -36,7 +36,27 @@ class I18nMigrationService {
         "Xubuntu",
         "BIOS",
         "UEFI",
-        "v0.1.14"
+        "v0.1.14",
+        "cheroliv.com",
+        "Olivier Chéron",
+        "Olivier Cheron",
+        "plantuml-gradle",
+        "codex-gradle",
+        "bakery-gradle",
+        "codebase-gradle",
+        "runner-gradle",
+        "workspace-gradle",
+        "Common Content Creator Proletarian",
+        "Kotlin",
+        "Gradle",
+        "IA",
+        "Licence Apache 2.0",
+        "Apache 2.0",
+        "Apache License 2.0",
+        "SPG",
+        "FPA",
+        "Knowledge Work",
+        "workspace agent"
     )
 
     private val substringBlacklist = setOf(
@@ -46,7 +66,20 @@ class I18nMigrationService {
         "BIOS",
         "UEFI",
         "ISO brute",
-        "v0.1.14"
+        "v0.1.14",
+        "cheroliv.com",
+        "Olivier Chéron",
+        "plantuml-gradle",
+        "codex-gradle",
+        "bakery-gradle",
+        "codebase-gradle",
+        "runner-gradle",
+        "workspace-gradle",
+        "Common Content Creator Proletarian",
+        "SPG",
+        "FPA",
+        "Knowledge Work",
+        "workspace agent"
     )
 
     fun migrate(

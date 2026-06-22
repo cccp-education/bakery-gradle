@@ -1,0 +1,23 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-transitional-thymeleaf-4.dtd">
+<html lang="fr">
+<head th:fragment="head">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>cccp.education</title>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css"/>
+
+    <link th:rel="stylesheet"
+          th:with="rootpath=(${content.rootpath != null} ? ${content.rootpath} : '')"
+          th:href="${rootpath}+'css/styles.css'"/>
+
+    <meta name="description"
+          content="cccp.education — Common Content Creator Proletarian — outils open source pour créateurs de contenu"/>
+    <meta name="keywords"
+          content="open source, education, content creator, Gradle plugins"/>
+    <meta name="author" content="cccp.education"/>
+</head>
+</html>

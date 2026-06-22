@@ -1,0 +1,50 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+    <body>
+        <div th:fragment="menu" th:with="isIndexPage=${(content.uri == 'index.html' or content.uri == '' or content.uri == null) and content.type != 'archive'}">
+            <nav class="navbar navbar-expand-lg fixed-top">
+                <div class="container">
+                    <a class="navbar-brand fw-bold" th:href="${isIndexPage ? '#home' : content.rootpath + 'index.html#home'}">
+                        <i class="bi bi-box-seam me-2"></i>
+                        <span class="brand-text">cccp.education</span>
+                    </a>
+
+                    <button class="navbar-toggler"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#navbarNav"
+                            aria-controls="navbarNav"
+                            aria-expanded="false"
+                            aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav ms-auto align-items-start">
+                            <li class="nav-item">
+                                <a class="nav-link" th:href="${isIndexPage ? '#home' : content.rootpath + 'index.html#home'}">Accueil</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#projects">Projets</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#philosophy">Philosophie</a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="docsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Documentation</a>
+                                <ul class="dropdown-menu" aria-labelledby="docsDropdown">
+                                    <li><a class="dropdown-item" th:href="${content.rootpath + 'roadmap.html'}">Roadmap</a></li>
+                                    <li><a class="dropdown-item" th:href="${content.rootpath + 'contribute.html'}">Contribuer</a></li>
+                                    <li><hr class="dropdown-divider"/></li>
+                                    <li><a class="dropdown-item" th:href="${content.rootpath + 'releases.html'}">Notes de version</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+        </div>
+    </body>
+</html>

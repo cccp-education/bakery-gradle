@@ -1,0 +1,28 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+    <div th:fragment="page">
+        <div class="container py-4">
+            <div class="row">
+                <div class="col-lg-9 order-lg-0">
+                    <article>
+                        <header class="mb-4">
+                            <h1 th:text="${content.title}">Article de blog</h1>
+                        </header>
+                        <div th:utext="${content.body}"></div>
+                    </article>
+                </div>
+                <div class="col-lg-3 order-lg-1">
+                    <div class="card mb-4 d-print-none">
+                        <div class="card-body text-center">
+                            <i class="bi bi-person-circle display-4 text-primary"></i>
+                            <h5 class="card-title mt-2">À propos de l'auteur</h5>
+                            <p class="card-text">Formateur et développeur passionné par Gradle.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

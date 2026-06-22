@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-22 — Session 131 (BKY-I18N-PROD-MIG terminé)_
+_Dernière mise à jour : 2026-06-22 — Session 133 (transition, gouvernance uniquement)_
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -1057,11 +1057,12 @@ cascade CLI > DSL > defaults, DDD Intention→Dsl→Task→Service.
 | BKY-I18N-PROD-VAL | Validation dry-run (magic-stick) | 3 | ✅ S130
 | BKY-I18N-PROD-MIG | Migration magic-stick + traduction FR→EN | 5 | ✅ S131
 // ── EN COURS ──
-| BKY-I18N-MIG | Tâche migrateToI18n | 16 | 🟠 P1 ☐ (13/16 pts, US-1 ✅ S125, US-2 ✅ S126, US-3 ✅ S127, US-5 ✅ S128, US-4 ⏸️ codebase-gradle N1)
-| BKY-I18N-PROD-GEN | Généralisation cccp.education + cheroliv.com | 8 | 🟠 P1 ☐ (Session 132)
+| BKY-I18N-MIG | Tâche migrateToI18n | 16 | 🟠 P1 ☐ (13/16 pts, US-1 ✅ S125, US-2 ✅ S126, US-3 ✅ S127, US-5 ✅ S128, US-4 ⏸️ codebase-gradle N1 non prêt — audit session 133)
+// ── TERMINÉ (session 132) ──
+| BKY-I18N-PROD-GEN | Généralisation cccp.education + cheroliv.com | 8 | ✅ S132
 // ── EN ATTENTE ──
-| BKY-I18N-MIG-4 | Service traduction transverse (codebase-gradle N1) | 3 | ⏸️ EN ATTENTE
-| *Total restant* | | *11* |
+| BKY-I18N-MIG-4 | Service traduction transverse (codebase-gradle N1) | 3 | ⏸️ EN ATTENTE — aucun TranslationService/API traduction codebase au 2026-06-22
+| *Total restant* | | *3* |
 |===
 
 *Tous les EPICs historiques* : 30/30 ✅ (100%)

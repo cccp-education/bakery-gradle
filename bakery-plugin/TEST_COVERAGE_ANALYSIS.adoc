@@ -248,3 +248,44 @@ Total Cucumber : 15 scenarios (12 PASS, 3 FAIL)
 
 **Total Session 126 Cucumber** : 5 nouveaux scénarios PASS
 
+== Session 130 — BKY-I18N-PROD-VAL US-VAL-1→3
+
+|===
+| Classe | Tests | Statut | Notes
+| MagicStickI18nMigrationIntegrationTest | 6 | OK | dry-run safe, noms propres non extraits, termes techniques non extraits, URLs non extraites, texte FR extrait, whitelist/blacklist cohérente
+|===
+
+**Total Session 130 integration** : 6 nouveaux tests PASS
+
+== Session 131 — BKY-I18N-PROD-MIG US-MIG-1→3
+
+|===
+| Classe | Tests | Statut | Notes
+| MagicStickI18nMigrationIntegrationTest | 3 | OK | migration réelle messages_fr/en, templates modifiés, site.language injecté
+| I18nTranslationApplierTest | 3 | OK | fill values, file missing, no keys match
+| ThymeleafI18nSyntaxTest | 3 | OK | clés définies, namespace, valeurs FR non vides
+|===
+
+|===
+| Feature | Scenarios | Statut | Notes
+| 33_i18n_migration_magic_stick | 2 | PASS | migration réelle + dry-run
+|===
+
+**Total Session 131** : 9 tests integration + 3 UT + 2 Cucumber PASS
+
+== Session 132 — BKY-I18N-PROD-GEN US-GEN-1→3
+
+|===
+| Classe | Tests | Statut | Notes
+| CccpEducationI18nMigrationIntegrationTest | 5 | OK | dry-run safe, migration réelle génère messages, traductions couvrent clés, site.language injecté
+| CherolivComI18nMigrationIntegrationTest | 5 | OK | mêmes critères fixture cheroliv-com
+|===
+
+|===
+| Feature | Scenarios | Statut | Notes
+| 34_i18n_migration_prod_gen | 4 | PASS | migration réelle + dry-run pour cccp-education et cheroliv-com
+|===
+
+**Total Session 132** : 10 tests integration + 4 Cucumber PASS
+
+

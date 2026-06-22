@@ -1,0 +1,62 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="footer">
+    <footer class="enhanced-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+                    <h5 class="fw-bold">
+                        <i class="bi bi-box-seam me-2"></i>
+                        cccp.education
+                    </h5>
+                    <p class="footer-description">
+                        Common Content Creator Proletarian — outils open source pour créateurs de contenu et formateurs.
+                    </p>
+                    <div class="social-icons">
+                        <a href="https://github.com/cccp-education" target="_blank" aria-label="GitHub"><i class="bi bi-github"></i></a>
+                        <a th:href="@{${content.rootpath} + 'feed.xml'}" aria-label="Flux RSS"><i class="bi bi-rss"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+                    <h6 class="fw-bold">Projets</h6>
+                    <ul class="footer-links">
+                        <li><a href="https://github.com/cccp-education/plantuml-gradle" target="_blank"><i class="bi bi-chevron-right"></i>plantuml-gradle</a></li>
+                        <li><a href="https://github.com/cccp-education/codex-gradle" target="_blank"><i class="bi bi-chevron-right"></i>codex-gradle</a></li>
+                        <li><a href="https://github.com/cccp-education/bakery-gradle" target="_blank"><i class="bi bi-chevron-right"></i>bakery-gradle</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+                    <h6 class="fw-bold">Ressources</h6>
+                    <ul class="footer-links">
+                        <li><a th:href="${content.rootpath} + 'roadmap.html'"><i class="bi bi-chevron-right"></i>Roadmap</a></li>
+                        <li><a th:href="${content.rootpath} + 'contribute.html'"><i class="bi bi-chevron-right"></i>Contribuer</a></li>
+                        <li><a href="https://github.com/cccp-education" target="_blank"><i class="bi bi-chevron-right"></i>Code source</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="fw-bold">Contact</h6>
+                    <p class="mb-3">Suivez l'actualité sur GitHub et le blog.</p>
+                    <ul class="footer-links">
+                        <li><a href="https://cccp.education" target="_blank"><i class="bi bi-globe"></i>cccp.education</a></li>
+                        <li><a href="https://github.com/cccp-education" target="_blank"><i class="bi bi-github"></i>GitHub</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <hr class="footer-divider"/>
+            <div class="footer-bottom">
+                <p>&copy; 2024-<span th:text="${#dates.year(#dates.createNow())}"></span> cccp.education. Tous droits réservés.</p>
+                <div class="footer-bottom-links">
+                    <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Licence Apache 2.0</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>
+</body>
+</html>

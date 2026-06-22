@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-22 — Session 131 (BKY-I18N-PROD-MIG)
-  _Session terminee_ : 131 — Migration reelle de la fixture magic-stick + traduction EN + tests de coherencesyntaxique
-  _Prochaine session_ : 132 — BKY-I18N-PROD-GEN : fixtures cccp.education + cheroliv.com + validation dry-run
+  _Derniere mise a jour_ : 2026-06-22 — Session 132 (BKY-I18N-PROD-GEN)
+  _Session terminee_ : 132 — Fixtures cccp-education + cheroliv-com, whitelist/blacklist, 10 tests integration, 4 scenarios Cucumber, traductions EN
+  _Prochaine session_ : 133 — Polish/documentation : US-4 suspendue (codebase-gradle N1 non pret), mise a jour gouvernance + nettoyage imports graphify
 
 '''
 
@@ -69,6 +69,9 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 132 | 2026-06-22 | DDD + TDD + BDD | **BKY-I18N-PROD-GEN US-GEN-1→3** — Fixtures cccp-education (12 templates) + cheroliv-com (10 templates) en test resources. Whitelist/blacklist I18nMigrationService enrichie (noms propres, identifiants projet, termes métier). 2 fichiers `translations_en.properties`. 10 tests integration JUnit5 + Feature 34 (4 scénarios Cucumber). 119 i18n UT PASS, 120 bakery Cucumber PASS. | 9/10
+  | 131 | 2026-06-22 | DDD + TDD + BDD | **BKY-I18N-PROD-MIG US-MIG-1→3** — Migration réelle de la fixture magic-stick. I18nTranslationApplier + translations_en.properties (45 clés FR→EN). 3 tests migration réelle MagicStickI18nMigrationIntegrationTest + 2 tests couverture traduction + 3 tests ThymeleafI18nSyntaxTest + 3 UT I18nTranslationApplier. Feature 33 `i18n_migration_magic_stick.feature` (2 scénarios). Fixture enrichie `jbake.properties`. BakeryWorld.copyRealSiteFromTestResources() + step Cucumber. 9/9 integration PASS, 116/116 Cucumber PASS, 36/36 I18nMigrationServiceTest PASS. | 9/10
+  | 130 | 2026-06-22 | DDD + TDD + BDD | **BKY-I18N-PROD-VAL US-VAL-1→3** — Validation migrateToI18n sur copie des templates magic-stick. Snapshot fixtures → test resources. 6 tests d'intégration dry-run. Whitelist + substringBlacklist dans I18nMigrationService. Quick fix imports graphify.model → com.cheroliv.graphify.model. 6/6 i18n integration PASS. Cucumber timeout (5 min). | 9/10
   | 129 | 2026-06-19 | cleanup | **publishSite aggregate task** — Rapatriement de publishSite (bake + deploySite) depuis runner-gradle dans le plugin bakery. BakeryConstants.PUBLISH_GROUP, DeployTaskRegistrar.registerPublishSiteTask(), BakeryPlugin wiring. Runner allégé. | 9/10
   | 128 | 2026-06-16 | DDD + TDD + BDD | **BKY-I18N-MIG US-5** — Cucumber BDD + tests unitaires finaux. Feature 32 enrichie 7 scénarios avec assertions post-exécution. Feature 31 corrigée. I18nMigrationSteps 10 nouveaux steps. BakeryWorld +realSiteDir. 10/10 i18n migration PASS, 114/114 total PASS. BKY-I18N-MIG 13/16 pts. | 9/10
   | 127 | 2026-06-16 | DDD + TDD + BDD | **BKY-I18N-MIG US-3** — I18nMigrationService complet (scan, extract 6 types, generate, replace, write, inject). 34 UT + 19 UT = 53/53 PASS. Feature 8→12 scénarios. Décision archi US-4 → codebase-gradle N1. BKY-I18N-MIG 10/16 pts. | 9/10
@@ -154,7 +157,7 @@ _Archives_ : Sessions 100-113 archivées dans `.agents/backup/Y2026-sessions-090
 
 |===
 | EPIC | Progression | Priorite
-| BKY-I18N-MIG : Tâche migrateToI18n pour appliquer l'i18n aux sites existants | 81.25% (13/16 pts) — US-1 ✅, US-2 ✅, US-3 ✅, US-5 ✅, US-4 ⏸️ | *🟠 P1 — US-4 en attente codebase-gradle N1*
+| BKY-I18N-MIG : Tâche migrateToI18n pour appliquer l'i18n aux sites existants | 81.25% (13/16 pts) — US-1 ✅, US-2 ✅, US-3 ✅, US-5 ✅, US-4 ⏸️ codebase-gradle N1 non prêt (session 133) | *🟠 P1 — US-4 en attente codebase-gradle N1*
 |===
 
 === EPIC BKY-I18N-PROD-MIG : Migration réelle magic-stick (NOUVEAU — Session 131)
@@ -175,7 +178,7 @@ _Archives_ : Sessions 100-113 archivées dans `.agents/backup/Y2026-sessions-090
 
 |===
 | EPIC | Progression | Priorite
-| BKY-I18N-PROD-GEN : Fixtures + validation dry-run pour cccp.education et cheroliv.com | 0% (0/8 pts) — US-GEN-1 ☐, US-GEN-2 ☐, US-GEN-3 ☐ | *🟠 P1 — Session 132*
+| BKY-I18N-PROD-GEN : Fixtures + validation dry-run pour cccp.education et cheroliv.com | 100% (8/8 pts) — US-GEN-1 ✅, US-GEN-2 ✅, US-GEN-3 ✅ | *🟠 P1 ✅ TERMINÉ — Session 132*
 
 === EPIC LENTILLE — ✅ TERMINÉ
 
@@ -207,7 +210,7 @@ _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
 | Projet | Repertoire | Session en cours | Derniere MAJ
 | magic-stick | `~/workspace/foundry/OSS/magic-stick` | 055 | 2026-04-30
 | plantuml-gradle | `~/workspace/foundry/OSS/plantuml-gradle/plantuml-plugin` | 148 | 2026-06-11
-| bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 130 | 2026-06-22
+| bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 133 | 2026-06-22
 | jhipster-gradle-plugins | `~/workspace/foundry/OSS/jhipster-gradle-plugins` | 9 | 2026-06-11
 | quizz-benchmark-gradle | `~/workspace/foundry/OSS/quizz-benchmark-gradle/quizz-benchmark-plugin` | Audit 053 | 2026-04-30
 | runner-gradle | `~/workspace/foundry/OSS/runner-gradle` | 2 | 2026-05-07
