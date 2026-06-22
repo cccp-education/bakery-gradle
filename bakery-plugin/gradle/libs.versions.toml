@@ -18,8 +18,9 @@ plugin-publish = "2.1.0"
 coroutines = "1.10.2"
 node-gradle = "7.1.0"
 kover = "0.9.8"
-codebase = "0.0.1"
+codebase = "0.0.2"
 codebase-contracts = "0.0.1"
+codebase-plugin = "0.0.2"
 i18n-contracts = "0.0.1"
 thymeleaf = "3.0.14.RELEASE"
 rome = "2.1.0"
@@ -55,6 +56,7 @@ logback-classic = { module = "ch.qos.logback:logback-classic" }
 node-gradle = { module = "com.github.node-gradle:gradle-node-plugin", version.ref = "node-gradle" }
 graphify-plugin = { module = "education.cccp:graphify-plugin", version.ref = "graphify" }
 codebase-contracts = { module = "education.cccp:codebase-contracts", version.ref = "codebase-contracts" }
+codebase-plugin = { module = "education.cccp:codebase-plugin", version.ref = "codebase-plugin" }
 i18n-contracts = { module = "education.cccp:i18n-contracts", version.ref = "i18n-contracts" }
 langchain4j-ollama = { module = "dev.langchain4j:langchain4j-ollama" }
 thymeleaf = { module = "org.thymeleaf:thymeleaf", version.ref = "thymeleaf" }

@@ -1,10 +1,15 @@
 package bakery.i18n
 
+import contracts.i18n.TranslationRequest
+import contracts.i18n.TranslationResult
+import contracts.i18n.TranslationService
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import java.util.Properties
+import org.assertj.core.api.Assertions.assertThat
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
@@ -225,7 +230,7 @@ class I18nMigrationServiceTest {
         }
 
         @Test
-        fun `non-fr languages get empty values`() {
+        fun `non-fr languages get empty values when no translator provided`() {
             val extractions = mapOf(
                 "header.thyme" to mapOf("header.1" to "Accueil")
             )
@@ -236,6 +241,46 @@ class I18nMigrationServiceTest {
             val enFile = result["messages_en.properties"]!!
 
             assertNotNull(enFile)
+        }
+
+        @Test
+        fun `non-fr languages get translated values when translator provided`() {
+            val fakeTranslator = FakeTranslationService()
+            val serviceWithTranslator = I18nMigrationService(fakeTranslator)
+            val siteDir = tempDir.resolve("site")
+            siteDir.mkdirs()
+            val templatesDir = siteDir.resolve("templates")
+            templatesDir.mkdirs()
+            templatesDir.resolve("header.thyme").writeText("<p>Accueil</p>")
+            siteDir.resolve("jbake.properties").writeText("site.host=http://example.com\n")
+
+            serviceWithTranslator.migrate(siteDir, listOf("en"), "fr", dryRun = false)
+
+            val enFile = templatesDir.resolve("messages_en.properties")
+            val props = Properties()
+            enFile.inputStream().use { props.load(it) }
+            assertEquals("[en] Accueil", props.getProperty("header.1"))
+            assertThat(fakeTranslator.requestsReceived).hasSize(1)
+        }
+
+        @Test
+        fun `fr language keeps original values even with translator`() {
+            val fakeTranslator = FakeTranslationService()
+            val serviceWithTranslator = I18nMigrationService(fakeTranslator)
+            val siteDir = tempDir.resolve("site")
+            siteDir.mkdirs()
+            val templatesDir = siteDir.resolve("templates")
+            templatesDir.mkdirs()
+            templatesDir.resolve("header.thyme").writeText("<p>Accueil</p>")
+            siteDir.resolve("jbake.properties").writeText("site.host=http://example.com\n")
+
+            serviceWithTranslator.migrate(siteDir, listOf("fr"), "fr", dryRun = false)
+
+            val frFile = templatesDir.resolve("messages_fr.properties")
+            val props = Properties()
+            frFile.inputStream().use { props.load(it) }
+            assertEquals("Accueil", props.getProperty("header.1"))
+            assertThat(fakeTranslator.requestsReceived).isEmpty()
         }
     }
 
@@ -544,6 +589,25 @@ class I18nMigrationServiceTest {
 
             val content = jbakeProps.readText()
             assertTrue(content.contains("site.language=fr"))
+        }
+    }
+
+    private class FakeTranslationService : TranslationService {
+
+        val requestsReceived = mutableListOf<TranslationRequest>()
+        private val resultQueue: MutableList<TranslationResult> = mutableListOf()
+
+        fun enqueueResult(result: TranslationResult) {
+            resultQueue.add(result)
+        }
+
+        override fun translate(request: TranslationRequest): TranslationResult {
+            requestsReceived.add(request)
+            return if (resultQueue.isNotEmpty()) {
+                resultQueue.removeAt(0)
+            } else {
+                TranslationResult.Success("[en] ${request.sourceText}")
+            }
         }
     }
 }

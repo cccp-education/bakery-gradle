@@ -1,9 +1,10 @@
 package bakery.i18n
 
+import contracts.i18n.TranslationService
 import java.io.File
 import java.util.Properties
 
-class I18nMigrationService {
+class I18nMigrationService(private val translationService: TranslationService? = null) {
 
     /**
      * Whitelist de textes qui ne doivent pas être extraits pour l'i18n.
@@ -110,16 +111,23 @@ class I18nMigrationService {
             return I18nMigrationResult(keysExtracted = 0, filesGenerated = 0, templatesModified = 0, dryRun = dryRun)
         }
 
-        val messageFiles = generateMessageFiles(allExtractions, languages, templatesDir)
+        val allKeys = linkedMapOf<String, String>()
+        for ((_, extractions) in allExtractions) {
+            allKeys.putAll(extractions)
+        }
+
+        val translatedKeys = translateNonFrenchKeys(allKeys, languages)
+        val messageFiles = generateMessageFiles(allExtractions, languages, templatesDir, translatedKeys)
 
         var templatesModified = 0
+
         if (!dryRun) {
             for ((fileName, extractions) in allExtractions) {
                 val templateFile = templatesDir.resolve(fileName)
                 replaceHardcodedWithMessageKeys(templateFile, extractions)
                 templatesModified++
             }
-            writeMessageFiles(messageFiles, allExtractions)
+            writeMessageFiles(messageFiles, allExtractions, translatedKeys)
             injectSiteLanguage(siteDir, defaultLanguage)
         }
 
@@ -330,7 +338,8 @@ class I18nMigrationService {
     fun generateMessageFiles(
         allExtractions: Map<String, Map<String, String>>,
         languages: List<String>,
-        templatesDir: File
+        templatesDir: File,
+        translatedKeys: Map<String, Map<String, String>> = emptyMap()
     ): Map<String, File> {
         val allKeys = linkedMapOf<String, String>()
         for ((_, extractions) in allExtractions) {
@@ -341,13 +350,37 @@ class I18nMigrationService {
         for (lang in languages) {
             val props = Properties()
             for ((key, value) in allKeys) {
-                props.setProperty(key, if (lang == "fr") value else "")
+                props.setProperty(key, resolveValue(lang, key, value, translatedKeys))
             }
             val file = templatesDir.resolve("messages_$lang.properties")
             messageFiles["messages_$lang.properties"] = file
         }
 
         return messageFiles
+    }
+
+    private fun translateNonFrenchKeys(
+        allKeys: Map<String, String>,
+        languages: List<String>
+    ): Map<String, Map<String, String>> {
+        if (translationService == null) return emptyMap()
+        val nonFrenchLanguages = languages.filter { it != "fr" }
+        if (nonFrenchLanguages.isEmpty()) return emptyMap()
+
+        val applier = LlmTranslationApplier(translationService)
+        return nonFrenchLanguages.associateWith { lang ->
+            applier.translateFrenchToEnglish(allKeys)
+        }
+    }
+
+    private fun resolveValue(
+        lang: String,
+        key: String,
+        frenchValue: String,
+        translatedKeys: Map<String, Map<String, String>>
+    ): String {
+        if (lang == "fr") return frenchValue
+        return translatedKeys[lang]?.get(key) ?: ""
     }
 
     fun replaceHardcodedWithMessageKeys(
@@ -457,7 +490,8 @@ class I18nMigrationService {
 
     fun writeMessageFiles(
         messageFiles: Map<String, File>,
-        allExtractions: Map<String, Map<String, String>>
+        allExtractions: Map<String, Map<String, String>>,
+        translatedKeys: Map<String, Map<String, String>> = emptyMap()
     ) {
         val allKeys = linkedMapOf<String, String>()
         for ((_, extractions) in allExtractions) {
@@ -469,7 +503,7 @@ class I18nMigrationService {
             val lang = fileName.removePrefix("messages_").removeSuffix(".properties")
             val props = Properties()
             for ((key, value) in allKeys) {
-                props.setProperty(key, if (lang == "fr") value else "")
+                props.setProperty(key, resolveValue(lang, key, value, translatedKeys))
             }
             file.outputStream().use { props.store(it, null) }
         }

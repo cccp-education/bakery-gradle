@@ -16,7 +16,7 @@ plugins {
 
 group = "education.cccp"
 version = "0.0.1"
-kotlin.jvmToolchain(JavaVersion.VERSION_24.ordinal)
+kotlin.jvmToolchain(24)
 
 repositories {
     mavenLocal()
@@ -37,6 +37,7 @@ dependencies {
 
     implementation(libs.graphify.plugin)
     implementation(libs.codebase.contracts)
+    implementation(libs.codebase.plugin)
 
     // LLM — LangChain4j + Ollama (BKY-IA-0)
     implementation(libs.langchain4j.ollama)

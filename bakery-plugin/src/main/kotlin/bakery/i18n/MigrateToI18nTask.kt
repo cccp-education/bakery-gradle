@@ -2,6 +2,7 @@ package bakery.i18n
 
 import bakery.BakeryConstants
 import bakery.llm.LlmService
+import contracts.i18n.TranslationService
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -17,6 +18,9 @@ abstract class MigrateToI18nTask : DefaultTask() {
 
     @get:Internal
     var llmService: LlmService? = null
+
+    @get:Internal
+    var translationService: TranslationService? = null
 
     @get:Internal
     var contentRootDir: File? = null
@@ -74,7 +78,7 @@ abstract class MigrateToI18nTask : DefaultTask() {
             return
         }
 
-        val migrationService = I18nMigrationService()
+        val migrationService = I18nMigrationService(translationService)
         val result = migrationService.migrate(
             siteDir = siteDir,
             languages = intention.languages,

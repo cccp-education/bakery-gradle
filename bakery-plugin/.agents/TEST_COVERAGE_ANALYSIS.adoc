@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-22 — Session 132 (BKY-I18N-PROD-GEN)_
+_Dernière mise à jour : 2026-06-22 — Session 134 (BKY-I18N-MIG US-4)_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -13,9 +13,9 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 | Couverture Kover | *85.76%* — mesuré Session 103 via koverThresholdCheck (107390/125220 instructions environ)
 | Seuil configuré | 70% (dans `build.gradle.kts` → `koverThresholdCheck`)
 | **Nouvelle cible** | **90%** — EPIC BKY-KOV-1 (16 pts, US-1 ✅, US-KOV-2 ✅, US-KOV-3 ✅, US-KOV-4 ✅, US-KOV-5→7 restantes)
-| Tests unitaires JUnit5 | 143+ fichiers, ~870 tests — ✅ PASS (+10 UT intégration cccp-education/cheroliv-com Session 132)
+| Tests unitaires JUnit5 | 143+ fichiers, ~880 tests — ✅ PASS (+9 UT i18n auto-translation Session 134)
 | Tests fonctionnels (TestKit) | 9 fichiers, 79/79 FT PASS
-| Tests Cucumber BDD | 34 features, 120/120 bakery scenarios PASS ✅ (+4 scénarios prod-gen Session 132)
+| Tests Cucumber BDD | 35 features, 123/123 bakery scenarios PASS ✅ (+2 scénarios auto-translation Session 134)
 | Tests E2E Playwright | 6 fichiers, 19/19 PASS — séparés de `check`
 | Compilation | ✅ BUILD SUCCESSFUL — Gradle 9.5.1, Kotlin 2.3.20, zéro warning
 |===

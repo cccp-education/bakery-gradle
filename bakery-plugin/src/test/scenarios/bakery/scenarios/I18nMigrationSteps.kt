@@ -1,11 +1,13 @@
 package bakery.scenarios
 
+import io.cucumber.java.en.Then
 import io.cucumber.java.en.And
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.When
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import java.io.File
+import java.util.Properties
 
 class I18nMigrationSteps(private val world: BakeryWorld) {
 
@@ -119,6 +121,16 @@ $buildScriptContent
     fun runTaskWithArguments(taskName: String, arguments: String) = runBlocking {
         val args = listOf(taskName) + arguments.split(" ").filter { it.isNotBlank() }
         world.executeGradle(*args.toTypedArray())
+    }
+
+    @And("messages_{word}.properties should have empty values")
+    fun messagesEnShouldHaveEmptyValues(lang: String) {
+        val messagesFile = world.realSiteDir!!.resolve("templates/messages_$lang.properties")
+        assertThat(messagesFile).exists().isFile
+        val props = java.util.Properties()
+        messagesFile.inputStream().use { props.load(it) }
+        val values = props.values.map { it.toString() }
+        assertThat(values).allMatch { it.isEmpty() }
     }
 
     @And("no messages_{word}.properties file should exist in the templates directory")

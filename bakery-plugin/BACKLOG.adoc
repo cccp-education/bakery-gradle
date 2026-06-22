@@ -1057,11 +1057,11 @@ cascade CLI > DSL > defaults, DDD Intention→Dsl→Task→Service.
 | BKY-I18N-PROD-VAL | Validation dry-run (magic-stick) | 3 | ✅ S130
 | BKY-I18N-PROD-MIG | Migration magic-stick + traduction FR→EN | 5 | ✅ S131
 // ── EN COURS ──
-| BKY-I18N-MIG | Tâche migrateToI18n | 16 | 🟠 P1 ☐ (13/16 pts, US-1 ✅ S125, US-2 ✅ S126, US-3 ✅ S127, US-5 ✅ S128, US-4 🟢 débloquée — codebase-gradle N1 a livré TranslationService + LlmTranslator + FakeLlmTranslator)
+| BKY-I18N-MIG | Tâche migrateToI18n | 16 | ✅ TERMINÉ — Session 134 (16/16 pts, US-1 ✅ S125, US-2 ✅ S126, US-3 ✅ S127, US-4 ✅ S134, US-5 ✅ S128)
 // ── TERMINÉ (session 132) ──
 | BKY-I18N-PROD-GEN | Généralisation cccp.education + cheroliv.com | 8 | ✅ S132
 // ── EN ATTENTE ──
-| BKY-I18N-MIG-4 | Service traduction transverse (codebase-gradle N1) | 3 | ✅ TERMINÉ — TranslationService contrat N0 + LlmTranslator N1 + FakeLlmTranslator livrés codebase-gradle S133
+| BKY-I18N-MIG-4 | Service traduction transverse (codebase-gradle N1) | 3 | ✅ TERMINÉ — TranslationService contrat N0 + LlmTranslator N1 + FakeLlmTranslator livrés codebase-gradle S133 ; câblé dans bakery S134
 | *Total restant* | | *3* |
 |===
 

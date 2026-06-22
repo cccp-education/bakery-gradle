@@ -964,3 +964,18 @@ dans runner-gradle (N3 consommateur) alors qu'elle doit vivre dans le plugin N2.
 
 **Résultats** : Compilation OK (aucune erreur nouvelle). Runner allégé -5 lignes. publishSite désormais
 dans le périmètre du plugin bakery. Prochaine session : 130 — Maintenance/Polish (BKY-I18N-MIG US-4).
+== 2026-06-22 — Session 134 — BKY-I18N-MIG US-4 : Auto-traduction FR→EN
+
+* Dépôt : bakery-gradle/bakery-plugin
+* Type : DDD + TDD + BDD
+* Points : 3 pts (BKY-I18N-MIG US-4) — EPIC terminé 16/16 pts
+* Fichiers livrés :
+  - `src/main/kotlin/bakery/i18n/LlmTranslationApplier.kt`
+  - `src/main/kotlin/bakery/i18n/LlmServiceTranslationAdapter.kt`
+  - `src/test/kotlin/bakery/i18n/LlmTranslationApplierTest.kt`
+  - `src/test/kotlin/bakery/i18n/AutoTranslationI18nMigrationIntegrationTest.kt`
+  - `src/test/features/35_i18n_migration_auto_translation.feature`
+  - Modification `I18nMigrationService.kt`, `MigrateToI18nTask.kt`, `ContentTaskRegistrar.kt`, `I18nMigrationServiceTest.kt`, `I18nMigrationSteps.kt`
+  - `build.gradle.kts` + `gradle/libs.versions.toml` : dépendance codebase-plugin 0.0.2, toolchain Java 24
+* Tests : i18n tests PASS, 123/123 bakery Cucumber scenarios PASS, publishToMavenLocal OK
+* Score : 9/10

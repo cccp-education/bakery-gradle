@@ -10,6 +10,7 @@ import bakery.theme.GenerateThemeTask
 import bakery.theme.ThemeIntentionDsl
 import bakery.firebase.ValidateFirebaseConfigTask
 import bakery.i18n.I18nMigrationIntentionDsl
+import bakery.i18n.LlmServiceTranslationAdapter
 import bakery.i18n.MigrateToI18nTask
 import org.gradle.api.Project
 import java.io.File
@@ -186,6 +187,7 @@ object ContentTaskRegistrar {
             )
 
             createLlmServiceIfEnabled(iaConfig) { task.llmService = it }
+            task.translationService = task.llmService?.let(::LlmServiceTranslationAdapter)
             project.logger.info("[BakeryPlugin] migrateToI18n IA ${if (iaConfig.enabled) "activé" else "désactivé (ia.enabled = false)"}")
         }
     }
