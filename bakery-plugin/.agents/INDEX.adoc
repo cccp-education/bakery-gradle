@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-22 — Session 130 (BKY-I18N-PROD-VAL)
-  _Session terminee_ : 130 — Validation migrateToI18n sur fixture magic-stick (dry-run, whitelist faux positifs)
-  _Prochaine session_ : 131 — BKY-I18N-PROD-MIG : migration reelle magic-stick + traduction FR→EN + test de rendu
+  _Derniere mise a jour_ : 2026-06-22 — Session 131 (BKY-I18N-PROD-MIG)
+  _Session terminee_ : 131 — Migration reelle de la fixture magic-stick + traduction EN + tests de coherencesyntaxique
+  _Prochaine session_ : 132 — BKY-I18N-PROD-GEN : fixtures cccp.education + cheroliv.com + validation dry-run
 
 '''
 
@@ -154,7 +154,14 @@ _Archives_ : Sessions 100-113 archivées dans `.agents/backup/Y2026-sessions-090
 
 |===
 | EPIC | Progression | Priorite
-| BKY-I18N-MIG : Tâche migrateToI18n pour appliquer l'i18n aux sites existants | 81.25% (13/16 pts) — US-1 ✅, US-2 ✅, US-3 ✅, US-5 ✅, US-4 ⏸️ | *🟠 P1 — Session 130 (validation fixture magic-stick)*
+| BKY-I18N-MIG : Tâche migrateToI18n pour appliquer l'i18n aux sites existants | 81.25% (13/16 pts) — US-1 ✅, US-2 ✅, US-3 ✅, US-5 ✅, US-4 ⏸️ | *🟠 P1 — US-4 en attente codebase-gradle N1*
+|===
+
+=== EPIC BKY-I18N-PROD-MIG : Migration réelle magic-stick (NOUVEAU — Session 131)
+
+|===
+| EPIC | Progression | Priorite
+| BKY-I18N-PROD-MIG : Migration réelle de la fixture magic-stick + traduction FR→EN + cohérence syntaxique | 100% (5/5 pts) — US-MIG-1 ✅, US-MIG-2 ✅, US-MIG-3 ✅ | *🟠 P1 ✅ TERMINÉ — Session 131*
 |===
 
 === EPIC BKY-I18N-PROD-VAL : Validation Production (NOUVEAU — Session 130)
@@ -162,6 +169,13 @@ _Archives_ : Sessions 100-113 archivées dans `.agents/backup/Y2026-sessions-090
 |===
 | EPIC | Progression | Priorite
 | BKY-I18N-PROD-VAL : Validation dry-run + audit + corrections sur copie magic-stick | 100% (3/3 pts) — US-VAL-1 ✅, US-VAL-2 ✅, US-VAL-3 ✅ | *🟠 P1 ✅ TERMINÉ — Session 130*
+|===
+
+=== EPIC BKY-I18N-PROD-GEN : Généralisation cccp.education + cheroliv.com (NOUVEAU — Session 131)
+
+|===
+| EPIC | Progression | Priorite
+| BKY-I18N-PROD-GEN : Fixtures + validation dry-run pour cccp.education et cheroliv.com | 0% (0/8 pts) — US-GEN-1 ☐, US-GEN-2 ☐, US-GEN-3 ☐ | *🟠 P1 — Session 132*
 
 === EPIC LENTILLE — ✅ TERMINÉ
 

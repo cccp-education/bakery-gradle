@@ -392,6 +392,20 @@ $scaffoldIntentionBlock
     }
 
     /**
+     * Copie un répertoire de site depuis les resources de test vers le projet Gradle temporaire.
+     * Utilisé pour les tests Cucumber sur la fixture magic-stick (BKY-I18N-PROD-MIG).
+     */
+    fun copyRealSiteFromTestResources(name: String, resourcePath: String): File {
+        val resourceUrl = this::class.java.classLoader.getResource(resourcePath)
+            ?: throw IllegalStateException("Resource not found: $resourcePath")
+        val sourceDir = File(resourceUrl.toURI())
+        val targetDir = projectDir!!.resolve(name)
+        sourceDir.copyRecursively(targetDir, overwrite = true)
+        realSiteDir = targetDir
+        return targetDir
+    }
+
+    /**
      * Crée un projet Gradle de test avec bloc i18nMigration DSL.
      */
     fun createGradleProjectWithI18nMigrationIntention(

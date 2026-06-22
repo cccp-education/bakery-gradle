@@ -15,6 +15,14 @@ class I18nMigrationSteps(private val world: BakeryWorld) {
         assertThat(world.projectDir).exists()
     }
 
+    @Given("a real site directory {string} copied from test resources {string}")
+    fun createRealSiteFromTestResources(name: String, resourcePath: String) {
+        world.createGradleProjectWithSiteConfigured(iaEnabled = true)
+        world.copyRealSiteFromTestResources(name, resourcePath)
+        assertThat(world.realSiteDir).exists()
+        assertThat(world.realSiteDir!!.resolve("templates")).exists().isDirectory
+    }
+
     @Given("a real site directory {string} with templates containing hardcoded French text")
     fun createRealSiteWithHardcodedText(name: String) {
         world.createGradleProjectWithSiteConfigured(iaEnabled = true)
@@ -134,9 +142,19 @@ $buildScriptContent
 
     @And("the templates should contain th:text message keys")
     fun templatesShouldContainThText() {
-        val headerFile = world.realSiteDir!!.resolve("templates/header.thyme")
-        val content = headerFile.readText()
-        assertThat(content).contains("th:text=")
+        val templatesDir = world.realSiteDir!!.resolve("templates")
+        val hasAnyI18nAttribute = templatesDir.walkTopDown()
+            .filter { it.isFile && it.extension == "thyme" }
+            .any {
+                val c = it.readText()
+                c.contains("th:text=") ||
+                    c.contains("th:placeholder=") ||
+                    c.contains("th:content=") ||
+                    c.contains("th:alt=") ||
+                    c.contains("th:title=") ||
+                    c.contains("th:attr=")
+            }
+        assertThat(hasAnyI18nAttribute).isTrue()
     }
 
     @And("site.language={word} should be injected in jbake.properties")

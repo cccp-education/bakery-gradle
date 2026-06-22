@@ -333,6 +333,53 @@ class I18nMigrationServiceTest {
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class TranslateMessageFiles {
+
+        @TempDir
+        lateinit var tempDir: File
+
+        @Test
+        fun `applyTranslations fills empty english values from reference map`() {
+            val templatesDir = tempDir.resolve("templates")
+            templatesDir.mkdirs()
+            val enFile = templatesDir.resolve("messages_en.properties")
+            enFile.writeText("header.1=\nfooter.1=\n")
+
+            val translations = mapOf("header.1" to "Home", "footer.1" to "Footer", "unknown.1" to "Unknown")
+
+            val updated = I18nTranslationApplier.applyTranslations(enFile, translations)
+
+            assertTrue(updated)
+            val content = enFile.readText()
+            assertTrue(content.contains("header.1=Home"))
+            assertTrue(content.contains("footer.1=Footer"))
+            assertFalse(content.contains("unknown.1"))
+        }
+
+        @Test
+        fun `applyTranslations returns false when target file does not exist`() {
+            val missingFile = tempDir.resolve("missing.properties")
+
+            val updated = I18nTranslationApplier.applyTranslations(missingFile, mapOf("k" to "v"))
+
+            assertFalse(updated)
+        }
+
+        @Test
+        fun `applyTranslations returns false when no keys match`() {
+            val templatesDir = tempDir.resolve("templates")
+            templatesDir.mkdirs()
+            val enFile = templatesDir.resolve("messages_en.properties")
+            enFile.writeText("header.1=\n")
+
+            val updated = I18nTranslationApplier.applyTranslations(enFile, mapOf("other.1" to "Other"))
+
+            assertFalse(updated)
+        }
+    }
+
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class WriteMessageFiles {
 
         @TempDir

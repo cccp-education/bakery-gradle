@@ -1,5 +1,34 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 131 — 2026-06-22 — BKY-I18N-PROD-MIG (Migration réelle fixture magic-stick)
+
+**Contexte** : Session 130 a validé le dry-run. PROMPT_REPRISE : BKY-I18N-PROD-MIG (5 pts).
+
+**Tâches réalisées** :
+
+* [x] DDD : `I18nTranslationApplier.kt` — objet pur appliquant un map de traductions sur `messages_en.properties`
+* [x] TDD : 3 UT `I18nMigrationServiceTest.TranslateMessageFiles` (fill values, file missing, no keys match)
+* [x] Traduction manuelle FR→EN : `src/test/resources/i18n-fixtures/magic-stick/translations_en.properties` (45 clés)
+* [x] Fixture magic-stick enrichie : `jbake.properties` minimal pour tester l'injection `site.language`
+* [x] `MagicStickI18nMigrationIntegrationTest.kt` — 5 tests (migration réelle génère messages_fr/en, templates modifiés, site.language injecté, couverture traductions, application EN)
+* [x] `ThymeleafI18nSyntaxTest.kt` — 3 tests de cohérence syntaxique (clés définies, namespace, valeurs FR non vides)
+* [x] Feature 33 `i18n_migration_magic_stick.feature` — 2 scénarios Cucumber (migration réelle + dry-run)
+* [x] `BakeryWorld.kt` — `copyRealSiteFromTestResources()` + `I18nMigrationSteps.kt` step dédié
+* [x] `./gradlew compileKotlin` → BUILD SUCCESSFUL
+* [x] `./gradlew test --tests "bakery.i18n.*"` → PASS
+* [x] `./gradlew cucumberTest --tests "*33_i18n_migration_magic_stick*"` → 2/2 PASS, 116/116 total PASS
+* [x] `./gradlew -q publishToMavenLocal` → OK
+* [x] BKY-I18N-PROD-MIG : 5/5 pts ✅
+* [x] Mise à jour gouvernance : INDEX.adoc, SESSIONS_HISTORY.adoc, PROMPT_REPRISE.adoc, archive session 131
+
+**Métriques** :
+
+* Clés extraites : 45
+* Clés traduites EN : 45/45 (100%)
+* Templates modifiés : 12/12
+
+**Prochaine session** : BKY-I18N-PROD-GEN (fixtures cccp.education + cheroliv.com + validation dry-run).
+
 == Session 130 — 2026-06-22 — BKY-I18N-PROD-VAL (Validation migrateToI18n sur fixture magic-stick)
 
 **Contexte** : Session 129 a rapatrié publishSite. PROMPT_REPRISE : BKY-I18N-PROD-VAL (3 pts).

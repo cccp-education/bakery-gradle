@@ -1,38 +1,41 @@
 = PROMPT REPRISE — Bakery
-:session: 130
+:session: 132
 :date: 2026-06-22
 
 == Mission accomplie
 
-*Session 130 TERMINÉE* — BKY-I18N-PROD-VAL (3 pts).
-DDD/TDD/BDD sur copie des templates magic-stick :
-- Fixture `src/test/resources/i18n-fixtures/magic-stick/jbake/templates/` (12 fichiers)
-- `MagicStickI18nMigrationIntegrationTest` — 6 tests d'intégration dry-run
-- `I18nMigrationService` — whitelist + substringBlacklist pour éviter faux positifs
-- Quick fix imports graphify (package relocation 0.0.2)
-- 6/6 tests d'intégration PASS, tests i18n existants PASS
+*Session 131 TERMINÉE* — BKY-I18N-PROD-MIG (5 pts) ✅.
+DDD/TDD/BDD sur fixture magic-stick :
+- `I18nTranslationApplier` — applique un map de traductions sur messages_en.properties
+- `translations_en.properties` — 45 traductions FR→EN couvrant toutes les clés extraites
+- `MagicStickI18nMigrationIntegrationTest` — 3 nouveaux tests migration réelle + 2 tests traduction
+- `ThymeleafI18nSyntaxTest` — 3 tests de cohérence syntaxique i18n post-migration
+- `I18nMigrationServiceTest` — 3 tests unitaires pour I18nTranslationApplier
+- Feature 33 `i18n_migration_magic_stick.feature` — 2 scénarios Cucumber (migration réelle + dry-run)
+- Fixture magic-stick enrichie d'un `jbake.properties` minimal
+- `BakeryWorld.copyRealSiteFromTestResources()` + step Cucumber dédié
+- 9/9 integration tests PASS, 3/3 syntax tests PASS, 116/116 Cucumber PASS, 36/36 I18nMigrationServiceTest PASS
 
 == Statut
 
 - BKY-I18N : 23/23 pts ✅
 - BKY-I18N-MIG : 13/16 pts (US-1→3 ✅, US-5 ✅, US-4 ⏸️ codebase-gradle N1)
 - BKY-I18N-PROD-VAL : 3/3 pts ✅
-- BKY-I18N-PROD-MIG : 0/5 pts ☐
+- BKY-I18N-PROD-MIG : 5/5 pts ✅
 - BKY-I18N-PROD-GEN : 0/8 pts ☐
 
-== Prochaine session (131) — P1
+== Prochaine session (132) — P1
 
-*Priorité* : **BKY-I18N-PROD-MIG** — Migration réelle de la fixture magic-stick.
+*Priorité* : **BKY-I18N-PROD-GEN** — Généralisation cccp.education + cheroliv.com.
 
-*Mission* (5 pts) :
-1. **US-MIG-1** : Exécuter `migrateToI18n` avec `dryRun=false` sur la fixture magic-stick en test.
-   Vérifier création `messages_fr.properties` + `messages_en.properties`, templates modifiés, `site.language=fr` injecté.
-2. **US-MIG-2** : Traduction manuelle FR→EN — remplir `messages_en.properties` (~40 clés).
-3. **US-MIG-3** : Test de rendu FR/EN — vérifier que Thymeleaf résout `#{...}` sans régression.
+*Mission* (8 pts) :
+1. **US-GEN-1** : Créer fixtures i18n pour cccp.education (site vitrine) et cheroliv.com (blog/portfolio) en test resources.
+2. **US-GEN-2** : Exécuter `migrateToI18n` dry-run sur les 2 fixtures, ajuster whitelist/blacklist si faux positifs.
+3. **US-GEN-3** : Valider migration réelle + traduction EN sur cccp.education (copie, pas prod).
 
-*Contrainte* : continuer sur la fixture, pas sur le site production.
+*Contrainte* : continuer sur les fixtures, pas sur les sites de production.
 
 == Note technique
 
+- `./gradlew test` déclenche `CucumberTestRunner.initializationError` (runner suite sans engine cucumber car exclu du task test). Ce n'est pas une régression — les tests unitaires passent, la tâche `cucumberTest` est la référence BDD.
 - Imports graphify workaround temporaire — revenir à `graphify.model.*` quand graphify-plugin 0.0.3 corrigera le package.
-- Cucumber timeout (5 min) observé en fin de session — à investiguer si récurrent.

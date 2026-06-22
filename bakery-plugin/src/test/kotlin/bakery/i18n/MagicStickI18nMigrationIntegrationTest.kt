@@ -3,6 +3,7 @@ package bakery.i18n
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
+import java.util.Properties
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -144,6 +145,129 @@ class MagicStickI18nMigrationIntegrationTest {
             allValues.any { it.contains("Démarrage rapide", ignoreCase = true) || it.contains("Demarrage rapide", ignoreCase = true) },
             "'Démarrage rapide' doit être extrait"
         )
+    }
+
+    @Test
+    fun `real migration generates messages_fr and messages_en files`(@TempDir tempDir: File) {
+        val siteDir = copyFixtureToTemp(tempDir)
+
+        val result = service.migrate(
+            siteDir = siteDir,
+            languages = listOf("fr", "en"),
+            defaultLanguage = "fr",
+            dryRun = false
+        )
+
+        assertFalse(result.dryRun)
+        assertTrue(result.keysExtracted > 0, "Des clés doivent être extraites")
+        assertEquals(2, result.filesGenerated, "Deux fichiers de messages doivent être générés")
+        assertTrue(result.templatesModified > 0, "Des templates doivent être modifiés")
+
+        val templatesDir = siteDir.resolve("templates")
+        assertTrue(templatesDir.resolve("messages_fr.properties").exists(), "messages_fr.properties doit exister")
+        assertTrue(templatesDir.resolve("messages_en.properties").exists(), "messages_en.properties doit exister")
+    }
+
+    @Test
+    fun `real migration replaces templates with th text message keys`(@TempDir tempDir: File) {
+        val siteDir = copyFixtureToTemp(tempDir)
+
+        service.migrate(
+            siteDir = siteDir,
+            languages = listOf("fr", "en"),
+            defaultLanguage = "fr",
+            dryRun = false
+        )
+
+        val templatesDir = siteDir.resolve("templates")
+        val modifiedTemplates = templatesDir.walkTopDown()
+            .filter { it.isFile && it.extension == "thyme" }
+            .filter { it.readText().contains("th:text=\"") || it.readText().contains("th:placeholder=\"") }
+            .toList()
+
+        assertTrue(modifiedTemplates.isNotEmpty(), "Au moins un template doit contenir des th:* i18n")
+
+        val menuFile = templatesDir.resolve("menu.thyme")
+        if (menuFile.exists()) {
+            assertTrue(
+                menuFile.readText().contains("th:text=\"#{menu.1}\"", ignoreCase = true),
+                "menu.thyme doit remplacer 'Accueil' par th:text=\"#{menu.1}\""
+            )
+        }
+    }
+
+    @Test
+    fun `real migration injects site language into jbake properties`(@TempDir tempDir: File) {
+        val siteDir = copyFixtureToTemp(tempDir)
+
+        service.migrate(
+            siteDir = siteDir,
+            languages = listOf("fr", "en"),
+            defaultLanguage = "fr",
+            dryRun = false
+        )
+
+        val jbakeProps = siteDir.resolve("jbake.properties")
+        assertTrue(jbakeProps.exists(), "jbake.properties doit exister")
+        val content = jbakeProps.readText()
+        assertTrue(content.contains("site.language=fr"), "site.language=fr doit être injecté")
+    }
+
+    @Test
+    fun `english translations reference file covers all extracted keys`(@TempDir tempDir: File) {
+        val siteDir = copyFixtureToTemp(tempDir)
+
+        service.migrate(
+            siteDir = siteDir,
+            languages = listOf("fr", "en"),
+            defaultLanguage = "fr",
+            dryRun = false
+        )
+
+        val translations = loadTranslationsFromResources("i18n-fixtures/magic-stick/translations_en.properties")
+        val frProps = Properties()
+        siteDir.resolve("templates/messages_fr.properties").inputStream().use { frProps.load(it) }
+
+        val missingKeys = frProps.keys.filter { !translations.containsKey(it) }
+        assertTrue(missingKeys.isEmpty(), "Toutes les clés FR doivent avoir une traduction EN : $missingKeys")
+    }
+
+    @Test
+    fun `applying english translations fills messages_en properties`(@TempDir tempDir: File) {
+        val siteDir = copyFixtureToTemp(tempDir)
+
+        service.migrate(
+            siteDir = siteDir,
+            languages = listOf("fr", "en"),
+            defaultLanguage = "fr",
+            dryRun = false
+        )
+
+        val translations = loadTranslationsFromResources("i18n-fixtures/magic-stick/translations_en.properties")
+        val enFile = siteDir.resolve("templates/messages_en.properties")
+        val updated = I18nTranslationApplier.applyTranslations(enFile, translations)
+
+        assertTrue(updated, "Les traductions doivent être appliquées")
+
+        val enProps = Properties()
+        enFile.inputStream().use { enProps.load(it) }
+        assertTrue(
+            enProps.values.any { (it as String).isNotBlank() },
+            "messages_en.properties doit contenir des traductions non vides"
+        )
+        assertEquals("Home", enProps.getProperty("menu.1"))
+        assertEquals("Installation guide", enProps.getProperty("menu.5"))
+    }
+
+    /**
+     * Charge un fichier .properties depuis les resources de test.
+     */
+    private fun loadTranslationsFromResources(resourcePath: String): Map<String, String> {
+        val url = this::class.java.classLoader.getResource(resourcePath)
+            ?: throw IllegalStateException("Resource non trouvée: $resourcePath")
+        val props = Properties()
+        url.openStream().use { props.load(it) }
+        return props.map { it.key.toString() to it.value.toString() }.toMap()
     }
 
     /**
