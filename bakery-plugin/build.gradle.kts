@@ -15,7 +15,7 @@ plugins {
 }
 
 group = "education.cccp"
-version = "0.0.1"
+version = "0.0.2"
 kotlin.jvmToolchain(24)
 
 repositories {
@@ -429,6 +429,8 @@ publishing {
                         id.set("cccp-education")
                         name.set("CCCP Education")
                         email.set("cccp.edu@gmail.com")
+                        organization.set("CCCP Education")
+                        organizationUrl.set("https://cccp-education.github.io/")
                     }
                 }
                 scm {

@@ -3,7 +3,7 @@
 :toclevels: 4
 :source-highlighter: rouge
 :plugin-id: education.cccp.bakery
-:plugin-version: 0.1.4
+:plugin-version: 0.0.2
 :gradle-version: 9.5.1
 :kotlin-version: 2.3.20
 :java-version: 24

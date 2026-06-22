@@ -1,5 +1,29 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 138 — 2026-06-22 — BKY-PUB-2 préparation publication 0.0.2
+
+**Contexte** : PROMPT_REPRISE session 137 proposait BKY-PUB-2, suite BKY-COV-2 ou autre borough. Choix utilisateur : BKY-PUB-2.
+
+**Tâches réalisées** :
+
+* [x] Audit alignement versions : plugin `0.0.1`, catalogue racine `0.1.4`, catalogue plugin `0.0.1` → uniformisé en `0.0.2`.
+* [x] DDD/TDD : `BakeryPluginPublicationTest.kt` (2 tests) — version catalogue vs build + group/id stable.
+* [x] Fix POM Maven Central : ajout `<organization>` et `<organizationUrl>` dans le bloc `<developer>`.
+* [x] Validation POM : `checkPomFileForPluginMavenPublication` + `checkPomFileForBakeryPluginMarkerMavenPublication` → PASS.
+* [x] Dry-run publication locale : `publishToMavenLocal` + `nmcpPublishAllPublicationsToMavenLocal` → SUCCESS (signing GPG local OK).
+* [x] Mise à jour `README.adoc` : `:plugin-version: 0.0.2`.
+* [x] `./gradlew test --tests "bakery.BakeryPluginPublicationTest"` → 2/2 PASS.
+
+**Fichiers modifiés / créés** :
+
+* `bakery-plugin/src/test/kotlin/bakery/BakeryPluginPublicationTest.kt` (nouveau, 2 tests)
+* `bakery-plugin/build.gradle.kts` (version 0.0.2 + POM organization/organizationUrl)
+* `bakery-plugin/gradle/libs.versions.toml` (bakery = "0.0.2")
+* `gradle/libs.versions.toml` (bakery = "0.0.2")
+* `README.adoc` (:plugin-version 0.0.2)
+
+**Prochaine session** : 139 — publication effective Maven Central + Gradle Plugin Portal (avec permission utilisateur).
+
 == Session 137 — 2026-06-22 — BKY-COV-2 suite microfissures coverage (ToolsKt / DeployTaskRegistrar / BakeryPlugin)
 
 **Contexte** : PROMPT_REPRISE session 136 proposait suite BKY-COV-2, BKY-PUB-2 ou autre borough. Choix utilisateur : suite BKY-COV-2.

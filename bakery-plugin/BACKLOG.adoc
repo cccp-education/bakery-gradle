@@ -1070,7 +1070,8 @@ cascade CLI > DSL > defaults, DDD Intention→Dsl→Task→Service.
 *Code smells résolus* : 24/24 ✅ (V2+V3+V4)
 *Code smells V5* : 52 ✅ (US-1 faux positif, US-2+3+4+5+6+7+8 résolues)
 *Bakery 100% fonctionnel* — les smells V5 sont qualitatifs, pas fonctionnels.
-*Nouveau cap* : Migration i18n des 3 sites de production (magic-stick ✅, cccp.education, cheroliv.com).
+*Nouveau cap* : BKY-PUB-2 — publication 0.0.2 préparée (versions alignées, POM corrigé, dry-run OK). Publication effective (Central + Portal) restante.
+*Migration i18n des 3 sites* : magic-stick ✅, cccp.education, cheroliv.com.
 
 '''
 == Métadonnées

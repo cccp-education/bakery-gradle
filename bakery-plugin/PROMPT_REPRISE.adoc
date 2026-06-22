@@ -1,30 +1,32 @@
 = PROMPT REPRISE — Bakery
-:session: 138
+:session: 139
 :date: 2026-06-22
 
-== Mission accomplie (session 137)
+== Mission accomplie (session 138)
 
-*BKY-COV-2 suite microfissures coverage* — 3 baby steps DDD/TDD/BDD.
-- `ToolsKt` : suppression helper mort `Logger.loadConfiguration()` dans `src/functionalTest/kotlin/bakery/tools.kt`.
-- `DeployTaskRegistrar` : 2 tests unitaires couvrant `registerPublishSiteTask` et `registerDeployProfileTask`.
-- `BakeryPlugin` : 2 tests unitaires ProjectBuilder couvrant le chemin full pipeline (`site/` + `maquette/` existants) et la branche `pushProfile` null/non-null.
-- Couverture Kover : 87.55% INSTRUCTIONS, seuil 70% OK.
-- `./gradlew test koverThresholdCheck` + `./gradlew -q publishToMavenLocal` OK.
+*BKY-PUB-2 préparation publication 0.0.2* — baby steps DDD/TDD/BDD.
+- Alignement version : plugin `0.0.1` → `0.0.2`, catalogue racine `0.1.4` → `0.0.2`, catalogue plugin `0.0.1` → `0.0.2`.
+- `BakeryPluginPublicationTest.kt` : 2 tests (version catalogue vs build + group/id stable).
+- Fix POM Maven Central : ajout `<organization>` et `<organizationUrl>` dans `<developer>`.
+- Validation POM : `checkPomFileForPluginMavenPublication` + marker POM → PASS.
+- Dry-run local : `publishToMavenLocal` + `nmcpPublishAllPublicationsToMavenLocal` → SUCCESS (signing local OK).
+- README : `:plugin-version: 0.0.2`.
 
 == Statut
 
-- BKY-COV-2 : microfissures ciblées dans le prompt de reprise couvertes / nettoyées
-- BKY-I18N-MIG : 16/16 pts ✅
-- BKY-CR-V5 : 24/24 pts ✅
+- Versions alignées ✅
+- POM Maven Central conforme ✅
+- Dry-run publication local OK ✅
+- Publication effective (Central + Portal) : en attente permission utilisateur
 
-== Prochaine session (138)
+== Prochaine session (139)
 
-Choisir la prochaine priorité :
-- Publier bakery `0.0.2` (BKY-PUB-2) — Maven Central + Gradle Plugin Portal
-- Continuer BKY-COV-2 sur cibles restantes (SiteTaskRegistrar closures, ContentTaskRegistrar, LensTaskRegistrar)
-- Reprendre un autre borough critique (runner-gradle N3, dashboard-gradle N3)
+Choisir la suite :
+- Publier bakery `0.0.2` effectivement (`./gradlew publishAggregationToCentralPortal` + `./gradlew publishPlugins`) — nécessite permission explicite + credentials
+- Continuer BKY-COV-2 sur cibles restantes
+- Reprendre un autre borough critique
 
 == Note technique
 
-- `./gradlew check -x e2eTest` reste la commande de validation raisonnable en session (E2E Playwright isolé).
-- Kover threshold 70% atteint avec marge (87.55%). Les ~12% restants sont majoritairement des closures doLast non instrumentées + source set functionalTest.
+- `./gradlew check -x e2eTest` reste la commande de validation raisonnable en session.
+- Kover threshold 85% est maintenu ; le test de publication n'impacte pas la couverture.
