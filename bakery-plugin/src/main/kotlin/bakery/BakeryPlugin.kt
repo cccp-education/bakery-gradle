@@ -1,6 +1,5 @@
 package bakery
 
-import bakery.FileSystemManager.from
 import bakery.FileSystemManager.yamlMapper
 import bakery.BakeryConstants.BAKERY_GROUP
 import bakery.SiteManager.configureConfigPath
@@ -120,7 +119,7 @@ class BakeryPlugin : Plugin<Project> {
                             )
                             registerScaffoldOnlyTasks(project, bakeryExtension, jbakeRuntime)
                         } else {
-                            registerFullPipelineTasks(project, bakeryExtension, jbakeRuntime, isGradlePropertiesEnabled)
+                            registerFullPipelineTasks(project, bakeryExtension, jbakeRuntime, isGradlePropertiesEnabled, site)
                         }
                     }
                 )
@@ -164,7 +163,8 @@ class BakeryPlugin : Plugin<Project> {
         project: Project,
         bakeryExtension: BakeryExtension,
         jbakeRuntime: Configuration,
-        isGradlePropertiesEnabled: Boolean
+        isGradlePropertiesEnabled: Boolean,
+        site: SiteConfiguration
     ) {
         val configDir = project.layout
             .projectDirectory.asFile
@@ -172,29 +172,24 @@ class BakeryPlugin : Plugin<Project> {
             .resolve(bakeryExtension.configPath.get())
             .toFile()
             .parentFile
-        val rawSite = project.from(bakeryExtension.configPath.get())
-            .fold(
-                { project.logger.warn("Failed to read site config, using defaults: ${it.message}"); SiteConfiguration() },
-                { it }
-            )
-        val site = rawSite.resolvePaths(configDir)
-        project.configureJBakePlugin(site)
-        project.configureBakeTask(site)
-        project.registerDeploySiteTask(site)
+        val resolvedSite = site.resolvePaths(configDir)
+        project.configureJBakePlugin(resolvedSite)
+        project.configureBakeTask(resolvedSite)
+        project.registerDeploySiteTask(resolvedSite)
         project.registerPublishSiteTask()
-        project.registerDeployMaquetteTask(site)
-        project.registerPagefindTask(site)
-        if (site.pushProfile != null) {
-            project.registerDeployProfileTask(site)
+        project.registerDeployMaquetteTask(resolvedSite)
+        project.registerPagefindTask(resolvedSite)
+        if (resolvedSite.pushProfile != null) {
+            project.registerDeployProfileTask(resolvedSite)
         }
-        project.registerServeTask(site, jbakeRuntime)
-        project.registerCollectSiteConfigTask(site, isGradlePropertiesEnabled)
-        project.registerCollectSiteContextTask(site, bakeryExtension.augmentedContext)
-        project.registerCollectAugmentedContextTask(site, bakeryExtension.augmentedContext)
-        project.registerGenerateArticleTask(site, bakeryExtension.ia, bakeryExtension.articleIntention)
-        project.registerGenerateThemeTask(site, bakeryExtension.themeIntention)
-        project.registerValidateFirebaseConfigTask(site, bakeryExtension.ia, bakeryExtension.firebaseAuth)
-        project.registerMigrateToI18nTask(site, bakeryExtension.ia, bakeryExtension.i18nMigration)
+        project.registerServeTask(resolvedSite, jbakeRuntime)
+        project.registerCollectSiteConfigTask(resolvedSite, isGradlePropertiesEnabled)
+        project.registerCollectSiteContextTask(resolvedSite, bakeryExtension.augmentedContext)
+        project.registerCollectAugmentedContextTask(resolvedSite, bakeryExtension.augmentedContext)
+        project.registerGenerateArticleTask(resolvedSite, bakeryExtension.ia, bakeryExtension.articleIntention)
+        project.registerGenerateThemeTask(resolvedSite, bakeryExtension.themeIntention)
+        project.registerValidateFirebaseConfigTask(resolvedSite, bakeryExtension.ia, bakeryExtension.firebaseAuth)
+        project.registerMigrateToI18nTask(resolvedSite, bakeryExtension.ia, bakeryExtension.i18nMigration)
     }
 }
 

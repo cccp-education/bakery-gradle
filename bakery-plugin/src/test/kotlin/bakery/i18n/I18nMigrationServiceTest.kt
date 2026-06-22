@@ -101,13 +101,13 @@ class I18nMigrationServiceTest {
         }
 
         @Test
-        fun `extracts aria-label attributes`() {
+        fun `skips aria-label when already managed by th-attr`() {
             val file = tempDir.resolve("test.thyme")
-            file.writeText("""<button aria-label="Fermer la fenêtre">X</button>""")
+            file.writeText("""<button th:attr=\"aria-label=#{a11y.close}\" aria-label=\"Fermer\">X</button>""")
 
             val result = service.extractHardcodedText(file)
 
-            assertTrue(result.values.any { it.contains("Fermer") })
+            assertTrue(result.isEmpty())
         }
 
         @Test
@@ -457,7 +457,7 @@ class I18nMigrationServiceTest {
         lateinit var tempDir: File
 
         @Test
-        fun `adds site language to jbake properties`() {
+        fun `adds site language to jbake properties ending with newline`() {
             val siteDir = tempDir.resolve("site")
             siteDir.mkdirs()
             val jbakeProps = siteDir.resolve("jbake.properties")
@@ -468,6 +468,20 @@ class I18nMigrationServiceTest {
             assertTrue(result)
             val content = jbakeProps.readText()
             assertTrue(content.contains("site.language=fr"))
+        }
+
+        @Test
+        fun `adds site language to jbake properties without trailing newline`() {
+            val siteDir = tempDir.resolve("site")
+            siteDir.mkdirs()
+            val jbakeProps = siteDir.resolve("jbake.properties")
+            jbakeProps.writeText("site.host=http://example.com")
+
+            val result = service.injectSiteLanguage(siteDir, "fr")
+
+            assertTrue(result)
+            val content = jbakeProps.readText()
+            assertTrue(content.contains("\nsite.language=fr\n"))
         }
 
         @Test

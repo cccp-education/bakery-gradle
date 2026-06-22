@@ -1,30 +1,30 @@
 = PROMPT REPRISE — Bakery
-:session: 136
+:session: 137
 :date: 2026-06-22
 
 == Mission accomplie
 
-*Session 135 TERMINÉE* — Code smells V4 + BDD Pipeline Contracts ✅.
-- Audit V4 : US-V4-1/2/3/5/7/8/9 déjà résolus dans les sessions 097/118-124.
-- Création Feature 36 `36_pipeline_contracts.feature` (11 scénarios) pour couvrir le runner orphelin `contracts.pipeline.scenarios.CucumberTestRunner`.
-- Configuration runners : bakery exclut `@pipeline-contracts`, runner pipeline filtre `@pipeline-contracts`.
-- Fix assertions BDD (7 catégories FR, pas 8 EN).
-- 123 bakery Cucumber + 11 pipeline = 134 PASS. `test` + `cucumberTest` + `publishToMavenLocal` OK.
+*Session 136 TERMINÉE* — BKY-COV-2 microfissures coverage ordre C/B/A.
+- GitService : 1 test unitaire sur `pushPages` Left quand `pushToRemote` échoue.
+- BakeryPlugin : refactor suppression double lecture YAML, passage config parsée directement à `registerFullPipelineTasks`.
+- I18nMigrationService : suppression branche morte `existingThAttr`, 2 tests `injectSiteLanguage` newline, 1 test skip aria-label th-attr.
+- Couverture Kover : 87.55% INSTRUCTIONS, seuil 70% OK.
+- `./gradlew check -x e2eTest` BUILD SUCCESSFUL.
 
 == Statut
 
+- BKY-COV-2 : microfissures C/B/A couvertes / code mort supprimé
 - BKY-I18N-MIG : 16/16 pts ✅
-- Feature 36 : 11/11 scénarios ✅
-- Code smells V4 : résolus ou couverts
+- BKY-CR-V5 : 24/24 pts ✅
 
-== Prochaine session (136)
+== Prochaine session (137)
 
-Choisir la prochaine priorité dans le backlog :
-- Publier bakery `0.0.2` sur Maven Central / Gradle Plugin Portal (BKY-PUB-2)
-- Microfissures coverage BKY-COV-2 (vérifier statut réel)
+Choisir la prochaine priorité :
+- Continuer BKY-COV-2 sur autres cibles (ToolsKt sourceSet, DeployTaskRegistrar, BakeryPlugin branches restantes)
+- Publier bakery `0.0.2` (BKY-PUB-2)
 - Reprendre un autre borough critique (runner-gradle N3, dashboard-gradle N3)
 
 == Note technique
 
-- `./gradlew test` exclut Cucumber via engine filter ; `./gradlew cucumberTest` est la référence BDD.
-- Runner pipeline isolé par tags : plus de conflit de glue.
+- `./gradlew check -x e2eTest` est la commande de validation raisonnable en session (E2E Playwright isolé).
+- Kover threshold 70% atteint avec marge. Les 12-13% restants sont majoritairement des closures doLast non instrumentées + source set functionalTest.

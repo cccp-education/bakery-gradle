@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-22 — Session 134 (BKY-I18N-MIG US-4)_
+_Dernière mise à jour : 2026-06-22 — Session 136 (BKY-COV-2 microfissures C/B/A)_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -10,7 +10,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 [cols="2,3"]
 |===
 | Métrique | Valeur
-| Couverture Kover | *85.76%* — mesuré Session 103 via koverThresholdCheck (107390/125220 instructions environ)
+| Couverture Kover | *87.55%* — mesuré Session 136 via koverThresholdCheck (129680/148115 instructions environ)
 | Seuil configuré | 70% (dans `build.gradle.kts` → `koverThresholdCheck`)
 | **Nouvelle cible** | **90%** — EPIC BKY-KOV-1 (16 pts, US-1 ✅, US-KOV-2 ✅, US-KOV-3 ✅, US-KOV-4 ✅, US-KOV-5→7 restantes)
 | Tests unitaires JUnit5 | 143+ fichiers, ~880 tests — ✅ PASS (+9 UT i18n auto-translation Session 134)
@@ -42,9 +42,11 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 | US-COV-2.1 | DeployProfileTask | 0% | 85% | *✅ Session 106* — 12 UT PASS
 | US-COV-2.2 | ProfilePublisher integration FT | — | 2 FT | *✅ Session 107* — 17 UT + 4 FT TestKit
 | US-COV-2.3 | DeployProfileTask full pipeline FT | 0 FT | 3 FT | *✅ Session 108* — 2 FT TestKit (history preservation + custom from subdir). 6/6 PASS.
-| US-COV-2.4 | BakeryPlugin | 52.8% | 70% | *✅ Session 110* — resolvePath/resolvePaths 100% (5 tests). BakeryPluginKt 7/7 lignes. BakeryPlugin class 34.3% (registerFullPipelineTasks couvert par FT).
-| US-COV-2.5 | ToolsKt | 22% | 50% | *✅ Session 110* — 9 tests unitaires (createBuildScriptFile, createSettingsFile, createDependenciesFile, FuncTestsConstants). Source set functionalTest — Kover :test ne l'instrumente pas.
+| US-COV-2.4 | BakeryPlugin | 52.8% → 34.2% class / 100% resolvePaths | 70% | *✅ Session 110* — resolvePath/resolvePaths 100% (5 tests). *🔄 Session 136* — suppression double lecture YAML, refactor `registerFullPipelineTasks(site)`.
+| US-COV-2.5 | ToolsKt | 22% | 50% | *✅ Session 110* — 9 tests unitaires. Source set functionalTest — Kover :test ne l'instrumente pas.
 | US-COV-2.6 | Closures doLast Kover blind spot | documenté | KDoc | *✅ Session 110* — Documenté ci-dessous.
+| US-COV-2.7 | GitService | 86.1% → 86.8% | 90% | *🔄 Session 136* — 1 test `pushPages` exception path.
+| US-COV-2.8 | I18nMigrationService | 91.9% → 95.4% | 95% | *🔄 Session 136* — suppression branche morte aria-label + tests injectSiteLanguage newline.
 |===
 
 '''

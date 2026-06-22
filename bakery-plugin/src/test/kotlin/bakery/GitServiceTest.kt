@@ -533,18 +533,51 @@ class GitServiceTest {
         lateinit var tempDir: File
 
         @Test
-        fun `pushPages succeeds when content exists and remote is configured`() {
+        fun `pushPages returns Right when content exists and remote is configured`() {
             val destDir = tempDir.resolve("bakedOutput").apply { mkdirs() }
             destDir.resolve("index.html").writeText("<h1>Site</h1>")
             val repoDir = tempDir.resolve("gh-pages")
+
+            val remoteDir = tempDir.resolve("remote.git").apply { mkdirs() }
+            val remoteGit = Git.init().setDirectory(remoteDir).setBare(true).call()
+            try {
+                val config = GitPushConfiguration(
+                    from = "",
+                    to = "",
+                    repo = RepositoryConfiguration(
+                        name = "pages",
+                        repository = remoteDir.toURI().toString(),
+                        credentials = RepositoryCredentials("testuser", "testtoken")
+                    ),
+                    branch = "gh-pages",
+                    message = "ci: deploy bakery site"
+                )
+
+                val result = GitService.pushPages(
+                    destPath = { destDir.absolutePath },
+                    pathTo = { repoDir.absolutePath },
+                    git = config,
+                    logger = logger
+                )
+
+                assertThat(result.isRight()).isTrue()
+            } finally {
+                remoteGit.close()
+            }
+        }
+
+        @Test
+        fun `pushPages returns Left when pushToRemote throws an exception`() {
+            val destDir = tempDir.resolve("bakedOutputWithException").apply { mkdirs() }
+            destDir.resolve("index.html").writeText("<h1>Site</h1>")
+            val repoDir = tempDir.resolve("gh-pages-exception")
 
             val config = GitPushConfiguration(
                 from = "",
                 to = "",
                 repo = RepositoryConfiguration(
                     name = "pages",
-                    repository = "https://github.com/test/pages.git",
-                    credentials = RepositoryCredentials("testuser", "testtoken")
+                    repository = "invalid://no-such-remote.git"
                 ),
                 branch = "gh-pages",
                 message = "ci: deploy bakery site"
@@ -557,7 +590,10 @@ class GitServiceTest {
                 logger = logger
             )
 
-            assertThat(result).isNotNull()
+            assertThat(result.isLeft()).isTrue()
+            result.onLeft { error ->
+                assertThat(error).isNotBlank()
+            }
         }
 
         @Test

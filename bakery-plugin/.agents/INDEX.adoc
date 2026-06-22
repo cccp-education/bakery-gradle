@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-22 — Session 135 (Pipeline Contracts BDD + code smells V4)
-  _Session terminee_ : 135 — Feature 36 (`36_pipeline_contracts.feature`) 11 scénarios couvrant les contracts pipeline. Runners Cucumber configurés par tags (`@pipeline-contracts`). Fix assertions catégories FR (7). 123 bakery + 11 pipeline Cucumber PASS. `test` + `cucumberTest` + `publishToMavenLocal` OK.
-  _Prochaine session_ : 136 — Choisir priorite : BKY-PUB-2 (publication Maven Central/Portal) ou BKY-COV-2 (microfissures coverage)
+  _Derniere mise a jour_ : 2026-06-22 — Session 136 (BKY-COV-2 microfissures coverage C/B/A)
+  _Session terminee_ : 136 — Microfissures coverage : GitService pushPages exception path, BakeryPlugin suppression double lecture YAML, I18nMigrationService suppression branche morte aria-label + tests injectSiteLanguage newline. Kover 87.55% INSTRUCTIONS, seuil 70% OK. `check -x e2eTest` BUILD SUCCESSFUL.
+  _Prochaine session_ : 137 — Choisir : suite BKY-COV-2, BKY-PUB-2 (publication 0.0.2), ou autre borough critique
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 136 | 2026-06-22 | DDD + TDD + BDD | **BKY-COV-2 microfissures** — GitService pushPages Left sur exception, BakeryPlugin suppression double lecture YAML, I18nMigrationService suppression branche morte aria-label + tests injectSiteLanguage. Kover 87.55% INSTRUCTIONS. `check -x e2eTest` BUILD SUCCESSFUL. | 8/10
   | 135 | 2026-06-22 | DDD + TDD + BDD | **Pipeline Contracts BDD** — Feature 36 (`36_pipeline_contracts.feature`) 11 scénarios. Runners configurés par tags `@pipeline-contracts`. Fix assertions catégories FR (7). 123 bakery + 11 pipeline Cucumber PASS. Code smells V4 audités (déjà résolus). | 9/10
   | 134 | 2026-06-22 | DDD + TDD + BDD | **BKY-I18N-MIG US-4** — Câblage `TranslationService` transverse de codebase-plugin 0.0.2. `LlmTranslationApplier` + `LlmServiceTranslationAdapter`. 4 UT + 3 scénarios `I18nMigrationServiceTest` + 2 tests intégration. Feature 35 (2 scénarios). Alignement toolchain Java 24. i18n tests PASS, 123/123 bakery Cucumber scenarios PASS. BKY-I18N-MIG 16/16 pts TERMINÉ. | 9/10
   | 133 | 2026-06-22 | gouvernance + transition | **Transition 132→133** — Audit codebase-gradle N1. Aucun changement code source. | —

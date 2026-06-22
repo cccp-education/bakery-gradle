@@ -262,19 +262,10 @@ class I18nMigrationService(private val translationService: TranslationService? =
 
             val key = "$baseName.$counter"
             extractions[key] = text
-            val existingThAttr = Regex("""th:attr\s*=\s*"([^"]*)"""").find(line)
-            if (existingThAttr != null) {
-                val currentAttr = existingThAttr.groupValues[1]
-                line.replace(
-                    """th:attr="$currentAttr"""",
-                    """th:attr="$currentAttr,aria-label=#{${key}}"""
-                ) + " aria-label=\"$text\""
-            } else {
-                line.replace(
-                    """aria-label="$text"""",
-                    """th:attr="aria-label=#{${key}}" aria-label="$text"""
-                )
-            }
+            line.replace(
+                """aria-label="$text""",
+                """th:attr="aria-label=#{${key}}" aria-label="$text"""
+            )
         }
     }
 
@@ -442,19 +433,10 @@ class I18nMigrationService(private val translationService: TranslationService? =
             val text = match.groupValues[1]
             if (line.contains("th:attr") && line.contains("aria-label")) return@replace match.value
             val entry = extractions.entries.find { it.value == text } ?: return@replace match.value
-            val existingThAttr = Regex("""th:attr\s*=\s*"([^"]*)"""").find(line)
-            if (existingThAttr != null) {
-                val currentAttr = existingThAttr.groupValues[1]
-                line.replace(
-                    """th:attr="$currentAttr"""",
-                    """th:attr="$currentAttr,aria-label=#{${entry.key}}""""
-                ) + " aria-label=\"$text\""
-            } else {
-                line.replace(
-                    """aria-label="$text"""",
-                    """th:attr="aria-label=#{${entry.key}}" aria-label="$text""""
-                )
-            }
+            line.replace(
+                """aria-label="$text""",
+                """th:attr="aria-label=#{${entry.key}}" aria-label="$text"""
+            )
         }
     }
 

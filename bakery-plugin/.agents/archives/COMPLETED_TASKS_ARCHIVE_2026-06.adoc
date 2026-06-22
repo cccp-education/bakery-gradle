@@ -1,5 +1,38 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 136 — 2026-06-22 — BKY-COV-2 reprise microfissures coverage (ordre C/B/A)
+
+**Contexte** : PROMPT_REPRISE session 135 proposait BKY-PUB-2, BKY-COV-2 ou autre borough. Choix utilisateur : BKY-COV-2.
+
+**Tâches réalisées** :
+
+* [x] Mesure couverture Kover actuelle : 87.37% INSTRUCTIONS / 87.57% LINE / 71.25% BRANCH.
+* [x] C — GitService : test `pushPages returns Left when pushToRemote throws an exception`.
+* [x] C — GitService : test `pushPages returns Right` rendu explicite avec bare repo local.
+* [x] B — BakeryPlugin : suppression double lecture YAML via `project.from()` ; `registerFullPipelineTasks` reçoit la config déjà parsée ; uniformisation `resolvedSite`.
+* [x] A — I18nMigrationService : suppression branche morte `existingThAttr != null` dans `extractAriaLabelAttribute` et `applyAriaLabelReplacement`.
+* [x] A — I18nMigrationService : test `skips aria-label when already managed by th-attr`.
+* [x] A — I18nMigrationService : test `adds site language to jbake properties without trailing newline`.
+* [x] `./gradlew test --tests "bakery.GitServiceTest"` → 21/21 PASS
+* [x] `./gradlew test --tests "bakery.BakeryPluginTest"` → 37/37 PASS
+* [x] `./gradlew test --tests "bakery.i18n.I18nMigrationServiceTest"` → 40/40 PASS
+* [x] `./gradlew check -x e2eTest` → BUILD SUCCESSFUL
+* [x] `./gradlew koverThresholdCheck` → PASS (87.55% INSTRUCTIONS)
+* [x] Mise à jour gouvernance : `PROMPT_REPRISE.adoc`, `.agents/INDEX.adoc`, `.agents/SESSIONS_HISTORY.adoc`, `.agents/TEST_COVERAGE_ANALYSIS.adoc`, archive session 136.
+
+**Fichiers modifiés** : `src/main/kotlin/bakery/BakeryPlugin.kt`, `src/main/kotlin/bakery/i18n/I18nMigrationService.kt`, `src/test/kotlin/bakery/GitServiceTest.kt`, `src/test/kotlin/bakery/i18n/I18nMigrationServiceTest.kt`
+
+**Métriques** :
+
+* Kover INSTRUCTION : 87.55%
+* Kover LINE : 87.34%
+* Kover BRANCH : 72.04%
+* GitService : 86.1% → 86.8%
+* I18nMigrationService : 91.9% → 95.4%
+* BakeryPlugin : code mort supprimé, tests verts
+
+**Prochaine session** : 137 — suite BKY-COV-2, BKY-PUB-2, ou autre borough critique.
+
 == Session 135 — 2026-06-22 — Pipeline Contracts BDD + code smells V4
 
 **Contexte** : PROMPT_REPRISE session 134 proposait BKY-PUB-2, BKY-COV-2 ou code smells V4. Choix utilisateur : code smells V4.
