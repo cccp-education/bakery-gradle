@@ -322,6 +322,44 @@ class GenerateSiteServiceTest {
             assertTrue(content.contains("site.language=ar"))
             assertFalse(content.contains("site.language=fr"))
         }
+
+        @Test
+        fun `CS-FIN-2 — injects escaped augmentedContextData when augmented-context json exists`() {
+            val siteDir = tempDir.resolve("site")
+            siteDir.mkdirs()
+            val jbakeProps = siteDir.resolve("jbake.properties")
+            jbakeProps.writeText("blog.version=1.0\n")
+
+            val bakeryBuildDir = tempDir.resolve("build/bakery")
+            bakeryBuildDir.mkdirs()
+            val augmentedContextJson = bakeryBuildDir.resolve("augmented-context.json")
+            augmentedContextJson.writeText(
+                """{"version":"1.0","pipeline":"LENS","scoredNodes":[]}""",
+                java.nio.charset.StandardCharsets.UTF_8
+            )
+
+            val site = SiteConfiguration(bake = bakery.BakeConfiguration("site", "build"))
+            val augmentedDsl = AugmentedContextDsl()
+            augmentedDsl.enabled = true
+            augmentedDsl.budget.maxArticlesPerPage = 4
+            augmentedDsl.budget.minSimilarity = 0.7
+
+            val result = GenerateSiteService.injectConfigIntoJbakeProperties(
+                tempDir, site, createDefaultResolvedConfigs(), augmentedDsl
+            )
+
+            assertTrue(result)
+            val content = jbakeProps.readText()
+            assertTrue(content.contains("augmentedContextData="))
+            assertTrue(
+                content.contains("augmentedContextData={\"version\":\"1.0\""),
+                "Le JSON doit être échappé et injecté sur une seule ligne properties"
+            )
+            assertFalse(
+                content.contains("\n\"scoredNodes\""),
+                "Le JSON multi-lignes doit être échappé en une seule valeur properties"
+            )
+        }
     }
 
     private fun createDefaultResolvedConfigs() = ResolvedConfigs(

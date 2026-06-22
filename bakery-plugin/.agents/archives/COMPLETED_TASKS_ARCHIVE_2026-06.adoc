@@ -1,5 +1,30 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 139 — 2026-06-22 — CS-FIN-2/CS-FIN-3 clôture définitive
+
+**Contexte** : PROMPT_REPRISE session 138 proposait 4 pistes. Choix utilisateur : option 4 — CS-FIN-2/CS-22 (sérialisation directe `LensPipelineOutput` via Jackson).
+
+**Tâches réalisées** :
+
+* [x] Audit code : `LensPipelineService.kt:122-123` sérialise déjà directement `output` via `mapper.writeValue()` — CS-22 déjà résolu dans le code. `LensBudgetInjectionTest` testait un miroir privé au lieu de la production.
+* [x] TDD (RED→GREEN) : test round-trip Jackson avec `ScoredNode` non-vides dans `LensPipelineServiceTest.JacksonSerialization`. Valide sérialisation directe sur cas complexes (tags, nullables, doubles, listes imbriquées) via `usingRecursiveComparison`. 8/8 PASS.
+* [x] TDD (RED→GREEN) : test échappement JSON sur `GenerateSiteService.injectConfigIntoJbakeProperties` (production) dans `GenerateSiteServiceTest`. Valide `escapeJsonForJavaProperties` sur la vraie fonction. 13/13 PASS.
+* [x] REFACTOR : `LensBudgetInjectionTest` miroir privé supprimé (lignes 121-148) → appelle `GenerateSiteService.injectConfigIntoJbakeProperties` (API publique). 4/4 PASS.
+* [x] `publishToMavenLocal` — SUCCESS.
+* [x] `./gradlew test` — BUILD SUCCESSFUL.
+* [x] `BACKLOG.adoc` : CS-FIN-2 ✅, CS-FIN-3 ✅ (checkboxes + tableau synthèse).
+
+**Fichiers modifiés / créés** :
+
+* `bakery-plugin/src/test/kotlin/bakery/lens/LensPipelineServiceTest.kt` (+1 test round-trip Jackson)
+* `bakery-plugin/src/test/kotlin/bakery/site/GenerateSiteServiceTest.kt` (+1 test échappement JSON production)
+* `bakery-plugin/src/test/kotlin/bakery/lens/LensBudgetInjectionTest.kt` (refactor : miroir privé supprimé → production)
+* `bakery-plugin/BACKLOG.adoc` (CS-FIN-2/CS-FIN-3 marqués résolus)
+
+**Métriques** : 8/8 + 13/13 + 4/4 tests PASS. Code production inchangé. 1 miroir de test supprimé, 2 tests de clôture ajoutés.
+
+**Prochaine session** : 140 — Publier 0.0.2 sur Central + Portal (avec permission), ou BKY-COV-2, ou autre priorité.
+
 == Session 138 — 2026-06-22 — BKY-PUB-2 préparation publication 0.0.2
 
 **Contexte** : PROMPT_REPRISE session 137 proposait BKY-PUB-2, suite BKY-COV-2 ou autre borough. Choix utilisateur : BKY-PUB-2.

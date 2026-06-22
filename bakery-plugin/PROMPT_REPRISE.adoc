@@ -1,32 +1,33 @@
 = PROMPT REPRISE — Bakery
-:session: 139
+:session: 140
 :date: 2026-06-22
 
-== Mission accomplie (session 138)
+== Mission accomplie (session 139)
 
-*BKY-PUB-2 préparation publication 0.0.2* — baby steps DDD/TDD/BDD.
-- Alignement version : plugin `0.0.1` → `0.0.2`, catalogue racine `0.1.4` → `0.0.2`, catalogue plugin `0.0.1` → `0.0.2`.
-- `BakeryPluginPublicationTest.kt` : 2 tests (version catalogue vs build + group/id stable).
-- Fix POM Maven Central : ajout `<organization>` et `<organizationUrl>` dans `<developer>`.
-- Validation POM : `checkPomFileForPluginMavenPublication` + marker POM → PASS.
-- Dry-run local : `publishToMavenLocal` + `nmcpPublishAllPublicationsToMavenLocal` → SUCCESS (signing local OK).
-- README : `:plugin-version: 0.0.2`.
+*CS-FIN-2/CS-FIN-3 clôture définitive* — baby steps DDD/TDD/BDD.
+- Audit : `LensPipelineService.kt:122-123` sérialise déjà directement `output` via Jackson. CS-22 déjà résolu dans le code.
+- TDD : test round-trip Jackson avec `ScoredNode` non-vides (valide sérialisation directe sur cas complexes) → PASS.
+- TDD : test échappement JSON sur `GenerateSiteService.injectConfigIntoJbakeProperties` (production) → PASS.
+- REFACTOR : `LensBudgetInjectionTest` miroir privé supprimé → appelle la production. 4/4 PASS.
+- `BACKLOG.adoc` : CS-FIN-2 ✅, CS-FIN-3 ✅.
 
 == Statut
 
-- Versions alignées ✅
-- POM Maven Central conforme ✅
-- Dry-run publication local OK ✅
-- Publication effective (Central + Portal) : en attente permission utilisateur
+- CS-FIN-2 (CS-13 + CS-22) ✅ clôturé
+- CS-FIN-3 (CS-14, CS-15, CS-17, CS-19, CS-20) ✅ clôturé
+- Tests unitaires : tous PASS
+- Code de production : inchangé (le code était déjà correct)
+- Publication 0.0.2 : dry-run OK, en attente permission
 
-== Prochaine session (139)
+== Prochaine session (140)
 
 Choisir la suite :
 - Publier bakery `0.0.2` effectivement (`./gradlew publishAggregationToCentralPortal` + `./gradlew publishPlugins`) — nécessite permission explicite + credentials
-- Continuer BKY-COV-2 sur cibles restantes
+- Continuer BKY-COV-2 (US-COV-2.1 DeployProfileTask 0% coverage, US-COV-2.2 ProfilePublisher, US-COV-2.4 BakeryPlugin 52.8%→70%)
 - Reprendre un autre borough critique
 
 == Note technique
 
-- `./gradlew check -x e2eTest` reste la commande de validation raisonnable en session.
-- Kover threshold 85% est maintenu ; le test de publication n'impacte pas la couverture.
+- `./gradlew test` reste la commande de validation rapide en session.
+- `./gradlew check -x e2eTest` OK mais timeout Cucumber 5min (EPIC 5 connu).
+- Kover threshold 85% maintenu.

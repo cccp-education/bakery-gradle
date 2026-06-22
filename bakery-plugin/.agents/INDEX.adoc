@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-22 — Session 138 (BKY-PUB-2 préparation publication 0.0.2)
-  _Session terminee_ : 138 — Alignement versions `0.0.2` plugin/catalogue/racine, fix POM Maven Central `<organization>`/`<organizationUrl>`, test `BakeryPluginPublicationTest` 2/2 PASS, dry-run `publishToMavenLocal` + `nmcpPublishAllPublicationsToMavenLocal` OK. Publication effective en attente permission.
-  _Prochaine session_ : 139 — Publier `0.0.2` sur Central + Portal (avec permission), ou BKY-COV-2, ou autre borough
+  _Derniere mise a jour_ : 2026-06-22 — Session 139 (CS-FIN-2/CS-FIN-3 clôture définitive)
+  _Session terminee_ : 139 — Audit : LensPipelineService sérialise déjà directement output via Jackson (CS-22 résolu). TDD : test round-trip Jackson avec ScoredNode non-vides + test échappement JSON sur GenerateSiteService production. REFACTOR : LensBudgetInjectionTest miroir privé supprimé → appelle la production. 8/8 + 13/13 + 4/4 PASS. CS-FIN-2 ✅, CS-FIN-3 ✅.
+  _Prochaine session_ : 140 — Publier 0.0.2 sur Central + Portal (avec permission), ou BKY-COV-2, ou autre borough
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 139 | 2026-06-22 | DDD + TDD + refactor | **CS-FIN-2/CS-FIN-3 clôture définitive** — Audit : `LensPipelineService.kt:122-123` sérialise déjà directement `output` via Jackson (CS-22 résolu). TDD : test round-trip Jackson avec `ScoredNode` non-vides. TDD : test échappement JSON sur `GenerateSiteService.injectConfigIntoJbakeProperties` (production). REFACTOR : `LensBudgetInjectionTest` miroir privé supprimé → appelle la production. 8/8 + 13/13 + 4/4 PASS. `BACKLOG.adoc` : CS-FIN-2 ✅, CS-FIN-3 ✅. Code production inchangé. | 9/10
   | 138 | 2026-06-22 | DDD + TDD + BDD | **BKY-PUB-2 préparation publication 0.0.2** — Alignement versions plugin/catalogue/racine à `0.0.2`. `BakeryPluginPublicationTest.kt` (2 tests). Fix POM Maven Central `<organization>` + `<organizationUrl>`. Dry-run `publishToMavenLocal` + `nmcpPublishAllPublicationsToMavenLocal` OK. README version 0.0.2. | 9/10
   | 136 | 2026-06-22 | DDD + TDD + BDD | **BKY-COV-2 microfissures** — GitService pushPages Left sur exception, BakeryPlugin suppression double lecture YAML, I18nMigrationService suppression branche morte aria-label + tests injectSiteLanguage. Kover 87.55% INSTRUCTIONS. `check -x e2eTest` BUILD SUCCESSFUL. | 8/10
   | 135 | 2026-06-22 | DDD + TDD + BDD | **Pipeline Contracts BDD** — Feature 36 (`36_pipeline_contracts.feature`) 11 scénarios. Runners configurés par tags `@pipeline-contracts`. Fix assertions catégories FR (7). 123 bakery + 11 pipeline Cucumber PASS. Code smells V4 audités (déjà résolus). | 9/10

@@ -217,6 +217,53 @@ class LensPipelineServiceTest {
             assertThat(roundTrip.totalAfterBudget).isEqualTo(0)
             assertThat(roundTrip.scoredNodes).isEmpty()
         }
+
+        @Test
+        @DisplayName("CS-22 — round-trip Jackson avec ScoredNodes non-vides préserve tous les champs")
+        fun `round trip with non empty scored nodes preserves all fields`() {
+            val scored = listOf(
+                ScoredNode(
+                    nodeId = "file:src/foo.adoc",
+                    nodeName = "Foo Article",
+                    community = "docs-core",
+                    tags = listOf("kotlin", "gradle", "bakery"),
+                    ragSimilarity = 0.87,
+                    graphProximity = 0.42,
+                    tagOverlap = 0.66,
+                    crossRefCount = 3,
+                    score = 0.91
+                ),
+                ScoredNode(
+                    nodeId = "file:src/bar.adoc",
+                    nodeName = "Bar Article",
+                    community = null,
+                    tags = emptyList(),
+                    ragSimilarity = 0.12,
+                    graphProximity = 0.0,
+                    tagOverlap = 0.0,
+                    crossRefCount = 0,
+                    score = 0.05
+                )
+            )
+            val output = LensPipelineOutput(
+                budget = BudgetSummary(maxArticlesPerPage = 4, minSimilarity = 0.7),
+                scoredNodes = scored,
+                totalCandidates = 12,
+                totalAfterRules = 5,
+                totalAfterBudget = 2
+            )
+
+            val mapper = com.fasterxml.jackson.module.kotlin.jacksonObjectMapper()
+            val json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(output)
+            val roundTrip = mapper.readValue(json, LensPipelineOutput::class.java)
+
+            assertThat(roundTrip).usingRecursiveComparison().isEqualTo(output)
+            assertThat(roundTrip.scoredNodes).hasSize(2)
+            assertThat(roundTrip.scoredNodes[0].tags).containsExactly("kotlin", "gradle", "bakery")
+            assertThat(roundTrip.scoredNodes[0].community).isEqualTo("docs-core")
+            assertThat(roundTrip.scoredNodes[1].community).isNull()
+            assertThat(roundTrip.scoredNodes[1].score).isEqualTo(0.05)
+        }
     }
 
     @Nested

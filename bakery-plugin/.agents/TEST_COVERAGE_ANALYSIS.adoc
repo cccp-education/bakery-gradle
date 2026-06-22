@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-22 — Session 138 (BKY-PUB-2 préparation publication 0.0.2)_
+_Dernière mise à jour : 2026-06-22 — Session 139 (CS-FIN-2/CS-FIN-3 clôture définitive)_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -108,6 +108,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 . *GenerateArticleTaskTest* ✅ Chemins dynamiques `YearMonth.now()`
 . *Kover threshold* ✅ Seuil 70% atteint (77.09% réel)
 . *BKY-PUB-2 préparation* ✅ Alignement versions 0.0.2, POM Maven Central organization/organizationUrl, dry-run publication local OK
+. *CS-FIN-2/CS-FIN-3 clôture* ✅ Test round-trip Jackson avec `ScoredNode` non-vides (`LensPipelineServiceTest.JacksonSerialization`). Test échappement JSON sur `GenerateSiteService.injectConfigIntoJbakeProperties` (production). Refactor `LensBudgetInjectionTest` : miroir privé supprimé → appelle la production. 8/8 + 13/13 + 4/4 PASS.
 '''
 == US-COV-2.6 — Limitation Kover : closures doLast (Session 110)
 
