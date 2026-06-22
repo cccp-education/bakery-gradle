@@ -1,5 +1,35 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 142 — 2026-06-23 — BKY-CR-V6 US-1 Helper ResolveIntention
+
+**Contexte** : PROMPT_REPRISE session 141 donnait le cadrage US-1. L'utilisateur a rappelé la méthodologie baby steps DDD/TDD/BDD + paradigmes fonctionnels et Arrow-kt + ne pas renommer l'id/namespace du plugin.
+
+**Tâches réalisées** :
+
+* [x] DDD caractérisation — lecture parallèle des 4 `resolveIntention()` (GenerateArticleTask:178, GenerateThemeTask:205, GenerateSiteFromIntentionTask:160, MigrateToI18nTask:96). 5 variantes du pattern `cli.orNull?.takeIf{isNotBlank} ?: dsl?.field ?: default` : String, List<String>, Nullable, throw si absent, Boolean.
+* [x] Baseline GREEN établie (permission utilisateur) — 4 `*TaskTest.kt` PASS.
+* [x] Vérification Arrow-kt 2.2.2 — `Option` dépréciée en Arrow 2.x (recommandation : nullable Kotlin + `Either`). Code bakery existant cohérent (uniquement `Either`/`left`/`right`).
+* [x] DDD — `bakery/intention/ResolveIntention.kt` (NOUVEAU, 54 lignes) : helper pur zéro Gradle, 5 fonctions (`fromCli`, `fromCliNullable`, `fromCliRequired` Either, `fromCliList`, `fromCliBoolean`). `ResolveIntentionError` sealed class avec `MissingRequiredField(cliFlag, dslPath)` + `toException()` abstract au parent sealed (accès via `fold` sans cast).
+* [x] TDD — `bakery/intention/ResolveIntentionTest.kt` (NOUVEAU, 178 lignes, 26 UT) : 5 `@Nested` (FromCliTest 6, FromCliNullableTest 4, FromCliRequiredTest 5, FromCliListTest 6, FromCliBooleanTest 6). Bug test corrigé : `toException()` retourne l'exception, ne la lève pas.
+* [x] Refactor — 4 Task migrées : GenerateArticleTask (5 champs + throw), GenerateThemeTask (description + variant + 7 overrides nullable), GenerateSiteFromIntentionTask (throw + 3 String), MigrateToI18nTask (throw + String + List + Boolean). 23 occurrences pattern supprimées, zéro `throw IllegalArgumentException` manuel restant.
+* [x] Vérification post-refactor : `grep` confirme plus aucun `takeIf{isNotBlank}` ni `throw IllegalArgumentException` manuel dans les 4 Task.
+* [x] Safety net préservé : tous les `*TaskTest.kt` GREEN (comportement identique).
+* [x] `./gradlew -q publishToMavenLocal` — OK.
+* [x] id/namespace plugin `education.cccp.bakery` inchangé.
+
+**Fichiers modifiés / créés** :
+
+* `src/main/kotlin/bakery/intention/ResolveIntention.kt` (NOUVEAU, 54 lignes)
+* `src/test/kotlin/bakery/intention/ResolveIntentionTest.kt` (NOUVEAU, 178 lignes, 26 UT)
+* `src/main/kotlin/bakery/article/GenerateArticleTask.kt` (refactor `resolveIntention()`, +2 imports)
+* `src/main/kotlin/bakery/theme/GenerateThemeTask.kt` (refactor `resolveIntention()`, +1 import)
+* `src/main/kotlin/bakery/scaffold/GenerateSiteFromIntentionTask.kt` (refactor `resolveIntention()`, +2 imports)
+* `src/main/kotlin/bakery/i18n/MigrateToI18nTask.kt` (refactor `resolveIntention()`, +2 imports)
+
+**Métriques** : 26 nouveaux UT PASS. 23 occurrences dupliquées supprimées. 4 Task refactored, safety net GREEN. 2 nouveaux fichiers (helper + tests), 4 fichiers modifiés. US-CR-V6-1 = 3 pts ✅.
+
+**Prochaine session** : 143 — BKY-CR-V6 US-2 (DomainConfigInjectors data-driven).
+
 == Session 140 — 2026-06-22 — BKY-COV-2 DeployProfileTask branches
 
 **Contexte** : PROMPT_REPRISE session 139 proposait 3 pistes. Choix utilisateur : BKY-COV-2 (coverage). Audit Kover préalable demandé.

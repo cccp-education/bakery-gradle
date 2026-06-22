@@ -1,6 +1,8 @@
 package bakery.scaffold
 
 import bakery.FileSystemManager.yamlMapper
+import bakery.intention.ResolveIntention
+import bakery.intention.ResolveIntentionError
 import bakery.llm.LlmService
 import bakery.llm.OllamaLlmService
 import kotlinx.coroutines.runBlocking
@@ -158,25 +160,35 @@ abstract class GenerateSiteFromIntentionTask : DefaultTask() {
      * 3. Defauts : siteType=blog, lang=fr, projectName=""
      */
     internal fun resolveIntention(): ScaffoldIntention {
-        // Description CLI a priorite sur DSL
-        val resolvedDescription = scaffoldDescription.orNull?.takeIf { it.isNotBlank() }
-            ?: dslIntention?.description
-            ?: throw IllegalArgumentException(
-                "Aucune description specifiee. Utilisez -PscaffoldDescription=\"Votre description\" " +
-                "ou configurez bakery { scaffoldIntention { description = \"...\" } }"
-            )
+        val resolvedDescription = ResolveIntention.fromCliRequired(
+            scaffoldDescription.orNull,
+            dslIntention?.description,
+            ResolveIntentionError.MissingRequiredField(
+                cliFlag = "-PscaffoldDescription",
+                dslPath = "bakery { scaffoldIntention { description = \"...\" } }",
+            ),
+        ).fold(
+            ifLeft = { throw it.toException() },
+            ifRight = { it },
+        )
 
-        val resolvedSiteType = siteType.orNull?.takeIf { it.isNotBlank() }
-            ?: dslIntention?.siteType?.name?.lowercase()
-            ?: ScaffoldSiteType.BLOG.name.lowercase()
+        val resolvedSiteType = ResolveIntention.fromCli(
+            siteType.orNull,
+            dslIntention?.siteType?.name?.lowercase(),
+            ScaffoldSiteType.BLOG.name.lowercase(),
+        )
 
-        val resolvedLang = scaffoldLang.orNull?.takeIf { it.isNotBlank() }
-            ?: dslIntention?.lang
-            ?: "fr"
+        val resolvedLang = ResolveIntention.fromCli(
+            scaffoldLang.orNull,
+            dslIntention?.lang,
+            "fr",
+        )
 
-        val resolvedProjectName = projectName.orNull?.takeIf { it.isNotBlank() }
-            ?: dslIntention?.projectName
-            ?: ""
+        val resolvedProjectName = ResolveIntention.fromCli(
+            projectName.orNull,
+            dslIntention?.projectName,
+            "",
+        )
 
         return ScaffoldIntention(
             description = resolvedDescription,

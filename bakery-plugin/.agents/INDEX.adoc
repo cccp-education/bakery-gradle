@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-22 — Session 141 (BKY-CR-V6 cadrage EPIC duplications structurelles)
-  _Session terminee_ : 141 — Audit ciblé duplications. 3 duplications réelles confirmées : (1) `resolveIntention()` ×4 (23 occurrences pattern CLI>DSL>defaults), (2) DomainConfigInjectors 9 injecteurs répétitifs (113 lignes), (3) `ConfigResolver.resolveAll()` 10 blocs `resolveDomain` (ligne 332-401). BACKLOG V5 corrigé : US-CR-V5-5 et V5-7 repositionnées PARTIEL (⚠️), ✅ étaient faux. EPIC BKY-CR-V6 créé : 3 US, 8 pts, P1. Aucun changement code source production.
-  _Prochaine session_ : 142 — Démarrer BKY-CR-V6 US-1 (helper `ResolveIntention<T>` baby steps DDD/TDD/BDD)
+  _Derniere mise a jour_ : 2026-06-23 — Session 142 (BKY-CR-V6 US-1 helper ResolveIntention)
+  _Session terminee_ : 142 — DDD/TDD/refactor baby steps. Helper `ResolveIntention<T>` (objet pur, zéro Gradle) + `ResolveIntentionError` sealed class (DDD erreur explicite). 5 fonctions : `fromCli`, `fromCliNullable`, `fromCliRequired` (Either), `fromCliList`, `fromCliBoolean`. FP/Arrow-kt 2.2.2 : `Either` pour `fromCliRequired` (`.fold`), nullable Kotlin pour les autres (`Option` dépréciée Arrow 2.x). TDD : 26 UT `ResolveIntentionTest` (5 `@Nested`). Refactor : 4 Task migrées (GenerateArticleTask, GenerateThemeTask, GenerateSiteFromIntentionTask, MigrateToI18nTask) — 23 occurrences pattern `takeIf{isNotBlank} ?: dsl ?: default` supprimées, zéro `throw IllegalArgumentException` manuel. Safety net préservé : 4 `*TaskTest.kt` GREEN. `publishToMavenLocal` OK. id/namespace plugin inchangé.
+  _Prochaine session_ : 143 — BKY-CR-V6 US-2 (DomainConfigInjectors data-driven — 9 injecteurs, 113 lignes, 3 variantes)
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 142 | 2026-06-23 | DDD + TDD + refactor | **BKY-CR-V6 US-1 Helper ResolveIntention** — DDD : `ResolveIntention` objet pur (zéro Gradle) + `ResolveIntentionError` sealed class (`MissingRequiredField` + `toException()` abstract au parent). 5 fonctions : `fromCli`, `fromCliNullable`, `fromCliRequired` (Either), `fromCliList`, `fromCliBoolean`. FP/Arrow-kt 2.2.2 : `Either<ResolveIntentionError, String>` + `.fold` (Option dépréciée en 2.x). TDD : 26 UT `ResolveIntentionTest` (5 `@Nested`). Refactor : 4 Task migrées — 23 occurrences pattern supprimées, zéro `throw IllegalArgumentException` manuel. Safety net GREEN. `publishToMavenLocal` OK. | 9/10
   | 141 | 2026-06-22 | audit + cadrage | **BKY-CR-V6 Cadrage EPIC Duplications Structurelles** — Intuition utilisateur : duplications malgré 5 audits précédents. Scan ciblé code source. 3 duplications réelles : (1) `resolveIntention()` ×4 (23 occurrences pattern CLI>DSL>defaults) ; (2) DomainConfigInjectors 9 injecteurs répétitifs (113 lignes) ; (3) `ConfigResolver.resolveAll()` 10 blocs `resolveDomain` (ligne 332-401). BACKLOG V5 corrigé : US-CR-V5-5 et V5-7 PARTIEL (⚠️), ✅ faux. EPIC BKY-CR-V6 créé : 3 US, 8 pts, P1. Code production inchangé. | 7/10
   | 140 | 2026-06-22 | DDD + TDD + BDD | **BKY-COV-2 DeployProfileTask branches** — Audit Kover : ToolsKt 22% = faux gap (helper functionalTest). US-COV-2.5 abandonné. TDD : 4 UT DeployProfileTaskTest (ConfigReadFailure ×3, ConfigPathFromExtension ×1). Branches Left `from()`, `findByType null`, `configPath.orNull` non-null couvertes. BDD : 2 scénarios Feature 5 + 2 steps PublishProfileSteps. 15/15 UT PASS. Cucumber timeout (EPIC 5). Code production inchangé. 3 fichiers, +128 lignes. | 8/10
   | 139 | 2026-06-22 | DDD + TDD + refactor | **CS-FIN-2/CS-FIN-3 clôture définitive** — Audit : `LensPipelineService.kt:122-123` sérialise déjà directement `output` via Jackson (CS-22 résolu). TDD : test round-trip Jackson avec `ScoredNode` non-vides. TDD : test échappement JSON sur `GenerateSiteService.injectConfigIntoJbakeProperties` (production). REFACTOR : `LensBudgetInjectionTest` miroir privé supprimé → appelle la production. 8/8 + 13/13 + 4/4 PASS. `BACKLOG.adoc` : CS-FIN-2 ✅, CS-FIN-3 ✅. Code production inchangé. | 9/10
@@ -175,7 +176,7 @@ _Archives_ : Sessions 100-113 archivées dans `.agents/backup/Y2026-sessions-090
 
 |===
 | EPIC | Progression | Priorite
-| BKY-CR-V6 : 3 duplications structurelles (ResolveIntention ×4, DomainConfigInjectors 9 injecteurs, resolveAll 10 blocs) | 0% (0/8 pts) — US-1, US-2, US-3 à faire | *🟠 P1 — Session 142 démarre US-1*
+| BKY-CR-V6 : 3 duplications structurelles (ResolveIntention ×4, DomainConfigInjectors 9 injecteurs, resolveAll 10 blocs) | 37% (3/8 pts) — US-1 ✅ S142, US-2 et US-3 à faire | *🟠 P1 — Session 143 démarre US-2*
 |===
 
 === EPIC LENTILLE — ✅ TERMINÉ

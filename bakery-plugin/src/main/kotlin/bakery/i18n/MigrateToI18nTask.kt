@@ -1,6 +1,8 @@
 package bakery.i18n
 
 import bakery.BakeryConstants
+import bakery.intention.ResolveIntention
+import bakery.intention.ResolveIntentionError
 import bakery.llm.LlmService
 import contracts.i18n.TranslationService
 import org.gradle.api.DefaultTask
@@ -94,29 +96,35 @@ abstract class MigrateToI18nTask : DefaultTask() {
     }
 
     internal fun resolveIntention(): I18nMigrationIntention {
-        val resolvedSiteDir = i18nSite.orNull?.takeIf { it.isNotBlank() }
-            ?: dslIntention?.siteDir?.takeIf { it.isNotBlank() }
-            ?: throw IllegalArgumentException(
-                "Aucun répertoire de site spécifié. Utilisez --i18nSite=<path> " +
-                "ou configurez bakery { i18nMigration { siteDir = \"...\" } }"
-            )
+        val resolvedSiteDir = ResolveIntention.fromCliRequired(
+            i18nSite.orNull,
+            dslIntention?.siteDir,
+            ResolveIntentionError.MissingRequiredField(
+                cliFlag = "--i18nSite",
+                dslPath = "bakery { i18nMigration { siteDir = \"...\" } }",
+            ),
+        ).fold(
+            ifLeft = { throw it.toException() },
+            ifRight = { it },
+        )
 
-        val resolvedLangs = i18nLangs.orNull?.takeIf { it.isNotBlank() }
-            ?.split(",")
-            ?.map { it.trim() }
-            ?.filter { it.isNotBlank() }
-            ?.takeIf { it.isNotEmpty() }
-            ?: dslIntention?.languages
-            ?: listOf("en")
+        val resolvedLangs = ResolveIntention.fromCliList(
+            i18nLangs.orNull,
+            dslIntention?.languages,
+            listOf("en"),
+        )
 
-        val resolvedDefaultLang = i18nDefaultLang.orNull?.takeIf { it.isNotBlank() }
-            ?: dslIntention?.defaultLanguage
-            ?: "fr"
+        val resolvedDefaultLang = ResolveIntention.fromCli(
+            i18nDefaultLang.orNull,
+            dslIntention?.defaultLanguage,
+            "fr",
+        )
 
-        val resolvedDryRun = i18nDryRun.orNull?.takeIf { it.isNotBlank() }
-            ?.let { it.toBooleanStrictOrNull() }
-            ?: dslIntention?.dryRun
-            ?: true
+        val resolvedDryRun = ResolveIntention.fromCliBoolean(
+            i18nDryRun.orNull,
+            dslIntention?.dryRun,
+            true,
+        )
 
         return I18nMigrationIntention(
             siteDir = resolvedSiteDir,

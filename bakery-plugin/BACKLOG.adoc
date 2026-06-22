@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-22 — Session 141 (BKY-CR-V6 cadrage + correction V5-5/V5-7 partiels)_
+_Dernière mise à jour : 2026-06-23 — Session 142 (BKY-CR-V6 US-1 helper ResolveIntention ✅)_
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -1074,7 +1074,7 @@ data-driven non fait). Cet EPIC cloture proprement les duplications résiduelles
   DDD : helper pur sans Gradle. TDD : tests unitaires helper (RED→GREEN).
   Refactor : remplacer 23 occurrences, vérifier comportement identique.
 | 3
-| 🟠 P1
+| 🟠 P1 ✅ S142
 
 | US-CR-V6-2
 | **DomainConfigInjectors data-driven — 9 injecteurs répétitifs (113 lignes)** —
@@ -1119,8 +1119,8 @@ data-driven non fait). Cet EPIC cloture proprement les duplications résiduelles
 // ── EN ATTENTE ──
 | BKY-I18N-MIG-4 | Service traduction transverse (codebase-gradle N1) | 3 | ✅ TERMINÉ — TranslationService contrat N0 + LlmTranslator N1 + FakeLlmTranslator livrés codebase-gradle S133 ; câblé dans bakery S134
 // ── NOUVEL EPIC V6 (Session 141) ──
-| BKY-CR-V6 | Duplications structurelles résiduelles (ResolveIntention helper, DomainConfigInjectors data-driven, resolveAll data-driven) | 8 | 🟠 P1 — US-1, US-2, US-3 à faire
-| *Total restant* | | *8* |
+| BKY-CR-V6 | Duplications structurelles résiduelles (ResolveIntention helper, DomainConfigInjectors data-driven, resolveAll data-driven) | 8 | 🟠 P1 — US-1 ✅ S142, US-2 et US-3 à faire (5 pts restants)
+| *Total restant* | | *5* |
 |===
 
 *Tous les EPICs historiques* : 30/30 ✅ (100%)
@@ -1128,7 +1128,7 @@ data-driven non fait). Cet EPIC cloture proprement les duplications résiduelles
 *Code smells V5* : 52 ✅ (US-1 faux positif, US-2+3+4+5+6+7+8 résolues — V5-5 et V5-7 PARTIEL repris en V6)
 *Bakery 100% fonctionnel* — les smells V5/V6 sont qualitatifs, pas fonctionnels.
 *Nouveau cap* : BKY-PUB-2 — publication 0.0.2 préparée (versions alignées, POM corrigé, dry-run OK). Publication effective (Central + Portal) restante.
-*Nouveau cap* : BKY-CR-V6 — 3 duplications structurelles résiduelles identifiées session 141 (intuition utilisateur confirmée par audit code).
+*Nouveau cap* : BKY-CR-V6 — US-1 ✅ S142 (helper ResolveIntention), US-2 et US-3 à faire (DomainConfigInjectors + resolveAll data-driven).
 *Migration i18n des 3 sites* : magic-stick ✅, cccp.education, cheroliv.com.
 
 '''
@@ -1137,7 +1137,7 @@ data-driven non fait). Cet EPIC cloture proprement les duplications résiduelles
 [cols="2,3"]
 |===
 | Document | `BACKLOG.adoc`
-| Version | 9.0 — Session 141 (BKY-CR-V6 cadrage)
+| Version | 9.1 — Session 142 (BKY-CR-V6 US-1 ✅)
 | Historisé dans | `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
-| Basé sur | Code review V5 (`.agents/CODE_REVIEW.adoc`, Session 117) + Session 105 + Session 111 + Session 116 + Audit duplications Session 141
-| Prochaine màj | Session 142 — BKY-CR-V6 US-1 (ResolveIntention helper)
+| Basé sur | Code review V5 (`.agents/CODE_REVIEW.adoc`, Session 117) + Session 105 + Session 111 + Session 116 + Audit duplications Session 141 + US-1 Session 142
+| Prochaine màj | Session 143 — BKY-CR-V6 US-2 (DomainConfigInjectors data-driven)

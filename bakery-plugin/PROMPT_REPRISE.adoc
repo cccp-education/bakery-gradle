@@ -1,45 +1,53 @@
 = PROMPT REPRISE — Bakery
-:session: 142
-:date: 2026-06-22
+:session: 143
+:date: 2026-06-23
 
-== Mission accomplie (session 141)
+== Mission accomplie (session 142)
 
-*BKY-CR-V6 Cadrage EPIC Duplications Structurelles* — audit + gouvernance.
-- Intuition utilisateur : duplications structurelles malgré 5 audits précédents.
-- 3 duplications réelles confirmées par lecture code :
-  1. `resolveIntention()` dupliqué ×4 (GenerateArticleTask, GenerateThemeTask, GenerateSiteFromIntentionTask, MigrateToI18nTask) — 23 occurrences pattern CLI>DSL>defaults.
-  2. `DomainConfigInjectors.kt` 9 injecteurs répétitifs (113 lignes, 3 variantes).
-  3. `ConfigResolver.resolveAll()` 10 blocs `resolveDomain` identiques (ligne 332-401).
-- BACKLOG V5 corrigé : US-CR-V5-5 et US-CR-V5-7 repositionnées PARTIEL (⚠️), ✅ étaient faux.
-- EPIC BKY-CR-V6 créé : 3 US, 8 pts, P1.
-- Aucun changement code source production (cadrage uniquement).
-- Archive session 141 créée.
+*BKY-CR-V6 US-1 Helper `ResolveIntention<T>`* — DDD/TDD/refactor baby steps.
+- DDD : `ResolveIntention` objet pur (zéro Gradle) + `ResolveIntentionError`
+  sealed class (`MissingRequiredField` + `toException()` abstract remonté
+  au parent sealed). 5 fonctions : `fromCli`, `fromCliNullable`,
+  `fromCliRequired` (Either), `fromCliList`, `fromCliBoolean`.
+- FP/Arrow-kt 2.2.2 : `Either<ResolveIntentionError, String>` pour
+  `fromCliRequired` (`.fold`), nullable Kotlin pour les autres (Arrow 2.x
+  idiomatique — `Option` dépréciée).
+- TDD : 26 tests unitaires RED→GREEN `ResolveIntentionTest` (5 `@Nested`).
+- Refactor : 4 Task migrées (GenerateArticleTask, GenerateThemeTask,
+  GenerateSiteFromIntentionTask, MigrateToI18nTask) — 23 occurrences du
+  pattern `takeIf{isNotBlank} ?: dsl ?: default` supprimées, zéro
+  `throw IllegalArgumentException` manuel restant.
+- Safety net préservé : 4 `*TaskTest.kt` GREEN (comportement identique).
+- `publishToMavenLocal` OK. id/namespace plugin inchangé.
 
 == Statut
 
-- BKY-CR-V6 : US-1, US-2, US-3 à faire (8 pts)
+- BKY-CR-V6 : US-1 ✅ (3 pts), US-2 et US-3 à faire (5 pts restants)
 - BKY-PUB-2 : publication 0.0.2 dry-run OK, en attente permission
-- BKY-COV-2 : DeployProfileTask branches couvertes S140
 
-== Prochaine session (142)
+== Prochaine session (143)
 
-Démarrer **BKY-CR-V6 US-1** : Helper `ResolveIntention<T>` — pattern CLI>DSL>defaults dupliqué ×4.
+Démarrer **BKY-CR-V6 US-2** : `DomainConfigInjectors` data-driven — 9 injecteurs
+répétitifs (113 lignes, 3 variantes : gate sur champ trigger, gate sur boolean,
+injection systématique).
+
 Baby steps DDD/TDD/BDD :
-- DDD : `ResolveIntention<T>` helper pur (zéro Gradle) — `fromCli(prov, dslField, default)` + `fromCliNullable(prov, dslField)`.
-- TDD : tests unitaires helper RED→GREEN (CLI blank, CLI set, DSL fallback, default).
-- Refactor : remplacer 23 occurrences dans les 4 Task, vérifier comportement identique (tests existants GREEN).
+- DDD : `InjectorSpec` sealed class (3 sous-classes pour les 3 variantes) +
+  `InjectorRegistry` (registre data-driven).
+- TDD : tests unitaires par injecteur (RED→GREEN) — caractériser les 9
+  comportements existants avant refactor.
+- Refactor : `configInjectors` Map → `InjectorRegistry.all()`. Vérifier
+  comportement identique (tests existants GREEN).
 - `publishToMavenLocal` après modif code.
-- `./gradlew test` pour validation (avec permission).
 
 Fichiers cibles :
-- NOUVEAU `bakery/intention/ResolveIntention.kt`
-- `GenerateArticleTask.kt:178` `resolveIntention()`
-- `GenerateThemeTask.kt:205` `resolveIntention()`
-- `GenerateSiteFromIntentionTask.kt:160` `resolveIntention()`
-- `MigrateToI18nTask.kt:96` `resolveIntention()`
+- `bakery/injection/DomainConfigInjectors.kt` (9 injecteurs, 113 lignes)
+- NOUVEAU `bakery/injection/InjectorSpec.kt` (sealed class + registry)
+- Tests : `DomainConfigInjectorsTest.kt` existant à compléter
 
 == Note technique
 
 - `./gradlew test` reste la commande de validation rapide en session.
-- `./gradlew check -x e2eTest` OK mais timeout Cucumber 5min (EPIC 5 connu).
 - Kover threshold 85% maintenu.
+- `Option` Arrow dépréciée en 2.x — utiliser nullable Kotlin + `Either` pour
+  les erreurs (pattern établi session 142).

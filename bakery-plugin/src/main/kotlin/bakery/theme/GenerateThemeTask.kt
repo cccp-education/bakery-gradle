@@ -1,6 +1,7 @@
 package bakery.theme
 
 import bakery.injection.updateProperty
+import bakery.intention.ResolveIntention
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -203,29 +204,47 @@ abstract class GenerateThemeTask : DefaultTask() {
      * 3. Defaults : variante MINIMAL, couleurs du preset
      */
     internal fun resolveIntention(): ThemeIntention {
-        val resolvedDescription = themeDescription.orNull?.takeIf { it.isNotBlank() }
-            ?: dslIntention?.description
-            ?: "Thème généré par catalogue"
+        val resolvedDescription = ResolveIntention.fromCli(
+            themeDescription.orNull,
+            dslIntention?.description,
+            "Thème généré par catalogue",
+        )
 
-        val resolvedVariant = themeVariant.orNull?.takeIf { it.isNotBlank() }
-            ?: dslIntention?.variant?.name?.lowercase()
-            ?: "minimal"
+        val resolvedVariant = ResolveIntention.fromCli(
+            themeVariant.orNull,
+            dslIntention?.variant?.name?.lowercase(),
+            "minimal",
+        )
 
         val resolvedOverrides = ThemeOverrides(
-            primaryColor = themePrimaryColor.orNull?.takeIf { it.isNotBlank() }
-                ?: dslIntention?.overrides?.primaryColor,
-            secondaryColor = themeSecondaryColor.orNull?.takeIf { it.isNotBlank() }
-                ?: dslIntention?.overrides?.secondaryColor,
-            accentColor = themeAccentColor.orNull?.takeIf { it.isNotBlank() }
-                ?: dslIntention?.overrides?.accentColor,
-            backgroundColor = themeBackgroundColor.orNull?.takeIf { it.isNotBlank() }
-                ?: dslIntention?.overrides?.backgroundColor,
-            textColor = themeTextColor.orNull?.takeIf { it.isNotBlank() }
-                ?: dslIntention?.overrides?.textColor,
-            fontFamily = themeFontFamily.orNull?.takeIf { it.isNotBlank() }
-                ?: dslIntention?.overrides?.fontFamily,
-            headingFont = themeHeadingFont.orNull?.takeIf { it.isNotBlank() }
-                ?: dslIntention?.overrides?.headingFont,
+            primaryColor = ResolveIntention.fromCliNullable(
+                themePrimaryColor.orNull,
+                dslIntention?.overrides?.primaryColor,
+            ),
+            secondaryColor = ResolveIntention.fromCliNullable(
+                themeSecondaryColor.orNull,
+                dslIntention?.overrides?.secondaryColor,
+            ),
+            accentColor = ResolveIntention.fromCliNullable(
+                themeAccentColor.orNull,
+                dslIntention?.overrides?.accentColor,
+            ),
+            backgroundColor = ResolveIntention.fromCliNullable(
+                themeBackgroundColor.orNull,
+                dslIntention?.overrides?.backgroundColor,
+            ),
+            textColor = ResolveIntention.fromCliNullable(
+                themeTextColor.orNull,
+                dslIntention?.overrides?.textColor,
+            ),
+            fontFamily = ResolveIntention.fromCliNullable(
+                themeFontFamily.orNull,
+                dslIntention?.overrides?.fontFamily,
+            ),
+            headingFont = ResolveIntention.fromCliNullable(
+                themeHeadingFont.orNull,
+                dslIntention?.overrides?.headingFont,
+            ),
         )
 
         return ThemeIntention(

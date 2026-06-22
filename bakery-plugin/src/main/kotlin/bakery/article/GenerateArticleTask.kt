@@ -1,5 +1,7 @@
 package bakery.article
 
+import bakery.intention.ResolveIntention
+import bakery.intention.ResolveIntentionError
 import bakery.llm.LlmService
 import bakery.llm.OllamaLlmService
 import kotlinx.coroutines.runBlocking
@@ -176,32 +178,41 @@ abstract class GenerateArticleTask : DefaultTask() {
      * 3. Défauts : ton=informatif, audience=general, lang=fr
      */
     internal fun resolveIntention(): ArticleIntention {
-        // Topic CLI a priorité sur DSL
-        val resolvedTopic = topic.orNull?.takeIf { it.isNotBlank() }
-            ?: dslIntention?.topic?.takeIf { it.isNotBlank() }
-            ?: throw IllegalArgumentException(
-                "Aucun sujet spécifié. Utilisez -Ptopic=\"Votre sujet\" " +
-                "ou configurez bakery { articleIntention { topic = \"...\" } }"
-            )
+        val resolvedTopic = ResolveIntention.fromCliRequired(
+            topic.orNull,
+            dslIntention?.topic,
+            ResolveIntentionError.MissingRequiredField(
+                cliFlag = "-Ptopic",
+                dslPath = "bakery { articleIntention { topic = \"...\" } }",
+            ),
+        ).fold(
+            ifLeft = { throw it.toException() },
+            ifRight = { it },
+        )
 
-        val resolvedTon = articleTon.orNull?.takeIf { it.isNotBlank() }
-            ?: dslIntention?.ton?.name?.lowercase()
-            ?: ArticleTon.INFORMATIF.name.lowercase()
+        val resolvedTon = ResolveIntention.fromCli(
+            articleTon.orNull,
+            dslIntention?.ton?.name?.lowercase(),
+            ArticleTon.INFORMATIF.name.lowercase(),
+        )
 
-        val resolvedAudience = articleAudience.orNull?.takeIf { it.isNotBlank() }
-            ?: dslIntention?.audience?.name?.lowercase()
-            ?: ArticleAudience.GENERAL.name.lowercase()
+        val resolvedAudience = ResolveIntention.fromCli(
+            articleAudience.orNull,
+            dslIntention?.audience?.name?.lowercase(),
+            ArticleAudience.GENERAL.name.lowercase(),
+        )
 
-        val resolvedKeywords = articleKeywords.orNull?.takeIf { it.isNotBlank() }
-            ?.split(",")
-            ?.map { it.trim() }
-            ?.filter { it.isNotBlank() }
-            ?: dslIntention?.keywords
-            ?: emptyList()
+        val resolvedKeywords = ResolveIntention.fromCliList(
+            articleKeywords.orNull,
+            dslIntention?.keywords,
+            emptyList(),
+        )
 
-        val resolvedLang = articleLang.orNull?.takeIf { it.isNotBlank() }
-            ?: dslIntention?.lang
-            ?: "fr"
+        val resolvedLang = ResolveIntention.fromCli(
+            articleLang.orNull,
+            dslIntention?.lang,
+            "fr",
+        )
 
         return ArticleIntention(
             topic = resolvedTopic,
