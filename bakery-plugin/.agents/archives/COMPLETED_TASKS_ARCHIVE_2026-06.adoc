@@ -1,26 +1,30 @@
 = Archive des Taches Terminees — Juin 2026
 
-== Session 133 — 2026-06-22 — Transition 132→133 (Gouvernance uniquement)
+== Session 133 — 2026-06-22 — Transition 132→133 (Codebase TranslationService débloqué)
 
-**Contexte** : Session 132 a terminé BKY-I18N-PROD-GEN. PROMPT_REPRISE : BKY-I18N-PROD-MIG US-4 (traduction automatisée via codebase-gradle N1).
+**Contexte** : Session 132 a terminé BKY-I18N-PROD-GEN. PROMPT_REPRISE initial : BKY-I18N-PROD-MIG US-4 (traduction automatisée via codebase-gradle N1).
 
-**Audit d'ouverture** :
+**Audit d'ouverture (1er passage)** :
 
 * [x] Lecture PROMPT_REPRISE + INDEX + AGENT bakery
 * [x] Vérification état codebase-gradle N1 : PROMPT_REPRISE session 132 = EPIC V-LOCAL (boucle vibecoding locale), aucun `TranslationService` ou API de traduction dans les sources .kt
-* [x] Décision : US-4 reste ⏸️ — pas de traduction LLM inline dans bakery, attente contrat/service transverse N1
+* [x] Décision initiale : US-4 reste ⏸️ — pas de traduction LLM inline dans bakery, attente contrat/service transverse N1
+
+**Mise à jour inter-session** : L'utilisateur a complété codebase-gradle avec `TranslationService` (contrat N0) + `LlmTranslator` (impl N1) + `FakeLlmTranslator`. Publication mavenLocal OK. BKY-I18N-MIG US-4 est maintenant débloquée.
 
 **Tâches réalisées** :
 
-* [x] Mise à jour `PROMPT_REPRISE.adoc` — session 133 = polish/documentation, US-4 suspendue
-* [x] Mise à jour `.agents/INDEX.adoc` — session 133, statut US-4 codebase-gradle N1 non prêt
-* [x] Mise à jour `.agents/SESSIONS_HISTORY.adoc` — entrée 133
-* [x] Mise à jour `TEST_COVERAGE_ANALYSIS.adoc` — sessions 130, 131, 132 (intégration + Cucumber)
-* [x] Mise à jour `BACKLOG.adoc` — BKY-I18N-PROD-GEN ✅ S132, US-4 ⏸️ codebase-gradle N1 non prêt
+* [x] Ré-audit codebase-gradle N1 : `TranslationService`, `TranslationRequest`, `TranslationResult`, `LlmTranslator`, `FakeLlmTranslator` disponibles
+* [x] `codebase-plugin` publié en mavenLocal (`./gradlew :codebase-plugin:publishToMavenLocal` → BUILD SUCCESSFUL)
+* [x] Mise à jour `PROMPT_REPRISE.adoc` — session 134 = câbler TranslationService dans bakery
+* [x] Mise à jour `.agents/INDEX.adoc` — session 133, US-4 🟢 débloquée
+* [x] Mise à jour `.agents/SESSIONS_HISTORY.adoc` — entrée 133 corrigée
+* [x] Mise à jour `TEST_COVERAGE_ANALYSIS.adoc` — sessions 130, 131, 132 (inchangé)
+* [x] Mise à jour `BACKLOG.adoc` — BKY-I18N-PROD-GEN ✅ S132, BKY-I18N-MIG-4 ✅ terminé côté codebase, US-4 🟢 débloquée
 
-**Résultats** : Aucun changement code source. Gouvernance alignée sur la réalité du DAG N1→N2.
+**Résultats** : Aucun changement code source bakery. Gouvernance réalignée : le DAG N1→N2 est prêt, session 134 implémentera le câblage.
 
-**Prochaine session** : Dès que codebase-gradle fournit `TranslationService` (contrat N0 ou service N1), reprendre BKY-I18N-MIG US-4. Sinon polish/documentation bakery.
+**Prochaine session** : 134 — BKY-I18N-MIG US-4 : `TranslationApplier` bakery + consommation `TranslationService` de codebase + tests JUnit5/Cucumber.
 
 == Session 132 — 2026-06-22 — BKY-I18N-PROD-GEN (Fixtures cccp-education + cheroliv-com)
 

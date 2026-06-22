@@ -1,5 +1,5 @@
 = PROMPT REPRISE — Bakery
-:session: 133
+:session: 134
 :date: 2026-06-22
 
 == Mission accomplie
@@ -14,25 +14,30 @@ DDD/TDD/BDD sur fixtures cccp-education et cheroliv-com :
 - Feature 34 `i18n_migration_prod_gen.feature` — 4 scénarios Cucumber (migration réelle + dry-run × 2 fixtures)
 - 119/119 tests i18n unitaires/intégration PASS, 120/120 bakery Cucumber scenarios PASS
 
+*Transition 133* — Codebase-gradle N1 a livré `TranslationService` (contrat N0) + `LlmTranslator` (impl N1) + `FakeLlmTranslator`. BKY-I18N-MIG US-4 est maintenant débloquée. Gouvernance bakery réajustée en conséquence.
+
 == Statut
 
 - BKY-I18N : 23/23 pts ✅
-- BKY-I18N-MIG : 13/16 pts (US-1→3 ✅, US-5 ✅, US-4 ⏸️ codebase-gradle N1)
+- BKY-I18N-MIG : 13/16 pts (US-1→3 ✅, US-5 ✅, US-4 🟢 débloquée par codebase-gradle N1)
 - BKY-I18N-PROD-VAL : 3/3 pts ✅
 - BKY-I18N-PROD-MIG : 5/5 pts ✅
 - BKY-I18N-PROD-GEN : 8/8 pts ✅
 
-== Session en cours (133) — P1 Fallback Polish
+== Prochaine session (134) — BKY-I18N-MIG US-4 : Traduction automatisée FR→EN
 
-*Décision* : **BKY-I18N-MIG US-4 reste suspendue** — codebase-gradle N1 n'expose aucun `TranslationService` / API de traduction au moment de l'ouverture (PROMPT_REPRISE codebase session 132 = boucle vibecoding locale EPIC V-LOCAL, zéro mention translation). Le DAG N1→N2 n'est pas prêt.
+*Prérequis* : `codebase-plugin` publié en mavenLocal (`./gradlew :codebase-plugin:publishToMavenLocal` ✅).
 
-*Mission* (clôture propre de la transition 132→133) :
-1. **P1-GOV-1** : Mettre à jour `BACKLOG.adoc` — statut US-4 ⏸️ codebase-gradle N1, charge restante réaliste.
-2. **P1-DOC-1** : Documenter la frontière bakery↔codebase pour la traduction (contrat attendu, fallback `FakeLlmService`).
-3. **P1-POLISH-1** : Nettoyer le workaround d'imports `graphify.model.*` si graphify-plugin 0.0.3 est disponible, OU documenter la dette temporaire.
-4. **P1-COV-1** : Compléter `TEST_COVERAGE_ANALYSIS.adoc` avec les 10 nouveaux tests d'intégration session 132.
+*Mission* (3 pts pour clore BKY-I18N-MIG) :
+1. **US-4-1** : Ajouter dépendance `education.cccp:codebase-plugin` (ou contrat) dans `bakery-plugin/build.gradle.kts` pour consommer `contracts.i18n.TranslationService` + `codebase.i18n.LlmTranslator`.
+2. **US-4-2** : Créer `TranslationApplier` dans `bakery.i18n` — service bakery qui prend un `Map<String, String>` (clés FR), appelle `TranslationService` pour traduire FR→EN, et retourne `Map<String, String>` traduit. Gérer `TranslationResult.Failure` par fallback clé FR (pas de crash).
+3. **US-4-3** : Brancher `I18nMigrationService` pour utiliser `TranslationApplier` quand aucun `translations_en.properties` n'est fourni (mode auto-LLM). Garder le mode manuel existant comme override.
+4. **US-4-4** : Tests unitaires `TranslationApplierTest` avec fake `TranslationService` (deterministe) + tests d'intégration + Cucumber feature 35 `i18n_migration_auto_translation.feature`.
 
-*Contrainte* : zéro code métier avant que codebase-gradle ne fournisse un contrat/service de traduction. Pas de traduction LLM inline dans bakery.
+*Contraintes* :
+- Baby-step DDD/TDD/BDD — un fichier à la fois, compilation entre chaque étape.
+- Pas de vrai appel LLM dans les tests : utiliser un fake implémentant `TranslationService`.
+- `TranslationService` reste dans codebase ; bakery ne duplique pas la logique LLM.
 
 == Note technique
 
