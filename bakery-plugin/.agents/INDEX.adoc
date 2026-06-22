@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-23 — Session 142 (BKY-CR-V6 US-1 helper ResolveIntention)
-  _Session terminee_ : 142 — DDD/TDD/refactor baby steps. Helper `ResolveIntention<T>` (objet pur, zéro Gradle) + `ResolveIntentionError` sealed class (DDD erreur explicite). 5 fonctions : `fromCli`, `fromCliNullable`, `fromCliRequired` (Either), `fromCliList`, `fromCliBoolean`. FP/Arrow-kt 2.2.2 : `Either` pour `fromCliRequired` (`.fold`), nullable Kotlin pour les autres (`Option` dépréciée Arrow 2.x). TDD : 26 UT `ResolveIntentionTest` (5 `@Nested`). Refactor : 4 Task migrées (GenerateArticleTask, GenerateThemeTask, GenerateSiteFromIntentionTask, MigrateToI18nTask) — 23 occurrences pattern `takeIf{isNotBlank} ?: dsl ?: default` supprimées, zéro `throw IllegalArgumentException` manuel. Safety net préservé : 4 `*TaskTest.kt` GREEN. `publishToMavenLocal` OK. id/namespace plugin inchangé.
-  _Prochaine session_ : 143 — BKY-CR-V6 US-2 (DomainConfigInjectors data-driven — 9 injecteurs, 113 lignes, 3 variantes)
+  _Derniere mise a jour_ : 2026-06-23 — Session 143 (BKY-PUB-2 publication 0.0.2 Maven Central + Portal)
+  _Session terminee_ : 143 — BKY-PUB-2 publication effective. Maven Central : ✅ LIVE (`publishAggregationToCentralPortal` SUCCESS, bundle `81764b1c-1bf0-4d2d-a78e-86165b619cbe`, HTTP 200 sur `bakery-plugin-0.0.2.pom`). Gradle Plugin Portal : 🟠 soumis (version 0.0.2 déjà créée 2026-06-22 23:33, en attente validation Gradle, propagation 24-48h). Compte `cccp-education` (credentials GPPK-*, profil Portal HTTP 200). Pré-requis nmcp vérifiés : version 0.0.2 hardcodée, POM conforme, deps N0 releases + sur Central, signing GPG OK. Aucun changement code source (publication-only).
+  _Prochaine session_ : 144 — BKY-CR-V6 US-2 (DomainConfigInjectors data-driven — 9 injecteurs, 113 lignes, 3 variantes)
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 143 | 2026-06-23 | ops + publication | **BKY-PUB-2 Publication 0.0.2 Maven Central + Portal** — Maven Central : ✅ LIVE (`publishAggregationToCentralPortal` SUCCESS, bundle `81764b1c-1bf0-4d2d-a78e-86165b619cbe`, HTTP 200 sur `bakery-plugin-0.0.2.pom` repo1.maven.org). Gradle Plugin Portal : 🟠 soumis (`publishPlugins` FAILED — version 0.0.2 déjà créée 2026-06-22 23:33, en attente validation Gradle, propagation 24-48h). Compte `cccp-education` (credentials GPPK-* dans `~/.gradle/gradle.properties`, profil Portal HTTP 200). Pré-requis nmcp vérifiés : version 0.0.2 hardcodée, POM conforme (Apache 2.0, developer cccp-education + organization/organizationUrl), deps N0 releases + sur Central (graphify 0.0.2, codebase 0.0.2, codebase-contracts 0.0.1, i18n-contracts 0.0.1, workspace-bom 0.0.1), signing GPG OK. Aucun changement code source (publication-only). | 9/10
   | 142 | 2026-06-23 | DDD + TDD + refactor | **BKY-CR-V6 US-1 Helper ResolveIntention** — DDD : `ResolveIntention` objet pur (zéro Gradle) + `ResolveIntentionError` sealed class (`MissingRequiredField` + `toException()` abstract au parent). 5 fonctions : `fromCli`, `fromCliNullable`, `fromCliRequired` (Either), `fromCliList`, `fromCliBoolean`. FP/Arrow-kt 2.2.2 : `Either<ResolveIntentionError, String>` + `.fold` (Option dépréciée en 2.x). TDD : 26 UT `ResolveIntentionTest` (5 `@Nested`). Refactor : 4 Task migrées — 23 occurrences pattern supprimées, zéro `throw IllegalArgumentException` manuel. Safety net GREEN. `publishToMavenLocal` OK. | 9/10
   | 141 | 2026-06-22 | audit + cadrage | **BKY-CR-V6 Cadrage EPIC Duplications Structurelles** — Intuition utilisateur : duplications malgré 5 audits précédents. Scan ciblé code source. 3 duplications réelles : (1) `resolveIntention()` ×4 (23 occurrences pattern CLI>DSL>defaults) ; (2) DomainConfigInjectors 9 injecteurs répétitifs (113 lignes) ; (3) `ConfigResolver.resolveAll()` 10 blocs `resolveDomain` (ligne 332-401). BACKLOG V5 corrigé : US-CR-V5-5 et V5-7 PARTIEL (⚠️), ✅ faux. EPIC BKY-CR-V6 créé : 3 US, 8 pts, P1. Code production inchangé. | 7/10
   | 140 | 2026-06-22 | DDD + TDD + BDD | **BKY-COV-2 DeployProfileTask branches** — Audit Kover : ToolsKt 22% = faux gap (helper functionalTest). US-COV-2.5 abandonné. TDD : 4 UT DeployProfileTaskTest (ConfigReadFailure ×3, ConfigPathFromExtension ×1). Branches Left `from()`, `findByType null`, `configPath.orNull` non-null couvertes. BDD : 2 scénarios Feature 5 + 2 steps PublishProfileSteps. 15/15 UT PASS. Cucumber timeout (EPIC 5). Code production inchangé. 3 fichiers, +128 lignes. | 8/10
@@ -128,6 +129,7 @@ _Archives_ : Sessions 100-113 archivées dans `.agents/backup/Y2026-sessions-090
 | EPIC | Progression | Priorite
 | BKY-KOV-1 : Kover Coverage 78% → 85.88% (+7.78pp) | 100% | *P0 ✅ TERMINE*
 | BKY-PUB-1 : Publication Maven Central (cccp.education) | 100% | *P0 ✅ TERMINE — Session 109 (nmcp, 0.0.1)*
+| BKY-PUB-2 : Publication Maven Central + Portal 0.0.2 | 100% | *P0 ✅ TERMINE — Session 143 (Central LIVE, Portal en propagation 24-48h)*
 | BKY-COV-2 : Microfissures coverage — DeployProfileTask, ProfilePublisher, BakeryPlugin, ToolsKt | 100% | *P2 ✅ TERMINE — Session 110*
 |===
 

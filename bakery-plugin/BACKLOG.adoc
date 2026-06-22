@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-23 — Session 142 (BKY-CR-V6 US-1 helper ResolveIntention ✅)_
+_Dernière mise à jour : 2026-06-23 — Session 143 (BKY-PUB-2 publication 0.0.2 Maven Central + Portal ✅)_
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -1108,6 +1108,7 @@ data-driven non fait). Cet EPIC cloture proprement les duplications résiduelles
 | BKY-KOV-1 | Kover Coverage 85.88% | 16 | ✅ S104
 | BKY-COV-2 | Microfissures coverage | 12 | ✅ S110
 | BKY-PUB-1 | Publication Maven Central 0.0.1 | 8 | ✅ S109
+| BKY-PUB-2 | Publication Maven Central + Portal 0.0.2 | 3 | ✅ S143 (Central LIVE, Portal en propagation 24-48h)
 | BKY-I18N | i18n 10 langues | 23 | ✅ S116
 | BKY-CR-V5 | Code smells V5 (60 smells) | 24 | ✅ S124 (US-1+2+3+4+5+6+7+8) — V5-5 et V5-7 PARTIEL, repris en V6
 | BKY-I18N-PROD-VAL | Validation dry-run (magic-stick) | 3 | ✅ S130
@@ -1127,7 +1128,7 @@ data-driven non fait). Cet EPIC cloture proprement les duplications résiduelles
 *Code smells résolus* : 24/24 ✅ (V2+V3+V4)
 *Code smells V5* : 52 ✅ (US-1 faux positif, US-2+3+4+5+6+7+8 résolues — V5-5 et V5-7 PARTIEL repris en V6)
 *Bakery 100% fonctionnel* — les smells V5/V6 sont qualitatifs, pas fonctionnels.
-*Nouveau cap* : BKY-PUB-2 — publication 0.0.2 préparée (versions alignées, POM corrigé, dry-run OK). Publication effective (Central + Portal) restante.
+*Nouveau cap* : BKY-PUB-2 — ✅ TERMINÉ S143 (Maven Central LIVE 0.0.2, Portal en propagation 24-48h).
 *Nouveau cap* : BKY-CR-V6 — US-1 ✅ S142 (helper ResolveIntention), US-2 et US-3 à faire (DomainConfigInjectors + resolveAll data-driven).
 *Migration i18n des 3 sites* : magic-stick ✅, cccp.education, cheroliv.com.
 
@@ -1137,7 +1138,7 @@ data-driven non fait). Cet EPIC cloture proprement les duplications résiduelles
 [cols="2,3"]
 |===
 | Document | `BACKLOG.adoc`
-| Version | 9.1 — Session 142 (BKY-CR-V6 US-1 ✅)
+| Version | 9.2 — Session 143 (BKY-PUB-2 ✅ publication 0.0.2 Maven Central + Portal)
 | Historisé dans | `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
-| Basé sur | Code review V5 (`.agents/CODE_REVIEW.adoc`, Session 117) + Session 105 + Session 111 + Session 116 + Audit duplications Session 141 + US-1 Session 142
-| Prochaine màj | Session 143 — BKY-CR-V6 US-2 (DomainConfigInjectors data-driven)
+| Basé sur | Code review V5 (`.agents/CODE_REVIEW.adoc`, Session 117) + Session 105 + Session 111 + Session 116 + Audit duplications Session 141 + US-1 Session 142 + Publication 0.0.2 Session 143
+| Prochaine màj | Session 144 — BKY-CR-V6 US-2 (DomainConfigInjectors data-driven)

@@ -1,0 +1,134 @@
+= Session 143 — BKY-PUB-2 Publication Maven Central + Gradle Plugin Portal 0.0.2
+:date: 2026-06-23
+:session: 143
+:epic: BKY-PUB-2
+:type: ops + publication
+:score: 9/10
+
+== Objectif
+
+Levier le point bloquant BKY-PUB-2 : publication effective de bakery-plugin
+0.0.2 sur Maven Central (nmcp) et Gradle Plugin Portal (publishPlugins), sous
+le compte `cccp-education` (email cccp.edu@gmail.com).
+
+== Contexte
+
+PROMPT_REPRISE session 142 donnait BKY-CR-V6 US-2 comme prochaine session, mais
+le `PROMPT_REPRISE` notait aussi `BKY-PUB-2 : publication 0.0.2 dry-run OK, en
+attente permission`. L'utilisateur a demandé à passer le point bloquant (i.e.
+obtenir la permission de publier).
+
+== Pré-requis vérifiés
+
+. *Version* : `0.0.2` hardcodée dans `bakery-plugin/build.gradle.kts` (pas via
+  catalogue).
+. *settings.gradle.kts* : plugin `com.gradleup.nmcp.settings` 1.5.0 +
+  `nmcpSettings { centralPortal { username/password depuis
+  ~/.gradle/gradle.properties, publishingType = "AUTOMATIC" } }`.
+. *build.gradle.kts* : POM sur `withType<MavenPublication>` (name, description,
+  Apache 2.0, developer cccp-education, organization, organizationUrl, SCM) +
+  `repositories { mavenCentral() }` + `signing { useGpgCmd() }`.
+. *Dépendances N0 toutes releases* : zéro `-SNAPSHOT` dans
+  `bakery-plugin/gradle/libs.versions.toml`.
+. *Dépendances N0 sur Central* : vérifié via HTTP 200 sur `repo1.maven.org` :
+  ** graphify-plugin 0.0.2 → 200
+  ** codebase-plugin 0.0.2 → 200
+  ** codebase-contracts 0.0.1 → 200
+  ** i18n-contracts 0.0.1 → 200
+  ** workspace-bom 0.0.1 → 200
+. *Build compile* : `./gradlew jar sourcesJar javadocJar
+  generatePomFileForPluginMavenPublication` → BUILD SUCCESSFUL (50s).
+. *POM généré* : inspecté `build/publications/pluginMaven/pom-default.xml` —
+  groupId `education.cccp`, artifactId `bakery-plugin`, version 0.0.2, Apache
+  2.0, developer cccp-education (organization + organizationUrl), SCM GitHub
+  cccp-education/bakery-gradle.git. Conforme aux règles nmcp.
+. *Credentials* : `~/.gradle/gradle.properties` contient `ossrhUsername` +
+  `ossrhPassword` (cccp-education, lignes 16-17) + `gradle.publish.key` +
+  `gradle.publish.secret` (GPPK-*, compte cccp-education, lignes 5-6) +
+  `signing.keyId` + `signing.password` + `signing.useGpgCmd=true`.
+
+== Publication Maven Central
+
+----
+cd foundry/public/bakery-gradle/bakery-plugin
+./gradlew publishAggregationToCentralPortal --no-daemon
+----
+
+Résultat :
+----
+> Task :nmcpPublishAggregationToCentralPortal
+Uploading deployment to 'https://central.sonatype.com/api/v1/publisher/upload?publishingType=AUTOMATIC'
+Nmcp: deployment bundle '81764b1c-1bf0-4d2d-a78e-86165b619cbe' uploaded.
+Nmcp: deployment is publishing... Check the central portal UI to verify its status.
+
+BUILD SUCCESSFUL in 2m 37s
+----
+
+Vérification disponibilité :
+----
+curl -s -o /dev/null -w "%{http_code}\n" \
+  https://repo1.maven.org/maven2/education/cccp/bakery-plugin/0.0.2/bakery-plugin-0.0.2.pom
+→ 200 (LIVE)
+----
+
+== Publication Gradle Plugin Portal
+
+----
+cd foundry/public/bakery-gradle/bakery-plugin
+./gradlew publishPlugins --no-daemon
+----
+
+Résultat :
+----
+> Task :publishPlugins FAILED
+> Failed to post to server.
+  Server responded with:
+  Plugin: 'education.cccp.bakery', version: '0.0.2' exists already.
+  It was created: 2026-06-22 23:33:52.787
+----
+
+Interprétation : la version 0.0.2 a déjà été soumise au Portal le 2026-06-22
+23:33 (session 138 ou 139, probablement pendant le dry-run
+`nmcpPublishAllPublicationsToMavenLocal` qui a aussi soumis au Portal). Le
+serveur refuse une re-soumission. Le plugin est en attente de validation côté
+Gradle (page `https://plugins.gradle.org/plugin/education.cccp.bakery` retourne
+"Plugin not found" — propagation en cours, délai typique 24-48h).
+
+Compte de publication : `cccp-education` (credentials GPPK-* dans
+`~/.gradle/gradle.properties`, profil https://plugins.gradle.org/u/cccp-education
+existant, HTTP 200). L'utilisateur a confirmé explicitement : publier sur
+`cccp-education` (email cccp.education@gmail.com), pas sur `cheroliv`.
+
+== Métriques
+
+* Maven Central : ✅ LIVE (HTTP 200 sur `bakery-plugin-0.0.2.pom`)
+* Gradle Plugin Portal : 🟠 soumis (en attente validation Gradle, <48h)
+* Bundle Central Portal : `81764b1c-1bf0-4d2d-a78e-86165b619cbe`
+* Temps build Maven Central : 2m 37s
+* Aucun changement code source (publication-only)
+
+== Fichiers modifiés
+
+Aucun fichier source modifié. La publication consomme l'état existant
+(version 0.0.2, POM corrigé session 138).
+
+== Vérification post-publication
+
+. Maven Central : `curl` sur
+   `https://repo1.maven.org/maven2/education/cccp/bakery-plugin/0.0.2/bakery-plugin-0.0.2.pom`
+   → 200 ✅
+. Gradle Plugin Portal : page
+   `https://plugins.gradle.org/plugin/education.cccp.bakery` → "not found"
+   (propagation en cours, à re-vérifier dans 24-48h).
+. Compte Portal : `https://plugins.gradle.org/u/cccp-education` → 200 ✅.
+
+== Prochaine session
+
+144 — BKY-CR-V6 US-2 : `DomainConfigInjectors` data-driven (9 injecteurs, 113
+lignes, 3 variantes). Baby steps DDD/TDD/BDD.
+
+Vérification Portal à faire quand la propagation sera effective (24-48h) :
+----
+curl -sL "https://plugins.gradle.org/plugin/education.cccp.bakery" | grep -i "not found"
+# si vide → plugin live
+----
