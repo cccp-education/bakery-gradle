@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-22 — Session 140 (BKY-COV-2 DeployProfileTask branches)
-  _Session terminee_ : 140 — Audit Kover : ToolsKt 22% = faux gap (helper functionalTest). US-COV-2.5 abandonné. TDD : 4 UT DeployProfileTaskTest (ConfigReadFailure ×3, ConfigPathFromExtension ×1). BDD : 2 scénarios Feature 5 + 2 steps. 15/15 UT PASS. Cucumber timeout (EPIC 5). Code production inchangé. 3 fichiers, +128 lignes.
-  _Prochaine session_ : 141 — Valider BDD timeout étendu, régénérer Kover, ou US-COV-2.4 BakeryPlugin, ou publication 0.0.2
+  _Derniere mise a jour_ : 2026-06-22 — Session 141 (BKY-CR-V6 cadrage EPIC duplications structurelles)
+  _Session terminee_ : 141 — Audit ciblé duplications. 3 duplications réelles confirmées : (1) `resolveIntention()` ×4 (23 occurrences pattern CLI>DSL>defaults), (2) DomainConfigInjectors 9 injecteurs répétitifs (113 lignes), (3) `ConfigResolver.resolveAll()` 10 blocs `resolveDomain` (ligne 332-401). BACKLOG V5 corrigé : US-CR-V5-5 et V5-7 repositionnées PARTIEL (⚠️), ✅ étaient faux. EPIC BKY-CR-V6 créé : 3 US, 8 pts, P1. Aucun changement code source production.
+  _Prochaine session_ : 142 — Démarrer BKY-CR-V6 US-1 (helper `ResolveIntention<T>` baby steps DDD/TDD/BDD)
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 141 | 2026-06-22 | audit + cadrage | **BKY-CR-V6 Cadrage EPIC Duplications Structurelles** — Intuition utilisateur : duplications malgré 5 audits précédents. Scan ciblé code source. 3 duplications réelles : (1) `resolveIntention()` ×4 (23 occurrences pattern CLI>DSL>defaults) ; (2) DomainConfigInjectors 9 injecteurs répétitifs (113 lignes) ; (3) `ConfigResolver.resolveAll()` 10 blocs `resolveDomain` (ligne 332-401). BACKLOG V5 corrigé : US-CR-V5-5 et V5-7 PARTIEL (⚠️), ✅ faux. EPIC BKY-CR-V6 créé : 3 US, 8 pts, P1. Code production inchangé. | 7/10
   | 140 | 2026-06-22 | DDD + TDD + BDD | **BKY-COV-2 DeployProfileTask branches** — Audit Kover : ToolsKt 22% = faux gap (helper functionalTest). US-COV-2.5 abandonné. TDD : 4 UT DeployProfileTaskTest (ConfigReadFailure ×3, ConfigPathFromExtension ×1). Branches Left `from()`, `findByType null`, `configPath.orNull` non-null couvertes. BDD : 2 scénarios Feature 5 + 2 steps PublishProfileSteps. 15/15 UT PASS. Cucumber timeout (EPIC 5). Code production inchangé. 3 fichiers, +128 lignes. | 8/10
   | 139 | 2026-06-22 | DDD + TDD + refactor | **CS-FIN-2/CS-FIN-3 clôture définitive** — Audit : `LensPipelineService.kt:122-123` sérialise déjà directement `output` via Jackson (CS-22 résolu). TDD : test round-trip Jackson avec `ScoredNode` non-vides. TDD : test échappement JSON sur `GenerateSiteService.injectConfigIntoJbakeProperties` (production). REFACTOR : `LensBudgetInjectionTest` miroir privé supprimé → appelle la production. 8/8 + 13/13 + 4/4 PASS. `BACKLOG.adoc` : CS-FIN-2 ✅, CS-FIN-3 ✅. Code production inchangé. | 9/10
   | 138 | 2026-06-22 | DDD + TDD + BDD | **BKY-PUB-2 préparation publication 0.0.2** — Alignement versions plugin/catalogue/racine à `0.0.2`. `BakeryPluginPublicationTest.kt` (2 tests). Fix POM Maven Central `<organization>` + `<organizationUrl>`. Dry-run `publishToMavenLocal` + `nmcpPublishAllPublicationsToMavenLocal` OK. README version 0.0.2. | 9/10
@@ -169,6 +170,13 @@ _Archives_ : Sessions 100-113 archivées dans `.agents/backup/Y2026-sessions-090
 |===
 | EPIC | Progression | Priorite
 | BKY-I18N-PROD-GEN : Fixtures + validation dry-run pour cccp.education et cheroliv.com | 100% (8/8 pts) — US-GEN-1 ✅, US-GEN-2 ✅, US-GEN-3 ✅ | *🟠 P1 ✅ TERMINÉ — Session 132*
+
+=== EPIC BKY-CR-V6 : Duplications Structurelles Résiduelles (NOUVEAU — Session 141)
+
+|===
+| EPIC | Progression | Priorite
+| BKY-CR-V6 : 3 duplications structurelles (ResolveIntention ×4, DomainConfigInjectors 9 injecteurs, resolveAll 10 blocs) | 0% (0/8 pts) — US-1, US-2, US-3 à faire | *🟠 P1 — Session 142 démarre US-1*
+|===
 
 === EPIC LENTILLE — ✅ TERMINÉ
 

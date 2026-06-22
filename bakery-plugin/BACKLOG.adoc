@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-22 — Session 133 (transition codebase TranslationService débloquée)_
+_Dernière mise à jour : 2026-06-22 — Session 141 (BKY-CR-V6 cadrage + correction V5-5/V5-7 partiels)_
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -943,7 +943,7 @@ la cascade ConfigResolver 5 couches (CLI > gradle.properties > DSL > site.yml > 
   `updateProperty()` dupliqué 2× → supprimer copie GenerateThemeTask, importer `bakery.injection.updateProperty`.
   Pattern résolution CLI>DSL>defaults dupliqué 3× → extraire `ResolveIntention<T>` helper.
 | 5
-| 🟡 P2
+| 🟡 P2 ⚠️ PARTIEL — SUPPORTED_LANGS et updateProperty OK, mais `ResolveIntention<T>` helper NON créé. Voir BKY-CR-V6 US-1.
 
 | US-CR-V5-6
 | **Déduplication pattern injection DSL + nettoyage code mort + champs morts** —
@@ -962,7 +962,7 @@ la cascade ConfigResolver 5 couches (CLI > gradle.properties > DSL > site.yml > 
   `GenerateSiteFromIntentionTask.buildSiteYml()` concaténation string → `yamlMapper.writeValueAsString()`.
   `GenerateArticleTask.buildArticleContent()` texte FR hardcodé → utiliser `article.lang`.
 | 3
-| 🟡 P2 ✅ S123
+| 🟡 P2 ⚠️ PARTIEL — magic numbers, YAML→Jackson et article.lang OK, mais `resolveAll()` data-driven NON fait. Voir BKY-CR-V6 US-3.
 
 | US-CR-V5-8
 | **Log warnings catch muets + divers P3** —
@@ -1044,9 +1044,62 @@ cascade CLI > DSL > defaults, DDD Intention→Dsl→Task→Service.
 | 3
 | 🟡 P2 ✅ S128
 |===
+'''
+
+== EPIC BKY-CR-V6 : Duplications structurelles résiduelles (Session 141 — 8 pts)
+
+*Découverte* : Session 141 — Audit ciblé sur duplications de code (intuition utilisateur).
+L'audit V5 (S117) avait identifié 3 duplications structurelles mais les US-CR-V5-5 et V5-7
+ont été marquées ✅ alors que le code n'a pas bougé. L'US-CR-V5-5 est **partiellement** résolue
+(SUPPORTED_LANGS et updateProperty OK, mais `ResolveIntention<T>` helper non créé).
+L'US-CR-V5-7 est **partiellement** résolue (magic numbers, YAML→Jackson OK, mais `resolveAll()`
+data-driven non fait). Cet EPIC cloture proprement les duplications résiduelles.
+*Objectif* : Éliminer les 3 duplications structurelles par extraction data-driven + helper générique.
+*Charge* : ~8 pts (~2 sessions)
+*Priorité* : P1 — Duplications réelles dans code production publié 0.0.1, à figer dans 0.0.2.
+*Méthode* : Baby steps DDD/TDD/BDD — caractérisation comportements existants avant refactor.
+
+[cols="1,4,2,2"]
+|===
+| US | Description | Pts | Priorité
+
+| US-CR-V6-1
+| **Helper `ResolveIntention<T>` — pattern CLI>DSL>defaults dupliqué ×4** —
+  `GenerateArticleTask.resolveIntention()` (ligne 178),
+  `GenerateThemeTask.resolveIntention()` (ligne 205),
+  `GenerateSiteFromIntentionTask.resolveIntention()` (ligne 160),
+  `MigrateToI18nTask.resolveIntention()` (ligne 96) —
+  23 occurrences du pattern `orNull?.takeIf{isNotBlank} ?: dslIntention?.field ?: default`.
+  Extraire `ResolveIntention<T>` : `fromCli(prov, dslField, default)` + `fromCliNullable(prov, dslField)`.
+  DDD : helper pur sans Gradle. TDD : tests unitaires helper (RED→GREEN).
+  Refactor : remplacer 23 occurrences, vérifier comportement identique.
+| 3
+| 🟠 P1
+
+| US-CR-V6-2
+| **DomainConfigInjectors data-driven — 9 injecteurs répétitifs (113 lignes)** —
+  `DomainConfigInjectors.kt` : 9 objects avec même forme `if (x.isNotBlank) { updateProperty(...) }`.
+  3 variantes : gate sur champ trigger (Firebase/GoogleForms/Auth/Analytics),
+  gate sur boolean (Comments/Newsletter), injection systématique (Theme).
+  Extraire `InjectorSpec(domain, trigger, mode, properties: List<PropSpec>)` + registre data-driven.
+  DDD : `InjectorSpec` sealed class + `InjectorRegistry`. TDD : tests par injecteur.
+  Refactor : `configInjectors` Map → `InjectorRegistry.all()`. Comportement identique.
+| 2
+| 🟠 P1
+
+| US-CR-V6-3
+| **ConfigResolver.resolveAll() data-driven — 10 blocs `resolveDomain` répétitifs** —
+  `ConfigResolver.kt:332-401` : 10 blocs identiques `resolveDomain("x", { resolveXConfig(...) }, XConfig())`.
+  Extraire `DomainResolver<T>(name, resolver: () -> T, fallback: T)` + liste `domainResolvers: List<DomainResolver<*>>`.
+  DDD : `DomainResolver` data class + `resolveAllDataDriven()`. TDD : tests par domaine.
+  Refactor : `resolveAll()` délègue à `resolveAllDataDriven()`. Comportement identique.
+| 3
+| 🟠 P1
+|===
 
 '''
-== Synthèse — Charge restante (Session 131)
+
+== Synthèse — Charge restante (Session 141)
 
 [cols="1,3,2,2"]
 |===
@@ -1056,7 +1109,7 @@ cascade CLI > DSL > defaults, DDD Intention→Dsl→Task→Service.
 | BKY-COV-2 | Microfissures coverage | 12 | ✅ S110
 | BKY-PUB-1 | Publication Maven Central 0.0.1 | 8 | ✅ S109
 | BKY-I18N | i18n 10 langues | 23 | ✅ S116
-| BKY-CR-V5 | Code smells V5 (60 smells) | 24 | ✅ S124 (US-1+2+3+4+5+6+7+8)
+| BKY-CR-V5 | Code smells V5 (60 smells) | 24 | ✅ S124 (US-1+2+3+4+5+6+7+8) — V5-5 et V5-7 PARTIEL, repris en V6
 | BKY-I18N-PROD-VAL | Validation dry-run (magic-stick) | 3 | ✅ S130
 | BKY-I18N-PROD-MIG | Migration magic-stick + traduction FR→EN | 5 | ✅ S131
 // ── EN COURS ──
@@ -1065,14 +1118,17 @@ cascade CLI > DSL > defaults, DDD Intention→Dsl→Task→Service.
 | BKY-I18N-PROD-GEN | Généralisation cccp.education + cheroliv.com | 8 | ✅ S132
 // ── EN ATTENTE ──
 | BKY-I18N-MIG-4 | Service traduction transverse (codebase-gradle N1) | 3 | ✅ TERMINÉ — TranslationService contrat N0 + LlmTranslator N1 + FakeLlmTranslator livrés codebase-gradle S133 ; câblé dans bakery S134
-| *Total restant* | | *3* |
+// ── NOUVEL EPIC V6 (Session 141) ──
+| BKY-CR-V6 | Duplications structurelles résiduelles (ResolveIntention helper, DomainConfigInjectors data-driven, resolveAll data-driven) | 8 | 🟠 P1 — US-1, US-2, US-3 à faire
+| *Total restant* | | *8* |
 |===
 
 *Tous les EPICs historiques* : 30/30 ✅ (100%)
 *Code smells résolus* : 24/24 ✅ (V2+V3+V4)
-*Code smells V5* : 52 ✅ (US-1 faux positif, US-2+3+4+5+6+7+8 résolues)
-*Bakery 100% fonctionnel* — les smells V5 sont qualitatifs, pas fonctionnels.
+*Code smells V5* : 52 ✅ (US-1 faux positif, US-2+3+4+5+6+7+8 résolues — V5-5 et V5-7 PARTIEL repris en V6)
+*Bakery 100% fonctionnel* — les smells V5/V6 sont qualitatifs, pas fonctionnels.
 *Nouveau cap* : BKY-PUB-2 — publication 0.0.2 préparée (versions alignées, POM corrigé, dry-run OK). Publication effective (Central + Portal) restante.
+*Nouveau cap* : BKY-CR-V6 — 3 duplications structurelles résiduelles identifiées session 141 (intuition utilisateur confirmée par audit code).
 *Migration i18n des 3 sites* : magic-stick ✅, cccp.education, cheroliv.com.
 
 '''
@@ -1081,7 +1137,7 @@ cascade CLI > DSL > defaults, DDD Intention→Dsl→Task→Service.
 [cols="2,3"]
 |===
 | Document | `BACKLOG.adoc`
-| Version | 8.3 — Session 126 (BKY-I18N-MIG US-2)
+| Version | 9.0 — Session 141 (BKY-CR-V6 cadrage)
 | Historisé dans | `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
-| Basé sur | Code review V5 (`.agents/CODE_REVIEW.adoc`, Session 117) + Session 105 + Session 111 + Session 116
-| Prochaine màj | Session 127 — BKY-I18N-MIG US-3 (I18nMigrationService)
+| Basé sur | Code review V5 (`.agents/CODE_REVIEW.adoc`, Session 117) + Session 105 + Session 111 + Session 116 + Audit duplications Session 141
+| Prochaine màj | Session 142 — BKY-CR-V6 US-1 (ResolveIntention helper)

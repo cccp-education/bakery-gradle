@@ -1,0 +1,83 @@
+= Session 141 — BKY-CR-V6 Cadrage EPIC Duplications Structurelles
+:date: 2026-06-22
+:session: 141
+:epic: BKY-CR-V6
+:type: audit + cadrage
+:score: 7/10
+
+== Objectif
+
+L'utilisateur a demandé un audit des duplications de code, intuition que des
+duplications structurelles subsistaient malgré les 5 passes d'audit précédentes
+(V2/V3, V4 session 096, V5 session 117, COV-2 session 105, audits S135-S140).
+
+== Contexte
+
+L'agent a d'abord résisté (rendements décroissants, code figé depuis S134,
+audits V5 déclarés résolus). L'utilisateur a poussé ("t'es sur que il y a pas
+des grosses duplications de codes?"). L'agent a alors effectué un scan ciblé.
+
+== Audit — 3 duplications structurelles confirmées
+
+=== Duplication 1 — Pattern `resolveIntention()` dupliqué ×4
+
+Fichiers :
+- `GenerateArticleTask.kt:178` — `resolveIntention(): ArticleIntention`
+- `GenerateThemeTask.kt:205` — `resolveIntention(): ThemeIntention`
+- `GenerateSiteFromIntentionTask.kt:160` — `resolveIntention(): ScaffoldIntention`
+- `MigrateToI18nTask.kt:96` — `resolveIntention(): I18nMigrationIntention`
+
+23 occurrences du pattern `orNull?.takeIf{isNotBlank} ?: dslIntention?.field ?: default`.
+Squelette identique : résolution CLI > DSL > defaults.
+`ContentTaskRegistrar.resolveIntention` (ligne 211) existe mais ne couvre que
+l'injection DSL dans la tâche, pas la résolution CLI dans la tâche elle-même.
+
+BACKLOG V5 US-CR-V5-5 mentionnait « Pattern résolution CLI>DSL>defaults
+dupliqué 3× → extraire `ResolveIntention<T>` helper » — marqué ✅ S124.
+**Le helper n'existe pas dans le code.** Le ✅ est faux.
+
+=== Duplication 2 — DomainConfigInjectors 9 injecteurs répétitifs (113 lignes)
+
+`DomainConfigInjectors.kt` : 9 objects avec même forme :
+```kotlin
+override fun inject(lines, resolver) {
+    val x = resolver("key", "")
+    if (x.isNotBlank()) { updateProperty(lines, "key", x); ... }
+}
+```
+3 variantes :
+- gate sur champ trigger (Firebase, GoogleForms, FirebaseAuth, Analytics)
+- gate sur boolean (Comments, Newsletter)
+- injection systématique (Theme)
+
+Data-driven possible via `InjectorSpec(domain, trigger, mode, properties)`.
+
+Non identifié dans les audits V4/V5 précédents. Nouveau finding.
+
+=== Duplication 3 — ConfigResolver.resolveAll() 10 blocs `resolveDomain`
+
+`ConfigResolver.kt:332-401` : 10 blocs identiques :
+```kotlin
+val resolvedX = resolveDomain("x", { resolveXConfig(props, ...) }, XConfig())
+```
+BACKLOG V5 US-CR-V5-7 disait « `resolveAll()` 9 blocs `resolveDomain` répétitifs
+→ data-driven (liste de DomainResolver) » — marqué ✅ S123.
+**Le code actuel ligne 332-401 n'a pas bougé.** Le ✅ est faux.
+
+== Décisions
+
+. EPIC BKY-CR-V6 créé dans BACKLOG.adoc — 3 US, 8 pts, P1.
+. BACKLOG V5 corrigé : US-CR-V5-5 et US-CR-V5-7 repositionnées en PARTIEL
+  (⚠️) avec renvoi vers V6.
+. Aucun changement de code source production (cadrage uniquement).
+. Session 142 : démarrage US-CR-V6-1 (helper `ResolveIntention<T>`) en baby
+  steps DDD/TDD/BDD — caractérisation des comportements existants avant
+  refactor.
+
+== Leçons
+
+. *Intuition utilisateur > audit déclaré résolu* : les ✅ du BACKLOG ne
+  remplacent pas la lecture du code. L'utilisateur a eu raison de pousser.
+. *Rendements décroissants = faux argument si l'audit précédent a menti* :
+  l'agent a failli passer à côté en s'appuyant sur les ✅ faux de V5.
+. *Méthode* : pour valider qu'une US est résolue, lire le code, pas le backlog.
