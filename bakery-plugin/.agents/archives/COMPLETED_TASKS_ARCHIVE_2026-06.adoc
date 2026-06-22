@@ -1,5 +1,36 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 130 — 2026-06-22 — BKY-I18N-PROD-VAL (Validation migrateToI18n sur fixture magic-stick)
+
+**Contexte** : Session 129 a rapatrié publishSite. PROMPT_REPRISE : BKY-I18N-PROD-VAL (3 pts).
+
+**Tâches réalisées** :
+
+* [x] Refus approche dry-run sur site production — adoption DDD/TDD/BDD sur copie de données
+* [x] Snapshot templates magic-stick → `src/test/resources/i18n-fixtures/magic-stick/jbake/templates/` (12 fichiers)
+* [x] Quick fix imports `graphify.model.*` → `com.cheroliv.graphify.model.*` (5 fichiers : SubgraphExtractor.kt + 4 tests/steps)
+* [x] `MagicStickI18nMigrationIntegrationTest.kt` — 6 tests d'intégration :
+  * dry-run safe (12 templates scannés, 0 fichiers générés, 0 templates modifiés)
+  * noms propres non extraits (Magic Stick, cccp.education)
+  * termes techniques non extraits (GitHub, SourceForge, Bootstrap, RSS, Xubuntu, BIOS, UEFI, v0.1.14)
+  * URLs non extraites
+  * texte FR UI extrait (Accueil, Guide d'installation, Démarrage rapide)
+* [x] `I18nMigrationService.kt` — ajout `extractionWhitelist` + `substringBlacklist` + `isWhitelisted()` dans les 6 extracteurs
+* [x] `./gradlew compileKotlin` → BUILD SUCCESSFUL
+* [x] `./gradlew test --tests "bakery.i18n.*"` → PASS
+* [x] `./gradlew test --tests "bakery.i18n.MagicStickI18nMigrationIntegrationTest"` → 6/6 PASS
+* [x] `./gradlew -q publishToMavenLocal` → OK
+* [x] BKY-I18N-PROD-VAL : 3/3 pts ✅
+* [x] Mise à jour gouvernance : INDEX.adoc, SESSIONS_HISTORY.adoc, PROMPT_REPRISE.adoc, archive session 130
+
+**Métriques** :
+
+* Clés extraites initiales : 67
+* Clés après whitelist : 45
+* Faux positifs corrigés : ~22
+
+**Prochaine session** : BKY-I18N-PROD-MIG (migration réelle fixture + traduction FR→EN + test rendu).
+
 == Session 128 — 2026-06-16 — BKY-I18N-MIG US-5 (Cucumber BDD + Tests Unitaires Finaux)
 
 **Contexte** : Session 127 a terminé US-3. PROMPT_REPRISE : US-I18N-MIG-5 (3 pts).

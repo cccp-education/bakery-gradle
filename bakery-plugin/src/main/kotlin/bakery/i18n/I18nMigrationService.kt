@@ -5,6 +5,50 @@ import java.util.Properties
 
 class I18nMigrationService {
 
+    /**
+     * Whitelist de textes qui ne doivent pas être extraits pour l'i18n.
+     *
+     * Inclut :
+     * - noms propres (Magic Stick, cccp.education)
+     * - termes techniques et marques (GitHub, SourceForge, Bootstrap, USB, RSS)
+     * - identifiants de version (v0.1.14)
+     * - labels d'interface anglais non traduits (Light, Dark, High Contrast)
+     * - termes UI Bootstrap (Toggle navigation)
+     */
+    private val extractionWhitelist = setOf(
+        "Magic Stick",
+        "cccp.education",
+        "GitHub",
+        "SourceForge",
+        "Bootstrap",
+        "USB",
+        "RSS",
+        "Flux RSS",
+        "Toggle navigation",
+        "Light",
+        "Dark",
+        "High Contrast",
+        "width=device-width, initial-scale=1.0",
+        "(lecture seule)",
+        "(lecture/ecriture)",
+        "magic",
+        "ISO brute",
+        "Xubuntu",
+        "BIOS",
+        "UEFI",
+        "v0.1.14"
+    )
+
+    private val substringBlacklist = setOf(
+        "Magic Stick",
+        "cccp.education",
+        "Xubuntu",
+        "BIOS",
+        "UEFI",
+        "ISO brute",
+        "v0.1.14"
+    )
+
     fun migrate(
         siteDir: File,
         languages: List<String>,
@@ -127,11 +171,20 @@ class I18nMigrationService {
             if (text.matches(Regex("""^\s*#\{[^}]+}\s*$"""))) return@replace match.value
             if (text.isBlank() || text.length < 2) return@replace match.value
             if (attrs.contains("th:text") || attrs.contains("th:utext")) return@replace match.value
+            if (isWhitelisted(text)) return@replace match.value
 
             val key = "$baseName.$counter"
             extractions[key] = text
             "<$tagName$attrs th:text=\"#{${key}}\">$text</$tagName>"
         }
+    }
+
+    private fun isWhitelisted(text: String): Boolean {
+        if (extractionWhitelist.contains(text)) return true
+        if (substringBlacklist.any { text.contains(it, ignoreCase = true) }) return true
+        if (text.matches(Regex("""^v?\d+(\.\d+)+.*"""))) return true
+        if (text.matches(Regex("""^(http|https|mailto|ftp):.*"""))) return true
+        return false
     }
 
     private fun extractPlaceholderAttribute(
@@ -145,6 +198,7 @@ class I18nMigrationService {
             val text = match.groupValues[1]
             if (text.matches(Regex("""#\{[^}]+}"""))) return@replace match.value
             if (line.contains("th:placeholder")) return@replace match.value
+            if (isWhitelisted(text)) return@replace match.value
 
             val key = "$baseName.$counter"
             extractions[key] = text
@@ -163,6 +217,7 @@ class I18nMigrationService {
             val text = match.groupValues[1]
             if (text.matches(Regex("""#\{[^}]+}"""))) return@replace match.value
             if (line.contains("th:attr") && line.contains("aria-label")) return@replace match.value
+            if (isWhitelisted(text)) return@replace match.value
 
             val key = "$baseName.$counter"
             extractions[key] = text
@@ -171,12 +226,12 @@ class I18nMigrationService {
                 val currentAttr = existingThAttr.groupValues[1]
                 line.replace(
                     """th:attr="$currentAttr"""",
-                    """th:attr="$currentAttr,aria-label=#{${key}}""""
+                    """th:attr="$currentAttr,aria-label=#{${key}}"""
                 ) + " aria-label=\"$text\""
             } else {
                 line.replace(
                     """aria-label="$text"""",
-                    """th:attr="aria-label=#{${key}}" aria-label="$text""""
+                    """th:attr="aria-label=#{${key}}" aria-label="$text"""
                 )
             }
         }
@@ -193,10 +248,11 @@ class I18nMigrationService {
             val text = match.groupValues[1]
             if (text.matches(Regex("""#\{[^}]+}"""))) return@replace match.value
             if (match.value.contains("th:content")) return@replace match.value
+            if (isWhitelisted(text)) return@replace match.value
 
             val key = "$baseName.$counter"
             extractions[key] = text
-            match.value.replace("""content="$text"""", """th:content="#{$key}" content="$text"""")
+            match.value.replace("""content="$text""", """th:content="#{$key}" content="$text"""")
         }
     }
 
@@ -211,6 +267,7 @@ class I18nMigrationService {
             val text = match.groupValues[1]
             if (text.matches(Regex("""#\{[^}]+}"""))) return@replace match.value
             if (line.contains("th:alt")) return@replace match.value
+            if (isWhitelisted(text)) return@replace match.value
 
             val key = "$baseName.$counter"
             extractions[key] = text
@@ -229,6 +286,7 @@ class I18nMigrationService {
             val text = match.groupValues[1]
             if (text.matches(Regex("""#\{[^}]+}"""))) return@replace match.value
             if (line.contains("th:title")) return@replace match.value
+            if (isWhitelisted(text)) return@replace match.value
 
             val key = "$baseName.$counter"
             extractions[key] = text

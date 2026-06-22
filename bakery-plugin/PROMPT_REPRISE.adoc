@@ -1,68 +1,38 @@
-= PROMPT_REPRISE — Bakery
-:session: 129
-:date: 2026-06-16
+= PROMPT REPRISE — Bakery
+:session: 130
+:date: 2026-06-22
 
 == Mission accomplie
 
-*Session 128 TERMINÉE* — BKY-I18N-MIG US-5 (3 pts).
-DDD/TDD/BDD baby-step :
-- `32_i18n_migration.feature` — 7 scénarios enrichis avec assertions post-exécution
-  (messages_*.properties exist/absent, th:text= présent/absent, site.language injecté,
-  dry-run no-op, already-i18n no-op, no-hardcoded zéro extraction)
-- `31_i18n_migration.feature` — 3 scénarios US-1 corrigés (pattern dryRun true/false)
-- `I18nMigrationSteps.kt` — 10 nouveaux steps (Given real site ×4, And DSL config,
-  When CLI options, Then/And assertions ×6)
-- `BakeryWorld.kt` — +realSiteDir + createRealSiteDirectory() (3 variantes)
-- Bug fix : configureI18nMigrationDslWithRealSite ne recrée plus le projet
-- Ambiguïté Cucumber résolue : suppression steps dryRun true/false littéraux
-- 10/10 i18n migration Cucumber PASS, 114/114 total PASS
-- publishToMavenLocal OK
+*Session 130 TERMINÉE* — BKY-I18N-PROD-VAL (3 pts).
+DDD/TDD/BDD sur copie des templates magic-stick :
+- Fixture `src/test/resources/i18n-fixtures/magic-stick/jbake/templates/` (12 fichiers)
+- `MagicStickI18nMigrationIntegrationTest` — 6 tests d'intégration dry-run
+- `I18nMigrationService` — whitelist + substringBlacklist pour éviter faux positifs
+- Quick fix imports graphify (package relocation 0.0.2)
+- 6/6 tests d'intégration PASS, tests i18n existants PASS
 
 == Statut
 
-- EPICs : 30/30 ✅ (100%)
-- Code smells résolus : 24/24 ✅ (V2-V4) + 52/52 ✅ (V5)
-- BKY-CR-V5 : 24/24 pts ✅
-- BKY-I18N-MIG : 13/16 pts (US-1 ✅ S125, US-2 ✅ S126, US-3 ✅ S127, US-5 ✅ S128)
 - BKY-I18N : 23/23 pts ✅
-- BKY-KOV-1 : 16/16 pts ✅ (85.88%)
-- BKY-COV-2 : 12/12 pts ✅
-- BKY-PUB-1 : 8/8 pts ✅ (Maven Central 0.0.1)
-- Version publiée : 0.0.1 (Maven Central)
+- BKY-I18N-MIG : 13/16 pts (US-1→3 ✅, US-5 ✅, US-4 ⏸️ codebase-gradle N1)
+- BKY-I18N-PROD-VAL : 3/3 pts ✅
+- BKY-I18N-PROD-MIG : 0/5 pts ☐
+- BKY-I18N-PROD-GEN : 0/8 pts ☐
 
-== Prochaine session (129) — CRITIQUE
+== Prochaine session (131) — P1
 
-*Priorité P1* : **BKY-I18N-PROD-VAL** — Validation dry-run sur magic-stick.
+*Priorité* : **BKY-I18N-PROD-MIG** — Migration réelle de la fixture magic-stick.
 
-*Problème* : La tâche migrateToI18n est codée et testée (68 UT + 10 Cucumber),
-mais **JAMAIS exécutée sur des templates réels**. Tous les tests utilisent des
-templates synthétiques dans des @TempDir.
+*Mission* (5 pts) :
+1. **US-MIG-1** : Exécuter `migrateToI18n` avec `dryRun=false` sur la fixture magic-stick en test.
+   Vérifier création `messages_fr.properties` + `messages_en.properties`, templates modifiés, `site.language=fr` injecté.
+2. **US-MIG-2** : Traduction manuelle FR→EN — remplir `messages_en.properties` (~40 clés).
+3. **US-MIG-3** : Test de rendu FR/EN — vérifier que Thymeleaf résout `#{...}` sans régression.
 
-*Mission Session 129* (3 pts) :
-1. **US-VAL-1** : Dry-run magic-stick
-   ```bash
-   ./gradlew migrateToI18n \
-     --i18nSite=/home/cheroliv/workspace/office/sites/magic-stick/jbake \
-     --i18nLangs=fr,en \
-     --i18nDefaultLang=fr \
-     --i18nDryRun=true
-   ```
-2. **US-VAL-2** : Audit manuel des clés extraites
-   - Noms propres NON extraits (Magic Stick, cccp.education, Cheroliv)
-   - Termes techniques NON extraits (USB, CSS, Bootstrap, GitHub)
-   - URLs NON extraites (https://..., mailto:...)
-   - Clés sémantiques (header.title, footer.description, nav.home)
-3. **US-VAL-3** : Correction faux positifs (si nécessaire)
-   - Ajuster les 6 extracteurs dans I18nMigrationService.kt
-   - Ajouter whitelist noms propres / termes techniques
+*Contrainte* : continuer sur la fixture, pas sur le site production.
 
-*Livrable* : Rapport dry-run + audit clés + corrections (si faux positifs).
+== Note technique
 
-== Note — US-I18N-MIG-4 (⏸️ EN ATTENTE)
-
-La traduction LLM des 9 langues non-fr est mise en attente. Dépend de :
-- `education.cccp:koog` (N0)
-- `education.cccp:llm-pool-contracts` (N0)
-- codebase-gradle `TranslationService` (N1, à créer)
-
-*Référence* : `.agents/encyclopedies/I18N_MIGRATION_PROD.adoc` (16 pages)
+- Imports graphify workaround temporaire — revenir à `graphify.model.*` quand graphify-plugin 0.0.3 corrigera le package.
+- Cucumber timeout (5 min) observé en fin de session — à investiguer si récurrent.
