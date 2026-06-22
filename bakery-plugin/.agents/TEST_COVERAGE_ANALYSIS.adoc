@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-22 — Session 136 (BKY-COV-2 microfissures C/B/A)_
+_Dernière mise à jour : 2026-06-22 — Session 137 (BKY-COV-2 suite ToolsKt / DeployTaskRegistrar / BakeryPlugin)_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -22,16 +22,18 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 
 == Progression vers 90%
 
-*Écart* : 85.76% → 90.00% = +4.24pp (~850 instructions)
+*Écart* : 87.55% → 90.00% = +2.45pp (~500 instructions)
 
 *Cibles confirmées par l'audit US-1* :
 . ✅ P0 — GenerateThemeTask 0% → 95.7% (19 tests)
 . ✅ P1 — FileSystemManager 56% → 90.45% (23 tests)
 . ✅ P1 — GitService 66% → 86.0% (4 tests)
-. 🟡 P2 — BakeryPlugin 37% → 52.8% (3 tests) — US-KOV-5
+. ✅ P2 — BakeryPlugin : chemin full pipeline couvert via `BakeryPluginFullPipelineTest` (ProjectBuilder + `ProjectInternal.evaluate()`) — Session 137
+. ✅ P2 — DeployTaskRegistrar : `registerPublishSiteTask` + `registerDeployProfileTask` couverts via `DeployTaskRegistrarTest` — Session 137
+. ✅ P2 — ToolsKt : helper mort `Logger.loadConfiguration()` supprimé du source set functionalTest — Session 137
 . 🟡 P2 — SiteScaffolder 69% (~30 missed) — US-KOV-6
 . 🟢 P3 — SiteTaskRegistrar closures doLast 0% (~224 missed) — couvertes par FT
-. 🟢 P3 — ToolsKt 22% (533 missed) — helpers
+. 🟢 P3 — ContentTaskRegistrar / LensTaskRegistrar closures doLast — couvertes par FT/Cucumber
 
 *Note* : ~1000 instructions de closures doLast (TaskRegistrars) sont couvertes par FT/Cucumber mais Kover ne les instrumente pas.
 

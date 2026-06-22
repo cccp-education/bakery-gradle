@@ -1,30 +1,30 @@
 = PROMPT REPRISE — Bakery
-:session: 137
+:session: 138
 :date: 2026-06-22
 
-== Mission accomplie
+== Mission accomplie (session 137)
 
-*Session 136 TERMINÉE* — BKY-COV-2 microfissures coverage ordre C/B/A.
-- GitService : 1 test unitaire sur `pushPages` Left quand `pushToRemote` échoue.
-- BakeryPlugin : refactor suppression double lecture YAML, passage config parsée directement à `registerFullPipelineTasks`.
-- I18nMigrationService : suppression branche morte `existingThAttr`, 2 tests `injectSiteLanguage` newline, 1 test skip aria-label th-attr.
+*BKY-COV-2 suite microfissures coverage* — 3 baby steps DDD/TDD/BDD.
+- `ToolsKt` : suppression helper mort `Logger.loadConfiguration()` dans `src/functionalTest/kotlin/bakery/tools.kt`.
+- `DeployTaskRegistrar` : 2 tests unitaires couvrant `registerPublishSiteTask` et `registerDeployProfileTask`.
+- `BakeryPlugin` : 2 tests unitaires ProjectBuilder couvrant le chemin full pipeline (`site/` + `maquette/` existants) et la branche `pushProfile` null/non-null.
 - Couverture Kover : 87.55% INSTRUCTIONS, seuil 70% OK.
-- `./gradlew check -x e2eTest` BUILD SUCCESSFUL.
+- `./gradlew test koverThresholdCheck` + `./gradlew -q publishToMavenLocal` OK.
 
 == Statut
 
-- BKY-COV-2 : microfissures C/B/A couvertes / code mort supprimé
+- BKY-COV-2 : microfissures ciblées dans le prompt de reprise couvertes / nettoyées
 - BKY-I18N-MIG : 16/16 pts ✅
 - BKY-CR-V5 : 24/24 pts ✅
 
-== Prochaine session (137)
+== Prochaine session (138)
 
 Choisir la prochaine priorité :
-- Continuer BKY-COV-2 sur autres cibles (ToolsKt sourceSet, DeployTaskRegistrar, BakeryPlugin branches restantes)
-- Publier bakery `0.0.2` (BKY-PUB-2)
+- Publier bakery `0.0.2` (BKY-PUB-2) — Maven Central + Gradle Plugin Portal
+- Continuer BKY-COV-2 sur cibles restantes (SiteTaskRegistrar closures, ContentTaskRegistrar, LensTaskRegistrar)
 - Reprendre un autre borough critique (runner-gradle N3, dashboard-gradle N3)
 
 == Note technique
 
-- `./gradlew check -x e2eTest` est la commande de validation raisonnable en session (E2E Playwright isolé).
-- Kover threshold 70% atteint avec marge. Les 12-13% restants sont majoritairement des closures doLast non instrumentées + source set functionalTest.
+- `./gradlew check -x e2eTest` reste la commande de validation raisonnable en session (E2E Playwright isolé).
+- Kover threshold 70% atteint avec marge (87.55%). Les ~12% restants sont majoritairement des closures doLast non instrumentées + source set functionalTest.

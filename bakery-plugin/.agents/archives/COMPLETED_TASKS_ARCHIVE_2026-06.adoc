@@ -1,5 +1,38 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 137 — 2026-06-22 — BKY-COV-2 suite microfissures coverage (ToolsKt / DeployTaskRegistrar / BakeryPlugin)
+
+**Contexte** : PROMPT_REPRISE session 136 proposait suite BKY-COV-2, BKY-PUB-2 ou autre borough. Choix utilisateur : suite BKY-COV-2.
+
+**Tâches réalisées** :
+
+* [x] Audit Kover : cibles restantes identifiées — `ToolsKt` (22%), `DeployTaskRegistrar` (44.8%), `BakeryPlugin` (34.2%).
+* [x] US-137-A — Suppression helper mort `Logger.loadConfiguration()` dans `src/functionalTest/kotlin/bakery/tools.kt`.
+* [x] US-137-B — `DeployTaskRegistrarTest.kt` : 2 tests couvrant `registerPublishSiteTask` et `registerDeployProfileTask`.
+* [x] US-137-C — `BakeryPluginFullPipelineTest.kt` : 2 tests ProjectBuilder couvrant le chemin full pipeline (`site/` + `maquette/` existants) et la branche `pushProfile == null` vs non-null.
+* [x] `./gradlew test --tests "bakery.DeployTaskRegistrarTest"` → 2/2 PASS
+* [x] `./gradlew test --tests "bakery.BakeryPluginFullPipelineTest"` → 2/2 PASS
+* [x] `./gradlew test koverThresholdCheck` → BUILD SUCCESSFUL
+* [x] Kover INSTRUCTION : 87.55% (stable, seuil 70% ✅)
+* [x] `./gradlew -q publishToMavenLocal` → OK
+* [x] Mise à jour gouvernance : `PROMPT_REPRISE.adoc`, `.agents/INDEX.adoc`, `.agents/SESSIONS_HISTORY.adoc`, `.agents/TEST_COVERAGE_ANALYSIS.adoc`, archive session 137.
+
+**Fichiers modifiés / créés** :
+
+* `src/functionalTest/kotlin/bakery/tools.kt` (−170 lignes, helper mort supprimé)
+* `src/test/kotlin/bakery/DeployTaskRegistrarTest.kt` (nouveau, 2 tests)
+* `src/test/kotlin/bakery/BakeryPluginFullPipelineTest.kt` (nouveau, 2 tests)
+
+**Métriques** :
+
+* Kover INSTRUCTION : 87.55%
+* Kover LINE : 87.34%
+* Kover BRANCH : 72.04%
+* DeployTaskRegistrar : 44.8% → non mesuré précisément mais branches `registerPublishSiteTask` et `registerDeployProfileTask` couvertes
+* BakeryPlugin : chemin full pipeline couvert en UT pour la première fois
+
+**Prochaine session** : 138 — BKY-PUB-2 (publication 0.0.2), suite BKY-COV-2, ou autre borough critique.
+
 == Session 136 — 2026-06-22 — BKY-COV-2 reprise microfissures coverage (ordre C/B/A)
 
 **Contexte** : PROMPT_REPRISE session 135 proposait BKY-PUB-2, BKY-COV-2 ou autre borough. Choix utilisateur : BKY-COV-2.

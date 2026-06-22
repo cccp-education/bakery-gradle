@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-22 — Session 136 (BKY-COV-2 microfissures coverage C/B/A)
-  _Session terminee_ : 136 — Microfissures coverage : GitService pushPages exception path, BakeryPlugin suppression double lecture YAML, I18nMigrationService suppression branche morte aria-label + tests injectSiteLanguage newline. Kover 87.55% INSTRUCTIONS, seuil 70% OK. `check -x e2eTest` BUILD SUCCESSFUL.
-  _Prochaine session_ : 137 — Choisir : suite BKY-COV-2, BKY-PUB-2 (publication 0.0.2), ou autre borough critique
+  _Derniere mise a jour_ : 2026-06-22 — Session 137 (BKY-COV-2 suite : ToolsKt, DeployTaskRegistrar, BakeryPlugin)
+  _Session terminee_ : 137 — Suite microfissures coverage : helper mort tools.kt supprimé, DeployTaskRegistrar + BakeryPlugin full pipeline couverts par UT ProjectBuilder. Kover 87.55% INSTRUCTIONS OK. `test koverThresholdCheck` + `publishToMavenLocal` OK.
+  _Prochaine session_ : 138 — Choisir : BKY-PUB-2 (publication 0.0.2), suite BKY-COV-2, ou autre borough critique
 
 '''
 
