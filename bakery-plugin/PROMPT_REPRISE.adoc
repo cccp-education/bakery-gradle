@@ -1,37 +1,30 @@
 = PROMPT REPRISE — Bakery
-:session: 135
+:session: 136
 :date: 2026-06-22
 
 == Mission accomplie
 
-*Session 134 TERMINÉE* — BKY-I18N-MIG US-4 (3 pts) ✅.
-DDD/TDD/BDD baby steps :
-- Dépendance `education.cccp:codebase-plugin:0.0.2` ajoutée (catalogue + build.gradle.kts)
-- `LlmTranslationApplier` — service bakery consommant `TranslationService` avec fallback FR
-- `LlmServiceTranslationAdapter` — adapte `LlmService` bakery au contrat `TranslationService`
-- `I18nMigrationService` branché en mode auto-LLM (traduction FR→EN quand traducteur injecté)
-- 4 UT `LlmTranslationApplierTest`, 3 nouveaux scénarios `I18nMigrationServiceTest`
-- `AutoTranslationI18nMigrationIntegrationTest` (2 tests)
-- Feature 35 `35_i18n_migration_auto_translation.feature` + step Cucumber
-- Toolchain Java 24 aligné pour compatibilité codebase-plugin
-- 123 bakery Cucumber scenarios PASS, i18n tests PASS, publishToMavenLocal OK
+*Session 135 TERMINÉE* — Code smells V4 + BDD Pipeline Contracts ✅.
+- Audit V4 : US-V4-1/2/3/5/7/8/9 déjà résolus dans les sessions 097/118-124.
+- Création Feature 36 `36_pipeline_contracts.feature` (11 scénarios) pour couvrir le runner orphelin `contracts.pipeline.scenarios.CucumberTestRunner`.
+- Configuration runners : bakery exclut `@pipeline-contracts`, runner pipeline filtre `@pipeline-contracts`.
+- Fix assertions BDD (7 catégories FR, pas 8 EN).
+- 123 bakery Cucumber + 11 pipeline = 134 PASS. `test` + `cucumberTest` + `publishToMavenLocal` OK.
 
 == Statut
 
-- BKY-I18N : 23/23 pts ✅
-- BKY-I18N-MIG : 16/16 pts ✅ (US-1→5 terminés)
-- BKY-I18N-PROD-VAL : 3/3 pts ✅
-- BKY-I18N-PROD-MIG : 5/5 pts ✅
-- BKY-I18N-PROD-GEN : 8/8 pts ✅
+- BKY-I18N-MIG : 16/16 pts ✅
+- Feature 36 : 11/11 scénarios ✅
+- Code smells V4 : résolus ou couverts
 
-== Prochaine session (135)
+== Prochaine session (136)
 
-BKY-I18N-MIG est clos. Choisir la prochaine priorité dans le backlog :
-- BKY-PUB-2 : mise à jour relocation comment + publication Maven Central/Gradle Plugin Portal (8 pts)
-- BKY-COV-2 : microfissures coverage (12 pts)
-- Code smells V4 restants (US-V4-1→9 + RECOs)
+Choisir la prochaine priorité dans le backlog :
+- Publier bakery `0.0.2` sur Maven Central / Gradle Plugin Portal (BKY-PUB-2)
+- Microfissures coverage BKY-COV-2 (vérifier statut réel)
+- Reprendre un autre borough critique (runner-gradle N3, dashboard-gradle N3)
 
 == Note technique
 
 - `./gradlew test` exclut Cucumber via engine filter ; `./gradlew cucumberTest` est la référence BDD.
-- L'`initializationError` du runner suite contracts sans engine cucumber n'est pas une régression.
+- Runner pipeline isolé par tags : plus de conflit de glue.

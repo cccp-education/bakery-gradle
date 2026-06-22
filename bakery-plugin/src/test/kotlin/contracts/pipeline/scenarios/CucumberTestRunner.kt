@@ -1,5 +1,6 @@
 package contracts.pipeline.scenarios
 
+import io.cucumber.junit.platform.engine.Constants.FEATURES_PROPERTY_NAME
 import io.cucumber.junit.platform.engine.Constants.FILTER_TAGS_PROPERTY_NAME
 import io.cucumber.junit.platform.engine.Constants.GLUE_PROPERTY_NAME
 import io.cucumber.junit.platform.engine.Constants.PLUGIN_PROPERTY_NAME
@@ -14,7 +15,8 @@ import org.junit.platform.suite.api.Suite
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "contracts.pipeline.scenarios")
 @ConfigurationParameter(
     key = PLUGIN_PROPERTY_NAME,
-    value = "pretty, html:build/reports/cucumber.html, json:build/reports/cucumber.json"
+    value = "pretty, html:build/reports/cucumber-pipeline.html, json:build/reports/cucumber-pipeline.json"
 )
-@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "not @wip and not @integration")
+@ConfigurationParameter(key = FEATURES_PROPERTY_NAME, value = "src/test/features")
+@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "@pipeline-contracts and not @wip")
 class CucumberTestRunner

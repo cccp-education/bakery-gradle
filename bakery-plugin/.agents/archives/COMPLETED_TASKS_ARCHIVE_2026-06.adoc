@@ -1,5 +1,54 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 135 — 2026-06-22 — Pipeline Contracts BDD + code smells V4
+
+**Contexte** : PROMPT_REPRISE session 134 proposait BKY-PUB-2, BKY-COV-2 ou code smells V4. Choix utilisateur : code smells V4.
+
+**Tâches réalisées** :
+
+* [x] Audit code smells V4 : US-V4-1/2/3/5/7/8/9 déjà résolus dans les sessions 097/118-124.
+* [x] Identification du résidu réel : runner Cucumber orphelin `contracts.pipeline.scenarios.CucumberTestRunner` sans fichier `.feature`.
+* [x] DDD : Feature 36 `36_pipeline_contracts.feature` (11 scénarios) couvrant `ConventionalCommit`, `ReleaseNotesConfig`, `GitLogParser`, `ReleaseNotesRenderer`, `ReleaseNotesGenerator`.
+* [x] TDD/BDD : configuration des runners par tags `@pipeline-contracts`
+  ** `bakery.scenarios.CucumberTestRunner` exclut `@pipeline-contracts`
+  ** `contracts.pipeline.scenarios.CucumberTestRunner` filtre `@pipeline-contracts` + rapport séparé
+* [x] Fix assertion BDD : catégories par défaut = 7, labels FR (`Nouveautés`, `Corrections`).
+* [x] `./gradlew compileKotlin` → BUILD SUCCESSFUL
+* [x] `./gradlew compileTestKotlin` → BUILD SUCCESSFUL
+* [x] `./gradlew test` → 1010+ tests PASS
+* [x] `./gradlew cucumberTest` → 134 tests PASS (123 bakery + 11 pipeline)
+* [x] `./gradlew -q publishToMavenLocal` → OK
+* [x] Mise à jour gouvernance : `PROMPT_REPRISE.adoc`, `INDEX.adoc`, `SESSIONS_HISTORY.adoc`, `BACKLOG.adoc`, archive session 135
+
+**Métriques** :
+
+* Scénarios Cucumber bakery : 123
+* Scénarios Cucumber pipeline contracts : 11
+* Total Cucumber : 134 PASS
+
+**Prochaine session** : 136 — BKY-PUB-2 (publication Maven Central/Gradle Plugin Portal) ou BKY-COV-2 (microfissures coverage).
+
+== Session 134 — 2026-06-22 — BKY-I18N-MIG US-4 (Câblage TranslationService transverse)
+
+**Contexte** : Session 133 a débloqué `TranslationService` dans codebase-gradle N1. PROMPT_REPRISE : câbler le service dans bakery.
+
+**Tâches réalisées** :
+
+* [x] Ajout dépendance `education.cccp:codebase-plugin:0.0.2` (catalogue + `build.gradle.kts`)
+* [x] DDD : `LlmTranslationApplier` — service bakery consommant `TranslationService` avec fallback FR
+* [x] DDD : `LlmServiceTranslationAdapter` — adapte `LlmService` bakery au contrat `TranslationService`
+* [x] Refactor : `I18nMigrationService` branché en mode auto-LLM (traduction FR→EN quand traducteur injecté)
+* [x] TDD : 4 UT `LlmTranslationApplierTest`, 3 nouveaux scénarios `I18nMigrationServiceTest`
+* [x] TDD : `AutoTranslationI18nMigrationIntegrationTest` (2 tests)
+* [x] BDD : Feature 35 `35_i18n_migration_auto_translation.feature` (2 scénarios)
+* [x] Toolchain Java 24 aligné pour compatibilité codebase-plugin
+* [x] `./gradlew test` → PASS
+* [x] `./gradlew cucumberTest` → 123 bakery scenarios PASS
+* [x] `./gradlew -q publishToMavenLocal` → OK
+* [x] BKY-I18N-MIG : 16/16 pts ✅ TERMINÉ
+
+**Prochaine session** : 135 — Choisir priorité : BKY-PUB-2, BKY-COV-2 ou code smells V4.
+
 == Session 133 — 2026-06-22 — Transition 132→133 (Codebase TranslationService débloqué)
 
 **Contexte** : Session 132 a terminé BKY-I18N-PROD-GEN. PROMPT_REPRISE initial : BKY-I18N-PROD-MIG US-4 (traduction automatisée via codebase-gradle N1).

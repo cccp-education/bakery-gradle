@@ -1,0 +1,49 @@
+= Session 135 — Pipeline Contracts BDD + code smells V4
+:session: 135
+:date: 2026-06-22
+:project: bakery-gradle / bakery-plugin
+:type: DDD + TDD + BDD
+
+== Objectif
+
+Clôturer les code smells V4 restants en DDD/TDD/BDD baby steps. Le backlog indiquait des US-V4 non résolues, mais l'audit code a montré que la plupart étaient déjà corrigées. Le résidu principal était un **runner Cucumber orphelin** (`contracts.pipeline.scenarios.CucumberTestRunner`) avec des step definitions sans fichier `.feature` associé.
+
+== Découvertes
+
+* US-V4-1 ✅ — `Throwable("configPath absent")` supprimé depuis CR-V5.
+* US-V4-2 ✅ — `VerifyConfigurationMappingTask` utilise `project.projectDir.resolve(path)`.
+* US-V4-3 ✅ — `configureConfigPath` refactoré en guard clauses + `Either<String, Unit>`.
+* US-V4-5 ✅ — `findByName(BAKE_TASK)` + warning.
+* US-V4-7 ✅ — `resolveOrPrompt` est le nom actuel.
+* US-V4-8 ✅ — catch muets loggués dans `ContentTaskRegistrar`.
+* US-V4-9 ✅ — test de non-idempotence dans `JsonEscapeForPropertiesTest`.
+
+== Actions
+
+. Création de `src/test/features/36_pipeline_contracts.feature` (11 scénarios)
+   * Couvre `ConventionalCommit`, `ReleaseNotesConfig`, `GitLogParser`, `ReleaseNotesRenderer`, `ReleaseNotesGenerator`.
+   * Tag `@pipeline-contracts` pour isolation runner.
+
+. Configuration des runners
+   * `bakery.scenarios.CucumberTestRunner` : exclut `@pipeline-contracts`, garde 123 scénarios bakery.
+   * `contracts.pipeline.scenarios.CucumberTestRunner` : filtre `@pipeline-contracts`, glue propre, rapport séparé.
+
+. Fix assertion BDD
+   * Catégories par défaut = 7 (pas 8), labels FR (pas EN).
+
+== Vérifications
+
+* `./gradlew compileTestKotlin` ✅
+* `./gradlew test` ✅ (1010+ tests)
+* `./gradlew cucumberTest` ✅ (134 tests — 123 bakery + 11 pipeline)
+* `./gradlew -q publishToMavenLocal` ✅
+
+== Résultat
+
+* 11 nouveaux scénarios Cucumber.
+* Runner orphelin réparé sans suppression de code.
+* Backlog V4 à mettre à jour (US déjà résolues + Feature 36 créée).
+
+== Score
+
+9/10 — BDD vertueuse, faible empreinte code, gouvernance à synchroniser.

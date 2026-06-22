@@ -635,11 +635,11 @@ a probablement déjà été créé lors de la session 046 (EPIC G Audit publicat
 | CS-V4-P3 | 🟢 Polish : rename + catch muet + doc idempotence | 1 | ✅ S097
 | CS-V4-ARCH | 🟡 Architecture : YAML Either + parallélisme + side-effect | 1.5 | ✅ S097
 // ── PUBLICATION Maven Central ──
-| BKY-PUB-1 | Publication Maven Central + Gradle Plugin Portal | 8 | 🔴 P0 ☐
+| BKY-PUB-1 | Publication Maven Central + Gradle Plugin Portal | 8 | 🔴 P0 ✅ TERMINÉ S109
 // ── COUVERTURE 90% ──
 | BKY-KOV-1 | Kover Coverage 77% → 90% (+13%) | 16 | 🔴 P0 ✅ TERMINÉ (85.88%)
 // ── MICROFISSURES COVERAGE ──
-| BKY-COV-2 | Gaps fonctionnels coverage (DeployProfileTask, ProfilePublisher, BakeryPlugin) | 12 | 🟠 P2 ☐
+| BKY-COV-2 | Gaps fonctionnels coverage (DeployProfileTask, ProfilePublisher, BakeryPlugin) | 12 | 🟠 P2 ✅ TERMINÉ S110
 |===
 
 '''
@@ -712,6 +712,7 @@ cd foundry/public/bakery-gradle/bakery-plugin && ./gradlew publishPlugins
 *Tous les EPICs historiques* : 30/30 ✅ (100%)
 *Code smells résolus* : 24/24 ✅ (12 V2+V3 + 9 V4 + 3 RECOs)
 *Bakery 100% fonctionnel* — Nouveaux EPICs V5 : BKY-CR-V5 (24 pts) + BKY-I18N-MIG (16 pts).
+*Nouveau* : Feature 36 Pipeline Contracts BDD (11 scénarios) ajoutée session 135.
 
 '''
 
