@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-23 — Session 150 (BKY-I18N-PROD-AUDIT : alignement fixtures ↔ sites réels terminé)
-  _Session terminee_ : 150 — Alignement fixtures cccp-education/cheroliv-com avec sites réels. `FixtureAlignmentAuditorTest` 7/7 GREEN, integration tests i18n 10/10 GREEN, `./gradlew test` SUCCESS.
-  _Prochaine session_ : 151 — À définir avec l'utilisateur (finaliser BACKLOG, nouvel EPIC, ou autre borough).
+  _Derniere mise a jour_ : 2026-06-23 — Session 151 en cours (BKY-A11Y-1 : accessibilité WCAG — 13/13 UT GREEN)
+  _Session en cours_ : 151 — DDD/TDD a11y : `bakery.a11y` domaine + contrast + auditor + HTML scanner.
+  _Prochaine session_ : suite 151 — tâche Gradle `accessibilityAudit`, BDD Cucumber Feature 37, règles alt/aria/headings.
 
 '''
 

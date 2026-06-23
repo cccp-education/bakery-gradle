@@ -2,34 +2,26 @@
 :session: 151
 :date: 2026-06-23
 
-== Mission accomplie (session 150)
+== Mission en cours (session 151)
 
-*BKY-I18N-PROD-AUDIT — Alignement fixtures ↔ sites réels* terminé.
-- DDD : alignement par copie fidèle des templates réels dans `src/test/resources/i18n-fixtures/`.
-- TDD : tests d'audit `FixtureAlignmentAuditorTest` 7/7 GREEN (cccp-education + cheroliv-com + magic-stick).
-- Fix d'un bug structurel dans `FixtureAlignmentAuditor` : comparaison par chemins relatifs (subdirectory `TODO/`).
-- Traductions EN mises à jour pour cccp-education (55 clés) et cheroliv-com (~120 clés).
-- `CccpEducationI18nMigrationIntegrationTest` 5/5 GREEN.
-- `CherolivComI18nMigrationIntegrationTest` 5/5 GREEN.
-- `./gradlew test` BUILD SUCCESSFUL.
+*BKY-A11Y-1 — Accessibilité WCAG/RGAA* démarré.
+- DDD : package `bakery.a11y` créé avec `ContrastResult`, `evaluateContrast()`, `AccessibilityFinding`, `AccessibilityReport`, `AccessibilityAuditor`, `AccessibilityHtmlScanner`.
+- TDD : 13 UT GREEN — `ColorContrastRuleTest` (5), `AccessibilityAuditorTest` (4), `AccessibilityHtmlScannerTest` (4).
+- Pas encore de tâche Gradle ni de BDD Cucumber.
 
 == Statut
 
-* BKY-I18N-PROD-AUDIT : ✅ TERMINÉ — US-AUDIT-1→5 tous GREEN.
-* BKY-PUB-2 : ✅ Central 0.0.2 LIVE.
-* BKY-CR-V6 : ✅ TERMINÉ.
-* BKY-I18N-MIG : ✅ TERMINÉ.
+* BKY-I18N-PROD-AUDIT : ✅ TERMINÉ — Session 150.
+* BKY-A11Y-1 : 🔄 EN COURS — baby step 3/?, 13/13 UT GREEN.
 
-== Prochaine session (151)
+== Prochaine session (suite 151)
 
-À définir avec l'utilisateur. Options :
-1. Finaliser la documentation du BACKLOG (marquer BKY-I18N-PROD-AUDIT TERMINÉ).
-2. Lancer une nouvelle code review (V6 bis) ou un nouvel EPIC bakery.
-3. Reprendre un autre borough du workspace.
+1. Baby step 4 : tâche Gradle `accessibilityAudit` dans `ContentTaskRegistrar` / `SiteTaskRegistrar`.
+2. Baby step 5 : BDD Cucumber Feature 37 `accessibility_audit.feature`.
+3. Baby step 6 : scan des templates Thymeleaf (pas seulement inline colors) — règles alt/aria/headings.
 
-== Note technique
+== Notes techniques
 
-* `./gradlew test --tests "bakery.i18n.audit.FixtureAlignmentAuditorTest"` = validation rapide audit.
+* `./gradlew test --tests "bakery.a11y.*"` = validation rapide a11y.
 * `./gradlew test` = validation complète.
 * `publishToMavenLocal` obligatoire après toute modif code source.
-* Ports Ollama autorisés : 11437-11465 pour les modèles cloud ; 11434-11436 interdits.
