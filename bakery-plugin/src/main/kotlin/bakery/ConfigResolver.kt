@@ -1,6 +1,5 @@
 package bakery
 
-import arrow.core.Either
 import bakery.theme.ThemeCatalog
 import bakery.theme.ThemeVariant
 import org.gradle.api.Project
@@ -333,70 +332,43 @@ object ConfigResolver {
         props: Map<String, String>,
         extension: BakeryExtension,
         site: SiteConfiguration
+    ): Pair<ResolvedConfigs, List<ConfigResolutionError>> =
+        resolveAllDataDriven(props, extension, site)
+
+    fun resolveAllDataDriven(
+        props: Map<String, String>,
+        extension: BakeryExtension,
+        site: SiteConfiguration
     ): Pair<ResolvedConfigs, List<ConfigResolutionError>> {
         val errors = mutableListOf<ConfigResolutionError>()
 
-        fun <T> resolveDomain(domain: String, block: () -> T, fallback: T): T =
-            Either.catch(block).fold(
-                ifLeft = { e ->
-                    errors.add(ConfigResolutionError.DomainFailure(domain, e.message ?: "Unknown error", e as? Exception))
-                    fallback
-                },
-                ifRight = { it }
-            )
-
-        val resolvedFirebase = resolveDomain("firebase",
-            { resolveFirebaseConfig(props, site.firebase) },
-            FirebaseProjectInfo(projectId = "", apiKey = "")
-        )
-        val resolvedGoogleForms = resolveDomain("googleForms",
-            { resolveGoogleFormsConfig(props, extension.googleForms, site.googleForms) },
-            GoogleFormsConfig()
-        )
-        val resolvedFirebaseAuth = resolveDomain("firebaseAuth",
-            { resolveFirebaseAuthConfig(props, extension.firebaseAuth, site.firebaseAuth) },
-            FirebaseAuthConfig()
-        )
-        val resolvedComments = resolveDomain("comments",
-            { resolveCommentsConfig(props, extension.commentsConfig, site.comments) },
-            CommentsConfig()
-        )
-        val resolvedAnalytics = resolveDomain("analytics",
-            { resolveAnalyticsConfig(props, extension.analytics, site.analytics) },
-            AnalyticsConfig()
-        )
-        val resolvedNewsletter = resolveDomain("newsletter",
-            { resolveNewsletterConfig(props, extension.newsletter, site.newsletter) },
-            NewsletterConfig()
-        )
-        val resolvedTheme = resolveDomain("theme",
-            { resolveThemeConfig(props, extension.theme, site.theme) },
-            ThemeConfig()
-        )
-        val resolvedLayout = resolveDomain("layout",
-            { resolveLayoutConfig(props, extension.layout, site.layout) },
-            LayoutConfig()
-        )
-        val resolvedLanguage = resolveDomain("language",
-            { resolveLanguage(props, extension, site) },
-            "fr"
-        )
-        val resolvedSupportedLanguages = resolveDomain("supportedLanguages",
-            { resolveSupportedLanguages(props, extension, site) },
-            listOf("fr")
+        val domainResolvers: List<DomainResolver<*>> = listOf(
+            DomainResolver("firebase", { resolveFirebaseConfig(props, site.firebase) }, FirebaseProjectInfo(projectId = "", apiKey = "")),
+            DomainResolver("googleForms", { resolveGoogleFormsConfig(props, extension.googleForms, site.googleForms) }, GoogleFormsConfig()),
+            DomainResolver("firebaseAuth", { resolveFirebaseAuthConfig(props, extension.firebaseAuth, site.firebaseAuth) }, FirebaseAuthConfig()),
+            DomainResolver("comments", { resolveCommentsConfig(props, extension.commentsConfig, site.comments) }, CommentsConfig()),
+            DomainResolver("analytics", { resolveAnalyticsConfig(props, extension.analytics, site.analytics) }, AnalyticsConfig()),
+            DomainResolver("newsletter", { resolveNewsletterConfig(props, extension.newsletter, site.newsletter) }, NewsletterConfig()),
+            DomainResolver("theme", { resolveThemeConfig(props, extension.theme, site.theme) }, ThemeConfig()),
+            DomainResolver("layout", { resolveLayoutConfig(props, extension.layout, site.layout) }, LayoutConfig()),
+            DomainResolver("language", { resolveLanguage(props, extension, site) }, "fr"),
+            DomainResolver("supportedLanguages", { resolveSupportedLanguages(props, extension, site) }, listOf("fr")),
         )
 
+        val resolved = domainResolvers.map { it.resolve(errors) }
+
+        @Suppress("UNCHECKED_CAST")
         return ResolvedConfigs(
-            firebase = resolvedFirebase,
-            googleForms = resolvedGoogleForms,
-            firebaseAuth = resolvedFirebaseAuth,
-            comments = resolvedComments,
-            analytics = resolvedAnalytics,
-            newsletter = resolvedNewsletter,
-            theme = resolvedTheme,
-            layout = resolvedLayout,
-            language = resolvedLanguage,
-            supportedLanguages = resolvedSupportedLanguages
+            firebase = resolved[0] as FirebaseProjectInfo,
+            googleForms = resolved[1] as GoogleFormsConfig,
+            firebaseAuth = resolved[2] as FirebaseAuthConfig,
+            comments = resolved[3] as CommentsConfig,
+            analytics = resolved[4] as AnalyticsConfig,
+            newsletter = resolved[5] as NewsletterConfig,
+            theme = resolved[6] as ThemeConfig,
+            layout = resolved[7] as LayoutConfig,
+            language = resolved[8] as String,
+            supportedLanguages = resolved[9] as List<String>,
         ) to errors.toList()
     }
 

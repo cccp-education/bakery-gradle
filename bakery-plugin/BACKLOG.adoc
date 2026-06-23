@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-23 — Session 144 (BKY-CR-V6 US-2 DomainConfigInjectors data-driven 113→2 lignes ✅)_
+_Dernière mise à jour : 2026-06-23 — Session 145 (BKY-CR-V6 US-3 ConfigResolver.resolveAll() data-driven ✅ — EPIC BKY-CR-V6 TERMINÉ 8/8 pts)_
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -1046,7 +1046,7 @@ cascade CLI > DSL > defaults, DDD Intention→Dsl→Task→Service.
 |===
 '''
 
-== EPIC BKY-CR-V6 : Duplications structurelles résiduelles (Session 141 — 8 pts)
+== EPIC BKY-CR-V6 : Duplications structurelles résiduelles (Session 141 — 8 pts) ✅ TERMINÉ
 
 *Découverte* : Session 141 — Audit ciblé sur duplications de code (intuition utilisateur).
 L'audit V5 (S117) avait identifié 3 duplications structurelles mais les US-CR-V5-5 et V5-7
@@ -1058,6 +1058,7 @@ data-driven non fait). Cet EPIC cloture proprement les duplications résiduelles
 *Charge* : ~8 pts (~2 sessions)
 *Priorité* : P1 — Duplications réelles dans code production publié 0.0.1, à figer dans 0.0.2.
 *Méthode* : Baby steps DDD/TDD/BDD — caractérisation comportements existants avant refactor.
+*Statut* : **TERMINÉ — 8/8 pts**. US-1 ✅ S142 (ResolveIntention helper), US-2 ✅ S144 (DomainConfigInjectors data-driven), US-3 ✅ S145 (ConfigResolver.resolveAll() data-driven).
 
 [cols="1,4,2,2"]
 |===
@@ -1090,11 +1091,11 @@ data-driven non fait). Cet EPIC cloture proprement les duplications résiduelles
 | US-CR-V6-3
 | **ConfigResolver.resolveAll() data-driven — 10 blocs `resolveDomain` répétitifs** —
   `ConfigResolver.kt:332-401` : 10 blocs identiques `resolveDomain("x", { resolveXConfig(...) }, XConfig())`.
-  Extraire `DomainResolver<T>(name, resolver: () -> T, fallback: T)` + liste `domainResolvers: List<DomainResolver<*>>`.
+  Extraire `DomainResolver<T>(name, resolver: () -> T, fallback: T)` + liste `domainResolvers: List<DomainResolver<*>`.
   DDD : `DomainResolver` data class + `resolveAllDataDriven()`. TDD : tests par domaine.
   Refactor : `resolveAll()` délègue à `resolveAllDataDriven()`. Comportement identique.
 | 3
-| 🟠 P1
+| ✅ S145
 |===
 
 '''
@@ -1120,8 +1121,8 @@ data-driven non fait). Cet EPIC cloture proprement les duplications résiduelles
 // ── EN ATTENTE ──
 | BKY-I18N-MIG-4 | Service traduction transverse (codebase-gradle N1) | 3 | ✅ TERMINÉ — TranslationService contrat N0 + LlmTranslator N1 + FakeLlmTranslator livrés codebase-gradle S133 ; câblé dans bakery S134
 // ── NOUVEL EPIC V6 (Session 141) ──
-| BKY-CR-V6 | Duplications structurelles résiduelles (ResolveIntention helper, DomainConfigInjectors data-driven, resolveAll data-driven) | 8 | 🟠 P1 — US-1 ✅ S142, US-2 ✅ S144, US-3 à faire (3 pts restants)
-| *Total restant* | | *3* |
+| BKY-CR-V6 | Duplications structurelles résiduelles (ResolveIntention helper, DomainConfigInjectors data-driven, resolveAll data-driven) | 8 | ✅ TERMINÉ — US-1 S142, US-2 S144, US-3 S145
+| *Total restant* | | *0* |
 |===
 
 *Tous les EPICs historiques* : 30/30 ✅ (100%)
@@ -1129,7 +1130,7 @@ data-driven non fait). Cet EPIC cloture proprement les duplications résiduelles
 *Code smells V5* : 52 ✅ (US-1 faux positif, US-2+3+4+5+6+7+8 résolues — V5-5 et V5-7 PARTIEL repris en V6)
 *Bakery 100% fonctionnel* — les smells V5/V6 sont qualitatifs, pas fonctionnels.
 *Nouveau cap* : BKY-PUB-2 — ✅ TERMINÉ S143 (Maven Central LIVE 0.0.2, Portal en propagation 24-48h).
-*Nouveau cap* : BKY-CR-V6 — US-1 ✅ S142 (helper ResolveIntention), US-2 ✅ S144 (DomainConfigInjectors data-driven 113→2 lignes), US-3 à faire (resolveAll data-driven, 3 pts restants).
+*Nouveau cap* : BKY-CR-V6 — **TERMINÉ 8/8 pts** (US-1 S142, US-2 S144, US-3 S145).
 *Migration i18n des 3 sites* : magic-stick ✅, cccp.education, cheroliv.com.
 
 '''
@@ -1138,7 +1139,7 @@ data-driven non fait). Cet EPIC cloture proprement les duplications résiduelles
 [cols="2,3"]
 |===
 | Document | `BACKLOG.adoc`
-| Version | 9.3 — Session 144 (BKY-CR-V6 US-2 ✅ DomainConfigInjectors data-driven)
+| Version | 9.4 — Session 145 (BKY-CR-V6 US-3 ✅ ConfigResolver.resolveAll() data-driven — EPIC TERMINÉ 8/8 pts)
 | Historisé dans | `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
-| Basé sur | Code review V5 (`.agents/CODE_REVIEW.adoc`, Session 117) + Session 105 + Session 111 + Session 116 + Audit duplications Session 141 + US-1 Session 142 + Publication 0.0.2 Session 143 + US-2 DomainConfigInjectors Session 144
-| Prochaine màj | Session 145 — BKY-CR-V6 US-3 (ConfigResolver.resolveAll() data-driven)
+| Basé sur | Code review V5 (`.agents/CODE_REVIEW.adoc`, Session 117) + Session 105 + Session 111 + Session 116 + Audit duplications Session 141 + US-1 Session 142 + Publication 0.0.2 Session 143 + US-2 DomainConfigInjectors Session 144 + US-3 resolveAll data-driven Session 145
+| Prochaine màj | Session 146 — aucun EPIC actif prioritaire ; attente roadmap utilisateur ou audit/cleanup

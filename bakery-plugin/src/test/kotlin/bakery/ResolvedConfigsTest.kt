@@ -367,6 +367,175 @@ class ResolvedConfigsTest {
     }
 
     @Nested
+    inner class ResolveAllDataDrivenTest {
+
+        @Test
+        fun `resolveAllDataDriven returns same defaults as resolveAll`() {
+            val props = emptyMap<String, String>()
+            val extension = createExtension()
+            val site = createSite()
+
+            val (expected, _) = ConfigResolver.resolveAll(props, extension, site)
+            val (actual, errors) = ConfigResolver.resolveAllDataDriven(props, extension, site)
+
+            assertAll(
+                { assertEquals(expected.firebase, actual.firebase) },
+                { assertEquals(expected.googleForms, actual.googleForms) },
+                { assertEquals(expected.firebaseAuth, actual.firebaseAuth) },
+                { assertEquals(expected.comments, actual.comments) },
+                { assertEquals(expected.analytics, actual.analytics) },
+                { assertEquals(expected.newsletter, actual.newsletter) },
+                { assertEquals(expected.theme, actual.theme) },
+                { assertEquals(expected.layout, actual.layout) },
+                { assertEquals(expected.language, actual.language) },
+                { assertEquals(expected.supportedLanguages, actual.supportedLanguages) },
+                { assertTrue(errors.isEmpty(), "No errors expected with defaults") }
+            )
+        }
+
+        @Test
+        fun `resolveAllDataDriven applies CLI overrides identically to resolveAll`() {
+            val props = mapOf(
+                "bakery.firebase.apiKey" to "cli-api-key",
+                "bakery.googleForms.formId" to "cli-form-id",
+                "bakery.theme.mode" to "dark",
+                "bakery.layout.layoutType" to "SIDEBAR_LEFT"
+            )
+            val extension = createExtension()
+            val site = createSite()
+
+            val (expected, _) = ConfigResolver.resolveAll(props, extension, site)
+            val (actual, errors) = ConfigResolver.resolveAllDataDriven(props, extension, site)
+
+            assertAll(
+                { assertEquals(expected.firebase, actual.firebase) },
+                { assertEquals(expected.googleForms, actual.googleForms) },
+                { assertEquals(expected.theme, actual.theme) },
+                { assertEquals(expected.layout, actual.layout) },
+                { assertTrue(errors.isEmpty()) }
+            )
+        }
+
+        @Test
+        fun `resolveAllDataDriven applies YAML overrides identically to resolveAll`() {
+            val props = emptyMap<String, String>()
+            val extension = createExtension()
+            val site = SiteConfiguration(
+                googleForms = GoogleFormsConfig(formId = "yaml-form"),
+                analytics = AnalyticsConfig(provider = "yaml-plausible"),
+                theme = ThemeConfig(mode = "light"),
+                layout = LayoutConfig(layoutType = LayoutType.CENTERED)
+            )
+
+            val (expected, _) = ConfigResolver.resolveAll(props, extension, site)
+            val (actual, errors) = ConfigResolver.resolveAllDataDriven(props, extension, site)
+
+            assertAll(
+                { assertEquals(expected.googleForms, actual.googleForms) },
+                { assertEquals(expected.analytics, actual.analytics) },
+                { assertEquals(expected.theme, actual.theme) },
+                { assertEquals(expected.layout, actual.layout) },
+                { assertTrue(errors.isEmpty()) }
+            )
+        }
+
+        @Test
+        fun `resolveAllDataDriven applies DSL overrides identically to resolveAll`() {
+            val props = emptyMap<String, String>()
+            val extension = createExtension()
+            extension.googleForms.formId = "dsl-form"
+            extension.theme.mode = "dark"
+            extension.layout.layoutType = LayoutType.SIDEBAR_RIGHT
+            val site = SiteConfiguration(
+                googleForms = GoogleFormsConfig(formId = "yaml-form"),
+                theme = ThemeConfig(mode = "light")
+            )
+
+            val (expected, _) = ConfigResolver.resolveAll(props, extension, site)
+            val (actual, errors) = ConfigResolver.resolveAllDataDriven(props, extension, site)
+
+            assertAll(
+                { assertEquals(expected.googleForms, actual.googleForms) },
+                { assertEquals(expected.theme, actual.theme) },
+                { assertEquals(expected.layout, actual.layout) },
+                { assertTrue(errors.isEmpty()) }
+            )
+        }
+
+        @Test
+        fun `resolveAllDataDriven accumulates DomainFailure when a resolver throws`() {
+            val props = emptyMap<String, String>()
+            val extension = createExtension()
+            val site = createSite()
+
+            val original = ConfigResolver.resolveAll(props, extension, site)
+            val (configs, errors) = ConfigResolver.resolveAllDataDriven(props, extension, site)
+
+            assertEquals(original.first, configs)
+            assertTrue(original.second.size == errors.size)
+        }
+
+        @Test
+        fun `resolveAllDataDriven returns ResolvedConfigs data class`() {
+            val props = emptyMap<String, String>()
+            val extension = createExtension()
+            val site = createSite()
+
+            val (configs, _) = ConfigResolver.resolveAllDataDriven(props, extension, site)
+
+            assertTrue(configs is ResolvedConfigs)
+        }
+
+        @Test
+        fun `resolveAllDataDriven resolves language domain identically to resolveAll`() {
+            val props = mapOf("bakery.language.language" to "ar")
+            val extension = createExtension()
+            val site = createSite()
+
+            val (expected, _) = ConfigResolver.resolveAll(props, extension, site)
+            val (actual, _) = ConfigResolver.resolveAllDataDriven(props, extension, site)
+
+            assertEquals(expected.language, actual.language)
+            assertEquals("ar", actual.language)
+        }
+
+        @Test
+        fun `resolveAllDataDriven resolves supportedLanguages domain identically to resolveAll`() {
+            val props = mapOf("bakery.supportedLanguages.supportedLanguages" to "fr,en,es")
+            val extension = createExtension()
+            val site = createSite()
+
+            val (expected, _) = ConfigResolver.resolveAll(props, extension, site)
+            val (actual, _) = ConfigResolver.resolveAllDataDriven(props, extension, site)
+
+            assertEquals(expected.supportedLanguages, actual.supportedLanguages)
+            assertEquals(listOf("fr", "en", "es"), actual.supportedLanguages)
+        }
+
+        @Test
+        fun `resolveAllDataDriven with all 10 domains populated returns no errors`() {
+            val props = mapOf(
+                "bakery.firebase.apiKey" to "k",
+                "bakery.firebase.projectId" to "p",
+                "bakery.googleForms.formId" to "f",
+                "bakery.firebaseAuth.apiKey" to "ak",
+                "bakery.comments.enabled" to "true",
+                "bakery.analytics.provider" to "matomo",
+                "bakery.newsletter.enabled" to "true",
+                "bakery.theme.mode" to "dark",
+                "bakery.layout.layoutType" to "CENTERED",
+                "bakery.language.language" to "en"
+            )
+            val extension = createExtension()
+            val site = createSite()
+
+            val (_, errors) = ConfigResolver.resolveAllDataDriven(props, extension, site)
+
+            assertTrue(errors.isEmpty(), "All 10 domains should resolve without errors")
+        }
+    }
+
+    @Nested
     inner class ResolvedConfigsToResolverIntegrationTest {
 
         @Test

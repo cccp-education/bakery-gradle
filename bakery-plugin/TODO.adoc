@@ -1,7 +1,7 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-06-19 — Session 129 (publishSite aggregate task)_
+_Dernière mise à jour : 2026-06-23 — Session 145 (BKY-CR-V6 US-3 resolveAll data-driven — EPIC TERMINÉ)_
 
 * [x] Implementer la generation du code client Firebase dans les templates (→ BKY-JB-4, session 032)
 * [x] Ajouter une vraie Firebase API key quand disponible (→ EPIC 4, formalité restante côté consommateur cheroliv.com)
@@ -48,21 +48,21 @@ Tous les tests (68 UT + 10 Cucumber) utilisent des templates synthétiques dans 
 
 === EPIC BKY-I18N-PROD-VAL : Validation Dry-Run (3 pts)
 
-* [ ] **US-VAL-1** : Dry-run magic-stick — Exécuter migrateToI18n en dry-run. Vérifier nombre de clés, pas de crash, rapport lisible.
-* [ ] **US-VAL-2** : Audit clés extraites — Vérifier manuellement : noms propres NON extraits, termes techniques NON extraits, URLs NON extraites.
-* [ ] **US-VAL-3** : Correction faux positifs — Ajuster les 6 extracteurs si nécessaire (whitelist noms propres, termes techniques).
+* [x] **US-VAL-1** : Dry-run magic-stick — Exécuter migrateToI18n en dry-run. Vérifier nombre de clés, pas de crash, rapport lisible. ✅ S130
+* [x] **US-VAL-2** : Audit clés extraites — Vérifier manuellement : noms propres NON extraits, termes techniques NON extraits, URLs NON extraites. ✅ S130
+* [x] **US-VAL-3** : Correction faux positifs — Ajuster les 6 extracteurs si nécessaire (whitelist noms propres, termes techniques). ✅ S130
 
 === EPIC BKY-I18N-PROD-MIG : Migration magic-stick (5 pts)
 
-* [ ] **US-MIG-1** : Migration réelle magic-stick — migrateToI18n avec dryRun=false. Vérifier fichiers créés, templates modifiés.
-* [ ] **US-MIG-2** : Traduction manuelle fr→en — Remplir messages_en.properties (40-60 clés).
-* [ ] **US-MIG-3** : Test de rendu FR/EN — Démarrer serve, tester les deux langues. Vérifier pas de régression.
+* [x] **US-MIG-1** : Migration réelle magic-stick — migrateToI18n avec dryRun=false. Vérifier fichiers créés, templates modifiés. ✅ S131
+* [x] **US-MIG-2** : Traduction manuelle fr→en — Remplir messages_en.properties (40-60 clés). ✅ S131
+* [x] **US-MIG-3** : Test de rendu FR/EN — Démarrer serve, tester les deux langues. Vérifier pas de régression. ✅ S131
 
 === EPIC BKY-I18N-PROD-GEN : Généralisation (8 pts)
 
-* [ ] **US-GEN-1** : Migration cccp.education — Répéter US-MIG-1→3. 11 templates, ~30-40 clés.
-* [ ] **US-GEN-2** : Migration cheroliv.com — Répéter US-MIG-1→3. 20 templates, ~60-80 clés.
-* [ ] **US-GEN-3** : Traduction 8 langues restantes — messages_*.properties pour es, de, it, pt, nl, pl, ar, zh (via LLM ou manuel).
+* [x] **US-GEN-1** : Migration cccp.education — Répéter US-MIG-1→3. 11 templates, ~30-40 clés. ✅ S132
+* [x] **US-GEN-2** : Migration cheroliv.com — Répéter US-MIG-1→3. 20 templates, ~60-80 clés. ✅ S132
+* [x] **US-GEN-3** : Traduction 8 langues restantes — messages_*.properties pour es, de, it, pt, nl, pl, ar, zh (via LLM ou manuel). ✅ S132
 
 == Post-v1.0 — Code Review V3
 

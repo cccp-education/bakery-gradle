@@ -1,48 +1,32 @@
 = PROMPT REPRISE — Bakery
-:session: 145
+:session: 146
 :date: 2026-06-23
 
-== Mission accomplie (session 144)
+== Mission accomplie (session 145)
 
-*BKY-CR-V6 US-2 DomainConfigInjectors data-driven* — refactor DDD/TDD.
-- `DomainConfigInjectors.kt` : 113→2 lignes (-111, -98%). 9 objects supprimés.
-- DDD : `InjectorSpec` sealed class (3 sous-classes : `GateOnTriggerField`,
-  `GateOnBoolean`, `Always`) + `PropSpec(readKey, default, writeKey)` +
-  `InjectorRegistry.all` data-driven (9 specs).
-- TDD : 25 tests caractérisation `DomainConfigInjectorsTest` + 18 tests
-  `InjectorRegistryTest` — tous GREEN.
-- Safety net : tests existants GREEN, Cucumber 133/133 (XML), `publishToMavenLocal` OK.
-- API publique `configInjectors: Map<String, ConfigInjector>` préservée.
+*BKY-CR-V6 US-3 ConfigResolver.resolveAll() data-driven* — refactor DDD/TDD/BDD.
+- `ConfigResolver.resolveAll()` : 72 → 3 lignes (-69, -96%). Fonction locale `resolveDomain` supprimée.
+- DDD : `DomainResolver<T>(name, resolver, fallback)` data class + `resolve(errors)`.
+- TDD : 9 UT `DomainResolverTest` + 9 UT `ResolveAllDataDrivenTest` — caractérisation + équivalence avec `resolveAll()`.
+- `resolveAllDataDriven()` : liste de 10 `DomainResolver<*>` + reconstruction `ResolvedConfigs`.
+- Safety net : 1123/1123 UT PASS, `publishToMavenLocal` OK, compile clean.
 
 == Statut
 
-- BKY-CR-V6 US-2 : ✅ TERMINÉ (2 pts)
-- BKY-CR-V6 US-3 : à faire (3 pts restants)
+- BKY-CR-V6 US-3 : ✅ TERMINÉ (3 pts)
+- **EPIC BKY-CR-V6 TERMINÉ — 8/8 pts**.
 
-== Prochaine session (145)
+== Prochaine session (146)
 
-Démarrer **BKY-CR-V6 US-3** : `ConfigResolver.resolveAll()` data-driven —
-10 blocs `resolveDomain` répétitifs (ligne 332-401).
+Tous les EPICs backlog actifs sont terminés. Pas de mission prioritaire prédéfinie.
 
-Baby steps DDD/TDD/BDD :
-- DDD : `DomainResolver<T>(name, resolver: () -> T, fallback: T)` data class +
-  `resolveAllDataDriven()` (liste `domainResolvers: List<DomainResolver<*>>`).
-- TDD : tests unitaires par domaine (RED→GREEN) — caractériser les 10
-  comportements existants avant refactor.
-- Refactor : `resolveAll()` délègue à `resolveAllDataDriven()`.
-  Vérifier comportement identique (tests existants GREEN).
-- `publishToMavenLocal` après modif code.
-
-Fichiers cibles :
-- `bakery/ConfigResolver.kt` (10 blocs `resolveDomain`, ligne 332-401)
-- NOUVEAU `bakery/DomainResolver.kt` (data class + liste data-driven)
-- Tests : `ResolvedConfigsTest.kt` existant à compléter
+Suggestions (à valider par l'utilisateur) :
+. **Audit borough** : revue de code/couverture Kover, identifications de nouvelles microfissures.
+. **Maintenance** : mise à jour dépendances, nettoyage TODO.adoc.
+. **Nouveau cap** : attente roadmap utilisateur ou création d'un nouvel EPIC.
 
 == Note technique
 
 - `./gradlew test` = validation rapide en session.
 - Kover threshold 85% maintenu.
 - `cucumberTest` timeout 5min = EPIC 5 préexistant (pas lié au refactor).
-- `Option` Arrow dépréciée en 2.x — nullable Kotlin + `Either` pour erreurs.
-- `PropSpec(readKey, default, writeKey = readKey)` pattern établi S144 —
-  réutilisable si `DomainResolver` a besoin de séparation lecture/écriture.

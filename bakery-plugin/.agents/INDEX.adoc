@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-23 — Session 144 (BKY-CR-V6 US-2 DomainConfigInjectors data-driven)
-  _Session terminee_ : 144 — BKY-CR-V6 US-2 refactor DDD/TDD. `DomainConfigInjectors.kt` 113→2 lignes (-111, -98%). 9 objects supprimés. DDD : `InjectorSpec` sealed class 3 sous-classes (GateOnTriggerField, GateOnBoolean, Always) + `PropSpec(readKey, default, writeKey)` + `InjectorRegistry.all` data-driven. TDD : 25 UT DomainConfigInjectorsTest + 18 UT InjectorRegistryTest. API publique `configInjectors` préservée. Safety net GREEN, publishToMavenLocal OK. BKY-CR-V6 : US-1 ✅ S142, US-2 ✅ S144, US-3 à faire (3 pts restants).
-  _Prochaine session_ : 145 — BKY-CR-V6 US-3 (ConfigResolver.resolveAll() data-driven — 10 blocs resolveDomain, ligne 332-401)
+  _Derniere mise a jour_ : 2026-06-23 — Session 145 (BKY-CR-V6 US-3 ConfigResolver.resolveAll() data-driven)
+  _Session terminee_ : 145 — BKY-CR-V6 US-3 refactor DDD/TDD. `ConfigResolver.resolveAll()` 72→3 lignes (-69, -96%). Fonction locale `resolveDomain` supprimée. DDD : `DomainResolver<T>(name, resolver, fallback)` data class + `resolve(errors)`. TDD : 9 UT DomainResolverTest + 9 UT ResolveAllDataDrivenTest. Refactor : `resolveAllDataDriven()` liste 10 `DomainResolver<*>` + reconstruction `ResolvedConfigs`. API publique `resolveAll()` inchangée. Safety net GREEN (1123/1123 UT PASS), publishToMavenLocal OK, compile clean. **BKY-CR-V6 TERMINÉ — 8/8 pts**.
+  _Prochaine session_ : 146 — aucun EPIC actif prioritaire ; attente roadmap utilisateur ou audit/cleanup.
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 145 | 2026-06-23 | DDD + TDD + refactor | **BKY-CR-V6 US-3 ConfigResolver.resolveAll() data-driven** — Refactor 72→3 lignes (-69, -96%). Fonction locale `resolveDomain<T>()` supprimée. DDD : `DomainResolver<T>(name, resolver, fallback)` data class + `resolve(errors: MutableList<ConfigResolutionError>)`. TDD : 9 UT `DomainResolverTest` (2 Nested : Structure 2 / Resolve 7) + 9 UT `ResolveAllDataDrivenTest` dans `ResolvedConfigsTest`. Refactor : `resolveAll()` délègue à `resolveAllDataDriven()` qui itère une liste de 10 `DomainResolver<*>` et reconstruit `ResolvedConfigs`. Import `Either` inutilisé retiré ; `@Suppress("UNCHECKED_CAST")` localisé. API publique `resolveAll()` inchangée. Safety net : 1123/1123 UT PASS, `publishToMavenLocal` OK, compile clean. **BKY-CR-V6 8/8 pts TERMINÉ**. | 9/10
   | 144 | 2026-06-23 | DDD + TDD + refactor | **BKY-CR-V6 US-2 DomainConfigInjectors data-driven** — Refactor 113→2 lignes (-111, -98%). 9 objects supprimés (FirebaseInjector, GoogleFormsInjector, FirebaseAuthInjector, CommentsInjector, AnalyticsInjector, NewsletterInjector, ThemeInjector, LayoutInjector, LanguageInjector). DDD : `InjectorSpec` sealed class 3 sous-classes (`GateOnTriggerField`, `GateOnBoolean`, `Always`) + `PropSpec(readKey, default, writeKey = readKey)` (séparation lecture/écriture pour LanguageInjector : lit `language`, écrit `site.language`) + `InjectorRegistry.all` data-driven (9 specs). TDD : 25 UT `DomainConfigInjectorsTest` caractérisation (4 Nested : TriggerFieldGate 9 tests / BooleanGate 7 tests / Always 7 tests / RegistryContract 2 tests) + 18 UT `InjectorRegistryTest` (5 Nested : Structure 11 / GateOnTriggerField 2 / GateOnBoolean 3 / Always 1 / LanguageWriteKey 1). Refactor : `configInjectors: Map<String, ConfigInjector> = InjectorRegistry.all.mapValues { ConfigInjector { spec.inject(...) } }`. API publique préservée. Safety net : tests existants GREEN (ResolvedConfigsTest, FirebaseAuthInjectionTest, AnalyticsNewsletterInjectionTest), Cucumber 133/133 (XML, timeout EPIC 5), publishToMavenLocal OK. BKY-CR-V6 US-2 = 2 pts ✅. | 9/10
   | 143 | 2026-06-23 | ops + publication | **BKY-PUB-2 Publication 0.0.2 Maven Central + Portal** — Maven Central : ✅ LIVE (`publishAggregationToCentralPortal` SUCCESS, bundle `81764b1c-1bf0-4d2d-a78e-86165b619cbe`, HTTP 200 sur `bakery-plugin-0.0.2.pom` repo1.maven.org). Gradle Plugin Portal : 🟠 soumis (`publishPlugins` FAILED — version 0.0.2 déjà créée 2026-06-22 23:33, en attente validation Gradle, propagation 24-48h). Compte `cccp-education` (credentials GPPK-* dans `~/.gradle/gradle.properties`, profil Portal HTTP 200). Pré-requis nmcp vérifiés : version 0.0.2 hardcodée, POM conforme (Apache 2.0, developer cccp-education + organization/organizationUrl), deps N0 releases + sur Central (graphify 0.0.2, codebase 0.0.2, codebase-contracts 0.0.1, i18n-contracts 0.0.1, workspace-bom 0.0.1), signing GPG OK. Aucun changement code source (publication-only). | 9/10
   | 142 | 2026-06-23 | DDD + TDD + refactor | **BKY-CR-V6 US-1 Helper ResolveIntention** — DDD : `ResolveIntention` objet pur (zéro Gradle) + `ResolveIntentionError` sealed class (`MissingRequiredField` + `toException()` abstract au parent). 5 fonctions : `fromCli`, `fromCliNullable`, `fromCliRequired` (Either), `fromCliList`, `fromCliBoolean`. FP/Arrow-kt 2.2.2 : `Either<ResolveIntentionError, String>` + `.fold` (Option dépréciée en 2.x). TDD : 26 UT `ResolveIntentionTest` (5 `@Nested`). Refactor : 4 Task migrées — 23 occurrences pattern supprimées, zéro `throw IllegalArgumentException` manuel. Safety net GREEN. `publishToMavenLocal` OK. | 9/10
@@ -179,7 +180,7 @@ _Archives_ : Sessions 100-113 archivées dans `.agents/backup/Y2026-sessions-090
 
 |===
 | EPIC | Progression | Priorite
-| BKY-CR-V6 : 3 duplications structurelles (ResolveIntention ×4, DomainConfigInjectors 9 injecteurs, resolveAll 10 blocs) | 62% (5/8 pts) — US-1 ✅ S142, US-2 ✅ S144, US-3 à faire | *🟠 P1 — Session 145 démarre US-3*
+| BKY-CR-V6 : 3 duplications structurelles (ResolveIntention ×4, DomainConfigInjectors 9 injecteurs, resolveAll 10 blocs) | 100% (8/8 pts) — US-1 ✅ S142, US-2 ✅ S144, US-3 ✅ S145 | *✅ TERMINÉ — Session 145*
 |===
 
 === EPIC LENTILLE — ✅ TERMINÉ
