@@ -42,20 +42,20 @@ class FixtureAlignmentAuditor {
         val fixtureTemplates = listTemplateFiles(fixtureTemplatesDir)
         val realSiteTemplates = listTemplateFiles(realSiteTemplatesDir)
 
-        val fixtureNames = fixtureTemplates.map { it.name }.toSortedSet()
-        val realSiteNames = realSiteTemplates.map { it.name }.toSortedSet()
+        val fixtureRelativeNames = fixtureTemplates.map { it.toRelativeString(fixtureTemplatesDir) }.toSortedSet()
+        val realSiteRelativeNames = realSiteTemplates.map { it.toRelativeString(realSiteTemplatesDir) }.toSortedSet()
 
-        val missingInFixture = (realSiteNames - fixtureNames).toList()
-        val extraInFixture = (fixtureNames - realSiteNames).toList()
+        val missingInFixture = (realSiteRelativeNames - fixtureRelativeNames).toList()
+        val extraInFixture = (fixtureRelativeNames - realSiteRelativeNames).toList()
 
-        val commonNames = fixtureNames.intersect(realSiteNames)
-        val mismatchedContent = commonNames.mapNotNull { name ->
-            val fixtureFile = fixtureTemplatesDir.resolve(name)
-            val realSiteFile = realSiteTemplatesDir.resolve(name)
+        val commonNames = fixtureRelativeNames.intersect(realSiteRelativeNames)
+        val mismatchedContent = commonNames.mapNotNull { relativeName ->
+            val fixtureFile = fixtureTemplatesDir.resolve(relativeName)
+            val realSiteFile = realSiteTemplatesDir.resolve(relativeName)
             val fixtureHash = sha256(fixtureFile.readText().normalizeEol())
             val realSiteHash = sha256(realSiteFile.readText().normalizeEol())
             if (fixtureHash != realSiteHash) {
-                TemplateMismatch(name, fixtureHash, realSiteHash)
+                TemplateMismatch(relativeName, fixtureHash, realSiteHash)
             } else null
         }
 

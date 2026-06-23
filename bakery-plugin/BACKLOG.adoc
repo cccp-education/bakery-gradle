@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-23 — Session 149 (BKY-I18N-PROD-AUDIT service d'audit fixtures ↔ sites réels ✅ — alignement 🔄 S150)_
+_Dernière mise à jour : 2026-06-23 — Session 150 (BKY-I18N-PROD-AUDIT alignement fixtures ↔ sites réels ✅ TERMINÉ)_
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -1159,8 +1159,8 @@ data-driven non fait). Cet EPIC cloture proprement les duplications résiduelles
 | BKY-I18N-MIG-4 | Service traduction transverse (codebase-gradle N1) | 3 | ✅ TERMINÉ — S134
 | BKY-CR-V6 | Duplications structurelles résiduelles | 8 | ✅ TERMINÉ — US-1 S142, US-2 S144, US-3 S145
 // ── EN COURS ──
-| BKY-I18N-PROD-AUDIT | Alignement fixtures ↔ sites réels | 5 | 🟠 S149 (US-1 ✅, US-2 ✅, US-3→5 🔄 S150)
-| *Total restant* | | *3.5* |
+| BKY-I18N-PROD-AUDIT | Alignement fixtures ↔ sites réels | 5 | ✅ S150 (US-1→5 TERMINÉS)
+| *Total restant* | | *0* |
 |===
 
 *Tous les EPICs historiques* : 30/30 ✅ (100%)

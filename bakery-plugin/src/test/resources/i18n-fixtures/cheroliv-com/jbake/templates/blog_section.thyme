@@ -1,20 +1,28 @@
 <!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
-
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="fr">
-<head th:replace="header.thyme::head"/>
-<body >
-<div th:replace="menu.thyme::menu"/>
-<div class="main-content-wrapper">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      lang="fr">
+<body>
+<!-- =============================================================================================================== -->
+<!-- Blog Section -->
+<!-- =============================================================================================================== -->
+<section id="blog"
+         th:fragment="blog-section"
+         class="py-5 bg-light-theme">
     <div class="container">
         <div class="row">
             <div class="col-lg-12 text-center mb-5">
-                <h1 class="display-5 fw-bold">Blog</h1>
+                <h2 class="display-5 fw-bold">Blog</h2>
                 <p class="text-muted">Derniers articles et ressources</p>
             </div>
         </div>
         <div class="row">
             <div class="col-12 text-center mb-5">
                 <div class="hero-buttons">
+                    <a href="blog.html" class="btn btn-primary me-3">
+                        <i class="bi bi-journal-text me-2"></i>
+                        Visiter le Blog
+                    </a>
                     <a href="archive.html" class="btn btn-secondary me-3">
                         <i class="bi bi-archive me-2"></i>
                         Archives
@@ -26,12 +34,8 @@
                         <i class="bi bi-search me-2"></i>
                         Rechercher
                     </a>
-
                     <div class="btn-group ms-3">
-                        <button type="button"
-                                class="btn btn-primary dropdown-toggle"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false">
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-journal-bookmark me-2"></i>
                             Mémos
                         </button>
@@ -54,15 +58,18 @@
                             <li><hr class="dropdown-divider"/></li>
                             <li><a class="dropdown-item" th:href="@{${content.rootpath} + 'blog/2022/0031_memo_design_system_post.html'}"><i class="fa-solid fa-pencil"></i> design system</a></li>
                             <li><a class="dropdown-item" th:href="@{${content.rootpath} + 'blog/2020/0016_asciidoc_markdown_memo_post.html'}"><i class="fa-brands fa-markdown"></i> asciidoc/markdown</a></li>
+
                         </ul>
                     </div>
+
                 </div>
             </div>
         </div>
 
         <div class="row g-4">
             <div class="col-lg-4 col-md-6"
-                 th:each="post : ${published_posts}">
+                 th:each="post, iterStat : ${published_posts}"
+                 th:if="${iterStat.index < 3}">
                 <div class="blog-card h-100 d-flex flex-column">
                     <div class="blog-image">
                         <div class="placeholder-image bg-primary d-flex align-items-center justify-content-center">
@@ -86,6 +93,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
     <!-- Search Modal -->
@@ -111,13 +119,7 @@
             </div>
         </div>
     </div>
-</div>
 
-<div th:replace="footer.thyme::footer"></div>
-<!-- Scroll to Top Button -->
-<button id="scrollToTopBtn" class="btn btn-primary shadow-sm" aria-label="Retour en haut de page">
-    <i class="bi bi-arrow-up"></i>
-</button>
-</body>
+</section>
 </body>
 </html>

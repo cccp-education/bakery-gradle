@@ -2,12 +2,12 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org">
-    <body>
+	<body>
         <div th:fragment="menu" th:with="isIndexPage=${(content.uri == 'index.html' or content.uri == '' or content.uri == null) and content.type != 'archive'}">
             <nav class="navbar navbar-expand-lg fixed-top">
                 <div class="container">
                     <a class="navbar-brand fw-bold" th:href="${isIndexPage ? '#home' : content.rootpath + 'index.html#home'}">
-                        <i class="bi bi-box-seam me-2"></i>
+                        <i class="bi bi-hammer me-2"></i>
                         <span class="brand-text">cccp.education</span>
                     </a>
 
@@ -27,24 +27,45 @@
                                 <a class="nav-link" th:href="${isIndexPage ? '#home' : content.rootpath + 'index.html#home'}">Accueil</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#projects">Projets</a>
+                                <a class="nav-link" th:href="${isIndexPage ? '#plugins' : content.rootpath + 'index.html#plugins'}">Plugins</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#philosophy">Philosophie</a>
+                                <a class="nav-link" th:href="${isIndexPage ? '#pipeline' : content.rootpath + 'index.html#pipeline'}">Pipeline</a>
                             </li>
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="docsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Documentation</a>
+                                <a class="nav-link dropdown-toggle" href="#" id="docsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Docs</a>
                                 <ul class="dropdown-menu" aria-labelledby="docsDropdown">
-                                    <li><a class="dropdown-item" th:href="${content.rootpath + 'roadmap.html'}">Roadmap</a></li>
-                                    <li><a class="dropdown-item" th:href="${content.rootpath + 'contribute.html'}">Contribuer</a></li>
-                                    <li><hr class="dropdown-divider"/></li>
-                                    <li><a class="dropdown-item" th:href="${content.rootpath + 'releases.html'}">Notes de version</a></li>
+                                    <li><a class="dropdown-item" th:href="${content.rootpath + 'about.html'}">A propos</a></li>
+                                    <li><a class="dropdown-item" th:href="${content.rootpath + 'plugins.html'}">Catalogue plugins</a></li>
+                                    <li><a class="dropdown-item" th:href="${content.rootpath + 'blog.html'}">Blog</a></li>
                                 </ul>
                             </li>
                         </ul>
+                        <div class="nav-item dropdown theme-switcher-container ms-lg-3">
+                            <button class="btn btn-outline-secondary dropdown-toggle theme-dropdown-btn"
+                                    type="button"
+                                    id="themeDropdown"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false"
+                                    aria-label="Selectionner le theme de l'interface">
+                                <i class="bi bi-sun"></i>
+                                <span id="current-theme" class="visually-hidden">Light</span>
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="themeDropdown">
+                                <li><button class="dropdown-item theme-option" type="button" data-theme="light">
+                                    <i class="bi bi-sun me-2"></i>Light
+                                </button></li>
+                                <li><button class="dropdown-item theme-option" type="button" data-theme="dark">
+                                    <i class="bi bi-moon me-2"></i>Dark
+                                </button></li>
+                                <li><button class="dropdown-item theme-option" type="button" data-theme="high-contrast">
+                                    <i class="bi bi-circle-half me-2"></i>High Contrast
+                                </button></li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </nav>
         </div>
-    </body>
+  	</body>
 </html>

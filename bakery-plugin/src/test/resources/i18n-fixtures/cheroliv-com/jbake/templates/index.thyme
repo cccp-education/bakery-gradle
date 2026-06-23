@@ -2,83 +2,28 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org"
-      data-bs-theme="light"
-      lang="fr">
+      lang="fr" data-bs-theme="light">
 
 <head th:replace="header.thyme::head"/>
 
 <body>
 <div th:replace="menu.thyme::menu"/>
 
-<main class="container py-5">
-    <div class="row align-items-center mb-5" id="home">
-        <div class="col-lg-6">
-            <h1 class="display-4 fw-bold hero-title">Olivier Chéron</h1>
-            <p class="lead">Développeur, formateur et créateur d'outils open source autour de Gradle et du Knowledge Work.</p>
-            <p>Bienvenue sur mon blog : retours d'expérience, tutoriels Kotlin et architecture de plugins Gradle.</p>
-            <a class="btn btn-primary btn-lg me-2" href="#latest-posts">Lire les articles</a>
-            <a class="btn btn-outline-primary btn-lg" href="https://github.com/cheroliv" target="_blank">
-                <i class="bi bi-github me-1"></i> GitHub
-            </a>
-        </div>
-        <div class="col-lg-6 text-center">
-            <i class="bi bi-person-workspace" style="font-size:8rem;color:var(--bs-primary);"></i>
-        </div>
-    </div>
+<div th:replace="~{hero_section.thyme::hero}"/>
+<!--    <div th:replace="~{about_section.thyme::about-section}" />-->
+<!--<div th:replace="~{services_section.thyme::services-section}"/>-->
+<div th:replace="~{expertise_section.thyme::expertise-section}"/>
+<!--    <div th:replace="~{portfolio_section.thyme::portfolio-section}" />-->
+<!--    <div th:replace="~{formations_section.thyme::formations-section}" />-->
+<div th:replace="~{blog_section.thyme::blog-section}"/>
+<div th:replace="~{contact.thyme::contact-section}"/>
 
-    <hr class="my-5"/>
-
-    <div id="latest-posts">
-        <h2 class="text-center mb-4">Derniers articles</h2>
-        <div class="row g-4">
-            <div class="col-md-6">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">Migrer un plugin Gradle vers Maven Central</h5>
-                        <p class="card-text">Retour d'expérience sur la publication avec nmcp, signing GPG et Gradleup.</p>
-                        <a class="btn btn-outline-primary" href="#">Lire l'article</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <h5 class="card-title">DDD/TDD/BDD dans un plugin Gradle</h5>
-                        <p class="card-text">Comment j'organise mes sessions en baby steps : unit, fonctionnel, Cucumber.</p>
-                        <a class="btn btn-outline-primary" href="#">Lire l'article</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <hr class="my-5"/>
-
-    <div id="projects" class="text-center py-5 mb-4 rounded-3" style="background: linear-gradient(135deg, var(--bs-primary), var(--bs-success));">
-        <h2 class="text-white fw-bold">Projets open source</h2>
-        <p class="text-white opacity-75 fs-5">Découvrez les plugins Gradle, le workspace agent et les outils de documentation.</p>
-        <a class="btn btn-light btn-lg px-4 py-3 fw-semibold" href="https://github.com/cheroliv" target="_blank">
-            <i class="bi bi-github me-2"></i>Voir le portfolio
-        </a>
-    </div>
-
-    <hr class="my-5"/>
-
-    <div id="about">
-        <h2 class="text-center mb-4">À propos</h2>
-        <p class="lead text-center">Formateur Qualiopi et développeur indépendant, je conçois des outils qui accélèrent la création de formations et de documentation.</p>
-        <div class="text-center">
-            <a class="btn btn-primary" href="mailto:contact@cheroliv.com">Me contacter</a>
-        </div>
-    </div>
-</main>
-
-<button id="scrollToTopBtn"
-        class="btn btn-primary shadow-sm"
-        aria-label="Retour en haut de page">
+<!-- =============================================================================================================== -->
+<div th:replace="footer.thyme::footer"/>
+<!-- =============================================================================================================== -->
+<!-- Scroll to Top Button -->
+<button id="scrollToTopBtn" class="btn btn-primary shadow-sm" aria-label="Retour en haut de page">
     <i class="bi bi-arrow-up"></i>
 </button>
-
-<div th:replace="footer.thyme::footer"/>
 </body>
 </html>

@@ -1,5 +1,47 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 150 — 2026-06-23 — BKY-I18N-PROD-AUDIT alignement fixtures ↔ sites réels
+
+**Contexte** : Suite à la session 149, alignement des fixtures i18n de test avec les templates JBake réels de cccp.education et cheroliv.com. Approche baby steps DDD/TDD/BDD.
+
+**Tâches réalisées** :
+
+* [x] Relecture PROMPT_REPRISE S149 + AGENT + INDEX + BACKLOG.
+* [x] Baseline GREEN : `./gradlew test --tests "bakery.i18n.audit.FixtureAlignmentAuditorTest"` 5/5 infrastructure + magic-stick GREEN, 2 audits RED attendus.
+* [x] Backup des fixtures avant modification (`/tmp/opencode/cccp-education-fixture-backup-s150`, `/tmp/opencode/cheroliv-com-fixture-backup-s150`).
+* [x] Alignement fixture `cccp-education` : suppression de `release.thyme`, copie des 11 templates réels.
+* [x] Mise à jour `translations_en.properties` cccp-education (28 → 55 clés EN).
+* [x] Alignement fixture `cheroliv-com` : copie des 19 templates racine + 5 placeholders `TODO/`.
+* [x] Fix TDD `FixtureAlignmentAuditor.kt` : comparaison par chemins relatifs (subdirectory `TODO/`).
+* [x] Mise à jour `translations_en.properties` cheroliv-com (~120 clés EN).
+* [x] Validation : `FixtureAlignmentAuditorTest` 7/7 GREEN, `CccpEducationI18nMigrationIntegrationTest` 5/5 GREEN, `CherolivComI18nMigrationIntegrationTest` 5/5 GREEN, `./gradlew test` SUCCESS.
+* [x] `publishToMavenLocal` après modification du code source.
+* [x] Hook fermeture : PROMPT_REPRISE, INDEX, SESSIONS_HISTORY, TEST_COVERAGE_ANALYSIS, COMPLETED_TASKS_ARCHIVE mis à jour.
+
+**Fichiers modifiés / créés** :
+
+[cols="1,3,2"]
+|===
+| Fichier | Action | Note
+| `src/main/kotlin/bakery/i18n/audit/FixtureAlignmentAuditor.kt` | modifié | comparaison par chemins relatifs
+| `src/test/resources/i18n-fixtures/cccp-education/jbake/templates/*.thyme` | modifié/créé | alignement site réel
+| `src/test/resources/i18n-fixtures/cccp-education/jbake/templates/release.thyme` | supprimé | absent du site réel
+| `src/test/resources/i18n-fixtures/cccp-education/translations_en.properties` | modifié | 55 clés EN
+| `src/test/resources/i18n-fixtures/cheroliv-com/jbake/templates/*.thyme` | modifié/créé | alignement site réel + TODO/
+| `src/test/resources/i18n-fixtures/cheroliv-com/translations_en.properties` | modifié | ~120 clés EN
+| `.agents/sessions/150-alignement-fixtures-sites-reels.adoc` | créé | archive session
+|===
+
+**Décisions techniques** :
+
+. *Alignement exact* : copie fidèle des templates réels (y compris placeholders vides dans `TODO/`).
+. *Bug découvert* : l'auditeur comparait par `File.name`, ce qui échouait sur les sous-répertoires. Correction en comparaison par chemin relatif.
+. *Traductions* : manuelles, car les modèles Ollama cloud disponibles sont inadaptés aux traductions courtes.
+
+**Statut** : BKY-I18N-PROD-AUDIT ✅ TERMINÉ. Score : 9/10.
+
+---
+
 == Session 149 — 2026-06-23 — BKY-I18N-PROD-AUDIT audit d'alignement fixtures ↔ sites réels
 
 **Contexte** : Suite à la session 148, option 4 choisie : auditer et aligner les fixtures cccp.education et cheroliv.com avec les sites réels. Approche baby steps DDD/TDD/BDD.

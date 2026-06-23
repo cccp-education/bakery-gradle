@@ -1,28 +1,72 @@
 <!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{header.thyme::head}"/>
 <body>
-    <div th:fragment="page">
-        <div class="container py-4">
-            <div class="row">
-                <div class="col-lg-9 order-lg-0">
-                    <article>
-                        <header class="mb-4">
-                            <h1 th:text="${content.title}">Article de blog</h1>
-                        </header>
-                        <div th:utext="${content.body}"></div>
-                    </article>
-                </div>
-                <div class="col-lg-3 order-lg-1">
-                    <div class="card mb-4 d-print-none">
-                        <div class="card-body text-center">
-                            <i class="bi bi-person-circle display-4 text-primary"></i>
-                            <h5 class="card-title mt-2">À propos de l'auteur</h5>
-                            <p class="card-text">Formateur et développeur passionné par Gradle.</p>
-                        </div>
-                    </div>
-                </div>
+<div class="main-content-wrapper">
+    <div th:replace="~{menu.thyme::menu}"/>
+    <main class="container main-content-padding" id="main-content">
+        <article>
+            <header class="page-header mb-4">
+                <h1 class="h2" th:text="${content.title}">Titre de l'article</h1>
+                <p class="lead">
+                    <em th:text="'Publié le ' + ${#dates.format(content.date, 'dd MMMM yyyy')}">Date de publication</em>
+                    <th:block th:if="${content['last-update-date'] != null}">
+                        <em class="ms-3 text-muted" th:text="'Mis à jour le ' + ${content['last-update-date']}">Date de mise à jour</em>
+                    </th:block>
+                </p>
+            </header>
+
+            <div class="content" th:utext="${content.body}">
+                Contenu de l'article...
             </div>
-        </div>
-    </div>
+
+            <!-- Articles connexes (liens internes SEO) -->
+            <th:block th:if="${published_posts != null and !published_posts.empty}">
+                <th:block th:with="relatedCount=0">
+                    <section class="mt-5 pt-4 border-top" th:if="${#lists.size(published_posts) > 1}">
+                        <h2 class="h4 mb-3">Articles connexes</h2>
+                        <th:block th:each="post,postStat : ${published_posts}">
+                            <th:block th:if="${!post.uri.equals(content.uri) and postStat.index lt 4}">
+                                <div class="mb-2">
+                                    <a th:href="${content.rootpath} + ${post.uri}" th:text="${post.title}" class="fw-semibold"></a>
+                                    <br/><small class="text-muted" th:text="${#dates.format(post.date, 'dd MMM yyyy')}"></small>
+                                </div>
+                            </th:block>
+                        </th:block>
+                    </section>
+                </th:block>
+            </th:block>
+
+            <!-- Section Commentaires Disqus -->
+            <section id="disqus_thread" class="mt-5"></section>
+            <script th:inline="javascript">
+                /*<![CDATA[*/
+                var disqus_identifier = /*[[${content.uri}]]*/ '';
+
+                (({disqus_shortname, document}) => {
+                    injectScript('//' + disqus_shortname + '.disqus.com/embed.js');
+                    injectScript('//' + disqus_shortname + '.disqus.com/count.js');
+
+                    function injectScript(url) {
+                        const s = document.createElement('script');
+                        s.async = true;
+                        s.src = url;
+                        (document.head || document.body).appendChild(s);
+                    }
+                })({'disqus_shortname': 'cheroliv', 'document': document});
+                /*]]>*/
+            </script>
+            <noscript>
+                <div class="alert alert-warning">
+                    Veuillez activer JavaScript pour voir les
+                    <a href="https://disqus.com/?ref_noscript" class="alert-link">commentaires propulsés par Disqus</a>.
+                </div>
+            </noscript>
+
+        </article>
+    </main>
+</div>
+
+<div th:replace="~{footer.thyme::footer}"></div>
 </body>
 </html>

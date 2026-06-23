@@ -8,11 +8,12 @@
             <div class="row">
                 <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
                     <h5 class="fw-bold">
-                        <i class="bi bi-box-seam me-2"></i>
+                        <i class="bi bi-hammer me-2"></i>
                         cccp.education
                     </h5>
                     <p class="footer-description">
-                        Common Content Creator Proletarian — outils open source pour créateurs de contenu et formateurs.
+                        Créateur de Contenus Commun Prolétaire. Briques logicielles libres pour créer du contenu.
+                        Ecosysteme AsciiDoc, Gradle, Kotlin.
                     </p>
                     <div class="social-icons">
                         <a href="https://github.com/cccp-education" target="_blank" aria-label="GitHub"><i class="bi bi-github"></i></a>
@@ -21,42 +22,39 @@
                 </div>
 
                 <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
-                    <h6 class="fw-bold">Projets</h6>
+                    <h6 class="fw-bold">Plugins</h6>
                     <ul class="footer-links">
-                        <li><a href="https://github.com/cccp-education/plantuml-gradle" target="_blank"><i class="bi bi-chevron-right"></i>plantuml-gradle</a></li>
-                        <li><a href="https://github.com/cccp-education/codex-gradle" target="_blank"><i class="bi bi-chevron-right"></i>codex-gradle</a></li>
-                        <li><a href="https://github.com/cccp-education/bakery-gradle" target="_blank"><i class="bi bi-chevron-right"></i>bakery-gradle</a></li>
+                        <li><a th:href="${content.rootpath} + 'plugins.html'"><i class="bi bi-chevron-right"></i>Catalogue</a></li>
+                        <li><a th:href="${content.rootpath} + 'about.html'"><i class="bi bi-chevron-right"></i>Licence Apache 2.0</a></li>
                     </ul>
                 </div>
 
                 <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
                     <h6 class="fw-bold">Ressources</h6>
                     <ul class="footer-links">
-                        <li><a th:href="${content.rootpath} + 'roadmap.html'"><i class="bi bi-chevron-right"></i>Roadmap</a></li>
-                        <li><a th:href="${content.rootpath} + 'contribute.html'"><i class="bi bi-chevron-right"></i>Contribuer</a></li>
-                        <li><a href="https://github.com/cccp-education" target="_blank"><i class="bi bi-chevron-right"></i>Code source</a></li>
+                        <li><a href="https://github.com/cccp-education" target="_blank"><i class="bi bi-github"></i>GitHub org</a></li>
+                        <li><a href="https://central.sonatype.com/namespace/education.cccp" target="_blank"><i class="bi bi-box-seam"></i>Maven Central</a></li>
                     </ul>
                 </div>
 
-                <div class="col-lg-3 col-md-6">
-                    <h6 class="fw-bold">Contact</h6>
-                    <p class="mb-3">Suivez l'actualité sur GitHub et le blog.</p>
-                    <ul class="footer-links">
-                        <li><a href="https://cccp.education" target="_blank"><i class="bi bi-globe"></i>cccp.education</a></li>
-                        <li><a href="https://github.com/cccp-education" target="_blank"><i class="bi bi-github"></i>GitHub</a></li>
-                    </ul>
-                </div>
+
             </div>
 
             <hr class="footer-divider"/>
             <div class="footer-bottom">
-                <p>&copy; 2024-<span th:text="${#dates.year(#dates.createNow())}"></span> cccp.education. Tous droits réservés.</p>
+                <p>&copy; 2024-<span th:text="${#dates.year(#dates.createNow())}"></span> cccp.education. Licence Apache 2.0.</p>
                 <div class="footer-bottom-links">
-                    <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Licence Apache 2.0</a>
+                    <a href="https://github.com/cccp-education" target="_blank">GitHub</a>
+                    <a href="https://central.sonatype.com/namespace/education.cccp" target="_blank">Maven Central</a>
                 </div>
             </div>
         </div>
     </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <script th:src="@{${content.rootpath} + 'js/script.js'}"></script>
 </div>
 </body>
 </html>
