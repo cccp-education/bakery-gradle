@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-23 — Session 153 BKY-I18N-DELTA TERMINÉ (3/3 pts). 1 nouveau UT `AutoTranslationI18nMigrationIntegrationTest.auto-translation reuses existing translations and only translates missing keys`. 3/3 AutoTranslation PASS. Conceptualisation Loi de l'Économie d'Encre dans AGENT.adoc._
+_Dernière mise à jour : 2026-06-24 — Session 157 Parser AsciiDoc→YAML Pivot. 30 nouveaux UT (4 PivotModelTest + 9 PivotYamlRendererTest + 17 AsciiDocParserTest) dans package `bakery.pivot`. 3 tests golden master (PivotGoldenMasterTest) créés mais non exécutés par Gradle (bug découverte à investiguer). Aucun test existant modifié._
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''

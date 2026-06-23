@@ -165,25 +165,29 @@ _Tous résolus. Le détail par smell est dans le backup sess154 et `.agents/CODE
 
 '''
 
-== Pistes ouvertes (session 155+)
+== Pistes ouvertes (session 157+)
 
-_Bakery est production-ready. Aucun EPIC actif prioritaire. La suite dépend de la roadmap utilisateur._
+_Bakery est production-ready. Parser pivot AsciiDoc→YAML en cours (30 UT, golden master à débugger). La suite dépend de la roadmap utilisateur._
 
 [cols="1,4,2]
 |===
 | # | Piste | Méthode
 
 | 1
+| **Débugger PivotGoldenMasterTest** — Le test compile (bytecode présent) mais n'est pas exécuté par `--tests "bakery.pivot.PivotGoldenMasterTest"`. Hypothèses : conflit `useJUnitPlatform { excludeEngines("cucumber") }` + `filter { excludeTestsMatching("bakery.scenarios.*") }`, ou pattern `--tests` avec noms backtick. Le golden master valide le round-trip byte-identique AsciiDoc→PivotArticle→YAML sur les 3 fichiers magic-stick.
+| Debug Gradle test discovery + fix.
+
+| 2
+| **Finaliser parser + tâche generatePivotYaml** — Edge cases restants (tables multi-lignes, listes imbriquées, plantuml pass-through). Câbler le parser dans une tâche Gradle `generatePivotYaml` (N2 → YAML pivot) pour automatiser la séparation structure/contenu éditorial.
+| Baby steps DDD/TDD/BDD — golden master + Cucumber feature.
+
+| 3
 | **Implémentation effective du pattern delta (Loi de l'Économie d'Encre) dans le code des 9 boroughs LLM metered** — codex (RAG/embeddings), training (SPG/SPD), capsule (TTS/capture), plantuml (diagrammes), readme (README LLM), document (AsciiDoc IA), agile (ateliers IA), ticket (Issues IA), review (PRs IA). Un borough à la fois.
 | Baby steps DDD/TDD/BDD — load-before-write + test réutilisation + scénario idempotence économique.
 
-| 2
+| 4
 | **Nouvel EPIC** (nouvelle capability) à cadrer.
 | Cadrage agile 7 ateliers → DDD/TDD/BDD.
-
-| 3
-| **Audit/cleanup supplémentaire** ou passage à un autre borough du workspace.
-| Selon ciblage.
 |===
 
 *Notes techniques* :
