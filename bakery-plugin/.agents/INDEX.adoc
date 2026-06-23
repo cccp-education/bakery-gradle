@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-23 — Session 146 (maintenance gouvernance + audit borough)
-  _Session terminee_ : 146 — Maintenance craftsmanship : cleanup TODO.adoc, SESSIONS_HISTORY.adoc dedoublonne, INDEX.adoc portefeuille a jour. Archive session 145 verifiee. Audit Kover : 1 test Cucumber Feature 5 en echec preexistant (`deployProfile fails when site.yml does not exist`). Microfissure identifiee : deployProfile non enregistree quand site.yml absent → message Gradle "Task 'deployProfile' not found" au lieu d'erreur metier. Prochaine session 147 : BKY-FIX-1 (enregistrer deployProfile toujours + message "Failed to read site.yml").
-  _Prochaine session_ : 147 — BKY-FIX-1 Corriger deployProfile sans site.yml (baby steps DDD/TDD/BDD).
+  _Derniere mise a jour_ : 2026-06-23 — Session 147 (BKY-FIX-1 Corriger deployProfile sans site.yml)
+  _Session terminee_ : 147 — BKY-FIX-1 : deployProfile toujours enregistree ; echec metier explicite "Failed to read site.yml" au runtime quand site.yml absent/invalide. 7 fichiers modifies (production + tests). Safety nets : test/functionalTest/cucumberTest/check -x e2eTest/publishToMavenLocal ✅. Kover instruction coverage 92,58%.
+  _Prochaine session_ : 148 — Aucun EPIC actif prioritaire ; attente roadmap utilisateur, audit borough, ou nouvelle feature.
 
 '''
 

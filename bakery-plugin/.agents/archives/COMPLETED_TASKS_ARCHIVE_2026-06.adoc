@@ -1,5 +1,42 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 147 — 2026-06-23 — BKY-FIX-1 Corriger deployProfile sans site.yml
+
+**Contexte** : PROMPT_REPRISE session 146 identifiait une microfissure Cucumber Feature 5 : le scénario `deployProfile fails when site.yml does not exist` échouait car la tâche `deployProfile` n'était pas enregistrée quand `site.yml` était absent (mode scaffold only). L'utilisateur a rappelé la méthodologie baby steps DDD/TDD/BDD + agile software craftmanship et a validé l'approche B (UX robuste).
+
+**Tâches réalisées** :
+
+* [x] Baseline GREEN — relecture PROMPT_REPRISE, INDEX, AGENT, BACKLOG. Lancement ciblé de Feature 5 : 1 échec confirmé (`Task 'deployProfile' not found`).
+* [x] DDD — `src/main/kotlin/bakery/DeployTaskRegistrar.kt` : `registerDeployProfileTask()` devient indépendant de `SiteConfiguration`. La tâche lit la configuration au runtime.
+* [x] Refactor — `src/main/kotlin/bakery/BakeryPlugin.kt` : appel inconditionnel à `registerDeployProfileTask()` dans `registerScaffoldOnlyTasks` et `registerFullPipelineTasks` (condition `resolvedSite.pushProfile != null` supprimée). Commentaires BKY-FIX-1 ajoutés.
+* [x] TDD adapté — `BakeryPluginFullPipelineTest` : `deployProfile` attendue toujours enregistrée. `DeployTaskRegistrarTest` : appel sans `SiteConfiguration`. `ProfilePublisherFunctionalTest$FailureCasesTest` : pushProfile absent attend maintenant le message métier `pushProfile section not found in site.yml`.
+* [x] BDD adapté — Feature 5 scénario "not registered when pushProfile is absent" remplacé par "always registered regardless of pushProfile configuration". `PublishProfileSteps.kt` capture l'exception même quand des credentials sont fournis, permettant à `deployProfileShouldFailWithMessage` de vérifier `Failed to read site.yml`.
+* [x] Safety net — `./gradlew test functionalTest` ✅, `./gradlew cucumberTest` ✅, `./gradlew check -x e2eTest` ✅ (Kover instruction coverage 92,58%), `./gradlew -q publishToMavenLocal` ✅.
+
+**Fichiers modifiés** :
+
+[cols="1,3"]
+|===
+| Fichier | Action
+| `src/main/kotlin/bakery/DeployTaskRegistrar.kt` | Signature `registerDeployProfileTask()` sans `SiteConfiguration`
+| `src/main/kotlin/bakery/BakeryPlugin.kt` | Appel inconditionnel dans scaffold + full pipeline
+| `src/test/kotlin/bakery/BakeryPluginFullPipelineTest.kt` | Assertion `deployProfile` toujours enregistrée
+| `src/test/kotlin/bakery/DeployTaskRegistrarTest.kt` | Appel sans argument + nettoyage helper inutilisé
+| `src/functionalTest/kotlin/bakery/ProfilePublisherFunctionalTest.kt` | Failure case pushProfile absent → message métier
+| `src/test/features/5_publish_profile_task.feature` | Scénario "always registered" + site.yml absent
+| `src/test/scenarios/bakery/scenarios/PublishProfileSteps.kt` | Capture d'exception dans `@When` deployProfile
+|===
+
+**Décisions techniques** :
+
+. *Approche B choisie* — Toujours enregistrer la tâche et laisser `DeployProfileTask` échouer au runtime. Meilleure UX que le message Gradle "Task 'deployProfile' not found".
+. *Pas de nouveaux tests unitaires* — Correction par adaptation du contrat ; les tests existants suffisent après mise à jour.
+. *Aucune régression* — Tous les safety nets passent, coverage inchangé.
+
+**Statut** : BKY-FIX-1 ✅ TERMINÉ — 2 pts.
+
+---
+
 == Session 145 — 2026-06-23 — BKY-CR-V6 US-3 ConfigResolver.resolveAll() data-driven
 
 **Contexte** : PROMPT_REPRISE session 144 donnait la mission US-3. L'utilisateur a rappelé la méthodologie baby steps DDD/TDD/BDD + agile software craftmanship. Refactor data-driven des 10 blocs `resolveDomain` répétitifs dans `ConfigResolver.resolveAll()` (lignes 332-401).

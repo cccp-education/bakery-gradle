@@ -1,0 +1,33 @@
+= Session 147 — BKY-FIX-1 Corriger deployProfile sans site.yml
+:date: 2026-06-23
+:type: DDD + TDD + BDD
+:points: 2
+
+== Objectif
+
+Corriger la microfissure Feature 5 : le scénario Cucumber `deployProfile fails when site.yml does not exist` échouait car la tâche `deployProfile` n'était pas enregistrée quand `site.yml` était absent (le plugin basculait en mode scaffold only).
+
+== Décision
+
+Approche B (UX robuste) : `deployProfile` est toujours enregistrée. L'absence/invalidité de `site.yml` est détectée au runtime par `DeployProfileTask`, qui lève `IllegalStateException("Failed to read site.yml: ...")`.
+
+== Fichiers modifiés
+
+- `src/main/kotlin/bakery/DeployTaskRegistrar.kt` — `registerDeployProfileTask()` ne prend plus de `SiteConfiguration`.
+- `src/main/kotlin/bakery/BakeryPlugin.kt` — appel inconditionnel dans `registerScaffoldOnlyTasks` et `registerFullPipelineTasks`.
+- `src/test/kotlin/bakery/BakeryPluginFullPipelineTest.kt` — `deployProfile` attendue toujours enregistrée.
+- `src/test/kotlin/bakery/DeployTaskRegistrarTest.kt` — aligné sur la nouvelle signature.
+- `src/functionalTest/kotlin/bakery/ProfilePublisherFunctionalTest.kt` — failure case `pushProfile` absent attend maintenant le message métier.
+- `src/test/features/5_publish_profile_task.feature` — scénario "not registered" remplacé par "always registered".
+- `src/test/scenarios/bakery/scenarios/PublishProfileSteps.kt` — capture d'exception quand credentials fournis mais tâche échoue.
+
+== Validation
+
+- `./gradlew test functionalTest` ✅
+- `./gradlew cucumberTest` ✅
+- `./gradlew check -x e2eTest` ✅ (Kover instruction coverage 92,58%)
+- `./gradlew -q publishToMavenLocal` ✅
+
+== Score
+
+9/10 — correction ciblée, safety nets verts, aucune régression.

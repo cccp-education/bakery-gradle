@@ -102,7 +102,7 @@ object DeployTaskRegistrar {
         }
     }
 
-    internal fun Project.registerDeployProfileTask(site: SiteConfiguration) {
+    internal fun Project.registerDeployProfileTask() {
         tasks.register("deployProfile", DeployProfileTask::class.java) { task ->
             task.apply {
                 group = BakeryConstants.DEPLOY_GROUP

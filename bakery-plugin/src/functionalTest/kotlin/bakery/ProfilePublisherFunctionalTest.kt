@@ -309,7 +309,9 @@ bake:
                 .withArguments("deployProfile", "-PprofileUsername=user", "-PprofileToken=pass")
                 .buildAndFail()
 
-            assertThat(result.output).contains("Task 'deployProfile' not found")
+            // BKY-FIX-1 : deployProfile est toujours enregistrée ; l'absence de
+            // pushProfile est détectée au runtime par la tâche.
+            assertThat(result.output).contains("pushProfile section not found in site.yml")
         }
 
         @Test

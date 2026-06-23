@@ -99,7 +99,8 @@ class BakeryPluginFullPipelineTest {
         assertThat(project.tasks.findByName("generateTheme")).isNotNull
         assertThat(project.tasks.findByName("validateFirebaseConfig")).isNotNull
         assertThat(project.tasks.findByName("migrateToI18n")).isNotNull
-        assertThat(project.tasks.findByName("deployProfile")).isNull()
+        assertThat(project.tasks.findByName("deployProfile")).isNotNull
+            .isInstanceOf(DeployProfileTask::class.java)
     }
 
     @Test

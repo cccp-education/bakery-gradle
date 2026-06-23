@@ -14,21 +14,6 @@ class DeployTaskRegistrarTest {
     private fun createProject(): org.gradle.api.Project =
         ProjectBuilder.builder().withProjectDir(tempDir.resolve("project").apply { mkdirs() }).build()
 
-    private fun minimalSiteWithProfile(pushProfile: GitPushConfiguration?): SiteConfiguration = SiteConfiguration(
-        bake = BakeConfiguration(srcPath = "site", destDirPath = "bake", cname = "test.com"),
-        pushPage = GitPushConfiguration(
-            from = "bake", to = "cvs",
-            repo = RepositoryConfiguration("pages", "https://github.com/test/pages.git", RepositoryCredentials("u", "p")),
-            branch = "gh-pages", message = "pages"
-        ),
-        pushMaquette = GitPushConfiguration(
-            from = "maquette", to = "cvs",
-            repo = RepositoryConfiguration("maquette", "https://github.com/test/maquette.git", RepositoryCredentials("u", "p")),
-            branch = "main", message = "maquette"
-        ),
-        pushProfile = pushProfile
-    )
-
     @Test
     fun `registerPublishSiteTask creates publishSite aggregate with bake and deploySite dependencies`() {
         val project = createProject()
@@ -46,15 +31,8 @@ class DeployTaskRegistrarTest {
     @Test
     fun `registerDeployProfileTask creates deployProfile task in deploy group`() {
         val project = createProject()
-        val site = minimalSiteWithProfile(
-            GitPushConfiguration(
-                from = "profile", to = "cvs",
-                repo = RepositoryConfiguration("profile", "https://github.com/test/profile.git", RepositoryCredentials("u", "p")),
-                branch = "main", message = "profile"
-            )
-        )
 
-        DeployTaskRegistrar.run { project.registerDeployProfileTask(site) }
+        DeployTaskRegistrar.run { project.registerDeployProfileTask() }
 
         val deployProfile = project.tasks.findByName("deployProfile")
         assertThat(deployProfile).isNotNull

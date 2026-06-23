@@ -130,12 +130,16 @@ class PublishProfileSteps(private val world: BakeryWorld) {
         if (username.isBlank() && token.isBlank()) {
             world.executeGradleExpectingFailure(*args.toTypedArray())
         } else {
-            val result = create()
-                .withProjectDir(world.projectDir!!)
-                .withPluginClasspath()
-                .withArguments(args)
-                .build()
-            world.buildResult = result
+            try {
+                val result = create()
+                    .withProjectDir(world.projectDir!!)
+                    .withPluginClasspath()
+                    .withArguments(args)
+                    .build()
+                world.buildResult = result
+            } catch (e: Exception) {
+                world.exception = e
+            }
         }
     }
 

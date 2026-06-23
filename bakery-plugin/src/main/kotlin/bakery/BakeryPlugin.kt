@@ -144,6 +144,10 @@ class BakeryPlugin : Plugin<Project> {
         project.registerGenerateSiteFromIntentionTask(
             targetDir, bakeryExtension.ia, bakeryExtension.scaffoldIntention
         )
+        // BKY-FIX-1 : deployProfile est toujours enregistrée pour donner une
+        // erreur métier explicite au runtime si site.yml est absent/invalide,
+        // plutôt que le message Gradle "Task 'deployProfile' not found".
+        project.registerDeployProfileTask()
     }
 
     /**
@@ -179,9 +183,9 @@ class BakeryPlugin : Plugin<Project> {
         project.registerPublishSiteTask()
         project.registerDeployMaquetteTask(resolvedSite)
         project.registerPagefindTask(resolvedSite)
-        if (resolvedSite.pushProfile != null) {
-            project.registerDeployProfileTask(resolvedSite)
-        }
+        // BKY-FIX-1 : deployProfile est enregistrée sans condition ; la tâche
+        // valide elle-même la présence de pushProfile au runtime.
+        project.registerDeployProfileTask()
         project.registerServeTask(resolvedSite, jbakeRuntime)
         project.registerCollectSiteConfigTask(resolvedSite, isGradlePropertiesEnabled)
         project.registerCollectSiteContextTask(resolvedSite, bakeryExtension.augmentedContext)

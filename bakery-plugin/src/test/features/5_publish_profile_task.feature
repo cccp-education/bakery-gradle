@@ -5,9 +5,9 @@ Feature: The deployProfile task pushes profile files to GitHub
     Given an existing Bakery project with pushProfile configuration
     And the output of the task 'tasks' contains 'deployProfile' from the group 'deploy' and 'Push profile files (e.g. README.md) to GitHub repository'
 
-  Scenario: deployProfile task is not registered when pushProfile is absent from site.yml
+  Scenario: deployProfile task is always registered regardless of pushProfile configuration
     Given an existing empty Bakery project using DSL with 'site.yml' file
-    And the output of the task 'tasks' does not contain 'deployProfile'
+    And the output of the task 'tasks' contains 'deployProfile' from the group 'deploy' and 'Push profile files (e.g. README.md) to GitHub repository'
 
   @end-to-end
   Scenario: deployProfile pushes profile files to a simulated remote and preserves history

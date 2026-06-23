@@ -1,32 +1,29 @@
 = PROMPT REPRISE — Bakery
-:session: 147
+:session: 148
 :date: 2026-06-23
 
-== Mission accomplie (session 146)
+== Mission accomplie (session 147)
 
-*Maintenance craftsmanship + audit borough* — pas de code source modifié.
-- Cleanup gouvernance : `TODO.adoc` aligné (US-I18N-MIG-4 terminé S134), `SESSIONS_HISTORY.adoc` dédoublonné, `INDEX.adoc` portefeuille à jour.
-- Archive session 145 existante vérifiée/restaurée (`COMPLETED_TASKS_ARCHIVE_2026-06.adoc`).
-- Audit Kover : build Cucumber échoue sur 1 test préexistant (`deployProfile fails when site.yml does not exist`).
-- Microfissure identifiée : `deployProfile` n'est pas enregistrée quand `site.yml` est absent → message Gradle "Task 'deployProfile' not found" au lieu d'un message métier "Failed to read site.yml".
+*BKY-FIX-1* — Microfissure Feature 5 corrigée.
+- `deployProfile` toujours enregistrée ; échec métier explicite "Failed to read site.yml" quand `site.yml` est absent/invalide.
+- 7 fichiers modifiés (production + tests).
+- Safety nets : `test`, `functionalTest`, `cucumberTest`, `check -x e2eTest`, `publishToMavenLocal` tous ✅.
+- Kover instruction coverage : 92,58%.
 
 == Statut
 
+- BKY-FIX-1 : ✅ TERMINÉ 2 pts.
 - BKY-CR-V6 : ✅ TERMINÉ 8/8 pts.
 - BKY-PUB-2 : ✅ Central 0.0.2 LIVE, Portal en propagation.
-- Cucumber : 1 test en échec (Feature 5, scenario "deployProfile fails when site.yml does not exist").
+- Tous les EPICs historiques : 30/30 ✅.
+- Cucumber : 0 échec.
 
-== Prochaine session (147)
+== Prochaine session (148)
 
-Priorité : corriger la microfissure Feature 5 / `deployProfile`.
-
-Suggestions validées par l'utilisateur :
-. **BKY-FIX-1** : toujours enregistrer `deployProfile` même sans `site.yml`, et faire échouer la tâche avec message explicite "Failed to read site.yml". Approche B (UX robuste).
-. Méthodo : baby steps DDD/TDD/BDD.
+Aucun EPIC actif prioritaire. Attente roadmap utilisateur, audit borough, ou nouvelle feature.
 
 == Note technique
 
 - `./gradlew test` = validation rapide en session.
-- Cible : Feature 5 `deployProfile fails when site.yml does not exist` repasse au GREEN.
 - `publishToMavenLocal` obligatoire après toute modif code source.
 - Kover threshold 85% maintenu.

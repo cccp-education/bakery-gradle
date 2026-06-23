@@ -1,8 +1,22 @@
 = Analyse de Couverture des Tests — Bakery Gradle Plugin
 
-_Derniere mise a jour_ : 2026-06-16 (Session 126)
+_Derniere mise a jour_ : 2026-06-23 (Session 147)
 
 '''
+
+== Session 147 — BKY-FIX-1 deployProfile sans site.yml
+
+Correction microfissure Feature 5. Aucun nouveau test unitaire, des tests existants adaptés au nouveau contrat.
+
+|===
+| Classe/Feature | Tests/Scénarios | Statut | Notes
+| BakeryPluginFullPipelineTest | 2 | OK | `deployProfile` attendue toujours enregistrée (full pipeline sans pushProfile + full pipeline avec pushProfile)
+| DeployTaskRegistrarTest | 1 | OK | `registerDeployProfileTask()` appelée sans `SiteConfiguration`
+| ProfilePublisherFunctionalTest$FailureCasesTest | 2 | OK | pushProfile absent → message métier `pushProfile section not found in site.yml`
+| Feature 5 `5_publish_profile_task.feature` | 5 | OK | scénario "always registered" + "site.yml does not exist" passent
+|===
+
+**Total Session 147** : 0 nouveau test, 7 fichiers adaptés, tous les safety nets verts.
 
 == Session 125 — US-I18N-MIG-1 I18nMigrationIntention + Dsl + BakeryExtension
 
