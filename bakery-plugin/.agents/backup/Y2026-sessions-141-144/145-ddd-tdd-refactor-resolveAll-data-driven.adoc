@@ -1,0 +1,34 @@
+= Session 145 — 2026-06-23 — BKY-CR-V6 US-3 ConfigResolver.resolveAll() data-driven
+
+**Contexte** : PROMPT_REPRISE session 144 donnait la mission US-3. L'utilisateur a rappelé la méthodologie baby steps DDD/TDD/BDD + agile software craftmanship. Refactor data-driven des 10 blocs `resolveDomain` répétitifs dans `ConfigResolver.resolveAll()` (lignes 332-401).
+
+**Tâches réalisées** :
+
+* [x] Baseline GREEN — `git status` propre (session 144), `compileKotlin` + `./gradlew test --tests bakery.ResolvedConfigsTest` OK.
+* [x] TDD caractérisation — `src/test/kotlin/bakery/DomainResolverTest.kt` (NOUVEAU, 124 lignes, 9 UT) : 2 `@Nested` (Structure 2 tests, Resolve 7 tests). Couvre : succès, fallback, accumulation DomainFailure, message null, capture cause Exception vs Throwable non-Exception, indépendance multi-resolvers. Tous RED contre code actuel puis GREEN avec `DomainResolver.kt`.
+* [x] DDD — `src/main/kotlin/bakery/DomainResolver.kt` (NOUVEAU, 23 lignes) : `DomainResolver<T>(name, resolver, fallback)` data class + `resolve(errors: MutableList<ConfigResolutionError>): T` utilisant `Either.catch` d'Arrow. Centralise la logique d'accumulation d'erreurs qui était dupliquée 10 fois dans `ConfigResolver.resolveAll()`.
+* [x] TDD `resolveAllDataDriven` — 9 tests dans `ResolvedConfigsTest.kt` (`ResolveAllDataDrivenTest`) : comparaison identité comportement `resolveAll()` vs `resolveAllDataDriven()` (defaults, CLI overrides, YAML overrides, DSL overrides, language, supportedLanguages, 10 domains sans erreurs, type de retour ResolvedConfigs, accumulation erreurs). Tous RED puis GREEN.
+* [x] Refactor — `src/main/kotlin/bakery/ConfigResolver.kt` : `resolveAll()` délègue à `resolveAllDataDriven()`. Suppression de la fonction locale `resolveDomain<T>()` et des 10 blocs répétitifs (72 lignes → 3 lignes, -96%). `resolveAllDataDriven()` itère une liste de 10 `DomainResolver<*>` et reconstruit `ResolvedConfigs`. Import `arrow.core.Either` inutilisé retiré. `@Suppress("UNCHECKED_CAST")` localisé sur le cast `List<String>` (type erasure inévitable avec liste hétérogène).
+* [x] Safety net — `./gradlew test` : 1123/1123 UT PASS. `publishToMavenLocal` OK (GPG signing). Compile clean, zéro warning.
+* [x] Cucumber `cucumberTest` : timeout 5min (EPIC 5 préexistant, non lié au refactor).
+
+**Fichiers modifiés / créés** :
+
+[cols="1,3,2,2"]
+|===
+| Fichier | Action | Lignes avant | Lignes après
+| `src/main/kotlin/bakery/ConfigResolver.kt` | Refactor (resolveAll) | 436 | 407 (-29 net, -69 sur resolveAll)
+| `src/main/kotlin/bakery/DomainResolver.kt` | NOUVEAU (DDD) | 0 | 23
+| `src/test/kotlin/bakery/DomainResolverTest.kt` | NOUVEAU (TDD) | 0 | 124
+| `src/test/kotlin/bakery/ResolvedConfigsTest.kt` | Complété (TDD) | 506 | 675 (+169)
+|===
+
+**Décisions techniques** :
+
+. *Liste hétérogène `DomainResolver<*>`* — Nécessaire car les 10 domaines retournent des types différents (FirebaseProjectInfo, GoogleFormsConfig, ..., String, List<String>). Le résultat est reconstruit par index, avec `@Suppress("UNCHECKED_CAST")` localisé.
+. *Comportement strictement identique* — Les tests `ResolveAllDataDrivenTest` caractérisent et vérifient l'équivalence exacte avec `resolveAll()` pour tous les domaines et toutes les couches de configuration (CLI, DSL, YAML, defaults).
+. *Pas de BDD Cucumber nouveau* — Refactor purement interne (API publique `ConfigResolver.resolveAll()` inchangée). Les tests Cucumber existants valident le comportement de bout en bout.
+
+**Statut EPIC BKY-CR-V6** : US-1 ✅ S142 (3 pts), US-2 ✅ S144 (2 pts), US-3 ✅ S145 (3 pts). **EPIC BKY-CR-V6 TERMINÉ — 8/8 pts**.
+
+**Score** : 9/10 — refactor DDD/TDD/BDD rigoureux, comportement préservé, safety net GREEN, compile clean.

@@ -1,0 +1,133 @@
+= Session 154 — Loi de l'Économie d'Encre Transverse (9 boroughs)
+:date: 2026-06-23
+:session: 154
+:type: gouvernance transverse
+:score: 9/10
+
+== Mission
+
+Propagation de la Loi de l'Économie d'Encre (conceptualisée session 153 dans bakery)
+aux 9 autres boroughs LLM metered du workspace. Aucun code source modifié —
+uniquement de la littérature de gouvernance (`AGENT.adoc`).
+
+== Contexte
+
+La session 153 a établi la Loi de l'Économie d'Encre dans bakery-gradle : toute opération
+LLM/cloud metered DOIT réutiliser les résultats persistants existants et ne calculer que
+le delta. L'anti-pattern découvert : `translateNonFrenchKeys()` re-traduisait 45 clés × 10
+langues × N exécutions via LLM, écrasant les traductions validées.
+
+L'utilisateur a demandé de propager cette loi aux 9 autres boroughs consommant du LLM metered.
+
+== Action réalisée
+
+Pour chacun des 9 boroughs cibles, ajout d'une section "Loi de l'Économie d'Encre" dans
+`AGENT.adoc`, adaptée aux opérations LLM spécifiques du borough :
+
+=== Structure uniforme (chaque section)
+
+. **PRINCIPE** — copie fidèle de bakery (service metered, non-idempotence économique,
+   condition de viabilité MVP0)
+. **RÈGLE** — 5 points (vérifier artefact, réutiliser, delta uniquement, non-écrasement,
+   invalidation ciblée)
+. **ANTI-PATTERNS SPÉCIFIQUES** — 3 à 4 anti-patterns propres à chaque borough
+. **PROTECTION** — lecture-avant-écriture, delta par hash, rappel `DisableCachingByDefault`
+. **RÉFÉRENCE** — lien vers source canonique `bakery-gradle/bakery-plugin/AGENT.adoc`
+   (Session 153) + portée transverse (10 boroughs) + projection 50-80% d'économie LLM
+
+=== Boroughs modifiés (9 fichiers AGENT.adoc)
+
+[cols="1,3,3"]
+|===
+| Borough | Opération coûteuse ciblée | Anti-patterns spécifiques
+
+| codex-gradle
+| Vectorisation RAG (embeddings ONNX → pgvector), extraction OCR/PDF/EPUB
+| Re-embedding global, ré-extraction OCR systématique, ré-ingestion inconditionnelle
+
+| training-gradle
+| Génération SPG/SPD par LLM (deepseek-v4-pro)
+| Régénération SPG systématique, batch SPD inconditionnel, re-query systématique
+
+| capsule-gradle
+| TTS (Piper/API) + capture vidéo Playwright
+| Re-TTS systématique, re-capture vidéo inconditionnelle
+
+| plantuml-gradle
+| Génération diagrammes PlantUML via LLM (7 providers)
+| Régénération diagrammes systématique, re-rendu PNG inconditionnel
+
+| readme-gradle
+| Génération README avec diagrammes PlantUML
+| Régénération README systématique, re-rendu PNG inconditionnel, re-commit inutile
+
+| document-gradle
+| Génération AsciiDoc assistée par IA (langchain4j)
+| Régénération AsciiDoc systématique, re-conversion inconditionnelle
+
+| agile-gradle
+| Assistance IA des 7 ateliers de cadrage
+| Re-cadrage systématique, re-dashboard inconditionnel
+
+| ticket-gradle
+| Enrichissement IA des GitHub Issues
+| Re-création systématique (doublons API), re-enrichissement inconditionnel
+
+| review-gradle
+| Analyse IA de PRs (langchain4j, deepseek-v4-pro)
+| Re-review systématique, re-score inconditionnel
+|===
+
+=== Positionnement dans chaque AGENT.adoc
+
+* codex : Règle 5 (après Règle 4bis DAG)
+* training : section "Non-Répétition" dans Méthodologie de Travail
+* capsule : section dédiée après Règles Absolues (règle 7)
+* plantuml : section "Non-Répétition" dans Méthodologie de Travail
+* readme : section "Non-Répétition" dans Méthodologie de Travail
+* document : section dédiée après Règle 8 (BOUNDARY CODEX)
+* agile : section dédiée après Règle 7 (LECTURE SEULE)
+* ticket : section dédiée après Règle 7 (LECTURE SEULE)
+* review : section dédiée après Règle 7 (REVIEW IA ASSISTE)
+
+== Commits et push
+
+9 commits créés (un par repo git), uniquement sur `AGENT.adoc` :
+
+[cols="2,2,2"]
+|===
+| Borough | Commit | Push
+| codex-gradle | `29705c9` | ✅ cccp-education/codex-gradle
+| training-gradle | `e5ffa0b` | ✅ cheroliv/training-gradle
+| capsule-gradle | `74a9710` | ✅ cccp-education/capsule-gradle
+| plantuml-gradle | `193254f` | ✅ cccp-education/plantuml-gradle
+| readme-gradle | `2108e32` | ✅ cccp-education/readme-gradle
+| document-gradle | `d4a55d5` | ✅ cccp-education/document-gradle
+| agile-gradle | `a233513` | ✅ cccp-education/agile-gradle
+| ticket-gradle | `1463975` | ✅ cccp-education/ticket-gradle
+| review-gradle | `0dfaa1b` | ✅ cccp-education/review-gradle
+|===
+
+Fichiers parasites non inclus (codex `gradle-wrapper.properties`, plantuml/readme
+`opencode.json` supprimés) — restent dans working tree non staged.
+
+== Code source modifié
+
+Aucun code source Kotlin modifié. Uniquement 9 fichiers `AGENT.adoc` (gouvernance).
+
+== Tests
+
+Aucun test modifié. Aucun test lancé (uniquement de la documentation).
+
+== Évaluation
+
+* Points forts : propagation cohérente, anti-patterns spécifiques par borough,
+  référence canonique vers bakery, structure uniforme.
+* Limite : la loi est encodée dans la littérature mais pas encore implémentée
+  dans le code des 9 boroughs (étape future).
+
+== Prochaine session
+
+Bakery : tous EPICs clos. Attente roadmap utilisateur.
+L'étape naturelle suivante serait l'implémentation effective du pattern delta
+dans le code des 9 boroughs (un borough à la fois, baby steps DDD/TDD/BDD).

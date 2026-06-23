@@ -1,18 +1,22 @@
 = PROMPT REPRISE — Bakery
-:session: 154
+:session: 155
 :date: 2026-06-23
 
-== Mission en cours (session 154)
+== Mission en cours (session 155)
 
-*BKY-I18N-DELTA TERMINÉ (3/3 pts). Loi de l'Économie d'Encre encodée.*
+*Session 154 TERMINÉE — Loi de l'Économie d'Encre transverse.*
+Propagation de la loi aux 9 boroughs LLM metered (codex, training, capsule, plantuml,
+readme, document, agile, ticket, review). 9 `AGENT.adoc` modifiés + commités + pushés.
+Aucun code source modifié.
+
 Tous les EPICs connus sont clos. Bakery est production-ready (0.0.2 publié Central + Portal).
 
 == Problème à résoudre
 
-Aucun EPIC actif prioritaire. Bakery est 100% fonctionnel. La suite dépend de la roadmap utilisateur :
+Aucun EPIC actif prioritaire. La suite dépend de la roadmap utilisateur :
+- *Implémentation effective* du pattern delta dans le code des 9 boroughs (baby steps DDD/TDD/BDD, un borough à la fois)
 - Nouvel EPIC (nouvelle capability) à cadrer, OU
 - Audit/cleanup supplémentaire, OU
-- *Application de la Loi de l'Économie d'Encre aux 9 autres boroughs LLM metered* (codex, training, capsule, plantuml, readme, document, agile, ticket, review) — 50-80% d'économie LLM potentielle sur MVP0.
 - Passage à un autre borough du workspace.
 
 == Notes techniques
@@ -22,4 +26,4 @@ Aucun EPIC actif prioritaire. Bakery est 100% fonctionnel. La suite dépend de l
 * `./gradlew cucumberTest -Dcucumber.features="src/test/features/37_accessibility_audit.feature"` = 7/7 PASS.
 * Timeout cucumberTest 5min (EPIC 5) toujours actif — ne pas lancer `check` complet sans permission.
 * `publishToMavenLocal` fait (jar 0.0.2).
-* *Loi de l'Économie d'Encre* : voir `AGENT.adoc` section "Non-Répétition des Opérations Coûteuses". Toute tâche Gradle LLM DOIT : load-before-write + calcul delta + fusion existing+new.
+* *Loi de l'Économie d'Encre* : encodée dans 10 boroughs (bakery source + 9 transverses). Voir `AGENT.adoc` section "Non-Répétition des Opérations Coûteuses". Toute tâche Gradle LLM DOIT : load-before-write + calcul delta + fusion existing+new.

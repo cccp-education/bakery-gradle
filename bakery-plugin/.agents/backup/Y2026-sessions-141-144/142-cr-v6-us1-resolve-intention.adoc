@@ -1,0 +1,133 @@
+= Session 142 — BKY-CR-V6 US-1 Helper ResolveIntention<T>
+:date: 2026-06-23
+:session: 142
+:epic: BKY-CR-V6
+:type: DDD + TDD + refactor
+:score: 9/10
+
+== Objectif
+
+Démarrer BKY-CR-V6 US-1 — Helper `ResolveIntention<T>` pour le pattern
+`CLI > DSL > defaults` dupliqué ×4 (23 occurrences) dans les Task Gradle.
+
+Méthode baby steps DDD/TDD/BDD en agile software craftsmanship, avec
+paradigmes fonctionnels et Arrow-kt (rappel utilisateur).
+
+== Contexte
+
+PROMPT_REPRISE session 141 donnait le cadrage exact : helper pur, tests
+unitaires RED→GREEN, refactor des 4 Task. L'utilisateur a rappelé :
+1. Méthodologie baby steps DDD/TDD/BDD.
+2. Paradigmes fonctionnels + lib Arrow-kt (déjà câblée via workspace-bom 2.2.2).
+3. Ne pas renommer l'id/namespace du plugin (`education.cccp.bakery`).
+
+== Audit du pattern (DDD caractérisation)
+
+Les 4 `resolveIntention()` lus en parallèle. Pattern commun :
+
+    cliField.orNull?.takeIf{isNotBlank} ?: dslIntention?.dslField ?: default
+
+5 variantes identifiées :
+- String simple (description, lang, projectName, defaultLang, ton, audience)
+- List<String> (keywords, langs — split/filter/takeIf isNotEmpty)
+- Nullable (ThemeOverrides 7 champs — pas de default)
+- Throw si absent (topic, siteDir, scaffoldDescription)
+- Boolean (dryRun — toBooleanStrictOrNull)
+
+Safety net vérifié : 4 `*TaskTest.kt` existants couvrent déjà `resolveIntention()`.
+Baseline GREEN établie avec permission utilisateur (toutes 4 Task PASS).
+
+== Modélisation FP / Arrow-kt
+
+Arrow 2.2.2 — `Option` dépréciée en Arrow 2.x (recommandation : nullable Kotlin +
+`Either`). Code bakery existant cohérent (uniquement `Either`/`left`/`right`).
+
+Choix modélisation :
+- `fromCli`, `fromCliNullable`, `fromCliList`, `fromCliBoolean` : nullable Kotlin
+  (cascade `?:` idiomatique, pas de monade inutile).
+- `fromCliRequired` : `Either<ResolveIntentionError, String>` (erreur explicite
+  via sealed class, composition FP `.fold(ifLeft={throw it.toException()},
+  ifRight={it})`).
+
+Sealed class `ResolveIntentionError` (introduite sur demande utilisateur —
+pertinent pour normaliser les messages d'erreur, DDD erreur explicite au lieu
+d'`IllegalArgumentException` générique) :
+- `MissingRequiredField(cliFlag, dslPath)` + `toException()` remontée au niveau
+  parent sealed (abstract) pour accès via `fold` sans cast.
+
+== Implémentation
+
+=== DDD — `bakery/intention/ResolveIntention.kt` (NOUVEAU)
+
+Helper pur (zéro Gradle), 5 fonctions :
+- `fromCli(cli, dsl, default): String`
+- `fromCliNullable(cli, dsl): String?`
+- `fromCliRequired(cli, dsl, error): Either<ResolveIntentionError, String>`
+- `fromCliList(cli, dsl, default): List<String>`
+- `fromCliBoolean(cli, dsl, default): Boolean` (ajouté pour MigrateToI18nTask
+  dryRun — extension propre, pas de variante impérative)
+
+Helper privé `String?.firstNotBlank(): String?` factorise le pattern
+`takeIf{isNotBlank}`.
+
+=== TDD — `bakery/intention/ResolveIntentionTest.kt` (NOUVEAU)
+
+26 tests unitaires RED→GREEN, organisés en 5 `@Nested` :
+- `FromCliTest` (6) — CLI set, CLI blank, CLI null, DSL blank, DSL null, all blank
+- `FromCliNullableTest` (4) — CLI set, CLI blank, both null, both blank
+- `FromCliRequiredTest` (5) — Right value, Right DSL fallback, Left error,
+  toException message, toException via sealed parent
+- `FromCliListTest` (6) — parse, filter blanks, fallback DSL, fallback default
+- `FromCliBooleanTest` (6) — true/false CLI, blank fallback, null fallback,
+  invalid string fallback
+
+Bug test corrigé : `toException()` retourne l'exception, ne la lève pas
+(`hasMessageContaining` au lieu de `assertThatThrownBy`).
+
+=== Refactor — 4 Task migrées
+
+`GenerateArticleTask.kt:178` — 5 champs + 1 throw
+  → `fromCliRequired(topic)`, `fromCli(ton)`, `fromCli(audience)`,
+    `fromCliList(keywords)`, `fromCli(lang)`.
+
+`GenerateThemeTask.kt:205` — description + variant + 7 overrides nullable
+  → `fromCli(description)`, `fromCli(variant)`, 7× `fromCliNullable(overrides)`.
+
+`GenerateSiteFromIntentionTask.kt:160` — throw + 3 String
+  → `fromCliRequired(description)`, `fromCli(siteType)`, `fromCli(lang)`,
+    `fromCli(projectName)`.
+
+`MigrateToI18nTask.kt:96` — throw + String + List + Boolean
+  → `fromCliRequired(siteDir)`, `fromCliList(langs)`, `fromCli(defaultLang)`,
+    `fromCliBoolean(dryRun)`.
+
+== Vérifications
+
+* [x] `./gradlew test --tests "*ResolveIntentionTest"` — 26/26 PASS (helper).
+* [x] `./gradlew test --tests "*GenerateArticleTaskTest" --tests "*GenerateThemeTaskTest" --tests "*GenerateSiteFromIntentionTaskTest" --tests "*MigrateToI18nTaskTest"` — tous PASS (comportement identique, safety net préservé).
+* [x] `grep` post-refactor : plus aucun `takeIf{isNotBlank}` ni `throw IllegalArgumentException` manuel dans les 4 Task (tout passe par `ResolveIntention`).
+* [x] `./gradlew -q publishToMavenLocal` — OK (règle INDEX.adoc respectée).
+* [x] id/namespace plugin `education.cccp.bakery` inchangé.
+
+== Fichiers modifiés / créés
+
+* `src/main/kotlin/bakery/intention/ResolveIntention.kt` (NOUVEAU, 54 lignes)
+* `src/test/kotlin/bakery/intention/ResolveIntentionTest.kt` (NOUVEAU, 178 lignes, 26 UT)
+* `src/main/kotlin/bakery/article/GenerateArticleTask.kt` (refactor `resolveIntention()`, +2 imports)
+* `src/main/kotlin/bakery/theme/GenerateThemeTask.kt` (refactor `resolveIntention()`, +1 import)
+* `src/main/kotlin/bakery/scaffold/GenerateSiteFromIntentionTask.kt` (refactor `resolveIntention()`, +2 imports)
+* `src/main/kotlin/bakery/i18n/MigrateToI18nTask.kt` (refactor `resolveIntention()`, +2 imports)
+
+== Métriques
+
+* 26 nouveaux tests unitaires PASS.
+* 23 occurrences du pattern dupliqué supprimées.
+* 4 Task refactored, comportement identique (tests existants GREEN).
+* 2 nouveaux fichiers (helper + tests), 4 fichiers modifiés.
+* US-CR-V6-1 = 3 pts ✅.
+
+== Prochaine session
+
+BKY-CR-V6 US-2 — `DomainConfigInjectors` data-driven (9 injecteurs répétitifs,
+113 lignes, 3 variantes). DDD : `InjectorSpec` sealed class + `InjectorRegistry`.
+TDD : tests par injecteur. Refactor : `configInjectors` Map → `InjectorRegistry.all()`.
