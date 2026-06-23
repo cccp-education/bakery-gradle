@@ -1,29 +1,45 @@
 = PROMPT REPRISE — Bakery
-:session: 155
+:session: 156
 :date: 2026-06-23
 
-== Mission en cours (session 155)
+== Mission en cours (session 156)
 
-*Session 154 TERMINÉE — Loi de l'Économie d'Encre transverse.*
-Propagation de la loi aux 9 boroughs LLM metered (codex, training, capsule, plantuml,
-readme, document, agile, ticket, review). 9 `AGENT.adoc` modifiés + commités + pushés.
-Aucun code source modifié.
-
-Tous les EPICs connus sont clos. Bakery est production-ready (0.0.2 publié Central + Portal).
+*Session 155 TERMINÉE — Nettoyage BACKLOG + Schéma YAML Pivot i18n.*
+Nettoyage BACKLOG (1269→207 lignes, -84%) après vérification EPICs réellement implémentés.
+Découverte : 3 sites réels (magic-stick, cccp.education, cheroliv.com) non migrés i18n.
+Schéma YAML Pivot émergent sur 3 fichiers AsciiDoc contrastés (bac à sable /tmp, pas de
+code production touché). 8 types de blocs + 4 types inline + règle translatable true/false.
 
 == Problème à résoudre
 
-Aucun EPIC actif prioritaire. La suite dépend de la roadmap utilisateur :
-- *Implémentation effective* du pattern delta dans le code des 9 boroughs (baby steps DDD/TDD/BDD, un borough à la fois)
-- Nouvel EPIC (nouvelle capability) à cadrer, OU
-- Audit/cleanup supplémentaire, OU
-- Passage à un autre borough du workspace.
+Aligner les 2 premiers YAML pivots (`quick-start.yaml`, `ab-partition.yaml`) pour figer
+le contrat homogène : convertir leurs tables de `text:` simple vers `inline[]` (mix
+texte+code), comme révélé par le 3e fichier `scripts.yaml`.
+
+Puis coder le parser AsciiDoc→YAML en baby steps DDD/TDD/BDD :
+- **Golden master test** : parser AsciiDoc→YAML→régénérer AsciiDoc = byte-identique à l'original
+- Le test pilote le parser sans toucher au code production
+- Domaine pur d'abord (data classes / sealed classes), puis tests unitaires, puis BDD
+
+== Contexte schéma YAML pivot
+
+* Bac à sable : `/tmp/opencode/bakery-i18n-lab/magic-stick/` (copie de `office/sites/`).
+* 3 YAML pivots créés : `quick-start.yaml`, `ab-partition.yaml`, `scripts.yaml`.
+* 8 types blocs : `heading`, `paragraph`, `list`, `table`, `admonition`, `source`, `hr`, `frontmatter`
+* 4 types inline : `text`, `bold`, `code`, `link`
+* Règle : `translatable: true` = feuille éditoriale à traduire ; `false` = structure/code/URL/pass-through
+* `plantuml` = pass-through (`translatable: false`), le plugin plantuml-gradle gère son cycle
+* Cellules table : `inline[]` (pas `text:` simple) — mix texte+code
+* Table sans `[cols=...]` : `cols: null` (auto-détection)
 
 == Notes techniques
 
-* Ports Ollama autorisés : 11437-11465 uniquement. Modèles : gpt-oss:120b-cloud, gemma4:31b-cloud.
+* Ports Ollama autorisés : 11437-11465 uniquement. Modèles : `gpt-oss:120b-cloud`, `gemma4:31b-cloud`.
 * `./gradlew test --tests "bakery.i18n.*"` = validation rapide i18n (3/3 AutoTranslation PASS).
 * `./gradlew cucumberTest -Dcucumber.features="src/test/features/37_accessibility_audit.feature"` = 7/7 PASS.
-* Timeout cucumberTest 5min (EPIC 5) toujours actif — ne pas lancer `check` complet sans permission.
+* Timeout cucumberTest 5min (EPIC 5) — ne pas lancer `check` complet sans permission.
 * `publishToMavenLocal` fait (jar 0.0.2).
-* *Loi de l'Économie d'Encre* : encodée dans 10 boroughs (bakery source + 9 transverses). Voir `AGENT.adoc` section "Non-Répétition des Opérations Coûteuses". Toute tâche Gradle LLM DOIT : load-before-write + calcul delta + fusion existing+new.
+* *Loi de l'Économie d'Encre* : encodée dans 10 boroughs. Toute tâche Gradle LLM DOIT
+  load-before-write + calcul delta + fusion existing+new.
+* Bac à sable `/tmp/opencode/bakery-i18n-lab/` = volatile (recréer depuis
+  `office/sites/magic-stick/jbake/` + les YAML dans le rapport session 155).

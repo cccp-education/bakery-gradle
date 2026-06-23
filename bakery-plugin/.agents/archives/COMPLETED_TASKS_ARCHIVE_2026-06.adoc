@@ -1,5 +1,30 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 155 — 2026-06-23 — Nettoyage BACKLOG + Schéma YAML Pivot i18n
+
+**Contexte** : Nettoyage du BACKLOG.adoc (1269→207 lignes) après vérification que tous les EPICs réduits à une ligne sont réellement implémentés dans le code source. Découverte que les 3 sites réels (magic-stick, cccp.education, cheroliv.com) ne sont pas migrés i18n. Emergent design d'un schéma YAML pivot pour la traduction arborescente AsciiDoc nœud-par-nœud, sur bac à sable /tmp (pas de code production touché).
+
+**Tâches** :
+
+* [x] Historisation BACKLOG complet (1269 lignes) dans `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`.
+* [x] Nettoyage BACKLOG → 207 lignes : synthèse 49 EPICs clos (1 ligne chacun), récap 87 code smells résolus, 3 pistes ouvertes.
+* [x] Vérification EPICs réellement implémentés avant suppression du détail : BKY-CR-V6 (ResolveIntention.kt, InjectorSpec.kt, ConfigResolver.resolveAllDataDriven), BKY-I18N-DELTA (loadExistingTranslations), BKY-A11Y-1 (AccessibilityAuditTask, evaluateContrast, scanInlineColors, scanStructural), BKY-I18N (20 messages_*.properties, 4 services i18n), BKY-LENS (SubgraphExtractor, AugmentedArticlesService, LensPipelineService, BfsProximityCache), ARROW-1 (7 fichiers arrow.core.Either), BKY-PUB-2 (version 0.0.2, nmcp 1.5.0), BKY-KOV-1 (koverThresholdCheck 85%), BKY-JB-* (5 TaskRegistrars, 3 Intentions), BKY-JB-9 (5 tests E2E Playwright) — tous ✅ présents.
+* [x] Audit i18n des 3 sites réels : magic-stick (12 templates, 100% FR), cccp.education (11 templates, 100% FR), cheroliv.com (19 templates, 100% FR) — 0 messages_*.properties, 0 `#{...}`, 0 `site.language`.
+* [x] Création bac à sable `/tmp/opencode/bakery-i18n-lab/magic-stick/` (copie site réel).
+* [x] Schéma YAML Pivot — `quick-start.yaml` (83 lignes adoc → 6 types blocs + 4 inline).
+* [x] Schéma YAML Pivot — `ab-partition.yaml` (126 lignes → tables + admonitions IMPORTANT).
+* [x] Schéma YAML Pivot — `scripts.yaml` (234 lignes → 3 corrections émergentes : hr, cellules table inline[], cols null).
+* [x] Validation schéma : 8 types blocs (heading, paragraph, list, table, admonition, source, hr, frontmatter) + 4 types inline (text, bold, code, link) + règle translatable true/false.
+* [x] Décision : blocs `plantuml` = pass-through (`translatable: false`), plugin plantuml-gradle gère son cycle.
+
+**Fichiers modifiés** : `BACKLOG.adoc` (1269→207 lignes), `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc` (archive).
+
+**Bac à sable** (non versionné, volatile) : `/tmp/opencode/bakery-i18n-lab/magic-stick/content/{quick-start,ab-partition,scripts}.yaml`.
+
+**Commits** : `b2b00a2` (nettoyage BACKLOG).
+
+**Décision session 156** : Aligner les 2 premiers YAML pivots (tables `text:`→`inline[]`), puis coder parser AsciiDoc→YAML (golden master test, baby steps DDD/TDD/BDD).
+
 == Session 154 — 2026-06-23 — Loi de l'Économie d'Encre transverse (9 boroughs)
 
 **Contexte** : Suite à la conceptualisation de la Loi de l'Économie d'Encre en session 153 dans bakery, propagation de la loi aux 9 autres boroughs LLM metered du workspace. Objectif : encodage durable de la contrainte d'idempotence économique dans la littérature de gouvernance transverse.

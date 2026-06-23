@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-23 — Session 154 Loi de l'Économie d'Encre transverse (9 boroughs). 9 AGENT.adoc modifiés + commités + pushés. Aucun code source modifié. Potentiel 50-80% d'économie LLM sur MVP0.
+  _Derniere mise a jour_ : 2026-06-23 — Session 155 Nettoyage BACKLOG (1269→207 lignes) + Schéma YAML Pivot i18n (3 fichiers AsciiDoc convertis en YAML pivot, emergent design sur bac à sable /tmp, pas de code production touché).
   _Session en cours_ : aucune — tous EPICs clos.
-  _Prochaine session_ : 155 — attente roadmap utilisateur (implémentation effective du pattern delta dans le code des 9 boroughs, nouvel EPIC, audit, ou autre borough).
+  _Prochaine session_ : 156 — Aligner les 2 premiers YAML pivots (tables `text:`→`inline[]`), puis coder parser AsciiDoc→YAML (golden master test, baby steps DDD/TDD/BDD).
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 155 | 2026-06-23 | gouvernance + emergent design | **Nettoyage BACKLOG + Schéma YAML Pivot i18n** — Nettoyage BACKLOG (1269→207 lignes, -84%) après vérification EPICs réellement implémentés (BKY-CR-V6, I18N-DELTA, A11Y-1, I18N, LENS, ARROW-1, PUB-2, KOV-1, JB-* tous vérifiés présents dans code). Découverte : 3 sites réels (magic-stick, cccp.education, cheroliv.com) non migrés i18n (100% FR hardcodé, 0 messages_*.properties). Schéma YAML Pivot émergent sur 3 fichiers AsciiDoc contrastés (quick-start 83l, ab-partition 126l, scripts 234l) dans bac à sable /tmp. 8 types blocs + 4 types inline + règle translatable true/false. 3 corrections émergentes du 3e fichier (hr, cellules table inline[], cols null). Pas de code production touché. | 8/10
   | 154 | 2026-06-23 | gouvernance transverse | **Loi de l'Économie d'Encre transverse (9 boroughs)** — Propagation de la loi (S153 bakery) aux 9 autres boroughs LLM metered : codex (RAG/embeddings), training (SPG/SPD), capsule (TTS/capture), plantuml (diagrammes), readme (README LLM), document (AsciiDoc IA), agile (ateliers IA), ticket (GitHub Issues IA), review (analyse PRs IA). 9 `AGENT.adoc` modifiés (principe + règle + anti-patterns spécifiques + protection + référence canonique). 9 commits + 9 push. Aucun code source modifié. Potentiel 50-80% d'économie LLM sur MVP0. | 9/10
   | 153 | 2026-06-23 | DDD + TDD + gouvernance | **BKY-I18N-DELTA — Loi de l'Économie d'Encre + delta traduction i18n (3/3 pts)** — Découverte anti-pattern : `translateNonFrenchKeys()` re-traduisait 45 clés × 10 langues × N exécutions via LLM, écrasant les traductions validées. Correctif : `loadExistingTranslations()` + filtrage delta `filterKeys { !existing.containsKey(it) }` + fusion `existing + new`. Test : pré-remplit `messages_en.properties`, assert conservation `header.1` manuel + traduction `footer.1` manquant + `requestsReceived.size == 1`. Conceptualisation AGENT.adoc : section "Loi de l'Économie d'Encre" (principe, règle, anti-patterns, portée transverse 10 boroughs LLM metered). 3/3 AutoTranslation PASS. | 9/10
   | 152 | 2026-06-23 | DDD + TDD + BDD | **BKY-A11Y-1 FIN EPIC Accessibilité WCAG/RGAA (13/13 pts)** — Fix registrar (auditDir projectDir, reportPath simple, dependsOn→mustRunAfter). US-A11Y-6 règles structurelles : scanStructural (img-alt, link-aria-label, heading-order) + 7 UT + 2 scénarios BDD. US-A11Y-7 gate pipeline : failOnNonCompliant DSL + GradleException + publishSite dependsOn accessibilityAudit + 2 UT + 1 scénario BDD. 17 UT + 7 Cucumber PASS. publishToMavenLocal OK. | 9/10
