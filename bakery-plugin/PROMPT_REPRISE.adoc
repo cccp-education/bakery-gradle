@@ -1,10 +1,10 @@
 = PROMPT REPRISE — Bakery
-:session: 153
+:session: 154
 :date: 2026-06-23
 
-== Mission en cours (session 153)
+== Mission en cours (session 154)
 
-*BKY-A11Y-1 — Accessibilité WCAG/RGAA TERMINÉ (13/13 pts).*
+*BKY-I18N-DELTA TERMINÉ (3/3 pts). Loi de l'Économie d'Encre encodée.*
 Tous les EPICs connus sont clos. Bakery est production-ready (0.0.2 publié Central + Portal).
 
 == Problème à résoudre
@@ -12,12 +12,14 @@ Tous les EPICs connus sont clos. Bakery est production-ready (0.0.2 publié Cent
 Aucun EPIC actif prioritaire. Bakery est 100% fonctionnel. La suite dépend de la roadmap utilisateur :
 - Nouvel EPIC (nouvelle capability) à cadrer, OU
 - Audit/cleanup supplémentaire, OU
+- *Application de la Loi de l'Économie d'Encre aux 9 autres boroughs LLM metered* (codex, training, capsule, plantuml, readme, document, agile, ticket, review) — 50-80% d'économie LLM potentielle sur MVP0.
 - Passage à un autre borough du workspace.
 
 == Notes techniques
 
 * Ports Ollama autorisés : 11437-11465 uniquement. Modèles : gpt-oss:120b-cloud, gemma4:31b-cloud.
-* `./gradlew test --tests "bakery.a11y.*"` = validation rapide a11y (17/17 GREEN).
-* `./gradlew cucumberTest -Dcucumber.features="src/test/features/37_accessibility_audit.feature" -Dcucumber.filter.tags="@a11y"` = 7/7 PASS.
+* `./gradlew test --tests "bakery.i18n.*"` = validation rapide i18n (3/3 AutoTranslation PASS).
+* `./gradlew cucumberTest -Dcucumber.features="src/test/features/37_accessibility_audit.feature"` = 7/7 PASS.
 * Timeout cucumberTest 5min (EPIC 5) toujours actif — ne pas lancer `check` complet sans permission.
-* `publishToMavenLocal` fait (jar 0.0.2 21:34).
+* `publishToMavenLocal` fait (jar 0.0.2).
+* *Loi de l'Économie d'Encre* : voir `AGENT.adoc` section "Non-Répétition des Opérations Coûteuses". Toute tâche Gradle LLM DOIT : load-before-write + calcul delta + fusion existing+new.

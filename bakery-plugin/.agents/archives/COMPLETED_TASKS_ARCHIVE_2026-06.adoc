@@ -1,5 +1,27 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 153 — 2026-06-23 — BKY-I18N-DELTA Loi de l'Économie d'Encre + delta traduction i18n
+
+**Contexte** : Découverte d'un anti-pattern de non-idempotence économique dans `I18nMigrationService.translateNonFrenchKeys()` qui re-traduisait l'intégralité des clés FR→EN via le LLM à chaque exécution de `migrateToI18n`, écrasant les traductions validées de `messages_en.properties`.
+
+**Tâches** :
+
+* [x] US-DELTA-1 — Delta traduction i18n : `translateNonFrenchKeys()` reçoit `templatesDir`, charge `messages_{lang}.properties` existant via `loadExistingTranslations()`, filtre les clés manquantes (`allKeys.filterKeys { !existing.containsKey(it) }`), ne traduit que le delta, fusionne `existing + newTranslations`.
+* [x] US-DELTA-2 — Test `auto-translation reuses existing translations and only translates missing keys` : pré-remplit `messages_en.properties` avec `header.1` manuel, assert conservation + traduction `footer.1` manquant + `requestsReceived.size == 1` (LLM appelé 1 seule fois).
+* [x] US-DELTA-3 — Conceptualisation gouvernance : section "Non-Répétition des Opérations Coûteuses — Loi de l'Économie d'Encre" ajoutée à `AGENT.adoc` (principe, fondement metered, règle load-before-write + delta, anti-patterns, protection, leçon S153, portée transverse 10 boroughs LLM metered).
+* [x] Fix `IaConfigTest.kt:20` — `deepseek-v4-pro` → `gpt-oss:120b-cloud` (dernier résidu de modèle interdit dans le code source bakery). Code prod `IaConfig.kt` déjà correct (port 11464, gpt-oss:120b-cloud).
+
+**Tests** : 3/3 `AutoTranslationI18nMigrationIntegrationTest` PASS. 7/7 `IaConfigTest` PASS. Suite i18n complète PASS.
+
+**Fichiers modifiés** :
+
+. `src/main/kotlin/bakery/i18n/I18nMigrationService.kt` — delta traduction + `loadExistingTranslations()`
+. `src/test/kotlin/bakery/i18n/AutoTranslationI18nMigrationIntegrationTest.kt` — 1 nouveau test réutilisation
+. `src/test/kotlin/bakery/llm/IaConfigTest.kt` — fix modèle interdit
+. `AGENT.adoc` — Loi de l'Économie d'Encre
+. `BACKLOG.adoc` — EPIC BKY-I18N-DELTA (3/3 pts ✅)
+. `PROMPT_REPRISE.adoc`, `.agents/INDEX.adoc`, `.agents/SESSIONS_HISTORY.adoc`, `.agents/TEST_COVERAGE_ANALYSIS.adoc` — clôture session 153
+
 == Session 150 — 2026-06-23 — BKY-I18N-PROD-AUDIT alignement fixtures ↔ sites réels
 
 **Contexte** : Suite à la session 149, alignement des fixtures i18n de test avec les templates JBake réels de cccp.education et cheroliv.com. Approche baby steps DDD/TDD/BDD.

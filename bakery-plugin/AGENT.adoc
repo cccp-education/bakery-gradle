@@ -43,6 +43,34 @@ Commandes interdites (sauf ordre) : `git add`, `git commit`, `git push`, `git me
 
 L'agent NE DOIT JAMAIS lancer de tests (`./gradlew test`, etc.) lors de la procedure de fin de session SANS permission explicite de l'utilisateur.
 
+=== Non-Répétition des Opérations Coûteuses — Loi de l'Économie d'Encre
+
+**PRINCIPE** : Une opération coûteuse (LLM, appel API, inférence cloud, génération artefact, traduction IA) qui a déjà produit un résultat *valide et persistant* NE DOIT PAS être ré-exécutée sur la même entrée. Le résultat existant est la vérité ; le re-calcul est un gaspillage de tokens, de crédits API, et de temps de build.
+
+**FONDEMENT** : Dans un pipeline agentique orchestré par Gradle, chaque tâche peut être ré-invoquée. Si le moteur est naïf, il rejoue inconditionnellement l'opération coûteuse et écrase le résultat antérieur. Cela double, triple, multiplie la facture LLM à chaque `./gradlew`. L'IA n'est pas un générateur idempotent gratuit — c'est un service metered. Répéter une traduction déjà validée, régénérer un résumé déjà produit, ré-embarquer un vecteur déjà stocké : chacun de ces gestes consomme du token sans produire de nouvelle connaissance. L'économie d'encre est la condition de viabilité économique du pipeline.
+
+**RÈGLE** :
+. Avant toute opération coûteuse, **vérifier l'existence d'un artefact résultat** (`messages_{lang}.properties`, `*.json` généré, embeddings stockés, cache disque, etc.).
+. Si l'arteffact existe et couvre l'entrée demandée → **réutiliser sans ré-invoquer**.
+. Seul le **delta** (clés manquantes, sources modifiées, vecteurs absents) doit être calculé — jamais l'ensemble.
+. Ne **jamais écraser** un résultat validé par un re-calcul identique. L'écrasement est un symptôme de non-idempotence économique.
+. L'invalidation est **explicite et ciblée** (clé/source modifiée), jamais globale par défaut.
+
+**ANTI-PATTERNS** :
+. *Re-traduction systématique* : `translate(allKeys)` à chaque exécution, même si `messages_en.properties` contient déjà 90% des clés validées. Coût × N exécutions pour 0 valeur ajoutée.
+. *Régénération totale* : supprimer `graph.json` et le reconstruire entièrement parce qu'un seul borough a changé.
+. *Re-embedding global* : re-vectoriser tout le corpus parce qu'un fichier source a été édité.
+. *Cache-busting silencieux* : un `writeText()` qui écrase le fichier de sortie avant même d'avoir lu l'existant.
+
+**PROTECTION** :
+. Lecture avant écriture : `loadExistingTranslations()` avant `translate()`.
+. Fusion delta : `existing + newTranslations`, pas `newTranslations` seul.
+. `DisableCachingByDefault` ne dispense pas de l'idempotence applicative — Gradle ne sait pas ce qu'est une "traduction déjà valide", seul le domaine le sait.
+
+**LEÇON (Session 153, bakery i18n)** : `I18nMigrationService.translateNonFrenchKeys()` re-traduisait l'intégralité des clés FR→EN via le LLM à chaque `migrateToI18n`, écrasant les traductions validées de `messages_en.properties`. Sur 45 clés × 10 langues × ré-exécutions, la facture LLM croissait linéairement sans valeur ajoutée. Correctif : chargement des traductions existantes + traduction delta des clés manquantes uniquement.
+
+**PORTÉE TRANSVERSE** : Ce principe s'applique à tous les boroughs consommant un service LLM/cloud metered — bakery (i18n), codex (RAG), training (SPG/SPD), capsule (TTS), plantuml (diagrammes), readme (génération), document (AsciiDoc IA), agile (ateliers IA), ticket (création IA), review (analyse IA). Toute nouvelle tâche Gradle qui appelle un LLM DOIT implémenter la lecture-avant-écriture et le calcul delta.
+
 === Securite
 * Jamais de secrets en dur dans le code
 * Jamais de credentials dans les fichiers de config

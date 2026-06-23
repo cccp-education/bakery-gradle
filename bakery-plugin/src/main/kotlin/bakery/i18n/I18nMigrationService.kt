@@ -116,7 +116,7 @@ class I18nMigrationService(private val translationService: TranslationService? =
             allKeys.putAll(extractions)
         }
 
-        val translatedKeys = translateNonFrenchKeys(allKeys, languages)
+        val translatedKeys = translateNonFrenchKeys(allKeys, languages, templatesDir)
         val messageFiles = generateMessageFiles(allExtractions, languages, templatesDir, translatedKeys)
 
         var templatesModified = 0
@@ -352,7 +352,8 @@ class I18nMigrationService(private val translationService: TranslationService? =
 
     private fun translateNonFrenchKeys(
         allKeys: Map<String, String>,
-        languages: List<String>
+        languages: List<String>,
+        templatesDir: File
     ): Map<String, Map<String, String>> {
         if (translationService == null) return emptyMap()
         val nonFrenchLanguages = languages.filter { it != "fr" }
@@ -360,8 +361,19 @@ class I18nMigrationService(private val translationService: TranslationService? =
 
         val applier = LlmTranslationApplier(translationService)
         return nonFrenchLanguages.associateWith { lang ->
-            applier.translateFrenchToEnglish(allKeys)
+            val existing = loadExistingTranslations(templatesDir, lang)
+            val missingKeys = allKeys.filterKeys { key -> !existing.containsKey(key) }
+            val newTranslations = applier.translateFrenchToEnglish(missingKeys)
+            existing + newTranslations
         }
+    }
+
+    private fun loadExistingTranslations(templatesDir: File, lang: String): Map<String, String> {
+        val file = templatesDir.resolve("messages_$lang.properties")
+        if (!file.exists()) return emptyMap()
+        val props = Properties()
+        file.inputStream().use { props.load(it) }
+        return props.map { it.key.toString() to it.value.toString() }.toMap()
     }
 
     private fun resolveValue(

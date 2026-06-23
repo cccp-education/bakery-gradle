@@ -17,7 +17,7 @@ class IaConfigTest {
     @Test
     fun `default config has bakery-llm model name`() {
         val config = IaConfig()
-        assertEquals("deepseek-v4-pro", config.modelName)
+        assertEquals("gpt-oss:120b-cloud", config.modelName)
     }
 
     @Test

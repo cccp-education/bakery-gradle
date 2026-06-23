@@ -58,6 +58,41 @@ class AutoTranslationI18nMigrationIntegrationTest {
     }
 
     @Test
+    fun `auto-translation reuses existing translations and only translates missing keys`(@TempDir tempDir: File) {
+        val siteDir = tempDir.resolve("site")
+        siteDir.mkdirs()
+        val templatesDir = siteDir.resolve("templates")
+        templatesDir.mkdirs()
+        templatesDir.resolve("header.thyme").writeText("<p>Bienvenue</p>")
+        templatesDir.resolve("footer.thyme").writeText("<p>Contactez-nous</p>")
+        siteDir.resolve("jbake.properties").writeText("site.host=http://example.com\n")
+
+        val enFile = templatesDir.resolve("messages_en.properties")
+        val existingProps = Properties()
+        existingProps.setProperty("header.1", "Welcome (manual)")
+        enFile.outputStream().use { existingProps.store(it, null) }
+
+        val fakeTranslator = FakeTranslationService()
+        val service = I18nMigrationService(fakeTranslator)
+
+        service.migrate(
+            siteDir = siteDir,
+            languages = listOf("fr", "en"),
+            defaultLanguage = "fr",
+            dryRun = false
+        )
+
+        val props = Properties()
+        enFile.inputStream().use { props.load(it) }
+        assertEquals("Welcome (manual)", props.getProperty("header.1"),
+            "La traduction existante de header.1 doit être conservée")
+        assertTrue(props.getProperty("footer.1").startsWith("[en] "),
+            "La clé non-traduite footer.1 doit être traduite par le LLM")
+        assertEquals(1, fakeTranslator.requestsReceived.size,
+            "Le LLM ne doit être appelé que pour les clés manquantes")
+    }
+
+    @Test
     fun `auto-translation falls back to french when translator fails`(@TempDir tempDir: File) {
         val siteDir = tempDir.resolve("site")
         siteDir.mkdirs()

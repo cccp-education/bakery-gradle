@@ -5,15 +5,15 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-23 — Session 152 BKY-A11Y-1 TERMINÉ (13/13 pts). Accessibilité WCAG/RGAA complète : contraste + alt/aria/headings + gate failOnNonCompliant. 17 UT + 7 Cucumber PASS._
+_Dernière mise à jour : 2026-06-23 — Session 153 BKY-I18N-DELTA TERMINÉ (3/3 pts). Loi de l'Économie d'Encre conceptualisée dans AGENT.adoc. `translateNonFrenchKeys()` charge les traductions existantes + calcule le delta. Évite la re-traduction LLM systématique. 3/3 tests AutoTranslation PASS._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
 [CAUTION]
 ====
-**30/30 EPICs historiques terminés + BKY-A11Y-1 ✅ TERMINÉ. Aucun EPIC actif.**
-**Session 152** : BKY-A11Y-1 complet — US-1→7 toutes terminées. 17 UT + 7 Cucumber PASS. publishToMavenLocal OK.
-**Prochaine session** : 153 — attente roadmap utilisateur.
+**31/31 EPICs historiques terminés + BKY-I18N-DELTA ✅ TERMINÉ. Aucun EPIC actif.**
+**Session 153** : BKY-I18N-DELTA complet — US-1→3 toutes terminées. Loi de l'Économie d'Encre encodée dans AGENT.adoc. Delta traduction implémenté. 3 tests PASS.
+**Prochaine session** : 154 — attente roadmap utilisateur.
 ====
 
 '''
@@ -1190,6 +1190,38 @@ data-driven non fait). Cet EPIC cloture proprement les duplications résiduelles
 
 '''
 
+== EPIC BKY-I18N-DELTA : Non-Répétition des Traductions LLM — Loi de l'Économie d'Encre (NOUVEAU — Session 153)
+
+*Découverte* : Session 153 — `I18nMigrationService.translateNonFrenchKeys()` re-traduisait l'intégralité des clés FR→EN via le LLM à *chaque* exécution de `migrateToI18n`, écrasant les traductions validées de `messages_en.properties`. Sur 45 clés × 10 langues × N ré-exécutions, la facture LLM croissait linéairement sans valeur ajoutée. Anti-pattern de *non-idempotence économique* : une opération coûteuse metered rejouée sur entrée identique.
+*Objectif* : Établir la **Loi de l'Économie d'Encre** comme contrainte de gouvernance transverse — toute opération LLM/cloud metered DOIT réutiliser les résultats persistants existants et ne calculer que le delta.
+*Charge* : 3 pts (~1 session)
+*Priorité* : P0 — Optimisation consommation tokens/processes. Condition de viabilité économique du pipeline agentique MVP0.
+*Méthode* : DDD (load-before-write) + TDD (test réutilisation) + conceptualisation gouvernance (AGENT.adoc).
+
+[cols="1,4,2,2"]
+|===
+| US | Description | Pts | Statut
+
+| US-DELTA-1
+| **Delta traduction i18n** — `translateNonFrenchKeys()` charge `messages_{lang}.properties` existant via `loadExistingTranslations()`, filtre les clés manquantes, ne traduit que le delta. Fusion `existing + newTranslations`. Évite l'écrasement des traductions validées.
+| 1
+| ✅ S153
+
+| US-DELTA-2
+| **Test réutilisation** — `auto-translation reuses existing translations and only translates missing keys` : pré-remplit `messages_en.properties` avec `header.1` manuel, vérifie conservation + traduction de `footer.1` manquant + assert `requestsReceived.size == 1` (LLM appelé une seule fois).
+| 1
+| ✅ S153
+
+| US-DELTA-3
+| **Conceptualisation gouvernance** — Section "Non-Répétition des Opérations Coûteuses — Loi de l'Économie d'Encre" ajoutée à `AGENT.adoc`. Principe, règle, anti-patterns, protection, leçon, portée transverse (10 boroughs consommant du LLM metered). Encodage de la contrainte dans la littérature de gouvernance pour application durable.
+| 1
+| ✅ S153
+|===
+
+*Projection d'impact* : Si la même logique delta est appliquée aux 9 autres boroughs consommant du LLM metered (codex RAG, training SPG/SPD, capsule TTS, plantuml diagrammes, readme/doc/agile/ticket/review IA), l'économie potentielle sur le pipeline MVP0 complet est de l'ordre de 50-80% de la facture LLM récurrente (hypothèse : 3-5 ré-exécutions par cycle de dev).
+
+'''
+
 == Synthèse — Charge restante (Session 151)
 
 [cols="1,3,2,2"]
@@ -1211,6 +1243,7 @@ data-driven non fait). Cet EPIC cloture proprement les duplications résiduelles
 | BKY-I18N-PROD-AUDIT | Alignement fixtures ↔ sites réels | 5 | ✅ S150 (US-1→5 TERMINÉS)
 // ── EN COURS ──
 | BKY-A11Y-1 | Accessibilité WCAG/RGAA | 13 | ✅ S152 TERMINÉ (US-1→7 tous faits)
+| BKY-I18N-DELTA | Non-répétition traductions LLM (Économie d'Encre) | 3 | ✅ S153 — US-1 delta traduction + US-2 test réutilisation
 | *Total restant* | | *0* |
 |===
 
