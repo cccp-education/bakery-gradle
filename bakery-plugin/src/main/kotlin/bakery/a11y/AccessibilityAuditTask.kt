@@ -2,6 +2,7 @@ package bakery.a11y
 
 import bakery.BakeryConstants
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
@@ -60,11 +61,16 @@ abstract class AccessibilityAuditTask : DefaultTask() {
     @get:Option(option = "conformanceLevel", description = "Niveau de conformité WCAG : AA ou AAA")
     abstract val conformanceLevel: Property<String>
 
+    /** Si vrai, la tâche échoue (lève une exception) quand le site n'est pas compliant. */
+    @get:Input
+    abstract val failOnNonCompliant: Property<Boolean>
+
     init {
         group = BakeryConstants.AUDIT_GROUP
         description = "Audit d'accessibilité WCAG/RGAA du site baké — rapport JSON/ASCII"
         reportPath.convention("build/reports/accessibility-audit.json")
         conformanceLevel.convention("AA")
+        failOnNonCompliant.convention(false)
     }
 
     @TaskAction
@@ -84,7 +90,9 @@ abstract class AccessibilityAuditTask : DefaultTask() {
 
         val allFindings = htmlFiles.flatMap { file ->
             val html = file.readText(Charsets.UTF_8)
-            scanInlineColors(html).map { finding ->
+            val colorFindings = scanInlineColors(html)
+            val structuralFindings = scanStructural(html)
+            (colorFindings + structuralFindings).map { finding ->
                 finding.copy(
                     selector = "${file.relativeTo(htmlDir).path} ${finding.selector}",
                     message = "${finding.message} (${file.name})"
@@ -103,6 +111,13 @@ abstract class AccessibilityAuditTask : DefaultTask() {
 
         if (!report.isCompliant) {
             logger.warn("[accessibilityAudit] Site NON conforme — {} findings échoués", report.failedCount)
+            if (failOnNonCompliant.getOrElse(false)) {
+                throw GradleException(
+                    "[accessibilityAudit] Site non conforme (échec ${report.failedCount} finding(s)). " +
+                        "Rapport : ${reportFile.absolutePath}. " +
+                        "Pour ignorer, désactiver a11y.failOnNonCompliant."
+                )
+            }
         } else {
             logger.lifecycle("[accessibilityAudit] Site conforme ✅")
         }

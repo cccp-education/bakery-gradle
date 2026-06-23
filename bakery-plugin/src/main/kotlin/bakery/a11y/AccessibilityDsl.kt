@@ -22,10 +22,12 @@ open class AccessibilityDsl @Inject constructor(objects: ObjectFactory) {
     val auditDir: Property<String> = objects.property(String::class.java)
     val reportPath: Property<String> = objects.property(String::class.java)
     val conformanceLevel: Property<String> = objects.property(String::class.java)
+    val failOnNonCompliant: Property<Boolean> = objects.property(Boolean::class.java)
 
     init {
         auditDir.convention("")
         reportPath.convention("")
         conformanceLevel.convention("")
+        failOnNonCompliant.convention(false)
     }
 }

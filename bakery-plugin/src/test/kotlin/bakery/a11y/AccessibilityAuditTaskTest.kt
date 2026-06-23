@@ -186,5 +186,54 @@ class AccessibilityAuditTaskTest {
             assertThat(content).contains("\"failedCount\": 0")
             assertThat(content).contains("\"findings\":")
         }
+
+        @Test
+        fun `fails when non compliant and failOnNonCompliant is true`() {
+            val project = ProjectBuilder.builder()
+                .withProjectDir(auditTempDir)
+                .withName("test-a11y-gate")
+                .build()
+            project.pluginManager.apply("java-base")
+
+            val bakedDir = auditTempDir.resolve("build/bake").apply { mkdirs() }
+            bakedDir.resolve("index.html").writeText(
+                """<p style="color: #FFA500; background-color: #FFFFFF;">Weak</p>""", Charsets.UTF_8
+            )
+
+            val task = project.tasks.register("accessibilityAudit", AccessibilityAuditTask::class.java).get()
+            (task.auditDir as org.gradle.api.file.DirectoryProperty).set(bakedDir)
+            task.reportPath.set("build/reports/a11y-gate.json")
+            task.failOnNonCompliant.set(true)
+
+            assertThrows<org.gradle.api.GradleException> {
+                task.executeAudit()
+            }
+        }
+
+        @Test
+        fun `does not fail when non compliant and failOnNonCompliant is false`() {
+            val project = ProjectBuilder.builder()
+                .withProjectDir(auditTempDir)
+                .withName("test-a11y-no-gate")
+                .build()
+            project.pluginManager.apply("java-base")
+
+            val bakedDir = auditTempDir.resolve("build/bake").apply { mkdirs() }
+            bakedDir.resolve("index.html").writeText(
+                """<p style="color: #FFA500; background-color: #FFFFFF;">Weak</p>""", Charsets.UTF_8
+            )
+
+            val task = project.tasks.register("accessibilityAudit", AccessibilityAuditTask::class.java).get()
+            (task.auditDir as org.gradle.api.file.DirectoryProperty).set(bakedDir)
+            task.reportPath.set("build/reports/a11y-no-gate.json")
+            task.failOnNonCompliant.set(false)
+
+            task.executeAudit()
+
+            val reportFile = auditTempDir.resolve("build/reports/a11y-no-gate.json")
+            assertTrue(reportFile.exists())
+            val content = reportFile.readText(Charsets.UTF_8)
+            assertThat(content).contains("\"compliant\": false")
+        }
     }
 }

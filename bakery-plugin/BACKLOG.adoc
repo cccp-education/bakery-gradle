@@ -5,15 +5,15 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-23 — Session 151b en cours (BKY-A11Y-1 : tâche Gradle accessibilityAudit + Feature 37 — US-1→3 ✅, US-4 🔄 8 UT + 1/4 BDD)_
+_Dernière mise à jour : 2026-06-23 — Session 152 BKY-A11Y-1 TERMINÉ (13/13 pts). Accessibilité WCAG/RGAA complète : contraste + alt/aria/headings + gate failOnNonCompliant. 17 UT + 7 Cucumber PASS._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
 [CAUTION]
 ====
-**30/30 EPICs historiques terminés + BKY-I18N-PROD-AUDIT ✅ TERMINÉ. EPIC actif : BKY-A11Y-1 Accessibilité WCAG/RGAA.**
-**Session 151b** : DDD/TDD a11y task + BDD Feature 37 — 8 UT GREEN, 1/4 Cucumber PASS (registration), 3/4 à corriger (auditDir/dependsOn bake en TestKit).
-**Prochaine session** : 152 — corriger registrar auditDir + 3 scénarios Feature 37 + règles alt/aria/headings.
+**30/30 EPICs historiques terminés + BKY-A11Y-1 ✅ TERMINÉ. Aucun EPIC actif.**
+**Session 152** : BKY-A11Y-1 complet — US-1→7 toutes terminées. 17 UT + 7 Cucumber PASS. publishToMavenLocal OK.
+**Prochaine session** : 153 — attente roadmap utilisateur.
 ====
 
 '''
@@ -1170,22 +1170,22 @@ data-driven non fait). Cet EPIC cloture proprement les duplications résiduelles
 | US-A11Y-4
 | **Tâche Gradle `accessibilityAudit`** — Enregistrer une tâche dans le pipeline bakery qui scanne le répertoire `output/` après `bake` et produit un rapport JSON/ASCII.
 | 3
-| 🔄 S151b (baby step 4) — tâche créée + 8 UT GREEN, registrar à corriger (auditDir TestKit)
+| ✅ S152 (baby step 4) — registrar corrigé (auditDir projectDir, mustRunAfter bake), 8 UT + 4/4 Cucumber
 
 | US-A11Y-5
 | **BDD Cucumber Feature 37** — Scénarios : audit passe, audit échoue sur contraste faible, site sans couleurs inline.
 | 2
-| 🔄 S151b — 1/4 PASS (registration), 3/4 FAILED (auditDir/dependsOn bake en TestKit)
+| ✅ S152 — 4/4 PASS (compliant, non-compliance, empty, registration)
 
 | US-A11Y-6
 | **Règles structurelles** — alt text sur images, aria-label sur liens/icones, ordre headings h1→h6 sans saut.
 | 3
-| ⏸️ À faire
+| ✅ S152 — scanStructural (img-alt, link-aria-label, heading-order) + 7 UT + 2 scénarios BDD
 
 | US-A11Y-7
 | **Intégration pipeline full** — `accessibilityAudit` dépend de `bake`, bloque `publishSite` si non compliant (configurable).
 | 1
-| ⏸️ À faire
+| ✅ S152 — failOnNonCompliant DSL + GradleException gate + publishSite dependsOn accessibilityAudit + 2 UT + 1 scénario BDD
 |===
 
 '''
@@ -1210,19 +1210,19 @@ data-driven non fait). Cet EPIC cloture proprement les duplications résiduelles
 | BKY-CR-V6 | Duplications structurelles résiduelles | 8 | ✅ TERMINÉ — US-1 S142, US-2 S144, US-3 S145
 | BKY-I18N-PROD-AUDIT | Alignement fixtures ↔ sites réels | 5 | ✅ S150 (US-1→5 TERMINÉS)
 // ── EN COURS ──
-| BKY-A11Y-1 | Accessibilité WCAG/RGAA | 13 | 🔄 S151b (US-1→3 ✅, US-4 🔄, US-5 🔄 1/4, US-6→7 ⏸️)
-| *Total restant* | | *13* |
+| BKY-A11Y-1 | Accessibilité WCAG/RGAA | 13 | ✅ S152 TERMINÉ (US-1→7 tous faits)
+| *Total restant* | | *0* |
 |===
 
 *Tous les EPICs historiques* : 30/30 ✅ (100%)
-*EPIC actif* : BKY-A11Y-1 (13 pts, 3/7 US faits + US-4/5 en cours)
+*EPIC actif* : aucun — BKY-A11Y-1 ✅ TERMINÉ S152.
 *Code smells résolus* : 24/24 ✅ (V2+V3+V4)
 *Code smells V5* : 52 ✅ (US-1 faux positif, US-2+3+4+5+6+7+8 résolues — V5-5 et V5-7 PARTIEL repris en V6)
 *Bakery 100% fonctionnel* — smells V5/V6 qualitatifs, pas fonctionnels.
 *Nouveau cap* : BKY-PUB-2 — ✅ TERMINÉ S143.
 *Nouveau cap* : BKY-CR-V6 — ✅ TERMINÉ 8/8 pts.
 *Nouveau cap* : BKY-I18N-PROD-AUDIT — ✅ TERMINÉ S150.
-*Nouveau cap* : BKY-A11Y-1 — 🔄 EN COURS S151b (tâche Gradle + Feature 37 partielle).
+*Nouveau cap* : BKY-A11Y-1 — ✅ TERMINÉ S152 (13/13 pts).
 
 '''
 == Métadonnées

@@ -1,0 +1,72 @@
+= Session 152 — 2026-06-23 — BKY-A11Y-1 : Fin EPIC Accessibilité WCAG/RGAA (13/13 pts)
+
+== Objectif
+
+Terminer BKY-A11Y-1 : corriger les 3 scénarios Feature 37 échouants (registrar auditDir/dependsOn), implémenter les règles structurelles (alt/aria/headings), et câbler le gate `failOnNonCompliant` dans le pipeline full.
+
+== Contexte
+
+* Session 151 + 151b : domaine a11y pur + tâche Gradle `accessibilityAudit` + Feature 37 (1/4 PASS, 3/4 FAILED).
+* Cette session : corrige registrar (baby step 4/5 fin), baby step 6 (règles structurelles), baby step 7 (pipeline gate).
+
+== Baby steps DDD/TDD/BDD
+
+=== Fix registrar (US-A11Y-4/5)
+
+*Problème* : `AccessibilityTaskRegistrar` configurait `auditDir` via `layout.buildDirectory.dir("build/bake")` = `build/build/bake` (double `build/`), et `dependsOn(bake)` forçait l'exécution de JBake qui échouait sans `site/templates/` en TestKit. Aussi `reportPath` dérivait de `destDirPath` = `build/reports/build/bake-accessibility-audit.json` (inattendu).
+
+*Corrections* :
+. `auditDir` set via `layout.projectDirectory.dir(configuredDir)` (projectDir-relative, pas buildDir).
+. `reportPath` default simple = `build/reports/accessibility-audit.json` (plus de dérivation destDirPath).
+. `dependsOn(bake)` → `mustRunAfter(bake)` (l'audit ne force plus bake, s'exécute isolément).
+. Cast `DirectoryProperty` inutile supprimé (warning Kotlin).
+
+*Résultat* : Feature 37 scénarios compliant/non-compliant/empty → 4/4 PASS.
+
+=== US-A11Y-6 : Règles structurelles (baby step 6)
+
+*DDD* : `scanStructural(html)` dans `AccessibilityHtmlScanner.kt` — 3 règles :
+. `scanImgAlt` — `<img>` sans `alt` ou `alt=""` → finding `img-alt` fail.
+. `scanLinkAriaLabel` — `<a>` sans texte ET sans `aria-label` → finding `link-aria-label` fail.
+. `scanHeadingOrder` — saut de niveau (h1→h3) → finding `heading-order` fail.
+
+*TDD* : 7 UT RED→GREEN dans `AccessibilityHtmlScannerTest` (img sans/avec alt, link sans/avec aria-label, heading skip/séquentiel, plain text empty).
+
+*BDD* : 2 scénarios Feature 37 `@structural` (img sans alt, heading skip) + 2 steps `AccessibilityAuditSteps`.
+
+*Intégration* : `AccessibilityAuditTask.executeAudit()` combine `scanInlineColors` + `scanStructural`.
+
+=== US-A11Y-7 : Intégration pipeline full + gate (baby step 7)
+
+*DDD* :
+. `AccessibilityDsl.failOnNonCompliant: Property<Boolean>` (default false).
+. `AccessibilityAuditTask.failOnNonCompliant: Property<Boolean>` (@Input) + lève `GradleException` si non compliant et gate actif.
+. `AccessibilityTaskRegistrar` set `failOnNonCompliant` depuis DSL.
+. `DeployTaskRegistrar.registerPublishSiteTask()` : `publishSite` dependsOn `accessibilityAudit` (gate pipeline).
+
+*TDD* : 2 UT `AccessibilityAuditTaskTest` (fails when gate true, passes when gate false).
+
+*BDD* : 1 scénario Feature 37 `@gate` + step `createBakeryProjectWithA11yGateEnabled` + `runA11yTaskByNameExpectingFailure`.
+
+== Résultats tests
+
+* UT a11y : 17/17 GREEN (4 color + 7 structural + 6 task dont 2 gate).
+* Feature 37 Cucumber : 7/7 scénarios PASS (registration, compliant, non-compliance, empty, img-alt, heading-order, gate).
+* `check -x e2eTest` : BUILD FAILED sur timeout cucumberTest 5min (EPIC 5 connu, pas lié à cette session).
+* `publishToMavenLocal` : OK (jar 0.0.2 republié 21:34).
+
+== Fichiers modifiés
+
+. `src/main/kotlin/bakery/a11y/AccessibilityTaskRegistrar.kt` — auditDir projectDir, reportPath simple, mustRunAfter, failOnNonCompliant wiring.
+. `src/main/kotlin/bakery/a11y/AccessibilityAuditTask.kt` — failOnNonCompliant property + GradleException gate, scanStructural intégré.
+. `src/main/kotlin/bakery/a11y/AccessibilityHtmlScanner.kt` — scanStructural + scanImgAlt + scanLinkAriaLabel + scanHeadingOrder.
+. `src/main/kotlin/bakery/a11y/AccessibilityDsl.kt` — failOnNonCompliant property.
+. `src/main/kotlin/bakery/DeployTaskRegistrar.kt` — publishSite dependsOn accessibilityAudit.
+. `src/test/kotlin/bakery/a11y/AccessibilityHtmlScannerTest.kt` — 7 UT structurelles.
+. `src/test/kotlin/bakery/a11y/AccessibilityAuditTaskTest.kt` — 2 UT gate.
+. `src/test/features/37_accessibility_audit.feature` — 3 scénarios (img-alt, heading-order, gate).
+. `src/test/scenarios/bakery/scenarios/AccessibilityAuditSteps.kt` — 3 steps (img/heading/gate) + expecting failure.
+
+== État EPIC
+
+BKY-A11Y-1 : **✅ TERMINÉ — 13/13 pts** (US-1→7 toutes terminées).

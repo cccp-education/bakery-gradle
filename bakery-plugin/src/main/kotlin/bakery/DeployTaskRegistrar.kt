@@ -98,6 +98,7 @@ object DeployTaskRegistrar {
                 group = BakeryConstants.PUBLISH_GROUP
                 description = "Bake and deploy site (convenience aggregate)"
                 dependsOn("bake", "deploySite")
+                dependsOn("accessibilityAudit")
             }
         }
     }

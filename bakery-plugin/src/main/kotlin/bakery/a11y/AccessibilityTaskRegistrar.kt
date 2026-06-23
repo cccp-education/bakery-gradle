@@ -2,7 +2,6 @@ package bakery.a11y
 
 import bakery.BakeryExtension
 import org.gradle.api.Project
-import org.gradle.api.file.DirectoryProperty
 
 object AccessibilityTaskRegistrar {
 
@@ -19,21 +18,20 @@ object AccessibilityTaskRegistrar {
                 ?: site.bake.destDirPath.takeIf { it.isNotBlank() }
                 ?: "bake"
 
-            (task.auditDir as DirectoryProperty).set(
-                layout.buildDirectory.dir(configuredDir)
+            task.auditDir.set(
+                layout.projectDirectory.dir(configuredDir)
             )
 
             val configuredReport = dsl.reportPath.orNull?.takeIf { it.isNotBlank() }
-                ?: site.bake.destDirPath.takeIf { it.isNotBlank() }
-                    ?.let { "build/reports/$it-accessibility-audit.json" }
                 ?: "build/reports/accessibility-audit.json"
             task.reportPath.set(configuredReport)
 
             task.conformanceLevel.set(
                 dsl.conformanceLevel.orNull?.takeIf { it.isNotBlank() } ?: "AA"
             )
+            task.failOnNonCompliant.set(dsl.failOnNonCompliant)
 
-            task.dependsOn(bakery.BakeryConstants.BAKE_TASK)
+            task.mustRunAfter(bakery.BakeryConstants.BAKE_TASK)
         }
     }
 }

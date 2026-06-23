@@ -33,3 +33,26 @@ Feature: Accessibility Audit Task — BKY-A11Y-1
     When I am executing the a11y task "accessibilityAudit"
     Then the build should succeed
     And the build output should contain "Aucun fichier HTML trouvé"
+
+  @structural
+  Scenario: accessibilityAudit flags img without alt attribute
+    Given the baked directory contains "page.html" with img without alt
+    When I am executing the a11y task "accessibilityAudit"
+    Then the build should succeed
+    And the report "build/reports/accessibility-audit.json" should contain "img-alt"
+    And the report "build/reports/accessibility-audit.json" should contain "\"compliant\": false"
+
+  @structural
+  Scenario: accessibilityAudit flags heading skip order
+    Given the baked directory contains "page.html" with heading skip from h1 to h3
+    When I am executing the a11y task "accessibilityAudit"
+    Then the build should succeed
+    And the report "build/reports/accessibility-audit.json" should contain "heading-order"
+    And the report "build/reports/accessibility-audit.json" should contain "\"compliant\": false"
+
+  @gate
+  Scenario: accessibilityAudit fails build when failOnNonCompliant is enabled
+    Given a new Bakery project with a11y failOnNonCompliant enabled
+    And the baked directory contains "index.html" with inline contrast "#FFA500 on #FFFFFF"
+    When I am executing the a11y task "accessibilityAudit" expecting failure
+    Then the build should fail

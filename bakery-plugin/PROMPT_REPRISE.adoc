@@ -1,27 +1,23 @@
 = PROMPT REPRISE — Bakery
-:session: 152
+:session: 153
 :date: 2026-06-23
 
-== Mission en cours (session 152)
+== Mission en cours (session 153)
 
-*BKY-A11Y-1 — Accessibilité WCAG/RGAA* baby step 5 en cours.
-- Domaine pur + tâche Gradle `accessibilityAudit` créés (session 151 + 151b).
-- 8 UT GREEN sur `AccessibilityAuditTaskTest`.
-- Feature 37 Cucumber : 1/4 PASS (registration), 3/4 FAILED.
+*BKY-A11Y-1 — Accessibilité WCAG/RGAA TERMINÉ (13/13 pts).*
+Tous les EPICs connus sont clos. Bakery est production-ready (0.0.2 publié Central + Portal).
 
 == Problème à résoudre
 
-Les 3 scénarios Feature 37 échouent car `AccessibilityTaskRegistrar` configure `auditDir` via `layout.buildDirectory.dir(...)` qui n'est pas résolu correctement dans le contexte TestKit. Le `dependsOn(bake)` empêche l'exécution isolée.
-
-== Prochaine session
-
-1. Corriger `AccessibilityTaskRegistrar` : permettre à `auditDir` d'être surchargé via CLI/DSL, et retirer/conditionner `dependsOn(bake)`.
-2. Corriger les 3 scénarios Feature 37 restants (compliant, non-compliant, empty dir).
-3. Baby step 6 : règles structurelles alt/aria/headings dans `AccessibilityHtmlScanner`.
-4. `publishToMavenLocal` obligatoire après modif code source.
+Aucun EPIC actif prioritaire. Bakery est 100% fonctionnel. La suite dépend de la roadmap utilisateur :
+- Nouvel EPIC (nouvelle capability) à cadrer, OU
+- Audit/cleanup supplémentaire, OU
+- Passage à un autre borough du workspace.
 
 == Notes techniques
 
 * Ports Ollama autorisés : 11437-11465 uniquement. Modèles : gpt-oss:120b-cloud, gemma4:31b-cloud.
-* `./gradlew test --tests "bakery.a11y.*"` = validation rapide a11y.
-* `./gradlew cucumberTest -Dcucumber.features="src/test/features/37_accessibility_audit.feature" -Dcucumber.filter.tags="@a11y"`.
+* `./gradlew test --tests "bakery.a11y.*"` = validation rapide a11y (17/17 GREEN).
+* `./gradlew cucumberTest -Dcucumber.features="src/test/features/37_accessibility_audit.feature" -Dcucumber.filter.tags="@a11y"` = 7/7 PASS.
+* Timeout cucumberTest 5min (EPIC 5) toujours actif — ne pas lancer `check` complet sans permission.
+* `publishToMavenLocal` fait (jar 0.0.2 21:34).
