@@ -1,1269 +1,208 @@
 = Backlog — Bakery Gradle Plugin
-:description: Backlog prioritaire — EPICs restants + Code Smells V5 (Session 117)
+:description: Backlog nettoyé — EPICs historiques archivés, synthèse uniquement
 :toc: left
-:toclevels: 4
+:toclevels: 3
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-23 — Session 153 BKY-I18N-DELTA TERMINÉ (3/3 pts). Loi de l'Économie d'Encre conceptualisée dans AGENT.adoc. `translateNonFrenchKeys()` charge les traductions existantes + calcule le delta. Évite la re-traduction LLM systématique. 3/3 tests AutoTranslation PASS._
-_Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
+_Dernière mise à jour : 2026-06-23 — Session 155. Nettoyage BACKLOG : historisation du détail des EPICs terminés dans `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`. Seuls restent : synthèse compacte + pistes ouvertes._
+_Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
 [CAUTION]
 ====
-**31/31 EPICs historiques terminés + BKY-I18N-DELTA ✅ TERMINÉ. Aucun EPIC actif.**
-**Session 153** : BKY-I18N-DELTA complet — US-1→3 toutes terminées. Loi de l'Économie d'Encre encodée dans AGENT.adoc. Delta traduction implémenté. 3 tests PASS.
-**Prochaine session** : 154 — attente roadmap utilisateur.
+**Tous les EPICs connus sont clos. Bakery est production-ready.**
+*Publication* : 0.0.2 sur Maven Central (LIVE) + Gradle Plugin Portal (propagation 24-48h).
+*Coverage* : 85.88% (Kover), seuil `koverThresholdCheck` PASS.
+*Code smells* : 24/24 V2-V4 + 60 V5 + 3 V6 résolus (24/24 V5 via US-1→8, 8/8 V6).
+*Loi de l'Économie d'Encre* : encodée dans bakery + 9 boroughs transverses (S154).
+*Session en cours* : 155 — attente roadmap utilisateur.
 ====
 
 '''
 
-== HISTORIQUE — EPICs Terminés (28/28)
+== Synthèse — EPICs terminés (archive compacte)
 
-_Tous les EPICs ci-dessous sont clos. Conservés ici pour traçabilité.
-Les détails d'implémentation sont dans les archives de sessions et le backlog historisé._
+_Tous les EPICs ci-dessous sont clos. Le détail (US, baby steps, commits) est archivé dans
+le backup sess154 et les rapports de sessions `.agents/sessions/NNN-*.adoc`._
 
-[cols="1,3,2,3"]
+[cols="1,3,2,2"]
 |===
 | EPIC | Description | Pts | Clôture
-| EPIC 1 | Intégration gouvernance agent | — | Sess. 001
-| EPIC 2 | Migration Supabase → Firebase | — | Sess. 002
-| EPIC 3 | Amélioration build.gradle.kts | — | Sess. 003
-| EPIC 4 | Formulaire de contact Firebase | — | Sess. 012
-| EPIC 5 | Correction timeout Cucumber | — | ✅ Implémenté (timeout 5min)
-| EPIC 6 | Intégration deployProfile | 13→3 | Sess. 072 (CS-12 renommage DEPLOYER)
-| EPIC 7 | Tolérance parsing YAML | — | Sess. 029
-| EPIC 8 | Bumper version 0.1.4 | — | Sess. 016
-| EPIC 9 | Orchestration LLM | — | ⚠️ SUPERSEDÉ par BKY-IA-0 (LLM local)
-| EPIC 10 | Scaffolding TDD | — | Sess. 029 (100%)
-| EPIC 11 | Optimisation durée tests | — | Sess. 064 (-77%, 2m46→38s)
-| EPIC 12 | Articles connexes KG | — | ⚠️ SUPERSEDÉ par BKY-LENS
-| EPIC 13 | Couverture tests 73%→77.25% | 5→3 | Sess. 077 (>75% seuil ✅)
-| EPIC 14 | Roadmap IA (9 EPICs) | 73 | Sessions 022→069
-| EPIC 15 | PluginApplicationTest NPE | 3 | Sess. 028 (siteType déjà stubbé)
-| EPIC 16 | Cucumber Scaffolding steps | 2 | Sess. 028 (step déjà corrigé)
-| EPIC 17 | generateArticle graceful fail | 5 | Sess. 053 (70/70 Cucumber PASS)
-| BKY-JB-0 | Scaffolding site JBake | 5 | Sess. 026
-| BKY-JB-2 | Composants Thymeleaf | 5 | Sess. 029
-| BKY-JB-3 | Google Forms embed | 5 | Sess. 030
-| BKY-JB-4 | Firebase Auth + Comments | 5 | Sess. 032
-| BKY-JB-5 | Analytics + Newsletter | 3 | Sess. 033 ✅ (BACKLOG corrigé — était EN COURS)
-| BKY-JB-6 | Système de thème | 5 | Sess. 034
-| BKY-JB-7 | Layouts | 3 | Sess. 039
-| BKY-JB-8 | Article IA | 13 | Sess. 040
-| BKY-JB-9 | E2E Tests Playwright | 8 | Sess. 038 ✅ (BACKLOG corrigé — était PROPOSITION)
-| BKY-CONV-1 | ConfigResolver 4 couches | 5 | Sess. 049 ✅ (BACKLOG corrigé — était EN COURS)
-| BKY-IA-0 | Service LLM partagé | 5 | Sess. 023
-| BKY-N3-7 | Contrat N3 metadata.json | 5 | Sess. 024
+
+| EPIC 1 | Intégration gouvernance agent | — | S001
+| EPIC 2 | Migration Supabase → Firebase | — | S002
+| EPIC 3 | Amélioration build.gradle.kts | — | S003
+| EPIC 4 | Formulaire de contact Firebase | — | S012
+| EPIC 5 | Correction timeout Cucumber | — | Implémenté (5min)
+| EPIC 6 | Intégration deployProfile | 13→3 | S072
+| EPIC 7 | Tolérance parsing YAML | — | S029
+| EPIC 8 | Bumper version 0.1.4 | — | S016
+| EPIC 9 | Orchestration LLM | — | SUPERSEDÉ par BKY-IA-0
+| EPIC 10 | Scaffolding TDD | — | S029
+| EPIC 11 | Optimisation durée tests | — | S064 (-77%)
+| EPIC 12 | Articles connexes KG | — | SUPERSEDÉ par BKY-LENS
+| EPIC 13 | Couverture tests 73→77.25% | 5→3 | S077
+| EPIC 14 | Roadmap IA (9 EPICs) | 73 | S022→069
+| EPIC 15 | PluginApplicationTest NPE | 3 | S028
+| EPIC 16 | Cucumber Scaffolding steps | 2 | S028
+| EPIC 17 | generateArticle graceful fail | 5 | S053
+
+| BKY-JB-0 | Scaffolding site JBake | 5 | S026
+| BKY-JB-1 | Templates métier formation | — | Transféré training-gradle
+| BKY-JB-2 | Composants Thymeleaf | 5 | S029
+| BKY-JB-3 | Google Forms embed | 5 | S030
+| BKY-JB-4 | Firebase Auth + Comments | 5 | S032
+| BKY-JB-5 | Analytics + Newsletter | 3 | S033
+| BKY-JB-6 | Système de thème | 5 | S034
+| BKY-JB-7 | Layouts | 3 | S039
+| BKY-JB-8 | Article IA | 13 | S040
+| BKY-JB-9 | E2E Tests Playwright | 8 | S038
+
+| BKY-CONV-1 | ConfigResolver 4 couches | 5 | S049
+| BKY-IA-0 | Service LLM partagé | 5 | S023
+| BKY-IA-1 | Scaffolding assisté IA | 5 | S065-066
+| BKY-IA-2 | Thème IA paramétrique | 8 | S068-069
+| BKY-IA-3 | Validation Firebase IA | 3 | S070
 | BKY-IA-4 | Génération article IA | 8 | Remplacé par BKY-JB-8
-| BKY-IA-1 | Scaffolding assisté IA | 5 | Sess. 065-066
-| BKY-IA-2 | Thème IA paramétrique | 8 | Sess. 068-069 ✅ (divergence doc corrigée S076)
-| BKY-IA-3 | Validation Firebase IA | 3 | Sess. 070 (code déjà complet)
+| BKY-IA-5 | Google Suite (clasp) | — | Transféré KINGSTON
+| BKY-N3-7 | Contrat N3 metadata.json | 5 | S024
 | BKY-BKG | Articles connexes KG | 16 | SUPERSEDÉ par BKY-LENS
-| BKY-LENS-1 | SubgraphExtractor | 5 | Sess. 055
-| BKY-LENS-2 | AugmentedArticlesService | 4 | Sess. 057
-| BKY-LENS-3 | Budget + Injection JBake | 3 | Sess. 058
-| BKY-LENS-4 | Cucumber Features 17-19 | 3 | Sess. 059
-| BKY-LENS-5 | Connect N3 Composite Context | 3 | Sess. 061
-| BKY-LENS-6 | Templates Augmentés JBake | 3 | Sess. 062
+
+| BKY-LENS-1 | SubgraphExtractor | 5 | S055
+| BKY-LENS-2 | AugmentedArticlesService | 4 | S057
+| BKY-LENS-3 | Budget + Injection JBake | 3 | S058
+| BKY-LENS-4 | Cucumber Features 17-19 | 3 | S059
+| BKY-LENS-5 | Connect N3 Composite Context | 3 | S061
+| BKY-LENS-6 | Templates Augmentés JBake | 3 | S062
+
+| BKY-CR-V5 | Code smells V5 (60 smells) | 24 | S124
+| BKY-CR-V6 | Duplications structurelles résiduelles | 8 | S145
+| BKY-KOV-1 | Kover Coverage 78% → 85.88% | 16 | S104
+| BKY-COV-2 | Microfissures coverage | 12 | S110
+
+| BKY-PUB-1 | Publication Maven Central 0.0.1 | 8 | S109
+| BKY-PUB-2 | Publication Maven Central + Portal 0.0.2 | 3 | S143
+| BKY-I18N | i18n 10 langues | 23 | S116
+| BKY-I18N-MIG | Tâche migrateToI18n | 16 | S134
+| BKY-I18N-MIG-4 | Service traduction transverse (codebase N1) | 3 | S134
+| BKY-I18N-PROD-VAL | Validation dry-run (magic-stick) | 3 | S130
+| BKY-I18N-PROD-MIG | Migration magic-stick + traduction FR→EN | 5 | S131
+| BKY-I18N-PROD-GEN | Généralisation cccp.education + cheroliv.com | 8 | S132
+| BKY-I18N-PROD-AUDIT | Alignement fixtures ↔ sites réels | 5 | S150
+| BKY-A11Y-1 | Accessibilité WCAG/RGAA | 13 | S152
+| BKY-I18N-DELTA | Loi de l'Économie d'Encre (delta traduction) | 3 | S153
+| BKY-FIX-1 | Corriger deployProfile sans site.yml | — | S147
+| ARROW-1 | Arrow-kt v1.1.0 roadmap | 5 | S093
 |===
+
+_Total points livrés_ : ~250 pts sur 154 sessions.
+_Total smells résolus_ : 24 (V2-V4) + 60 (V5) + 3 (V6) = 87.
 
 '''
 
-== EPICs Transférés (hors périmètre bakery)
+== EPICs transférés (hors périmètre bakery)
 
-[cols="1,3,2,3"]
+[cols="1,3,3,2"]
 |===
 | EPIC | Destination | Raison | Statut
-| BKY-IA-5 | **KINGSTON** `foundry/private/gsuite-gradle` | Expert Google Suite (clasp, Forms, Sheets, Drive) | 🔄 À créer
-| BKY-TRN-9 | **training-gradle** TRN-9 🔒 | Domaine métier formation (portail) | 🔄 Dans Newark
-| BKY-JB-1 | **training-gradle** TRN-TEMP | Templates métier formation | 🔄 Transféré
+
+| BKY-IA-5
+| **KINGSTON** `foundry/private/gsuite-gradle`
+| Expert Google Suite (clasp, Forms, Sheets, Drive)
+| 🔄 À créer
+
+| BKY-TRN-9
+| **training-gradle** TRN-9
+| Domaine métier formation (portail)
+| 🔄 Dans Newark
+
+| BKY-JB-1
+| **training-gradle** TRN-TEMP
+| Templates métier formation
+| 🔄 Transféré
 |===
 
 '''
 
-== FINALISATION — Code Smells issus de la Code Review v3 (Session 079)
+== Code smells — Récapitulatif résolution
 
-_Ces 10 code smells ont été identifiés par la relecture directe du code source
-actuel (2026-06-04), croisée avec `last_code_review.adoc` (racine) et
-`.agents/CODE_REVIEW.adoc` v2. Les 12 smells historiques (CS-1→12) sont résolus._
+_Tous résolus. Le détail par smell est dans le backup sess154 et `.agents/CODE_REVIEW.adoc`._
 
-=== 🔴 P0 — Bloquant (bug dormant)
-
-==== CS-FIN-1 : Fix bug critique BakeryPlugin — `configPath.get()` sans `isPresent` (CS-21 + CS-16)
-
-*Priorité* : P0 — crash utilisateur si configPath non défini
-*Charge* : 2 pts
-*Fichiers* : `BakeryPlugin.kt`
-
-_Problème_ : Deux bugs superposés dans l'initialisation du plugin :
-
-. **CS-21** : `bakeryExtension.configPath.get()` (ligne 47) lève `MissingPropertyException` si configPath n'est jamais défini (ni DSL, ni gradle.properties, ni -P). Bug dormant depuis la création du plugin — jamais déclenché car l'usage réel fournit toujours un configPath. Identifié dans `revue_de_code_last.adoc` il y a des mois, jamais corrigé.
-
-. **CS-16** : `isGradlePropertiesEnabled` (ligne 40) est calculé **dans `apply()` avant `afterEvaluate`**. À ce stade, le DSL utilisateur n'est pas encore exécuté → `configPath.isPresent` retourne toujours `false`. Conséquence : `configureConfigPath` cherche dans `gradle.properties` même quand le DSL définit `configPath`, pouvant écraser silencieusement la config DSL.
-
-*Tâches* :
-
-* [x] **CS-21** — Ajouter `isPresent` guard avant `configPath.get()` :
-```kotlin
-if (!bakeryExtension.configPath.isPresent) {
-    logger.warn("configPath not set. Only scaffold tasks available.")
-    scaffoldOnly(project, bakeryExtension)
-    return@afterEvaluate
-}
-```
-* [x] **CS-16** — Déplacer `isGradlePropertiesEnabled` DANS `afterEvaluate` :
-```kotlin
-project.afterEvaluate {
-    val isGradlePropertiesEnabled = bakeryExtension.configPath.isPresent
-    // ...
-}
-```
-* [x] Vérifier que `./gradlew test` passe (BakeryPluginTest + PluginApplicationTest)
-* [x] Tester manuellement : appliquer le plugin SANS DSL ni config → pas de crash, message warning
-
-'''
-
-=== 🟠 P1 — Qualité/Robustesse
-
-==== CS-FIN-2 : Remplacer échappement JSON maison par Jackson (CS-13 + CS-22) ✅
-
-*Priorité* : P1 — corruption JSON sur cas complexes
-*Charge* : 1.5 pts
-*Fichiers* : `SiteTaskRegistrar.kt`, `LensPipelineService.kt`
-*Résolu* : Session 139 (2026-06-22) — clôture définitive
-
-_Problème_ :
-
-. **CS-13** : `injectLensBudgetIntoJbakeProperties()` (lignes 226-236) échappe le JSON avec 3 `replace()` manuels :
-```kotlin
-.replace("\\", "\\\\").replace("\n", "\\n").replace("\t", "\\t")
-```
-Fragile sur guillemets imbriqués, Unicode, séquences déjà échappées. Déjà identifié par `last_code_review.adoc`.
-
-. **CS-22** : `LensPipelineService.execute()` (lignes 125-136) reconstruit un `mapOf` manuel au lieu de sérialiser directement la data class `LensPipelineOutput`. Si un champ est ajouté, il faut penser à le mettre dans le `mapOf`.
-
-_Tâches_ :
-
-* [x] **CS-13** — Remplacer les 3 `replace()` manuels par `escapeJsonForJavaProperties()` (fonction pure extraite dans `bakery/JsonEscape.kt`). 7 tests unitaires `JsonEscapeForPropertiesTest` (RED→GREEN) : newline, carriage return, tab, backslash, guillemets, unicode, JSON simple. Intégration dans `SiteTaskRegistrar.kt` terminée.
-* [x] **CS-22** — Sérialiser directement `output` avec `mapper.writeValue(file, output)` + `@JsonProperty` si nécessaire. Déjà en place dans `LensPipelineService.kt:122-123`. Test round-trip Jackson avec `ScoredNode` non-vides ajouté Session 139 (`LensPipelineServiceTest.JacksonSerialization`).
-* [x] Vérifier que `./gradlew test` passe (LensPipelineServiceTest + GenerateSiteServiceTest)
-
-'''
-
-=== 🟡 P2 — Nettoyage / Clarté
-
-==== CS-FIN-3 : Nettoyer code mort, logs dupliqués, println résiduels, DRY (CS-14, CS-15, CS-17, CS-19, CS-20) ✅
-
-*Priorité* : P2 — aucun risque fonctionnel, pure qualité de code
-*Charge* : 1 pt
-*Fichiers* : `LensPipelineService.kt`, `DeployTaskRegistrar.kt`, `ContentTaskRegistrar.kt`
-*Résolu* : Sessions antérieures + clôture Session 139 (audit confirmé)
-
-_Tâches groupées_ (5 micro-fix, ~20 min total) :
-
-* [x] **CS-14** — Supprimer code mort `LensPipelineService.kt:73-75` (condition impossible : `compositeContext == null && contextFile.exists()` — le `else` de la ligne 68 gère déjà le cas `!exists()`)
-* [x] **CS-15** — Documenter `ragResults: Map<String, Double> = emptyMap()` avec un commentaire explicite : « MVP0 — RAG scoring via pgvector pas encore implémenté. Viendra de codebase-gradle (N1). »
-* [x] **CS-17** — Remplacer `println()` par `logger.lifecycle()` dans `DeployTaskRegistrar.prepareAndCopyMaquette()` (lignes 86-90)
-* [x] **CS-19** — Réutiliser `jacksonObjectMapper()` comme champ privé dans `LensPipelineService` (thread-safe, coûteux à instancier à chaque appel)
-* [x] **CS-20** — Extraire `createLlmServiceIfEnabled(iaConfig, logger)` privé dans `ContentTaskRegistrar` (3 appels dupliqués : generateArticle, generateSiteFromIntention, validateFirebaseConfig)
-
-'''
-
-==== CS-FIN-4 : ConfigResolver cascade DRY — Refactorer les 8 resolve* répétés (CS-25 V3) ✅
-
-*Priorité* : P1 — duplication fragilise la maintenance
-*Charge* : 3 pts
-*Fichiers* : `SiteTaskRegistrar.kt`, `ConfigResolver.kt`, `ResolvedConfigs.kt` (NOUVEAU)
-
-*Résolu* : Session 085 (2026-06-05)
-
-_Baby steps DDD/TDD/BDD_ :
-* [x] **DDD** — `ResolvedConfigs` data class + `ConfigResolutionError` sealed class + `ConfigResolver.resolveAll()`
-* [x] **TDD** — 15 tests unitaires `ResolvedConfigsTest` (5 ResolveAllConfigs + 1 Errors + 2 DataClass + 4 ErrorSealedClass + 3 ToResolverIntegration)
-* [x] **BDD** — Cucumber Feature 29 `config_resolution_cascade.feature` (3 scénarios)
-* [x] **Refactor** — `SiteTaskRegistrar.copySiteResources()` : 8 resolve* + when 33 lignes → 3 lignes (`resolveAll()` + `toResolver()`)
-
-'''
-
-==== CS-FIN-5 : registerGenerateSiteTask mixing concerns — Extraire logique métier (CS-33 V3) ✅
-
-*Priorité* : P2 — clarté du code
-*Charge* : 1.5 pts
-*Fichiers* : `SiteTaskRegistrar.kt` (lignes 45-64)
-
-*Résolu* : Session 086 (2026-06-05)
-
-_Baby steps_ :
-. [x] DDD : `GenerateSiteService` object pur (6 fonctions, zéro Gradle)
-. [x] TDD : 15 tests unitaires RED→GREEN (ResourcePath, Description, SiteYml, GitIgnore, GitAttributes, InjectConfig)
-. [x] Refactor : suppression 7 méthodes privées SiteTaskRegistrar, 331→203 lignes (-38%)
-
-==== CS-FIN-6 : GitService.pushPages sans validation préalable (CS-34 V3) ✅
-
-*Priorité* : P2 — robustness
-*Charge* : 1 pt
-*Fichiers* : `GitService.kt` (lignes 50-65)
-
-*Résolu* : Session 087 (2026-06-05)
-
-_Baby steps_ :
-. [x] DDD : `PrePushValidation` sealed class (Valid, RemoteNotConfigured, ContentAbsent) + `validatePrePush()` fonction pure
-. [x] TDD : 4 tests unitaires (remote OK, remote absent, content empty, directory nonexistent)
-. [x] Refactor : intégration dans `pushPages()` avec messages d'erreur explicites
-
-'''
-
-=== 🟡 P2/P3 — Améliorations post-v1.0 (low priority, nice-to-have)
-
-==== CS-FIN-7 : ConfigPrompts testabilité — Reader monad (CS-38 V3) ✅
-
-*Priorité* : P2 — testabilité
-*Charge* : 2 pts
-*Fichiers* : `ConfigPrompts.kt`, `ConfigPromptM.kt` (NOUVEAU), `ConfigPromptEnvironment.kt` (NOUVEAU)
-
-*Résolu* : Session 092 (2026-06-05)
-
-_Baby steps_ :
-. [x] DDD : `ConfigPromptM<A>` fun interface (run, map, flatMap) + `ConfigPromptEnvironment` data class top-level
-. [x] TDD : 19 UT `ConfigPromptMTests` (Pure, Map, FlatMap, FromCli, FromCliOrPrompt, Prompt, PromptSensitive, Composition)
-. [x] Refactor : `ConfigPrompts.kt` 162→55 lignes (-66%), `resolveConfigValue()` supprimé, 4 tests migrés
-
-==== CS-FIN-8 : FileSystemManager exceptions → Either<IOException, Unit> (CS-35 V3)
-
-*Priorité* : P3 — style fonctionnel
-*Charge* : 1 pt
-*Fichiers* : `FileSystemManager.kt` (lignes 60-85)
-
-_Problème_ : `copyResourceDirectory()` lève des exceptions au lieu de retourner `Either`.
-Pattern recommandé : `Either.catch { }` pour composer les opérations fichier.
-
-==== CS-FIN-9 : BFS calculation O(n²) → BfsProximityCache (CS-36 V3) ✅
-
-*Priorité* : P3 — performance
-*Charge* : 1 pt
-*Fichiers* : `AugmentedArticlesService.kt` (ligne 79), `BfsProximityCache.kt` (NOUVEAU)
-
-*Résolu* : Session 091 (2026-06-05)
-
-_Baby steps_ :
-. [x] DDD : `BfsProximityCache` classe (adjacency 1 fois, distances lazy-cachées, proximityFor() O(1))
-. [x] TDD : 9 tests `BfsProximityCacheTest` (Construction 4 + Proximité 4 + Performance 2)
-. [x] Refactor : `AugmentedArticlesService` 321→239 lignes (-25%), 3 méthodes privées supprimées (computeGraphProximity, bfsDistances, buildAdjacency)
-. [x] Vérifier cohérence : proximityFor() = même résultat que l'ancien computeGraphProximity()
-
-==== CS-FIN-10 : Masquage secrets étendu — LLM keys, GitHub tokens (CS-31-bis V3) ✅
-
-*Priorité* : P3 — sécurité cosmétique
-*Charge* : 0.5 pt
-*Fichiers* : `VerifyConfigurationMappingTask.kt`, `SecretField.kt` (NOUVEAU), `SiteConfiguration.kt`, `SiteTaskRegistrar.kt`
-
-*Résolu* : Session 090 (2026-06-05)
-
-_Baby steps_ :
-. [x] DDD : `SecretField` sealed class (Password, ApiKey, Token) + `maskSecret()` fonction pure
-. [x] TDD : 9 tests `SecretFieldTest` + 6 tests étendus
-. [x] Refactor : `VerifyConfigurationMappingTask` + `SiteTaskRegistrar` + `RepositoryCredentials.toString()` migrés
-. [x] BDD : Feature Cucumber + Steps mis à jour (firebaseAuth.apiKey)
-
-==== CS-18-bis : Arrow-kt v1.1.0 — Roadmap fonctionnelle (post-v1.0)
-
-*Priorité* : P3 — roadmap
-*Charge* : 5 pts (EPIC complet, 3-4 sessions)
-*Fichiers* : `build.gradle.kts`, `libs.versions.toml`, multiples sources
-
-_Problème_ : 15+ opportunités d'utiliser Arrow-kt (Either, Option, Validation, Reader, Raise DSL)
-identifiées dans la code review V3 Partie 3. Non prioritaire pour v1.0, mais transformerait bakery
-en gold standard Kotlin FP.
-
-_ Baby steps_ (EPIC ARROW-1) :
-. [x] Ajouter Arrow-kt 2.2.3 à `libs.versions.toml` + `build.gradle.kts`
-. [x] Refactorer CS-FIN-4 avec `mapOrAccumulate` (Validation monad)
-. [x] Refactorer CS-FIN-8 avec `Either.catch { }` 
-. [x] Refactorer CS-FIN-6 avec `Validated<Error, Unit>`
-. [x] Ajouter 15+ tests pour nouvelles monades
-
-'''
-
-=== 🟢 P3 — Accepté / Non-action
-
-==== CS-18 : BakeryExtension boilerplate (11 DSL blocks)
-
-*Décision* : **Accepté.** Le pattern `val xxx = XxxDsl(); fun xxx(action: Action<XxxDsl>) { action.execute(xxx) }` est idiomatique Gradle/Kotlin. Réduire le boilerplate nécessiterait un annotation processor ou une reflection — complexité disproportionnée pour 22 lignes gagnées. Aucun risque.
-
-'''
-
-== NOUVEAU — Code Smells V4 (Session 096 — Code Review experte post-Copilot)
-
-_Source_ : `.agents/CODE_REVIEW_V4.adoc` — Second regard indépendant corrigeant
-la review Copilot (obsolète, snapshot pré-ARROW-1). 8 code smells inédits
-et 3 recommandations architecturales. Aucun blocage production. ~45 min total.
-
-Score V4 : 8.7/10 — 0 critique, 2 modéré, 7 léger.
-
-'''
-
-=== EPIC CS-V4-P1 : Priorité Haute — Bugs et Robustesse (2 US, 7 min)
-
-*Charge* : 1 pt
-*Impact* : Performance + UX utilisateur
-*Sessions estimées* : 0.5
-
-==== US-V4-1 : Supprimer Throwable fantôme dans BakeryPlugin ☐
-
-*Priorité* : P1 🔴
-*Fichiers* : `BakeryPlugin.kt:79`
-*Charge* : 0.2 pt
-
-_Problème_ : `project.logger.warn(msg, Throwable("configPath absent..."))` — le
-`Throwable` est passé comme vararg `Object`, pas comme second paramètre
-`Throwable`. Résultat : stack trace jamais loggé, mais allocation mémoire +
-fill de stack exécutés inutilement.
-
-_Tâches_ :
-* [x] Supprimer le paramètre `Throwable(...)` — artefact de debug
-* [x] Ou utiliser `logger.warn("message", exception)` si vraiment utile
-* [x] Vérifier que le warning est toujours affiché dans les logs
-
-==== US-V4-2 : Fix Path CWD dans VerifyConfigurationMappingTask ☐
-
-*Priorité* : P1 🟠
-*Fichiers* : `VerifyConfigurationMappingTask.kt:44`
-*Charge* : 0.3 pt
-
-_Problème_ : `File(configPath.get())` résout le chemin relativement au CWD,
-pas au `projectDir`. Si l'utilisateur exécute depuis un sous-répertoire,
-`GradleException("file not found")` est levé alors que le fichier existe.
-
-_Cause racine_ : Déjà identifié comme CS-27 dans `last_code_review.adoc` V3.
-Non résolu à ce jour.
-
-_Tâches_ :
-* [x] Remplacer `File(path)` par `project.projectDir.resolve(path)`
-* [x] Ajouter un test unitaire avec `projectDir` != CWD
-* [x] Vérifier que `./gradlew verifyConfigurationMapping` fonctionne depuis un sous-répertoire
-
-'''
-
-=== EPIC CS-V4-P2 : Priorité Modérée — Clarté et Fiabilité (3 US, 23 min)
-
-*Charge* : 2 pts
-*Impact* : Maintenabilité + Robustesse
-*Sessions estimées* : 0.5
-
-==== US-V4-3 : Nettoyer configureConfigPath — imbrication + run inutile ☐
-
-*Priorité* : P2 🟠
-*Fichiers* : `SiteManager.kt:20-37`
-*Charge* : 0.5 pt
-
-_Problème_ : `properties.run { }` est inutile (Map<String, *> en lecture seule,
-pas de scope function requis). Triple condition sur une ligne illisible.
-`else` rattaché au `if` externe rend la lecture difficile.
-
-_Tâches_ :
-* [x] Supprimer `properties.run { }` — extraire la valeur directement
-* [x] Remplacer `if(gradlePropertiesFile.exists()) ... else` par un guard clause `if(!exists()) return`
-* [x] Extraire validation YAML dans une condition lisible
-* [x] Vérifier que le comportement est identique (tests ConfigPrompts existants)
-
-==== US-V4-4 : Vérifier et compléter DeployProfileTask ☐
-
-*Priorité* : P2 🟡
-*Fichiers* : `DeployTaskRegistrar.kt:95-102`, `DeployProfileTask.kt`
-*Charge* : 0.3 pt
-
-_Problème_ : La tâche `deployProfile` est enregistrée mais aucune propriété
-(`site`, `configPath`, `profileFiles`) n'est configurée dans `registerDeployProfileTask()`.
-
-_Investigation nécessaire_ :
-* [x] Lire `DeployProfileTask.kt` — quelles sont les `@Input` properties ?
-* [x] Si `abstract val` → le build plantera (à fixer)
-* [x] Si valeurs par défaut vides → la tâche tourne dans le vide (à corriger)
-* [x] Configurer `site` et `configPath` dans `registerDeployProfileTask()`
-
-==== US-V4-5 : Remplacer getByName() par findByName() sécurisé ☐
-
-*Priorité* : P2 🟡
-*Fichiers* : `SiteTaskRegistrar.kt:89-99`
-*Charge* : 0.2 pt
-
-_Problème_ : `tasks.withType(JBakeTask::class.java).getByName(BakeryConstants.BAKE_TASK)`
-lève `UnknownTaskException` si la tâche bake est absente. Crash silencieux au
-runtime si le plugin JBake change sa convention de nommage.
-
-_Tâches_ :
-* [x] Remplacer `getByName` par `findByName` + `?.apply { ... }`
-* [x] Logger un warning si la tâche est absente (`logger.warn("bake task not found")`)
-
-'''
-
-=== EPIC CS-V4-P3 : Priorité Basse — Polish et Documentation (3 US, 18 min)
-
-*Charge* : 1 pt
-*Impact* : Qualité documentaire
-*Sessions estimées* : 0.25
-
-==== US-V4-7 : Rename fromCliOrPrompt → resolveOrPrompt ☐
-
-*Priorité* : P3 🟢
-*Fichiers* : `ConfigPromptM.kt:30-38`
-*Charge* : 0.2 pt
-
-_Problème_ : Le nom `fromCliOrPrompt` ne reflète pas la 3ème source (variables
-d'environnement via `System.getenv`). `resolveOrPrompt` capture mieux l'intention.
-
-_Tâches_ :
-* [x] Rename `fromCliOrPrompt` → `resolveOrPrompt` (méthode + tous les appels)
-* [x] Mettre à jour les 19 tests `ConfigPromptMTests` avec le nouveau nom
-* [x] Vérifier que `./gradlew test --tests "ConfigPromptMTests"` passe
-
-==== US-V4-8 : Logger l'exception dans les catch muets de ContentTaskRegistrar ☐
-
-*Priorité* : P3 🟢
-*Fichiers* : `ContentTaskRegistrar.kt` (3 occurrences : `registerGenerateArticleTask`,
-`registerGenerateSiteFromIntentionTask`, `registerGenerateThemeTask`)
-*Charge* : 0.2 pt
-
-_Problème_ : `try { dsl.toIntention() } catch (_: IllegalArgumentException) { null }`
-avale l'exception sans feedback. Si les données DSL sont invalides, la tâche
-s'exécute sans intention configurée → résultat inattendu sans diagnostic.
-
-_Tâches_ :
-* [x] Remplacer `catch (_: IllegalArgumentException)` par `catch (e: IllegalArgumentException)`
-* [x] Logger `project.logger.warn("Failed to parse article intention from DSL: ${e.message}")`
-* [x] 3 occurrences à corriger
-* [x] Vérifier que les tests existants passent toujours
-
-==== US-V4-9 : Documenter non-idempotence escapeJsonForJavaProperties ☐
-
-*Priorité* : P3 🟢
-*Fichiers* : `JsonEscape.kt:33-38`
-*Charge* : 0.2 pt
-
-_Problème_ : `escapeJsonForJavaProperties()` n'est pas idempotente. Double appel
-corrompt le JSON (`\\` → `\\\\`, `\n` → `\\n`). Actuellement appelée une seule
-fois dans `injectLensBudgetIntoJbakeProperties()`, donc pas de bug. Mais la
-fonction ne protège pas contre un usage futur incorrect.
-
-_Tâches_ :
-* [x] Ajouter KDoc : « **ATTENTION : cette fonction n'est PAS idempotente.**
-  Un double appel corrompt le JSON (\\ → \\\\). Appeler UNE seule fois. »
-* [x] Ajouter un test unitaire qui démontre la corruption en double appel
-* [x] Évaluer : ajouter un flag `alreadyEscaped` ? (probablement overkill)
-
-==== US-V4-6 : BakeryExtension 12 DSL blocks (ACCEPTÉ, pas d'action)
-
-*Décision* : **Accepté.** 12 méthodes `Action<X>` identiques = idiomatique Gradle.
-Tous les plugins officiels Gradle font ça. Ce n'est pas une dette technique,
-c'est une convention. Aucun changement.
-
-'''
-
-=== EPIC CS-V4-ARCH : Recommandations Architecturales (3 RECOs, 40 min)
-
-*Charge* : 1.5 pts — Analyse et planification uniquement
-*Impact* : Robustesse + Performance
-*Sessions estimées* : 0.5 (si implémentation différée)
-
-==== RECO-1 : Wrapper parse YAML BakeryPlugin dans Either.catch ☐
-
-*Priorité* : P2 🟡
-*Fichiers* : `BakeryPlugin.kt:93`
-*Charge* : 0.5 pt
-
-_Problème_ : `yamlMapper.readValue<SiteConfiguration>(configFile)` jeté
-directement dans `apply()`. Si le YAML est invalide, `readValue` jette et le
-plugin ne s'enregistre pas.
-
-_Recommandation_ :
-* [x] Wrapper dans `Either.catch` comme `FileSystemManager.read()`
-* [x] Logger un message explicite en cas d'échec (au lieu d'un crash silencieux)
-* [x] Garder le branchement scaffoldOnly en fallback
-
-==== RECO-2 : Documenter parallélisme potentiel entre tâches Gradle ☐
-
-*Priorité* : P3 🟢
-*Fichiers* : `SiteTaskRegistrar.kt`
-*Charge* : 0.3 pt
-
-_Problème_ : Toutes les tâches du pipeline full sont séquentielles. Certaines
-sont indépendantes : `collectSiteContext` || `generateTheme`, `pagefind` ||
-`validateFirebaseConfig`.
-
-_Recommandation_ :
-* [x] Ajouter `mustRunAfter` / `shouldRunAfter` pour documenter les dépendances réelles
-* [x] Laisser Gradle paralleliser automatiquement les tâches indépendantes
-* [x] Ne PAS forcer le parallélisme — juste documenter l'absence de dépendance
-
-==== RECO-3 : Side-effect traçable dans configureConfigPath ☐
-
-*Priorité* : P3 🟢
-*Fichiers* : `SiteManager.kt:configureConfigPath`
-*Charge* : 0.3 pt
-
-_Problème_ : La méthode modifie `bakeryExtension.configPath` en side-effect
-sans retour. Si `gradle.properties` est mal formé, aucun feedback.
-
-_Recommandation_ :
-* [x] Retourner un `Either<String, Unit>` depuis `configureConfigPath()`
-* [x] Logger succès/échec avec le message correspondant
-* [x] Aligné avec le pattern Arrow-kt déjà en place dans le codebase
-
-'''
-
-== Feedback d'Agent — Maturité Bakery (Session 097)
-
-Bakery est un des boroughs les plus aboutis du workspace. Voici les signaux :
-
-=== Points forts
-
-*Architecture propre* : DDD/TDD/BDD rigoureux, 97 sessions, pattern LENTILLE (ségrégation→enrichissement→budget→injection) élégant. Le code est un gold standard Kotlin/Gradle.
-*Tests exhaustifs* : JUnit5 + Cucumber + E2E Playwright, coverage >77%, séparation test/fonctionalTest/e2eTest. 129/129 Cucumber PASS.
-*Pipeline complet* : scaffolding JBake → templates Thymeleaf → theming → services (Firebase, Analytics, Google Forms) → déploiement gh-pages → contexte augmenté (graphify+codebase).
-*Stack cohérente* : Arrow-kt (Either), langchain4j, workspace-bom aligné, Kotlin 2.3.20.
-*Gouvernance exemplaire* : 25 boroughs dans le portefeuille, Bushwick est le borough le mieux documenté du workspace.
-
-=== Signal de maturité
-
-Bakery est un plugin Gradle **production-ready**. Il pourrait être publié sur Maven Central et Gradle Plugin Portal aujourd'hui. La config Sonatype (s01.oss.sonatype.org), signing GPG, et POM sont déjà en place dans `build.gradle.kts`. Ce qui manque : un **nom de domaine** (cccp.education) et la **finalisation de la publication Maven Central**.
-
-C'est le borough le plus mature du workspace après plantuml-gradle. Score santé : 9.5/10.
-
-'''
-== EPIC BKY-KOV-1 : Kover Coverage 85% ✅ TERMINE (16 pts)
-
-*Priorité* : P0 — 78% → 85.88% cible (+7.88pp atteint).
-*Charge* : 16 pts, 6 sessions (S099→S104).
-*Statut* : ✅ TERMINE — 100%
-*Seuil* : `build.gradle.kts` bump 70→85, `./gradlew koverThresholdCheck` → PASS (85.88%)
-
-*Baby steps* :
-- US-KOV-1 : Audit couverture Kover HTML ✅ S099
-- US-KOV-2 : GenerateThemeTask 0→95.7% ✅ S100
-- US-KOV-3 : FileSystemManager 56→90.45% ✅ S101
-- US-KOV-4 : GitService 66→86.0% ✅ S102
-- US-KOV-5 : BakeryPlugin 37→52.8% ✅ S103
-- US-KOV-6 : SiteScaffolder 69→100% ✅ S104
-- US-KOV-7 : Bump seuil 70→85 validation ✅ S104
-- Coverage initial 78.1% → final 85.88% (+7.78pp)
-
-'''
-== PUBLICATION — Dernier Kilomètre (1 EPIC, 8 pts)
-
-=== EPIC BKY-PUB-1 : Publication Maven Central + Gradle Plugin Portal
-
-*Priorité* : P0 — C'est le seul blocage pour sortir bakery en production publique.
-*Charge* : 8 pts (~2 sessions)
-*Dépend de* : Achat nom de domaine `cccp.education`
-
-[cols="1,4,2"]
+[cols="1,3,2,2]
 |===
-| US | Description | Pts
+| Vague | Contenu | Smells | Clôture
 
-| US-PUB-1
-| Acheter le nom de domaine `cccp.education` (OVH ou Gandi).
-Configurer DNS (A/AAAA, MX, TXT SPF/DKIM). Valider WHOIS.
+| V2-V3 (CS-FIN-1→10)
+| configPath guard, JSON Jackson, nettoyage DRY, ConfigResolver cascade,
+  GenerateSiteService extraction, GitService validation, ConfigPrompts Reader monad,
+  FileSystemManager Either, BfsProximityCache, masquage secrets
+| 10
+| S080→S092
+
+| V4 (CS-V4-P1/P2/P3/ARCH)
+| Throwable fantôme, Path CWD, imbrication run, DeployProfileTask props,
+  getByName sécurisé, rename resolveOrPrompt, catch muets, doc idempotence,
+  YAML Either.catch, parallélisme documenté, side-effect traçable
+| 12
+| S097
+
+| V5 (BKY-CR-V5)
+| JsonEscape ordre, slugify dedup, parser JSON maison, first{} unsafe,
+  println→logger, secrets LLM, ObjectMapper cache, ResolvedConfigs refactor,
+  SUPPORTED_LANGS dedup, updateProperty dedup, pattern résolution,
+  pattern injection DSL, code mort, resolveAll data-driven, magic numbers,
+  YAML→Jackson, article.lang, catch muets, divers P3
+| 60
+| S124
+
+| V6 (BKY-CR-V6)
+| ResolveIntention<T> helper (×4), DomainConfigInjectors data-driven (9),
+  ConfigResolver.resolveAll() data-driven (10 blocs)
+| 3 structurels
+| S145
+|===
+
+'''
+
+== Pistes ouvertes (session 155+)
+
+_Bakery est production-ready. Aucun EPIC actif prioritaire. La suite dépend de la roadmap utilisateur._
+
+[cols="1,4,2]
+|===
+| # | Piste | Méthode
+
 | 1
+| **Implémentation effective du pattern delta (Loi de l'Économie d'Encre) dans le code des 9 boroughs LLM metered** — codex (RAG/embeddings), training (SPG/SPD), capsule (TTS/capture), plantuml (diagrammes), readme (README LLM), document (AsciiDoc IA), agile (ateliers IA), ticket (Issues IA), review (PRs IA). Un borough à la fois.
+| Baby steps DDD/TDD/BDD — load-before-write + test réutilisation + scénario idempotence économique.
 
-| US-PUB-2
-| Vérification propriété domaine Sonatype (TXT record `@` ou `_sonatype`)
-→ ticket Jira Sonatype OSSRH (JIRA-CENTRAL-OSSRH). Délai ~1-2 jours.
-| 1
-
-| US-PUB-3
-| Configurer `gradle.publish.key` + `gradle.publish.secret` dans `~/.gradle/gradle.properties`
-pour le compte `cccp-education` sur plugins.gradle.org.
-| 0.5
-
-| US-PUB-4
-| Valider publication Maven Central : `./gradlew publishAllPublicationsToSonatypeRepository`
-→ vérifier staging repo sur https://s01.oss.sonatype.org → close → release.
 | 2
+| **Nouvel EPIC** (nouvelle capability) à cadrer.
+| Cadrage agile 7 ateliers → DDD/TDD/BDD.
 
-| US-PUB-5
-| Valider publication Gradle Plugin Portal : `./gradlew publishPlugins`
-→ vérifier https://plugins.gradle.org/plugin/education.cccp.bakery
-| 1
-
-| US-PUB-6
-| Bumper version 0.1.4 → 1.0.0 (semver, breaking = publication publique).
-Mettre à jour `libs.versions.toml` + `README.adoc` + `gradlePlugin.website`.
-| 1
-
-| US-PUB-7
-| CI/CD publication automatisée (GitHub Actions) : tag `v*` → build → test → publish.
-Workflow `.github/workflows/publish.yml`.
-| 1.5
+| 3
+| **Audit/cleanup supplémentaire** ou passage à un autre borough du workspace.
+| Selon ciblage.
 |===
 
-*NOTE* : La config Sonatype `maven-publish` + `signing` est déjà en place
-(`build.gradle.kts:436-504`). Le ticket Sonatype OSSRH pour `education.cccp`
-a probablement déjà été créé lors de la session 046 (EPIC G Audit publication).
-À vérifier.
-
-*Condition de sortie* : `./gradlew publishAllPublicationsToSonatypeRepository`
-+ `./gradlew publishPlugins` → SUCCESS. Plugin disponible publiquement.
-
-'''
-== Dette Technique Résiduelle (TODO.adoc)
-
-. *cheroliv.com* : SUPPRIMÉ. Ce projet n'existe plus — la data a été séparée du moteur de génération de site. Aucune action bakery requise.
-
-. *TODO.adoc* obsolète : Les 4 entrées du TODO.adoc sont toutes résolues.
+*Notes techniques* :
+* Ports Ollama autorisés : 11437-11465 uniquement. Modèles : `gpt-oss:120b-cloud`, `gemma4:31b-cloud`.
+* `./gradlew test --tests "bakery.i18n.*"` = validation rapide i18n (3/3 AutoTranslation PASS).
+* `./gradlew cucumberTest -Dcucumber.features="src/test/features/37_accessibility_audit.feature"` = 7/7 PASS.
+* Timeout cucumberTest 5min (EPIC 5) — ne pas lancer `check` complet sans permission.
+* `publishToMavenLocal` fait (jar 0.0.2).
+* *Loi de l'Économie d'Encre* : encodée dans 10 boroughs. Toute tâche Gradle LLM DOIT load-before-write + calcul delta + fusion existing+new.
 
 '''
 
-== Synthèse — Charge restante
-
-[cols="1,3,2,2"]
-|===
-| EPIC | Contenu | Pts | Priorité
-| CS-FIN-1 | Fix configPath.get() + isGradlePropertiesEnabled timing | 2 | 🔴 P0 ✅ S080
-| CS-FIN-2 | Échappement JSON Jackson + sérialisation data class | 1.5 | 🟠 P1 ✅ S081 + S139
-| CS-FIN-3 | Nettoyage code mort/logs/println/DRY | 1 | 🟡 P2 ✅ S081 + S139
-| CS-FIN-4 | ConfigResolver cascade DRY (CS-25 V3) | 3 | 🟠 P1 ✅ S085
-| CS-FIN-5 | registerGenerateSiteTask mixing (CS-33 V3) | 1.5 | 🟡 P2 ✅ S086
-| CS-FIN-6 | GitService.pushPages validation (CS-34 V3) | 1 | 🟡 P2 ✅ S087
-| CS-FIN-7 | ConfigPrompts Reader monad (CS-38 V3) | 2 | 🟡 P2 ✅ S092
-| CS-FIN-8 | FileSystemManager Either (CS-35 V3) | 1 | 🟢 P3 ✅ S089
-| CS-FIN-9 | BFS O(n²) → BfsProximityCache (CS-36 V3) | 1 | 🟢 P3 ✅ S091
-| CS-FIN-10 | Masquage secrets étendu (CS-31-bis V3) | 0.5 | 🟢 P3 ✅ S090
-| ARROW-1 | Arrow-kt v1.1.0 roadmap | 5 | 🟢 P3 ✅ S093
-| CS-18 | BakeryExtension boilerplate | — | 🟢 Accepté
-// ── NOUVEAU V4 (Session 096) ──
-| CS-V4-P1 | 🔴 Bugs : Throwable fantôme + Path CWD | 1 | ✅ S097
-| CS-V4-P2 | 🟠 Clarté : imbrication + DeployProfile + getByName | 2 | ✅ S097
-| CS-V4-P3 | 🟢 Polish : rename + catch muet + doc idempotence | 1 | ✅ S097
-| CS-V4-ARCH | 🟡 Architecture : YAML Either + parallélisme + side-effect | 1.5 | ✅ S097
-// ── PUBLICATION Maven Central ──
-| BKY-PUB-1 | Publication Maven Central + Gradle Plugin Portal | 8 | 🔴 P0 ✅ TERMINÉ S109
-// ── COUVERTURE 90% ──
-| BKY-KOV-1 | Kover Coverage 77% → 90% (+13%) | 16 | 🔴 P0 ✅ TERMINÉ (85.88%)
-// ── MICROFISSURES COVERAGE ──
-| BKY-COV-2 | Gaps fonctionnels coverage (DeployProfileTask, ProfilePublisher, BakeryPlugin) | 12 | 🟠 P2 ✅ TERMINÉ S110
-|===
-
-'''
-
-== EPIC PUB — Publication Maven Central + Plugin Portal
-
-_Source : configuration/EPIC_PUB.adoc (Session 096)_
-
-=== PUB-2.2 — Mettre a jour le commentaire relocation
-
-Dans le `build.gradle.kts`, remplacer :
-```kotlin
-// RELOCATION : prepare la migration du groupId education.cccp →
-// <futur-domaine>. Activer avec -Prem relocationGroup="io.github.cccp-education"
-// Effet : injecte <distributionManagement><relocation><groupId>...</groupId></relocation>
-// dans le POM publie. Les consommateurs existants seront rediriges automatiquement
-// vers le nouveau groupId lors de la prochaine maj de dependance.
-```
-Par :
-```kotlin
-// RELOCATION : garde comme echappatoire future.
-// Activable avec -Prem relocationGroup="<futur-namespace>"
-```
-
-=== PUB-3.14 — bakery-plugin
-
-*Artefact* : `education.cccp.bakery` + `education.cccp:bakery-plugin`
-
-```bash
-cd foundry/public/bakery-gradle && ./gradlew publish closeAndRelease
-```
-
-=== PUB-4.1 — Demande suppression ancien plugin
-
-Ouvrir une issue sur https://github.com/gradle/plugin-portal-requests/issues/new :
-
-. Template "Delete a plugin"
-. Plugin ID : `com.cheroliv.bakery`
-. Raison : "Renamed to education.cccp.bakery, old repo made private"
-
-*NOTE* : L'ancien plugin `com.cheroliv.bakery` sera supprime du Portal.
-Le repo `cheroliv/bakery-gradle` est passe en prive.
-
-=== PUB-4.2 — Publier education.cccp.bakery sur Portal
-
-```bash
-cd foundry/public/bakery-gradle/bakery-plugin && ./gradlew publishPlugins
-```
-
-=== PUB-5.14 — Verification
-
-.Verification Maven Central
-
-| Artefact | URL |
-|---|---|
-| bakery-plugin | https://central.sonatype.com/artifact/education.cccp/bakery-plugin |
-
-.Verification Plugin Portal
-
-| Plugin | URL |
-|---|---|
-| bakery | https://plugins.gradle.org/plugin/education.cccp.bakery |
-
-*Total V3 complété* : CS-FIN-1→10 + ARROW-1 = 18.5 pts ✅
-*Total V4 complété* : CS-V4-P1/P2/P3/ARCH = 5.5 pts ✅ S097
-*Total KOV complété* : BKY-KOV-1 = 16 pts ✅ S104
-*Total PUB complété* : BKY-PUB-1 = 8 pts ✅ S109
-*Total COV-2 complété* : BKY-COV-2 = 12 pts ✅ S110
-*Total I18N complété* : BKY-I18N = 23 pts ✅ S116
-*Tous les EPICs historiques* : 30/30 ✅ (100%)
-*Code smells résolus* : 24/24 ✅ (12 V2+V3 + 9 V4 + 3 RECOs)
-*Bakery 100% fonctionnel* — Nouveaux EPICs V5 : BKY-CR-V5 (24 pts) + BKY-I18N-MIG (16 pts).
-*Nouveau* : Feature 36 Pipeline Contracts BDD (11 scénarios) ajoutée session 135.
-
-'''
-
-== EPIC BKY-COV-2 : Microfissures de couverture (Code Review Externe)
-
-*Découverte* : Session 105 — Code review approfondie par un agent externe.
-*Objectif* : Combler les vrais gaps fonctionnels non couverts par les tests.
-*Charge* : ~12 pts (~3-4 sessions)
-*Priorité* : P2 — Pas bloquant pour la production mais abaisse la confiance.
-
-[cols="1,4,2,2"]
-|===
-| US | Description | Pts | Priorité
-
-| US-COV-2.1
-| **DeployProfileTask** (0% coverage) — 8-10 UT sur les chemins :
-  config valide, pushProfile absent, credentials CLI vs YAML,
-  forçage README, fromDir inexistant, cleanup en finally.
-| 3
-| 🟠 P1
-
-| US-COV-2.2
-| **ProfilePublisher** tests d'intégration — 2 FT deployProfile
-  avec/sans preservation d'historique. Coverage Kover >95%.
-| 2
-| 🟡 P2
-
-| US-COV-2.3
-| **DeployProfileTask full pipeline FT** — 3 functional tests
-  (TestKit) : pipeline deployProfile → copyProfileFiles →
-  pushToRemote → cleanupDir de bout en bout.
-| 3
-| 🟡 P2
-
-| US-COV-2.4
-| **BakeryPlugin** coverage 52.8% → 70% — 2-3 UT supplémentaires
-  pour branches else (YAML invalide, dirs manquants).
-| 2
-| 🟡 P2
-
-| US-COV-2.5
-| **ToolsKt** coverage 22% → 50% — fonctions utilitaires.
-  Priorité basse mais couverture misérable.
-| 1
-| 🟢 P3
-
-| US-COV-2.6
-| **Closures doLast TaskRegistrars** — Documenter la limitation
-  Kover (couvert par FT, invisible à l'instrumentation).
-  Aucun changement code requis.
-| 1
-| 🟢 P3
-|===
-
-'''
-
-== EPIC BKY-I18N : Internationalisation (i18n) — 10 Langues
-
-*Découverte* : Session 111 — Ajout support multilingue pour les 10 langues les plus parlées.
-*Objectif* : Remplacer le français hardcodé dans les 36 templates Thymeleaf par un système
-d'i18n standard (Thymeleaf message externalization + `site.language` dans `jbake.properties`).
-*Charge* : ~23 pts (~5-6 sessions)
-*Priorité* : P1 — Bakery est 100% fonctionnel mais monolingue (fr/en). L'i18n est le prochain
-cap majeur pour rendre le plugin utilisable internationalement.
-*Dépend de* : `education.cccp:i18n-contracts:0.0.1` (MEM-3, workspace-bom) — artefact N0
-fournissant `SupportedLanguage`, `LanguageCatalog`, `I18nConfig`, `MessageBundle`, `LocaleResolver`.
-
-=== Langues supportées (10)
-
-[cols="1,3,2"]
-|===
-| Rang | Langue | Locuteurs (approx.)
-| 1 | Anglais (English) | 1,53 milliard
-| 2 | Chinois Mandarin (中文) | 1,14 milliard
-| 3 | Hindi (हिन्दी) | 630 millions
-| 4 | Espagnol (Español) | 560 millions
-| 5 | Français (Français) | 417 millions
-| 6 | Arabe Standard (العربية) | 272 millions
-| 7 | Bengali (বাংলা) | 273 millions
-| 8 | Portugais (Português) | 265 millions
-| 9 | Russe (Русский) | 255 millions
-| 10 | Ourdou (اردو) | 234 millions
-|===
-
-=== Architecture i18n
-
-*Principe* : Thymeleaf message externalization standard.
-Chaque langue a un fichier `messages_{code}.properties` dans `src/main/resources/site/templates/`.
-Les templates utilisent `#{key}` au lieu de texte hardcodé.
-La langue active est déterminée par `site.language` dans `jbake.properties`, résolu via
-la cascade ConfigResolver 5 couches (CLI > gradle.properties > DSL > site.yml > default `fr`).
-
-=== Codes de langue
-
-[cols="1,2"]
-|===
-| Langue | Code
-| Anglais | `en`
-| Chinois Mandarin | `zh`
-| Hindi | `hi`
-| Espagnol | `es`
-| Français | `fr`
-| Arabe Standard | `ar`
-| Bengali | `bn`
-| Portugais | `pt`
-| Russe | `ru`
-| Ourdou | `ur`
-|===
-
-=== User Stories
-
-[cols="1,4,2,2"]
-|===
-| US | Description | Pts | Priorité
-
-| US-I18N-0
-| **Configuration layer** — Ajouter `language` (String, default `"fr"`) et
-  `supportedLanguages` (List<String>, default `["fr"]`) à `SiteConfiguration`.
-  Ajouter propriété DSL `language` dans `BakeryExtension`.
-  Ajouter `resolveLanguage()` dans `ConfigResolver` (cascade 5 couches).
-  Valider que le code langue est dans `SUPPORTED_LANGS`.
-| 3
-| ✅ S111
-
-| US-I18N-1
-| **JBake properties injection** — Injecter `site.language={code}` dans
-  `jbake.properties` via `GenerateSiteService.injectConfigIntoJbakeProperties()`.
-  Ajouter `site.language=fr` dans les `jbake.properties` par défaut (site + site-basic).
-  JBake expose `${config.site_language}` dans les templates Thymeleaf.
-| 2
-| ✅ S112
-
-| US-I18N-2
-| **Messages properties — 10 langues** — Créer `messages_{code}.properties`
-  pour chaque langue dans `src/main/resources/site/templates/`.
-  Extraire toutes les chaînes hardcodées des 28 templates `site/` + 8 templates
-  `site-basic/` → clés de message (ex: `menu.home`, `contact.name`, `blog.read_more`).
-  Template de référence : `messages_fr.properties` (traduction complète).
-| 3
-| 🟠 P1
-
-| US-I18N-3
-| **Template migration — 36 fichiers** — Remplacer tout le texte hardcodé
-  français dans les 28 templates `site/` + 8 templates `site-basic/` par
-  `#{message.key}` Thymeleaf. Remplacer `<html lang="fr">` par
-  `th:lang="${config.site_language}"`. Mettre à jour `feed.thyme` `<language>`.
-  Dates formatées selon locale (ex: `#dates.format(date, 'dd MMMM yyyy', locale)`).
-| 8
-| 🟠 P1
-
-| US-I18N-4
-| **Scaffold IA — Expansion SUPPORTED_LANGS** — Étendre `SUPPORTED_LANGS` dans
-  `ScaffoldIntention.kt` de `setOf("fr", "en")` aux 10 codes langue.
-  Mettre à jour `ArticleIntention.lang` avec la même expansion.
-  Le `ScaffoldMetadata.language` est déjà plumbé dans `site.yml` généré.
-| 2
-| 🟡 P2
-
-| US-I18N-5
-| **Cucumber BDD — Scénarios i18n** — Feature `i18n_language_switch.feature` :
-  scaffolding en `zh`/`ar`/`hi`, génération site multilingue, fallback `fr`
-  si langue non supportée, injection `site.language` dans `jbake.properties`.
-  6-8 scénarios Cucumber.
-| 3
-| 🟡 P2
-
-| US-I18N-6
-| **Documentation + E2E** — Mettre à jour `BAKERY_ROADMAP_JBake.adoc` avec
-  la section i18n. Ajouter 2 tests E2E Playwright (site en anglais, site en
-  arabe — vérifier RTL). Mettre à jour `README.adoc`.
-| 2
-| ✅ S116
-|===
-
-'''
-== EPIC BKY-CR-V5 : Code Smells V5 (Session 117 — 60 smells, 24 pts)
-
-*Découverte* : Session 117 — Audit exhaustif des 63 fichiers Kotlin source
-(6 567 lignes) par agent externe. 60 code smells identifiés. Score global 6.8/10.
-*Objectif* : Résoudre les 60 smells par ordre de priorité (P0 → P1 → P2 → P3).
-*Charge* : ~24 pts (~5-6 sessions)
-*Priorité* : P0 — Le smell P0 (JsonEscape) est un vrai bug de corruption JSON.
-
-[cols="1,4,2,2"]
-|===
-| US | Description | Pts | Priorité
-
-| US-CR-V5-1
-| **Fix JsonEscape ordre remplacement** — `escapeJsonForJavaProperties()`
-  remplace `\` → `\\` AVANT `\n` → `\\n`. Corruption JSON garantie.
-  Fix : remplacer les littéraux (`\n`, `\r`, `\t`) AVANT les backslashes,
-  ou utiliser `StringEscapeUtils.escapeJava()` de commons-text.
-| 1
-| 🔴 P0
-
-| US-CR-V5-2
-| **Extraire slugify() + remplacer parser JSON maison** —
-  `slugify()` dupliqué dans ArticleGenerator + ScaffoldGenerator →
-  extraire vers `bakery.util.Slugify`. Remplacer le parser JSON
-  manuel (50 lignes indexOf/substring) dans ValidateFirebaseConfigTask
-  par `jacksonObjectMapper().readValue()`.
-| 3
-| 🟠 P1
-
-| US-CR-V5-3
-| **Fix entries.first{} unsafe + println→logger + secrets LLM + ObjectMapper cache** —
-  `GenerateArticleTask:208` `entries.first{}` → `firstOrNull{}` avec fallback.
-  `SiteTaskRegistrar:201` `println()` → `logger.lifecycle()`.
-  `ValidateFirebaseConfigTask:140` `auth.apiKey` masqué dans prompt LLM.
-  `FileSystemManager:165` `yamlMapper` → `lazy {}`.
-| 3
-| 🟠 P1
-
-| US-CR-V5-4
-| **Refactor ResolvedConfigs.toResolver() + FileSystemManager.read() Either** —
-  Bloc `when` 35 branches → data-driven (reflection ou Map).
-  `Project.read()` catch muet → `Either<Exception, SiteConfiguration>` + log warning.
-  `ConfigPromptM.resolveWithoutPrompt()` throw → return null + fallback prompt.
-  `FirebaseContactFormConfig` champs non-nullable → defaults ou nullable.
-| 3
-| 🟠 P1
-
-| US-CR-V5-5
-| **Déduplication SUPPORTED_LANGS + updateProperty() + pattern résolution** —
-  `SUPPORTED_LANGS` dupliqué 3× → `BakeryConstants.SUPPORTED_LANGS`.
-  `updateProperty()` dupliqué 2× → supprimer copie GenerateThemeTask, importer `bakery.injection.updateProperty`.
-  Pattern résolution CLI>DSL>defaults dupliqué 3× → extraire `ResolveIntention<T>` helper.
-| 5
-| 🟡 P2 ⚠️ PARTIEL — SUPPORTED_LANGS et updateProperty OK, mais `ResolveIntention<T>` helper NON créé. Voir BKY-CR-V6 US-1.
-
-| US-CR-V5-6
-| **Déduplication pattern injection DSL + nettoyage code mort + champs morts** —
-  Pattern `dsl?.let { if (field.isNotBlank()) { try { toIntention() } catch { warn } } }`
-  dupliqué 3× dans ContentTaskRegistrar → extraire helper.
-  Supprimer `ConfigPrompts.saveConfiguration()` @Deprecated no-op.
-  Supprimer `SiteManager.registerUtilityTasks()` @Deprecated no-op.
-  Supprimer `IaConfig.poolPorts` + `IaConfig.poolModel` (jamais référencés).
-| 3
-| 🟡 P2
-
-| US-CR-V5-7
-| **Refactor ConfigResolver.resolveAll() + magic numbers + YAML→Jackson** —
-  `resolveAll()` 9 blocs `resolveDomain` répétitifs → data-driven (liste de DomainResolver).
-  `BfsProximityCache` distances 1.0/0.7/0.4/0.1 → constantes nommées.
-  `GenerateSiteFromIntentionTask.buildSiteYml()` concaténation string → `yamlMapper.writeValueAsString()`.
-  `GenerateArticleTask.buildArticleContent()` texte FR hardcodé → utiliser `article.lang`.
-| 3
-| 🟡 P2 ⚠️ PARTIEL — magic numbers, YAML→Jackson et article.lang OK, mais `resolveAll()` data-driven NON fait. Voir BKY-CR-V6 US-3.
-
-| US-CR-V5-8
-| **Log warnings catch muets + divers P3** —
-  `AugmentedContextResolver.resolve()` catch(Exception) → log warning.
-  `SiteContextCollector.parseFeed()/parseSitemap()` runCatching → log warning.
-  `OllamaLlmService.complete()` mutableListOf → listOf.
-  `GitService.executePushCommand()` retour nullable → non-nullable.
-  `ContentTaskRegistrar.createLlmServiceIfEnabled()` inline inutile → supprimer inline.
-  `AugmentedArticlesService.applyRules()` filtre "draft" redondant → supprimer excludeDrafts boolean.
-  `ThemeInjector` injecte toujours defaults → documenter (simplicité > optimisation).
-| 3
-| 🟢 P3 ✅ S124
-|===
-
-'''
-== EPIC BKY-I18N-MIG : Tâche migrateToI18n (Session 117 — 16 pts)
-
-*Découverte* : Session 117 — L'i18n est intégrée au scaffolding (nouveaux sites)
-mais aucun chemin automatisé n'existe pour migrer un site bakery existant
-(ex: magic-stick, cheroliv.com) vers l'i18n.
-*Objectif* : Créer la tâche `migrateToI18n` qui scanne les templates,
-extrait le texte hardcodé, génère les `messages_{lang}.properties`,
-et remplace le texte par `#{message.key}`.
-*Charge* : ~16 pts (~3-4 sessions)
-*Priorité* : P1 — Nécessaire pour appliquer l'i18n aux sites du workspace.
-*Design* : Aligné sur les patterns existants (GenerateArticleTask, GenerateThemeTask) —
-cascade CLI > DSL > defaults, DDD Intention→Dsl→Task→Service.
-
-[cols="1,4,2,2"]
-|===
-| US | Description | Pts | Priorité
-
-| US-I18N-MIG-1
-| **I18nMigrationIntention + Dsl + BakeryExtension** —
-  Modèle domaine `I18nMigrationIntention` (siteDir, languages, defaultLanguage, dryRun).
-  DSL bridge `I18nMigrationIntentionDsl` (open class, var mutables, toIntention()).
-  Ajout `i18nMigration` dans `BakeryExtension` + méthode DSL `fun i18nMigration(action: Action<...>)`.
-| 2
-| ✅ S125
-
-| US-I18N-MIG-2
-| **MigrateToI18nTask + ContentTaskRegistrar** —
-  Tâche `@DisableCachingByDefault abstract class MigrateToI18nTask : DefaultTask()`
-  avec options CLI (`--i18nSite`, `--i18nLangs`, `--i18nDefaultLang`, `--i18nDryRun`),
-  résolution cascade CLI > DSL > defaults, injection `dslIntention` + `llmService`.
-  `ContentTaskRegistrar.registerMigrateToI18nTask()`.
-  Enregistrement dans `BakeryPlugin.registerFullPipelineTasks()`.
-| 3
-| ✅ S126
-
-| US-I18N-MIG-3
-| **I18nMigrationService — scan + extraction + messages.properties** —
-  Service métier pur (zéro Gradle) : `scanTemplates()` → `extractHardcodedText()` →
-  `generateMessageFiles()` → `replaceHardcodedWithMessageKeys()` →
-  `writeMessageFiles()` → `injectSiteLanguage()`.
-  Retourne `I18nMigrationResult` (keysExtracted, filesGenerated, templatesModified, dryRun).
-| 5
-| ✅ S127
-
-| US-I18N-MIG-4
-| **Traductions LLM 9 langues non-fr — koog+langchain4j** —
-  *DÉCISION ARCHITECTURALE (2026-06-16)* : La traduction LLM est une capacité
-  transverse (besoin bakery, document-gradle, slider-gradle, etc.). Elle sera
-  implémentée dans **codebase-gradle (N1)** comme `TranslationService` partagé
-  (koog StateGraph + langchain4j OllamaChatModel), ou dans un artefact N0 dédié
-  (`translation-contracts`). Bakery consommera ce service, ne l'implémentera pas.
-  *Impact* : US-I18N-MIG-4 est mise en attente jusqu'à ce que le service de
-  traduction transverse soit disponible dans codebase-gradle (N1) ou en N0.
-  *Dépend de* : `education.cccp:koog` (N0) + `education.cccp:llm-pool-contracts` (N0)
-  + codebase-gradle `TranslationService` (N1, à créer).
-| 3
-| 🟡 P2 ⏸️ EN ATTENTE (dépend de codebase-gradle TranslationService)
-
-| US-I18N-MIG-5
-| **Cucumber BDD + tests unitaires** —
-  Feature `i18n_migration.feature` : dry run preview, migration EN+AR,
-  fallback LLM indisponible, site sans templates, site déjà i18n (no-op).
-  Tests unitaires : I18nMigrationServiceTest (scan, extract, replace, dryRun).
-| 3
-| 🟡 P2 ✅ S128
-|===
-'''
-
-== EPIC BKY-CR-V6 : Duplications structurelles résiduelles (Session 141 — 8 pts) ✅ TERMINÉ
-
-*Découverte* : Session 141 — Audit ciblé sur duplications de code (intuition utilisateur).
-L'audit V5 (S117) avait identifié 3 duplications structurelles mais les US-CR-V5-5 et V5-7
-ont été marquées ✅ alors que le code n'a pas bougé. L'US-CR-V5-5 est **partiellement** résolue
-(SUPPORTED_LANGS et updateProperty OK, mais `ResolveIntention<T>` helper non créé).
-L'US-CR-V5-7 est **partiellement** résolue (magic numbers, YAML→Jackson OK, mais `resolveAll()`
-data-driven non fait). Cet EPIC cloture proprement les duplications résiduelles.
-*Objectif* : Éliminer les 3 duplications structurelles par extraction data-driven + helper générique.
-*Charge* : ~8 pts (~2 sessions)
-*Priorité* : P1 — Duplications réelles dans code production publié 0.0.1, à figer dans 0.0.2.
-*Méthode* : Baby steps DDD/TDD/BDD — caractérisation comportements existants avant refactor.
-*Statut* : **TERMINÉ — 8/8 pts**. US-1 ✅ S142 (ResolveIntention helper), US-2 ✅ S144 (DomainConfigInjectors data-driven), US-3 ✅ S145 (ConfigResolver.resolveAll() data-driven).
-
-[cols="1,4,2,2"]
-|===
-| US | Description | Pts | Priorité
-
-| US-CR-V6-1
-| **Helper `ResolveIntention<T>` — pattern CLI>DSL>defaults dupliqué ×4** —
-  `GenerateArticleTask.resolveIntention()` (ligne 178),
-  `GenerateThemeTask.resolveIntention()` (ligne 205),
-  `GenerateSiteFromIntentionTask.resolveIntention()` (ligne 160),
-  `MigrateToI18nTask.resolveIntention()` (ligne 96) —
-  23 occurrences du pattern `orNull?.takeIf{isNotBlank} ?: dslIntention?.field ?: default`.
-  Extraire `ResolveIntention<T>` : `fromCli(prov, dslField, default)` + `fromCliNullable(prov, dslField)`.
-  DDD : helper pur sans Gradle. TDD : tests unitaires helper (RED→GREEN).
-  Refactor : remplacer 23 occurrences, vérifier comportement identique.
-| 3
-| 🟠 P1 ✅ S142
-
-| US-CR-V6-2
-| **DomainConfigInjectors data-driven — 9 injecteurs répétitifs (113 lignes)** —
-  `DomainConfigInjectors.kt` : 9 objects avec même forme `if (x.isNotBlank) { updateProperty(...) }`.
-  3 variantes : gate sur champ trigger (Firebase/GoogleForms/Auth/Analytics),
-  gate sur boolean (Comments/Newsletter), injection systématique (Theme).
-  Extraire `InjectorSpec(domain, trigger, mode, properties: List<PropSpec>)` + registre data-driven.
-  DDD : `InjectorSpec` sealed class + `InjectorRegistry`. TDD : tests par injecteur.
-  Refactor : `configInjectors` Map → `InjectorRegistry.all()`. Comportement identique.
-| 2
-| 🟠 P1 ✅ S144
-
-| US-CR-V6-3
-| **ConfigResolver.resolveAll() data-driven — 10 blocs `resolveDomain` répétitifs** —
-  `ConfigResolver.kt:332-401` : 10 blocs identiques `resolveDomain("x", { resolveXConfig(...) }, XConfig())`.
-  Extraire `DomainResolver<T>(name, resolver: () -> T, fallback: T)` + liste `domainResolvers: List<DomainResolver<*>`.
-  DDD : `DomainResolver` data class + `resolveAllDataDriven()`. TDD : tests par domaine.
-  Refactor : `resolveAll()` délègue à `resolveAllDataDriven()`. Comportement identique.
-| 3
-| ✅ S145
-|===
-
-'''
-
-== EPIC BKY-I18N-PROD-AUDIT : Alignement fixtures ↔ sites réels ✅ TERMINÉ (Sessions 149-150)
-
-*Découverte* : Session 148 — Les fixtures de test i18n ne reflètent pas toutes les sites réels. magic-stick ✅, cccp.education ❌, cheroliv.com ❌.
-*Objectif* : Créer un contrat de non-régression (service d'audit + tests) puis aligner les fixtures avec les sites réels.
-*Charge* : ~5 pts (Sessions 149-150)
-*Priorité* : P1 — Sans fixtures fidèles, les tests de migration i18n ne valident pas le vrai site.
-*Méthode* : Baby steps DDD/TDD/BDD — phase 1 (audit) S149 ✅, phase 2 (alignement) S150 ✅.
-
-[cols="1,4,2,2"]
-|===
-| US | Description | Pts | Statut
-
-| US-AUDIT-1
-| **Service d'audit `FixtureAlignmentAuditor`** — compare fixture vs site réel (missing/extra/mismatched).
-| 2
-| ✅ S149
-
-| US-AUDIT-2
-| **Tests d'audit** — `FixtureAlignmentAuditorTest` 7 tests (infrastructure + 3 sites). magic-stick ✅, cccp-education ❌, cheroliv-com ❌.
-| 1
-| ✅ S149
-
-| US-AUDIT-3
-| **Aligner fixture cccp-education** — remplacer par templates réels (supprimer `release.thyme`, synchroniser 11 templates).
-| 1
-| ✅ S150
-
-| US-AUDIT-4
-| **Aligner fixture cheroliv-com** — ajouter 13 templates manquants + synchroniser 11 templates.
-| 1
-| ✅ S150
-
-| US-AUDIT-5
-| **Mettre à jour les traductions** — régénérer `translations_en.properties` si les clés FR changent.
-| 0.5
-| ✅ S150
-|===
-
-'''
-
-== EPIC BKY-A11Y-1 : Accessibilité WCAG/RGAA (NOUVEAU — Session 151)
-
-*Découverte* : Session 151 — Bakery est multilingue (i18n) mais aucune vérification d'accessibilité n'est intégrée au pipeline. C'est un prérequis Qualiopi/AO pour le MVP0 Graal (formation FPA).
-*Objectif* : Ajouter un audit d'accessibilité exécutable via Gradle sur le site généré (output JBake), avec règles de contraste, alt text, aria-label, ordre de titres.
-*Charge* : ~13 pts (~3-4 sessions)
-*Priorité* : P0 — Bloquant Qualiopi pour livrer une formation professionnelle accessible.
-*Méthode* : Baby steps DDD/TDD/BDD — domaine pur d'abord, puis tâche Gradle, puis BDD Cucumber.
-
-[cols="1,4,2,2"]
-|===
-| US | Description | Pts | Statut
-
-| US-A11Y-1
-| **Contraste couleurs** — `evaluateContrast()` WCAG 2.1 AA + `ContrastResult`. Tests unitaires 5 cas.
-| 1
-| ✅ S151 (baby step 1)
-
-| US-A11Y-2
-| **Auditor + report** — `AccessibilityFinding`, `AccessibilityReport`, `audit()`. Tests unitaires 4 cas.
-| 1
-| ✅ S151 (baby step 2)
-
-| US-A11Y-3
-| **Scanner HTML inline colors** — `AccessibilityHtmlScanner.scanInlineColors()` extrait `color` + `background-color`, génère findings. Tests unitaires 4 cas.
-| 2
-| ✅ S151 (baby step 3)
-
-| US-A11Y-4
-| **Tâche Gradle `accessibilityAudit`** — Enregistrer une tâche dans le pipeline bakery qui scanne le répertoire `output/` après `bake` et produit un rapport JSON/ASCII.
-| 3
-| ✅ S152 (baby step 4) — registrar corrigé (auditDir projectDir, mustRunAfter bake), 8 UT + 4/4 Cucumber
-
-| US-A11Y-5
-| **BDD Cucumber Feature 37** — Scénarios : audit passe, audit échoue sur contraste faible, site sans couleurs inline.
-| 2
-| ✅ S152 — 4/4 PASS (compliant, non-compliance, empty, registration)
-
-| US-A11Y-6
-| **Règles structurelles** — alt text sur images, aria-label sur liens/icones, ordre headings h1→h6 sans saut.
-| 3
-| ✅ S152 — scanStructural (img-alt, link-aria-label, heading-order) + 7 UT + 2 scénarios BDD
-
-| US-A11Y-7
-| **Intégration pipeline full** — `accessibilityAudit` dépend de `bake`, bloque `publishSite` si non compliant (configurable).
-| 1
-| ✅ S152 — failOnNonCompliant DSL + GradleException gate + publishSite dependsOn accessibilityAudit + 2 UT + 1 scénario BDD
-|===
-
-'''
-
-== EPIC BKY-I18N-DELTA : Non-Répétition des Traductions LLM — Loi de l'Économie d'Encre (NOUVEAU — Session 153)
-
-*Découverte* : Session 153 — `I18nMigrationService.translateNonFrenchKeys()` re-traduisait l'intégralité des clés FR→EN via le LLM à *chaque* exécution de `migrateToI18n`, écrasant les traductions validées de `messages_en.properties`. Sur 45 clés × 10 langues × N ré-exécutions, la facture LLM croissait linéairement sans valeur ajoutée. Anti-pattern de *non-idempotence économique* : une opération coûteuse metered rejouée sur entrée identique.
-*Objectif* : Établir la **Loi de l'Économie d'Encre** comme contrainte de gouvernance transverse — toute opération LLM/cloud metered DOIT réutiliser les résultats persistants existants et ne calculer que le delta.
-*Charge* : 3 pts (~1 session)
-*Priorité* : P0 — Optimisation consommation tokens/processes. Condition de viabilité économique du pipeline agentique MVP0.
-*Méthode* : DDD (load-before-write) + TDD (test réutilisation) + conceptualisation gouvernance (AGENT.adoc).
-
-[cols="1,4,2,2"]
-|===
-| US | Description | Pts | Statut
-
-| US-DELTA-1
-| **Delta traduction i18n** — `translateNonFrenchKeys()` charge `messages_{lang}.properties` existant via `loadExistingTranslations()`, filtre les clés manquantes, ne traduit que le delta. Fusion `existing + newTranslations`. Évite l'écrasement des traductions validées.
-| 1
-| ✅ S153
-
-| US-DELTA-2
-| **Test réutilisation** — `auto-translation reuses existing translations and only translates missing keys` : pré-remplit `messages_en.properties` avec `header.1` manuel, vérifie conservation + traduction de `footer.1` manquant + assert `requestsReceived.size == 1` (LLM appelé une seule fois).
-| 1
-| ✅ S153
-
-| US-DELTA-3
-| **Conceptualisation gouvernance** — Section "Non-Répétition des Opérations Coûteuses — Loi de l'Économie d'Encre" ajoutée à `AGENT.adoc`. Principe, règle, anti-patterns, protection, leçon, portée transverse (10 boroughs consommant du LLM metered). Encodage de la contrainte dans la littérature de gouvernance pour application durable.
-| 1
-| ✅ S153
-|===
-
-*Projection d'impact* : Si la même logique delta est appliquée aux 9 autres boroughs consommant du LLM metered (codex RAG, training SPG/SPD, capsule TTS, plantuml diagrammes, readme/doc/agile/ticket/review IA), l'économie potentielle sur le pipeline MVP0 complet est de l'ordre de 50-80% de la facture LLM récurrente (hypothèse : 3-5 ré-exécutions par cycle de dev).
-
-'''
-
-== Synthèse — Charge restante (Session 151)
-
-[cols="1,3,2,2"]
-|===
-| EPIC | Contenu | Pts | Priorité
-// ── TERMINÉ ──
-| BKY-KOV-1 | Kover Coverage 85.88% | 16 | ✅ S104
-| BKY-COV-2 | Microfissures coverage | 12 | ✅ S110
-| BKY-PUB-1 | Publication Maven Central 0.0.1 | 8 | ✅ S109
-| BKY-PUB-2 | Publication Maven Central + Portal 0.0.2 | 3 | ✅ S143 (Central LIVE, Portal en propagation 24-48h)
-| BKY-I18N | i18n 10 langues | 23 | ✅ S116
-| BKY-CR-V5 | Code smells V5 (60 smells) | 24 | ✅ S124 (US-1+2+3+4+5+6+7+8 résolues — V5-5 et V5-7 PARTIEL, repris en V6)
-| BKY-I18N-PROD-VAL | Validation dry-run (magic-stick) | 3 | ✅ S130
-| BKY-I18N-PROD-MIG | Migration magic-stick + traduction FR→EN | 5 | ✅ S131
-| BKY-I18N-MIG | Tâche migrateToI18n | 16 | ✅ TERMINÉ — Session 134
-| BKY-I18N-PROD-GEN | Généralisation cccp.education + cheroliv.com | 8 | ✅ S132
-| BKY-I18N-MIG-4 | Service traduction transverse (codebase-gradle N1) | 3 | ✅ TERMINÉ — S134
-| BKY-CR-V6 | Duplications structurelles résiduelles | 8 | ✅ TERMINÉ — US-1 S142, US-2 S144, US-3 S145
-| BKY-I18N-PROD-AUDIT | Alignement fixtures ↔ sites réels | 5 | ✅ S150 (US-1→5 TERMINÉS)
-// ── EN COURS ──
-| BKY-A11Y-1 | Accessibilité WCAG/RGAA | 13 | ✅ S152 TERMINÉ (US-1→7 tous faits)
-| BKY-I18N-DELTA | Non-répétition traductions LLM (Économie d'Encre) | 3 | ✅ S153 — US-1 delta traduction + US-2 test réutilisation
-| *Total restant* | | *0* |
-|===
-
-*Tous les EPICs historiques* : 30/30 ✅ (100%)
-*EPIC actif* : aucun — BKY-A11Y-1 ✅ TERMINÉ S152.
-*Code smells résolus* : 24/24 ✅ (V2+V3+V4)
-*Code smells V5* : 52 ✅ (US-1 faux positif, US-2+3+4+5+6+7+8 résolues — V5-5 et V5-7 PARTIEL repris en V6)
-*Bakery 100% fonctionnel* — smells V5/V6 qualitatifs, pas fonctionnels.
-*Nouveau cap* : BKY-PUB-2 — ✅ TERMINÉ S143.
-*Nouveau cap* : BKY-CR-V6 — ✅ TERMINÉ 8/8 pts.
-*Nouveau cap* : BKY-I18N-PROD-AUDIT — ✅ TERMINÉ S150.
-*Nouveau cap* : BKY-A11Y-1 — ✅ TERMINÉ S152 (13/13 pts).
-
-'''
 == Métadonnées
 
-[cols="2,3"]
+[cols="2,3]
 |===
 | Document | `BACKLOG.adoc`
-| Version | 9.4 — Session 145 (BKY-CR-V6 US-3 ✅ ConfigResolver.resolveAll() data-driven — EPIC TERMINÉ 8/8 pts)
-| Historisé dans | `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
-| Basé sur | Code review V5 (`.agents/CODE_REVIEW.adoc`, Session 117) + Session 105 + Session 111 + Session 116 + Audit duplications Session 141 + US-1 Session 142 + Publication 0.0.2 Session 143 + US-2 DomainConfigInjectors Session 144 + US-3 resolveAll data-driven Session 145
-| Prochaine màj | Session 146 — aucun EPIC actif prioritaire ; attente roadmap utilisateur ou audit/cleanup
+| Version | 10.0 — Session 155 (nettoyage : historisation détail EPICs terminés)
+| Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
+| Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-154
+| Prochaine màj | Session 156+ — à la première évolution (nouvel EPIC ou piste choisie)
+|===
