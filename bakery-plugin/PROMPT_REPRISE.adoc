@@ -1,32 +1,32 @@
 = PROMPT REPRISE — Bakery
-:session: 146
+:session: 147
 :date: 2026-06-23
 
-== Mission accomplie (session 145)
+== Mission accomplie (session 146)
 
-*BKY-CR-V6 US-3 ConfigResolver.resolveAll() data-driven* — refactor DDD/TDD/BDD.
-- `ConfigResolver.resolveAll()` : 72 → 3 lignes (-69, -96%). Fonction locale `resolveDomain` supprimée.
-- DDD : `DomainResolver<T>(name, resolver, fallback)` data class + `resolve(errors)`.
-- TDD : 9 UT `DomainResolverTest` + 9 UT `ResolveAllDataDrivenTest` — caractérisation + équivalence avec `resolveAll()`.
-- `resolveAllDataDriven()` : liste de 10 `DomainResolver<*>` + reconstruction `ResolvedConfigs`.
-- Safety net : 1123/1123 UT PASS, `publishToMavenLocal` OK, compile clean.
+*Maintenance craftsmanship + audit borough* — pas de code source modifié.
+- Cleanup gouvernance : `TODO.adoc` aligné (US-I18N-MIG-4 terminé S134), `SESSIONS_HISTORY.adoc` dédoublonné, `INDEX.adoc` portefeuille à jour.
+- Archive session 145 existante vérifiée/restaurée (`COMPLETED_TASKS_ARCHIVE_2026-06.adoc`).
+- Audit Kover : build Cucumber échoue sur 1 test préexistant (`deployProfile fails when site.yml does not exist`).
+- Microfissure identifiée : `deployProfile` n'est pas enregistrée quand `site.yml` est absent → message Gradle "Task 'deployProfile' not found" au lieu d'un message métier "Failed to read site.yml".
 
 == Statut
 
-- BKY-CR-V6 US-3 : ✅ TERMINÉ (3 pts)
-- **EPIC BKY-CR-V6 TERMINÉ — 8/8 pts**.
+- BKY-CR-V6 : ✅ TERMINÉ 8/8 pts.
+- BKY-PUB-2 : ✅ Central 0.0.2 LIVE, Portal en propagation.
+- Cucumber : 1 test en échec (Feature 5, scenario "deployProfile fails when site.yml does not exist").
 
-== Prochaine session (146)
+== Prochaine session (147)
 
-Tous les EPICs backlog actifs sont terminés. Pas de mission prioritaire prédéfinie.
+Priorité : corriger la microfissure Feature 5 / `deployProfile`.
 
-Suggestions (à valider par l'utilisateur) :
-. **Audit borough** : revue de code/couverture Kover, identifications de nouvelles microfissures.
-. **Maintenance** : mise à jour dépendances, nettoyage TODO.adoc.
-. **Nouveau cap** : attente roadmap utilisateur ou création d'un nouvel EPIC.
+Suggestions validées par l'utilisateur :
+. **BKY-FIX-1** : toujours enregistrer `deployProfile` même sans `site.yml`, et faire échouer la tâche avec message explicite "Failed to read site.yml". Approche B (UX robuste).
+. Méthodo : baby steps DDD/TDD/BDD.
 
 == Note technique
 
 - `./gradlew test` = validation rapide en session.
+- Cible : Feature 5 `deployProfile fails when site.yml does not exist` repasse au GREEN.
+- `publishToMavenLocal` obligatoire après toute modif code source.
 - Kover threshold 85% maintenu.
-- `cucumberTest` timeout 5min = EPIC 5 préexistant (pas lié au refactor).

@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-23 — Session 145 (BKY-CR-V6 US-3 ConfigResolver.resolveAll() data-driven)
-  _Session terminee_ : 145 — BKY-CR-V6 US-3 refactor DDD/TDD. `ConfigResolver.resolveAll()` 72→3 lignes (-69, -96%). Fonction locale `resolveDomain` supprimée. DDD : `DomainResolver<T>(name, resolver, fallback)` data class + `resolve(errors)`. TDD : 9 UT DomainResolverTest + 9 UT ResolveAllDataDrivenTest. Refactor : `resolveAllDataDriven()` liste 10 `DomainResolver<*>` + reconstruction `ResolvedConfigs`. API publique `resolveAll()` inchangée. Safety net GREEN (1123/1123 UT PASS), publishToMavenLocal OK, compile clean. **BKY-CR-V6 TERMINÉ — 8/8 pts**.
-  _Prochaine session_ : 146 — aucun EPIC actif prioritaire ; attente roadmap utilisateur ou audit/cleanup.
+  _Derniere mise a jour_ : 2026-06-23 — Session 146 (maintenance gouvernance + audit borough)
+  _Session terminee_ : 146 — Maintenance craftsmanship : cleanup TODO.adoc, SESSIONS_HISTORY.adoc dedoublonne, INDEX.adoc portefeuille a jour. Archive session 145 verifiee. Audit Kover : 1 test Cucumber Feature 5 en echec preexistant (`deployProfile fails when site.yml does not exist`). Microfissure identifiee : deployProfile non enregistree quand site.yml absent → message Gradle "Task 'deployProfile' not found" au lieu d'erreur metier. Prochaine session 147 : BKY-FIX-1 (enregistrer deployProfile toujours + message "Failed to read site.yml").
+  _Prochaine session_ : 147 — BKY-FIX-1 Corriger deployProfile sans site.yml (baby steps DDD/TDD/BDD).
 
 '''
 
@@ -211,10 +211,10 @@ _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
 
 |===
 | Projet | Repertoire | Session en cours | Derniere MAJ
-| magic-stick | `~/workspace/foundry/OSS/magic-stick` | 055 | 2026-04-30
-| plantuml-gradle | `~/workspace/foundry/OSS/plantuml-gradle/plantuml-plugin` | 148 | 2026-06-11
-| bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 134 | 2026-06-22
-| jhipster-gradle-plugins | `~/workspace/foundry/OSS/jhipster-gradle-plugins` | 9 | 2026-06-11
-| quizz-benchmark-gradle | `~/workspace/foundry/OSS/quizz-benchmark-gradle/quizz-benchmark-plugin` | Audit 053 | 2026-04-30
-| runner-gradle | `~/workspace/foundry/OSS/runner-gradle` | 2 | 2026-05-07
-|===
+  | magic-stick | `~/workspace/foundry/public/magic-stick` | 014 | 2026-05-11
+  | plantuml-gradle | `~/workspace/foundry/public/plantuml-gradle/plantuml-plugin` | 148 | 2026-06-11
+  | bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 145 | 2026-06-23
+  | jhipster-gradle-plugins | `~/workspace/foundry/public/jhipster-gradle-plugins` | 9 | 2026-06-11
+  | quizz-benchmark-gradle | `~/workspace/foundry/private/quizz-benchmark-gradle/quizz-benchmark-plugin` | Audit 053 | 2026-04-30
+  | runner-gradle | `~/workspace/foundry/public/runner-gradle` | 029 | 2026-05-12
+  |===

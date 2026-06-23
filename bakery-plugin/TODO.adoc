@@ -36,7 +36,7 @@ _Tout le backlog historique est terminé. 30/30 EPICs + 24/24 code smells résol
 * [x] **US-I18N-MIG-1** : I18nMigrationIntention + Dsl + BakeryExtension ✅ S125
 * [x] **US-I18N-MIG-2** : MigrateToI18nTask + ContentTaskRegistrar ✅ S126
 * [x] **US-I18N-MIG-3** : I18nMigrationService — scan + extraction + messages.properties ✅ S127
-* [ ] **US-I18N-MIG-4** : Traductions LLM 9 langues non-fr — ⏸️ EN ATTENTE (codebase-gradle N1)
+  * [x] **US-I18N-MIG-4** : Traductions LLM 9 langues non-fr — ✅ TERMINÉ (câblage TranslationService transverse codebase-plugin 0.0.2, S134)
 * [x] **US-I18N-MIG-5** : Cucumber BDD + tests unitaires ✅ S128
 
 == NOUVEAU — EPIC BKY-I18N-PROD : Migration Sites de Production (Session 129)
