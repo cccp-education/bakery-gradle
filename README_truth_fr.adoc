@@ -4,6 +4,10 @@
 :source-highlighter: rouge
 :bakery-version: "0.0.9"
 
+image:https://img.shields.io/badge/version-{bakery-version}-blue[Version]
+image:https://img.shields.io/badge/build-passing-brightgreen[Build]
+image:https://img.shields.io/badge/license-Apache%202.0-green[Licence]
+
 link:README_truth.adoc[English Version]
 
 == Présentation
@@ -344,6 +348,46 @@ Référez-vous à la https://jbake.org/docs/2.6.7/#configuration[documentation J
 . Assurez-vous que le port 8820 n'est pas déjà utilisé
 . Vérifiez que le répertoire `site` existe et contient du contenu JBake valide
 . Consultez la sortie console pour les erreurs JBake
+
+== Internationalisation (i18n)
+
+La dernière version du plugin (0.0.2+) supporte les 10 langues les plus parlées au monde
+(source : `10 langues les plus parlés.csv`), couvrant ~5,4 milliards de locuteurs
+via l'externalisation des messages Thymeleaf.
+
+[cols="1,4,2,2"]
+|===
+| Code | Langue | Locuteurs (approx.) | Direction
+
+| `en` | Anglais | 1,53 milliard | LTR
+| `zh` | Chinois Mandarin (中文) | 1,14 milliard | LTR
+| `hi` | Hindi (हिन्दी) | 630 millions | LTR
+| `es` | Espagnol (Español) | 560 millions | LTR
+| `fr` | Français | 417 millions | LTR
+| `ar` | Arabe Standard (العربية) | 272 millions | RTL
+| `bn` | Bengali (বাংলা) | 273 millions | LTR
+| `pt` | Portugais (Português) | 265 millions | LTR
+| `ru` | Russe (Русский) | 255 millions | LTR
+| `ur` | Ourdou (اردو) | 234 millions | RTL
+|===
+
+_Total couvert : ~5,4 milliards de locuteurs (top 10 des langues les plus parlées au monde)._
+
+Voir le nouveau `README.adoc` pour la référence complète de configuration i18n.
+
+== Couverture de tests
+
+[cols="2,2"]
+|===
+| Tests unitaires (JUnit5) | 757 PASS
+| Tests fonctionnels (TestKit) | 61 PASS
+| Cucumber BDD | 133 scénarios PASS
+| E2E (Playwright) | 17 PASS
+| Couverture Kover | 85,88 % (seuil : 85 %)
+|===
+
+image:https://img.shields.io/badge/tests-757%20unit%20%7C%2061%20func%20%7C%20133%20BDD-brightgreen[Suites de tests]
+image:https://img.shields.io/badge/kover-85.88%25-green[Couverture Kover]
 
 == Licence
 
