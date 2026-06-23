@@ -1,5 +1,45 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 149 — 2026-06-23 — BKY-I18N-PROD-AUDIT audit d'alignement fixtures ↔ sites réels
+
+**Contexte** : Suite à la session 148, option 4 choisie : auditer et aligner les fixtures cccp.education et cheroliv.com avec les sites réels. Approche baby steps DDD/TDD/BDD.
+
+**Tâches réalisées** :
+
+* [x] Relecture PROMPT_REPRISE S148 + AGENT + INDEX + BACKLOG.
+* [x] Baseline GREEN : `compileKotlin` ✅, `test` ✅.
+* [x] Localisation des fixtures `src/test/resources/i18n-fixtures/{cccp-education,cheroliv-com,magic-stick}` et des sites réels `office/sites/{cccp.education,cheroliv.com}/jbake/templates`.
+* [x] Diff reproductible : `/tmp/opencode/cccp_fixture_vs_site.diff` (821 lignes) + `/tmp/opencode/cheroliv_fixture_vs_site.diff` (1050 lignes).
+* [x] DDD : `FixtureAlignmentAuditor` pur dans `src/main/kotlin/bakery/i18n/audit/FixtureAlignmentAuditor.kt` — rapport `missingInFixture`/`extraInFixture`/`mismatchedContent`.
+* [x] TDD : `FixtureAlignmentAuditorTest` dans `src/test/kotlin/bakery/i18n/audit/FixtureAlignmentAuditorTest.kt` — 7 tests (4 tests infrastructure RED→GREEN + 3 audits de sites).
+* [x] Résultat des audits : magic-stick ✅, cccp-education ❌ (`release.thyme` en trop + 11 templates diff), cheroliv-com ❌ (13 templates manquants + 11 templates diff).
+* [x] Hook fermeture : PROMPT_REPRISE, INDEX, SESSIONS_HISTORY, TEST_COVERAGE_ANALYSIS, COMPLETED_TASKS_ARCHIVE mis à jour.
+
+**Fichiers modifiés / créés** :
+
+[cols="1,3,2"]
+|===
+| Fichier | Action | Lignes
+| `src/main/kotlin/bakery/i18n/audit/FixtureAlignmentAuditor.kt` | NOUVEAU (DDD) | ~95
+| `src/test/kotlin/bakery/i18n/audit/FixtureAlignmentAuditorTest.kt` | NOUVEAU (TDD) | ~125
+| `PROMPT_REPRISE.adoc` | MàJ mission S150 | ~34
+| `.agents/INDEX.adoc` | MàJ session en cours + portefeuille | +3 lignes
+| `.agents/SESSIONS_HISTORY.adoc` | Ajout session 149 | +1 entrée
+| `.agents/TEST_COVERAGE_ANALYSIS.adoc` | MàJ compteurs tests + historique | +2 lignes
+| `.agents/archives/COMPLETED_TASKS_ARCHIVE_2026-06.adoc` | Ajout session 149 | ~35 lignes
+|===
+
+**Décisions techniques** :
+
+. *Option C (test d'audit)* choisie : créer un service d'audit reproductible avant de modifier les fixtures. Les tests RED documentent l'écart.
+. *Fixture magic-stick* : déjà alignée (12/12 identiques).
+. *Fixtures cccp-education/cheroliv-com* : sont des stubs de scaffolding, pas des copies fidèles. Alignement reporté session 150.
+. *Aucune fixture modifiée* dans cette session : l'objectif était de mesurer et de verrouiller avec des tests.
+
+**Statut** : BKY-I18N-PROD-AUDIT 🟠 En cours — phase mesure/contract terminée. Alignement fixtures reporté S150. Score : 8/10.
+
+---
+
 == Session 148 — 2026-06-23 — Audit migration i18n réelle magic-stick
 
 **Contexte** : Suite à la demande d'analyse du backlog, investigation de l'écart entre les fixtures i18n de test et les sites réels. Test de `migrateToI18n` sur une copie temporaire du site magic-stick avec le plugin bakery 0.0.2.

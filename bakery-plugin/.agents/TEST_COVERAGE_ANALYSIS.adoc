@@ -13,7 +13,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 | Couverture Kover | *87.55%* — mesuré Session 136 via koverThresholdCheck (129680/148115 instructions environ). Helper `ResolveIntention` non couvert par Kover (nouveau, à régénérer Session 143).
 | Seuil configuré | 70% (dans `build.gradle.kts` → `koverThresholdCheck`)
 | **Nouvelle cible** | **90%** — EPIC BKY-KOV-1 (16 pts, US-1 ✅, US-KOV-2 ✅, US-KOV-3 ✅, US-KOV-4 ✅, US-KOV-5→7 restantes)
-| Tests unitaires JUnit5 | 147+ fichiers, ~1141 tests — ✅ PASS (+18 UT DomainResolverTest + ResolveAllDataDrivenTest Session 145, +43 UT DomainConfigInjectorsTest/InjectorRegistryTest Session 144, +26 UT ResolveIntentionTest Session 142, +4 UT DeployProfileTaskTest Session 140)
+| Tests unitaires JUnit5 | 148+ fichiers, ~1148 tests — ✅ PASS cibles infrastructure de l'audit ; 2 audits RED documentés (cccp-education, cheroliv-com) car fixtures non alignées.
 | Tests fonctionnels (TestKit) | 9 fichiers, 79/79 FT PASS
 | Tests Cucumber BDD | 35 features, 123+2 scénarios bakery (125 théorique) — 2 nouveaux scénarios feature 5 Session 140 (validation timeout EPIC 5)
 | Tests E2E Playwright | 6 fichiers, 19/19 PASS — séparés de `check`
@@ -71,6 +71,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 [cols="2,2,2,3,3"]
 |===
 | Session | Date | Kover % | Tests PASS | Notes
+| 149 | 2026-06-23 | *non mesuré* | 7/7 audit tests infrastructure ✅ ; 2 audits RED attendus | **BKY-I18N-PROD-AUDIT** `FixtureAlignmentAuditor` + 7 UT. `compileKotlin` ✅. Les 2 échecs RED sont volontaires (fixtures non alignées).
 | 145 | 2026-06-23 | *non mesuré* | 1123/1123 UT ✅ + compile clean ✅ | **BKY-CR-V6 US-3** resolveAll data-driven. `DomainResolver.kt` 23 lignes + 18 UT. `resolveAll()` 72→3 lignes. EPIC BKY-CR-V6 TERMINÉ.
 | 144 | 2026-06-23 | *non mesuré* | Tests cibles ✅ + Cucumber 133/133 ✅ | **BKY-CR-V6 US-2** DomainConfigInjectors data-driven. 43 UT.
 | 116 | 2026-06-15 | *85.88%* | Full suite ✅ | **US-I18N-6** Doc + E2E. 2 tests E2E Playwright (EN + AR RTL). th:dir RTL 12 templates. BKY-I18N 23/23 pts TERMINÉ. Bakery 30/30 EPICs 100%.

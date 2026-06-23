@@ -5,15 +5,15 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-23 — Session 145 (BKY-CR-V6 US-3 ConfigResolver.resolveAll() data-driven ✅ — EPIC BKY-CR-V6 TERMINÉ 8/8 pts)_
+_Dernière mise à jour : 2026-06-23 — Session 149 (BKY-I18N-PROD-AUDIT service d'audit fixtures ↔ sites réels ✅ — alignement 🔄 S150)_
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
 [CAUTION]
 ====
-**30/30 EPICs terminés + 24/24 code smells V2-V4 résolus + CR-V5 terminé + I18N-MIG 13/16 pts.**
+**30/30 EPICs historiques terminés + 24/24 code smells V2-V4 résolus + CR-V5 terminé + I18N-MIG terminé + BKY-I18N-PROD-AUDIT en cours.**
 **Session 129** : publishSite aggregate task rapatriée de runner-gradle (N3 → N2).
-Prochaine session : I18N-MIG US-4 (traduction LLM) en attente codebase-gradle N1.
+**Prochaine session** : S150 — aligner fixtures cccp-education et cheroliv-com avec les sites réels (baby steps DDD/TDD/BDD).
 ====
 
 '''
@@ -1100,7 +1100,47 @@ data-driven non fait). Cet EPIC cloture proprement les duplications résiduelles
 
 '''
 
-== Synthèse — Charge restante (Session 141)
+== EPIC BKY-I18N-PROD-AUDIT : Alignement fixtures ↔ sites réels (NOUVEAU — Session 149)
+
+*Découverte* : Session 148 — Les fixtures de test i18n ne reflètent pas toutes les sites réels. magic-stick ✅, cccp.education ❌, cheroliv.com ❌.
+*Objectif* : Créer un contrat de non-régression (service d'audit + tests) puis aligner les fixtures avec les sites réels.
+*Charge* : ~5 pts (~1-2 sessions)
+*Priorité* : P1 — Sans fixtures fidèles, les tests de migration i18n ne valident pas le vrai site.
+*Méthode* : Baby steps DDD/TDD/BDD — phase 1 (audit) ✅, phase 2 (alignement) 🔄.
+
+[cols="1,4,2,2"]
+|===
+| US | Description | Pts | Statut
+
+| US-AUDIT-1
+| **Service d'audit `FixtureAlignmentAuditor`** — compare fixture vs site réel (missing/extra/mismatched).
+| 2
+| ✅ S149
+
+| US-AUDIT-2
+| **Tests d'audit** — `FixtureAlignmentAuditorTest` 7 tests (infrastructure + 3 sites). magic-stick ✅, cccp-education ❌, cheroliv-com ❌.
+| 1
+| ✅ S149
+
+| US-AUDIT-3
+| **Aligner fixture cccp-education** — remplacer par templates réels (supprimer `release.thyme`, synchroniser 11 templates).
+| 1
+| 🔄 S150
+
+| US-AUDIT-4
+| **Aligner fixture cheroliv-com** — ajouter 13 templates manquants + synchroniser 11 templates.
+| 1
+| 🔄 S150
+
+| US-AUDIT-5
+| **Mettre à jour les traductions** — régénérer `translations_en.properties` si les clés FR changent.
+| 0.5
+| 🔄 S150
+|===
+
+'''
+
+== Synthèse — Charge restante (Session 149)
 
 [cols="1,3,2,2"]
 |===
@@ -1111,27 +1151,26 @@ data-driven non fait). Cet EPIC cloture proprement les duplications résiduelles
 | BKY-PUB-1 | Publication Maven Central 0.0.1 | 8 | ✅ S109
 | BKY-PUB-2 | Publication Maven Central + Portal 0.0.2 | 3 | ✅ S143 (Central LIVE, Portal en propagation 24-48h)
 | BKY-I18N | i18n 10 langues | 23 | ✅ S116
-| BKY-CR-V5 | Code smells V5 (60 smells) | 24 | ✅ S124 (US-1+2+3+4+5+6+7+8) — V5-5 et V5-7 PARTIEL, repris en V6
+| BKY-CR-V5 | Code smells V5 (60 smells) | 24 | ✅ S124 (US-1+2+3+4+5+6+7+8 résolues — V5-5 et V5-7 PARTIEL, repris en V6)
 | BKY-I18N-PROD-VAL | Validation dry-run (magic-stick) | 3 | ✅ S130
 | BKY-I18N-PROD-MIG | Migration magic-stick + traduction FR→EN | 5 | ✅ S131
-// ── EN COURS ──
-| BKY-I18N-MIG | Tâche migrateToI18n | 16 | ✅ TERMINÉ — Session 134 (16/16 pts, US-1 ✅ S125, US-2 ✅ S126, US-3 ✅ S127, US-4 ✅ S134, US-5 ✅ S128)
-// ── TERMINÉ (session 132) ──
+| BKY-I18N-MIG | Tâche migrateToI18n | 16 | ✅ TERMINÉ — Session 134
 | BKY-I18N-PROD-GEN | Généralisation cccp.education + cheroliv.com | 8 | ✅ S132
-// ── EN ATTENTE ──
-| BKY-I18N-MIG-4 | Service traduction transverse (codebase-gradle N1) | 3 | ✅ TERMINÉ — TranslationService contrat N0 + LlmTranslator N1 + FakeLlmTranslator livrés codebase-gradle S133 ; câblé dans bakery S134
-// ── NOUVEL EPIC V6 (Session 141) ──
-| BKY-CR-V6 | Duplications structurelles résiduelles (ResolveIntention helper, DomainConfigInjectors data-driven, resolveAll data-driven) | 8 | ✅ TERMINÉ — US-1 S142, US-2 S144, US-3 S145
-| *Total restant* | | *0* |
+| BKY-I18N-MIG-4 | Service traduction transverse (codebase-gradle N1) | 3 | ✅ TERMINÉ — S134
+| BKY-CR-V6 | Duplications structurelles résiduelles | 8 | ✅ TERMINÉ — US-1 S142, US-2 S144, US-3 S145
+// ── EN COURS ──
+| BKY-I18N-PROD-AUDIT | Alignement fixtures ↔ sites réels | 5 | 🟠 S149 (US-1 ✅, US-2 ✅, US-3→5 🔄 S150)
+| *Total restant* | | *3.5* |
 |===
 
 *Tous les EPICs historiques* : 30/30 ✅ (100%)
 *Code smells résolus* : 24/24 ✅ (V2+V3+V4)
 *Code smells V5* : 52 ✅ (US-1 faux positif, US-2+3+4+5+6+7+8 résolues — V5-5 et V5-7 PARTIEL repris en V6)
 *Bakery 100% fonctionnel* — les smells V5/V6 sont qualitatifs, pas fonctionnels.
-*Nouveau cap* : BKY-PUB-2 — ✅ TERMINÉ S143 (Maven Central LIVE 0.0.2, Portal en propagation 24-48h).
-*Nouveau cap* : BKY-CR-V6 — **TERMINÉ 8/8 pts** (US-1 S142, US-2 S144, US-3 S145).
-*Migration i18n des 3 sites* : magic-stick ✅, cccp.education, cheroliv.com.
+*Nouveau cap* : BKY-PUB-2 — ✅ TERMINÉ S143.
+*Nouveau cap* : BKY-CR-V6 — ✅ TERMINÉ 8/8 pts.
+*Nouveau cap* : BKY-I18N-PROD-AUDIT — 🟠 En cours — phase audit ✅, alignement fixtures 🔄 S150.
+*Migration i18n des 3 sites* : magic-stick ✅, cccp.education 🔄, cheroliv.com 🔄.
 
 '''
 == Métadonnées

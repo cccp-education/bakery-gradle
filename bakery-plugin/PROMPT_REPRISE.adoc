@@ -1,34 +1,35 @@
 = PROMPT REPRISE — Bakery
-:session: 149
+:session: 150
 :date: 2026-06-23
 
-== Mission accomplie (session 148)
+== Mission accomplie (session 149)
 
-*Audit migration i18n réelle magic-stick* — Investigation et test sur copie temporaire.
-- Confirmation : les fixtures de test magic-stick sont strictement identiques au site réel (12/12 templates).
-- cccp.education et cheroliv.com : fixtures de test différentes du site réel.
-- Test `migrateToI18n` sur copie /tmp/opencode/bakery-migration : 45 clés extraites, 12 templates modifiés, site.language=fr injecté.
-- Traduction IA via gemma4:31b-cloud inutilisable : le modèle retourne des tutoriels d'explication au lieu de traductions courtes.
-- Aucun code source bakery modifié pendant la session.
+*Audit + test d'alignement fixtures ↔ sites réels* — Option 4 du PROMPT_REPRISE S149.
+- DDD : `FixtureAlignmentAuditor` pur dans `bakery.i18n.audit` compare fixture vs site réel.
+- TDD : `FixtureAlignmentAuditorTest` 7 tests — 4 tests infrastructure + 3 tests d'alignement des sites.
+- magic-stick : ✅ fixture alignée avec le site réel.
+- cccp-education : ❌ `release.thyme` en trop + 11 templates avec contenu différent.
+- cheroliv-com : ❌ 13 templates manquants + 11 templates avec contenu différent.
+- Les fixtures cccp-education/cheroliv-com actuelles sont des stubs de scaffolding, pas des copies des sites réels.
 
 == Statut
 
 - BKY-FIX-1 : ✅ TERMINÉ.
 - BKY-CR-V6 : ✅ TERMINÉ.
 - BKY-PUB-2 : ✅ Central 0.0.2 LIVE.
-- Migration i18n réelle sites : 🔄 En attente de décision stratégie traduction.
+- BKY-I18N-PROD-AUDIT : 🟠 En cours — service d'audit créé, écarts mesurés.
 
-== Prochaine session (149)
+== Prochaine session (150)
 
-Choisir et implémenter l'une des options :
-1. Corriger le prompt/pipeline de traduction IA dans bakery pour forcer des réponses courtes.
-2. Ajouter un post-traitement des réponses gemma4 dans `LlmTranslationApplier`.
-3. Appliquer les traductions manuelles de la fixture au site magic-stick réel.
-4. Auditer et aligner les fixtures cccp.education et cheroliv.com avec les sites réels.
+Aligner les fixtures avec les sites réels (baby steps DDD/TDD/BDD) :
+1. Décider si les fixtures doivent être des copies fidèles ou des stubs ciblés.
+2. Aligner d'abord cccp-education (plus petit écart : 1 template en trop + 11 à remplacer).
+3. Mettre à jour `translations_en.properties` si les clés changent.
+4. Vérifier que `CccpEducationI18nMigrationIntegrationTest` reste GREEN.
 
 == Note technique
 
-- `./gradlew test` = validation rapide.
+- `./gradlew test --tests "bakery.i18n.audit.FixtureAlignmentAuditorTest"` = validation rapide de l'audit.
+- `./gradlew test` = validation complète.
 - `publishToMavenLocal` obligatoire après toute modif code source.
-- Kover threshold 85% maintenu.
 - Ports Ollama autorisés : 11437-11465 pour les modèles cloud ; 11434-11436 interdits.
