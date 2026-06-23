@@ -1,5 +1,23 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 156 — 2026-06-24 — README i18n 10 langues (consumer + plugin)
+
+**Contexte** : Création de 20 fichiers README en 10 langues (2 familles : Consumer Guide + Plugin Internals) à la racine de `foundry/public/bakery-gradle/`, alignés sur l'EPIC BKY-I18N (10 langues supportées). Documentation de bout en bout pour utilisateurs et contributeurs, avec switcher i18n réutilisant le pattern des sites JBake migrés.
+
+**Tâches** :
+
+* [x] Création `foundry/public/bakery-gradle/README.consommateurs/` — 10 fichiers README (EN master, FR, ZH, HI, ES, AR RTL, BN, PT, RU, UR RTL).
+* [x] Création `foundry/public/bakery-gradle/README.plugin/` — 10 fichiers README (mêmes 10 langues).
+* [x] Badges shields.io sur chaque README : Maven Central (`education.cccp/bakery-plugin`), Gradle Plugin Portal (`education.cccp.bakery`), CI GitHub Actions (`test.yml`), Coverage ≥85 % (Kover, consumer only), License (Apache 2.0).
+* [x] Markers version : `Version: 0.0.2` · `Group: education.cccp` · `Plugin ID: education.cccp.bakery` · Cucumber `129/129 PASS`.
+* [x] Switcher i18n en tête de page (10 liens relatifs `README.{code}.md`, langue courante en gras).
+* [x] Marker `<!-- master source — other languages are translations of this file -->` sur `README.md` EN ; `<!-- translated from README.md rev 0.0.2 -->` sur les 9 traductions.
+* [x] Consumer Guide : quick start DSL, table 12+ tâches, diagramme chaîne CCCP (content → bakery → gh-pages ; codebase RAG + graphify KG + LLM).
+* [x] Plugin Internals : module layout (arbre `src/main/kotlin/bakery/`), table N0 contracts (5 artefacts workspace-bom), key dependencies (JBake, JGit, LangChain4j, Arrow-kt, Playwright, Jackson).
+* [x] RTL natif pour AR (العربية) et UR (اردو) via script natif — pas de balisage `dir="rtl"` artificiel.
+
+**Fichiers créés** : 20 fichiers README (10 dans `README.consommateurs/`, 10 dans `README.plugin/`). Aucun code source modifié.
+
 == Session 155 — 2026-06-23 — Nettoyage BACKLOG + Schéma YAML Pivot i18n
 
 **Contexte** : Nettoyage du BACKLOG.adoc (1269→207 lignes) après vérification que tous les EPICs réduits à une ligne sont réellement implémentés dans le code source. Découverte que les 3 sites réels (magic-stick, cccp.education, cheroliv.com) ne sont pas migrés i18n. Emergent design d'un schéma YAML pivot pour la traduction arborescente AsciiDoc nœud-par-nœud, sur bac à sable /tmp (pas de code production touché).

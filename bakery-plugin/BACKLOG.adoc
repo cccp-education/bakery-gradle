@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-23 — Session 155. Nettoyage BACKLOG : historisation du détail des EPICs terminés dans `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`. Seuls restent : synthèse compacte + pistes ouvertes._
+_Dernière mise à jour : 2026-06-24 — Session 156. Création 20 README i18n 10 langues (consumer + plugin) — documentation, aucun EPIC ouvert/fermé, BACKLOG inchangé._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -16,7 +16,7 @@ _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/C
 *Coverage* : 85.88% (Kover), seuil `koverThresholdCheck` PASS.
 *Code smells* : 24/24 V2-V4 + 60 V5 + 3 V6 résolus (24/24 V5 via US-1→8, 8/8 V6).
 *Loi de l'Économie d'Encre* : encodée dans bakery + 9 boroughs transverses (S154).
-*Session en cours* : 155 — attente roadmap utilisateur.
+*Session en cours* : 156 — README i18n 10 langues terminé. attente roadmap utilisateur.
 ====
 
 '''
@@ -204,5 +204,5 @@ _Bakery est production-ready. Aucun EPIC actif prioritaire. La suite dépend de 
 | Version | 10.0 — Session 155 (nettoyage : historisation détail EPICs terminés)
 | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-154
-| Prochaine màj | Session 156+ — à la première évolution (nouvel EPIC ou piste choisie)
+| Prochaine màj | Session 157+ — à la première évolution (nouvel EPIC ou piste choisie)
 |===

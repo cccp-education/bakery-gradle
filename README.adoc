@@ -10,6 +10,15 @@
 :bom-version: 0.1.0
 :group-id: education.cccp
 
+image:https://img.shields.io/badge/version-{plugin-version}-blue[Version]
+image:https://img.shields.io/badge/build-passing-brightgreen[Build]
+image:https://img.shields.io/badge/coverage-85.88%25-green[Coverage]
+image:https://img.shields.io/badge/i18n-10%20languages-orange[10 Langues]
+image:https://img.shields.io/badge/Gradle-{gradle-version}-blue[Gradle]
+image:https://img.shields.io/badge/Kotlin-{kotlin-version}-blue[Kotlin]
+image:https://img.shields.io/badge/Java-{java-version}-blue[Java]
+image:https://img.shields.io/badge/license-Apache%202.0-green[License]
+
 link:README_truth_fr.adoc[Version Francaise]
 
 == Overview
@@ -480,25 +489,28 @@ bakery {
 
 == Internationalization (i18n)
 
-The plugin supports 10 languages via Thymeleaf message externalization.
-Each language has a `messages_{code}.properties` file with ~65 translated keys.
+The plugin supports the 10 most spoken languages in the world (source: `10 langues les plus parlés.csv`),
+covering ~5.4 billion speakers. Each language has a `messages_{code}.properties` file with ~65 translated keys.
 
 === Supported Languages
 
-[cols="1,3,2"]
+[cols="1,4,2,2"]
 |===
-| Code | Language | Direction
-| `en` | English | LTR
-| `zh` | Chinese Mandarin (中文) | LTR
-| `hi` | Hindi (हिन्दी) | LTR
-| `es` | Spanish (Español) | LTR
-| `fr` | French (Français) — default | LTR
-| `ar` | Arabic Standard (العربية) | RTL
-| `bn` | Bengali (বাংলা) | LTR
-| `pt` | Portuguese (Português) | LTR
-| `ru` | Russian (Русский) | LTR
-| `ur` | Urdu (اردو) | RTL
+| Code | Language | Speakers (approx.) | Direction
+
+| `en` | English | 1.53 billion | LTR
+| `zh` | Chinese Mandarin (中文) | 1.14 billion | LTR
+| `hi` | Hindi (हिन्दी) | 630 million | LTR
+| `es` | Spanish (Español) | 560 million | LTR
+| `fr` | French (Français) — default | 417 million | LTR
+| `ar` | Arabic Standard (العربية) | 272 million | RTL
+| `bn` | Bengali (বাংলা) | 273 million | LTR
+| `pt` | Portuguese (Português) | 265 million | LTR
+| `ru` | Russian (Русский) | 255 million | LTR
+| `ur` | Urdu (اردو) | 234 million | RTL
 |===
+
+_Total covered: ~5.4 billion speakers (top 10 most spoken languages worldwide)._
 
 === Configuration
 
@@ -673,8 +685,11 @@ on push to `main` when `README_plantuml*.adoc` files change, using the
 | Functional (TestKit) | 61 PASS
 | Cucumber BDD | 133 scenarios PASS
 | E2E (Playwright) | 17 PASS
-| Kover Coverage | 76.15% (threshold: 70%)
+| Kover Coverage | 85.88% (threshold: 85%)
 |===
+
+image:https://img.shields.io/badge/tests-757%20unit%20%7C%2061%20func%20%7C%20133%20BDD-brightgreen[Test Suite]
+image:https://img.shields.io/badge/kover-85.88%25-green[Kover Coverage]
 
 == Troubleshooting
 

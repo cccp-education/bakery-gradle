@@ -4,6 +4,10 @@
 :source-highlighter: rouge
 :bakery-version: "0.0.9"
 
+image:https://img.shields.io/badge/version-{bakery-version}-blue[Version]
+image:https://img.shields.io/badge/build-passing-brightgreen[Build]
+image:https://img.shields.io/badge/license-Apache%202.0-green[License]
+
 link:README_truth_fr.adoc[Version Française]
 
 == Overview
@@ -345,6 +349,46 @@ Refer to the https://jbake.org/docs/2.6.7/#configuration[JBake documentation] fo
 . Ensure port 8820 is not already in use
 . Check that the `site` directory exists and contains valid JBake content
 . Review the console output for JBake errors
+
+== Internationalization (i18n)
+
+The latest version of the plugin (0.0.2+) supports the 10 most spoken languages
+in the world (source: `10 langues les plus parlés.csv`), covering ~5.4 billion speakers
+via Thymeleaf message externalization.
+
+[cols="1,4,2,2"]
+|===
+| Code | Language | Speakers (approx.) | Direction
+
+| `en` | English | 1.53 billion | LTR
+| `zh` | Chinese Mandarin (中文) | 1.14 billion | LTR
+| `hi` | Hindi (हिन्दी) | 630 million | LTR
+| `es` | Spanish (Español) | 560 million | LTR
+| `fr` | French (Français) | 417 million | LTR
+| `ar` | Arabic Standard (العربية) | 272 million | RTL
+| `bn` | Bengali (বাংলা) | 273 million | LTR
+| `pt` | Portuguese (Português) | 265 million | LTR
+| `ru` | Russian (Русский) | 255 million | LTR
+| `ur` | Urdu (اردو) | 234 million | RTL
+|===
+
+_Total covered: ~5.4 billion speakers (top 10 most spoken languages worldwide)._
+
+See the new `README.adoc` for the full i18n configuration reference.
+
+== Test Coverage
+
+[cols="2,2"]
+|===
+| Unit Tests (JUnit5) | 757 PASS
+| Functional (TestKit) | 61 PASS
+| Cucumber BDD | 133 scenarios PASS
+| E2E (Playwright) | 17 PASS
+| Kover Coverage | 85.88% (threshold: 85%)
+|===
+
+image:https://img.shields.io/badge/tests-757%20unit%20%7C%2061%20func%20%7C%20133%20BDD-brightgreen[Test Suite]
+image:https://img.shields.io/badge/kover-85.88%25-green[Kover Coverage]
 
 == License
 

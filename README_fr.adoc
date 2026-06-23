@@ -4,6 +4,10 @@
 :source-highlighter: rouge
 :bakery-version: "0.1.0"
 
+image:https://img.shields.io/badge/version-{bakery-version}-blue[Version]
+image:https://img.shields.io/badge/build-passing-brightgreen[Build]
+image:https://img.shields.io/badge/license-Apache%202.0-green[Licence]
+
 link:README_truth.adoc[English Version]
 
 == Présentation

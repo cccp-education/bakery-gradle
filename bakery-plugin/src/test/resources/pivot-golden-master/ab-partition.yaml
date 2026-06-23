@@ -1,0 +1,384 @@
+# Article YAML Pivot — ab-partition.adoc
+# 2e fichier pour valider la généricité du schéma.
+# Apporte : tables (3), IMPORTANT admonition, listes ordonnées à étapes longues.
+
+article:
+  frontmatter:
+    title: "Partition A/B et Persistence"   # translatable
+    date: "2026-04-24"                      # structure
+    type: "page"                            # structure
+    status: "published"                     # structure
+
+  blocks:
+
+    - type: heading
+      level: 2
+      text: "Partition A/B et Persistence"
+      translatable: true
+
+    - type: paragraph
+      inline:
+        - text: "Le systeme Magic Stick utilise un partitionnement "
+          translatable: true
+        - type: bold
+          text: "A/B"
+          translatable: true
+        - text: " avec une partition de "
+          translatable: true
+        - type: bold
+          text: "persistance"
+          translatable: true
+        - text: " dediee. Ce mecanisme permet les mises a jour atomiques sans risque pour les donnees utilisateur."
+          translatable: true
+
+    # --- Heading + Table (NOUVEAU : type table) ---
+    - type: heading
+      level: 3
+      text: "Architecture des partitions"
+      translatable: true
+
+    # Table AsciiDoc (|===) — structure tabulaire
+    # header = 1ère ligne (translatable si labels éditoriaux)
+    # body cells = mix structure + contenu selon colonne
+    - type: table
+      cols: "1,2,3"
+      header:
+        - inline:
+            - text: "Partition"
+              translatable: true
+        - inline:
+            - text: "Taille"
+              translatable: true
+        - inline:
+            - text: "Role"
+              translatable: true
+      rows:
+        - - inline:
+              - text: "System A (lecture seule)"
+                translatable: true
+          - inline:
+              - text: "~8 Go"
+                translatable: false
+          - inline:
+              - text: "Systeme live Xubuntu actif (boote par defaut)"
+                translatable: true
+        - - inline:
+              - text: "System B (lecture seule)"
+                translatable: true
+          - inline:
+              - text: "~8 Go"
+                translatable: false
+          - inline:
+              - text: "Systeme live Xubuntu de secours (inactif)"
+                translatable: true
+        - - inline:
+              - text: "Persistence (lecture/ecriture)"
+                translatable: true
+          - inline:
+              - text: "Reste de la cle (~48 Go sur 64 Go)"
+                translatable: false
+          - inline:
+              - text: "Donnees utilisateur + configuration logiciels"
+                translatable: true
+
+    - type: heading
+      level: 3
+      text: "Principe de fonctionnement"
+      translatable: true
+
+    - type: paragraph
+      inline:
+        - text: "Le principe A/B est inspire des mises a jour OTA des smartphones :"
+          translatable: true
+
+    - type: list
+      ordered: true
+      items:
+        - inline:
+            - text: "Une seule partition systeme est "
+              translatable: true
+            - type: bold
+              text: "active"
+              translatable: true
+            - text: " a un instant T (A ou B)"
+              translatable: true
+        - inline:
+            - text: "L'autre partition est "
+              translatable: true
+            - type: bold
+              text: "inactive"
+              translatable: true
+            - text: " et disponible pour une mise a jour"
+              translatable: true
+        - inline:
+            - text: "La partition de persistance est "
+              translatable: true
+            - type: bold
+              text: "toujours montee"
+              translatable: true
+            - text: " et n'est "
+              translatable: true
+            - type: bold
+              text: "jamais"
+              translatable: true
+            - text: " touchee par les mises a jour"
+              translatable: true
+
+    - type: heading
+      level: 3
+      text: "Flux de mise a jour"
+      translatable: true
+
+    - type: list
+      ordered: true
+      items:
+        - inline:
+            - type: code
+              text: "update-system.sh"
+              translatable: false
+            - text: " detecte la partition active (A ou B)"
+              translatable: true
+        - inline:
+            - text: "Il ecrit la nouvelle ISO sur la partition "
+              translatable: true
+            - type: bold
+              text: "inactive"
+              translatable: true
+        - inline:
+            - text: "Il inverse le flag de boot dans GRUB/syslinux"
+              translatable: true
+        - inline:
+            - text: "Au prochain demarrage : la nouvelle version est sur l'ancienne partition inactive"
+              translatable: true
+        - inline:
+            - text: "Si la nouvelle version plante : reboot sur l'ancienne partition (rollback immediat)"
+              translatable: true
+
+    - type: heading
+      level: 3
+      text: "Rollback"
+      translatable: true
+
+    - type: paragraph
+      inline:
+        - text: "Si le nouveau systeme ne demarre pas correctement :"
+          translatable: true
+
+    - type: list
+      ordered: true
+      items:
+        - inline:
+            - text: "Au demarrage, selectionner l'autre entree dans le menu GRUB"
+              translatable: true
+        - inline:
+            - text: "Le systeme boote sur l'ancienne partition (encore intacte)"
+              translatable: true
+        - inline:
+            - text: "Les donnees de persistence sont intactes — aucun risque de perte"
+              translatable: true
+
+    # Admonition [IMPORTANT]
+    - type: admonition
+      kind: IMPORTANT
+      blocks:
+        - type: paragraph
+          inline:
+            - text: "Le rollback est "
+              translatable: true
+            - type: bold
+              text: "immediat"
+              translatable: true
+            - text: " et "
+              translatable: true
+            - type: bold
+              text: "sans intervention technique"
+              translatable: true
+            - text: ". Il suffit de choisir l'autre partition dans le menu de boot."
+              translatable: true
+
+    # --- 2e Table (4 colonnes) ---
+    - type: heading
+      level: 3
+      text: "Partitionnement recommande (cle 64 Go)"
+      translatable: true
+
+    - type: table
+      cols: "1,1,1,1"
+      header:
+        - inline:
+            - text: "Numero"
+              translatable: true
+        - inline:
+            - text: "Taille"
+              translatable: true
+        - inline:
+            - text: "Type"
+              translatable: true
+        - inline:
+            - text: "Flag"
+              translatable: true
+      rows:
+        - - inline:
+              - text: "1"
+                translatable: false
+          - inline:
+              - text: "8 Go"
+                translatable: false
+          - inline:
+              - text: "ext4/squashfs"
+                translatable: false
+          - inline:
+              - text: "boot"
+                translatable: true
+        - - inline:
+              - text: "2"
+                translatable: false
+          - inline:
+              - text: "8 Go"
+                translatable: false
+          - inline:
+              - text: "ext4/squashfs"
+                translatable: false
+          - inline:
+              - text: "-"
+                translatable: false
+        - - inline:
+              - text: "3"
+                translatable: false
+          - inline:
+              - text: "reste (~48 Go)"
+                translatable: false
+          - inline:
+              - text: "ext4"
+                translatable: false
+          - inline:
+              - text: "-"
+                translatable: false
+
+    - type: heading
+      level: 3
+      text: "Configuration de la persistence"
+      translatable: true
+
+    - type: paragraph
+      inline:
+        - text: "La partition Persistence contient :"
+          translatable: true
+
+    - type: list
+      ordered: false
+      items:
+        - inline:
+            - type: bold
+              text: "Donnees utilisateur"
+              translatable: true
+            - text: " : documents, projets, configuration personnelle"
+              translatable: true
+        - inline:
+            - type: bold
+              text: "Configuration logiciels"
+              translatable: true
+            - text: " : parametres Docker, modeles Ollama, SDKMAN"
+              translatable: true
+        - inline:
+            - type: bold
+              text: "Cles SSH"
+              translatable: true
+            - text: " : jamais dans l'ISO, toujours dans Persistence"
+              translatable: true
+
+    - type: paragraph
+      inline:
+        - text: "Le fichier "
+          translatable: true
+        - type: code
+          text: "persistence.conf"
+          translatable: false
+        - text: " a la racine de la partition indique quels chemins sont persistes :"
+          translatable: true
+
+    - type: source
+      language: ""
+      translatable: false
+      content: |
+        /unicorn/home
+        /unicorn/usr
+        /unicorn/var
+
+    - type: heading
+      level: 3
+      text: "Avantages du systeme A/B"
+      translatable: true
+
+    - type: list
+      ordered: false
+      items:
+        - inline:
+            - type: bold
+              text: "Mise a jour zero-downtime"
+              translatable: true
+            - text: " : pas de periode ou la cle est inutilisable"
+              translatable: true
+        - inline:
+            - type: bold
+              text: "Rollback automatique"
+              translatable: true
+            - text: " : si le nouveau systeme ne boot pas, on revient a l'ancien"
+              translatable: true
+        - inline:
+            - type: bold
+              text: "Donnees sauvees"
+              translatable: true
+            - text: " : la partition Persistence n'est jamais reformatee"
+              translatable: true
+        - inline:
+            - type: bold
+              text: "Reproductibilite"
+              translatable: true
+            - text: " : meme ISO = meme resultat sur N cles"
+              translatable: true
+
+    - type: heading
+      level: 3
+      text: "Commandes utiles"
+      translatable: true
+
+    - type: source
+      language: bash
+      translatable: false
+      content: |
+        # Voir les partitions d'une cle
+        lsblk /dev/sdX
+
+        # Detecter la partition active
+        mount | grep -E "sdX[12]"
+
+        # Mettre a jour le systeme (A vers B ou B vers A)
+        sudo scripts/update-system.sh /dev/sdX
+
+        # Mettre a jour avec un ISO specifique
+        sudo scripts/update-system.sh /dev/sdX chemin/vers/magic-stick_0.1.8.iso
+
+    - type: heading
+      level: 3
+      text: "Voir aussi"
+      translatable: true
+
+    - type: list
+      ordered: false
+      items:
+        - inline:
+            - type: link
+              url: "quick-start.html"
+              label: "Guide de demarrage rapide"
+              translatable: true
+        - inline:
+            - type: link
+              url: "scripts.html"
+              label: "Documentation des scripts"
+              translatable: true
+        - inline:
+            - type: link
+              url: "blog.html"
+              label: "Blog"
+              translatable: true

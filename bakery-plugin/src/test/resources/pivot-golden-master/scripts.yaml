@@ -1,0 +1,642 @@
+# Article YAML Pivot — scripts.adoc
+# 3e fichier — stress test du schéma.
+# Apporte : hr (---), heading niveau 4 (====), cellules table avec inline code.
+# Correction schéma : cellules table passent de text simple à inline[] (mix texte+code).
+
+article:
+  frontmatter:
+    title: "Documentation des scripts"
+    date: "2026-04-24"
+    type: "page"
+    status: "published"
+
+  blocks:
+
+    - type: heading
+      level: 2
+      text: "Documentation des scripts"
+      translatable: true
+
+    - type: paragraph
+      inline:
+        - text: "Magic Stick fournit 6 scripts dans le repertoire "
+          translatable: true
+        - type: code
+          text: "scripts/"
+          translatable: false
+        - text: " pour builder, flasher, verifier, tester, mettre a jour et installer les logiciels."
+          translatable: true
+
+    # --- Section build.sh ---
+    - type: heading
+      level: 3
+      text: "build.sh — Construction de l'ISO"
+      translatable: true
+
+    - type: paragraph
+      inline:
+        - text: "Build une ISO Xubuntu bootable avec live-build dans un conteneur Docker."
+          translatable: true
+
+    - type: source
+      language: bash
+      translatable: false
+      content: |
+        sudo scripts/build.sh [OPTIONS]
+
+    - type: heading
+      level: 4
+      text: "Options"
+      translatable: true
+
+    - type: table
+      cols: "1,3"
+      header:
+        - inline:
+            - text: "Option"
+              translatable: true
+        - inline:
+            - text: "Description"
+              translatable: true
+      rows:
+        - - inline:
+              - type: code
+                text: "-c"
+                translatable: false
+              - text: ", "
+                translatable: false
+              - type: code
+                text: "--clean"
+                translatable: false
+          - inline:
+              - text: "Nettoyer le repertoire de build avant de construire"
+                translatable: true
+        - - inline:
+              - type: code
+                text: "-v"
+                translatable: false
+              - text: ", "
+                translatable: false
+              - type: code
+                text: "--verbose"
+                translatable: false
+          - inline:
+              - text: "Sortie detaillee"
+                translatable: true
+        - - inline:
+              - type: code
+                text: "-h"
+                translatable: false
+              - text: ", "
+                translatable: false
+              - type: code
+                text: "--help"
+                translatable: false
+          - inline:
+              - text: "Afficher l'aide"
+                translatable: true
+
+    - type: heading
+      level: 4
+      text: "Fonctionnement"
+      translatable: true
+
+    - type: list
+      ordered: true
+      items:
+        - inline:
+            - text: "Verifie que l'image Docker "
+              translatable: true
+            - type: code
+              text: "magic-stick:builder"
+              translatable: false
+            - text: " existe (la construit sinon)"
+              translatable: true
+        - inline:
+            - text: "Initialise la configuration live-build dans "
+              translatable: true
+            - type: code
+              text: "build/"
+              translatable: false
+        - inline:
+            - text: "Copie les fichiers de configuration depuis "
+              translatable: true
+            - type: code
+              text: "config/live-build/"
+              translatable: false
+        - inline:
+            - text: "Lance le build de l'ISO (30-60 minutes)"
+              translatable: true
+        - inline:
+            - text: "Renomme l'ISO en "
+              translatable: true
+            - type: code
+              text: "build/magic-stick_0.1.8.iso"
+              translatable: false
+
+    - type: heading
+      level: 4
+      text: "Configuration live-build"
+      translatable: true
+
+    - type: paragraph
+      inline:
+        - text: "La configuration est dans "
+          translatable: true
+        - type: code
+          text: "config/live-build/"
+          translatable: false
+        - text: " :"
+          translatable: true
+
+    - type: table
+      cols: "1,2"
+      header:
+        - inline:
+            - text: "Repertoire"
+              translatable: true
+        - inline:
+            - text: "Contenu"
+              translatable: true
+      rows:
+        - - inline:
+              - type: code
+                text: "package-lists/"
+                translatable: false
+          - inline:
+              - text: "Listes de paquets a installer"
+                translatable: true
+        - - inline:
+              - type: code
+                text: "hooks/"
+                translatable: false
+          - inline:
+              - text: "Scripts executes pendant le build (chroot, binary)"
+                translatable: true
+        - - inline:
+              - type: code
+                text: "includes.chroot/"
+                translatable: false
+          - inline:
+              - text: "Fichiers inclus dans le systeme live"
+                translatable: true
+        - - inline:
+              - type: code
+                text: "includes.binary/"
+                translatable: false
+          - inline:
+              - text: "Fichiers inclus dans l'ISO"
+                translatable: true
+
+    - type: admonition
+      kind: WARNING
+      blocks:
+        - type: paragraph
+          inline:
+            - text: "Le build prend "
+              translatable: true
+            - type: bold
+              text: "30 a 60 minutes"
+              translatable: true
+            - text: ". Ne pas executer sans permission."
+              translatable: true
+
+    # --- HR (NOUVEAU type) ---
+    - type: hr
+      translatable: false
+
+    # --- Section flash.sh ---
+    - type: heading
+      level: 3
+      text: "flash.sh — Flashage sur cle USB"
+      translatable: true
+
+    - type: paragraph
+      inline:
+        - text: "Ecrit l'ISO sur une cle USB. "
+          translatable: true
+        - type: bold
+          text: "Efface toutes les donnees"
+          translatable: true
+        - text: " du peripherique cible."
+          translatable: true
+
+    - type: source
+      language: bash
+      translatable: false
+      content: |
+        sudo scripts/flash.sh /dev/sdX
+
+    - type: heading
+      level: 4
+      text: "Fonctionnement"
+      translatable: true
+
+    - type: list
+      ordered: true
+      items:
+        - inline:
+            - text: "Verifie que le device est un peripherique bloc"
+              translatable: true
+        - inline:
+            - text: "Verifie que le script est execute en root"
+              translatable: true
+        - inline:
+            - text: "Trouve l'ISO la plus recente dans "
+              translatable: true
+            - type: code
+              text: "build/"
+              translatable: false
+        - inline:
+            - text: "Demande une confirmation ("
+              translatable: true
+            - type: code
+              text: "YES"
+              translatable: false
+            - text: ") avant d'effacer"
+              translatable: true
+        - inline:
+            - text: "Demonte les partitions montees sur le device"
+              translatable: true
+        - inline:
+            - text: "Ecrit l'ISO avec "
+              translatable: true
+            - type: code
+              text: "dd"
+              translatable: false
+            - text: " (bs=4M, conv=fsync)"
+              translatable: false
+        - inline:
+            - text: "Synchronise avec "
+              translatable: true
+            - type: code
+              text: "sync"
+              translatable: false
+
+    - type: admonition
+      kind: CAUTION
+      blocks:
+        - type: paragraph
+          inline:
+            - text: "Cette commande est "
+              translatable: true
+            - type: bold
+              text: "destructrice"
+              translatable: true
+            - text: ". Verifiez le device avec "
+              translatable: true
+            - type: code
+              text: "lsblk"
+              translatable: false
+            - text: " avant de lancer le script. Une erreur de device peut effacer votre disque systeme."
+              translatable: true
+
+    - type: hr
+      translatable: false
+
+    # --- Section verify.sh ---
+    - type: heading
+      level: 3
+      text: "verify.sh — Verification de l'ISO"
+      translatable: true
+
+    - type: paragraph
+      inline:
+        - text: "Verifie que l'ISO generee est valide et bootable."
+          translatable: true
+
+    - type: source
+      language: bash
+      translatable: false
+      content: |
+        scripts/verify.sh [ISO_FILE]
+
+    - type: heading
+      level: 4
+      text: "Checks effectues"
+      translatable: true
+
+    - type: table
+      cols: "1,3"
+      header:
+        - inline:
+            - text: "Check"
+              translatable: true
+        - inline:
+            - text: "Description"
+              translatable: true
+      rows:
+        - - inline:
+              - text: "1/5 — Fichier"
+                translatable: true
+          - inline:
+              - text: "L'ISO existe et est lisible"
+                translatable: true
+        - - inline:
+              - text: "2/5 — Taille"
+                translatable: true
+          - inline:
+              - text: "L'ISO fait plus de 500 Mo"
+                translatable: true
+        - - inline:
+              - text: "3/5 — Boot files"
+                translatable: true
+          - inline:
+              - text: "vmlinuz et initrd presents dans l'ISO"
+                translatable: true
+        - - inline:
+              - text: "4/5 — Bootloader"
+                translatable: true
+          - inline:
+              - text: "GRUB ou syslinux detecte"
+                translatable: true
+        - - inline:
+              - text: "5/5 — SquashFS"
+                translatable: true
+          - inline:
+              - text: "filesystem.squashfs present"
+                translatable: true
+
+    - type: admonition
+      kind: NOTE
+      blocks:
+        - type: paragraph
+          inline:
+            - text: "Ce script utilise "
+              translatable: true
+            - type: code
+              text: "isoinfo"
+              translatable: false
+            - text: " qui necessite le paquet "
+              translatable: true
+            - type: code
+              text: "genisoimage"
+              translatable: false
+            - text: "."
+              translatable: true
+
+    - type: hr
+      translatable: false
+
+    # --- Section update-system.sh ---
+    - type: heading
+      level: 3
+      text: "update-system.sh — Mise a jour A/B"
+      translatable: true
+
+    - type: paragraph
+      inline:
+        - text: "Met a jour la partition systeme inactive avec une nouvelle ISO. La partition Persistence n'est "
+          translatable: true
+        - type: bold
+          text: "jamais"
+          translatable: true
+        - text: " modifiee."
+          translatable: true
+
+    - type: source
+      language: bash
+      translatable: false
+      content: |
+        sudo scripts/update-system.sh /dev/sdX [ISO_FILE]
+
+    - type: heading
+      level: 4
+      text: "Fonctionnement"
+      translatable: true
+
+    - type: list
+      ordered: true
+      items:
+        - inline:
+            - text: "Verifie que le device est un peripherique bloc avec 3 partitions (A, B, Persistence)"
+              translatable: true
+        - inline:
+            - text: "Detecte la partition active (A ou B)"
+              translatable: true
+        - inline:
+            - text: "Determine la partition cible (inversee)"
+              translatable: true
+        - inline:
+            - text: "Demande confirmation ("
+              translatable: true
+            - type: code
+              text: "YES"
+              translatable: false
+            - text: ")"
+              translatable: true
+        - inline:
+            - text: "Demonte la partition cible"
+              translatable: true
+        - inline:
+            - text: "Ecrit l'ISO sur la partition cible avec "
+              translatable: true
+            - type: code
+              text: "dd"
+              translatable: false
+        - inline:
+            - text: "Met a jour le bootloader (note : cette etape est manuelle pour l'instant)"
+              translatable: true
+        - inline:
+            - text: "Synchronise avec "
+              translatable: true
+            - type: code
+              text: "sync"
+              translatable: false
+
+    - type: admonition
+      kind: IMPORTANT
+      blocks:
+        - type: paragraph
+          inline:
+            - text: "La partition "
+              translatable: true
+            - type: bold
+              text: "Persistence"
+              translatable: true
+            - text: " (partition 3) n'est "
+              translatable: true
+            - type: bold
+              text: "jamais"
+              translatable: true
+            - text: " touchee par ce script. Vos donnees sont en securite."
+              translatable: true
+
+    - type: heading
+      level: 4
+      text: "Partitionnement attendu"
+      translatable: true
+
+    # Table SANS cols explicite (|=== seul, pas de [cols=...])
+    - type: table
+      cols: null   # auto-détection par le nombre de cellules par ligne
+      header:
+        - inline:
+            - text: "Partition"
+              translatable: true
+        - inline:
+            - text: "Device"
+              translatable: true
+        - inline:
+            - text: "Taille"
+              translatable: true
+        - inline:
+            - text: "Role"
+              translatable: true
+      rows:
+        - - inline:
+              - text: "System A"
+                translatable: true
+          - inline:
+              - type: code
+                text: "/dev/sdX1"
+                translatable: false
+          - inline:
+              - text: "~8 Go"
+                translatable: false
+          - inline:
+              - text: "Systeme actif ou de secours"
+                translatable: true
+        - - inline:
+              - text: "System B"
+                translatable: true
+          - inline:
+              - type: code
+                text: "/dev/sdX2"
+                translatable: false
+          - inline:
+              - text: "~8 Go"
+                translatable: false
+          - inline:
+              - text: "Systeme actif ou de secours"
+                translatable: true
+        - - inline:
+              - text: "Persistence"
+                translatable: true
+          - inline:
+              - type: code
+                text: "/dev/sdX3"
+                translatable: false
+          - inline:
+              - text: "reste"
+                translatable: false
+          - inline:
+              - text: "Donnees utilisateur"
+                translatable: true
+
+    - type: hr
+      translatable: false
+
+    # --- Section install-software.sh ---
+    - type: heading
+      level: 3
+      text: "install-software.sh — Installation des logiciels"
+      translatable: true
+
+    - type: paragraph
+      inline:
+        - text: "Script execute dans le chroot live-build pour installer les logiciels dans l'ISO."
+          translatable: true
+
+    - type: source
+      language: bash
+      translatable: false
+      content: |
+        # Execute dans le chroot live-build, pas directement
+        scripts/install-software.sh
+
+    - type: heading
+      level: 4
+      text: "Logiciels installes"
+      translatable: true
+
+    - type: table
+      cols: "1,2"
+      header:
+        - inline:
+            - text: "Categorie"
+              translatable: true
+        - inline:
+            - text: "Paquets"
+              translatable: true
+      rows:
+        - - inline:
+              - text: "Reseau"
+                translatable: true
+          - inline:
+              - text: "nmap, iperf3, wireshark, tshark, traceroute, dnsutils, net-tools, whois, iptraf-ng, iftop, nload"
+                translatable: false   # noms de paquets = structure
+        - - inline:
+              - text: "Systeme"
+                translatable: true
+          - inline:
+              - text: "htop, ncdu, tree, tmux, lshw, smartmontools, usbutils, pciutils"
+                translatable: false
+        - - inline:
+              - text: "Developpement"
+                translatable: true
+          - inline:
+              - text: "curl, wget, git, vim, jq, rsync"
+                translatable: false
+        - - inline:
+              - text: "Navigateur"
+                translatable: true
+          - inline:
+              - text: "firefox"
+                translatable: false
+        - - inline:
+              - text: "Terminal"
+                translatable: true
+          - inline:
+              - text: "terminator"
+                translatable: false
+        - - inline:
+              - text: "Docker"
+                translatable: true
+          - inline:
+              - text: "docker-ce, docker-ce-cli, containerd.io, docker-buildx-plugin, docker-compose-plugin"
+                translatable: false
+        - - inline:
+              - text: "IA"
+                translatable: true
+          - inline:
+              - text: "Ollama"
+                translatable: false
+        - - inline:
+              - text: "Java"
+                translatable: true
+          - inline:
+              - text: "SDKMAN + JDK 25 (Temurin)"
+                translatable: false
+
+    - type: admonition
+      kind: NOTE
+      blocks:
+        - type: paragraph
+          inline:
+            - text: "Ce script est appelle automatiquement par le build. Il ne doit pas etre execute directement sur le systeme hote."
+              translatable: true
+
+    - type: heading
+      level: 3
+      text: "Voir aussi"
+      translatable: true
+
+    - type: list
+      ordered: false
+      items:
+        - inline:
+            - type: link
+              url: "quick-start.html"
+              label: "Guide de demarrage rapide"
+              translatable: true
+        - inline:
+            - type: link
+              url: "ab-partition.html"
+              label: "Partition A/B et Persistence"
+              translatable: true
+        - inline:
+            - type: link
+              url: "blog.html"
+              label: "Blog"
+              translatable: true

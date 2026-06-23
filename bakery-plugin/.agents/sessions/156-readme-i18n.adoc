@@ -1,0 +1,139 @@
+= Session 156 — README i18n 10 langues (consumer + plugin)
+:session: 156
+:date: 2026-06-24
+
+== Mission
+
+Demande utilisateur : créer 20 fichiers README (10 langues × 2 variantes
+consumer/plugin) dans `foundry/public/bakery-gradle/` — `README.consommateurs/`
+et `README.plugin/`.
+
+== Réalisations
+
+=== 1. 20 fichiers README créés
+
+Deux familles de README, chacune en 10 langues :
+
+[cols="2,2,1"]
+|===
+| Famille | Répertoire | Audience
+
+| Consumer Guide
+| `foundry/public/bakery-gradle/README.consommateurs/`
+| Utilisateurs du plugin (quick start, tâches, DSL, site.yml)
+
+| Plugin Internals
+| `foundry/public/bakery-gradle/README.plugin/`
+| Développeurs & contributeurs (module layout, N0 contracts, dépendances)
+|===
+
+=== 2. 10 langues
+
+Chaque famille contient les 10 langues supportées par l'EPIC BKY-I18N :
+
+[cols="1,2,1]
+|===
+| Code | Langue | RTL
+
+| `README.md`     | Anglais (master source) | LTR
+| `README.fr.md`  | Français                | LTR
+| `README.zh.md`  | Chinois (中文)           | LTR
+| `README.hi.md`  | Hindi (हिन्दी)           | LTR
+| `README.es.md`  | Espagnol (Español)      | LTR
+| `README.ar.md`  | Arabe (العربية)         | *RTL*
+| `README.bn.md`  | Bengali (বাংলা)         | LTR
+| `README.pt.md`  | Portugais (Português)   | LTR
+| `README.ru.md`  | Russe (Русский)         | LTR
+| `README.ur.md`  | Ourdou (اردو)           | *RTL*
+|===
+
+*2 langues RTL* (Arabe, Ourdou) sur 10 — contenu naturellement RTL via le
+script natif, pas de balisage `dir` artificiel.
+
+=== 3. Badges et markers
+
+Chaque README porte :
+
+* `<!-- master source — other languages are translations of this file -->`
+  (sur `README.md` anglais) ou `<!-- translated from README.md rev 0.0.2 -->`
+  (sur les 9 traductions).
+* Badges shields.io :
+  ** Maven Central (`education.cccp/bakery-plugin`)
+  ** Gradle Plugin Portal (`education.cccp.bakery`)
+  ** CI GitHub Actions (`test.yml`)
+  ** Coverage ≥85 % (Kover `koverThresholdCheck`) — consumer only
+  ** License (Apache 2.0)
+* Markers version : `Version: 0.0.2` · `Group: education.cccp` ·
+  `Plugin ID: education.cccp.bakery`.
+* Marker Cucumber : `129/129 PASS` (consumer) — reflète l'état post-S135.
+* Switcher i18n en haut de page :
+  `🌐 Languages: **EN** | [Français](README.fr.md) | …` — 10 liens, langue
+  courante en gras, autres en liens relatifs.
+
+=== 4. Contenu des deux familles
+
+==== Consumer Guide (`README.consommateurs/`)
+
+* Tagline : "Gradle plugin for static site generation — JBake + Thymeleaf +
+  Firebase Auth + Analytics + Knowledge Graph + LLM."
+* Section "What it does" : JBake 2.7.0, Firebase, Google Forms, Analytics,
+  theming, accessibility (WCAG/RGAA), i18n 10 langues, AI-assisted generation
+  (LangChain4j + Ollama), LENtille augmented-context, `publishSite` aggregate.
+* Quick Start : `plugins { id("education.cccp.bakery") version "0.0.2" }`,
+  DSL `bakery { … }`, `site.yml`, `./gradlew publishSite`.
+* Table des tâches (bake, generateSite, generateArticle, generateTheme,
+  migrateToI18n, accessibilityAudit, deploySite, deployProfile, publishSite,
+  collectSiteContext, collectAugmentedContext, etc.).
+* Diagramme chaîne de valeur CCCP (content → bakery → gh-pages ; codebase RAG
+  + graphify KG + LLM).
+
+==== Plugin Internals (`README.plugin/`)
+
+* Tagline : "Developer & contributor guide for the `bakery-plugin` Gradle plugin."
+* Module layout (arbre `src/main/kotlin/bakery/` avec commentaires par fichier :
+  BakeryPlugin, BakeryExtension, BakeryConstants, SiteConfiguration,
+  SiteManager, 5 TaskRegistrars, packages a11y/llm/i18n/lens/article/theme/
+  scaffold, contracts/ N0).
+* Table N0 contracts (codebase-contracts, i18n-contracts, pipeline-contracts,
+  agent-contracts, llm-pool-contracts) avec artefact + provides.
+* Key dependencies (JBake, Thymeleaf, JGit, AsciidoctorJ Diagram, Firebase,
+  Analytics, LangChain4j+Ollama, kotlinx-coroutines, Arrow-kt, Rome,
+  commons-io, Node Gradle, Playwright, Jackson).
+
+== Méthodologie
+
+* `README.md` anglais = master source. Les 9 autres sont des traductions
+  fidèles (même structure, mêmes badges, mêmes markers).
+* Switcher i18n réutilise le pattern des sites JBake migrés (10 langues,
+  langue courante en gras, liens relatifs `README.{code}.md`).
+* RTL géré nativement par le script (Arabe, Ourdou) — pas de `dir="rtl"`.
+
+== Code modifié
+
+* `foundry/public/bakery-gradle/README.consommateurs/README.{md,fr,zh,hi,es,ar,bn,pt,ru,ur}.md` (10 fichiers)
+* `foundry/public/bakery-gradle/README.plugin/README.{md,fr,zh,hi,es,ar,bn,pt,ru,ur}.md` (10 fichiers)
+
+Aucun code source du plugin modifié. Aucun test modifié.
+
+== Tests
+
+Aucun test lancé en fin de session (règle AGENT.adoc).
+
+== Décision pour session 157
+
+Reprendre la piste 155/156 YAML pivot : aligner `quick-start.yaml` et
+`ab-partition.yaml` (tables `text:`→`inline[]`), puis coder le parser
+AsciiDoc→YAML (golden master test, baby steps DDD/TDD/BDD).
+
+== Score session
+
+8/10 — 20 README cohérents, badges/markers/switcher homogènes, RTL natif.
+Documentation de bout en bout (consumer + plugin internals) en 10 langues,
+alignée sur l'EPIC BKY-I18N. Pas de code production touché.
+
+== Notes techniques
+
+* Ports Ollama : 11437-11465. Modèles : `gpt-oss:120b-cloud`, `gemma4:31b-cloud`.
+* `publishToMavenLocal` déjà fait (jar 0.0.2, session 143).
+* Version 0.0.2 reflétée dans tous les README.
+* Cucumber 129/129 PASS = état post-session 135 (Feature 36 pipeline contracts).

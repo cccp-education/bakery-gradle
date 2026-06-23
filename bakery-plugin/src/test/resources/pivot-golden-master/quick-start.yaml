@@ -1,0 +1,325 @@
+# Article YAML Pivot — quick-start.adoc
+# Représentation arborescente pour traduction nœud-par-nœud.
+# Séparation structure (non traduite) / contenu éditorial (traduit).
+#
+# Légende des nœuds :
+#   - type: kind de bloc AsciiDoc
+#   - translatable: true = feuille à traduire ; false/absent = structure pass-through
+#   - text: valeur de la feuille (si translatable)
+#   - children: sous-nœuds (nœuds composés comme les liens)
+#   - inline: liste de segments inline (paragraphes = mélange texte+lien+bold+code)
+
+article:
+  # --- Frontmatter JBake (header avant ~~~~~~) ---
+  frontmatter:
+    title: "Guide de demarrage rapide"   # translatable
+    date: "2026-04-26"                    # structure (pas traduit)
+    type: "page"                          # structure
+    status: "published"                   # structure
+
+  # --- Corps du document = arbre de blocs ---
+  blocks:
+
+    # Heading niveau 2 (==)
+    - type: heading
+      level: 2
+      text: "Guide de demarrage rapide"
+      translatable: true
+
+    # Paragraphe simple (texte pur)
+    - type: paragraph
+      inline:
+        - text: "Ce guide vous permet d'etre operationnel avec Magic Stick en quelques minutes."
+          translatable: true
+
+    # Heading niveau 3 (===)
+    - type: heading
+      level: 3
+      text: "Telecharger l'ISO"
+      translatable: true
+
+    - type: paragraph
+      inline:
+        - text: "L'ISO est construite automatiquement par GitHub Actions. Pas besoin de builder localement."
+          translatable: true
+
+    - type: paragraph
+      inline:
+        - text: "L'ISO est disponible sur SourceForge (ISO brute, prete a flasher) :"
+          translatable: true
+
+    # Liste non-ordonnée (*)
+    - type: list
+      ordered: false
+      items:
+        - inline:
+            # Nœud composé : lien = URL (structure) + label (contenu)
+            - type: link
+              url: "https://sourceforge.net/projects/magic-stick/files/"
+              label: "magic-stick sur SourceForge"
+              translatable: true   # seul le label est traduit
+
+    - type: paragraph
+      inline:
+        - text: "Pour le guide complet avec balenaEtcher et dd, consultez "
+          translatable: true
+        - type: link
+          url: "flash-guide.html"
+          label: "Guide d'installation et flashage USB"
+          translatable: true
+        - text: "."
+          translatable: true
+
+    # Heading niveau 3
+    - type: heading
+      level: 3
+      text: "Etape 1 : Flasher la cle USB"
+      translatable: true
+
+    - type: paragraph
+      inline:
+        - text: "avec "
+          translatable: true
+        - type: bold
+          text: "balenaEtcher"
+          translatable: true
+        - text: " (recommande) :"
+          translatable: true
+
+    # Liste ordonnée (.)
+    - type: list
+      ordered: true
+      items:
+        - inline:
+            - text: "Telechargez "
+              translatable: true
+            - type: link
+              url: "https://balena.io/etcher"
+              label: "balenaEtcher"
+              translatable: true
+        - inline:
+            - type: bold
+              text: "Flash from file"
+              translatable: true
+            - text: " → selectionnez le fichier ISO "
+              translatable: true
+            - type: code
+              text: "magic-stick_{version}.iso"
+              translatable: false   # identifiant de fichier = structure
+        - inline:
+            - type: bold
+              text: "Select target"
+              translatable: true
+            - text: " → votre cle USB"
+              translatable: true
+        - inline:
+            - type: bold
+              text: "Flash!"
+              translatable: true
+
+    - type: paragraph
+      inline:
+        - text: "ou avec "
+          translatable: true
+        - type: bold
+          text: "dd"
+          translatable: true
+        - text: " (Linux) :"
+          translatable: true
+
+    # Source block = PASS-THROUGH (jamais traduit)
+    - type: source
+      language: bash
+      translatable: false
+      content: |
+        # Identifier la cle USB
+        lsblk
+
+        # Flasher (REMPLACEZ /dev/sdX par votre device)
+        sudo dd if=magic-stick_{version}.iso of=/dev/sdX bs=4M status=progress && sync
+
+    # Admonition [WARNING] — le texte interne EST traduit
+    - type: admonition
+      kind: WARNING
+      blocks:
+        - type: paragraph
+          inline:
+            - text: "Cette operation "
+              translatable: true
+            - type: bold
+              text: "efface toutes les donnees"
+              translatable: true
+            - text: " sur la cle USB. Verifiez le device avec "
+              translatable: true
+            - type: code
+              text: "lsblk"
+              translatable: false
+            - text: " avant."
+              translatable: true
+
+    # Heading niveau 3
+    - type: heading
+      level: 3
+      text: "Etape 2 : Booter sur la cle"
+      translatable: true
+
+    - type: list
+      ordered: true
+      items:
+        - inline:
+            - text: "Laissez la cle USB inseree"
+              translatable: true
+        - inline:
+            - text: "Redemarrez le PC"
+              translatable: true
+        - inline:
+            - text: "Accedez au BIOS/UEFI ("
+              translatable: true
+            - type: bold
+              text: "F2"
+              translatable: true
+            - text: ", "
+              translatable: true
+            - type: bold
+              text: "F12"
+              translatable: true
+            - text: " ou "
+              translatable: true
+            - type: bold
+              text: "Suppr"
+              translatable: true
+            - text: ")"
+              translatable: true
+        - inline:
+            - text: "Selectionnez la cle USB dans le menu de boot"
+              translatable: true
+        - inline:
+            - text: "Le systeme live Xubuntu se lance"
+              translatable: true
+
+    # Admonition [NOTE]
+    - type: admonition
+      kind: NOTE
+      blocks:
+        - type: paragraph
+          inline:
+            - text: "Sur la plupart des PC recents, le menu de boot s'accede avec "
+              translatable: true
+            - type: bold
+              text: "F12"
+              translatable: true
+            - text: ". Sur les PC plus anciens, essayez "
+              translatable: true
+            - type: bold
+              text: "F2"
+              translatable: true
+            - text: " ou "
+              translatable: true
+            - type: bold
+              text: "Suppr"
+              translatable: true
+            - text: "."
+              translatable: true
+
+    # Heading niveau 3
+    - type: heading
+      level: 3
+      text: "Etape 3 : Premier boot"
+      translatable: true
+
+    - type: paragraph
+      inline:
+        - text: "Au premier demarrage :"
+          translatable: true
+
+    - type: list
+      ordered: false
+      items:
+        - inline:
+            - type: bold
+              text: "Utilisateur"
+              translatable: true
+            - text: " : "
+              translatable: true
+            - type: code
+              text: "magic"
+              translatable: false
+            - text: " (connexion automatique)"
+              translatable: true
+        - inline:
+            - type: bold
+              text: "Clavier"
+              translatable: true
+            - text: " : FR (AZERTY)"
+              translatable: true
+        - inline:
+            - type: bold
+              text: "Locale"
+              translatable: true
+            - text: " : fr_FR.UTF-8"
+              translatable: false
+        - inline:
+            - type: bold
+              text: "Bureau"
+              translatable: true
+            - text: " : Xubuntu XFCE"
+              translatable: false
+
+    # Heading niveau 3
+    - type: heading
+      level: 3
+      text: "Etape 4 : Partition A/B (optionnel)"
+      translatable: true
+
+    - type: paragraph
+      inline:
+        - text: "Pour configurer le partitionnement A/B avec persistence :"
+          translatable: true
+
+    - type: source
+      language: bash
+      translatable: false
+      content: |
+        sudo scripts/update-system.sh /dev/sdX
+
+    - type: paragraph
+      inline:
+        - text: "Voir la page "
+          translatable: true
+        - type: link
+          url: "ab-partition.html"
+          label: "Partition A/B"
+          translatable: true
+        - text: " pour les details."
+          translatable: true
+
+    # Heading niveau 3
+    - type: heading
+      level: 3
+      text: "Prochaines etapes"
+      translatable: true
+
+    - type: list
+      ordered: false
+      items:
+        - inline:
+            - type: link
+              url: "flash-guide.html"
+              label: "Guide d'installation complet"
+              translatable: true
+            - text: " : balenaEtcher, dd, verification checksum"
+              translatable: true
+        - inline:
+            - type: link
+              url: "ab-partition.html"
+              label: "Partition A/B et Persistence"
+              translatable: true
+            - text: " : comprendre le systeme de double partition"
+              translatable: true
+        - inline:
+            - type: link
+              url: "scripts.html"
+              label: "Documentation des scripts"
+              translatable: true
+            - text: " : reference complete des commandes"
+              translatable: true
