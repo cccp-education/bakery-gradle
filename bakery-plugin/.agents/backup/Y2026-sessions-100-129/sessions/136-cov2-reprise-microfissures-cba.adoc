@@ -1,0 +1,74 @@
+= Session 136 — BKY-COV-2 : Microfissures coverage (ordre C/B/A)
+:date: 2026-06-22
+:score: 8/10
+:type: DDD + TDD + BDD
+:borough: Bushwick (bakery-gradle)
+
+== Objectif
+
+Reprendre l'EPIC BKY-COV-2 après les sessions 105-110 et l'ajout massif de code i18n (sessions 111-135).
+Vérifier le statut réel de la couverture et combler les microfissures fonctionnelles restantes par ordre C/B/A :
+
+. **C — GitService** : branche d'erreur de `pushPages`
+. **B — BakeryPlugin** : double lecture YAML + code mort
+. **A — I18nMigrationService** : branches aria-label / injectSiteLanguage
+
+== Mesures de couverture
+
+| Métrique | Avant | Après |
+| INSTRUCTION | 87.37% | 87.55% |
+| LINE | 87.57% | 87.34% |
+| BRANCH | 71.25% | 72.04% |
+
+*Kover threshold 70%* : ✅ `koverThresholdCheck` PASS.
+
+== Livrables
+
+=== C — GitService
+
+* **DDD** : `pushPages` retourne `Either<String, Unit>`.
+* **TDD** : 1 test unitaire ajouté (`pushPages returns Left when pushToRemote throws an exception`).
+* **BDD** : test existant `pushPages succeeds` rendu explicite (`isRight`) avec bare repo local.
+* **Fichier** : `src/test/kotlin/bakery/GitServiceTest.kt`
+
+=== B — BakeryPlugin
+
+* **DDD** : `registerFullPipelineTasks` reçoit la `SiteConfiguration` déjà parsée au lieu de la relire.
+* **TDD/BDD** : 37 tests `BakeryPluginTest` + FT complets toujours verts.
+* **Refactor** : suppression appel `project.from()` redondant ; uniformisation `resolvedSite` dans toutes les registrations.
+* **Fichier** : `src/main/kotlin/bakery/BakeryPlugin.kt`
+
+=== A — I18nMigrationService
+
+* **DDD** : suppression branche morte `existingThAttr != null` dans `extractAriaLabelAttribute` et `applyAriaLabelReplacement` (cette branche ne peut pas être atteinte car l'`if` de garde la saute avant).
+* **TDD** : 3 tests ajoutés :
+  - `skips aria-label when already managed by th-attr`
+  - `adds site language to jbake properties without trailing newline`
+  - renommage test newline explicite
+* **Fichier** : `src/main/kotlin/bakery/i18n/I18nMigrationService.kt`, `src/test/kotlin/bakery/i18n/I18nMigrationServiceTest.kt`
+
+== Vérification
+
+[source,bash]
+----
+./gradlew test --tests "bakery.GitServiceTest"     # 21/21 PASS
+./gradlew test --tests "bakery.BakeryPluginTest"   # 37/37 PASS
+./gradlew test --tests "bakery.i18n.I18nMigrationServiceTest" # 40/40 PASS
+./gradlew check -x e2eTest                         # BUILD SUCCESSFUL
+----
+
+*Seul E2E exclu* car Playwright nécessite install navigateur en isolation.
+
+== Règles de gouvernance respectées
+
+* Pas de commit/push sans permission.
+* Pas de modification de fichiers config sensibles.
+* `publishToMavenLocal` non requis (pas de modification d'API consommateur visible).
+
+== Prochaine session (137)
+
+Choix possibles :
+
+* Continuer BKY-COV-2 sur d'autres cibles : `ToolsKt` (source set functionalTest, Kover blind spot réel), `DeployTaskRegistrar`, `BakeryPlugin` branches restantes.
+* Bumper version `0.0.2` et préparer publication (BKY-PUB-2).
+* Reprendre un autre borough critique (runner-gradle / dashboard-gradle).

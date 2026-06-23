@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-23 — Session 142 (BKY-CR-V6 US-1 helper ResolveIntention + 26 UT)_
+_Dernière mise à jour : 2026-06-23 — Session 144 (BKY-CR-V6 US-2 DomainConfigInjectors data-driven + 43 UT)_
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -13,7 +13,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 | Couverture Kover | *87.55%* — mesuré Session 136 via koverThresholdCheck (129680/148115 instructions environ). Helper `ResolveIntention` non couvert par Kover (nouveau, à régénérer Session 143).
 | Seuil configuré | 70% (dans `build.gradle.kts` → `koverThresholdCheck`)
 | **Nouvelle cible** | **90%** — EPIC BKY-KOV-1 (16 pts, US-1 ✅, US-KOV-2 ✅, US-KOV-3 ✅, US-KOV-4 ✅, US-KOV-5→7 restantes)
-| Tests unitaires JUnit5 | 143+ fichiers, ~910 tests — ✅ PASS (+26 UT ResolveIntentionTest Session 142, +4 UT DeployProfileTaskTest Session 140)
+| Tests unitaires JUnit5 | 145+ fichiers, ~953 tests — ✅ PASS (+25 UT DomainConfigInjectorsTest + 18 UT InjectorRegistryTest Session 144, +26 UT ResolveIntentionTest Session 142, +4 UT DeployProfileTaskTest Session 140)
 | Tests fonctionnels (TestKit) | 9 fichiers, 79/79 FT PASS
 | Tests Cucumber BDD | 35 features, 123+2 scénarios bakery (125 théorique) — 2 nouveaux scénarios feature 5 Session 140 (validation timeout EPIC 5)
 | Tests E2E Playwright | 6 fichiers, 19/19 PASS — séparés de `check`

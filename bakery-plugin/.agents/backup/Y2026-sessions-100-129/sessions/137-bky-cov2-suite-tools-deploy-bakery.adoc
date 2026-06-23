@@ -1,0 +1,67 @@
+:session: 137
+:date: 2026-06-22
+:epic: BKY-COV-2 (suite microfissures coverage)
+:status: TERMINÉ
+
+= Session 137 — BKY-COV-2 suite : ToolsKt, DeployTaskRegistrar, BakeryPlugin
+
+== Contexte
+
+PROMPT_REPRISE session 136 proposait trois options : suite BKY-COV-2, BKY-PUB-2, ou autre borough critique.
+Choix : poursuivre BKY-COV-2 sur les microfissures restantes citées explicitement dans le prompt de reprise.
+
+== Objectifs
+
+. Nettoyer le code mort dans le source set `functionalTest` (`ToolsKt`)
+. Couvrir les branches restantes de `DeployTaskRegistrar` (`registerPublishSiteTask`, `registerDeployProfileTask`)
+. Couvrir le chemin full pipeline de `BakeryPlugin` (config valide + `site/` + `maquette/` existants, pushProfile null/non-null)
+
+== Découpage baby-step DDD/TDD/BDD
+
+=== US-137-A — Suppression helper mort `Logger.loadConfiguration()` dans `tools.kt`
+
+* *DDD* : identification d'une fonction helper de test non référencée (`loadConfiguration` 170 lignes)
+* *TDD* : vérification que `compileFunctionalTestKotlin` passe après suppression
+* Fichier : `src/functionalTest/kotlin/bakery/tools.kt`
+
+=== US-137-B — `DeployTaskRegistrar` coverage
+
+* *DDD* : `registerPublishSiteTask()` et `registerDeployProfileTask()` sont des extensions `Project` publiques du registrar
+* *TDD* : `DeployTaskRegistrarTest.kt` créé avec 2 tests :
+  ** `publishSite` aggregate task dépend de `bake` et `deploySite`, groupe `bakery-publish`
+  ** `deployProfile` task enregistrée quand `pushProfile` présent, groupe `bakery-deploy`, type `DeployProfileTask`
+* Résultat : 2/2 PASS
+
+=== US-137-C — `BakeryPlugin` full pipeline coverage
+
+* *DDD* : Branche `registerFullPipelineTasks` jamais couverte en test unitaire (seulement en FT/Cucumber)
+* *TDD* : `BakeryPluginFullPipelineTest.kt` créé avec ProjectBuilder + `ProjectInternal.evaluate()`
+  ** Test 1 : site/ + maquette/ existants → toutes les tâches full pipeline enregistrées, `deployProfile` absent quand `pushProfile == null`
+  ** Test 2 : `pushProfile` configuré → `deployProfile` enregistré et typé `DeployProfileTask`
+* Résultat : 2/2 PASS
+
+== Validation
+
+* `./gradlew test --tests "bakery.DeployTaskRegistrarTest"` → 2/2 PASS
+* `./gradlew test --tests "bakery.BakeryPluginFullPipelineTest"` → 2/2 PASS
+* `./gradlew test koverThresholdCheck` → BUILD SUCCESSFUL
+* Kover INSTRUCTION : 87.55% (stable, seuil 70% ✅)
+* `./gradlew -q publishToMavenLocal` → OK (signature GPG effectuée)
+
+== Fichiers modifiés / créés
+
+* `src/functionalTest/kotlin/bakery/tools.kt` (−170 lignes, helper mort supprimé)
+* `src/test/kotlin/bakery/DeployTaskRegistrarTest.kt` (nouveau, 2 tests)
+* `src/test/kotlin/bakery/BakeryPluginFullPipelineTest.kt` (nouveau, 2 tests)
+
+== Score session
+
+8/10 — objectifs atteints avec rigueur DDD/TDD/BDD. La couverture Kover reste stable (87.55%) car les gains sur BakeryPlugin/DeployTaskRegistrar sont compensés par la suppression de lignes couvertes dans `tools.kt`. Pas de régression.
+
+== Prochaine session (138)
+
+Options :
+
+* Poursuivre BKY-COV-2 sur d'autres cibles (SiteTaskRegistrar closures non instrumentées, ContentTaskRegistrar, LensTaskRegistrar)
+* BKY-PUB-2 : publication bakery `0.0.2` sur Maven Central + Gradle Plugin Portal
+* Reprendre un borough critique (runner-gradle N3, dashboard-gradle N3)

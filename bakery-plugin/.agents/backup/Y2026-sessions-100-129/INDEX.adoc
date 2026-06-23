@@ -84,7 +84,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
   | 131 | 2026-06-22 | DDD + TDD + BDD | **BKY-I18N-PROD-MIG US-MIG-1→3** — Migration réelle de la fixture magic-stick. I18nTranslationApplier + translations_en.properties (45 clés FR→EN). 3 tests migration réelle + 2 tests couverture traduction + 3 tests ThymeleafI18nSyntaxTest + 3 UT I18nTranslationApplier. Feature 33 (2 scénarios). Fixture enrichie `jbake.properties`. 9/9 integration PASS, 116/116 Cucumber PASS, 36/36 I18nMigrationServiceTest PASS. | 9/10
   |===
 
-_Archives_ : Sessions 100-113 archivées dans `.agents/backup/Y2026-sessions-090-113/`. Sessions 114-129 archivées dans `.agents/backup/Y2026-sessions-100-129/`. Sessions 130-140 archivées dans `.agents/backup/Y2026-sessions-130-140/`.'''
+_Archives_ : Sessions 100-113 archivées dans `.agents/backup/Y2026-sessions-090-113/`. Sessions 114-130 archivées dans `.agents/backup/Y2026-sessions-130-140/`.'''
 
 == Roadmap — Etat Actuel
 

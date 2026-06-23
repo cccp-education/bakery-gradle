@@ -1,0 +1,56 @@
+= Session 134 — BKY-I18N-MIG US-4 : Traduction automatisée FR→EN
+
+== Contexte
+
+Session 134 — mission BKY-I18N-MIG US-4 : câbler le `TranslationService` transverse de codebase-gradle dans bakery pour activer le mode auto-LLM de migration i18n.
+
+== Actions réalisées
+
+* **US-4-1** : Ajout dépendance `education.cccp:codebase-plugin:0.0.2` dans `bakery-plugin/build.gradle.kts` et catalogue `gradle/libs.versions.toml` (codebase = 0.0.2, codebase-plugin = 0.0.2).
+* **US-4-2** : Création de `LlmTranslationApplier` (`bakery/i18n/LlmTranslationApplier.kt`) — service bakery pur qui consomme `TranslationService` et traduit une `Map<String, String>` FR→EN avec fallback FR sur `TranslationResult.Failure`.
+* **US-4-3** : Branchement de `I18nMigrationService` sur `LlmTranslationApplier` quand un `TranslationService` est injecté (mode auto-LLM). Le mode manuel existant (valeurs vides pour EN) reste l'override par défaut.
+* **US-4-4** : Création de `LlmServiceTranslationAdapter` (`bakery/i18n/LlmServiceTranslationAdapter.kt`) pour adapter le `LlmService` bakery au contrat `TranslationService` transverse.
+* **Tests unitaires** : `LlmTranslationApplierTest` (4 tests) + mises à jour `I18nMigrationServiceTest` (3 nouveaux scénarios auto-LLM).
+* **Tests d'intégration** : `AutoTranslationI18nMigrationIntegrationTest` (2 scénarios : traduction auto + fallback sur erreur).
+* **Cucumber BDD** : Feature 35 `35_i18n_migration_auto_translation.feature` (2 scénarios) + step `messages_en.properties should have empty values` dans `I18nMigrationSteps.kt`.
+* **Build** : alignement du toolchain Kotlin sur Java 24 (`kotlin.jvmToolchain(24)`) pour compatibilité avec `codebase-plugin:0.0.2`.
+
+== Fichiers modifiés / créés
+
+[cols="1,2,3"]
+|===
+| Type | Fichier | Lignes
+| NEW | `src/main/kotlin/bakery/i18n/LlmTranslationApplier.kt` | 39
+| NEW | `src/main/kotlin/bakery/i18n/LlmServiceTranslationAdapter.kt` | 45
+| NEW | `src/test/kotlin/bakery/i18n/LlmTranslationApplierTest.kt` | 85
+| NEW | `src/test/kotlin/bakery/i18n/AutoTranslationI18nMigrationIntegrationTest.kt` | 102
+| NEW | `src/test/features/35_i18n_migration_auto_translation.feature` | 38
+| MOD | `src/main/kotlin/bakery/i18n/I18nMigrationService.kt` | +25
+| MOD | `src/main/kotlin/bakery/i18n/MigrateToI18nTask.kt` | +3
+| MOD | `src/main/kotlin/bakery/ContentTaskRegistrar.kt` | +2
+| MOD | `src/test/kotlin/bakery/i18n/I18nMigrationServiceTest.kt` | +40
+| MOD | `src/test/scenarios/bakery/scenarios/I18nMigrationSteps.kt` | +8
+| MOD | `build.gradle.kts` | +2 (dep) / 1 (toolchain)
+| MOD | `gradle/libs.versions.toml` | +2
+|===
+
+== Tests
+
+* `./gradlew test --tests "bakery.i18n.*"` → PASS (11 classes, ~45 tests)
+* `./gradlew cucumberTest --tests "*Auto-traduction*"` → PASS (2 scénarios)
+* `./gradlew cucumberTest` → 123 bakery scenarios PASS, 1 `initializationError` non-régression (runner suite contracts sans engine cucumber)
+* `./gradlew -q publishToMavenLocal` → OK
+
+== Décisions
+
+* Renommage du service `TranslationApplier` → `LlmTranslationApplier` pour éviter la collision avec `I18nTranslationApplier` existant (application manuelle de translations_en.properties).
+* Le mode auto-LLM n'est pas activé dans les scénarios Cucumber TestKit car le LLM réel n'est pas disponible ; le comportement est validé unitairement/intégration avec `FakeTranslationService`. La feature 35 teste le mode "pas de traducteur injecté" → messages EN vides.
+* Alignement Java toolchain 24 nécessaire car `codebase-plugin:0.0.2` cible Java 24.
+
+== Prochaine session
+
+BKY-I18N-MIG TERMINÉ (16/16 pts). Prochaine session : BKY-PUB-2 ou BKY-COV-2, selon priorisation backlog.
+
+== Score
+
+9/10

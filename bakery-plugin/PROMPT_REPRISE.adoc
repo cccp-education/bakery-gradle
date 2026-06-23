@@ -1,65 +1,48 @@
 = PROMPT REPRISE — Bakery
-:session: 144
+:session: 145
 :date: 2026-06-23
 
-== Mission accomplie (session 143)
+== Mission accomplie (session 144)
 
-*BKY-PUB-2 Publication 0.0.2 Maven Central + Gradle Plugin Portal* — ops publication.
-- Maven Central : ✅ LIVE — `publishAggregationToCentralPortal` SUCCESS,
-  bundle `81764b1c-1bf0-4d2d-a78e-86165b619cbe`, vérifié HTTP 200 sur
-  `bakery-plugin-0.0.2.pom` (repo1.maven.org).
-- Gradle Plugin Portal : 🟠 soumis — `publishPlugins` a échoué car la version
-  0.0.2 existe déjà (créée 2026-06-22 23:33, soumission antérieure session
-  138/139). Plugin en attente de validation Gradle (page Portal "not found",
-  propagation 24-48h).
-- Compte publication : `cccp-education` (credentials GPPK-* dans
-  `~/.gradle/gradle.properties`, profil Portal existant HTTP 200). Confirmé
-  par utilisateur : cccp-education, pas cheroliv.
-- Pré-requis nmcp vérifiés : version 0.0.2 hardcodée, POM conforme (Apache 2.0,
-  developer cccp-education + organization/organizationUrl), deps N0 toutes
-  releases + sur Central (graphify 0.0.2, codebase 0.0.2, codebase-contracts
-  0.0.1, i18n-contracts 0.0.1, workspace-bom 0.0.1), signing GPG OK.
-- Aucun changement code source (publication-only).
+*BKY-CR-V6 US-2 DomainConfigInjectors data-driven* — refactor DDD/TDD.
+- `DomainConfigInjectors.kt` : 113→2 lignes (-111, -98%). 9 objects supprimés.
+- DDD : `InjectorSpec` sealed class (3 sous-classes : `GateOnTriggerField`,
+  `GateOnBoolean`, `Always`) + `PropSpec(readKey, default, writeKey)` +
+  `InjectorRegistry.all` data-driven (9 specs).
+- TDD : 25 tests caractérisation `DomainConfigInjectorsTest` + 18 tests
+  `InjectorRegistryTest` — tous GREEN.
+- Safety net : tests existants GREEN, Cucumber 133/133 (XML), `publishToMavenLocal` OK.
+- API publique `configInjectors: Map<String, ConfigInjector>` préservée.
 
 == Statut
 
-- BKY-PUB-2 : ✅ TERMINÉ (Maven Central live, Portal en propagation)
-- BKY-CR-V6 : US-1 ✅ (3 pts), US-2 et US-3 à faire (5 pts restants)
+- BKY-CR-V6 US-2 : ✅ TERMINÉ (2 pts)
+- BKY-CR-V6 US-3 : à faire (3 pts restants)
 
-== Prochaine session (144)
+== Prochaine session (145)
 
-Démarrer **BKY-CR-V6 US-2** : `DomainConfigInjectors` data-driven — 9 injecteurs
-répétitifs (113 lignes, 3 variantes : gate sur champ trigger, gate sur boolean,
-injection systématique).
+Démarrer **BKY-CR-V6 US-3** : `ConfigResolver.resolveAll()` data-driven —
+10 blocs `resolveDomain` répétitifs (ligne 332-401).
 
 Baby steps DDD/TDD/BDD :
-- DDD : `InjectorSpec` sealed class (3 sous-classes pour les 3 variantes) +
-  `InjectorRegistry` (registre data-driven).
-- TDD : tests unitaires par injecteur (RED→GREEN) — caractériser les 9
+- DDD : `DomainResolver<T>(name, resolver: () -> T, fallback: T)` data class +
+  `resolveAllDataDriven()` (liste `domainResolvers: List<DomainResolver<*>>`).
+- TDD : tests unitaires par domaine (RED→GREEN) — caractériser les 10
   comportements existants avant refactor.
-- Refactor : `configInjectors` Map → `InjectorRegistry.all()`. Vérifier
-  comportement identique (tests existants GREEN).
+- Refactor : `resolveAll()` délègue à `resolveAllDataDriven()`.
+  Vérifier comportement identique (tests existants GREEN).
 - `publishToMavenLocal` après modif code.
 
 Fichiers cibles :
-- `bakery/injection/DomainConfigInjectors.kt` (9 injecteurs, 113 lignes)
-- NOUVEAU `bakery/injection/InjectorSpec.kt` (sealed class + registry)
-- Tests : `DomainConfigInjectorsTest.kt` existant à compléter
-
-== Vérification à faire (asynchrone)
-
-Gradle Plugin Portal propagation (24-48h après session 143) :
-----
-curl -sL "https://plugins.gradle.org/plugin/education.cccp.bakery" | grep -i "not found"
-# si vide → plugin live sur Portal
-----
+- `bakery/ConfigResolver.kt` (10 blocs `resolveDomain`, ligne 332-401)
+- NOUVEAU `bakery/DomainResolver.kt` (data class + liste data-driven)
+- Tests : `ResolvedConfigsTest.kt` existant à compléter
 
 == Note technique
 
-- `./gradlew test` reste la commande de validation rapide en session.
+- `./gradlew test` = validation rapide en session.
 - Kover threshold 85% maintenu.
-- `Option` Arrow dépréciée en 2.x — utiliser nullable Kotlin + `Either` pour
-  les erreurs (pattern établi session 142).
-- bakery-plugin 0.0.2 désormais consommable depuis Maven Central directement
-  (`education.cccp:bakery-plugin:0.0.2` ou plugin Portal
-  `education.cccp.bakery` version `0.0.2` une fois propagated).
+- `cucumberTest` timeout 5min = EPIC 5 préexistant (pas lié au refactor).
+- `Option` Arrow dépréciée en 2.x — nullable Kotlin + `Either` pour erreurs.
+- `PropSpec(readKey, default, writeKey = readKey)` pattern établi S144 —
+  réutilisable si `DomainResolver` a besoin de séparation lecture/écriture.

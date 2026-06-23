@@ -1,0 +1,31 @@
+= Session 138 — 2026-06-22 — BKY-PUB-2 Préparation publication 0.0.2
+
+**Contexte** : PROMPT_REPRISE session 137 proposait BKY-PUB-2 (publication 0.0.2), suite BKY-COV-2, ou autre borough. Choix utilisateur : BKY-PUB-2.
+
+**Tâches réalisées** :
+
+* [x] Audit alignement versions — détection incohérence : plugin `0.0.1`, catalogue racine consommateur `0.1.4`, catalogue plugin `0.0.1`.
+* [x] DDD/TDD : `BakeryPluginPublicationTest.kt` (2 tests) — `plugin version matches root consumer catalog version` + `plugin group and id are stable for publication`.
+* [x] Bump version source de vérité `0.0.2` dans `bakery-plugin/build.gradle.kts`, `bakery-plugin/gradle/libs.versions.toml`, `gradle/libs.versions.toml`.
+* [x] Fix POM Maven Central : ajout `<organization>` et `<organizationUrl>` dans le bloc `<developer>` de `bakery-plugin/build.gradle.kts`.
+* [x] Validation POM : `generatePomFileForPluginMavenPublication` + `checkPomFileForPluginMavenPublication` + `checkPomFileForBakeryPluginMarkerMavenPublication` → PASS.
+* [x] Dry-run publication locale : `publishToMavenLocal` + `nmcpPublishAllPublicationsToMavenLocal` → SUCCESS (signing GPG local OK).
+* [x] Mise à jour `README.adoc` — `:plugin-version: 0.0.2`.
+* [x] `./gradlew test --tests "bakery.BakeryPluginPublicationTest"` → 2/2 PASS.
+
+**Fichiers modifiés / créés** :
+
+* `bakery-plugin/src/test/kotlin/bakery/BakeryPluginPublicationTest.kt` (nouveau, 2 tests)
+* `bakery-plugin/build.gradle.kts` (version 0.0.2 + POM organization/organizationUrl)
+* `bakery-plugin/gradle/libs.versions.toml` (bakery = "0.0.2")
+* `gradle/libs.versions.toml` (bakery = "0.0.2")
+* `README.adoc` (:plugin-version 0.0.2)
+
+**Métriques** :
+
+* Tests unitaires ciblés : 2/2 PASS
+* POM Maven Central : validé (`checkPomFileForPluginMavenPublication` PASS)
+* Publication locale : SUCCESS (`publishToMavenLocal`, `nmcpPublishAllPublicationsToMavenLocal`)
+* Note : `check -x e2eTest` non relancé en fin de session (timeout Cucumber 5min sur scénario cheroliv.com). Les modifications sont publication-only ; les tests unitaires et POM passent.
+
+**Prochaine session** : 139 — Publier effectivement `0.0.2` sur Maven Central (`publishAggregationToCentralPortal`) et Gradle Plugin Portal (`publishPlugins`) avec permission utilisateur, ou continuer BKY-COV-2.

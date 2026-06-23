@@ -1,0 +1,35 @@
+= Session 139 — 2026-06-22 — CS-FIN-2/CS-FIN-3 clôture définitive
+
+**Contexte** : PROMPT_REPRISE session 138 proposait 4 pistes (publier 0.0.2, continuer BKY-COV-2, autre borough, ou CS-FIN-2/CS-22). Choix utilisateur : option 4 — CS-FIN-2/CS-22 (sérialisation directe `LensPipelineOutput` via Jackson).
+
+**Tâches réalisées** :
+
+* [x] Audit code : `LensPipelineService.kt:122-123` sérialise déjà directement `output` via `mapper.writeValue()` — CS-22 déjà résolu dans le code. `LensBudgetInjectionTest` testait un miroir privé au lieu de la production (smell de test).
+* [x] **RED** — TDD : ajout test `CS-22 — round-trip Jackson avec ScoredNodes non-vides préserve tous les champs` dans `LensPipelineServiceTest.JacksonSerialization`. Valide que la sérialisation directe résiste aux cas complexes (tags, nullables, doubles, listes imbriquées) via `usingRecursiveComparison`.
+* [x] **GREEN** — 8/8 `LensPipelineServiceTest` PASS (le code de production sérialise déjà correctement via Jackson direct).
+* [x] **RED** — TDD : ajout test `CS-FIN-2 — injects escaped augmentedContextData when augmented-context json exists` dans `GenerateSiteServiceTest`. Valide l'échappement JSON (`escapeJsonForJavaProperties`) sur la vraie fonction de production `injectConfigIntoJbakeProperties`.
+* [x] **GREEN** — 13/13 `GenerateSiteServiceTest` PASS.
+* [x] **REFACTOR** — Suppression du miroir privé dans `LensBudgetInjectionTest` (lignes 121-148). Conversion pour appeler `GenerateSiteService.injectConfigIntoJbakeProperties` (API publique). 4/4 PASS.
+* [x] `publishToMavenLocal` — SUCCESS.
+* [x] `./gradlew test` — BUILD SUCCESSFUL (tous tests unitaires PASS).
+* [x] Mise à jour `BACKLOG.adoc` : CS-FIN-2 ✅, CS-FIN-3 ✅ (checkboxes + tableau synthèse).
+
+**Fichiers modifiés / créés** :
+
+* `bakery-plugin/src/test/kotlin/bakery/lens/LensPipelineServiceTest.kt` (+1 test round-trip Jackson avec ScoredNodes non-vides)
+* `bakery-plugin/src/test/kotlin/bakery/site/GenerateSiteServiceTest.kt` (+1 test échappement JSON sur production)
+* `bakery-plugin/src/test/kotlin/bakery/lens/LensBudgetInjectionTest.kt` (refactor : miroir privé supprimé, appelle la production)
+* `bakery-plugin/BACKLOG.adoc` (CS-FIN-2/CS-FIN-3 marqués résolus)
+
+**Métriques** :
+
+* Tests unitaires : tous PASS (8/8 LensPipelineServiceTest + 13/13 GenerateSiteServiceTest + 4/4 LensBudgetInjectionTest)
+* Code de production : inchangé (aucune modification source — le code était déjà correct)
+* Dette technique réduite : 1 miroir de test supprimé, 2 tests de clôture ajoutés
+* CS-FIN-2 (CS-13 + CS-22) : ✅ clôturé
+* CS-FIN-3 (CS-14, CS-15, CS-17, CS-19, CS-20) : ✅ clôturé (audit confirmé — déjà résolu dans sessions antérieures)
+* `publishToMavenLocal` : SUCCESS
+
+**Méthodologie** : baby steps DDD/TDD/BDD respecté — RED→GREEN→REFACTOR, un fichier à la fois, validation immédiate après chaque changement, `publishToMavenLocal` après modification.
+
+**Prochaine session** : 140 — Publier effectivement `0.0.2` sur Maven Central + Portal (avec permission), ou continuer BKY-COV-2 (US-COV-2.1 DeployProfileTask), ou autre priorité.

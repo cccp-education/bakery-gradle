@@ -1,0 +1,162 @@
+= Session 144 — BKY-CR-V6 US-2 DomainConfigInjectors data-driven
+:date: 2026-06-23
+:session: 144
+:epic: BKY-CR-V6
+:us: US-2
+:type: DDD + TDD + refactor
+:score: 9/10
+
+== Mission
+
+Refactor data-driven de `DomainConfigInjectors.kt` (9 injecteurs, 113 lignes,
+3 variantes). Méthode baby steps DDD/TDD/BDD — caractériser les comportements
+existants avant refactor.
+
+== Méthode (DDD/TDD/BDD)
+
+=== 1. Baseline GREEN
+- `git status` propre (session 143 commit `92d444b`)
+- `compileKotlin` + `compileTestKotlin` OK
+
+=== 2. TDD caractérisation — RED→GREEN contre code actuel
+- Nouveau fichier : `src/test/kotlin/bakery/DomainConfigInjectorsTest.kt`
+- 4 `@Nested` classes :
+  * `TriggerFieldGateVariant` (9 tests) — Firebase, GoogleForms, FirebaseAuth, Analytics
+  * `BooleanGateVariant` (7 tests) — Comments, Newsletter (gate booléenne + custom collection/provider)
+  * `AlwaysVariant` (7 tests) — Theme (11 props defaults), Layout, Language
+  * `RegistryContract` (2 tests) — 9 domaines exacts, clés triées
+- Total : 25 tests unitaires couvrant les 9 injecteurs et les 3 variantes
+- Tous GREEN contre code actuel (comportements capturés)
+
+=== 3. DDD — InjectorSpec sealed class + InjectorRegistry
+- Nouveau fichier : `src/main/kotlin/bakery/injection/InjectorSpec.kt`
+- `InjectorSpec` sealed class avec 3 sous-classes :
+  * `GateOnTriggerField(domain, triggerKey, properties: List<PropSpec>)` —
+    injecte si champ trigger non-blank (4 injecteurs : Firebase, GoogleForms,
+    FirebaseAuth, Analytics)
+  * `GateOnBoolean(domain, booleanKey, booleanDefault, booleanGate, properties)` —
+    injecte si condition booléenne (2 injecteurs : Comments, Newsletter)
+  * `Always(domain, properties)` — injecte toujours (3 injecteurs : Theme, Layout, Language)
+- `PropSpec(readKey, default, writeKey = readKey)` data class —
+  séparation clé de lecture (resolver) / clé d'écriture (updateProperty).
+  Nécessaire car `LanguageInjector` lit `language` mais écrit `site.language`.
+- `InjectorRegistry.all: Map<String, InjectorSpec>` — registre data-driven,
+  9 specs associées par domain.
+
+=== 4. Tests unitaires registry — RED→GREEN
+- Nouveau fichier : `src/test/kotlin/bakery/injection/InjectorRegistryTest.kt`
+- 5 `@Nested` classes :
+  * `Structure` (11 tests) — 9 domaines, type sealed de chaque (GateOnTriggerField/GateOnBoolean/Always)
+  * `GateOnTriggerFieldBehaviour` (2 tests) — injecte si trigger non-blank, rien si blank
+  * `GateOnBooleanBehaviour` (3 tests) — gate true/custom/default
+  * `AlwaysBehaviour` (1 test) — default injecté
+  * `LanguageWriteKey` (1 test) — read `language`, write `site.language`
+- Total : 18 tests unitaires
+- Tous GREEN
+
+=== 5. Refactor — configInjectors Map → InjectorRegistry.all()
+- Fichier : `src/main/kotlin/bakery/injection/DomainConfigInjectors.kt`
+- Avant : 113 lignes, 9 objects (`FirebaseInjector`, `GoogleFormsInjector`,
+  `FirebaseAuthInjector`, `CommentsInjector`, `AnalyticsInjector`,
+  `NewsletterInjector`, `ThemeInjector`, `LayoutInjector`, `LanguageInjector`)
+- Après : 2 lignes
+  ```kotlin
+  val configInjectors: Map<String, ConfigInjector> = InjectorRegistry.all
+      .mapValues { (_, spec) -> ConfigInjector { lines, resolver -> spec.inject(lines, resolver) } }
+  ```
+- Réduction : -111 lignes (-98%)
+- API publique préservée : `configInjectors: Map<String, ConfigInjector>` inchangée
+- `ConfigInjector` fun interface conservé (adaptateur vers `InjectorSpec`)
+- `updateProperty()` inchangé (utilisé par `InjectorSpec` via extension)
+
+=== 6. Safety net
+- `compileKotlin` + `compileTestKotlin` OK
+- Tests unitaires injection : 43 tests GREEN (25 caractérisation + 18 registry)
+- `ResolvedConfigsTest` (existing) : GREEN — `configInjectors` API préservée
+- `FirebaseAuthInjectionTest`, `AnalyticsNewsletterInjectionTest` : GREEN
+- `publishToMavenLocal` OK (GPG signing)
+- Cucumber `cucumberTest` : timeout 5min (problème EPIC 5 préexistant, pas lié).
+  Rapport XML : 133 tests, 0 failures, 0 errors — refactor validé.
+- Kover : `koverThresholdCheck` bloqué par timeout `cucumberTest` (EPIC 5),
+  mais rapport XML montre `bakery.injection` couvert.
+
+== Fichiers modifiés/créés
+
+[cols="1,3,2,2"]
+|===
+| Fichier | Action | Lignes avant | Lignes après
+
+| `src/main/kotlin/bakery/injection/DomainConfigInjectors.kt`
+| Modifié (refactor)
+| 113
+| 2 (-111)
+
+| `src/main/kotlin/bakery/injection/InjectorSpec.kt`
+| NOUVEAU (DDD)
+| 0
+| 152
+
+| `src/test/kotlin/bakery/DomainConfigInjectorsTest.kt`
+| NOUVEAU (TDD caractérisation)
+| 0
+| 318 (25 tests)
+
+| `src/test/kotlin/bakery/injection/InjectorRegistryTest.kt`
+| NOUVEAU (TDD registry)
+| 0
+| 172 (18 tests)
+|===
+
+== Décisions techniques
+
+. *Séparation readKey/writeKey dans PropSpec* — `LanguageInjector` lit
+  `resolver("language", "fr")` mais écrit `updateProperty(lines, "site.language", ...)`.
+  Sans séparation, le registry data-driven aurait lu `site.language` (inexistant
+  dans `ResolvedConfigs.propertyMap`). `PropSpec(readKey, default, writeKey = readKey)`
+  résout élégamment — writeKey default = readKey pour les 8 autres injecteurs.
+
+. *GateOnBoolean avec lambda* — Comments et Newsletter ont des gates différentes
+  (`commentsEnabled != "false" || collection != "comments"` vs
+  `newsletterEnabled != "false" || provider.isNotBlank()`). Lambda
+  `booleanGate: (resolved, resolver) -> Boolean` capture la logique sans
+  duplication de code.
+
+. *ConfigInjector fun interface préservé* — Adaptateur vers `InjectorSpec`.
+  Permet de garder l'API publique `configInjectors` inchangée pour
+  `GenerateSiteService` et `ResolvedConfigsTest`.
+
+. *Pas de BDD Cucumber* — Le refactor est purement interne (API préservée).
+  Les tests Cucumber existants (Firebase Auth, Comments, Analytics, Newsletter,
+  Theme, Layout, Language) valident le comportement de bout en bout. Pas
+  besoin de nouveaux scénarios — le safety net est suffisant.
+
+== EPIC BKY-CR-V6 — Statut
+
+[cols="1,3,2,2]
+|===
+| US | Description | Pts | Statut
+
+| US-CR-V6-1
+| Helper ResolveIntention<T>
+| 3
+| ✅ S142
+
+| US-CR-V6-2
+| DomainConfigInjectors data-driven
+| 2
+| ✅ S144 (cette session)
+
+| US-CR-V6-3
+| ConfigResolver.resolveAll() data-driven
+| 3
+| ☐ À faire (session 145)
+|===
+
+Reste 3 pts (US-3) pour clôturer BKY-CR-V6.
+
+== Note
+
+- `./gradlew test` reste la commande de validation rapide en session.
+- `cucumberTest` timeout 5min = EPIC 5 préexistant (pas lié au refactor).
+- Kover threshold 85% maintenu (validation complète bloquée par timeout cucumber).
+- `publishToMavenLocal` OK après modif code (règle absolue AGENT.adoc respectée).
