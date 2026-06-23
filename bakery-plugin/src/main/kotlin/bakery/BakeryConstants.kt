@@ -9,6 +9,7 @@ object BakeryConstants {
     const val INFO_GROUP = "info"
     const val COLLECT_GROUP = "collect"
     const val VALIDATE_GROUP = "validate"
+    const val AUDIT_GROUP = "audit"
     const val BAKE_TASK = "bake"
     const val ASCIIDOCTOR_OPTION_REQUIRES = "asciidoctor.option.requires"
     const val ASCIIDOCTOR_DIAGRAM = "asciidoctor-diagram"

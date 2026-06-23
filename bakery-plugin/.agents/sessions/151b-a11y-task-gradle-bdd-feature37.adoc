@@ -1,0 +1,65 @@
+= Session 151 (suite) — 2026-06-23 — BKY-A11Y-1 : Tâche Gradle accessibilityAudit + BDD Feature 37
+
+== Objectif
+
+Continuer BKY-A11Y-1 (baby step 4) : créer la tâche Gradle `accessibilityAudit`, l'enregistrer dans le pipeline bakery, ajouter la BDD Cucumber Feature 37, et appliquer la contrainte globale sur les ports Ollama (11437-11465, modèles gpt-oss:120b-cloud / gemma4:31b-cloud).
+
+== Contexte
+
+* Session 151 initiale : domaine a11y pur + 13 UT GREEN.
+* Cette session : baby step 4 (tâche Gradle) + baby step 5 (BDD Feature 37).
+
+== Baby steps DDD/TDD/BDD
+
+. **DDD** :
+  - `AccessibilityDsl` (extension DSL pour `bakery { a11y { ... } }`).
+  - `AccessibilityAuditTask` (DefaultTask, @InputDirectory auditDir, @Input reportPath/conformanceLevel, @TaskAction executeAudit).
+  - `AccessibilityTaskRegistrar` (registerAccessibilityAuditTask).
+  - Wiring dans `BakeryPlugin.registerFullPipelineTasks` + constante `AUDIT_GROUP`.
+. **TDD** : `AccessibilityAuditTaskTest` 8 UT GREEN (registration, defaults, resolveAuditDir, executeAudit JSON report, missing dir, non-compliant, empty dir).
+. **BDD** : Feature 37 `37_accessibility_audit.feature` (4 scénarios) + `AccessibilityAuditSteps`.
+  - 1 scénario PASS (registration).
+  - 3 scénarios FAILED (problème de résolution `auditDir`/dépendance `bake` dans le contexte TestKit — à corriger prochaine session).
+
+== Contrainte ports Ollama
+
+* Remplacement de tous les `11434` (interdit) par `11464` (autorisé) dans :
+  - `IaConfig.kt` (défaut + KDoc)
+  - `OllamaLlmService.kt` (KDoc)
+  - `BakeryExtension.kt` (KDoc)
+  - `DslInjectionHelperTest.kt`
+  - `ScaffoldIntentionFunctionalTests.kt`
+* Modèle `deepseek-v4-pro` remplacé par `gpt-oss:120b-cloud`.
+* `OllamaLlmServiceTest.kt` utilisait déjà `11465` + `gpt-oss:120b-cloud` (conforme).
+
+== Problème BDD restant
+
+Les 3 scénarios Feature 37 (sauf registration) échouent car la tâche `accessibilityAudit` dépend de `bake` (`dependsOn(BakeryConstants.BAKE_TASK)`), qui n'est pas exécutable dans le contexte TestKit du scénario (pas de srcDir JBake configuré). Le `auditDir` configuré via `layout.buildDirectory.dir(...)` n'est pas résolu correctement quand le projet de test n'a pas de build réel.
+
+*Solution proposée prochaine session* :
+. Soit retirer `dependsOn(bake)` et laisser l'utilisateur exécuter `bake` avant.
+. Soit mocker/préparer un répertoire `build/bake` avec du HTML dans les steps Cucumber (déjà fait via `createBakedHtmlWithInlineContrast`, mais le `auditDir` n'est pas résolu vers ce chemin car le registrar l'écrase).
+. Soit passer `auditDir` via CLI `-PauditDir=...` ou DSL pour surcharger le registrar.
+
+== Fichiers créés
+
+* `src/main/kotlin/bakery/a11y/AccessibilityAuditTask.kt`
+* `src/main/kotlin/bakery/a11y/AccessibilityDsl.kt`
+* `src/main/kotlin/bakery/a11y/AccessibilityTaskRegistrar.kt`
+* `src/test/kotlin/bakery/a11y/AccessibilityAuditTaskTest.kt`
+* `src/test/features/37_accessibility_audit.feature`
+* `src/test/scenarios/bakery/scenarios/AccessibilityAuditSteps.kt`
+
+== Fichiers modifiés
+
+* `src/main/kotlin/bakery/BakeryConstants.kt` — ajout `AUDIT_GROUP`.
+* `src/main/kotlin/bakery/BakeryExtension.kt` — ajout `a11y` DSL.
+* `src/main/kotlin/bakery/BakeryPlugin.kt` — wiring `registerAccessibilityAuditTask`.
+* `src/main/kotlin/bakery/llm/IaConfig.kt` — port 11464 + modèle gpt-oss:120b-cloud.
+* `src/main/kotlin/bakery/llm/OllamaLlmService.kt` — KDoc port/modèle.
+* `src/test/kotlin/bakery/lens/DslInjectionHelperTest.kt` — port 11464.
+* `src/functionalTest/kotlin/bakery/ScaffoldIntentionFunctionalTests.kt` — port 11464 + modèle.
+
+== Score session
+
+7/10 — DDD/TDD solide, BDD partiel (3/4 scénarios à corriger). Contrainte ports respectée.

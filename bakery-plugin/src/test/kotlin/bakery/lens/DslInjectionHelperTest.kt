@@ -84,14 +84,14 @@ plugins { id("education.cccp.bakery") }
 bakery {
     configPath = file("site.yml").absolutePath
     ia {
-        baseUrl = "http://localhost:11434"
+        baseUrl = "http://localhost:11464"
     }
 }
             """.trimIndent()
             val block = "augmentedContext {\n    enabled = true\n}"
             val result = helper.insertBeforeClosingBrace(content, "bakery", block)
 
-            assertThat(result).contains("baseUrl = \"http://localhost:11434\"")
+            assertThat(result).contains("baseUrl = \"http://localhost:11464\"")
             assertThat(result).contains("augmentedContext")
             // Braces balanced
             val openBraces = result.count { it == '{' }

@@ -8,12 +8,12 @@ import java.time.Duration
  * Point d'entrée DSL via [bakery.BakeryExtension.ia].
  *
  * ```
- * bakery { ia { baseUrl = "http://localhost:11464"; modelName = "deepseek-v4-pro" } }
+ * bakery { ia { baseUrl = "http://localhost:11464"; modelName = "gpt-oss:120b-cloud" } }
  * ```
  */
 open class IaConfig(
     var baseUrl: String = "http://localhost:11464",
-    var modelName: String = "deepseek-v4-pro",
+    var modelName: String = "gpt-oss:120b-cloud",
     var timeout: Duration = Duration.ofSeconds(120),
     var enabled: Boolean = false
 )

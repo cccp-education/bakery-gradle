@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-23 — Session 150 (BKY-I18N-PROD-AUDIT alignement fixtures ↔ sites réels terminé, 7/7 audit tests + 10/10 integration tests PASS)_
+_Dernière mise à jour : 2026-06-23 — Session 151b (BKY-A11Y-1 tâche Gradle accessibilityAudit + 8 UT + Feature 37 1/4 PASS). Ports Ollama alignés 11437-11465 + gpt-oss:120b-cloud._
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''

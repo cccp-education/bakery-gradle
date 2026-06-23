@@ -16,7 +16,7 @@ import java.time.Duration.ofSeconds
  *
  * Usage en production :
  * ```
- * val service = OllamaLlmService.create("http://localhost:11434", "deepseek-v4-pro")
+ * val service = OllamaLlmService.create("http://localhost:11464", "gpt-oss:120b-cloud")
  * val reponse = service.complete("Génère un résumé de 3 phrases.")
  * ```
  *
@@ -38,8 +38,8 @@ class OllamaLlmService(private val model: ChatModel) : LlmService {
         /**
          * Factory pour instancier un [OllamaChatModel] réel.
          *
-         * @param baseUrl URL du serveur Ollama (ex: "http://localhost:11434")
-         * @param modelName Nom du modèle (ex: "deepseek-v4-pro")
+         * @param baseUrl URL du serveur Ollama (ex: "http://localhost:11464")
+         * @param modelName Nom du modèle (ex: "gpt-oss:120b-cloud")
          * @param timeout Timeout HTTP (par défaut 120 secondes)
          */
         fun create(

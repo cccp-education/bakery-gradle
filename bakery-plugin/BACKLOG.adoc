@@ -5,15 +5,15 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-23 — Session 151 en cours (BKY-A11Y-1 : accessibilité WCAG — US-1→3 ✅, US-4 🔄)_
+_Dernière mise à jour : 2026-06-23 — Session 151b en cours (BKY-A11Y-1 : tâche Gradle accessibilityAudit + Feature 37 — US-1→3 ✅, US-4 🔄 8 UT + 1/4 BDD)_
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-061-079/BACKLOG_avant_nettoyage_sess079.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
 [CAUTION]
 ====
-**30/30 EPICs historiques terminés + BKY-I18N-PROD-AUDIT ✅ TERMINÉ. Nouvel EPIC actif : BKY-A11Y-1 Accessibilité WCAG/RGAA.**
-**Session 151** : DDD/TDD a11y — `bakery.a11y` domaine pur + 13 UT GREEN.
-**Prochaine session** : suite 151 — tâche Gradle `accessibilityAudit`, BDD Cucumber Feature 37, règles structurelles alt/aria/headings.
+**30/30 EPICs historiques terminés + BKY-I18N-PROD-AUDIT ✅ TERMINÉ. EPIC actif : BKY-A11Y-1 Accessibilité WCAG/RGAA.**
+**Session 151b** : DDD/TDD a11y task + BDD Feature 37 — 8 UT GREEN, 1/4 Cucumber PASS (registration), 3/4 à corriger (auditDir/dependsOn bake en TestKit).
+**Prochaine session** : 152 — corriger registrar auditDir + 3 scénarios Feature 37 + règles alt/aria/headings.
 ====
 
 '''
@@ -1170,12 +1170,12 @@ data-driven non fait). Cet EPIC cloture proprement les duplications résiduelles
 | US-A11Y-4
 | **Tâche Gradle `accessibilityAudit`** — Enregistrer une tâche dans le pipeline bakery qui scanne le répertoire `output/` après `bake` et produit un rapport JSON/ASCII.
 | 3
-| 🔄 S151 (baby step 4)
+| 🔄 S151b (baby step 4) — tâche créée + 8 UT GREEN, registrar à corriger (auditDir TestKit)
 
 | US-A11Y-5
 | **BDD Cucumber Feature 37** — Scénarios : audit passe, audit échoue sur contraste faible, site sans couleurs inline.
 | 2
-| ⏸️ À faire
+| 🔄 S151b — 1/4 PASS (registration), 3/4 FAILED (auditDir/dependsOn bake en TestKit)
 
 | US-A11Y-6
 | **Règles structurelles** — alt text sur images, aria-label sur liens/icones, ordre headings h1→h6 sans saut.
@@ -1210,19 +1210,19 @@ data-driven non fait). Cet EPIC cloture proprement les duplications résiduelles
 | BKY-CR-V6 | Duplications structurelles résiduelles | 8 | ✅ TERMINÉ — US-1 S142, US-2 S144, US-3 S145
 | BKY-I18N-PROD-AUDIT | Alignement fixtures ↔ sites réels | 5 | ✅ S150 (US-1→5 TERMINÉS)
 // ── EN COURS ──
-| BKY-A11Y-1 | Accessibilité WCAG/RGAA | 13 | 🔄 S151 (US-1→3 ✅, US-4 🔄, US-5→7 ⏸️)
+| BKY-A11Y-1 | Accessibilité WCAG/RGAA | 13 | 🔄 S151b (US-1→3 ✅, US-4 🔄, US-5 🔄 1/4, US-6→7 ⏸️)
 | *Total restant* | | *13* |
 |===
 
 *Tous les EPICs historiques* : 30/30 ✅ (100%)
-*EPIC actif* : BKY-A11Y-1 (13 pts, 3/7 US faits)
+*EPIC actif* : BKY-A11Y-1 (13 pts, 3/7 US faits + US-4/5 en cours)
 *Code smells résolus* : 24/24 ✅ (V2+V3+V4)
 *Code smells V5* : 52 ✅ (US-1 faux positif, US-2+3+4+5+6+7+8 résolues — V5-5 et V5-7 PARTIEL repris en V6)
 *Bakery 100% fonctionnel* — smells V5/V6 qualitatifs, pas fonctionnels.
 *Nouveau cap* : BKY-PUB-2 — ✅ TERMINÉ S143.
 *Nouveau cap* : BKY-CR-V6 — ✅ TERMINÉ 8/8 pts.
 *Nouveau cap* : BKY-I18N-PROD-AUDIT — ✅ TERMINÉ S150.
-*Nouveau cap* : BKY-A11Y-1 — 🔄 EN COURS S151.
+*Nouveau cap* : BKY-A11Y-1 — 🔄 EN COURS S151b (tâche Gradle + Feature 37 partielle).
 
 '''
 == Métadonnées

@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-23 — Session 151 en cours (BKY-A11Y-1 : accessibilité WCAG — 13/13 UT GREEN)
-  _Session en cours_ : 151 — DDD/TDD a11y : `bakery.a11y` domaine + contrast + auditor + HTML scanner.
-  _Prochaine session_ : suite 151 — tâche Gradle `accessibilityAudit`, BDD Cucumber Feature 37, règles alt/aria/headings.
+  _Derniere mise a jour_ : 2026-06-23 — Session 151b en cours (BKY-A11Y-1 : tâche Gradle accessibilityAudit + BDD Feature 37 — 8 UT GREEN, 1/4 Cucumber PASS)
+  _Session en cours_ : 151b — DDD/TDD a11y task + BDD Feature 37 (3 scénarios à corriger).
+  _Prochaine session_ : 152 — corriger registrar auditDir + 3 scénarios Feature 37 + règles alt/aria/headings.
 
 '''
 

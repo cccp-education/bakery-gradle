@@ -166,8 +166,8 @@ $sbDsl            }
         siteType?.let { sbDsl.appendLine("        siteType = \"$it\"") }
         sbDsl.appendLine("    }")
         sbDsl.appendLine("    ia {")
-        sbDsl.appendLine("        baseUrl = \"http://localhost:11434\"")
-        sbDsl.appendLine("        modelName = \"deepseek-v4-pro\"")
+        sbDsl.appendLine("        baseUrl = \"http://localhost:11464\"")
+        sbDsl.appendLine("        modelName = \"gpt-oss:120b-cloud\"")
         sbDsl.appendLine("    }")
 
         projectDir.resolve("settings.gradle.kts").writeText("""

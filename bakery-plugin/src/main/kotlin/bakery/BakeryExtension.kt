@@ -5,6 +5,7 @@ import bakery.article.ArticleIntentionDsl
 import bakery.lens.AugmentedContextDsl
 import bakery.scaffold.ScaffoldIntentionDsl
 import bakery.theme.ThemeIntentionDsl
+import bakery.a11y.AccessibilityDsl
 import bakery.i18n.I18nMigrationIntentionDsl
 import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
@@ -23,8 +24,8 @@ import javax.inject.Inject
  *     siteName = "..."
  *     siteType = "blog"        // blog | basic
  *     ia {
- *         baseUrl = "http://localhost:11434"
- *         modelName = "deepseek-v4-pro"
+ *         baseUrl = "http://localhost:11464"
+ *         modelName = "gpt-oss:120b-cloud"
  *     }
  * }
  * ```
@@ -79,6 +80,9 @@ open class BakeryExtension @Inject constructor(objects: ObjectFactory) {
 
     /** Configuration I18n Migration Intention (siteDir, languages, defaultLanguage, dryRun) — BKY-I18N-MIG */
     val i18nMigration: I18nMigrationIntentionDsl = I18nMigrationIntentionDsl()
+
+    /** Configuration Accessibilité (auditDir, reportPath, conformanceLevel) — BKY-A11Y-1 */
+    val a11y: AccessibilityDsl = AccessibilityDsl(objects)
 
     /** Langue active du site (code ISO 639-1, ex: "fr", "en", "ar") — BKY-I18N */
     val language: Property<String> = objects.property(String::class.java)
@@ -149,5 +153,10 @@ open class BakeryExtension @Inject constructor(objects: ObjectFactory) {
     /** DSL : bakery { i18nMigration { ... } } — BKY-I18N-MIG */
     fun i18nMigration(action: Action<I18nMigrationIntentionDsl>) {
         action.execute(i18nMigration)
+    }
+
+    /** DSL : bakery { a11y { ... } } — BKY-A11Y-1 */
+    fun a11y(action: Action<AccessibilityDsl>) {
+        action.execute(a11y)
     }
 }
