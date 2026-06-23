@@ -1,5 +1,35 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 148 — 2026-06-23 — Audit migration i18n réelle magic-stick
+
+**Contexte** : Suite à la demande d'analyse du backlog, investigation de l'écart entre les fixtures i18n de test et les sites réels. Test de `migrateToI18n` sur une copie temporaire du site magic-stick avec le plugin bakery 0.0.2.
+
+**Tâches réalisées** :
+
+* [x] Analyse du backlog bakery : tous les EPICs terminés, aucun EPIC actif prioritaire.
+* [x] Vérification de l'état i18n des 3 sites : magic-stick, cccp.education, cheroliv.com — aucun n'a de `messages_*.properties` ni de clés `#{...}` dans les templates réels.
+* [x] Comparaison fixtures de test vs sites réels : magic-stick fixture = site réel (12/12 templates identiques), cccp.education et cheroliv.com fixtures différentes.
+* [x] Publication locale de bakery-plugin 0.0.2 (`publishToMavenLocal`).
+* [x] Création d'un projet consommateur temporaire dans `/tmp/opencode/bakery-migration/`.
+* [x] Exécution de `migrateToI18n` en dry-run : 45 clés extraites, aucune modification.
+* [x] Exécution de `migrateToI18n` réel avec IA (gemma4:31b-cloud sur port 11440) : 12 templates modifiés, `messages_en.properties` généré, `site.language=fr` injecté.
+* [x] Validation : les traductions IA gemma4 sont inutilisables (tutoriels d'explication au lieu de traductions courtes).
+* [x] Test qwen3.5:397b-cloud : présent mais requiert abonnement Ollama payant.
+
+**Fichiers modifiés** :
+
+Aucun fichier source du repo bakery n'a été modifié. Fichiers temporaires créés dans `/tmp/opencode/bakery-migration/`.
+
+**Décisions techniques** :
+
+. *Ports Ollama* : tests effectués sur les ports 11437-11465 (autorisés) ; ports 11434-11436 non utilisés.
+. *Modèle LLM* : gemma4:31b-cloud disponible mais inadapté aux traductions courtes. qwen3.5:397b-cloud requiert abonnement.
+. *Stratégie* : avant application au site réel, il faut améliorer le pipeline de traduction ou utiliser les traductions manuelles de la fixture.
+
+**Statut** : Session d'audit terminée — 7/10. Aucun EPIC avancé, mais base de décision établie pour la session 149.
+
+---
+
 == Session 147 — 2026-06-23 — BKY-FIX-1 Corriger deployProfile sans site.yml
 
 **Contexte** : PROMPT_REPRISE session 146 identifiait une microfissure Cucumber Feature 5 : le scénario `deployProfile fails when site.yml does not exist` échouait car la tâche `deployProfile` n'était pas enregistrée quand `site.yml` était absent (mode scaffold only). L'utilisateur a rappelé la méthodologie baby steps DDD/TDD/BDD + agile software craftmanship et a validé l'approche B (UX robuste).

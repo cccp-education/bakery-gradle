@@ -1,29 +1,34 @@
 = PROMPT REPRISE — Bakery
-:session: 148
+:session: 149
 :date: 2026-06-23
 
-== Mission accomplie (session 147)
+== Mission accomplie (session 148)
 
-*BKY-FIX-1* — Microfissure Feature 5 corrigée.
-- `deployProfile` toujours enregistrée ; échec métier explicite "Failed to read site.yml" quand `site.yml` est absent/invalide.
-- 7 fichiers modifiés (production + tests).
-- Safety nets : `test`, `functionalTest`, `cucumberTest`, `check -x e2eTest`, `publishToMavenLocal` tous ✅.
-- Kover instruction coverage : 92,58%.
+*Audit migration i18n réelle magic-stick* — Investigation et test sur copie temporaire.
+- Confirmation : les fixtures de test magic-stick sont strictement identiques au site réel (12/12 templates).
+- cccp.education et cheroliv.com : fixtures de test différentes du site réel.
+- Test `migrateToI18n` sur copie /tmp/opencode/bakery-migration : 45 clés extraites, 12 templates modifiés, site.language=fr injecté.
+- Traduction IA via gemma4:31b-cloud inutilisable : le modèle retourne des tutoriels d'explication au lieu de traductions courtes.
+- Aucun code source bakery modifié pendant la session.
 
 == Statut
 
-- BKY-FIX-1 : ✅ TERMINÉ 2 pts.
-- BKY-CR-V6 : ✅ TERMINÉ 8/8 pts.
-- BKY-PUB-2 : ✅ Central 0.0.2 LIVE, Portal en propagation.
-- Tous les EPICs historiques : 30/30 ✅.
-- Cucumber : 0 échec.
+- BKY-FIX-1 : ✅ TERMINÉ.
+- BKY-CR-V6 : ✅ TERMINÉ.
+- BKY-PUB-2 : ✅ Central 0.0.2 LIVE.
+- Migration i18n réelle sites : 🔄 En attente de décision stratégie traduction.
 
-== Prochaine session (148)
+== Prochaine session (149)
 
-Aucun EPIC actif prioritaire. Attente roadmap utilisateur, audit borough, ou nouvelle feature.
+Choisir et implémenter l'une des options :
+1. Corriger le prompt/pipeline de traduction IA dans bakery pour forcer des réponses courtes.
+2. Ajouter un post-traitement des réponses gemma4 dans `LlmTranslationApplier`.
+3. Appliquer les traductions manuelles de la fixture au site magic-stick réel.
+4. Auditer et aligner les fixtures cccp.education et cheroliv.com avec les sites réels.
 
 == Note technique
 
-- `./gradlew test` = validation rapide en session.
+- `./gradlew test` = validation rapide.
 - `publishToMavenLocal` obligatoire après toute modif code source.
 - Kover threshold 85% maintenu.
+- Ports Ollama autorisés : 11437-11465 pour les modèles cloud ; 11434-11436 interdits.

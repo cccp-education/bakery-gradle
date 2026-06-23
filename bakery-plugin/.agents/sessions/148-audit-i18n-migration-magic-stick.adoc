@@ -1,0 +1,73 @@
+= Session 148 — Audit migration i18n réelle magic-stick
+:date: 2026-06-23
+:borough: Bushwick — bakery-gradle (N2)
+:objectif: Vérifier l'état réel de la migration i18n des sites et tester migrateToI18n sur une copie de magic-stick
+
+== Résumé
+
+Session d'investigation et de test sur la migration i18n des 3 sites (magic-stick, cccp.education, cheroliv.com). Aucun code source du plugin bakery n'a été modifié. Tous les tests ont été effectués sur une copie temporaire dans `/tmp/opencode/bakery-migration/`.
+
+== Découvertes principales
+
+=== Incohérence sites vs fixtures de test
+
+| Site | Fixture = site réel ? | Site réel migré ? | Statut |
+|---|---|---|---|
+| magic-stick | ✅ Oui (copie exacte) | ❌ Non | Outil testé, site non migré |
+| cccp.education | ❌ Non (maquette différente) | ❌ Non | Ni testé sur vrai site, ni migré |
+| cheroliv.com | ❌ Non (maquette très différente) | ❌ Non | Ni testé sur vrai site, ni migré |
+
+=== Problème de traduction IA avec gemma4:31b-cloud
+
+Le modèle `gemma4:31b-cloud` (ports 11437-11465) ne produit pas de traductions courtes exploitables. Il retourne des tutoriels d'explication pour chaque phrase.
+
+Exemple de `messages_en.properties` généré :
+
+```properties
+menu.1=Depending on the context (most commonly on a website), **Accueil** translates to: Home / Welcome / Reception...
+```
+
+Ces valeurs contiennent des sauts de ligne, du markdown et des listes. Inutilisables dans des templates Thymeleaf.
+
+=== qwen3.5:397b-cloud inaccessible
+
+- Présent sur le port 11437 mais requiert un abonnement Ollama payant.
+- Ports 11438, 11449, 11450 répondent "OK" sans erreur mais n'ont pas le modèle en cache.
+
+== Résultat du test migrateToI18n sur copie magic-stick
+
+| Étape | Résultat |
+|---|---|
+| Publish bakery-plugin local | ✅ |
+| Copie temporaire magic-stick | ✅ |
+| Port Ollama gemma4:31b-cloud | ✅ port 11440 |
+| Dry-run | ✅ 45 clés extraites |
+| Migration réelle | ✅ 1 fichier généré |
+| Templates modifiés | ✅ 12 templates avec `th:text="#{...}"` |
+| `site.language=fr` injecté | ✅ |
+| Traductions EN exploitables | ❌ Nécessitent amélioration prompt ou modèle |
+
+== Fichiers créés/modifiés
+
+Aucun fichier source du repo bakery n'a été modifié.
+
+Fichiers temporaires (hors repo) :
+- `/tmp/opencode/bakery-migration/build.gradle.kts`
+- `/tmp/opencode/bakery-migration/settings.gradle.kts`
+- `/tmp/opencode/bakery-migration/site.yml`
+- `/tmp/opencode/bakery-migration/jbake/` (copie modifiée du site)
+
+== Recommandations
+
+1. Améliorer le prompt dans `LlmServiceTranslationAdapter.buildPrompt()` pour forcer une réponse courte.
+2. Ou ajouter un post-traitement dans `LlmTranslationApplier` pour nettoyer les réponses verbeuses.
+3. Ou utiliser un modèle plus obéissant (deepseek-v4-pro:cloud sur ports autorisés).
+4. Ou générer sans IA et remplir manuellement `messages_en.properties` avec les traductions de la fixture.
+
+== Score
+
+7/10 — Investigation productive, mais les traductions IA ne sont pas production-ready.
+
+== Prochaine session
+
+Décider de la stratégie : corriger le pipeline de traduction, ou appliquer les traductions manuelles de la fixture au site magic-stick réel.
