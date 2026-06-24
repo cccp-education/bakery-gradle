@@ -1,0 +1,56 @@
+= Session 163 — Loi de l'Économie d'Encre + 4e Golden Master + Bug cucumber
+:session: 163
+:date: 2026-06-24
+:type: DDD + TDD + BDD
+:score: 9/10
+
+== Tâches réalisées
+
+=== 1. Loi de l'Économie d'Encre sur generatePivotYaml
+
+**Code** : `GeneratePivotYamlTask.kt:91-96` — load-before-write, skip si identique.
+
+**Test** : `generatePivotYaml does not rewrite identical output on second invocation` — FT TestKit qui invoque 2× la tâche, vérifie que la sortie est identique (contenu inchangé). 1/1 FT nouveau.
+
+**Résultat** : 6/6 functional tests PASS.
+
+=== 2. 4e Golden Master — listes imbriquées + plantuml
+
+**Ressources** : `nested-plantuml.adoc` + `nested-plantuml.yaml`
+
+**Patterns testés** : listes non-ordonnées 3 niveaux (`**`/`***`), source plantuml pass-through, listes ordonnées (`.`)
+
+**Test** : `PivotGoldenMasterTest.golden master nested plantuml adoc to yaml is byte identical` — round-trip byte-identique entre adoc parsé/rendu et yaml golden master.
+
+**Résultat** : 4/4 golden masters PASS (quick-start, ab-partition, scripts, nested-plantuml).
+
+=== 3. Bug cucumber features 9/16 (investigation)
+
+**Constat** : Les features 9 et 16 PASSENT dans la suite complète (0 FAILED, 0 undefined steps).
+
+**Raison** : Le bug était déjà résolu par le fix `DuplicateStepDefinitionException` de la S161 (renommage `the pivot build should succeed`).
+
+**Résultat** : Aucune action nécessaire. Bug déjà clos.
+
+== Fichiers modifiés
+
+[cols="2,3"]
+|===
+| Fichier | Type
+| `src/main/kotlin/bakery/pivot/GeneratePivotYamlTask.kt` | Modifié — load-before-write skip
+| `src/functionalTest/kotlin/bakery/GeneratePivotYamlFunctionalTest.kt` | Modifié — nouveau test idempotence
+| `src/test/kotlin/bakery/pivot/PivotGoldenMasterTest.kt` | Modifié — 4e golden master
+| `src/test/resources/pivot-golden-master/nested-plantuml.adoc` | Nouveau — adoc test
+| `src/test/resources/pivot-golden-master/nested-plantuml.yaml` | Nouveau — yaml golden master
+|===
+
+== Tests
+
+* `./gradlew test` — 1m SUCCESS (tous UT)
+* `./gradlew functionalTest --tests "bakery.GeneratePivotYamlFunctionalTest"` — 6/6 PASS
+* `./gradlew test --tests "bakery.pivot.PivotGoldenMasterTest"` — 4/4 PASS
+* `./gradlew cucumberTest` — 37 features, 123+ scénarios, 0 FAILED
+
+== Notes
+
+Aucun port Ollama utilisé. Aucune dépendance ajoutée. Zéro deuxième invocation LLM évitée sur generatePivotYaml grâce à la Loi de l'Économie d'Encre.

@@ -89,6 +89,17 @@ abstract class GeneratePivotYamlTask : DefaultTask {
         val yaml = PivotYamlRenderer().render(article)
 
         output.parentFile?.mkdirs()
+
+        if (output.exists()) {
+            val existing = output.readText()
+            if (existing == yaml) {
+                logger.lifecycle(
+                    "[generatePivotYaml] ⏭ ${input.name} → ${output.name} (identique, skip)"
+                )
+                return
+            }
+        }
+
         output.writeText(yaml)
 
         logger.lifecycle(

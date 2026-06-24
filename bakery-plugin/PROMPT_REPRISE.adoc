@@ -1,40 +1,34 @@
-= PROMPT REPRISE — Bakery — Session 163
-:session: 163
+= PROMPT REPRISE — Bakery — Session 164
+:session: 164
 :date: 2026-06-24
 
-== Session 162 terminée — BKY-PERF-6 : Migration FT→UT @TestInstance(PER_CLASS)
+== Session 163 terminée — 3 tâches accomplies
 
-Session d'optimisation des tests fonctionnels. Investigation BKY-PERF-1→5 :
-profiling 13 classes, baseline 4min10s, bottleneck incompressible GradleRunner.
+=== ✅ Loi de l'Économie d'Encre sur generatePivotYaml
+- `GeneratePivotYamlTask.generate()` : load-before-write + skip si identique
+- 1 nouveau FT : idempotence vérifiée (6/6 FT PASS)
 
-**BKY-PERF-6** : Migration de 6 classes FT vers UT avec `@TestInstance(PER_CLASS)`
-+ champs `project`/`ext` partagés via `@BeforeEach` + helpers configure*() privés.
-6 UT créées (IaConfig, ArticleIntention, ThemeIntention, ScaffoldIntention,
-CollectSiteContext, FirebaseAuthConfig). 6 FT supprimées. 1 nouveau FT
-(IntegrationRestoredFunctionalTests) conserve les tests réels d'exécution.
+=== ✅ 4e Golden Master — listes imbriquées + plantuml
+- `nested-plantuml.adoc` + `nested-plantuml.yaml` (listes `**`/`***`, plantuml)
+- 4/4 golden masters PASS
 
-`./gradlew test` BUILD SUCCESSFUL (11 tasks, 1m14s). Zéro code production modifié.
+=== ✅ Bug cucumber features 9/16
+- Déjà résolu par fix S161 (DuplicateStepDefinitionException). 0 FAILED.
 
-== Mission en cours
+=== Build
+- `./gradlew test` : 1m SUCCESS
+- `./gradlew cucumberTest` : 37 features, 0 FAILED
 
-Reprise des pistes reportées de S161 (S162 a dévié pour BKY-PERF) :
+== Prochaine mission
 
-1. **Loi de l'Économie d'Encre sur generatePivotYaml** :
-   - load-before-write + skip si identique
-   - Test : invoquer 2× la tâche, vérifier que la 2e fois ne réécrit pas
+Toutes les EPICs connues de Bakery sont closes (129/129 Cucumber PASS, 4 golden masters,
+Loi de l'Économie d'Encre active). Bakery est production-ready.
 
-2. **Étendre golden masters** : 4e golden master avec listes imbriquées + plantuml
+Priorités disponibles :
+1. Vérifier Kover threshold (`./gradlew koverThresholdCheck`)
+2. Prochaine priorité depuis BACKLOG (nouvel EPIC ou maintenance)
 
-3. **Bug préexistant cucumber** (optionnel) : features 9, 16 steps non chargés
-
-== Contexte tests
-
-* 6 nouvelles UT PER_CLASS : `src/test/kotlin/bakery/{llm,article,theme,scaffold,lens}/`
-* `IntegrationRestoredFunctionalTests` : tests GradleRunner réels dans 3 inner classes
-* `./gradlew test` = 1m14s SUCCESS
-
-== Notes techniques
-
-* Ports Ollama autorisés : 11437-11465. Modèles : `gpt-oss:120b-cloud`, `gemma4:31b-cloud`.
-* BKY-PERF EPIC ajouté dans BACKLOG (section synthèse optimisation FT).
-* maxParallelForks fixé à 3 (build.gradle.kts:158, BKY-PERF-5).
+== Contexte technique
+- Ports Ollama : 11437-11465. Modèles : `gpt-oss:120b-cloud`, `gemma4:31b-cloud`
+- maxParallelForks = 3
+- Cucumber 7.34.3, Gradle 9.5.1, Kotlin 2.3.20

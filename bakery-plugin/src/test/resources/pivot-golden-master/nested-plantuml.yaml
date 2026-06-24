@@ -1,0 +1,87 @@
+# Article YAML Pivot — nested-plantuml.adoc
+# 4e golden master — stress test listes imbriquées **/*** + plantuml pass-through.
+# Apporte : listes non-ordonnées 3 niveaux, source plantuml, listes ordonnées.
+
+article:
+  frontmatter:
+    title: "Architecture et deploiement"
+    date: "2026-06-24"
+    type: "page"
+    status: "published"
+
+  blocks:
+    - type: heading
+      level: 2
+      text: "Architecture du pipeline"
+      translatable: true
+    - type: paragraph
+      inline:
+        - text: "Le pipeline de deploiement comprend plusieurs etapes."
+          translatable: true
+    - type: heading
+      level: 3
+      text: "Etapes de build"
+      translatable: true
+    - type: list
+      ordered: false
+      items:
+        - inline:
+            - text: "Preparation"
+              translatable: true
+        - inline:
+            - text: "Installer les dependances"
+              translatable: true
+        - inline:
+            - text: "Verifier les pre-requis systeme"
+              translatable: false
+        - inline:
+            - text: "Configurer l'environnement"
+              translatable: true
+        - inline:
+            - text: "Compilation"
+              translatable: true
+        - inline:
+            - text: "Compiler le code source"
+              translatable: true
+        - inline:
+            - text: "Executer les tests unitaires"
+              translatable: true
+        - inline:
+            - text: "Empaquetage"
+              translatable: true
+        - inline:
+            - text: "Generer l'artefact"
+              translatable: true
+        - inline:
+            - text: "Signer le binaire"
+              translatable: true
+    - type: heading
+      level: 3
+      text: "Diagramme de sequence"
+      translatable: true
+    - type: source
+      language: plantuml
+      translatable: false
+      content: |
+        @startuml
+        Alice -> Bob: Authentication Request
+        Bob --> Alice: Authentication Response
+        Alice -> Bob: Another request
+        Bob --> Alice: Another response
+        @enduml
+    - type: heading
+      level: 3
+      text: "Tests de regression"
+      translatable: true
+    - type: list
+      ordered: true
+      items:
+        - inline:
+            - text: "Preparer l'environnement de test"
+              translatable: true
+        - inline:
+            - text: "Executer la suite de tests"
+              translatable: true
+        - inline:
+            - text: "Verifier les resultats"
+              translatable: true

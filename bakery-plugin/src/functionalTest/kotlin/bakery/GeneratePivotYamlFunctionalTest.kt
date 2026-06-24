@@ -128,6 +128,44 @@ class GeneratePivotYamlFunctionalTest {
         assertThat(result.output).contains("generatePivotYaml")
     }
 
+    @Test
+    fun `generatePivotYaml does not rewrite identical output on second invocation`() {
+        createProject()
+        val adocFile = projectDir.resolve("article.adoc")
+        adocFile.writeText("""
+            title=Idempotence test
+            date=2026-06-24
+            type=page
+            status=published
+            ~~~~~~
+
+            == Section unique
+
+            Contenu stable.
+        """.trimIndent())
+
+        GradleRunner.create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments("generatePivotYaml", "--input=article.adoc", "--output=pivot.yaml")
+            .build()
+
+        val outputFile = projectDir.resolve("pivot.yaml")
+        assertThat(outputFile.exists()).isTrue()
+        val firstContent = outputFile.readText()
+        assertThat(firstContent).contains("Section unique")
+
+        val result2 = GradleRunner.create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments("generatePivotYaml", "--input=article.adoc", "--output=pivot.yaml")
+            .build()
+
+        assertThat(result2.output).contains("BUILD SUCCESSFUL")
+        val secondContent = outputFile.readText()
+        assertThat(secondContent).isEqualTo(firstContent)
+    }
+
     private fun createProject() {
         projectDir.resolve("settings.gradle.kts").writeText("""
             pluginManagement { repositories { gradlePluginPortal(); mavenLocal() } }

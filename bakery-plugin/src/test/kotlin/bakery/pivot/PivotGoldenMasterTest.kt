@@ -24,6 +24,11 @@ class PivotGoldenMasterTest {
         assertRoundTripByteIdentical("scripts")
     }
 
+    @Test
+    fun `golden master nested plantuml adoc to yaml is byte identical`() {
+        assertRoundTripByteIdentical("nested-plantuml")
+    }
+
     private fun assertRoundTripByteIdentical(baseName: String) {
         val adoc = readResource("pivot-golden-master/$baseName.adoc")
         val expectedYaml = readResource("pivot-golden-master/$baseName.yaml")

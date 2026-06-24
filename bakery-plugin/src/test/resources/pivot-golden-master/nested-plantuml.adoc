@@ -1,0 +1,40 @@
+title=Architecture et deploiement
+date=2026-06-24
+type=page
+status=published
+~~~~~~
+
+== Architecture du pipeline
+
+Le pipeline de deploiement comprend plusieurs etapes.
+
+=== Etapes de build
+
+* Preparation
+** Installer les dependances
+*** Verifier les pre-requis systeme
+** Configurer l'environnement
+* Compilation
+** Compiler le code source
+** Executer les tests unitaires
+* Empaquetage
+** Generer l'artefact
+** Signer le binaire
+
+=== Diagramme de sequence
+
+[plantuml]
+----
+@startuml
+Alice -> Bob: Authentication Request
+Bob --> Alice: Authentication Response
+Alice -> Bob: Another request
+Bob --> Alice: Another response
+@enduml
+----
+
+=== Tests de regression
+
+. Preparer l'environnement de test
+. Executer la suite de tests
+. Verifier les resultats
