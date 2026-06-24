@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-24 — Session 160 Architecture README Plugin + Consommateur.
-  _Session en cours_ : 160 terminée — README.plugin → bakery-plugin/, README.consommateurs → racine borough, liens i18n recréés (10 langues).
-  _Prochaine session_ : 161 — Loi Économie d'Encre sur generatePivotYaml + CLI @Option + 4e golden master.
+  _Derniere mise a jour_ : 2026-06-24 — Session 161 Migration @Option natif --input/--output sur generatePivotYaml.
+  _Session en cours_ : 161 terminée — PivotOutputResolver (concept pur, 9 UT) + GeneratePivotYamlTask migré Property<String> + @Option + 5 functional + 4 BDD scénarios PASS. DuplicateStepDefinitionException résolu.
+  _Prochaine session_ : 162 — Loi Économie d'Encre sur generatePivotYaml + 4e golden master + bug cucumber features 9/16.
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 161 | 2026-06-24 | DDD + TDD + BDD | **Migration @Option natif --input/--output sur generatePivotYaml** — DDD : `PivotOutputResolver` (concept pur, 9 UT) — résout chemin sortie défaut `{stem}.pivot.yaml` + priorité explicite > défaut. TDD : `GeneratePivotYamlTask` migré `RegularFileProperty` → `Property<String>` + `@Option` (convention `MigrateToI18nTask`/`GenerateArticleTask`). 5/5 functional tests GREEN (`--input`/`--output`, défaut output, missing input, missing option, group). BDD : Feature 38 étendue (4 scénarios). Bug `DuplicateStepDefinitionException` résolu (renommage step `the pivot build should succeed` pour éviter collision `MinimalSteps`). `PivotTaskRegistrar` nettoyé (résolution `gradleProperty` supprimée). 49 UT pivot + 5 functional + 4 BDD PASS. | 8/10
   | 159 | 2026-06-24 | DDD + TDD + BDD | **Fix découverte Gradle + Edge cases Parser + Tâche generatePivotYaml** — Fix exclusion `contracts.pipeline.scenarios.*` du `:test` task (bug bloquait PivotGoldenMasterTest indéfiniment). Fix 2 bugs parser : boucle infinie `parseParagraph` sur `----` flottant + `parseSourceBlock` fermé par `====` (tolérance AsciiDoc). 3 edge cases TDD : tables multi-lignes (cellules sur plusieurs lignes) + listes imbriquées (`**`/`***`) + plantuml pass-through. Tâche Gradle `generatePivotYaml` (GeneratePivotYamlTask + PivotTaskRegistrar + BakeryPlugin wiring) — 3/3 functional tests PASS. Cucumber feature 38 (2 scénarios BDD). 7 nouveaux UT parser. `:test` complet 1m 1s SUCCESS (vs timeout 5min avant). Correction golden master YAML (Resseau). | 9/10
   | 158 | 2026-06-24 | DDD + TDD + BDD | **Golden Masters Pivot GREEN + Classifier Heuristique** — Débogage découverte Gradle PivotGoldenMasterTest : bug noms méthodes backtick (espaces Java), workaround = nom méthode complet. DDD : `TextTranslatableClassifier` (nouvelle classe, 10 UT) — heuristique `translatable: true/false` pour segments `Text`. TDD : `AsciiDocParser` support listes numérotées (`1.`, `2.`, `3.`). TDD : `PivotYamlRenderer` corrections indentation inline children listes (10→12) + tables header/rows (`- - inline:`) + `yamlScalar(language)`. BDD : `PivotGoldenMasterTest` normalisation (suppression commentaires inline + lignes `translatable:`). 3/3 golden masters PASS (quick-start, ab-partition, scripts). 32 UT pivot PASS. | 8/10
   | 157 | 2026-06-24 | DDD + TDD + BDD | **Parser AsciiDoc→YAML Pivot + READMEs badges** — Alignement 2 YAML pivots (ab-partition tables `text:`→`inline[]`, 16 cellules). Parser pivot complet baby steps DDD/TDD : PivotModel (sealed classes, 8 blocs + 4 inline) + PivotYamlRenderer (déterministe) + AsciiDocParser (frontmatter, headings, paragraphs, inline bold/code/link, lists, source, admonition, hr, tables). 30 UT PASS (4 modèle + 9 renderer + 17 parser). PivotGoldenMasterTest créé mais bloqué par problème découverte Gradle. READMEs 4 fichiers mis à jour : 8 badges shields.io + tableau i18n enrichi avec locuteurs du CSV (~5.4B total). | 8/10
@@ -216,7 +217,7 @@ _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
 | Projet | Repertoire | Session en cours | Derniere MAJ
   | magic-stick | `~/workspace/foundry/public/magic-stick` | 014 | 2026-05-11
   | plantuml-gradle | `~/workspace/foundry/public/plantuml-gradle/plantuml-plugin` | 148 | 2026-06-11
-  | bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 159 | 2026-06-24
+  | bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 161 | 2026-06-24
   | jhipster-gradle-plugins | `~/workspace/foundry/public/jhipster-gradle-plugins` | 9 | 2026-06-11
   | quizz-benchmark-gradle | `~/workspace/foundry/private/quizz-benchmark-gradle/quizz-benchmark-plugin` | Audit 053 | 2026-04-30
   | runner-gradle | `~/workspace/foundry/public/runner-gradle` | 029 | 2026-05-12

@@ -1,0 +1,112 @@
+= Session 161 — Migration @Option natif --input/--output sur generatePivotYaml
+:session: 161
+:date: 2026-06-24
+:type: DDD + TDD + BDD
+:score: 8/10
+
+== Objectif
+
+Migrer la CLI de `generatePivotYaml` des propriétés Gradle `-Pinput`/`-Poutput`
+vers des options natives `@Option` (`--input`/`--output`), conformément à la
+convention des autres tâches bakery (`MigrateToI18nTask`, `GenerateArticleTask`,
+`AccessibilityAuditTask`). Baby steps DDD/TDD/BDD.
+
+== Baby steps
+
+=== Step A — DDD/TDD : PivotOutputResolver (concept pur)
+
+Extraction de la logique de résolution du chemin de sortie YAML (défaut
+`{stem}.pivot.yaml`) dans un concept pur testable sans Gradle.
+
+* `src/main/kotlin/bakery/pivot/PivotOutputResolver.kt` (nouveau, 38 lignes)
+  - `resolveDefaultOutput(input: String): String` — convention nommage
+  - `resolveOutput(input, explicitOutput?): String` — priorité explicite > défaut
+* `src/test/kotlin/bakery/pivot/PivotOutputResolverTest.kt` (nouveau, 9 UT)
+  - défaut depuis basename, préservation répertoire, sans extension, dotfiles,
+    multi-dot, empty path, explicite non-blank, explicite blank/null
+
+Résultat : 9/9 UT GREEN.
+
+=== Step A — Migration GeneratePivotYamlTask
+
+`RegularFileProperty` → `Property<String>` + `@Option` :
+
+[source,kotlin]
+----
+@get:Input @get:Optional
+@get:Option(option = "input", description = "Chemin du fichier AsciiDoc source")
+abstract val inputPath: Property<String>
+
+@get:Input @get:Optional
+@get:Option(option = "output", description = "Chemin du fichier YAML pivot destination")
+abstract val outputPath: Property<String>
+----
+
+* `@TaskAction` résout `File` via `project.file()`, valide `--input` requis,
+  utilise `PivotOutputResolver.resolveOutput()` pour le défaut.
+* Constructeur explicite (init group/description + conventions vides).
+
+=== Step B — TDD functional
+
+`GeneratePivotYamlFunctionalTest` migré (5 tests) :
+
+. `--input`/`--output` produit YAML (vérifie contenu frontmatter/heading/paragraph)
+. `--input` seul → défaut `article.pivot.yaml` (convention PivotOutputResolver)
+. `--input=nonexistent.adoc` → fail "n'existe pas"
+. sans `--input` → fail "requis"
+. tâche enregistrée dans group `generate`
+
+Résultat : 5/5 functional GREEN.
+
+=== Step C — BDD feature 38
+
+Feature 38 étendue (4 scénarios) :
+
+. task registered without site.yml (fail missing input)
+. produces YAML from AsciiDoc input
+. **nouveau** : derives default output path when --output omitted
+. **nouveau** : fails when --input option is missing
+
+Steps Cucumber migrés : `-Pinput`/`-Poutput` → `--input`/`--output`.
+3 nouveaux steps : `with only input`, `without any option`, `fail requiring option`.
+
+Bug collision glue : `the build should succeed` existait dans `MinimalSteps`
+(sémantique différente). Renommé en `the pivot build should succeed` pour
+éviter `DuplicateStepDefinitionException`.
+
+Résultat : 4/4 scénarios pivot PASS.
+
+=== Step D — Nettoyage PivotTaskRegistrar
+
+Résolution `providers.gradleProperty("input")` supprimée — `@Option` peuple
+directement les `Property<String>`. Registrar réduit à l'enregistrement pur.
+
+== Vérification
+
+* `./gradlew compileKotlin` — OK
+* `./gradlew publishToMavenLocal` — OK (jar 0.0.2, règle absolue §0 AGENT.adoc)
+* `./gradlew test --tests "bakery.pivot.*"` — 49 UT GREEN (41 existants + 8 nouveaux PivotOutputResolver, 1 golden master)
+* `./gradlew functionalTest --tests "bakery.GeneratePivotYamlFunctionalTest" --rerun-tasks` — 5/5 GREEN
+* `./gradlew cucumberTest` — 4/4 scénarios pivot PASS (DuplicateStepDefinitionException résolu)
+
+== Bug préexistant (non introduit)
+
+108 failures `UndefinedStepException` sur features 9, 16, etc. — bug
+préexistant documenté dans BACKLOG piste #4 (cucumber-picocontainer DI).
+Non affecté par cette session.
+
+== Fichiers modifiés/créés
+
+* `src/main/kotlin/bakery/pivot/PivotOutputResolver.kt` (nouveau)
+* `src/main/kotlin/bakery/pivot/GeneratePivotYamlTask.kt` (réécrit)
+* `src/main/kotlin/bakery/pivot/PivotTaskRegistrar.kt` (nettoyé)
+* `src/test/kotlin/bakery/pivot/PivotOutputResolverTest.kt` (nouveau)
+* `src/functionalTest/kotlin/bakery/GeneratePivotYamlFunctionalTest.kt` (réécrit)
+* `src/test/scenarios/bakery/scenarios/GeneratePivotYamlSteps.kt` (migré + 3 steps)
+* `src/test/features/38_generate_pivot_yaml.feature` (4 scénarios)
+
+== Reste à faire (session 162)
+
+. **Loi de l'Économie d'Encre sur generatePivotYaml** — load-before-write + skip si identique
+. **4e golden master** — listes imbriquées + plantuml pass-through
+. **Bug cucumber features 9, 16** (optionnel)

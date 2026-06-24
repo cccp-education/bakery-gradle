@@ -1,5 +1,32 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 161 — 2026-06-24 — Migration @Option natif --input/--output sur generatePivotYaml
+
+**Contexte** : La tâche `generatePivotYaml` (S159) utilisait `-Pinput`/`-Poutput`
+(résolution manuelle `providers.gradleProperty` dans `PivotTaskRegistrar`). Les
+autres tâches bakery (`MigrateToI18nTask`, `GenerateArticleTask`,
+`AccessibilityAuditTask`) utilisent déjà `@Option`. Migration pour cohérence.
+
+**Baby steps DDD/TDD/BDD** :
+
+. *DDD* : `PivotOutputResolver` (concept pur, 9 UT) — résout chemin sortie défaut
+  `{stem}.pivot.yaml` + priorité explicite > défaut. Remplace la logique inline
+  de `PivotTaskRegistrar` (S159).
+. *TDD* : `GeneratePivotYamlTask` migré `RegularFileProperty` →
+  `Property<String>` + `@Option(option="input")`/`@Option(option="output")`.
+  `@TaskAction` résout `File` via `project.file()`, valide `--input` requis,
+  utilise `PivotOutputResolver.resolveOutput()`. 5/5 functional tests GREEN.
+. *BDD* : Feature 38 étendue (4 scénarios). Bug `DuplicateStepDefinitionException`
+  résolu (renommage step `the pivot build should succeed` pour éviter collision
+  `MinimalSteps`). 4/4 scénarios cucumber PASS.
+. *Nettoyage* : `PivotTaskRegistrar` réduit à l'enregistrement pur (résolution
+  `gradleProperty` supprimée).
+
+**Vérification** : 49 UT pivot + 5 functional + 4 BDD PASS.
+`publishToMavenLocal` OK (jar 0.0.2).
+
+**Fichiers** : 7 modifiés/créés (3 main + 4 test).
+
 == Session 159 — 2026-06-24 — Fix découverte Gradle + Edge cases Parser + Tâche generatePivotYaml
 
 **Contexte** : Session 158 avait passé les 3 golden masters GREEN via workaround

@@ -1,8 +1,24 @@
 = Analyse de Couverture des Tests — Bakery Gradle Plugin
 
-_Derniere mise a jour_ : 2026-06-24 (Session 158)
+_Derniere mise a jour : 2026-06-24 (Session 161)
 
 '''
+
+== Session 161 — Migration @Option natif --input/--output sur generatePivotYaml
+
+Migration CLI `generatePivotYaml` vers options natives `@Option`. Nouveau
+concept pur `PivotOutputResolver` (résolution chemin sortie YAML). Task migrée
+`RegularFileProperty` -> `Property<String>` + `@Option`. Functional + BDD migrés.
+
+|===
+| Classe | Tests | Statut | Notes
+| PivotOutputResolverTest | 9 | OK | defaut basename, preservation repertoire, sans extension, dotfiles, multi-dot, empty path, explicite non-blank, explicite blank/null
+| GeneratePivotYamlFunctionalTest | 5 | OK | `--input`/`--output` natifs, defaut output convention, missing input fail, missing option fail, group registration
+| Feature 38 (generatePivotYaml) | 4 | OK | task registered, produces YAML, derives default output, fails missing --input
+|===
+
+**Total Session 161** : 9 nouveaux UT + 5 functional (reecrits) + 4 BDD scenarios
+(2 nouveaux). 49 UT pivot total. Bug `DuplicateStepDefinitionException` resolu.
 
 == Session 158 — Golden Masters Pivot GREEN + TextTranslatableClassifier
 

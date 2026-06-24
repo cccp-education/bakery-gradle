@@ -8,6 +8,8 @@ import java.io.File
 
 /**
  * Session 159 — Tests fonctionnels pour generatePivotYaml.
+ * Session 161 — Migration CLI `-Pinput`/`-Poutput` → options natives
+ * `--input`/`--output` (annotation `@Option`).
  *
  * Valide que la tâche Gradle parse un fichier AsciiDoc et produit
  * un fichier YAML pivot (séparation structure/contenu éditorial).
@@ -22,7 +24,7 @@ class GeneratePivotYamlFunctionalTest {
     lateinit var projectDir: File
 
     @Test
-    fun `generatePivotYaml produces yaml file from adoc input`() {
+    fun `generatePivotYaml produces yaml file from adoc input via --input option`() {
         createProject()
         val adocFile = projectDir.resolve("input.adoc")
         adocFile.writeText("""
@@ -40,7 +42,7 @@ class GeneratePivotYamlFunctionalTest {
         val result = GradleRunner.create()
             .withProjectDir(projectDir)
             .withPluginClasspath()
-            .withArguments("generatePivotYaml", "-Pinput=input.adoc", "-Poutput=pivot.yaml")
+            .withArguments("generatePivotYaml", "--input=input.adoc", "--output=pivot.yaml")
             .build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
@@ -57,17 +59,60 @@ class GeneratePivotYamlFunctionalTest {
     }
 
     @Test
-    fun `generatePivotYaml fails when input file is missing`() {
+    fun `generatePivotYaml derives default output path from --input when --output omitted`() {
+        createProject()
+        val adocFile = projectDir.resolve("article.adoc")
+        adocFile.writeText("""
+            title=Convention output
+            date=2026-06-24
+            type=page
+            status=published
+            ~~~~~~
+
+            == Section
+
+            Contenu.
+        """.trimIndent())
+
+        val result = GradleRunner.create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments("generatePivotYaml", "--input=article.adoc")
+            .build()
+
+        assertThat(result.output).contains("BUILD SUCCESSFUL")
+        // Convention PivotOutputResolver : {stem}.pivot.yaml
+        val defaultOutput = projectDir.resolve("article.pivot.yaml")
+        assertThat(defaultOutput.exists()).isTrue()
+        assertThat(defaultOutput.readText()).contains("article:")
+    }
+
+    @Test
+    fun `generatePivotYaml fails when input file does not exist`() {
         createProject()
 
         val result = GradleRunner.create()
             .withProjectDir(projectDir)
             .withPluginClasspath()
-            .withArguments("generatePivotYaml", "-Pinput=nonexistent.adoc", "-Poutput=pivot.yaml")
+            .withArguments("generatePivotYaml", "--input=nonexistent.adoc", "--output=pivot.yaml")
             .buildAndFail()
 
         assertThat(result.output).contains("nonexistent.adoc")
-        assertThat(result.output).contains("doesn't exist")
+        assertThat(result.output).contains("n'existe pas")
+    }
+
+    @Test
+    fun `generatePivotYaml fails when --input option is missing`() {
+        createProject()
+
+        val result = GradleRunner.create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments("generatePivotYaml")
+            .buildAndFail()
+
+        assertThat(result.output).contains("--input")
+        assertThat(result.output).contains("requis")
     }
 
     @Test

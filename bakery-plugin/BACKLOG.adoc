@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-24 — Session 159. Fix découverte Gradle + 3 edge cases parser + tâche generatePivotYaml (3 functional + 2 BDD). `:test` complet 1m 1s SUCCESS. 41 UT pivot._
+_Dernière mise à jour : 2026-06-24 — Session 161. Migration @Option natif --input/--output sur generatePivotYaml. `PivotOutputResolver` (concept pur, 9 UT). 49 UT pivot + 5 functional + 4 BDD PASS._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -179,7 +179,7 @@ _Bakery est production-ready. Parser pivot AsciiDoc→YAML livré (41 UT + 3/3 g
 | —
 
 | 2
-| **Loi de l'Économie d'Encre sur generatePivotYaml** — `GeneratePivotYamlTask` doit lire le YAML existant avant d'écrire. Si YAML généré == YAML existant → skip écriture (ne pas écraser). Préparation pipeline i18n qui consomme le YAML pivot. + CLI option natif `--input`/`--output` (via `@Option` au lieu de `-Pinput`).
+| **✅ RÉSOLU PARTIELLEMENT (S161)** — CLI option natif `--input`/`--output` (via `@Option`) migré. `PivotOutputResolver` (concept pur, 9 UT) extrait. `GeneratePivotYamlTask` migré `Property<String>` + `@Option`. `PivotTaskRegistrar` nettoyé. 5 functional + 4 BDD scénarios PASS. **Reste** : Loi de l'Économie d'Encre (load-before-write + skip si identique).
 | Baby steps DDD/TDD/BDD — load-before-write + test idempotence économique.
 
 | 3

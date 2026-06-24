@@ -7,6 +7,12 @@ import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import java.io.File
 
+/**
+ * Session 159 — Steps Cucumber pour generatePivotYaml.
+ * Session 161 — Migration CLI vers options natives `@Option` :
+ * `-Pinput`/`-Poutput` → `--input`/`--output`. Ajout scénarios défaut
+ * output (convention PivotOutputResolver) et `--input` manquant.
+ */
 class GeneratePivotYamlSteps(private val world: BakeryWorld) {
 
     @Given("a new Bakery project without site.yml")
@@ -50,14 +56,32 @@ class GeneratePivotYamlSteps(private val world: BakeryWorld) {
     @When("I execute generatePivotYaml with input {string} and output {string}")
     fun executeGeneratePivotYaml(input: String, output: String) = runBlocking {
         try {
-            world.executeGradle("generatePivotYaml", "-Pinput=$input", "-Poutput=$output")
+            world.executeGradle("generatePivotYaml", "--input=$input", "--output=$output")
         } catch (_: Exception) {
             // capturé dans world.exception
         }
     }
 
-    @Then("the build should succeed")
-    fun buildShouldSucceed() {
+    @When("I execute generatePivotYaml with only input {string}")
+    fun executeGeneratePivotYamlWithOnlyInput(input: String) = runBlocking {
+        try {
+            world.executeGradle("generatePivotYaml", "--input=$input")
+        } catch (_: Exception) {
+            // capturé dans world.exception
+        }
+    }
+
+    @When("I execute generatePivotYaml without any option")
+    fun executeGeneratePivotYamlWithoutOption() = runBlocking {
+        try {
+            world.executeGradle("generatePivotYaml")
+        } catch (_: Exception) {
+            // capturé dans world.exception
+        }
+    }
+
+    @Then("the pivot build should succeed")
+    fun pivotBuildShouldSucceed() {
         assertThat(world.exception)
             .describedAs("Build should have succeeded (no exception expected)")
             .isNull()
@@ -77,6 +101,13 @@ class GeneratePivotYamlSteps(private val world: BakeryWorld) {
     fun buildShouldFailWithMissingInput(fileName: String) {
         assertThat(world.exception)
             .describedAs("Build should have failed for missing input '$fileName'")
+            .isNotNull()
+    }
+
+    @Then("the build should fail requiring option {string}")
+    fun buildShouldFailRequiringOption(option: String) {
+        assertThat(world.exception)
+            .describedAs("Build should have failed requiring option '$option'")
             .isNotNull()
     }
 }
