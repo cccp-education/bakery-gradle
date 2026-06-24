@@ -1,7 +1,7 @@
-= Session 165 — 2026-06-24 — Vérification koverThresholdCheck + Investigation Loi Économie d'Encre
+= Session 165 — 2026-06-25 — koverThresholdCheck PASS + Investigation i18n + Cadrage EPIC BKY-TREE
 :session: 165
-:date: 2026-06-24
-:type: vérification + investigation
+:date: 2026-06-25
+:type: vérification + investigation + cadrage
 
 == Mission
 
@@ -32,31 +32,61 @@ La Loi de l'Économie d'Encre (conceptualisée S153 bakery, propagée S154 aux
   (gouvernance proclamée S154). Zéro ligne de code applicatif.
 * *workspace-bom* : `pipeline-contracts` (MEM-2, code prêt 33/33 PASS)
   n'est pas encore publié sur Maven Central (PUB-3.06 à faire).
-  `llm-pool-contracts` (5 classes) publié 0.0.1.
-* *Audit cross-borough* : 9 `AGENT.adoc` contiennent la section Loi
-  (codex, training, capsule, plantuml, readme, document, agile, ticket,
-  review) avec référence canonique vers bakery `AGENT.adoc`.
+* *Audit grep* : 9 `AGENT.adoc` contiennent la section Loi avec référence
+  canonique vers bakery `AGENT.adoc` (S153).
 
-=== 3. Cadrage option d'attaque (non exécuté)
+=== 3. Investigation i18n prod — état des fixtures vs sites réels
 
-Trois options identifiées, non départées faute de décision utilisateur :
+Audit des 3 sites réels (magic-stick, cccp.education, cheroliv.com) :
 
-* *Option A — Contrat N0* : sealed `MeteredOperation<T>` + `Delta<T>` +
-  `InkEconomyPolicy` dans workspace-bom (pipeline-contracts ou nouveau
-  module). DDD-first, transverse, évite 10 implémentations divergentes.
-* *Option B — Pilote borough* : implémenter load-before-write dans un
-  borough concret (codex RAG / readme / training SPG). TDD-first.
-* *Option C — A puis B* : contrat + pilote dans la même session.
+* *Templates `.thyme`* : 100% alignés (SHA-256 byte-identiques) pour les 3
+  sites. `FixtureAlignmentAuditorTest` 7/7 GREEN.
+* *Gaps identifiés* :
+  - `jbake.properties` diverge entre fixture et réel (clés spécifiques au
+    site : `site.host`, `magicStickVersion`, `template.*.file`, etc.)
+  - Dossiers `assets/` et `content/` totalement absents des fixtures
+    (cheroliv.com : 635 fichiers dans `content/`)
+  - `.jbakeignore` absent des fixtures magic-stick + cccp
+* *Prod = zéro migration* : 0 fichier `messages_*.properties`, 0 attribut
+  `th:text="#{}"` dans les templates. La migration n'a jamais été lancée
+  sur les vrais sites.
+* *Oracle traductions EN* : versionné par fixture (`translations_en.properties`),
+  test garantit que toute clé extraite a une traduction EN validée avant prod.
 
-L'utilisateur a clôturé la session avant de départager.
+=== 4. Cadrage EPIC BKY-TREE — Arbre de Site Composite
+
+Suite à la découverte que `SiteConfiguration` est plate (pas d'arborescence
+éditoriale), l'utilisateur a proposé le concept unifiant manquant : `SiteTree`
+(Composite Site→Section→Article→PivotModel AST).
+
+* *Motivation* : `SiteConfiguration` est plate (infra only). `ScaffoldOutput.
+  templates: List<String>` est plate. La migration i18n walk `templates/` à
+  plat. Aucun concept ne modélise l'arborescence éditoriale. Conséquence : la
+  Loi de l'Économie d'Encre ne peut pas calculer un delta ciblé par sous-arbre.
+* *Vision* : agregat `SiteTree` à 4 niveaux — `Site` (root) → `Section` →
+  `Article` (feuille) → `PivotModel` (AST déjà construit S157-163). Chaque
+  niveau manipulable indépendamment (theme, i18n, accessibilité, Économie
+  d'Encre par sous-arbre).
+* *7 US cadrées* : TREE-1 (SiteNode sealed, 5 pts) → TREE-2 (SiteTree aggregate,
+  5) → TREE-3 (Content wrapper PivotModel, 3) → TREE-4 (YAML serialization,
+  5) → TREE-5 (Theme inheritance, 5) → TREE-6 (i18n par sous-arbre, 8) →
+  TREE-7 (Scaffold IA arbre, 5). Total ~36 pts.
+* *Projection* : S166 TREE-1+2 (socle domaine pur), S167 TREE-3+4 (AST+YAML),
+  S168 TREE-5+6 (theme+i18n), S169 TREE-7 (scaffold, clôture EPIC).
+* *Pré-requis* : ne pas réinventer PivotModel (fait, testé, golden-master) ;
+  backward compat (`templates: List<String>` reste accepté via adapter) ;
+  baby steps DDD/TDD/BDD à chaque US.
 
 == Livrables
 
 * Aucun code source modifié.
 * Aucun fichier de test modifié.
 * Vérification koverThresholdCheck : PASS (92,90%).
-* Investigation Loi Économie d'Encre : état des lieux transverse documenté
-  dans cette archive (réutilisable pour S166).
+* Investigation i18n prod : fixtures `.thyme` 100% alignées (SHA-256) pour
+  3 sites, gaps identifiés (`jbake.properties` diverge, `assets/`/`content/`
+  absents fixtures), prod = zéro migration.
+* Cadrage EPIC BKY-TREE formel : 7 US, ~36 pts, 4 sessions projetées.
+  Backlog rouvert. Détail dans `BACKLOG.adoc`.
 
 == Vérifications
 
@@ -68,12 +98,17 @@ L'utilisateur a clôturé la session avant de départager.
 
 * Aucun code source. Gouvernance uniquement :
   - `.agents/sessions/165-kover-threshold-verification.adoc` (ce fichier, créé)
-  - `PROMPT_REPRISE.adoc` (mise à jour pour session 166)
-  - `.agents/INDEX.adoc` (session 165 ajoutée)
+  - `PROMPT_REPRISE.adoc` (mise à jour pour session 166 → mission TREE-1)
+  - `.agents/INDEX.adoc` (session 165 ajoutée + EPIC BKY-TREE dans roadmap)
   - `.agents/SESSIONS_HISTORY.adoc` (entrée 165)
   - `.agents/archives/COMPLETED_TASKS_ARCHIVE_2026-06.adoc` (entrée 165)
+  - `.agents/TEST_COVERAGE_ANALYSIS.adoc` (métrique 92,90% MAJ)
+  - `BACKLOG.adoc` (EPIC BKY-TREE cadré — 7 US, ~36 pts, 4 sessions)
 
 == Score session
 
-7/10 — Vérification PASS faite (piste 1 close). Pas de code modifié, pas
-d'EPIC avancé. La piste 2 (Loi Encre) a été investiguée mais pas départée.
+8/10 — Vérification PASS faite (piste 1 close). Investigation i18n prod
+(fixtures alignées, gaps identifiés). Cadrage EPIC BKY-TREE formel (7 US,
+~36 pts, 4 sessions projetées) — réouvre le backlog bakery avec un concept
+unifiant manquant. Pas de code modifié, mais le cadrage est un livrable
+de valeur (backlog rouvert, projection posée).

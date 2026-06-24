@@ -60,11 +60,36 @@ a clôturé la session avant décision) :
 
 * Aucun code source. Gouvernance uniquement (5 fichiers) :
   - `.agents/sessions/165-kover-threshold-verification.adoc` (créé)
-  - `PROMPT_REPRISE.adoc` (mise à jour session 166)
-  - `.agents/INDEX.adoc` (session 165 ajoutée + portefeuille MAJ)
+  - `PROMPT_REPRISE.adoc` (mise à jour session 166 → mission TREE-1)
+  - `.agents/INDEX.adoc` (session 165 ajoutée + EPIC BKY-TREE dans roadmap)
   - `.agents/SESSIONS_HISTORY.adoc` (entrée 165)
   - `.agents/archives/COMPLETED_TASKS_ARCHIVE_2026-06.adoc` (ce fichier, entrée 165)
   - `.agents/TEST_COVERAGE_ANALYSIS.adoc` (métrique 92,90% MAJ)
+  - `BACKLOG.adoc` (EPIC BKY-TREE cadré — 7 US, ~36 pts, 4 sessions projetées)
+
+=== Tâche 3 — Cadrage EPIC BKY-TREE (réouverture backlog)
+
+Après investigation i18n prod et découverte que `SiteConfiguration` est plate
+(pas d'arborescence éditoriale), l'utilisateur a proposé le concept unifiant
+manquant : `SiteTree` (Composite Site→Section→Article→PivotModel AST).
+
+* *Motivation* : `SiteConfiguration` est plate (infra only). `ScaffoldOutput.
+  templates: List<String>` est plate. La migration i18n walk `templates/` à
+  plat. Aucun concept ne modélise l'arborescence éditoriale. Conséquence : la
+  Loi de l'Économie d'Encre ne peut pas calculer un delta ciblé par sous-arbre.
+* *Vision* : agregat `SiteTree` à 4 niveaux — `Site` (root) → `Section` →
+  `Article` (feuille) → `PivotModel` (AST déjà construit S157-163). Chaque
+  niveau manipulable indépendamment (theme, i18n, accessibilité, Économie
+  d'Encre par sous-arbre).
+* *7 US cadrées* : TREE-1 (SiteNode sealed, 5 pts) → TREE-2 (SiteTree aggregate,
+  5) → TREE-3 (Content wrapper PivotModel, 3) → TREE-4 (YAML serialization,
+  5) → TREE-5 (Theme inheritance, 5) → TREE-6 (i18n par sous-arbre, 8) →
+  TREE-7 (Scaffold IA arbre, 5). Total ~36 pts.
+* *Projection* : S166 TREE-1+2 (socle domaine pur), S167 TREE-3+4 (AST+YAML),
+  S168 TREE-5+6 (theme+i18n), S169 TREE-7 (scaffold, clôture EPIC).
+* *Pré-requis* : ne pas réinventer PivotModel (fait, testé, golden-master) ;
+  backward compat (`templates: List<String>` reste accepté via adapter) ;
+  baby steps DDD/TDD/BDD à chaque US.
 
 '''
 

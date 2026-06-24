@@ -11,13 +11,19 @@ _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/C
 
 [CAUTION]
 ====
-**Tous les EPICs connus sont clos. Bakery est production-ready.**
+**Bakery était production-ready (S164). EPIC BKY-TREE (cadré S165) rouvre le
+backlog pour introduire le concept unifiant `SiteTree` (Composite
+Site→Section→Article→PivotModel AST). Détail dans la section EPIC BKY-TREE
+ci-dessous.**
 *Publication* : 0.0.2 sur Maven Central (LIVE) + Gradle Plugin Portal (propagation 24-48h).
-*Coverage* : 85.88% (Kover), seuil `koverThresholdCheck` PASS.
+*Coverage* : 92,90% (Kover, S165), seuil `koverThresholdCheck` PASS.
 *Code smells* : 24/24 V2-V4 + 60 V5 + 3 V6 résolus (24/24 V5 via US-1→8, 8/8 V6).
 *Loi de l'Économie d'Encre* : encodée dans bakery + 9 boroughs transverses (S154).
+  Implémentée dans bakery (I18nMigrationService delta S153 + generatePivotYaml
+  load-before-write S163). 9 autres boroughs = gouvernance only (AGENT.adoc).
+  BKY-TREE-6 étendra l'application au delta par sous-arbre.
 *Parser pivot* : 41 UT + 4/4 golden masters GREEN + tâche `generatePivotYaml` (6 functional + 4 BDD).
-*Session en cours* : 164 terminée — Fix OGNL 10 templates (#sets -> #lists.contains), E2E optimisé (PlaywrightPool singleton + cache installPlaywright + forkEvery supprimé). 19/19 E2E PASS.
+*Session en cours* : 165 terminée — koverThresholdCheck PASS (92,90%) + investigation Loi Économie d'Encre + cadrage EPIC BKY-TREE (7 US, ~36 pts, 4 sessions projetées).
 ====
 
 '''
@@ -168,7 +174,9 @@ _Tous résolus. Le détail par smell est dans le backup sess154 et `.agents/CODE
 
 == Pistes ouvertes
 
-_Aucune. Bakery est production-ready, tous les EPICs connus sont clos._
+_Bakery était production-ready (S164). EPIC BKY-TREE (S165) rouvre le backlog
+pour introduire le concept unifiant `SiteTree` (Composite Site→Section→Article
+→AST). Détail dans la section EPIC BKY-TREE ci-dessous._
 
 [cols="1,4,2]
 |===
@@ -177,11 +185,182 @@ _Aucune. Bakery est production-ready, tous les EPICs connus sont clos._
 | 1-4
 | **TOUTES RESOLUES (S159->S163)** — Debug PivotGoldenMasterTest, CLI @Option natif --input/--output + Loi Economie d Encre generatePivotYaml (load-before-write), 4e golden master nested-plantuml, bug cucumber features 9/16.
 | —
+
+| 5
+| **BKY-TREE — Arbre de Site** (cadré S165). Modéliser l'arborescence
+  éditoriale (Site→Section→Article→PivotModel AST) manquante. Prérequis pour
+  Loi Économie d'Encre par sous-arbre. 7 US, ~36 pts, 4 sessions projetées.
+| DDD/TDD/BDD
 |===
 
 '''
 
-== EPIC BKY-PERF — Optimisation exécution tests fonctionnels
+== EPIC BKY-TREE — Arbre de Site : Composite Site→Section→Article→AST
+
+_Cadré Session 165 (2026-06-25). Réouvre le backlog bakery après confirmation
+production-ready (S164). Concept unifiant manquant qui relie PivotModel (AST
+AsciiDoc, S157-163), SiteConfiguration (config plate), ScaffoldOutput (liste
+plate de templates), et la Loi de l'Économie d'Encre (delta global → delta par
+sous-arbre)._
+
+[CAUTION]
+====
+**Motivation** : `SiteConfiguration` est plate (infra only : push, firebase,
+theme). `ScaffoldOutput.templates: List<String>` est plate. La migration i18n
+walk `templates/` à plat. Aucun concept ne modélise l'arborescence éditoriale
+du site (section → article → contenu). Conséquence : la Loi de l'Économie
+d'Encre ne peut pas calculer un delta ciblé par sous-arbre — elle opère
+globalement, re-traduisant plus que nécessaire.
+
+**Vision** : introduire un agregat `SiteTree` (Composite pattern) à 4 niveaux —
+`Site` (root) → `Section` → `Article` (feuille) → `PivotModel` (AST déjà
+construit S157-163). Chaque niveau manipulable indépendamment : theme hérité
+ou surchargé, i18n par sous-arbre, accessibilité par section, Économie d'Encre
+par article (delta sur l'AST, pas sur tout le site).
+
+**Pré-requis respectés** :
+. *Ne pas réinventer PivotModel* — il est fait, testé, golden-master. `Content`
+  l'enveloppe comme feuille, point.
+. *Backward compat* — `ScaffoldOutput.templates: List<String>` reste accepté
+  via adapter flatten. Le nouveau `tree:` est additif dans `site.yml`.
+. *Scope* — ~36 pts sur 7 US, à slicer sur 2-3 sessions minimum.
+. *Méthodo* — baby steps DDD (sealed interface pur, testable sans Gradle) →
+  TDD (UT rouge avant code) → BDD (feature Cucumber pour bout en bout). Aucune
+  I/O dans les classes de domaine.
+====
+
+=== Arbre à 4 niveaux
+
+----
+Site (root)                    ← jbake.properties, theme global, i18n config
+└── Section                    ← template de section, theme override (optionnel)
+    └── Article                ← frontmatter + AsciiDoc source
+        └── PivotModel (AST)  ← déjà construit (S157-163)
+            ├── Heading, Paragraph, List, Source, Table, Admonition...
+            └── inline: Bold, Code, Link, Text
+----
+
+=== User Stories — baby steps DDD/TDD/BDD
+
+[cols="1,4,2,2,2"]
+|===
+| US | Description (domaine pur, no I/O) | Tests | Pts | Dépend de
+
+| BKY-TREE-1
+| *`SiteNode` sealed interface + implémentations* — `Site`, `Section`, `Article`
+  comme Composite (children) / Leaf (no children). Identity par chemin relatif
+  (`path: String`, ex `formations/ab-partition`). Data classes immutable.
+  Égalité structurelle. Pas de logique, pas d'I/O.
+| UT : construction, égalité, immutabilité, `isLeaf`/`isSection`, `path` canonical
+| 5
+| —
+
+| BKY-TREE-2
+| *`SiteTree` aggregate + visiteurs* — racine `Site`, méthodes `walk()`,
+  `filter(predicate)`, `findSubtree(path)`, `findByPath(path)`, `leaves()`,
+  `sections()`. Visiteur générique `fun <T> visit(transform: (SiteNode) -> T)`.
+  Pas de mutation in-place (retourne nouveaux arbres ou listes).
+| UT : traversal pré/post-order, subtree selection par path, collecte feuilles,
+  filtrage par type, arbre vide, arbre à 1 niveau, arbre à 3 niveaux
+| 5
+| TREE-1
+
+| BKY-TREE-3
+| *`Content` wrapper sur `PivotModel`* — l'article comme feuille AST. `Article`
+ porte un `Content` qui expose `pivot: PivotModel`, `blocs(): List<PivotBlock>`,
+`inlineTexts(): List<PivotInline>`, `translatableSegments(): List<PivotInline>`
+(délègue à `TextTranslatableClassifier` S158). Lien explicite Article↔AST.
+| UT : article expose son AST, walk blocs/inline, translatable segments,
+  article sans contenu (vide), article avec table imbriquée
+| 3
+| TREE-1
+
+| BKY-TREE-4
+| *YAML serialization — `tree:` section dans `site.yml`* — Jackson polymorphic
+  (`@JsonTypeInfo` + `@JsonSubTypes` sur `SiteNode`). Round-trip parse/serialize
+  déterministe. Additif — `site.yml` sans `tree:` reste valide (fallback
+  existing flat behavior). Section `tree:` optionnelle.
+| UT + FT : round-trip parse/serialize byte-identique, arbre vide, arbre 3
+  niveaux, absence de `tree:` (compat), erreur YAML explicite
+| 5
+| TREE-1, TREE-2
+
+| BKY-TREE-5
+| *Theme inheritance — site → section → article* — `effectiveTheme(node)` :
+  résout le thème effectif par nœud (héritage du parent si non surchargé,
+  override explicite sinon). `ThemeConfig` déjà existant (S068). Pas de
+  mutation — retourne `ResolvedTheme`. Détection de conflits (override
+  partiel interdit : si override, toutes les valeurs doivent être explicites).
+| UT : résolution thème effectif par nœud, héritage simple, override section,
+  override article, conflit override partiel détecté, racine sans theme
+| 5
+| TREE-2
+
+| BKY-TREE-6
+| *i18n migration par sous-arbre* — remplace le walk flat `templates/` actuel
+  par `tree.walk().filter { it is Article }`. Delta ciblé : un AsciiDoc modifié
+  → re-traduire seulement ses clés. Intégrité hors-sous-arbre préservée
+  (checksums des autres articles inchangés). Implémente la Loi de l'Économie
+  d'Encre par article (S153 global → S166 par feuille).
+| UT + BDD : delta ciblé article modifié, intégrité hors-sous-arbre préservée,
+  delta section renommée, idempotence re-exécution (Loi Économie d'Encre),
+  backward compat (walk flat si pas de `tree:`)
+| 8
+| TREE-2, TREE-3, TREE-4
+
+| BKY-TREE-7
+| *Scaffold IA retourne un arbre* — `ScaffoldOutput.tree: SiteNode` au lieu de
+  `templates: List<String>`. Adapter flatten pour backward compat (si
+  `tree:` absent, `templates:` est accepté). LLM prompt mis à jour pour
+  retourner une structure hiérarchique JSON. Feature Cucumber bout en bout.
+| FT + BDD : scaffold IA retourne arbre valide, adapter flatten backward
+  compat, scaffold sans tree (legacy), intégrité arbre vs templates liste
+| 5
+| TREE-4
+|===
+
+_Total_ : ~36 pts, 7 US.
+
+=== Dépendances (DAG)
+
+----
+TREE-1 (SiteNode) ─┬─→ TREE-2 (SiteTree) ─┬─→ TREE-4 (YAML) ─→ TREE-7 (Scaffold IA)
+                   │                        ├─→ TREE-5 (Theme)
+                   └─→ TREE-3 (Content) ────┘
+                                            └─→ TREE-6 (i18n sous-arbre)
+----
+
+*TREE-1* est racine (tout dépend de lui).
+*TREE-6* est le point de fusion (consume TREE-2 + TREE-3 + TREE-4) — c'est
+aussi le livrable qui concrétise la Loi de l'Économie d'Encre par sous-arbre.
+
+=== Projection sessions (à affiner)
+
+* *S166* — TREE-1 + TREE-2 (10 pts, 2 US, socle domaine pur)
+* *S167* — TREE-3 + TREE-4 (8 pts, 2 US, AST + YAML)
+* *S168* — TREE-5 + TREE-6 (13 pts, 2 US, theme + i18n, le gros morceau)
+* *S169* — TREE-7 (5 pts, 1 US, scaffold IA, clôture EPIC)
+
+Projection conservatrice : 4 sessions, ~36 pts, méthodo baby step
+DDD/TDD/BDD préservée à chaque US.
+
+=== Risques et mitigations
+
+[cols="3,5,4]
+|===
+| Risque | Mitigation
+| PivotModel non suffisant pour Article | `Content` wrapper ajoute métadonnées
+  (frontmatter, slug, date) sans toucher à PivotModel. PivotModel reste
+  l'AST pur, Content l'enveloppe.
+| `site.yml` casse sites existants | `tree:` est additif et optionnel. Fallback
+  behavior flat walk si absent. Testé en UT (TREE-4).
+| Scaffold IA casse LLM prompt | Adapter flatten garantit que `templates:
+  List<String>` reste accepté. Migration prompt progressive.
+| Scope trop gros pour 1 session | Slicing 4 sessions, chaque US est baby
+  step indépendant. TREE-1 seul = domaine pur testable sans Gradle.
+|===
+
+'''
 
 _Investigation S162 — voir `.agents/sessions/BKY-PERF-1-profiling.adoc` pour le détail._
 
@@ -250,8 +429,8 @@ _Investigation S162 — voir `.agents/sessions/BKY-PERF-1-profiling.adoc` pour l
 [cols="2,3]
 |===
 | Document | `BACKLOG.adoc`
-| Version | 10.0 — Session 155 (nettoyage : historisation détail EPICs terminés)
+| Version | 11.0 — Session 165 (cadrage EPIC BKY-TREE — arbre de site composite)
 | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
-| Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-154
-| Prochaine màj | Session 164+ — à la première évolution (nouvel EPIC ou piste choisie)
+| Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-165
+| Prochaine màj | Session 166 — démarrage TREE-1 (SiteNode sealed interface)
 |===

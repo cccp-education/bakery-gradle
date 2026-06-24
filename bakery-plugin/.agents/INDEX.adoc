@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour_ : 2026-06-24 — Session 165 koverThresholdCheck PASS (92,90%) + Investigation Loi Économie d'Encre transverse.
-_Session en cours_ : 165 terminée — (1) `./gradlew koverThresholdCheck` BUILD SUCCESSFUL 6m28s, instruction coverage 92,90% (missed=11540, covered=150915) — largement au-dessus du seuil Kover historique 85,88%, piste 1 close. (2) Audit Loi Économie d'Encre transverse : code bakery = 2 implémentations (`I18nMigrationService` S153 + `GeneratePivotYamlTask` S163) ; 9 autres boroughs = loi uniquement dans AGENT.adoc (S154, zéro code applicatif) ; `pipeline-contracts` (MEM-2) NON publié Central (PUB-3.06 restant). 3 options d'attaque identifiées (A contrat N0 / B pilote borough / C A+B), non départées. Aucun code source modifié, 5 fichiers gouvernance.
-_Prochaine session_ : 166 — Départager option d'attaque Loi Économie d'Encre (A/B/C) + possibly PUB-3.06 pipeline-contracts.
+_Derniere mise a jour : 2026-06-25 — Session 165 koverThresholdCheck PASS (92,90%) + Cadrage EPIC BKY-TREE (arbre de site composite, 7 US, ~36 pts).
+_Session en cours_ : 165 terminée — (1) `./gradlew koverThresholdCheck` BUILD SUCCESSFUL 6m28s, instruction coverage 92,90%. (2) Investigation i18n prod : fixtures `.thyme` 100% alignées (SHA-256) pour 3 sites, gaps identifiés (`jbake.properties` diverge, `assets/`/`content/` absents fixtures), prod = zéro migration. (3) Cadrage EPIC BKY-TREE — concept unifiant `SiteTree` (Composite Site→Section→Article→PivotModel AST) manquant. 7 US (TREE-1→7), ~36 pts, 4 sessions projetées (S166→S169). Backlog rouvert. Détail dans `BACKLOG.adoc`.
+_Prochaine session_ : 166 — Démarrer BKY-TREE-1 (SiteNode sealed interface) + BKY-TREE-2 (SiteTree aggregate + visiteurs). Domaine pur, baby steps DDD/TDD/BDD.
 
 '''
 
@@ -69,7 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
-  | 165 | 2026-06-24 | vérification + investigation | **koverThresholdCheck PASS + Investigation Loi Économie d'Encre** — (1) `./gradlew koverThresholdCheck` BUILD SUCCESSFUL 6m28s, instruction coverage 92,90% (missed=11540, covered=150915), largement au-dessus du seuil historique 85,88%. Piste 1 S165 close. (2) Audit Loi Économie d'Encre transverse : code bakery = 2 implémentations (`I18nMigrationService.loadExistingTranslations` S153 + `GeneratePivotYamlTask` load-before-write S163) ; 9 autres boroughs = loi uniquement dans AGENT.adoc (S154, zéro code applicatif) ; workspace-bom `pipeline-contracts` (MEM-2 33/33 PASS) NON publié Maven Central (PUB-3.06 à faire). 3 options d'attaque identifiées (A contrat N0 / B pilote borough / C A+B), non départées. Aucun code source modifié. 5 fichiers gouvernance. | 7/10
+  | 165 | 2026-06-25 | vérification + investigation + cadrage | **koverThresholdCheck PASS + Cadrage EPIC BKY-TREE** — (1) `./gradlew koverThresholdCheck` BUILD SUCCESSFUL 6m28s, instruction coverage 92,90%. (2) Investigation i18n prod : fixtures `.thyme` 100% alignées (SHA-256) pour 3 sites, gaps identifiés (`jbake.properties` diverge, `assets/`/`content/` absents fixtures), prod = zéro migration. (3) Cadrage EPIC BKY-TREE — concept unifiant `SiteTree` (Composite Site→Section→Article→PivotModel AST) manquant. 7 US (TREE-1→7), ~36 pts, 4 sessions projetées (S166→S169). Backlog rouvert. Détail dans `BACKLOG.adoc`. Aucun code source modifié. | 8/10
   | 164 | 2026-06-24 | TDD + refactoring | **Fix OGNL templates + Optimisation E2E Playwright** — (1) Fix #sets.contains -> #lists.contains dans 10 templates Thymeleaf (ArrayList vs Set en OGNL, 2 E2E i18n FAILED -> 19/19 PASS). (2) Cache installPlaywright via onlyIf sur ~/.cache/ms-playwright/chromium-* (SKIPPED si present, zero marker build/). (3) PlaywrightPool singleton JVM-wide (1 Playwright.create() + 1 chromium().launch() pour tout, avant 5x, shutdown hook JVM). (4) forkEvery=1 supprime (1 JVM partagee). (5) ThymeleafRenderingTestFactory mutualise singleton companion. `./gradlew e2eTest` 19/19 PASS en 1m44s. 13 fichiers modifies/crees. | 9/10
   | 163 | 2026-06-24 | DDD + TDD + BDD | **Loi Économie d'Encre generatePivotYaml + 4e golden master + bug cucumber** — (1) GeneratePivotYamlTask load-before-write + skip si identique (9-10 lignes). 1 nouveau FT idempotence, 6/6 FT PASS. (2) 4e golden master nested-plantuml (listes `**`/`***` + plantuml pass-through). 4/4 GM PASS. (3) Bug cucumber features 9/16 : déjà résolu par fix S161. 0 FAILED. 3 fichiers source modifiés, 2 créés. | 9/10
   | 162 | 2026-06-24 | Refactoring + DDD/TDD | **BKY-PERF-6 : Migration FT→UT avec @TestInstance(PER_CLASS) + @BeforeEach** — Investigation BKY-PERF-1→5 (profiling 13 classes, baseline 4min10s, bottleneck incompressible GradleRunner, `maxParallelForks` fixé à 3). Migration de 6 classes FT vers UT ProjectBuilder : `IaFunctionalTests`→`IaConfigUnitTest`, `ArticleIntentionFunctionalTests`→`ArticleIntentionUnitTest`, `ThemeIntentionFunctionalTests`→`ThemeIntentionUnitTest`, `ScaffoldIntentionFunctionalTests`→`ScaffoldIntentionUnitTest`, `CollectSiteContextFunctionalTest`→`CollectSiteContextUnitTest`, `ValidateFirebaseConfigFunctionalTests` DSL tests→`FirebaseAuthConfigUnitTest`. Pattern commun : `@TestInstance(PER_CLASS)`, champs `project`/`ext` partagés via `@BeforeEach`, helpers configure*() privés. Tests GradleRunner réels conservés dans `IntegrationRestoredFunctionalTests` (3 inner classes, 4 FT). 6 UT créées, 6 FT supprimées, 1 FT créé. `./gradlew test` BUILD SUCCESSFUL (11 tasks, 1m14s). Zéro code production modifié. | 9/10
@@ -203,6 +203,27 @@ _Archives_ : Sessions 100-113 dans `.agents/backup/Y2026-sessions-090-113/`. Ses
 | *BKY-LENS-6* | Templates Augmentés JBake | 3 | *P0 ✅ TERMINÉ*
 | *BKY-IA-2* | Thème IA paramétrique | 8 | *P1 ✅ TERMINÉ*
 |===
+
+=== EPIC BKY-TREE — Arbre de Site Composite (NOUVEAU — Session 165)
+
+_Concept unifiant manquant : `SiteTree` (Site→Section→Article→PivotModel AST).
+Relie PivotModel (S157-163), SiteConfiguration (plate), ScaffoldOutput (liste
+plate), Loi Économie d'Encre (delta global → delta par sous-arbre). 7 US, ~36
+pts, 4 sessions projetées (S166→S169). Détail dans `BACKLOG.adoc`._
+
+|===
+| US | Description | Pts | Statut
+| *BKY-TREE-1* | `SiteNode` sealed interface + Site/Section/Article | 5 | *🟠 S166 À FAIRE*
+| *BKY-TREE-2* | `SiteTree` aggregate + visiteurs (walk/filter/findSubtree) | 5 | *🟠 S166 À FAIRE*
+| *BKY-TREE-3* | `Content` wrapper sur `PivotModel` (article feuille AST) | 3 | *🟠 S167 À FAIRE*
+| *BKY-TREE-4* | YAML serialization — `tree:` section dans `site.yml` | 5 | *🟠 S167 À FAIRE*
+| *BKY-TREE-5* | Theme inheritance — site → section → article, override explicite | 5 | *🟠 S168 À FAIRE*
+| *BKY-TREE-6* | i18n migration par sous-arbre (Loi Économie d'Encre par feuille) | 8 | *🟠 S168 À FAIRE*
+| *BKY-TREE-7* | Scaffold IA retourne un arbre (pas une liste plate) | 5 | *🟠 S169 À FAIRE*
+|===
+
+_Projection_ : S166 TREE-1+2 (socle), S167 TREE-3+4 (AST+YAML), S168 TREE-5+6
+(theme+i18n), S169 TREE-7 (scaffold, clôture EPIC).
 
 === Code Smells — 24/24 ✅ résolus + 60 nouveaux V5
 

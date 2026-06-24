@@ -1,37 +1,47 @@
 = PROMPT REPRISE — Bakery — Session 166
 :session: 166
-:date: 2026-06-24
+:date: 2026-06-25
 
-== Session 165 terminée — koverThresholdCheck PASS + Investigation Loi Encre
+== Session 165 terminée — koverThresholdCheck PASS + Cadrage EPIC BKY-TREE
 
 === ✅ koverThresholdCheck PASS
-- `./gradlew koverThresholdCheck` = BUILD SUCCESSFUL en 6m28s
+- `./gradlew koverThresholdCheck` = BUILD SUCCESSFUL 6m28s
 - Instruction coverage : **92,90%** (missed=11540, covered=150915)
-- Largement au-dessus du seuil Kover historique (85,88%)
-- Piste 1 de S165 close
+- Largement au-dessus du seuil historique (85,88%)
 
-=== 🔍 Investigation Loi de l'Économie d'Encre — état des lieux
-- *Code bakery* : 2 implémentations (`I18nMigrationService.loadExistingTranslations` S153,
-  `GeneratePivotYamlTask` load-before-write S163)
-- *9 boroughs* : Loi uniquement dans `AGENT.adoc` (S154). Zéro ligne de code applicatif.
-- *workspace-bom* : `pipeline-contracts` (MEM-2 code prêt 33/33 PASS) NON publié (PUB-3.06 à faire)
-- *Audit* : 9 AGENT.adoc référencent bakery comme source canonique
+=== ✅ Cadrage EPIC BKY-TREE — Arbre de Site Composite
+- Concept unifiant manquant : `SiteTree` (Site→Section→Article→PivotModel AST)
+- Relie PivotModel (S157-163), SiteConfiguration (plate), ScaffoldOutput (liste plate)
+- 7 US, ~36 pts, 4 sessions projetées (S166→S169)
+- Backlog rouvert — bakery n'était plus production-ready sur le front conceptuel
+- Détail dans `BACKLOG.adoc` section EPIC BKY-TREE
 
-=== Cadrage identifié (non départé)
-- *Option A* — Contrat N0 `MeteredOperation<T>` + `Delta<T>` dans workspace-bom (DDD-first)
-- *Option B* — Pilote load-before-write dans un borough concret (codex/readme/training)
-- *Option C* — A puis B
+=== Investigation i18n prod
+- Fixtures `.thyme` 100% alignées (SHA-256) pour les 3 sites
+- Gaps : `jbake.properties` diverge, `assets/` `content/` absents des fixtures
+- Prod = zéro migration (0 `messages_*.properties`, 0 `th:text="#{}"`)
+- Oracle traductions EN versionné par fixture (validé avant prod)
 
-== Prochaine mission
+== Prochaine mission — DÉMARRER BKY-TREE-1
 
-1. **Départager l'option d'attaque Loi Économie d'Encre** (A/B/C) avec l'utilisateur
-2. Si Option A choisie : baby steps DDD/TDD/BDD sur contrat N0 + publication Maven Central
-3. Si Option B choisie : baby steps DDD/TDD/BDD dans borough pilote
-4. Publier `pipeline-contracts` sur Maven Central (PUB-3.06) si pertinent (Option A)
+**US TREE-1 — `SiteNode` sealed interface + implémentations** (5 pts)
+
+Baby steps DDD/TDD/BDD, domaine pur sans I/O :
+1. *DDD* : sealed interface `SiteNode` + `Site` (root, children: List<Section>),
+   `Section` (children: List<Article>), `Article` (leaf). Identity par `path`
+   (ex `formations/ab-partition`). Data classes immutable.
+2. *TDD* : UT rouge avant code — construction, égalité structurelle, immutabilité,
+   `isLeaf()`/`isSection()`, `path` canonical, arbre vide, arbre 1 niveau, 3 niveaux
+3. *BDD* : Feature `39_site_tree_node.feature` — scénarios construction arbre,
+   égalité, leaf vs section, path canonical
+
+**Ne pas réinventer PivotModel** — TREE-3 l'enveloppe, TREE-1 ne le touche pas.
+**Fichier** : `src/main/kotlin/bakery/tree/SiteNode.kt` + `SiteTree.kt` (TREE-2)
 
 == Contexte technique
 - Ports Ollama : 11437-11465. Modèles : `gpt-oss:120b-cloud`, `gemma4:31b-cloud`
 - koverThresholdCheck : 92,90% PASS (S165)
 - E2E : 19/19 PASS (S164), 129 Cucumber PASS
 - Version courante : 0.0.2 Maven Central + Gradle Portal (LIVE)
-- `pipeline-contracts` : code prêt 33/33 PASS, publication nmcp restante (PUB-3.06)
+- EPIC BKY-TREE : 7 US, ~36 pts, 4 sessions (S166→S169)
+- TREE-1 = socle domaine pur, testable sans Gradle, baby steps DDD-first
