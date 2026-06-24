@@ -50,7 +50,7 @@ class AsciiDocParser {
                     blocks.add(heading)
                     i++
                 }
-                line.startsWith("[source") -> {
+                line.startsWith("[source") || line.startsWith("[plantuml]") -> {
                     val (block, next) = parseSourceBlock(lines, i)
                     blocks.add(block)
                     i = next
@@ -75,7 +75,7 @@ class AsciiDocParser {
                     blocks.add(table)
                     i = next
                 }
-                line.startsWith("* ") || line.startsWith(". ") || isNumberedListMarker(line) -> {
+                isUnorderedListMarker(line) || line.startsWith(". ") || isNumberedListMarker(line) -> {
                     val (list, next) = parseList(lines, i)
                     blocks.add(list)
                     i = next
@@ -104,15 +104,29 @@ class AsciiDocParser {
 
     private fun parseSourceBlock(lines: List<String>, start: Int): Pair<PivotBlock.Source, Int> {
         val header = lines[start]
-        val language = Regex("\\[source,?\\s*(\\w*)\\]").find(header)?.groupValues?.get(1)?.trim() ?: ""
+        val language = when {
+            header.startsWith("[source") -> Regex("\\[source,?\\s*(\\w*)\\]").find(header)?.groupValues?.get(1)?.trim() ?: ""
+            header.startsWith("[plantuml]") -> "plantuml"
+            else -> ""
+        }
         var i = start + 1
         while (i < lines.size && lines[i].trim() != "----") i++
+        if (i >= lines.size) {
+            return PivotBlock.Source(language, "") to i
+        }
         i++
         val contentStart = i
-        while (i < lines.size && lines[i].trim() != "----") i++
+        while (i < lines.size && !isSourceClosingDelimiter(lines[i])) i++
         val content = lines.subList(contentStart, i).joinToString("\n")
         if (i < lines.size) i++
         return PivotBlock.Source(language, content) to i
+    }
+
+    private fun isSourceClosingDelimiter(line: String): Boolean {
+        val trimmed = line.trim()
+        if (trimmed == "----") return true
+        if (trimmed == "====") return true
+        return false
     }
 
     private fun parseAdmonition(lines: List<String>, start: Int, kind: String): Pair<PivotBlock.Admonition, Int> {
@@ -163,6 +177,16 @@ class AsciiDocParser {
                 }
                 continue
             }
+            if (!line.startsWith("|")) {
+                if (currentRow.isNotEmpty()) {
+                    val lastCell = currentRow.removeAt(currentRow.size - 1)
+                    val mergedText = (lastCell.lastOrNull() as? PivotInline.Text)?.text.orEmpty()
+                    val rest = lastCell.dropLast(1)
+                    val newLastText = if (mergedText.isEmpty()) line.trim() else "$mergedText ${line.trim()}"
+                    currentRow.add(rest + listOf(PivotInline.Text(newLastText, translatable = TextTranslatableClassifier.isTranslatable(newLastText))))
+                }
+                continue
+            }
             val cells = splitTableCells(line)
             for (cell in cells) {
                 currentRow.add(parseInline(cell.trim()))
@@ -194,7 +218,12 @@ class AsciiDocParser {
     private fun isNumberedListMarker(line: String): Boolean =
         Regex("^\\d+\\.\\s+.+").matches(line)
 
+    private fun isUnorderedListMarker(line: String): Boolean =
+        line.startsWith("* ") || line.startsWith("** ") || line.startsWith("*** ")
+
     private fun listMarkerLength(line: String): Int = when {
+        line.startsWith("*** ") -> 4
+        line.startsWith("** ") -> 3
         line.startsWith("* ") -> 2
         line.startsWith(". ") -> 2
         isNumberedListMarker(line) -> Regex("^\\d+\\.").find(line)!!.value.length + 1
@@ -206,7 +235,7 @@ class AsciiDocParser {
         val ordered = firstLine.startsWith(". ") || isNumberedListMarker(firstLine)
         val items = mutableListOf<List<PivotInline>>()
         var i = start
-        while (i < lines.size && (lines[i].startsWith("* ") || lines[i].startsWith(". ") || isNumberedListMarker(lines[i]))) {
+        while (i < lines.size && (isUnorderedListMarker(lines[i]) || lines[i].startsWith(". ") || isNumberedListMarker(lines[i]))) {
             val content = lines[i].drop(listMarkerLength(lines[i]))
             items.add(parseInline(content))
             i++
@@ -218,7 +247,7 @@ class AsciiDocParser {
         val sb = StringBuilder()
         var i = start
         while (i < lines.size && lines[i].isNotBlank() &&
-            !lines[i].startsWith("=") && !lines[i].startsWith("* ") &&
+            !lines[i].startsWith("=") && !isUnorderedListMarker(lines[i]) &&
             !lines[i].startsWith(". ") && !isNumberedListMarker(lines[i]) &&
             !lines[i].startsWith("[") &&
             !lines[i].startsWith("|===") && !lines[i].startsWith("---") &&
@@ -227,7 +256,10 @@ class AsciiDocParser {
             sb.append(lines[i].trim())
             i++
         }
-        if (sb.isEmpty()) return null to i
+        if (sb.isEmpty()) {
+            val next = if (i < lines.size) i + 1 else i
+            return null to next
+        }
         val inline = parseInline(sb.toString())
         return PivotBlock.Paragraph(inline) to i
     }

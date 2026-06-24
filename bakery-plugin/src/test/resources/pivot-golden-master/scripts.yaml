@@ -561,7 +561,7 @@ article:
               translatable: true
       rows:
         - - inline:
-              - text: "Reseau"
+              - text: "Resseau"
                 translatable: true
           - inline:
               - text: "nmap, iperf3, wireshark, tshark, traceroute, dnsutils, net-tools, whois, iptraf-ng, iftop, nload"

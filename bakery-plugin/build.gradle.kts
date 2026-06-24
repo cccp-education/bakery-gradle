@@ -94,8 +94,14 @@ tasks.named<Test>("test") {
 
     useJUnitPlatform { excludeEngines("cucumber") }
 
-    // Exclude Cucumber step definitions and runner from unit test discovery
-    filter { excludeTestsMatching("bakery.scenarios.*") }
+    // Exclude Cucumber step definitions and runners from unit test discovery.
+    // bakery.scenarios.CucumberTestRunner et contracts.pipeline.scenarios.CucumberTestRunner
+    // sont des @Suite @IncludeEngines("cucumber") ; sans l'engine cucumber (exclu ci-dessus),
+    // ces runners restent bloqués indéfiniment et empêchent :test de terminer.
+    filter {
+        excludeTestsMatching("bakery.scenarios.*")
+        excludeTestsMatching("contracts.pipeline.scenarios.*")
+    }
 
     maxParallelForks = 2
 }

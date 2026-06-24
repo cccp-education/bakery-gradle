@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-24 — Session 156. Création 20 README i18n 10 langues (consumer + plugin) — documentation, aucun EPIC ouvert/fermé, BACKLOG inchangé._
+_Dernière mise à jour : 2026-06-24 — Session 159. Fix découverte Gradle + 3 edge cases parser + tâche generatePivotYaml (3 functional + 2 BDD). `:test` complet 1m 1s SUCCESS. 41 UT pivot._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -16,7 +16,8 @@ _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/C
 *Coverage* : 85.88% (Kover), seuil `koverThresholdCheck` PASS.
 *Code smells* : 24/24 V2-V4 + 60 V5 + 3 V6 résolus (24/24 V5 via US-1→8, 8/8 V6).
 *Loi de l'Économie d'Encre* : encodée dans bakery + 9 boroughs transverses (S154).
-*Session en cours* : 156 — README i18n 10 langues terminé. attente roadmap utilisateur.
+*Parser pivot* : 41 UT + 3/3 golden masters GREEN + tâche `generatePivotYaml` (3 functional + 2 BDD).
+*Session en cours* : 159 — Fix découverte Gradle + edge cases parser + generatePivotYaml terminé. attente roadmap utilisateur.
 ====
 
 '''
@@ -165,35 +166,46 @@ _Tous résolus. Le détail par smell est dans le backup sess154 et `.agents/CODE
 
 '''
 
-== Pistes ouvertes (session 157+)
+== Pistes ouvertes (session 160+)
 
-_Bakery est production-ready. Parser pivot AsciiDoc→YAML en cours (30 UT, golden master à débugger). La suite dépend de la roadmap utilisateur._
+_Bakery est production-ready. Parser pivot AsciiDoc→YAML livré (41 UT + 3/3 golden masters + tâche generatePivotYaml 3 functional + 2 BDD). La suite dépend de la roadmap utilisateur._
 
 [cols="1,4,2]
 |===
 | # | Piste | Méthode
 
 | 1
-| **Débugger PivotGoldenMasterTest** — Le test compile (bytecode présent) mais n'est pas exécuté par `--tests "bakery.pivot.PivotGoldenMasterTest"`. Hypothèses : conflit `useJUnitPlatform { excludeEngines("cucumber") }` + `filter { excludeTestsMatching("bakery.scenarios.*") }`, ou pattern `--tests` avec noms backtick. Le golden master valide le round-trip byte-identique AsciiDoc→PivotArticle→YAML sur les 3 fichiers magic-stick.
-| Debug Gradle test discovery + fix.
+| **✅ RÉSOLU (S159)** — Débugger PivotGoldenMasterTest. Fix : exclusion `contracts.pipeline.scenarios.*` du `:test` task. `:test` complet 1m 1s SUCCESS. Golden masters 3/3 GREEN via workaround noms méthodes complets (bug Gradle noms backtick Kotlin).
+| —
 
 | 2
-| **Finaliser parser + tâche generatePivotYaml** — Edge cases restants (tables multi-lignes, listes imbriquées, plantuml pass-through). Câbler le parser dans une tâche Gradle `generatePivotYaml` (N2 → YAML pivot) pour automatiser la séparation structure/contenu éditorial.
-| Baby steps DDD/TDD/BDD — golden master + Cucumber feature.
+| **Loi de l'Économie d'Encre sur generatePivotYaml** — `GeneratePivotYamlTask` doit lire le YAML existant avant d'écrire. Si YAML généré == YAML existant → skip écriture (ne pas écraser). Préparation pipeline i18n qui consomme le YAML pivot. + CLI option natif `--input`/`--output` (via `@Option` au lieu de `-Pinput`).
+| Baby steps DDD/TDD/BDD — load-before-write + test idempotence économique.
 
 | 3
-| **Implémentation effective du pattern delta (Loi de l'Économie d'Encre) dans le code des 9 boroughs LLM metered** — codex (RAG/embeddings), training (SPG/SPD), capsule (TTS/capture), plantuml (diagrammes), readme (README LLM), document (AsciiDoc IA), agile (ateliers IA), ticket (Issues IA), review (PRs IA). Un borough à la fois.
-| Baby steps DDD/TDD/BDD — load-before-write + test réutilisation + scénario idempotence économique.
+| **Étendre golden masters** — Ajouter un 4e golden master avec listes imbriquées (`**`/`***`) + plantuml pass-through. Valider round-trip byte-identique. Le parser supporte déjà ces patterns (S159), il faut les ressources de test.
+| Baby steps TDD — créer adoc + yaml golden master + test round-trip.
 
 | 4
+| **Bug préexistant cucumber** (optionnel) — Features 9, 16 ont des steps `GenerateArticleSteps` non chargés par cucumber-picocontainer. Investiguer le glue. Affecte d'autres features (collectSiteConfig, etc.).
+| Debug cucumber-picocontainer DI.
+
+| 5
+| **Implémentation effective du pattern delta (Loi de l'Économie d'Encre) dans le code des 9 boroughs LLM metered** — codex, training, capsule, plantuml, readme, document, agile, ticket, review. Un borough à la fois.
+| Baby steps DDD/TDD/BDD — load-before-write + test réutilisation + scénario idempotence économique.
+
+| 6
 | **Nouvel EPIC** (nouvelle capability) à cadrer.
 | Cadrage agile 7 ateliers → DDD/TDD/BDD.
 |===
 
 *Notes techniques* :
 * Ports Ollama autorisés : 11437-11465 uniquement. Modèles : `gpt-oss:120b-cloud`, `gemma4:31b-cloud`.
-* `./gradlew test --tests "bakery.i18n.*"` = validation rapide i18n (3/3 AutoTranslation PASS).
-* `./gradlew cucumberTest -Dcucumber.features="src/test/features/37_accessibility_audit.feature"` = 7/7 PASS.
+* `./gradlew test` = 1m 1s SUCCESS (tous tests unitaires, S159 fix découverte).
+* `./gradlew test --tests "bakery.pivot.AsciiDocParserTest" --tests "bakery.pivot.PivotModelTest" --tests "bakery.pivot.PivotYamlRendererTest" --tests "bakery.pivot.TextTranslatableClassifierTest"` = 41/41 PASS.
+* `--tests "bakery.pivot.PivotGoldenMasterTest.golden master scripts adoc to yaml is byte identical"` = workaround noms backtick (bug Gradle/JUnit5).
+* `./gradlew functionalTest --tests "bakery.GeneratePivotYamlFunctionalTest"` = 3/3 PASS.
+* `./gradlew cucumberTest -Dcucumber.features="src/test/features/38_generate_pivot_yaml.feature"` = 2/2 scénarios PASS.
 * Timeout cucumberTest 5min (EPIC 5) — ne pas lancer `check` complet sans permission.
 * `publishToMavenLocal` fait (jar 0.0.2).
 * *Loi de l'Économie d'Encre* : encodée dans 10 boroughs. Toute tâche Gradle LLM DOIT load-before-write + calcul delta + fusion existing+new.
@@ -208,5 +220,5 @@ _Bakery est production-ready. Parser pivot AsciiDoc→YAML en cours (30 UT, gold
 | Version | 10.0 — Session 155 (nettoyage : historisation détail EPICs terminés)
 | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-154
-| Prochaine màj | Session 157+ — à la première évolution (nouvel EPIC ou piste choisie)
+| Prochaine màj | Session 160+ — à la première évolution (nouvel EPIC ou piste choisie)
 |===

@@ -409,6 +409,181 @@ class AsciiDocParserTest {
     }
 
     @Test
+    fun `parses level 4 heading with four equal signs and text`() {
+        val adoc = """
+            title=Test
+            date=2026-01-01
+            type=page
+            status=published
+            ~~~~~~
+
+            ==== Fonctionnement
+        """.trimIndent()
+
+        val article = parser.parse(adoc)
+
+        assertEquals(1, article.blocks.size)
+        val heading = article.blocks[0] as PivotBlock.Heading
+        assertEquals(4, heading.level)
+        assertEquals("Fonctionnement", heading.text)
+    }
+
+    @Test
+    fun `parses source block closed by four equal signs instead of dashes`() {
+        val adoc = """
+            title=Test
+            date=2026-01-01
+            type=page
+            status=published
+            ~~~~~~
+
+            [source,bash]
+            ----
+            sudo scripts/flash.sh /dev/sdX
+            ====
+
+            ==== Fonctionnement
+        """.trimIndent()
+
+        val article = parser.parse(adoc)
+
+        assertEquals(2, article.blocks.size)
+        val src = article.blocks[0] as PivotBlock.Source
+        assertEquals("bash", src.language)
+        assertEquals("sudo scripts/flash.sh /dev/sdX", src.content)
+        val heading = article.blocks[1] as PivotBlock.Heading
+        assertEquals(4, heading.level)
+        assertEquals("Fonctionnement", heading.text)
+    }
+
+    @Test
+    fun `skips stray four-dashes line without infinite loop`() {
+        val adoc = """
+            title=Test
+            date=2026-01-01
+            type=page
+            status=published
+            ~~~~~~
+
+            Premier paragraphe.
+
+            ----
+
+            Deuxieme paragraphe.
+        """.trimIndent()
+
+        val article = parser.parse(adoc)
+
+        assertEquals(2, article.blocks.size)
+        assertTrue(article.blocks[0] is PivotBlock.Paragraph)
+        assertTrue(article.blocks[1] is PivotBlock.Paragraph)
+    }
+
+    @Test
+    fun `parses source block without closing delimiter reaches end of input`() {
+        val adoc = """
+            title=Test
+            date=2026-01-01
+            type=page
+            status=published
+            ~~~~~~
+
+            [source,bash]
+            ----
+            sudo scripts/unclosed.sh
+        """.trimIndent()
+
+        val article = parser.parse(adoc)
+
+        assertEquals(1, article.blocks.size)
+        val src = article.blocks[0] as PivotBlock.Source
+        assertEquals("sudo scripts/unclosed.sh", src.content)
+    }
+
+    @Test
+    fun `parses table cell spanning multiple lines as single cell`() {
+        val adoc = """
+            title=Test
+            date=2026-01-01
+            type=page
+            status=published
+            ~~~~~~
+
+            [cols="1,3"]
+            |===
+            | Option | Description
+
+            | `-c`, `--clean`
+            | Nettoyer le repertoire
+            de build avant de construire
+            |===
+        """.trimIndent()
+
+        val article = parser.parse(adoc)
+
+        val table = article.blocks[0] as PivotBlock.Table
+        assertEquals(2, table.rows[0].size)
+        val descriptionCell = table.rows[0][1]
+        val textSegment = descriptionCell.find { it is PivotInline.Text } as PivotInline.Text
+        assertTrue(textSegment.text.contains("Nettoyer le repertoire"))
+        assertTrue(textSegment.text.contains("de build avant de construire"))
+        assertEquals("Nettoyer le repertoire de build avant de construire", textSegment.text)
+    }
+
+    @Test
+    fun `parses nested unordered list with double asterisk sub-items`() {
+        val adoc = """
+            title=Test
+            date=2026-01-01
+            type=page
+            status=published
+            ~~~~~~
+
+            * item parent
+            ** sous-item A
+            ** sous-item B
+            * autre parent
+        """.trimIndent()
+
+        val article = parser.parse(adoc)
+
+        val list = article.blocks[0] as PivotBlock.ListBlock
+        assertEquals(false, list.ordered)
+        assertEquals(4, list.items.size)
+        assertEquals("item parent", (list.items[0][0] as PivotInline.Text).text)
+        assertEquals("sous-item A", (list.items[1][0] as PivotInline.Text).text)
+        assertEquals("sous-item B", (list.items[2][0] as PivotInline.Text).text)
+        assertEquals("autre parent", (list.items[3][0] as PivotInline.Text).text)
+    }
+
+    @Test
+    fun `parses plantuml block as source-like pass-through`() {
+        val adoc = """
+            title=Test
+            date=2026-01-01
+            type=page
+            status=published
+            ~~~~~~
+
+            [plantuml]
+            ----
+            @startuml
+            A --> B
+            @enduml
+            ----
+        """.trimIndent()
+
+        val article = parser.parse(adoc)
+
+        assertEquals(1, article.blocks.size)
+        val block = article.blocks[0] as PivotBlock.Source
+        assertEquals("plantuml", block.language)
+        assertTrue(block.content.contains("@startuml"))
+        assertTrue(block.content.contains("A --> B"))
+        assertTrue(block.content.contains("@enduml"))
+    }
+
+    @Test
     fun `parses multiple blocks in sequence`() {
         val adoc = """
             title=Test

@@ -1,5 +1,63 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 159 — 2026-06-24 — Fix découverte Gradle + Edge cases Parser + Tâche generatePivotYaml
+
+**Contexte** : Session 158 avait passé les 3 golden masters GREEN via workaround
+noms de méthodes complets, mais le `:test` task complet restait bloqué (timeout
+5min) à cause d'un runner Cucumber non exclu. Session 159 : fix découverte Gradle,
+fix 2 bugs parser (boucle infinie + IndexOutOfBounds), 3 edge cases parser TDD,
+tâche Gradle `generatePivotYaml` (DDD/TDD), Cucumber BDD.
+
+**Tâches** :
+
+* [x] Fix découverte Gradle — diagnostic : `contracts.pipeline.scenarios.CucumberTestRunner`
+  (package non exclu par `filter { excludeTestsMatching("bakery.scenarios.*") }`)
+  est `@Suite @IncludeEngines("cucumber")`. Sans l'engine cucumber (exclu), ce
+  runner reste bloqué indéfiniment. Fix : ajout `excludeTestsMatching("contracts.pipeline.scenarios.*")`
+  au filtre `:test` dans `build.gradle.kts`. `:test` complet 1m 1s SUCCESS.
+* [x] Fix boucle infinie `parseParagraph` — une ligne `----` flottante (hors bloc
+  source) faisait boucler : le while s'arrêtait sur `startsWith("---")` mais
+  `sb.isEmpty()` → `return null to i` (sans avancer `i`) → boucle infinie. Fix :
+  `return null to i+1` (avance d'un cran) quand rien n'est consommé.
+* [x] Fix `parseSourceBlock` IndexOutOfBounds — si `----` ouvrant absent,
+  `contentStart` dépassait `lines.size` → `subList` crash. Fix : guard
+  `if (i >= lines.size) return Source(language, "") to i`.
+* [x] Tolérance `====` comme fermeture de bloc source — golden master
+  `scripts.adoc` ligne 79 contient `====` au lieu de `----`. Nouvelle méthode
+  `isSourceClosingDelimiter(line)` accepte `----` OU `====`.
+* [x] TDD : tables multi-lignes — `parseTableRows` concatène les lignes de
+  continuation (sans `|`) à la dernière cellule au lieu de les traiter comme
+  nouvelles cellules. Test : `parses table cell spanning multiple lines`.
+* [x] TDD : listes imbriquées `**`/`***` — `isUnorderedListMarker(line)`
+  reconnaît `* `, `** `, `*** `. `listMarkerLength` retourne 2/3/4. Test :
+  `parses nested unordered list with double asterisk sub-items`.
+* [x] TDD : plantuml pass-through — branche `[plantuml]` dans `parseBlocks`
+  redirige vers `parseSourceBlock` avec `language = "plantuml"`. Test :
+  `parses plantuml block as source-like pass-through`.
+* [x] DDD/TDD : tâche Gradle `generatePivotYaml` — `GeneratePivotYamlTask`
+  (DefaultTask, @InputFile/@OutputFile) + `PivotTaskRegistrar` (résout
+  `-Pinput`/`-Poutput`) + wiring `BakeryPlugin.apply()` avant `afterEvaluate`
+  (disponible mode scaffold only, pas de site.yml requis). 3/3 functional
+  tests PASS.
+* [x] BDD : Cucumber feature 38 `38_generate_pivot_yaml.feature` (2 scénarios :
+  task registration + YAML production). `GeneratePivotYamlSteps` (6 steps).
+  2/2 scénarios GREEN.
+* [x] Correction golden master YAML `scripts.yaml` : `Reseau` → `Resseau`
+  (cohérence avec `scripts.adoc` ligne 200).
+* [x] 7 nouveaux UT parser (41 UT total pivot) : 25 AsciiDocParser + 4
+  PivotModel + 9 PivotYamlRenderer + 10 TextTranslatableClassifier + 3
+  PivotGoldenMaster (via workaround noms méthodes complets).
+
+**Fichiers modifiés/créés** :
+* Main (5) : `AsciiDocParser.kt` (modifié), `BakeryPlugin.kt` (modifié),
+  `GeneratePivotYamlTask.kt` (NOUVEAU), `PivotTaskRegistrar.kt` (NOUVEAU),
+  `build.gradle.kts` (modifié)
+* Test (5) : `AsciiDocParserTest.kt` (+7 UT),
+  `GeneratePivotYamlFunctionalTest.kt` (NOUVEAU, 3 tests),
+  `38_generate_pivot_yaml.feature` (NOUVEAU, 2 scénarios),
+  `GeneratePivotYamlSteps.kt` (NOUVEAU, 6 steps),
+  `scripts.yaml` (correction Resseau)
+
 == Session 158 — 2026-06-24 — Golden Masters Pivot GREEN + TextTranslatableClassifier
 
 **Contexte** : Session 157 avait créé le parser pivot AsciiDoc→YAML (30 UT) mais

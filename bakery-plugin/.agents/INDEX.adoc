@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-24 — Session 158 Golden Masters Pivot GREEN + TextTranslatableClassifier (10 UT).
-  _Session en cours_ : 158 terminée — 3/3 golden masters PASS, 32 UT pivot, parser listes numérotées, renderer indentation fix.
-  _Prochaine session_ : 159 — Edge cases parser restants + tâche Gradle generatePivotYaml + Cucumber BDD.
+  _Derniere mise a jour_ : 2026-06-24 — Session 159 Fix découverte Gradle + edge cases parser + tâche generatePivotYaml + BDD.
+  _Session en cours_ : 159 terminée — :test 1m 1s SUCCESS, 3/3 golden masters GREEN, 41 UT + 3 functional + 2 BDD scénarios PASS.
+  _Prochaine session_ : 160 — Loi Économie d'Encre sur generatePivotYaml + CLI @Option + 4e golden master.
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 159 | 2026-06-24 | DDD + TDD + BDD | **Fix découverte Gradle + Edge cases Parser + Tâche generatePivotYaml** — Fix exclusion `contracts.pipeline.scenarios.*` du `:test` task (bug bloquait PivotGoldenMasterTest indéfiniment). Fix 2 bugs parser : boucle infinie `parseParagraph` sur `----` flottant + `parseSourceBlock` fermé par `====` (tolérance AsciiDoc). 3 edge cases TDD : tables multi-lignes (cellules sur plusieurs lignes) + listes imbriquées (`**`/`***`) + plantuml pass-through. Tâche Gradle `generatePivotYaml` (GeneratePivotYamlTask + PivotTaskRegistrar + BakeryPlugin wiring) — 3/3 functional tests PASS. Cucumber feature 38 (2 scénarios BDD). 7 nouveaux UT parser. `:test` complet 1m 1s SUCCESS (vs timeout 5min avant). Correction golden master YAML (Resseau). | 9/10
   | 158 | 2026-06-24 | DDD + TDD + BDD | **Golden Masters Pivot GREEN + Classifier Heuristique** — Débogage découverte Gradle PivotGoldenMasterTest : bug noms méthodes backtick (espaces Java), workaround = nom méthode complet. DDD : `TextTranslatableClassifier` (nouvelle classe, 10 UT) — heuristique `translatable: true/false` pour segments `Text`. TDD : `AsciiDocParser` support listes numérotées (`1.`, `2.`, `3.`). TDD : `PivotYamlRenderer` corrections indentation inline children listes (10→12) + tables header/rows (`- - inline:`) + `yamlScalar(language)`. BDD : `PivotGoldenMasterTest` normalisation (suppression commentaires inline + lignes `translatable:`). 3/3 golden masters PASS (quick-start, ab-partition, scripts). 32 UT pivot PASS. | 8/10
   | 157 | 2026-06-24 | DDD + TDD + BDD | **Parser AsciiDoc→YAML Pivot + READMEs badges** — Alignement 2 YAML pivots (ab-partition tables `text:`→`inline[]`, 16 cellules). Parser pivot complet baby steps DDD/TDD : PivotModel (sealed classes, 8 blocs + 4 inline) + PivotYamlRenderer (déterministe) + AsciiDocParser (frontmatter, headings, paragraphs, inline bold/code/link, lists, source, admonition, hr, tables). 30 UT PASS (4 modèle + 9 renderer + 17 parser). PivotGoldenMasterTest créé mais bloqué par problème découverte Gradle. READMEs 4 fichiers mis à jour : 8 badges shields.io + tableau i18n enrichi avec locuteurs du CSV (~5.4B total). | 8/10
   | 156 | 2026-06-24 | documentation i18n | **README i18n 10 langues (consumer + plugin)** — 20 fichiers README créés (10 langues × 2 familles : Consumer Guide + Plugin Internals) dans `foundry/public/bakery-gradle/README.consommateurs/` et `README.plugin/`. 10 langues (EN master, FR, ZH, HI, ES, AR RTL, BN, PT, RU, UR RTL). Badges shields.io (Maven Central, Portal, CI, Coverage ≥85%, License). Markers version 0.0.2, Cucumber 129/129 PASS. Switcher i18n 10 liens (langue courante en gras). RTL natif pour AR/UR (script natif, pas de `dir`). Aucun code source modifié. | 8/10
@@ -215,7 +216,7 @@ _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
 | Projet | Repertoire | Session en cours | Derniere MAJ
   | magic-stick | `~/workspace/foundry/public/magic-stick` | 014 | 2026-05-11
   | plantuml-gradle | `~/workspace/foundry/public/plantuml-gradle/plantuml-plugin` | 148 | 2026-06-11
-  | bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 158 | 2026-06-24
+  | bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 159 | 2026-06-24
   | jhipster-gradle-plugins | `~/workspace/foundry/public/jhipster-gradle-plugins` | 9 | 2026-06-11
   | quizz-benchmark-gradle | `~/workspace/foundry/private/quizz-benchmark-gradle/quizz-benchmark-plugin` | Audit 053 | 2026-04-30
   | runner-gradle | `~/workspace/foundry/public/runner-gradle` | 029 | 2026-05-12

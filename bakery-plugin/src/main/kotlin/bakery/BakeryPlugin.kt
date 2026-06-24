@@ -25,6 +25,7 @@ import bakery.ContentTaskRegistrar.registerMigrateToI18nTask
 import bakery.ContentTaskRegistrar.registerValidateFirebaseConfigTask
 import bakery.a11y.AccessibilityTaskRegistrar.registerAccessibilityAuditTask
 import bakery.llm.OllamaLlmService
+import bakery.pivot.PivotTaskRegistrar.registerGeneratePivotYamlTask
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -50,6 +51,11 @@ class BakeryPlugin : Plugin<Project> {
             BAKERY_GROUP,
             BakeryExtension::class.java
         )
+
+        // Session 159 — generatePivotYaml est indépendante du pipeline JBake
+        // (pas de site.yml requis). Enregistrée avant afterEvaluate pour être
+        // disponible dans tous les modes (scaffold + full pipeline).
+        project.registerGeneratePivotYamlTask()
 
         project.afterEvaluate {
             // CS-FIN-1 (CS-16) — `isGradlePropertiesEnabled` doit être évalué ICI,

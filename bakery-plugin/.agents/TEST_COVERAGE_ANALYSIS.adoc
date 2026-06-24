@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-24 — Session 157 Parser AsciiDoc→YAML Pivot. 30 nouveaux UT (4 PivotModelTest + 9 PivotYamlRendererTest + 17 AsciiDocParserTest) dans package `bakery.pivot`. 3 tests golden master (PivotGoldenMasterTest) créés mais non exécutés par Gradle (bug découverte à investiguer). Aucun test existant modifié._
+_Dernière mise à jour : 2026-06-24 — Session 159 Fix découverte Gradle + edge cases parser + tâche generatePivotYaml. 7 nouveaux UT AsciiDocParserTest (level 4 heading, ==== fermeture source, stray ---- skip, source sans fermeture, tables multi-lignes, listes ** ***, plantuml pass-through). 3 tests fonctionnels GeneratePivotYamlFunctionalTest. 2 scénarios BDD feature 38. Bug découverte Gradle résolu (exclusion contracts.pipeline.scenarios.*). :test complet 1m 1s SUCCESS. 3/3 golden masters GREEN. 41 UT pivot total. 1 correction golden master YAML (Resseau)._
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
