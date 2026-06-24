@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html th:lang="${locale.language}" th:dir="${#sets.contains({'ar','ur'}, locale.language) ? 'rtl' : 'ltr'}" xmlns:th="http://www.thymeleaf.org">
+<html th:lang="${locale.language}" th:dir="${#lists.contains({'ar','ur'}, locale.language) ? 'rtl' : 'ltr'}" xmlns:th="http://www.thymeleaf.org">
 <head th:include="header.thyme :: header">
     <title th:text="${content.title}">Page</title>
 </head>

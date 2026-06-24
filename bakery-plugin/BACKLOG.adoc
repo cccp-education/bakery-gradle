@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-24 — Session 163. Loi Économie d'Encre generatePivotYaml + 4e golden master + bug cucumber. 3/3 tâches accomplies. Bakery production-ready._
+_Dernière mise à jour : 2026-06-24 — Session 164. Fix OGNL 10 templates + Optimisation E2E Playwright (singleton pool + cache installPlaywright + forkEvery supprimé). 19/19 E2E PASS. Bakery production-ready._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -17,7 +17,7 @@ _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/C
 *Code smells* : 24/24 V2-V4 + 60 V5 + 3 V6 résolus (24/24 V5 via US-1→8, 8/8 V6).
 *Loi de l'Économie d'Encre* : encodée dans bakery + 9 boroughs transverses (S154).
 *Parser pivot* : 41 UT + 4/4 golden masters GREEN + tâche `generatePivotYaml` (6 functional + 4 BDD).
-*Session en cours* : 163 terminée — Loi Économie d'Encre (load-before-write generatePivotYaml), 4e golden master, bug cucumber features 9/16 résolu.
+*Session en cours* : 164 terminée — Fix OGNL 10 templates (#sets -> #lists.contains), E2E optimisé (PlaywrightPool singleton + cache installPlaywright + forkEvery supprimé). 19/19 E2E PASS.
 ====
 
 '''

@@ -2,7 +2,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml"
       xmlns:th="http://www.thymeleaf.org"
-      th:lang="${config.site_language}" th:dir="${#sets.contains({'ar','ur'}, config.site_language) ? 'rtl' : 'ltr'}" data-bs-theme="light">
+      th:lang="${config.site_language}" th:dir="${#lists.contains({'ar','ur'}, config.site_language) ? 'rtl' : 'ltr'}" data-bs-theme="light">
 
 <head th:replace="header.thyme::head" />
 

@@ -219,7 +219,6 @@ val e2eTestTask = tasks.register<Test>("e2eTest") {
     dependsOn("installPlaywright")
 
     maxParallelForks = 1
-    forkEvery = 1
 
     timeout.set(Duration.ofMinutes(10))
 
@@ -229,12 +228,17 @@ val e2eTestTask = tasks.register<Test>("e2eTest") {
 
 // 4. Tâche installPlaywright — installe Chromium via le plugin Gradle Node
 // Utilise NpxTask au lieu d'un appel manuel en ligne de commande.
+// Cache persistant : skip si Chromium déjà présent dans ~/.cache/ms-playwright/
 
 tasks.register<NpxTask>("installPlaywright") {
     group = "verification"
     description = "Install Playwright Chromium browser for E2E tests."
     command.set("playwright")
     args.addAll("install", "chromium")
+    onlyIf {
+        val cache = file("${System.getProperty("user.home")}/.cache/ms-playwright")
+        cache.listFiles()?.none { it.name.startsWith("chromium-") } ?: true
+    }
 }
 
 // 5. Gérer les duplications de ressources pour e2eTest

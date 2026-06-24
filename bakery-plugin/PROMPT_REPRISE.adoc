@@ -1,34 +1,31 @@
-= PROMPT REPRISE — Bakery — Session 164
-:session: 164
+= PROMPT REPRISE — Bakery — Session 165
+:session: 165
 :date: 2026-06-24
 
-== Session 163 terminée — 3 tâches accomplies
+== Session 164 terminée — Fix OGNL + Optimisation E2E
 
-=== ✅ Loi de l'Économie d'Encre sur generatePivotYaml
-- `GeneratePivotYamlTask.generate()` : load-before-write + skip si identique
-- 1 nouveau FT : idempotence vérifiée (6/6 FT PASS)
+=== ✅ Bug OGNL #sets.contains dans 10 templates
+- `#sets.contains({'ar','ur'}, ...)` -> `#lists.contains` (ArrayList vs Set en OGNL)
+- 10 templates Thymeleaf corrigés (site/ + site-basic/)
+- 19/19 E2E PASS (avant : 2 FAILED i18n)
 
-=== ✅ 4e Golden Master — listes imbriquées + plantuml
-- `nested-plantuml.adoc` + `nested-plantuml.yaml` (listes `**`/`***`, plantuml)
-- 4/4 golden masters PASS
+=== ✅ Cache installPlaywright
+- `onlyIf` sur `~/.cache/ms-playwright/chromium-*` — SKIPPED si présent
+- Pas de marker dans build/, vérification directe du cache système
 
-=== ✅ Bug cucumber features 9/16
-- Déjà résolu par fix S161 (DuplicateStepDefinitionException). 0 FAILED.
-
-=== Build
-- `./gradlew test` : 1m SUCCESS
-- `./gradlew cucumberTest` : 37 features, 0 FAILED
+=== ✅ Singleton PlaywrightPool
+- 1 Playwright.create() + 1 chromium().launch() pour tout (avant 5×)
+- Shutdown hook JVM pour cleanup
+- forkEvery=1 supprimé (1 JVM partagée)
+- ThymeleafRenderingTestFactory mutualisé en singleton companion
 
 == Prochaine mission
 
-Toutes les EPICs connues de Bakery sont closes (129/129 Cucumber PASS, 4 golden masters,
-Loi de l'Économie d'Encre active). Bakery est production-ready.
-
-Priorités disponibles :
-1. Vérifier Kover threshold (`./gradlew koverThresholdCheck`)
-2. Prochaine priorité depuis BACKLOG (nouvel EPIC ou maintenance)
+Bakery production-ready + E2E optimisés. Pistes :
+1. Vérifier `./gradlew koverThresholdCheck` passe maintenant (E2E vert)
+2. Nouvelle priorité roadmap ou cross-borough (delta Loi Économie d'Encre 9 boroughs)
 
 == Contexte technique
 - Ports Ollama : 11437-11465. Modèles : `gpt-oss:120b-cloud`, `gemma4:31b-cloud`
-- maxParallelForks = 3
-- Cucumber 7.34.3, Gradle 9.5.1, Kotlin 2.3.20
+- E2E : 19/19 PASS, installPlaywright SKIPPED sur second run
+- Cache Playwright persistant : `~/.cache/ms-playwright/`

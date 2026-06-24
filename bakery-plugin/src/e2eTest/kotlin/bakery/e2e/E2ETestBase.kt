@@ -3,9 +3,7 @@ package bakery.e2e
 import bakery.ThymeleafRenderingTestFactory
 import com.microsoft.playwright.Browser
 import com.microsoft.playwright.Page
-import com.microsoft.playwright.Playwright
 import com.sun.net.httpserver.HttpServer
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
@@ -19,21 +17,11 @@ import java.nio.file.Path
  *
  * Provides:
  * - A local HTTP server serving baked HTML pages from a temp directory
- * - Playwright Browser lifecycle management
- * - Thymeleaf rendering via the existing ThymeleafRenderingTestFactory
+ * - Playwright Browser lifecycle management via [PlaywrightPool] (JVM-wide singleton)
+ * - Thymeleaf rendering via a shared [ThymeleafRenderingTestFactory] instance
  *
- * Usage:
- * ```kotlin
- * @Tag("e2e")
- * class MyE2ETest : E2ETestBase() {
- *     @Test
- *     fun `analytics script is visible`() {
- *         serveHtml("analytics", mapOf("analyticsProvider" to "plausible", ...))
- *         val page = navigateTo("/analytics")
- *         assertThat(page.locator("script[data-domain]").count()).isGreaterThan(0)
- *     }
- * }
- * ```
+ * All test classes extending this base share the same Playwright + Browser
+ * instance when running in the same JVM (forkEvery removed).
  */
 @Tag("e2e")
 abstract class E2ETestBase {
@@ -41,9 +29,10 @@ abstract class E2ETestBase {
     companion object {
         private const val PORT = 18763
 
-        private var playwright: Playwright? = null
-        private var browser: Browser? = null
         private var httpServer: HttpServer? = null
+
+        private val thymeleafFactory: ThymeleafRenderingTestFactory =
+            ThymeleafRenderingTestFactory()
 
         @TempDir
         @JvmField
@@ -58,17 +47,7 @@ abstract class E2ETestBase {
                     "Chromium not available — run ./gradlew installPlaywright"
                 )
             }
-            playwright = Playwright.create()
-            browser = playwright!!.chromium().launch(
-                com.microsoft.playwright.BrowserType.LaunchOptions().setHeadless(true)
-            )
-        }
-
-        @JvmStatic
-        @AfterAll
-        fun tearDownAll() {
-            browser?.close()
-            playwright?.close()
+            PlaywrightPool.getOrCreate()
         }
 
         /**
@@ -118,12 +97,15 @@ abstract class E2ETestBase {
         fun baseUrl(): String = "http://127.0.0.1:$PORT"
     }
 
-    protected var page: Page? = null
+    private var page: Page? = null
+
+    protected val browser: Browser
+        get() = PlaywrightPool.getOrCreate()
 
     @BeforeEach
     fun setUp() {
         startServer()
-        page = browser!!.newPage()
+        page = browser.newPage()
     }
 
     @AfterEach
@@ -148,8 +130,7 @@ abstract class E2ETestBase {
         outputFileName: String = "$templateName.html",
         language: String = "fr"
     ): String {
-        val factory = ThymeleafRenderingTestFactory()
-        val html = factory.render(templateName, context, language)
+        val html = thymeleafFactory.render(templateName, context, language)
 
         val wwwDir = tempDir!!.resolve("www").toFile()
         wwwDir.mkdirs()

@@ -478,6 +478,26 @@ Aucun fichier source du repo bakery n'a été modifié. Fichiers temporaires cr�
 
 ---
 
+== Session 164 — 2026-06-24 — Fix OGNL templates + Optimisation E2E Playwright
+
+**Contexte** : Verification build complet apres S163. koverThresholdCheck revele 2 E2E FAILED (i18n).
+
+**Fix OGNL** : `#sets.contains({'ar','ur'}, ...)` -> `#lists.contains` dans 10 templates Thymeleaf. OGNL cree ArrayList avec `{...}`, pas Set. `IllegalArgumentException: Unable to convert type java.util.ArrayList to type of java.util.Set`.
+
+**Optimisations E2E** :
+- Cache `installPlaywright` : `onlyIf` sur `~/.cache/ms-playwright/chromium-*` (SKIPPED si present)
+- `PlaywrightPool` singleton JVM-wide (1 Playwright + 1 Browser pour tout, avant 5x)
+- `forkEvery=1` supprime (1 JVM partagee)
+- `ThymeleafRenderingTestFactory` mutualise singleton companion
+
+**Tests** : 19/19 E2E PASS en 1m44s (avant : 2 FAILED). installPlaywright SKIPPED sur second run.
+
+**Fichiers** : 12 modifiés + 1 créé (PlaywrightPool.kt).
+
+**Score** : 9/10
+
+---
+
 == Session 163 — 2026-06-24 — Loi Économie d'Encre generatePivotYaml + 4e golden master + bug cucumber
 
 **Contexte** : Trois tâches reportées de S161.

@@ -1,0 +1,82 @@
+= Session 164 — Fix templates OGNL + Optimisation E2E Playwright
+:session: 164
+:date: 2026-06-24
+:type: TDD + refactoring
+:score: 9/10
+
+== Contexte
+
+Suite a la session 163, verification du build complet revele 2 tests E2E FAILED.
+Investigation : bug OGNL dans 10 templates Thymeleaf + opportunites d'optimisation E2E.
+
+== Taches realisees
+
+=== 1. Fix bug OGNL #sets.contains dans 10 templates
+
+**Probleme** : `#sets.contains({'ar','ur'}, ...)` echoue car `{...}` en OGNL cree
+une `ArrayList`, pas une `Set`. `IllegalArgumentException: Unable to convert type
+java.util.ArrayList of [ar, ur] to type of java.util.Set`.
+
+**Fix** : `#sets.contains` -> `#lists.contains` dans 10 templates :
+- site/templates/ : blog, index, page, post, archive, contact, hero_section, tags
+- site-basic/templates/ : index, page
+
+**Resultat** : 19/19 E2E PASS (avant : 17/19, 2 FAILED i18n)
+
+=== 2. Cache installPlaywright (skip si Chromium present)
+
+**Probleme** : La tache `installPlaywright` (NpxTask) se reexecutait a chaque
+`./gradlew e2eTest` meme si les binaires etaient deja dans `~/.cache/ms-playwright/`.
+
+**Fix** : Ajout `onlyIf` dans `build.gradle.kts` qui verifie la presence de
+`chromium-*` dans le cache persistant. Zero marker file, zero dossier build.
+
+**Resultat** : `installPlaywright SKIPPED` sur second run.
+
+=== 3. Singleton PlaywrightPool (mutualisation instances lourdes)
+
+**Probleme** : 5 classes E2E creaient chacune `Playwright.create()` + `chromium().launch()`.
+Avec `forkEvery=1`, 5 JVMs separees => 5 startups Playwright + 5 launches Chromium.
+
+**Fix** : `PlaywrightPool` singleton JVM-wide avec `@Synchronized` + shutdown hook.
+`E2ETestBase` utilise `PlaywrightPool.getOrCreate()` au lieu d'instances locales.
+`@AfterAll tearDownAll` supprime (cleanup via JVM shutdown hook).
+
+**Resultat** : 1 seul `Playwright.create()` + 1 seul `chromium().launch()` pour tout.
+
+=== 4. Suppression forkEvery=1 (1 JVM pour tout)
+
+**Probleme** : `forkEvery = 1` dans `build.gradle.kts` forcait une JVM par classe.
+
+**Fix** : Supprime. Toutes les classes E2E tournent dans 1 JVM, partageant le pool.
+
+=== 5. Singleton ThymeleafRenderingTestFactory
+
+**Probleme** : `ThymeleafRenderingTestFactory()` instancie a chaque appel `serveHtml()`
+(19 fois).
+
+**Fix** : Singleton dans le `companion object` de `E2ETestBase`.
+
+== Fichiers modifies
+
+[cols="2,3"]
+|===
+| Fichier | Type
+| `build.gradle.kts` | Modifie — onlyIf installPlaywright + forkEvery supprime
+| `src/e2eTest/kotlin/bakery/e2e/E2ETestBase.kt` | Modifie — PlaywrightPool + Thymeleaf singleton
+| `src/e2eTest/kotlin/bakery/e2e/PlaywrightPool.kt` | Nouveau — singleton JVM
+| `src/main/resources/site/templates/*.thyme` (8) | Modifie — #lists.contains
+| `src/main/resources/site-basic/templates/*.thyme` (2) | Modifie — #lists.contains
+|===
+
+== Tests
+
+* `./gradlew compileE2eTestKotlin` — BUILD SUCCESSFUL
+* `./gradlew e2eTest` — 19/19 PASS en 1m44s (avant : 2 FAILED)
+* `./gradlew e2eTest` (2e run) — UP-TO-DATE, `installPlaywright SKIPPED`
+
+== Notes
+
+* Le cache Playwright est persistant dans `~/.cache/ms-playwright/` (survit au clean)
+* Le shutdown hook JVM gere le cleanup Playwright/Browser
+* Aucun marker file dans `build/` — verification directe du cache systeme

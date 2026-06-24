@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-24 — Session 163 Loi Économie d'Encre + 4e golden master + bug cucumber. GeneratePivotYamlTask load-before-write + skip si identique. 1 nouveau FT idempotence, 6/6 FT PASS. 4e golden master nested-plantuml, 4/4 GM PASS. Bug cucumber features 9/16 déjà résolu S161. `./gradlew test` 1m SUCCESS._
+_Dernière mise à jour : 2026-06-24 — Session 164 Fix OGNL + Optimisation E2E. 10 templates #sets.contains -> #lists.contains (2 E2E i18n FAILED -> 19/19 PASS). PlaywrightPool singleton (1 Playwright + 1 Browser pour tout). installPlaywright cache onlyIf ~/.cache/ms-playwright. forkEvery=1 supprimé. ThymeleafRenderingTestFactory singleton. `./gradlew e2eTest` 19/19 PASS 1m44s._
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -16,7 +16,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 | Tests unitaires JUnit5 | 148+ fichiers, ~1159+ tests — ✅ PASS. BKY-A11Y-1 : 17 UT a11y (4 ColorContrast + 4 Auditor + 4 HtmlScanner color + 7 HtmlScanner structural + 6 AuditTask dont 2 gate). `FixtureAlignmentAuditorTest` 7/7 GREEN.
 | Tests fonctionnels (TestKit) | 10 fichiers, 80/80 FT PASS (dont 6 generatePivotYaml — idempotence incluse)
 | Tests Cucumber BDD | 37 features, 123+7 scénarios bakery — Feature 37 `37_accessibility_audit.feature` 7/7 PASS (registration, compliant, non-compliance, empty, img-alt, heading-order, gate).
-| Tests E2E Playwright | 6 fichiers, 19/19 PASS — séparés de `check`
+| Tests E2E Playwright | 6 fichiers, 19/19 PASS — PlaywrightPool singleton + installPlaywright cache
 | Compilation | ✅ BUILD SUCCESSFUL — Gradle 9.5.1, Kotlin 2.3.20, zéro warning
 |===
 

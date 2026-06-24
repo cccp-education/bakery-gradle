@@ -1,6 +1,6 @@
 <!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
 
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" th:lang="${config.site_language}" th:dir="${#sets.contains({'ar','ur'}, config.site_language) ? 'rtl' : 'ltr'}">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" th:lang="${config.site_language}" th:dir="${#lists.contains({'ar','ur'}, config.site_language) ? 'rtl' : 'ltr'}">
 <head th:replace="header.thyme::head"/>
 <body >
     <div th:replace="menu.thyme::menu"/>
