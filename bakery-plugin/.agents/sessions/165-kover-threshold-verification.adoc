@@ -1,0 +1,79 @@
+= Session 165 — 2026-06-24 — Vérification koverThresholdCheck + Investigation Loi Économie d'Encre
+:session: 165
+:date: 2026-06-24
+:type: vérification + investigation
+
+== Mission
+
+Mission de PROMPT_REPRISE 165 :
+. Vérifier que `./gradlew koverThresholdCheck` passe maintenant que les E2E i18n
+  sont verts (S164 a fix 10 templates OGNL `#sets.contains` -> `#lists.contains`).
+. Investiguer la piste 2 : prolongement de la Loi de l'Économie d'Encre
+  (transverse cross-borough).
+
+== Exécution
+
+=== 1. Validation koverThresholdCheck — ✅ PASS
+
+* `./gradlew koverThresholdCheck --console=plain` — BUILD SUCCESSFUL en 6m28s.
+* *Instruction coverage* : **92,90%** (missed=11540, covered=150915).
+* Largement au-dessus du seuil Kover (historique 85,88%, S104 BKY-KOV-1).
+* La piste 1 de PROMPT_REPRISE 165 est close.
+
+=== 2. Investigation Loi de l'Économie d'Encre — état des lieux
+
+La Loi de l'Économie d'Encre (conceptualisée S153 bakery, propagée S154 aux
+9 autres boroughs LLM-metered) a été audité en vue d'un prolongement code.
+
+* *Code applicatif bakery* : 2 implémentations réelles uniquement —
+  `I18nMigrationService.loadExistingTranslations()` (S153) +
+  `GeneratePivotYamlTask` load-before-write (S163).
+* *9 autres boroughs* : Loi uniquement documentée dans `AGENT.adoc`
+  (gouvernance proclamée S154). Zéro ligne de code applicatif.
+* *workspace-bom* : `pipeline-contracts` (MEM-2, code prêt 33/33 PASS)
+  n'est pas encore publié sur Maven Central (PUB-3.06 à faire).
+  `llm-pool-contracts` (5 classes) publié 0.0.1.
+* *Audit cross-borough* : 9 `AGENT.adoc` contiennent la section Loi
+  (codex, training, capsule, plantuml, readme, document, agile, ticket,
+  review) avec référence canonique vers bakery `AGENT.adoc`.
+
+=== 3. Cadrage option d'attaque (non exécuté)
+
+Trois options identifiées, non départées faute de décision utilisateur :
+
+* *Option A — Contrat N0* : sealed `MeteredOperation<T>` + `Delta<T>` +
+  `InkEconomyPolicy` dans workspace-bom (pipeline-contracts ou nouveau
+  module). DDD-first, transverse, évite 10 implémentations divergentes.
+* *Option B — Pilote borough* : implémenter load-before-write dans un
+  borough concret (codex RAG / readme / training SPG). TDD-first.
+* *Option C — A puis B* : contrat + pilote dans la même session.
+
+L'utilisateur a clôturé la session avant de départager.
+
+== Livrables
+
+* Aucun code source modifié.
+* Aucun fichier de test modifié.
+* Vérification koverThresholdCheck : PASS (92,90%).
+* Investigation Loi Économie d'Encre : état des lieux transverse documenté
+  dans cette archive (réutilisable pour S166).
+
+== Vérifications
+
+* `./gradlew -q publishToMavenLocal` OK (working tree déjà propre, JAR 0.0.2).
+* `git status` : working tree propre, branche `main` à jour avec `origin/main`.
+* `./gradlew koverThresholdCheck` : BUILD SUCCESSFUL, 92,90% instruction coverage.
+
+== Fichiers modifiés
+
+* Aucun code source. Gouvernance uniquement :
+  - `.agents/sessions/165-kover-threshold-verification.adoc` (ce fichier, créé)
+  - `PROMPT_REPRISE.adoc` (mise à jour pour session 166)
+  - `.agents/INDEX.adoc` (session 165 ajoutée)
+  - `.agents/SESSIONS_HISTORY.adoc` (entrée 165)
+  - `.agents/archives/COMPLETED_TASKS_ARCHIVE_2026-06.adoc` (entrée 165)
+
+== Score session
+
+7/10 — Vérification PASS faite (piste 1 close). Pas de code modifié, pas
+d'EPIC avancé. La piste 2 (Loi Encre) a été investiguée mais pas départée.

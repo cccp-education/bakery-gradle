@@ -1,5 +1,73 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 165 — 2026-06-24 — koverThresholdCheck PASS + Investigation Loi Économie d'Encre
+
+**Contexte** : Session de vérification post-S164 (fix OGNL + E2E optimisation).
+La piste 1 du PROMPT_REPRISE 165 demandait de valider que `koverThresholdCheck`
+passe maintenant que les E2E i18n sont verts. La piste 2 ouvrait sur la Loi
+de l'Économie d'Encre (transverse cross-borough).
+
+=== Tâche 1 — koverThresholdCheck — ✅ PASS
+
+* `./gradlew koverThresholdCheck --console=plain` — BUILD SUCCESSFUL en 6m28s.
+* *Instruction coverage* : **92,90%** (missed=11540, covered=150915).
+* Largement au-dessus du seuil Kover historique (85,88%, S104 BKY-KOV-1)
+  et du seuil configuré (70%).
+* La piste 1 de PROMPT_REPRISE 165 est close.
+
+=== Tâche 2 — Investigation Loi de l'Économie d'Encre — état des lieux
+
+Audit transverse des 10 boroughs LLM-metered (bakery + 9 autres) pour préparer
+le prolongement code de la Loi (conceptualisée S153, propagée S154 aux
+`AGENT.adoc` des 9 autres boroughs mais pas au code applicatif).
+
+* *Code applicatif bakery* : 2 implémentations réelles uniquement —
+  `I18nMigrationService.loadExistingTranslations()` (S153, delta traduction) +
+  `GeneratePivotYamlTask` load-before-write + skip si identique (S163).
+* *9 autres boroughs* : Loi uniquement documentée dans `AGENT.adoc`
+  (gouvernance proclamée S154). Zéro ligne de code applicatif.
+  boroughs : codex, training, capsule, plantuml, readme, document, agile,
+  ticket, review.
+* *workspace-bom* : `pipeline-contracts` (MEM-2, code prêt 33/33 PASS) n'est
+  pas encore publié sur Maven Central (PUB-3.06 à faire). `llm-pool-contracts`
+  (5 classes : LlmInstance, LlmInstancePool, QuotaConfig, ResetPolicy,
+  RotationStrategy) publié 0.0.1.
+* *Audit grep* : 9 `AGENT.adoc` contiennent la section Loi avec référence
+  canonique vers `bakery-gradle/bakery-plugin/AGENT.adoc` (S153).
+
+=== Cadrage identifié (non exécuté)
+
+Trois options d'attaque pour prolonger la Loi, non départées (l'utilisateur
+a clôturé la session avant décision) :
+
+* *Option A — Contrat N0* : sealed `MeteredOperation<T>` + `Delta<T>` +
+  `InkEconomyPolicy` dans workspace-bom (pipeline-contracts ou nouveau
+  module `ink-economy-contracts`). DDD-first, transverse, évite 10
+  implémentations divergentes. Baby steps DDD/TDD/BDD + publication
+  Maven Central.
+* *Option B — Pilote borough* : implémenter load-before-write dans un
+  borough concret (codex RAG / readme / training SPG). TDD-first, démontre
+  la valeur immédiatement, extraction du contrat ensuite.
+* *Option C — A puis B* : contrat + pilote dans la même session 166.
+
+=== Vérifications
+
+* `./gradlew -q publishToMavenLocal` OK (working tree déjà propre, JAR 0.0.2).
+* `git status` : working tree propre, branche `main` à jour avec `origin/main`.
+* `./gradlew koverThresholdCheck` : BUILD SUCCESSFUL, 92,90% instruction coverage.
+
+=== Fichiers modifiés
+
+* Aucun code source. Gouvernance uniquement (5 fichiers) :
+  - `.agents/sessions/165-kover-threshold-verification.adoc` (créé)
+  - `PROMPT_REPRISE.adoc` (mise à jour session 166)
+  - `.agents/INDEX.adoc` (session 165 ajoutée + portefeuille MAJ)
+  - `.agents/SESSIONS_HISTORY.adoc` (entrée 165)
+  - `.agents/archives/COMPLETED_TASKS_ARCHIVE_2026-06.adoc` (ce fichier, entrée 165)
+  - `.agents/TEST_COVERAGE_ANALYSIS.adoc` (métrique 92,90% MAJ)
+
+'''
+
 == Session 162 — 2026-06-24 — BKY-PERF-6 : Migration FT→UT avec @TestInstance(PER_CLASS) + @BeforeEach
 
 **Contexte** : L'investigation BKY-PERF (profiling, 4min10s baseline) a montré

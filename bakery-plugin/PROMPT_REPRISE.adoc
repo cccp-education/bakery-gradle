@@ -1,31 +1,37 @@
-= PROMPT REPRISE — Bakery — Session 165
-:session: 165
+= PROMPT REPRISE — Bakery — Session 166
+:session: 166
 :date: 2026-06-24
 
-== Session 164 terminée — Fix OGNL + Optimisation E2E
+== Session 165 terminée — koverThresholdCheck PASS + Investigation Loi Encre
 
-=== ✅ Bug OGNL #sets.contains dans 10 templates
-- `#sets.contains({'ar','ur'}, ...)` -> `#lists.contains` (ArrayList vs Set en OGNL)
-- 10 templates Thymeleaf corrigés (site/ + site-basic/)
-- 19/19 E2E PASS (avant : 2 FAILED i18n)
+=== ✅ koverThresholdCheck PASS
+- `./gradlew koverThresholdCheck` = BUILD SUCCESSFUL en 6m28s
+- Instruction coverage : **92,90%** (missed=11540, covered=150915)
+- Largement au-dessus du seuil Kover historique (85,88%)
+- Piste 1 de S165 close
 
-=== ✅ Cache installPlaywright
-- `onlyIf` sur `~/.cache/ms-playwright/chromium-*` — SKIPPED si présent
-- Pas de marker dans build/, vérification directe du cache système
+=== 🔍 Investigation Loi de l'Économie d'Encre — état des lieux
+- *Code bakery* : 2 implémentations (`I18nMigrationService.loadExistingTranslations` S153,
+  `GeneratePivotYamlTask` load-before-write S163)
+- *9 boroughs* : Loi uniquement dans `AGENT.adoc` (S154). Zéro ligne de code applicatif.
+- *workspace-bom* : `pipeline-contracts` (MEM-2 code prêt 33/33 PASS) NON publié (PUB-3.06 à faire)
+- *Audit* : 9 AGENT.adoc référencent bakery comme source canonique
 
-=== ✅ Singleton PlaywrightPool
-- 1 Playwright.create() + 1 chromium().launch() pour tout (avant 5×)
-- Shutdown hook JVM pour cleanup
-- forkEvery=1 supprimé (1 JVM partagée)
-- ThymeleafRenderingTestFactory mutualisé en singleton companion
+=== Cadrage identifié (non départé)
+- *Option A* — Contrat N0 `MeteredOperation<T>` + `Delta<T>` dans workspace-bom (DDD-first)
+- *Option B* — Pilote load-before-write dans un borough concret (codex/readme/training)
+- *Option C* — A puis B
 
 == Prochaine mission
 
-Bakery production-ready + E2E optimisés. Pistes :
-1. Vérifier `./gradlew koverThresholdCheck` passe maintenant (E2E vert)
-2. Nouvelle priorité roadmap ou cross-borough (delta Loi Économie d'Encre 9 boroughs)
+1. **Départager l'option d'attaque Loi Économie d'Encre** (A/B/C) avec l'utilisateur
+2. Si Option A choisie : baby steps DDD/TDD/BDD sur contrat N0 + publication Maven Central
+3. Si Option B choisie : baby steps DDD/TDD/BDD dans borough pilote
+4. Publier `pipeline-contracts` sur Maven Central (PUB-3.06) si pertinent (Option A)
 
 == Contexte technique
 - Ports Ollama : 11437-11465. Modèles : `gpt-oss:120b-cloud`, `gemma4:31b-cloud`
-- E2E : 19/19 PASS, installPlaywright SKIPPED sur second run
-- Cache Playwright persistant : `~/.cache/ms-playwright/`
+- koverThresholdCheck : 92,90% PASS (S165)
+- E2E : 19/19 PASS (S164), 129 Cucumber PASS
+- Version courante : 0.0.2 Maven Central + Gradle Portal (LIVE)
+- `pipeline-contracts` : code prêt 33/33 PASS, publication nmcp restante (PUB-3.06)

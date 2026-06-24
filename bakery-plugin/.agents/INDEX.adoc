@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour_ : 2026-06-24 — Session 164 Fix OGNL templates + Optimisation E2E Playwright (singleton pool + cache installPlaywright + forkEvery supprime).
-_Session en cours_ : 164 terminée — (1) Fix #sets.contains -> #lists.contains dans 10 templates Thymeleaf (2 E2E i18n FAILED -> 19/19 PASS). (2) Cache installPlaywright via onlyIf sur ~/.cache/ms-playwright/chromium-* (SKIPPED si présent). (3) PlaywrightPool singleton JVM-wide (1 Playwright.create() + 1 chromium().launch() pour tout, avant 5×). (4) forkEvery=1 supprimé (1 JVM partagée). (5) ThymeleafRenderingTestFactory mutualisé singleton. `./gradlew e2eTest` 19/19 PASS en 1m44s.
-_Prochaine session_ : 165 — Vérifier koverThresholdCheck, prochaine priorité roadmap.
+_Derniere mise a jour_ : 2026-06-24 — Session 165 koverThresholdCheck PASS (92,90%) + Investigation Loi Économie d'Encre transverse.
+_Session en cours_ : 165 terminée — (1) `./gradlew koverThresholdCheck` BUILD SUCCESSFUL 6m28s, instruction coverage 92,90% (missed=11540, covered=150915) — largement au-dessus du seuil Kover historique 85,88%, piste 1 close. (2) Audit Loi Économie d'Encre transverse : code bakery = 2 implémentations (`I18nMigrationService` S153 + `GeneratePivotYamlTask` S163) ; 9 autres boroughs = loi uniquement dans AGENT.adoc (S154, zéro code applicatif) ; `pipeline-contracts` (MEM-2) NON publié Central (PUB-3.06 restant). 3 options d'attaque identifiées (A contrat N0 / B pilote borough / C A+B), non départées. Aucun code source modifié, 5 fichiers gouvernance.
+_Prochaine session_ : 166 — Départager option d'attaque Loi Économie d'Encre (A/B/C) + possibly PUB-3.06 pipeline-contracts.
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 165 | 2026-06-24 | vérification + investigation | **koverThresholdCheck PASS + Investigation Loi Économie d'Encre** — (1) `./gradlew koverThresholdCheck` BUILD SUCCESSFUL 6m28s, instruction coverage 92,90% (missed=11540, covered=150915), largement au-dessus du seuil historique 85,88%. Piste 1 S165 close. (2) Audit Loi Économie d'Encre transverse : code bakery = 2 implémentations (`I18nMigrationService.loadExistingTranslations` S153 + `GeneratePivotYamlTask` load-before-write S163) ; 9 autres boroughs = loi uniquement dans AGENT.adoc (S154, zéro code applicatif) ; workspace-bom `pipeline-contracts` (MEM-2 33/33 PASS) NON publié Maven Central (PUB-3.06 à faire). 3 options d'attaque identifiées (A contrat N0 / B pilote borough / C A+B), non départées. Aucun code source modifié. 5 fichiers gouvernance. | 7/10
   | 164 | 2026-06-24 | TDD + refactoring | **Fix OGNL templates + Optimisation E2E Playwright** — (1) Fix #sets.contains -> #lists.contains dans 10 templates Thymeleaf (ArrayList vs Set en OGNL, 2 E2E i18n FAILED -> 19/19 PASS). (2) Cache installPlaywright via onlyIf sur ~/.cache/ms-playwright/chromium-* (SKIPPED si present, zero marker build/). (3) PlaywrightPool singleton JVM-wide (1 Playwright.create() + 1 chromium().launch() pour tout, avant 5x, shutdown hook JVM). (4) forkEvery=1 supprime (1 JVM partagee). (5) ThymeleafRenderingTestFactory mutualise singleton companion. `./gradlew e2eTest` 19/19 PASS en 1m44s. 13 fichiers modifies/crees. | 9/10
   | 163 | 2026-06-24 | DDD + TDD + BDD | **Loi Économie d'Encre generatePivotYaml + 4e golden master + bug cucumber** — (1) GeneratePivotYamlTask load-before-write + skip si identique (9-10 lignes). 1 nouveau FT idempotence, 6/6 FT PASS. (2) 4e golden master nested-plantuml (listes `**`/`***` + plantuml pass-through). 4/4 GM PASS. (3) Bug cucumber features 9/16 : déjà résolu par fix S161. 0 FAILED. 3 fichiers source modifiés, 2 créés. | 9/10
   | 162 | 2026-06-24 | Refactoring + DDD/TDD | **BKY-PERF-6 : Migration FT→UT avec @TestInstance(PER_CLASS) + @BeforeEach** — Investigation BKY-PERF-1→5 (profiling 13 classes, baseline 4min10s, bottleneck incompressible GradleRunner, `maxParallelForks` fixé à 3). Migration de 6 classes FT vers UT ProjectBuilder : `IaFunctionalTests`→`IaConfigUnitTest`, `ArticleIntentionFunctionalTests`→`ArticleIntentionUnitTest`, `ThemeIntentionFunctionalTests`→`ThemeIntentionUnitTest`, `ScaffoldIntentionFunctionalTests`→`ScaffoldIntentionUnitTest`, `CollectSiteContextFunctionalTest`→`CollectSiteContextUnitTest`, `ValidateFirebaseConfigFunctionalTests` DSL tests→`FirebaseAuthConfigUnitTest`. Pattern commun : `@TestInstance(PER_CLASS)`, champs `project`/`ext` partagés via `@BeforeEach`, helpers configure*() privés. Tests GradleRunner réels conservés dans `IntegrationRestoredFunctionalTests` (3 inner classes, 4 FT). 6 UT créées, 6 FT supprimées, 1 FT créé. `./gradlew test` BUILD SUCCESSFUL (11 tasks, 1m14s). Zéro code production modifié. | 9/10
@@ -220,7 +221,7 @@ _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
 | Projet | Repertoire | Session en cours | Derniere MAJ
   | magic-stick | `~/workspace/foundry/public/magic-stick` | 014 | 2026-05-11
   | plantuml-gradle | `~/workspace/foundry/public/plantuml-gradle/plantuml-plugin` | 148 | 2026-06-11
-  | bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 164 | 2026-06-24
+  | bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 165 | 2026-06-24
   | jhipster-gradle-plugins | `~/workspace/foundry/public/jhipster-gradle-plugins` | 9 | 2026-06-11
   | quizz-benchmark-gradle | `~/workspace/foundry/private/quizz-benchmark-gradle/quizz-benchmark-plugin` | Audit 053 | 2026-04-30
   | runner-gradle | `~/workspace/foundry/public/runner-gradle` | 029 | 2026-05-12

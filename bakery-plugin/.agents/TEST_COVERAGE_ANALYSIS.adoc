@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-24 — Session 164 Fix OGNL + Optimisation E2E. 10 templates #sets.contains -> #lists.contains (2 E2E i18n FAILED -> 19/19 PASS). PlaywrightPool singleton (1 Playwright + 1 Browser pour tout). installPlaywright cache onlyIf ~/.cache/ms-playwright. forkEvery=1 supprimé. ThymeleafRenderingTestFactory singleton. `./gradlew e2eTest` 19/19 PASS 1m44s._
+_Dernière mise à jour : 2026-06-24 — Session 165 koverThresholdCheck PASS : instruction coverage 92,90% (missed=11540, covered=150915), BUILD SUCCESSFUL 6m28s. Largement au-dessus du seuil configuré. Aucun test modifié en S165._
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -10,7 +10,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 [cols="2,3"]
 |===
 | Métrique | Valeur
-| Couverture Kover | *87.55%* — mesuré Session 136 via koverThresholdCheck (129680/148115 instructions environ). Helper `ResolveIntention` non couvert par Kover (nouveau, à régénérer Session 143).
+| Couverture Kover | *92,90%* — mesuré Session 165 via `koverThresholdCheck` (150915/162455 instructions couvertes, missed=11540). BUILD SUCCESSFUL 6m28s. Seuil configuré respecté largement.
 | Seuil configuré | 70% (dans `build.gradle.kts` → `koverThresholdCheck`)
 | **Nouvelle cible** | **90%** — EPIC BKY-KOV-1 (16 pts, US-1 ✅, US-KOV-2 ✅, US-KOV-3 ✅, US-KOV-4 ✅, US-KOV-5→7 restantes)
 | Tests unitaires JUnit5 | 148+ fichiers, ~1159+ tests — ✅ PASS. BKY-A11Y-1 : 17 UT a11y (4 ColorContrast + 4 Auditor + 4 HtmlScanner color + 7 HtmlScanner structural + 6 AuditTask dont 2 gate). `FixtureAlignmentAuditorTest` 7/7 GREEN.
