@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-  _Derniere mise a jour_ : 2026-06-24 — Session 159 Fix découverte Gradle + edge cases parser + tâche generatePivotYaml + BDD.
-  _Session en cours_ : 159 terminée — :test 1m 1s SUCCESS, 3/3 golden masters GREEN, 41 UT + 3 functional + 2 BDD scénarios PASS.
-  _Prochaine session_ : 160 — Loi Économie d'Encre sur generatePivotYaml + CLI @Option + 4e golden master.
+  _Derniere mise a jour_ : 2026-06-24 — Session 160 Architecture README Plugin + Consommateur.
+  _Session en cours_ : 160 terminée — README.plugin → bakery-plugin/, README.consommateurs → racine borough, liens i18n recréés (10 langues).
+  _Prochaine session_ : 161 — Loi Économie d'Encre sur generatePivotYaml + CLI @Option + 4e golden master.
 
 '''
 

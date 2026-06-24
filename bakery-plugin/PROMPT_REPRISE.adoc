@@ -1,69 +1,41 @@
-= PROMPT REPRISE — Bakery
-:session: 160
+= PROMPT REPRISE — Bakery — Session 161
+:session: 161
 :date: 2026-06-24
 
-== Mission en cours (session 160)
+== Session 160 terminée — Architecture README Plugin + Consommateur
 
-*Session 159 TERMINÉE — Fix découverte Gradle + 3 edge cases parser + Tâche
-generatePivotYaml + BDD.* `:test` complet 1m 1s SUCCESS (vs timeout 5min avant).
-Golden masters 3/3 GREEN. 41 UT + 3 functional + 2 BDD scénarios PASS.
+Déplacement README.plugin → bakery-plugin/README.plugin/ (README.md master
+remonté à racine plugin). Déplacement README.consommateurs → racine borough.
+Liens i18n recréés (10 langues, `README.plugin/` + `README.consommateurs/`).
 
-== Problème à résoudre
+== Mission en cours
 
-La tâche `generatePivotYaml` est livrée (3 functional + 2 BDD). Le parser
-couvre 25 UT. Reste à :
+Reprise backlog pivot YAML :
 
 1. **Loi de l'Économie d'Encre sur generatePivotYaml** :
    - `GeneratePivotYamlTask` doit lire le YAML existant avant d'écrire
    - Si le YAML généré == YAML existant → skip l'écriture (ne pas écraser)
    - Test : invoquer 2× la tâche, vérifier que la 2e fois ne réécrit pas
-   - Raison : préparation pour pipeline i18n qui consomme le YAML pivot
 
 2. **CLI option natif `--input`/`--output`** :
-   - Actuellement `-Pinput`/`-Poutput` (project properties)
-   - Migrer vers `@Option` sur la tâche pour `--input=...` natif Gradle
-   - Tester via functional test
+   - Migrer `-Pinput`/`-Poutput` vers `@Option` sur la tâche
 
-3. **Étendre golden masters** :
-   - Ajouter un 4e golden master avec listes imbriquées + plantuml
-   - Valider round-trip byte-identique
+3. **Étendre golden masters** : 4e golden master avec listes imbriquées + plantuml
 
-4. **Bug préexistant cucumber** (optionnel) :
-   - Features 9, 16 ont des steps `GenerateArticleSteps` non chargés
-   - Investiguer le glue cucumber-picocontainer
+4. **Bug préexistant cucumber** (optionnel) : features 9, 16 steps non chargés
 
 == Contexte parser pivot
 
 * Package : `bakery.pivot` (6 classes main + 5 classes test)
-  - `PivotModel.kt` — sealed classes (PivotBlock, PivotInline, PivotArticle)
-  - `PivotYamlRenderer.kt` — rendu YAML déterministe (139 lignes)
-  - `AsciiDocParser.kt` — parser AsciiDoc→PivotArticle (310 lignes)
-  - `TextTranslatableClassifier.kt` — heuristique translatable (59 lignes)
-  - `GeneratePivotYamlTask.kt` — tâche Gradle DefaultTask (47 lignes)
-  - `PivotTaskRegistrar.kt` — registrar tâche (38 lignes)
-* Ressources golden master : `src/test/resources/pivot-golden-master/`
-  (3 .adoc + 3 .yaml)
-* Contrat pivot figé : 8 types blocs, 4 types inline, `translatable: true/false`,
-  cellules table = `inline[]`
-* Parser supporte : frontmatter, headings (niveaux 2-4), paragraphs, bold,
-  code inline, links, listes (* ** *** . 1.), tables (multi-lignes + cols),
-  source blocks (---- et ==== fermeture), admonitions, plantuml pass-through, hr
+* Golden master : `src/test/resources/pivot-golden-master/` (3 .adoc + 3 .yaml)
+* 41 UT + 3 functional + 2 BDD scénarios PASS
+* `./gradlew test` = 1m 1s SUCCESS
 
 == Notes techniques
 
 * Ports Ollama autorisés : 11437-11465 uniquement. Modèles :
   `gpt-oss:120b-cloud`, `gemma4:31b-cloud`.
-* `./gradlew test --tests "bakery.pivot.AsciiDocParserTest" --tests
-  "bakery.pivot.PivotModelTest" --tests "bakery.pivot.PivotYamlRendererTest"
-  --tests "bakery.pivot.TextTranslatableClassifierTest"` = 41/41 PASS.
-* Golden master : `--tests "bakery.pivot.PivotGoldenMasterTest.golden master
-  quick start adoc to yaml is byte identical"` (nom complet requis, bug Gradle
-  noms backtick).
-* `./gradlew test` = 1m 1s SUCCESS (tous tests unitaires).
-* `./gradlew functionalTest --tests "bakery.GeneratePivotYamlFunctionalTest"` =
-  3/3 PASS.
 * Timeout cucumberTest 5min (EPIC 5) — ne pas lancer `check` complet sans
   permission.
-* `publishToMavenLocal` fait (jar 0.0.2).
 * *Loi de l'Économie d'Encre* : toute tâche Gradle LLM DOIT load-before-write +
   calcul delta + fusion existing+new.

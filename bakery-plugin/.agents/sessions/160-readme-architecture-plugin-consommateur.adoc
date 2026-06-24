@@ -1,0 +1,45 @@
+= Session 160 — Architecture README Plugin + Consommateur
+:session: 160
+:date: 2026-06-24
+:type: Refactor README
+:score: 8/10
+
+== Objectif
+
+Réorganiser les README selon l'architecture « Plugin Indépendant + Racine
+Consommateur » (article 0124). Déplacer `README.plugin/` vers
+`bakery-plugin/` et `README.consommateurs/` vers la racine du borough.
+Recréer les liens i18n.
+
+== Ce qui a été fait
+
+=== 1. Déplacement README.plugin → bakery-plugin/README.plugin/
+
+* `README.plugin/` (10 fichiers) déplacé du root vers
+  `bakery-plugin/README.plugin/`.
+* `README.md` (master source EN) remonté à la racine de `bakery-plugin/`.
+* 9 traductions restent dans `bakery-plugin/README.plugin/`.
+
+=== 2. Déplacement README.consommateurs → racine du borough
+
+* `README.consommateurs/README.md` (consumer guide EN) remonté à la racine
+  du borough `bakery-gradle/README.md`.
+* 9 traductions restent dans `README.consommateurs/`.
+
+=== 3. Mise à jour des liens i18n
+
+* `bakery-plugin/README.md` : liens → `README.plugin/README.{lang}.md`
+  (10 langues).
+* `README.md` (racine) : liens → `README.consommateurs/README.{lang}.md`
+  (10 langues).
+
+== Fichiers modifiés
+
+* `README.md` (racine) — nouveau master source consommateur + liens i18n
+* `bakery-plugin/README.md` — liens i18n mis à jour
+* `bakery-plugin/README.plugin/README.{ar,bn,es,fr,hi,pt,ru,ur,zh}.md` — déplacés
+* `README.consommateurs/README.{ar,bn,es,fr,hi,pt,ru,ur,zh}.md` — inchangés
+
+== Prochaines étapes
+
+* Valider le rendu sur GitHub

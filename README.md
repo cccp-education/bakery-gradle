@@ -12,7 +12,7 @@
 - **Build**: `./gradlew build` · **Tests**: `./gradlew check` (JUnit5 + functionalTest + Cucumber + E2E Playwright)
 - **Coverage**: ≥ 85 % (Kover `koverThresholdCheck`, wired into `check`) · **Cucumber**: 129/129 PASS
 
-🌐 Languages: **EN** | [Français](README.fr.md)
+🌐 Languages: **EN** | [中文](README.consommateurs/README.zh.md) | [हिन्दी](README.consommateurs/README.hi.md) | [Español](README.consommateurs/README.es.md) | [Français](README.consommateurs/README.fr.md) | [العربية](README.consommateurs/README.ar.md) | [বাংলা](README.consommateurs/README.bn.md) | [Português](README.consommateurs/README.pt.md) | [Русский](README.consommateurs/README.ru.md) | [اردو](README.consommateurs/README.ur.md)
 
 ---
 
