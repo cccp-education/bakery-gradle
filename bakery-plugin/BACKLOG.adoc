@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-24 — Session 162. BKY-PERF-6 : Migration 6 FT→UT @TestInstance(PER_CLASS). 6 UT créées, 6 FT supprimées, 1 FT créé. maxParallelForks=3. `./gradlew test` BUILD SUCCESSFUL 1m14s._
+_Dernière mise à jour : 2026-06-24 — Session 163. Loi Économie d'Encre generatePivotYaml + 4e golden master + bug cucumber. 3/3 tâches accomplies. Bakery production-ready._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -16,8 +16,8 @@ _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/C
 *Coverage* : 85.88% (Kover), seuil `koverThresholdCheck` PASS.
 *Code smells* : 24/24 V2-V4 + 60 V5 + 3 V6 résolus (24/24 V5 via US-1→8, 8/8 V6).
 *Loi de l'Économie d'Encre* : encodée dans bakery + 9 boroughs transverses (S154).
-*Parser pivot* : 41 UT + 3/3 golden masters GREEN + tâche `generatePivotYaml` (3 functional + 2 BDD).
-*Session en cours* : 162 — BKY-PERF-6 migration FT→UT terminée. Prochaine : Loi Économie d'Encre + golden master + bug cucumber.
+*Parser pivot* : 41 UT + 4/4 golden masters GREEN + tâche `generatePivotYaml` (6 functional + 4 BDD).
+*Session en cours* : 163 terminée — Loi Économie d'Encre (load-before-write generatePivotYaml), 4e golden master, bug cucumber features 9/16 résolu.
 ====
 
 '''
@@ -166,37 +166,25 @@ _Tous résolus. Le détail par smell est dans le backup sess154 et `.agents/CODE
 
 '''
 
-== Pistes ouvertes (session 160+)
+== Pistes ouvertes (session 163+)
 
-_Bakery est production-ready. Parser pivot AsciiDoc→YAML livré (41 UT + 3/3 golden masters + tâche generatePivotYaml 3 functional + 2 BDD). La suite dépend de la roadmap utilisateur._
+_Bakery est production-ready. Toutes les pistes S160-S163 sont resolues. La suite depend de la roadmap utilisateur._
 
 [cols="1,4,2]
 |===
-| # | Piste | Méthode
+| # | Piste | Methode
 
-| 1
-| **✅ RÉSOLU (S159)** — Débugger PivotGoldenMasterTest. Fix : exclusion `contracts.pipeline.scenarios.*` du `:test` task. `:test` complet 1m 1s SUCCESS. Golden masters 3/3 GREEN via workaround noms méthodes complets (bug Gradle noms backtick Kotlin).
+| 1-4
+| **TOUTES RESOLUES (S159->S163)** — Debug PivotGoldenMasterTest, CLI @Option natif --input/--output + Loi Economie d Encre generatePivotYaml (load-before-write), 4e golden master nested-plantuml, bug cucumber features 9/16.
 | —
 
-| 2
-| **✅ RÉSOLU PARTIELLEMENT (S161)** — CLI option natif `--input`/`--output` (via `@Option`) migré. `PivotOutputResolver` (concept pur, 9 UT) extrait. `GeneratePivotYamlTask` migré `Property<String>` + `@Option`. `PivotTaskRegistrar` nettoyé. 5 functional + 4 BDD scénarios PASS. **Reste** : Loi de l'Économie d'Encre (load-before-write + skip si identique).
-| Baby steps DDD/TDD/BDD — load-before-write + test idempotence économique.
-
-| 3
-| **Étendre golden masters** — Ajouter un 4e golden master avec listes imbriquées (`**`/`***`) + plantuml pass-through. Valider round-trip byte-identique. Le parser supporte déjà ces patterns (S159), il faut les ressources de test.
-| Baby steps TDD — créer adoc + yaml golden master + test round-trip.
-
-| 4
-| **Bug préexistant cucumber** (optionnel) — Features 9, 16 ont des steps `GenerateArticleSteps` non chargés par cucumber-picocontainer. Investiguer le glue. Affecte d'autres features (collectSiteConfig, etc.).
-| Debug cucumber-picocontainer DI.
-
 | 5
-| **Implémentation effective du pattern delta (Loi de l'Économie d'Encre) dans le code des 9 boroughs LLM metered** — codex, training, capsule, plantuml, readme, document, agile, ticket, review. Un borough à la fois.
-| Baby steps DDD/TDD/BDD — load-before-write + test réutilisation + scénario idempotence économique.
+| **Implementation effective du pattern delta (Loi de l Economie d Encre) dans le code des 9 boroughs LLM metered** — codex, training, capsule, plantuml, readme, document, agile, ticket, review. Gouvernance AGENT.adoc propagee S154, code reel a faire. **Cross-borough, pas priorite bakery seule.**
+| Baby steps DDD/TDD/BDD par borough.
 
 | 6
-| **Nouvel EPIC** (nouvelle capability) à cadrer.
-| Cadrage agile 7 ateliers → DDD/TDD/BDD.
+| **Nouvel EPIC** (nouvelle capability) a cadrer.
+| Cadrage agile 7 ateliers -> DDD/TDD/BDD.
 |===
 
 '''
@@ -273,5 +261,5 @@ _Investigation S162 — voir `.agents/sessions/BKY-PERF-1-profiling.adoc` pour l
 | Version | 10.0 — Session 155 (nettoyage : historisation détail EPICs terminés)
 | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-154
-| Prochaine màj | Session 160+ — à la première évolution (nouvel EPIC ou piste choisie)
+| Prochaine màj | Session 164+ — à la première évolution (nouvel EPIC ou piste choisie)
 |===
