@@ -1,0 +1,92 @@
+= Session 162 — BKY-PERF-6 : Migration FT→UT avec @TestInstance(PER_CLASS) + @BeforeEach
+:session: 162
+:date: 2026-06-24
+:type: Refactoring + DDD/TDD
+:score: 9/10
+
+== Objectif
+
+Suite à l'investigation BKY-PERF (profiling : 4min10s pour 39 functional tests,
+bottleneck incompressible `GradleRunner.create().build()` forke un daemon à chaque
+appel), migration des tests DSL triviaux (compilation + enregistrement tâche)
+vers des tests unitaires ProjectBuilder in-process avec `@TestInstance(PER_CLASS)`
+et champs `project`/`ext` partagés via `@BeforeEach`.
+
+== Baby steps
+
+=== BKY-PERF-1 → BKY-PERF-5 — Investigation profiling (1 session)
+
+* BKY-PERF-1 : Profiling 13 classes — 10 SINGLE-SHOT (35 tests), 3 MULTI-SHOT (19 tests).
+  Baseline : `./gradlew functionalTest` = **4min10s** (39 tests, 3 forks).
+  Rapport : `.agents/sessions/BKY-PERF-1-profiling.adoc`.
+* BKY-PERF-2 : `withDebug(true)` testé sur `IaFunctionalTests` — **2× plus lent**. ABANDONNÉ.
+* BKY-PERF-3 : `@TestInstance(PER_CLASS)` + `@BeforeAll` testé sur `IaFunctionalTests`
+  — `@TempDir` partagé ne change rien, chaque `.build()` fork un daemon frais. ABANDONNÉ.
+* BKY-PERF-4 : `--configuration-cache` — pas de gain (chaque `@TempDir` est unique). ABANDONNÉ.
+* BKY-PERF-5 : `maxParallelForks` fixé à 3 (vs `availableProcessors()`). ✅ CONSERVÉ.
+* **Conclusion BKY-PERF** : L'API GradleRunner est le bottleneck.
+  Aucune optimisation via l'API n'est possible. Solution : remplacer les tests
+  DSL triviaux par des tests unitaires ProjectBuilder in-process.
+
+=== BKY-PERF-6 — Migration FT→UT avec @TestInstance(PER_CLASS) (cette session)
+
+Migration de 6 classes de test fonctionnelles vers des unitaires :
+
+. **IaFunctionalTests** (4 FT) → **IaConfigUnitTest** (4 UT) — `bakery/llm/` — configureIa() helper
+. **ArticleIntentionFunctionalTests** (4 FT) → **ArticleIntentionUnitTest** (4 UT) — `bakery/article/` — configureArticleIntention() helper
+. **ThemeIntentionFunctionalTests** (5 FT) → **ThemeIntentionUnitTest** (4 UT) — `bakery/theme/` — configureThemeIntention() helper
+. **ScaffoldIntentionFunctionalTests** (5 FT) → **ScaffoldIntentionUnitTest** (5 UT) — `bakery/scaffold/` — configureScaffoldIntention() helper
+. **CollectSiteContextFunctionalTest** (4 FT nested) → **CollectSiteContextUnitTest** (4 UT) — `bakery/lens/` — siteYamlContent property
+. **ValidateFirebaseConfigFunctionalTests** (2 DSL tests supprimés) → **FirebaseAuthConfigUnitTest** (3 UT) — `bakery/` — inline DSL
+
+Pattern commun (6 classes) :
+- `@TestInstance(TestInstance.Lifecycle.PER_CLASS)` — 1 instance pour toute la classe
+- `@TempDir lateinit var projectDir: File` — shared temp dir
+- `private lateinit var project: Project` — created in `@BeforeEach setUp()`
+- `private lateinit var ext: BakeryExtension` — created in `@BeforeEach setUp()`
+- `@BeforeEach fun setUp()` — `ProjectBuilder.builder().withProjectDir(projectDir).build()`
+  → `project.pluginManager.apply(BakeryPlugin::class.java)`
+  → `ext = project.extensions.getByType(BakeryExtension::class.java)`
+  → `ext.configPath.set(projectDir.resolve("site.yml").absolutePath)`
+- Helpers privés configure*() configurent le DSL + appellent `(project as ProjectInternal).evaluate()`
+- `assertThat(ext.*.*)` au lieu de `assertThat(result.output).contains("BUILD SUCCESSFUL")`
+
+Tests qui nécessitent un vrai `GradleRunner` (génération fichiers réelle, injection
+propriétés) conservés dans **IntegrationRestoredFunctionalTests** (inner classes :
+ThemePresetInjectionTest, ScaffoldExecutionTest, CollectGroupVisibilityTest).
+
+== Vérification
+
+* `./gradlew compileKotlin` — ✅ OK
+* `./gradlew test` — ✅ BUILD SUCCESSFUL (11 tasks, 1m14s) — zéro échec
+* `./gradlew functionalTest` — non lancé dans cette session (respect permission regle)
+* `publishToMavenLocal` — non requis (aucun code production modifié)
+
+== Fichiers modifiés/créés
+
+=== Créés (7 fichiers)
+* `src/test/kotlin/bakery/llm/IaConfigUnitTest.kt` — 79 lignes, 4 UT
+* `src/test/kotlin/bakery/article/ArticleIntentionUnitTest.kt` — 123 lignes, 4 UT
+* `src/test/kotlin/bakery/theme/ThemeIntentionUnitTest.kt` — 125 lignes, 4 UT
+* `src/test/kotlin/bakery/scaffold/ScaffoldIntentionUnitTest.kt` — 105 lignes, 5 UT
+* `src/test/kotlin/bakery/lens/CollectSiteContextUnitTest.kt` — 96 lignes, 4 UT
+* `src/test/kotlin/bakery/FirebaseAuthConfigUnitTest.kt` — 96 lignes, 3 UT
+* `src/functionalTest/kotlin/bakery/IntegrationRestoredFunctionalTests.kt` — 251 lignes, 4 FT
+
+=== Supprimés (6 fichiers)
+* `src/functionalTest/kotlin/bakery/IaFunctionalTests.kt` (110 lignes)
+* `src/functionalTest/kotlin/bakery/ArticleIntentionFunctionalTests.kt` (120 lignes)
+* `src/functionalTest/kotlin/bakery/ThemeIntentionFunctionalTests.kt` (222 lignes)
+* `src/functionalTest/kotlin/bakery/ScaffoldIntentionFunctionalTests.kt` (217 lignes)
+* `src/functionalTest/kotlin/bakery/CollectSiteContextFunctionalTest.kt` (149 lignes)
+* `src/functionalTest/kotlin/bakery/CollectAugmentedContextFunctionalTest.kt` (91 lignes)
+
+=== Modifiés (2 fichiers)
+* `src/functionalTest/kotlin/bakery/ValidateFirebaseConfigFunctionalTests.kt` — supprimé 3 DSL tests
+* `build.gradle.kts` — maxParallelForks = 3 (BKY-PERF-5)
+
+== Reste à faire (session 163)
+
+. **Loi de l'Économie d'Encre sur generatePivotYaml** — load-before-write + skip si identique (reporté de S161→S162)
+. **4e golden master** — listes imbriquées + plantuml pass-through
+. **Bug cucumber features 9, 16** (optionnel)

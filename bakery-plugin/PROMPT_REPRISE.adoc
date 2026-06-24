@@ -1,50 +1,40 @@
-= PROMPT REPRISE — Bakery — Session 162
-:session: 162
+= PROMPT REPRISE — Bakery — Session 163
+:session: 163
 :date: 2026-06-24
 
-== Session 161 terminée — Migration @Option natif --input/--output
+== Session 162 terminée — BKY-PERF-6 : Migration FT→UT @TestInstance(PER_CLASS)
 
-Migration CLI `generatePivotYaml` des propriétés Gradle `-Pinput`/`-Poutput`
-vers des options natives `@Option` (`--input`/`--output`). Conforme à la
-convention des autres tâches bakery (`MigrateToI18nTask`, `GenerateArticleTask`).
+Session d'optimisation des tests fonctionnels. Investigation BKY-PERF-1→5 :
+profiling 13 classes, baseline 4min10s, bottleneck incompressible GradleRunner.
 
-Baby steps DDD/TDD/BDD :
-- **DDD** : `PivotOutputResolver` (concept pur, 9 UT) — résout chemin sortie
-  défaut `{stem}.pivot.yaml` + priorité explicite > défaut.
-- **TDD** : `GeneratePivotYamlTask` migré `RegularFileProperty` →
-  `Property<String>` + `@Option`. 5/5 functional tests GREEN.
-- **BDD** : Feature 38 étendue (4 scénarios). 4/4 cucumber PASS.
-  Bug `DuplicateStepDefinitionException` résolu (renommage step pivot).
+**BKY-PERF-6** : Migration de 6 classes FT vers UT avec `@TestInstance(PER_CLASS)`
++ champs `project`/`ext` partagés via `@BeforeEach` + helpers configure*() privés.
+6 UT créées (IaConfig, ArticleIntention, ThemeIntention, ScaffoldIntention,
+CollectSiteContext, FirebaseAuthConfig). 6 FT supprimées. 1 nouveau FT
+(IntegrationRestoredFunctionalTests) conserve les tests réels d'exécution.
 
-49 UT pivot + 5 functional + 4 BDD scénarios PASS.
+`./gradlew test` BUILD SUCCESSFUL (11 tasks, 1m14s). Zéro code production modifié.
 
 == Mission en cours
 
-Reprise backlog pistes #2 et #3 :
+Reprise des pistes reportées de S161 (S162 a dévié pour BKY-PERF) :
 
 1. **Loi de l'Économie d'Encre sur generatePivotYaml** :
-   - `GeneratePivotYamlTask` doit lire le YAML existant avant d'écrire
-   - Si le YAML généré == YAML existant → skip l'écriture (ne pas écraser)
+   - load-before-write + skip si identique
    - Test : invoquer 2× la tâche, vérifier que la 2e fois ne réécrit pas
 
 2. **Étendre golden masters** : 4e golden master avec listes imbriquées + plantuml
 
 3. **Bug préexistant cucumber** (optionnel) : features 9, 16 steps non chargés
-   (`UndefinedStepException`, 108 failures, cucumber-picocontainer DI)
 
-== Contexte parser pivot
+== Contexte tests
 
-* Package : `bakery.pivot` (7 classes main + 6 classes test)
-* `PivotOutputResolver` (S161) — convention chemin sortie YAML
-* Golden master : `src/test/resources/pivot-golden-master/` (3 .adoc + 3 .yaml)
-* 49 UT + 5 functional + 4 BDD scénarios PASS
-* `./gradlew test` = 1m 1s SUCCESS
+* 6 nouvelles UT PER_CLASS : `src/test/kotlin/bakery/{llm,article,theme,scaffold,lens}/`
+* `IntegrationRestoredFunctionalTests` : tests GradleRunner réels dans 3 inner classes
+* `./gradlew test` = 1m14s SUCCESS
 
 == Notes techniques
 
-* Ports Ollama autorisés : 11437-11465 uniquement. Modèles :
-  `gpt-oss:120b-cloud`, `gemma4:31b-cloud`.
-* Timeout cucumberTest 5min (EPIC 5) — ne pas lancer `check` complet sans
-  permission.
-* *Loi de l'Économie d'Encre* : toute tâche Gradle LLM DOIT load-before-write +
-  calcul delta + fusion existing+new.
+* Ports Ollama autorisés : 11437-11465. Modèles : `gpt-oss:120b-cloud`, `gemma4:31b-cloud`.
+* BKY-PERF EPIC ajouté dans BACKLOG (section synthèse optimisation FT).
+* maxParallelForks fixé à 3 (build.gradle.kts:158, BKY-PERF-5).

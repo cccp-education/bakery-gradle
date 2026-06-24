@@ -1,7 +1,7 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-06-23 — Session 145 (BKY-CR-V6 US-3 resolveAll data-driven — EPIC TERMINÉ)_
+_Dernière mise à jour : 2026-06-24 — Session 162 (BKY-PERF-6 — Migration FT→UT @TestInstance(PER_CLASS))_
 
 * [x] Implementer la generation du code client Firebase dans les templates (→ BKY-JB-4, session 032)
 * [x] Ajouter une vraie Firebase API key quand disponible (→ EPIC 4, formalité restante côté consommateur cheroliv.com)

@@ -1,0 +1,34 @@
+= BKY-PERF-1 — Profiling tests fonctionnels
+
+== Mesures par classe (S162, maxParallelForks=3)
+
+[cols="3,2,2,3,2"]
+|===
+| Classe | Durée | Tests | Pattern | Classification
+
+| BakeryPluginFunctionalTests | 2.5s | ~8 | @BeforeTest setup, certains suppriment config mid-test | MIXTE
+| ScaffoldFunctionalTests | 58s | 17 | create project → run `generateSite` → assert files | SINGLE-SHOT ✅
+| IaFunctionalTests | 27s | 4 | create project → run `tasks` → assert | SINGLE-SHOT ✅
+| ProfilePublisherFunctionalTest | 32s | 5 | 2x `deployProfile` + git clone dans certains tests | MULTI-SHOT ❌
+| ValidateFirebaseConfigFunctionalTests | 26s | 4 | create project → run task → assert | SINGLE-SHOT ✅
+| ScaffoldIntentionFunctionalTests | 25s | 5 | create project → run task → assert | SINGLE-SHOT ✅
+| CollectSiteContextFunctionalTest | 26s | 4 | create project → run `tasks` → assert | SINGLE-SHOT ✅
+| CollectAugmentedContextFunctionalTest | 21s | 1 | create project → run `tasks` → assert | SINGLE-SHOT ✅
+| ArticleIntentionFunctionalTests | 25s | 4 | create project → run `tasks` → assert | SINGLE-SHOT ✅
+| ThemeIntentionFunctionalTests | 27s | 5 | create project → run task → assert | SINGLE-SHOT ✅
+| GeneratePivotYamlFunctionalTest | 25s | 5 | create project → run task → assert | SINGLE-SHOT ✅
+| VerifyConfigurationMappingFunctionalTest | 25s | 3 | create project → run task → assert | SINGLE-SHOT ✅
+| ArchitectureValidationTest | 67s | 6 | `@BeforeAll` shared project, `bake` x2 (incremental) | MULTI-SHOT ❌
+|===
+
+== Synthèse
+
+* **10 classes SINGLE-SHOT** (35 tests, ~280s cumulés) → candidates `withDebug(true)`
+* **3 classes MULTI-SHOT** (19 tests, ~101s) → à exclure de PERF-2
+
+Total : `./gradlew functionalTest` = 4 min 10 s (39 tests, 3 forks).
+
+== Critère de classification
+
+* **SINGLE-SHOT** : le test crée un projet frais, lance Gradle une seule fois, assert sur l'output. Aucune dépendance sur un état précédent. `withDebug(true)` safe.
+* **MULTI-SHOT** : le test lance Gradle plusieurs fois séquentiellement (ex. `bake` x2 pour incremental), partage un projet via `@BeforeAll`, ou effectue des mutations du filesystem entre invocations Gradle. `withDebug(true)` risqué (classloader stale, état résiduel).

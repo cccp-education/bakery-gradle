@@ -1,5 +1,55 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 162 — 2026-06-24 — BKY-PERF-6 : Migration FT→UT avec @TestInstance(PER_CLASS) + @BeforeEach
+
+**Contexte** : L'investigation BKY-PERF (profiling, 4min10s baseline) a montré
+que le bottleneck des tests fonctionnels est incompressible via l'API GradleRunner
+(chaque `.build()` fork un daemon). Solution : remplacer les tests DSL triviaux
+(compilation + enregistrement tâche) par des tests unitaires ProjectBuilder in-process.
+
+**Baby steps BKY-PERF-1→5** :
+. *BKY-PERF-1* : Profiling 13 classes — 10 SINGLE-SHOT (35 tests), 3 MULTI-SHOT (19 tests). Baseline 4min10s.
+. *BKY-PERF-2* : `withDebug(true)` → 2× plus lent. ABANDONNÉ.
+. *BYK-PERF-3* : `@TestInstance(PER_CLASS)` + `@BeforeAll` → pas de gain (daemon frais à chaque `.build()`). ABANDONNÉ.
+. *BYK-PERF-4* : `--configuration-cache` → pas de gain (`@TempDir` unique). ABANDONNÉ.
+. *BYK-PERF-5* : `maxParallelForks` fixé à 3 (vs `availableProcessors()`). ✅ CONSERVÉ.
+
+**BKY-PERF-6 — Migration FT→UT** :
+. *IaFunctionalTests* (4 FT, 27s) → `IaConfigUnitTest` (4 UT, in-process) — helper `configureIa()`
+. *ArticleIntentionFunctionalTests* (4 FT, 25s) → `ArticleIntentionUnitTest` (4 UT) — helper `configureArticleIntention()`
+. *ThemeIntentionFunctionalTests* (5 FT, 27s) → `ThemeIntentionUnitTest` (4 UT) — helper `configureThemeIntention()`
+. *ScaffoldIntentionFunctionalTests* (5 FT, 25s) → `ScaffoldIntentionUnitTest` (5 UT) — helper `configureScaffoldIntention()`
+. *CollectSiteContextFunctionalTest* (4 FT nested, 26s) → `CollectSiteContextUnitTest` (4 UT) — `siteYamlContent` property
+. *ValidateFirebaseConfigFunctionalTests* (3 DSL tests supprimés) → `FirebaseAuthConfigUnitTest` (3 UT) — inline DSL
+. *IntegrationRestoredFunctionalTests* (NOUVEAU, 4 FT) — conserve les tests GradleRunner réels (injection propriétés, exécution tâche)
+
+**Pattern commun** : `@TestInstance(PER_CLASS)`, `@TempDir projectDir`, `@BeforeEach setUp()`
+avec `ProjectBuilder` + `pluginManager.apply(BakeryPlugin::class)` + configPath, helpers privés configure*()
+qui configurent le DSL et appellent `(project as ProjectInternal).evaluate()`.
+
+**Vérification** : `./gradlew test` BUILD SUCCESSFUL (11 tasks, 1m14s). Zéro code production modifié.
+
+**Fichiers créés** (7) :
+* `src/test/kotlin/bakery/llm/IaConfigUnitTest.kt` — 79 lignes, 4 UT
+* `src/test/kotlin/bakery/article/ArticleIntentionUnitTest.kt` — 123 lignes, 4 UT
+* `src/test/kotlin/bakery/theme/ThemeIntentionUnitTest.kt` — 125 lignes, 4 UT
+* `src/test/kotlin/bakery/scaffold/ScaffoldIntentionUnitTest.kt` — 105 lignes, 5 UT
+* `src/test/kotlin/bakery/lens/CollectSiteContextUnitTest.kt` — 96 lignes, 4 UT
+* `src/test/kotlin/bakery/FirebaseAuthConfigUnitTest.kt` — 96 lignes, 3 UT
+* `src/functionalTest/kotlin/bakery/IntegrationRestoredFunctionalTests.kt` — 251 lignes, 4 FT
+
+**Fichiers supprimés** (6) :
+* `src/functionalTest/kotlin/bakery/IaFunctionalTests.kt`
+* `src/functionalTest/kotlin/bakery/ArticleIntentionFunctionalTests.kt`
+* `src/functionalTest/kotlin/bakery/ThemeIntentionFunctionalTests.kt`
+* `src/functionalTest/kotlin/bakery/ScaffoldIntentionFunctionalTests.kt`
+* `src/functionalTest/kotlin/bakery/CollectSiteContextFunctionalTest.kt`
+* `src/functionalTest/kotlin/bakery/CollectAugmentedContextFunctionalTest.kt`
+
+**Fichiers modifiés** (2) :
+* `src/functionalTest/kotlin/bakery/ValidateFirebaseConfigFunctionalTests.kt` — -3 DSL tests
+* `build.gradle.kts` — maxParallelForks = 3 (BKY-PERF-5)
+
 == Session 161 — 2026-06-24 — Migration @Option natif --input/--output sur generatePivotYaml
 
 **Contexte** : La tâche `generatePivotYaml` (S159) utilisait `-Pinput`/`-Poutput`

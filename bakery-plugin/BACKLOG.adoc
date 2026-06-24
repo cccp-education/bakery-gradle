@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-24 — Session 161. Migration @Option natif --input/--output sur generatePivotYaml. `PivotOutputResolver` (concept pur, 9 UT). 49 UT pivot + 5 functional + 4 BDD PASS._
+_Dernière mise à jour : 2026-06-24 — Session 162. BKY-PERF-6 : Migration 6 FT→UT @TestInstance(PER_CLASS). 6 UT créées, 6 FT supprimées, 1 FT créé. maxParallelForks=3. `./gradlew test` BUILD SUCCESSFUL 1m14s._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -17,7 +17,7 @@ _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/C
 *Code smells* : 24/24 V2-V4 + 60 V5 + 3 V6 résolus (24/24 V5 via US-1→8, 8/8 V6).
 *Loi de l'Économie d'Encre* : encodée dans bakery + 9 boroughs transverses (S154).
 *Parser pivot* : 41 UT + 3/3 golden masters GREEN + tâche `generatePivotYaml` (3 functional + 2 BDD).
-*Session en cours* : 159 — Fix découverte Gradle + edge cases parser + generatePivotYaml terminé. attente roadmap utilisateur.
+*Session en cours* : 162 — BKY-PERF-6 migration FT→UT terminée. Prochaine : Loi Économie d'Encre + golden master + bug cucumber.
 ====
 
 '''
@@ -198,6 +198,59 @@ _Bakery est production-ready. Parser pivot AsciiDoc→YAML livré (41 UT + 3/3 g
 | **Nouvel EPIC** (nouvelle capability) à cadrer.
 | Cadrage agile 7 ateliers → DDD/TDD/BDD.
 |===
+
+'''
+
+== EPIC BKY-PERF — Optimisation exécution tests fonctionnels
+
+_Investigation S162 — voir `.agents/sessions/BKY-PERF-1-profiling.adoc` pour le détail._
+
+[CAUTION]
+====
+**EPIC BKY-PERF TERMINÉ — Conclusion : aucune optimisation possible via l'API GradleRunner.**
+
+*Baseline* : `./gradlew functionalTest` = **4 min 10 s** pour 39 tests (3 forks parallèles, `maxParallelForks = 3`).
+*Bottleneck fondamental* : `GradleRunner.create().build()` fork un daemon Gradle à **chaque appel** (~20-25 s/test incluant startup daemon + compilation plugin). L'API GradleRunner ne permet PAS de réutiliser le daemon entre tests.
+====
+
+[cols="1,4,2,2"]
+|===
+| US | Description | Pts | Statut
+
+| BKY-PERF-1
+| **Profiling — mesurer par classe de test** — 13 classes testées individuellement. Classification SINGLE-SHOT (10 classes, 35 tests) vs MULTI-SHOT (3 classes, 19 tests). Rapport sauvé dans `.agents/sessions/BKY-PERF-1-profiling.adoc`.
+| 2
+| ✅ TERMINÉ
+
+| BKY-PERF-2
+| **`withDebug(true)` sur tests readonly** — Testé sur `IaFunctionalTests` (pilote). *Résultat* : `withDebug(true)` active le mode JDWP (debugger), PAS l'exécution in-process. 1m35s vs 27s → **2x plus lent**. ABANDONNÉ.
+| 5
+| ❌ ABANDONNÉ
+
+| BKY-PERF-3
+| **Projet partagé `@TestInstance(PER_CLASS)` + @BeforeAll** — Testé sur `IaFunctionalTests` (pilote). *Résultat* : `@TempDir` partagé ne change rien — `GradleRunner.create().build()` fork un daemon frais à chaque `.build()`, même dans le même projet. Regroupement de 4 tests en 1 seul test → 1m42s, pas d'amélioration. ABANDONNÉ.
+| 5
+| ❌ ABANDONNÉ
+
+| BKY-PERF-4
+| **Configuration cache GradleTestKit** — Testé sur `IaFunctionalTests` (pilote) avec `--configuration-cache`. *Résultat* : 1m35s, pas d'amélioration. Le cache n'est pas réutilisable car chaque `@TempDir` est un projet différent. ABANDONNÉ.
+| 3
+| ❌ ABANDONNÉ
+
+| BKY-PERF-5
+| **`maxParallelForks` fixé à 3** — Passé de `Runtime.getRuntime().availableProcessors()` (8) à `3` (build.gradle.kts:158). Seule optimisation appliquée et conservée.
+| 2
+| ✅ TERMINÉ
+|===
+
+*Conclusion* : L'API `GradleRunner` est le bottleneck. Chaque `.build()` fork un daemon Gradle (JVM séparée, ~20-25s par test). Aucune option de l'API (`withDebug`, `--no-daemon`, `--configuration-cache`, `PER_CLASS`, `@BeforeAll`, regroupement de tests) ne permet de réutiliser le daemon entre tests. Les 4 min 10 s sont le coût incompressible de 39 daemons Gradle forkés (3 par 3).
+
+*Pistes non explorées ( hors API GradleRunner)* :
+* **Migration vers `@GradleProject` test fixtures** (Gradle 9.x) — API plus récente permettant de partager un projet Gradle entre tests. Investiguer si compatible avec plugin testing.
+* **Réduction du nombre de tests fonctionnels** — Fusionner les tests DSL triviaux (ex. `IaFunctionalTests`, `ScaffoldIntentionFunctionalTests`, `ArticleIntentionFunctionalTests`, `ThemeIntentionFunctionalTests` — tous lancent `tasks` et assert `BUILD SUCCESSFUL`) en un seul test paramétré qui ne fork qu'un seul daemon.
+* **Tests unitaires purs** pour la validation DSL — Remplacer les tests fonctionnels triviaux (qui ne font que vérifier que le DSL compile) par des tests unitaires qui chargent le plugin classpath sans fork de daemon.
+
+*Note* : `--no-daemon` a été testé mais n'est pas supporté par `GradleRunner` (`CommandLineArgumentException`).
 
 *Notes techniques* :
 * Ports Ollama autorisés : 11437-11465 uniquement. Modèles : `gpt-oss:120b-cloud`, `gemma4:31b-cloud`.

@@ -155,7 +155,7 @@ val functionalTestTask = tasks.register<Test>("functionalTest") {
 
     systemProperty("test.timeout.multiplier", "2")
 
-    maxParallelForks = (Runtime.getRuntime().availableProcessors()).coerceAtLeast(1)
+    maxParallelForks = 3
 }
 
 // CORRECTION: Gérer les duplications de ressources pour functionalTest
