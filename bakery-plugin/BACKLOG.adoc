@@ -166,9 +166,9 @@ _Tous résolus. Le détail par smell est dans le backup sess154 et `.agents/CODE
 
 '''
 
-== Pistes ouvertes (session 163+)
+== Pistes ouvertes
 
-_Bakery est production-ready. Toutes les pistes S160-S163 sont resolues. La suite depend de la roadmap utilisateur._
+_Aucune. Bakery est production-ready, tous les EPICs connus sont clos._
 
 [cols="1,4,2]
 |===
@@ -177,14 +177,6 @@ _Bakery est production-ready. Toutes les pistes S160-S163 sont resolues. La suit
 | 1-4
 | **TOUTES RESOLUES (S159->S163)** — Debug PivotGoldenMasterTest, CLI @Option natif --input/--output + Loi Economie d Encre generatePivotYaml (load-before-write), 4e golden master nested-plantuml, bug cucumber features 9/16.
 | —
-
-| 5
-| **Implementation effective du pattern delta (Loi de l Economie d Encre) dans le code des 9 boroughs LLM metered** — codex, training, capsule, plantuml, readme, document, agile, ticket, review. Gouvernance AGENT.adoc propagee S154, code reel a faire. **Cross-borough, pas priorite bakery seule.**
-| Baby steps DDD/TDD/BDD par borough.
-
-| 6
-| **Nouvel EPIC** (nouvelle capability) a cadrer.
-| Cadrage agile 7 ateliers -> DDD/TDD/BDD.
 |===
 
 '''
