@@ -53,7 +53,7 @@ class PivotYamlRenderer {
         sb.append("$indent${INDENT_1}items:\n")
         list.items.forEach { item ->
             sb.append("$indent${INDENT_1}${INDENT_1}- inline:\n")
-            item.forEach { renderInline(it, sb, "$indent${INDENT_1}${INDENT_1}${INDENT_1}") }
+            item.forEach { renderInline(it, sb, "$indent${INDENT_1}${INDENT_1}${INDENT_1}${INDENT_1}") }
         }
     }
 
@@ -63,15 +63,15 @@ class PivotYamlRenderer {
         sb.append("$indent${INDENT_1}header:\n")
         table.header.forEach { cell ->
             sb.append("$indent${INDENT_1}${INDENT_1}- inline:\n")
-            cell.forEach { renderInline(it, sb, "$indent${INDENT_1}${INDENT_1}${INDENT_1}") }
+            cell.forEach { renderInline(it, sb, "$indent${INDENT_1}${INDENT_1}${INDENT_1}${INDENT_1}") }
         }
         sb.append("$indent${INDENT_1}rows:\n")
         table.rows.forEach { row ->
             sb.append("$indent${INDENT_1}${INDENT_1}- ")
             row.forEachIndexed { index, cell ->
                 if (index > 0) sb.append("$indent${INDENT_1}${INDENT_1}  ")
-                sb.append("inline:\n")
-                cell.forEach { renderInline(it, sb, "$indent${INDENT_1}${INDENT_1}${INDENT_1}${INDENT_1}") }
+                sb.append("- inline:\n")
+                cell.forEach { renderInline(it, sb, "$indent${INDENT_1}${INDENT_1}${INDENT_1}${INDENT_1}${INDENT_1}") }
             }
         }
     }
@@ -85,7 +85,7 @@ class PivotYamlRenderer {
 
     private fun renderSource(src: PivotBlock.Source, sb: StringBuilder, indent: String) {
         sb.append("type: source\n")
-        sb.append("$indent${INDENT_1}language: ${src.language}\n")
+        sb.append("$indent${INDENT_1}language: ${yamlScalar(src.language)}\n")
         sb.append("$indent${INDENT_1}translatable: false\n")
         sb.append("$indent${INDENT_1}content: |\n")
         src.content.lines().forEach { line ->
@@ -128,6 +128,9 @@ class PivotYamlRenderer {
 
     private fun yamlString(s: String): String =
         if (s.isEmpty()) "\"\"" else "\"${s.replace("\\", "\\\\").replace("\"", "\\\"")}\""
+
+    private fun yamlScalar(s: String): String =
+        if (s.isEmpty()) "\"\"" else s
 
     companion object {
         private const val INDENT_1 = "  "

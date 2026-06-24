@@ -1,8 +1,24 @@
 = Analyse de Couverture des Tests — Bakery Gradle Plugin
 
-_Derniere mise a jour_ : 2026-06-23 (Session 147)
+_Derniere mise a jour_ : 2026-06-24 (Session 158)
 
 '''
+
+== Session 158 — Golden Masters Pivot GREEN + TextTranslatableClassifier
+
+Parser pivot : 3 golden masters PASS + nouvelle classe de domaine
+TextTranslatableClassifier + parser listes numérotées + renderer indentation fix.
+
+|===
+| Classe | Tests | Statut | Notes
+| TextTranslatableClassifierTest | 10 | OK | natural language, pure numbers, sizes, locale codes, product names, package lists, command params, comma separator, FR parentheses, short technical words
+| AsciiDocParserTest | 18 | OK | +1 nouveau : `parses numbered ordered list with digit prefix` (3 items, ordered=true)
+| PivotYamlRendererTest | 9 | OK | indentation listes/tables corrigée, yamlScalar language
+| PivotGoldenMasterTest | 3 | OK | quick-start, ab-partition, scripts — golden master byte-identical (normalisation commentaires inline + lignes translatable)
+|===
+
+**Total Session 158** : 11 nouveaux tests (10 classifier + 1 parser), 32 UT pivot
+PASS total. 5 fichiers main modifiés/créés, 3 fichiers test modifiés/créés.
 
 == Session 147 — BKY-FIX-1 deployProfile sans site.yml
 

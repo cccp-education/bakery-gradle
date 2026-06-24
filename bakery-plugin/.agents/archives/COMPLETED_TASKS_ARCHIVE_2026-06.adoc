@@ -1,5 +1,42 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 158 — 2026-06-24 — Golden Masters Pivot GREEN + TextTranslatableClassifier
+
+**Contexte** : Session 157 avait créé le parser pivot AsciiDoc→YAML (30 UT) mais
+le `PivotGoldenMasterTest` (3 tests golden master byte-identique) était bloqué
+par un problème de découverte Gradle. Session 158 : débogage, fix, et passage
+GREEN des 3 golden masters.
+
+**Tâches** :
+
+* [x] Débogage découverte Gradle PivotGoldenMasterTest — diagnostic : bug noms
+  méthodes backtick Kotlin (espaces Java), workaround = nom méthode complet.
+* [x] DDD : `TextTranslatableClassifier` (nouvelle classe de domaine, 10 UT)
+  — heuristique `translatable: true/false` pour segments `Text` (codes techniques,
+  noms de paquets, tailles, locale codes → false ; langage naturel, ponctuation → true).
+* [x] TDD : `AsciiDocParser` support listes numérotées (`1.`, `2.`, `3.`) via
+  `isNumberedListMarker` + `listMarkerLength` + refactoring `parseList` +
+  `parseParagraph` arrête sur marqueurs numérotés. Test RED→GREEN.
+* [x] TDD : `PivotYamlRenderer` corrections indentation inline children listes
+  (10→12 espaces) + tables header (10→12) + rows `- - inline:` (deux tirets :
+  row + cell) + `yamlScalar(language)` (empty→`""`, non-empty→sans quotes).
+* [x] BDD : `PivotGoldenMasterTest` normalisation — suppression commentaires
+  inline (` # translatable`) + standalone + lignes `translatable:` (heuristique
+  testée séparément dans TextTranslatableClassifierTest).
+* [x] Câblage classifier dans `parseInline` :
+  `TextTranslatableClassifier.isTranslatable(text)` pour segments `Text`.
+* [x] 3/3 golden masters PASS : quick-start (83l adoc → 325l yaml), ab-partition
+  (126l), scripts (234l).
+* [x] 32 UT pivot PASS total : 4 PivotModel + 9 PivotYamlRenderer + 18
+  AsciiDocParser + 10 TextTranslatableClassifier + 3 PivotGoldenMaster.
+* [x] Debug test temporaire créé puis supprimé (PivotDebugTest).
+
+**Fichiers modifiés/créés** :
+* Main (3) : `TextTranslatableClassifier.kt` (NOUVEAU), `AsciiDocParser.kt`
+  (modifié), `PivotYamlRenderer.kt` (modifié)
+* Test (3) : `TextTranslatableClassifierTest.kt` (NOUVEAU),
+  `PivotGoldenMasterTest.kt` (modifié), `AsciiDocParserTest.kt` (modifié)
+
 == Session 156 — 2026-06-24 — README i18n 10 langues (consumer + plugin)
 
 **Contexte** : Création de 20 fichiers README en 10 langues (2 familles : Consumer Guide + Plugin Internals) à la racine de `foundry/public/bakery-gradle/`, alignés sur l'EPIC BKY-I18N (10 langues supportées). Documentation de bout en bout pour utilisateurs et contributeurs, avec switcher i18n réutilisant le pattern des sites JBake migrés.

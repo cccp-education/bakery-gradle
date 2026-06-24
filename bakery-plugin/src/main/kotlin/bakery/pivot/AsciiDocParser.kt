@@ -75,7 +75,7 @@ class AsciiDocParser {
                     blocks.add(table)
                     i = next
                 }
-                line.startsWith("* ") || line.startsWith(". ") -> {
+                line.startsWith("* ") || line.startsWith(". ") || isNumberedListMarker(line) -> {
                     val (list, next) = parseList(lines, i)
                     blocks.add(list)
                     i = next
@@ -191,13 +191,23 @@ class AsciiDocParser {
         return result
     }
 
+    private fun isNumberedListMarker(line: String): Boolean =
+        Regex("^\\d+\\.\\s+.+").matches(line)
+
+    private fun listMarkerLength(line: String): Int = when {
+        line.startsWith("* ") -> 2
+        line.startsWith(". ") -> 2
+        isNumberedListMarker(line) -> Regex("^\\d+\\.").find(line)!!.value.length + 1
+        else -> 0
+    }
+
     private fun parseList(lines: List<String>, start: Int): Pair<PivotBlock.ListBlock, Int> {
-        val firstMarker = lines[start].first()
-        val ordered = firstMarker == '.'
+        val firstLine = lines[start]
+        val ordered = firstLine.startsWith(". ") || isNumberedListMarker(firstLine)
         val items = mutableListOf<List<PivotInline>>()
         var i = start
-        while (i < lines.size && (lines[i].startsWith("* ") || lines[i].startsWith(". "))) {
-            val content = lines[i].drop(2)
+        while (i < lines.size && (lines[i].startsWith("* ") || lines[i].startsWith(". ") || isNumberedListMarker(lines[i]))) {
+            val content = lines[i].drop(listMarkerLength(lines[i]))
             items.add(parseInline(content))
             i++
         }
@@ -209,7 +219,8 @@ class AsciiDocParser {
         var i = start
         while (i < lines.size && lines[i].isNotBlank() &&
             !lines[i].startsWith("=") && !lines[i].startsWith("* ") &&
-            !lines[i].startsWith(". ") && !lines[i].startsWith("[") &&
+            !lines[i].startsWith(". ") && !isNumberedListMarker(lines[i]) &&
+            !lines[i].startsWith("[") &&
             !lines[i].startsWith("|===") && !lines[i].startsWith("---") &&
             !lines[i].startsWith("----")) {
             if (sb.isNotEmpty()) sb.append(" ")
@@ -234,13 +245,13 @@ class AsciiDocParser {
             val nextMatch = candidates.minByOrNull { it.range.first }
 
             if (nextMatch == null) {
-                segments.add(PivotInline.Text(remaining, translatable = true))
+                segments.add(PivotInline.Text(remaining, translatable = TextTranslatableClassifier.isTranslatable(remaining)))
                 break
             }
 
             val prefix = remaining.substring(0, nextMatch.range.first)
             if (prefix.isNotEmpty()) {
-                segments.add(PivotInline.Text(prefix, translatable = true))
+                segments.add(PivotInline.Text(prefix, translatable = TextTranslatableClassifier.isTranslatable(prefix)))
             }
 
             when (nextMatch) {

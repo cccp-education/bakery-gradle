@@ -385,6 +385,30 @@ class AsciiDocParserTest {
     }
 
     @Test
+    fun `parses numbered ordered list with digit prefix`() {
+        val adoc = """
+            title=Test
+            date=2026-01-01
+            type=page
+            status=published
+            ~~~~~~
+
+            1. Laissez la cle USB inseree
+            2. Redemarrez le PC
+            3. Accedez au BIOS/UEFI
+        """.trimIndent()
+
+        val article = parser.parse(adoc)
+
+        val list = article.blocks[0] as PivotBlock.ListBlock
+        assertEquals(true, list.ordered)
+        assertEquals(3, list.items.size)
+        assertEquals("Laissez la cle USB inseree", (list.items[0][0] as PivotInline.Text).text)
+        assertEquals("Redemarrez le PC", (list.items[1][0] as PivotInline.Text).text)
+        assertEquals("Accedez au BIOS/UEFI", (list.items[2][0] as PivotInline.Text).text)
+    }
+
+    @Test
     fun `parses multiple blocks in sequence`() {
         val adoc = """
             title=Test

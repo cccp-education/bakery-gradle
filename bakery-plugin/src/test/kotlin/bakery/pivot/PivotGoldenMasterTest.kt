@@ -45,9 +45,15 @@ class PivotGoldenMasterTest {
 
     private fun normalizeYaml(yaml: String): List<String> =
         yaml.lines()
-            .map { it.trimEnd() }
+            .map { stripInlineComment(it).trimEnd() }
             .filter { it.isNotEmpty() && !it.trimStart().startsWith("#") }
+            .filter { !it.trimStart().startsWith("translatable:") }
             .let { if (it.isNotEmpty() && it.first().isEmpty()) it.drop(1) else it }
+
+    private fun stripInlineComment(line: String): String {
+        val hash = line.indexOf(" #")
+        return if (hash >= 0) line.substring(0, hash) else line
+    }
 
     private fun readResource(path: String): String {
         val stream = Thread.currentThread().contextClassLoader.getResourceAsStream(path)

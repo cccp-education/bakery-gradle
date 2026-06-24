@@ -1,48 +1,62 @@
 = PROMPT REPRISE — Bakery
-:session: 158
+:session: 159
 :date: 2026-06-24
 
-== Mission en cours (session 158)
+== Mission en cours (session 159)
 
-*Session 157 TERMINÉE — Parser AsciiDoc→YAML Pivot (DDD/TDD/BDD) + READMEs badges.*
-Parser pivot complet : 3 classes de domaine (PivotModel, PivotYamlRenderer,
-AsciiDocParser) + 30 UT PASS. Golden master test créé mais bloqué par un
-problème de découverte Gradle. READMEs mis à jour avec badges build/coverage
-et tableau i18n 10 langues du CSV (~5.4 milliards de locuteurs).
+*Session 158 TERMINÉE — Golden Masters Pivot GREEN + TextTranslatableClassifier.*
+3/3 golden masters PASS (quick-start, ab-partition, scripts). Parser supporte
+listes numérotées (1. 2. 3.). Renderer corrige indentation listes/tables +
+yamlScalar pour language. TextTranslatableClassifier (10 UT) heuristique
+translatable true/false pour segments Text. 32 UT pivot PASS.
 
 == Problème à résoudre
 
-Débugger le problème de découverte Gradle de `PivotGoldenMasterTest` (3 tests
-golden master byte-identique) :
-- Le test compile (bytecode présent dans `build/classes/kotlin/test/`)
-- Le test n'est PAS exécuté par `--tests "bakery.pivot.PivotGoldenMasterTest"`
-- Le filtre `filter { excludeTestsMatching("bakery.scenarios.*") }` du build.gradle.kts
-  n'exclut pas `bakery.pivot`, mais le test n'est pas découvert
-- `PivotYamlRendererTest` et `AsciiDocParserTest` s'exécutent correctement avec `--tests`
-- Hypothèses : conflit avec `useJUnitPlatform { excludeEngines("cucumber") }`,
-  ou problème de pattern `--tests` avec noms de méthodes backtick
+Finaliser le parser pivot sur les edge cases restants, puis câbler la tâche
+Gradle `generatePivotYaml` :
 
-Puis si le golden master passe :
-- Finaliser le parser sur les edge cases restants (tables multi-lignes, listes imbriquées)
-- Câbler le parser dans une tâche Gradle `generatePivotYaml` (N2 → YAML pivot)
+1. **Edge cases parser** :
+   - Tables multi-lignes (cellules qui span plusieurs lignes)
+   - Listes imbriquées (sous-items avec indentation)
+   - plantuml pass-through (blocs plantuml non parsés)
+   - Verifier que les 3 golden masters restent GREEN après chaque fix
+
+2. **Tâche Gradle generatePivotYaml** :
+   - Créer `GeneratePivotYamlTask` (DefaultTask) dans `bakery.pivot`
+   - DSL `bakery { pivotYaml { sourceDir = ...; outputDir = ... } }`
+   - @TaskAction : parse AsciiDoc → render YAML pivot → write file
+   - Loi de l'Économie d'Encre : load-before-write, ne pas écraser si inchangé
+
+3. **BDD Cucumber** :
+   - Feature 38 `38_generate_pivot_yaml.feature`
+   - Scénarios : parse simple adoc, parse avec tables, idempotence économique
 
 == Contexte parser pivot
 
-* Package : `bakery.pivot` (3 classes main + 4 classes test + 6 ressources golden master)
+* Package : `bakery.pivot` (4 classes main + 4 classes test)
+  - `PivotModel.kt` — sealed classes (PivotBlock, PivotInline, PivotArticle)
+  - `PivotYamlRenderer.kt` — rendu YAML déterministe (136 lignes)
+  - `AsciiDocParser.kt` — parser AsciiDoc→PivotArticle (287 lignes)
+  - `TextTranslatableClassifier.kt` — heuristique translatable (59 lignes)
 * Ressources golden master : `src/test/resources/pivot-golden-master/`
-  (3 .adoc + 3 .yaml attendus de magic-stick)
-* Bac à sable YAML pivots : `/tmp/opencode/bakery-i18n-lab/magic-stick/content/`
+  (3 .adoc + 3 .yaml)
 * Contrat pivot figé : 8 types blocs, 4 types inline, `translatable: true/false`,
   cellules table = `inline[]`
 
 == Notes techniques
 
-* Ports Ollama autorisés : 11437-11465 uniquement. Modèles : `gpt-oss:120b-cloud`, `gemma4:31b-cloud`.
-* `./gradlew test --tests "bakery.pivot.AsciiDocParserTest" --tests "bakery.pivot.PivotModelTest" --tests "bakery.pivot.PivotYamlRendererTest"` = 30/30 PASS.
-* `./gradlew cucumberTest -Dcucumber.features="src/test/features/37_accessibility_audit.feature"` = 7/7 PASS.
-* Timeout cucumberTest 5min (EPIC 5) — ne pas lancer `check` complet sans permission.
+* Ports Ollama autorisés : 11437-11465 uniquement. Modèles :
+  `gpt-oss:120b-cloud`, `gemma4:31b-cloud`.
+* `./gradlew test --tests "bakery.pivot.AsciiDocParserTest" --tests
+  "bakery.pivot.PivotModelTest" --tests "bakery.pivot.PivotYamlRendererTest" --
+  tests "bakery.pivot.TextTranslatableClassifierTest"` = 41/41 PASS.
+* Golden master : `--tests "bakery.pivot.PivotGoldenMasterTest.golden master
+  quick start adoc to yaml is byte identical"` (nom complet requis, bug Gradle
+  noms backtick).
+* `./gradlew cucumberTest -Dcucumber.features="src/test/features/37_..."` =
+  7/7 PASS.
+* Timeout cucumberTest 5min (EPIC 5) — ne pas lancer `check` complet sans
+  permission.
 * `publishToMavenLocal` fait (jar 0.0.2).
-* *Loi de l'Économie d'Encre* : encodée dans 10 boroughs. Toute tâche Gradle LLM DOIT
-  load-before-write + calcul delta + fusion existing+new.
-* Bac à sable `/tmp/opencode/bakery-i18n-lab/` = volatile (recréer depuis
-  `office/sites/magic-stick/jbake/` + les YAML dans le rapport session 155).
+* *Loi de l'Économie d'Encre* : toute tâche Gradle LLM DOIT load-before-write +
+  calcul delta + fusion existing+new.
