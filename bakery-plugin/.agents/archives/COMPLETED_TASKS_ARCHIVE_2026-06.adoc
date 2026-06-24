@@ -1,5 +1,63 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 166 — 2026-06-25 — BKY-TREE-1+2+3+4 : SiteNode + SiteTree + Content + YAML (18 pts)
+
+**Contexte** : Démarrage EPIC BKY-TREE (Arbre de Site Composite). 4 US livrées
+en une session (TREE-1→4, 18 pts sur 36). Méthode baby step DDD/TDD/BDD
+préservée. Domaine pur, testable sans Gradle.
+
+=== BKY-TREE-1 — SiteNode sealed interface (5 pts) ✅
+
+* `src/main/kotlin/bakery/tree/SiteNode.kt` — sealed interface + Site/Section/
+  Article data classes immutable. Identity par `path`. Validation non-blank.
+  `isLeaf()`/`isSection()` avec `@JsonIgnore`. `Article.content` optional.
+* `src/test/kotlin/bakery/tree/SiteNodeTest.kt` — 14 UT PASS.
+* `src/test/features/39_site_tree_node.feature` — 7 scénarios BDD.
+* `SiteTreeSteps.kt` — domaine pur, pas de GradleRunner.
+
+=== BKY-TREE-2 — SiteTree aggregate + visiteurs (5 pts) ✅
+
+* `src/main/kotlin/bakery/tree/SiteTree.kt` — walk (pre/post-order via
+  `TraversalOrder`), filter, leaves, sections, findByPath, findSubtree,
+  visit. No mutation.
+* `src/test/kotlin/bakery/tree/SiteTreeTest.kt` — 17 UT PASS.
+* `src/test/features/40_site_tree_traversal.feature` — 9 scénarios BDD.
+* `SiteTreeTraversalSteps.kt` — état partagé via `BakeryWorld.siteTree`.
+
+=== BKY-TREE-3 — Content wrapper sur PivotModel (3 pts) ✅
+
+* `src/main/kotlin/bakery/tree/Content.kt` — wraps PivotArticle. `blocs()`,
+  `inlineTexts()` (récursif Paragraph/ListBlock/Table/Admonition),
+  `translatableSegments()` (filtre TextTranslatableClassifier). PivotModel
+  inchangé.
+* `src/test/kotlin/bakery/tree/ContentTest.kt` — 13 UT PASS.
+* `src/test/features/41_site_tree_content.feature` — 6 scénarios BDD.
+* `SiteTreeContentSteps.kt`.
+
+=== BKY-TREE-4 — YAML serialization (5 pts) ✅
+
+* `src/main/kotlin/bakery/tree/SiteNodeDto.kt` — DTO intermédiaire avec
+  `@JsonTypeInfo` + `@JsonSubTypes` (Jackson polymorphic ne fonctionne pas
+  sur sealed interface Kotlin). Mappers `toDto()`/`toDomain()`.
+* `src/main/kotlin/bakery/tree/SiteTreeYaml.kt` — serialize/parse/
+  parseOrNull. `USE_NATIVE_TYPE_ID` disabled pour `type:` property.
+* `src/test/kotlin/bakery/tree/SiteTreeYamlTest.kt` — 13 UT PASS.
+* `src/test/features/42_site_tree_yaml.feature` — 6 scénarios BDD.
+* `SiteTreeYamlSteps.kt`.
+
+=== Métriques
+
+* 57/57 UT tree package GREEN (14+17+13+13)
+* 4 features Cucumber (28 scénarios) — compile OK, cucumberTest complet à
+  valider (timeout 5min)
+* Backward compat : 31 UT TREE-1/2 préservées après ajout `content` à Article
+* Anglais imposé : nommage, Gherkin, steps (correction utilisateur)
+
+=== Fichiers
+
+* 17 fichiers créés (5 main + 4 test + 4 feature + 4 step)
+* 1 fichier modifié (`BakeryWorld.kt` — ajout `siteTree` field)
+
 == Session 165 — 2026-06-24 — koverThresholdCheck PASS + Investigation Loi Économie d'Encre
 
 **Contexte** : Session de vérification post-S164 (fix OGNL + E2E optimisation).

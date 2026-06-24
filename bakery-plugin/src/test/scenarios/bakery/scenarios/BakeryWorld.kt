@@ -2,6 +2,7 @@ package bakery.scenarios
 
 
 import bakery.createConfigFile
+import bakery.tree.SiteTree
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Default
 import org.gradle.testkit.runner.BuildResult
@@ -26,6 +27,8 @@ class BakeryWorld {
     var simulatedRemoteUri: String? = null
     var migrationSiteDir: String? = null
     var realSiteDir: File? = null
+    // BKY-TREE — arbre de site partagé entre les steps Cucumber
+    var siteTree: SiteTree? = null
 
     // Jobs asynchrones en cours
     private val asyncJobs = mutableListOf<Deferred<BuildResult>>()

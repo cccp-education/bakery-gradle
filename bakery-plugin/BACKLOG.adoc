@@ -5,25 +5,26 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-24 — Session 164. Fix OGNL 10 templates + Optimisation E2E Playwright (singleton pool + cache installPlaywright + forkEvery supprimé). 19/19 E2E PASS. Bakery production-ready._
+_Dernière mise à jour : 2026-06-25 — Session 166. BKY-TREE-1+2+3+4 livrés (18 pts, 57 UT GREEN). SiteNode + SiteTree + Content + YAML serialization. Domaine pur, baby steps DDD/TDD/BDD._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
 [CAUTION]
 ====
-**Bakery était production-ready (S164). EPIC BKY-TREE (cadré S165) rouvre le
-backlog pour introduire le concept unifiant `SiteTree` (Composite
-Site→Section→Article→PivotModel AST). Détail dans la section EPIC BKY-TREE
-ci-dessous.**
+**Bakery était production-ready (S164). EPIC BKY-TREE rouvre le backlog
+pour introduire le concept unifiant `SiteTree` (Composite
+Site→Section→Article→PivotModel AST). S166 a livré TREE-1→4 (18/36 pts,
+50%). Reste TREE-5+6+7 (18 pts, 2 sessions).**
 *Publication* : 0.0.2 sur Maven Central (LIVE) + Gradle Plugin Portal (propagation 24-48h).
-*Coverage* : 92,90% (Kover, S165), seuil `koverThresholdCheck` PASS.
+*Coverage* : 92,90% (Kover, S165), seuil `koverThresholdCheck` PASS. +57 UT tree S166.
 *Code smells* : 24/24 V2-V4 + 60 V5 + 3 V6 résolus (24/24 V5 via US-1→8, 8/8 V6).
 *Loi de l'Économie d'Encre* : encodée dans bakery + 9 boroughs transverses (S154).
   Implémentée dans bakery (I18nMigrationService delta S153 + generatePivotYaml
   load-before-write S163). 9 autres boroughs = gouvernance only (AGENT.adoc).
   BKY-TREE-6 étendra l'application au delta par sous-arbre.
 *Parser pivot* : 41 UT + 4/4 golden masters GREEN + tâche `generatePivotYaml` (6 functional + 4 BDD).
-*Session en cours* : 165 terminée — koverThresholdCheck PASS (92,90%) + investigation Loi Économie d'Encre + cadrage EPIC BKY-TREE (7 US, ~36 pts, 4 sessions projetées).
+*Arbre de site* : 57 UT tree package (SiteNode 14 + SiteTree 17 + Content 13 + SiteTreeYaml 13) + 4 features Cucumber (28 scénarios).
+*Session en cours* : 166 terminée — BKY-TREE-1+2+3+4 livrés (18 pts, 57 UT GREEN, 4 features BDD).
 ====
 
 '''
@@ -178,7 +179,7 @@ _Bakery était production-ready (S164). EPIC BKY-TREE (S165) rouvre le backlog
 pour introduire le concept unifiant `SiteTree` (Composite Site→Section→Article
 →AST). Détail dans la section EPIC BKY-TREE ci-dessous._
 
-[cols="1,4,2]
+[cols="1,4,2"]
 |===
 | # | Piste | Methode
 
@@ -187,9 +188,9 @@ pour introduire le concept unifiant `SiteTree` (Composite Site→Section→Artic
 | —
 
 | 5
-| **BKY-TREE — Arbre de Site** (cadré S165). Modéliser l'arborescence
-  éditoriale (Site→Section→Article→PivotModel AST) manquante. Prérequis pour
-  Loi Économie d'Encre par sous-arbre. 7 US, ~36 pts, 4 sessions projetées.
+| **BKY-TREE — Arbre de Site** (S166 en cours). TREE-1→4 ✅ livrés (18 pts).
+  Reste TREE-5 (theme inheritance) + TREE-6 (i18n par sous-arbre) + TREE-7
+  (scaffold IA). 18/36 pts (50%).
 | DDD/TDD/BDD
 |===
 
@@ -429,8 +430,8 @@ _Investigation S162 — voir `.agents/sessions/BKY-PERF-1-profiling.adoc` pour l
 [cols="2,3]
 |===
 | Document | `BACKLOG.adoc`
-| Version | 11.0 — Session 165 (cadrage EPIC BKY-TREE — arbre de site composite)
+| Version | 12.0 — Session 166 (BKY-TREE-1+2+3+4 livrés — 18/36 pts, 57 UT GREEN)
 | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
-| Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-165
-| Prochaine màj | Session 166 — démarrage TREE-1 (SiteNode sealed interface)
+| Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-166
+| Prochaine màj | Session 167 — TREE-5 (theme inheritance) + TREE-6 (i18n sous-arbre)
 |===

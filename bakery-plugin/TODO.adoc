@@ -1,7 +1,7 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-06-24 — Session 162 (BKY-PERF-6 — Migration FT→UT @TestInstance(PER_CLASS))_
+_Dernière mise à jour : 2026-06-25 — Session 166 (BKY-TREE-1+2+3+4 — 18 pts, 57 UT GREEN)_
 
 * [x] Implementer la generation du code client Firebase dans les templates (→ BKY-JB-4, session 032)
 * [x] Ajouter une vraie Firebase API key quand disponible (→ EPIC 4, formalité restante côté consommateur cheroliv.com)
@@ -18,7 +18,17 @@ _Dernière mise à jour : 2026-06-24 — Session 162 (BKY-PERF-6 — Migration F
 
 == Restant
 
-_Tout le backlog historique est terminé. 30/30 EPICs + 24/24 code smells résolus._
+_30/30 EPICs historiques + 24/24 code smells résolus. EPIC BKY-TREE en cours._
+
+== NOUVEAU — EPIC BKY-TREE (Session 165-166)
+
+* [x] **BKY-TREE-1** : SiteNode sealed interface + Site/Section/Article ✅ S166
+* [x] **BKY-TREE-2** : SiteTree aggregate + visiteurs (walk/filter/findSubtree) ✅ S166
+* [x] **BKY-TREE-3** : Content wrapper sur PivotModel ✅ S166
+* [x] **BKY-TREE-4** : YAML serialization tree: section ✅ S166
+* [ ] **BKY-TREE-5** : Theme inheritance — site → section → article (5 pts, S167)
+* [ ] **BKY-TREE-6** : i18n migration par sous-arbre (8 pts, S167)
+* [ ] **BKY-TREE-7** : Scaffold IA retourne un arbre (5 pts, S168)
 
 == NOUVEAU — Code Review V5 (Session 117, 60 smells)
 

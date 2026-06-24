@@ -1,0 +1,139 @@
+= Session 166 — 2026-06-25 — BKY-TREE-1+2+3+4 : SiteNode + SiteTree + Content + YAML
+
+:session: 166
+:date: 2026-06-25
+:epic: BKY-TREE
+
+== Résumé
+
+Démarrage EPIC BKY-TREE (Arbre de Site Composite). 4 US livrées en une
+session (TREE-1→4, 18 pts sur 36). Méthode baby step DDD/TDD/BDD préservée
+à chaque US. Domaine pur, testable sans Gradle. 57 UT GREEN. 4 features
+Cucumber + 4 step files. Tous les livrables en anglais (nommage, Gherkin,
+steps) après correction utilisateur.
+
+== US livrées
+
+=== BKY-TREE-1 — SiteNode sealed interface (5 pts) ✅
+
+DDD : `src/main/kotlin/bakery/tree/SiteNode.kt` — sealed interface + 3 data
+classes immutable (`Site` root, `Section` intermediate, `Article` leaf).
+Identity par `path: String` (chemin relatif canonique). Validation
+`require(path.isNotBlank())` pour Section/Article. `isLeaf()`/`isSection()`
+avec `@JsonIgnore`. `Article.content: Content? = null` (backward compat).
+
+TDD : `src/test/kotlin/bakery/tree/SiteNodeTest.kt` — 14 UT (construction,
+égalité structurelle, immutabilité copy, exhaustivité sealed, path
+canonical, refus chemin vide, arbre vide/1 niveau/3 niveaux). 14/14 PASS.
+
+BDD : `src/test/features/39_site_tree_node.feature` (7 scénarios) +
+`SiteTreeSteps.kt` (domaine pur, pas de GradleRunner).
+
+=== BKY-TREE-2 — SiteTree aggregate + visiteurs (5 pts) ✅
+
+DDD : `src/main/kotlin/bakery/tree/SiteTree.kt` — aggregate wrappant
+`root: SiteNode`. `walk(order)` pre/post-order via `TraversalOrder` enum.
+`filter(predicate)`, `leaves()`, `sections()`, `findByPath(path)`,
+`findSubtree(path)`, `visit(transform)`. Aucune mutation in-place.
+
+TDD : `src/test/kotlin/bakery/tree/SiteTreeTest.kt` — 17 UT (traversal
+pre/post-order, subtree selection, collecte feuilles, filtrage par type,
+arbre vide/1 niveau/3 niveaux, visit transform). 17/17 PASS.
+
+BDD : `src/test/features/40_site_tree_traversal.feature` (9 scénarios) +
+`SiteTreeTraversalSteps.kt` (état partagé via `BakeryWorld.siteTree`).
+
+=== BKY-TREE-3 — Content wrapper sur PivotModel (3 pts) ✅
+
+DDD : `src/main/kotlin/bakery/tree/Content.kt` — wrapper sur `PivotArticle`.
+Expose `pivot`, `blocs()`, `inlineTexts()` (récursif sur Paragraph/ListBlock/
+Table/Admonition), `translatableSegments()` (filtre via
+`TextTranslatableClassifier`). `PivotModel` inchangé. `Article` étendu avec
+`content: Content? = null` (backward compat — 31 UT existantes préservées).
+
+TDD : `src/test/kotlin/bakery/tree/ContentTest.kt` — 13 UT (AST exposé,
+walk blocs/inline, table imbriquée, admonition, segments traduisibles,
+article vide/sans contenu). 13/13 PASS.
+
+BDD : `src/test/features/41_site_tree_content.feature` (6 scénarios) +
+`SiteTreeContentSteps.kt`.
+
+=== BKY-TREE-4 — YAML serialization tree: section (5 pts) ✅
+
+DDD : `src/main/kotlin/bakery/tree/SiteNodeDto.kt` — DTO intermédiaire avec
+`@JsonTypeInfo` + `@JsonSubTypes` (Jackson polymorphique ne fonctionne pas
+sur sealed interface Kotlin — DTO requis). Mappers `toDto()`/`toDomain()`.
+`src/main/kotlin/bakery/tree/SiteTreeYaml.kt` — `serialize(node)`,
+`parse(yaml)`, `parseOrNull(yaml)`. `USE_NATIVE_TYPE_ID` disabled pour
+forcer `type: site` comme propriété (pas `!<site>` tag natif YAML).
+`content` est `@JsonIgnore` (AST non persisted dans site.yml).
+
+TDD : `src/test/kotlin/bakery/tree/SiteTreeYamlTest.kt` — 13 UT (round-trip
+parse/serialize déterministe, arbre vide/3 niveaux, discriminateur type,
+parseOrNull null/invalid, blank path rejection, content non sérialisé).
+13/13 PASS.
+
+BDD : `src/test/features/42_site_tree_yaml.feature` (6 scénarios) +
+`SiteTreeYamlSteps.kt`.
+
+== Fichiers créés (10)
+
+* `src/main/kotlin/bakery/tree/SiteNode.kt` (45 lignes)
+* `src/main/kotlin/bakery/tree/SiteTree.kt` (40 lignes)
+* `src/main/kotlin/bakery/tree/Content.kt` (28 lignes)
+* `src/main/kotlin/bakery/tree/SiteNodeDto.kt` (58 lignes)
+* `src/main/kotlin/bakery/tree/SiteTreeYaml.kt` (23 lignes)
+* `src/test/kotlin/bakery/tree/SiteNodeTest.kt` (152 lignes)
+* `src/test/kotlin/bakery/tree/SiteTreeTest.kt` (175 lignes)
+* `src/test/kotlin/bakery/tree/ContentTest.kt` (186 lignes)
+* `src/test/kotlin/bakery/tree/SiteTreeYamlTest.kt` (140 lignes)
+* `src/test/features/39_site_tree_node.feature`
+* `src/test/features/40_site_tree_traversal.feature`
+* `src/test/features/41_site_tree_content.feature`
+* `src/test/features/42_site_tree_yaml.feature`
+* `src/test/scenarios/bakery/scenarios/SiteTreeSteps.kt`
+* `src/test/scenarios/bakery/scenarios/SiteTreeTraversalSteps.kt`
+* `src/test/scenarios/bakery/scenarios/SiteTreeContentSteps.kt`
+* `src/test/scenarios/bakery/scenarios/SiteTreeYamlSteps.kt`
+
+== Fichiers modifiés (1)
+
+* `src/test/scenarios/bakery/scenarios/BakeryWorld.kt` — ajout
+  `var siteTree: SiteTree? = null` + import (BKY-TREE-2 shared state).
+
+== Métriques
+
+* UT tree package : **57/57 PASS** (14+17+13+13)
+* Compile : `compileKotlin` + `compileTestKotlin` BUILD SUCCESSFUL
+* BDD : 4 features (28 scénarios) + 4 step files — compile OK, cucumberTest
+  complet bloqué par timeout 5min (129 scénarios existants + daemons
+  Gradle), à valider au prochain run autorisé
+* Backward compat : 31 UT TREE-1/2 préservées après ajout `content` à
+  Article (valeur défaut `null`)
+
+== Décisions techniques
+
+. *DTO intermédiaire pour YAML* : Jackson `@JsonTypeInfo` sur sealed
+  interface Kotlin non honoré (tag YAML natif `!<site>` au lieu de
+  `type: site`). Solution : `SiteNodeDto` sealed avec annotations + mappers
+  `toDto()`/`toDomain()`. `USE_NATIVE_TYPE_ID` disabled sur YAMLFactory.
+. *`@JsonIgnore` sur content* : l'AST PivotArticle n'est pas persisted dans
+  `site.yml` — seul le path est sérialisé. `content` est restauré au runtime
+  par le parser AsciiDoc (TREE-7 scaffold IA).
+. *BakeryWorld.siteTree* : ajout d'un champ partagé pour les steps Cucumber
+  TREE-2 (pattern existant respecté — injection `BakeryWorld`).
+. *Anglais imposé* : utilisateur a demandé nommage/commentaires/Gherkin en
+  anglais. Correction appliquée a posteriori sur les 4 features + 4 steps.
+
+== Prochaine session
+
+* *S167* — BKY-TREE-5 (Theme inheritance site→section→article) + BKY-TREE-6
+  (i18n migration par sous-arbre, Loi Économie d'Encre par feuille). 13 pts,
+  2 US, le gros morceau de l'EPIC.
+* *S168* — BKY-TREE-7 (Scaffold IA retourne un arbre). 5 pts, clôture EPIC.
+
+== Score session
+
+9/10 — 4 US livrées (18 pts), 57 UT GREEN, domaine pur testable sans
+Gradle, backward compat préservée. BDD cucumberTest non validé (timeout
+5min, nécessite run complet autorisé).

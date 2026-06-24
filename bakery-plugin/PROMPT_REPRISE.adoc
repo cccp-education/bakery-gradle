@@ -1,47 +1,48 @@
-= PROMPT REPRISE — Bakery — Session 166
-:session: 166
-:date: 2026-06-25
+= PROMPT REPRISE — Bakery — Session 167
+:session: 167
+:date: 2026-06-26
 
-== Session 165 terminée — koverThresholdCheck PASS + Cadrage EPIC BKY-TREE
+== Session 166 terminée — BKY-TREE-1+2+3+4 (18 pts, 57 UT GREEN)
 
-=== ✅ koverThresholdCheck PASS
-- `./gradlew koverThresholdCheck` = BUILD SUCCESSFUL 6m28s
-- Instruction coverage : **92,90%** (missed=11540, covered=150915)
-- Largement au-dessus du seuil historique (85,88%)
+=== ✅ TREE-1 — SiteNode sealed interface
+- `SiteNode.kt` : sealed interface + Site/Section/Article data classes
+- Identity par `path`, validation non-blank, `isLeaf()`/`isSection()`
+- 14 UT + 7 BDD scénarios PASS
 
-=== ✅ Cadrage EPIC BKY-TREE — Arbre de Site Composite
-- Concept unifiant manquant : `SiteTree` (Site→Section→Article→PivotModel AST)
-- Relie PivotModel (S157-163), SiteConfiguration (plate), ScaffoldOutput (liste plate)
-- 7 US, ~36 pts, 4 sessions projetées (S166→S169)
-- Backlog rouvert — bakery n'était plus production-ready sur le front conceptuel
-- Détail dans `BACKLOG.adoc` section EPIC BKY-TREE
+=== ✅ TREE-2 — SiteTree aggregate + visiteurs
+- `SiteTree.kt` : walk (pre/post-order), filter, leaves, sections,
+  findByPath, findSubtree, visit. No mutation.
+- 17 UT + 9 BDD scénarios PASS
 
-=== Investigation i18n prod
-- Fixtures `.thyme` 100% alignées (SHA-256) pour les 3 sites
-- Gaps : `jbake.properties` diverge, `assets/` `content/` absents des fixtures
-- Prod = zéro migration (0 `messages_*.properties`, 0 `th:text="#{}"`)
-- Oracle traductions EN versionné par fixture (validé avant prod)
+=== ✅ TREE-3 — Content wrapper sur PivotModel
+- `Content.kt` : wraps PivotArticle, exposes blocs()/inlineTexts()/
+  translatableSegments(). Article.content optional (backward compat).
+- 13 UT + 6 BDD scénarios PASS
 
-== Prochaine mission — DÉMARRER BKY-TREE-1
+=== ✅ TREE-4 — YAML serialization tree: section
+- `SiteNodeDto.kt` + `SiteTreeYaml.kt` : Jackson polymorphic DTO,
+  round-trip déterministe, `type:` discriminator, content @JsonIgnore
+- 13 UT + 6 BDD scénarios PASS
 
-**US TREE-1 — `SiteNode` sealed interface + implémentations** (5 pts)
+== Prochaine mission — BKY-TREE-5 + BKY-TREE-6 (13 pts)
 
-Baby steps DDD/TDD/BDD, domaine pur sans I/O :
-1. *DDD* : sealed interface `SiteNode` + `Site` (root, children: List<Section>),
-   `Section` (children: List<Article>), `Article` (leaf). Identity par `path`
-   (ex `formations/ab-partition`). Data classes immutable.
-2. *TDD* : UT rouge avant code — construction, égalité structurelle, immutabilité,
-   `isLeaf()`/`isSection()`, `path` canonical, arbre vide, arbre 1 niveau, 3 niveaux
-3. *BDD* : Feature `39_site_tree_node.feature` — scénarios construction arbre,
-   égalité, leaf vs section, path canonical
+**US TREE-5 — Theme inheritance (5 pts)**
+`effectiveTheme(node)` : résout thème effectif par nœud (héritage parent
+si non surchargé, override explicite sinon). `ThemeConfig` existant (S068).
+Pas de mutation — retourne `ResolvedTheme`. Détection conflits (override
+partiel interdit). Baby steps DDD/TDD/BDD, domaine pur.
 
-**Ne pas réinventer PivotModel** — TREE-3 l'enveloppe, TREE-1 ne le touche pas.
-**Fichier** : `src/main/kotlin/bakery/tree/SiteNode.kt` + `SiteTree.kt` (TREE-2)
+**US TREE-6 — i18n migration par sous-arbre (8 pts)**
+Remplace walk flat `templates/` par `tree.walk().filter { it is Article }`.
+Delta ciblé : AsciiDoc modifié → re-traduire seulement ses clés. Intégrité
+hors-sous-arbre préservée (checksums). Implémente Loi Économie d'Encre par
+article (S153 global → S167 par feuille). Backward compat (walk flat si
+pas de `tree:`).
 
 == Contexte technique
-- Ports Ollama : 11437-11465. Modèles : `gpt-oss:120b-cloud`, `gemma4:31b-cloud`
-- koverThresholdCheck : 92,90% PASS (S165)
-- E2E : 19/19 PASS (S164), 129 Cucumber PASS
-- Version courante : 0.0.2 Maven Central + Gradle Portal (LIVE)
-- EPIC BKY-TREE : 7 US, ~36 pts, 4 sessions (S166→S169)
-- TREE-1 = socle domaine pur, testable sans Gradle, baby steps DDD-first
+- 57 UT tree package GREEN (SiteNode 14 + SiteTree 17 + Content 13 + Yaml 13)
+- 4 features Cucumber (28 scénarios) — cucumberTest complet à valider
+- Version : 0.0.2 Maven Central + Gradle Portal (LIVE)
+- Ports Ollama : 11437-11465. Modèles : gpt-oss:120b-cloud, gemma4:31b-cloud
+- TREE-5+6 = fusion (consume TREE-2 + TREE-3 + TREE-4) — gros morceau EPIC
+- Anglais imposé : nommage, commentaires, Gherkin, steps

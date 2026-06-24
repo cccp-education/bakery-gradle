@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-06-25 — Session 165 koverThresholdCheck PASS (92,90%) + Cadrage EPIC BKY-TREE (arbre de site composite, 7 US, ~36 pts).
-_Session en cours_ : 165 terminée — (1) `./gradlew koverThresholdCheck` BUILD SUCCESSFUL 6m28s, instruction coverage 92,90%. (2) Investigation i18n prod : fixtures `.thyme` 100% alignées (SHA-256) pour 3 sites, gaps identifiés (`jbake.properties` diverge, `assets/`/`content/` absents fixtures), prod = zéro migration. (3) Cadrage EPIC BKY-TREE — concept unifiant `SiteTree` (Composite Site→Section→Article→PivotModel AST) manquant. 7 US (TREE-1→7), ~36 pts, 4 sessions projetées (S166→S169). Backlog rouvert. Détail dans `BACKLOG.adoc`.
-_Prochaine session_ : 166 — Démarrer BKY-TREE-1 (SiteNode sealed interface) + BKY-TREE-2 (SiteTree aggregate + visiteurs). Domaine pur, baby steps DDD/TDD/BDD.
+_Derniere mise a jour : 2026-06-25 — Session 166 BKY-TREE-1+2+3+4 livrés (18 pts, 57 UT GREEN). SiteNode sealed interface + SiteTree aggregate + Content wrapper + YAML serialization. Domaine pur, baby steps DDD/TDD/BDD.
+_Session en cours_ : 166 terminée — 4 US livrées (TREE-1→4). `SiteNode.kt` (sealed Site/Section/Article), `SiteTree.kt` (walk/filter/leaves/findByPath/findSubtree/visit), `Content.kt` (wrapper PivotArticle, blocs/inlineTexts/translatableSegments), `SiteNodeDto.kt` + `SiteTreeYaml.kt` (Jackson polymorphic DTO, round-trip déterministe). 57 UT PASS (14+17+13+13). 4 features Cucumber (28 scénarios) + 4 step files. Anglais imposé (nommage, Gherkin, steps). Backward compat préservée.
+_Prochaine session_ : 167 — BKY-TREE-5 (Theme inheritance site→section→article) + BKY-TREE-6 (i18n migration par sous-arbre, Loi Économie d'Encre par feuille). 13 pts, 2 US, gros morceau EPIC.
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 166 | 2026-06-25 | DDD + TDD + BDD | **BKY-TREE-1+2+3+4 — SiteNode + SiteTree + Content + YAML (18 pts)** — 4 US livrées en 1 session. TREE-1 : `SiteNode` sealed interface (Site/Section/Article, identity par path, 14 UT). TREE-2 : `SiteTree` aggregate (walk pre/post-order, filter, leaves, findByPath, findSubtree, visit, 17 UT). TREE-3 : `Content` wrapper sur PivotArticle (blocs/inlineTexts/translatableSegments, Article.content optional, 13 UT). TREE-4 : `SiteNodeDto` + `SiteTreeYaml` (Jackson polymorphic DTO, round-trip déterministe, `type:` discriminator, content @JsonIgnore, 13 UT). 57/57 UT GREEN. 4 features Cucumber (28 scénarios) + 4 step files. Anglais imposé. Backward compat préservée. | 9/10
   | 165 | 2026-06-25 | vérification + investigation + cadrage | **koverThresholdCheck PASS + Cadrage EPIC BKY-TREE** — (1) `./gradlew koverThresholdCheck` BUILD SUCCESSFUL 6m28s, instruction coverage 92,90%. (2) Investigation i18n prod : fixtures `.thyme` 100% alignées (SHA-256) pour 3 sites, gaps identifiés (`jbake.properties` diverge, `assets/`/`content/` absents fixtures), prod = zéro migration. (3) Cadrage EPIC BKY-TREE — concept unifiant `SiteTree` (Composite Site→Section→Article→PivotModel AST) manquant. 7 US (TREE-1→7), ~36 pts, 4 sessions projetées (S166→S169). Backlog rouvert. Détail dans `BACKLOG.adoc`. Aucun code source modifié. | 8/10
   | 164 | 2026-06-24 | TDD + refactoring | **Fix OGNL templates + Optimisation E2E Playwright** — (1) Fix #sets.contains -> #lists.contains dans 10 templates Thymeleaf (ArrayList vs Set en OGNL, 2 E2E i18n FAILED -> 19/19 PASS). (2) Cache installPlaywright via onlyIf sur ~/.cache/ms-playwright/chromium-* (SKIPPED si present, zero marker build/). (3) PlaywrightPool singleton JVM-wide (1 Playwright.create() + 1 chromium().launch() pour tout, avant 5x, shutdown hook JVM). (4) forkEvery=1 supprime (1 JVM partagee). (5) ThymeleafRenderingTestFactory mutualise singleton companion. `./gradlew e2eTest` 19/19 PASS en 1m44s. 13 fichiers modifies/crees. | 9/10
   | 163 | 2026-06-24 | DDD + TDD + BDD | **Loi Économie d'Encre generatePivotYaml + 4e golden master + bug cucumber** — (1) GeneratePivotYamlTask load-before-write + skip si identique (9-10 lignes). 1 nouveau FT idempotence, 6/6 FT PASS. (2) 4e golden master nested-plantuml (listes `**`/`***` + plantuml pass-through). 4/4 GM PASS. (3) Bug cucumber features 9/16 : déjà résolu par fix S161. 0 FAILED. 3 fichiers source modifiés, 2 créés. | 9/10
@@ -213,17 +214,18 @@ pts, 4 sessions projetées (S166→S169). Détail dans `BACKLOG.adoc`._
 
 |===
 | US | Description | Pts | Statut
-| *BKY-TREE-1* | `SiteNode` sealed interface + Site/Section/Article | 5 | *🟠 S166 À FAIRE*
-| *BKY-TREE-2* | `SiteTree` aggregate + visiteurs (walk/filter/findSubtree) | 5 | *🟠 S166 À FAIRE*
-| *BKY-TREE-3* | `Content` wrapper sur `PivotModel` (article feuille AST) | 3 | *🟠 S167 À FAIRE*
-| *BKY-TREE-4* | YAML serialization — `tree:` section dans `site.yml` | 5 | *🟠 S167 À FAIRE*
-| *BKY-TREE-5* | Theme inheritance — site → section → article, override explicite | 5 | *🟠 S168 À FAIRE*
-| *BKY-TREE-6* | i18n migration par sous-arbre (Loi Économie d'Encre par feuille) | 8 | *🟠 S168 À FAIRE*
-| *BKY-TREE-7* | Scaffold IA retourne un arbre (pas une liste plate) | 5 | *🟠 S169 À FAIRE*
+| *BKY-TREE-1* | `SiteNode` sealed interface + Site/Section/Article | 5 | *✅ S166 TERMINÉ*
+| *BKY-TREE-2* | `SiteTree` aggregate + visiteurs (walk/filter/findSubtree) | 5 | *✅ S166 TERMINÉ*
+| *BKY-TREE-3* | `Content` wrapper sur `PivotModel` (article feuille AST) | 3 | *✅ S166 TERMINÉ*
+| *BKY-TREE-4* | YAML serialization — `tree:` section dans `site.yml` | 5 | *✅ S166 TERMINÉ*
+| *BKY-TREE-5* | Theme inheritance — site → section → article, override explicite | 5 | *🟠 S167 À FAIRE*
+| *BKY-TREE-6* | i18n migration par sous-arbre (Loi Économie d'Encre par feuille) | 8 | *🟠 S167 À FAIRE*
+| *BKY-TREE-7* | Scaffold IA retourne un arbre (pas une liste plate) | 5 | *🟠 S168 À FAIRE*
 |===
 
-_Projection_ : S166 TREE-1+2 (socle), S167 TREE-3+4 (AST+YAML), S168 TREE-5+6
-(theme+i18n), S169 TREE-7 (scaffold, clôture EPIC).
+_Projection_ : ~~S166 TREE-1+2 (socle)~~ ✅, ~~S167 TREE-3+4 (AST+YAML)~~ ✅
+(avance sur projection), S167 TREE-5+6 (theme+i18n), S168 TREE-7 (scaffold,
+clôture EPIC). 18/36 pts livrés (50%).
 
 === Code Smells — 24/24 ✅ résolus + 60 nouveaux V5
 
@@ -242,7 +244,7 @@ _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
 | Projet | Repertoire | Session en cours | Derniere MAJ
   | magic-stick | `~/workspace/foundry/public/magic-stick` | 014 | 2026-05-11
   | plantuml-gradle | `~/workspace/foundry/public/plantuml-gradle/plantuml-plugin` | 148 | 2026-06-11
-  | bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 165 | 2026-06-24
+  | bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 166 | 2026-06-25
   | jhipster-gradle-plugins | `~/workspace/foundry/public/jhipster-gradle-plugins` | 9 | 2026-06-11
   | quizz-benchmark-gradle | `~/workspace/foundry/private/quizz-benchmark-gradle/quizz-benchmark-plugin` | Audit 053 | 2026-04-30
   | runner-gradle | `~/workspace/foundry/public/runner-gradle` | 029 | 2026-05-12
