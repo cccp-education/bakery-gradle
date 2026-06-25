@@ -34,6 +34,11 @@ class SiteTreeSteps {
         assertThat(site!!.sections).hasSize(count)
     }
 
+    @Then("the site has {int} section")
+    fun theSiteHasSection(count: Int) {
+        assertThat(site!!.sections).hasSize(count)
+    }
+
     @Then("the site is a section node")
     fun theSiteIsASectionNode() {
         assertThat(site!!.isSection()).isTrue()

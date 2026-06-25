@@ -1,0 +1,165 @@
+= Session 167 — BKY-TREE-5 + TREE-6 : Theme Inheritance + i18n par sous-arbre (13 pts)
+:session: 167
+:date: 2026-06-26
+:epic: BKY-TREE
+:method: DDD + TDD + BDD baby steps
+
+== Contexte
+
+Session 167 du borough Bushwick (bakery-gradle). Suite directe de S166 qui a
+livré TREE-1→4 (socle domaine pur). Cette session livre le gros morceau de
+l'EPIC : TREE-5 (theme inheritance, 5 pts) + TREE-6 (i18n par sous-arbre,
+8 pts). 31/36 pts EPIC (86%). Reste TREE-7 (scaffold IA, 5 pts).
+
+== BKY-TREE-5 — Theme inheritance (5 pts) ✅
+
+*Concept DDD* : `ThemeResolver` (domaine pur, pas d'I/O) résout le thème
+effectif par nœud en remontant la chaîne d'ancêtres (node → parent → root).
+Premier override trouvé gagne ; si aucun, default s'applique. Override =
+remplacement total (pas de fusion = "partiel interdit" par construction).
+Détection d'orphelins (override sur path inexistant → `IllegalArgumentException`).
+
+=== Fichiers créés
+
+* `src/main/kotlin/bakery/tree/ThemeResolver.kt` — `ThemeResolver` +
+  `ResolvedTheme` (data class avec `theme: ThemeConfig` + `resolvedAtPath`).
+  `effectiveTheme(node)`, `resolveAll()`, `ancestorChain()`, `parentPath()`.
+  Init block valide que tous les overrides sont dans l'arbre.
+* `src/test/kotlin/bakery/tree/ThemeResolverTest.kt` — 12 UT GREEN.
+* `src/test/features/43_site_tree_theme.feature` — 8 scénarios BDD.
+* `src/test/scenarios/bakery/scenarios/ThemeResolverSteps.kt` — 19 step defs
+  (theme + i18n subtree fusionnés pour partager l'état `tree`).
+
+=== Baby steps TDD
+
+. Root sans override → default theme (resolvedAtPath="")
+. Section inherits site default (no override)
+. Article inherits site default (no override)
+. Section override replaces inherited completely (total replacement)
+. Article under overridden section inherits section override
+. Article own override takes precedence over section override
+. Sibling article without own override inherits section override
+. Article in non-overridden section falls back to site default
+. Override does not merge — replacement is total (mode="auto", fontFamily="")
+. Orphan override path not in tree → IllegalArgumentException
+. resolveAll maps every node path to its resolved theme
+. Root without default uses ThemeConfig() defaults
+
+=== Décisions de design
+
+* `SiteNode` (TREE-1) n'est **pas touché** — le thème est une préoccupation
+  séparée, gérée par `ThemeResolver` externe.
+* Override = remplacement total, pas de fusion. "Partiel interdit" par
+  construction (un `ThemeConfig` partiel a les defaults `ThemeConfig()` pour
+  les champs non renseignés, pas les valeurs du parent).
+* `ResolvedTheme.resolvedAtPath` trace où le thème a été résolu (utile pour
+  debug et audit).
+
+== BKY-TREE-6 — i18n migration par sous-arbre (8 pts) ✅
+
+*Concept DDD* : `SubtreeI18nPlanner` remplace le walk flat `templates/` par
+`tree.walk().filter { it is Article }`. Delta ciblé : un AsciiDoc modifié →
+re-traduire seulement ses clés. Intégrité hors-sous-arbre préservée
+(checksums des autres articles inchangés). Implémente la Loi de l'Économie
+d'Encre par article (S153 global → S167 par feuille). Backward compat :
+liste plate acceptée si pas de `tree:`.
+
+=== Fichiers créés
+
+* `src/main/kotlin/bakery/tree/SubtreeI18nPlanner.kt` — `SubtreeI18nPlanner` +
+  `I18nDelta` + `ArticleModification`. Deux constructeurs : `(tree, checksums)`
+  et `(articles, checksums)` (backward compat). `computeDelta(after, subtreePath?)`
+  retourne `I18nDelta(modifiedArticles, untouchedArticles, updatedChecksums)`.
+* `src/test/kotlin/bakery/tree/SubtreeI18nDeltaTest.kt` — 11 UT GREEN.
+* `src/test/features/44_site_tree_i18n_subtree.feature` — 6 scénarios BDD.
+
+=== Baby steps TDD
+
+. Delta vide quand aucune source changé
+. Delta détecte un seul article modifié dans tout l'arbre
+. Subtree delta n'inclut que les articles modifiés dans le sous-arbre
+. Intégrité hors sous-arbre préservée (blog modifié mais pas dans formations)
+. Idempotence — re-exécution avec updated checksums → delta vide
+. Delta porte le compte de segments translatables par article modifié
+. Nouvel article (pas dans before checksums) inclus comme modifié
+. Article supprimé (checksum before mais pas after) n'est pas une modification
+. Backward compat — liste plate acceptée sans arbre
+. Subtree sans article modifié → delta vide
+
+=== Loi de l'Économie d'Encre par feuille
+
+`SubtreeI18nPlanner` concrétise la transition S153 (delta global) → S167
+(delta par feuille). Au lieu de re-traduire toutes les clés du site, on ne
+re-traduit que les articles dont le checksum source a changé. L'idempotence
+est garantie : re-exécuter le planner avec les `updatedChecksums` produit un
+delta vide. C'est l'application directe de la règle "lecture avant écriture +
+calcul delta + fusion existing+new" au niveau de l'arbre éditorial.
+
+== Bugs corrigés (préexistants S166)
+
+=== Bug 1 — Feature 39 step singulier manquant
+
+`39_site_tree_node.feature` ligne 19 : `Then the site has 1 section` (singulier).
+Le step `@Then("the site has {int} sections")` (pluriel) ne matche pas le
+singulier. Cucumber ne fait pas de matching auto singulier/pluriel.
+*Fix* : ajout de `@Then("the site has {int} section")` dans `SiteTreeSteps.kt`.
+
+=== Bug 2 — Feature 41 step singulier manquant
+
+`41_site_tree_content.feature` ligne 26 : `Then the content has 1 translatable
+segment` (singulier). Le step `@Then("the content has {int} translatable
+segments")` (pluriel) ne matche pas.
+*Fix* : ajout de `@Then("the content has {int} translatable segment")` dans
+`SiteTreeContentSteps.kt`.
+
+=== Bug 3 — DuplicateStepDefinitionException
+
+`ThemeResolverSteps` et `SubtreeI18nDeltaSteps` avaient tous deux
+`@Given("a site tree with sections {string} and {string}")`. Cucumber jette
+une `DuplicateStepDefinitionException` silencieuse qui désactive tout le glue
+code, rendant toutes les steps "undefined".
+*Fix* : fusion de `SubtreeI18nDeltaSteps` dans `ThemeResolverSteps` (partage
+de l'état `tree`). `SubtreeI18nDeltaSteps.kt` supprimé (non tracked, créé
+cette session).
+
+== Infrastructure
+
+=== TreeCucumberTestRunner
+
+* `src/test/scenarios/bakery/scenarios/TreeCucumberTestRunner.kt` — nouveau
+  runner Cucumber filtrant `@tree and not @pipeline-contracts`. Isole les
+  features tree des échecs préexistants infrastructure (GradleRunner daemon
+  fork, env manquant) qui fail-fast et skippent tout.
+
+== Métriques
+
+|===
+| Métrique | Valeur
+| UT tree total | 80 (SiteNode 14 + SiteTree 17 + Content 13 + Yaml 13 + ThemeResolver 12 + SubtreeI18nDelta 11)
+| UT nouveaux S167 | 23 (12 ThemeResolver + 11 SubtreeI18nDelta)
+| BDD tree total | 42 scénarios (6 features : 39→44)
+| BDD nouveaux S167 | 14 scénarios (8 theme + 6 i18n subtree)
+| Fichiers main créés | 2 (ThemeResolver.kt, SubtreeI18nPlanner.kt)
+| Fichiers test créés | 4 (ThemeResolverTest, SubtreeI18nDeltaTest, 2 features)
+| Fichiers test modifiés | 3 (SiteTreeSteps +1 step, SiteTreeContentSteps +1 step, ThemeResolverSteps fusion)
+| Fichiers runner créés | 1 (TreeCucumberTestRunner)
+| Fichiers supprimés | 1 (SubtreeI18nDeltaSteps.kt — fusion)
+| publishToMavenLocal | OK (jar 0.0.2 signé GPG)
+| EPIC BKY-TREE progression | 31/36 pts (86%) — reste TREE-7 (5 pts)
+|===
+
+== Échecs préexistants (non liés à cette session)
+
+Les features non-tree (deployProfile, Scaffold, CI/CD cheroliv, IA, generateArticle,
+VerifyConfig) échouent en cucumberTest sur le baseline S166 (vérifié via
+`git stash`). Cause : `UndefinedStepException` sur steps infrastructure
+GradleRunner (env manquant, daemon fork). Ces échecs sont préexistants et non
+introduits par cette session. `TreeCucumberTestRunner` isole les features tree
+pour validation indépendante.
+
+== Prochaine session
+
+**Session 168 — BKY-TREE-7 (5 pts)** : Scaffold IA retourne un arbre au lieu
+d'une liste plate. `ScaffoldOutput.tree: SiteNode` + adapter flatten pour
+backward compat. LLM prompt mis à jour. Feature Cucumber bout en bout.
+Clôture EPIC BKY-TREE (36/36 pts).

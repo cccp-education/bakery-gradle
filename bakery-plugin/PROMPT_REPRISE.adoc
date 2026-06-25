@@ -1,48 +1,40 @@
-= PROMPT REPRISE — Bakery — Session 167
-:session: 167
-:date: 2026-06-26
+= PROMPT REPRISE — Bakery — Session 168
+:session: 168
+:date: 2026-06-27
 
-== Session 166 terminée — BKY-TREE-1+2+3+4 (18 pts, 57 UT GREEN)
+== Session 167 terminée — BKY-TREE-5+6 (13 pts, 80 UT GREEN)
 
-=== ✅ TREE-1 — SiteNode sealed interface
-- `SiteNode.kt` : sealed interface + Site/Section/Article data classes
-- Identity par `path`, validation non-blank, `isLeaf()`/`isSection()`
-- 14 UT + 7 BDD scénarios PASS
+=== ✅ TREE-5 — Theme inheritance (5 pts)
+- `ThemeResolver.kt` : `effectiveTheme(node)` remonte chaîne d'ancêtres,
+  premier override gagne, sinon default. Override = remplacement total.
+  `ResolvedTheme(theme, resolvedAtPath)`. Détection orphelins.
+- 12 UT + 8 scénarios BDD PASS
 
-=== ✅ TREE-2 — SiteTree aggregate + visiteurs
-- `SiteTree.kt` : walk (pre/post-order), filter, leaves, sections,
-  findByPath, findSubtree, visit. No mutation.
-- 17 UT + 9 BDD scénarios PASS
+=== ✅ TREE-6 — i18n migration par sous-arbre (8 pts)
+- `SubtreeI18nPlanner.kt` : `computeDelta(after, subtreePath?)` →
+  `I18nDelta(modifiedArticles, untouchedArticles, updatedChecksums)`.
+  Delta ciblé par article. Idempotence (Loi Économie d'Encre par feuille).
+  Backward compat (liste plate si pas de tree:).
+- 11 UT + 6 scénarios BDD PASS
 
-=== ✅ TREE-3 — Content wrapper sur PivotModel
-- `Content.kt` : wraps PivotArticle, exposes blocs()/inlineTexts()/
-  translatableSegments(). Article.content optional (backward compat).
-- 13 UT + 6 BDD scénarios PASS
+=== Bugs corrigés (préexistants S166)
+- Feature 39/41 : steps singulier/pluriel manquants (Cucumber no auto-match)
+- DuplicateStepDefinition : fusion SubtreeI18nDeltaSteps → ThemeResolverSteps
+- TreeCucumberTestRunner : isole features @tree des échecs infrastructure
 
-=== ✅ TREE-4 — YAML serialization tree: section
-- `SiteNodeDto.kt` + `SiteTreeYaml.kt` : Jackson polymorphic DTO,
-  round-trip déterministe, `type:` discriminator, content @JsonIgnore
-- 13 UT + 6 BDD scénarios PASS
+== Prochaine mission — BKY-TREE-7 (5 pts, clôture EPIC)
 
-== Prochaine mission — BKY-TREE-5 + BKY-TREE-6 (13 pts)
-
-**US TREE-5 — Theme inheritance (5 pts)**
-`effectiveTheme(node)` : résout thème effectif par nœud (héritage parent
-si non surchargé, override explicite sinon). `ThemeConfig` existant (S068).
-Pas de mutation — retourne `ResolvedTheme`. Détection conflits (override
-partiel interdit). Baby steps DDD/TDD/BDD, domaine pur.
-
-**US TREE-6 — i18n migration par sous-arbre (8 pts)**
-Remplace walk flat `templates/` par `tree.walk().filter { it is Article }`.
-Delta ciblé : AsciiDoc modifié → re-traduire seulement ses clés. Intégrité
-hors-sous-arbre préservée (checksums). Implémente Loi Économie d'Encre par
-article (S153 global → S167 par feuille). Backward compat (walk flat si
-pas de `tree:`).
+**US TREE-7 — Scaffold IA retourne un arbre**
+`ScaffoldOutput.tree: SiteNode` au lieu de `templates: List<String>`.
+Adapter flatten pour backward compat (si `tree:` absent, `templates:` accepté).
+LLM prompt mis à jour pour retourner structure hiérarchique JSON.
+Feature Cucumber bout en bout. Baby steps DDD/TDD/BDD.
 
 == Contexte technique
-- 57 UT tree package GREEN (SiteNode 14 + SiteTree 17 + Content 13 + Yaml 13)
-- 4 features Cucumber (28 scénarios) — cucumberTest complet à valider
+- 80 UT tree package GREEN (6 classes de test)
+- 42 scénarios BDD tree (6 features 39→44)
 - Version : 0.0.2 Maven Central + Gradle Portal (LIVE)
+- EPIC BKY-TREE : 31/36 pts (86%). TREE-7 = clôture (36/36).
 - Ports Ollama : 11437-11465. Modèles : gpt-oss:120b-cloud, gemma4:31b-cloud
-- TREE-5+6 = fusion (consume TREE-2 + TREE-3 + TREE-4) — gros morceau EPIC
 - Anglais imposé : nommage, commentaires, Gherkin, steps
+- `TreeCucumberTestRunner` : runner dédié `@tree` pour validation isolée

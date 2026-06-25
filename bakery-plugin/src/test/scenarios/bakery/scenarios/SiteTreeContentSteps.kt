@@ -99,4 +99,9 @@ class SiteTreeContentSteps {
     fun theContentHasTranslatableSegments(count: Int) {
         assertThat(article!!.content!!.translatableSegments()).hasSize(count)
     }
+
+    @Then("the content has {int} translatable segment")
+    fun theContentHasTranslatableSegment(count: Int) {
+        assertThat(article!!.content!!.translatableSegments()).hasSize(count)
+    }
 }

@@ -1,5 +1,61 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 167 — 2026-06-26 — BKY-TREE-5+6 : Theme Inheritance + i18n par sous-arbre (13 pts)
+
+**Contexte** : Suite de S166 (TREE-1→4, socle domaine pur). Cette session
+livre le gros morceau de l'EPIC : theme inheritance + i18n par sous-arbre.
+31/36 pts EPIC (86%). Méthode baby step DDD/TDD/BDD préservée.
+
+=== BKY-TREE-5 — Theme inheritance (5 pts) ✅
+
+* `src/main/kotlin/bakery/tree/ThemeResolver.kt` — `ThemeResolver` +
+  `ResolvedTheme(theme, resolvedAtPath)`. `effectiveTheme(node)` remonte la
+  chaîne d'ancêtres (node → parent → root), premier override trouvé gagne,
+  sinon default. Override = remplacement total (pas de fusion). Init block
+  rejette les overrides orphelins (path inexistant → IllegalArgumentException).
+  `resolveAll()` mappe tous les nœuds.
+* `src/test/kotlin/bakery/tree/ThemeResolverTest.kt` — 12 UT GREEN.
+* `src/test/features/43_site_tree_theme.feature` — 8 scénarios BDD.
+* `src/test/scenarios/bakery/scenarios/ThemeResolverSteps.kt` — steps theme + i18n.
+
+=== BKY-TREE-6 — i18n migration par sous-arbre (8 pts) ✅
+
+* `src/main/kotlin/bakery/tree/SubtreeI18nPlanner.kt` — `SubtreeI18nPlanner` +
+  `I18nDelta(modifiedArticles, untouchedArticles, updatedChecksums)` +
+  `ArticleModification(path, oldChecksum, newChecksum, translatableSegmentCount)`.
+  Deux constructeurs : `(tree, checksums)` et `(articles, checksums)` (backward
+  compat). `computeDelta(after, subtreePath?)`. Loi Économie d'Encre par feuille.
+* `src/test/kotlin/bakery/tree/SubtreeI18nDeltaTest.kt` — 11 UT GREEN.
+* `src/test/features/44_site_tree_i18n_subtree.feature` — 6 scénarios BDD.
+
+=== Bugs corrigés (préexistants S166) ✅
+
+* Feature 39 : step `@Then("the site has {int} section")` singulier manquant
+  dans `SiteTreeSteps.kt` (Cucumber no auto-match singulier/pluriel).
+* Feature 41 : step `@Then("the content has {int} translatable segment")`
+  singulier manquant dans `SiteTreeContentSteps.kt`.
+* DuplicateStepDefinition : `ThemeResolverSteps` et `SubtreeI18nDeltaSteps`
+  avaient `@Given("a site tree with sections {string} and {string}")`. Fusion
+  des steps i18n dans `ThemeResolverSteps`. `SubtreeI18nDeltaSteps.kt` supprimé.
+
+=== Infrastructure ✅
+
+* `src/test/scenarios/bakery/scenarios/TreeCucumberTestRunner.kt` — runner
+  Cucumber filtrant `@tree and not @pipeline-contracts`. Isole les features
+  tree des échecs préexistants (GradleRunner daemon fork, env manquant).
+
+=== Métriques
+
+|===
+| Métrique | Valeur
+| UT tree total | 80 (14+17+13+13+12+11)
+| UT nouveaux S167 | 23
+| BDD tree total | 42 scénarios (6 features 39→44)
+| BDD nouveaux S167 | 14 scénarios
+| publishToMavenLocal | OK (jar 0.0.2 GPG)
+| EPIC progression | 31/36 pts (86%)
+|===
+
 == Session 166 — 2026-06-25 — BKY-TREE-1+2+3+4 : SiteNode + SiteTree + Content + YAML (18 pts)
 
 **Contexte** : Démarrage EPIC BKY-TREE (Arbre de Site Composite). 4 US livrées

@@ -1,8 +1,26 @@
 = Analyse de Couverture des Tests — Bakery Gradle Plugin
 
-_Derniere mise a jour : 2026-06-24 (Session 161)
+_Derniere mise a jour : 2026-06-26 (Session 167)_
 
 '''
+
+== Session 167 — BKY-TREE-5+6 : Theme Inheritance + i18n par sous-arbre (13 pts)
+
+2 US livrées. Domaine pur, baby steps DDD/TDD/BDD. 23 nouveaux UT + 14
+nouveaux scénarios BDD. 3 bugs corrigés (features 39/41 + DuplicateStepDef).
+
+|===
+| Classe | Tests | Statut | Notes
+| ThemeResolverTest | 12 | OK | root default, section inherits, article inherits, section override total, article under overridden section, article own override precedence, sibling inherits, non-overridden section fallback, override no-merge total replacement, orphan rejected, resolveAll, root no-default ThemeConfig()
+| SubtreeI18nDeltaTest | 11 | OK | delta empty no change, single modified, subtree scope, integrity outside subtree, idempotence re-execution, translatable segment count, new article included, deleted article not modification, backward compat flat list, subtree no-modifications empty
+| Feature 43 (theme inheritance) | 8 | OK | root default, section inherits, section override replaces, article inherits section override, article own override precedence, override no-merge total, orphan rejected, root no-default
+| Feature 44 (i18n subtree) | 6 | OK | delta empty, single modified, subtree scope, integrity outside, idempotence, backward compat flat
+|===
+
+**Total Session 167** : 23 nouveaux UT (12 ThemeResolver + 11 SubtreeI18nDelta) +
+14 nouveaux scénarios BDD (8 theme + 6 i18n subtree). 80 UT tree total + 42
+BDD tree total. 2 classes main créées, 4 fichiers test créés, 3 modifiés,
+1 runner créé, 1 fichier supprimé (fusion). `publishToMavenLocal` OK.
 
 == Session 161 — Migration @Option natif --input/--output sur generatePivotYaml
 
