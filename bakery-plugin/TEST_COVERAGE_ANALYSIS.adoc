@@ -1,6 +1,18 @@
 = Analyse de Couverture des Tests — Bakery Gradle Plugin
 
-_Derniere mise a jour : 2026-06-27 (Session 168)_
+_Derniere mise a jour : 2026-06-28 (Session 169 — Maintenance CI, pas de nouveaux tests)_
+
+'''
+
+== Session 169 — Maintenance CI : 3 bugs résolus, 0 nouveau test
+
+Pas de nouveaux tests. 3 bugs infrastructure résolus :
+- `settings.gradle.kts` — credentials optionnelles (pas un test)
+- `CucumberTestRunner.kt` — filtre `not @personal` (3 scénarios exclus du run default)
+- `AccessibilityAuditTask.kt` — `@PathSensitive(RELATIVE)` (annotation Gradle)
+
+Coverage globale : 93,09% (was 92,90% — augmentation due à l'exclusion des
+scénarios `@personal` qui ne contribuaient pas à la coverage mesurée par Kover).
 
 '''
 

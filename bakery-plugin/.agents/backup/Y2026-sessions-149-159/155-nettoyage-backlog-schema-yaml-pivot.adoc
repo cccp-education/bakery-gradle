@@ -1,0 +1,116 @@
+= Session 155 — Nettoyage BACKLOG + Schéma YAML Pivot i18n
+:session: 155
+:date: 2026-06-23
+
+== Mission
+
+Demande utilisateur : « Reprenons bakery avec son prompt de reprise et son backlog.
+Surtout oublie pas ma methodologie de baby step DDD/TDD/BDD de unit/fonctionnal/cucumber
+tests, en agile software craftmanship. »
+
+Puis : « je veux que tu historise le backlog afin de faire le menage a ce qui ete fait
+et n'est plus d'actualité » → vérification des EPICs réellement implémentés dans le code
+avant suppression.
+
+Puis : « on doit proceder en suivant la methodologie qui touche sur de la data copie de
+mon site mais on ne touche pas au code production, afin de faire emerger les structure et
+patterne pour automatiser la traduction generique » + « et enfin on doit avoir une
+representation yaml de ce site pour permettre de faire de la traduction par l'arbre du
+document asciidoc plutot que des grand bloc qui perdent facilement la mise en page » +
+« et chaque article aura aussi sa representation yaml pour la traduction on separera la
+structure du site de son contenu editorial » + « on ne rentrera pas dans le detail de
+plantuml c'est le plugin qui sait le faire ».
+
+== Réalisations
+
+=== 1. Nettoyage BACKLOG.adoc (1269→207 lignes, -84%)
+
+* Historisation du BACKLOG complet (1269 lignes) dans
+  `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`.
+* Nouveau BACKLOG compact (207 lignes) : synthèse 49 EPICs clos (1 ligne chacun),
+  récap 87 code smells résolus (V2-V3, V4, V5, V6), EPICs transférés, 3 pistes ouvertes.
+* **Vérification des EPICs réellement implémentés** avant suppression du détail :
+  - BKY-CR-V6 : `ResolveIntention.kt`, `InjectorSpec.kt` + `InjectorRegistry` (9 specs),
+    `ConfigResolver.resolveAllDataDriven` (10 DomainResolver) — ✅ présents
+  - BKY-I18N-DELTA : `I18nMigrationService.loadExistingTranslations()` + delta — ✅ présent
+  - BKY-A11Y-1 : `a11y/AccessibilityAuditTask`, `evaluateContrast()`, `scanInlineColors`,
+    `scanStructural` — ✅ présents
+  - BKY-I18N : 20 `messages_{code}.properties` (10 langues × 2 sites) + 4 services i18n — ✅
+  - BKY-LENS : `SubgraphExtractor`, `AugmentedArticlesService`, `LensPipelineService`,
+    `BfsProximityCache` — ✅ présents
+  - ARROW-1 : 7 fichiers import `arrow.core.Either` — ✅
+  - BKY-PUB-2 : `version = "0.0.2"`, `nmcp` 1.5.0, `centralPortal` — ✅
+  - BKY-KOV-1 : `koverThresholdCheck` seuil 85% — ✅
+  - BKY-JB-* : 5 TaskRegistrars, ScaffoldIntention, ArticleIntention, ThemeIntention — ✅
+  - BKY-JB-9 (E2E Playwright) : 5 tests E2E dans `src/e2eTest/` + dépendance playwright — ✅
+* Commit `b2b00a2` — « docs(governance): nettoyage BACKLOG — historisation EPICs terminés ».
+
+=== 2. Découverte : 3 sites réels non migrés i18n
+
+Audit des 3 vrais sites dans `office/sites/` :
+* magic-stick : 12 templates, 100% FR hardcodé, 0 messages_*.properties, 0 `#{...}`
+* cccp.education : 11 templates, 100% FR hardcodé, 0 messages_*.properties, 0 `#{...}`
+* cheroliv.com : 19 templates, 100% FR hardcodé, 0 messages_*.properties, 0 `#{...}`
+* Les fixtures de test bakery (S150) sont alignées, mais les vrais sites ne sont PAS migrés.
+* La tâche `migrateToI18n` bakery est prête mais n'a jamais été lancée sur les vrais sites.
+
+=== 3. Schéma YAML Pivot — séparation structure / contenu éditorial
+
+* Bac à sable créé : `/tmp/opencode/bakery-i18n-lab/magic-stick/` (copie du site réel).
+* 3 fichiers AsciiDoc convertis en YAML pivot (emergent design, pas de code production) :
+  - `quick-start.yaml` (83 lignes adoc → 1er schéma : 6 types blocs + 4 inline)
+  - `ab-partition.yaml` (126 lignes → tables + admonitions IMPORTANT)
+  - `scripts.yaml` (234 lignes → 3 corrections du schéma révélées)
+* **Schéma pivot validé** :
+
+  8 types de blocs : `heading`, `paragraph`, `list`, `table`, `admonition`, `source`,
+  `hr`, `frontmatter`
+
+  4 types inline : `text`, `bold`, `code`, `link`
+
+  Règle : `translatable: true` sur feuilles éditoriales, `false` sur structure/code/URLs/
+
+* **3 corrections émergentes du 3e fichier** :
+  - `hr` (---) : nouveau type `translatable: false`
+  - Cellules table : passage de `text:` à `inline[]` (mix texte+code) — rétroactif
+  - Table sans `[cols=...]` : `cols: null` (auto-détection)
+  - Listes de paquets : noms de paquets = `translatable: false`
+
+* Décision architecturale : blocs `plantuml` = pass-through (`translatable: false`),
+  le plugin plantuml-gradle gère son propre cycle de vie.
+
+== Méthodologie
+
+* Emergent design sur la data (copies de sites) sans toucher au code production.
+* Baby steps : 1 fichier → schéma, 2e fichier → validation, 3e fichier → stress test.
+* Validation par contrastes (83, 126, 234 lignes ; 7 types blocs + 4 types inline +
+  tables avec/sans cols + 4 kinds admonitions).
+
+== Code modifié
+
+* `BACKLOG.adoc` : nettoyage (1269→207 lignes).
+* `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc` : archive.
+* `/tmp/opencode/bakery-i18n-lab/` : 3 YAML pivots (bac à sable, non versionné).
+
+== Tests
+
+Aucun test modifié. Aucun test lancé en fin de session (règle AGENT.adoc).
+
+== Décision pour session 156
+
+L'utilisateur a choisi la piste 1 : « aligner les 2 premiers YAML (convertir leurs tables
+en `inline[]`) pour figer le contrat homogène, puis coder le parser (golden master). »
+
+== Score session
+
+8/10 — Nettoyage BACKLOG solide (vérifié contre code), schéma YAML pivot émergent
+rigoureux. Pas de code production touché. Bac à sable /tmp non versionné = volatile.
+
+== Notes techniques
+
+* Ports Ollama : 11437-11465. Modèles : `gpt-oss:120b-cloud`, `gemma4:31b-cloud`.
+* `publishToMavenLocal` fait (jar 0.0.2).
+* Bac à sable `/tmp/opencode/bakery-i18n-lab/` = volatile (recréer si besoin depuis
+  `office/sites/magic-stick/jbake/` + les YAML dans ce rapport).
+* Loi de l'Économie d'Encre : encodée dans 10 boroughs. Toute tâche LLM DOIT
+  load-before-write + delta.

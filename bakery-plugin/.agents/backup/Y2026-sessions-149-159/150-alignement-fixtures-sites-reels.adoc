@@ -1,0 +1,62 @@
+= Session 150 — 2026-06-23 — BKY-I18N-PROD-AUDIT : Alignement fixtures ↔ sites réels
+
+== Objectif
+
+Terminer l'EPIC BKY-I18N-PROD-AUDIT (Session 149) en alignant les fixtures i18n de test avec les templates JBake réels des sites cccp.education et cheroliv.com.
+
+== Contexte
+
+* Session 149 : service d'audit `FixtureAlignmentAuditor` créé + 7 tests. Écarts mesurés :
+  - cccp-education : `release.thyme` en trop + 11 templates au contenu différent
+  - cheroliv-com : 13 templates manquants + 11 templates au contenu différent
+* magic-stick déjà aligné ✅
+
+== Baby steps DDD/TDD/BDD
+
+. **DDD** : alignement par copie fidèle des templates réels vers `src/test/resources/i18n-fixtures/`.
+. **TDD** : les tests d'audit existants (RED en S149) deviennent GREEN.
+. **BDD** : les tests d'intégration `CccpEducationI18nMigrationIntegrationTest` et `CherolivComI18nMigrationIntegrationTest` restent/tournent GREEN.
+. **Bug découvert** : `FixtureAlignmentAuditor` comparait les templates par `name` seul. Le site cheroliv.com a un sous-répertoire `TODO/` contenant 5 fichiers `.thyme` vides. L'auditeur les signalait comme manquants alors qu'ils ont des chemins relatifs uniques.
+. **Fix TDD** : `FixtureAlignmentAuditor` utilise maintenant `toRelativeString(baseDir)` pour comparer les chemins relatifs. Les 7 tests d'audit passent, y compris les scénarios temporaires `missingInFixture` / `extraInFixture` / `mismatched`.
+
+== Actions réalisées
+
+* Suppression de `src/test/resources/i18n-fixtures/cccp-education/jbake/templates/release.thyme` (absent du site réel).
+* Copie des 11 templates réels cccp.education vers la fixture.
+* Mise à jour de `translations_en.properties` cccp-education (28 → 55 clés EN).
+* Copie des 24 templates réels cheroliv.com (19 racine + 5 TODO/) vers la fixture.
+* Mise à jour de `translations_en.properties` cheroliv-com (~120 clés EN).
+* Correction de `FixtureAlignmentAuditor.kt` : comparaison par chemins relatifs.
+* `publishToMavenLocal` après modification du code source.
+
+== Fichiers modifiés/créés
+
+[cols="2,1,3"]
+|===
+| Fichier | Type | Note
+| `src/main/kotlin/bakery/i18n/audit/FixtureAlignmentAuditor.kt` | modifié | comparaison par chemins relatifs
+| `src/test/resources/i18n-fixtures/cccp-education/jbake/templates/*.thyme` | modifié | alignement site réel
+| `src/test/resources/i18n-fixtures/cccp-education/jbake/templates/release.thyme` | supprimé | absent du site réel
+| `src/test/resources/i18n-fixtures/cccp-education/translations_en.properties` | modifié | traductions EN à jour
+| `src/test/resources/i18n-fixtures/cheroliv-com/jbake/templates/*.thyme` | modifié/créé | alignement site réel + TODO/
+| `src/test/resources/i18n-fixtures/cheroliv-com/translations_en.properties` | modifié | traductions EN à jour
+|===
+
+== Validation
+
+* `./gradlew test --tests "bakery.i18n.audit.FixtureAlignmentAuditorTest"` → 7/7 PASS
+* `./gradlew test --tests "bakery.i18n.CccpEducationI18nMigrationIntegrationTest"` → 5/5 PASS
+* `./gradlew test --tests "bakery.i18n.CherolivComI18nMigrationIntegrationTest"` → 5/5 PASS
+* `./gradlew test` → BUILD SUCCESSFUL (toute la suite unitaire)
+* `./gradlew publishToMavenLocal` → OK
+
+== Score
+
+9/10 — alignement rigoureux, tests GREEN, discovery d'un bug structurel dans l'auditeur corrigé en TDD.
+
+== Prochaine session (151)
+
+À définir avec l'utilisateur. Possibilités :
+* Finaliser BKY-I18N-PROD-AUDIT dans le BACKLOG (marquer TERMINÉ).
+* Reprendre un autre borough (runner-gradle, plantuml-gradle, etc.).
+* Code review V6 ou prochain EPIC bakery.

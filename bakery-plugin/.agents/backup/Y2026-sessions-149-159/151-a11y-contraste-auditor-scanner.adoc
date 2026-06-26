@@ -1,0 +1,70 @@
+= Session 151 — 2026-06-23 — BKY-A11Y-1 : Accessibilité WCAG — Contraste, Auditor, Scanner HTML
+
+== Objectif
+
+Démarrer l'EPIC BKY-A11Y-1 (accessibilité WCAG/RGAA) avec une approche baby step DDD/TDD/BDD. Le MVP0 Graal requiert une formation FPA accessible ; cet EPIC est un prérequis Qualiopi/AO.
+
+== Contexte
+
+* Tous les EPICs historiques bakery sont terminés. BKY-I18N-PROD-AUDIT clos en session 150.
+* Choix utilisateur : démarrer BKY-A11Y-1 (accessibilité) plutôt que Pagefind / dashboard / autre.
+
+== Baby steps DDD/TDD/BDD
+
+. **DDD** : création du package `bakery.a11y` avec les concepts métier purs :
+  - `ContrastResult` + `evaluateContrast()` (WCAG 2.1 luminance relative + ratio)
+  - `AccessibilityFinding`, `AccessibilityReport`, `audit()`
+  - `AccessibilityHtmlScanner.scanInlineColors()`
+. **TDD** : 13 tests unitaires RED→GREEN :
+  - `ColorContrastRuleTest` 5 cas (noir/blanc OK, blanc/blanc KO, gris/gris KO, orange/blanc KO, bleu/blanc OK)
+  - `AccessibilityAuditorTest` 4 cas (audit vide, 1 pass, 1 fail, mixte)
+  - `AccessibilityHtmlScannerTest` 4 cas (skip sans couleurs, noir/blanc OK, orange/blanc KO, multi-éléments)
+. **BDD** : pas encore de Cucumber — prévu US-A11Y-5 (Feature 37).
+
+== Actions réalisées
+
+* Création de 3 fichiers source dans `src/main/kotlin/bakery/a11y/` :
+  - `ColorContrastRule.kt`
+  - `AccessibilityAuditor.kt`
+  - `AccessibilityHtmlScanner.kt`
+* Création de 3 fichiers test dans `src/test/kotlin/bakery/a11y/` :
+  - `ColorContrastRuleTest.kt`
+  - `AccessibilityAuditorTest.kt`
+  - `AccessibilityHtmlScannerTest.kt`
+* Mise à jour de la gouvernance :
+  - `PROMPT_REPRISE.adoc`
+  - `.agents/INDEX.adoc`
+  - `BACKLOG.adoc`
+  - `.agents/SESSIONS_HISTORY.adoc`
+* Pas de modification des fichiers de configuration (YAML/properties/env).
+
+== Fichiers modifiés/créés
+
+[cols="2,1,3"]
+|===
+| Fichier | Type | Note
+| `src/main/kotlin/bakery/a11y/ColorContrastRule.kt` | créé | Contraste WCAG 2.1 AA / AAA
+| `src/main/kotlin/bakery/a11y/AccessibilityAuditor.kt` | créé | Finding + Report + audit()
+| `src/main/kotlin/bakery/a11y/AccessibilityHtmlScanner.kt` | créé | Scan inline colors
+| `src/test/kotlin/bakery/a11y/ColorContrastRuleTest.kt` | créé | 5 UT
+| `src/test/kotlin/bakery/a11y/AccessibilityAuditorTest.kt` | créé | 4 UT
+| `src/test/kotlin/bakery/a11y/AccessibilityHtmlScannerTest.kt` | créé | 4 UT
+| `PROMPT_REPRISE.adoc` | modifié | Mission S151 + prochain baby step
+| `.agents/INDEX.adoc` | modifié | Roadmap + EPIC BKY-A11Y-1
+| `BACKLOG.adoc` | modifié | BKY-I18N-PROD-AUDIT ✅ + BKY-A11Y-1
+| `.agents/SESSIONS_HISTORY.adoc` | modifié | Session 151 ajoutée
+|===
+
+== Validation
+
+* `./gradlew test --tests "bakery.a11y.*"` → 13/13 PASS
+* `./gradlew compileKotlin` → BUILD SUCCESSFUL
+
+== Score
+
+8/10 — démarrage propre, domaine pur testé, gouvernance synchronisée. Manque encore la tâche Gradle et le BDD Cucumber.
+
+== Prochaine session (suite 151)
+
+* US-A11Y-4 : tâche Gradle `accessibilityAudit` scannant le répertoire `output/` après `bake`.
+* US-A11Y-5 : BDD Cucumber Feature 37.

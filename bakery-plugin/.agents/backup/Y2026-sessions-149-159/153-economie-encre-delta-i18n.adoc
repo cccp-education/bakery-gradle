@@ -1,0 +1,80 @@
+= Session 153 — Loi de l'Économie d'Encre + Delta Traduction i18n
+:session: 153
+:date: 2026-06-23
+:epic: BKY-I18N-DELTA
+:statut: TERMINÉ (3/3 pts)
+
+== Sujet
+
+Optimisation de la consommation de tokens LLM dans le pipeline i18n de bakery. Découverte et correction d'un anti-pattern de *non-idempotence économique* : `I18nMigrationService.translateNonFrenchKeys()` re-traduisait l'intégralité des clés FR→EN via le LLM à chaque exécution de `migrateToI18n`, écrasant les traductions validées de `messages_en.properties`. Conceptualisation de la contrainte dans la littérature de gouvernance (AGENT.adoc) sous le nom *Loi de l'Économie d'Encre*.
+
+== Épic
+
+BKY-I18N-DELTA — Non-Répétition des Traductions LLM (3 pts, 3 US).
+
+== Réalisations
+
+=== US-DELTA-1 — Delta traduction i18n
+
+*Fichier* : `src/main/kotlin/bakery/i18n/I18nMigrationService.kt`
+
+. `translateNonFrenchKeys()` reçoit désormais `templatesDir` en paramètre.
+. Nouvelle méthode privée `loadExistingTranslations(templatesDir, lang)` : charge `messages_{lang}.properties` existant via `Properties.load()`.
+. Calcul du delta : `allKeys.filterKeys { key -> !existing.containsKey(key) }` — seules les clés manquantes sont envoyées au LLM.
+. Fusion : `existing + newTranslations` — les traductions validées sont conservées, seules les nouvelles sont ajoutées.
+. Avant : N clés traduites × M exécutions. Après : 0 clé traduite si tout existe déjà, delta uniquement sinon.
+
+=== US-DELTA-2 — Test réutilisation
+
+*Fichier* : `src/test/kotlin/bakery/i18n/AutoTranslationI18nMigrationIntegrationTest.kt`
+
+Nouveau test `auto-translation reuses existing translations and only translates missing keys` :
+. Pré-remplit `messages_en.properties` avec `header.1 = "Welcome (manual)"`.
+. Deux templates : `header.thyme` (`<p>Bienvenue</p>`) + `footer.thyme` (`<p>Contactez-nous</p>`).
+. Assertion 1 : `header.1` conserve la valeur manuelle (pas écrasée).
+. Assertion 2 : `footer.1` est traduite par le fake translator (`[en] Contactez-nous`).
+. Assertion 3 : `fakeTranslator.requestsReceived.size == 1` — le LLM n'est appelé qu'une seule fois (pour `footer.1` uniquement).
+
+3/3 tests AutoTranslationI18nMigrationIntegrationTest PASS.
+
+=== US-DELTA-3 — Conceptualisation gouvernance
+
+*Fichier* : `AGENT.adoc`
+
+Nouvelle section "Non-Répétition des Opérations Coûteuses — Loi de l'Économie d'Encre" ajoutée après la section "Tests" :
+
+* **PRINCIPE** : Une opération coûteuse (LLM, API, inférence cloud) qui a déjà produit un résultat valide et persistant ne doit pas être ré-exécutée sur la même entrée. Le résultat existant est la vérité.
+* **FONDEMENT** : L'IA est un service metered, pas un générateur idempotent gratuit. Répéter une traduction validée = gaspillage de tokens, crédits, temps de build.
+* **RÈGLE** : Vérifier l'artefact résultat avant opération → réutiliser si existe → calculer le delta seul → ne jamais écraser un résultat validé par re-calcul identique.
+* **ANTI-PATTERNS** : Re-traduction systématique, régénération totale, re-embedding global, cache-busting silencieux.
+* **PROTECTION** : Lecture avant écriture, fusion delta, `DisableCachingByDefault` ne dispense pas de l'idempotence applicative.
+* **LEÇON (S153)** : `translateNonFrenchKeys()` écrasait 45 clés × 10 langues × N exécutions sans valeur ajoutée.
+* **PORTÉE TRANSVERSE** : 10 boroughs consommant du LLM metered (bakery, codex, training, capsule, plantuml, readme, document, agile, ticket, review). Toute nouvelle tâche Gradle LLM DOIT implémenter lecture-avant-écriture + calcul delta.
+
+== Backlog
+
+EPIC BKY-I18N-DELTA ajouté au `BACKLOG.adoc` (section détaillée + entrée synthèse). En-tête et bloc CAUTION mis à jour (31/31 EPICs ✅).
+
+== Tests
+
+3/3 AutoTranslationI18nMigrationIntegrationTest PASS :
+. `auto-translation fills english messages from fake translator` (existant)
+. `auto-translation falls back to french when translator fails` (existant)
+. `auto-translation reuses existing translations and only translates missing keys` (nouveau)
+
+Suite i18n complète (I18nMigrationServiceTest + integration tests) PASS — aucun test existant cassé.
+
+== Fichiers modifiés
+
+. `src/main/kotlin/bakery/i18n/I18nMigrationService.kt` — delta traduction
+. `src/test/kotlin/bakery/i18n/AutoTranslationI18nMigrationIntegrationTest.kt` — test réutilisation
+. `AGENT.adoc` — Loi de l'Économie d'Encre
+. `BACKLOG.adoc` — EPIC BKY-I18N-DELTA
+
+== Projection d'impact
+
+Si la même logique delta est appliquée aux 9 autres boroughs consommant du LLM metered, l'économie potentielle sur le pipeline MVP0 complet est de l'ordre de 50-80% de la facture LLM récurrente (hypothèse : 3-5 ré-exécutions par cycle de dev).
+
+== Score session
+
+9/10 — Découverte précise, correctif minimal, conceptualisation durable encodée dans la gouvernance, test de non-régression.
