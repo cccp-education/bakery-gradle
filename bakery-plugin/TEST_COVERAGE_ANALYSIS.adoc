@@ -1,8 +1,28 @@
 = Analyse de Couverture des Tests — Bakery Gradle Plugin
 
-_Derniere mise a jour : 2026-06-26 (Session 167)_
+_Derniere mise a jour : 2026-06-27 (Session 168)_
 
 '''
+
+== Session 168 — BKY-TREE-7 : Scaffold IA retourne un arbre (5 pts, clôture EPIC)
+
+1 US livrée. Domaine pur, baby steps DDD/TDD/BDD. 19 nouveaux UT + 4 UT
+existants étendus + 1 UT task. 5 nouveaux scénarios BDD (22 steps).
+
+|===
+| Classe | Tests | Statut | Notes
+| ScaffoldTreeAdapterTest | 6 | OK | 3-level tree one per article, empty tree, single article, empty sections, order preservation, thyme extension
+| ScaffoldOutputDtoTreeTest | 4 | OK | DTO without tree → null, DTO with tree → SiteDto, 3-level round-trip, empty sections
+| ScaffoldGeneratorTreeTest | 9 | OK | parse tree, derive templates from tree, fallback templates, tree-only, tree wins, buildPrompt tree, buildPrompt type discriminator, fallback null tree
+| ScaffoldGeneratorTest (+4) | +4 | OK | buildPrompt requests tree, generate produces tree, derives templates, tree null, tree over legacy
+| GenerateSiteFromIntentionTaskTest (+1) | +1 | OK | task creates site.yml with tree section
+| Feature 45 (scaffold tree) | 5 (22 steps) | OK | valid tree 3 levels, adapter flatten 3 articles, backward compat legacy, prompt hierarchical, integrity tree wins
+|===
+
+**Total Session 168** : 19 nouveaux UT (6 adapter + 4 DTO + 9 generator) + 4 UT
+existants étendus + 1 UT task + 5 scénarios BDD (22 steps). 99 UT tree total +
+186 BDD steps tree total (features 39→45). 1 classe main créée
+(ScaffoldTreeAdapter), 4 modifiées. 1 feature + 1 step file créés.
 
 == Session 167 — BKY-TREE-5+6 : Theme Inheritance + i18n par sous-arbre (13 pts)
 

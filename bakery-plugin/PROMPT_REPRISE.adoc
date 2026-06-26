@@ -1,40 +1,39 @@
-= PROMPT REPRISE — Bakery — Session 168
-:session: 168
-:date: 2026-06-27
+= PROMPT REPRISE — Bakery — Session 169
+:session: 169
+:date: 2026-06-28
 
-== Session 167 terminée — BKY-TREE-5+6 (13 pts, 80 UT GREEN)
+== Session 168 terminée — BKY-TREE-7 (5 pts, EPIC BKY-TREE clôture 36/36)
 
-=== ✅ TREE-5 — Theme inheritance (5 pts)
-- `ThemeResolver.kt` : `effectiveTheme(node)` remonte chaîne d'ancêtres,
-  premier override gagne, sinon default. Override = remplacement total.
-  `ResolvedTheme(theme, resolvedAtPath)`. Détection orphelins.
-- 12 UT + 8 scénarios BDD PASS
+=== ✅ TREE-7 — Scaffold IA retourne un arbre (5 pts)
+- `ScaffoldOutput.tree: SiteNode?` — champ additif (null = legacy, présent = arbre)
+- `ScaffoldOutputDto.tree: SiteNodeDto?` — parsing Jackson polymorphic
+- `ScaffoldGenerator` — buildPrompt demande `tree` hiérarchique (type discriminator),
+  parseJsonOutput tree → flattenTemplates() dérive templates (tree prioritaire)
+- `GenerateSiteFromIntentionTask.buildSiteYml` — sérialise `tree:` section si présent
+- `ScaffoldTreeAdapter.kt` (nouveau) — `flattenTemplates()` domaine pur, zero I/O
+- 19 UT + 5 scénarios BDD (22 steps) PASS
 
-=== ✅ TREE-6 — i18n migration par sous-arbre (8 pts)
-- `SubtreeI18nPlanner.kt` : `computeDelta(after, subtreePath?)` →
-  `I18nDelta(modifiedArticles, untouchedArticles, updatedChecksums)`.
-  Delta ciblé par article. Idempotence (Loi Économie d'Encre par feuille).
-  Backward compat (liste plate si pas de tree:).
-- 11 UT + 6 scénarios BDD PASS
+=== EPIC BKY-TREE — CLÔTURE (36/36 pts, 3 sessions S166→S168)
+- 99 UT tree + 186 BDD steps tree, tous GREEN
+- Concept unifiant SiteTree (Site→Section→Article→PivotModel AST) livré
+- Backward compat préservée à chaque US (tree: additif, fallback legacy)
 
-=== Bugs corrigés (préexistants S166)
-- Feature 39/41 : steps singulier/pluriel manquants (Cucumber no auto-match)
-- DuplicateStepDefinition : fusion SubtreeI18nDeltaSteps → ThemeResolverSteps
-- TreeCucumberTestRunner : isole features @tree des échecs infrastructure
+== Prochaine mission — Backlog vide, bakery production-ready
 
-== Prochaine mission — BKY-TREE-7 (5 pts, clôture EPIC)
+EPIC BKY-TREE clos. Bakery est production-ready (0.0.2 Maven Central + Portal LIVE,
+coverage 92,90%, 24/24 smells + 60 V5 + 3 V6 résolus, i18n 10 langues, accessibilité
+WCAG/RGAA, pivot parser, arbre de site composite).
 
-**US TREE-7 — Scaffold IA retourne un arbre**
-`ScaffoldOutput.tree: SiteNode` au lieu de `templates: List<String>`.
-Adapter flatten pour backward compat (si `tree:` absent, `templates:` accepté).
-LLM prompt mis à jour pour retourner structure hiérarchique JSON.
-Feature Cucumber bout en bout. Baby steps DDD/TDD/BDD.
+Options pour S169 :
+1. Publication 0.0.3 (nmcp) — intégrer EPIC BKY-TREE dans une release
+2. Nouvel EPIC — à définir selon besoins MVP0 Graal
+3. Maintenance — bugs préexistants infrastructure GradleRunner (`connector
+   services has been closed` sur features CI/CD cheroliv.com + IA config)
 
 == Contexte technique
-- 80 UT tree package GREEN (6 classes de test)
-- 42 scénarios BDD tree (6 features 39→44)
+- 99 UT tree (6 classes de test) + 186 BDD steps tree (7 features 39→45)
 - Version : 0.0.2 Maven Central + Gradle Portal (LIVE)
-- EPIC BKY-TREE : 31/36 pts (86%). TREE-7 = clôture (36/36).
+- EPIC BKY-TREE : 36/36 pts TERMINÉ
 - Ports Ollama : 11437-11465. Modèles : gpt-oss:120b-cloud, gemma4:31b-cloud
 - Anglais imposé : nommage, commentaires, Gherkin, steps
 - `TreeCucumberTestRunner` : runner dédié `@tree` pour validation isolée

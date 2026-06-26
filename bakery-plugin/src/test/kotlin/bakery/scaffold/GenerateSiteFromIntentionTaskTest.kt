@@ -189,6 +189,36 @@ class GenerateSiteFromIntentionTaskTest {
         }
 
         @Test
+        fun `task creates site yml with tree section when LLM returns tree`() {
+            val fakeResponse = """{"siteType":"formation","projectName":"ma-formation","description":"Formation FPA","tree":{"type":"site","path":"","sections":[{"type":"section","path":"modules","articles":[{"type":"article","path":"modules/intro"},{"type":"article","path":"modules/avance"}]}]},"metadata":{"title":"Ma Formation","description":"Formation FPA","tags":["formation"],"layout":"page","language":"fr"}}"""
+            val fakeLlm = FakeLlmService(fakeResponse)
+
+            val project = ProjectBuilder.builder().withProjectDir(tempDir).build()
+            val task = project.tasks.register(
+                "generateSiteFromIntentionTree",
+                GenerateSiteFromIntentionTask::class.java
+            ).get()
+
+            task.llmService = fakeLlm
+            task.targetDir = tempDir.resolve("tree-site")
+            task.dslIntention = ScaffoldIntention(
+                description = "Formation FPA",
+                siteType = ScaffoldSiteType.FORMATION,
+                projectName = "ma-formation"
+            )
+
+            task.executeGenerate()
+
+            val siteYml = tempDir.resolve("tree-site/site.yml")
+            assertTrue(siteYml.exists(), "site.yml must be created")
+            val content = siteYml.readText()
+            assertTrue(content.contains("tree:"), "site.yml must contain tree section")
+            assertTrue(content.contains("type: site"), "tree must contain type discriminator")
+            assertTrue(content.contains("modules/intro"), "tree must contain article paths")
+            assertTrue(content.contains("modules/avance"), "tree must contain all articles")
+        }
+
+        @Test
         fun `task throws when no LlmService injected`() {
             val project = ProjectBuilder.builder().withProjectDir(tempDir).build()
             val task = project.tasks.register(

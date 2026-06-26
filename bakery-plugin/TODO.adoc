@@ -1,7 +1,7 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-06-25 — Session 166 (BKY-TREE-1+2+3+4 — 18 pts, 57 UT GREEN)_
+_Dernière mise à jour : 2026-06-27 — Session 168 (BKY-TREE-7 — 5 pts, EPIC BKY-TREE clôture 36/36, 99 UT + 186 BDD GREEN)_
 
 * [x] Implementer la generation du code client Firebase dans les templates (→ BKY-JB-4, session 032)
 * [x] Ajouter une vraie Firebase API key quand disponible (→ EPIC 4, formalité restante côté consommateur cheroliv.com)
@@ -18,17 +18,18 @@ _Dernière mise à jour : 2026-06-25 — Session 166 (BKY-TREE-1+2+3+4 — 18 pt
 
 == Restant
 
-_30/30 EPICs historiques + 24/24 code smells résolus. EPIC BKY-TREE en cours._
+_30/30 EPICs historiques + 24/24 code smells résolus. EPIC BKY-TREE CLOS (36/36 pts). Backlog vide — bakery production-ready._
 
-== NOUVEAU — EPIC BKY-TREE (Session 165-166)
+== NOUVEAU — EPIC BKY-TREE (Session 165-168) — CLOS 36/36
 
 * [x] **BKY-TREE-1** : SiteNode sealed interface + Site/Section/Article ✅ S166
 * [x] **BKY-TREE-2** : SiteTree aggregate + visiteurs (walk/filter/findSubtree) ✅ S166
 * [x] **BKY-TREE-3** : Content wrapper sur PivotModel ✅ S166
 * [x] **BKY-TREE-4** : YAML serialization tree: section ✅ S166
-* [ ] **BKY-TREE-5** : Theme inheritance — site → section → article (5 pts, S167)
-* [ ] **BKY-TREE-6** : i18n migration par sous-arbre (8 pts, S167)
-* [ ] **BKY-TREE-7** : Scaffold IA retourne un arbre (5 pts, S168)
+* [x] **BKY-TREE-5** : Theme inheritance — site → section → article (5 pts) ✅ S167
+* [x] **BKY-TREE-6** : i18n migration par sous-arbre (8 pts) ✅ S167
+* [x] **BKY-TREE-7** : Scaffold IA retourne un arbre (5 pts) ✅ S168
+* [ ] **BKY-TREE-7** : Scaffold IA retourne un arbre (5 pts) ✅ S168
 
 == NOUVEAU — Code Review V5 (Session 117, 60 smells)
 

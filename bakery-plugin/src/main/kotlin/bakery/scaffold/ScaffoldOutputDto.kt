@@ -1,5 +1,7 @@
 package bakery.scaffold
 
+import bakery.tree.SiteNodeDto
+
 /**
  * DTO intermediaire pour le parsing Jackson de la reponse LLM.
  *
@@ -10,12 +12,17 @@ package bakery.scaffold
  * le parsing regex maison).
  *
  * Champs optionnels pour supporter les reponses partielles du LLM.
+ *
+ * TREE-7 : `tree` (optionnel) — structure hierarchique JSON retournee par
+ * le LLM (SiteNodeDto polymorphic). Backward compat : `tree` absent = null,
+ * `templates` liste plate reste acceptee.
  */
 internal data class ScaffoldOutputDto(
     val siteType: String? = null,
     val projectName: String? = null,
     val description: String? = null,
     val templates: List<String>? = null,
+    val tree: SiteNodeDto? = null,
     val metadata: ScaffoldMetadataDto? = null
 )
 

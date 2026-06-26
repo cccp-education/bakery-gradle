@@ -1,6 +1,10 @@
 package bakery.scaffold
 
 import bakery.llm.LlmService
+import bakery.tree.SiteNode
+import bakery.tree.SiteNodeDto
+import bakery.tree.flattenTemplates
+import bakery.tree.toDomain
 import bakery.util.slugify
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -33,6 +37,9 @@ class ScaffoldGenerator {
      *
      * Demande explicitement du JSON structure avec les champs obligatoires
      * pour permettre un parsing fiable.
+     *
+     * TREE-7 : le prompt demande une structure hierarchique `tree` (Site→
+     * Section→Article) en plus de la liste plate `templates` (backward compat).
      */
     internal fun buildPrompt(intention: ScaffoldIntention): String = """
         Tu es un expert en architecture de sites statiques JBake.
@@ -53,7 +60,26 @@ class ScaffoldGenerator {
           "siteType": "blog",
           "projectName": "mon-site",
           "description": "Description concise du site",
-          "templates": ["blog.thyme", "post.thyme", "page.thyme"],
+          "tree": {
+            "type": "site",
+            "path": "",
+            "sections": [
+              {
+                "type": "section",
+                "path": "blog",
+                "articles": [
+                  {"type": "article", "path": "blog/premier-article"}
+                ]
+              },
+              {
+                "type": "section",
+                "path": "pages",
+                "articles": [
+                  {"type": "article", "path": "pages/a-propos"}
+                ]
+              }
+            ]
+          },
           "metadata": {
             "title": "Titre du site",
             "description": "Description pour les metadonnees",
@@ -66,7 +92,11 @@ class ScaffoldGenerator {
         CONSIGNES :
         - Le champ siteType DOIT etre un des types listes ci-dessus
         - Le champ projectName DOIT etre un slug URL-friendly (minuscules, tirets)
-        - Le champ templates DOIT contenir uniquement des templates du type choisi
+        - Le champ tree DOIT contenir une structure hierarchique Site→Section→Article
+        - Chaque noeud tree DOIT avoir un champ "type" : "site", "section" ou "article"
+        - Le champ tree.path du site racine DOIT etre une chaine vide
+        - Chaque section DOIT avoir un path relatif unique (ex "blog", "formations")
+        - Chaque article DOIT avoir un path relatif prefixe par sa section (ex "blog/intro")
         - Le champ metadata.title DOIT etre clair et descriptif
         - Le champ metadata.tags DOIT contenir 3 a 5 tags pertinents
         - Reponds UNIQUEMENT avec le JSON, sans texte avant ou apres
@@ -112,6 +142,10 @@ class ScaffoldGenerator {
      *
      * Remplace l'ancien parsing regex maison (CS-3) par jacksonObjectMapper
      * avec FAIL_ON_UNKNOWN_PROPERTIES=false pour la tolérance.
+     *
+     * TREE-7 : si `tree` present, derive `templates` via [flattenTemplates]
+     * (tree prioritaire sur templates liste plate). Si `tree` absent, fallback
+     * `templates` legacy (backward compat).
      */
     private fun parseJsonOutput(json: String, intention: ScaffoldIntention): ScaffoldOutput {
         val mapper = jacksonObjectMapper()
@@ -133,10 +167,15 @@ class ScaffoldGenerator {
 
         val description = dto.description ?: intention.description
 
-        val templates = dto.templates
-            ?.filter { it.isNotBlank() }
-            ?.ifEmpty { null }
-            ?: defaultTemplatesFor(siteType)
+        val tree: SiteNode? = dto.tree?.toDomain()
+
+        val templates = when {
+            tree != null -> tree.flattenTemplates().ifEmpty { defaultTemplatesFor(siteType) }
+            else -> dto.templates
+                ?.filter { it.isNotBlank() }
+                ?.ifEmpty { null }
+                ?: defaultTemplatesFor(siteType)
+        }
 
         val metadata = dto.metadata
 
@@ -145,6 +184,7 @@ class ScaffoldGenerator {
             projectName = projectName,
             description = description,
             templates = templates,
+            tree = tree,
             metadata = ScaffoldMetadata(
                 title = metadata?.title?.takeIf { it.isNotBlank() } ?: projectName,
                 description = metadata?.description?.takeIf { it.isNotBlank() } ?: description,

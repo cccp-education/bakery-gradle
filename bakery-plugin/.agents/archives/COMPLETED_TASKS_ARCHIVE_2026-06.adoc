@@ -1,5 +1,38 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 168 — 2026-06-27 — BKY-TREE-7 : Scaffold IA retourne un arbre (5 pts, clôture EPIC 36/36)
+
+**Contexte** : Clôture EPIC BKY-TREE. Le scaffold IA retournait une liste plate
+`templates: List<String>`. TREE-7 introduit `tree: SiteNode?` (arbre hiérarchique
+Site→Section→Article) avec backward compat via adapter flatten. 3 sessions au
+lieu de 4 projetées. Méthode baby step DDD/TDD/BDD préservée.
+
+=== BKY-TREE-7 — Scaffold IA retourne un arbre (5 pts) ✅
+
+* `src/main/kotlin/bakery/scaffold/ScaffoldOutput.kt` — ajout champ
+  `tree: SiteNode? = null` (null=legacy, présent=arbre hiérarchique).
+* `src/main/kotlin/bakery/scaffold/ScaffoldOutputDto.kt` — ajout champ
+  `tree: SiteNodeDto? = null` (parsing Jackson polymorphic).
+* `src/main/kotlin/bakery/scaffold/ScaffoldGenerator.kt` — `buildPrompt` demande
+  `tree` hiérarchique avec type discriminator + exemple JSON. `parseJsonOutput` :
+  tree → `flattenTemplates()` dérive templates (tree prioritaire sur legacy).
+* `src/main/kotlin/bakery/scaffold/GenerateSiteFromIntentionTask.kt` —
+  `buildSiteYml` sérialise `tree:` section via `SiteTreeYaml.serialize()`.
+* `src/main/kotlin/bakery/tree/ScaffoldTreeAdapter.kt` (NOUVEAU) —
+  `flattenTemplates()` : tree → liste plate (article path + `.thyme`). Domaine
+  pur, zero I/O.
+* `src/test/kotlin/bakery/scaffold/ScaffoldTreeAdapterTest.kt` — 6 UT GREEN.
+* `src/test/kotlin/bakery/scaffold/ScaffoldOutputDtoTreeTest.kt` — 4 UT GREEN.
+* `src/test/kotlin/bakery/scaffold/ScaffoldGeneratorTreeTest.kt` — 9 UT GREEN.
+* `src/test/kotlin/bakery/scaffold/ScaffoldGeneratorTest.kt` — +4 UT (tree).
+* `src/test/kotlin/bakery/scaffold/GenerateSiteFromIntentionTaskTest.kt` — +1 UT.
+* `src/test/features/45_scaffold_tree.feature` — 5 scénarios BDD (22 steps).
+* `src/test/scenarios/bakery/scenarios/ScaffoldTreeSteps.kt` — 10 step defs.
+
+**Total** : 19 nouveaux UT + 4 étendus + 1 UT task + 5 BDD (22 steps).
+99 UT tree + 186 BDD steps tree (features 39→45) tous GREEN.
+EPIC BKY-TREE clos : 36/36 pts, 3 sessions (S166→S168).
+
 == Session 167 — 2026-06-26 — BKY-TREE-5+6 : Theme Inheritance + i18n par sous-arbre (13 pts)
 
 **Contexte** : Suite de S166 (TREE-1→4, socle domaine pur). Cette session

@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-06-26 — Session 167 BKY-TREE-5+6 livrés (13 pts, 80 UT GREEN). ThemeResolver (héritage + override total + orphelins) + SubtreeI18nPlanner (delta par sous-arbre + idempotence + backward compat). 31/36 pts EPIC (86%). Bugs features 39/41 corrigés + DuplicateStepDefinition résolu + TreeCucumberTestRunner ajouté._
-_Session en cours_ : 167 terminée — 2 US livrées (TREE-5+6). `ThemeResolver.kt` (effectiveTheme, resolveAll, ancestorChain, orphelins). `SubtreeI18nPlanner.kt` (computeDelta, I18nDelta, ArticleModification, Loi Économie d'Encre par feuille). 23 nouveaux UT (12+11). 14 nouveaux scénarios BDD (8+6). Bugs préexistants features 39/41 corrigés (steps singulier/pluriel). DuplicateStepDefinition résolu (fusion steps). `TreeCucumberTestRunner` isole features tree. 80/80 UT tree + 42/42 BDD tree GREEN. `publishToMavenLocal` OK.
-_Prochaine session_ : 168 — BKY-TREE-7 (Scaffold IA retourne un arbre, 5 pts, clôture EPIC 36/36). Adapter flatten backward compat + LLM prompt JSON hiérarchique + feature Cucumber bout en bout.
+_Derniere mise a jour : 2026-06-27 — Session 168 BKY-TREE-7 livré (5 pts, EPIC BKY-TREE clôture 36/36). ScaffoldOutput.tree: SiteNode? (additif). ScaffoldTreeAdapter flattenTemplates domaine pur. buildPrompt demande tree hiérarchique. buildSiteYml sérialise tree: section. 19 UT + 5 BDD (22 steps) GREEN. 99 UT tree + 186 BDD steps tree (features 39→45) tous GREEN._
+_Session en cours_ : 168 terminée — BKY-TREE-7 livré (5 pts). `ScaffoldOutput.tree: SiteNode?` (null=legacy, présent=arbre). `ScaffoldTreeAdapter.kt` (nouveau) `flattenTemplates()` domaine pur. `ScaffoldGenerator` buildPrompt + parseJsonOutput tree→flatten (tree prioritaire). `GenerateSiteFromIntentionTask.buildSiteYml` sérialise `tree:`. 19 nouveaux UT (6 adapter + 4 DTO + 9 generator) + 4 UT existants étendus + 1 UT task. 5 scénarios BDD Feature 45 (22 steps). EPIC BKY-TREE clos : 36/36 pts, 99 UT + 186 BDD steps, 3 sessions (S166→S168). Backward compat préservée._
+_Prochaine session_ : 169 — Backlog vide, bakery production-ready. Options : publication 0.0.3, nouvel EPIC (MVP0 Graal), ou maintenance bugs GradleRunner préexistants.
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 168 | 2026-06-27 | DDD + TDD + BDD | **BKY-TREE-7 — Scaffold IA retourne un arbre (5 pts, clôture EPIC 36/36)** — `ScaffoldOutput.tree: SiteNode?` (additif, null=legacy). `ScaffoldTreeAdapter.kt` (nouveau) `flattenTemplates()` domaine pur zero I/O. `ScaffoldGenerator` buildPrompt demande `tree` hiérarchique (type discriminator) + parseJsonOutput tree→flatten (tree prioritaire). `GenerateSiteFromIntentionTask.buildSiteYml` sérialise `tree:` section. `ScaffoldOutputDto.tree: SiteNodeDto?`. 19 nouveaux UT (6 adapter + 4 DTO + 9 generator) + 4 UT existants étendus + 1 UT task. 5 scénarios BDD (22 steps) Feature 45. 99 UT tree + 186 BDD steps tree (features 39→45) tous GREEN. Backward compat (tree absent=legacy, tree présent=tree wins). EPIC clos en 3 sessions (projection 4). | 9/10
   | 167 | 2026-06-26 | DDD + TDD + BDD | **BKY-TREE-5+6 — Theme inheritance + i18n par sous-arbre (13 pts)** — 2 US livrées. TREE-5 : `ThemeResolver` (effectiveTheme, ancestorChain, override total replacement, orphelins rejetés, resolveAll, 12 UT). TREE-6 : `SubtreeI18nPlanner` (computeDelta par sous-arbre, I18nDelta/ArticleModification, idempotence Loi Économie d'Encre par feuille, backward compat liste plate, 11 UT). 3 bugs corrigés : features 39/41 steps singulier/pluriel manquants + DuplicateStepDefinition (fusion SubtreeI18nDeltaSteps→ThemeResolverSteps). `TreeCucumberTestRunner` isole features @tree des échecs préexistants. 80/80 UT tree + 42/42 BDD tree GREEN. publishToMavenLocal OK. 31/36 pts EPIC (86%). | 9/10
   | 166 | 2026-06-25 | DDD + TDD + BDD | **BKY-TREE-1+2+3+4 — SiteNode + SiteTree + Content + YAML (18 pts)** — 4 US livrées en 1 session. TREE-1 : `SiteNode` sealed interface (Site/Section/Article, identity par path, 14 UT). TREE-2 : `SiteTree` aggregate (walk pre/post-order, filter, leaves, findByPath, findSubtree, visit, 17 UT). TREE-3 : `Content` wrapper sur PivotArticle (blocs/inlineTexts/translatableSegments, Article.content optional, 13 UT). TREE-4 : `SiteNodeDto` + `SiteTreeYaml` (Jackson polymorphic DTO, round-trip déterministe, `type:` discriminator, content @JsonIgnore, 13 UT). 57/57 UT GREEN. 4 features Cucumber (28 scénarios) + 4 step files. Anglais imposé. Backward compat préservée. | 9/10
   | 165 | 2026-06-25 | vérification + investigation + cadrage | **koverThresholdCheck PASS + Cadrage EPIC BKY-TREE** — (1) `./gradlew koverThresholdCheck` BUILD SUCCESSFUL 6m28s, instruction coverage 92,90%. (2) Investigation i18n prod : fixtures `.thyme` 100% alignées (SHA-256) pour 3 sites, gaps identifiés (`jbake.properties` diverge, `assets/`/`content/` absents fixtures), prod = zéro migration. (3) Cadrage EPIC BKY-TREE — concept unifiant `SiteTree` (Composite Site→Section→Article→PivotModel AST) manquant. 7 US (TREE-1→7), ~36 pts, 4 sessions projetées (S166→S169). Backlog rouvert. Détail dans `BACKLOG.adoc`. Aucun code source modifié. | 8/10
@@ -221,12 +222,12 @@ pts, 4 sessions projetées (S166→S169). Détail dans `BACKLOG.adoc`._
 | *BKY-TREE-4* | YAML serialization — `tree:` section dans `site.yml` | 5 | *✅ S166 TERMINÉ*
 | *BKY-TREE-5* | Theme inheritance — site → section → article, override explicite | 5 | *✅ S167 TERMINÉ*
 | *BKY-TREE-6* | i18n migration par sous-arbre (Loi Économie d'Encre par feuille) | 8 | *✅ S167 TERMINÉ*
-| *BKY-TREE-7* | Scaffold IA retourne un arbre (pas une liste plate) | 5 | *🟠 S168 À FAIRE*
+| *BKY-TREE-7* | Scaffold IA retourne un arbre (pas une liste plate) | 5 | *✅ S168 TERMINÉ*
 |===
 
 _Projection_ : ~~S166 TREE-1+2 (socle)~~ ✅, ~~S167 TREE-3+4 (AST+YAML)~~ ✅
-(avance sur projection), ~~S167 TREE-5+6 (theme+i18n)~~ ✅, S168 TREE-7
-(scaffold, clôture EPIC). 31/36 pts livrés (86%).
+(avance sur projection), ~~S167 TREE-5+6 (theme+i18n)~~ ✅, ~~S168 TREE-7
+(scaffold, clôture EPIC)~~ ✅. **36/36 pts livrés (100%). EPIC BKY-TREE CLOS.**
 
 === Code Smells — 24/24 ✅ résolus + 60 nouveaux V5
 
@@ -245,7 +246,7 @@ _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
 | Projet | Repertoire | Session en cours | Derniere MAJ
   | magic-stick | `~/workspace/foundry/public/magic-stick` | 014 | 2026-05-11
   | plantuml-gradle | `~/workspace/foundry/public/plantuml-gradle/plantuml-plugin` | 148 | 2026-06-11
-  | bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 167 | 2026-06-26
+  | bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 168 | 2026-06-27
   | jhipster-gradle-plugins | `~/workspace/foundry/public/jhipster-gradle-plugins` | 9 | 2026-06-11
   | quizz-benchmark-gradle | `~/workspace/foundry/private/quizz-benchmark-gradle/quizz-benchmark-plugin` | Audit 053 | 2026-04-30
   | runner-gradle | `~/workspace/foundry/public/runner-gradle` | 029 | 2026-05-12

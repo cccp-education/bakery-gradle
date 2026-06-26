@@ -1,10 +1,12 @@
 package bakery.scaffold
 
 import bakery.llm.FakeLlmService
+import bakery.tree.SiteNode
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 /**
@@ -236,6 +238,23 @@ class ScaffoldGeneratorTest {
         assertTrue(prompt.contains("post.thyme"), "Must list post template")
     }
 
+    @Test
+    fun `buildPrompt requests tree hierarchy with type discriminator`() {
+        val generator = ScaffoldGenerator()
+        val intention = ScaffoldIntention(
+            description = "Formation FPA",
+            siteType = ScaffoldSiteType.FORMATION
+        )
+        val prompt = generator.buildPrompt(intention)
+
+        assertTrue(prompt.contains("\"tree\""), "Prompt must mention tree field")
+        assertTrue(prompt.contains("\"type\""), "Prompt must mention type discriminator")
+        assertTrue(prompt.contains("\"site\""), "Prompt must mention site type")
+        assertTrue(prompt.contains("\"section\""), "Prompt must mention section type")
+        assertTrue(prompt.contains("\"article\""), "Prompt must mention article type")
+        assertTrue(prompt.contains("Site→Section→Article"), "Prompt must explain tree hierarchy")
+    }
+
     // ── extractJson ──────────────────────────────────────────────────────
 
     @Test
@@ -337,6 +356,129 @@ class ScaffoldGeneratorTest {
         val output = generator.generate(intention, fakeLlm)
 
         assertEquals("mon-super-blog", output.projectName, "Must slugify description as fallback projectName")
+    }
+
+    // ── TREE-7: Scaffold IA returns tree ─────────────────────────────────
+
+    @Test
+    fun `generate produces ScaffoldOutput with tree when LLM returns tree`() = runBlocking {
+        val json = """
+            {
+              "siteType": "formation",
+              "projectName": "ma-formation",
+              "description": "Formation FPA",
+              "tree": {
+                "type": "site",
+                "path": "",
+                "sections": [
+                  {
+                    "type": "section",
+                    "path": "modules",
+                    "articles": [
+                      {"type": "article", "path": "modules/intro"},
+                      {"type": "article", "path": "modules/avance"}
+                    ]
+                  }
+                ]
+              }
+            }
+        """.trimIndent()
+        val fakeLlm = FakeLlmService(json)
+        val generator = ScaffoldGenerator()
+        val intention = ScaffoldIntention(description = "Formation", siteType = ScaffoldSiteType.FORMATION)
+
+        val output = generator.generate(intention, fakeLlm)
+
+        assertNotNull(output.tree)
+        assertTrue(output.tree is SiteNode.Site)
+        val site = output.tree as SiteNode.Site
+        assertEquals(1, site.sections.size)
+        assertEquals("modules", site.sections.first().path)
+        assertEquals(2, site.sections.first().articles.size)
+    }
+
+    @Test
+    fun `generate derives templates from tree when tree is present`() = runBlocking {
+        val json = """
+            {
+              "siteType": "blog",
+              "projectName": "mon-blog",
+              "description": "Blog",
+              "tree": {
+                "type": "site",
+                "path": "",
+                "sections": [
+                  {
+                    "type": "section",
+                    "path": "articles",
+                    "articles": [
+                      {"type": "article", "path": "articles/a"},
+                      {"type": "article", "path": "articles/b"}
+                    ]
+                  }
+                ]
+              }
+            }
+        """.trimIndent()
+        val fakeLlm = FakeLlmService(json)
+        val generator = ScaffoldGenerator()
+        val intention = ScaffoldIntention(description = "Blog", siteType = ScaffoldSiteType.BLOG)
+
+        val output = generator.generate(intention, fakeLlm)
+
+        assertEquals(listOf("articles/a.thyme", "articles/b.thyme"), output.templates)
+    }
+
+    @Test
+    fun `generate sets tree to null when LLM response has no tree`() = runBlocking {
+        val json = """
+            {
+              "siteType": "blog",
+              "projectName": "mon-blog",
+              "description": "Blog",
+              "templates": ["blog.thyme", "post.thyme"]
+            }
+        """.trimIndent()
+        val fakeLlm = FakeLlmService(json)
+        val generator = ScaffoldGenerator()
+        val intention = ScaffoldIntention(description = "Blog", siteType = ScaffoldSiteType.BLOG)
+
+        val output = generator.generate(intention, fakeLlm)
+
+        assertNull(output.tree)
+    }
+
+    @Test
+    fun `generate uses tree over legacy templates when both are present`() = runBlocking {
+        val json = """
+            {
+              "siteType": "blog",
+              "projectName": "mon-blog",
+              "description": "Blog",
+              "templates": ["legacy.thyme"],
+              "tree": {
+                "type": "site",
+                "path": "",
+                "sections": [
+                  {
+                    "type": "section",
+                    "path": "docs",
+                    "articles": [
+                      {"type": "article", "path": "docs/intro"}
+                    ]
+                  }
+                ]
+              }
+            }
+        """.trimIndent()
+        val fakeLlm = FakeLlmService(json)
+        val generator = ScaffoldGenerator()
+        val intention = ScaffoldIntention(description = "Blog", siteType = ScaffoldSiteType.BLOG)
+
+        val output = generator.generate(intention, fakeLlm)
+
+        assertNotNull(output.tree)
+        assertEquals(listOf("docs/intro.thyme"), output.templates)
     }
 
     @Test

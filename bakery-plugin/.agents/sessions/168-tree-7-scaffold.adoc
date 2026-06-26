@@ -1,0 +1,99 @@
+= Session 168 — BKY-TREE-7 : Scaffold IA retourne un arbre (5 pts, clôture EPIC)
+:session: 168
+:date: 2026-06-27
+:epic: BKY-TREE
+:method: DDD + TDD + BDD — baby steps
+
+== Objectif
+
+Clôture EPIC BKY-TREE (36/36 pts). US TREE-7 : `ScaffoldOutput.tree: SiteNode`
+au lieu de `templates: List<String>`. Adapter flatten pour backward compat. LLM
+prompt mis à jour pour retourner structure hiérarchique JSON. Feature Cucumber
+bout en bout.
+
+== Livrables
+
+=== Code production (4 fichiers modifiés, 1 créé)
+
+* `src/main/kotlin/bakery/scaffold/ScaffoldOutput.kt` — ajout champ
+  `tree: SiteNode? = null`. Null = legacy (templates liste plate). Présent =
+  arbre hiérarchique Site→Section→Article. Backward compat : `tree` est additif.
+* `src/main/kotlin/bakery/scaffold/ScaffoldOutputDto.kt` — ajout champ
+  `tree: SiteNodeDto? = null` pour parsing Jackson polymorphic (SiteNodeDto
+  déjà existant S166).
+* `src/main/kotlin/bakery/scaffold/ScaffoldGenerator.kt` — (1) `buildPrompt`
+  mis à jour : demande structure hiérarchique `tree` (Site→Section→Article)
+  avec `type` discriminator, exemple JSON complet. (2) `parseJsonOutput` :
+  si `tree` présent → `dto.tree.toDomain()` + `tree.flattenTemplates()` dérive
+  `templates` (tree prioritaire). Si `tree` absent → fallback `templates`
+  legacy. (3) `fallbackOutput` : `tree` null, `templates` default.
+* `src/main/kotlin/bakery/scaffold/GenerateSiteFromIntentionTask.kt` —
+  `buildSiteYml` sérialise `tree:` section via `SiteTreeYaml.serialize(it)`
+  quand `output.tree` est présent. Indentation 2 espaces. Backward compat :
+  pas de `tree:` section si `output.tree` null.
+* `src/main/kotlin/bakery/tree/ScaffoldTreeAdapter.kt` (NOUVEAU) —
+  `flattenTemplates()` : tree → liste plate de templates (article path +
+  `.thyme`). Domaine pur, zero I/O, testable sans Gradle. Convention :
+  `blog/hello` → `blog/hello.thyme`.
+
+=== Tests — baby steps DDD/TDD/BDD
+
+*UT (19 nouveaux, tous GREEN)* :
+
+|===
+| Classe | Tests | Notes
+| ScaffoldTreeAdapterTest | 6 | 3-level tree, empty tree, single article, empty sections, order preservation, thyme extension
+| ScaffoldOutputDtoTreeTest | 4 | DTO without tree → null, DTO with tree → SiteDto, 3-level round-trip, empty sections
+| ScaffoldGeneratorTreeTest | 9 | parse tree, derive templates from tree, fallback templates, tree-only, tree wins over templates, buildPrompt tree, buildPrompt type discriminator, fallback null tree
+|===
+
+*UT existants étendus (PASS)* :
+
+|===
+| Classe | Nouveaux tests | Notes
+| ScaffoldGeneratorTest | +4 | buildPrompt requests tree, generate produces tree, derives templates from tree, tree null no tree, tree over legacy
+| GenerateSiteFromIntentionTaskTest | +1 | task creates site.yml with tree section
+|===
+
+*BDD (5 scénarios, 22 steps, tous GREEN)* :
+
+|===
+| Feature | Scénarios | Steps | Notes
+| `45_scaffold_tree.feature` | 5 | 22 | valid tree 3 levels, adapter flatten 3 articles, backward compat legacy, prompt hierarchical, integrity tree wins
+|===
+
+*Steps* : `src/test/scenarios/bakery/scenarios/ScaffoldTreeSteps.kt` (205 lignes,
+10 step definitions, FakeLlmService pour isolation).
+
+== Validation
+
+* `./gradlew compileKotlin` — SUCCESS
+* `./gradlew test --tests "bakery.scaffold.*"` — 40+ UT PASS (19 nouveaux +
+  existants étendus)
+* `./gradlew cucumberTest` — Feature 45 : 5/5 scénarios PASS (22/22 steps)
+* Features tree (39→45) : 186/186 steps GREEN (TREE-1→7 complet)
+* Échecs préexistants non liés : `connector services has been closed`
+  (infrastructure GradleRunner, features CI/CD cheroliv.com + IA config —
+  déjà documentés S167, non régressifs)
+
+== Total EPIC BKY-TREE (36/36 pts, clôture)
+
+|===
+| US | Pts | Session | UT | BDD
+| TREE-1 SiteNode | 5 | S166 | 14 | 22
+| TREE-2 SiteTree | 5 | S166 | 17 | 33
+| TREE-3 Content | 3 | S166 | 13 | 15
+| TREE-4 YAML | 5 | S166 | 13 | 19
+| TREE-5 Theme | 5 | S167 | 12 | 46
+| TREE-6 i18n subtree | 8 | S167 | 11 | 29
+| TREE-7 Scaffold IA | 5 | S168 | 19 | 22
+| **TOTAL** | **36** | 3 sessions | **99 UT** | **186 BDD steps** |
+|===
+
+== Score session : 9/10
+
+Baby steps DDD/TDD/BDD préservés. Domaine pur (ScaffoldTreeAdapter zero I/O).
+Backward compat testée (tree absent = legacy, tree présent = tree gagne, both
+présents = tree wins). LLM prompt mis à jour avec exemple JSON hiérarchique.
+Clôture EPIC BKY-TREE en 3 sessions (projection initiale 4). Aucun test
+préexistant cassé (échecs infrastructure GradleRunner non régressifs).

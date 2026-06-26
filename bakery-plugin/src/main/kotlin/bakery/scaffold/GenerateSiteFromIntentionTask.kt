@@ -5,6 +5,7 @@ import bakery.intention.ResolveIntention
 import bakery.intention.ResolveIntentionError
 import bakery.llm.LlmService
 import bakery.llm.OllamaLlmService
+import bakery.tree.SiteTreeYaml
 import kotlinx.coroutines.runBlocking
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
@@ -225,7 +226,7 @@ abstract class GenerateSiteFromIntentionTask : DefaultTask() {
      * Construit le contenu du fichier site.yml suggere par l'IA.
      */
     private fun buildSiteYml(output: ScaffoldOutput): String {
-        val yml = mapOf(
+        val yml = mutableMapOf(
             "bake" to mapOf("srcPath" to "site"),
             "site" to mapOf(
                 "title" to output.metadata.title,
@@ -235,6 +236,7 @@ abstract class GenerateSiteFromIntentionTask : DefaultTask() {
                 "tags" to output.metadata.tags.joinToString(", ")
             )
         )
+        val treeYaml = output.tree?.let { SiteTreeYaml.serialize(it) }
         val header = buildString {
             appendLine("# Site genere par bakery-gradle (scaffolding IA)")
             appendLine("# Type : ${output.siteType.label}")
@@ -250,6 +252,16 @@ abstract class GenerateSiteFromIntentionTask : DefaultTask() {
                 appendLine()
             }
         } else ""
-        return header + yamlMapper.writeValueAsString(yml) + "\n" + templatesComment
+        val body = yamlMapper.writeValueAsString(yml) + "\n"
+        val treeSection = if (treeYaml != null) {
+            buildString {
+                appendLine("tree:")
+                treeYaml.lines().forEach { line ->
+                    appendLine("  $line")
+                }
+                appendLine()
+            }
+        } else ""
+        return header + body + treeSection + templatesComment
     }
 }
