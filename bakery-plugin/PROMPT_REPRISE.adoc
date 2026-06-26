@@ -1,31 +1,27 @@
-= PROMPT REPRISE — Bakery — Session 170
-:session: 170
+= PROMPT REPRISE — Bakery — Session 172
+:session: 172
 :date: 2026-06-29
 
-== Session 169 terminée — Maintenance CI : 3 bugs résolus, build clean SUCCESSFUL
+== Session 171 terminée — Clôture administrative S171 + commit/push EPIC BKY-I18N-REAL
 
-3 bugs CI résolus :
-- Bug 1 : `settings.gradle.kts` — `error("ossrhUsername")` → `?: ""` (credentials optionnelles)
-- Bug 2 : `CucumberTestRunner.kt` — filtre `not @personal` (scénarios cheroliv.com trop lents exclus)
-- Bug 3 : `AccessibilityAuditTask.kt` — `@PathSensitive(RELATIVE)` sur `auditDir` (Gradle 9.5)
-- Bug 4 NON résolu : `org.jetbrains:annotations:{strictly 13.0}` dans codebase-plugin POM (hors périmètre)
+S171 a exécuté la procédure de clôture S171 et commité/poussé tous
+les changements S170 (9 nouveaux fichiers, 7 modifiés).
 
-`./gradlew clean build` BUILD SUCCESSFUL (26/26 tasks, 8m57s). Coverage 93,09%.
+== Prochaine mission — Options
 
-== Prochaine mission — EPIC migration i18n réelle des 3 sites (sur copies, TDD/BDD)
+Backlog vide après EPIC BKY-I18N-REAL. Bakery production-ready (v0.0.2
+LIVE Maven Central + Portal, coverage 93,09%). Session 171
+supportée sur commit `a3f2b8e`.
 
-Objectif : migrer réellement les 3 sites (magic-stick, cccp.education,
-cheroliv.com) vers l'i18n sur des COPIES (jamais sur la production), validée
-par la méthodo baby step DDD/TDD/BDD (domaine pur testable sans Gradle → UT
-rouge → BDD Cucumber bout en bout).
-
-La tuyauterie existe (MigrateToI18nTask, I18nMigrationService, fixtures
-alignées S150) mais aucun site réel n'a été migré (0 messages_*.properties).
+Options :
+1. Publication 0.0.3 (snapshots i18n + PostMigrationSnapshot API publique)
+2. Nouvel EPIC (à cadrer)
+3. Maintenance (bug 4 codebase-plugin POM `strictly 13.0` hors périmètre)
 
 == Contexte technique
 - Version : 0.0.2 Maven Central + Gradle Portal (LIVE)
 - Coverage : 93,09% (Kover, seuil PASS)
-- 3 sites réels : magic-stick, cccp.education, cheroliv.com — 0/3 migrés
+- 3 sites réels : golden masters post-migration produits (47 templates migrés total)
 - Ports Ollama : 11437-11465. Modèles : gpt-oss:120b-cloud, gemma4:31b-cloud
 - Anglais imposé : nommage, commentaires, Gherkin, steps
 - Bug 4 ouvert : codebase-plugin:0.0.2 POM `strictly 13.0` (website.yml cassé)

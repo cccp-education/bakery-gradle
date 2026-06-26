@@ -1,7 +1,7 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-06-27 — Session 168 (BKY-TREE-7 — 5 pts, EPIC BKY-TREE clôture 36/36, 99 UT + 186 BDD GREEN)_
+_Dernière mise à jour : 2026-06-29 — Session 171 (Clôture S171 + commit/push EPIC BKY-I18N-REAL. Backlog vide.)_
 
 * [x] Implementer la generation du code client Firebase dans les templates (→ BKY-JB-4, session 032)
 * [x] Ajouter une vraie Firebase API key quand disponible (→ EPIC 4, formalité restante côté consommateur cheroliv.com)
@@ -18,7 +18,16 @@ _Dernière mise à jour : 2026-06-27 — Session 168 (BKY-TREE-7 — 5 pts, EPIC
 
 == Restant
 
-_30/30 EPICs historiques + 24/24 code smells résolus. EPIC BKY-TREE CLOS (36/36 pts). Backlog vide — bakery production-ready._
+_30/30 EPICs historiques + 24/24 code smells résolus. EPIC BKY-TREE CLOS (36/36 pts). EPIC BKY-I18N-REAL CLOS (24/24 pts). Backlog vide — bakery production-ready._
+
+== NOUVEAU — EPIC BKY-I18N-REAL (Session 170) — CLOS 24/24
+
+* [x] **BKY-I18N-REAL-1** : PostMigrationSnapshot pure domain (DDD, 13 UT) ✅ S170
+* [x] **BKY-I18N-REAL-2** : PostMigrationSnapshotLoader (I/O isolated, 8 UT) ✅ S170
+* [x] **BKY-I18N-REAL-3** : Golden master test TDD red→green (3 sites) ✅ S170
+* [x] **BKY-I18N-REAL-4** : Produce 3 post-migration snapshots (magic-stick 12, cccp 11, cheroliv 24) ✅ S170
+* [x] **BKY-I18N-REAL-5** : BDD Cucumber feature 46 (6 scenarios @i18n-real) ✅ S170
+* [x] **BKY-I18N-REAL-6** : Idempotence Ink Economy Law (3 sites, 0 keys re-extracted) ✅ S170
 
 == NOUVEAU — EPIC BKY-TREE (Session 165-168) — CLOS 36/36
 

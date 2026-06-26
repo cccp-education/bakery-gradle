@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-06-25 — Session 166 BKY-TREE-1+2+3+4 : 57 nouveaux UT tree package (SiteNode 14 + SiteTree 17 + Content 13 + SiteTreeYaml 13). 4 features Cucumber (28 scénarios). Coverage non re-mesurée (koverThresholdCheck 92,90% S165)._
+_Dernière mise à jour : 2026-06-29 — Session 171 Clôture. S170 changements commités (27 UT snapshot + 6 BDD @i18n-real). Aucun nouveau test en S171. Coverage inchangée (93,09% S169)._
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''

@@ -1,0 +1,155 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- =============================================================================================================== -->
+<!-- Footer -->
+<!-- =============================================================================================================== -->
+<div th:fragment="footer">
+    <!-- Footer -->
+    <footer class="enhanced-footer">
+        <div class="container">
+            <div class="row">
+                <!-- Brand Section -->
+                <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+                    <h5 class="fw-bold">
+                        <i class="bi bi-code-slash me-2"></i>
+                        CHEROLIV
+                    </h5>
+                    <p class="footer-description">
+                        Développeur formateur spécialisé en ingénierie pédagogique.
+                        Conception de solutions e-learning innovantes pour transformer l'apprentissage.
+                    </p>
+                    <div class="social-icons">
+                        <a href="https://github.com/cheroliv" target="_blank" aria-label="GitHub">
+                            <i class="fab fa-github"></i>
+                        </a>
+                        <!--                        <a href="#"                         <!--                        <a href="#" th:attr="aria-label=#{footer.1}" aria-label="LinkedIn">-->>-->
+                        <!--                            <i class="fab fa-linkedin-in"></i>-->
+                        <!--                        </a>-->
+                        <!--                        <a href="#"                         <!--                        <a href="#" th:attr="aria-label=#{footer.2}" aria-label="Twitter">-->>-->
+                        <!--                            <i class="fab fa-twitter"></i>-->
+                        <!--                        </a>-->
+                        <a href="feed.xml"                         <a href="feed.xml" th:attr="aria-label=#{footer.3}" aria-label="RSS Feed">>
+                            <i class="fas fa-rss"></i>
+                        </a>
+                        <a th:href="${content.rootpath} + 'index.html#contact'"                         <a th:href="${content.rootpath} + 'index.html#contact'" th:attr="aria-label=#{footer.4}" aria-label="Contact">>
+                            <i class="fas fa-paper-plane"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+                    <h6 class="fw-bold" th:text="#{footer.5}">Navigation</h6>
+                    <ul class="footer-links">
+                        <li><a th:href="${content.rootpath} + 'index.html'"><i class="bi bi-chevron-right"></i>Accueil</a></li>
+                        <!--                        <li><a th:href="${content.rootpath} + 'index.html#about'"><i class="bi bi-chevron-right"></i>À propos</a></li>-->
+<!--                        <li><a th:href="${content.rootpath} + 'index.html#services'"><i class="bi bi-chevron-right"></i>Services</a></li>-->
+                        <!--                        <li><a th:href="${content.rootpath} + 'index.html#portfolio'"><i class="bi bi-chevron-right"></i>Portfolio</a></li>-->
+                        <li><a th:href="${content.rootpath} + 'blog.html'"><i class="bi bi-chevron-right"></i>Blog</a></li>
+                    </ul>
+                </div>
+
+                <!-- Resources -->
+                <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+                    <h6 class="fw-bold" th:text="#{footer.6}">Ressources</h6>
+                    <ul class="footer-links">
+                        <!--                        <li><a th:href="${content.rootpath} + 'index.html#formations'"><i class="bi bi-book"></i>Formations</a></li>-->
+<!--                        <li><a th:href="${content.rootpath} + 'blog.html'"><i class="bi bi-journal-text"></i>Articles</a></li>-->
+                        <li><a th:href="${content.rootpath} + 'archive.html'"><i class="bi bi-archive"></i>Archives</a></li>
+<!--                        <li><a><i class="bi bi-journal-bookmark"></i>Mémos</a></li>-->
+                        <li><a th:href="@{'https://pages-content.github.io/slides/'}" target="_blank"><i class="fa-regular fa-file-powerpoint"></i> slides</a></li>
+                        <li><a th:href="@{'https://talaria-formation.github.io/formations/index.html'}" target="_blank"><i class="fa-solid fa-graduation-cap"></i> trainings</a></li>
+                        <li><a th:href="@{'https://cheroliv.com/magic-stick/'}" target="_blank"><i class="fa-brands fa-linux"></i> clé bootable</a></li>
+                        <!--                        <li><a href="#"><i class="bi bi-file-earmark-pdf"></i>Documentation</a></li>-->
+                        <!--                        <li><a href="#"><i class="bi bi-youtube"></i>Tutoriels vidéo</a></li>-->
+                    </ul>
+                </div>
+
+                <!-- Contact Section -->
+<!--                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">-->
+<!--                    <h6 class="fw-bold" th:text="#{footer.7}">Me contacter</h6>-->
+<!--                    <p class="mb-3" th:text="#{footer.8}">Une question ? Un projet ? N'hésitez pas à me contacter.</p>-->
+<!--                    <ul class="contact-info">-->
+<!--                        <li>-->
+<!--                            <i class="bi bi-envelope-fill"></i>-->
+<!--                            <a th:href="${content.rootpath} + 'index.html#contact'">-->
+<!--                                Formulaire de contact-->
+<!--                            </a>-->
+<!--                        </li>-->
+<!--                        <li>-->
+<!--                            <i class="bi bi-clock-fill"></i>-->
+<!--                            <span th:text="#{footer.9}">Réponse sous 24-48h</span>-->
+<!--                        </li>-->
+<!--                    </ul>-->
+<!--                </div>-->
+
+                <!-- Location Section -->
+                <div class="col-lg-3 col-md-6">
+                    <h6 class="fw-bold" th:text="#{footer.10}">Localisation</h6>
+                    <p class="mb-3" th:text="#{footer.11}">Basé en région parisienne, interventions possibles en France et à distance.</p>
+                    <ul class="contact-info">
+                        <li>
+                            <i class="bi bi-geo-alt-fill"></i>
+                            <span th:text="#{footer.12}">Île-de-France, France</span>
+                        </li>
+                        <li>
+                            <i class="bi bi-globe"></i>
+                            <span th:text="#{footer.13}">Télétravail disponible</span>
+                        </li>
+                        <li>
+                            <i class="bi bi-pin-map-fill"></i>
+                            <span th:text="#{footer.14}">Déplacements en France</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Footer Bottom -->
+            <hr class="footer-divider">
+            <div class="footer-bottom">
+                <p>&copy; 2018-<span th:text="${#dates.year(#dates.createNow())}"></span> Cheroliv. Tous droits réservés.</p>
+                <div class="footer-bottom-links">
+                    <a href="#" th:text="#{footer.15}">Politique de confidentialité</a>
+                    <a href="#" th:text="#{footer.16}">Conditions d'utilisation</a>
+                    <a href="#" th:text="#{footer.17}">Mentions légales</a>
+                    <a href="#" th:text="#{footer.18}">Plan du site</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5.3 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Firebase JS SDK (modular) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "REMPLACER_PAR_VOTRE_API_KEY",
+            authDomain: "REMPLACER_PAR_VOTRE_AUTH_DOMAIN",
+            projectId: "REMPLACER_PAR_VOTRE_PROJECT_ID",
+            storageBucket: "REMPLACER_PAR_VOTRE_STORAGE_BUCKET",
+            messagingSenderId: "REMPLACER_PAR_VOTRE_SENDER_ID",
+            appId: "REMPLACER_PAR_VOTRE_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.__FIREBASE__ = { db, collection, addDoc, serverTimestamp };
+    </script>
+    <!-- highlight.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/go.min.js"></script>
+    <script>hljs.highlightAll();</script>
+    <!-- intl-tel-input JS -->
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@25.10.1/build/js/intlTelInput.min.js"></script>
+    <!-- Custom JS -->
+    <script th:src="@{${content.rootpath} + 'js/script.js'}"></script>
+    <script th:src="@{${content.rootpath} + 'js/contact.js'}"></script>
+</div>
+</body>
+</html>

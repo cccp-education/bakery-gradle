@@ -5,27 +5,29 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-27 — Session 168. BKY-TREE-7 livré (5 pts, 19 UT + 5 BDD GREEN). EPIC BKY-TREE CLOS 36/36 pts (100%). 99 UT tree + 186 BDD steps tree. Backlog vide — bakery production-ready._
+_Dernière mise à jour : 2026-06-29 — Session 171. Clôture S171 + commit/push EPIC BKY-I18N-REAL. Backlog vide — bakery production-ready. Prochaine session : options publication 0.0.3, nouvel EPIC, ou maintenance._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
 [CAUTION]
 ====
-**Bakery est production-ready (S168). EPIC BKY-TREE TERMINÉ — 36/36 pts
-(100%). S166 a livré TREE-1→4 (18/36 pts, 50%). S167 a livré TREE-5+6
-(13 pts, 31/36 = 86%). S168 a livré TREE-7 (5 pts, 36/36 = 100%).
-Concept unifiant `SiteTree` (Composite Site→Section→Article→PivotModel AST)
-livré en 3 sessions (projection 4).**
+**Bakery est production-ready (S170). EPIC BKY-I18N-REAL TERMINÉ — 24/24 pts
+(100%). S170 a livré REAL-1→6 en 1 session (projection 2).
+Golden masters post-migration persistants figent le résultat attendu
+pour les 3 sites (magic-stick 12, cccp 11, cheroliv 24 templates).
+Idempotence (Ink Economy Law) validée sur données réelles.**
 *Publication* : 0.0.2 sur Maven Central (LIVE) + Gradle Plugin Portal (propagation 24-48h).
-*Coverage* : 92,90% (Kover, S165), seuil `koverThresholdCheck` PASS. +99 UT tree (S166→S168).
+*Coverage* : 93,09% (Kover, S169), seuil `koverThresholdCheck` PASS. +27 UT snapshot (S170).
 *Code smells* : 24/24 V2-V4 + 60 V5 + 3 V6 résolus (24/24 V5 via US-1→8, 8/8 V6).
 *Loi de l'Économie d'Encre* : encodée dans bakery + 9 boroughs transverses (S154).
   Implémentée dans bakery (I18nMigrationService delta S153 + generatePivotYaml
-  load-before-write S163 + SubtreeI18nPlanner delta par feuille S167).
+  load-before-write S163 + SubtreeI18nPlanner delta par feuille S167 +
+  PostMigrationIdempotenceTest 3 sites S170).
   9 autres boroughs = gouvernance only (AGENT.adoc).
 *Parser pivot* : 41 UT + 4/4 golden masters GREEN + tâche `generatePivotYaml` (6 functional + 4 BDD).
-*Arbre de site* : 99 UT tree package (SiteNode 14 + SiteTree 17 + Content 13 + SiteTreeYaml 13 + ThemeResolver 12 + SubtreeI18nPlanner 11 + ScaffoldTreeAdapter 6 + ScaffoldOutputDto 4 + ScaffoldGenerator 9) + 7 features Cucumber (186 scénarios/steps).
-*Session en cours* : 168 terminée — EPIC BKY-TREE CLOS (36/36 pts, 99 UT + 186 BDD GREEN).
+*Arbre de site* : 99 UT tree package + 7 features Cucumber (186 scénarios/steps).
+*Snapshot post-migration* : 27 UT snapshot + 1 feature Cucumber (6 scénarios @i18n-real).
+*Session en cours* : 171 terminée — Clôture administrative S171, S170 work committed.
 ====
 
 '''
@@ -101,11 +103,12 @@ le backup sess154 et les rapports de sessions `.agents/sessions/NNN-*.adoc`._
 | BKY-I18N-PROD-AUDIT | Alignement fixtures ↔ sites réels | 5 | S150
 | BKY-A11Y-1 | Accessibilité WCAG/RGAA | 13 | S152
 | BKY-I18N-DELTA | Loi de l'Économie d'Encre (delta traduction) | 3 | S153
+| BKY-I18N-REAL | Real i18n migration of 3 sites on copies (golden masters) | 24 | S170
 | BKY-FIX-1 | Corriger deployProfile sans site.yml | — | S147
 | ARROW-1 | Arrow-kt v1.1.0 roadmap | 5 | S093
 |===
 
-_Total points livrés_ : ~250 pts sur 154 sessions.
+_Total points livrés_ : ~274 pts sur 170 sessions.
 _Total smells résolus_ : 24 (V2-V4) + 60 (V5) + 3 (V6) = 87.
 
 '''
@@ -192,6 +195,12 @@ pour introduire le concept unifiant `SiteTree` (Composite Site→Section→Artic
 | **BKY-TREE — Arbre de Site** (S166→S168). TREE-1→4 ✅ livrés (18 pts).
   TREE-5+6 ✅ livrés S167 (13 pts). TREE-7 ✅ livré S168 (5 pts).
   **EPIC CLOS 36/36 pts (100%).** Backlog vide.
+| DDD/TDD/BDD
+
+| 6
+| **BKY-I18N-REAL — Real i18n migration** (S170). REAL-1→6 ✅ livrés (24 pts).
+  Golden masters post-migration persistants pour 3 sites. Idempotence
+  Ink Economy Law validée. **EPIC CLOS 24/24 pts (100%).** Backlog vide.
 | DDD/TDD/BDD
 |===
 
@@ -367,6 +376,151 @@ S168 = TREE-7 (clôture EPIC). 3 sessions au lieu de 4.
 
 '''
 
+== EPIC BKY-I18N-REAL — Migration i18n réelle des 3 sites sur copies (golden masters post-migration)
+
+_Cadré Session 170 (2026-06-29). La tuyauterie `I18nMigrationService` +
+`MigrateToI18nTask` existe et fonctionne (tests d'intégration GREEN sur
+`@TempDir`). Les 3 fixtures pré-migration sont alignées (S150), les
+`translations_en.properties` sont prêtes. **Le gap** : aucun snapshot
+post-migration persistant n'existe — la migration n'a jamais été figée
+comme golden master. Aucun `messages_*.properties` réel n'existe dans
+les fixtures (uniquement `translations_en.properties` séparé)._
+
+[CAUTION]
+====
+**Motivation** : les 3 tests d'intégration (`MagicStickI18nMigrationIntegrationTest`,
+`CccpEducationI18nMigrationIntegrationTest`, `CherolivComI18nMigrationIntegrationTest`)
+valident que la migration *fonctionne* sur copies temporaires, mais le
+résultat n'est jamais persisté. Conséquence : aucune régression sur le
+rendu post-migration ne peut être détectée, et l'idempotence (Loi de
+l'Économie d'Encre) n'est pas testée sur données réelles.
+
+**Vision** : introduire un concept `PostMigrationSnapshot` (DDD pur,
+testable sans Gradle) qui capture l'état d'un site après migration
+(templates migrés + `messages_fr.properties` + `messages_en.properties`
+rempli). Des golden masters persistants (un par site) figent le résultat
+attendu. Un test TDD rouge assert byte-identical. Une feature BDD Cucumber
+valide bout en bout. L'idempotence est testée : re-execute migrate sur
+copie déjà migrée = zéro changement.
+
+**Pré-requis respectés** :
+. *Ne pas toucher à la production* — tout sur copies (`@TempDir` ou
+  `src/test/resources/i18n-fixtures/{site}/post-migration/`).
+. *Backward compat* — les fixtures pré-migration restent intactes (nouveaux
+  snapshots sont additifs dans `post-migration/`).
+. *Méthodo* — baby steps DDD (concept pur, testable sans Gradle) → TDD
+  (UT rouge avant code) → BDD (feature Cucumber bout en bout). Aucune I/O
+  dans les classes de domaine.
+====
+
+=== User Stories — baby steps DDD/TDD/BDD
+
+[cols="1,4,2,2,2"]
+|===
+| US | Description (domaine pur, no I/O) | Tests | Pts | Dépend de
+
+| BKY-I18N-REAL-1
+| *`PostMigrationSnapshot` concept pur* — data class immutable représentant
+  l'état d'un site après migration : `templatesMigrated: Map<String, String>`
+  (nom template → contenu migré), `messagesFr: Map<String, String>`,
+  `messagesEn: Map<String, String>`. Méthodes `hasAllKeysTranslated()`,
+  `templateKeys()`, `isComplete()`. Pas de logique, pas d'I/O. Comparable
+  par égalité structurelle.
+| UT : construction, égalité, immutabilité, `hasAllKeysTranslated` (toutes
+  clés FR ont une traduction EN non vide), `templateKeys` (clés extraite
+  des templates migrés), `isComplete` (tous templates migrés + messages
+  non vides)
+| 3
+| —
+
+| BKY-I18N-REAL-2
+| *`PostMigrationSnapshotLoader`* — charge un snapshot depuis un répertoire
+  `post-migration/` (templates + `messages_fr.properties` +
+  `messages_en.properties`). Retourne `PostMigrationSnapshot`. I/O isolée
+  dans ce loader, pas dans le domaine.
+| UT : charge snapshot valide, snapshot incomplet (messages_en manquant),
+  snapshot vide, round-trip (load → assert contenu)
+| 3
+| REAL-1
+
+| BKY-I18N-REAL-3
+| *Golden master test TDD rouge* — `PostMigrationGoldenMasterTest` : migrate
+  fixture pré-migration → compare résultat au snapshot attendu
+  (`post-migration/`). Assert byte-identical sur templates migrés +
+  `messages_fr.properties` + `messages_en.properties` (après application
+  des `translations_en.properties`). Test échoue tant que le snapshot
+  n'existe pas (TDD rouge).
+| UT : 3 sites × golden master (magic-stick, cccp, cheroliv). Assert
+  byte-identical templates + messages_fr + messages_en.
+| 5
+| REAL-1, REAL-2
+
+| BKY-I18N-REAL-4
+| *Produire les 3 snapshots post-migration* — exécuter migrateToI18n sur
+  copie de chaque fixture, appliquer `translations_en.properties`, persister
+  le résultat dans `src/test/resources/i18n-fixtures/{site}/post-migration/`.
+  3 snapshots : `templates/` migrés + `messages_fr.properties` +
+  `messages_en.properties` rempli. Golden master test passe au vert.
+| — (production d'artefacts, validé par REAL-3)
+| 5
+| REAL-3
+
+| BKY-I18N-REAL-5
+| *BDD Cucumber bout en bout* — feature `46_i18n_real_migration.feature` :
+  `migrateToI18n` sur copie site réel → assert artefacts migrés conformes
+  au golden master. Scénarios : dry-run safe, real migration génère
+  messages_fr/en, templates contiennent `th:text`, idempotence
+  (re-execute = zéro changement).
+| BDD : 3-4 scénarios par site (dry-run, real, idempotence, conformité
+  golden master)
+| 5
+| REAL-4
+
+| BKY-I18N-REAL-6
+| *Idempotence Loi Économie d'Encre* — re-execute migrate sur copie déjà
+  migrée = zéro changement (templates inchangés, messages_fr/en inchangés).
+  Test UT + scénario BDD. Valide que `I18nMigrationService` détecte les
+  templates déjà migrés (`th:text` déjà présent) et ne re-extrait pas.
+| UT : idempotence sur 3 sites, delta vide, messages inchangés
+| 3
+| REAL-4
+|===
+
+_Total_ : ~24 pts, 6 US.
+
+=== Dépendances (DAG)
+
+----
+REAL-1 (Snapshot) ─→ REAL-2 (Loader) ─→ REAL-3 (Golden master TDD rouge)
+                                              └─→ REAL-4 (Produire snapshots) ─→ REAL-5 (BDD)
+                                                                                └─→ REAL-6 (Idempotence)
+----
+
+*REAL-1* est racine (tout dépend de lui).
+*REAL-4* est le point de bascule (TDD rouge → vert).
+*REAL-6* clôture l'EPIC (valide la Loi de l'Économie d'Encre sur données réelles).
+
+=== Projection sessions
+
+* *S170* — REAL-1 + REAL-2 + REAL-3 (11 pts, 3 US, socle domaine + golden master rouge)
+* *S171* — REAL-4 + REAL-5 + REAL-6 (13 pts, 3 US, snapshots + BDD + idempotence, clôture EPIC)
+
+Projection conservatrice : 2 sessions, ~24 pts, méthodo baby step
+DDD/TDD/BDD préservée à chaque US.
+
+=== Risques et mitigations
+
+[cols="3,5,4]
+|===
+| Risque | Mitigation
+| Snapshots non déterministes (ordre clés properties) | `Properties.store()` ordre non garanti. Utiliser `LinkedHashMap` ou trier les clés avant écriture dans le golden master.
+| Templates migrés diffèrent légèrement (whitespace) | Normalisation whitespace avant comparaison, ou assert sur contenu structuré (DOM) plutôt que byte-identical.
+| Idempotence cassée par re-extraction | `I18nMigrationService` détecte déjà `th:text` (regex `alreadyI18n`). Test REAL-6 valide ce comportement sur données réelles.
+| Scope trop gros pour 1 session | Slicing 2 sessions, chaque US est baby step indépendant. REAL-1 seul = domaine pur testable sans Gradle.
+|===
+
+'''
+
 _Investigation S162 — voir `.agents/sessions/BKY-PERF-1-profiling.adoc` pour le détail._
 
 [CAUTION]
@@ -434,8 +588,8 @@ _Investigation S162 — voir `.agents/sessions/BKY-PERF-1-profiling.adoc` pour l
 [cols="2,3]
 |===
 | Document | `BACKLOG.adoc`
-| Version | 14.0 — Session 168 (BKY-TREE-7 livré — EPIC BKY-TREE CLOS 36/36 pts, 99 UT + 186 BDD GREEN)
+ | Version | 15.1 — Session 171 (Clôture S171 + commit/push EPIC BKY-I18N-REAL)
 | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
-| Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-167
-| Prochaine màj | Session 169 — Backlog vide (bakery production-ready). Options : publication 0.0.3, nouvel EPIC, ou maintenance.
+| Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-170
+| Prochaine màj | Session 172 — Backlog vide (bakery production-ready). Options : publication 0.0.3, nouvel EPIC, ou maintenance.
 |===

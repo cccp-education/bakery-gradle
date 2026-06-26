@@ -1,0 +1,303 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      data-bs-theme="light"
+      lang="fr">
+
+<head th:replace="header.thyme::head"/>
+
+<body>
+<div th:replace="menu.thyme::menu"/>
+
+<main class="container py-5">
+    <div class="row align-items-center mb-5" id="home">
+        <div class="col-lg-6">
+            <h1 class="display-4 fw-bold hero-title">cccp.education</h1>
+            <p class="lead" th:text="#{index.1}">Créateur de Contenus Commun Prolétaire. Briques logicielles libres pour créer du contenu — sites, slides, PDF, videos, documentation — autour de l'ecosysteme AsciiDoc, Gradle et Kotlin.</p>
+            <p th:text="#{index.2}">Des plugins Gradle Apache 2.0 que vous assemblez comme vous voulez. Pour formateurs, enseignants, developpeurs, createurs de contenu.</p>
+            <a class="btn btn-primary btn-lg me-2" href="#plugins" th:text="#{index.3}">Decouvrir les plugins</a>
+            <a class="btn btn-success btn-lg" th:href="${content.rootpath + 'about.html'}">
+                <i class="bi bi-info-circle me-1"></i> A propos
+            </a>
+        </div>
+        <div class="col-lg-6 text-center">
+            <i class="bi bi-hammer" style="font-size:8rem;color:var(--bs-primary);"></i>
+        </div>
+    </div>
+
+    <hr class="my-5"/>
+
+    <div id="plugins">
+        <h2 class="text-center mb-4" th:text="#{index.4}">Briques OSS</h2>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-journal-text fs-1 text-primary"></i>
+                        <h5 class="card-title mt-3"><a href="https://github.com/cccp-education/planner-gradle" class="text-decoration-none stretched-link" th:text="#{index.5}">planner-gradle</a></h5>
+                        <p class="card-text" th:text="#{index.6}">Generation de scenarios pedagogiques structures assistee par LLM.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-file-earmark-pdf fs-1 text-primary"></i>
+                        <h5 class="card-title mt-3"><a href="https://github.com/cccp-education/codex-gradle" class="text-decoration-none stretched-link">codex-gradle</a></h5>
+                        <p class="card-text" th:text="#{index.7}">Pipeline documentaire : Asciidoctor→PDF, slides, RAG pgvector.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-database fs-1 text-primary"></i>
+                        <h5 class="card-title mt-3"><a href="https://github.com/cccp-education/codebase-gradle" class="text-decoration-none stretched-link">codebase-gradle</a></h5>
+                        <p class="card-text" th:text="#{index.8}">RAG socle pgvector partage, anonymisation, vibecoding.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-easel fs-1 text-primary"></i>
+                        <h5 class="card-title mt-3"><a href="https://github.com/cccp-education/slider-gradle" class="text-decoration-none stretched-link" th:text="#{index.9}">slider-gradle</a></h5>
+                        <p class="card-text" th:text="#{index.10}">Presentations Reveal.js AsciiDoc→HTML. Pipeline RAG IA, 10 langues.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-camera-video fs-1 text-primary"></i>
+                        <h5 class="card-title mt-3"><a href="https://github.com/cccp-education/capsule-gradle" class="text-decoration-none stretched-link" th:text="#{index.11}">capsule-gradle</a></h5>
+                        <p class="card-text" th:text="#{index.12}">Capture video capsule. Reveal.js + Playwright + TTS.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-box-seam fs-1 text-primary"></i>
+                        <h5 class="card-title mt-3"><a href="https://github.com/cccp-education/bakery-gradle" class="text-decoration-none stretched-link">bakery-gradle</a></h5>
+                        <p class="card-text" th:text="#{index.13}">Sites statiques JBake + deploiement gh-pages.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-camera-reels fs-1 text-primary"></i>
+                        <h5 class="card-title mt-3"><a href="https://github.com/cccp-education/hyperframes-gradle" class="text-decoration-none stretched-link" th:text="#{index.14}">hyperframes-gradle</a></h5>
+                        <p class="card-text" th:text="#{index.15}">Pipeline AsciiDoc→MP4 via HyperFrames.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-file-earmark-text fs-1 text-primary"></i>
+                        <h5 class="card-title mt-3"><a href="https://github.com/cccp-education/document-gradle" class="text-decoration-none stretched-link" th:text="#{index.16}">document-gradle</a></h5>
+                        <p class="card-text" th:text="#{index.17}">Creation et publication documentaire multi-format (HTML, PDF, EPUB, DocBook).</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-file-earmark-richtext fs-1 text-primary"></i>
+                        <h5 class="card-title mt-3"><a href="https://github.com/cccp-education/readme-gradle" class="text-decoration-none stretched-link" th:text="#{index.18}">readme-gradle</a></h5>
+                        <p class="card-text" th:text="#{index.19}">Generation de README avec diagrammes PlantUML.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-diagram-3 fs-1 text-primary"></i>
+                        <h5 class="card-title mt-3"><a href="https://github.com/cccp-education/plantuml-gradle" class="text-decoration-none stretched-link">plantuml-gradle</a></h5>
+                        <p class="card-text" th:text="#{index.20}">Generation de diagrammes PlantUML via LLM (7 providers, RAG pgvector).</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-diagram-2 fs-1 text-primary"></i>
+                        <h5 class="card-title mt-3"><a href="https://github.com/cccp-education/graphify-gradle" class="text-decoration-none stretched-link" th:text="#{index.21}">graphify-gradle</a></h5>
+                        <p class="card-text" th:text="#{index.22}">Extraction du graphe de connaissance du workspace → graph.json.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-key fs-1 text-primary"></i>
+                        <h5 class="card-title mt-3"><a href="https://github.com/cccp-education/api-key-pool-gradle" class="text-decoration-none stretched-link" th:text="#{index.23}">api-key-pool-gradle</a></h5>
+                        <p class="card-text" th:text="#{index.24}">Pool de cles API LLM avec rotation, tracking quotas, journalisation audit.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-puzzle fs-1 text-primary"></i>
+                        <h5 class="card-title mt-3"><a href="https://github.com/cccp-education/workspace-bom" class="text-decoration-none stretched-link" th:text="#{index.25}">workspace-bom</a></h5>
+                        <p class="card-text" th:text="#{index.26}">Bill of Materials multi-module. Contrats partages cross-plugin.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-gear fs-1 text-primary"></i>
+                        <h5 class="card-title mt-3"><a href="https://github.com/cccp-education/runner-gradle" class="text-decoration-none stretched-link">runner-gradle</a></h5>
+                        <p class="card-text" th:text="#{index.27}">Orchestration, provisioning CLI, deploiement gh-pages.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-kanban fs-1 text-primary"></i>
+                        <h5 class="card-title mt-3"><a href="https://github.com/cccp-education/agile-gradle" class="text-decoration-none stretched-link" th:text="#{index.28}">agile-gradle</a></h5>
+                        <p class="card-text" th:text="#{index.29}">Pilotage agile assiste par IA. 7 ateliers de cadrage + backlog + sprints.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-ticket-perforated fs-1 text-primary"></i>
+                        <h5 class="card-title mt-3"><a href="https://github.com/cccp-education/ticket-gradle" class="text-decoration-none stretched-link" th:text="#{index.30}">ticket-gradle</a></h5>
+                        <p class="card-text" th:text="#{index.31}">Creation et suivi de tickets GitHub. Backlog→Issues, Kanban board.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-check2-circle fs-1 text-primary"></i>
+                        <h5 class="card-title mt-3"><a href="https://github.com/cccp-education/review-gradle" class="text-decoration-none stretched-link" th:text="#{index.32}">review-gradle</a></h5>
+                        <p class="card-text" th:text="#{index.33}">Code review assistee par IA. Analyse PR, score qualite, quality gates.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-git fs-1 text-primary"></i>
+                        <h5 class="card-title mt-3"><a href="https://github.com/cccp-education/flow-gradle" class="text-decoration-none stretched-link" th:text="#{index.34}">flow-gradle</a></h5>
+                        <p class="card-text" th:text="#{index.35}">Orchestration merge/close/CI. Merge quand gates OK, auto-close tickets.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-window-stack fs-1 text-primary"></i>
+                        <h5 class="card-title mt-3"><a href="https://github.com/cccp-education/workspace-agent" class="text-decoration-none stretched-link" th:text="#{index.36}">workspace-agent</a></h5>
+                        <p class="card-text" th:text="#{index.37}">Plugin JetBrains Platform. 5 dashboards IA + actions menu contextuel.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-5"/>
+
+    <div id="pipeline">
+        <h2 class="text-center mb-4" th:text="#{index.38}">Comment ca marche</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-primary">
+                    <div class="card-header bg-primary text-white" th:text="#{index.39}">Infrastructure</div>
+                    <div class="card-body">
+                        <p>workspace-bom, graphify-gradle, api-key-pool-gradle, codebase-gradle. Le socle : contrats partages, graphe de connaissance, pool de cles LLM, RAG pgvector.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-warning">
+                    <div class="card-header bg-warning text-dark" th:text="#{index.40}">Briques metier</div>
+                    <div class="card-body">
+                        <p th:text="#{index.41}">planner, codex, slider, capsule, bakery, plantuml, readme, document, hyperframes. Les transformateurs : chaque brique fait une chose, vous les combinez.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 border-success">
+                    <div class="card-header bg-success text-white" th:text="#{index.42}">Orchestration</div>
+                    <div class="card-body">
+                        <p>runner-gradle, agile-gradle, ticket-gradle, review-gradle, flow-gradle. Pilotage, deploiement, CI/CD.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-5"/>
+
+    <div id="oss" class="text-center py-5 mb-4 rounded-3" style="background: linear-gradient(135deg, var(--bs-primary), var(--bs-danger));">
+        <h2 class="text-white fw-bold" th:text="#{index.43}">Briques 100% Open Source</h2>
+        <p class="text-white opacity-75 fs-5" th:text="#{index.44}">Licence Apache 2.0 — GroupId education.cccp — Publies sur Maven Central</p>
+        <div class="d-flex flex-wrap justify-content-center gap-3 mb-3">
+            <a class="btn btn-light btn-lg px-4 py-3 fw-semibold" href="https://github.com/cccp-education">
+                <i class="bi bi-github me-2"></i>GitHub org
+            </a>
+            <a class="btn btn-outline-light btn-lg px-4 py-3 fw-semibold" href="https://central.sonatype.com/namespace/education.cccp">
+                <i class="bi bi-cloud-arrow-up me-2"></i>Maven Central
+            </a>
+        </div>
+        <p class="text-white opacity-75 mt-3" th:text="#{index.45}">Écosystème de plugins Gradle pour produire du contenu de bout en bout — infrastructure, transformation, publication.</p>
+    </div>
+
+    <hr class="my-5"/>
+
+    <div id="docs">
+        <h2 class="text-center mb-4" th:text="#{index.46}">Documentation</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-info-circle fs-1 text-primary"></i>
+                        <h5 class="card-title mt-3" th:text="#{index.47}">A propos</h5>
+                        <p class="card-text" th:text="#{index.48}">La mission, la licence Apache 2.0, la gouvernance, l'ecosysteme.</p>
+                        <a class="btn btn-outline-primary" th:href="${content.rootpath + 'about.html'}" th:text="#{index.49}">Decouvrir</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-box-seam fs-1 text-primary"></i>
+                        <h5 class="card-title mt-3" th:text="#{index.50}">Catalogue</h5>
+                        <p class="card-text" th:text="#{index.51}">Liste complete des briques OSS. Chacune se clone et se consomme en deux commandes.</p>
+                        <a class="btn btn-outline-primary" th:href="${content.rootpath + 'plugins.html'}" th:text="#{index.52}">Consulter</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100 text-center">
+                    <div class="card-body">
+                        <i class="bi bi-usb-drive fs-1 text-primary"></i>
+                        <h5 class="card-title mt-3" th:text="#{index.53}">magic-stick</h5>
+                        <p class="card-text">ISO bootable Xubuntu avec tous les outils pre-installes. Documentation complete.</p>
+                        <a class="btn btn-outline-primary" href="https://cccp.education/magic-stick/" th:text="#{index.49}">Decouvrir</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<button id="scrollToTopBtn"
+        class="btn btn-primary shadow-sm"
+                th:attr="aria-label=#{index.55}" aria-label="Retour en haut de page">>
+    <i class="bi bi-arrow-up"></i>
+</button>
+
+<div th:replace="footer.thyme::footer"/>
+</body>
+</html>

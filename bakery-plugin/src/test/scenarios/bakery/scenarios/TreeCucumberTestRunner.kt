@@ -12,5 +12,5 @@ import io.cucumber.junit.platform.engine.Constants.*
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "bakery.scenarios")
 @ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "pretty, html:build/reports/cucumber-tree.html, json:build/reports/cucumber-tree.json")
 @ConfigurationParameter(key = FEATURES_PROPERTY_NAME, value = "src/test/features")
-@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "@tree and not @pipeline-contracts")
+@ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "(@tree or @i18n-real) and not @pipeline-contracts")
 class TreeCucumberTestRunner

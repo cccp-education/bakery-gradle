@@ -1,0 +1,118 @@
+= Session 170 — BKY-I18N-REAL — Real i18n migration of 3 sites on copies (golden masters)
+:date: 2026-06-29
+:session: 170
+:epic: BKY-I18N-REAL
+:points: 24
+:method: DDD + TDD + BDD baby steps
+
+== Mission
+
+Migrer réellement les 3 sites (magic-stick, cccp.education, cheroliv.com)
+vers l'i18n sur des COPIES (jamais la production), validée par la méthodo
+baby step DDD/TDD/BDD (domaine pur testable sans Gradle → UT rouge → BDD
+Cucumber bout en bout).
+
+== Contexte initial
+
+- Tuyauterie `I18nMigrationService` + `MigrateToI18nTask` existe et fonctionne
+  (tests d'intégration GREEN sur `@TempDir`).
+- 3 fixtures pré-migration alignées (S150) dans `i18n-fixtures/`.
+- `translations_en.properties` prêts pour chaque site.
+- **Gap** : aucun snapshot post-migration persistant n'existait. Aucun
+  `messages_*.properties` réel dans les fixtures. La migration n'avait
+  jamais été figée comme golden master.
+
+== Livrables — 6 US, 24 pts, EPIC BKY-I18N-REAL CLOS
+
+=== BKY-I18N-REAL-1 — PostMigrationSnapshot (DDD, 3 pts)
+
+Domaine pur, testable sans Gradle, aucune I/O. Data class immutable
+représentant l'état d'un site après migration : `templatesMigrated`,
+`messagesFr`, `messagesEn`. Méthodes `hasAllKeysTranslated()`,
+`templateKeys()`, `isComplete()`.
+
+- `src/main/kotlin/bakery/i18n/snapshot/PostMigrationSnapshot.kt` (nouveau)
+- `src/test/kotlin/bakery/i18n/snapshot/PostMigrationSnapshotTest.kt` (13 UT GREEN)
+
+=== BKY-I18N-REAL-2 — PostMigrationSnapshotLoader (TDD, 3 pts)
+
+I/O isolée dans ce loader. Charge un snapshot depuis `post-migration/`.
+Templates indexés par chemin relatif. Non-`.thyme` fichiers ignorés.
+
+- `src/main/kotlin/bakery/i18n/snapshot/PostMigrationSnapshotLoader.kt` (nouveau)
+- `src/test/kotlin/bakery/i18n/snapshot/PostMigrationSnapshotLoaderTest.kt` (8 UT GREEN)
+
+=== BKY-I18N-REAL-3 — Golden master test TDD rouge (TDD, 5 pts)
+
+`PostMigrationGoldenMasterTest` : migre chaque fixture pré-migration,
+applique les traductions EN, compare au snapshot attendu. TDD rouge →
+vert (snapshots produits par REAL-4).
+
+- `src/test/kotlin/bakery/i18n/snapshot/PostMigrationGoldenMasterTest.kt` (3 tests GREEN)
+
+=== BKY-I18N-REAL-4 — Produce 3 post-migration snapshots (5 pts)
+
+Générateur one-shot `PostMigrationSnapshotGenerator` (@Disabled après
+production). 3 snapshots persistés :
+
+- `src/test/resources/i18n-fixtures/magic-stick/post-migration/` (12 templates)
+- `src/test/resources/i18n-fixtures/cccp-education/post-migration/` (11 templates)
+- `src/test/resources/i18n-fixtures/cheroliv-com/post-migration/` (24 templates)
+
+Chaque snapshot : `templates/` migrés + `messages_fr.properties` +
+`messages_en.properties` rempli + `jbake.properties` avec `site.language=fr`.
+
+=== BKY-I18N-REAL-5 — BDD Cucumber end to end (5 pts)
+
+Feature 46 + step defs dans `bakery.scenarios` (glue du
+`TreeCucumberTestRunner`). 6 scénarios : 3 golden master + 3 idempotence.
+`TreeCucumberTestRunner` filtre étendu : `(@tree or @i18n-real) and not
+@pipeline-contracts`.
+
+- `src/test/features/46_i18n_real_migration.feature` (nouveau, 6 scénarios)
+- `src/test/scenarios/bakery/scenarios/I18nRealMigrationSteps.kt` (nouveau)
+- `src/test/scenarios/bakery/scenarios/TreeCucumberTestRunner.kt` (filtre étendu)
+
+=== BKY-I18N-REAL-6 — Idempotence Ink Economy Law (3 pts)
+
+`PostMigrationIdempotenceTest` : re-execute migrate sur copie déjà migrée
+= zéro changement. Valide que `I18nMigrationService` détecte les templates
+déjà migrés (`th:text` déjà présent) et ne re-extrait pas.
+
+- `src/test/kotlin/bakery/i18n/snapshot/PostMigrationIdempotenceTest.kt` (3 tests GREEN)
+
+== Tests
+
+- `./gradlew test --tests "bakery.i18n.snapshot.*"` : 27 UT GREEN (13 + 8 + 3 + 3)
+- `./gradlew test` : BUILD SUCCESSFUL (1m26s)
+- `./gradlew cucumberTest` : BUILD SUCCESSFUL (4m47s, 6 scénarios @i18n-real GREEN)
+- `./gradlew -q publishToMavenLocal` : OK
+
+== Fichiers créés (8)
+
+- `src/main/kotlin/bakery/i18n/snapshot/PostMigrationSnapshot.kt`
+- `src/main/kotlin/bakery/i18n/snapshot/PostMigrationSnapshotLoader.kt`
+- `src/test/kotlin/bakery/i18n/snapshot/PostMigrationSnapshotTest.kt`
+- `src/test/kotlin/bakery/i18n/snapshot/PostMigrationSnapshotLoaderTest.kt`
+- `src/test/kotlin/bakery/i18n/snapshot/PostMigrationGoldenMasterTest.kt`
+- `src/test/kotlin/bakery/i18n/snapshot/PostMigrationSnapshotGenerator.kt` (@Disabled)
+- `src/test/kotlin/bakery/i18n/snapshot/PostMigrationIdempotenceTest.kt`
+- `src/test/features/46_i18n_real_migration.feature`
+- `src/test/scenarios/bakery/scenarios/I18nRealMigrationSteps.kt`
+
+== Fichiers modifiés (3)
+
+- `src/test/scenarios/bakery/scenarios/TreeCucumberTestRunner.kt` — filtre `@i18n-real`
+- `BACKLOG.adoc` — cadrage EPIC BKY-I18N-REAL (6 US, 24 pts)
+- `src/test/resources/i18n-fixtures/{magic-stick,cccp-education,cheroliv-com}/post-migration/` — 3 snapshots
+
+== Score
+
+9/10 — EPIC complet en 1 session (projection 2). Méthodo DDD/TDD/BDD
+respectée. Anglais imposé sur tout le code. Golden masters figent le
+résultat attendu. Idempotence validée sur données réelles.
+
+== Bug 4 ouvert (hors périmètre)
+
+`org.jetbrains:annotations:{strictly 13.0}` dans codebase-plugin POM
+(website.yml cassé). Documenté S169, non résolu.

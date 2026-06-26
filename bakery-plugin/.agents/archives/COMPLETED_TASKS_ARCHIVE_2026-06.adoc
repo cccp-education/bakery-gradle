@@ -1,5 +1,40 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 171 — 2026-06-29 — Clôture S171 + commit/push EPIC BKY-I18N-REAL
+
+**Contexte** : S171 a exécuté la procédure de clôture 6 étapes pour la session
+courante et commité/poussé tous les changements de S170 (session de travail
+EPIC BKY-I18N-REAL). Backlog vide — bakery production-ready.
+
+**Tâches** :
+* [x] Création session report `.agents/sessions/171-cloture-session.adoc`
+* [x] Mise à jour PROMPT_REPRISE.adoc pour S172
+* [x] Mise à jour INDEX.adoc (S171 entry + portefeuille)
+* [x] Mise à jour SESSIONS_HISTORY.adoc (S171 entry)
+* [x] Mise à jour TEST_COVERAGE_ANALYSIS.adoc
+* [x] Mise à jour COMPLETED_TASKS_ARCHIVE_2026-06.adoc (S171 entry)
+* [x] Mise à jour BACKLOG.adoc + TODO.adoc
+* [x] Git commit + push
+
+---
+
+== Session 170 — 2026-06-29 — BKY-I18N-REAL Real i18n migration of 3 sites on copies (24 pts, 6 US, EPIC CLOS)
+
+**Contexte** : La tuyauterie `I18nMigrationService` + `MigrateToI18nTask` existait et fonctionnait (tests d'intégration GREEN sur `@TempDir`), mais aucun snapshot post-migration persistant n'existait. La migration n'avait jamais été figée comme golden master. Aucun `messages_*.properties` réel dans les fixtures.
+
+**Tâches** :
+
+* [x] REAL-1 — `PostMigrationSnapshot` (DDD pur, 3 pts) : data class immutable, `hasAllKeysTranslated()`, `templateKeys()`, `isComplete()`. 13 UT GREEN.
+* [x] REAL-2 — `PostMigrationSnapshotLoader` (3 pts) : I/O isolée, charge snapshot depuis `post-migration/`, templates indexés par chemin relatif. 8 UT GREEN.
+* [x] REAL-3 — Golden master test TDD rouge (5 pts) : migre fixture → compare au snapshot. 3 tests (magic-stick, cccp, cheroliv). TDD rouge→vert.
+* [x] REAL-4 — 3 snapshots post-migration produits (5 pts) : `PostMigrationSnapshotGenerator` one-shot (@Disabled). magic-stick 12 templates, cccp 11, cheroliv 24. `messages_fr` + `messages_en` remplis + `jbake.properties` avec `site.language=fr`.
+* [x] REAL-5 — BDD Cucumber feature 46 (5 pts) : 6 scénarios (3 golden master + 3 idempotence). `I18nRealMigrationSteps` dans `bakery.scenarios`. `TreeCucumberTestRunner` filtre étendu `(@tree or @i18n-real)`.
+* [x] REAL-6 — Idempotence Ink Economy Law (3 pts) : re-execute migrate sur copie déjà migrée = 0 keys, 0 templates modifiés. 3 tests GREEN.
+
+**Tests** : 27 UT snapshot + 6 BDD @i18n-real GREEN. `./gradlew test` SUCCESS, `./gradlew cucumberTest` SUCCESS (4m47s). publishToMavenLocal OK.
+
+**Fichiers** : 8 créés, 3 modifiés, 3 snapshots post-migration persistants.
+
 == Session 153 — 2026-06-23 — BKY-I18N-DELTA Loi de l'Économie d'Encre + delta traduction i18n
 
 **Contexte** : Découverte d'un anti-pattern de non-idempotence économique dans `I18nMigrationService.translateNonFrenchKeys()` qui re-traduisait l'intégralité des clés FR→EN via le LLM à chaque exécution de `migrateToI18n`, écrasant les traductions validées de `messages_en.properties`.

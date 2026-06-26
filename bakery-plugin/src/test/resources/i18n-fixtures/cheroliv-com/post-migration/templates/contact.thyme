@@ -1,0 +1,82 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      lang="fr" data-bs-theme="light">
+<body>
+<!-- =============================================================================================================== -->
+<!-- Contact Section -->
+<!-- =============================================================================================================== -->
+<section id="contact"
+         class="py-5"
+         th:fragment="contact-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center mb-5">
+                <h2 class="display-5 fw-bold" th:text="#{contact.1}">Contact</h2>
+                <p class="text-muted" th:text="#{contact.2}">Prêt à démarrer votre projet ? Contactez-moi !</p>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="contact-form">
+                    <form id="contact-form">
+                        <div style="position:absolute;left:-9999px" aria-hidden="true">
+                            <input type="text" name="hp_name" tabindex="-1" autocomplete="off" />
+                        </div>
+                        <div class="mb-3">
+                            <input type="text"
+                                   name="name"
+                                   class="form-control"
+                                   th:placeholder="#{contact.3}" placeholder="Nom"
+                                   required />
+                        </div>
+                        <div class="mb-3">
+                            <input type="email"
+                                   name="email"
+                                   class="form-control"
+                                   th:placeholder="#{contact.4}" placeholder="Email"
+                                   required />
+                        </div>
+                        <div class="mb-3">
+                            <input type="tel"
+                                   id="phone"
+                                   name="phone"
+                                   class="form-control"
+                                   th:placeholder="#{contact.5}" placeholder="Téléphone (Optionnel)" />
+                        </div>
+                        <div class="mb-3">
+                            <input type="text"
+                                   name="subject"
+                                   class="form-control"
+                                   th:placeholder="#{contact.6}" placeholder="Sujet"
+                                   required />
+                        </div>
+                        <div class="mb-3">
+                            <textarea class="form-control"
+                                      name="message"
+                                      rows="5"
+                                      th:placeholder="#{contact.7}" placeholder="Votre message"
+                                      required></textarea>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send me-2"></i>
+                                Envoyer le Message
+                            </button>
+                        </div>
+                    </form>
+                    <div id="contact-success-message" class="alert alert-success mt-3" role="alert" style="display:none">
+                        <i class="bi bi-check-circle me-2"></i>
+                        Message envoyé avec succès ! Je vous répondrai dans les plus brefs délais.
+                    </div>
+                    <div id="contact-error-message" class="alert alert-danger mt-3" role="alert" style="display:none">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Une erreur est survenue lors de l'envoi. Veuillez réessayer.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
