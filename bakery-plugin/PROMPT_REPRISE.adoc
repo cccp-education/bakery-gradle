@@ -1,27 +1,22 @@
-= PROMPT REPRISE — Bakery — Session 172
-:session: 172
+= PROMPT REPRISE — Bakery — Session 173
+:session: 173
 :date: 2026-06-29
 
-== Session 171 terminée — Clôture administrative S171 + commit/push EPIC BKY-I18N-REAL
+== Session 172 terminée — BKY-OUTPUT-1+2 : NodeMetadata + OutputConfig (13 pts)
 
-S171 a exécuté la procédure de clôture S171 et commité/poussé tous
-les changements S170 (9 nouveaux fichiers, 7 modifiés).
+S172 a livré les 2 premières US de l'EPIC BKY-OUTPUT. 22 nouveaux UT
+(105/105 tree PASS). `./gradlew test` BUILD SUCCESSFUL (1m5s).
 
-== Prochaine mission — Options
+== Prochaine mission — EPIC BKY-OUTPUT (suite)
 
-Backlog vide après EPIC BKY-I18N-REAL. Bakery production-ready (v0.0.2
-LIVE Maven Central + Portal, coverage 93,09%). Session 171
-supportée sur commit `a3f2b8e`.
+Le socle DDD (NodeMetadata + OutputConfig) est posé. Prochaines US :
 
-Options :
-1. Publication 0.0.3 (snapshots i18n + PostMigrationSnapshot API publique)
-2. Nouvel EPIC (à cadrer)
-3. Maintenance (bug 4 codebase-plugin POM `strictly 13.0` hors périmètre)
+1. OUTPUT-3 : PageAssets — AssetRef (path, integrity, async/defer)
+2. OUTPUT-4 : Consommation tree → bake pipeline
+3. OUTPUT-5 : Wire ThemeResolver dans le bake
 
 == Contexte technique
 - Version : 0.0.2 Maven Central + Gradle Portal (LIVE)
-- Coverage : 93,09% (Kover, seuil PASS)
-- 3 sites réels : golden masters post-migration produits (47 templates migrés total)
-- Ports Ollama : 11437-11465. Modèles : gpt-oss:120b-cloud, gemma4:31b-cloud
+- Coverage : ~93% (Kover)
+- EPIC BKY-OUTPUT : 13/49 pts livrés (OUTPUT-1+2)
 - Anglais imposé : nommage, commentaires, Gherkin, steps
-- Bug 4 ouvert : codebase-plugin:0.0.2 POM `strictly 13.0` (website.yml cassé)

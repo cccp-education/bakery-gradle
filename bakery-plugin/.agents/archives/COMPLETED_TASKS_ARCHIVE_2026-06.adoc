@@ -1,5 +1,36 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 172 — 2026-06-29 — BKY-OUTPUT-1+2 : NodeMetadata + OutputConfig (13 pts)
+
+**Contexte** : Cadrage et démarrage de l'EPIC BKY-OUTPUT (structure générique
+de configuration d'output programmatique). 2 US livrées en DDD pur, zéro I/O.
+
+**Fichiers créés (8)** :
+* NodeMetadata.kt — data class domaine (title/description/tags/layout)
+* OutputConfig.kt — data class domaine (template/layout/cssFiles/jsFiles/theme)
+* NodeMetadataResolver.kt — résolution héritage cascade
+* OutputConfigResolver.kt — résolution héritage cascade
+* NodeMetadataTest.kt — 5 UT
+* OutputConfigTest.kt — 5 UT
+* NodeMetadataResolverTest.kt — 6 UT
+* OutputConfigResolverTest.kt — 6 UT
+
+**Fichiers modifiés (2)** :
+* SiteNode.kt — metadata + outputConfig champs optionnels
+* SiteNodeDto.kt — DTO + mapping
+
+**Tâches** :
+* [x] Création session report `.agents/sessions/172-output-metadata-config.adoc`
+* [x] Mise à jour PROMPT_REPRISE.adoc pour S173
+* [x] Mise à jour INDEX.adoc (S172 entry + EPIC BKY-OUTPUT roadmap)
+* [x] Mise à jour SESSIONS_HISTORY.adoc (S172 entry)
+* [x] Mise à jour TEST_COVERAGE_ANALYSIS.adoc (22 UT OUTPUT)
+* [x] Mise à jour COMPLETED_TASKS_ARCHIVE_2026-06.adoc (S172 entry)
+* [x] Mise à jour BACKLOG.adoc + TODO.adoc
+* [x] Git commit + push
+
+---
+
 == Session 171 — 2026-06-29 — Clôture S171 + commit/push EPIC BKY-I18N-REAL
 
 **Contexte** : S171 a exécuté la procédure de clôture 6 étapes pour la session

@@ -1,6 +1,6 @@
 = Analyse de Couverture des Tests — Bakery Gradle Plugin
 
-_Derniere mise a jour : 2026-06-28 (Session 169 — Maintenance CI, pas de nouveaux tests)_
+_Derniere mise a jour : 2026-06-29 (Session 172 — BKY-OUTPUT-1+2, 22 nouveaux UT)_
 
 '''
 
@@ -13,6 +13,24 @@ Pas de nouveaux tests. 3 bugs infrastructure résolus :
 
 Coverage globale : 93,09% (was 92,90% — augmentation due à l'exclusion des
 scénarios `@personal` qui ne contribuaient pas à la coverage mesurée par Kover).
+
+'''
+
+== Session 172 — BKY-OUTPUT-1+2 : NodeMetadata + OutputConfig (13 pts, EPIC BKY-OUTPUT)
+
+Cadrage du nouvel EPIC BKY-OUTPUT (structure générique output). 2 US
+livrées en DDD pur, zéro I/O, zéro Gradle.
+
+|===
+| Classe | Tests | Statut | Notes
+| NodeMetadataTest | 5 | OK | construction, égalité, copy, all fields, empty
+| OutputConfigTest | 5 | OK | construction, égalité, copy, all fields, empty
+| NodeMetadataResolverTest | 6 | OK | site metadata, section metadata, article inherit, article override, resolveAll, empty tree
+| OutputConfigResolverTest | 6 | OK | site config, section config, article inherit, article override, empty tree, resolveAll
+|===
+
+22 nouveaux UT OUTPUT. 105/105 tree PASS (83 existants + 22 nouveaux).
+Zéro régression. Backward compat YAML round-trip préservée.
 
 '''
 

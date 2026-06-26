@@ -1,0 +1,60 @@
+= Session 172 — BKY-OUTPUT-1+2 : NodeMetadata + OutputConfig (DDD pur, 13 pts)
+:session: 172
+:date: 2026-06-29
+:type: DDD + TDD
+:score: 9/10
+
+== Résumé
+
+Cadrage et implémentation des 2 premières US de l'EPIC BKY-OUTPUT :
+structure générique de configuration d'output programmatique
+(theme/template/article/page/html/css/js).
+
+== US livrées
+
+* **OUTPUT-1** (5 pts) : `NodeMetadata` — title/description/tags/layout
+  par Section/Article. DDD pur, zéro I/O.
+* **OUTPUT-2** (8 pts) : `OutputConfig` — template/layout/cssFiles/jsFiles/theme
+  overridable par nœud.
+
+== Fichiers créés
+
+* `src/main/kotlin/bakery/tree/NodeMetadata.kt` — data class domaine
+* `src/main/kotlin/bakery/tree/OutputConfig.kt` — data class domaine
+* `src/main/kotlin/bakery/tree/NodeMetadataResolver.kt` — résolution héritage
+* `src/main/kotlin/bakery/tree/OutputConfigResolver.kt` — résolution héritage
+* `src/test/kotlin/bakery/tree/NodeMetadataTest.kt` — 5 UT
+* `src/test/kotlin/bakery/tree/OutputConfigTest.kt` — 5 UT
+* `src/test/kotlin/bakery/tree/NodeMetadataResolverTest.kt` — 6 UT
+* `src/test/kotlin/bakery/tree/OutputConfigResolverTest.kt` — 6 UT
+
+== Fichiers modifiés
+
+* `src/main/kotlin/bakery/tree/SiteNode.kt` — metadata + outputConfig fields
+* `src/main/kotlin/bakery/tree/SiteNodeDto.kt` — DTO + mapping
+
+== Tests
+
+* 22 nouveaux UT (NodeMetadata 5 + OutputConfig 5 + MetadataResolver 6 + ConfigResolver 6)
+* 105/105 tree tests PASS
+* `./gradlew test` BUILD SUCCESSFUL (1m5s)
+* Zéro régression YAML round-trip (6/6 PASS)
+* 0 cucumber feature (périmètre purement domaine)
+
+== Décisions
+
+* Héritage en cascade : enfant reçoit les champs non définis du parent
+  (merge champ-par-champ, ancêtre le plus proche gagne)
+* `NodeMetadataResolver` + `OutputConfigResolver` suivent le même pattern
+  que `ThemeResolver.ancestorChain()`
+* Champs optionnels (`null` = non défini, pas de valeur par défaut)
+* Backward compat totale : `metadata: null` et `outputConfig: null` en YAML
+  = comportement existant inchangé
+* Règle de nommage : `OutputConfig` = configuration de *sortie* (ce qui est
+  produit), `NodeMetadata` = métadonnées éditoriales (title, desc, tags)
+
+== Prochaines US (S173)
+
+* OUTPUT-3 : `PageAssets` — AssetRef (path, integrity, async/defer)
+* OUTPUT-4 : Consommation tree → bake pipeline
+* Voir BACKLOG.adoc pour le détail

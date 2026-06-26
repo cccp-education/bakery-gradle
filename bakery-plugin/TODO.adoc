@@ -1,7 +1,7 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-06-29 — Session 171 (Clôture S171 + commit/push EPIC BKY-I18N-REAL. Backlog vide.)_
+_Dernière mise à jour : 2026-06-29 — Session 172 (BKY-OUTPUT-1+2 : NodeMetadata + OutputConfig, 13 pts. EPIC BKY-OUTPUT en cours.)_
 
 * [x] Implementer la generation du code client Firebase dans les templates (→ BKY-JB-4, session 032)
 * [x] Ajouter une vraie Firebase API key quand disponible (→ EPIC 4, formalité restante côté consommateur cheroliv.com)
@@ -18,7 +18,18 @@ _Dernière mise à jour : 2026-06-29 — Session 171 (Clôture S171 + commit/pus
 
 == Restant
 
-_30/30 EPICs historiques + 24/24 code smells résolus. EPIC BKY-TREE CLOS (36/36 pts). EPIC BKY-I18N-REAL CLOS (24/24 pts). Backlog vide — bakery production-ready._
+_30/30 EPICs historiques + 24/24 code smells résolus. EPIC BKY-TREE CLOS (36/36 pts). EPIC BKY-I18N-REAL CLOS (24/24 pts). EPIC BKY-OUTPUT en cours (13/49 pts)._
+
+== NOUVEAU — EPIC BKY-OUTPUT (Session 172) — 13/49 pts
+
+* [x] **BKY-OUTPUT-1** : NodeMetadata DDD pur (5 UT) ✅ S172
+* [x] **BKY-OUTPUT-2** : OutputConfig DDD pur (5 UT) ✅ S172
+* [ ] **BKY-OUTPUT-3** : PageAssets — AssetRef (path, integrity, async/defer)
+* [ ] **BKY-OUTPUT-4** : Tree consumption in bake pipeline
+* [ ] **BKY-OUTPUT-5** : Wire ThemeResolver into bake
+* [ ] **BKY-OUTPUT-6** : Per-node template override
+* [ ] **BKY-OUTPUT-7** : Per-node layout + asset injection in Thymeleaf
+* [ ] **BKY-OUTPUT-8** : Cucumber BDD coverage
 
 == NOUVEAU — EPIC BKY-I18N-REAL (Session 170) — CLOS 24/24
 

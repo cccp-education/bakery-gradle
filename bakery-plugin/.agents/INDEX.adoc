@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-06-29 — Session 171 Clôture S171 + commit/push EPIC BKY-I18N-REAL. Session 170 work committed: 9 new files, 7 modified files. Procédure 6 étapes exécutée pour S171._
-_Session en cours_ : 171 terminée — S170 work + S171 closing committed. Backlog vide. Bakery production-ready._
-_Prochaine session_ : 172 — Options : publication 0.0.3, nouvel EPIC, ou maintenance (bug 4 codebase POM)._
+_Derniere mise a jour : 2026-06-29 — Session 172 BKY-OUTPUT-1+2 : NodeMetadata + OutputConfig (13 pts). Session close + commit/push._
+_Session en cours_ : 172 terminée — OUTPUT-1+2 livrés (13/49 pts EPIC BKY-OUTPUT)._
+_Prochaine session_ : 173 — OUTPUT-3 PageAssets + OUTPUT-4 Tree→bake pipeline._
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 172 | 2026-06-29 | DDD + TDD | **BKY-OUTPUT-1+2 : NodeMetadata + OutputConfig (13 pts)** — Cadrage EPIC BKY-OUTPUT (structure générique output). OUTPUT-1 : NodeMetadata DDD pur (5 UT). OUTPUT-2 : OutputConfig DDD pur (5 UT). NodeMetadataResolver + OutputConfigResolver (12 UT) — héritage cascade. SiteNode + SiteNodeDto étendus. 22 nouveaux UT. 105/105 tree PASS. `./gradlew test` SUCCESS. | 9/10
   | 171 | 2026-06-29 | closing | **Clôture S171 + commit/push EPIC BKY-I18N-REAL** — S170 work committed: 9 new files, 7 modified files. Procédure 6 étapes exécutée. Git commit `a3f2b8e` + push. Backlog vide. | 8/10
   | 170 | 2026-06-29 | DDD + TDD + BDD | **BKY-I18N-REAL CLOS — Real i18n migration of 3 sites on copies (24 pts, 6 US)** — Golden masters persistants figent le résultat post-migration. REAL-1 : `PostMigrationSnapshot` (DDD pur, 13 UT). REAL-2 : `PostMigrationSnapshotLoader` (I/O isolée, 8 UT). REAL-3 : Golden master test TDD rouge→vert (3 sites). REAL-4 : 3 snapshots produits (magic-stick 12, cccp 11, cheroliv 24 templates). REAL-5 : BDD feature 46 + `I18nRealMigrationSteps` (6 scénarios GREEN, `TreeCucumberTestRunner` filtre étendu `@i18n-real`). REAL-6 : Idempotence Ink Economy Law (3 sites, 0 keys re-extracted). 27 UT + 6 BDD GREEN. `./gradlew test` SUCCESS, `./gradlew cucumberTest` SUCCESS (4m47s). Anglais imposé. | 9/10
   | 169 | 2026-06-28 | maintenance | **Maintenance CI : 3 bugs résolus, `./gradlew clean build` SUCCESSFUL** — Bug 1 : `settings.gradle.kts` `error("ossrhUsername")` → `?: ""` (credentials optionnelles, CI build bloqué à settings evaluation). Bug 2 : `CucumberTestRunner.kt` filtre `not @personal` (scénarios cheroliv.com 655 fichiers 12MB exclus, timeout 5min dépassé). Bug 3 : `AccessibilityAuditTask.kt` `@PathSensitive(RELATIVE)` sur `auditDir` (Gradle 9.5 validatePlugins). Bug 4 NON résolu : `org.jetbrains:annotations:{strictly 13.0}` codebase-plugin POM (website.yml cassé, hors périmètre). `./gradlew clean build` BUILD SUCCESSFUL 26/26 tasks 8m57s. Coverage 93,09%. 3 fichiers modifiés, 0 nouveau code production. | 9/10
@@ -249,6 +250,28 @@ Economy Law) sur données réelles. 6 US, 24 pts, EPIC CLOS en 1 session._
 |===
 
 _24/24 pts livrés (100%). EPIC BKY-I18N-REAL CLOS. 27 UT + 6 BDD GREEN._
+
+=== EPIC BKY-OUTPUT — Generic Programmatic Output Configuration (NOUVEAU — Session 172)
+
+_Structure générique pour configurer programmatiquement l'output :
+theme/template/article/page/html/css/js. Étend SiteTree avec NodeMetadata
+(title/description/tags/layout) et OutputConfig (template/layout/cssFiles/
+jsFiles/theme) par nœud. Héritage en cascade ancêtre→enfant. 49 pts
+projetés, 4-5 sessions._
+
+|===
+| US | Description | Pts | Statut
+| *BKY-OUTPUT-1* | `NodeMetadata` — title/description/tags/layout par Section/Article (DDD pur) | 5 | *✅ S172 TERMINÉ*
+| *BKY-OUTPUT-2* | `OutputConfig` — template/layout/cssFiles/jsFiles/theme overridable par nœud | 8 | *✅ S172 TERMINÉ*
+| *BKY-OUTPUT-3* | `PageAssets` — AssetRef (path, integrity, async/defer) | 5 | *🔲 S173*
+| *BKY-OUTPUT-4* | Tree consumption in bake pipeline (SiteConfiguration.tree) | 8 | *🔲 S173*
+| *BKY-OUTPUT-5* | Wire `ThemeResolver` into bake | 5 | *🔲 S174*
+| *BKY-OUTPUT-6* | Per-node template override | 5 | *🔲 S174*
+| *BKY-OUTPUT-7* | Per-node layout + asset injection in Thymeleaf templates | 8 | *🔲 S175*
+| *BKY-OUTPUT-8* | Cucumber BDD coverage | 5 | *🔲 S175*
+|===
+
+_13/49 pts livrés (27%). 22 UT OUTPUT créés (105/105 tree PASS)._
 
 === Code Smells — 24/24 ✅ résolus + 60 nouveaux V5
 

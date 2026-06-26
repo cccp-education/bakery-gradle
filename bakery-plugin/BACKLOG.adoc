@@ -5,12 +5,15 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-29 — Session 171. Clôture S171 + commit/push EPIC BKY-I18N-REAL. Backlog vide — bakery production-ready. Prochaine session : options publication 0.0.3, nouvel EPIC, ou maintenance._
+_Dernière mise à jour : 2026-06-29 — Session 172. BKY-OUTPUT-1+2 livrés (13/49 pts). EPIC BKY-OUTPUT en cours. Prochaine session : OUTPUT-3 PageAssets + OUTPUT-4 Tree→bake._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
 [CAUTION]
 ====
+**EPIC BKY-OUTPUT en cours — 13/49 pts (27%). OUTPUT-1 NodeMetadata + OUTPUT-2
+OutputConfig livrés S172. Prochaine US : OUTPUT-3 PageAssets + OUTPUT-4 Tree→bake.
+**
 **Bakery est production-ready (S170). EPIC BKY-I18N-REAL TERMINÉ — 24/24 pts
 (100%). S170 a livré REAL-1→6 en 1 session (projection 2).
 Golden masters post-migration persistants figent le résultat attendu
@@ -588,8 +591,8 @@ _Investigation S162 — voir `.agents/sessions/BKY-PERF-1-profiling.adoc` pour l
 [cols="2,3]
 |===
 | Document | `BACKLOG.adoc`
- | Version | 15.1 — Session 171 (Clôture S171 + commit/push EPIC BKY-I18N-REAL)
+ | Version | 16.0 — Session 172 (BKY-OUTPUT-1+2 : NodeMetadata + OutputConfig)
 | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-170
-| Prochaine màj | Session 172 — Backlog vide (bakery production-ready). Options : publication 0.0.3, nouvel EPIC, ou maintenance.
+| Prochaine màj | Session 173 — OUTPUT-3 PageAssets + OUTPUT-4 Tree→bake.
 |===
