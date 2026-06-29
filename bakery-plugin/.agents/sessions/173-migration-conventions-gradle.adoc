@@ -1,0 +1,70 @@
+= Session 173 — 2026-06-29
+Type:: migration
+Code:: CNV-6
+Titre:: Migration bakery-gradle vers conventions plugins (gradle-plugin + publishing)
+Score:: 9/10
+
+== Contexte
+
+Session de migration du `build.gradle.kts` de bakery-gradle vers les convention plugins
+publiés en session 008 conventions (Maven Central + Plugin Portal). Bakery est le gold
+standard — 1er borough consommateur de la généralisation CNV-6.
+
+== Travail effectue
+
+1. `settings.gradle.kts` : ajout `mavenLocal()` en tête de pluginManagement (résolution conventions)
+2. `build.gradle.kts` plugins block : `signing`, `maven-publish`, `java-gradle-plugin` → `id("education.cccp.build.gradle-plugin") version "0.0.1"` + `id("education.cccp.build.publishing") version "0.0.1"`
+3. Suppression `kotlin.jvmToolchain(24)` (convention gradle-plugin)
+4. Suppression `java { withJavadocJar(); withSourcesJar() }` (convention gradle-plugin)
+5. Suppression `tasks.withType<Test>` testLogging base (convention gradle-plugin)
+6. Suppression `publishing { publications { withType<MavenPublication> { pom { ... 53 lignes } } } }` (convention publishing)
+7. Suppression `signing { ... 6 lignes }` (convention publishing)
+8. Ajout `publishingConventions { publicationType = "PLUGIN" }` (extension convention)
+9. Conservation `publishing { repositories { mavenCentral() } }` (repo non géré par convention)
+
+== Baby Steps TDD/BDD
+
+1. settings : mavenLocal() pour résolution conventions
+2. build : plugins block migré (convention IDs + version 0.0.1)
+3. compileKotlin ✅ (conventions résolues depuis Maven Central, warnings préexistants)
+4. check ✅ (9m46s — unit + functional + cucumber + e2e + kover 92.94%, zéro régression)
+
+== Lignes supprimées
+
+- 60 lignes supprimées, 5 ajoutées (net -55)
+- build.gradle.kts : 476 → ~410 lignes (-14%)
+- POM Maven Central (developers, scm, licenses) : 53 lignes → 1 ligne (`publicationType = "PLUGIN"`)
+- Signing block : 6 lignes → 0 (convention)
+- Java/Kotlin toolchain : 4 lignes → 0 (convention)
+- testLogging base : 8 lignes → 0 (convention)
+
+== Conservé (spécifique bakery)
+
+- `java-library`, `kover`, `node.gradle`, `publish` (plugins additionnels non convention)
+- functionalTest custom (extendsFrom inverse, logback exclusions, dépendances spécifiques)
+- e2eTest + Playwright (source set + task + installPlaywright NpxTask)
+- cucumberTest custom (classpath inclut functionalTest.output, doLast cleanup, maxHeapSize)
+- kover config + koverThresholdCheck (coverage 92.94%)
+- `publishing { repositories { mavenCentral() } }` (repo de publication non géré par convention)
+- `tasks.withType<Test>` custom (forkEvery, timeout, outputs.cacheIf, maxParallelForks)
+
+== Validation
+
+- `compileKotlin` ✅
+- `check` ✅ BUILD SUCCESSFUL 9m46s (23 tasks, 17 executed)
+- Coverage kover : 92.94% (inchangée — was 93.09% en S169, 92.90% en S165)
+- Zéro régression : tous tests unit, functional, cucumber, e2e PASS
+
+== Fichiers modifies
+
+- `bakery-plugin/settings.gradle.kts` : +1 ligne (mavenLocal())
+- `bakery-plugin/build.gradle.kts` : -60 lignes, +5 lignes (plugins block + publishingConventions)
+
+== Note
+
+Cette session migre UNIQUEMENT les 2 fichiers de build. Le travail BKY-OUTPUT
+(OUTPUT-3 PageAssets + OUTPUT-4 Tree→bake) en cours dans src/ n'est PAS touché.
+
+== Prochaine session (174)
+
+Reprise BKY-OUTPUT-3 PageAssets (AssetRef) + OUTPUT-4 Tree→bake pipeline.

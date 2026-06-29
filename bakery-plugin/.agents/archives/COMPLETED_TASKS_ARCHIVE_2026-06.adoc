@@ -1,5 +1,28 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 173 — 2026-06-29 — CNV-6 Migration conventions plugins
+
+**Contexte** : Migration du `build.gradle.kts` de bakery vers les convention plugins
+publiés sur Maven Central (conventions-gradle session 008). Bakery = 1er borough
+consommateur de la généralisation CNV-6 (gold standard).
+
+**Tâches** :
+- [x] `settings.gradle.kts` : ajout `mavenLocal()` en tête de pluginManagement
+- [x] `build.gradle.kts` : plugins block migré (`signing`, `maven-publish`, `java-gradle-plugin` → `education.cccp.build.gradle-plugin` + `education.cccp.build.publishing` 0.0.1)
+- [x] Suppression `kotlin.jvmToolchain(24)` (convention)
+- [x] Suppression `java { withJavadocJar(); withSourcesJar() }` (convention)
+- [x] Suppression `tasks.withType<Test>` testLogging base (convention)
+- [x] Suppression `publishing { publications { withType<MavenPublication> { pom { ... 53 lignes } } } }` (convention)
+- [x] Suppression `signing { ... 6 lignes }` (convention)
+- [x] Ajout `publishingConventions { publicationType = "PLUGIN" }` (extension convention)
+- [x] Conservation `publishing { repositories { mavenCentral() } }` (repo non géré par convention)
+- [x] `compileKotlin` ✅
+- [x] `check` ✅ BUILD SUCCESSFUL 9m46s (zéro régression, coverage 92.94%)
+
+**Lignes** : 60 supprimées, 5 ajoutées (net -55). build.gradle.kts 476 → ~410 lignes (-14%).
+
+**Conservé** (spécifique bakery, non conventionnable) : `java-library`, `kover`, `node.gradle`, `publish` (plugins additionnels), functionalTest custom (extendsFrom inverse), e2eTest + Playwright, cucumberTest custom (classpath functionalTest.output), kover config + koverThresholdCheck.
+
 == Session 172 — 2026-06-29 — BKY-OUTPUT-1+2 : NodeMetadata + OutputConfig (13 pts)
 
 **Contexte** : Cadrage et démarrage de l'EPIC BKY-OUTPUT (structure générique

@@ -1,11 +1,12 @@
-= PROMPT REPRISE — Bakery — Session 173
-:session: 173
+= PROMPT REPRISE — Bakery — Session 174
+:session: 174
 :date: 2026-06-29
 
-== Session 172 terminée — BKY-OUTPUT-1+2 : NodeMetadata + OutputConfig (13 pts)
+== Session 173 terminée — CNV-6 Migration conventions plugins ✅
 
-S172 a livré les 2 premières US de l'EPIC BKY-OUTPUT. 22 nouveaux UT
-(105/105 tree PASS). `./gradlew test` BUILD SUCCESSFUL (1m5s).
+S173 a migré le `build.gradle.kts` vers les conventions plugins (gradle-plugin + publishing).
+60 lignes supprimées, 5 ajoutées (net -55). `./gradlew check` BUILD SUCCESSFUL 9m46s,
+zéro régression, coverage 92.94%.
 
 == Prochaine mission — EPIC BKY-OUTPUT (suite)
 
@@ -19,4 +20,5 @@ Le socle DDD (NodeMetadata + OutputConfig) est posé. Prochaines US :
 - Version : 0.0.2 Maven Central + Gradle Portal (LIVE)
 - Coverage : ~93% (Kover)
 - EPIC BKY-OUTPUT : 13/49 pts livrés (OUTPUT-1+2)
+- Build migré vers conventions plugins (education.cccp.build.{gradle-plugin, publishing} 0.0.1)
 - Anglais imposé : nommage, commentaires, Gherkin, steps
