@@ -13,6 +13,32 @@
                 <li class="nav-item"><a class="nav-link" th:href="@{/about.html}" th:text="#{nav.about}">À propos</a></li>
                 <li class="nav-item"><a class="nav-link" th:href="@{/contact.html}" th:text="#{nav.contact}">Contact</a></li>
             </ul>
+            <!-- Language Switcher -->
+            <div class="nav-item dropdown language-switcher-container ms-lg-2" th:if="${supportedLanguages != null and !supportedLanguages.isEmpty()}">
+                <button class="btn btn-outline-light dropdown-toggle language-dropdown-btn"
+                        type="button"
+                        id="languageDropdownBasic"
+                        data-bs-toggle="dropdown"
+                        aria-expanded="false"
+                        th:attr="aria-label=#{a11y.language.switcher}" aria-label="Select language">
+                    <i class="bi bi-globe2"></i>
+                    <span th:each="lang : ${supportedLanguages}"
+                          th:if="${lang.code == config.site_language}"
+                          th:text="${lang.nativeName}"
+                          class="d-none d-lg-inline ms-1">Français</span>
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdownBasic">
+                    <li th:each="lang : ${supportedLanguages}">
+                        <a class="dropdown-item"
+                           th:classappend="${lang.code == config.site_language ? 'active' : ''}"
+                           th:href="'/' + ${lang.code} + '/'"
+                           th:attr="data-lang=${lang.code}">
+                            <span th:text="${lang.nativeName}">Français</span>
+                            <span th:if="${lang.rtl}" class="rtl-badge badge bg-info ms-2" th:text="#{lang.rtl.badge}">RTL</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 </nav>

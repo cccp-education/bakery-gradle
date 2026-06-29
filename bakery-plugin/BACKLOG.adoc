@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-29 — Session 172. BKY-OUTPUT-1+2 livrés (13/49 pts). EPIC BKY-OUTPUT en cours. Prochaine session : OUTPUT-3 PageAssets + OUTPUT-4 Tree→bake._
+_Dernière mise à jour : 2026-06-29 — Session 174. BKY-I18N-REAL content migration + BKY-OUTPUT tree livrés. bakery-plugin 0.0.3 publié Maven Central. Prochaine session : OUTPUT-3 validation + OUTPUT-4/5 + SEC-1 audit._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -19,7 +19,7 @@ OutputConfig livrés S172. Prochaine US : OUTPUT-3 PageAssets + OUTPUT-4 Tree→
 Golden masters post-migration persistants figent le résultat attendu
 pour les 3 sites (magic-stick 12, cccp 11, cheroliv 24 templates).
 Idempotence (Ink Economy Law) validée sur données réelles.**
-*Publication* : 0.0.2 sur Maven Central (LIVE) + Gradle Plugin Portal (propagation 24-48h).
+*Publication* : 0.0.3 sur Maven Central (LIVE, bundle 49be80ef) + Gradle Plugin Portal.
 *Coverage* : 93,09% (Kover, S169), seuil `koverThresholdCheck` PASS. +27 UT snapshot (S170).
 *Code smells* : 24/24 V2-V4 + 60 V5 + 3 V6 résolus (24/24 V5 via US-1→8, 8/8 V6).
 *Loi de l'Économie d'Encre* : encodée dans bakery + 9 boroughs transverses (S154).

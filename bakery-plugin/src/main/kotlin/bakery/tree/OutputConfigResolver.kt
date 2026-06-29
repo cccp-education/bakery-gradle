@@ -47,6 +47,7 @@ class OutputConfigResolver(
             layout = other.layout ?: layout,
             cssFiles = other.cssFiles ?: cssFiles,
             jsFiles = other.jsFiles ?: jsFiles,
+            assets = other.assets?.merge(assets) ?: assets,
             theme = other.theme ?: theme
         )
 }

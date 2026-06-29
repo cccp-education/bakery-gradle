@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-06-29 — Session 173 CNV-6 Migration conventions plugins (build.gradle.kts -55 lignes, check 9m46s, zéro régression)._
-_Session en cours_ : 173 terminée — build migré vers conventions 0.0.1._
-_Prochaine session_ : 174 — BKY-OUTPUT-3 PageAssets + OUTPUT-4 Tree→bake pipeline._
+_Derniere mise a jour : 2026-06-29 — Session 174 BKY-I18N-REAL content migration + BKY-OUTPUT tree + pub 0.0.3._
+_Session en cours_ : 174 terminée — i18n content migration + tree/pageAssets + 0.0.3 publié._
+_Prochaine session_ : 175 — BKY-OUTPUT-3 validation + OUTPUT-4/5 + SEC-1 audit._
 
 '''
 

@@ -167,4 +167,57 @@ class SiteTreeYamlTest {
         assertEquals("s/a", parsed.path)
         assertNull((parsed as Article).content)
     }
+
+    @Test
+    fun `round-trip article with page assets`() {
+        val assets = PageAssets(
+            css = listOf(AssetRef(path = "theme.css", integrity = "sha256-abc")),
+            js = listOf(AssetRef(path = "app.js", defer = true))
+        )
+        val original = Article(
+            path = "s/a",
+            outputConfig = OutputConfig(assets = assets)
+        )
+
+        val serialized = yaml.serialize(original)
+        val parsed = yaml.parse(serialized)
+
+        assertTrue(parsed is Article)
+        val config = (parsed as Article).outputConfig
+        assertNotNull(config)
+        val parsedAssets = config!!.assets
+        assertNotNull(parsedAssets)
+        assertEquals(1, parsedAssets.css?.size)
+        assertEquals("theme.css", parsedAssets.css!![0].path)
+        assertEquals("sha256-abc", parsedAssets.css!![0].integrity)
+        assertEquals(1, parsedAssets.js?.size)
+        assertEquals("app.js", parsedAssets.js!![0].path)
+        assertEquals(true, parsedAssets.js!![0].defer)
+    }
+
+    @Test
+    fun `round-trip site with assets on multiple levels`() {
+        val siteAssets = PageAssets(
+            css = listOf(AssetRef(path = "global.css")),
+            js = listOf(AssetRef(path = "analytics.js", async = true))
+        )
+        val sectionCss = listOf(AssetRef(path = "section.css", integrity = "sha384-sec"))
+        val original = Site(
+            path = "",
+            sections = listOf(
+                Section(
+                    path = "blog",
+                    articles = listOf(Article(path = "blog/post-1")),
+                    outputConfig = OutputConfig(assets = PageAssets(css = sectionCss))
+                )
+            ),
+            outputConfig = OutputConfig(assets = siteAssets)
+        )
+
+        val serialized = yaml.serialize(original)
+        val parsed = yaml.parse(serialized) as Site
+
+        assertEquals(siteAssets, parsed.outputConfig?.assets)
+        assertEquals(sectionCss, parsed.sections[0].outputConfig?.assets?.css)
+    }
 }

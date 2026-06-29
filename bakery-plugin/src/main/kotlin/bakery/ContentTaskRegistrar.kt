@@ -9,8 +9,11 @@ import bakery.scaffold.ScaffoldIntentionDsl
 import bakery.theme.GenerateThemeTask
 import bakery.theme.ThemeIntentionDsl
 import bakery.firebase.ValidateFirebaseConfigTask
+import bakery.i18n.ContentMigrationIntentionDsl
+import bakery.i18n.ContentTranslationService
 import bakery.i18n.I18nMigrationIntentionDsl
 import bakery.i18n.LlmServiceTranslationAdapter
+import bakery.i18n.MigrateContentI18nTask
 import bakery.i18n.MigrateToI18nTask
 import org.gradle.api.Project
 import java.io.File
@@ -189,6 +192,45 @@ object ContentTaskRegistrar {
             createLlmServiceIfEnabled(iaConfig) { task.llmService = it }
             task.translationService = task.llmService?.let(::LlmServiceTranslationAdapter)
             project.logger.info("[BakeryPlugin] migrateToI18n IA ${if (iaConfig.enabled) "activé" else "désactivé (ia.enabled = false)"}")
+        }
+    }
+
+    /**
+     * Enregistre la tâche `migrateContentI18n` pour la migration i18n du contenu AsciiDoc.
+     *
+     * Copie le contenu source dans outputDir/{lang}/, puis traduit les fichiers .adoc
+     * via le [TranslationService]. Les fichiers non-adoc sont copiés sans modification.
+     *
+     * @param site Configuration du site (utilise bake.srcPath pour le content root)
+     * @param iaConfig Configuration IA
+     * @param contentMigrationDsl Configuration intention depuis `bakery { contentI18nMigration { ... } }`
+     */
+    internal fun Project.registerMigrateContentI18nTask(
+        site: SiteConfiguration,
+        iaConfig: IaConfig = IaConfig(),
+        contentMigrationDsl: ContentMigrationIntentionDsl? = null
+    ) {
+        val contentRoot = project.projectDir.resolve(site.bake.srcPath)
+        tasks.register("migrateContentI18n", MigrateContentI18nTask::class.java) { task ->
+            task.group = BakeryConstants.TRANSFORM_GROUP
+            task.description = "Migre le contenu AsciiDoc d'un site bakery vers l'i18n — copie le contenu source, traduit les fichiers .adoc, preserve les fichiers non-adoc"
+            task.contentRootDir = contentRoot
+            task.contentI18nSource.set(project.providers.gradleProperty("contentI18nSource").orElse(""))
+            task.contentI18nOutput.set(project.providers.gradleProperty("contentI18nOutput").orElse(""))
+            task.contentI18nTargetLangs.set(project.providers.gradleProperty("contentI18nTargetLangs").orElse(""))
+            task.contentI18nSourceLang.set(project.providers.gradleProperty("contentI18nSourceLang").orElse(""))
+            task.contentI18nDryRun.set(project.providers.gradleProperty("contentI18nDryRun").orElse(""))
+
+            resolveIntention(
+                dsl = contentMigrationDsl,
+                isConfigured = { it.sourceDir.isNotBlank() },
+                toIntention = { it.toIntention() },
+                taskLabel = "contentI18nMigration",
+                setIntention = { task.dslIntention = it }
+            )
+
+            createLlmServiceIfEnabled(iaConfig) { task.translationService = it.let(::LlmServiceTranslationAdapter) }
+            project.logger.info("[BakeryPlugin] migrateContentI18n IA ${if (iaConfig.enabled) "activé" else "désactivé (ia.enabled = false)"}")
         }
     }
 

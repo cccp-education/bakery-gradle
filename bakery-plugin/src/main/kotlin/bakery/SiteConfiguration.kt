@@ -1,5 +1,6 @@
 package bakery
 
+import bakery.tree.SiteNodeDto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 
 data class GitPushConfiguration(
@@ -46,6 +47,7 @@ data class SiteConfiguration(
     val layout: LayoutConfig? = null,
     val language: String = "fr",
     val supportedLanguages: List<String> = listOf("fr"),
+    val tree: SiteNodeDto? = null,
 )
 
 data class BakeConfiguration(

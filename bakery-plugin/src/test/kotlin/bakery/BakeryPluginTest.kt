@@ -791,4 +791,75 @@ class BakeryPluginTest {
             assertThat(resolved.pushProfile).isNull()
         }
     }
+
+    @Nested
+    @TestInstance(PER_CLASS)
+    inner class TreeParsingTest {
+
+        @Test
+        fun `parse site yml with tree section returns tree field`() {
+            val yml = """
+                bake:
+                  srcPath: site
+                  destDirPath: build/bake
+                tree:
+                  type: site
+                  path: /
+                  sections:
+                    - type: section
+                      path: /formations
+                      articles:
+                        - type: article
+                          path: /formations/ab-partition
+                          outputConfig:
+                            template: custom.ftl
+            """.trimIndent()
+
+            val config = yamlMapper.readValue<SiteConfiguration>(yml)
+
+            assertThat(config.tree).isNotNull
+            assertThat(config.tree!!.path).isEqualTo("/")
+            val site = config.tree as bakery.tree.SiteNodeDto.SiteDto
+            assertThat(site.sections).hasSize(1)
+            assertThat(site.sections[0].path).isEqualTo("/formations")
+            assertThat(site.sections[0].articles).hasSize(1)
+            assertThat(site.sections[0].articles[0].path).isEqualTo("/formations/ab-partition")
+            assertThat(site.sections[0].articles[0].outputConfig).isNotNull
+            assertThat(site.sections[0].articles[0].outputConfig!!.template).isEqualTo("custom.ftl")
+        }
+
+        @Test
+        fun `parse site yml without tree section yields null tree`() {
+            val yml = """
+                bake:
+                  srcPath: site
+                  destDirPath: build/bake
+            """.trimIndent()
+
+            val config = yamlMapper.readValue<SiteConfiguration>(yml)
+
+            assertThat(config.tree).isNull()
+        }
+
+        @Test
+        fun `resolvePaths preserves tree field`() {
+            val config = SiteConfiguration(
+                bake = BakeConfiguration("site", "build/bake"),
+                tree = bakery.tree.SiteNodeDto.SiteDto(
+                    path = "/",
+                    sections = listOf(
+                        bakery.tree.SiteNodeDto.SectionDto(
+                            path = "/docs",
+                            articles = listOf(
+                                bakery.tree.SiteNodeDto.ArticleDto(path = "/docs/guide")
+                            )
+                        )
+                    )
+                )
+            )
+            val resolved = config.resolvePaths(java.io.File("."))
+            assertThat(resolved.tree).isNotNull
+            assertThat(resolved.tree!!.path).isEqualTo("/")
+        }
+    }
 }

@@ -6,6 +6,7 @@ import bakery.lens.AugmentedContextDsl
 import bakery.scaffold.ScaffoldIntentionDsl
 import bakery.theme.ThemeIntentionDsl
 import bakery.a11y.AccessibilityDsl
+import bakery.i18n.ContentMigrationIntentionDsl
 import bakery.i18n.I18nMigrationIntentionDsl
 import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
@@ -81,6 +82,9 @@ open class BakeryExtension @Inject constructor(objects: ObjectFactory) {
     /** Configuration I18n Migration Intention (siteDir, languages, defaultLanguage, dryRun) — BKY-I18N-MIG */
     val i18nMigration: I18nMigrationIntentionDsl = I18nMigrationIntentionDsl()
 
+    /** Configuration Content I18n Migration Intention (sourceDir, outputDir, targetLanguages, sourceLanguage, dryRun) — BKY-I18N-REAL */
+    val contentI18nMigration: ContentMigrationIntentionDsl = ContentMigrationIntentionDsl()
+
     /** Configuration Accessibilité (auditDir, reportPath, conformanceLevel) — BKY-A11Y-1 */
     val a11y: AccessibilityDsl = AccessibilityDsl(objects)
 
@@ -153,6 +157,11 @@ open class BakeryExtension @Inject constructor(objects: ObjectFactory) {
     /** DSL : bakery { i18nMigration { ... } } — BKY-I18N-MIG */
     fun i18nMigration(action: Action<I18nMigrationIntentionDsl>) {
         action.execute(i18nMigration)
+    }
+
+    /** DSL : bakery { contentI18nMigration { ... } } — BKY-I18N-REAL */
+    fun contentI18nMigration(action: Action<ContentMigrationIntentionDsl>) {
+        action.execute(contentI18nMigration)
     }
 
     /** DSL : bakery { a11y { ... } } — BKY-A11Y-1 */

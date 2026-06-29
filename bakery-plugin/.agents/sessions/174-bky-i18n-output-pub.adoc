@@ -1,0 +1,77 @@
+= Session 174 — BKY-I18N-REAL content migration + BKY-OUTPUT tree + publication 0.0.3
+
+_Date : 2026-06-29_
+_Type : dev + publication_
+_Score : 8/10_
+
+== Objectif
+
+Livrer le code i18n content migration (BKY-I18N-REAL), tree/pageAssets
+(BKY-OUTPUT), et publier bakery-plugin 0.0.3 sur Maven Central pour
+permettre au notebook Colab (container-provision-gradle) d'utiliser
+`migrateContentI18n`.
+
+== Réalisations
+
+=== BKY-I18N-REAL — Content migration i18n (nouveau code)
+
+5 nouvelles classes dans `bakery/i18n/` :
+- `ContentCopyService` — copie le contenu source vers outputDir/{lang}/
+- `ContentMigrationIntention` — data class (sourceDir, outputDir, sourceLanguage, targetLanguages, dryRun)
+- `ContentMigrationIntentionDsl` — DSL Gradle pour `bakery { contentI18nMigration { ... } }`
+- `ContentTranslationService` — traduit les fichiers .adoc via LLM
+- `MigrateContentI18nTask` — tâche Gradle `migrateContentI18n`
+
+Intégration dans `BakeryPlugin.kt` + `BakeryExtension.kt` +
+`ContentTaskRegistrar.kt`.
+
+5 tests unitaires + 1 test d'intégration RealSiteI18nMigrationIntegrationTest.
+
+=== BKY-OUTPUT — Tree/PageAssets/AsciiDocRenderer (nouveau code)
+
+3 nouvelles classes dans `bakery/tree/` + `bakery/pivot/` :
+- `AssetRef` — path, integrity, async/defer
+- `PageAssets` — collection d'AssetRef
+- `TreeBakeService` — injection tree config dans bake
+- `AsciiDocRenderer` — rendu AsciiDoc pivot
+
+2 features Cucumber (47_page_assets, 48_tree_bake_config) + steps.
+2 tests functional (PageAssetsFunctionalTest, TreeBakeFunctionalTest).
+1 test E2E (E2ELanguageSelectorTest).
+
+=== Messages i18n + menu.thyme (modifications)
+
+Ajout entrées i18n dans messages_{ar,bn,en,es,fr,hi,pt,ru,ur,zh}.properties
+pour `site` et `site-basic` templates. Menu.thyme enrichi.
+
+=== Publication bakery-plugin 0.0.3
+
+- Bump 0.0.2 → 0.0.3
+- Ajout `pom { name.set / description.set }` (requis par Maven Central)
+- Publication nmcp réussie (bundle 49be80ef)
+
+=== build.gradle.kts root — config i18n
+
+Ajout config `contentI18nMigration` + `ia` dans le build root pour
+dogfood la traduction cheroliv.com (fr→en).
+
+== Fichiers
+
+33 modifiés + 26 nouveaux = 59 fichiers.
+
+== Décisions
+
+1. *Content migration comme tâche séparée* — `migrateContentI18n` copie
+   puis traduit, `migrateToI18n` extrait les templates. Deux tâches
+   complémentaires.
+2. *Publication 0.0.3 avant test Colab* — Le notebook Colab consomme
+   bakery-plugin via BOM. Sans 0.0.3 sur Central, le code i18n n'est
+   pas disponible.
+
+== Points ouverts
+
+- *Tests non lancés* — `./gradlew check` non exécuté (durée 9m46s attendue)
+- *workspace-bom 0.0.6* — Référence bakery 0.0.3, publication en cours
+  (interrompue par incident DeepSeek)
+- *EPIC SEC-1* — 8 appels DeepSeek faits par `runAllTests` du BOM pendant
+  la session. Backlog SEC-1 créé dans workspace-bom pour traquer et fixer.

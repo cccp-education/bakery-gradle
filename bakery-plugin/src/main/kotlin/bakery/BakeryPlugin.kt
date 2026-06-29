@@ -21,6 +21,7 @@ import bakery.LensTaskRegistrar.registerCollectSiteContextTask
 import bakery.ContentTaskRegistrar.registerGenerateArticleTask
 import bakery.ContentTaskRegistrar.registerGenerateSiteFromIntentionTask
 import bakery.ContentTaskRegistrar.registerGenerateThemeTask
+import bakery.ContentTaskRegistrar.registerMigrateContentI18nTask
 import bakery.ContentTaskRegistrar.registerMigrateToI18nTask
 import bakery.ContentTaskRegistrar.registerValidateFirebaseConfigTask
 import bakery.a11y.AccessibilityTaskRegistrar.registerAccessibilityAuditTask
@@ -201,6 +202,7 @@ class BakeryPlugin : Plugin<Project> {
         project.registerGenerateThemeTask(resolvedSite, bakeryExtension.themeIntention)
         project.registerValidateFirebaseConfigTask(resolvedSite, bakeryExtension.ia, bakeryExtension.firebaseAuth)
         project.registerMigrateToI18nTask(resolvedSite, bakeryExtension.ia, bakeryExtension.i18nMigration)
+        project.registerMigrateContentI18nTask(resolvedSite, bakeryExtension.ia, bakeryExtension.contentI18nMigration)
         project.registerAccessibilityAuditTask(bakeryExtension, resolvedSite)
     }
 }

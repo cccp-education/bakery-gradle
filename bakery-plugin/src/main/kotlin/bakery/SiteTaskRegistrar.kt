@@ -99,6 +99,13 @@ object SiteTaskRegistrar {
                     .dir(site.bake.destDirPath)
                     .get()
                     .asFile
+                doFirst {
+                    val tree = site.tree
+                    if (tree != null) {
+                        val srcDir = file(site.bake.srcPath)
+                        bakery.tree.TreeBakeService.injectTreeConfig(tree, srcDir)
+                    }
+                }
             } ?: logger.warn("[bakery] bake task not found — JBake task configuration skipped. Is the JBake plugin applied?")
     }
 

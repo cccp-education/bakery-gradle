@@ -14,7 +14,7 @@ plugins {
 }
 
 group = "education.cccp"
-version = "0.0.2"
+version = "0.0.3"
 
 repositories {
     mavenLocal()
@@ -414,6 +414,12 @@ publishingConventions {
 }
 
 publishing {
+    publications.withType<MavenPublication> {
+        pom {
+            name.set("Bakery Plugin")
+            description.set("Gradle plugin for static site generation.")
+        }
+    }
     repositories {
         mavenCentral()
     }

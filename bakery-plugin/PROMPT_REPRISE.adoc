@@ -1,24 +1,25 @@
-= PROMPT REPRISE — Bakery — Session 174
-:session: 174
+= PROMPT REPRISE — Bakery — Session 175
+:session: 175
 :date: 2026-06-29
 
-== Session 173 terminée — CNV-6 Migration conventions plugins ✅
+== Session 174 terminée — BKY-I18N-REAL + BKY-OUTPUT + pub 0.0.3 ✅
 
-S173 a migré le `build.gradle.kts` vers les conventions plugins (gradle-plugin + publishing).
-60 lignes supprimées, 5 ajoutées (net -55). `./gradlew check` BUILD SUCCESSFUL 9m46s,
-zéro régression, coverage 92.94%.
+S174 a livré le code i18n content migration (5 classes), tree/pageAssets
+(4 classes), messages i18n 10 langues, et publié bakery-plugin 0.0.3
+sur Maven Central (bundle 49be80ef).
 
-== Prochaine mission — EPIC BKY-OUTPUT (suite)
+== Prochaine mission — EPIC BKY-OUTPUT (suite) + SEC-1
 
-Le socle DDD (NodeMetadata + OutputConfig) est posé. Prochaines US :
-
-1. OUTPUT-3 : PageAssets — AssetRef (path, integrity, async/defer)
-2. OUTPUT-4 : Consommation tree → bake pipeline
-3. OUTPUT-5 : Wire ThemeResolver dans le bake
+1. *BKY-OUTPUT-3* : PageAssets — AssetRef (path, integrity, async/defer)
+   — code livré S174, reste à valider par `./gradlew check`
+2. *BKY-OUTPUT-4* : Consommation tree → bake pipeline
+3. *BKY-OUTPUT-5* : Wire ThemeResolver dans le bake
+4. *SEC-1* : Participer à l'audit des tests bakery qui font des appels
+   LLM réseau lors de `runAllTests` (EPIC SEC-1 workspace-bom)
 
 == Contexte technique
-- Version : 0.0.2 Maven Central + Gradle Portal (LIVE)
-- Coverage : ~93% (Kover)
-- EPIC BKY-OUTPUT : 13/49 pts livrés (OUTPUT-1+2)
+- Version : 0.0.3 Maven Central (LIVE, bundle 49be80ef)
+- workspace-bom 0.0.6 référence bakery 0.0.3 (à publier)
+- Coverage : ~93% (Kover) — à revalider après S174
 - Build migré vers conventions plugins (education.cccp.build.{gradle-plugin, publishing} 0.0.1)
 - Anglais imposé : nommage, commentaires, Gherkin, steps

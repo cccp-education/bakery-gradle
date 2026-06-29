@@ -1,5 +1,25 @@
 = Archive des Taches Terminees — Juin 2026
 
+== Session 174 — 2026-06-29 — BKY-I18N-REAL content migration + BKY-OUTPUT tree + pub 0.0.3
+
+**Contexte** : Livraison du code i18n content migration (migrateContentI18n),
+tree/pageAssets (BKY-OUTPUT), et publication bakery-plugin 0.0.3 sur Maven
+Central pour le notebook Colab (container-provision-gradle).
+
+**Tâches** :
+- [x] 5 classes i18n : ContentCopyService, ContentMigrationIntention,
+      ContentMigrationIntentionDsl, ContentTranslationService, MigrateContentI18nTask
+- [x] Intégration BakeryPlugin + BakeryExtension + ContentTaskRegistrar
+- [x] 4 classes tree : AssetRef, PageAssets, TreeBakeService, AsciiDocRenderer
+- [x] 2 features Cucumber (47_page_assets, 48_tree_bake_config) + steps
+- [x] 2 functional tests + 1 E2E (E2ELanguageSelectorTest)
+- [x] Messages i18n 10 langues + menu.thyme (site + site-basic templates)
+- [x] Bump 0.0.2 → 0.0.3 + pom name/description (requis Maven Central)
+- [x] Publication Maven Central (bundle 49be80ef)
+- [x] build.gradle.kts root : config i18n dogfood cheroliv.com
+
+**Livré** : 59 fichiers (33 modifiés + 26 nouveaux)
+
 == Session 173 — 2026-06-29 — CNV-6 Migration conventions plugins
 
 **Contexte** : Migration du `build.gradle.kts` de bakery vers les convention plugins
