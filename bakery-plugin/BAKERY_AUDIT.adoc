@@ -663,7 +663,7 @@ open class BakeryExtension {
 }
 
 open class IaConfig {
-    var provider: String = "deepseek-v4-pro"  // modèle Ollama
+    var provider: String = "gpt-oss:120b-cloud"  // modèle Ollama
     var ollamaUrl: String = "http://localhost:11434"
     var temperature: Double = 0.7
     var maxTokens: Int = 4096
