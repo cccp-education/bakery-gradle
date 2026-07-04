@@ -1,0 +1,38 @@
+= Session 175 — Réconciliation code/gouvernance BKY-OUTPUT
+:date: 2026-07-04
+:type: gouvernance + audit
+:score: 8/10
+
+== Objectif
+
+Auditer le décalage entre le code bakery (BKY-OUTPUT) et les rapports de gouvernance. Mettre à jour BACKLOG, INDEX, PROMPT_REPRISE, TODO pour refléter l'état réel.
+
+== Constats
+
+Le code OUTPUT-3/4/6/7/8 était livré S174 mais :
+- `./gradlew check` jamais exécuté S174
+- BACKLOG marquait encore 13/49 pts (réel : 44/49)
+- INDEX, PROMPT_REPRISE, TODO non mis à jour depuis S172
+
+Vérification :
+- `clean compileKotlin` ✅
+- 119 tests tree/OUTPUT ✅ (dont PageAssetsTest, TreeBakeServiceTest, functional tests)
+- 1483/1484 tests total (1 échec préexistant BakeryPluginPublicationTest version mismatch)
+
+== Corrections
+
+| Fichier | Modification
+| BACKLOG.adoc | Version 17.0, métadonnée réconciliée, OUTPUT-3/4/6/7/8 → ✅, 44/49 pts
+| INDEX.adoc | Header S175, tableau OUTPUT mis à jour, session portfolio → 175
+| PROMPT_REPRISE.adoc | Réécrit avec état réel + prochaine mission
+| TODO.adoc | OUTPUT [x] pour livrés, [ ] pour OUTPUT-5 seul
+
+== Restant
+
+- OUTPUT-5 : Wire ThemeResolver dans TreeBakeService (5 pts)
+- SEC-1 : Audit appels LLM réseau dans les tests
+- `./gradlew check` complet (9m)
+
+== Fichiers
+
+4 modifiés, 1 créé (session report). Zéro code source modifié.

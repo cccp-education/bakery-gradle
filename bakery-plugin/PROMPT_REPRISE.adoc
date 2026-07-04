@@ -1,25 +1,28 @@
 = PROMPT REPRISE — Bakery — Session 175
 :session: 175
-:date: 2026-06-29
+:date: 2026-07-04
+:status: Réconciliation code/gouvernance — BKY-OUTPUT 44/49 pts (90%)
 
-== Session 174 terminée — BKY-I18N-REAL + BKY-OUTPUT + pub 0.0.3 ✅
+== Session 174 auditée — Décalage gouvernance/code corrigé
 
-S174 a livré le code i18n content migration (5 classes), tree/pageAssets
-(4 classes), messages i18n 10 langues, et publié bakery-plugin 0.0.3
-sur Maven Central (bundle 49be80ef).
+S174 a livré OUTPUT-3/4/6/7/8 (PageAssets, TreeBakeService, features 47/48, functional tests) + I18N content migration + pub 0.0.3. Mais `./gradlew check` jamais exécuté, BACKLOG/INDEX/PROMPT_REPRISE non mis à jour.
 
-== Prochaine mission — EPIC BKY-OUTPUT (suite) + SEC-1
+Audit S175 : code compile (clean compileKotlin ✅), 1483/1484 tests PASS (1 échec préexistant BakeryPluginPublicationTest), tests tree/OUTPUT tous GREEN. US réévaluées :
 
-1. *BKY-OUTPUT-3* : PageAssets — AssetRef (path, integrity, async/defer)
-   — code livré S174, reste à valider par `./gradlew check`
-2. *BKY-OUTPUT-4* : Consommation tree → bake pipeline
-3. *BKY-OUTPUT-5* : Wire ThemeResolver dans le bake
-4. *SEC-1* : Participer à l'audit des tests bakery qui font des appels
-   LLM réseau lors de `runAllTests` (EPIC SEC-1 workspace-bom)
+- OUTPUT-3 PageAssets/AssetRef → ✅ livré S174
+- OUTPUT-4 TreeBakeService → ✅ livré S174
+- OUTPUT-5 ThemeResolver wiring → 🔲 TreeBakeService utilise OutputConfigResolver, pas ThemeResolver
+- OUTPUT-6 Per-node template → ✅ livré dans TreeBakeService
+- OUTPUT-7 Layout + asset injection → ✅ livré dans TreeBakeService
+- OUTPUT-8 Cucumber BDD → ✅ features 47/48 + steps + FT
+
+== Prochaine mission — OUTPUT-5 + SEC-1
+
+1. *OUTPUT-5* : Remplacer l'appel à OutputConfigResolver dans TreeBakeService par ThemeResolver pour la résolution du thème (5 pts)
+2. *SEC-1* : Audit des tests bakery qui font des appels LLM réseau
+3. *`./gradlew check`* : Lancer le check complet (9m) pour valider la non-régression
 
 == Contexte technique
 - Version : 0.0.3 Maven Central (LIVE, bundle 49be80ef)
-- workspace-bom 0.0.6 référence bakery 0.0.3 (à publier)
-- Coverage : ~93% (Kover) — à revalider après S174
+- Coverage : ~93% (Kover) — à revalider
 - Build migré vers conventions plugins (education.cccp.build.{gradle-plugin, publishing} 0.0.1)
-- Anglais imposé : nommage, commentaires, Gherkin, steps

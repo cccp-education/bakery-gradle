@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-06-29 — Session 174 BKY-I18N-REAL content migration + BKY-OUTPUT tree + pub 0.0.3._
-_Session en cours_ : 174 terminée — i18n content migration + tree/pageAssets + 0.0.3 publié._
-_Prochaine session_ : 175 — BKY-OUTPUT-3 validation + OUTPUT-4/5 + SEC-1 audit._
+_Derniere mise a jour : 2026-07-04 — Session 175. Réconciliation gouvernance/code. BKY-OUTPUT 44/49 pts (90%). BACKLOG, INDEX, PROMPT_REPRISE mis à jour._
+_Session en cours_ : 175 terminée — audit OUTPUT-3→8, réconciliation gouvernance, mise à jour BACKLOG/INDEX/PROMPT_REPRISE._
+_Prochaine session_ : 176 — OUTPUT-5 (ThemeResolver→TreeBakeService) + SEC-1 audit._
 
 '''
 
@@ -264,15 +264,15 @@ projetés, 4-5 sessions._
 | US | Description | Pts | Statut
 | *BKY-OUTPUT-1* | `NodeMetadata` — title/description/tags/layout par Section/Article (DDD pur) | 5 | *✅ S172 TERMINÉ*
 | *BKY-OUTPUT-2* | `OutputConfig` — template/layout/cssFiles/jsFiles/theme overridable par nœud | 8 | *✅ S172 TERMINÉ*
-| *BKY-OUTPUT-3* | `PageAssets` — AssetRef (path, integrity, async/defer) | 5 | *🔲 S173*
-| *BKY-OUTPUT-4* | Tree consumption in bake pipeline (SiteConfiguration.tree) | 8 | *🔲 S173*
-| *BKY-OUTPUT-5* | Wire `ThemeResolver` into bake | 5 | *🔲 S174*
-| *BKY-OUTPUT-6* | Per-node template override | 5 | *🔲 S174*
-| *BKY-OUTPUT-7* | Per-node layout + asset injection in Thymeleaf templates | 8 | *🔲 S175*
-| *BKY-OUTPUT-8* | Cucumber BDD coverage | 5 | *🔲 S175*
+| *BKY-OUTPUT-3* | `PageAssets` — AssetRef (path, integrity, async/defer) | 5 | *✅ S174 TERMINÉ*
+| *BKY-OUTPUT-4* | Tree consumption in bake pipeline (`TreeBakeService.injectTreeConfig`) | 8 | *✅ S174 TERMINÉ*
+| *BKY-OUTPUT-5* | Wire `ThemeResolver` into bake (TreeBakeService passe par OutputConfigResolver) | 5 | *🔲 RESTANT*
+| *BKY-OUTPUT-6* | Per-node template override (déjà dans TreeBakeService) | 5 | *✅ S174 TERMINÉ*
+| *BKY-OUTPUT-7* | Per-node layout + asset injection (déjà dans TreeBakeService) | 8 | *✅ S174 TERMINÉ*
+| *BKY-OUTPUT-8* | Cucumber BDD coverage (features 47+48 + steps + FT) | 5 | *✅ S174 TERMINÉ*
 |===
 
-_13/49 pts livrés (27%). 22 UT OUTPUT créés (105/105 tree PASS)._
+_44/49 pts livrés (90%). 1 US restante (OUTPUT-5, 5pts). `./gradlew check` non exécuté S174 — tests unitaires + fonctionnels vérifiés OK S175._
 
 === Code Smells — 24/24 ✅ résolus + 60 nouveaux V5
 
@@ -291,7 +291,7 @@ _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
 | Projet | Repertoire | Session en cours | Derniere MAJ
   | magic-stick | `~/workspace/foundry/public/magic-stick` | 014 | 2026-05-11
   | plantuml-gradle | `~/workspace/foundry/public/plantuml-gradle/plantuml-plugin` | 148 | 2026-06-11
-  | bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 171 | 2026-06-29
+  | bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 175 | 2026-07-04
   | jhipster-gradle-plugins | `~/workspace/foundry/public/jhipster-gradle-plugins` | 9 | 2026-06-11
   | quizz-benchmark-gradle | `~/workspace/foundry/private/quizz-benchmark-gradle/quizz-benchmark-plugin` | Audit 053 | 2026-04-30
   | runner-gradle | `~/workspace/foundry/public/runner-gradle` | 029 | 2026-05-12

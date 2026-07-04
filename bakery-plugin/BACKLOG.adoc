@@ -5,14 +5,13 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-06-29 — Session 174. BKY-I18N-REAL content migration + BKY-OUTPUT tree livrés. bakery-plugin 0.0.3 publié Maven Central. Prochaine session : OUTPUT-3 validation + OUTPUT-4/5 + SEC-1 audit._
+_Dernière mise à jour : 2026-07-04 — Session 175. BKY-OUTPUT-3→4→6→7→8 livrés S174 (tree/pageAssets/bake pipeline/per-node override/layout+asset injection/BDD). Il reste OUTPUT-5 (ThemeResolver wiring) à intégrer explicitement dans TreeBakeService. SEC-1 audit en attente. BACKLOG réconcilié avec le code — 36pts restants estimés → 5pts réels._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
 [CAUTION]
 ====
-**EPIC BKY-OUTPUT en cours — 13/49 pts (27%). OUTPUT-1 NodeMetadata + OUTPUT-2
-OutputConfig livrés S172. Prochaine US : OUTPUT-3 PageAssets + OUTPUT-4 Tree→bake.
+**EPIC BKY-OUTPUT en cours — 44/49 pts (90%). OUTPUT-1/2 livrés S172, OUTPUT-3/4/6/7/8 livrés S174. Reste OUTPUT-5 (ThemeResolver → TreeBakeService, ~5 pts). Voir section EPIC BKY-OUTPUT ci-dessous pour le détail.
 **
 **Bakery est production-ready (S170). EPIC BKY-I18N-REAL TERMINÉ — 24/24 pts
 (100%). S170 a livré REAL-1→6 en 1 session (projection 2).
@@ -591,8 +590,8 @@ _Investigation S162 — voir `.agents/sessions/BKY-PERF-1-profiling.adoc` pour l
 [cols="2,3]
 |===
 | Document | `BACKLOG.adoc`
- | Version | 16.0 — Session 172 (BKY-OUTPUT-1+2 : NodeMetadata + OutputConfig)
+ | Version | 17.0 — Session 175 (Réconciliation code/gouvernance — OUTPUT-3/4/6/7/8 ✅, 44/49 pts)
 | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
-| Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-170
-| Prochaine màj | Session 173 — OUTPUT-3 PageAssets + OUTPUT-4 Tree→bake.
+| Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-174 + audit S175
+| Prochaine màj | Session 176 — OUTPUT-5 ThemeResolver wiring ou SEC-1 audit.
 |===

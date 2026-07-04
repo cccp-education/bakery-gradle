@@ -1,0 +1,25 @@
+= Archive des Taches Terminees — Juillet 2026
+
+== Session 175 — 2026-07-04 — Réconciliation code/gouvernance BKY-OUTPUT
+
+**Contexte** : Audit du décalage entre le code bakery (BKY-OUTPUT, 44/49 pts réels)
+et les documents de gouvernance (BACKLOG, INDEX, PROMPT_REPRISE, TODO) qui
+n'avaient pas été mis à jour depuis S172.
+
+**Tâches** :
+- [x] Audit complet du code OUTPUT-3→8 (PageAssets, AssetRef, TreeBakeService,
+      features 47/48, functional tests, step definitions)
+- [x] Vérification compile + tests : clean compileKotlin ✅, 119 tests tree/OUTPUT ✅
+- [x] Réévaluation US : OUTPUT-3/4/6/7/8 → ✅, OUTPUT-5 → 🔲 (5pts restants)
+- [x] BACKLOG.adoc version 17.0, métadonnées réconciliées
+- [x] INDEX.adoc header + tableau OUTPUT mis à jour
+- [x] PROMPT_REPRISE.adoc réécrit avec état réel
+- [x] TODO.adoc mis à jour
+- [x] SESSIONS_HISTORY.adoc + session report créés
+
+**Fichiers** : 4 modifiés (INDEX, BACKLOG, PROMPT_REPRISE, TODO),
+2 créés (session report, archive juillet). Zéro code source modifié.
+
+**Score** : 8/10
+
+---
