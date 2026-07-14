@@ -4,6 +4,7 @@ import bakery.article.GenerateArticleTask
 import bakery.llm.IaConfig
 import bakery.llm.LlmService
 import bakery.llm.OllamaLlmService
+import bakery.llm.PooledOllamaLlmService
 import bakery.scaffold.GenerateSiteFromIntentionTask
 import bakery.scaffold.ScaffoldIntentionDsl
 import bakery.theme.GenerateThemeTask
@@ -240,11 +241,19 @@ object ContentTaskRegistrar {
         applyService: (LlmService) -> Unit
     ) {
         if (iaConfig.enabled) {
-            val service = OllamaLlmService.create(
-                baseUrl = iaConfig.baseUrl,
-                modelName = iaConfig.modelName,
-                timeout = iaConfig.timeout
-            )
+            val service = if (iaConfig.portRange != null) {
+                PooledOllamaLlmService.create(
+                    portRange = iaConfig.portRange!!,
+                    modelName = iaConfig.modelName,
+                    timeout = iaConfig.timeout
+                )
+            } else {
+                OllamaLlmService.create(
+                    baseUrl = iaConfig.baseUrl,
+                    modelName = iaConfig.modelName,
+                    timeout = iaConfig.timeout
+                )
+            }
             applyService(service)
         }
     }

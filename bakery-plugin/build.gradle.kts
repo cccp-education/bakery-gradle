@@ -24,7 +24,7 @@ repositories {
 
 dependencies {
     // BOM — workspace version alignment (workspace-bom, MEMPHIS)
-    implementation(platform("education.cccp:workspace-bom:0.0.1"))
+    implementation(platform("education.cccp:workspace-bom:0.0.8"))
 
     implementation(kotlin("stdlib-jdk8"))
 
@@ -36,6 +36,8 @@ dependencies {
     implementation(libs.graphify.plugin)
     implementation(libs.codebase.contracts)
     implementation(libs.codebase.plugin)
+    implementation("education.cccp:api-key-pool")
+    implementation("education.cccp:i18n-contracts")
 
     // LLM — LangChain4j + Ollama (BKY-IA-0)
     implementation(libs.langchain4j.ollama)
