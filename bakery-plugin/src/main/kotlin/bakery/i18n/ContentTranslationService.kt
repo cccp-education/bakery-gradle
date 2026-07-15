@@ -1,7 +1,9 @@
 package bakery.i18n
 
 import bakery.pivot.AsciiDocParser
+import bakery.pivot.ArticleRenderer
 import bakery.pivot.AsciiDocRenderer
+import bakery.pivot.JbakeNativeRenderer
 import bakery.pivot.PivotArticle
 import bakery.pivot.PivotBlock
 import bakery.pivot.PivotFrontmatter
@@ -15,7 +17,8 @@ import java.io.File
 class ContentTranslationService(
     private val translationService: TranslationService,
     private val parser: AsciiDocParser = AsciiDocParser(),
-    private val renderer: AsciiDocRenderer = AsciiDocRenderer()
+    private val renderer: ArticleRenderer = AsciiDocRenderer(),
+    private val jbakeRenderer: ArticleRenderer = JbakeNativeRenderer()
 ) {
     private val log = LoggerFactory.getLogger(ContentTranslationService::class.java)
 
@@ -40,7 +43,8 @@ class ContentTranslationService(
                 val original = file.readText()
                 val article = parser.parse(original)
                 val translatedArticle = translateArticle(article, sourceLanguage, targetLanguage)
-                val rendered = renderer.render(translatedArticle)
+                val outputRenderer = if (article.frontmatter.isJbakeNative) jbakeRenderer else renderer
+                val rendered = outputRenderer.render(translatedArticle)
                 file.writeText(rendered)
                 translated.add(relPath)
                 log.info("[translate] [{}] OK : {}", targetLanguage, relPath)

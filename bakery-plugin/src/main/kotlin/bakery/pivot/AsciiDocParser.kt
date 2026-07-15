@@ -34,6 +34,9 @@ class AsciiDocParser {
         var date = ""
         var type = ""
         var status = ""
+        var author = ""
+        val jbakeAttributes = mutableMapOf<String, String>()
+        val asciidocAttributes = mutableMapOf<String, String>()
         var i = 0
 
         if (i < lines.size && lines[i].startsWith("= ")) {
@@ -44,31 +47,62 @@ class AsciiDocParser {
         while (i < lines.size) {
             val line = lines[i]
             if (line.isBlank()) break
-            if (line.startsWith("@")) {
-                i++
-            } else if (line.matches(Regex("^\\d{4}-\\d{2}-\\d{2}.*"))) {
-                date = line.trim()
-                i++
-            } else if (line.startsWith(":jbake-title:")) {
-                title = line.removePrefix(":jbake-title:").trim().ifEmpty { title }
-                i++
-            } else if (line.startsWith(":jbake-date:")) {
-                date = line.removePrefix(":jbake-date:").trim().ifEmpty { date }
-                i++
-            } else if (line.startsWith(":jbake-type:")) {
-                type = line.removePrefix(":jbake-type:").trim()
-                i++
-            } else if (line.startsWith(":jbake-status:")) {
-                status = line.removePrefix(":jbake-status:").trim()
-                i++
-            } else if (line.startsWith(":")) {
-                i++
-            } else {
-                i++
+            when {
+                line.startsWith("@") -> {
+                    author = line.removePrefix("@").trim()
+                    i++
+                }
+                line.matches(Regex("^\\d{4}-\\d{2}-\\d{2}.*")) -> {
+                    date = line.trim()
+                    i++
+                }
+                line.startsWith(":jbake-title:") -> {
+                    title = line.removePrefix(":jbake-title:").trim().ifEmpty { title }
+                    jbakeAttributes["title"] = title
+                    i++
+                }
+                line.startsWith(":jbake-date:") -> {
+                    date = line.removePrefix(":jbake-date:").trim().ifEmpty { date }
+                    jbakeAttributes["date"] = date
+                    i++
+                }
+                line.startsWith(":jbake-type:") -> {
+                    type = line.removePrefix(":jbake-type:").trim()
+                    jbakeAttributes["type"] = type
+                    i++
+                }
+                line.startsWith(":jbake-status:") -> {
+                    status = line.removePrefix(":jbake-status:").trim()
+                    jbakeAttributes["status"] = status
+                    i++
+                }
+                line.startsWith(":jbake-") -> {
+                    val key = line.removePrefix(":jbake-").substringBefore(":").trim()
+                    val value = line.substringAfter(":jbake-$key:").trim()
+                    jbakeAttributes[key] = value
+                    i++
+                }
+                line.startsWith(":") -> {
+                    val key = line.removePrefix(":").substringBefore(":").trim()
+                    val value = line.substringAfter(":$key:").trim()
+                    if (key.isNotEmpty() && value.isNotEmpty()) {
+                        asciidocAttributes[key] = value
+                    }
+                    i++
+                }
+                else -> i++
             }
         }
 
-        return PivotFrontmatter(title, date, type, status) to i
+        return PivotFrontmatter(
+            title = title,
+            date = date,
+            type = type,
+            status = status,
+            author = author,
+            jbakeAttributes = jbakeAttributes,
+            asciidocAttributes = asciidocAttributes
+        ) to i
     }
 
     private fun parseFrontmatter(lines: List<String>): PivotFrontmatter {

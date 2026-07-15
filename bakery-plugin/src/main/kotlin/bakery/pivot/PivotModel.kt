@@ -82,8 +82,13 @@ data class PivotFrontmatter(
     val title: String,
     val date: String,
     val type: String,
-    val status: String
-)
+    val status: String,
+    val author: String = "",
+    val jbakeAttributes: Map<String, String> = emptyMap(),
+    val asciidocAttributes: Map<String, String> = emptyMap()
+) {
+    val isJbakeNative: Boolean get() = jbakeAttributes.isNotEmpty() || author.isNotEmpty()
+}
 
 data class PivotArticle(
     val frontmatter: PivotFrontmatter,

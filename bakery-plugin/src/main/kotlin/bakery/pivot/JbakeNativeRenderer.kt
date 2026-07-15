@@ -1,27 +1,48 @@
 package bakery.pivot
 
-interface ArticleRenderer {
-    fun render(article: PivotArticle): String
-}
-
-class AsciiDocRenderer : ArticleRenderer {
+class JbakeNativeRenderer : ArticleRenderer {
 
     override fun render(article: PivotArticle): String {
         val sb = StringBuilder()
-        renderFrontmatter(article.frontmatter, sb)
+        renderJbakeHeader(article.frontmatter, sb)
         article.blocks.forEachIndexed { i, block ->
             if (i > 0 || article.blocks.size > 1) sb.appendLine()
             renderBlock(block, sb)
         }
-        return sb.toString()
+        return sb.toString().trimEnd()
     }
 
-    private fun renderFrontmatter(fm: PivotFrontmatter, sb: StringBuilder) {
-        sb.appendLine("title=${fm.title}")
-        sb.appendLine("date=${fm.date}")
-        sb.appendLine("type=${fm.type}")
-        sb.appendLine("status=${fm.status}")
-        sb.appendLine("~~~~~~")
+    private fun renderJbakeHeader(fm: PivotFrontmatter, sb: StringBuilder) {
+        sb.appendLine("= ${fm.title}")
+        if (fm.author.isNotEmpty()) {
+            sb.appendLine("@${fm.author}")
+        }
+        if (fm.date.isNotEmpty()) {
+            sb.appendLine(fm.date)
+        }
+        val attrs = fm.jbakeAttributes.toMutableMap()
+        if (fm.title.isNotEmpty()) attrs["title"] = fm.title
+        if (fm.type.isNotEmpty()) attrs["type"] = fm.type
+        if (fm.status.isNotEmpty()) attrs["status"] = fm.status
+        if (fm.date.isNotEmpty()) attrs["date"] = fm.date
+
+        val orderedKeys = listOf("title", "tags", "type", "status", "date", "summary")
+        val rendered = mutableSetOf<String>()
+        for (key in orderedKeys) {
+            attrs[key]?.let { value ->
+                sb.appendLine(":jbake-$key: $value")
+                rendered.add(key)
+            }
+        }
+        for ((key, value) in attrs) {
+            if (key !in rendered) {
+                sb.appendLine(":jbake-$key: $value")
+            }
+        }
+        for ((key, value) in fm.asciidocAttributes) {
+            sb.appendLine(":$key: $value")
+        }
+        sb.appendLine()
     }
 
     private fun renderBlock(block: PivotBlock, sb: StringBuilder) {
@@ -81,11 +102,7 @@ class AsciiDocRenderer : ArticleRenderer {
         for (block in adm.blocks) {
             renderBlock(block, sb)
         }
-        if (adm.blocks.none { it is PivotBlock.Hr }) {
-            sb.appendLine("====")
-        } else {
-            sb.appendLine("====")
-        }
+        sb.appendLine("====")
     }
 
     private fun renderSource(src: PivotBlock.Source, sb: StringBuilder) {
