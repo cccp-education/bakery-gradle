@@ -108,7 +108,8 @@ abstract class MigrateContentI18nTask : DefaultTask() {
             val translationResult = contentService.translate(
                 langDir = langDir,
                 sourceLanguage = intention.sourceLanguage,
-                targetLanguage = targetLang
+                targetLanguage = targetLang,
+                excludeRelativePaths = intention.excludePaths.toSet()
             )
             logger.lifecycle("[migrateContentI18n] [{}] Fichiers traduits : {}, erreurs : {}",
                 targetLang, translationResult.filesTranslated.size, translationResult.errors.size)

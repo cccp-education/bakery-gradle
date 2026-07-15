@@ -34,10 +34,18 @@ class ContentTranslationService(
     fun translate(
         langDir: File,
         sourceLanguage: String,
-        targetLanguage: String
+        targetLanguage: String,
+        excludeRelativePaths: Set<String> = emptySet()
     ): ContentTranslationResult {
         val adocFiles = langDir.walkTopDown()
             .filter { it.isFile && it.extension == "adoc" }
+            .filter { file ->
+                val relPath = file.relativeTo(langDir).path
+                val dirsToCheck = generateSequence(relPath) { path ->
+                    path.lastIndexOf('/').let { if (it > 0) path.substring(0, it) else null }
+                }.toSet()
+                excludeRelativePaths.none { it in dirsToCheck || relPath.startsWith("$it/") }
+            }
             .toList()
 
         log.info("[translate] Traduction $targetLanguage — ${adocFiles.size} fichiers .adoc dans {} (parallelism={})",
