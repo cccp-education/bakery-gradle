@@ -611,4 +611,93 @@ class AsciiDocParserTest {
         val list = article.blocks[3] as PivotBlock.ListBlock
         assertEquals(2, list.items.size)
     }
+
+    // ── JBake native AsciiDoc format (cheroliv.com) ──────────────────────
+    // Format: = Title / @Author / date / :jbake-*: attributes / blank / body
+    // No ~~~~~~ separator, no title= frontmatter.
+
+    @Test
+    fun `parses jbake native header with document title and jbake attributes`() {
+        val adoc = """
+            = Groovy: Caractères ASCII
+            @CherOliv
+            2019-07-10
+            :jbake-title: Groovy: Caractères ASCII
+            :jbake-tags: blog, Groovy, ASCII, string, char
+            :jbake-type: post
+            :jbake-status: published
+            :jbake-date: 2019-07-10
+            :summary: du groovy, des boucles et de la manipulation de code ascii
+
+            Voici un bout de code fonctionnel en Groovy.
+        """.trimIndent()
+
+        val article = parser.parse(adoc)
+
+        assertEquals("Groovy: Caractères ASCII", article.frontmatter.title)
+        assertEquals("2019-07-10", article.frontmatter.date)
+        assertEquals("post", article.frontmatter.type)
+        assertEquals("published", article.frontmatter.status)
+    }
+
+    @Test
+    fun `parses jbake native body blocks after header section`() {
+        val adoc = """
+            = Test Article
+            @Author
+            2020-01-15
+            :jbake-type: post
+            :jbake-status: published
+
+            == First Section
+
+            First paragraph text.
+
+            [source,bash]
+            ----
+            echo hello
+            ----
+
+            Second paragraph.
+        """.trimIndent()
+
+        val article = parser.parse(adoc)
+
+        assertTrue(article.blocks.size >= 4,
+            "Expected at least 4 blocks, got ${article.blocks.size}: ${article.blocks}")
+        val heading = article.blocks[0] as PivotBlock.Heading
+        assertEquals(2, heading.level)
+        assertEquals("First Section", heading.text)
+        assertTrue(article.blocks[1] is PivotBlock.Paragraph)
+        val src = article.blocks[2] as PivotBlock.Source
+        assertEquals("bash", src.language)
+        assertTrue(src.content.contains("echo hello"))
+        assertTrue(article.blocks[3] is PivotBlock.Paragraph)
+    }
+
+    @Test
+    fun `jbake native roundtrip preserves title and body structure`() {
+        val adoc = """
+            = Roundtrip Test
+            @CherOliv
+            2021-03-20
+            :jbake-type: post
+            :jbake-status: published
+
+            == Heading
+
+            Paragraph with **bold** text.
+        """.trimIndent()
+
+        val article = parser.parse(adoc)
+        val rendered = AsciiDocRenderer().render(article)
+        val reparsed = AsciiDocParser().parse(rendered)
+
+        assertEquals(article.frontmatter.title, reparsed.frontmatter.title)
+        assertEquals(article.blocks.size, reparsed.blocks.size)
+        assertEquals(
+            (article.blocks[0] as PivotBlock.Heading).text,
+            (reparsed.blocks[0] as PivotBlock.Heading).text
+        )
+    }
 }

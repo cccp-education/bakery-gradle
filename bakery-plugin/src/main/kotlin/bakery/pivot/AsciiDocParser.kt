@@ -4,11 +4,71 @@ class AsciiDocParser {
 
     fun parse(adoc: String): PivotArticle {
         val lines = adoc.lines()
+        return if (isPivotFormat(lines)) {
+            parsePivotFormat(lines)
+        } else {
+            parseJbakeNativeFormat(lines)
+        }
+    }
+
+    private fun isPivotFormat(lines: List<String>): Boolean =
+        lines.any { it.startsWith("~~~~~~") }
+
+    private fun parsePivotFormat(lines: List<String>): PivotArticle {
         val frontmatter = parseFrontmatter(lines)
         val bodyStart = indexOfTildeSeparator(lines) + 1
         val bodyLines = lines.drop(bodyStart)
         val blocks = parseBlocks(bodyLines)
         return PivotArticle(frontmatter, blocks)
+    }
+
+    private fun parseJbakeNativeFormat(lines: List<String>): PivotArticle {
+        val (frontmatter, bodyStart) = parseJbakeHeader(lines)
+        val bodyLines = lines.drop(bodyStart)
+        val blocks = parseBlocks(bodyLines)
+        return PivotArticle(frontmatter, blocks)
+    }
+
+    private fun parseJbakeHeader(lines: List<String>): Pair<PivotFrontmatter, Int> {
+        var title = ""
+        var date = ""
+        var type = ""
+        var status = ""
+        var i = 0
+
+        if (i < lines.size && lines[i].startsWith("= ")) {
+            title = lines[i].removePrefix("= ").trim()
+            i++
+        }
+
+        while (i < lines.size) {
+            val line = lines[i]
+            if (line.isBlank()) break
+            if (line.startsWith("@")) {
+                i++
+            } else if (line.matches(Regex("^\\d{4}-\\d{2}-\\d{2}.*"))) {
+                date = line.trim()
+                i++
+            } else if (line.startsWith(":jbake-title:")) {
+                title = line.removePrefix(":jbake-title:").trim().ifEmpty { title }
+                i++
+            } else if (line.startsWith(":jbake-date:")) {
+                date = line.removePrefix(":jbake-date:").trim().ifEmpty { date }
+                i++
+            } else if (line.startsWith(":jbake-type:")) {
+                type = line.removePrefix(":jbake-type:").trim()
+                i++
+            } else if (line.startsWith(":jbake-status:")) {
+                status = line.removePrefix(":jbake-status:").trim()
+                i++
+            } else if (line.startsWith(":")) {
+                i++
+            } else {
+                i++
+            }
+        }
+
+        return PivotFrontmatter(title, date, type, status) to i
     }
 
     private fun parseFrontmatter(lines: List<String>): PivotFrontmatter {
