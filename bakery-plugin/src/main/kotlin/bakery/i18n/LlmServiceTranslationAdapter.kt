@@ -30,5 +30,9 @@ class LlmServiceTranslationAdapter(private val llm: LlmService) : TranslationSer
     }
 
     private fun buildPrompt(request: TranslationRequest): String =
-        "Translate from ${request.sourceLanguage} to ${request.targetLanguage}:\n${request.sourceText}"
+        """You are a professional translator. Translate the following text from ${request.sourceLanguage} to ${request.targetLanguage}.
+Output only the translated text — no explanation, no commentary, no alternatives, no options.
+
+Text to translate:
+${request.sourceText}"""
 }
