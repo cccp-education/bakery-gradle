@@ -18,5 +18,6 @@ bakery {
         targetLanguages = listOf("en")
         dryRun = false
         excludePaths = listOf("content/draft")
+        parallelism = 4
     }
 }

@@ -104,7 +104,7 @@ abstract class MigrateContentI18nTask : DefaultTask() {
             val langDir = outputBaseDir.resolve(targetLang)
             if (!langDir.exists()) continue
 
-            val contentService = ContentTranslationService(translationService)
+            val contentService = ContentTranslationService(translationService, parallelism = intention.parallelism)
             val translationResult = contentService.translate(
                 langDir = langDir,
                 sourceLanguage = intention.sourceLanguage,

@@ -7,6 +7,7 @@ open class ContentMigrationIntentionDsl {
     var targetLanguages: List<String> = listOf("en")
     var dryRun: Boolean = true
     var excludePaths: List<String> = emptyList()
+    var parallelism: Int = 1
 
     fun toIntention(): ContentMigrationIntention = ContentMigrationIntention(
         sourceDir = sourceDir,
@@ -14,6 +15,7 @@ open class ContentMigrationIntentionDsl {
         sourceLanguage = sourceLanguage,
         targetLanguages = targetLanguages,
         dryRun = dryRun,
-        excludePaths = excludePaths
+        excludePaths = excludePaths,
+        parallelism = parallelism
     )
 }
