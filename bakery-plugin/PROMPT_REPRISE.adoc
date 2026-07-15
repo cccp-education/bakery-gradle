@@ -1,28 +1,28 @@
-= PROMPT REPRISE — Bakery — Session 175
-:session: 175
-:date: 2026-07-04
-:status: Réconciliation code/gouvernance — BKY-OUTPUT 44/49 pts (90%)
+= PROMPT REPRISE — Bakery — Session 177
+:session: 177
+:date: 2026-07-15
+:status: i18n EN déployé — edge cases + 8 langues restantes
 
-== Session 174 auditée — Décalage gouvernance/code corrigé
+== Session 176 terminée — i18n parallèle + JbakeNativeRenderer + déploiement
 
-S174 a livré OUTPUT-3/4/6/7/8 (PageAssets, TreeBakeService, features 47/48, functional tests) + I18N content migration + pub 0.0.3. Mais `./gradlew check` jamais exécuté, BACKLOG/INDEX/PROMPT_REPRISE non mis à jour.
+S176 a livré : prompt LLM corrigé, JbakeNativeRenderer, parallélisation ×4,
+sélecteur de langue dans menu.thyme, 106/109 articles EN traduits et déployés
+sur cheroliv.com/en/.
 
-Audit S175 : code compile (clean compileKotlin ✅), 1483/1484 tests PASS (1 échec préexistant BakeryPluginPublicationTest), tests tree/OUTPUT tous GREEN. US réévaluées :
+== Prochaine mission — Edge cases + 8 langues
 
-- OUTPUT-3 PageAssets/AssetRef → ✅ livré S174
-- OUTPUT-4 TreeBakeService → ✅ livré S174
-- OUTPUT-5 ThemeResolver wiring → 🔲 TreeBakeService utilise OutputConfigResolver, pas ThemeResolver
-- OUTPUT-6 Per-node template → ✅ livré dans TreeBakeService
-- OUTPUT-7 Layout + asset injection → ✅ livré dans TreeBakeService
-- OUTPUT-8 Cucumber BDD → ✅ features 47/48 + steps + FT
-
-== Prochaine mission — OUTPUT-5 + SEC-1
-
-1. *OUTPUT-5* : Remplacer l'appel à OutputConfigResolver dans TreeBakeService par ThemeResolver pour la résolution du thème (5 pts)
-2. *SEC-1* : Audit des tests bakery qui font des appels LLM réseau
-3. *`./gradlew check`* : Lancer le check complet (9m) pour valider la non-régression
+1. *3 fichiers edge case* : `:jbake-title:` sans `= Title` — le parser ne
+   détecte pas le header. Corriger `parseJbakeHeader` pour gérer les fichiers
+   sans `= Title` en première ligne.
+2. *Traduire 8 autres langues* : AR, BN, ES, HI, PT, RU, UR, ZH. Configurer
+   `targetLanguages` dans build.gradle.kts, relancer `migrateContentI18n`.
+3. *`<title>` global EN* : Le titre du site est encore en FR dans les templates
+   EN. Vérifier `post.thyme`/`page.thyme` et utiliser `#{site.title}`.
+4. *Cucumber feature 50* : Lancer `cucumberTest` pour valider les 3 scénarios
+   BDD du JbakeNativeRenderer (non exécutés en S176 — timeout).
 
 == Contexte technique
-- Version : 0.0.3 Maven Central (LIVE, bundle 49be80ef)
-- Coverage : ~93% (Kover) — à revalider
-- Build migré vers conventions plugins (education.cccp.build.{gradle-plugin, publishing} 0.0.1)
+- Version : 0.0.3 Maven Central (LIVE)
+- Traduction : 106/109 EN, 0 autres langues
+- Déploiement : cheroliv.github.io (FR + /en/)
+- LLM : gemma4:31b-cloud port 11441, parallelism=4

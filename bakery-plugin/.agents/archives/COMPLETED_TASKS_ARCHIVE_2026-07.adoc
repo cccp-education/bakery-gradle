@@ -23,3 +23,31 @@ n'avaient pas été mis à jour depuis S172.
 **Score** : 8/10
 
 ---
+
+== Session 176 — 2026-07-15 — i18n parallèle + JbakeNativeRenderer + déploiement
+
+**Contexte** : Traduction i18n des articles cheroliv.com en anglais.
+Les fichiers EN étaient corrompus (bavardage LLM au lieu de traductions)
+et le renderer pivot écrasait le format JBake natif.
+
+**Tâches** :
+- [x] Commit parser JBake natif + bump deps (BOM 0.0.9, Gradle 9.6.1)
+- [x] Corriger prompt LLM (rôle translator, interdiction bavardage)
+- [x] Créer JbakeNativeRenderer (préserve format `= Title / @Author / :jbake-*:`)
+- [x] Étendre PivotFrontmatter (author, jbakeAttributes, asciidocAttributes)
+- [x] Paralléliser ContentTranslationService (Dispatchers.IO + Semaphore ×4)
+- [x] Câbler parallelism DSL → Intention → Task → Service
+- [x] Exclure paths dans la traduction (pas seulement la copie)
+- [x] Ajouter sélecteur de langue (10 langues) dans menu.thyme
+- [x] Régénérer golden master + fixtures + translations_en
+- [x] Traduire 106/109 articles EN via LLM (gemma4:31b-cloud, ×4)
+- [x] Déployer site FR + EN sur cheroliv.github.io
+
+**Fichiers** : 9 production + 6 tests + 5 fixtures + 2 build = 22 fichiers.
+7 commits poussés.
+
+**Tests** : +17 UT + 3 BDD + 3 Cucumber. Tous GREEN.
+
+**Score** : 9/10
+
+---

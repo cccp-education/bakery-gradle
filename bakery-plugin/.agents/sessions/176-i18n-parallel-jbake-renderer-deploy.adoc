@@ -1,0 +1,116 @@
+= Session 176 — Bakery — i18n parallèle + JbakeNativeRenderer + déploiement cheroliv.com
+:date: 2026-07-15
+:type: DDD + TDD + BDD + déploiement
+:score: 9/10
+
+== Objectif
+
+1. Commit bakery parser JBake natif + bump deps
+2. Relancer traduction 175 fichiers en parallèle
+3. Améliorer prompt LLM
+4. Ajouter sélecteur de langue dans navigation
+5. Déployer version i18n du site
+
+== Réalisations
+
+=== Commit parser JBake natif (dc249f3)
+
+Parser AsciiDoc détecte et parse le format JBake natif (`= Title / @Author / :jbake-*:`)
+en plus du format pivot (`title=.../~~~~~~`). 5 UT + 2 real-file UT + 3 Cucumber BDD
+(feature 49). Bump BOM 0.0.9, Gradle 9.6.1, api-key-pool 0.0.1, i18n-contracts 0.0.2.
+
+=== Prompt LLM amélioré (5574132)
+
+`LlmServiceTranslationAdapter.buildPrompt` réécrit : rôle "professional translator",
+interdiction explicite de bavardage/options/alternatives. Avant le LLM renvoyait des
+méta-commentaires ("Here are a few ways to translate this..."). Maintenant il renvoie
+une traduction propre. 5 TDD tests.
+
+=== JbakeNativeRenderer (60fd685)
+
+Nouveau renderer préservant le format JBake natif pendant la traduction.
+`PivotFrontmatter` étendu avec `author`, `jbakeAttributes`, `asciidocAttributes`.
+`ContentTranslationService` détecte le format source et sélectionne le bon renderer.
+5 UT + 3 BDD unit tests + 3 Cucumber scenarios (feature 50).
+Interface `ArticleRenderer` extraite pour polymorphisme.
+
+=== Parallélisation traduction (a13c212, 659939f, a0fe81b)
+
+`ContentTranslationService` accepte `parallelism` (default=1). `parallelism>1` utilise
+`Dispatchers.IO` + `Semaphore` pour traduire N fichiers concurrents. 4 TDD tests :
+équivalence séquentielle, détection concurrence, collecte erreurs, comportement par défaut.
+Câblage DSL : `ContentMigrationIntentionDsl.parallelism` → Intention → Task → Service.
+Dogfood config : `parallelism = 4`.
+
+=== Exclusion paths dans traduction (8305f05)
+
+`ContentTranslationService.translate()` accepte `excludeRelativePaths` pour skipper
+les répertoires exclus pendant la traduction (pas seulement la copie). Corrige le bug
+des fichiers `draft/` traduits malgré l'exclusion.
+
+=== Sélecteur de langue dans menu.thyme
+
+Dropdown "Langues" ajouté à `office/sites/cheroliv.com/jbake/templates/menu.thyme`
+(10 langues : FR, EN, AR, BN, ES, HI, PT, RU, UR, ZH). Golden master + fixture +
+translations_en régénérés pour les nouvelles clés `menu.11`, `menu.12`.
+
+=== Traduction 106/109 articles EN
+
+106 articles traduits en anglais via LLM (`gemma4:31b-cloud` port 11441, parallélisme ×4).
+Format JBake natif préservé. 3 fichiers edge case (`:jbake-title:` sans `= Title`)
+non traduits — à corriger dans une prochaine session.
+
+=== Déploiement cheroliv.com
+
+Site FR + EN baked et déployé sur `cheroliv.github.io` (commit `1a09c03`).
+EN accessible dans `/en/`. Sélecteur de langue visible sur le site live.
+
+== Fichiers modifiés
+
+Production :
+- `bakery-plugin/src/main/kotlin/bakery/i18n/LlmServiceTranslationAdapter.kt` — prompt LLM
+- `bakery-plugin/src/main/kotlin/bakery/i18n/ContentTranslationService.kt` — parallélisation + exclusion
+- `bakery-plugin/src/main/kotlin/bakery/pivot/AsciiDocParser.kt` — parser JBake natif étendu
+- `bakery-plugin/src/main/kotlin/bakery/pivot/AsciiDocRenderer.kt` — interface ArticleRenderer
+- `bakery-plugin/src/main/kotlin/bakery/pivot/JbakeNativeRenderer.kt` — nouveau renderer
+- `bakery-plugin/src/main/kotlin/bakery/pivot/PivotModel.kt` — PivotFrontmatter étendu
+- `bakery-plugin/src/main/kotlin/bakery/i18n/MigrateContentI18nTask.kt` — câblage parallelism + exclusion
+- `bakery-plugin/src/main/kotlin/bakery/i18n/ContentMigrationIntentionDsl.kt` — parallelism DSL
+- `bakery-plugin/src/main/kotlin/bakery/i18n/ContentMigrationIntention.kt` — parallelism field
+- `office/sites/cheroliv.com/jbake/templates/menu.thyme` — sélecteur de langue
+
+Tests :
+- `bakery-plugin/src/test/kotlin/bakery/i18n/LlmServiceTranslationAdapterTest.kt` — 5 UT
+- `bakery-plugin/src/test/kotlin/bakery/pivot/JbakeNativeRendererTest.kt` — 5 UT
+- `bakery-plugin/src/test/kotlin/bakery/i18n/ContentTranslationServiceParallelTest.kt` — 4 UT
+- `bakery-plugin/src/test/kotlin/bakery/i18n/JbakeNativeTranslationBddTest.kt` — 3 BDD
+- `bakery-plugin/src/test/features/50_jbake_native_translation.feature` — 3 Cucumber
+- `bakery-plugin/src/test/scenarios/bakery/scenarios/JbakeNativeTranslationSteps.kt` — steps
+
+Fixtures :
+- `bakery-plugin/src/test/resources/i18n-fixtures/cheroliv-com/post-migration/templates/menu.thyme`
+- `bakery-plugin/src/test/resources/i18n-fixtures/cheroliv-com/post-migration/templates/messages_fr.properties`
+- `bakery-plugin/src/test/resources/i18n-fixtures/cheroliv-com/post-migration/templates/messages_en.properties`
+- `bakery-plugin/src/test/resources/i18n-fixtures/cheroliv-com/translations_en.properties`
+- `bakery-plugin/src/test/resources/i18n-fixtures/cheroliv-com/jbake/templates/menu.thyme`
+
+Build :
+- `build.gradle.kts` — dogfood config parallelism=4
+- `gradle/libs.versions.toml` — bakery 0.0.2 → 0.0.3
+
+== Commits (7)
+
+1. `dc249f3` — feat(pivot): JBake native AsciiDoc parser + bump deps
+2. `5574132` — fix(i18n): LLM translation prompt forbids commentary and options
+3. `60fd685` — feat(i18n): JbakeNativeRenderer preserves native format
+4. `a13c212` — feat(i18n): parallel translation in ContentTranslationService
+5. `659939f` — feat(i18n): wire parallelism DSL parameter
+6. `a0fe81b` — fix(i18n): wire parallelism from DSL to ContentMigrationIntention
+7. `8305f05` — feat(i18n): exclude paths in translation + language dropdown menu
+
+== Prochaine session
+
+- 3 fichiers edge case (`:jbake-title:` sans `= Title`) à corriger dans le parser
+- Traduire les 8 autres langues (AR, BN, ES, HI, PT, RU, UR, ZH)
+- Le `<title>` global du site est encore en FR dans les templates EN
+- Tests Cucumber complets (feature 50 non exécutés — cucumberTest timeout)
