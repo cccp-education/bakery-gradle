@@ -166,7 +166,8 @@ abstract class MigrateContentI18nTask : DefaultTask() {
             sourceLanguage = resolvedSourceLang,
             targetLanguages = resolvedTargetLangs,
             dryRun = resolvedDryRun,
-            excludePaths = resolvedExclude
+            excludePaths = resolvedExclude,
+            parallelism = dslIntention?.parallelism ?: 1
         )
     }
 
