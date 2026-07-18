@@ -1,0 +1,29 @@
+= Diagramme avec labels traduisibles
+@CherOliv
+2026-07-18
+:jbake-title: Diagramme avec labels traduisibles
+:jbake-type: post
+:jbake-status: published
+:jbake-date: 2026-07-18
+:jbake-tags: plantuml, translate
+:summary: Un article dont le diagramme contient des labels humains à traduire.
+
+== Diagramme de cas d'utilisation
+
+Le diagramme ci-dessous représente les acteurs et leurs interactions.
+Les labels entre guillemets sont traduisibles par la stratégie TranslateLabels.
+
+[source,plantuml]
+----
+@startuml
+"Utilisateur" --> (Se connecter)
+"Administrateur" --> (Gérer les utilisateurs)
+"Visiteur" --> (Consulter le catalogue)
+@enduml
+----
+
+== Texte associé
+
+Les acteurs Utilisateur, Administrateur et Visiteur apparaissent dans
+le diagramme. La traduction doit transformer ces labels tout en
+préservant la structure PlantUML (startuml, enduml, flèches).

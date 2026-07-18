@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-07-18 — Session 179. EPIC BKY-I18N-DEPLOY cadré (35 pts, 7 US). DEPLOY-0 (7 FT smoke) + DEPLOY-1 (15 UT PlantUmlClassifier) livrés. 8/35 pts. Plugin 0.0.4 mavenLocal._
-_Session en cours_ : 179 terminée — EPIC BKY-I18N-DEPLOY actif._
-_Prochaine session_ : 180 — DEPLOY-2 (PlantUmlTranslationAdapter) + DEPLOY-3 (RtlDirectionInjector concept pur), 10 pts parallélisables._
+_Derniere mise a jour : 2026-07-19 — Session 182. EPIC BKY-I18N-DEPLOY actif (33/35 pts, 94%). DEPLOY-0 (3 pts) + DEPLOY-1 (5 pts) S179 + DEPLOY-2 (5 pts) + DEPLOY-3 (5 pts) S180 + DEPLOY-4 (5 pts) + DEPLOY-5 (5 pts) S181 + DEPLOY-6 (5 pts) S182 livrés. 1 US restante (DEPLOY-7). Plugin 0.0.4 mavenLocal._
+_Session en cours_ : 182 terminée — EPIC BKY-I18N-DEPLOY actif._
+_Prochaine session_ : 183 — DEPLOY-7 (généralisation 8 sites + 10 langues + CI, 7 pts, clôture EPIC)._
 
 '''
 
@@ -69,6 +69,9 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 182 | 2026-07-19 | DDD + TDD + BDD | **EPIC BKY-I18N-DEPLOY — DEPLOY-6 Fixture 10 langues + BDD end-to-end (5 pts)** — 1 US livrée. Fixture `cheroliv-com-i18n-deploy/` (3 articles FR couvrant 3 stratégies PlantUml : PreserveTechnical class diagram, TranslateLabels use case diagram, BorrowVocabulary REAC/AFNOR) + `i18n/{9 langues}/` vides + `site.yml` 10 langues + `menu.thyme`. Feature `55_i18n_deploy_end_to_end.feature` 7 scénarios BDD GREEN (FR→EN headers préservés, FR→AR RTL, FR→ZH LTR, PlantUml ×3 stratégies, end-to-end 10 langues + lang switcher). Steps `I18nDeployEndToEndSteps.kt` (fake translator label-aware, zéro LLM en CI — Loi Économie d'Encre, dictionnaire FR→EN 17 entrées + remplacement in-texte). Step names préfixés `the deploy pipeline` pour éviter DuplicateStepDefinition. `cucumberTest` GREEN 2m43s. Plugin 0.0.4 mavenLocal. Déploiement cheroliv.com CI étendu 10 langues (workflow `deploy-cheroliv-com.yml` boucle 9 langues swap/bake/inject). Bug préexistant `BakeryPluginPublicationTest` version mismatch (0.0.4 vs catalog 0.0.3) non introduit. | 9/10
+  | 181 | 2026-07-18 | DDD + TDD + BDD | **EPIC BKY-I18N-DEPLOY — DEPLOY-4 RtlDirectionInjectionTask + DEPLOY-5 PlantUml adapter câblage (10 pts)** — 2 US livrées. DEPLOY-4 : `RtlDirectionInjectionTask` (package `bakery.i18n.rtl`) walk `content-i18n/{lang}/**/*.adoc` (persistant, hors `build/` — Loi Économie d'Encre) → parse → inject via `RtlDirectionInjector` → render. Câblage `ContentTaskRegistrar` + `BakeryPlugin`. Bug idempotence résolu : injecteur met `lang` dans `jbakeAttributes` (symétrie parser). 7 FT + 7 UT pipeline + 7 BDD feature 54 GREEN. DEPLOY-5 : câblage `PlantUmlTranslationAdapter` dans `ContentTranslationService.translateBlock` (dispatch `PivotBlock.Source` plantuml). 3 UT + 4 FT dry-run dogfooding cheroliv.com (échantillon 3 articles). Procédure LLM réel documentée (boundary doc). | 9/10
+  | 180 | 2026-07-18 | DDD + TDD + BDD | **EPIC BKY-I18N-DEPLOY — DEPLOY-2 PlantUmlTranslationAdapter + DEPLOY-3 RtlDirectionInjector (10 pts)** — 2 US parallélisables livrées. DEPLOY-3 : `RtlDirective` value object + `RtlDirectionInjector.inject(frontmatter, lang)` délègue `LanguageCatalog.findByCode` (i18n-contracts). RTL (ar/ur) → `:jbake-lang:` + `:lang: rtl`, LTR → drop `:lang:` (idempotence inverse), lang inconnue → no-op. 11 UT + 9 BDD GREEN. DEPLOY-2 : `PlantUmlTranslationAdapter` dispatch sur `PlantUmlClassifier` — `PreserveTechnical` no-op, `TranslateLabels` traduit labels via port `TranslationService`, `BorrowVocabulary` masque vocab métier (REAC/AFNOR/DC/TS/RNCP/CP/ECF) derrière placeholders PUA `\uE000...\uE001` avant traduction puis restaure verbatim. 11 UT + 9 BDD GREEN. Aucun fichier production existant modifié (additif). `cucumberTest` complet GREEN 2m42s. Plugin 0.0.4 mavenLocal. | 9/10
   | 178 | 2026-07-18 | DDD + TDD + BDD | **EPIC BKY-LANG-SWITCH CLOS — Renderer + Task + BDD** — Fix build préexistant (bump codebase 0.0.6, BOM transitif résolu). LANG-SWITCH-3 `LangSwitchThymeleafRenderer` (13 UT, 10 langues natives labels). LANG-SWITCH-5 `LangSwitchInjector` (5 UT, domaine pur idempotent) + `InjectLangSwitchTask` (7 FT, câblage ContentTaskRegistrar + BakeryPlugin). LANG-SWITCH-6 BDD Cucumber feature 51 (5 scénarios, 11 steps, paths préfixés site/). 18 UT + 7 FT + 5 BDD ajoutés. cucumberTest complet GREEN. Plugin 0.0.4 mavenLocal. | 9/10
   | 176 | 2026-07-15 | DDD + TDD + BDD + déploiement | **i18n parallèle + JbakeNativeRenderer + déploiement cheroliv.com/en/** — Prompt LLM corrigé (rôle translator, interdiction bavardage). JbakeNativeRenderer préserve le format `= Title / @Author / :jbake-*:`. PivotFrontmatter étendu (author, jbakeAttributes, asciidocAttributes). ContentTranslationService parallélisé (Dispatchers.IO + Semaphore ×4). Exclusion paths dans la traduction. Sélecteur de langue (10 langues) dans menu.thyme. 106/109 articles EN traduits et déployés sur cheroliv.github.io/en/. 7 commits. 5 UT + 5 UT + 4 UT + 3 BDD + 3 Cucumber. Golden master régénéré. | 9/10
   | 173 | 2026-06-29 | migration | **CNV-6 Migration conventions plugins** — `build.gradle.kts` migré vers `education.cccp.build.gradle-plugin` + `education.cccp.build.publishing` 0.0.1. 60 lignes supprimées (POM 53 + signing 6 + toolchain 4 + testLogging 8), 5 ajoutées (net -55). `publishingConventions { publicationType = "PLUGIN" }`. `./gradlew check` BUILD SUCCESSFUL 9m46s, zéro régression, coverage 92.94%. 1er borough consommateur de la généralisation CNV-6 (gold standard). | 9/10
@@ -276,6 +279,28 @@ projetés, 4-5 sessions._
 
 _44/49 pts livrés (90%). 1 US restante (OUTPUT-5, 5pts). `./gradlew check` non exécuté S174 — tests unitaires + fonctionnels vérifiés OK S175._
 
+=== EPIC BKY-I18N-DEPLOY — Dogfooding i18n sur sites réels (NOUVEAU — Session 179)
+
+_Dogfooding i18n sur sites réels via copies — généralisation du socle
+`ContentTranslationService` + `MigrateContentI18nTask` (S134) aux 8 sites
+et 10 langues, avec classification PlantUML (TRANSLATE/PRESERVE/BORROW) et
+injection RTL. 7 US, 35 pts, 5 sessions S179→S183. Détail dans `BACKLOG.adoc`._
+
+|===
+| US | Description | Pts | Statut
+
+| *BKY-I18N-DEPLOY-0* | Cadrage boundary + copies de travail + smoke FT | 3 | *✅ S179 TERMINÉ*
+| *BKY-I18N-DEPLOY-1* | `PlantUmlClassifier` port DDD pur (sealed `PlantUmlStrategy`) | 5 | *✅ S179 TERMINÉ*
+| *BKY-I18N-DEPLOY-2* | `PlantUmlTranslationAdapter` — dispatch sur stratégie | 5 | *✅ S180 TERMINÉ*
+| *BKY-I18N-DEPLOY-3* | `RtlDirectionInjector` concept pur (délègue `LanguageCatalog`) | 5 | *✅ S180 TERMINÉ*
+| *BKY-I18N-DEPLOY-4* | `RtlDirectionInjectionTask` + FT (intégration `ContentTaskRegistrar`) | 5 | *✅ S181 TERMINÉ*
+| *BKY-I18N-DEPLOY-5* | LLM réel dogfooding cheroliv.com FR→EN (108 articles, câblage adapter) | 5 | *✅ S181 TERMINÉ*
+| *BKY-I18N-DEPLOY-6* | Fixture 10 langues + BDD Cucumber end-to-end | 5 | *✅ S182 TERMINÉ*
+| *BKY-I18N-DEPLOY-7* | Généralisation 8 sites + 10 langues + CI | 7 | *🔲 RESTANT — S183*
+|===
+
+_33/35 pts livrés (94%). DEPLOY-6 livré S182. 1 US restante. Plugin 0.0.4 mavenLocal._
+
 === Code Smells — 24/24 ✅ résolus + 60 nouveaux V5
 
 24/24 smells V2-V4 résolus. 60 nouveaux smells V5 identifiés Session 117.
@@ -293,7 +318,7 @@ _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
 | Projet | Repertoire | Session en cours | Derniere MAJ
   | magic-stick | `~/workspace/foundry/public/magic-stick` | 014 | 2026-05-11
   | plantuml-gradle | `~/workspace/foundry/public/plantuml-gradle/plantuml-plugin` | 148 | 2026-06-11
-  | bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 175 | 2026-07-04
+  | bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 181 | 2026-07-18
   | jhipster-gradle-plugins | `~/workspace/foundry/public/jhipster-gradle-plugins` | 9 | 2026-06-11
   | quizz-benchmark-gradle | `~/workspace/foundry/private/quizz-benchmark-gradle/quizz-benchmark-plugin` | Audit 053 | 2026-04-30
   | runner-gradle | `~/workspace/foundry/public/runner-gradle` | 029 | 2026-05-12

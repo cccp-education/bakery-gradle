@@ -252,6 +252,83 @@ Hello world.
         val para = result.blocks[0] as bakery.pivot.PivotBlock.Paragraph
         assertEquals("Hello world.", (para.inline[0] as bakery.pivot.PivotInline.Text).text)
     }
+
+    @Test
+    fun `plantuml source block is preserved when no adapter is wired`() {
+        val fake = FakeTranslationService(" [EN]")
+        val service = ContentTranslationService(fake, parser, renderer)
+
+        val article = parser.parse("""title=Test
+date=2026-06-26
+type=page
+status=published
+~~~~~~
+
+[plantuml]
+----
+@startuml
+actor "Utilisateur" as User
+User -> Service: Requête
+@enduml
+----
+""")
+        val result = service.translateArticle(article, "fr", "en")
+
+        val source = result.blocks[0] as bakery.pivot.PivotBlock.Source
+        assertEquals("plantuml", source.language)
+        assertTrue(source.content.contains("Utilisateur"))
+    }
+
+    @Test
+    fun `plantuml source block is translated through adapter when wired`() {
+        val fake = FakeTranslationService(" [EN]")
+        val adapter = bakery.i18n.plantuml.PlantUmlTranslationAdapter(fake)
+        val service = ContentTranslationService(fake, parser, renderer, plantUmlAdapter = adapter)
+
+        val article = parser.parse("""title=Test
+date=2026-06-26
+type=page
+status=published
+~~~~~~
+
+[plantuml]
+----
+@startuml
+actor "Utilisateur" as User
+User -> Service: Requête
+@enduml
+----
+""")
+        val result = service.translateArticle(article, "fr", "en")
+
+        val source = result.blocks[0] as bakery.pivot.PivotBlock.Source
+        assertEquals("plantuml", source.language)
+        assertTrue(source.content.contains("Utilisateur [EN]"))
+    }
+
+    @Test
+    fun `non-plantuml source block is not dispatched to adapter`() {
+        val fake = FakeTranslationService(" [EN]")
+        val adapter = bakery.i18n.plantuml.PlantUmlTranslationAdapter(fake)
+        val service = ContentTranslationService(fake, parser, renderer, plantUmlAdapter = adapter)
+
+        val article = parser.parse("""title=Test
+date=2026-06-26
+type=page
+status=published
+~~~~~~
+
+[source,java]
+----
+public class Hello {}
+----
+""")
+        val result = service.translateArticle(article, "fr", "en")
+
+        val source = result.blocks[0] as bakery.pivot.PivotBlock.Source
+        assertEquals("java", source.language)
+        assertEquals("public class Hello {}", source.content)
+    }
 }
 
 class FakeTranslationService(private val suffix: String) : TranslationService {

@@ -79,7 +79,7 @@ test parsing, zéro écriture) → DEPLOY-5 apply LLM réel écrase proprement.
 ----
 ./gradlew migrateContentI18n \
   --contentI18nSource=doc/refonte/jbake/content/blog \
-  --contentI18nOutput=build/i18n-dry-run \
+  --contentI18nOutput=content-i18n \
   --contentI18nSourceLang=fr \
   --contentI18nTargetLangs=en \
   --contentI18nDryRun=true
@@ -88,8 +88,54 @@ test parsing, zéro écriture) → DEPLOY-5 apply LLM réel écrase proprement.
 Assertions (smoke FT) :
 . `BUILD SUCCESSFUL`
 . Logs listent les 108 fichiers parsés
-. `build/i18n-dry-run/en/` n'existe pas (dry-run = zéro écriture)
+. `content-i18n/en/` n'existe pas (dry-run = zéro écriture)
 . Aucun crash parsing
+
+== Commande LLM réel dogfooding (DEPLOY-5 — opérateur, pas CI)
+
+_LLM metered, non-déterministe — ~108 appels pour 108 articles × 1 langue.
+À lancer manuellement par l'opérateur, jamais en CI._
+
+----
+./gradlew migrateContentI18n \
+  --contentI18nSource=doc/refonte/jbake/content/blog \
+  --contentI18nOutput=content-i18n \
+  --contentI18nSourceLang=fr \
+  --contentI18nTargetLangs=en \
+  --contentI18nDryRun=false
+----
+
+Pré-requis :
+. Plugin bakery 0.0.4+ publié mavenLocal (`./gradlew publishToMavenLocal`)
+. Ollama actif sur port 11437-11465 (rotation), modèle `gpt-oss:120b-cloud`
+. `ia.enabled = true` + `ia.portRange = "11437-11465"` dans la config site
+. `content-i18n/en/blog/` existant (copie cassée) sera écrasé proprement
+
+Assertions qualité (post-run, à valider manuellement) :
+. 108 articles traduits dans `content-i18n/en/blog/`
+. Zéro en-tête cassé (`title=/date=/~~~~~~` disparu)
+. `:jbake-title:` présent et traduit (EN)
+. Ratio FR résiduel < 5% (mots FR restants dans le corps)
+. Blocks `[source]` inchangés (code préservé)
+. Blocks `[plantuml]` classés selon DEPLOY-2 (TRANSLATE/PRESERVE/BORROW)
+. `injectRtlDirection` (DEPLOY-4) post-traduction pour ar/ur (si ciblé)
+
+Loi de l'Économie d'Encre : re-exécuter la commande sur un `content-i18n/en/`
+déjà traduit NE re-traduit PAS (load-before-write, delta vide). Le résultat
+est persistant et source-controlled (hors `build/`).
+
+== Injection RTL post-traduction (DEPLOY-4)
+
+Après `migrateContentI18n` (non-dry-run), lancer `injectRtlDirection` pour
+injecter `:jbake-lang:` + `:lang: rtl` dans les variantes ar/ur :
+
+----
+./gradlew injectRtlDirection \
+  --contentI18nOutput=content-i18n \
+  --contentI18nTargetLangs=ar,ur
+----
+
+Idempotent : re-run = même résultat. LTR (en, fr, zh, ...) → drop `:lang: rtl`.
 
 == Réutilisations cross-boroughs
 

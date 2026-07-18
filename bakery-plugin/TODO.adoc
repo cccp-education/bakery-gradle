@@ -116,3 +116,16 @@ Tous les tests (68 UT + 10 Cucumber) utilisent des templates synthétiques dans 
 * [x] **RECO-1** : Wrapper parse YAML `BakeryPlugin.kt:93` dans `Either.catch`. → ✅ S097
 * [x] **RECO-2** : Documenter parallélisme potentiel tâches Gradle. → ✅ S097
 * [x] **RECO-3** : `configureConfigPath()` retourner `Either<String, Unit>`. → ✅ S097
+
+== EPIC BKY-I18N-DEPLOY — Dogfooding i18n sur sites réels (35 pts, 7 US)
+
+_Cadré S179. 18/35 pts livrés (51%)._
+
+* [x] **DEPLOY-0** : Cadrage boundary + copies de travail + 7 FT smoke ✅ S179
+* [x] **DEPLOY-1** : `PlantUmlClassifier` port DDD pur (15 UT) ✅ S179
+* [x] **DEPLOY-2** : `PlantUmlTranslationAdapter` (11 UT + 9 BDD) ✅ S180
+* [x] **DEPLOY-3** : `RtlDirectionInjector` concept pur (11 UT + 9 BDD) ✅ S180
+* [ ] **DEPLOY-4** : `RtlDirectionInjectionTask` + FT (câblage `ContentTaskRegistrar`) — S181
+* [ ] **DEPLOY-5** : LLM réel dogfooding cheroliv.com FR→EN (108 articles, câblage `PlantUmlTranslationAdapter` dans `ContentTranslationService.translateBlock`) — S181
+* [ ] **DEPLOY-6** : Fixture 10 langues + BDD Cucumber end-to-end — S182
+* [ ] **DEPLOY-7** : Généralisation 8 sites + 10 langues + CI — S183

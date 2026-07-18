@@ -128,3 +128,179 @@ méthodologie baby step DDD/TDD/BDD.
 
 **Prochaine session S180** : DEPLOY-2 (`PlantUmlTranslationAdapter`) +
 DEPLOY-3 (`RtlDirectionInjector` concept pur), 10 pts parallélisables.
+
+=== S180 (2026-07-18) — DEPLOY-2 PlantUmlTranslationAdapter + DEPLOY-3 RtlDirectionInjector ===
+
+**US livrées** :
+- [x] DEPLOY-3 `RtlDirectionInjector` (5 pts) — `RtlDirective(lang, rtl)` +
+      `RtlDirectionInjector.inject(frontmatter, lang)` délègue
+      `LanguageCatalog.findByCode` (i18n-contracts). RTL (ar/ur) →
+      `:jbake-lang:` + `:lang: rtl`, LTR → drop `:lang:` (idempotence
+      inverse), lang inconnue → no-op. 11 UT + 9 BDD scénarios (feature 52).
+- [x] DEPLOY-2 `PlantUmlTranslationAdapter` (5 pts) — dispatch sur
+      `PlantUmlClassifier` S179. `PreserveTechnical` no-op, `TranslateLabels`
+      traduit labels via port `TranslationService`, `BorrowVocabulary` masque
+      vocab métier (REAC/AFNOR/DC/TS/RNCP/CP/ECF) derrière placeholders PUA
+      `\uE000...\uE001` avant traduction puis restaure verbatim. 11 UT + 9
+      BDD scénarios (feature 53).
+- [x] Plugin 0.0.4 republié mavenLocal (signature GPG)
+- [x] `cucumberTest` complet GREEN 2m42s (18 nouveaux scénarios BDD)
+- [x] Procédure 6+1 étapes exécutée
+
+**Fichiers** (8 nouveaux, 0 modifié production) :
+- `src/main/kotlin/bakery/i18n/rtl/RtlDirectionInjector.kt` (nouveau, domaine pur, 37 lignes)
+- `src/main/kotlin/bakery/i18n/plantuml/PlantUmlTranslationAdapter.kt` (nouveau, adapter, 93 lignes)
+- `src/test/kotlin/bakery/i18n/rtl/RtlDirectionInjectorTest.kt` (nouveau, 11 UT, 122 lignes)
+- `src/test/kotlin/bakery/i18n/plantuml/PlantUmlTranslationAdapterTest.kt` (nouveau, 11 UT)
+- `src/test/features/52_rtl_direction_injection.feature` (nouveau, 9 scénarios)
+- `src/test/features/53_plantuml_translation_adapter.feature` (nouveau, 9 scénarios)
+- `src/test/scenarios/bakery/scenarios/RtlDirectionSteps.kt` (nouveau, stepdefs)
+- `src/test/scenarios/bakery/scenarios/PlantUmlTranslationSteps.kt` (nouveau, stepdefs)
+
+**Métriques** : 22 UT + 18 BDD = 40 tests ajoutés. 18/35 pts EPIC livrés
+(51%). 0 fichier production existant modifié (additif — DEPLOY-4 câblera
+les adapters dans `ContentTranslationService`). 0 secret compromis.
+
+**Réutilisations cross-boroughs** :
+- `LanguageCatalog.findByCode` (MEMPHIS i18n-contracts MEM-3 S116)
+- `DeckTranslator.ensureRtlDirection` pattern (MIAMI SLD-5 S030)
+- `PlantUmlClassifier` (bakery S179 via HTOWN PLT-BOUNDARY S163-166)
+
+**Prochaine session S181** : DEPLOY-4 (`RtlDirectionInjectionTask` + FT,
+câblage `ContentTaskRegistrar`) + DEPLOY-5 (LLM réel dogfooding cheroliv.com
+FR→EN, câblage `PlantUmlTranslationAdapter` dans
+`ContentTranslationService.translateBlock`), 10 pts parallélisables.
+
+== Session 181 — DEPLOY-4 RtlDirectionInjectionTask + DEPLOY-5 PlantUml adapter câblage (10 pts)
+
+_Date_ : 2026-07-18
+_EPIC_ : BKY-I18N-DEPLOY
+_Statut_ : ✅ TERMINÉ — 28/35 pts EPIC (80%)
+
+=== DEPLOY-4 — RtlDirectionInjectionTask (5 pts)
+
+Tâche Gradle `injectRtlDirection` (package `bakery.i18n.rtl`) qui walk
+`content-i18n/{lang}/**/*.adoc` (persistant, hors `build/` — Loi Économie
+d'Encre) et applique `RtlDirectionInjector` à chaque frontmatter. Câblage
+`ContentTaskRegistrar.registerRtlDirectionInjectionTask` (après
+`registerMigrateContentI18nTask`) + `BakeryPlugin.registerFullPipelineTasks`.
+
+Bug idempotence découvert et résolu : `RtlDirectionInjector` S180 mettait
+`jbake-lang` dans `asciidocAttributes`, mais le parser lit `:jbake-lang:`
+→ `jbakeAttributes["lang"]`. Au 2e run, doublon rendu. Correctif :
+l'injecteur met maintenant `lang` dans `jbakeAttributes` (clé `lang` →
+rendu `:jbake-lang:`) et `lang: rtl` dans `asciidocAttributes`. Symétrie
+parser/renderer restaurée. UTs + steps BDD existants mis à jour.
+
+Fichiers :
+- `src/main/kotlin/bakery/i18n/rtl/RtlDirectionInjectionTask.kt` (nouveau, task)
+- `src/main/kotlin/bakery/i18n/rtl/RtlDirectionInjector.kt` (modifié, jbakeAttributes)
+- `src/main/kotlin/bakery/ContentTaskRegistrar.kt` (modifié, registerRtlDirectionInjectionTask)
+- `src/main/kotlin/bakery/BakeryPlugin.kt` (modifié, câblage task)
+- `src/test/kotlin/bakery/i18n/rtl/RtlDirectionInjectorTest.kt` (modifié, jbakeAttributes)
+- `src/test/kotlin/bakery/i18n/rtl/RtlDirectionInjectionPipelineTest.kt` (nouveau, 7 UT pipeline)
+- `src/functionalTest/kotlin/bakery/InjectRtlDirectionFunctionalTest.kt` (nouveau, 7 FT)
+- `src/test/features/54_rtl_direction_injection_task.feature` (nouveau, 7 scénarios BDD)
+- `src/test/scenarios/bakery/scenarios/RtlDirectionInjectionTaskSteps.kt` (nouveau, stepdefs)
+- `src/test/scenarios/bakery/scenarios/RtlDirectionSteps.kt` (modifié, jbakeAttributes)
+
+=== DEPLOY-5 — Câblage PlantUml adapter + dogfooding dry-run (5 pts)
+
+Câblage `PlantUmlTranslationAdapter` dans `ContentTranslationService.translateBlock`
+(dispatch sur `PivotBlock.Source` quand `language == "plantuml"` && adapter
+non-null). Paramètre optionnel `plantUmlAdapter: PlantUmlTranslationAdapter? = null`
+pour préserver la backward compat. `MigrateContentI18nTask` instancie
+l'adapter quand un `translationService` est disponible.
+
+FT dry-run dogfooding cheroliv.com : échantillon représentatif 3 articles
+(simple, PlantUML, source code) validé en dry-run (zéro écriture, headers
+JBake préservés, 10 langues supportées, blocks PlantUML gérés). Le vrai
+dogfooding LLM réel (108 articles × 10 langues = ~1080 appels LLM) est
+documenté dans `.agents/I18N_DEPLOY_BOUNDARY.adoc` (commande + assertions
+qualité + pré-requis Ollama 11437-11465, `gpt-oss:120b-cloud`). Pas un
+test CI — LLM metered, non-déterministe.
+
+Fichiers :
+- `src/main/kotlin/bakery/i18n/ContentTranslationService.kt` (modifié, plantUmlAdapter)
+- `src/main/kotlin/bakery/i18n/MigrateContentI18nTask.kt` (modifié, adapter wiring)
+- `src/test/kotlin/bakery/i18n/ContentTranslationServiceTest.kt` (modifié, 3 UT PlantUML)
+- `src/functionalTest/kotlin/bakery/CherolivComDogfoodingDryRunFunctionalTest.kt` (nouveau, 4 FT)
+- `.agents/I18N_DEPLOY_BOUNDARY.adoc` (modifié, commande LLM réel + injectRtlDirection)
+
+**Métriques** : 10 UT + 11 FT + 7 BDD = 28 tests ajoutés. 28/35 pts EPIC
+livrés (80%). 0 secret compromis.
+
+**Leçon apprise** : l'injecteur RTL doit écrire dans la même couche que le
+parser lit (`jbakeAttributes["lang"]` pour `:jbake-lang:`, pas
+`asciidocAttributes["jbake-lang"]`). Sinon, l'idempotence casse au 2e run
+(doublon rendu). De plus, le répertoire cible de la traduction doit être
+persistant (`content-i18n/`) et NON `build/` (détruit au `clean`) — sinon
+chaque rebuild re-paye le LLM (violation Loi Économie d'Encre).
+
+**Prochaine session S182** : DEPLOY-6 (fixture 10 langues + BDD end-to-end,
+5 pts) + DEPLOY-7 (généralisation 8 sites + CI, 7 pts).
+
+---
+
+== Session 182 — 2026-07-19 — DEPLOY-6 Fixture 10 langues + BDD end-to-end
+
+**EPIC** : BKY-I18N-DEPLOY (35 pts, 7 US) — 94% (33/35 pts)
+**Méthode** : Baby step DDD/TDD/BDD (fixture → feature → steps → GREEN)
+
+### Livré S182
+
+**DEPLOY-6 (5 pts)** — Fixture 10 langues + BDD Cucumber end-to-end :
+- Fixture `cheroliv-com-i18n-deploy/` : 3 articles FR `.adoc` couvrant les
+  3 stratégies PlantUml (PreserveTechnical class diagram, TranslateLabels
+  use case diagram, BorrowVocabulary REAC/AFNOR) + `i18n/{9 langues}/`
+  vides + `site.yml` 10 langues + `menu.thyme` avec lang-switcher-container.
+- Feature `55_i18n_deploy_end_to_end.feature` : 7 scénarios BDD GREEN
+  (FR→EN headers préservés, FR→AR RTL injecté, FR→ZH LTR, PlantUml
+  PreserveTechnical intact, PlantUml TranslateLabels traduit, PlantUml
+  BorrowVocabulary REAC/AFNOR verbatim, end-to-end 10 langues + lang
+  switcher FR menu).
+- Steps `I18nDeployEndToEndSteps.kt` : fake translator label-aware (zéro
+  LLM en CI — Loi Économie d'Encre), dictionnaire FR→EN 17 entrées +
+  remplacement in-texte, préfixe `[lang]` pour non-EN. Pipeline
+  ContentTranslationService (avec PlantUmlTranslationAdapter) →
+  RtlDirectionInjector → LangSwitchInjector. Step names préfixés
+  `the deploy pipeline` pour éviter DuplicateStepDefinition avec
+  `RtlDirectionInjectionTaskSteps`.
+
+**Déploiement cheroliv.com CI 10 langues** :
+- Workflow `office/.github/workflows/deploy-cheroliv-com.yml` étendu :
+  bake FR + pagefind, boucle 9 langues (en, ar, bn, es, hi, pt, ru, ur, zh)
+  swap jbake/ ↔ i18n/{lang}/ → bake → restore → inject sous /{lang}/,
+  deploySite final. Un seul checkout engine réutilisé (séquentiel).
+- PROMPT_REPRISE cheroliv.com mis à jour (session 033).
+
+### Tests
+
+- 7 BDD scénarios (feature 55) GREEN
+- `cucumberTest` complet GREEN 2m43s
+- Tests unitaires i18n/langswitch/pivot/plantuml/rtl GREEN
+- `publishToMavenLocal` OK (plugin 0.0.4)
+- Bug préexistant `BakeryPluginPublicationTest` (version mismatch 0.0.4
+  vs catalog 0.0.3) — non introduit par cette session
+
+### Fichiers
+
+- `src/test/resources/fixtures/cheroliv-com-i18n-deploy/` — NOUVEAU (6 fichiers)
+- `src/test/features/55_i18n_deploy_end_to_end.feature` — NOUVEAU (7 scénarios)
+- `src/test/scenarios/bakery/scenarios/I18nDeployEndToEndSteps.kt` — NOUVEAU
+- `office/.github/workflows/deploy-cheroliv-com.yml` — workflow 10 langues
+- `office/sites/cheroliv.com/PROMPT_REPRISE.adoc` — mis à jour
+
+### Leçons
+
+- **DuplicateStepDefinition silencieux** : Cucumber peut ignorer toute une
+  classe de steps si un `@When`/`@Then` duplique, sans exception explicite.
+  Solution : préfixer les step names par contexte.
+- **{string} exige des guillemets** : `from fr to {string}` ne matche pas
+  `from fr to en` — il faut `from fr to "en"` dans la feature.
+- **Fake translator label-aware** : dictionnaire FR→EN + remplacement
+  in-texte (pas match exact) suffit pour valider le pipeline en CI sans
+  LLM metered.
+
+**Prochaine session S183** : DEPLOY-7 (généralisation 8 sites + 10 langues
++ CI, 7 pts, clôture EPIC BKY-I18N-DEPLOY 35/35 pts).

@@ -8,6 +8,7 @@ import bakery.pivot.PivotArticle
 import bakery.pivot.PivotBlock
 import bakery.pivot.PivotFrontmatter
 import bakery.pivot.PivotInline
+import bakery.i18n.plantuml.PlantUmlTranslationAdapter
 import contracts.i18n.TranslationRequest
 import contracts.i18n.TranslationResult
 import contracts.i18n.TranslationService
@@ -27,7 +28,8 @@ class ContentTranslationService(
     private val parser: AsciiDocParser = AsciiDocParser(),
     private val renderer: ArticleRenderer = AsciiDocRenderer(),
     private val jbakeRenderer: ArticleRenderer = JbakeNativeRenderer(),
-    private val parallelism: Int = 1
+    private val parallelism: Int = 1,
+    private val plantUmlAdapter: PlantUmlTranslationAdapter? = null
 ) {
     private val log = LoggerFactory.getLogger(ContentTranslationService::class.java)
 
@@ -188,7 +190,13 @@ class ContentTranslationService(
                 blocks = block.blocks.map { translateBlock(it, sourceLanguage, targetLanguage) }
             )
         }
-        is PivotBlock.Source -> block
+        is PivotBlock.Source -> {
+            if (block.language == "plantuml" && plantUmlAdapter != null) {
+                plantUmlAdapter.translate(block, sourceLanguage, targetLanguage)
+            } else {
+                block
+            }
+        }
         is PivotBlock.Hr -> block
     }
 

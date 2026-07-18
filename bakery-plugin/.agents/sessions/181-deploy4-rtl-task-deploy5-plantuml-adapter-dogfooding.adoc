@@ -1,0 +1,120 @@
+= Session 181 — DEPLOY-4 RtlDirectionInjectionTask + DEPLOY-5 PlantUml adapter câblage + dogfooding dry-run
+
+:session: 181
+:date: 2026-07-18
+:epic: BKY-I18N-DEPLOY
+:points_livres: 10
+:score: 9/10
+
+== Objectif
+
+Livrer DEPLOY-4 (RtlDirectionInjectionTask + FT + câblage ContentTaskRegistrar)
+et DEPLOY-5 (câblage PlantUmlTranslationAdapter dans ContentTranslationService.translateBlock
++ FT dry-run dogfooding cheroliv.com + documentation procédure LLM réel).
+10 pts parallélisables, méthodo baby step DDD/TDD/BDD.
+
+== DEPLOY-4 — RtlDirectionInjectionTask (5 pts)
+
+=== TDD rouge → vert
+
+. FT rouge : `InjectRtlDirectionFunctionalTest` (7 tests) — tâche inconnue.
+. Implémentation `RtlDirectionInjectionTask.kt` (package `bakery.i18n.rtl`) —
+  walk `content-i18n/{lang}/**/*.adoc` (persistant, hors `build/` — Loi Économie
+  d'Encre), parse → inject via `RtlDirectionInjector` → render via
+  `JbakeNativeRenderer`/`AsciiDocRenderer`.
+. Câblage `ContentTaskRegistrar.registerRtlDirectionInjectionTask` (après
+  `registerMigrateContentI18nTask`) + `BakeryPlugin.registerFullPipelineTasks`.
+
+=== Bug idempotence découvert et résolu
+
+Le `RtlDirectionInjector` S180 mettait `jbake-lang` dans `asciidocAttributes`,
+mais le parser lit `:jbake-lang:` → `jbakeAttributes["lang"]`. Au 2e run,
+doublon `:jbake-lang:` rendu 2x. Correctif : l'injecteur met maintenant
+`lang` dans `jbakeAttributes` (clé `lang` → rendu `:jbake-lang:`) et
+`lang: rtl` dans `asciidocAttributes`. Harmonisation avec le parser.
+UTs `RtlDirectionInjectorTest` (11) + steps BDD `RtlDirectionSteps` (feature 52)
+mis à jour pour checker `jbakeAttributes["lang"]` au lieu de
+`asciidocAttributes["jbake-lang"]`.
+
+=== Tests
+
+. 7 FT `InjectRtlDirectionFunctionalTest` GREEN (arabic, french, urdu, idempotent,
+  drops pre-existing rtl, skips languages, registered, 10 target languages)
+. 7 UT `RtlDirectionInjectionPipelineTest` GREEN (pipeline parse→inject→render
+  sans GradleRunner — domaine pur)
+. 7 scénarios BDD feature 54 `54_rtl_direction_injection_task.feature` GREEN
+  (steps `RtlDirectionInjectionTaskSteps`)
+
+== DEPLOY-5 — Câblage PlantUml adapter + dogfooding (5 pts)
+
+=== Câblage ContentTranslationService
+
+. `ContentTranslationService` étendu avec paramètre optionnel `plantUmlAdapter:
+  PlantUmlTranslationAdapter? = null`. Dispatch dans `translateBlock` sur
+  `PivotBlock.Source` quand `block.language == "plantuml"` && adapter != null.
+  Sinon comportement inchangé (block préservé). Backward compat préservée.
+. `MigrateContentI18nTask` instancie l'adapter quand un `translationService`
+  est disponible : `PlantUmlTranslationAdapter(translationService)` injecté
+  dans `ContentTranslationService`.
+
+=== Tests UT
+
+. 3 nouveaux UT dans `ContentTranslationServiceTest` :
+  - `plantuml source block is preserved when no adapter is wired` (backward compat)
+  - `plantuml source block is translated through adapter when wired` (labels traduits)
+  - `non-plantuml source block is not dispatched to adapter` (java source préservé)
+
+=== FT dry-run dogfooding cheroliv.com
+
+. `CherolivComDogfoodingDryRunFunctionalTest` (4 tests) — échantillon
+  représentatif 3 articles (simple, PlantUML, source code) validé en dry-run.
+  Assertions : BUILD SUCCESSFUL, DRY-RUN, zéro écriture, headers JBake préservés,
+  10 langues supportées, blocks PlantUML gérés.
+. Le vrai dogfooding LLM réel (108 articles × 10 langues = ~1080 appels LLM)
+  est documenté dans `.agents/I18N_DEPLOY_BOUNDARY.adoc` (commande + assertions
+  qualité + pré-requis Ollama). Pas un test CI — LLM metered, non-déterministe.
+
+== Fichiers modifiés/créés
+
+. `src/main/kotlin/bakery/i18n/rtl/RtlDirectionInjectionTask.kt` — NOUVEAU (task)
+. `src/main/kotlin/bakery/i18n/rtl/RtlDirectionInjector.kt` — modifié (jbakeAttributes)
+. `src/main/kotlin/bakery/i18n/ContentTranslationService.kt` — modifié (plantUmlAdapter)
+. `src/main/kotlin/bakery/i18n/MigrateContentI18nTask.kt` — modifié (adapter wiring)
+. `src/main/kotlin/bakery/ContentTaskRegistrar.kt` — modifié (registerRtlDirectionInjectionTask)
+. `src/main/kotlin/bakery/BakeryPlugin.kt` — modifié (câblage task)
+. `src/test/kotlin/bakery/i18n/rtl/RtlDirectionInjectorTest.kt` — modifié (jbakeAttributes)
+. `src/test/kotlin/bakery/i18n/rtl/RtlDirectionInjectionPipelineTest.kt` — NOUVEAU (7 UT)
+. `src/test/kotlin/bakery/i18n/ContentTranslationServiceTest.kt` — modifié (3 UT PlantUML)
+. `src/functionalTest/kotlin/bakery/InjectRtlDirectionFunctionalTest.kt` — NOUVEAU (7 FT)
+. `src/functionalTest/kotlin/bakery/CherolivComDogfoodingDryRunFunctionalTest.kt` — NOUVEAU (4 FT)
+. `src/test/features/54_rtl_direction_injection_task.feature` — NOUVEAU (7 scénarios BDD)
+. `src/test/scenarios/bakery/scenarios/RtlDirectionInjectionTaskSteps.kt` — NOUVEAU (stepdefs)
+. `src/test/scenarios/bakery/scenarios/RtlDirectionSteps.kt` — modifié (jbakeAttributes)
+. `.agents/I18N_DEPLOY_BOUNDARY.adoc` — modifié (commande LLM réel + injectRtlDirection)
+
+== Validation
+
+. `./gradlew compileKotlin` SUCCESS
+. `./gradlew publishToMavenLocal` SUCCESS (plugin 0.0.4, signature GPG)
+. `./gradlew test --tests "bakery.i18n.rtl.*" --tests "bakery.i18n.plantuml.*" --tests "bakery.i18n.ContentTranslationServiceTest"` SUCCESS
+. `./gradlew :functionalTest --tests "*InjectRtlDirection*"` 7/7 PASS
+. `./gradlew :functionalTest --tests "*CherolivComDogfooding*"` 4/4 PASS
+. `./gradlew cucumberTest` feature 54 — 7/7 scénarios GREEN
+
+== Leçon apprise
+
+_Loi de l'Économie d'Encre + cohérence parser/renderer_ : l'injecteur RTL
+doit écrire dans la même couche que le parser lit. `:jbake-lang:` est parsé
+dans `jbakeAttributes["lang"]`, pas dans `asciidocAttributes["jbake-lang"]`.
+Sinon, l'idempotence casse au 2e run (doublon rendu). Règle : le renderer
+et le parser doivent être symétriques sur le placement des attributs.
+
+De plus, le répertoire cible de la traduction doit être persistant
+(`content-i18n/`) et NON `build/` (détruit au `clean`). Sinon, chaque
+rebuild re-paye le LLM — violation directe de la Loi de l'Économie d'Encre.
+
+== Statut EPIC
+
+18/35 pts → 28/35 pts (80%). DEPLOY-4 + DEPLOY-5 livrés. Reste DEPLOY-6
+(fixture 10 langues + BDD end-to-end, 5 pts) + DEPLOY-7 (généralisation
+8 sites + CI, 7 pts). Plugin 0.0.4 mavenLocal.

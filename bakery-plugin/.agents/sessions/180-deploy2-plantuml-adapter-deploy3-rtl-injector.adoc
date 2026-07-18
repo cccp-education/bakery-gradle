@@ -1,0 +1,157 @@
+= Session 180 — DEPLOY-2 PlantUmlTranslationAdapter + DEPLOY-3 RtlDirectionInjector
+:session: 180
+:date: 2026-07-18
+:epic: BKY-I18N-DEPLOY
+:points_livres: 10/35 (DEPLOY-2 5 pts + DEPLOY-3 5 pts)
+:score: 9/10
+
+== Mission
+
+Session 180 du plugin bakery-gradle (Bushwick). EPIC BKY-I18N-DEPLOY — US
+DEPLOY-2 (`PlantUmlTranslationAdapter`) + US DEPLOY-3 (`RtlDirectionInjector`),
+10 pts parallélisables (DAG indépendants). Méthodo baby-step DDD/TDD/BDD
+stricte, agile software craftsmanship, anglais only dans le code.
+
+== Contexte
+
+DEPLOY-0 (cadrage + smoke FT) + DEPLOY-1 (`PlantUmlClassifier` 15 UT)
+livrés S179. 8/35 pts avant cette session.
+
+DEPLOY-2 et DEPLOY-3 sont indépendants dans le DAG (DEPLOY-2 dépend de
+DEPLOY-1, DEPLOY-3 dépend de DEPLOY-0). Les deux étendent le socle
+`ContentTranslationService` sans le modifier (DEPLOY-4 câblera les adapters
+dans le pipeline).
+
+== Livrables
+
+=== DEPLOY-3 — `RtlDirectionInjector` (5 pts, DDD pur + UT + BDD)
+
+*Fichier production* :
+`src/main/kotlin/bakery/i18n/rtl/RtlDirectionInjector.kt` (37 lignes).
+
+- `data class RtlDirective(lang: String, rtl: Boolean)` — value object.
+- `class RtlDirectionInjector` — méthode `inject(frontmatter, lang)` :
+  - Délègue à `LanguageCatalog.findByCode(lang)` (i18n-contracts MEM-3).
+  - Lang inconnue → no-op (retourne frontmatter inchangé).
+  - RTL (ar, ur) → `asciidocAttributes["jbake-lang"] = lang` +
+    `["lang"] = "rtl"`.
+  - LTR → `["jbake-lang"] = lang` + supprime `["lang"]` (idempotence
+    inverse : source RTL traduite vers LTR drop RTL layout).
+  - `:jbake-lang:` écrase la valeur précédente (idempotent).
+- Inspiré du pattern `DeckTranslator.ensureRtlDirection` (MIAMI S030),
+adapté au contexte bakery (attribut `:jbake-lang:` + `:lang: rtl` au lieu
+de `:revealjs_direction: rtl`).
+
+*UT* : `src/test/kotlin/bakery/i18n/rtl/RtlDirectionInjectorTest.kt`
+(122 lignes, 11 UT, 4 `@Nested` groups : RtlInjection, UnknownLanguage,
+Idempotence, DirectiveModel). Tous GREEN.
+
+*BDD* :
+- `src/test/features/52_rtl_direction_injection.feature` (9 scénarios,
+  tags `@cucumber @bakery @i18n @rtl-deploy`).
+- `src/test/scenarios/bakery/scenarios/RtlDirectionSteps.kt` (61 lignes,
+  stepdefs déterministes purs, aucun LLM, aucune I/O fichier).
+- 9 scénarios GREEN via `CucumberTestRunner`.
+
+=== DEPLOY-2 — `PlantUmlTranslationAdapter` (5 pts, DDD + adapter + UT + BDD)
+
+*Fichier production* :
+`src/main/kotlin/bakery/i18n/plantuml/PlantUmlTranslationAdapter.kt`
+(93 lignes).
+
+- `class PlantUmlTranslationAdapter(translationService, classifier)` —
+  adapter qui dispatch sur `PlantUmlClassifier.classify` :
+  - `PivotBlock.Source` non-plantuml → returned unchanged (`isSameAs`).
+  - `PreserveTechnical` → block inchangé.
+  - `TranslateLabels` → traduit chaque label (entre guillemets) via le port
+    `TranslationService`. Les identifiants dotted (code qualifié) sont
+    skippés upstream par `PlantUmlBlock.labels()`.
+  - `BorrowVocabulary` → masque le vocabulaire métier (REAC, AFNOR, DC, TS,
+    RNCP, CP, ECF) derrière des placeholders Unicode PUA (`\uE000...\uE001`)
+    avant traduction, puis restaure verbatim. Le LLM ne peut pas réécrire
+    le terme.
+- I/O isolée via le port `TranslationService` (cf. `LlmServiceTranslationAdapter`
+  S134). Domaine (`PlantUmlBlock`, `PlantUmlStrategy`, `PlantUmlClassifier`)
+  reste pur. Inspiré HTOWN EPIC PLT-BOUNDARY (S163-166).
+
+*UT* : `src/test/kotlin/bakery/i18n/plantuml/PlantUmlTranslationAdapterTest.kt`
+(11 UT). Fake translators : `labelAware` (mapping FR→EN fixe) et `failing`
+(`TranslationResult.Failure`). Tous GREEN.
+
+*BDD* :
+- `src/test/features/53_plantuml_translation_adapter.feature` (9 scénarios,
+  tags `@cucumber @bakery @i18n @plantuml-deploy`).
+- `src/test/scenarios/bakery/scenarios/PlantUmlTranslationSteps.kt`
+  (stepdefs déterministes purs).
+- 9 scénarios GREEN via `CucumberTestRunner`.
+
+== Vérifications
+
+. `./gradlew -q compileKotlin` → BUILD SUCCESSFUL (build préexistant OK).
+. `./gradlew test --tests "bakery.i18n.rtl.RtlDirectionInjectorTest" --rerun-tasks` →
+  BUILD SUCCESSFUL, 11 UT PASSED.
+. `./gradlew test --tests "bakery.i18n.plantuml.PlantUmlTranslationAdapterTest" --rerun-tasks` →
+  BUILD SUCCESSFUL, 11 UT PASSED.
+. `./gradlew cucumberTest` → BUILD SUCCESSFUL in 2m 42s. Mes 2 features :
+  RTL direction (9 scénarios, 0 fail) + PlantUML translation (9 scénarios,
+  0 fail). Les features préexistantes non régressées.
+. `./gradlew -q publishToMavenLocal` → SUCCESS (signature GPG
+  CBE2926CD46D8E8B, plugin 0.0.4 republié mavenLocal).
+
+== Difficultés rencontrées
+
+. *Sous-agent xp DEPLOY-3* : rapport final vide, mais tous les fichiers
+  correctement créés (production + UT + feature + steps). Vérification
+  directe faite par l'agent principal.
+. *Cucumber filter tags* : tentative `-Dcucumber.filter.tags="@rtl-deploy
+  or @plantuml-deploy"` a échoué car `CucumberTestRunner` hardcode
+  `FILTER_TAGS_PROPERTY_NAME = "not @pipeline-contracts and not @personal"`.
+  Le `-D` externe est ignoré. Lancé cucumberTest complet à la place (2m42s,
+  GREEN). 9 échecs initiaux (UndefinedStepException) corrigés en
+  remplaçant `{string}` par `{word}` pour les params non-quotés (`from fr
+  to en`, `borrowed vocabulary REAC`).
+. *Numérotation features* : 51 pris (lang-switch S178), j'ai pris 52 (RTL)
+  et 53 (PlantUML) — pas de collision.
+
+== Statut EPIC
+
+----
+DEPLOY-0 ✅ (S179, 3 pts)
+DEPLOY-1 ✅ (S179, 5 pts)
+DEPLOY-2 ✅ (S180, 5 pts)  ← cette session
+DEPLOY-3 ✅ (S180, 5 pts)  ← cette session
+DEPLOY-4 🔲 (RtlDirectionInjectionTask + FT, 5 pts)  ← S181
+DEPLOY-5 🔲 (LLM réel dogfooding cheroliv.com, 5 pts)  ← S181
+DEPLOY-6 🔲 (Fixture 10 langues + BDD end-to-end, 5 pts)  ← S182
+DEPLOY-7 🔲 (8 sites + CI, 7 pts)  ← S183
+----
+
+*18/35 pts livrés (51%).* Projection conservée : 5 sessions S179→S183.
+
+== Fichiers touchés
+
+*Nouveaux* (8) :
+- `src/main/kotlin/bakery/i18n/rtl/RtlDirectionInjector.kt`
+- `src/main/kotlin/bakery/i18n/plantuml/PlantUmlTranslationAdapter.kt`
+- `src/test/kotlin/bakery/i18n/rtl/RtlDirectionInjectorTest.kt`
+- `src/test/kotlin/bakery/i18n/plantuml/PlantUmlTranslationAdapterTest.kt`
+- `src/test/features/52_rtl_direction_injection.feature`
+- `src/test/features/53_plantuml_translation_adapter.feature`
+- `src/test/scenarios/bakery/scenarios/RtlDirectionSteps.kt`
+- `src/test/scenarios/bakery/scenarios/PlantUmlTranslationSteps.kt`
+
+*Modifiés* : 0 (aucun fichier production existant touché — DEPLOY-2 et
+DEPLOY-3 sont additives, DEPLOY-4 câblera).
+
+== Règles respectées
+
+. Anglais only dans code, tests, features Gherkin, noms de tests.
+. Pas de `# language: fr`, pas de Gherkin français.
+. Domaine pur (aucune I/O dans `RtlDirectionInjector` ni
+  `PlantUmlTranslationAdapter` côté types domaine — I/O isolée dans le port
+  `TranslationService`).
+. `publishToMavenLocal` exécuté après chaque US (règle absolue 0).
+. Aucun commit/push (règle absolue 1) — `git status` non modifié.
+. Réutilisations cross-boroughs : `LanguageCatalog` (MEMPHIS MEM-3),
+  `DeckTranslator.ensureRtlDirection` pattern (MIAMI SLD-5 S030),
+  `PlantUmlClassifier` (HTOWN PLT-BOUNDARY S163-166 via bakery S179 DEPLOY-1).

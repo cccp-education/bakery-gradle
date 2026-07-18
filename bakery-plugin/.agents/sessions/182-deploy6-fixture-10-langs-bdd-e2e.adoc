@@ -1,0 +1,122 @@
+= Session 182 — DEPLOY-6 Fixture 10 langues + BDD end-to-end
+:session: 182
+:date: 2026-07-19
+:epic: BKY-I18N-DEPLOY
+:us: DEPLOY-6
+:points: 5
+:score: 9/10
+
+== Objectif
+
+Livrer DEPLOY-6 (5 pts) : fixture 10 langues + BDD Cucumber end-to-end
+validant le pipeline `migrateContentI18n` + `injectRtlDirection` +
+`injectLangSwitch` sur les 10 langues supportées, avec classification
+PlantUML (TRANSLATE/PRESERVE/BORROW) et injection RTL (ar/ur).
+
+== Contexte de début
+
+DEPLOY-0→5 livrés S179-S181 (28/35 pts, 80%). DEPLOY-6 est le point de
+fusion — il consume DEPLOY-4 (RtlDirectionInjectionTask) et DEPLOY-5
+(PlantUmlTranslationAdapter câblage). La fixture `cheroliv-com-lang-switch`
+S177-178 ne couvrait que 2 langues (FR/EN) et uniquement le sélecteur de
+langue, pas la traduction du contenu.
+
+== Méthode — Baby step DDD/TDD/BDD
+
+. **Fixture** (production d'artefacts) : copie minimaliste d'un site dans
+  `src/test/resources/fixtures/cheroliv-com-i18n-deploy/` — 3 articles FR
+  `.adoc` couvrant les 3 stratégies PlantUml (PreserveTechnical class
+  diagram, TranslateLabels use case diagram, BorrowVocabulary REAC/AFNOR),
+  `i18n/{9 langues}/` vides, `site.yml` 10 langues, `menu.thyme` avec
+  `lang-switcher-container`.
+. **BDD Feature d'abord** (TDD rouge) : `55_i18n_deploy_end_to_end.feature`
+  7 scénarios — FR→EN headers préservés, FR→AR RTL, FR→ZH LTR, PlantUml
+  ×3 stratégies, end-to-end 10 langues + lang switcher.
+. **Step definitions** : `I18nDeployEndToEndSteps.kt` — fake translator
+  label-aware (zéro LLM en CI, Loi Économie d'Encre — pas de coût metered
+  pour valider le pipeline). Dictionnaire FR→EN pour les labels PlantUml
+  + préfixe `[lang]` pour les autres langues. Pipeline translate→injectRtl
+  →injectLangSwitch.
+. **Compile + cucumberTest** : feature 55 GREEN, 7/7 scénarios PASSED.
+
+== Ce qui a été fait
+
+=== DEPLOY-6 (5 pts) — ✅ TERMINÉ
+
+. **Fixture `cheroliv-com-i18n-deploy/`** :
+   - `content/blog/introduction-pivot.adoc` — class diagram UserService
+     (PreserveTechnical)
+   - `content/blog/diagramme-labels.adoc` — use case diagram avec acteurs
+     Utilisateur/Administrateur/Visiteur (TranslateLabels)
+   - `content/blog/vocabulaire-metier.adoc` — REAC/AFNOR/DC/RNCP
+     (BorrowVocabulary)
+   - `site.yml` : `i18n.supportedLanguages: [fr, ar, bn, en, es, hi, pt, ru, ur, zh]`
+   - `templates/menu.thyme` avec `lang-switcher-container`
+   - `i18n/{ar,bn,en,es,hi,pt,ru,ur,zh}/` vides (9 variantes cibles)
+
+. **Feature `55_i18n_deploy_end_to_end.feature`** — 7 scénarios BDD :
+   - FR→EN : headers JBake natifs préservés (`= `, `:jbake-type:`),
+     `:jbake-lang: en`, corps traduit
+   - FR→AR : `:jbake-lang: ar` + `:lang: rtl` injectés, header `= ` préservé
+   - FR→ZH : `:jbake-lang: zh`, pas de `:lang: rtl` (LTR)
+   - PlantUml PreserveTechnical : `@startuml`, `class UserService`,
+     `UserService --> AuthService` inchangés
+   - PlantUml TranslateLabels : `@startuml`/`@enduml` préservés,
+     "Utilisateur"/"Administrateur" traduits
+   - PlantUml BorrowVocabulary : "REAC"/"AFNOR"/"RNCP" préservés verbatim
+   - End-to-end : 9 variantes sous `i18n/`, chaque variante a
+     `introduction-pivot.adoc`, ar/ur ont `:lang: rtl`, en n'a pas,
+     FR menu a liens `en/index.html` + `ar/index.html`
+
+. **Steps `I18nDeployEndToEndSteps.kt`** :
+   - Fake translator label-aware (dictionnaire FR→EN 17 entrées +
+     remplacement in-texte, pas de match exact)
+   - `ContentTranslationService` avec `PlantUmlTranslationAdapter` câblé
+   - `RtlDirectionInjector` walk `i18n/{lang}/blog/*.adoc`
+   - `LangSwitchInjector` + `LangSwitchMenu` + `LangSwitchThymeleafRenderer`
+     10 langues natives labels
+   - Step names préfixés `the deploy pipeline` pour éviter
+     DuplicateStepDefinition avec `RtlDirectionInjectionTaskSteps`
+
+. **Tests** : 7 BDD scénarios GREEN (feature 55). `cucumberTest` complet
+   GREEN 2m43s. `publishToMavenLocal` OK. Plugin 0.0.4 mavenLocal.
+   Tests unitaires i18n/langswitch/pivot/plantuml/rtl tous GREEN.
+   Bug préexistant : `BakeryPluginPublicationTest` version mismatch
+   (0.0.4 vs catalog 0.0.3) — non introduit par cette session.
+
+== Fichiers touchés
+
+. `src/test/resources/fixtures/cheroliv-com-i18n-deploy/site.yml` — NOUVEAU
+. `src/test/resources/fixtures/cheroliv-com-i18n-deploy/jbake.properties` — NOUVEAU
+. `src/test/resources/fixtures/cheroliv-com-i18n-deploy/templates/menu.thyme` — NOUVEAU
+. `src/test/resources/fixtures/cheroliv-com-i18n-deploy/content/blog/introduction-pivot.adoc` — NOUVEAU
+. `src/test/resources/fixtures/cheroliv-com-i18n-deploy/content/blog/diagramme-labels.adoc` — NOUVEAU
+. `src/test/resources/fixtures/cheroliv-com-i18n-deploy/content/blog/vocabulaire-metier.adoc` — NOUVEAU
+. `src/test/features/55_i18n_deploy_end_to_end.feature` — NOUVEAU (7 scénarios)
+. `src/test/scenarios/bakery/scenarios/I18nDeployEndToEndSteps.kt` — NOUVEAU
+. `.agents/sessions/182-deploy6-fixture-10-langs-bdd-e2e.adoc` — NOUVEAU (ce rapport)
+
+== Leçons
+
+. **DuplicateStepDefinition silencieux** : Cucumber ne lance pas toujours
+  une exception explicite — il peut juste ignorer toute la classe de steps
+  si un `@When`/`@Then` duplique. Solution : préfixer les step names par
+  contexte (`the deploy pipeline` vs `the RTL injection task`).
+. **{string} exige des guillemets** : `from fr to {string}` ne matche pas
+  `from fr to en` — il faut `from fr to "en"` dans la feature. Cucumber
+  ne remplit pas les paramètres sans guillemets.
+. **Fake translator label-aware** : pour valider le pipeline en CI sans
+  LLM metered, un dictionnaire FR→EN + remplacement in-texte suffit.
+  Pas de match exact — le remplacement progressif couvre les labels
+  intégrés dans des paragraphes plus longs.
+
+== Statut EPIC
+
+BKY-I18N-DEPLOY : 33/35 pts livrés (94%). 1 US restante (DEPLOY-7,
+7 pts — généralisation 8 sites + 10 langues + CI).
+
+== Score
+
+9/10 — DEPLOY-6 livré proprement en baby step DDD/TDD/BDD. 1 point
+retiré pour le bug préexistant BakeryPluginPublicationTest (version
+mismatch) qui devra être résolu (bump catalog root 0.0.3 → 0.0.4).

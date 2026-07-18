@@ -1,0 +1,29 @@
+= Vocabulaire métier emprunté
+@CherOliv
+2026-07-18
+:jbake-title: Vocabulaire métier emprunté
+:jbake-type: post
+:jbake-status: published
+:jbake-date: 2026-07-18
+:jbake-tags: plantuml, borrow, reac
+:summary: Un article avec du vocabulaire métier REAC/AFNOR à préserver.
+
+== Référentiel REAC
+
+Le diagramme suivant mélange des labels traduisibles et du vocabulaire
+métier REAC/AFNOR qui doit être emprunté tel quel (stratégie BorrowVocabulary).
+
+[source,plantuml]
+----
+@startuml
+"Formateur" --> (Valider les "REAC")
+"Stagiaire" --> (Compléter le "DC")
+"AFNOR" --> (Publier le "RNCP")
+@enduml
+----
+
+== Texte métier
+
+Le référentiel REAC et la certification AFNOR définissent le cadre
+d'évaluation. Les acronymes DC, TS, RNCP, CP et ECF sont empruntés
+sans modification lors de la traduction.

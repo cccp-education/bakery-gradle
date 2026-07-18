@@ -16,6 +16,7 @@ import bakery.i18n.I18nMigrationIntentionDsl
 import bakery.i18n.LlmServiceTranslationAdapter
 import bakery.i18n.MigrateContentI18nTask
 import bakery.i18n.MigrateToI18nTask
+import bakery.i18n.rtl.RtlDirectionInjectionTask
 import bakery.langswitch.InjectLangSwitchTask
 import org.gradle.api.Project
 import java.io.File
@@ -253,6 +254,26 @@ object ContentTaskRegistrar {
             task.siteDir = contentRoot
             task.supportedLanguages = site.supportedLanguages
             task.defaultLanguage = site.language
+        }
+    }
+
+    /**
+     * Enregistre la tâche `injectRtlDirection` qui applique
+     * [bakery.i18n.rtl.RtlDirectionInjector] à tous les `.adoc` du répertoire
+     * `content-i18n/{lang}/` (sortie persistante de `migrateContentI18n`,
+     * hors `build/` — Loi de l'Économie d'Encre). Exécutée après traduction,
+     * avant `bake`. Intégrée après `registerMigrateContentI18nTask`.
+     *
+     * @param site Configuration du site (utilise bake.srcPath pour le content root)
+     */
+    internal fun Project.registerRtlDirectionInjectionTask(
+        site: SiteConfiguration
+    ) {
+        tasks.register("injectRtlDirection", RtlDirectionInjectionTask::class.java) { task ->
+            task.group = BakeryConstants.TRANSFORM_GROUP
+            task.description = "Injects :jbake-lang: and :lang: rtl directives into translated articles frontmatter (ar/ur RTL, others LTR)"
+            task.contentI18nOutput.set(project.providers.gradleProperty("contentI18nOutput").orElse(""))
+            task.contentI18nTargetLangs.set(project.providers.gradleProperty("contentI18nTargetLangs").orElse(""))
         }
     }
 

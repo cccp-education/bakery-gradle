@@ -1,0 +1,35 @@
+= Introduction au pivot i18n
+@CherOliv
+2026-07-18
+:jbake-title: Introduction au pivot i18n
+:jbake-type: post
+:jbake-status: published
+:jbake-date: 2026-07-18
+:jbake-tags: i18n, pivot, test
+:summary: Un article d'introduction pour le dogfooding i18n.
+
+== Introduction
+
+Ceci est un paragraphe en français. Il contient du texte traduisible
+que le service de traduction doit transformer dans la langue cible.
+
+== Un diagramme technique
+
+Le diagramme suivant est purement technique, sans labels humains. Il doit
+être préservé tel quel par la stratégie PreserveTechnical.
+
+[source,plantuml]
+----
+@startuml
+class UserService {
+  +login(name: String): Boolean
+  +logout(): void
+}
+UserService --> AuthService
+@enduml
+----
+
+== Conclusion
+
+La traduction préserve les en-têtes JBake natifs et applique la stratégie
+appropriée aux blocs PlantUML.

@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-07-18 — Session 178. EPIC BKY-LANG-SWITCH CLOS (26/26 pts, 6/6 US). EPIC BKY-I18N-DEPLOY cadré (35 pts, 7 US). LANG-SWITCH-3+5+6 livrés S178 (Renderer + Task + BDD). Backlog actif : BKY-I18N-DEPLOY. Plugin 0.0.4 mavenLocal._
+_Dernière mise à jour : 2026-07-19 — Session 182. EPIC BKY-I18N-DEPLOY actif (33/35 pts, 94%). DEPLOY-0 (3 pts) + DEPLOY-1 (5 pts) S179 + DEPLOY-2 (5 pts) + DEPLOY-3 (5 pts) S180 + DEPLOY-4 (5 pts) + DEPLOY-5 (5 pts) S181 + DEPLOY-6 (5 pts) S182 livrés. 1 US restante (DEPLOY-7). Plugin 0.0.4 mavenLocal._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -987,6 +987,24 @@ content-i18n/{lang}/  ─→ injectLangSwitch (BKY-LANG-SWITCH) ─→ bake JBak
 |===
 
 _Total_ : ~35 pts, 7 US.
+
+==== Statut — S181
+
+[cols="1,2,1"]
+|===
+| US | Description | Statut
+
+| BKY-I18N-DEPLOY-0 | Cadrage boundary + copies + smoke FT | *✅ S179 TERMINÉ*
+| BKY-I18N-DEPLOY-1 | `PlantUmlClassifier` port DDD pur (15 UT) | *✅ S179 TERMINÉ*
+| BKY-I18N-DEPLOY-2 | `PlantUmlTranslationAdapter` (11 UT + 9 BDD) | *✅ S180 TERMINÉ*
+| BKY-I18N-DEPLOY-3 | `RtlDirectionInjector` concept pur (11 UT + 9 BDD) | *✅ S180 TERMINÉ*
+| BKY-I18N-DEPLOY-4 | `RtlDirectionInjectionTask` + FT (câblage `ContentTaskRegistrar`) | *✅ S181 TERMINÉ*
+| BKY-I18N-DEPLOY-5 | LLM réel dogfooding cheroliv.com FR→EN (câblage adapter) | *✅ S181 TERMINÉ*
+| BKY-I18N-DEPLOY-6 | Fixture 10 langues + BDD end-to-end | *✅ S182 TERMINÉ*
+| BKY-I18N-DEPLOY-7 | Généralisation 8 sites + 10 langues + CI | *🔲 RESTANT — S183*
+|===
+
+_33/35 pts livrés (94%). DEPLOY-6 livré S182 (fixture 10 langues + BDD 7 scénarios GREEN + workflow CI cheroliv.com 10 langues). 1 US restante (DEPLOY-7, clôture EPIC). Aucun fichier production modifié en S182 (additif : fixture + feature + steps + workflow CI)._
 
 === Dépendances (DAG)
 

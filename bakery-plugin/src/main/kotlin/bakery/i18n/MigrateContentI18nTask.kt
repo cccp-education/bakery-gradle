@@ -104,7 +104,12 @@ abstract class MigrateContentI18nTask : DefaultTask() {
             val langDir = outputBaseDir.resolve(targetLang)
             if (!langDir.exists()) continue
 
-            val contentService = ContentTranslationService(translationService, parallelism = intention.parallelism)
+            val plantUmlAdapter = bakery.i18n.plantuml.PlantUmlTranslationAdapter(translationService)
+            val contentService = ContentTranslationService(
+                translationService,
+                parallelism = intention.parallelism,
+                plantUmlAdapter = plantUmlAdapter
+            )
             val translationResult = contentService.translate(
                 langDir = langDir,
                 sourceLanguage = intention.sourceLanguage,

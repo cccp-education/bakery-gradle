@@ -1,50 +1,63 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 180
-:date: 2026-07-18
-:etat: EPIC BKY-I18N-DEPLOY actif (8/35 pts livrés). DEPLOY-0 (7 FT) + DEPLOY-1 (15 UT) terminés S179.
-:epic_actif: BKY-I18N-DEPLOY — DEPLOY-2 + DEPLOY-3 à livrer
+:session: 183
+:date: 2026-07-19
+:etat: EPIC BKY-I18N-DEPLOY actif (33/35 pts livrés, 94%). DEPLOY-0→6 livrés S179-S182.
+:epic_actif: BKY-I18N-DEPLOY — DEPLOY-7 à livrer
 
 == Contexte de fin
 
-EPIC BKY-I18N-DEPLOY cadré S179 (35 pts, 7 US, 5 sessions S179→S183).
-Dogfooding i18n sur sites réels via copies — généralisation du socle
-`ContentTranslationService` + `MigrateContentI18nTask` (S134) aux 8 sites
-et 10 langues, avec classification PlantUML (TRANSLATE/PRESERVE/BORROW) et
-injection RTL.
+EPIC BKY-I18N-DEPLOY cadré S179 (35 pts, 7 US). Dogfooding i18n sur sites
+réels via copies — généralisation du socle `ContentTranslationService` +
+`MigrateContentI18nTask` (S134) aux 8 sites et 10 langues, avec
+classification PlantUML (TRANSLATE/PRESERVE/BORROW) et injection RTL.
 
-DEPLOY-0 livré : boundary documenté (`.agents/I18N_DEPLOY_BOUNDARY.adoc`),
-7 FT smoke `MigrateContentI18nDeploySmokeFunctionalTest` (mini-site JBake
-natif représentatif cheroliv.com, dry-run parsing 3 articles, 10 langues,
-source dir inexistant). `configPath = "site.yml"` requis dans projet
-consommateur. `contentRootDir` résolu depuis `site.bake.srcPath`.
+DEPLOY-6 livré S182 : fixture `cheroliv-com-i18n-deploy/` (3 articles FR
+couvrant les 3 stratégies PlantUml + `i18n/{9 langues}/` + `site.yml`
+10 langues + `menu.thyme`). Feature `55_i18n_deploy_end_to_end.feature`
+7 scénarios BDD GREEN (FR→EN headers, FR→AR RTL, FR→ZH LTR, PlantUml
+×3 stratégies, end-to-end 10 langues + lang switcher). Steps
+`I18nDeployEndToEndSteps.kt` (fake translator label-aware, zéro LLM en
+CI — Loi Économie d'Encre). `cucumberTest` GREEN 2m43s. Plugin 0.0.4
+mavenLocal.
 
-DEPLOY-1 livré : domaine pur `PlantUmlClassifier.kt` — sealed interface
-`PlantUmlStrategy` (TranslateLabels/PreserveTechnical/BorrowVocabulary) +
-`PlantUmlBlock` (extraction labels entre guillemets, skip identifiants
-dotted, détection vocabulaire REAC/AFNOR/DC/TS). 15 UT PASS. Inspiré HTOWN
-PLT-BOUNDARY S163-166.
+Déploiement cheroliv.com CI étendu aux 10 langues : workflow
+`deploy-cheroliv-com.yml` mis à jour (bake FR + pagefind, boucle 9 langues
+swap/bake/inject, deploySite final). PROMPT_REPRISE cheroliv.com mis à jour.
 
-Plugin 0.0.4 republié mavenLocal.
+Bug préexistant : `BakeryPluginPublicationTest` version mismatch (0.0.4
+vs catalog root 0.0.3) — non introduit par cette session, à résoudre
+(bump catalog root 0.0.3 → 0.0.4).
 
 == Reprendre à
 
-. **DEPLOY-2** — `PlantUmlTranslationAdapter` (5 pts) : applique
-  `PlantUmlStrategy` à un bloc `[plantuml]` pendant traduction. Intégré
-  dans `ContentTranslationService.translateBlock` via dispatch sur
-  `PivotBlock.Source` quand `language == "plantuml"`. UT.
-. **DEPLOY-3** — `RtlDirectionInjector` concept pur (5 pts) : data class
-  `RtlDirective(lang, rtl)`, `inject(frontmatter)` ajoute `:jbake-lang:`
-  + `:lang: rtl` (si rtl). Délègue à `LanguageCatalog.findByCode(lang).rtl`.
-  UT. Réutilise pattern `DeckTranslator.ensureRtlDirection` MIAMI S030.
-. DEPLOY-2 + DEPLOY-3 sont parallélisables (indépendants).
-. `publishToMavenLocal` après chaque modification code source
-. Backlog i18n cheroliv.com : 108 articles EN à traduire (DEPLOY-5 LLM réel)
+. **DEPLOY-7** — Généralisation 8 sites + 10 langues + CI (7 pts) :
+  dogfooding étendu aux 8 sites (cheroliv.com, magic-stick, talaria.school,
+  edster.cloud, cccp.education + 3 autres). Pour chaque site : dry-run →
+  apply FR→10 langues → vérifications qualité (ratio FR résiduel, headers
+  préservés, RTL, PlantUML). Snapshot des résultats. CI : 10 bakes
+  séquentiels (1 checkout/lang, `configPath` override par
+  `i18n/{lang}/site-{lang}.yml`) — pattern S031 cheroliv.com déjà éprouvé
+  pour EN, à étendre aux 10 langues (workflow déjà étendu S182). Documenter
+  la procédure reproductible.
+. Bug préexistant : `BakeryPluginPublicationTest` version mismatch —
+  bump catalog root 0.0.3 → 0.0.4 dans `foundry/public/bakery-gradle/`
+  (vérifier `gradle/libs.versions.toml` ou settings).
+. Backlog i18n cheroliv.com : 104 articles EN à traduire (procédure LLM réel
+  documentée dans `.agents/I18N_DEPLOY_BOUNDARY.adoc`, à lancer manuellement
+  par l'opérateur).
+. `publishToMavenLocal` après chaque modification code source.
+. DEPLOY-7 clôture l'EPIC BKY-I18N-DEPLOY (35/35 pts, 100%).
 
-== Fichiers touchés S179
+== Fichiers touchés S182
 
-. `BACKLOG.adoc` — v20.0, EPIC BKY-I18N-DEPLOY cadré
-. `.agents/I18N_DEPLOY_BOUNDARY.adoc` — boundary bakery ↔ sites
-. `src/functionalTest/kotlin/bakery/MigrateContentI18nDeploySmokeFunctionalTest.kt` — 7 FT
-. `src/main/kotlin/bakery/i18n/plantuml/PlantUmlClassifier.kt` — domaine pur
-. `src/test/kotlin/bakery/i18n/plantuml/PlantUmlClassifierTest.kt` — 15 UT
-. `.agents/sessions/179-i18n-deploy-cadrage-deploy0-deploy1.adoc`
+. `.agents/sessions/182-deploy6-fixture-10-langs-bdd-e2e.adoc` — NOUVEAU
+. `src/test/resources/fixtures/cheroliv-com-i18n-deploy/site.yml` — NOUVEAU
+. `src/test/resources/fixtures/cheroliv-com-i18n-deploy/jbake.properties` — NOUVEAU
+. `src/test/resources/fixtures/cheroliv-com-i18n-deploy/templates/menu.thyme` — NOUVEAU
+. `src/test/resources/fixtures/cheroliv-com-i18n-deploy/content/blog/introduction-pivot.adoc` — NOUVEAU
+. `src/test/resources/fixtures/cheroliv-com-i18n-deploy/content/blog/diagramme-labels.adoc` — NOUVEAU
+. `src/test/resources/fixtures/cheroliv-com-i18n-deploy/content/blog/vocabulaire-metier.adoc` — NOUVEAU
+. `src/test/features/55_i18n_deploy_end_to_end.feature` — NOUVEAU (7 scénarios BDD)
+. `src/test/scenarios/bakery/scenarios/I18nDeployEndToEndSteps.kt` — NOUVEAU
+. `office/.github/workflows/deploy-cheroliv-com.yml` — workflow 10 langues
+. `office/sites/cheroliv.com/PROMPT_REPRISE.adoc` — mis à jour
