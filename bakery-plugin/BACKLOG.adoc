@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-07-18 — Session 178. EPIC BKY-LANG-SWITCH CLOS (26/26 pts, 6/6 US). LANG-SWITCH-3+5+6 livrés S178 (Renderer + Task + BDD). Backlog vide. Plugin 0.0.4 mavenLocal._
+_Dernière mise à jour : 2026-07-18 — Session 178. EPIC BKY-LANG-SWITCH CLOS (26/26 pts, 6/6 US). EPIC BKY-I18N-DEPLOY cadré (35 pts, 7 US). LANG-SWITCH-3+5+6 livrés S178 (Renderer + Task + BDD). Backlog actif : BKY-I18N-DEPLOY. Plugin 0.0.4 mavenLocal._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -15,7 +15,13 @@ _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/C
 (S177 domaine + fixture, S178 renderer + task + BDD). Bug sélecteur de langue
 cheroliv.com/en/ résolu : `injectLangSwitch` génère les URLs inter-langues
 correctes (FR root→EN subdir, EN subdir→FR root, no self-loop).
-**Backlog vide.** Aucun EPIC actif. Candidats pour S179 :
+**Backlog actif : EPIC BKY-I18N-DEPLOY (35 pts, 7 US).** Dogfooding
+i18n sur sites réels via copies — généralisation du socle `ContentTranslationService` +
+`MigrateContentI18nTask` (S134) aux 8 sites et 10 langues, avec classification
+PlantUML (TRANSLATE/PRESERVE/BORROW) et injection RTL. Constate que les 108
+articles `office/sites/cheroliv.com/content-i18n/en/blog/` sont restés en FR
+(copie brute sans `migrateContentI18n`), en-têtes JBake cassés. Voir section EPIC
+ci-dessous. Candidats parallèles pour S179+ :
 . Déploiement cheroliv.com : appliquer `injectLangSwitch` sur site réel
 . BKY-OUTPUT-5 : `ThemeResolver` → `TreeBakeService` (5 pts, 44/49 livrés)
 . SEC-1 audit bakery (deepseek + ports 11434-11436)
@@ -780,13 +786,307 @@ DDD/TDD/BDD préservée à chaque US.
 
 '''
 
-== Métadonnées
+== EPIC BKY-I18N-DEPLOY — Dogfooding i18n sur sites réels via copies (10 langues, 8 sites)
+
+_Cadré Session 178 (2026-07-18). Constat : la tuyauterie `ContentTranslationService`
+(S153) + `MigrateContentI18nTask` `migrateContentI18n` (S134) +
+`LlmServiceTranslationAdapter` (S134) + `LanguageCatalog.supportedCodes()` (S116)
+existe, est testée (41 UT parser + 99 UT tree + 27 UT snapshot + 7 features
+Cucumber = 186 scénarios) et production-ready (S170, EPIC BKY-I18N-REAL 24/24 pts).
+Golden masters post-migration figent le résultat pour 3 sites (magic-stick 12,
+cccp 11, cheroliv 24 templates)._
+
+_Pourtant les 108 articles `office/sites/cheroliv.com/content-i18n/en/blog/` sont
+**encore en français**, en-têtes JBake cassés (`title=/date=/~~~~~~` aplatis). Le
+pipeline bakery n'a jamais été lancé sur le vrai cheroliv.com — seulement sur
+les fixtures de test. Les 108 fichiers sont le résultat d'un `cp` brut sans
+`migrateContentI18n`, d'où le casse-tête. La traduction réelle des articles
+n'est pas testée._
+
+[CAUTION]
+====
+**Motivation** : `ContentTranslationService.translate` parse un `.adoc` →
+`PivotArticle` → traduit bloc par bloc (Heading/Paragraph/List/Table/Admonition),
+skipe Source/Code/non-translatable via `TextTranslatableClassifier`, préserve les
+headers JBake via `JbakeNativeRenderer`. C'est exactement ce qu'il faut pour
+traduire les 108 articles cheroliv.com en 10 langues. Mais :
+. Aucun test ne valide `migrateContentI18n` sur un site réel (hors fixtures).
+. Aucun test ne couvre la classification PlantUML (TRANSLATE/PRESERVE/BORROW) —
+  `PivotBlock.Source` est `translatable = false` systématiquement, ce qui
+  préserve les blocs `[plantuml]` sans traduction. Insuffisant pour les diagrammes
+  à labels traduisibles.
+. Aucun test ne couvre l'injection `:jbake-lang:` + `lang/dir` RTL post-traduction
+  (ar/ur), alors que `LanguageCatalog` porte déjà le champ `rtl`.
+. Aucun test ne couvre l'extension `targetLanguages` aux 10 langues sur un site
+  réel (seulement FR→EN en fixtures).
+. Aucun dogfooding n'a jamais été lancé sur les 8 sites (cheroliv, magic-stick,
+  talaria, edster, cccp.education + 3 autres).
+
+**Vision** : bakery reste une library/plugin pur. Les sites restent des données
+consommatrices. Chaque site a sa copie de travail (déjà le cas :
+`office/sites/cheroliv.com/`), bakery y pointe via `--contentI18nSource` /
+`--contentI18nOutput` + `contentRootDir`. Tests FT via projet consommateur
+includeBuild (pattern déjà utilisé pour `injectLangSwitch` FT S178). On dogfood
+en vraie grandeur, en suivant la même méthodo baby step DDD/TDD/BDD que les
+EPICs précédents — aucune exception.
+
+**Pré-requis respectés** :
+. *Boundary bakery* — bakery traduit le contenu, ne touche pas au thème ni au
+  sélecteur de langue (déjà couvert par BKY-LANG-SWITCH S177-178). Boundary
+  document-gradle (WRITE+PUBLISH) ↔ codex (READ+RAG) préservé.
+. *Ne pas réinventer* — `ContentTranslationService`, `MigrateContentI18nTask`,
+  `LlmServiceTranslationAdapter`, `LanguageCatalog`, `PivotModel` existent et
+  sont testés. On les étend, on ne les remplace pas.
+. *Ne pas toucher au contenu original* — tout sur copies de travail
+  (`content-i18n/{lang}/`), dry-run par défaut (`contentI18nDryRun=true`).
+. *Méthodo* — baby steps DDD (concept pur, testable sans Gradle) → TDD
+  (UT rouge avant code) → BDD (feature Cucumber bout en bout). Aucune I/O
+  dans les classes de domaine.
+. *Ports Ollama* : 11437-11465 uniquement, rotation. Modèles autorisés :
+  `gpt-oss:120b-cloud`, `gemma4:31b-cloud`.
+. *Réutilisations cross-boroughs* :
+  ** `LanguageCatalog.supportedCodes()` (MEMPHIS i18n-contracts, S116) — top 10 langues
+  ** `PlantUmlClassifier` TRANSLATE/PRESERVE/BORROW (HTOWN EPIC PLT-BOUNDARY, S163-166)
+  ** `DeckTranslator.ensureRtlDirection` (MIAMI EPIC SLD-5, S029-030)
+  ** `LanguageModelAdapter` port + `OllamaLanguageModelAdapter` (MIAMI SLD-5)
+  ** `LlmServiceTranslationAdapter` (bakery S134) déjà câblé
+====
+
+=== Pipeline cible
+
+----
+content/blog/ (FR source)  ─┬─→ MigrateContentI18nTask ─→ content-i18n/{lang}/blog/
+                             │   (copie + traduit .adoc)
+                             │
+                             ├─→ PlantUmlClassifier ─→ TRANSLATE | PRESERVE | BORROW
+                             │   (par bloc [plantuml], stratégie décidée)
+                             │
+                             └─→ RtlDirectionInjector ─→ :jbake-lang: + :lang: rtl
+                                 (post-traduction, ar/ur uniquement)
+
+content-i18n/{lang}/  ─→ injectLangSwitch (BKY-LANG-SWITCH) ─→ bake JBake ─→ CI deploy
+----
+
+=== User Stories — baby steps DDD/TDD/BDD
+
+[cols="1,4,2,2,2]
+|===
+| US | Description (domaine pur, no I/O) | Tests | Pts | Dépend de
+
+| BKY-I18N-DEPLOY-0
+| *Cadrage boundary + copies de travail* — documenter le boundary bakery
+  (traduit contenu, ne touche pas thème/sélecteur). Mettre en place les
+  copies de travail des 8 sites si pas déjà (`content-i18n/{lang}/`). Vérifier
+  que `migrateContentI18n --contentI18nDryRun=true` parse les 108 articles
+  cheroliv.com sans écrire (smoke test). Pas de code production, uniquement
+  configuration + documentation + smoke FT.
+| FT : dry-run `migrateContentI18n` sur cheroliv.com (108 articles), dry-run sur
+  magic-stick, dry-run sur cccp.education. Assert : zéro fichier modifié, logs
+  listent les 108 fichiers, aucun crash parsing.
+| 3
+| —
+
+| BKY-I18N-DEPLOY-1
+| *`PlantUmlClassifier` port DDD pur* — sealed interface `PlantUmlStrategy`
+  avec 3 variantes `TranslateLabels`, `PreserveTechnical`, `BorrowVocabulary`.
+  Data class `PlantUmlBlock(val raw: String, val labels: List<String>)`. Port
+  `PlantUmlClassifier { fun classify(block: PlantUmlBlock): PlantUmlStrategy }`.
+  Méthode `labels()` extrait les labels traduisibles (entre guillemets, après
+  `|`, labels d'acteurs). Pas de logique I/O, pas d'appel LLM.
+  Réutilise l'ontologie de HTOWN EPIC PLT-BOUNDARY (S163-166).
+| UT : classify labels purs → TranslateLabels, classify technical terms (class
+  diagram, sequence, ER) → PreserveTechnical, classify REAC/AFNOR vocabulary →
+  BorrowVocabulary, extract labels from class diagram, extract from sequence,
+  extract from usecase, no labels → PreserveTechnical, mixed → TranslateLabels
+| 5
+| DEPLOY-0
+
+| BKY-I18N-DEPLOY-2
+| *`PlantUmlTranslationAdapter`* — applique `PlantUmlStrategy` à un bloc
+  `[plantuml]` pendant la traduction. `TranslateLabels` → traduit les labels
+  via `TranslationService`, `PreserveTechnical` → retourne le bloc inchangé,
+  `BorrowVocabulary` → traduit + préserve le vocabulaire métier (REAC/AFNOR)
+  dans une registry. Intégré dans `ContentTranslationService.translateBlock`
+  via dispatch sur `PivotBlock.Source` quand `language == "plantuml"`. I/O
+  isolée dans l'adapter (appel LLM), pas dans le domaine.
+| UT : TranslateLabels traduit labels uniquement, PreserveTechnical no-op,
+  BorrowVocabulary préserve "REAC" / "AFNOR" / "DC" / "TS", round-trip
+  block inchangé quand PreserveTechnical, labels contenant du code skippés
+| 5
+| DEPLOY-1
+
+| BKY-I18N-DEPLOY-3
+| *`RtlDirectionInjector` concept pur* — data class `RtlDirective(val lang:
+  String, val rtl: Boolean)`. Méthode `inject(frontmatter: PivotFrontmatter):
+  PivotFrontmatter` — ajoute `:jbake-lang: {lang}` et `:lang: rtl` (si rtl)
+  dans `asciidocAttributes`. Délègue à `LanguageCatalog.findByCode(lang).rtl`
+  (i18n-contracts). Pas de logique I/O, pas d'écriture fichier. Réutilise
+  le pattern `DeckTranslator.ensureRtlDirection` (MIAMI S030).
+| UT : inject ar → `:jbake-lang: ar` + `:lang: rtl`, inject ur → idem, inject
+  fr → `:jbake-lang: fr` + pas de `:lang: rtl`, inject en → idem fr, inject
+  zh → idem fr, lang inconnue → no-op (ou erreur selon config), idempotence
+  (re-inject = même résultat)
+| 5
+| DEPLOY-0
+
+| BKY-I18N-DEPLOY-4
+| *`RtlDirectionInjectionTask` + FT* — tâche Gradle qui applique
+  `RtlDirectionInjector` à tous les `.adoc` d'un répertoire cible
+  (`content-i18n/{lang}/`) post-`migrateContentI18n`. Exécutée après
+  traduction, avant `bake`. Intégration dans `ContentTaskRegistrar` (après
+  `registerMigrateContentI18nTask`). FT sur fixture 10 langues (cf. DEPLOY-6
+  fixture) via includeBuild.
+| FT : inject sur `content-i18n/ar/` → tous `.adoc` ont `:jbake-lang: ar` +
+  `:lang: rtl`, inject sur `content-i18n/fr/` → pas de `:lang: rtl`, idempotence
+  (re-run = même résultat), skip langues LTR
+| 5
+| DEPLOY-3
+
+| BKY-I18N-DEPLOY-5
+| *LLM réel dogfooding cheroliv.com FR→EN* — apply `migrateContentI18n`
+  `--contentI18nSourceLang=fr --contentI18nTargetLangs=en --contentI18nDryRun=false`
+  sur `office/sites/cheroliv.com/` (108 articles). LLM réel
+  `gpt-oss:120b-cloud` port 11437 (rotation). Assertions qualité via
+  heuristique ratio FR/EN (mots FR résiduels < 5%) + LLM-judge (prompt
+  d'évaluation qualité de traduction). Snapshot du résultat dans
+  `content-i18n/en/blog/` (remplace les 108 fichiers cassés actuels).
+| FT : 108 articles traduits, zéro en-tête cassé (`title=/date=/~~~~~~`
+  disparu), `:jbake-title:` présent et traduit, ratio FR résiduel < 5%,
+  LLM-judge score > 3/5, blocks `[source]` inchangés, blocks `[plantuml]`
+  selon DEPLOY-2
+| 5
+| DEPLOY-2
+
+| BKY-I18N-DEPLOY-6
+| *Fixture public 10 langues + BDD Cucumber end-to-end* — copie minimaliste
+  d'un site (cheroliv-com-lang-switch déjà existant S177-178, à étendre aux 10
+  langues) dans `src/test/resources/fixtures/cheroliv-com-i18n-deploy/` :
+  `content/blog/` (3 articles FR), `i18n/{ar,bn,en,es,hi,pt,ru,ur,zh}/` vides.
+  Feature `52_i18n_deploy_end_to_end.feature` : `migrateContentI18n` FR→10
+  langues + `injectRtlDirection` + `injectLangSwitch` → assert 10 variantes
+  localisées conformes : headers préservés, PlantUML classés (TRANSLATE/
+  PRESERVE/BORROW), RTL pour ar/ur, lang switcher présent, zéro FR résiduel
+  (sauf BorrowVocabulary REAC/AFNOR). Scénarios à la `US-BND-7` HTOWN S166.
+| BDD : 5-7 scénarios (FR→EN, FR→AR RTL, FR→ZH, PlantUML TRANSLATE, PlantUML
+  PRESERVE, PlantUml BORROW, end-to-end 10 langues)
+| 5
+| DEPLOY-4, DEPLOY-5
+
+| BKY-I18N-DEPLOY-7
+| *Généralisation 8 sites + 10 langues* — dogfooding étendu aux 8 sites
+  (cheroliv.com, magic-stick, talaria.school, edster.cloud, cccp.education +
+  3 autres). Pour chaque site : dry-run → apply FR→10 langues → vérifications
+  qualité (ratio FR résiduel, headers préservés, RTL, PlantUML). Snapshot des
+  résultats. CI : 10 bakes séquentiels (1 checkout/lang, `configPath` override
+  par `i18n/{lang}/site-{lang}.yml`) — pattern S031 cheroliv.com déjà éprouvé
+  pour EN, à étendre aux 10 langues. Documenter la procédure reproductible.
+| FT : 8 sites × 10 langues = 80 variantes générées, ratio FR résiduel < 5%
+  partout, headers préservés, RTL pour ar/ur, CI 10 bakes séquentiels GREEN
+| 7
+| DEPLOY-6
+|===
+
+_Total_ : ~35 pts, 7 US.
+
+=== Dépendances (DAG)
+
+----
+DEPLOY-0 (Cadrage + copies) ─┬─→ DEPLOY-1 (PlantUmlClassifier port)
+                             │
+                             ├─→ DEPLOY-3 (RtlDirectionInjector) ─→ DEPLOY-4 (Task + FT)
+                             │
+                             └─→ DEPLOY-2 (PlantUml adapter) ─→ DEPLOY-5 (LLM réel dogfooding)
+                                                                    │
+                                                                    └─→ DEPLOY-6 (Fixture 10 langues + BDD)
+                                                                          │
+                                                                          └─→ DEPLOY-7 (8 sites + CI)
+----
+
+*DEPLOY-0* est racine (tout dépend de lui). Doit être fait en premier.
+*DEPLOY-1* et *DEPLOY-3* sont indépendants (peuvent être menés en parallèle).
+*DEPLOY-6* est le point de fusion (consume DEPLOY-4 + DEPLOY-5).
+*DEPLOY-7* clôture l'EPIC (généralisation + CI 10 langues).
+
+=== Projection sessions
+
+* *S179* — DEPLOY-0 + DEPLOY-1 (8 pts, 2 US, cadrage + PlantUmlClassifier port)
+* *S180* — DEPLOY-2 + DEPLOY-3 (10 pts, 2 US, PlantUml adapter + Rtl injector)
+* *S181* — DEPLOY-4 + DEPLOY-5 (10 pts, 2 US, Rtl task + LLM réel dogfooding)
+* *S182* — DEPLOY-6 (5 pts, 1 US, fixture 10 langues + BDD end-to-end)
+* *S183* — DEPLOY-7 (7 pts, 1 US, 8 sites + CI, clôture EPIC)
+
+Projection conservatrice : 5 sessions, ~35 pts, méthodo baby step
+DDD/TDD/BDD préservée à chaque US.
+
+=== Réutilisations cross-boroughs
+
+[cols="2,3,3]
+|===
+| Source | Élément réutilisé | Rôle dans BKY-I18N-DEPLOY
+
+| MEMPHIS `i18n-contracts` (S116, MEM-3)
+| `LanguageCatalog.supportedCodes()` + `SupportedLanguage.rtl`
+| Top 10 langues cibles + détection RTL (ar/ur)
+
+| HTOWN EPIC PLT-BOUNDARY (S163-166)
+| `PlantUmlClassifier` TRANSLATE / PRESERVE / BORROW
+| Classification des blocs `[plantuml]` pendant traduction
+
+| MIAMI EPIC SLD-5 (S029-030)
+| `DeckTranslator.ensureRtlDirection` + `LanguageModelAdapter` port
+| Injection RTL post-traduction + port LLM abstrait
+
+| Bakery S134 (BKY-I18N-MIG)
+| `ContentTranslationService` + `MigrateContentI18nTask` +
+  `LlmServiceTranslationAdapter` + `PivotModel` + `TextTranslatableClassifier`
+| Socle traduction .adoc existant — étendu, pas réinventé
+
+| Bakery S177-178 (BKY-LANG-SWITCH)
+| `injectLangSwitch` task + `LangSwitchThymeleafRenderer`
+| Sélecteur de langue déployé sur sites traduits (post-bake)
+|===
+
+=== Risques et mitigations
+
+[cols="3,5,4]
+|===
+| Risque | Mitigation
+
+| LLM non-déterministe — ratio FR résiduel variable | Snapshot golden master
+  après 1er run réussi (cf. BKY-I18N-REAL S170). Re-runs comparent au snapshot.
+  LLM-judge avec seuil > 3/5 tolère la variabilité.
+
+| PlantUML labels mélangés (technique + traduisible) | `PlantUmlClassifier`
+  par label, pas par bloc : chaque label classifié indépendamment. Un bloc
+  peut avoir 3 labels TranslateLabels + 1 PreserveTechnical. Testé en UT
+  (DEPLOY-1).
+
+| En-têtes JBake cassés dans copies existantes | DEPLOY-0 smoke test détecte.
+  Corriger via re-run `migrateContentI18n` (écrase proprement) avant traduction.
+  Les 108 articles `content-i18n/en/blog/` actuels sont écrasés en DEPLOY-5.
+
+| 108 articles × 10 langues = 1080 appels LLM (latence + coût) | `parallelism`
+  paramètre de `ContentTranslationService` (S153) — paralléliser à 5-10.
+  Rotation ports 11437-11465 + 2 modèles pour distribuer la charge. Dry-run
+  d'abord pour valider le parsing avant de payer le LLM.
+
+| CI 10 bakes séquentiels trop long | Pattern S031 éprouvé (double checkout
+  FR+EN). Étendre à 10 : matrix GitHub Actions sur 10 jobs parallèles (1
+  checkout/lang, `OLLAMA_TEST_PORT` + `OLLAMA_TEST_MODEL` injectés). Pas
+  séquentiel si la CI le permet.
+
+| Boundary bakery ↔ sites brouillé | DEPLOY-0 documente le boundary :
+  bakery traduit contenu uniquement. Thème, sélecteur, CI deploy = sites.
+  Aucune logique site-spécifique dans bakery (extensions via DSL uniquement).
+|===
+
+'''
 
 [cols="2,3]
 |===
 | Document | `BACKLOG.adoc`
- | Version | 19.0 — Session 178 (EPIC BKY-LANG-SWITCH CLOS — 26/26 pts)
+ | Version | 20.0 — Session 178 (EPIC BKY-LANG-SWITCH CLOS + EPIC BKY-I18N-DEPLOY cadré)
  | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
- | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-178 + EPIC LANG-SWITCH
- | Prochaine màj | Session 179 — déploiement cheroliv.com OU cadrage nouvel EPIC
+ | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-178 + EPIC LANG-SWITCH + EPIC I18N-DEPLOY
+ | Prochaine màj | Session 179 — DEPLOY-0 cadrage + DEPLOY-1 PlantUmlClassifier
 |===

@@ -73,3 +73,58 @@ et le renderer pivot écrasait le format JBake natif.
 **Score** : 9/10
 
 ---
+
+== Session 179 — 2026-07-18 — EPIC BKY-I18N-DEPLOY cadrage + DEPLOY-0 + DEPLOY-1
+
+**Contexte** : Constat utilisateur — traduction cheroliv.com : menu marche, mais
+articles EN non traduits. A-t-on un modus operandi testé pour traduire
+cheroliv.com et les autres sites dans toutes langues (templates → articles →
+diagrammes PlantUML) ? Décision : pas un plan global, un plan lié à bakery avec
+copies des sites originaux sur lesquels bakery travaillera en suivant la
+méthodologie baby step DDD/TDD/BDD.
+
+**Constat d'ouverture** :
+- 108 articles `office/sites/cheroliv.com/content-i18n/en/blog/` en FR, headers
+  JBake cassés (`title=/date=/~~~~~~` aplatis, corps FR sur 1 ligne).
+- Corruption par `cp`+`sed` externe, pas par `migrateContentI18n`.
+- Socle bakery i18n pourtant éprouvé : S134, S153, S170 (BKY-I18N-REAL 24/24 pts).
+
+**Tâches** :
+- [x] Cadrage EPIC BKY-I18N-DEPLOY dans `BACKLOG.adoc` v20.0
+      (35 pts, 7 US, 5 sessions S179→S183)
+- [x] Réutilisations cross-boroughs mappées :
+      MEMPHIS i18n-contracts (LanguageCatalog),
+      HTOWN PLT-BOUNDARY (PlantUmlClassifier TRANSLATE/BORROW/PRESERVE),
+      MIAMI SLD-5 (DeckTranslator.ensureRtlDirection, LanguageModelAdapter),
+      bakery S134 (ContentTranslationService, MigrateContentI18nTask),
+      bakery S177-178 (injectLangSwitch)
+- [x] DEPLOY-0 : Boundary documenté (`.agents/I18N_DEPLOY_BOUNDARY.adoc`)
+- [x] DEPLOY-0 : 7 FT smoke `MigrateContentI18nDeploySmokeFunctionalTest`
+      (mini-site JBake natif représentatif cheroliv.com, dry-run parsing 3
+      articles simple+plantuml+source, 10 langues, source dir inexistant,
+      `configPath=site.yml` requis, `contentRootDir` résolu depuis
+      `site.bake.srcPath`) — 7/7 PASS
+- [x] DEPLOY-1 : Domaine pur `PlantUmlClassifier.kt` (sealed interface
+      `PlantUmlStrategy` TranslateLabels/PreserveTechnical/BorrowVocabulary +
+      `PlantUmlBlock` extraction labels entre guillemets + skip identifiants
+      dotted + détection vocabulaire REAC/AFNOR/DC/TS/RNCP/CP/ECF)
+- [x] DEPLOY-1 : 15 UT `PlantUmlClassifierTest` (class/sequence/usecase
+      diagrams TranslateLabels, technical terms PreserveTechnical, REAC/DC
+      BorrowVocabulary, extraction labels, mixed, code skip, equality,
+      3 variants) — 15/15 PASS
+- [x] Plugin 0.0.4 republié mavenLocal
+- [x] Procédure 6 étapes exécutée
+
+**Fichiers** :
+- `BACKLOG.adoc` (modifié, v20.0)
+- `.agents/I18N_DEPLOY_BOUNDARY.adoc` (nouveau)
+- `src/functionalTest/kotlin/bakery/MigrateContentI18nDeploySmokeFunctionalTest.kt` (nouveau, 7 FT)
+- `src/main/kotlin/bakery/i18n/plantuml/PlantUmlClassifier.kt` (nouveau, domaine pur)
+- `src/test/kotlin/bakery/i18n/plantuml/PlantUmlClassifierTest.kt` (nouveau, 15 UT)
+
+**Métriques** : 7 FT + 15 UT = 22 tests ajoutés. 8/35 pts EPIC livrés
+(DEPLOY-0 3pts + DEPLOY-1 5pts). 0 fichier de production existant modifié
+(uniquement additif). 0 secret compromis.
+
+**Prochaine session S180** : DEPLOY-2 (`PlantUmlTranslationAdapter`) +
+DEPLOY-3 (`RtlDirectionInjector` concept pur), 10 pts parallélisables.

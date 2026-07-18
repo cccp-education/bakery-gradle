@@ -1,0 +1,134 @@
+= I18N_DEPLOY_BOUNDARY — Boundary bakery ↔ sites (EPIC BKY-I18N-DEPLOY)
+
+_Cadré Session 179 (2026-07-18). EPIC BKY-I18N-DEPLOY — US DEPLOY-0._
+
+== Principe
+
+Bakery est une library/plugin Gradle pur. Les sites sont des données
+consommatrices. La traduction i18n opère sur des **copies de travail** du
+contenu, jamais sur les sources originales.
+
+== Boundary — bakery traduit, les sites déploient
+
+[cols="2,3,3"]
+|===
+| Couche | Responsabilité | Propriétaire
+
+| Traduction contenu `.adoc`
+| Parse → PivotArticle → traduit bloc par bloc → réécrit
+| **bakery** (`ContentTranslationService`)
+
+| Classification PlantUML
+| TRANSLATE / PRESERVE / BORROW par bloc `[plantuml]`
+| **bakery** (`PlantUmlClassifier`, US DEPLOY-1/2)
+
+| Injection RTL
+| `:jbake-lang:` + `:lang: rtl` post-traduction (ar/ur)
+| **bakery** (`RtlDirectionInjector`, US DEPLOY-3/4)
+
+| Sélecteur de langue
+| Fragment Thymeleaf `menu.thyme` + URLs inter-langues
+| **bakery** (`injectLangSwitch`, BKY-LANG-SWITCH S177-178, déjà livré)
+
+| Thème / templates métier
+| `header.thyme`, `footer.thyme`, CSS
+| **site** (pas bakery)
+
+| CI / déploiement
+| Bakes séquentiels, deploySite gh-pages
+| **site** (workflow GitHub Actions, pattern S031)
+|===
+
+== Copies de travail — convention
+
+Pour chaque site, le contenu source FR est dans `content/blog/` (ou
+`jbake/content/blog/` selon la structure). Les variantes localisées vont dans
+`content-i18n/{lang}/blog/` (créé par `MigrateContentI18nTask`).
+
+----
+office/sites/cheroliv.com/
+├── doc/refonte/jbake/content/blog/   ← source FR (intact, ne pas modifier)
+├── content-i18n/
+│   └── en/blog/                       ← copie cassée actuelle (108 fichiers)
+│       (ar, bn, es, hi, pt, ru, ur, zh à créer par DEPLOY-7)
+└── site.yml
+----
+
+*Source FR* : `office/sites/cheroliv.com/doc/refonte/jbake/content/blog/`
+(108 articles `.adoc`, format JBake natif = `= Title / @Author / :jbake-*:`).
+
+*Copie EN actuelle* : `office/sites/cheroliv.com/content-i18n/en/blog/`
+(108 fichiers, **corrompus** — headers aplatis `title=/date=/~~~~~~` +
+contenu FR sur une seule ligne). À écraser proprement en DEPLOY-5.
+
+== Constat — corruption des copies EN actuelles
+
+Les 108 articles `content-i18n/en/blog/` ont été générés par un outil externe
+(`cp` + `sed` probablement), pas par `migrateContentI18n`. Conséquences :
+
+. Header JBake natif (`= Title / @Author / :jbake-*:`) écrasé par template
+  pivot vide `title=/date=/type=/status=/~~~~~~`.
+. Corps FR original aplati sur une seule ligne (newline → espace).
+. Aucune traduction — contenu 100% français.
+
+DEPLOY-0 corrige via re-run `migrateContentI18n --contentI18nDryRun=true` (smoke
+test parsing, zéro écriture) → DEPLOY-5 apply LLM réel écrase proprement.
+
+== Commande dry-run (DEPLOY-0 smoke test)
+
+----
+./gradlew migrateContentI18n \
+  --contentI18nSource=doc/refonte/jbake/content/blog \
+  --contentI18nOutput=build/i18n-dry-run \
+  --contentI18nSourceLang=fr \
+  --contentI18nTargetLangs=en \
+  --contentI18nDryRun=true
+----
+
+Assertions (smoke FT) :
+. `BUILD SUCCESSFUL`
+. Logs listent les 108 fichiers parsés
+. `build/i18n-dry-run/en/` n'existe pas (dry-run = zéro écriture)
+. Aucun crash parsing
+
+== Réutilisations cross-boroughs
+
+[cols="2,3,3]
+|===
+| Source | Élément | Rôle
+
+| MEMPHIS i18n-contracts (S116, MEM-3)
+| `LanguageCatalog.supportedCodes()` + `SupportedLanguage.rtl`
+| Top 10 langues cibles + détection RTL (ar/ur)
+
+| HTOWN EPIC PLT-BOUNDARY (S163-166)
+| `PlantUmlClassifier` TRANSLATE / PRESERVE / BORROW
+| Classification des blocs `[plantuml]` (DEPLOY-1/2)
+
+| MIAMI EPIC SLD-5 (S029-030)
+| `DeckTranslator.ensureRtlDirection` + `LanguageModelAdapter`
+| Injection RTL + port LLM abstrait (DEPLOY-3)
+
+| Bakery S134 (BKY-I18N-MIG)
+| `ContentTranslationService` + `MigrateContentI18nTask` +
+  `LlmServiceTranslationAdapter` + `PivotModel`
+| Socle traduction .adoc — étendu, pas réinventé
+
+| Bakery S177-178 (BKY-LANG-SWITCH)
+| `injectLangSwitch` task
+| Sélecteur de langue déployé (post-bake)
+|===
+
+== Ports Ollama autorisés
+
+. 11437-11465 uniquement (rotation OBLIGATOIRE)
+. Modèles : `gpt-oss:120b-cloud`, `gemma4:31b-cloud`
+. Exception CI : 11466-11467, `qwen3:0.6b` (cf. AGENTS.adoc)
+
+== Liens
+
+. `BACKLOG.adoc` section EPIC BKY-I18N-DEPLOY — US détaillées
+. `AGENT.adoc` — règles absolues (Loi de l'Économie d'Encre, sécurité)
+. `src/main/kotlin/bakery/i18n/ContentTranslationService.kt` — socle traduction
+. `src/main/kotlin/bakery/i18n/MigrateContentI18nTask.kt` — tâche Gradle
+. `src/test/resources/i18n-fixtures/` — golden masters 3 sites (S170)

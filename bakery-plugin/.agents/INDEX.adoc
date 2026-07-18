@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-07-18 — Session 178. EPIC BKY-LANG-SWITCH CLOS (26/26 pts, 6/6 US). LANG-SWITCH-3 `LangSwitchThymeleafRenderer` (13 UT), LANG-SWITCH-5 `InjectLangSwitchTask` + `LangSwitchInjector` (5 UT + 7 FT), LANG-SWITCH-6 BDD Cucumber (5 scénarios). Fix build préexistant (bump codebase 0.0.6). 18 UT + 7 FT + 5 BDD ajoutés. Plugin 0.0.4 mavenLocal. Bug sélecteur de langue cheroliv.com/en/ résolu._
-_Session en cours_ : 178 terminée — EPIC BKY-LANG-SWITCH CLOS._
-_Prochaine session_ : 179 — déploiement cheroliv.com injectLangSwitch OU cadrage nouvel EPIC (BKY-OUTPUT-5 ThemeResolver, SEC-1 audit, pub 0.0.4)._
+_Derniere mise a jour : 2026-07-18 — Session 179. EPIC BKY-I18N-DEPLOY cadré (35 pts, 7 US). DEPLOY-0 (7 FT smoke) + DEPLOY-1 (15 UT PlantUmlClassifier) livrés. 8/35 pts. Plugin 0.0.4 mavenLocal._
+_Session en cours_ : 179 terminée — EPIC BKY-I18N-DEPLOY actif._
+_Prochaine session_ : 180 — DEPLOY-2 (PlantUmlTranslationAdapter) + DEPLOY-3 (RtlDirectionInjector concept pur), 10 pts parallélisables._
 
 '''
 

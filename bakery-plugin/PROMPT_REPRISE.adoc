@@ -1,40 +1,50 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 179
+:session: 180
 :date: 2026-07-18
-:etat: EPIC BKY-LANG-SWITCH CLOS (26/26 pts). Backlog vide. Plugin 0.0.4 en mavenLocal.
-:epic_actif: Aucun — backlog ouvert pour nouveau cadrage
+:etat: EPIC BKY-I18N-DEPLOY actif (8/35 pts livrés). DEPLOY-0 (7 FT) + DEPLOY-1 (15 UT) terminés S179.
+:epic_actif: BKY-I18N-DEPLOY — DEPLOY-2 + DEPLOY-3 à livrer
 
 == Contexte de fin
 
-EPIC BKY-LANG-SWITCH terminé en 2 sessions (S177 domaine + fixture, S178
-renderer + task + BDD). Bug sélecteur de langue cheroliv.com/en/ résolu.
-`injectLangSwitch` tâche Gradle génère les URLs inter-langues correctes.
+EPIC BKY-I18N-DEPLOY cadré S179 (35 pts, 7 US, 5 sessions S179→S183).
+Dogfooding i18n sur sites réels via copies — généralisation du socle
+`ContentTranslationService` + `MigrateContentI18nTask` (S134) aux 8 sites
+et 10 langues, avec classification PlantUML (TRANSLATE/PRESERVE/BORROW) et
+injection RTL.
 
-Plugin 0.0.4 publié en mavenLocal. Bump deps codebase 0.0.6 (fix transitif
-BOM). 18 UT + 7 FT + 5 BDD ajoutés S178.
+DEPLOY-0 livré : boundary documenté (`.agents/I18N_DEPLOY_BOUNDARY.adoc`),
+7 FT smoke `MigrateContentI18nDeploySmokeFunctionalTest` (mini-site JBake
+natif représentatif cheroliv.com, dry-run parsing 3 articles, 10 langues,
+source dir inexistant). `configPath = "site.yml"` requis dans projet
+consommateur. `contentRootDir` résolu depuis `site.bake.srcPath`.
 
-Backlog vide. Aucun EPIC actif.
+DEPLOY-1 livré : domaine pur `PlantUmlClassifier.kt` — sealed interface
+`PlantUmlStrategy` (TranslateLabels/PreserveTechnical/BorrowVocabulary) +
+`PlantUmlBlock` (extraction labels entre guillemets, skip identifiants
+dotted, détection vocabulaire REAC/AFNOR/DC/TS). 15 UT PASS. Inspiré HTOWN
+PLT-BOUNDARY S163-166.
+
+Plugin 0.0.4 republié mavenLocal.
 
 == Reprendre à
 
-. Déploiement cheroliv.com : appliquer `injectLangSwitch` sur le site réel
-  (office/sites/cheroliv.com) → corriger le bug production sélecteur de langue
-. Cadrer un nouvel EPIC (au choix) :
-  . BKY-OUTPUT-5 : `ThemeResolver` → `TreeBakeService` (5 pts, dernier US
-    restant de BKY-OUTPUT, 44/49 livrés)
-  . SEC-1 audit bakery (deepseek + ports 11434-11436 dans le code)
-  . Publication Maven Central 0.0.4 (nmcp)
+. **DEPLOY-2** — `PlantUmlTranslationAdapter` (5 pts) : applique
+  `PlantUmlStrategy` à un bloc `[plantuml]` pendant traduction. Intégré
+  dans `ContentTranslationService.translateBlock` via dispatch sur
+  `PivotBlock.Source` quand `language == "plantuml"`. UT.
+. **DEPLOY-3** — `RtlDirectionInjector` concept pur (5 pts) : data class
+  `RtlDirective(lang, rtl)`, `inject(frontmatter)` ajoute `:jbake-lang:`
+  + `:lang: rtl` (si rtl). Délègue à `LanguageCatalog.findByCode(lang).rtl`.
+  UT. Réutilise pattern `DeckTranslator.ensureRtlDirection` MIAMI S030.
+. DEPLOY-2 + DEPLOY-3 sont parallélisables (indépendants).
 . `publishToMavenLocal` après chaque modification code source
-. Backlog i18n : 104 articles EN restants (content-i18n/en/blog/)
+. Backlog i18n cheroliv.com : 108 articles EN à traduire (DEPLOY-5 LLM réel)
 
-== Fichiers touchés S178
+== Fichiers touchés S179
 
-- `src/main/kotlin/bakery/langswitch/` (3 nouveaux : Renderer, Injector, Task)
-- `src/test/kotlin/bakery/langswitch/` (2 nouveaux : 18 UT)
-- `src/functionalTest/kotlin/bakery/InjectLangSwitchFunctionalTest.kt` (7 FT)
-- `src/test/scenarios/bakery/scenarios/LangSwitchSteps.kt` (11 steps)
-- `src/test/features/51_lang_switch_url_resolver.feature` (5 scénarios)
-- `ContentTaskRegistrar.kt`, `BakeryPlugin.kt` (câblage)
-- `gradle/libs.versions.toml`, `build.gradle.kts` (bump 0.0.4)
-- `.agents/sessions/178-langswitch-renderer-task-bdd.adoc`
-- `.agents/INDEX.adoc`, `BACKLOG.adoc`, `PROMPT_REPRISE.adoc`
+. `BACKLOG.adoc` — v20.0, EPIC BKY-I18N-DEPLOY cadré
+. `.agents/I18N_DEPLOY_BOUNDARY.adoc` — boundary bakery ↔ sites
+. `src/functionalTest/kotlin/bakery/MigrateContentI18nDeploySmokeFunctionalTest.kt` — 7 FT
+. `src/main/kotlin/bakery/i18n/plantuml/PlantUmlClassifier.kt` — domaine pur
+. `src/test/kotlin/bakery/i18n/plantuml/PlantUmlClassifierTest.kt` — 15 UT
+. `.agents/sessions/179-i18n-deploy-cadrage-deploy0-deploy1.adoc`

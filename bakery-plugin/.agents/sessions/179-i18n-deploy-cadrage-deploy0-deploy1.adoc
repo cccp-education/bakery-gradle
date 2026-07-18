@@ -1,0 +1,156 @@
+= Session 179 — EPIC BKY-I18N-DEPLOY cadrage + DEPLOY-0 + DEPLOY-1
+:session: 179
+:date: 2026-07-18
+:epic: BKY-I18N-DEPLOY
+:etat: DEPLOY-0 (7 FT) + DEPLOY-1 (15 UT) livrés. Plugin 0.0.4 mavenLocal.
+
+== Contexte d'ouverture
+
+Constat utilisateur : traduction du site cheroliv.com (`office/sites/cheroliv.com/`)
+— le menu marche mais les articles EN sont-ils traduits ? A-t-on tiré les
+conséquences et un modus operandi testé pour traduire cheroliv.com et les
+autres sites dans toutes langues depuis les templates jusqu'aux articles et
+diagrammes PlantUML ?
+
+== Constat d'ouverture
+
+. **Articles EN : 0/108 traduits.** Les 108 `.adoc` dans
+   `office/sites/cheroliv.com/content-i18n/en/blog/` sont en français et
+   cassés : header JBake natif (`= Title / @Author / :jbake-*:`) écrasé par
+   template pivot vide `title=/date=/type=/status=/~~~~~~`, corps FR aplati
+   sur une seule ligne. Corruption par `cp` + `sed` externe, pas par
+   `migrateContentI18n`.
+. **Méthodologie testée absente sur cheroliv.com.** Bakery a par contre un
+   socle i18n éprouvé : S134 (BKY-I18N-MIG) + S153 (Loi Économie d'Encre) +
+   S170 (BKY-I18N-REAL 24/24 pts, golden masters 3 sites). Slider-gradle
+   (MIAMI S029-030, EPIC SLD-5) a aussi un domaine `slider.translation` testé.
+. **Decision utilisateur** : pas un plan global, un plan lié à bakery avec
+  copies des sites originaux sur lesquels bakery travaillera en suivant la
+  méthodologie baby step DDD/TDD/BDD (unit/functional/cucumber tests, agile
+  software craftsmanship).
+
+== EPIC BKY-I18N-DEPLOY cadré
+
+Backlog `BACKLOG.adoc` mis à jour (v20.0) : nouvel EPIC **BKY-I18N-DEPLOY**
+(35 pts, 7 US, 5 sessions projetées S179→S183).
+
+. **DEPLOY-0** — Cadrage boundary + copies de travail + dry-run smoke FT (3 pts)
+. **DEPLOY-1** — `PlantUmlClassifier` port DDD pur (5 pts)
+. **DEPLOY-2** — `PlantUmlTranslationAdapter` (5 pts)
+. **DEPLOY-3** — `RtlDirectionInjector` concept pur (5 pts)
+. **DEPLOY-4** — `RtlDirectionInjectionTask` + FT (5 pts)
+. **DEPLOY-5** — LLM réel dogfooding cheroliv.com FR→EN (5 pts)
+. **DEPLOY-6** — Fixture 10 langues + BDD Cucumber end-to-end (5 pts)
+. **DEPLOY-7** — Généralisation 8 sites + 10 langues + CI (7 pts)
+
+Réutilisations cross-boroughs mappées : MEMPHIS i18n-contracts (LanguageCatalog),
+HTOWN PLT-BOUNDARY (PlantUmlClassifier TRANSLATE/BORROW/PRESERVE), MIAMI SLD-5
+(DeckTranslator.ensureRtlDirection, LanguageModelAdapter), bakery S134
+(ContentTranslationService, MigrateContentI18nTask), bakery S177-178
+(injectLangSwitch).
+
+== DEPLOY-0 — Livré
+
+=== Boundary documenté
+
+Fichier `.agents/I18N_DEPLOY_BOUNDARY.adoc` créé. Boundary bakery ↔ sites :
+bakery traduit le contenu (ContentTranslationService, PlantUmlClassifier,
+RtlDirectionInjector, injectLangSwitch), les sites déploient (thème, CI,
+bakes séquentiels). Copies de travail : `content-i18n/{lang}/blog/`.
+
+=== Smoke FT
+
+Fichier `src/functionalTest/kotlin/bakery/MigrateContentI18nDeploySmokeFunctionalTest.kt`
+créé — 7 tests fonctionnels :
+
+. `dry-run migrateContentI18n parses 3 JBake native articles without writing`
+. `dry-run migrateContentI18n logs each parsed adoc file`
+. `dry-run migrateContentI18n preserves JBake native header format`
+. `dry-run migrateContentI18n handles article with plantuml block without crash`
+. `dry-run migrateContentI18n handles article with source code block without crash`
+. `dry-run migrateContentI18n supports 10 target languages`
+. `dry-run migrateContentI18n fails when source dir does not exist`
+
+Mini-site JBake natif représentatif de cheroliv.com (3 articles : simple
+header JBake, bloc `[plantuml]` avec labels FR, bloc `[source]` bash).
+Couvre les 3 cas de parsing critiques. `configPath = "site.yml"` requis
+dans le projet consommateur (sinon tâche non enregistrée). `contentRootDir`
+résolu depuis `site.bake.srcPath` → `--contentI18nSource` relatif à `jbake/`.
+
+Résultat : **7/7 FT PASS.**
+
+== DEPLOY-1 — Livré
+
+=== Domaine pur DDD
+
+Fichier `src/main/kotlin/bakery/i18n/plantuml/PlantUmlClassifier.kt` créé :
+
+. `sealed interface PlantUmlStrategy` — 3 variantes :
+   `TranslateLabels`, `PreserveTechnical`, `BorrowVocabulary` (data objects)
+. `data class PlantUmlBlock(raw: String)` — extrait les labels entre
+   guillemets (`labelRegex`), skipe les identifiants techniques dotted
+   (`com.example.UserService`), détecte le vocabulaire métier emprunté
+   (REAC, AFNOR, DC, TS, RNCP, CP, ECF).
+. `class PlantUmlClassifier` — `classify(block): PlantUmlStrategy` :
+   BorrowVocabulary si vocabulaire métier → TranslateLabels si labels
+   traduisibles → PreserveTechnical sinon. Domaine pur, no I/O, no LLM.
+
+Inspiré de HTOWN EPIC PLT-BOUNDARY (S163-166) — `TranslationStrategy.TRANSLATE/
+BORROW/PRESERVE` + `TextClassifier` + `TranslatableText` — adapté au contexte
+bakery (labels entre guillemets dans blocs `[plantuml]` d'articles AsciiDoc).
+
+=== UT (15 tests)
+
+Fichier `src/test/kotlin/bakery/i18n/plantuml/PlantUmlClassifierTest.kt` créé :
+
+. `classify pure labels class diagram returns TranslateLabels`
+. `classify pure labels sequence diagram returns TranslateLabels`
+. `classify pure labels usecase diagram returns TranslateLabels`
+. `classify technical terms only returns PreserveTechnical`
+. `classify activity diagram with technical syntax returns PreserveTechnical`
+. `classify REAC vocabulary returns BorrowVocabulary`
+. `classify DC and TS vocabulary returns BorrowVocabulary`
+. `extract labels from class diagram`
+. `extract labels from sequence diagram`
+. `extract labels from usecase diagram`
+. `no labels returns PreserveTechnical`
+. `mixed technical and translatable labels returns TranslateLabels`
+. `labels containing code are skipped`
+. `PlantUmlBlock equality is structural`
+. `PlantUmlStrategy sealed interface has exactly 3 variants`
+
+Résultat : **15/15 UT PASS.**
+
+== Fichiers touchés S179
+
+. `BACKLOG.adoc` — v20.0, EPIC BKY-I18N-DEPLOY cadré (35 pts, 7 US)
+. `.agents/I18N_DEPLOY_BOUNDARY.adoc` — nouveau, boundary bakery ↔ sites
+. `src/functionalTest/kotlin/bakery/MigrateContentI18nDeploySmokeFunctionalTest.kt` — nouveau, 7 FT
+. `src/main/kotlin/bakery/i18n/plantuml/PlantUmlClassifier.kt` — nouveau, domaine pur
+. `src/test/kotlin/bakery/i18n/plantuml/PlantUmlClassifierTest.kt` — nouveau, 15 UT
+. Plugin 0.0.4 republié en mavenLocal
+
+== Métriques session
+
+. 7 FT + 15 UT = **22 tests** ajoutés
+. 1 EPIC cadré (35 pts, 7 US)
+. 2 US livrées (DEPLOY-0 + DEPLOY-1, 8 pts sur 35)
+. 0 fichier de production existant modifié (uniquement additif)
+. 0 secret/log compromis
+
+== Prochaine session (S180)
+
+Reprendre à DEPLOY-2 (`PlantUmlTranslationAdapter`) + DEPLOY-3
+(`RtlDirectionInjector` concept pur) — 10 pts, 2 US parallélisables.
+
+== Réutilisations cross-boroughs confirmées
+
+. MEMPHIS i18n-contracts — `LanguageCatalog.supportedCodes()` +
+  `SupportedLanguage.rtl` (top 10 langues + détection RTL)
+. HTOWN PLT-BOUNDARY S163-166 — ontologie TRANSLATE/BORROW/PRESERVE
+  réutilisée pour `PlantUmlStrategy` (DEPLOY-1)
+. MIAMI SLD-5 S029-030 — `DeckTranslator.ensureRtlDirection` +
+  `LanguageModelAdapter` (à réutiliser DEPLOY-3)
+. Bakery S134 — `ContentTranslationService` + `MigrateContentI18nTask` +
+  `LlmServiceTranslationAdapter` (socle, étendu pas réinventé)
+. Bakery S177-178 — `injectLangSwitch` (sélecteur, post-bake)
