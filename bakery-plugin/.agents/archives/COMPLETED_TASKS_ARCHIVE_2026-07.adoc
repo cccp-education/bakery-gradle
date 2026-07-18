@@ -51,3 +51,25 @@ et le renderer pivot écrasait le format JBake natif.
 **Score** : 9/10
 
 ---
+
+== Session 178 — 2026-07-18 — EPIC BKY-LANG-SWITCH CLOS
+
+**EPIC** : BKY-LANG-SWITCH (26 pts, 6 US) — CLOS
+**Méthode** : Baby step DDD/TDD/BDD (unit → functional → cucumber)
+
+### Livré S178
+
+- [x] Fix build préexistant (bump codebase 0.0.6, BOM transitif résolu)
+- [x] LANG-SWITCH-3 : `LangSwitchThymeleafRenderer` (13 UT, 10 langues labels)
+- [x] LANG-SWITCH-5 : `LangSwitchInjector` (5 UT, domaine pur idempotent)
+- [x] LANG-SWITCH-5 : `InjectLangSwitchTask` (7 FT, câblage ContentTaskRegistrar + BakeryPlugin)
+- [x] LANG-SWITCH-6 : BDD Cucumber feature 51 (5 scénarios, 11 steps)
+- [x] publishToMavenLocal (jar 0.0.4)
+
+**Fichiers** : 6 production + 5 tests + 1 feature + 2 build + 3 gouvernance = 17 fichiers.
+
+**Tests** : +18 UT + 7 FT + 5 BDD. Tous GREEN.
+
+**Score** : 9/10
+
+---

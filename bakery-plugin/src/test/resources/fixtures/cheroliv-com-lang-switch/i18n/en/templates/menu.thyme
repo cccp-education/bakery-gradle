@@ -1,0 +1,16 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="menu" th:with="isIndexPage=${(content.uri == 'index.html' or content.uri == '' or content.uri == null)}">
+    <nav class="navbar">
+        <div class="container">
+            <a class="navbar-brand" th:href="${isIndexPage ? '#home' : content.rootpath + 'index.html#home'}">Fixture</a>
+            <!-- LANG-SWITCHER: bakery will inject the language switcher here -->
+            <div class="lang-switcher-container">
+            </div>
+        </div>
+    </nav>
+</div>
+</body>
+</html>

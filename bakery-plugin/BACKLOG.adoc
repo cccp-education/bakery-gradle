@@ -5,20 +5,29 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-07-04 — Session 175. BKY-OUTPUT-3→4→6→7→8 livrés S174 (tree/pageAssets/bake pipeline/per-node override/layout+asset injection/BDD). Il reste OUTPUT-5 (ThemeResolver wiring) à intégrer explicitement dans TreeBakeService. SEC-1 audit en attente. BACKLOG réconcilié avec le code — 36pts restants estimés → 5pts réels._
+_Dernière mise à jour : 2026-07-18 — Session 178. EPIC BKY-LANG-SWITCH CLOS (26/26 pts, 6/6 US). LANG-SWITCH-3+5+6 livrés S178 (Renderer + Task + BDD). Backlog vide. Plugin 0.0.4 mavenLocal._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
 [CAUTION]
 ====
-**EPIC BKY-OUTPUT en cours — 44/49 pts (90%). OUTPUT-1/2 livrés S172, OUTPUT-3/4/6/7/8 livrés S174. Reste OUTPUT-5 (ThemeResolver → TreeBakeService, ~5 pts). Voir section EPIC BKY-OUTPUT ci-dessous pour le détail.
-**
+**EPIC BKY-LANG-SWITCH CLOS — 26/26 pts (100%).** 6/6 US livrées en 2 sessions
+(S177 domaine + fixture, S178 renderer + task + BDD). Bug sélecteur de langue
+cheroliv.com/en/ résolu : `injectLangSwitch` génère les URLs inter-langues
+correctes (FR root→EN subdir, EN subdir→FR root, no self-loop).
+**Backlog vide.** Aucun EPIC actif. Candidats pour S179 :
+. Déploiement cheroliv.com : appliquer `injectLangSwitch` sur site réel
+. BKY-OUTPUT-5 : `ThemeResolver` → `TreeBakeService` (5 pts, 44/49 livrés)
+. SEC-1 audit bakery (deepseek + ports 11434-11436)
+. Publication Maven Central 0.0.4 (nmcp)
+
 **Bakery est production-ready (S170). EPIC BKY-I18N-REAL TERMINÉ — 24/24 pts
 (100%). S170 a livré REAL-1→6 en 1 session (projection 2).
 Golden masters post-migration persistants figent le résultat attendu
 pour les 3 sites (magic-stick 12, cccp 11, cheroliv 24 templates).
 Idempotence (Ink Economy Law) validée sur données réelles.**
 *Publication* : 0.0.3 sur Maven Central (LIVE, bundle 49be80ef) + Gradle Plugin Portal.
+0.0.4 en mavenLocal (S178, non publié Central).
 *Coverage* : 93,09% (Kover, S169), seuil `koverThresholdCheck` PASS. +27 UT snapshot (S170).
 *Code smells* : 24/24 V2-V4 + 60 V5 + 3 V6 résolus (24/24 V5 via US-1→8, 8/8 V6).
 *Loi de l'Économie d'Encre* : encodée dans bakery + 9 boroughs transverses (S154).
@@ -29,7 +38,7 @@ Idempotence (Ink Economy Law) validée sur données réelles.**
 *Parser pivot* : 41 UT + 4/4 golden masters GREEN + tâche `generatePivotYaml` (6 functional + 4 BDD).
 *Arbre de site* : 99 UT tree package + 7 features Cucumber (186 scénarios/steps).
 *Snapshot post-migration* : 27 UT snapshot + 1 feature Cucumber (6 scénarios @i18n-real).
-*Session en cours* : 171 terminée — Clôture administrative S171, S170 work committed.
+*LangSwitch* : 40 UT (S177 22 + S178 18) + 7 FT + 5 BDD (feature 51).
 ====
 
 '''
@@ -585,13 +594,199 @@ _Investigation S162 — voir `.agents/sessions/BKY-PERF-1-profiling.adoc` pour l
 
 '''
 
+== EPIC BKY-LANG-SWITCH — Language Switcher URL Resolver (TDD/BDD on public fixture) — ✅ CLOS
+
+_Cadré Session 177 (2026-07-16). Clos Session 178 (2026-07-18). 26/26 pts (100%).
+Bug constaté sur cheroliv.com/en/ : le sélecteur de langue génère des URLs
+incorrectes. Sur `/en/`, le lien FR pointe vers
+`index.html` (résolu en `/en/index.html` = page EN courante) au lieu de
+`../index.html` (résolu en `/index.html` = FR). Les liens inter-langues doivent
+toujours repartir de la racine du site, pas du sous-répertoire courant._
+
+[CAUTION]
+====
+**Motivation** : le sélecteur de langue est codé en dur dans `menu.thyme` avec
+`th:href="${content.rootpath + 'en/index.html'}"`. Quand `rootpath` vaut `../`
+(sous-répertoire `/en/`), `rootpath + 'index.html'` = `../index.html` → `/index.html`
+(FR correct), MAIS `rootpath + 'en/index.html'` = `../en/index.html` → `/en/index.html`
+(self-loop, la page EN pointe vers elle-même). Le problème est que les URLs
+inter-langues doivent être calculées relativement à la racine du site, pas au
+sous-répertoire courant.
+
+**Vision** : introduire un concept DDD `LangSwitchUrl` (domaine pur, testable
+sans Gradle) qui calcule l'URL correcte vers chaque langue depuis n'importe
+quelle page. Une tâche Gradle `injectLangSwitch` génère ou met à jour le
+fragment Thymeleaf du sélecteur de langue dans `menu.thyme` avec les bonnes
+URLs. Un fixture public `cheroliv-com-lang-switch` (copie minimaliste : 2 langues
+FR/EN, 1 index.html par langue) permet de tester sans exposer le site privé.
+
+**Pré-requis respectés** :
+. *Ne pas toucher au site privé* — tout sur fixture public dans `src/test/resources/`.
+. *Backward compat* — si pas de `i18n` config, aucune injection (no-op).
+. *Méthodo* — baby steps DDD (concept pur, testable sans Gradle) → TDD
+  (UT rouge avant code) → BDD (feature Cucumber bout en bout). Aucune I/O
+  dans les classes de domaine.
+====
+
+=== Le bug en détail
+
+----
+Scénario : utilisateur sur https://cheroliv.com/en/index.html
+
+Menu FR (menu.thyme ligne 117):
+  th:href="${content.rootpath + 'index.html'}"
+  rootpath = "../" (JBake relatif depuis /en/)
+  Résultat : ../index.html → /index.html ✅ FR correct
+
+Menu EN (menu.thyme ligne 120):
+  th:href="${content.rootpath + 'en/index.html'}"
+  rootpath = "../" (JBake relatif depuis /en/)
+  Résultat : ../en/index.html → /en/index.html ❌ self-loop (page EN courante)
+
+Le vrai problème :
+  - Depuis /en/, pour aller vers EN on devrait avoir juste "index.html" (déjà dessus)
+    ou pas de lien du tout (option active = current page)
+  - Depuis /en/, pour aller vers FR on devrait avoir "../index.html"
+  - Depuis /en/, pour aller vers AR on devrait avoir "../ar/index.html"
+  - Depuis / (FR), pour aller vers EN on devrait avoir "en/index.html"
+  - Depuis / (FR), pour aller vers FR on devrait avoir "index.html" (ou no link, active)
+  - Depuis / (FR), pour aller vers AR on devrait avoir "ar/index.html"
+----
+
+=== User Stories — baby steps DDD/TDD/BDD
+
+[cols="1,4,2,2,2"]
+|===
+| US | Description (domaine pur, no I/O) | Tests | Pts | Dépend de
+
+| BKY-LANG-SWITCH-1
+| *`LangSwitchUrl` concept pur* — data class immutable représentant une URL
+  de sélecteur de langue. `targetLanguage: String`, `currentPath: String`
+  (chemin relatif de la page courante, ex `""` pour root FR, `en/` pour EN),
+  `siteRootPath: String` (racine absolue du site, ex `/`). Méthode
+  `resolve(): String` calcule l'URL relative correcte :
+  - si currentLang == targetLang → `index.html` (self, page courante)
+  - si targetLang == defaultLang → `rootpath + 'index.html'` (remonter à racine)
+  - si targetLang != defaultLang → `rootpath + '{lang}/index.html'` (descendre)
+  où `rootpath` = `currentPath` remonté à la racine (ex `en/` → `../`).
+  Pas de logique I/O. Comparable par égalité structurelle.
+| UT : resolve self-link (same lang), resolve FR from EN, resolve EN from FR,
+  resolve AR from EN, resolve FR from FR (root), resolve EN from root,
+  rootpath computation for nested paths
+| 5
+| —
+
+| BKY-LANG-SWITCH-2
+| *`LangSwitchMenu` aggregate* — génère la liste des `LangSwitchUrl` pour toutes
+  les langues supportées. `supportedLanguages: List<String>`,
+  `defaultLanguage: String`, `currentLanguage: String`, `currentPath: String`.
+  Méthode `generateLinks(): List<LangSwitchUrl>`. Détecte la langue active
+  (marquée `active` dans le rendu). Pas de logique I/O, pas de HTML.
+| UT : generateLinks pour 2 langues (FR default + EN), 10 langues,
+  active detection, default lang link, non-default lang link,
+  empty supported languages (error)
+| 3
+| LANG-SWITCH-1
+
+| BKY-LANG-SWITCH-3
+| *`LangSwitchThymeleafRenderer`* — transforme `List<LangSwitchUrl>` en
+  fragment HTML Thymeleaf (le bloc `<ul class="dropdown-menu">` avec les
+  `<li><a class="dropdown-item lang-option">`). I/O isolée dans ce renderer
+  uniquement (génération de String). Respecte la structure existante de
+  `menu.thyme` (classes CSS, icônes Bootstrap). Le renderer produit le
+  fragment Thymeleaf avec `th:href` correctement calculé.
+| UT : render 2 langues, render 10 langues, active class sur langue courante,
+  render empty (error), render avec icônes, output contient th:href correct
+| 5
+| LANG-SWITCH-2
+
+| BKY-LANG-SWITCH-4
+| *Fixture public `cheroliv-com-lang-switch`* — copie minimaliste du site
+  cheroliv.com dans `src/test/resources/fixtures/cheroliv-com-lang-switch/` :
+  2 langues (FR default + EN), `jbake/templates/menu.thyme` (sans sélecteur
+  de langue), `jbake/content/index.html` (FR), `i18n/en/templates/menu.thyme`
+  (sans sélecteur), `i18n/en/content/index.html` (EN), `site.yml` minimal.
+  Aucun contenu privé — uniquement la structure pour tester le sélecteur.
+| — (production d'artefacts, validé par LANG-SWITCH-5)
+| 3
+| —
+
+| BKY-LANG-SWITCH-5
+| *`InjectLangSwitchTask` + intégration bake* — tâche Gradle qui lit la config
+  i18n (`I18nConfig`), génère le fragment Thymeleaf via `LangSwitchMenu` +
+  `LangSwitchThymeleafRenderer`, et l'injecte dans `menu.thyme` (remplace le
+  bloc `lang-switcher-container` existant ou l'ajoute si absent). Exécutée
+  avant `bake` dans le pipeline. Intégration dans `ContentTaskRegistrar`.
+| FT : inject dans fixture 2 langues, inject dans fixture 10 langues,
+  inject idempotent (re-run = même résultat), inject avec sélecteur existant
+  (remplace), inject sans sélecteur existant (ajoute)
+| 5
+| LANG-SWITCH-3, LANG-SWITCH-4
+
+| BKY-LANG-SWITCH-6
+| *BDD Cucumber bout en bout* — feature `51_lang_switch_url_resolver.feature` :
+  bake fixture FR+EN → assert sélecteur de langue dans index.html FR contient
+  lien `en/index.html` pour EN, assert sélecteur dans `en/index.html` EN
+  contient lien `../index.html` pour FR, assert langue active marquée,
+  assert pas de self-loop (lien EN depuis /en/ ne pointe pas vers /en/).
+  Scénarios : FR root → EN link, EN subdir → FR link, EN subdir → AR link,
+  active class correct, no self-loop.
+| BDD : 5 scénarios (FR→EN, EN→FR, EN→AR, active class, no self-loop)
+| 5
+| LANG-SWITCH-5
+|===
+
+_Total_ : ~26 pts, 6 US.
+
+=== Dépendances (DAG)
+
+----
+LANG-SWITCH-1 (LangSwitchUrl) ─→ LANG-SWITCH-2 (Menu) ─→ LANG-SWITCH-3 (Renderer)
+                                                          ├─→ LANG-SWITCH-5 (Task + bake integration)
+LANG-SWITCH-4 (Fixture) ─────────────────────────────────┘   └─→ LANG-SWITCH-6 (BDD)
+----
+
+*LANG-SWITCH-1* est racine (tout dépend de lui).
+*LANG-SWITCH-4* (fixture) est indépendant, peut être créé en parallèle.
+*LANG-SWITCH-5* est le point de fusion (consume renderer + fixture).
+*LANG-SWITCH-6* clôture l'EPIC (valide bout en bout sur fixture public).
+
+=== Projection sessions
+
+* *S177* — LANG-SWITCH-1 + LANG-SWITCH-2 (8 pts, 2 US, socle domaine pur)
+* *S177* — LANG-SWITCH-4 (3 pts, 1 US, fixture public, parallélisable)
+* *S178* — LANG-SWITCH-3 + LANG-SWITCH-5 + LANG-SWITCH-6 (15 pts, 3 US, renderer + task + BDD)
+
+Projection conservatrice : 2 sessions, ~26 pts, méthodo baby step
+DDD/TDD/BDD préservée à chaque US.
+
+=== Risques et mitigations
+
+[cols="3,5,4]
+|===
+| Risque | Mitigation
+| JBake rootpath non déterministe | Ne pas dépendre de `content.rootpath` dans le
+  calcul. `LangSwitchUrl` calcule depuis `currentPath` (chemin relatif connu),
+  pas depuis une variable Thymeleaf runtime.
+| menu.thyme structure varie entre sites | Renderer paramétrable : selector CSS
+  configurable pour trouver le bloc à remplacer. Fixture couvre 2 cas (avec
+  et sans sélecteur existant).
+| Fixture expose du contenu privé | Fixture minimaliste : `index.html` avec
+  "Hello FR" / "Hello EN" uniquement. Zéro contenu éditorial, zéro image,
+  zéro secret.
+| Self-loop non détecté | BDD scénario explicite : assert href EN depuis /en/
+  ne contient pas `en/index.html` (self-loop interdit).
+|===
+
+'''
+
 == Métadonnées
 
 [cols="2,3]
 |===
 | Document | `BACKLOG.adoc`
- | Version | 17.0 — Session 175 (Réconciliation code/gouvernance — OUTPUT-3/4/6/7/8 ✅, 44/49 pts)
-| Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
-| Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-174 + audit S175
-| Prochaine màj | Session 176 — OUTPUT-5 ThemeResolver wiring ou SEC-1 audit.
+ | Version | 19.0 — Session 178 (EPIC BKY-LANG-SWITCH CLOS — 26/26 pts)
+ | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
+ | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-178 + EPIC LANG-SWITCH
+ | Prochaine màj | Session 179 — déploiement cheroliv.com OU cadrage nouvel EPIC
 |===

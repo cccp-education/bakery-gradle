@@ -1,28 +1,40 @@
-= PROMPT REPRISE — Bakery — Session 177
-:session: 177
-:date: 2026-07-15
-:status: i18n EN déployé — edge cases + 8 langues restantes
+= PROMPT_REPRISE — Bakery Gradle Plugin
+:session: 179
+:date: 2026-07-18
+:etat: EPIC BKY-LANG-SWITCH CLOS (26/26 pts). Backlog vide. Plugin 0.0.4 en mavenLocal.
+:epic_actif: Aucun — backlog ouvert pour nouveau cadrage
 
-== Session 176 terminée — i18n parallèle + JbakeNativeRenderer + déploiement
+== Contexte de fin
 
-S176 a livré : prompt LLM corrigé, JbakeNativeRenderer, parallélisation ×4,
-sélecteur de langue dans menu.thyme, 106/109 articles EN traduits et déployés
-sur cheroliv.com/en/.
+EPIC BKY-LANG-SWITCH terminé en 2 sessions (S177 domaine + fixture, S178
+renderer + task + BDD). Bug sélecteur de langue cheroliv.com/en/ résolu.
+`injectLangSwitch` tâche Gradle génère les URLs inter-langues correctes.
 
-== Prochaine mission — Edge cases + 8 langues
+Plugin 0.0.4 publié en mavenLocal. Bump deps codebase 0.0.6 (fix transitif
+BOM). 18 UT + 7 FT + 5 BDD ajoutés S178.
 
-1. *3 fichiers edge case* : `:jbake-title:` sans `= Title` — le parser ne
-   détecte pas le header. Corriger `parseJbakeHeader` pour gérer les fichiers
-   sans `= Title` en première ligne.
-2. *Traduire 8 autres langues* : AR, BN, ES, HI, PT, RU, UR, ZH. Configurer
-   `targetLanguages` dans build.gradle.kts, relancer `migrateContentI18n`.
-3. *`<title>` global EN* : Le titre du site est encore en FR dans les templates
-   EN. Vérifier `post.thyme`/`page.thyme` et utiliser `#{site.title}`.
-4. *Cucumber feature 50* : Lancer `cucumberTest` pour valider les 3 scénarios
-   BDD du JbakeNativeRenderer (non exécutés en S176 — timeout).
+Backlog vide. Aucun EPIC actif.
 
-== Contexte technique
-- Version : 0.0.3 Maven Central (LIVE)
-- Traduction : 106/109 EN, 0 autres langues
-- Déploiement : cheroliv.github.io (FR + /en/)
-- LLM : gemma4:31b-cloud port 11441, parallelism=4
+== Reprendre à
+
+. Déploiement cheroliv.com : appliquer `injectLangSwitch` sur le site réel
+  (office/sites/cheroliv.com) → corriger le bug production sélecteur de langue
+. Cadrer un nouvel EPIC (au choix) :
+  . BKY-OUTPUT-5 : `ThemeResolver` → `TreeBakeService` (5 pts, dernier US
+    restant de BKY-OUTPUT, 44/49 livrés)
+  . SEC-1 audit bakery (deepseek + ports 11434-11436 dans le code)
+  . Publication Maven Central 0.0.4 (nmcp)
+. `publishToMavenLocal` après chaque modification code source
+. Backlog i18n : 104 articles EN restants (content-i18n/en/blog/)
+
+== Fichiers touchés S178
+
+- `src/main/kotlin/bakery/langswitch/` (3 nouveaux : Renderer, Injector, Task)
+- `src/test/kotlin/bakery/langswitch/` (2 nouveaux : 18 UT)
+- `src/functionalTest/kotlin/bakery/InjectLangSwitchFunctionalTest.kt` (7 FT)
+- `src/test/scenarios/bakery/scenarios/LangSwitchSteps.kt` (11 steps)
+- `src/test/features/51_lang_switch_url_resolver.feature` (5 scénarios)
+- `ContentTaskRegistrar.kt`, `BakeryPlugin.kt` (câblage)
+- `gradle/libs.versions.toml`, `build.gradle.kts` (bump 0.0.4)
+- `.agents/sessions/178-langswitch-renderer-task-bdd.adoc`
+- `.agents/INDEX.adoc`, `BACKLOG.adoc`, `PROMPT_REPRISE.adoc`

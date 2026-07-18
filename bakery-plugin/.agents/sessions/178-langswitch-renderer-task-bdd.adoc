@@ -1,0 +1,98 @@
+= Session 178 — Bakery LangSwitch Renderer + Task + BDD
+:date: 2026-07-18
+:type: DDD + TDD + BDD
+:score: 9/10
+:epic: BKY-LANG-SWITCH
+
+== Objectif
+
+Clôture EPIC BKY-LANG-SWITCH (26 pts, 6 US) : livraison LANG-SWITCH-3 (Renderer),
+LANG-SWITCH-5 (Task + injection), LANG-SWITCH-6 (BDD Cucumber). Fix build
+préexistant (deps transitives codebase-plugin BOM non résolues).
+
+== Contexte de départ
+
+Session 177 avait livré LANG-SWITCH-1+2+4 (domaine pur `LangSwitchUrl` +
+`LangSwitchMenu` + fixture public). Build préexistant bloquait
+`testRuntimeClasspath` (deps `agent-contracts`, `llm-pool-contracts`,
+`opencode-session-contracts` sans version — BOM 0.0.9 non propagée au
+testRuntime). 22 UT écrites mais non validées (clean test).
+
+== Livré
+
+=== Fix build préexistant
+- Bump `libs.versions.toml` : `codebase 0.0.2→0.0.6`,
+  `codebase-contracts 0.0.1→0.0.2`, `codebase-plugin 0.0.2→0.0.6`
+- Bump `build.gradle.kts` version `0.0.3→0.0.4`
+- `clean test --tests "bakery.langswitch.*"` → 22/22 UT GREEN en 45s
+- BOM 0.0.9 + codebase 0.0.6 résolvent les deps transitives manquantes
+
+=== LANG-SWITCH-3 : `LangSwitchThymeleafRenderer` (5 pts)
+- `bakery/langswitch/LangSwitchThymeleafRenderer.kt` — transforme
+  `List<LangSwitchUrl>` en fragment HTML Thymeleaf (le `<ul class="dropdown-menu">`
+  avec les `<li><a class="dropdown-item lang-option">`).
+- `LangSwitchThymeleafRendererTest.kt` (13 UT) — render 2 langues, 10 langues,
+  active class, th:href FR root→EN, EN subdir→FR, self-link index.html,
+  EN subdir→AR, no self-loop, empty links throws, dropdown-item classes,
+  ul wrapper, unknown lang fallback.
+- `languageLabels: Map<String, String>` paramètre — 10 langues natives
+  (Français, English, العربية, 中文, हिन्दी, Español, বাংলা, Português,
+  Русский, اردو).
+
+=== LANG-SWITCH-5 : `InjectLangSwitchTask` + `LangSwitchInjector` (5 pts)
+- `bakery/langswitch/LangSwitchInjector.kt` — domaine pur, remplace le contenu
+  de `<div class="lang-switcher-container">` par le fragment rendu. Idempotent.
+- `LangSwitchInjectorTest.kt` (5 UT) — inject empty container, preserve div,
+  replace existing content, idempotent, no-container graceful.
+- `bakery/langswitch/InjectLangSwitchTask.kt` — tâche Gradle `injectLangSwitch`
+  (group=transform). Lit `SiteConfiguration` (language + supportedLanguages),
+  génère le fragment pour chaque langue, l'injecte dans `menu.thyme` (FR root
+  + chaque sous-répertoire de langue). `@Internal` sur siteDir (File, pas
+  @Input). `@DisableCachingByDefault`.
+- `ContentTaskRegistrar.registerInjectLangSwitchTask()` — enregistre la tâche
+  avec `site.bake.srcPath`, `site.language`, `site.supportedLanguages`.
+- `BakeryPlugin.kt` — câblage dans `registerFullPipelineTasks()`.
+- `InjectLangSwitchFunctionalTest.kt` (7 FT) — inject 2 langues, FR→EN link,
+  EN→FR link, no self-loop, idempotent, registered in transform group, 3
+  langues EN→AR link.
+
+=== LANG-SWITCH-6 : BDD Cucumber (5 pts)
+- `51_lang_switch_url_resolver.feature` (5 scénarios) — FR root→EN subdir,
+  EN subdir→FR root, EN subdir→AR, no self-loop, active class.
+- `LangSwitchSteps.kt` (11 step definitions) — create fixture 2/3 langues,
+  inject FR/EN/AR, assert link/href/active class/no self-loop. Uses
+  `BakeryWorld.executeGradle` (runBlocking).
+- Paths préfixés `site/` (bake.srcPath) dans la feature et les steps.
+- 5/5 BDD GREEN, cucumberTest complet BUILD SUCCESSFUL.
+
+=== publishToMavenLocal
+- Jar 0.0.4 publié en local.
+
+== Tests
+
+- 18 nouveaux UT (13 Renderer + 5 Injector)
+- 7 nouveaux FT (InjectLangSwitchFunctionalTest)
+- 5 nouveaux BDD (feature 51)
+- 22 UT existantes (LangSwitchUrl + LangSwitchMenu) validées GREEN après fix build
+- cucumberTest complet BUILD SUCCESSFUL (0 regression)
+
+== Fichiers touchés
+
+- `gradle/libs.versions.toml` (bump codebase 0.0.6)
+- `build.gradle.kts` (version 0.0.4)
+- `src/main/kotlin/bakery/langswitch/LangSwitchThymeleafRenderer.kt` (nouveau)
+- `src/main/kotlin/bakery/langswitch/LangSwitchInjector.kt` (nouveau)
+- `src/main/kotlin/bakery/langswitch/InjectLangSwitchTask.kt` (nouveau)
+- `src/main/kotlin/bakery/ContentTaskRegistrar.kt` (registerInjectLangSwitchTask)
+- `src/main/kotlin/bakery/BakeryPlugin.kt` (câblage)
+- `src/test/kotlin/bakery/langswitch/LangSwitchThymeleafRendererTest.kt` (nouveau, 13 UT)
+- `src/test/kotlin/bakery/langswitch/LangSwitchInjectorTest.kt` (nouveau, 5 UT)
+- `src/functionalTest/kotlin/bakery/InjectLangSwitchFunctionalTest.kt` (nouveau, 7 FT)
+- `src/test/scenarios/bakery/scenarios/LangSwitchSteps.kt` (nouveau, 11 steps)
+- `src/test/features/51_lang_switch_url_resolver.feature` (5 scénarios)
+
+== EPIC BKY-LANG-SWITCH — CLOS
+
+26/26 pts (100%). 6/6 US livrées (S177 + S178). Bug sélecteur de langue
+cheroliv.com/en/ résolu : `injectLangSwitch` génère les bonnes URLs
+inter-langues (FR root→EN subdir, EN subdir→FR root, no self-loop).

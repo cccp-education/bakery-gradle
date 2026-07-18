@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-07-15 — Session 176. +17 UT (LlmServiceTranslationAdapter 5, JbakeNativeRenderer 5, ContentTranslationServiceParallel 4, JbakeNativeTranslationBdd 3) + 3 Cucumber (feature 50). Coverage non revalidée (check complet non exécuté)._
+_Dernière mise à jour : 2026-07-18 — Session 178. +18 UT (LangSwitchThymeleafRenderer 13, LangSwitchInjector 5) + 7 FT (InjectLangSwitchFunctionalTest) + 5 BDD (feature 51, 5 scénarios). Coverage non revalidée (check complet non exécuté). Baseline S169 : 93,09% (Kover, seuil 85% PASS)._
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''

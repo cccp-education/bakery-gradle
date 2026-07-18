@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-07-15 — Session 176. i18n parallèle + JbakeNativeRenderer + déploiement cheroliv.com/en/. 106/109 articles EN traduits. Sélecteur de langue dans menu.thyme._
-_Session en cours_ : 176 terminée — prompt LLM, JbakeNativeRenderer, parallélisation ×4, déploiement EN live._
-_Prochaine session_ : 177 — 3 edge cases parser + 8 langues restantes + <title> global EN + Cucumber feature 50._
+_Derniere mise a jour : 2026-07-18 — Session 178. EPIC BKY-LANG-SWITCH CLOS (26/26 pts, 6/6 US). LANG-SWITCH-3 `LangSwitchThymeleafRenderer` (13 UT), LANG-SWITCH-5 `InjectLangSwitchTask` + `LangSwitchInjector` (5 UT + 7 FT), LANG-SWITCH-6 BDD Cucumber (5 scénarios). Fix build préexistant (bump codebase 0.0.6). 18 UT + 7 FT + 5 BDD ajoutés. Plugin 0.0.4 mavenLocal. Bug sélecteur de langue cheroliv.com/en/ résolu._
+_Session en cours_ : 178 terminée — EPIC BKY-LANG-SWITCH CLOS._
+_Prochaine session_ : 179 — déploiement cheroliv.com injectLangSwitch OU cadrage nouvel EPIC (BKY-OUTPUT-5 ThemeResolver, SEC-1 audit, pub 0.0.4)._
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 178 | 2026-07-18 | DDD + TDD + BDD | **EPIC BKY-LANG-SWITCH CLOS — Renderer + Task + BDD** — Fix build préexistant (bump codebase 0.0.6, BOM transitif résolu). LANG-SWITCH-3 `LangSwitchThymeleafRenderer` (13 UT, 10 langues natives labels). LANG-SWITCH-5 `LangSwitchInjector` (5 UT, domaine pur idempotent) + `InjectLangSwitchTask` (7 FT, câblage ContentTaskRegistrar + BakeryPlugin). LANG-SWITCH-6 BDD Cucumber feature 51 (5 scénarios, 11 steps, paths préfixés site/). 18 UT + 7 FT + 5 BDD ajoutés. cucumberTest complet GREEN. Plugin 0.0.4 mavenLocal. | 9/10
   | 176 | 2026-07-15 | DDD + TDD + BDD + déploiement | **i18n parallèle + JbakeNativeRenderer + déploiement cheroliv.com/en/** — Prompt LLM corrigé (rôle translator, interdiction bavardage). JbakeNativeRenderer préserve le format `= Title / @Author / :jbake-*:`. PivotFrontmatter étendu (author, jbakeAttributes, asciidocAttributes). ContentTranslationService parallélisé (Dispatchers.IO + Semaphore ×4). Exclusion paths dans la traduction. Sélecteur de langue (10 langues) dans menu.thyme. 106/109 articles EN traduits et déployés sur cheroliv.github.io/en/. 7 commits. 5 UT + 5 UT + 4 UT + 3 BDD + 3 Cucumber. Golden master régénéré. | 9/10
   | 173 | 2026-06-29 | migration | **CNV-6 Migration conventions plugins** — `build.gradle.kts` migré vers `education.cccp.build.gradle-plugin` + `education.cccp.build.publishing` 0.0.1. 60 lignes supprimées (POM 53 + signing 6 + toolchain 4 + testLogging 8), 5 ajoutées (net -55). `publishingConventions { publicationType = "PLUGIN" }`. `./gradlew check` BUILD SUCCESSFUL 9m46s, zéro régression, coverage 92.94%. 1er borough consommateur de la généralisation CNV-6 (gold standard). | 9/10
   | 172 | 2026-06-29 | DDD + TDD | **BKY-OUTPUT-1+2 : NodeMetadata + OutputConfig (13 pts)** — Cadrage EPIC BKY-OUTPUT (structure générique output). OUTPUT-1 : NodeMetadata DDD pur (5 UT). OUTPUT-2 : OutputConfig DDD pur (5 UT). NodeMetadataResolver + OutputConfigResolver (12 UT) — héritage cascade. SiteNode + SiteNodeDto étendus. 22 nouveaux UT. 105/105 tree PASS. `./gradlew test` SUCCESS. | 9/10

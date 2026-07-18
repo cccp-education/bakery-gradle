@@ -24,6 +24,7 @@ import bakery.ContentTaskRegistrar.registerGenerateThemeTask
 import bakery.ContentTaskRegistrar.registerMigrateContentI18nTask
 import bakery.ContentTaskRegistrar.registerMigrateToI18nTask
 import bakery.ContentTaskRegistrar.registerValidateFirebaseConfigTask
+import bakery.ContentTaskRegistrar.registerInjectLangSwitchTask
 import bakery.a11y.AccessibilityTaskRegistrar.registerAccessibilityAuditTask
 import bakery.llm.OllamaLlmService
 import bakery.pivot.PivotTaskRegistrar.registerGeneratePivotYamlTask
@@ -204,6 +205,7 @@ class BakeryPlugin : Plugin<Project> {
         project.registerMigrateToI18nTask(resolvedSite, bakeryExtension.ia, bakeryExtension.i18nMigration)
         project.registerMigrateContentI18nTask(resolvedSite, bakeryExtension.ia, bakeryExtension.contentI18nMigration)
         project.registerAccessibilityAuditTask(bakeryExtension, resolvedSite)
+        project.registerInjectLangSwitchTask(resolvedSite)
     }
 }
 

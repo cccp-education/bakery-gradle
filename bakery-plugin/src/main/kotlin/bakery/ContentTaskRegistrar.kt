@@ -16,6 +16,7 @@ import bakery.i18n.I18nMigrationIntentionDsl
 import bakery.i18n.LlmServiceTranslationAdapter
 import bakery.i18n.MigrateContentI18nTask
 import bakery.i18n.MigrateToI18nTask
+import bakery.langswitch.InjectLangSwitchTask
 import org.gradle.api.Project
 import java.io.File
 
@@ -232,6 +233,26 @@ object ContentTaskRegistrar {
 
             createLlmServiceIfEnabled(iaConfig) { task.translationService = it.let(::LlmServiceTranslationAdapter) }
             project.logger.info("[BakeryPlugin] migrateContentI18n IA ${if (iaConfig.enabled) "activé" else "désactivé (ia.enabled = false)"}")
+        }
+    }
+
+    /**
+     * Enregistre la tâche `injectLangSwitch` pour injecter le sélecteur de langue
+     * dans menu.thyme pour chaque langue supportée.
+     *
+     * @param site Configuration du site (utilise bake.srcPath pour le content root,
+     *             site.language comme langue par défaut, site.supportedLanguages)
+     */
+    internal fun Project.registerInjectLangSwitchTask(
+        site: SiteConfiguration
+    ) {
+        val contentRoot = project.projectDir.resolve(site.bake.srcPath)
+        tasks.register("injectLangSwitch", InjectLangSwitchTask::class.java) { task ->
+            task.group = BakeryConstants.TRANSFORM_GROUP
+            task.description = "Injects the language switcher fragment into menu.thyme for each configured language"
+            task.siteDir = contentRoot
+            task.supportedLanguages = site.supportedLanguages
+            task.defaultLanguage = site.language
         }
     }
 

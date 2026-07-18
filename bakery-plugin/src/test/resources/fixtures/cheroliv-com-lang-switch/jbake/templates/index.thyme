@@ -1,0 +1,15 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      lang="fr" data-bs-theme="light">
+<head th:fragment="head">
+    <meta charset="UTF-8"/>
+    <title>Lang Switch Fixture - FR</title>
+</head>
+<body>
+<div th:replace="menu.thyme::menu"/>
+<main class="container">
+    <h1>Bonjour le monde</h1>
+</main>
+</body>
+</html>
