@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-07-19 — Session 183. EPIC BKY-I18N-DEPLOY CLOS (35/35 pts, 100%). DEPLOY-7 livré S183 (SiteTranslationPlan + mustRunAfter + feature 56 multi-sites + workflow CI réutilisable + fix publication test). Backlog vide. Plugin 0.0.4 mavenLocal._
+_Dernière mise à jour : 2026-07-19 — Session 184. EPIC BKY-I18N-DELTA-WIRE CLOS (12/12 pts). BKY-OUTPUT-5 livré (ThemeResolver → TreeBakeService). Plugin 0.0.4 mavenLocal._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -211,10 +211,34 @@ pour introduire le concept unifiant `SiteTree` (Composite Site→Section→Artic
   Golden masters post-migration persistants pour 3 sites. Idempotence
   Ink Economy Law validée. **EPIC CLOS 24/24 pts (100%).** Backlog vide.
 | DDD/TDD/BDD
+
+| 7
+| **BKY-I18N-DELTA-WIRE — Câblage SubtreeI18nPlanner dans MigrateContentI18nTask** (S184, 12 pts).
+  US-1 I18nDeltaApplier DDD (4 pts), US-2 câblage FT (4 pts), US-3 BDD Cucumber (4 pts).
+  **EPIC CLOS 12/12 pts (100%).** Backlog vide.
+| DDD/TDD/BDD
 |===
 
 '''
+== EPIC BKY-I18N-DELTA-WIRE — Câblage SubtreeI18nPlanner dans MigrateContentI18nTask
 
+_Cadré Session 184 (2026-07-19). SubtreeI18nPlanner (TREE-6, S167) existe en
+domaine pur (GREEN) mais n'était pas câblé dans MigrateContentI18nTask. La
+traduction était plate — re-traduisait tout, ignorait l'Économie d'Encre
+par feuille. Cet EPIC câble le planificateur de delta._
+
+[CAUTION]
+====
+**Livré** : 3 US en 1 session (projection 2). 12/12 pts (100%).
+- US-1 : `I18nDeltaApplier` value object pur (8 UT, 0 I/O)
+- US-2 : câblage dans `MigrateContentI18nTask` (4 FT delta, 0 régression 23/23)
+- US-3 : Feature BDD 57 (3 scénarios Cucumber : fresh, partiel, idempotence)
+- `ContentChecksum` utilitaire SHA-256 + stockage `.bakery-checksums.properties`
+- `ContentTranslationService.translateFiles()` nouvelle méthode publique
+- `copyNonAdocFiles()` préserve les fichiers non-adoc
+====
+
+'''
 == EPIC BKY-TREE — Arbre de Site : Composite Site→Section→Article→AST
 
 _Cadré Session 165 (2026-06-25). Réouvre le backlog bakery après confirmation

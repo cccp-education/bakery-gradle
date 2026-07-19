@@ -1,6 +1,7 @@
 package bakery.tree
 
 import bakery.LayoutType
+import bakery.ThemeConfig
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Test
@@ -207,5 +208,94 @@ class TreeBakeServiceTest {
         assertEquals("User Guide", guide["title"])
         assertEquals("Documentation section", guide["description"])
         assertEquals(listOf("docs", "guide"), guide["tags"])
+    }
+
+    @Test
+    fun `injected config includes resolved theme from ThemeResolver`() {
+        val dir = srcDir()
+        writeJbakeProps(dir)
+        val dto = SiteNodeDto.SiteDto(
+            path = "",
+            sections = listOf(
+                SiteNodeDto.SectionDto(
+                    path = "docs",
+                    articles = listOf(
+                        SiteNodeDto.ArticleDto(path = "docs/guide"),
+                        SiteNodeDto.ArticleDto(path = "docs/api")
+                    )
+                ),
+                SiteNodeDto.SectionDto(
+                    path = "blog",
+                    articles = listOf(
+                        SiteNodeDto.ArticleDto(path = "blog/post-1")
+                    )
+                )
+            )
+        )
+        val themeOverrides = mapOf(
+            "docs" to ThemeConfig(primaryColor = "#f00", mode = "dark"),
+            "docs/guide" to ThemeConfig(primaryColor = "#00f", mode = "light")
+        )
+        val defaultTheme = ThemeConfig(primaryColor = "#abc", mode = "auto")
+
+        TreeBakeService.injectTreeConfig(dto, dir, themeOverrides, defaultTheme)
+
+        val props = readJbakeProps(dir)
+        val prefix = "bakeTreeConfig="
+        val jsonStart = props.indexOf(prefix) + prefix.length
+        val json = props.substring(jsonStart)
+
+        val parsed = jsonMapper.readValue<Map<String, Any?>>(json)
+        @Suppress("UNCHECKED_CAST")
+        val nodes = parsed["nodes"] as Map<String, Map<String, Any?>>
+
+        @Suppress("UNCHECKED_CAST")
+        val guideTheme = nodes["docs/guide"]?.get("theme") as Map<String, String>
+        assertEquals("light", guideTheme["mode"])
+        assertEquals("#00f", guideTheme["primaryColor"])
+
+        @Suppress("UNCHECKED_CAST")
+        val apiTheme = nodes["docs/api"]?.get("theme") as Map<String, String>
+        assertEquals("dark", apiTheme["mode"])
+        assertEquals("#f00", apiTheme["primaryColor"])
+
+        @Suppress("UNCHECKED_CAST")
+        val blogTheme = nodes["blog/post-1"]?.get("theme") as Map<String, String>
+        assertEquals("auto", blogTheme["mode"])
+        assertEquals("#abc", blogTheme["primaryColor"])
+    }
+
+    @Test
+    fun `injected config without theme overrides uses default theme`() {
+        val dir = srcDir()
+        writeJbakeProps(dir)
+        val dto = SiteNodeDto.SiteDto(
+            path = "",
+            sections = listOf(
+                SiteNodeDto.SectionDto(
+                    path = "docs",
+                    articles = listOf(
+                        SiteNodeDto.ArticleDto(path = "docs/guide")
+                    )
+                )
+            )
+        )
+        val defaultTheme = ThemeConfig(primaryColor = "#abc", mode = "auto")
+
+        TreeBakeService.injectTreeConfig(dto, dir, emptyMap(), defaultTheme)
+
+        val props = readJbakeProps(dir)
+        val prefix = "bakeTreeConfig="
+        val jsonStart = props.indexOf(prefix) + prefix.length
+        val json = props.substring(jsonStart)
+
+        val parsed = jsonMapper.readValue<Map<String, Any?>>(json)
+        @Suppress("UNCHECKED_CAST")
+        val nodes = parsed["nodes"] as Map<String, Map<String, Any?>>
+
+        @Suppress("UNCHECKED_CAST")
+        val guideTheme = nodes["docs/guide"]?.get("theme") as Map<String, String>
+        assertEquals("auto", guideTheme["mode"])
+        assertEquals("#abc", guideTheme["primaryColor"])
     }
 }

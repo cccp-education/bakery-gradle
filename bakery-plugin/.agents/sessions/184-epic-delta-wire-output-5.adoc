@@ -1,0 +1,64 @@
+= Session 184 — EPIC BKY-I18N-DELTA-WIRE CLOS + BKY-OUTPUT-5 livré
+:date: 2026-07-19
+:score: 9/10
+
+== Résumé
+
+2 EPICs livrés en 1 session :
+- EPIC BKY-I18N-DELTA-WIRE CLOS (12/12 pts) — câblage SubtreeI18nPlanner dans MigrateContentI18nTask
+- BKY-OUTPUT-5 livré (5 pts) — ThemeResolver → TreeBakeService
+
+== EPIC BKY-I18N-DELTA-WIRE (12/12 pts, 100%)
+
+3 US livrées en 1 session (projection 2) :
+
+=== US-1 — I18nDeltaApplier DDD (4 pts)
+- `I18nDeltaApplier.kt` — value object pur, 0 I/O
+- `FilesToTranslate` + `FilesToPreserve` data classes
+- 8 UT GREEN
+
+=== US-2 — Câblage MigrateContentI18nTask FT (4 pts)
+- `ContentChecksum.kt` — SHA-256 + stockage `.bakery-checksums.properties`
+- `ContentTranslationService.translateFiles()` — nouvelle méthode publique
+- `MigrateContentI18nTask` — delta wire complet (computeDelta, loadStoredChecksums, storeChecksums)
+- `copyNonAdocFiles()` — préserve les fichiers non-adoc
+- 4 FT GREEN, 0 régression (23/23 legacy)
+
+=== US-3 — BDD Cucumber (4 pts)
+- Feature 57 `57_i18n_delta_wire.feature` — 3 scénarios
+- `I18nDeltaWireSteps.kt` — step definitions
+- `I18nDeltaWireCucumberTest.kt` — runner standalone
+- 3/3 BDD GREEN
+
+== BKY-OUTPUT-5 — ThemeResolver → TreeBakeService (5 pts)
+
+- `TreeBakeService.injectTreeConfig()` — nouveaux paramètres `themeOverrides` + `defaultTheme`
+- `ThemeResolver` câblé dans `injectTreeConfig()`
+- `buildConfigMap()` — `effectiveTheme` prioritaire sur `out.theme`
+- 2 nouveaux UT + 5 existants = 7/7 GREEN
+- Rétrocompatibilité préservée (paramètres par défaut)
+
+== Fichiers
+
+. `BACKLOG.adoc` — cadrage + clôture EPIC BKY-I18N-DELTA-WIRE
+. `PROMPT_REPRISE.adoc` — session 185
+. `src/main/kotlin/bakery/i18n/I18nDeltaApplier.kt` — NOUVEAU
+. `src/main/kotlin/bakery/i18n/ContentChecksum.kt` — NOUVEAU
+. `src/main/kotlin/bakery/i18n/ContentTranslationService.kt` — modifié (+translateFiles)
+. `src/main/kotlin/bakery/i18n/MigrateContentI18nTask.kt` — modifié (delta wire)
+. `src/main/kotlin/bakery/tree/TreeBakeService.kt` — modifié (ThemeResolver)
+. `src/test/kotlin/bakery/i18n/I18nDeltaApplierTest.kt` — NOUVEAU (8 UT)
+. `src/test/kotlin/bakery/i18n/MigrateContentI18nDeltaFunctionalTest.kt` — NOUVEAU (4 FT)
+. `src/test/features/57_i18n_delta_wire.feature` — NOUVEAU (3 scénarios)
+. `src/test/scenarios/bakery/scenarios/I18nDeltaWireSteps.kt` — NOUVEAU
+. `src/test/kotlin/bakery/i18n/I18nDeltaWireCucumberTest.kt` — NOUVEAU
+. `src/test/kotlin/bakery/tree/TreeBakeServiceTest.kt` — modifié (+2 UT)
+
+== Tests
+
+- 8 UT I18nDeltaApplier
+- 4 FT MigrateContentI18nDeltaFunctionalTest
+- 3 BDD Feature 57
+- 2 UT TreeBakeService (theme)
+- 0 régression (23/23 MigrateContentI18nTaskTest, 5/5 TreeBakeServiceTest)
+- Total : +17 tests

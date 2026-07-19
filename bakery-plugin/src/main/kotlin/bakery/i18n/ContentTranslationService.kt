@@ -59,6 +59,21 @@ class ContentTranslationService(
         return translateParallel(adocFiles, langDir, sourceLanguage, targetLanguage)
     }
 
+    fun translateFiles(
+        files: List<File>,
+        langDir: File,
+        sourceLanguage: String,
+        targetLanguage: String
+    ): ContentTranslationResult {
+        log.info("[translateFiles] Traduction $targetLanguage — ${files.size} fichiers .adoc (parallelism={})",
+            parallelism)
+
+        if (parallelism <= 1) {
+            return translateSequential(files, langDir, sourceLanguage, targetLanguage)
+        }
+        return translateParallel(files, langDir, sourceLanguage, targetLanguage)
+    }
+
     private fun translateSequential(
         adocFiles: List<File>,
         langDir: File,

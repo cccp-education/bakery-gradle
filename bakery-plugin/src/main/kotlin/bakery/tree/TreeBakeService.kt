@@ -1,5 +1,6 @@
 package bakery.tree
 
+import bakery.ThemeConfig
 import bakery.escapeJsonForJavaProperties
 import bakery.injection.updateProperty
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -13,7 +14,12 @@ object TreeBakeService {
         ObjectMapper().registerKotlinModule()
     }
 
-    fun injectTreeConfig(tree: SiteNodeDto, srcDir: File) {
+    fun injectTreeConfig(
+        tree: SiteNodeDto,
+        srcDir: File,
+        themeOverrides: Map<String, ThemeConfig> = emptyMap(),
+        defaultTheme: ThemeConfig = ThemeConfig()
+    ) {
         val jbakeProps = srcDir.resolve("jbake.properties")
         if (!jbakeProps.exists()) return
 
@@ -21,14 +27,17 @@ object TreeBakeService {
         val siteTree = SiteTree(siteNode)
         val outputResolver = OutputConfigResolver(siteTree)
         val metaResolver = NodeMetadataResolver(siteTree)
+        val themeResolver = ThemeResolver(siteTree, themeOverrides, defaultTheme)
         val resolvedOutputs = outputResolver.resolveAll()
         val resolvedMetas = metaResolver.resolveAll()
+        val resolvedThemes = themeResolver.resolveAll()
 
         val leafConfigs: Map<String, Map<String, Any?>> = siteTree.leaves()
             .associate { article ->
                 val out = resolvedOutputs[article.path] ?: OutputConfig()
                 val meta = resolvedMetas[article.path] ?: NodeMetadata()
-                article.path to buildConfigMap(out, meta)
+                val theme = resolvedThemes[article.path]?.theme
+                article.path to buildConfigMap(out, meta, theme)
             }
 
         val treePayload = mapOf(
@@ -43,16 +52,17 @@ object TreeBakeService {
         jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
     }
 
-    private fun buildConfigMap(out: OutputConfig, meta: NodeMetadata): Map<String, Any?> {
+    private fun buildConfigMap(out: OutputConfig, meta: NodeMetadata, theme: ThemeConfig? = null): Map<String, Any?> {
         val map = mutableMapOf<String, Any?>()
         if (out.template != null) map["template"] = out.template
         if (out.layout != null) map["layout"] = out.layout!!.name
         if (out.cssFiles != null) map["cssFiles"] = out.cssFiles
         if (out.jsFiles != null) map["jsFiles"] = out.jsFiles
-        if (out.theme != null) map["theme"] = mapOf(
-            "mode" to out.theme!!.mode,
-            "primaryColor" to out.theme!!.primaryColor,
-            "secondaryColor" to out.theme!!.secondaryColor,
+        val effectiveTheme = theme ?: out.theme
+        if (effectiveTheme != null) map["theme"] = mapOf(
+            "mode" to effectiveTheme.mode,
+            "primaryColor" to effectiveTheme.primaryColor,
+            "secondaryColor" to effectiveTheme.secondaryColor,
         )
         if (meta.title != null) map["title"] = meta.title
         if (meta.description != null) map["description"] = meta.description

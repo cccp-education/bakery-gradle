@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-07-19 — Session 183. EPIC BKY-I18N-DEPLOY CLOS (35/35 pts, 100%). DEPLOY-7 livré S183 (SiteTranslationPlan + mustRunAfter + feature 56 multi-sites + workflow CI réutilisable + fix publication test). Backlog vide. Plugin 0.0.4 mavenLocal._
-_Session en cours_ : 183 terminée — backlog vide._
-_Prochaine session_ : 184 — à cadrer (publication Central 0.0.4 ou nouveau EPIC)._
+_Derniere mise a jour : 2026-07-19 — Session 184. EPIC BKY-I18N-DELTA-WIRE CLOS (12/12 pts) + BKY-OUTPUT-5 livré. Backlog vide. Plugin 0.0.4 mavenLocal._
+_Session en cours_ : 184 terminée — backlog vide._
+_Prochaine session_ : 185 — Publication Maven Central 0.0.4 ou Phase 2 refacto transverse (document-gradle).
 
 '''
 

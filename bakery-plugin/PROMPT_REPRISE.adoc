@@ -1,57 +1,45 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 184
+:session: 185
 :date: 2026-07-19
-:etat: EPIC BKY-I18N-DEPLOY CLOS (35/35 pts, 100%). Backlog vide. Plugin 0.0.4 mavenLocal.
-:epic_actif: AUCUN — backlog vide, session 184 à cadrer
+:etat: EPIC BKY-I18N-DELTA-WIRE CLOS (12/12 pts, 100%). Backlog vide. Plugin 0.0.4 mavenLocal.
+:epic_actif: AUCUN — backlog vide, session 185 à cadrer
 
 == Contexte de fin
 
-EPIC BKY-I18N-DEPLOY CLOS en session 183 (35/35 pts, 100%). DEPLOY-7 livré :
-5 baby steps DDD/TDD/BDD/CI/Fix. Concept domaine `SiteTranslationPlan`
-introduit (4 méthodes : `rtlTargets`, `ltrTargets`, `missingLanguages`,
-`isComplete`). Câblage `mustRunAfter` des 3 tâches i18n-deploy dans
-`BakeryPlugin.wireI18nDeployTaskOrdering`. Feature BDD 56 (7 scénarios
-multi-sites : 3 sites × 9 langues). Workflow CI réutilisable
-`deploy-i18n-site.yml` (paramétré par `workflow_call`). Bug
-`BakeryPluginPublicationTest` résolu (bump catalog 0.0.3/0.0.2 → 0.0.4).
-30 nouveaux tests (19 UT + 4 FT + 7 BDD). `./gradlew test` SUCCESS 2m27s.
-
-Backlog vide après clôture EPIC. Bakery est production-ready. Plugin 0.0.4
-mavenLocal (non publié Central).
+EPIC BKY-I18N-DELTA-WIRE CLOS en session 184 (12/12 pts, 100%). 3 US livrées
+en 1 session (projection 2) :
+- US-1 : `I18nDeltaApplier` value object pur (8 UT, 0 I/O)
+- US-2 : câblage dans `MigrateContentI18nTask` (4 FT delta, 0 régression 23/23)
+- US-3 : Feature BDD 57 (3 scénarios Cucumber : fresh, partiel, idempotence)
+- `ContentChecksum` utilitaire SHA-256 + stockage `.bakery-checksums.properties`
+- `ContentTranslationService.translateFiles()` nouvelle méthode publique
+- `copyNonAdocFiles()` préserve les fichiers non-adoc
 
 == Reprendre à
 
 . **Publication Maven Central 0.0.4** — plugin 0.0.4 en mavenLocal, non
-  publié sur Central. Procédure nmcp (cf. AGENTS.adoc section "Méthode de
-  Publication"). Vérifier que tous les pré-requis sont satisfaits (POM
-  `withType<MavenPublication>`, `signing { useGpgCmd() }`, dépendances
-  releases sans `-SNAPSHOT`).
+  publié sur Central. Procédure nmcp.
+. **Traduire les 104 articles EN de cheroliv.com** — `migrateContentI18n`
+  utilise maintenant le delta (Loi Économie d'Encre par feuille). Lancer
+  la tâche avec un LLM réel.
 . **Migration 7 sites vers workflow réutilisable** — `deploy-i18n-site.yml`
-  créé mais seul `deploy-cheroliv-com.yml` migré. Les 7 autres sites
-  (blogger, cccp.education, dashboard, magic-stick, staticEventGallery,
-  talaria, telecom) peuvent être migrés en workflows `workflow_call`.
-  Note : 7 sites n'ont pas encore `i18n/` — il faut d'abord lancer
-  `migrateContentI18n` sur chaque site (LLM réel, procédure manuelle
-  documentée dans `.agents/I18N_DEPLOY_BOUNDARY.adoc`).
-. **Backlog i18n cheroliv.com** — 104 articles EN à traduire (procédure LLM
-  réel documentée, à lancer manuellement par l'opérateur).
+  créé mais seul `deploy-cheroliv-com.yml` migré.
 . **BKY-OUTPUT-5** — `ThemeResolver` → `TreeBakeService` (5 pts, 44/49
   livrés). Reste la seule US non livrée de l'EPIC BKY-OUTPUT.
-. **Cadrage nouveau EPIC** — backlog vide, opportunité de cadrer un nouvel
-  EPIC selon les priorités métier (cf. BACKLOG.adoc pistes ouvertes).
+. **Phase 2 — Refacto transverse** : migrer le pipeline de traduction
+  AsciiDoc de bakery vers document (EPIC DOC-TRANSLATE, ~30-40 pts).
 . `publishToMavenLocal` après chaque modification code source.
 
-== Fichiers touchés S183
+== Fichiers touchés S184
 
-. `.agents/sessions/183-deploy7-multi-site-site-translation-plan-ci.adoc` — NOUVEAU
-. `src/main/kotlin/bakery/i18n/deploy/SiteTranslationPlan.kt` — NOUVEAU
-. `src/test/kotlin/bakery/i18n/deploy/SiteTranslationPlanTest.kt` — NOUVEAU
-. `src/test/kotlin/bakery/i18n/deploy/I18nDeployMultiSiteCucumberTest.kt` — NOUVEAU
-. `src/test/features/56_i18n_deploy_multi_site.feature` — NOUVEAU
-. `src/test/scenarios/bakery/scenarios/I18nDeployMultiSiteSteps.kt` — NOUVEAU
-. `src/functionalTest/kotlin/bakery/I18nDeployTaskOrderingFunctionalTest.kt` — NOUVEAU
-. `src/main/kotlin/bakery/BakeryPlugin.kt` — modifié (+20 lignes)
-. `build.gradle.kts` — modifié (junit-platform-launcher testImplementation)
-. `gradle/libs.versions.toml` (root + plugin) — modifié (bakery 0.0.4)
-. `office/.github/workflows/deploy-i18n-site.yml` — NOUVEAU
-. `office/.github/workflows/deploy-cheroliv-com.yml` — migré (-68 lignes)
+. `BACKLOG.adoc` — cadrage + clôture EPIC BKY-I18N-DELTA-WIRE
+. `PROMPT_REPRISE.adoc` — ce fichier
+. `src/main/kotlin/bakery/i18n/I18nDeltaApplier.kt` — NOUVEAU (US-1)
+. `src/main/kotlin/bakery/i18n/ContentChecksum.kt` — NOUVEAU
+. `src/main/kotlin/bakery/i18n/ContentTranslationService.kt` — modifié (+translateFiles)
+. `src/main/kotlin/bakery/i18n/MigrateContentI18nTask.kt` — modifié (delta wire)
+. `src/test/kotlin/bakery/i18n/I18nDeltaApplierTest.kt` — NOUVEAU (8 UT)
+. `src/test/kotlin/bakery/i18n/MigrateContentI18nDeltaFunctionalTest.kt` — NOUVEAU (4 FT)
+. `src/test/features/57_i18n_delta_wire.feature` — NOUVEAU (3 scénarios)
+. `src/test/scenarios/bakery/scenarios/I18nDeltaWireSteps.kt` — NOUVEAU
+. `src/test/kotlin/bakery/i18n/I18nDeltaWireCucumberTest.kt` — NOUVEAU

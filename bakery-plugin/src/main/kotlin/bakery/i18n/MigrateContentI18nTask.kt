@@ -78,16 +78,7 @@ abstract class MigrateContentI18nTask : DefaultTask() {
         }
 
         val outputBaseDir = resolveOutputDir(intention)
-
-        val copyService = ContentCopyService()
-        val copyResult = copyService.copy(
-            sourceDir = sourceDir,
-            outputBaseDir = outputBaseDir,
-            targetLanguages = intention.targetLanguages,
-            dryRun = intention.dryRun,
-            excludeRelativePaths = intention.excludePaths.toSet()
-        )
-        logger.lifecycle("[migrateContentI18n] Fichiers copiés : {}", copyResult.filesCopied.size)
+        val currentChecksums = ContentChecksum.computeChecksums(sourceDir)
 
         if (intention.dryRun) {
             logger.lifecycle("[migrateContentI18n] DRY-RUN — aucun fichier modifié.")
@@ -95,30 +86,108 @@ abstract class MigrateContentI18nTask : DefaultTask() {
         }
 
         val translationService = this.translationService
-        if (translationService == null) {
-            logger.lifecycle("[migrateContentI18n] Aucun service de traduction — les fichiers sont copiés sans traduction.")
-            return
-        }
 
         for (targetLang in intention.targetLanguages) {
             val langDir = outputBaseDir.resolve(targetLang)
-            if (!langDir.exists()) continue
+            val storedChecksums = loadStoredChecksums(langDir)
+            val delta = computeDelta(storedChecksums, currentChecksums)
 
-            val plantUmlAdapter = bakery.i18n.plantuml.PlantUmlTranslationAdapter(translationService)
-            val contentService = ContentTranslationService(
-                translationService,
-                parallelism = intention.parallelism,
-                plantUmlAdapter = plantUmlAdapter
-            )
-            val translationResult = contentService.translate(
-                langDir = langDir,
-                sourceLanguage = intention.sourceLanguage,
-                targetLanguage = targetLang,
-                excludeRelativePaths = intention.excludePaths.toSet()
-            )
-            logger.lifecycle("[migrateContentI18n] [{}] Fichiers traduits : {}, erreurs : {}",
-                targetLang, translationResult.filesTranslated.size, translationResult.errors.size)
+            val existingTargetFiles = if (langDir.exists()) {
+                langDir.walkTopDown()
+                    .filter { it.isFile && it.extension == "adoc" }
+                    .map { it.relativeTo(langDir).path }
+                    .toSet()
+            } else {
+                emptySet()
+            }
+
+            val applier = I18nDeltaApplier(delta, existingTargetFiles)
+            val applicationResult = applier.apply()
+
+            val filesToTranslate = applicationResult.toTranslate.paths
+            logger.lifecycle("[migrateContentI18n] [{}] Delta : {} à traduire, {} préservés.",
+                targetLang, filesToTranslate.size, applicationResult.toPreserve.paths.size)
+
+            for (relPath in filesToTranslate) {
+                val sourceFile = sourceDir.resolve(relPath)
+                val targetFile = langDir.resolve(relPath)
+                targetFile.parentFile.mkdirs()
+                sourceFile.copyTo(targetFile, overwrite = true)
+            }
+
+            copyNonAdocFiles(sourceDir, langDir, intention.excludePaths.toSet())
+
+            if (translationService != null && filesToTranslate.isNotEmpty()) {
+                val fileList = filesToTranslate.map { langDir.resolve(it) }
+                val plantUmlAdapter = bakery.i18n.plantuml.PlantUmlTranslationAdapter(translationService)
+                val contentService = ContentTranslationService(
+                    translationService,
+                    parallelism = intention.parallelism,
+                    plantUmlAdapter = plantUmlAdapter
+                )
+                val translationResult = contentService.translateFiles(
+                    files = fileList,
+                    langDir = langDir,
+                    sourceLanguage = intention.sourceLanguage,
+                    targetLanguage = targetLang
+                )
+                logger.lifecycle("[migrateContentI18n] [{}] Fichiers traduits : {}, erreurs : {}",
+                    targetLang, translationResult.filesTranslated.size, translationResult.errors.size)
+            } else if (translationService == null) {
+                logger.lifecycle("[migrateContentI18n] [{}] {} fichiers copiés sans traduction.",
+                    targetLang, filesToTranslate.size)
+            }
+
+            storeChecksums(langDir, currentChecksums)
         }
+    }
+
+    private fun copyNonAdocFiles(sourceDir: File, langDir: File, excludeRelativePaths: Set<String>) {
+        sourceDir.walkTopDown().forEach { file ->
+            val relPath = file.relativeTo(sourceDir).path
+            if (relPath in excludeRelativePaths) return@forEach
+            if (excludeRelativePaths.any { relPath.startsWith("$it/") }) return@forEach
+            if (file.isDirectory) {
+                langDir.resolve(relPath).mkdirs()
+                return@forEach
+            }
+            if (file.extension == "adoc") return@forEach
+            val target = langDir.resolve(relPath)
+            target.parentFile.mkdirs()
+            file.copyTo(target, overwrite = true)
+        }
+    }
+
+    private fun loadStoredChecksums(langDir: File): Map<String, String> {
+        val checksumFile = langDir.resolve(".bakery-checksums.properties")
+        if (!checksumFile.exists()) return emptyMap()
+        return checksumFile.readLines()
+            .filter { it.contains("=") }
+            .associate { line ->
+                val (path, hash) = line.split("=", limit = 2)
+                path to hash
+            }
+    }
+
+    private fun storeChecksums(langDir: File, checksums: Map<String, String>) {
+        val checksumFile = langDir.resolve(".bakery-checksums.properties")
+        checksumFile.writeText(
+            checksums.entries.joinToString("\n") { "${it.key}=${it.value}" }
+        )
+    }
+
+    private fun computeDelta(
+        beforeChecksums: Map<String, String>,
+        afterChecksums: Map<String, String>
+    ): bakery.tree.I18nDelta {
+        val modified = mutableListOf<bakery.tree.ArticleModification>()
+        for ((path, afterHash) in afterChecksums) {
+            val beforeHash = beforeChecksums[path]
+            if (beforeHash == null || beforeHash != afterHash) {
+                modified.add(bakery.tree.ArticleModification(path, beforeHash, afterHash, 0))
+            }
+        }
+        return bakery.tree.I18nDelta(modified, emptyList(), afterChecksums)
     }
 
     internal fun resolveIntention(): ContentMigrationIntention {
