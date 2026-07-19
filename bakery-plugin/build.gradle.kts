@@ -57,7 +57,7 @@ dependencies {
     testImplementation(libs.bundles.coroutines)
 
     testImplementation(kotlin("test-junit5"))
-    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.junit.platform:junit-platform-launcher")
     testImplementation(libs.slf4j.api)
     testRuntimeOnly(libs.logback.classic)
 

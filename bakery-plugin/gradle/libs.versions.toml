@@ -1,6 +1,6 @@
 [versions]
 graphify = "0.0.2"
-bakery = "0.0.2"
+bakery = "0.0.4"
 commons-io = "2.13.0"
 jgit = "6.10.0.202406032230-r"
 slf4j = "2.0.17"

@@ -1,63 +1,57 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 183
+:session: 184
 :date: 2026-07-19
-:etat: EPIC BKY-I18N-DEPLOY actif (33/35 pts livrés, 94%). DEPLOY-0→6 livrés S179-S182.
-:epic_actif: BKY-I18N-DEPLOY — DEPLOY-7 à livrer
+:etat: EPIC BKY-I18N-DEPLOY CLOS (35/35 pts, 100%). Backlog vide. Plugin 0.0.4 mavenLocal.
+:epic_actif: AUCUN — backlog vide, session 184 à cadrer
 
 == Contexte de fin
 
-EPIC BKY-I18N-DEPLOY cadré S179 (35 pts, 7 US). Dogfooding i18n sur sites
-réels via copies — généralisation du socle `ContentTranslationService` +
-`MigrateContentI18nTask` (S134) aux 8 sites et 10 langues, avec
-classification PlantUML (TRANSLATE/PRESERVE/BORROW) et injection RTL.
+EPIC BKY-I18N-DEPLOY CLOS en session 183 (35/35 pts, 100%). DEPLOY-7 livré :
+5 baby steps DDD/TDD/BDD/CI/Fix. Concept domaine `SiteTranslationPlan`
+introduit (4 méthodes : `rtlTargets`, `ltrTargets`, `missingLanguages`,
+`isComplete`). Câblage `mustRunAfter` des 3 tâches i18n-deploy dans
+`BakeryPlugin.wireI18nDeployTaskOrdering`. Feature BDD 56 (7 scénarios
+multi-sites : 3 sites × 9 langues). Workflow CI réutilisable
+`deploy-i18n-site.yml` (paramétré par `workflow_call`). Bug
+`BakeryPluginPublicationTest` résolu (bump catalog 0.0.3/0.0.2 → 0.0.4).
+30 nouveaux tests (19 UT + 4 FT + 7 BDD). `./gradlew test` SUCCESS 2m27s.
 
-DEPLOY-6 livré S182 : fixture `cheroliv-com-i18n-deploy/` (3 articles FR
-couvrant les 3 stratégies PlantUml + `i18n/{9 langues}/` + `site.yml`
-10 langues + `menu.thyme`). Feature `55_i18n_deploy_end_to_end.feature`
-7 scénarios BDD GREEN (FR→EN headers, FR→AR RTL, FR→ZH LTR, PlantUml
-×3 stratégies, end-to-end 10 langues + lang switcher). Steps
-`I18nDeployEndToEndSteps.kt` (fake translator label-aware, zéro LLM en
-CI — Loi Économie d'Encre). `cucumberTest` GREEN 2m43s. Plugin 0.0.4
-mavenLocal.
-
-Déploiement cheroliv.com CI étendu aux 10 langues : workflow
-`deploy-cheroliv-com.yml` mis à jour (bake FR + pagefind, boucle 9 langues
-swap/bake/inject, deploySite final). PROMPT_REPRISE cheroliv.com mis à jour.
-
-Bug préexistant : `BakeryPluginPublicationTest` version mismatch (0.0.4
-vs catalog root 0.0.3) — non introduit par cette session, à résoudre
-(bump catalog root 0.0.3 → 0.0.4).
+Backlog vide après clôture EPIC. Bakery est production-ready. Plugin 0.0.4
+mavenLocal (non publié Central).
 
 == Reprendre à
 
-. **DEPLOY-7** — Généralisation 8 sites + 10 langues + CI (7 pts) :
-  dogfooding étendu aux 8 sites (cheroliv.com, magic-stick, talaria.school,
-  edster.cloud, cccp.education + 3 autres). Pour chaque site : dry-run →
-  apply FR→10 langues → vérifications qualité (ratio FR résiduel, headers
-  préservés, RTL, PlantUML). Snapshot des résultats. CI : 10 bakes
-  séquentiels (1 checkout/lang, `configPath` override par
-  `i18n/{lang}/site-{lang}.yml`) — pattern S031 cheroliv.com déjà éprouvé
-  pour EN, à étendre aux 10 langues (workflow déjà étendu S182). Documenter
-  la procédure reproductible.
-. Bug préexistant : `BakeryPluginPublicationTest` version mismatch —
-  bump catalog root 0.0.3 → 0.0.4 dans `foundry/public/bakery-gradle/`
-  (vérifier `gradle/libs.versions.toml` ou settings).
-. Backlog i18n cheroliv.com : 104 articles EN à traduire (procédure LLM réel
-  documentée dans `.agents/I18N_DEPLOY_BOUNDARY.adoc`, à lancer manuellement
-  par l'opérateur).
+. **Publication Maven Central 0.0.4** — plugin 0.0.4 en mavenLocal, non
+  publié sur Central. Procédure nmcp (cf. AGENTS.adoc section "Méthode de
+  Publication"). Vérifier que tous les pré-requis sont satisfaits (POM
+  `withType<MavenPublication>`, `signing { useGpgCmd() }`, dépendances
+  releases sans `-SNAPSHOT`).
+. **Migration 7 sites vers workflow réutilisable** — `deploy-i18n-site.yml`
+  créé mais seul `deploy-cheroliv-com.yml` migré. Les 7 autres sites
+  (blogger, cccp.education, dashboard, magic-stick, staticEventGallery,
+  talaria, telecom) peuvent être migrés en workflows `workflow_call`.
+  Note : 7 sites n'ont pas encore `i18n/` — il faut d'abord lancer
+  `migrateContentI18n` sur chaque site (LLM réel, procédure manuelle
+  documentée dans `.agents/I18N_DEPLOY_BOUNDARY.adoc`).
+. **Backlog i18n cheroliv.com** — 104 articles EN à traduire (procédure LLM
+  réel documentée, à lancer manuellement par l'opérateur).
+. **BKY-OUTPUT-5** — `ThemeResolver` → `TreeBakeService` (5 pts, 44/49
+  livrés). Reste la seule US non livrée de l'EPIC BKY-OUTPUT.
+. **Cadrage nouveau EPIC** — backlog vide, opportunité de cadrer un nouvel
+  EPIC selon les priorités métier (cf. BACKLOG.adoc pistes ouvertes).
 . `publishToMavenLocal` après chaque modification code source.
-. DEPLOY-7 clôture l'EPIC BKY-I18N-DEPLOY (35/35 pts, 100%).
 
-== Fichiers touchés S182
+== Fichiers touchés S183
 
-. `.agents/sessions/182-deploy6-fixture-10-langs-bdd-e2e.adoc` — NOUVEAU
-. `src/test/resources/fixtures/cheroliv-com-i18n-deploy/site.yml` — NOUVEAU
-. `src/test/resources/fixtures/cheroliv-com-i18n-deploy/jbake.properties` — NOUVEAU
-. `src/test/resources/fixtures/cheroliv-com-i18n-deploy/templates/menu.thyme` — NOUVEAU
-. `src/test/resources/fixtures/cheroliv-com-i18n-deploy/content/blog/introduction-pivot.adoc` — NOUVEAU
-. `src/test/resources/fixtures/cheroliv-com-i18n-deploy/content/blog/diagramme-labels.adoc` — NOUVEAU
-. `src/test/resources/fixtures/cheroliv-com-i18n-deploy/content/blog/vocabulaire-metier.adoc` — NOUVEAU
-. `src/test/features/55_i18n_deploy_end_to_end.feature` — NOUVEAU (7 scénarios BDD)
-. `src/test/scenarios/bakery/scenarios/I18nDeployEndToEndSteps.kt` — NOUVEAU
-. `office/.github/workflows/deploy-cheroliv-com.yml` — workflow 10 langues
-. `office/sites/cheroliv.com/PROMPT_REPRISE.adoc` — mis à jour
+. `.agents/sessions/183-deploy7-multi-site-site-translation-plan-ci.adoc` — NOUVEAU
+. `src/main/kotlin/bakery/i18n/deploy/SiteTranslationPlan.kt` — NOUVEAU
+. `src/test/kotlin/bakery/i18n/deploy/SiteTranslationPlanTest.kt` — NOUVEAU
+. `src/test/kotlin/bakery/i18n/deploy/I18nDeployMultiSiteCucumberTest.kt` — NOUVEAU
+. `src/test/features/56_i18n_deploy_multi_site.feature` — NOUVEAU
+. `src/test/scenarios/bakery/scenarios/I18nDeployMultiSiteSteps.kt` — NOUVEAU
+. `src/functionalTest/kotlin/bakery/I18nDeployTaskOrderingFunctionalTest.kt` — NOUVEAU
+. `src/main/kotlin/bakery/BakeryPlugin.kt` — modifié (+20 lignes)
+. `build.gradle.kts` — modifié (junit-platform-launcher testImplementation)
+. `gradle/libs.versions.toml` (root + plugin) — modifié (bakery 0.0.4)
+. `office/.github/workflows/deploy-i18n-site.yml` — NOUVEAU
+. `office/.github/workflows/deploy-cheroliv-com.yml` — migré (-68 lignes)

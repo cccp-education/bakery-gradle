@@ -5,27 +5,18 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-07-19 — Session 182. EPIC BKY-I18N-DEPLOY actif (33/35 pts, 94%). DEPLOY-0 (3 pts) + DEPLOY-1 (5 pts) S179 + DEPLOY-2 (5 pts) + DEPLOY-3 (5 pts) S180 + DEPLOY-4 (5 pts) + DEPLOY-5 (5 pts) S181 + DEPLOY-6 (5 pts) S182 livrés. 1 US restante (DEPLOY-7). Plugin 0.0.4 mavenLocal._
+_Dernière mise à jour : 2026-07-19 — Session 183. EPIC BKY-I18N-DEPLOY CLOS (35/35 pts, 100%). DEPLOY-7 livré S183 (SiteTranslationPlan + mustRunAfter + feature 56 multi-sites + workflow CI réutilisable + fix publication test). Backlog vide. Plugin 0.0.4 mavenLocal._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
 [CAUTION]
 ====
-**EPIC BKY-LANG-SWITCH CLOS — 26/26 pts (100%).** 6/6 US livrées en 2 sessions
-(S177 domaine + fixture, S178 renderer + task + BDD). Bug sélecteur de langue
-cheroliv.com/en/ résolu : `injectLangSwitch` génère les URLs inter-langues
-correctes (FR root→EN subdir, EN subdir→FR root, no self-loop).
-**Backlog actif : EPIC BKY-I18N-DEPLOY (35 pts, 7 US).** Dogfooding
-i18n sur sites réels via copies — généralisation du socle `ContentTranslationService` +
-`MigrateContentI18nTask` (S134) aux 8 sites et 10 langues, avec classification
-PlantUML (TRANSLATE/PRESERVE/BORROW) et injection RTL. Constate que les 108
-articles `office/sites/cheroliv.com/content-i18n/en/blog/` sont restés en FR
-(copie brute sans `migrateContentI18n`), en-têtes JBake cassés. Voir section EPIC
-ci-dessous. Candidats parallèles pour S179+ :
-. Déploiement cheroliv.com : appliquer `injectLangSwitch` sur site réel
-. BKY-OUTPUT-5 : `ThemeResolver` → `TreeBakeService` (5 pts, 44/49 livrés)
-. SEC-1 audit bakery (deepseek + ports 11434-11436)
-. Publication Maven Central 0.0.4 (nmcp)
+**EPIC BKY-I18N-DEPLOY CLOS — 35/35 pts (100%).** 7/7 US livrées en 5 sessions
+(S179-S183). DEPLOY-7 livré S183 : concept domaine `SiteTranslationPlan`,
+câblage `mustRunAfter` des 3 tâches, feature BDD 56 multi-sites (3 sites ×
+9 langues), workflow CI réutilisable `deploy-i18n-site.yml`, fix
+`BakeryPluginPublicationTest` (bump catalog 0.0.4). 30 nouveaux tests.
+Backlog vide. Plugin 0.0.4 mavenLocal (non publié Central).
 
 **Bakery est production-ready (S170). EPIC BKY-I18N-REAL TERMINÉ — 24/24 pts
 (100%). S170 a livré REAL-1→6 en 1 session (projection 2).
@@ -33,18 +24,19 @@ Golden masters post-migration persistants figent le résultat attendu
 pour les 3 sites (magic-stick 12, cccp 11, cheroliv 24 templates).
 Idempotence (Ink Economy Law) validée sur données réelles.**
 *Publication* : 0.0.3 sur Maven Central (LIVE, bundle 49be80ef) + Gradle Plugin Portal.
-0.0.4 en mavenLocal (S178, non publié Central).
-*Coverage* : 93,09% (Kover, S169), seuil `koverThresholdCheck` PASS. +27 UT snapshot (S170).
+0.0.4 en mavenLocal (S183, non publié Central — candidat prochaine publication).
+*Coverage* : 93,09% (Kover, S169), seuil `koverThresholdCheck` PASS. +30 tests S183.
 *Code smells* : 24/24 V2-V4 + 60 V5 + 3 V6 résolus (24/24 V5 via US-1→8, 8/8 V6).
 *Loi de l'Économie d'Encre* : encodée dans bakery + 9 boroughs transverses (S154).
   Implémentée dans bakery (I18nMigrationService delta S153 + generatePivotYaml
   load-before-write S163 + SubtreeI18nPlanner delta par feuille S167 +
-  PostMigrationIdempotenceTest 3 sites S170).
+  PostMigrationIdempotenceTest 3 sites S170 + SiteTranslationPlan.missingLanguages S183).
   9 autres boroughs = gouvernance only (AGENT.adoc).
 *Parser pivot* : 41 UT + 4/4 golden masters GREEN + tâche `generatePivotYaml` (6 functional + 4 BDD).
 *Arbre de site* : 99 UT tree package + 7 features Cucumber (186 scénarios/steps).
 *Snapshot post-migration* : 27 UT snapshot + 1 feature Cucumber (6 scénarios @i18n-real).
 *LangSwitch* : 40 UT (S177 22 + S178 18) + 7 FT + 5 BDD (feature 51).
+*i18n-deploy* : 19 UT SiteTranslationPlan + 4 FT task ordering + 7 BDD feature 56 (S183).
 ====
 
 '''
@@ -1001,10 +993,10 @@ _Total_ : ~35 pts, 7 US.
 | BKY-I18N-DEPLOY-4 | `RtlDirectionInjectionTask` + FT (câblage `ContentTaskRegistrar`) | *✅ S181 TERMINÉ*
 | BKY-I18N-DEPLOY-5 | LLM réel dogfooding cheroliv.com FR→EN (câblage adapter) | *✅ S181 TERMINÉ*
 | BKY-I18N-DEPLOY-6 | Fixture 10 langues + BDD end-to-end | *✅ S182 TERMINÉ*
-| BKY-I18N-DEPLOY-7 | Généralisation 8 sites + 10 langues + CI | *🔲 RESTANT — S183*
+| BKY-I18N-DEPLOY-7 | Généralisation 8 sites + 10 langues + CI | *✅ S183 TERMINÉ*
 |===
 
-_33/35 pts livrés (94%). DEPLOY-6 livré S182 (fixture 10 langues + BDD 7 scénarios GREEN + workflow CI cheroliv.com 10 langues). 1 US restante (DEPLOY-7, clôture EPIC). Aucun fichier production modifié en S182 (additif : fixture + feature + steps + workflow CI)._
+_35/35 pts livrés (100%). EPIC BKY-I18N-DEPLOY CLOS. 7/7 US livrées S179-S183. DEPLOY-7 livré S183 : SiteTranslationPlan (DDD, 19 UT) + câblage mustRunAfter (4 FT) + feature 56 multi-sites (7 BDD) + workflow CI réutilisable deploy-i18n-site.yml + fix BakeryPluginPublicationTest (bump catalog 0.0.4). 30 nouveaux tests. Plugin 0.0.4 mavenLocal._
 
 === Dépendances (DAG)
 

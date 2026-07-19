@@ -304,3 +304,104 @@ chaque rebuild re-paye le LLM (violation Loi Économie d'Encre).
 
 **Prochaine session S183** : DEPLOY-7 (généralisation 8 sites + 10 langues
 + CI, 7 pts, clôture EPIC BKY-I18N-DEPLOY 35/35 pts).
+
+---
+
+== Session 183 — DEPLOY-7 Généralisation multi-sites + SiteTranslationPlan + CI réutilisable (7 pts)
+
+**EPIC BKY-I18N-DEPLOY CLOS — 35/35 pts (100%).** 5 baby steps DDD/TDD/BDD/CI/Fix.
+
+### Step 1 — DDD pur : `SiteTranslationPlan`
+
+- `src/main/kotlin/bakery/i18n/deploy/SiteTranslationPlan.kt` — NOUVEAU (52 lignes)
+- Data class immutable : `siteName`, `sourceLanguage`, `targetLanguages: Set<String>`,
+  `defaultPlantUmlStrategy` (défaut `PreserveTechnical`)
+- 4 méthodes domaine pur : `rtlTargets()` (ar/ur via `LanguageCatalog`),
+  `ltrTargets()`, `missingLanguages(existing)`, `isComplete(existing)`,
+  `withTargetLanguages(newTargets)`
+- Invariants `init` : siteName/sourceLanguage non vides, targetLanguages non
+  vide, langues dans `BakeryConstants.SUPPORTED_LANGS`, sourceLang ∉ targetLangs
+- 19 UT (SiteTranslationPlanTest) — construction, invariants, rtlTargets,
+  ltrTargets, missingLanguages, isComplete, withTargetLanguages, égalité
+
+### Step 2 — TDD FT : câblage `mustRunAfter`
+
+- `src/main/kotlin/bakery/BakeryPlugin.kt` — modifié (+20 lignes)
+- Nouvelle méthode `wireI18nDeployTaskOrdering(project)` :
+  `injectRtlDirection.mustRunAfter("migrateContentI18n")` +
+  `injectLangSwitch.mustRunAfter("migrateContentI18n")`
+- Câblage doux (pas `dependsOn`) — chaque tâche reste indépendamment runnable
+- `src/functionalTest/kotlin/bakery/I18nDeployTaskOrderingFunctionalTest.kt` — NOUVEAU (4 FT)
+- 4/4 PASS : both-requested ordering × 2 + independent runnable × 2
+
+### Step 3 — BDD : Feature 56 multi-sites
+
+- `src/test/features/56_i18n_deploy_multi_site.feature` — NOUVEAU (7 scénarios, tag `@i18n-deploy-multi-site`)
+- 7 scénarios : dry-run, 9 variants/site, RTL ar/ur, headers JBake, PlantUml
+  PreserveTechnical, PlantUml BorrowVocabulary, SiteTranslationPlan
+- `src/test/scenarios/bakery/scenarios/I18nDeployMultiSiteSteps.kt` — NOUVEAU (271 lignes)
+- 3 sites (cheroliv.com, cccp.education, magic-stick) × 9 langues, fake
+  translator label-aware (FR→EN dict 17 entrées + `[lang]` prefix)
+- `src/test/kotlin/bakery/i18n/deploy/I18nDeployMultiSiteCucumberTest.kt` — NOUVEAU
+- Runner JUnit5 standalone via `LauncherDiscoveryRequestBuilder` (isole la
+  feature 56 sans lancer le cucumberTest complet 5min)
+- `build.gradle.kts` — modifié : `junit-platform-launcher` `testRuntimeOnly` → `testImplementation`
+- 7/7 scénarios BDD GREEN
+
+### Step 4 — CI : workflow réutilisable
+
+- `office/.github/workflows/deploy-i18n-site.yml` — NOUVEAU (79 lignes)
+- Workflow `workflow_call` paramétré : `site_name`, `config_secret`,
+  `java_version` (défaut 25), `langs` (défaut 9 langues non-FR)
+- Réutilise le pattern cheroliv.com (swap jbake/ ↔ i18n/{lang}/, bake,
+  restore, inject subdirectory, clean, deploySite final)
+- `office/.github/workflows/deploy-cheroliv-com.yml` — migré (-68 lignes)
+- Dogfooding : appelle `deploy-i18n-site.yml` via `workflow_call`
+
+### Step 5 — Fix : `BakeryPluginPublicationTest`
+
+- Bug préexistant (S182) : version mismatch build.gradle.kts `0.0.4` vs
+  catalog root `0.0.3` vs plugin catalog `0.0.2`
+- `gradle/libs.versions.toml` (root) : `bakery = "0.0.3"` → `"0.0.4"`
+- `bakery-plugin/gradle/libs.versions.toml` : `bakery = "0.0.2"` → `"0.0.4"`
+- `BakeryPluginPublicationTest` 2/2 PASS
+
+### Tests
+
+- `./gradlew test` BUILD SUCCESSFUL 2m27s (tous UT + BDD standalone feature 56)
+- `./gradlew functionalTest --tests "bakery.I18nDeployTaskOrderingFunctionalTest"` 4/4 PASS
+- `./gradlew compileKotlin` OK
+- `./gradlew -q publishToMavenLocal` OK (plugin 0.0.4 mavenLocal)
+- 30 nouveaux tests : 19 UT + 4 FT + 7 BDD
+
+### Fichiers
+
+- `src/main/kotlin/bakery/i18n/deploy/SiteTranslationPlan.kt` — NOUVEAU
+- `src/test/kotlin/bakery/i18n/deploy/SiteTranslationPlanTest.kt` — NOUVEAU
+- `src/test/kotlin/bakery/i18n/deploy/I18nDeployMultiSiteCucumberTest.kt` — NOUVEAU
+- `src/test/features/56_i18n_deploy_multi_site.feature` — NOUVEAU
+- `src/test/scenarios/bakery/scenarios/I18nDeployMultiSiteSteps.kt` — NOUVEAU
+- `src/functionalTest/kotlin/bakery/I18nDeployTaskOrderingFunctionalTest.kt` — NOUVEAU
+- `src/main/kotlin/bakery/BakeryPlugin.kt` — modifié (+20 lignes)
+- `build.gradle.kts` — modifié (junit-platform-launcher testImplementation)
+- `gradle/libs.versions.toml` (root + plugin) — modifié (bakery 0.0.4)
+- `office/.github/workflows/deploy-i18n-site.yml` — NOUVEAU
+- `office/.github/workflows/deploy-cheroliv-com.yml` — migré (-68 lignes)
+
+### Leçons
+
+- **`mustRunAfter` vs `dependsOn`** : doux préserve l'indépendance des tâches
+  (l'utilisateur peut lancer une tâche seule), dur force la chaîne. Pour un
+  pipeline translate→inject, doux est le bon choix — chaque tâche est utile
+  isolément.
+- **`LauncherDiscoveryRequestBuilder`** : pour itérer sur une feature
+  Cucumber isolée sans lancer le cucumberTest complet (5min), utiliser
+  `LauncherDiscoveryRequestBuilder.request().selectors(selectClasspathResource(...))`
+  + `LauncherFactory.create().execute(request, listener)`. Nécessite
+  `junit-platform-launcher` en `testImplementation` (pas `testRuntimeOnly`).
+- **Workflow réutilisable `workflow_call`** : factorise 8 workflows déploiement
+  en 1 fichier paramétré. DRY, maintenance centralisée. Chaque site appelle
+  avec `uses: ./.github/workflows/deploy-i18n-site.yml` + `with: { site_name: ... }`.
+
+**EPIC BKY-I18N-DEPLOY CLOS** — 35/35 pts (100%), 7/7 US livrées S179-S183.
+Backlog vide. Plugin 0.0.4 mavenLocal (non publié Central).

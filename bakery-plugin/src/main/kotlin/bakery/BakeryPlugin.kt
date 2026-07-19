@@ -208,6 +208,26 @@ class BakeryPlugin : Plugin<Project> {
         project.registerRtlDirectionInjectionTask(resolvedSite)
         project.registerAccessibilityAuditTask(bakeryExtension, resolvedSite)
         project.registerInjectLangSwitchTask(resolvedSite)
+        wireI18nDeployTaskOrdering(project)
+    }
+
+    /**
+     * Câble l'ordre d'exécution des 3 tâches i18n-deploy (DEPLOY-7).
+     *
+     * - `injectRtlDirection` doit tourner après `migrateContentI18n` (lit ses outputs)
+     * - `injectLangSwitch` doit tourner après `migrateContentI18n` (lit les variantes localisées)
+     *
+     * `mustRunAfter` (doux) : n'inclut pas la tâche amont dans le graph si elle
+     * n'est pas explicitement demandée. L'utilisateur peut toujours lancer une
+     * tâche seule. Quand les deux sont demandées, l'ordre est garanti.
+     */
+    private fun wireI18nDeployTaskOrdering(project: Project) {
+        project.tasks.named("injectRtlDirection").configure { task ->
+            task.mustRunAfter("migrateContentI18n")
+        }
+        project.tasks.named("injectLangSwitch").configure { task ->
+            task.mustRunAfter("migrateContentI18n")
+        }
     }
 }
 
