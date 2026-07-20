@@ -110,39 +110,15 @@
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
                                                         th:attr="aria-label=#{menu.11}" aria-label="Select language">>
-                        <i class="bi bi-translate"></i>
-                        <span class="ms-1" th:text="#{menu.12}">FR</span>
+                        <span class="me-1" th:text="#{menu.12}">🇫🇷</span>
+                        <span class="ms-1" th:text="#{menu.13}">FR</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
                         <li><a class="dropdown-item lang-option active" th:href="${content.rootpath + 'index.html'}" data-lang="fr">
-                            <i class="bi bi-flag-fill me-2"></i>Français
+                            <span class="me-2" th:text="#{menu.12}">🇫🇷</span>Français
                         </a></li>
                         <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'en/index.html'}" data-lang="en">
-                            <i class="bi bi-flag me-2"></i>English
-                        </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'ar/index.html'}" data-lang="ar">
-                            <i class="bi bi-flag me-2"></i>العربية
-                        </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'bn/index.html'}" data-lang="bn">
-                            <i class="bi bi-flag me-2"></i>বাংলা
-                        </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'es/index.html'}" data-lang="es">
-                            <i class="bi bi-flag me-2"></i>Español
-                        </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'hi/index.html'}" data-lang="hi">
-                            <i class="bi bi-flag me-2"></i>हिन्दी
-                        </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'pt/index.html'}" data-lang="pt">
-                            <i class="bi bi-flag me-2"></i>Português
-                        </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'ru/index.html'}" data-lang="ru">
-                            <i class="bi bi-flag me-2"></i>Русский
-                        </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'ur/index.html'}" data-lang="ur">
-                            <i class="bi bi-flag me-2"></i>اردو
-                        </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'zh/index.html'}" data-lang="zh">
-                            <i class="bi bi-flag me-2"></i>中文
+                            <span class="me-2" th:text="#{menu.15}">🇬🇧</span>English
                         </a></li>
                     </ul>
                 </div>

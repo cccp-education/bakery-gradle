@@ -1,7 +1,7 @@
 package bakery.i18n.rtl
 
-import bakery.pivot.AsciiDocParser
-import bakery.pivot.JbakeNativeRenderer
+import document.translation.AsciiDocParser
+import document.translation.JbakeNativeRenderer
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 

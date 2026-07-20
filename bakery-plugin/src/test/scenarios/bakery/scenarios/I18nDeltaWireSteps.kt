@@ -1,11 +1,11 @@
 package bakery.scenarios
 
-import bakery.i18n.ContentChecksum
-import bakery.i18n.ContentTranslationService
+import document.translation.delta.ContentChecksum
+import document.translation.ContentTranslationService
 import bakery.i18n.I18nDeltaApplier
-import bakery.i18n.plantuml.PlantUmlTranslationAdapter
-import bakery.pivot.AsciiDocParser
-import bakery.pivot.JbakeNativeRenderer
+import document.translation.plantuml.PlantUmlTranslationAdapter
+import document.translation.AsciiDocParser
+import document.translation.JbakeNativeRenderer
 import bakery.tree.ArticleModification
 import bakery.tree.I18nDelta
 import contracts.i18n.TranslationRequest

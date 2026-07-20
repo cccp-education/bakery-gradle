@@ -1,6 +1,9 @@
 package bakery.i18n
 
 import org.gradle.testfixtures.ProjectBuilder
+import contracts.i18n.TranslationRequest
+import contracts.i18n.TranslationResult
+import contracts.i18n.TranslationService
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -462,6 +465,14 @@ class MigrateContentI18nTaskTest {
             task.executeContentMigration()
 
             assertTrue(outputBase.resolve("en/article.adoc").exists())
+        }
+    }
+
+    private class FakeTranslationService(private val suffix: String) : TranslationService {
+        override fun translate(request: TranslationRequest): TranslationResult {
+            val sourceText = request.sourceText
+            if (sourceText.isBlank()) return TranslationResult.Success(sourceText)
+            return TranslationResult.Success("$sourceText$suffix")
         }
     }
 }

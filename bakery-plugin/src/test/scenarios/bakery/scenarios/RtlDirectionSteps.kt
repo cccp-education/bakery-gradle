@@ -1,7 +1,7 @@
 package bakery.scenarios
 
 import bakery.i18n.rtl.RtlDirectionInjector
-import bakery.pivot.PivotFrontmatter
+import document.translation.PivotFrontmatter
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When

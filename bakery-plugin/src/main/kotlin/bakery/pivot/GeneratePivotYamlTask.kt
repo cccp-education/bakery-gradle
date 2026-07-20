@@ -1,6 +1,8 @@
 package bakery.pivot
 
 import bakery.BakeryConstants
+import document.translation.AsciiDocParser
+import document.translation.PivotYamlRenderer
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.provider.Property

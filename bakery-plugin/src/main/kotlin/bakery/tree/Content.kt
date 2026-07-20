@@ -1,9 +1,9 @@
 package bakery.tree
 
-import bakery.pivot.PivotArticle
-import bakery.pivot.PivotBlock
-import bakery.pivot.PivotInline
-import bakery.pivot.TextTranslatableClassifier
+import document.translation.PivotArticle
+import document.translation.PivotBlock
+import document.translation.PivotInline
+import document.translation.TextTranslatableClassifier
 
 data class Content(val pivot: PivotArticle) {
 

@@ -11,7 +11,7 @@ import bakery.theme.GenerateThemeTask
 import bakery.theme.ThemeIntentionDsl
 import bakery.firebase.ValidateFirebaseConfigTask
 import bakery.i18n.ContentMigrationIntentionDsl
-import bakery.i18n.ContentTranslationService
+import document.translation.ContentTranslationService
 import bakery.i18n.I18nMigrationIntentionDsl
 import bakery.i18n.LlmServiceTranslationAdapter
 import bakery.i18n.MigrateContentI18nTask

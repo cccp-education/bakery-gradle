@@ -2,21 +2,6 @@ package bakery.tree
 
 import bakery.tree.SiteNode.Article
 
-data class ArticleModification(
-    val path: String,
-    val oldChecksum: String?,
-    val newChecksum: String,
-    val translatableSegmentCount: Int
-)
-
-data class I18nDelta(
-    val modifiedArticles: List<ArticleModification>,
-    val untouchedArticles: List<Article>,
-    val updatedChecksums: Map<String, String>
-) {
-    fun isEmpty(): Boolean = modifiedArticles.isEmpty()
-}
-
 class SubtreeI18nPlanner(
     private val tree: SiteTree?,
     private val flatArticles: List<Article>?,

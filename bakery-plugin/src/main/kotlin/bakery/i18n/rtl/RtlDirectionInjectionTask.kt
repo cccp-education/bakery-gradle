@@ -1,10 +1,10 @@
 package bakery.i18n.rtl
 
 import bakery.BakeryConstants
-import bakery.pivot.AsciiDocParser
-import bakery.pivot.ArticleRenderer
-import bakery.pivot.AsciiDocRenderer
-import bakery.pivot.JbakeNativeRenderer
+import document.translation.AsciiDocParser
+import document.translation.ArticleRenderer
+import document.translation.AsciiDocRenderer
+import document.translation.JbakeNativeRenderer
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input

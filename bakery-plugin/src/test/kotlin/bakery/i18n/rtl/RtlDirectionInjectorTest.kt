@@ -1,6 +1,6 @@
 package bakery.i18n.rtl
 
-import bakery.pivot.PivotFrontmatter
+import document.translation.PivotFrontmatter
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test

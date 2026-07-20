@@ -1,9 +1,9 @@
 package bakery.tree
 
-import bakery.pivot.PivotArticle
-import bakery.pivot.PivotBlock
-import bakery.pivot.PivotFrontmatter
-import bakery.pivot.PivotInline
+import document.translation.PivotArticle
+import document.translation.PivotBlock
+import document.translation.PivotFrontmatter
+import document.translation.PivotInline
 import bakery.tree.SiteNode.Article
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals

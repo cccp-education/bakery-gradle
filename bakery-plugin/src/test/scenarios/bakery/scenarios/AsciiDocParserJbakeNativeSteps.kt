@@ -1,9 +1,9 @@
 package bakery.scenarios
 
-import bakery.pivot.AsciiDocParser
-import bakery.pivot.AsciiDocRenderer
-import bakery.pivot.PivotArticle
-import bakery.pivot.PivotBlock
+import document.translation.AsciiDocParser
+import document.translation.AsciiDocRenderer
+import document.translation.PivotArticle
+import document.translation.PivotBlock
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When

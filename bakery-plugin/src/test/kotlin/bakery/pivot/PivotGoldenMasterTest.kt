@@ -1,5 +1,7 @@
 package bakery.pivot
 
+import document.translation.AsciiDocParser
+import document.translation.PivotYamlRenderer
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

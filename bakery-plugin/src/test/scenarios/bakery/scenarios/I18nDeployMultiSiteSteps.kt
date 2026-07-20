@@ -1,11 +1,11 @@
 package bakery.scenarios
 
-import bakery.i18n.ContentTranslationService
-import bakery.i18n.deploy.SiteTranslationPlan
-import bakery.i18n.plantuml.PlantUmlTranslationAdapter
+import document.translation.ContentTranslationService
+import document.translation.plan.SiteTranslationPlan
+import document.translation.plantuml.PlantUmlTranslationAdapter
 import bakery.i18n.rtl.RtlDirectionInjector
-import bakery.pivot.AsciiDocParser
-import bakery.pivot.JbakeNativeRenderer
+import document.translation.AsciiDocParser
+import document.translation.JbakeNativeRenderer
 import contracts.i18n.TranslationRequest
 import contracts.i18n.TranslationResult
 import contracts.i18n.TranslationService

@@ -1,8 +1,8 @@
 package bakery.scenarios
 
-import bakery.i18n.ContentTranslationService
-import bakery.pivot.AsciiDocRenderer
-import bakery.pivot.JbakeNativeRenderer
+import document.translation.ContentTranslationService
+import document.translation.AsciiDocRenderer
+import document.translation.JbakeNativeRenderer
 import contracts.i18n.TranslationRequest
 import contracts.i18n.TranslationResult
 import contracts.i18n.TranslationService

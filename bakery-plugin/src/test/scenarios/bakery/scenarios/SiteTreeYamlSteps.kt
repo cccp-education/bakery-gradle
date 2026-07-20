@@ -1,9 +1,9 @@
 package bakery.scenarios
 
-import bakery.pivot.PivotArticle
-import bakery.pivot.PivotBlock
-import bakery.pivot.PivotFrontmatter
-import bakery.pivot.PivotInline
+import document.translation.PivotArticle
+import document.translation.PivotBlock
+import document.translation.PivotFrontmatter
+import document.translation.PivotInline
 import bakery.tree.Content
 import bakery.tree.SiteNode
 import bakery.tree.SiteNode.Article

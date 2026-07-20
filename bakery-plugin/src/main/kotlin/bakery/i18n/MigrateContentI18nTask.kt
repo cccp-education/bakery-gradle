@@ -4,6 +4,11 @@ import bakery.BakeryConstants
 import bakery.intention.ResolveIntention
 import bakery.intention.ResolveIntentionError
 import contracts.i18n.TranslationService
+import bakery.tree.ArticleModification
+import bakery.tree.I18nDelta
+import document.translation.ContentTranslationService
+import document.translation.delta.ContentChecksum
+import document.translation.plantuml.PlantUmlTranslationAdapter
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -119,7 +124,7 @@ abstract class MigrateContentI18nTask : DefaultTask() {
 
             if (translationService != null && filesToTranslate.isNotEmpty()) {
                 val fileList = filesToTranslate.map { langDir.resolve(it) }
-                val plantUmlAdapter = bakery.i18n.plantuml.PlantUmlTranslationAdapter(translationService)
+                val plantUmlAdapter = PlantUmlTranslationAdapter(translationService)
                 val contentService = ContentTranslationService(
                     translationService,
                     parallelism = intention.parallelism,
@@ -179,15 +184,15 @@ abstract class MigrateContentI18nTask : DefaultTask() {
     private fun computeDelta(
         beforeChecksums: Map<String, String>,
         afterChecksums: Map<String, String>
-    ): bakery.tree.I18nDelta {
-        val modified = mutableListOf<bakery.tree.ArticleModification>()
+    ): I18nDelta {
+        val modified = mutableListOf<ArticleModification>()
         for ((path, afterHash) in afterChecksums) {
             val beforeHash = beforeChecksums[path]
             if (beforeHash == null || beforeHash != afterHash) {
-                modified.add(bakery.tree.ArticleModification(path, beforeHash, afterHash, 0))
+                modified.add(ArticleModification(path, beforeHash, afterHash, 0))
             }
         }
-        return bakery.tree.I18nDelta(modified, emptyList(), afterChecksums)
+        return I18nDelta(modified, emptyList(), afterChecksums)
     }
 
     internal fun resolveIntention(): ContentMigrationIntention {

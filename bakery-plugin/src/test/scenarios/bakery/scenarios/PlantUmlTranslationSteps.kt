@@ -1,7 +1,7 @@
 package bakery.scenarios
 
-import bakery.i18n.plantuml.PlantUmlTranslationAdapter
-import bakery.pivot.PivotBlock
+import document.translation.plantuml.PlantUmlTranslationAdapter
+import document.translation.PivotBlock
 import contracts.i18n.TranslationRequest
 import contracts.i18n.TranslationResult
 import contracts.i18n.TranslationService

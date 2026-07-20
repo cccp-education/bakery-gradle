@@ -38,6 +38,7 @@ dependencies {
     implementation(libs.codebase.plugin)
     implementation("education.cccp:api-key-pool:0.0.1")
     implementation("education.cccp:i18n-contracts:0.0.2")
+    implementation("education.cccp:document-plugin:0.0.1")
 
     // LLM — LangChain4j + Ollama (BKY-IA-0)
     implementation(libs.langchain4j.ollama)

@@ -1,6 +1,6 @@
 package bakery.i18n.rtl
 
-import bakery.pivot.PivotFrontmatter
+import document.translation.PivotFrontmatter
 import contracts.i18n.LanguageCatalog
 
 /**

@@ -1,8 +1,8 @@
 package bakery.scenarios
 
 import bakery.i18n.rtl.RtlDirectionInjector
-import bakery.pivot.AsciiDocParser
-import bakery.pivot.JbakeNativeRenderer
+import document.translation.AsciiDocParser
+import document.translation.JbakeNativeRenderer
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
