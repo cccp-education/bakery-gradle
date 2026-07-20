@@ -4,10 +4,11 @@ import bakery.BakeryConstants
 import bakery.intention.ResolveIntention
 import bakery.intention.ResolveIntentionError
 import contracts.i18n.TranslationService
-import bakery.tree.ArticleModification
-import bakery.tree.I18nDelta
 import document.translation.ContentTranslationService
+import document.translation.delta.ArticleModification
 import document.translation.delta.ContentChecksum
+import document.translation.delta.I18nDelta
+import document.translation.delta.I18nDeltaApplier
 import document.translation.plantuml.PlantUmlTranslationAdapter
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property

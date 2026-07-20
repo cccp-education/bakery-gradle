@@ -1,15 +1,15 @@
 package bakery.scenarios
 
 import bakery.ThemeConfig
-import bakery.tree.ArticleModification
-import bakery.tree.I18nDelta
 import bakery.tree.ResolvedTheme
-import bakery.tree.SiteNode.Article
-import bakery.tree.SiteNode.Section
-import bakery.tree.SiteNode.Site
-import bakery.tree.SiteTree
-import bakery.tree.SubtreeI18nPlanner
 import bakery.tree.ThemeResolver
+import bakery.tree.SiteNode as BakerySiteNode
+import bakery.tree.SiteTree as BakerySiteTree
+import document.translation.delta.ArticleModification
+import document.translation.delta.I18nDelta
+import document.translation.plan.SubtreeI18nPlanner
+import document.translation.tree.SiteNode as DocSiteNode
+import document.translation.tree.SiteTree as DocSiteTree
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
@@ -18,26 +18,43 @@ import org.junit.jupiter.api.assertThrows
 
 class ThemeResolverSteps {
 
-    private var tree: SiteTree? = null
-    private var flatArticles: List<Article>? = null
+    private var tree: BakerySiteTree? = null
+    private var flatArticles: List<BakerySiteNode.Article>? = null
     private var defaultTheme: ThemeConfig = ThemeConfig()
     private var overrides: MutableMap<String, ThemeConfig> = mutableMapOf()
     private var resolved: ResolvedTheme? = null
     private var creationError: Throwable? = null
     private var beforeChecksums: Map<String, String> = emptyMap()
     private var delta: I18nDelta? = null
+    private var docTree: DocSiteTree? = null
+    private var docFlatArticles: List<DocSiteNode.Article>? = null
 
     @Given("a site tree with sections {string} and {string}")
     fun aSiteTreeWithSections(s1: String, s2: String) {
-        val formations = Section(
+        val formations = BakerySiteNode.Section(
             path = s1,
             articles = listOf(
-                Article(path = "$s1/ab-partition"),
-                Article(path = "$s1/cd-partition")
+                BakerySiteNode.Article(path = "$s1/ab-partition"),
+                BakerySiteNode.Article(path = "$s1/cd-partition")
             )
         )
-        val blog = Section(path = s2, articles = listOf(Article(path = "$s2/hello")))
-        tree = SiteTree(Site(path = "", sections = listOf(formations, blog)))
+        val blog = BakerySiteNode.Section(path = s2, articles = listOf(BakerySiteNode.Article(path = "$s2/hello")))
+        tree = BakerySiteTree(BakerySiteNode.Site(path = "", sections = listOf(formations, blog)))
+
+        val docFormations = DocSiteNode.Section(
+            path = s1,
+            articles = listOf(
+                DocSiteNode.Article(path = "$s1/ab-partition"),
+                DocSiteNode.Article(path = "$s1/cd-partition")
+            )
+        )
+        val docBlog = DocSiteNode.Section(
+            path = s2,
+            articles = listOf(DocSiteNode.Article(path = "$s2/hello"))
+        )
+        docTree = DocSiteTree(
+            DocSiteNode.Site(path = "", sections = listOf(docFormations, docBlog))
+        )
     }
 
     @Given("a default theme with primaryColor {string}")
@@ -114,18 +131,23 @@ class ThemeResolverSteps {
     @Given("a flat article list with {int} articles")
     fun aFlatArticleListWith(count: Int) {
         flatArticles = listOf(
-            Article(path = "formations/ab-partition"),
-            Article(path = "formations/cd-partition"),
-            Article(path = "blog/hello")
+            BakerySiteNode.Article(path = "formations/ab-partition"),
+            BakerySiteNode.Article(path = "formations/cd-partition"),
+            BakerySiteNode.Article(path = "blog/hello")
+        ).take(count)
+        docFlatArticles = listOf(
+            DocSiteNode.Article(path = "formations/ab-partition"),
+            DocSiteNode.Article(path = "formations/cd-partition"),
+            DocSiteNode.Article(path = "blog/hello")
         ).take(count)
     }
 
     @Given("before checksums for all articles")
     fun beforeChecksumsForAllArticles() {
-        beforeChecksums = if (tree != null) {
-            tree!!.leaves().associate { it.path to "hash-${it.path}-v1" }
+        beforeChecksums = if (docTree != null) {
+            docTree!!.leaves().associate { it.path to "hash-${it.path}-v1" }
         } else {
-            flatArticles!!.associate { it.path to "hash-${it.path}-v1" }
+            docFlatArticles!!.associate { it.path to "hash-${it.path}-v1" }
         }
     }
 
@@ -188,6 +210,6 @@ class ThemeResolverSteps {
     }
 
     private fun createPlanner(beforeChecksums: Map<String, String> = this.beforeChecksums): SubtreeI18nPlanner =
-        if (tree != null) SubtreeI18nPlanner(tree!!, beforeChecksums)
-        else SubtreeI18nPlanner(flatArticles!!, beforeChecksums)
+        if (docTree != null) SubtreeI18nPlanner(docTree!!, beforeChecksums)
+        else SubtreeI18nPlanner(docFlatArticles!!, beforeChecksums)
 }

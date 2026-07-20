@@ -2,12 +2,12 @@ package bakery.scenarios
 
 import document.translation.delta.ContentChecksum
 import document.translation.ContentTranslationService
-import bakery.i18n.I18nDeltaApplier
+import document.translation.delta.I18nDeltaApplier
 import document.translation.plantuml.PlantUmlTranslationAdapter
 import document.translation.AsciiDocParser
 import document.translation.JbakeNativeRenderer
-import bakery.tree.ArticleModification
-import bakery.tree.I18nDelta
+import document.translation.delta.ArticleModification
+import document.translation.delta.I18nDelta
 import contracts.i18n.TranslationRequest
 import contracts.i18n.TranslationResult
 import contracts.i18n.TranslationService
