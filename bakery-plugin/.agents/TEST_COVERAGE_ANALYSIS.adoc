@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-07-19 — Session 183. EPIC BKY-I18N-DEPLOY CLOS. +30 nouveaux tests (19 UT SiteTranslationPlan + 4 FT task ordering + 7 BDD scénarios feature 56 multi-sites). `./gradlew test` SUCCESS 2m27s. Coverage non revalidée (check complet non exécuté — règle fin de session). Baseline S169 : 93,09% (Kover, seuil 85% PASS). Bug `BakeryPluginPublicationTest` résolu (bump catalog 0.0.4)._
+_Dernière mise à jour : 2026-07-21 — Session 029 document/bakery/office-cheroliv.com cross-borough. +5 tests document-gradle (parser + renderer + translator). 50/50 PASS document-gradle, all PASS bakery-gradle. BDD @jbake-native PASSED. Coverage non revalidée (règle fin de session). Baseline S169 : 93,09% (Kover, seuil 85% PASS)._
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''

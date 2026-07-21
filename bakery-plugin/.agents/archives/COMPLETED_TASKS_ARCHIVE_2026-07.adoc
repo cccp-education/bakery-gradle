@@ -403,5 +403,23 @@ chaque rebuild re-paye le LLM (violation Loi Économie d'Encre).
   en 1 fichier paramétré. DRY, maintenance centralisée. Chaque site appelle
   avec `uses: ./.github/workflows/deploy-i18n-site.yml` + `with: { site_name: ... }`.
 
+== Session 029 — 2026-07-21 — document/bakery/office-cheroliv.com cross-borough
+
+**Contexte** : Session cross-borough (document-gradle, bakery-gradle, office/cheroliv.com).
+Bug parser `+` continuation bloquant 15% du corpus cheroliv.com. Batch traduction
+3 articles pilotes via Ollama. Cadrage EPIC BKY-I18N-CI.
+
+**Tâches** :
+- [x] Bug `+` continuation fixé — `PivotInline.LineBreak` + parser + renderers (50/50 PASS)
+- [x] Batch 3 articles pilotes FR→EN via Ollama gemma4:31b-cloud (14min, validé)
+- [x] BDD @jbake-native PASSED (Cucumber 14min)
+- [x] :summary: + :description: traduits dans translateFrontmatter (TDD vert, 16/16 PASS)
+- [x] EPIC BKY-I18N-BATCH documenté (stratégie lot annuel, 8 lots, 108 articles)
+- [x] EPIC BKY-I18N-CI cadré (6 US, 19 pts, S185→S187, Device Keys dans site.yml)
+- [x] Gouvernance mise à jour (BACKLOG, INDEX, SESSIONS_HISTORY, PROMPT_REPRISE, TEST_COVERAGE)
+- [x] document-gradle publié mavenLocal
+
+**Fichiers modifiés** : 15 document-gradle + 2 bakery-gradle + 14 office/cheroliv.com
+
 **EPIC BKY-I18N-DEPLOY CLOS** — 35/35 pts (100%), 7/7 US livrées S179-S183.
 Backlog vide. Plugin 0.0.4 mavenLocal (non publié Central).

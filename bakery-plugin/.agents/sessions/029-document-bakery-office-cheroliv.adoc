@@ -1,0 +1,100 @@
+= Session 029 — document/bakery/office-cheroliv.com — Bug + continuation + Batch traduction + EPIC CI
+:date: 2026-07-21
+:type: DDD + TDD + BDD + dogfooding LLM réel + cadrage EPIC
+:score: 8/10
+
+== Résumé
+
+Session cross-borough (document-gradle, bakery-gradle, office/cheroliv.com).
+4 livrables majeurs : fix bug parser `+` continuation, batch 3 articles pilotes
+via Ollama, validation BDD @jbake-native, décision :summary: + :description:
+traduits, cadrage EPIC BKY-I18N-CI.
+
+== Livrables
+
+=== 1. Bug parser `+` continuation — FIXÉ
+
+*Problème* : `AsciiDocParser.parseParagraph` joignait les lignes avec un espace,
+perdant les `+` de continuation AsciiDoc (hard line break). 15% du corpus
+cheroliv.com impacté.
+
+*Solution* :
+- `PivotModel.kt` : ajout `PivotInline.LineBreak` (non-translatable)
+- `AsciiDocParser.kt` : `buildParagraphInlines()` détecte `+` en fin de ligne,
+  insère `LineBreak` entre les segments
+- `JbakeNativeRenderer.kt` + `AsciiDocRenderer.kt` : `splitParagraphLines()`
+  split sur `LineBreak` et rend ` +` en sortie
+- `DocumentTranslator.kt`, `PivotYamlRenderer.kt`, `Content.kt` (×2) : branches
+  `LineBreak` ajoutées
+
+*Tests* : +5 tests (2 parser, 2 renderer JBake, 1 renderer AsciiDoc). 50/50 PASS
+document-gradle, all PASS bakery-gradle.
+
+=== 2. Gouvernance batch par année — DOCUMENTÉ
+
+Stratégie batch par lot annuel documentée dans `BACKLOG.adoc` bakery (EPIC
+BKY-I18N-BATCH). 8 lots (2019-2026), 108 articles, ~3h total avec parallelism=3.
+Procédure reproductible via `migrateContentI18n --contentI18nSource=.../blog/{year}`.
+
+=== 3. Batch 3 articles pilotes — VALIDÉ
+
+3 articles (court 173l, moyen 811l, long 1403l) traduits FR→EN via
+`gemma4:31b-cloud` port 11437 en 14min. Validation :
+- Headers JBake préservés ✅
+- Body traduit en anglais ✅
+- `+` continuation intact (9/9) ✅
+- `[source]` blocks inchangés (13/13) ✅
+- Pas d'en-tête cassé ✅
+
+=== 4. BDD @jbake-native — PASSED
+
+Scénario Cucumber `translateDocument preserves cheroliv.com JBake native
+article structure` PASSED (suite complète 14min, 3 FAILED préexistants
+non liés sur `applyDocumentTemplate`).
+
+=== 5. :summary: + :description: traduits — DONE
+
+`DocumentTranslator.translateFrontmatter()` étendu pour traduire
+`jbakeAttributes["summary"]` et `jbakeAttributes["description"]` via
+`doTranslate()`. Test TDD `translate translates jbake summary and description
+attributes` vert. 16/16 DocumentTranslatorTest PASS. Publié mavenLocal.
+
+=== 6. EPIC BKY-I18N-CI — CADRÉ
+
+EPIC formalisé dans `BACKLOG.adoc` bakery (6 US, 19 pts, 3 sessions S185→S187).
+Vision : Device Keys SSH ed25519 dans `site.yml` → secret GitHub
+`CHEROLIV_COM_CONFIG` → CI installe Ollama, écrit Device Key, pull modèle cloud,
+`migrateContentI18n` par lot annuel, rotation round-robin sur 29 clés.
+
+== Fichiers modifiés
+
+*document-gradle* (15 fichiers) :
+- `PivotModel.kt` (+LineBreak)
+- `AsciiDocParser.kt` (buildParagraphInlines)
+- `JbakeNativeRenderer.kt` (splitParagraphLines + LineBreak)
+- `AsciiDocRenderer.kt` (splitParagraphLines + LineBreak)
+- `DocumentTranslator.kt` (translateFrontmatter summary+description + LineBreak)
+- `PivotYamlRenderer.kt` (LineBreak branch)
+- `tree/Content.kt` (LineBreak branch)
+- `AsciiDocParserTest.kt` (+2 tests)
+- `JbakeNativeRendererTest.kt` (+2 tests)
+- `AsciiDocRendererTest.kt` (+1 test)
+- `DocumentTranslatorTest.kt` (+1 test)
+- `TranslateDocumentTaskTest.kt` (updated)
+- `document.feature` (updated)
+- `DocumentSteps.kt` (updated)
+- `DocumentWorld.kt` (updated)
+
+*bakery-gradle* (2 fichiers) :
+- `BACKLOG.adoc` (EPIC BKY-I18N-BATCH + EPIC BKY-I18N-CI)
+- `tree/Content.kt` (LineBreak branch)
+
+*office/cheroliv.com* (14 fichiers) :
+- 11 articles EN traduits (2026)
+- 3 articles pilotes (racine content-i18n/en/)
+- `.bakery-checksums.properties`
+- `jbake/content/blog/pilot-batch/` (3 articles)
+
+== Prochaine session
+
+S185 — EPIC BKY-I18N-CI : CI-1 OllamaDeviceKey POJO + CI-2 SiteConfiguration.ollama + CI-3 SecretField.DeviceKey (8 pts, 3 US, socle POJO pur).

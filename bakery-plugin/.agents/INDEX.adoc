@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-07-19 — Session 184. EPIC BKY-I18N-DELTA-WIRE CLOS (12/12 pts) + BKY-OUTPUT-5 livré. Backlog vide. Plugin 0.0.4 mavenLocal._
-_Session en cours_ : 184 terminée — backlog vide._
-_Prochaine session_ : 185 — Publication Maven Central 0.0.4 ou Phase 2 refacto transverse (document-gradle).
+_Derniere mise a jour : 2026-07-21 — Session 029 document/bakery/office-cheroliv.com cross-borough. EPIC BKY-I18N-CI cadré (6 US, 19 pts). Bug + continuation fixé. Batch 3 articles pilotes validé._
+_Session en cours_ : 029 terminée — EPIC BKY-I18N-CI cadré._
+_Prochaine session_ : 185 — EPIC BKY-I18N-CI : CI-1 OllamaDeviceKey POJO + CI-2 SiteConfiguration.ollama + CI-3 SecretField.DeviceKey (8 pts, 3 US).
 
 '''
 

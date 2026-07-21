@@ -217,7 +217,150 @@ pour introduire le concept unifiant `SiteTree` (Composite Site→Section→Artic
   US-1 I18nDeltaApplier DDD (4 pts), US-2 câblage FT (4 pts), US-3 BDD Cucumber (4 pts).
   **EPIC CLOS 12/12 pts (100%).** Backlog vide.
 | DDD/TDD/BDD
+
+| 8
+| **BKY-I18N-BATCH — Stratégie batch traduction par lot annuel** (Session 029
+  document/gradle, 2026-07-21). Constat : `migrateContentI18n` traduit TOUS les
+  `.adoc` du `sourceDir` en une passe. Pour 108 articles cheroliv.com, la passe
+  complète timeout (10+ min, centaines d'appels LLM). Stratégie : découper par
+  lot annuel (`blog/2026/`, `blog/2025/`, etc.) via `--contentI18nSource` pointant
+  vers un sous-répertoire année. 8 lots : 2026 (28), 2025 (24), 2024 (6), 2023
+  (14), 2022 (7), 2021 (1), 2020 (15), 2019 (13) = 108 articles. Chaque lot est
+  une invocation `migrateContentI18n` indépendante avec `--contentI18nSource=
+  office/sites/cheroliv.com/jbake/content/blog/{year}` et `--contentI18nOutput=
+  office/sites/cheroliv.com/content-i18n`. Le delta checksum (Loi Économie d'Encre)
+  préserve les articles déjà traduits entre lots. Validation : 3 articles pilotes
+  (court 173l, moyen 811l, long 1403l) avant déploiement complet. CI
+  `deploy-cheroliv-com.yml` inchangée — bake les `content-i18n/en/` déjà traduits.
+| DDD/TDD/BDD + dogfooding LLM réel
 |===
+
+'''
+
+== EPIC BKY-I18N-BATCH — Stratégie batch traduction par lot annuel
+
+_Cadré Session 029 document/gradle (2026-07-21). `migrateContentI18n` traduit
+TOUS les `.adoc` du `sourceDir` en une passe. Pour 108 articles cheroliv.com,
+la passe complète timeout (centaines d'appels LLM séquentiels). La stratégie
+batch par année permet de découper la charge LLM en lots indépendants._
+
+[CAUTION]
+====
+**Motivation** : `ContentTranslationService.translate()` walk le `langDir` et
+traduit chaque `.adoc` séquentiellement (ou en parallèle si `parallelism > 1`).
+Chaque article génère N appels LLM (1 par segment translatable : heading,
+paragraph, list item, table cell, admonition). Un article de 1400 lignes =
+~50-100 segments = ~50-100 appels LLM. Pour 108 articles = ~5000-10000 appels.
+À 5s/appel = 7-14h séquentiel. Avec `parallelism=3` = 2-5h. Inacceptable pour
+une passe unique.
+
+**Vision** : découper par lot annuel. `content/blog/` contient 8 sous-répertoires
+année (2019-2026). Chaque lot est une invocation `migrateContentI18n` indépendante
+pointant vers `--contentI18nSource=.../content/blog/{year}`. Le delta checksum
+(Loi Économie d'Encre, BKY-I18N-DELTA-WIRE S184) préserve les articles déjà
+traduits entre lots — re-exécuter un lot ne re-traduit que les articles modifiés.
+
+**Pré-requis respectés** :
+. *office/ = data* — aucun build Gradle dans `office/sites/cheroliv.com/`. La
+  traduction est lancée depuis un projet consommateur bakery-gradle (includeBuild
+  ou plugin classpath), pas depuis office/.
+. *bakery consomme document* — `ContentTranslationService` (document-gradle) est
+  consommé par `MigrateContentI18nTask` (bakery-gradle). Le boundary est préservé.
+. *Loi Économie d'Encre* — le delta checksum par fichier évite la re-traduction
+  des articles non modifiés entre lots.
+. *Ports Ollama* : 11437-11465, rotation. Modèles : `gpt-oss:120b-cloud`,
+  `gemma4:31b-cloud`.
+====
+
+=== Lots par année — cheroliv.com
+
+[cols="1,1,1,1"]
+|===
+| Année | Articles | Lignes totales (approx.) | Estimation temps (parallelism=3)
+
+| 2026 | 28 | ~15000 | ~50 min
+| 2025 | 24 | ~12000 | ~40 min
+| 2024 | 6 | ~3000 | ~10 min
+| 2023 | 14 | ~7000 | ~25 min
+| 2022 | 7 | ~3500 | ~12 min
+| 2021 | 1 | ~500 | ~2 min
+| 2020 | 15 | ~7500 | ~25 min
+| 2019 | 13 | ~6500 | ~22 min
+| *Total* | *108* | *~55000* | *~3h (8 lots séquentiels)*
+|===
+
+=== Procédure reproductible
+
+[source,shell]
+----
+# Pour chaque année (exemple 2026) :
+./gradlew migrateContentI18n \
+  --contentI18nSource=office/sites/cheroliv.com/jbake/content/blog/2026 \
+  --contentI18nOutput=office/sites/cheroliv.com/content-i18n \
+  --contentI18nTargetLangs=en \
+  --contentI18nSourceLang=fr \
+  --contentI18nDryRun=false
+
+# Le delta checksum préserve les articles déjà traduits des lots précédents.
+# Re-exécuter un lot ne re-traduit que les articles modifiés.
+----
+
+=== Validation pilote — 3 articles (court/moyen/long)
+
+Avant déploiement complet, valider le pipeline sur 3 articles contrastés :
+
+[cols="2,1,1,1"]
+|===
+| Article | Taille | Lignes | Objectif
+
+| `0115_anonymiseur_dataset_mvp0_realite_augmentee_llm_post.adoc` | Court | 173 | Validation parsing + rendu JBake native
+| `0105_integrer_graphify_workflow_gradle_post.adoc` | Moyen | 811 | Validation PlantUml + tables + listes
+| `0100_jbake_supabase_springboot_hybride_post.adoc` | Long | 1403 | Validation + continuation + source blocks
+|===
+
+Critères de validation :
+. Headers JBake préservés (`= Title`, `@Author`, `:jbake-*:`)
+. Body traduit en anglais (ratio FR résiduel < 5%)
+. `+` continuation préservé (bug fix Session 029)
+. `[source]` blocks inchangés
+. `[plantuml]` blocks selon stratégie (TRANSLATE/PRESERVE/BORROW)
+. Pas d'en-tête cassé (`title=/date=/~~~~~~`)
+
+=== Risques et mitigations
+
+[cols="3,5,4]
+|===
+| Risque | Mitigation
+
+| Timeout LLM sur lot complet | Découpage par année. Lot le plus gros = 28
+  articles (2026). `parallelism=3` réduit à ~50 min. Reprise possible via delta
+  checksum.
+
+| Articles déjà traduits re-traduits | Delta checksum (Loi Économie d'Encre,
+  S184). `.bakery-checksums.properties` par lang dir. Seuls les articles
+  modifiés sont re-traduits.
+
+| Ollama indisponible | Ports 11437-11465 rotation. Si un port échoue,
+  `OllamaTranslationAdapter` retourne `Failure` → texte original préservé.
+  Reprise au prochain lot.
+
+| `:summary:` non traduit | Décision : inclure dans `translateFrontmatter`
+  (US BKY-I18N-BATCH-1) ou laisser en FR. Voir section décision ci-dessous.
+|===
+
+=== Décision :summary: — attribut jbake traduit
+
+*Constat* : `DocumentTranslator.translateFrontmatter()` traduisait uniquement
+`fm.title`. Les attributs `:jbake-summary:`, `:jbake-description:` n'étaient PAS
+traduits — ils restaient en français dans la sortie.
+
+*Décision* : **Traduire `summary` ET `description`** (Session 029, 2026-07-21).
+`translateFrontmatter` traduit maintenant `jbakeAttributes["summary"]` et
+`jbakeAttributes["description"]` via `doTranslate()`. Impact : +2 appels LLM par
+article. Bénéfice : SEO i18n complet (meta description + Open Graph traduits).
+Test TDD : `translate translates jbake summary and description attributes` (vert).
+
+'''
 
 '''
 == EPIC BKY-I18N-DELTA-WIRE — Câblage SubtreeI18nPlanner dans MigrateContentI18nTask
@@ -1116,11 +1259,191 @@ DDD/TDD/BDD préservée à chaque US.
 
 '''
 
+== EPIC BKY-I18N-CI — Ollama Device Keys dans site.yml → CI/CD Traduction
+
+_Cadré Session 029 document/bakery/office-cheroliv.com (2026-07-21). Constat :
+la traduction des 108 articles cheroliv.com FR→EN fonctionne localement (batch
+3 articles pilotes validé, 14min via `gemma4:31b-cloud` port 11437). Mais pour
+le batch complet 104 articles (~3h), il faut déporter l'inférence LLM en CI
+GitHub Actions pour ne pas bloquer la machine locale._
+
+_Le `site.yml` est déjà injecté comme GitHub Secret `CHEROLIV_COM_CONFIG` dans
+le workflow `deploy-cheroliv-com.yml`. L'idée est d'étendre `site.yml` pour
+porter aussi les Device Keys SSH ed25519 des comptes Ollama Pro, afin que le
+runner CI puisse s'authentifier auprès d'Ollama Cloud (`ollama.com:443`) et
+exécuter `migrateContentI18n` avec le modèle cloud `gemma4:31b-cloud`._
+
+[CAUTION]
+====
+**Motivation** : 29 instances Docker Ollama locales (ports 11437-11465), chacune
+avec sa propre Device Key SSH ed25519 liée à un compte Ollama Pro distinct.
+L'auth Ollama Cloud fonctionne par clé SSH : le runner CI installe Ollama, écrit
+la Device Key dans `~/.ollama/id_ed25519`, `ollama pull gemma4:31b-cloud`, et
+l'inférence passe par `ollama.com:443` avec auth SSH. Aucun token API — la clé
+SSH ed25519 est le seul secret nécessaire.
+
+**Vision** : un seul secret GitHub (`CHEROLIV_COM_CONFIG`) porte tout — config
+bake + push + Device Keys Ollama. Le POJO `SiteConfiguration` gagne un champ
+`ollama: OllamaConfig?` (optionnel, backward-compat). `OllamaConfig` contient
+une liste de `OllamaDeviceKey(keyName, privateKey)`. Le workflow CI extrait les
+Device Keys depuis `site.yml`, les écrit dans `~/.ollama/id_ed25519` sur le
+runner, installe Ollama, pull le modèle cloud, et lance `migrateContentI18n`
+avant le bake.
+
+**Pré-requis respectés** :
+. *`site.yml` déjà injecté comme secret* — `CHEROLIV_COM_CONFIG` dans
+  `deploy-cheroliv-com.yml`. Pas de nouveau secret à créer.
+. *`SiteConfiguration` POJO Jackson* — `@JsonIgnoreProperties(ignoreUnknown = true)`
+  déjà présent, backward-compat assurée (champ `ollama` absent = no-op).
+. *`SecretField` + `maskSecret()`* — déjà utilisé pour `Password`, `ApiKey`,
+  `Token`. Étendre avec `DeviceKey` pour masquer les clés SSH dans les logs.
+. *`VerifyConfigurationMappingTask`* — déjà valide `site.yml` et affiche résumé
+  masqué. Étendre pour masquer les Device Keys.
+. *`IaConfig` DSL* — déjà présent (`bakery { ia { baseUrl, modelName, enabled } }`).
+  Le champ `ollama` dans `site.yml` est complémentaire (porte les secrets), pas
+  redondant.
+. *Boundary bakery* — bakery traduit le contenu, ne touche pas au thème ni au
+  sélecteur de langue. La config Ollama est une dépendance d'infrastructure,
+  pas de logique métier site-spécifique.
+. *Méthodo* — baby steps DDD (POJO pur, testable sans Gradle) → TDD
+  (UT rouge avant code) → BDD (feature Cucumber bout en bout). Aucune I/O
+  dans les classes de domaine.
+====
+
+=== User Stories — baby steps DDD/TDD/BDD
+
+[cols="1,4,2,2,2"]
+|===
+| US | Description (domaine pur, no I/O) | Tests | Pts | Dépend de
+
+| BKY-I18N-CI-1
+| *`OllamaDeviceKey` + `OllamaConfig` POJO pur* — data class `OllamaDeviceKey(
+  keyName: String, privateKey: String)`. Data class `OllamaConfig(deviceKeys:
+  List<OllamaDeviceKey>)`. `toString()` masque `privateKey` via `maskSecret`.
+  Pas de logique, pas d'I/O. `@JsonIgnoreProperties(ignoreUnknown = true)`.
+| UT : construction, égalité, immutabilité, `toString()` masque la clé,
+  `deviceKeys` vide = valide, `privateKey` vide = valide (no-op)
+| 3
+| —
+
+| BKY-I18N-CI-2
+| *`SiteConfiguration.ollama: OllamaConfig?`* — champ optionnel dans le POJO
+  existant. Jackson désérialise `ollama:` depuis `site.yml`. Absent = `null`
+  (backward-compat). `buildMaskedSummary()` étendu pour logger le nombre de
+  Device Keys (pas leur contenu). `validateRequiredFields()` inchangé (ollama
+  n'est pas requis).
+| UT : parse `site.yml` avec `ollama:` → `OllamaConfig` non-null, parse sans
+  `ollama:` → `null` (backward-compat), `buildMaskedSummary` affiche "N device
+  keys", `validateRequiredFields` passe sans `ollama:`
+| 3
+| CI-1
+
+| BKY-I18N-CI-3
+| *`SecretField.DeviceKey` + `maskSecret`* — nouvelle variante `DeviceKey(value:
+  String)` dans `SecretField`. `maskSecret(DeviceKey)` → `"ssh-ed25519 ***[N
+  chars]"`. Intégré dans `VerifyConfigurationMappingTask.buildMaskedSummary()`.
+| UT : `maskSecret(DeviceKey("AAA..."))` → `"ssh-ed25519 ***[68 chars]"`,
+  `DeviceKey` vide → `"***"`, intégration dans `buildMaskedSummary`
+| 2
+| CI-1
+
+| BKY-I18N-CI-4
+| *`site.yml` cheroliv.com étendu* — ajouter section `ollama:` avec les Device
+  Keys des ports 11437-11465 (29 clés). Fichier local `.gitignore` pour ne pas
+  commiter les clés en clair. Template `site.yml.example` tracké (sans les
+  clés). Le contenu réel (avec clés) est injecté comme secret GitHub
+  `CHEROLIV_COM_CONFIG`.
+| — (production d'artefacts, validé par CI-5)
+| 3
+| CI-2
+
+| BKY-I18N-CI-5
+| *Workflow CI `deploy-cheroliv-com.yml` étendu* — nouvelle étape avant `bake` :
+  installer Ollama (`curl -fsSL https://ollama.com/install.sh | sh`), extraire
+  Device Keys depuis `site.yml` (jq/yq), écrire dans `~/.ollama/id_ed25519`
+  (chmod 600), `ollama pull gemma4:31b-cloud`, lancer `migrateContentI18n`
+  (depuis bakery-gradle includeBuild) avec `--contentI18nSource` par lot annuel
+  (8 lots, ~3h). Rotation Device Key entre lots (round-robin sur les 29 clés).
+  Puis bake FR + EN + deploy (existant).
+| FT : workflow `workflow_dispatch` manuel (pas sur push — 3h de CI), 8 lots
+  séquentiels, Device Key rotation, pull modèle cloud OK, `migrateContentI18n`
+  BUILD SUCCESSFUL, bake FR+EN OK, deploy OK
+| 5
+| CI-4
+
+| BKY-I18N-CI-6
+| *BDD Cucumber bout en bout* — feature `58_i18n_ci_ollama_device_key.feature` :
+  fixture `site.yml` avec `ollama:` → parse `SiteConfiguration` → assert
+  `ollama.deviceKeys.size == N` → assert `toString()` masque les clés.
+  Scénarios : parse avec ollama, parse sans ollama (backward-compat),
+  `buildMaskedSummary` masque, `validateRequiredFields` OK sans ollama.
+| BDD : 4 scénarios (parse avec ollama, parse sans ollama, masked summary,
+  backward-compat required fields)
+| 3
+| CI-3
+|===
+
+_Total_ : ~19 pts, 6 US.
+
+=== Dépendances (DAG)
+
+----
+CI-1 (OllamaDeviceKey POJO) ─┬─→ CI-2 (SiteConfiguration.ollama) ─→ CI-4 (site.yml étendu)
+                              │
+                              └─→ CI-3 (SecretField.DeviceKey) ─────────┘
+                                                                         │
+                                                                         └─→ CI-5 (Workflow CI)
+                                                                               │
+                                                                               └─→ CI-6 (BDD Cucumber)
+----
+
+*CI-1* est racine (tout dépend de lui).
+*CI-4* est le point de bascule (site.yml réel avec clés).
+*CI-5* est le livrable principal (workflow CI fonctionnel).
+*CI-6* clôture l'EPIC (valide bout en bout sur fixture).
+
+=== Projection sessions
+
+* *S185* — CI-1 + CI-2 + CI-3 (8 pts, 3 US, socle POJO + SecretField)
+* *S186* — CI-4 + CI-5 (8 pts, 2 US, site.yml + workflow CI)
+* *S187* — CI-6 (3 pts, 1 US, BDD Cucumber, clôture EPIC)
+
+Projection conservatrice : 3 sessions, ~19 pts, méthodo baby step
+DDD/TDD/BDD préservée à chaque US.
+
+=== Risques et mitigations
+
+[cols="3,5,4]
+|===
+| Risque | Mitigation
+
+| Device Keys commitée en clair dans le repo | `.gitignore` sur `site.yml`
+  local. Template `site.yml.example` tracké sans les clés. Le secret GitHub
+  `CHEROLIV_COM_CONFIG` est la seule source des clés en CI.
+
+| CI 3h = timeout GitHub Actions (6h max pour runners gratuits) | 8 lots
+  séquentiels de ~20-30min chacun. Total ~3h dans la limite 6h. Si un lot
+  timeout, reprise possible via delta checksum (Loi Économie d'Encre).
+
+| Rotation Device Key complexe en bash | Script `rotate-key.sh` dans le
+  workflow : extrait la N-ième clé du YAML, l'écrit, restart ollama. Testé
+  en dry-run avant déploiement.
+
+| `ollama pull` échoue (réseau, quota) | Retry 3x avec exponential backoff.
+  Si échec définitif, fallback sur le lot suivant (les autres lots continuent).
+
+| Divergence `site.yml` local vs secret GitHub | Le secret est la source de
+  vérité en CI. Le local est pour le dev uniquement (bake, serve). Documenter
+  la procédure de mise à jour du secret.
+|===
+
+'''
+
 [cols="2,3]
 |===
 | Document | `BACKLOG.adoc`
- | Version | 20.0 — Session 178 (EPIC BKY-LANG-SWITCH CLOS + EPIC BKY-I18N-DEPLOY cadré)
+ | Version | 21.0 — Session 029 document/bakery/office-cheroliv.com (EPIC BKY-I18N-CI cadré)
  | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
- | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-178 + EPIC LANG-SWITCH + EPIC I18N-DEPLOY
- | Prochaine màj | Session 179 — DEPLOY-0 cadrage + DEPLOY-1 PlantUmlClassifier
+ | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-184 + EPIC I18N-BATCH + EPIC I18N-CI
+ | Prochaine màj | Session 185 — CI-1 OllamaDeviceKey POJO
 |===
