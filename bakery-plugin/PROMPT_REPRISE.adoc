@@ -1,44 +1,47 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 185
-:date: 2026-07-21
-:etat: EPIC BKY-I18N-CI cadré (6 US, 19 pts, 3 sessions S185→S187). Bug + continuation fixé (document-gradle). Batch 3 articles pilotes validé. :summary: + :description: traduits.
-:epic_actif: BKY-I18N-CI — Ollama Device Keys dans site.yml → CI/CD Traduction
+:session: 186
+:date: 2026-07-24
+:etat: EPIC BKY-I18N-CI CI-1/CI-2/CI-3 livrés (OllamaDeviceKey + OllamaConfig + SecretField.DeviceKey). 6 UT + 4 BDD + 4 UT SecretField. CI workflows créés dans office.
+:epic_actif: BKY-I18N-CI — CI-4 site.yml avec 29 Device Keys → CI-5 workflow_dispatch → CI-6 BDD end-to-end
 
 == Contexte de fin
 
-Session 029 document/bakery/office-cheroliv.com cross-borough :
-- Bug `+` continuation fixé (PivotInline.LineBreak, parser + renderers, 50/50 PASS)
-- Batch 3 articles pilotes FR→EN via Ollama gemma4:31b-cloud (14min, validé)
-- BDD @jbake-native PASSED
-- :summary: + :description: traduits dans translateFrontmatter (TDD vert)
-- EPIC BKY-I18N-CI cadré dans BACKLOG.adoc (6 US, 19 pts, S185→S187)
-- EPIC BKY-I18N-BATCH documenté (stratégie lot annuel, 8 lots, 108 articles)
+Session 185 — EPIC BKY-I18N-CI CI-1/CI-2/CI-3 livrés :
+- N0 i18n-contracts : `OllamaConfig` (portStart/portEnd Jackson-compatible, 29 deviceKeys) + `OllamaDeviceKey` (toString masqué)
+- N2 bakery : `SiteConfiguration.ollama: OllamaConfig?` (optionnel, backward-compat, @JsonIgnoreProperties)
+- N2 bakery : `SecretField.DeviceKey` + `maskSecret` → `ssh-ed25519***[N chars]`
+- TDD : `OllamaConfigYamlTest` — 6 tests YAML deserialization avec 29 deviceKeys
+- TDD : `SecretFieldTest.DeviceKey` — 4 tests masking
+- BDD : `57_ollama_config.feature` — 4 scénarios Cucumber (null config, 29 keys, toString safety, maskSecret)
+- N2 document : `PooledOllamaTranslationAdapter` rotation round-robin 11437-11465
+- CI : `translate-i18n-content.yml` (workflow_call) + `translate-cheroliv-com.yml` (workflow_dispatch)
 
 == Reprendre à
 
 . `git status` dans bakery-gradle + document-gradle + office
-. `./gradlew publishToMavenLocal` dans document-gradle (déjà fait)
-. EPIC BKY-I18N-CI — S185 :
-  * CI-1 : `OllamaDeviceKey` + `OllamaConfig` POJO pur (3 pts)
-  * CI-2 : `SiteConfiguration.ollama: OllamaConfig?` (3 pts)
-  * CI-3 : `SecretField.DeviceKey` + `maskSecret` (2 pts)
-. Backlog bakery DEPLOY-7 : généralisation 8 sites + 10 langues + CI (7 pts, S183)
+. `./gradlew publishToMavenLocal` dans document-gradle
+. EPIC BKY-I18N-CI — S186 :
+  * CI-4 : `site.yml` fixture avec 29 vraies Device Keys (3 pts)
+  * CI-5 : workflow_dispatch translate-cheroliv-com → dogfooding réel (5 pts)
+  * CI-6 : BDD Cucumber end-to-end CI translation (3 pts)
 . Bug préexistant : BakeryPluginPublicationTest version mismatch (0.0.4 vs catalog 0.0.3)
 . `publishToMavenLocal` après chaque modification code source
 
-== Fichiers touchés S029
+== Fichiers touchés S185
 
-*document-gradle* (15 fichiers) :
-- PivotModel.kt, AsciiDocParser.kt, JbakeNativeRenderer.kt, AsciiDocRenderer.kt
-- DocumentTranslator.kt, PivotYamlRenderer.kt, tree/Content.kt
-- Tests : AsciiDocParserTest, JbakeNativeRendererTest, AsciiDocRendererTest,
-  DocumentTranslatorTest, TranslateDocumentTaskTest
-- Cucumber : document.feature, DocumentSteps.kt, DocumentWorld.kt
+*bakery-gradle* (6 fichiers) :
+- `SiteConfiguration.kt` — + ollama: OllamaConfig?
+- `SecretField.kt` — + DeviceKey variant + maskSecret
+- `OllamaConfigYamlTest.kt` — nouveau (6 UT)
+- `SecretFieldTest.kt` — + DeviceKeyTest (4 UT)
+- `57_ollama_config.feature` — nouveau (4 BDD)
+- `OllamaConfigSteps.kt` — nouveau (Cucumber steps)
 
-*bakery-gradle* (2 fichiers) :
-- BACKLOG.adoc (EPIC BKY-I18N-BATCH + EPIC BKY-I18N-CI)
-- tree/Content.kt (LineBreak branch)
+*document-gradle* (3 fichiers) :
+- `PooledOllamaTranslationAdapter.kt` — nouveau
+- `TranslateDocumentTask.kt` — câblage
+- `TranslateDocumentBatchTask.kt` — câblage
 
-*office/cheroliv.com* (14 fichiers) :
-- 11 articles EN traduits (2026) + 3 articles pilotes
-- .bakery-checksums.properties + pilot-batch/
+*office* (2 fichiers) :
+- `.github/workflows/translate-i18n-content.yml` — nouveau
+- `.github/workflows/translate-cheroliv-com.yml` — nouveau

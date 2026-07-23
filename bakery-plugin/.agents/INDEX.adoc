@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-07-21 — Session 029 document/bakery/office-cheroliv.com cross-borough. EPIC BKY-I18N-CI cadré (6 US, 19 pts). Bug + continuation fixé. Batch 3 articles pilotes validé._
-_Session en cours_ : 029 terminée — EPIC BKY-I18N-CI cadré._
-_Prochaine session_ : 185 — EPIC BKY-I18N-CI : CI-1 OllamaDeviceKey POJO + CI-2 SiteConfiguration.ollama + CI-3 SecretField.DeviceKey (8 pts, 3 US).
+_Derniere mise a jour : 2026-07-24 — Session 185 EPIC BKY-I18N-CI CI-1/CI-2/CI-3 livrés. PooledOllamaTranslationAdapter document-gradle. CI workflows office._
+_Session en cours_ : 185 terminée — CI-1/CI-2/CI-3 ✅ (OllamaDeviceKey + OllamaConfig + SecretField.DeviceKey)._
+_Prochaine session_ : 186 — EPIC BKY-I18N-CI : CI-4 site.yml 29 vraies Device Keys + CI-5 workflow_dispatch dogfooding + CI-6 BDD end-to-end (11 pts, 3 US).
 
 '''
 
