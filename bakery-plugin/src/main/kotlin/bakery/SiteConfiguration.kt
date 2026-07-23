@@ -2,6 +2,8 @@ package bakery
 
 import bakery.tree.SiteNodeDto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
+import contracts.i18n.OllamaConfig
+import contracts.i18n.OllamaDeviceKey
 
 data class GitPushConfiguration(
     val from: String = "",
@@ -48,6 +50,7 @@ data class SiteConfiguration(
     val language: String = "fr",
     val supportedLanguages: List<String> = listOf("fr"),
     val tree: SiteNodeDto? = null,
+    val ollama: OllamaConfig? = null,
 )
 
 data class BakeConfiguration(

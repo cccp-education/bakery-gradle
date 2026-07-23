@@ -65,4 +65,35 @@ class SecretFieldTest {
             assertThat(maskSecret(SecretField.Token("  "))).isEqualTo("(not set)")
         }
     }
+
+    @Nested
+    inner class DeviceKeyTest {
+
+        @Test
+        fun `DeviceKey blank value returns not set`() {
+            assertThat(maskSecret(SecretField.DeviceKey(""))).isEqualTo("(not set)")
+        }
+
+        @Test
+        fun `DeviceKey non-blank value returns masked ssh prefix`() {
+            val key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAI-very-secret-key"
+            assertThat(maskSecret(SecretField.DeviceKey(key)))
+                .startsWith("ssh-ed25519***")
+                .endsWith("${key.length} chars]")
+        }
+
+        @Test
+        fun `DeviceKey whitespace value returns not set`() {
+            assertThat(maskSecret(SecretField.DeviceKey("   "))).isEqualTo("(not set)")
+        }
+
+        @Test
+        fun `DeviceKey long ed25519 key does not leak content`() {
+            val key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILongKeyThatShouldNeverAppearInLogsOrConsoleOutputInProduction"
+            val masked = maskSecret(SecretField.DeviceKey(key))
+            assertThat(masked).doesNotContain("LongKey")
+            assertThat(masked).doesNotContain("AAAAC3Nza")
+            assertThat(masked).startsWith("ssh-ed25519***")
+        }
+    }
 }
