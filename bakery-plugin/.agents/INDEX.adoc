@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-07-24 — Session 185 EPIC BKY-I18N-CI CI-1/CI-2/CI-3 livrés. PooledOllamaTranslationAdapter document-gradle. CI workflows office._
-_Session en cours_ : 185 terminée — CI-1/CI-2/CI-3 ✅ (OllamaDeviceKey + OllamaConfig + SecretField.DeviceKey)._
-_Prochaine session_ : 186 — EPIC BKY-I18N-CI : CI-4 site.yml 29 vraies Device Keys + CI-5 workflow_dispatch dogfooding + CI-6 BDD end-to-end (11 pts, 3 US).
+_Derniere mise a jour : 2026-07-25 — Session 186 DocKnowledgeBase JBake câblé dans LlmServiceTranslationAdapter. 3 articles EN cheroliv.com corrigés._
+_Session en cours_ : 186 terminée — DocKnowledgeBase JBake + correction articles EN ✅._
+_Prochaine session_ : 187 — EPIC BKY-I18N-CI : CI-4 site.yml 29 vraies Device Keys + CI-5 workflow_dispatch dogfooding + CI-6 BDD end-to-end (11 pts, 3 US).
 
 '''
 

@@ -1,0 +1,241 @@
+= JBake Reference Documentation
+
+== What is JBake?
+
+JBake is a Java-based, open source, static site/blog generator for developers.
+
+== Directory Structure
+
+A JBake project has the following structure:
+
+```
+project/
+├── jbake.properties       # JBake configuration
+├── templates/             # Template files (Thymeleaf, Freemarker, etc.)
+│   ├── index.thyme
+│   ├── page.thyme
+│   ├── post.thyme
+│   ├── feed.thyme
+│   ├── sitemap.thyme
+│   ├── archive.thyme
+│   ├── tags.thyme
+│   ├── menu.thyme
+│   ├── header.thyme
+│   ├── footer.thyme
+│   └── ...
+├── content/               # Content files (AsciiDoc, Markdown, HTML)
+│   ├── about.adoc
+│   └── blog/
+│       └── 2026/
+│           └── my-post.adoc
+├── assets/                # Static assets (CSS, JS, images)
+│   ├── css/
+│   ├── js/
+│   └── img/
+└── output/                # Generated site (created by JBake)
+```
+
+== jbake.properties
+
+Key configuration properties:
+
+```
+# Template engine
+template.engine=thymeleaf
+
+# Site metadata
+site.host=https://example.org
+site.title=My Blog
+site.description=A blog about things
+
+# Content paths
+content.folder=content
+asset.folder=assets
+
+# Date format
+date.format=yyyy-MM-dd
+
+# Render settings
+render.index=true
+render.tags=true
+render.archive=true
+render.feed=true
+render.sitemap=true
+
+# Thymeleaf settings
+thymeleaf.mode=HTML
+```
+
+== Content File Header (AsciiDoc)
+
+Each content file must have a JBake header:
+
+```
+= My Blog Post Title
+2026-01-15
+:jbake-title: My Blog Post Title
+:jbake-tags: java, gradle, tutorial
+:jbake-type: post
+:jbake-status: published
+:jbake-date: 2026-01-15
+:jbake-summary: A short summary of the post
+:jbake-author: Author Name
+:jbake-description: Meta description for SEO
+:jbake-slug: my-blog-post-slug
+:jbake-reading-time: 5 minutes
+:imagesdir: ./images
+:source-highlighter: highlight.js
+:icons: font
+:toc: left
+:toclevels: 3
+:toc-title: Table of Contents
+```
+
+== Template Variables
+
+Available in templates:
+
+* `${content.title}` — Page title
+* `${content.body}` — Rendered HTML body
+* `${content.date}` — Publication date
+* `${content.tags}` — List of tags
+* `${content.type}` — Content type (post, page)
+* `${content.status}` — Publication status
+* `${content.author}` — Author name
+* `${content.summary}` — Summary text
+* `${content.uri}` — Relative URI
+* `${content.rootpath}` — Path to site root
+* `${content.readingTime}` — Reading time
+* `${content.description}` — Meta description
+
+== Site-wide Variables
+
+* `${site.host}` — Site host URL
+* `${site.title}` — Site title
+* `${site.description}` — Site description
+* `${published_date}` — Current date
+* `${published_posts}` — List of published posts
+* `${published_pages}` — List of published pages
+* `${published_content}` — All published content
+* `${alltags}` — All tags across content
+* `${tagged_posts}` — Posts filtered by tag
+
+== Thymeleaf Template Examples
+
+=== index.thyme (Homepage)
+
+```html
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{header :: head}"></head>
+<body>
+  <div th:replace="~{menu :: menu}"></div>
+  <main>
+    <h1 th:text="${site.title}">Site Title</h1>
+    <div th:each="post : ${published_posts}">
+      <article>
+        <h2>
+          <a th:href="${post.uri}" th:text="${post.title}">Post Title</a>
+        </h2>
+        <time th:text="${post.date}">2026-01-15</time>
+        <p th:text="${post.summary}">Summary</p>
+      </article>
+    </div>
+  </main>
+  <div th:replace="~{footer :: footer}"></div>
+</body>
+</html>
+```
+
+=== post.thyme (Single Post)
+
+```html
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{header :: head}"></head>
+<body>
+  <div th:replace="~{menu :: menu}"></div>
+  <main>
+    <article>
+      <h1 th:text="${content.title}">Post Title</h1>
+      <div class="meta">
+        <time th:text="${content.date}">2026-01-15</time>
+        <span th:each="tag : ${content.tags}" th:text="${tag}">tag</span>
+      </div>
+      <div th:utext="${content.body}">Rendered content</div>
+    </article>
+  </main>
+  <div th:replace="~{footer :: footer}"></div>
+</body>
+</html>
+```
+
+=== feed.thyme (RSS/Atom Feed)
+
+```html
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title th:text="${site.title}">Site Title</title>
+  <link th:href="${site.host}" />
+  <entry th:each="post : ${published_posts}">
+    <title th:text="${post.title}">Post Title</title>
+    <link th:href="${site.host + post.uri}" />
+    <summary th:text="${post.summary}">Summary</summary>
+  </entry>
+</feed>
+```
+
+== JBake CLI Commands
+
+```
+# Initialize a new JBake project
+jbake -i
+
+# Bake (generate) the site
+jbake -b
+
+# Bake and serve locally
+jbake -b -s
+
+# Bake and watch for changes
+jbake -b --reset
+
+# Specify source and destination
+jbake source_folder output_folder
+
+# Clear the output directory before baking
+jbake -b . output --reset
+```
+
+== Gradle Integration
+
+JBake can be integrated into Gradle builds using the JBake Gradle plugin or by calling the JBake CLI directly:
+
+```kotlin
+tasks.register<JavaExec>("bake") {
+    mainClass.set("org.jbake.launcher.Main")
+    classpath = configurations["jbake"]
+    args = listOf(projectDir.absolutePath, "$buildDir/jbake")
+}
+```
+
+== JBake Configuration Properties Reference
+
+| Property | Default | Description |
+|----------|---------|-------------|
+| `template.engine` | `freemarker` | Template engine (thymeleaf, freemarker, etc.) |
+| `site.host` | `http://localhost:8820` | Site host URL |
+| `content.folder` | `content` | Content directory |
+| `asset.folder` | `assets` | Assets directory |
+| `date.format` | `yyyy-MM-dd` | Date format |
+| `render.index` | `false` | Generate index page |
+| `render.tags` | `false` | Generate tag pages |
+| `render.archive` | `false` | Generate archive page |
+| `render.feed` | `false` | Generate RSS/Atom feed |
+| `render.sitemap` | `false` | Generate sitemap |
+| `thymeleaf.mode` | `HTML` | Thymeleaf template mode |
+| `db.store` | `local` | Data store type |
+| `db.path` | `cache` | Data store path |
+| `default.status` | `draft` | Default content status |
+| `paginate.index` | `false` | Enable index pagination |
+| `posts.per.page` | `5` | Posts per page |

@@ -1,7 +1,7 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 186
-:date: 2026-07-24
-:etat: EPIC BKY-I18N-CI CI-1/CI-2/CI-3 livrés (OllamaDeviceKey + OllamaConfig + SecretField.DeviceKey). 6 UT + 4 BDD + 4 UT SecretField. CI workflows créés dans office.
+:session: 187
+:date: 2026-07-25
+:etat: DocKnowledgeBase JBake câblé dans LlmServiceTranslationAdapter. 3 articles EN cheroliv.com corrigés.
 :epic_actif: BKY-I18N-CI — CI-4 site.yml cheroliv.com avec 29 Device Keys → CI-5 workflow_dispatch → CI-6 BDD end-to-end
 
 == Technique de pool de connexion Ollama (cross-borough)
@@ -17,6 +17,13 @@ Le pool de connexion est dans document-gradle (`PooledOllamaTranslationAdapter`)
 Bakery-gradle consomme ce pool via `document.translation.ContentTranslationService`
 (importé de document-gradle, câblé dans `MigrateContentI18nTask`).
 
+== Réalité augmentée DocKnowledgeBase
+
+`DocKnowledgeBase` (bakery.rag) injecte la doc officielle JBake dans le prompt de traduction :
+- Keyword matching in-memory sur `resources/docs/jbake-reference.adoc`
+- Le LLM reçoit "JBake reference (this content uses JBake templates and conventions):" + sections pertinentes
+- Contrecarre la tendance du LLM à confondre les conventions JBake
+
 == Cible : cheroliv.com
 
 Site `office/sites/cheroliv.com` — 104 articles de blog AsciiDoc (FR).
@@ -27,42 +34,26 @@ CI : `workflow_dispatch` sur `translate-cheroliv-com.yml` → rotation des clés
 
 == Contexte de fin
 
-Session 185 — EPIC BKY-I18N-CI CI-1/CI-2/CI-3 livrés :
-- N0 i18n-contracts : `OllamaConfig` (portStart/portEnd Jackson-compatible, 29 deviceKeys) + `OllamaDeviceKey` (toString masqué)
-- N2 bakery : `SiteConfiguration.ollama: OllamaConfig?` (optionnel, backward-compat, @JsonIgnoreProperties)
-- N2 bakery : `SecretField.DeviceKey` + `maskSecret` → `ssh-ed25519***[N chars]`
-- TDD : `OllamaConfigYamlTest` — 6 tests YAML deserialization avec 29 deviceKeys
-- TDD : `SecretFieldTest.DeviceKey` — 4 tests masking
-- BDD : `57_ollama_config.feature` — 4 scénarios Cucumber (null config, 29 keys, toString safety, maskSecret)
-- N2 document : `PooledOllamaTranslationAdapter` rotation round-robin 11437-11465
-- CI : `translate-i18n-content.yml` (workflow_call) + `translate-cheroliv-com.yml` (workflow_dispatch)
+Session 186 — DocKnowledgeBase JBake + correction articles EN :
+- `DocKnowledgeBase.kt` — keyword matching in-memory sur doc officielle JBake
+- `resources/docs/jbake-reference.adoc` — structure, templates, variables, CLI
+- `LlmServiceTranslationAdapter.buildPrompt()` injecte la doc avant traduction
+- 3 articles EN cheroliv.com corrigés (0100, 0105, 0115)
 
 == Reprendre à
 
 . `git status` dans bakery-gradle + document-gradle + office
 . `./gradlew publishToMavenLocal` dans document-gradle
-. EPIC BKY-I18N-CI — S186 :
+. EPIC BKY-I18N-CI — S187 :
   * CI-4 : `site.yml` cheroliv.com avec 29 vraies Device Keys (3 pts)
   * CI-5 : workflow_dispatch translate-cheroliv-com → dogfooding réel FR→EN (5 pts)
   * CI-6 : BDD Cucumber end-to-end CI translation (3 pts)
 . Bug préexistant : BakeryPluginPublicationTest version mismatch (0.0.4 vs catalog 0.0.3)
 . `publishToMavenLocal` après chaque modification code source
 
-== Fichiers touchés S185
+== Fichiers touchés S186
 
-*bakery-gradle* (6 fichiers) :
-- `SiteConfiguration.kt` — + ollama: OllamaConfig?
-- `SecretField.kt` — + DeviceKey variant + maskSecret
-- `OllamaConfigYamlTest.kt` — nouveau (6 UT)
-- `SecretFieldTest.kt` — + DeviceKeyTest (4 UT)
-- `57_ollama_config.feature` — nouveau (4 BDD)
-- `OllamaConfigSteps.kt` — nouveau (Cucumber steps)
-
-*document-gradle* (3 fichiers) :
-- `PooledOllamaTranslationAdapter.kt` — nouveau (pool round-robin 29 ports)
-- `TranslateDocumentTask.kt` — câblage
-- `TranslateDocumentBatchTask.kt` — câblage
-
-*office* (2 fichiers) :
-- `.github/workflows/translate-i18n-content.yml` — nouveau (workflow_call réutilisable)
-- `.github/workflows/translate-cheroliv-com.yml` — nouveau (workflow_dispatch cheroliv.com)
+*bakery-gradle* :
+- `src/main/kotlin/bakery/rag/DocKnowledgeBase.kt` — nouveau
+- `src/main/resources/docs/jbake-reference.adoc` — nouveau
+- `src/main/kotlin/bakery/i18n/LlmServiceTranslationAdapter.kt` — modifié (injection DocKnowledgeBase)

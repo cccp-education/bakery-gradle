@@ -1,0 +1,45 @@
+= Session 186 — RAG DocKnowledgeBase JBake + Correction articles EN cheroliv.com
+:date: 2026-07-25
+:type: feat + fix
+:score: 9/10
+
+== Objectif
+
+Câbler la réalité augmentée (doc officielle JBake) dans le pipeline de traduction bakery-gradle, et corriger les 3 articles EN cassés de cheroliv.com.
+
+== Contexte
+
+Les LLM confondent AsciiDoc avec Markdown. Le pipeline bakery utilise `LlmServiceTranslationAdapter` pour la traduction i18n. Injecter la doc JBake dans le prompt permet au LLM de comprendre le contexte des templates, variables, et conventions JBake.
+
+== Travail réalisé
+
+=== 1. DocKnowledgeBase (bakery.rag)
+
+- `DocKnowledgeBase.kt` — keyword matching in-memory sur la doc officielle JBake
+- `resources/docs/jbake-reference.adoc` — structure projet, jbake.properties, templates Thymeleaf, variables, CLI, Gradle integration
+- Factory `DocKnowledgeBase.forJBake()` charge la doc depuis les resources
+
+=== 2. Câblage LlmServiceTranslationAdapter
+
+- `buildPrompt()` injecte les sections pertinentes de la doc JBake avant le prompt de traduction
+- Le LLM reçoit "JBake reference (this content uses JBake templates and conventions):" suivi des règles pertinentes
+- Paramètre `docKnowledgeBase` avec défaut `DocKnowledgeBase.forJBake()`
+
+=== 3. Correction articles EN cheroliv.com
+
+3 articles cassés corrigés (voir session document-gradle 029 pour le détail).
+
+== Fichiers modifiés
+
+*bakery-gradle* :
+- `src/main/kotlin/bakery/rag/DocKnowledgeBase.kt` — nouveau
+- `src/main/resources/docs/jbake-reference.adoc` — nouveau
+- `src/main/kotlin/bakery/i18n/LlmServiceTranslationAdapter.kt` — modifié (injection DocKnowledgeBase)
+
+== Compilation
+
+`./gradlew -p bakery-plugin compileKotlin` → BUILD SUCCESSFUL
+
+== Prochaine session
+
+187 — EPIC BKY-I18N-CI : CI-4 site.yml 29 vraies Device Keys + CI-5 workflow_dispatch dogfooding + CI-6 BDD end-to-end
