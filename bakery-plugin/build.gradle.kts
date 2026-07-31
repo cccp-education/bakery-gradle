@@ -9,12 +9,14 @@ plugins {
     alias(libs.plugins.publish)
     alias(libs.plugins.kover)
     alias(libs.plugins.node.gradle)
-    id("education.cccp.build.gradle-plugin") version "0.0.2"
-    id("education.cccp.build.publishing") version "0.0.2"
+    id("education.cccp.build.gradle-plugin") version "0.0.3"
+    id("education.cccp.build.publishing") version "0.0.3"
+    id("education.cccp.build.lint") version "0.0.3"
+    id("education.cccp.build.kover") version "0.0.3"
 }
 
 group = "education.cccp"
-version = "0.0.4"
+version = "0.0.5"
 
 repositories {
     mavenLocal()
@@ -73,7 +75,6 @@ dependencies {
     testImplementation(libs.bundles.cucumber)
 }
 
-
 tasks.withType<Test> {
     forkEvery = 0
     timeout.set(Duration.ofMinutes(5))
@@ -102,7 +103,6 @@ tasks.named<Test>("test") {
     maxParallelForks = 2
 }
 
-
 // 1. Créer le SourceSet functionalTest
 val functionalTest: SourceSet by sourceSets.creating {
     java { srcDirs("src/functionalTest/kotlin") }
@@ -129,30 +129,35 @@ dependencies {
     add(functionalTest.implementationConfigurationName, libs.mockito.kotlin)
     add(functionalTest.implementationConfigurationName, libs.mockito.junit.jupiter)
 
-    libs.bundles.coroutines.get().forEach { add(functionalTest.implementationConfigurationName, it) }
+    libs.bundles.coroutines
+        .get()
+        .forEach { add(functionalTest.implementationConfigurationName, it) }
 
-    libs.bundles.jgit.get().forEach { add(functionalTest.implementationConfigurationName, it) }
+    libs.bundles.jgit
+        .get()
+        .forEach { add(functionalTest.implementationConfigurationName, it) }
 }
 
 // 3. Tâche pour les tests fonctionnels
-val functionalTestTask = tasks.register<Test>("functionalTest") {
-    description = "Runs functional tests."
-    group = "verification"
-    testClassesDirs = functionalTest.output.classesDirs
-    classpath = configurations[functionalTest.runtimeClasspathConfigurationName] + functionalTest.output
+val functionalTestTask =
+    tasks.register<Test>("functionalTest") {
+        description = "Runs functional tests."
+        group = "verification"
+        testClassesDirs = functionalTest.output.classesDirs
+        classpath = configurations[functionalTest.runtimeClasspathConfigurationName] + functionalTest.output
 
-    useJUnitPlatform()
+        useJUnitPlatform()
 
-    testLogging {
-        events("passed", "skipped", "failed")
-        showStandardStreams = true
+        testLogging {
+            events("passed", "skipped", "failed")
+            showStandardStreams = true
+        }
+        failOnNoDiscoveredTests = false
+
+        systemProperty("test.timeout.multiplier", "2")
+
+        maxParallelForks = 3
     }
-    failOnNoDiscoveredTests = false
-
-    systemProperty("test.timeout.multiplier", "2")
-
-    maxParallelForks = 3
-}
 
 // CORRECTION: Gérer les duplications de ressources pour functionalTest
 tasks.named<ProcessResources>(functionalTest.processResourcesTaskName) { duplicatesStrategy = EXCLUDE }
@@ -196,31 +201,29 @@ dependencies {
 }
 
 // 3. Tâche e2eTest — Playwright browser tests (séparés de check)
-val e2eTestTask = tasks.register<Test>("e2eTest") {
-    description = "Runs E2E tests with Playwright browser."
-    group = "verification"
-    testClassesDirs = e2eTest.output.classesDirs
-    classpath = configurations[e2eTest.runtimeClasspathConfigurationName] + e2eTest.output
+val e2eTestTask =
+    tasks.register<Test>("e2eTest") {
+        description = "Runs E2E tests with Playwright browser."
+        group = "verification"
+        testClassesDirs = e2eTest.output.classesDirs
+        classpath = configurations[e2eTest.runtimeClasspathConfigurationName] + e2eTest.output
 
-    useJUnitPlatform()
+        useJUnitPlatform()
 
-    testLogging {
-        events("passed", "skipped", "failed")
-        showStandardStreams = true
+        testLogging {
+            events("passed", "skipped", "failed")
+            showStandardStreams = true
+        }
+        failOnNoDiscoveredTests = false
+
+        // Les tests E2E nécessitent Chromium installé.
+        // La tâche installPlaywright (NpxTask) gère l'installation automatiquement.
+        dependsOn("installPlaywright")
+
+        maxParallelForks = 1
+
+        timeout.set(Duration.ofMinutes(10))
     }
-    failOnNoDiscoveredTests = false
-
-    // Les tests E2E nécessitent Chromium installé.
-    // La tâche installPlaywright (NpxTask) gère l'installation automatiquement.
-    dependsOn("installPlaywright")
-
-    maxParallelForks = 1
-
-    timeout.set(Duration.ofMinutes(10))
-
-    // Éviter les conflits de ressources avec d'autres JVM
-    jvmArgs("-XX:+EnableDynamicAgentLoading")
-}
 
 // 4. Tâche installPlaywright — installe Chromium via le plugin Gradle Node
 // Utilise NpxTask au lieu d'un appel manuel en ligne de commande.
@@ -278,129 +281,80 @@ configurations {
 }
 
 // 7. Tâche dédiée aux tests Cucumber
-val cucumberTest = tasks.register<Test>("cucumberTest") {
-    description = "Runs Cucumber BDD tests"
-    group = "verification"
+val cucumberTest =
+    tasks.register<Test>("cucumberTest") {
+        description = "Runs Cucumber BDD tests"
+        group = "verification"
 
-    testClassesDirs = sourceSets.test.get().output.classesDirs
+        testClassesDirs =
+            sourceSets.test
+                .get()
+                .output.classesDirs
 
-    classpath = configurations.testRuntimeClasspath.get() +
-        sourceSets.test.get().output +
-        functionalTest.output +
-        sourceSets.main.get().output +
-        files(tasks.jar.get().archiveFile)
+        classpath = configurations.testRuntimeClasspath.get() +
+            sourceSets.test.get().output +
+            functionalTest.output +
+            sourceSets.main.get().output +
+            files(tasks.jar.get().archiveFile)
 
-    dependsOn(tasks.classes)
+        dependsOn(tasks.classes)
 
-    useJUnitPlatform {
-        excludeEngines("junit-jupiter")
-    }
+        useJUnitPlatform {
+            excludeEngines("junit-jupiter")
+        }
 
-    systemProperty("cucumber.junit-platform.naming-strategy", "long")
-    systemProperty("org.gradle.daemon", "false")
+        systemProperty("cucumber.junit-platform.naming-strategy", "long")
+        systemProperty("org.gradle.daemon", "false")
 
-    maxHeapSize = "1g"
+        testLogging {
+            events("passed", "skipped", "failed")
+            showStandardStreams = false
+            exceptionFormat = FULL
+        }
 
-    testLogging {
-        events("passed", "skipped", "failed")
-        showStandardStreams = false
-        exceptionFormat = FULL
-    }
+        dependsOn(functionalTest.classesTaskName)
+        dependsOn(tasks.classes)
 
-    dependsOn(functionalTest.classesTaskName)
-    dependsOn(tasks.classes)
+        maxParallelForks = 1
+        forkEvery = 0
 
-    maxParallelForks = 1
-    forkEvery = 0
+        timeout.set(Duration.ofMinutes(5))
 
-    timeout.set(Duration.ofMinutes(5))
+        doLast {
+            val tempDir = File(System.getProperty("java.io.tmpdir"))
+            val oneHourAgo = System.currentTimeMillis() - (60 * 60 * 1000)
 
-    doLast {
-        val tempDir = File(System.getProperty("java.io.tmpdir"))
-        val oneHourAgo = System.currentTimeMillis() - (60 * 60 * 1000)
-
-        tempDir.listFiles { file ->
-            file.isDirectory && file.name.startsWith("gradle-test-") &&
-                file.lastModified() < oneHourAgo
-        }?.forEach { oldDir ->
-            try {
-                if (oldDir.deleteRecursively()) println("  Cleaned: ${oldDir.name}")
-            } catch (_: Exception) {
-            }
+            tempDir
+                .listFiles { file ->
+                    file.isDirectory &&
+                        file.name.startsWith("gradle-test-") &&
+                        file.lastModified() < oneHourAgo
+                }?.forEach { oldDir ->
+                    try {
+                        if (oldDir.deleteRecursively()) println("  Cleaned: ${oldDir.name}")
+                    } catch (_: Exception) {
+                    }
+                }
         }
     }
-}
-
-tasks.withType<Test>().configureEach {
-    // Permet de masquer l'avertissement relatif au chargement dynamique d'agents
-    jvmArgs("-XX:+EnableDynamicAgentLoading")
-}
 
 tasks.check {
     dependsOn(functionalTestTask)
     dependsOn(cucumberTest)
 }
 
-kover {
-    currentProject {
-        sources {
-            includedSourceSets.addAll("main", "functionalTest")
-        }
-    }
-    reports {
-        total {
-            html {
-                onCheck.set(true)
-                htmlDir.set(layout.buildDirectory.dir("reports/kover/html"))
-            }
-            xml {
-                onCheck.set(true)
-                xmlFile.set(layout.buildDirectory.file("reports/kover/xml/report.xml"))
-            }
-        }
-    }
+koverConventions {
+    enabled = true
+    threshold = 85.0
 }
-
-tasks.register("koverThresholdCheck") {
-    description = "kover threshold check"
-    dependsOn("koverXmlReport")
-
-    doLast {
-        val reportFile = layout.buildDirectory.file("reports/kover/xml/report.xml").get().asFile
-        if (!reportFile.exists()) {
-            throw GradleException("Kover report not found. Run 'koverXmlReport' first.")
-        }
-        val xml = reportFile.readText()
-        val coverageRegex = Regex("""<counter type="INSTRUCTION" missed="(\d+)" covered="(\d+)"/>""")
-        val matches = coverageRegex.findAll(xml)
-        var totalMissed = 0L
-        var totalCovered = 0L
-        for (match in matches) {
-            totalMissed += match.groupValues[1].toLong()
-            totalCovered += match.groupValues[2].toLong()
-        }
-        val total = totalMissed + totalCovered
-        val coverage = if (total > 0) (totalCovered.toDouble() / total) * 100 else 0.0
-        println(
-            "Instruction coverage: ${
-                String.format(
-                    "%.2f",
-                    coverage
-                )
-            }% (missed=$totalMissed, covered=$totalCovered)"
-        )
-        if (coverage < 85.0) {
-            throw GradleException("Coverage ${String.format("%.2f", coverage)}% is below threshold 85%")
-        }
-    }
-}
-
-tasks.check { dependsOn("koverThresholdCheck") }
 
 gradlePlugin {
     plugins {
         create("bakery") {
-            id = libs.plugins.bakery.get().pluginId
+            id =
+                libs.plugins.bakery
+                    .get()
+                    .pluginId
             implementationClass = "bakery.BakeryPlugin"
             displayName = "Bakery Plugin"
             description = "Gradle plugin for static site generation."
