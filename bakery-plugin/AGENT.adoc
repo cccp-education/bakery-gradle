@@ -202,6 +202,22 @@ Implementation : `ConfigResolver` (objet singleton) avec methodes `resolveString
 
 Reference croisee : plantuml-gradle `ConfigMerger` (5 couches), codebase-gradle (4 couches natives Gradle), slider-gradle (3 couches YAML-centric).
 
+=== Conventions Plugins (ABIDJAN N0)
+
+Bakery consomme les convention plugins centralises `education.cccp.build` v0.0.3 :
+
+[cols="2,5"]
+|===
+| Plugin ID | Role
+| `education.cccp.build.gradle-plugin` | java-gradle-plugin + kotlin-jvm + test JUnit + withSourcesJar/JavadocJar + mavenLocal + deps junit test
+| `education.cccp.build.publishing` | POM Maven Central + signing conditionnel + relocation + publicationType
+| `education.cccp.build.lint` | ktlint (1.5.0) + detekt (1.23.8, skip Java 25) + check.dependsOn(detekt)
+|===
+
+Ces 3 plugins remplacent ~60 lignes de build redondantes (POM, signing, toolchain, testLogging).
+Les plugins `functional-test` et `cucumber` ne sont pas appliques — bakery gere ses propres source sets
+(functionalTest, e2eTest) et ses 56+ features Cucumber avec une configuration custom.
+
 === Commandes Utiles
 
 [source,bash]
