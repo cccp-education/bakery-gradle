@@ -1,0 +1,41 @@
+= Session 187 — Alliance i18n : Suppression shadow copies contrats BOM
+:date: 2026-07-31
+:type: refactoring
+:score: 9/10
+
+== Contexte
+
+Les 5 fichiers `contracts/i18n/` dans `src/main/kotlin/` étaient des copies
+identiques (octet pour octet) des contrats N0 du BOM `i18n-contracts:0.0.2`.
+La dépendance `implementation("education.cccp:i18n-contracts:0.0.2")` était
+déjà dans `build.gradle.kts` — les shadow copies étaient redondantes et
+créaient un risque de divergence.
+
+== Actions
+
+. Suppression des 5 shadow copies main :
+  - `contracts/i18n/SupportedLanguage.kt`
+  - `contracts/i18n/LanguageCatalog.kt`
+  - `contracts/i18n/I18nConfig.kt`
+  - `contracts/i18n/MessageBundle.kt`
+  - `contracts/i18n/LocaleResolver.kt`
+
+. Suppression des 5 tests correspondants :
+  - `contracts/i18n/SupportedLanguageTest.kt`
+  - `contracts/i18n/LanguageCatalogTest.kt`
+  - `contracts/i18n/I18nConfigTest.kt`
+  - `contracts/i18n/MessageBundleTest.kt`
+  - `contracts/i18n/LocaleResolverTest.kt`
+
+. Vérification : `./gradlew compileKotlin` + `compileTestKotlin` BUILD SUCCESSFUL
+
+== Impact
+
+- 10 fichiers supprimés (5 main + 5 test)
+- Zéro régression — les contrats viennent du BOM via la dépendance Gradle
+- Bakery est maintenant consommateur propre des contrats N0, sans duplication
+- Fait partie de l'alliance i18n cross-borough (bakery + slider + plantuml + document)
+
+== Prochaine session
+
+S188 — EPIC BKY-I18N-CI : CI-4 site.yml 29 vraies Device Keys

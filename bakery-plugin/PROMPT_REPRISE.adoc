@@ -1,59 +1,33 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 187
-:date: 2026-07-25
-:etat: DocKnowledgeBase JBake câblé dans LlmServiceTranslationAdapter. 3 articles EN cheroliv.com corrigés.
+:session: 188
+:date: 2026-07-31
+:etat: Alliance i18n cross-borough — 10 shadow copies contrats BOM supprimées. Bakery consomme proprement i18n-contracts:0.0.2.
 :epic_actif: BKY-I18N-CI — CI-4 site.yml cheroliv.com avec 29 Device Keys → CI-5 workflow_dispatch → CI-6 BDD end-to-end
-
-== Technique de pool de connexion Ollama (cross-borough)
-
-Le pool de connexion est dans document-gradle (`PooledOllamaTranslationAdapter`) :
-- Round-robin sur 29 ports 11437-11465 via `AtomicInteger`
-- Chaque port = une instance Ollama Docker avec Device Key SSH ed25519 distincte
-- Chaque Device Key = un compte Ollama Pro distinct (17€/mois annuel)
-- Fallback : port échoue → suivant, tous épuisés → Failure
-- Modèle : `gemma4:31b-cloud` (autorisé AGENTS.adoc)
-- Ports 11434-11436 JAMAIS utilisés (comptes Google personnels)
-
-Bakery-gradle consomme ce pool via `document.translation.ContentTranslationService`
-(importé de document-gradle, câblé dans `MigrateContentI18nTask`).
-
-== Réalité augmentée DocKnowledgeBase
-
-`DocKnowledgeBase` (bakery.rag) injecte la doc officielle JBake dans le prompt de traduction :
-- Keyword matching in-memory sur `resources/docs/jbake-reference.adoc`
-- Le LLM reçoit "JBake reference (this content uses JBake templates and conventions):" + sections pertinentes
-- Contrecarre la tendance du LLM à confondre les conventions JBake
-
-== Cible : cheroliv.com
-
-Site `office/sites/cheroliv.com` — 104 articles de blog AsciiDoc (FR).
-Pipeline de traduction : bakery `migrateContentI18n` → document `ContentTranslationService`
-→ `DocumentTranslator` → `PooledOllamaTranslationAdapter` → `JbakeNativeRenderer`.
-Les 29 Device Keys sont dans `site.yml` (section `ollama:`) → un seul secret GitHub `CHEROLIV_COM_CONFIG`.
-CI : `workflow_dispatch` sur `translate-cheroliv-com.yml` → rotation des clés tous les N articles.
 
 == Contexte de fin
 
-Session 186 — DocKnowledgeBase JBake + correction articles EN :
-- `DocKnowledgeBase.kt` — keyword matching in-memory sur doc officielle JBake
-- `resources/docs/jbake-reference.adoc` — structure, templates, variables, CLI
-- `LlmServiceTranslationAdapter.buildPrompt()` injecte la doc avant traduction
-- 3 articles EN cheroliv.com corrigés (0100, 0105, 0115)
+Session 187 — Alliance i18n : suppression 10 shadow copies contrats BOM :
+- 5 fichiers main (SupportedLanguage, LanguageCatalog, I18nConfig, MessageBundle, LocaleResolver)
+- 5 fichiers test correspondants
+- Dépendance `i18n-contracts:0.0.2` déjà dans build.gradle.kts
+- compileKotlin + compileTestKotlin BUILD SUCCESSFUL
 
 == Reprendre à
 
-. `git status` dans bakery-gradle + document-gradle + office
-. `./gradlew publishToMavenLocal` dans document-gradle
-. EPIC BKY-I18N-CI — S187 :
+. `git status` dans bakery-gradle
+. EPIC BKY-I18N-CI — S188 :
   * CI-4 : `site.yml` cheroliv.com avec 29 vraies Device Keys (3 pts)
   * CI-5 : workflow_dispatch translate-cheroliv-com → dogfooding réel FR→EN (5 pts)
   * CI-6 : BDD Cucumber end-to-end CI translation (3 pts)
 . Bug préexistant : BakeryPluginPublicationTest version mismatch (0.0.4 vs catalog 0.0.3)
 . `publishToMavenLocal` après chaque modification code source
 
-== Fichiers touchés S186
+== Fichiers touchés S187
 
 *bakery-gradle* :
-- `src/main/kotlin/bakery/rag/DocKnowledgeBase.kt` — nouveau
-- `src/main/resources/docs/jbake-reference.adoc` — nouveau
-- `src/main/kotlin/bakery/i18n/LlmServiceTranslationAdapter.kt` — modifié (injection DocKnowledgeBase)
+- `src/main/kotlin/contracts/i18n/SupportedLanguage.kt` — supprimé
+- `src/main/kotlin/contracts/i18n/LanguageCatalog.kt` — supprimé
+- `src/main/kotlin/contracts/i18n/I18nConfig.kt` — supprimé
+- `src/main/kotlin/contracts/i18n/MessageBundle.kt` — supprimé
+- `src/main/kotlin/contracts/i18n/LocaleResolver.kt` — supprimé
+- `src/test/kotlin/contracts/i18n/*Test.kt` — 5 fichiers supprimés

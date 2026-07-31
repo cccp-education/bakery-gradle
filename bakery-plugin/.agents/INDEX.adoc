@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-07-25 — Session 186 DocKnowledgeBase JBake câblé dans LlmServiceTranslationAdapter. 3 articles EN cheroliv.com corrigés._
-_Session en cours_ : 186 terminée — DocKnowledgeBase JBake + correction articles EN ✅._
-_Prochaine session_ : 187 — EPIC BKY-I18N-CI : CI-4 site.yml 29 vraies Device Keys + CI-5 workflow_dispatch dogfooding + CI-6 BDD end-to-end (11 pts, 3 US).
+_Derniere mise a jour : 2026-07-31 — Session 187 Alliance i18n : suppression 10 shadow copies contrats BOM (5 main + 5 test)._
+_Session en cours_ : 187 terminée — Alliance i18n cross-borough ✅._
+_Prochaine session_ : 188 — EPIC BKY-I18N-CI : CI-4 site.yml 29 vraies Device Keys + CI-5 workflow_dispatch dogfooding + CI-6 BDD end-to-end (11 pts, 3 US).
 
 '''
 

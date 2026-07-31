@@ -1,8 +1,9 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-  _Derniere mise a jour : 2026-07-25 — Session 186 — DocKnowledgeBase JBake câblé + correction articles EN_
+  _Derniere mise a jour : 2026-07-31 — Session 187 — Alliance i18n : suppression shadow copies contrats BOM_
 
   |===
+  | 187 | 2026-07-31 | refactoring | **Alliance i18n — Suppression 10 shadow copies contrats BOM** — 5 fichiers main (SupportedLanguage, LanguageCatalog, I18nConfig, MessageBundle, LocaleResolver) + 5 tests identiques au BOM supprimés. Dépendance `i18n-contracts:0.0.2` déjà dans build.gradle.kts. compileKotlin + compileTestKotlin BUILD SUCCESSFUL. Zéro régression. | 9/10
   | 186 | 2026-07-25 | feat + fix | **DocKnowledgeBase JBake câblé dans LlmServiceTranslationAdapter** — DocKnowledgeBase.kt keyword matching in-memory sur doc officielle JBake. resources/docs/jbake-reference.adoc (structure, templates, variables, CLI). LlmServiceTranslationAdapter.buildPrompt() injecte doc avant traduction. 3 articles EN cheroliv.com corrigés (0100, 0105, 0115). | 9/10
   | 185 | 2026-07-24 | DDD + TDD + BDD + CI | **EPIC BKY-I18N-CI CI-1/CI-2/CI-3 livrés** — N0 OllamaConfig (portStart/portEnd Jackson-compatible, 29 deviceKeys) + OllamaDeviceKey (toString masqué). N2 SiteConfiguration.ollama: OllamaConfig? (backward-compat). N2 SecretField.DeviceKey + maskSecret. TDD: OllamaConfigYamlTest 6 UT + SecretFieldTest.DeviceKey 4 UT. BDD: 57_ollama_config.feature 4 scénarios. N2 document: PooledOllamaTranslationAdapter rotation 11437-11465. CI: translate-i18n-content.yml + translate-cheroliv-com.yml. 4 repos commités+pushés. | 9/10
   | 029 | 2026-07-21 | DDD + TDD + BDD + dogfooding LLM + cadrage EPIC | **document/bakery/office-cheroliv.com cross-borough** — Bug `+` continuation fixé (PivotInline.LineBreak, 50/50 PASS). Batch 3 articles pilotes FR→EN via Ollama gemma4:31b-cloud (14min, validé). BDD @jbake-native PASSED. :summary: + :description: traduits (TDD vert). EPIC BKY-I18N-CI cadré (6 US, 19 pts, S185→S187). EPIC BKY-I18N-BATCH documenté (stratégie lot annuel). | 8/10
