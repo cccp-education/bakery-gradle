@@ -7,7 +7,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class OutputConfigTest {
-
     @Test
     fun `empty output config has all null fields`() {
         val config = OutputConfig()
@@ -27,13 +26,14 @@ class OutputConfigTest {
     @Test
     fun `output config with all fields`() {
         val theme = ThemeConfig(mode = "dark", primaryColor = "#ff0000")
-        val config = OutputConfig(
-            template = "full-width",
-            layout = LayoutType.CENTERED,
-            cssFiles = listOf("custom.css", "print.css"),
-            jsFiles = listOf("analytics.js"),
-            theme = theme
-        )
+        val config =
+            OutputConfig(
+                template = "full-width",
+                layout = LayoutType.CENTERED,
+                cssFiles = listOf("custom.css", "print.css"),
+                jsFiles = listOf("analytics.js"),
+                theme = theme,
+            )
         assertEquals("full-width", config.template)
         assertEquals(LayoutType.CENTERED, config.layout)
         assertEquals(listOf("custom.css", "print.css"), config.cssFiles)

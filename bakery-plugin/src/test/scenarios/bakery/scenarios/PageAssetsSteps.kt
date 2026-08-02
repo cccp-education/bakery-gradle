@@ -9,7 +9,6 @@ import io.cucumber.java.en.When
 import org.assertj.core.api.Assertions.assertThat
 
 class PageAssetsSteps {
-
     private var assetRef: AssetRef? = null
     private var pageAssets: PageAssets? = null
     private var outputConfig: OutputConfig? = null
@@ -23,7 +22,10 @@ class PageAssetsSteps {
     }
 
     @Given("an asset ref {string} with integrity {string}")
-    fun anAssetRefWithIntegrity(path: String, integrity: String) {
+    fun anAssetRefWithIntegrity(
+        path: String,
+        integrity: String,
+    ) {
         assetRef = AssetRef(path = path, integrity = integrity)
     }
 
@@ -73,16 +75,24 @@ class PageAssetsSteps {
     }
 
     @Given("page assets with css {string} {string}")
-    fun pageAssetsWithCss(css1: String, css2: String) {
+    fun pageAssetsWithCss(
+        css1: String,
+        css2: String,
+    ) {
         pageAssets = PageAssets(css = listOf(AssetRef(path = css1), AssetRef(path = css2)))
     }
 
     @Given("page assets with css {string} and js {string} {string}")
-    fun pageAssetsWithCssAndJs(css: String, js1: String, js2: String) {
-        pageAssets = PageAssets(
-            css = listOf(AssetRef(path = css)),
-            js = listOf(AssetRef(path = js1), AssetRef(path = js2))
-        )
+    fun pageAssetsWithCssAndJs(
+        css: String,
+        js1: String,
+        js2: String,
+    ) {
+        pageAssets =
+            PageAssets(
+                css = listOf(AssetRef(path = css)),
+                js = listOf(AssetRef(path = js1), AssetRef(path = js2)),
+            )
     }
 
     @Then("the page assets have {int} css entries")
@@ -101,11 +111,15 @@ class PageAssetsSteps {
     }
 
     @Given("an output config with page assets css {string} and js {string} with defer")
-    fun anOutputConfigWithPageAssets(css: String, js: String) {
-        val assets = PageAssets(
-            css = listOf(AssetRef(path = css)),
-            js = listOf(AssetRef(path = js, defer = true))
-        )
+    fun anOutputConfigWithPageAssets(
+        css: String,
+        js: String,
+    ) {
+        val assets =
+            PageAssets(
+                css = listOf(AssetRef(path = css)),
+                js = listOf(AssetRef(path = js, defer = true)),
+            )
         outputConfig = OutputConfig(assets = assets)
     }
 

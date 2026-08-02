@@ -26,28 +26,26 @@ import kotlin.text.Charsets.UTF_8
  * Méthodologie : DDD/TDD baby steps.
  */
 class LensBudgetInjectionTest {
-
     @TempDir
     lateinit var tempDir: File
 
-    private fun defaultConfigs() = ResolvedConfigs(
-        firebase = bakery.FirebaseProjectInfo(projectId = "", apiKey = ""),
-        googleForms = bakery.GoogleFormsConfig(),
-        firebaseAuth = bakery.FirebaseAuthConfig(),
-        comments = bakery.CommentsConfig(),
-        analytics = bakery.AnalyticsConfig(),
-        newsletter = bakery.NewsletterConfig(),
-        theme = bakery.ThemeConfig(),
-        layout = bakery.LayoutConfig()
-    )
+    private fun defaultConfigs() =
+        ResolvedConfigs(
+            firebase = bakery.FirebaseProjectInfo(projectId = "", apiKey = ""),
+            googleForms = bakery.GoogleFormsConfig(),
+            firebaseAuth = bakery.FirebaseAuthConfig(),
+            comments = bakery.CommentsConfig(),
+            analytics = bakery.AnalyticsConfig(),
+            newsletter = bakery.NewsletterConfig(),
+            theme = bakery.ThemeConfig(),
+            layout = bakery.LayoutConfig(),
+        )
 
-    private fun siteWithSrcPath(srcPath: String = "site") =
-        SiteConfiguration(bake = BakeConfiguration(srcPath, "build"))
+    private fun siteWithSrcPath(srcPath: String = "site") = SiteConfiguration(bake = BakeConfiguration(srcPath, "build"))
 
     @Nested
     @DisplayName("LENS — Injection jbake.properties quand augmentedContext activé")
     inner class WithAugmentedContextEnabled {
-
         @Test
         @DisplayName("augmentedContext activé → injecte enabled, maxArticlesPerPage, minSimilarity")
         fun `augmented context enabled injects budget properties into jbake properties`() {
@@ -59,9 +57,13 @@ class LensBudgetInjectionTest {
             val augmentedDsl = AugmentedContextDsl()
             augmentedDsl.enabled = true
 
-            val result = GenerateSiteService.injectConfigIntoJbakeProperties(
-                tempDir, siteWithSrcPath(), defaultConfigs(), augmentedDsl
-            )
+            val result =
+                GenerateSiteService.injectConfigIntoJbakeProperties(
+                    tempDir,
+                    siteWithSrcPath(),
+                    defaultConfigs(),
+                    augmentedDsl,
+                )
 
             assertThat(result).isTrue()
             val props = jbakeProps.readText(UTF_8)
@@ -84,9 +86,13 @@ class LensBudgetInjectionTest {
             augmentedDsl.budget.maxArticlesPerPage = 6
             augmentedDsl.budget.minSimilarity = 0.85
 
-            val result = GenerateSiteService.injectConfigIntoJbakeProperties(
-                tempDir, siteWithSrcPath(), defaultConfigs(), augmentedDsl
-            )
+            val result =
+                GenerateSiteService.injectConfigIntoJbakeProperties(
+                    tempDir,
+                    siteWithSrcPath(),
+                    defaultConfigs(),
+                    augmentedDsl,
+                )
 
             assertThat(result).isTrue()
             val props = jbakeProps.readText(UTF_8)
@@ -99,7 +105,6 @@ class LensBudgetInjectionTest {
     @Nested
     @DisplayName("LENS — Pas d'injection quand augmentedContext désactivé")
     inner class WithoutAugmentedContext {
-
         @Test
         @DisplayName("augmentedContext désactivé → pas d'injection LENS")
         fun `augmented context disabled does not inject lens properties`() {
@@ -111,9 +116,13 @@ class LensBudgetInjectionTest {
             val augmentedDsl = AugmentedContextDsl()
             augmentedDsl.enabled = false
 
-            val result = GenerateSiteService.injectConfigIntoJbakeProperties(
-                tempDir, siteWithSrcPath(), defaultConfigs(), augmentedDsl
-            )
+            val result =
+                GenerateSiteService.injectConfigIntoJbakeProperties(
+                    tempDir,
+                    siteWithSrcPath(),
+                    defaultConfigs(),
+                    augmentedDsl,
+                )
 
             assertThat(result).isTrue()
             val props = jbakeProps.readText(UTF_8)
@@ -127,7 +136,6 @@ class LensBudgetInjectionTest {
     @Nested
     @DisplayName("LENS — Mise à jour de propriétés existantes")
     inner class UpdateExistingProperties {
-
         @Test
         @DisplayName("proprietes LENS pré-existantes mises à jour")
         fun `existing lens properties are updated`() {
@@ -139,7 +147,7 @@ class LensBudgetInjectionTest {
                     "augmentedContextEnabled=false\n" +
                     "lensBudgetMaxArticlesPerPage=2\n" +
                     "lensBudgetMinSimilarity=0.5\n",
-                UTF_8
+                UTF_8,
             )
 
             val augmentedDsl = AugmentedContextDsl()
@@ -147,9 +155,13 @@ class LensBudgetInjectionTest {
             augmentedDsl.budget.maxArticlesPerPage = 4
             augmentedDsl.budget.minSimilarity = 0.7
 
-            val result = GenerateSiteService.injectConfigIntoJbakeProperties(
-                tempDir, siteWithSrcPath(), defaultConfigs(), augmentedDsl
-            )
+            val result =
+                GenerateSiteService.injectConfigIntoJbakeProperties(
+                    tempDir,
+                    siteWithSrcPath(),
+                    defaultConfigs(),
+                    augmentedDsl,
+                )
 
             assertThat(result).isTrue()
             val props = jbakeProps.readText(UTF_8)

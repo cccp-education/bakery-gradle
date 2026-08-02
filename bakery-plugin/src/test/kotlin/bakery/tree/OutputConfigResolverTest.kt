@@ -10,36 +10,42 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class OutputConfigResolverTest {
-
     private val darkTheme = ThemeConfig(mode = "dark", primaryColor = "#222")
     private val lightTheme = ThemeConfig(mode = "light", primaryColor = "#fff")
 
     private fun sampleTree(): SiteTree {
-        val formationsSection = Section(
-            path = "formations",
-            articles = listOf(
-                Article(path = "formations/ab-partition"),
-                Article(path = "formations/cd-partition")
+        val formationsSection =
+            Section(
+                path = "formations",
+                articles =
+                    listOf(
+                        Article(path = "formations/ab-partition"),
+                        Article(path = "formations/cd-partition"),
+                    ),
+                outputConfig =
+                    OutputConfig(
+                        layout = LayoutType.SIDEBAR_LEFT,
+                        cssFiles = listOf("formations.css"),
+                        theme = lightTheme,
+                    ),
+            )
+        val blog =
+            Section(
+                path = "blog",
+                articles = emptyList(),
+                outputConfig = OutputConfig(template = "blog-index"),
+            )
+        return SiteTree(
+            Site(
+                path = "",
+                sections = listOf(formationsSection, blog),
+                outputConfig =
+                    OutputConfig(
+                        template = "default-page",
+                        jsFiles = listOf("analytics.js"),
+                    ),
             ),
-            outputConfig = OutputConfig(
-                layout = LayoutType.SIDEBAR_LEFT,
-                cssFiles = listOf("formations.css"),
-                theme = lightTheme
-            )
         )
-        val blog = Section(
-            path = "blog",
-            articles = emptyList(),
-            outputConfig = OutputConfig(template = "blog-index")
-        )
-        return SiteTree(Site(
-            path = "",
-            sections = listOf(formationsSection, blog),
-            outputConfig = OutputConfig(
-                template = "default-page",
-                jsFiles = listOf("analytics.js")
-            )
-        ))
     }
 
     @Test
@@ -77,15 +83,17 @@ class OutputConfigResolverTest {
 
     @Test
     fun `resolve on article with its own override wins`() {
-        val article = Article(
-            path = "formations/ab-partition",
-            outputConfig = OutputConfig(template = "custom-article", layout = LayoutType.CENTERED)
-        )
-        val section = Section(
-            path = "formations",
-            articles = listOf(article),
-            outputConfig = OutputConfig(layout = LayoutType.SIDEBAR_LEFT, theme = lightTheme)
-        )
+        val article =
+            Article(
+                path = "formations/ab-partition",
+                outputConfig = OutputConfig(template = "custom-article", layout = LayoutType.CENTERED),
+            )
+        val section =
+            Section(
+                path = "formations",
+                articles = listOf(article),
+                outputConfig = OutputConfig(layout = LayoutType.SIDEBAR_LEFT, theme = lightTheme),
+            )
         val tree = SiteTree(Site(path = "", sections = listOf(section)))
         val resolver = OutputConfigResolver(tree)
         val config = resolver.effectiveConfig(article)
@@ -96,9 +104,16 @@ class OutputConfigResolverTest {
 
     @Test
     fun `resolve with no config at any level returns empty config`() {
-        val tree = SiteTree(Site(path = "", sections = listOf(
-            Section(path = "empty", articles = listOf(Article(path = "empty/page")))
-        )))
+        val tree =
+            SiteTree(
+                Site(
+                    path = "",
+                    sections =
+                        listOf(
+                            Section(path = "empty", articles = listOf(Article(path = "empty/page"))),
+                        ),
+                ),
+            )
         val resolver = OutputConfigResolver(tree)
         val article = tree.findByPath("empty/page") as Article
         val config = resolver.effectiveConfig(article)

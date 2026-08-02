@@ -17,18 +17,18 @@ import org.junit.jupiter.api.Test
 @Tag("e2e")
 @DisplayName("E2E - Google Forms Embed")
 class E2EGoogleFormsTest : E2ETestBase() {
-
     @Test
     @DisplayName("Google Forms: Iframe is visible when formId is configured")
     fun `iframe is visible when form_id_is_configured`() {
-        val path = serveHtml(
-            "google-forms",
-            mapOf(
-                "googleFormsFormId" to "1ABC-x12345",
-                "googleFormsWidth" to "640",
-                "googleFormsHeight" to "800"
+        val path =
+            serveHtml(
+                "google-forms",
+                mapOf(
+                    "googleFormsFormId" to "1ABC-x12345",
+                    "googleFormsWidth" to "640",
+                    "googleFormsHeight" to "800",
+                ),
             )
-        )
 
         val page = navigateTo(path)
 

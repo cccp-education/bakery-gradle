@@ -1,17 +1,14 @@
 package bakery.theme
 
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
 class ThemeVariantTest {
-
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class FromStringOrDefault {
-
         @Test
         fun `resolves minimal variant case insensitive`() {
             assertThat(ThemeVariant.fromStringOrDefault("minimal")).isEqualTo(ThemeVariant.MINIMAL)

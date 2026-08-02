@@ -15,7 +15,6 @@ import java.io.File
  * *evaluated output*. Both perspectives are valuable.
  */
 class GoogleFormsTemplateTest {
-
     private val templatesDir = File("src/main/resources/site/templates")
 
     @Test
@@ -37,7 +36,7 @@ class GoogleFormsTemplateTest {
         assertTrue(content.contains("th:if"), "must have th:if condition to hide when formId is absent")
         assertTrue(
             content.contains("googleFormsFormId") && content.contains("th:if"),
-            "th:if must guard on googleFormsFormId"
+            "th:if must guard on googleFormsFormId",
         )
     }
 }

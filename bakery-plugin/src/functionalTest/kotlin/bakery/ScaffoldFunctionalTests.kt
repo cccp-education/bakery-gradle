@@ -12,11 +12,9 @@ import java.io.File
 import kotlin.text.Charsets.UTF_8
 
 class ScaffoldFunctionalTests {
-
     @Nested
     @DisplayName("generateSite avec sites.base.dir + site.name")
     inner class HappyPathTest {
-
         @TempDir
         lateinit var projectDir: File
 
@@ -24,11 +22,12 @@ class ScaffoldFunctionalTests {
         fun `should scaffold site into office-sites-mycompany when both properties are defined`() {
             createMinimalBakeryProject(projectDir, sitesBaseDir = "office/sites", siteName = "my-company")
 
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
+            val result =
+                create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite")
+                    .build()
 
             val siteDir = projectDir.resolve("office/sites/my-company")
             assertThat(siteDir).exists().isDirectory
@@ -44,7 +43,6 @@ class ScaffoldFunctionalTests {
     @Nested
     @DisplayName("generateSite failures")
     inner class ErrorHandlingTest {
-
         @TempDir
         lateinit var projectDir: File
 
@@ -52,11 +50,12 @@ class ScaffoldFunctionalTests {
         fun `should fail when sitesBaseDir is defined but siteName is missing`() {
             createMinimalBakeryProject(projectDir, sitesBaseDir = "office/sites", siteName = null)
 
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite", "--stacktrace")
-                .buildAndFail()
+            val result =
+                create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite", "--stacktrace")
+                    .buildAndFail()
 
             assertThat(result.output).contains("siteName must be defined")
         }
@@ -66,11 +65,12 @@ class ScaffoldFunctionalTests {
             createMinimalBakeryProject(projectDir, sitesBaseDir = "office/sites", siteName = "existing-site")
             projectDir.resolve("office/sites/existing-site").mkdirs()
 
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite", "--stacktrace")
-                .buildAndFail()
+            val result =
+                create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite", "--stacktrace")
+                    .buildAndFail()
 
             assertThat(result.output).contains("already exists")
         }
@@ -79,7 +79,6 @@ class ScaffoldFunctionalTests {
     @Nested
     @DisplayName("generateSite with siteName only")
     inner class SiteNameOnlyTest {
-
         @TempDir
         lateinit var projectDir: File
 
@@ -87,11 +86,12 @@ class ScaffoldFunctionalTests {
         fun `should scaffold site into projectDir-siteName when only siteName is defined`() {
             createMinimalBakeryProject(projectDir, sitesBaseDir = null, siteName = "mysite")
 
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
+            val result =
+                create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite")
+                    .build()
 
             val siteDir = projectDir.resolve("mysite")
             assertThat(siteDir).exists().isDirectory
@@ -104,7 +104,6 @@ class ScaffoldFunctionalTests {
     @Nested
     @DisplayName("generateSite backward compat (ni sites.base.dir ni site.name)")
     inner class BackwardCompatTest {
-
         @TempDir
         lateinit var projectDir: File
 
@@ -112,11 +111,12 @@ class ScaffoldFunctionalTests {
         fun `should scaffold into projectDir root when no scaffolding properties are defined`() {
             createMinimalBakeryProject(projectDir, sitesBaseDir = null, siteName = null)
 
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
+            val result =
+                create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite")
+                    .build()
 
             assertThat(projectDir.resolve("site.yml")).exists().isFile
             assertThat(projectDir.resolve("site/jbake.properties")).exists().isFile
@@ -129,7 +129,6 @@ class ScaffoldFunctionalTests {
     @Nested
     @DisplayName("generateSite avec siteType = basic")
     inner class BasicSiteTypeTest {
-
         @TempDir
         lateinit var projectDir: File
 
@@ -139,14 +138,15 @@ class ScaffoldFunctionalTests {
                 projectDir,
                 sitesBaseDir = null,
                 siteName = "mon-site",
-                siteType = "basic"
+                siteType = "basic",
             )
 
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
+            val result =
+                create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite")
+                    .build()
 
             val siteDir = projectDir.resolve("mon-site")
             assertThat(siteDir).exists().isDirectory
@@ -168,14 +168,15 @@ class ScaffoldFunctionalTests {
                 projectDir,
                 sitesBaseDir = null,
                 siteName = "minimal",
-                siteType = "basic"
+                siteType = "basic",
             )
 
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
+            val result =
+                create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite")
+                    .build()
 
             val siteDir = projectDir.resolve("minimal")
             val jbakeProps = siteDir.resolve("site-basic/jbake.properties")
@@ -190,7 +191,6 @@ class ScaffoldFunctionalTests {
     @Nested
     @DisplayName("generateSite avec siteType explicite = blog (backward compat)")
     inner class BlogSiteTypeTest {
-
         @TempDir
         lateinit var projectDir: File
 
@@ -200,14 +200,15 @@ class ScaffoldFunctionalTests {
                 projectDir,
                 sitesBaseDir = null,
                 siteName = "mon-blog",
-                siteType = "blog"
+                siteType = "blog",
             )
 
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
+            val result =
+                create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite")
+                    .build()
 
             val siteDir = projectDir.resolve("mon-blog")
             assertThat(siteDir).exists().isDirectory
@@ -223,7 +224,6 @@ class ScaffoldFunctionalTests {
     @Nested
     @DisplayName("generateSite blog includes Reusable Thymeleaf components (BKY-JB-2)")
     inner class ThymeleafComponentsTest {
-
         @TempDir
         lateinit var projectDir: File
 
@@ -231,11 +231,12 @@ class ScaffoldFunctionalTests {
         fun `should scaffold blog site with breadcrumb component`() {
             createMinimalBakeryProject(projectDir, sitesBaseDir = null, siteName = "compo-test", siteType = "blog")
 
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
+            val result =
+                create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite")
+                    .build()
 
             val templatesDir = projectDir.resolve("compo-test/site/templates")
             assertThat(templatesDir.resolve("breadcrumb.thyme")).exists().isFile
@@ -296,7 +297,6 @@ class ScaffoldFunctionalTests {
     @Nested
     @DisplayName("generateSite with Google Forms embed (BKY-JB-3)")
     inner class GoogleFormsEmbedTest {
-
         @TempDir
         lateinit var projectDir: File
 
@@ -306,14 +306,15 @@ class ScaffoldFunctionalTests {
                 projectDir,
                 sitesBaseDir = null,
                 siteName = "gforms-test",
-                siteType = "blog"
+                siteType = "blog",
             )
 
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
+            val result =
+                create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite")
+                    .build()
 
             val templatesDir = projectDir.resolve("gforms-test/site/templates")
             assertThat(templatesDir.resolve("google-forms.thyme")).exists().isFile
@@ -330,14 +331,15 @@ class ScaffoldFunctionalTests {
                 projectDir,
                 sitesBaseDir = null,
                 siteName = "no-gforms",
-                siteType = "blog"
+                siteType = "blog",
             )
 
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
+            val result =
+                create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite")
+                    .build()
 
             val siteDir = projectDir.resolve("no-gforms")
             val templatesDir = siteDir.resolve("site/templates")
@@ -355,7 +357,6 @@ class ScaffoldFunctionalTests {
     @Nested
     @DisplayName("generateSite with Firebase Auth + Comments (BKY-JB-4)")
     inner class FirebaseAuthCommentsTest {
-
         @TempDir
         lateinit var projectDir: File
 
@@ -365,14 +366,15 @@ class ScaffoldFunctionalTests {
                 projectDir,
                 sitesBaseDir = null,
                 siteName = "auth-test",
-                siteType = "blog"
+                siteType = "blog",
             )
 
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
+            val result =
+                create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite")
+                    .build()
 
             val templatesDir = projectDir.resolve("auth-test/site/templates")
             assertThat(templatesDir.resolve("auth-header.thyme")).exists().isFile
@@ -394,14 +396,15 @@ class ScaffoldFunctionalTests {
                 projectDir,
                 sitesBaseDir = null,
                 siteName = "no-auth",
-                siteType = "blog"
+                siteType = "blog",
             )
 
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
+            val result =
+                create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite")
+                    .build()
 
             val siteDir = projectDir.resolve("no-auth")
             val templatesDir = siteDir.resolve("site/templates")
@@ -421,7 +424,6 @@ class ScaffoldFunctionalTests {
     @Nested
     @DisplayName("generateSite with Analytics + Newsletter (BKY-JB-5)")
     inner class AnalyticsNewsletterTest {
-
         @TempDir
         lateinit var projectDir: File
 
@@ -431,14 +433,15 @@ class ScaffoldFunctionalTests {
                 projectDir,
                 sitesBaseDir = null,
                 siteName = "analytics-test",
-                siteType = "blog"
+                siteType = "blog",
             )
 
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
+            val result =
+                create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite")
+                    .build()
 
             val templatesDir = projectDir.resolve("analytics-test/site/templates")
             assertThat(templatesDir.resolve("analytics-script.thyme")).exists().isFile
@@ -460,14 +463,15 @@ class ScaffoldFunctionalTests {
                 projectDir,
                 sitesBaseDir = null,
                 siteName = "no-analytics",
-                siteType = "blog"
+                siteType = "blog",
             )
 
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
+            val result =
+                create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite")
+                    .build()
 
             val siteDir = projectDir.resolve("no-analytics")
             val templatesDir = siteDir.resolve("site/templates")
@@ -487,7 +491,6 @@ class ScaffoldFunctionalTests {
     @Nested
     @DisplayName("generateSite with Theme system (BKY-JB-6)")
     inner class ThemeSystemTest {
-
         @TempDir
         lateinit var projectDir: File
 
@@ -497,14 +500,15 @@ class ScaffoldFunctionalTests {
                 projectDir,
                 sitesBaseDir = null,
                 siteName = "theme-test",
-                siteType = "blog"
+                siteType = "blog",
             )
 
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
+            val result =
+                create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite")
+                    .build()
 
             val templatesDir = projectDir.resolve("theme-test/site/templates")
             assertThat(templatesDir.resolve("theme-script.thyme")).exists().isFile
@@ -522,14 +526,15 @@ class ScaffoldFunctionalTests {
                 projectDir,
                 sitesBaseDir = null,
                 siteName = "no-theme",
-                siteType = "blog"
+                siteType = "blog",
             )
 
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
+            val result =
+                create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite")
+                    .build()
 
             val siteDir = projectDir.resolve("no-theme")
             val templatesDir = siteDir.resolve("site/templates")
@@ -549,7 +554,6 @@ class ScaffoldFunctionalTests {
     @Nested
     @DisplayName("generateSite with Layout system (BKY-JB-7)")
     inner class LayoutTest {
-
         @TempDir
         lateinit var projectDir: File
 
@@ -559,14 +563,15 @@ class ScaffoldFunctionalTests {
                 projectDir,
                 sitesBaseDir = null,
                 siteName = "layout-test",
-                siteType = "blog"
+                siteType = "blog",
             )
 
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
+            val result =
+                create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite")
+                    .build()
 
             val templatesDir = projectDir.resolve("layout-test/site/templates")
             assertThat(templatesDir.resolve("layout-full-width.thyme")).exists().isFile
@@ -586,14 +591,15 @@ class ScaffoldFunctionalTests {
                 projectDir,
                 sitesBaseDir = null,
                 siteName = "layout-default",
-                siteType = "blog"
+                siteType = "blog",
             )
 
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
+            val result =
+                create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite")
+                    .build()
 
             val siteDir = projectDir.resolve("layout-default")
             val jbakeProps = siteDir.resolve("site/jbake.properties")
@@ -611,7 +617,6 @@ class ScaffoldFunctionalTests {
     @Nested
     @DisplayName("CONV-1: ConfigResolver 4-layer cascade (CLI > gradle.properties > DSL > YAML > defaults)")
     inner class ConfigResolverCascadeTest {
-
         @TempDir
         lateinit var projectDir: File
 
@@ -621,22 +626,24 @@ class ScaffoldFunctionalTests {
                 projectDir,
                 sitesBaseDir = null,
                 siteName = "dsl-override-test",
-                siteType = "blog"
+                siteType = "blog",
             )
             // Add googleForms DSL block to build.gradle.kts
             val buildFile = projectDir.resolve("build.gradle.kts")
             val content = buildFile.readText(UTF_8)
-            val updatedContent = content.replace(
-                Regex("(bakery\\s*\\{)"),
-                "$1\n    googleForms {\n        formId = \"dsl-form-id\"\n    }"
-            )
+            val updatedContent =
+                content.replace(
+                    Regex("(bakery\\s*\\{)"),
+                    "$1\n    googleForms {\n        formId = \"dsl-form-id\"\n    }",
+                )
             buildFile.writeText(updatedContent, UTF_8)
 
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
+            val result =
+                create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite")
+                    .build()
 
             val siteDir = projectDir.resolve("dsl-override-test")
             val jbakeProps = siteDir.resolve("site/jbake.properties")
@@ -654,26 +661,29 @@ class ScaffoldFunctionalTests {
                 projectDir,
                 sitesBaseDir = null,
                 siteName = "props-override-test",
-                siteType = "blog"
+                siteType = "blog",
             )
             // Add googleForms DSL block (overridden by gradle.properties)
             val buildFile = projectDir.resolve("build.gradle.kts")
             val content = buildFile.readText(UTF_8)
-            val updatedContent = content.replace(
-                Regex("(bakery\\s*\\{)"),
-                "$1\n    googleForms {\n        formId = \"dsl-form-id\"\n    }"
-            )
+            val updatedContent =
+                content.replace(
+                    Regex("(bakery\\s*\\{)"),
+                    "$1\n    googleForms {\n        formId = \"dsl-form-id\"\n    }",
+                )
             buildFile.writeText(updatedContent, UTF_8)
             // Add gradle.properties with bakery.googleForms.formId
             projectDir.resolve("gradle.properties").writeText(
-                "bakery.googleForms.formId=props-form-id\n", UTF_8
+                "bakery.googleForms.formId=props-form-id\n",
+                UTF_8,
             )
 
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
+            val result =
+                create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite")
+                    .build()
 
             val siteDir = projectDir.resolve("props-override-test")
             val jbakeProps = siteDir.resolve("site/jbake.properties")
@@ -691,14 +701,15 @@ class ScaffoldFunctionalTests {
                 projectDir,
                 sitesBaseDir = null,
                 siteName = "defaults-test",
-                siteType = "blog"
+                siteType = "blog",
             )
 
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
+            val result =
+                create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite")
+                    .build()
 
             val siteDir = projectDir.resolve("defaults-test")
             val jbakeProps = siteDir.resolve("site/jbake.properties")
@@ -716,7 +727,6 @@ class ScaffoldFunctionalTests {
     @Nested
     @DisplayName("CONV-1.7: saveConfiguration persists credentials via collectSiteConfig")
     inner class SaveConfigurationTest {
-
         @TempDir
         lateinit var projectDir: File
 
@@ -725,16 +735,16 @@ class ScaffoldFunctionalTests {
             // Setup: create a fully configured project (site.yml + site/ + maquette/)
             createConfiguredBakeryProject(projectDir)
 
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments(
-                    "collectSiteConfig",
-                    "-PgithubUsername=ft-test-user",
-                    "-PgithubRepo=https://github.com/ft-test/repo.git",
-                    "-PgithubToken=ft-test-token"
-                )
-                .build()
+            val result =
+                create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments(
+                        "collectSiteConfig",
+                        "-PgithubUsername=ft-test-user",
+                        "-PgithubRepo=https://github.com/ft-test/repo.git",
+                        "-PgithubToken=ft-test-token",
+                    ).build()
 
             // Verify: site.yml should contain the new credentials
             val siteYml = projectDir.resolve("site.yml")
@@ -750,16 +760,16 @@ class ScaffoldFunctionalTests {
             // Setup: create a fully configured project with original credentials
             createConfiguredBakeryProject(projectDir)
 
-            val result = create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments(
-                    "collectSiteConfig",
-                    "-PgithubUsername=merged-user",
-                    "-PgithubRepo=https://github.com/merged/repo.git",
-                    "-PgithubToken=merged-token"
-                )
-                .build()
+            val result =
+                create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments(
+                        "collectSiteConfig",
+                        "-PgithubUsername=merged-user",
+                        "-PgithubRepo=https://github.com/merged/repo.git",
+                        "-PgithubToken=merged-token",
+                    ).build()
 
             // Verify: original bake config preserved, credentials merged
             val updatedContent = projectDir.resolve("site.yml").readText(UTF_8)
@@ -780,20 +790,27 @@ class ScaffoldFunctionalTests {
          * This is needed for tasks like collectSiteConfig that only register in the else branch.
          */
         private fun createConfiguredBakeryProject(projectDir: File) {
-            projectDir.resolve("settings.gradle.kts").writeText("""
+            projectDir.resolve("settings.gradle.kts").writeText(
+                """
                 pluginManagement.repositories.gradlePluginPortal()
                 rootProject.name = "save-config-test"
-            """.trimIndent(), UTF_8)
+                """.trimIndent(),
+                UTF_8,
+            )
 
-            projectDir.resolve("build.gradle.kts").writeText("""
+            projectDir.resolve("build.gradle.kts").writeText(
+                """
                 plugins { id("education.cccp.bakery") }
                 bakery {
                     configPath = file("site.yml").absolutePath
                 }
-            """.trimIndent() + "\n", UTF_8)
+                """.trimIndent() + "\n",
+                UTF_8,
+            )
 
             // site.yml with original credentials to test that saveConfiguration preserves them properly
-            projectDir.resolve("site.yml").writeText("""
+            projectDir.resolve("site.yml").writeText(
+                """
                 bake:
                   srcPath: "site"
                   destDirPath: "build/bake"
@@ -815,7 +832,9 @@ class ScaffoldFunctionalTests {
                     credentials:
                       username: "user"
                       password: "token"
-            """.trimIndent(), UTF_8)
+                """.trimIndent(),
+                UTF_8,
+            )
 
             // Directories needed for the "else" branch in BakeryPlugin
             projectDir.resolve("site").mkdirs()
@@ -826,7 +845,7 @@ class ScaffoldFunctionalTests {
             projectDir: File,
             sitesBaseDir: String?,
             siteName: String?,
-            siteType: String? = null
+            siteType: String? = null,
         ) {
             val sbDsl = StringBuilder()
             if (sitesBaseDir != null) {
@@ -839,17 +858,23 @@ class ScaffoldFunctionalTests {
                 sbDsl.append("    siteType = \"$siteType\"\n")
             }
 
-            projectDir.resolve("settings.gradle.kts").writeText("""
+            projectDir.resolve("settings.gradle.kts").writeText(
+                """
                 pluginManagement.repositories.gradlePluginPortal()
                 rootProject.name = "scaffold-test"
-            """.trimIndent(), UTF_8)
+                """.trimIndent(),
+                UTF_8,
+            )
 
-            projectDir.resolve("build.gradle.kts").writeText("""
-                plugins { id("education.cccp.bakery") }
-                bakery {
-                    configPath = file("site.yml").absolutePath
-            $sbDsl    }
-            """.trimIndent() + "\n", UTF_8)
+            projectDir.resolve("build.gradle.kts").writeText(
+                """
+                    plugins { id("education.cccp.bakery") }
+                    bakery {
+                        configPath = file("site.yml").absolutePath
+                $sbDsl    }
+                """.trimIndent() + "\n",
+                UTF_8,
+            )
         }
     }
 }

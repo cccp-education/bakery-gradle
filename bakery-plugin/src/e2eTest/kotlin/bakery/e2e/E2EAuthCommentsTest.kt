@@ -14,17 +14,17 @@ import org.junit.jupiter.api.Test
 @Tag("e2e")
 @DisplayName("E2E - Firebase Auth & Comments")
 class E2EAuthCommentsTest : E2ETestBase() {
-
     @Test
     @DisplayName("Auth: Login button is visible when Firebase Auth is configured")
     fun `login button is visible when firebase auth is configured`() {
-        val path = serveHtml(
-            "auth-header",
-            mapOf(
-                "firebaseAuthApiKey" to "AIzaSyTest123",
-                "firebaseAuthDomain" to "my-project.firebaseapp.com"
+        val path =
+            serveHtml(
+                "auth-header",
+                mapOf(
+                    "firebaseAuthApiKey" to "AIzaSyTest123",
+                    "firebaseAuthDomain" to "my-project.firebaseapp.com",
+                ),
             )
-        )
 
         val page = navigateTo(path)
 
@@ -51,14 +51,15 @@ class E2EAuthCommentsTest : E2ETestBase() {
     @Test
     @DisplayName("Comments: Section is visible when comments are enabled")
     fun `comments section is visible when enabled`() {
-        val path = serveHtml(
-            "comments",
-            mapOf(
-                "commentsEnabled" to "true",
-                "commentsCollection" to "blog-comments",
-                "content" to mapOf("uri" to "/blog/my-post")
+        val path =
+            serveHtml(
+                "comments",
+                mapOf(
+                    "commentsEnabled" to "true",
+                    "commentsCollection" to "blog-comments",
+                    "content" to mapOf("uri" to "/blog/my-post"),
+                ),
             )
-        )
 
         val page = navigateTo(path)
 
@@ -72,10 +73,11 @@ class E2EAuthCommentsTest : E2ETestBase() {
     @Test
     @DisplayName("Comments: No section when comments are disabled")
     fun `no comments section when disabled`() {
-        val path = serveHtml(
-            "comments",
-            mapOf("commentsEnabled" to "false")
-        )
+        val path =
+            serveHtml(
+                "comments",
+                mapOf("commentsEnabled" to "false"),
+            )
 
         val page = navigateTo(path)
 

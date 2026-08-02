@@ -4,18 +4,20 @@ import io.cucumber.java.en.Then
 import org.assertj.core.api.Assertions.assertThat
 import kotlin.text.Charsets.UTF_8
 
-class FirebaseSteps(private val world: BakeryWorld) {
-
+class FirebaseSteps(
+    private val world: BakeryWorld,
+) {
     @Then("the {string} file in {string} directory should contain {string} and {string}")
     fun jbakePropertiesShouldContainFirebaseKeys(
         fileName: String,
         dirName: String,
         key1: String,
-        key2: String
+        key2: String,
     ) {
         world.projectDir!!
             .resolve(dirName)
-            .resolve(fileName).apply {
+            .resolve(fileName)
+            .apply {
                 run(::assertThat)
                     .describedAs("the $dirName directory should contain $fileName file")
                     .exists()
@@ -27,7 +29,10 @@ class FirebaseSteps(private val world: BakeryWorld) {
     }
 
     @Then("the file {string} in {string} directory should exist")
-    fun fileShouldExist(fileName: String, dirName: String) {
+    fun fileShouldExist(
+        fileName: String,
+        dirName: String,
+    ) {
         world.projectDir!!
             .resolve(dirName)
             .resolve(fileName)
@@ -37,7 +42,11 @@ class FirebaseSteps(private val world: BakeryWorld) {
     }
 
     @Then("the file {string} in {string} directory should contain {string}")
-    fun fileShouldContain(fileName: String, dirName: String, content: String) {
+    fun fileShouldContain(
+        fileName: String,
+        dirName: String,
+        content: String,
+    ) {
         world.projectDir!!
             .resolve(dirName)
             .resolve(fileName)

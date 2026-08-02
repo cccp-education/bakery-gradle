@@ -7,17 +7,22 @@ import java.io.File
 import kotlin.text.Charsets.UTF_8
 
 class GoogleFormsInjectionTest {
-
     @TempDir
     lateinit var tempDir: File
 
-    private val mapper = com.fasterxml.jackson.dataformat.yaml.YAMLFactory()
-        .let { com.fasterxml.jackson.databind.ObjectMapper(it) }
+    private val mapper =
+        com.fasterxml.jackson.dataformat.yaml
+            .YAMLFactory()
+            .let {
+                com.fasterxml.jackson.databind
+                    .ObjectMapper(it)
+            }
 
     @Test
     fun `site yml with googleForms injects properties into jbake properties`() {
         val siteYml = tempDir.resolve("site.yml")
-        siteYml.writeText("""
+        siteYml.writeText(
+            """
             bake:
               srcPath: site
               destDirPath: bake
@@ -25,7 +30,9 @@ class GoogleFormsInjectionTest {
               formId: "1ABC-x12345"
               width: "800"
               height: "1000"
-        """.trimIndent(), UTF_8)
+            """.trimIndent(),
+            UTF_8,
+        )
 
         val siteDir = tempDir.resolve("site")
         siteDir.mkdirs()
@@ -48,11 +55,14 @@ class GoogleFormsInjectionTest {
     @Test
     fun `site yml without googleForms does not inject any googleForms properties`() {
         val siteYml = tempDir.resolve("site.yml")
-        siteYml.writeText("""
+        siteYml.writeText(
+            """
             bake:
               srcPath: site
               destDirPath: bake
-        """.trimIndent(), UTF_8)
+            """.trimIndent(),
+            UTF_8,
+        )
 
         val siteDir = tempDir.resolve("site")
         siteDir.mkdirs()
@@ -71,9 +81,16 @@ class GoogleFormsInjectionTest {
         assertFalse(props.contains("googleForms"), "must NOT contain any googleForms properties")
     }
 
-    private fun injectGoogleFormsIntoJbakeProperties(jbakeProps: File, googleForms: GoogleFormsConfig) {
+    private fun injectGoogleFormsIntoJbakeProperties(
+        jbakeProps: File,
+        googleForms: GoogleFormsConfig,
+    ) {
         val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
-        fun updateProperty(key: String, value: String) {
+
+        fun updateProperty(
+            key: String,
+            value: String,
+        ) {
             val idx = lines.indexOfFirst { it.startsWith("$key=") }
             if (idx >= 0) {
                 lines[idx] = "$key=$value"

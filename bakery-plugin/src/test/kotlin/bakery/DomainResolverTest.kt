@@ -6,10 +6,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertInstanceOf
 
 class DomainResolverTest {
-
     @Nested
     inner class Structure {
-
         @Test
         fun `holds name resolver and fallback`() {
             val dr = DomainResolver("firebase", { "resolved" }, "fallback")
@@ -27,7 +25,6 @@ class DomainResolverTest {
 
     @Nested
     inner class Resolve {
-
         @Test
         fun `returns resolved value when resolver succeeds`() {
             val errors = mutableListOf<ConfigResolutionError>()

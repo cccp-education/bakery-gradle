@@ -2,25 +2,24 @@ package bakery
 
 import bakery.injection.configInjectors
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class DomainConfigInjectorsTest {
-
-    private fun resolverFrom(map: Map<String, String>): (String, String) -> String =
-        { key, default -> map[key] ?: default }
+    private fun resolverFrom(map: Map<String, String>): (String, String) -> String = { key, default -> map[key] ?: default }
 
     private fun linesOf(vararg lines: String) = mutableListOf(*lines)
+
     private fun linesOf() = mutableListOf<String>()
 
-    private fun valueOf(lines: MutableList<String>, key: String): String? =
-        lines.find { it.startsWith("$key=") }?.substringAfter("$key=")
+    private fun valueOf(
+        lines: MutableList<String>,
+        key: String,
+    ): String? = lines.find { it.startsWith("$key=") }?.substringAfter("$key=")
 
     @Nested
     inner class TriggerFieldGateVariant {
-
         @Test
         fun `firebase injects apiKey and projectId when apiKey non-blank`() {
             val resolver = resolverFrom(mapOf("firebaseApiKey" to "key-1", "firebaseProjectId" to "proj-1"))
@@ -127,7 +126,6 @@ class DomainConfigInjectorsTest {
 
     @Nested
     inner class BooleanGateVariant {
-
         @Test
         fun `comments injects when enabled is true`() {
             val resolver = resolverFrom(mapOf("commentsEnabled" to "true", "commentsCollection" to "c1"))
@@ -210,15 +208,23 @@ class DomainConfigInjectorsTest {
 
     @Nested
     inner class AlwaysVariant {
-
         @Test
         fun `theme always injects 11 properties with defaults when resolver empty`() {
             val resolver = resolverFrom(emptyMap())
-            val lines = linesOf(
-                "themeMode=", "themePrimaryColor=", "themeSecondaryColor=", "themeFontFamily=",
-                "themeLogoUrl=", "themeFaviconUrl=", "themeVariant=", "themeAccentColor=",
-                "themeBackgroundColor=", "themeTextColor=", "themeHeadingFont="
-            )
+            val lines =
+                linesOf(
+                    "themeMode=",
+                    "themePrimaryColor=",
+                    "themeSecondaryColor=",
+                    "themeFontFamily=",
+                    "themeLogoUrl=",
+                    "themeFaviconUrl=",
+                    "themeVariant=",
+                    "themeAccentColor=",
+                    "themeBackgroundColor=",
+                    "themeTextColor=",
+                    "themeHeadingFont=",
+                )
 
             configInjectors["theme"]!!.inject(lines, resolver)
 
@@ -300,7 +306,6 @@ class DomainConfigInjectorsTest {
 
     @Nested
     inner class RegistryContract {
-
         @Test
         fun `configInjectors exposes exactly 9 domains`() {
             assertEquals(9, configInjectors.size)
@@ -310,7 +315,7 @@ class DomainConfigInjectorsTest {
         fun `configInjectors exposes all expected domain keys`() {
             assertEquals(
                 listOf("analytics", "comments", "firebase", "firebaseAuth", "googleForms", "language", "layout", "newsletter", "theme"),
-                configInjectors.keys.toList().sorted()
+                configInjectors.keys.toList().sorted(),
             )
         }
     }

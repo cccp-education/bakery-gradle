@@ -18,7 +18,6 @@ import java.io.File
  * bakery traduit le contenu, ne touche pas au thème ni au sélecteur de langue.
  */
 class MigrateContentI18nDeploySmokeFunctionalTest {
-
     @TempDir
     lateinit var projectDir: File
 
@@ -26,18 +25,19 @@ class MigrateContentI18nDeploySmokeFunctionalTest {
     fun `dry-run migrateContentI18n parses 3 JBake native articles without writing`() {
         createMiniCherolivSite()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments(
-                "migrateContentI18n",
-                "--contentI18nSource=content/blog",
-                "--contentI18nOutput=build/i18n-dry-run",
-                "--contentI18nSourceLang=fr",
-                "--contentI18nTargetLangs=en",
-                "--contentI18nDryRun=true"
-            )
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "migrateContentI18n",
+                    "--contentI18nSource=content/blog",
+                    "--contentI18nOutput=build/i18n-dry-run",
+                    "--contentI18nSourceLang=fr",
+                    "--contentI18nTargetLangs=en",
+                    "--contentI18nDryRun=true",
+                ).build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
         assertThat(result.output).contains("DRY-RUN")
@@ -49,18 +49,19 @@ class MigrateContentI18nDeploySmokeFunctionalTest {
     fun `dry-run migrateContentI18n logs each parsed adoc file`() {
         createMiniCherolivSite()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments(
-                "migrateContentI18n",
-                "--contentI18nSource=content/blog",
-                "--contentI18nOutput=build/i18n-dry-run",
-                "--contentI18nSourceLang=fr",
-                "--contentI18nTargetLangs=en",
-                "--contentI18nDryRun=true"
-            )
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "migrateContentI18n",
+                    "--contentI18nSource=content/blog",
+                    "--contentI18nOutput=build/i18n-dry-run",
+                    "--contentI18nSourceLang=fr",
+                    "--contentI18nTargetLangs=en",
+                    "--contentI18nDryRun=true",
+                ).build()
 
         assertThat(result.output).contains("[migrateContentI18n] Source : content/blog")
         assertThat(result.output).contains("[migrateContentI18n] Dry-run : true")
@@ -76,18 +77,19 @@ class MigrateContentI18nDeploySmokeFunctionalTest {
         assertThat(sourceSimple).contains(":jbake-type: post")
         assertThat(sourceSimple).contains(":jbake-status: published")
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments(
-                "migrateContentI18n",
-                "--contentI18nSource=content/blog",
-                "--contentI18nOutput=build/i18n-dry-run",
-                "--contentI18nSourceLang=fr",
-                "--contentI18nTargetLangs=en",
-                "--contentI18nDryRun=true"
-            )
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "migrateContentI18n",
+                    "--contentI18nSource=content/blog",
+                    "--contentI18nOutput=build/i18n-dry-run",
+                    "--contentI18nSourceLang=fr",
+                    "--contentI18nTargetLangs=en",
+                    "--contentI18nDryRun=true",
+                ).build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
         assertThat(result.output).doesNotContain("ERREUR")
@@ -99,18 +101,19 @@ class MigrateContentI18nDeploySmokeFunctionalTest {
         val plantumlArticle = projectDir.resolve("jbake/content/blog/2022/0031_memo_design_system_post.adoc").readText()
         assertThat(plantumlArticle).contains("[plantuml]")
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments(
-                "migrateContentI18n",
-                "--contentI18nSource=content/blog",
-                "--contentI18nOutput=build/i18n-dry-run",
-                "--contentI18nSourceLang=fr",
-                "--contentI18nTargetLangs=en",
-                "--contentI18nDryRun=true"
-            )
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "migrateContentI18n",
+                    "--contentI18nSource=content/blog",
+                    "--contentI18nOutput=build/i18n-dry-run",
+                    "--contentI18nSourceLang=fr",
+                    "--contentI18nTargetLangs=en",
+                    "--contentI18nDryRun=true",
+                ).build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
     }
@@ -121,18 +124,19 @@ class MigrateContentI18nDeploySmokeFunctionalTest {
         val sourceArticle = projectDir.resolve("jbake/content/blog/2025/0087_pypi_cicd_post.adoc").readText()
         assertThat(sourceArticle).contains("[source")
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments(
-                "migrateContentI18n",
-                "--contentI18nSource=content/blog",
-                "--contentI18nOutput=build/i18n-dry-run",
-                "--contentI18nSourceLang=fr",
-                "--contentI18nTargetLangs=en",
-                "--contentI18nDryRun=true"
-            )
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "migrateContentI18n",
+                    "--contentI18nSource=content/blog",
+                    "--contentI18nOutput=build/i18n-dry-run",
+                    "--contentI18nSourceLang=fr",
+                    "--contentI18nTargetLangs=en",
+                    "--contentI18nDryRun=true",
+                ).build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
     }
@@ -141,18 +145,19 @@ class MigrateContentI18nDeploySmokeFunctionalTest {
     fun `dry-run migrateContentI18n supports 10 target languages`() {
         createMiniCherolivSite()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments(
-                "migrateContentI18n",
-                "--contentI18nSource=content/blog",
-                "--contentI18nOutput=build/i18n-dry-run",
-                "--contentI18nSourceLang=fr",
-                "--contentI18nTargetLangs=en,zh,hi,es,ar,bn,pt,ru,ur",
-                "--contentI18nDryRun=true"
-            )
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "migrateContentI18n",
+                    "--contentI18nSource=content/blog",
+                    "--contentI18nOutput=build/i18n-dry-run",
+                    "--contentI18nSourceLang=fr",
+                    "--contentI18nTargetLangs=en,zh,hi,es,ar,bn,pt,ru,ur",
+                    "--contentI18nDryRun=true",
+                ).build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
         assertThat(result.output).contains("en, zh, hi, es, ar, bn, pt, ru, ur")
@@ -162,42 +167,49 @@ class MigrateContentI18nDeploySmokeFunctionalTest {
     fun `dry-run migrateContentI18n fails when source dir does not exist`() {
         createMiniCherolivSite()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments(
-                "migrateContentI18n",
-                "--contentI18nSource=jbake/content/nonexistent",
-                "--contentI18nOutput=build/i18n-dry-run",
-                "--contentI18nSourceLang=fr",
-                "--contentI18nTargetLangs=en",
-                "--contentI18nDryRun=true"
-            )
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "migrateContentI18n",
+                    "--contentI18nSource=jbake/content/nonexistent",
+                    "--contentI18nOutput=build/i18n-dry-run",
+                    "--contentI18nSourceLang=fr",
+                    "--contentI18nTargetLangs=en",
+                    "--contentI18nDryRun=true",
+                ).build()
 
         assertThat(result.output).contains("répertoire source n'existe pas")
     }
 
     private fun createMiniCherolivSite() {
-        projectDir.resolve("settings.gradle.kts").writeText("""
+        projectDir.resolve("settings.gradle.kts").writeText(
+            """
             pluginManagement { repositories { gradlePluginPortal(); mavenLocal() } }
             rootProject.name = "cheroliv-com-deploy-smoke"
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
-        projectDir.resolve("build.gradle.kts").writeText("""
+        projectDir.resolve("build.gradle.kts").writeText(
+            """
             plugins { id("education.cccp.bakery") }
 
             bakery {
                 configPath = "site.yml"
             }
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
-        projectDir.resolve("site.yml").writeText("""
+        projectDir.resolve("site.yml").writeText(
+            """
             bake:
               srcPath: "jbake"
               destDirPath: "bake"
               cname: "cheroliv.com"
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
         val blog2020 = projectDir.resolve("jbake/content/blog/2020").apply { mkdirs() }
         blog2020.resolve("0016_simple_post.adoc").writeText(
@@ -219,7 +231,7 @@ Asciidoc est un langage de balisage, qui permet de produire du contenu, en appor
 .Liens :
 
 * https://blog.oxiane.com/2018/06/13/asciidoc-documentation-as-code/[jmdoudoux sur blog.oxiane.com, window="_blank"]
-"""
+""",
         )
 
         val blog2022 = projectDir.resolve("jbake/content/blog/2022").apply { mkdirs() }
@@ -247,7 +259,7 @@ Service --> User: Réponse
 ----
 
 Le design system organise les composants.
-"""
+""",
         )
 
         val blog2025 = projectDir.resolve("jbake/content/blog/2025").apply { mkdirs() }
@@ -270,7 +282,7 @@ poetry run pytest
 ----
 
 Poetry remplace les anciens outils de packaging.
-"""
+""",
         )
     }
 }

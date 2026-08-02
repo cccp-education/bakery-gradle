@@ -14,13 +14,12 @@ import java.io.File
  * - templates communs avec contenu différent
  */
 class FixtureAlignmentAuditor {
-
     data class AlignmentReport(
         val fixtureDir: File,
         val realSiteDir: File,
         val missingInFixture: List<String>,
         val extraInFixture: List<String>,
-        val mismatchedContent: List<TemplateMismatch>
+        val mismatchedContent: List<TemplateMismatch>,
     ) {
         val isAligned: Boolean
             get() = missingInFixture.isEmpty() && extraInFixture.isEmpty() && mismatchedContent.isEmpty()
@@ -29,12 +28,12 @@ class FixtureAlignmentAuditor {
     data class TemplateMismatch(
         val templateName: String,
         val fixtureSha256: String,
-        val realSiteSha256: String
+        val realSiteSha256: String,
     )
 
     fun audit(
         fixtureTemplatesDir: File,
-        realSiteTemplatesDir: File
+        realSiteTemplatesDir: File,
     ): AlignmentReport {
         require(fixtureTemplatesDir.isDirectory) { "fixtureTemplatesDir must be a directory: $fixtureTemplatesDir" }
         require(realSiteTemplatesDir.isDirectory) { "realSiteTemplatesDir must be a directory: $realSiteTemplatesDir" }
@@ -49,27 +48,31 @@ class FixtureAlignmentAuditor {
         val extraInFixture = (fixtureRelativeNames - realSiteRelativeNames).toList()
 
         val commonNames = fixtureRelativeNames.intersect(realSiteRelativeNames)
-        val mismatchedContent = commonNames.mapNotNull { relativeName ->
-            val fixtureFile = fixtureTemplatesDir.resolve(relativeName)
-            val realSiteFile = realSiteTemplatesDir.resolve(relativeName)
-            val fixtureHash = sha256(fixtureFile.readText().normalizeEol())
-            val realSiteHash = sha256(realSiteFile.readText().normalizeEol())
-            if (fixtureHash != realSiteHash) {
-                TemplateMismatch(relativeName, fixtureHash, realSiteHash)
-            } else null
-        }
+        val mismatchedContent =
+            commonNames.mapNotNull { relativeName ->
+                val fixtureFile = fixtureTemplatesDir.resolve(relativeName)
+                val realSiteFile = realSiteTemplatesDir.resolve(relativeName)
+                val fixtureHash = sha256(fixtureFile.readText().normalizeEol())
+                val realSiteHash = sha256(realSiteFile.readText().normalizeEol())
+                if (fixtureHash != realSiteHash) {
+                    TemplateMismatch(relativeName, fixtureHash, realSiteHash)
+                } else {
+                    null
+                }
+            }
 
         return AlignmentReport(
             fixtureDir = fixtureTemplatesDir,
             realSiteDir = realSiteTemplatesDir,
             missingInFixture = missingInFixture,
             extraInFixture = extraInFixture,
-            mismatchedContent = mismatchedContent
+            mismatchedContent = mismatchedContent,
         )
     }
 
     private fun listTemplateFiles(dir: File): List<File> =
-        dir.walkTopDown()
+        dir
+            .walkTopDown()
             .filter { it.isFile && it.extension == "thyme" }
             .sortedBy { it.name }
             .toList()

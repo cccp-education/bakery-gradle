@@ -5,7 +5,7 @@ import bakery.tree.SiteNode.Section
 import bakery.tree.SiteNode.Site
 
 class OutputConfigResolver(
-    private val tree: SiteTree
+    private val tree: SiteTree,
 ) {
     fun effectiveConfig(node: SiteNode): OutputConfig {
         val chain = ancestorChain(node)
@@ -17,8 +17,7 @@ class OutputConfigResolver(
         return resolved
     }
 
-    fun resolveAll(): Map<String, OutputConfig> =
-        tree.walk().associateBy({ it.path }, { effectiveConfig(it) })
+    fun resolveAll(): Map<String, OutputConfig> = tree.walk().associateBy({ it.path }, { effectiveConfig(it) })
 
     private fun ancestorChain(node: SiteNode): List<String> {
         if (node is Site) return listOf(node.path)
@@ -48,6 +47,6 @@ class OutputConfigResolver(
             cssFiles = other.cssFiles ?: cssFiles,
             jsFiles = other.jsFiles ?: jsFiles,
             assets = other.assets?.merge(assets) ?: assets,
-            theme = other.theme ?: theme
+            theme = other.theme ?: theme,
         )
 }

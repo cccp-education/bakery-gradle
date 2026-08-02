@@ -13,7 +13,6 @@ import java.time.LocalDate
  * Clean Architecture : pure logique métier, zéro dépendance Gradle.
  */
 class ArticleGenerator {
-
     /**
      * Génère un article structuré à partir d'une intention riche.
      *
@@ -24,7 +23,10 @@ class ArticleGenerator {
      * @param llm Service de complétion LLM (Ollama en prod, FakeLlmService en test)
      * @return [ArticleOutput] structuré, prêt à injecter dans un site JBake
      */
-    suspend fun generate(intention: ArticleIntention, llm: LlmService): ArticleOutput {
+    suspend fun generate(
+        intention: ArticleIntention,
+        llm: LlmService,
+    ): ArticleOutput {
         val prompt = buildPrompt(intention)
         val response = llm.complete(prompt)
         return parseResponse(response, intention.topic)
@@ -37,7 +39,10 @@ class ArticleGenerator {
      * @param llm Service de complétion LLM (Ollama en prod, FakeLlmService en test)
      * @return [ArticleOutput] structuré, prêt à injecter dans un site JBake
      */
-    suspend fun generate(topic: String, llm: LlmService): ArticleOutput {
+    suspend fun generate(
+        topic: String,
+        llm: LlmService,
+    ): ArticleOutput {
         val prompt = buildPrompt(topic)
         val response = llm.complete(prompt)
         return parseResponse(response, topic)
@@ -49,7 +54,8 @@ class ArticleGenerator {
      * Demande explicitement le format AsciiDoc avec métadonnées structurées
      * pour permettre un parsing fiable.
      */
-    internal fun buildPrompt(topic: String): String = """
+    internal fun buildPrompt(topic: String): String =
+        """
         Rédige un article de blog en français sur le sujet suivant : "$topic".
 
         FORMAT DE RÉPONSE OBLIGATOIRE (AsciiDoc) :
@@ -74,7 +80,7 @@ class ArticleGenerator {
         - Inclus du contenu substantiel, pas de placeholders
         - 3 à 5 sections de contenu
         - Date au format YYYY-MM-DD (aujourd'hui si non précisée)
-    """.trimIndent()
+        """.trimIndent()
 
     /**
      * Construit le prompt enrichi depuis une [ArticleIntention].
@@ -83,27 +89,33 @@ class ArticleGenerator {
      * le LLM vers un contenu plus ciblé et pertinent.
      */
     internal fun buildPrompt(intention: ArticleIntention): String {
-        val langInstruction = when (intention.lang) {
-            "en" -> "Write the article in English."
-            else -> "Rédige l'article en français (langue : fr)."
-        }
+        val langInstruction =
+            when (intention.lang) {
+                "en" -> "Write the article in English."
+                else -> "Rédige l'article en français (langue : fr)."
+            }
 
-        val toneGuidance = when (intention.ton) {
-            ArticleTon.INFORMATIF -> "Adopte un ton informatif : neutre et factuel, vulgarise si nécessaire."
-            ArticleTon.TECHNIQUE -> "Adopte un ton technique : précis, détaillé, inclus du code quand c'est pertinent."
-            ArticleTon.PEDAGOGIQUE -> "Adopte un ton pédagogique : progressif, avec des exemples et exercices."
-            ArticleTon.CONVAINCRE -> "Adopte un ton convaincre : argumenté, avec des comparaisons et un avis tranché."
-        }
+        val toneGuidance =
+            when (intention.ton) {
+                ArticleTon.INFORMATIF -> "Adopte un ton informatif : neutre et factuel, vulgarise si nécessaire."
+                ArticleTon.TECHNIQUE -> "Adopte un ton technique : précis, détaillé, inclus du code quand c'est pertinent."
+                ArticleTon.PEDAGOGIQUE -> "Adopte un ton pédagogique : progressif, avec des exemples et exercices."
+                ArticleTon.CONVAINCRE -> "Adopte un ton convaincre : argumenté, avec des comparaisons et un avis tranché."
+            }
 
-        val audienceGuidance = when (intention.audience) {
-            ArticleAudience.GENERAL -> "Le public cible est grand public : évite le jargon, explique les concepts."
-            ArticleAudience.DEVELOPPEUR -> "Le public cible est développeur : tu peux utiliser du jargon technique et du code."
-            ArticleAudience.FORMATEUR -> "Le public cible est formateur : inclus des objectifs pédagogiques et des points clés."
-        }
+        val audienceGuidance =
+            when (intention.audience) {
+                ArticleAudience.GENERAL -> "Le public cible est grand public : évite le jargon, explique les concepts."
+                ArticleAudience.DEVELOPPEUR -> "Le public cible est développeur : tu peux utiliser du jargon technique et du code."
+                ArticleAudience.FORMATEUR -> "Le public cible est formateur : inclus des objectifs pédagogiques et des points clés."
+            }
 
-        val keywordsInstruction = if (intention.keywords.isNotEmpty()) {
-            "Intègre naturellement ces mots-clés dans le contenu : ${intention.keywords.joinToString(", ")}."
-        } else ""
+        val keywordsInstruction =
+            if (intention.keywords.isNotEmpty()) {
+                "Intègre naturellement ces mots-clés dans le contenu : ${intention.keywords.joinToString(", ")}."
+            } else {
+                ""
+            }
 
         return """
             Rédige un article de blog sur le sujet suivant : "${intention.topic}".
@@ -135,7 +147,7 @@ class ArticleGenerator {
             - Inclus du contenu substantiel, pas de placeholders
             - 3 à 5 sections de contenu
             - Date au format YYYY-MM-DD (aujourd'hui si non précisée)
-        """.trimIndent()
+            """.trimIndent()
     }
 
     /**
@@ -147,7 +159,10 @@ class ArticleGenerator {
      * 3. Extrait le corps (tout après la dernière métadonnée)
      * 4. Fallback : si parsing échoue, génère un article minimal depuis le topic
      */
-    internal fun parseResponse(response: String, topic: String): ArticleOutput {
+    internal fun parseResponse(
+        response: String,
+        topic: String,
+    ): ArticleOutput {
         if (response.isBlank()) {
             return fallbackArticle(topic)
         }
@@ -155,26 +170,31 @@ class ArticleGenerator {
         val lines = response.lines()
 
         // 1. Extraire le titre
-        val titre = lines.firstOrNull { it.trimStart().startsWith("= ") }
-            ?.trimStart()
-            ?.removePrefix("= ")
-            ?.trim()
-            ?: topic
+        val titre =
+            lines
+                .firstOrNull { it.trimStart().startsWith("= ") }
+                ?.trimStart()
+                ?.removePrefix("= ")
+                ?.trim()
+                ?: topic
 
         // 2. Extraire les métadonnées
-        val description = extractMetadata(lines, ":description:")
-            ?: "Article généré sur le sujet : $topic"
-        val tags = extractMetadata(lines, ":tags:")
-            ?.split(",")
-            ?.map { it.trim() }
-            ?.filter { it.isNotBlank() }
-            ?: listOf(topic.slugify())
+        val description =
+            extractMetadata(lines, ":description:")
+                ?: "Article généré sur le sujet : $topic"
+        val tags =
+            extractMetadata(lines, ":tags:")
+                ?.split(",")
+                ?.map { it.trim() }
+                ?.filter { it.isNotBlank() }
+                ?: listOf(topic.slugify())
         val dateStr = extractMetadata(lines, ":date:")
-        val date = try {
-            dateStr?.let { LocalDate.parse(it) } ?: LocalDate.now()
-        } catch (_: Exception) {
-            LocalDate.now()
-        }
+        val date =
+            try {
+                dateStr?.let { LocalDate.parse(it) } ?: LocalDate.now()
+            } catch (_: Exception) {
+                LocalDate.now()
+            }
 
         // 3. Extraire le slug
         val slug = titre.slugify()
@@ -182,11 +202,13 @@ class ArticleGenerator {
         // 4. Extraire le corps (tout après la dernière métadonnée)
         val lastMetaIndex = lines.indexOfLast { it.trimStart().startsWith(":") && it.contains(": ") }
         val bodyStartIndex = if (lastMetaIndex >= 0) lastMetaIndex + 1 else 0
-        val body = lines.drop(bodyStartIndex)
-            .dropWhile { it.isBlank() }
-            .joinToString("\n")
-            .trim()
-            .ifBlank { topic }
+        val body =
+            lines
+                .drop(bodyStartIndex)
+                .dropWhile { it.isBlank() }
+                .joinToString("\n")
+                .trim()
+                .ifBlank { topic }
 
         return ArticleOutput(
             titre = titre,
@@ -194,7 +216,7 @@ class ArticleGenerator {
             date = date,
             description = description,
             tags = tags,
-            body = body
+            body = body,
         )
     }
 
@@ -209,7 +231,8 @@ class ArticleGenerator {
             date = LocalDate.now(),
             description = "Article généré automatiquement sur le sujet : $topic",
             tags = listOf(slug),
-            body = """
+            body =
+                """
                 == Introduction
                 
                 Article en cours de rédaction sur le sujet : $topic.
@@ -219,19 +242,21 @@ class ArticleGenerator {
                 Cet article a été généré automatiquement. Le service IA n'a pas produit
                 de contenu structuré. Veuillez vérifier le prompt ou réessayer.
                 ====
-            """.trimIndent()
+                """.trimIndent(),
         )
     }
 
     /**
      * Extrait une métadonnée AsciiDoc (:key: value) depuis une liste de lignes.
      */
-    private fun extractMetadata(lines: List<String>, key: String): String? {
-        return lines.firstOrNull { it.trimStart().startsWith(key, ignoreCase = false) }
+    private fun extractMetadata(
+        lines: List<String>,
+        key: String,
+    ): String? =
+        lines
+            .firstOrNull { it.trimStart().startsWith(key, ignoreCase = false) }
             ?.trimStart()
             ?.removePrefix(key)
             ?.trim()
             ?.takeIf { it.isNotBlank() }
-    }
-
 }

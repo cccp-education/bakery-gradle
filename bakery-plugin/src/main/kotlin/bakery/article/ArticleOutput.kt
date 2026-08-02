@@ -21,5 +21,5 @@ data class ArticleOutput(
     val date: LocalDate,
     val description: String,
     val tags: List<String>,
-    val body: String
+    val body: String,
 )

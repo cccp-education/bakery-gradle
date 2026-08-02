@@ -3,10 +3,9 @@ package bakery
 import org.gradle.api.Project
 
 object LensTaskRegistrar {
-
     internal fun Project.registerCollectSiteContextTask(
         site: SiteConfiguration,
-        augmentedContext: bakery.lens.AugmentedContextDsl? = null
+        augmentedContext: bakery.lens.AugmentedContextDsl? = null,
     ) {
         tasks.register("collectSiteContext") { task ->
             task.apply {
@@ -15,8 +14,16 @@ object LensTaskRegistrar {
                 dependsOn(BakeryConstants.BAKE_TASK)
 
                 doLast {
-                    val bakedDir = layout.buildDirectory.get().asFile.resolve(site.bake.destDirPath)
-                    val outputDir = layout.buildDirectory.get().asFile.resolve("bakery")
+                    val bakedDir =
+                        layout.buildDirectory
+                            .get()
+                            .asFile
+                            .resolve(site.bake.destDirPath)
+                    val outputDir =
+                        layout.buildDirectory
+                            .get()
+                            .asFile
+                            .resolve("bakery")
 
                     logger.lifecycle("[collectSiteContext] Scanning baked dir: {}", bakedDir.absolutePath)
 
@@ -46,7 +53,7 @@ object LensTaskRegistrar {
      */
     internal fun Project.registerCollectAugmentedContextTask(
         site: SiteConfiguration,
-        augmentedContextDsl: bakery.lens.AugmentedContextDsl? = null
+        augmentedContextDsl: bakery.lens.AugmentedContextDsl? = null,
     ) {
         tasks.register("collectAugmentedContext") { task ->
             task.apply {
@@ -60,7 +67,11 @@ object LensTaskRegistrar {
                         return@doLast
                     }
 
-                    val outputDir = layout.buildDirectory.get().asFile.resolve("bakery")
+                    val outputDir =
+                        layout.buildDirectory
+                            .get()
+                            .asFile
+                            .resolve("bakery")
                     val contextFile = projectDir.resolve(augmentedContextDsl.contextPath)
                     val graphFile = projectDir.resolve(augmentedContextDsl.lens.graphFilePath)
 
@@ -69,8 +80,10 @@ object LensTaskRegistrar {
 
                     logger.lifecycle(
                         "[collectAugmentedContext] {} nœuds scorés → {} après règles → {} après budget → {}",
-                        result.totalCandidates, result.totalAfterRules, result.totalAfterBudget,
-                        outputDir.resolve("augmented-context.json").absolutePath
+                        result.totalCandidates,
+                        result.totalAfterRules,
+                        result.totalAfterBudget,
+                        outputDir.resolve("augmented-context.json").absolutePath,
                     )
                 }
             }

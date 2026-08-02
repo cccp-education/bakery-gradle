@@ -1,8 +1,6 @@
 package bakery.firebase
 
-import bakery.ConfigResolver
 import bakery.FirebaseAuthConfig
-import bakery.FirebaseAuthDsl
 import bakery.SecretField
 import bakery.llm.LlmService
 import bakery.maskSecret
@@ -55,7 +53,6 @@ import org.gradle.work.DisableCachingByDefault
  */
 @DisableCachingByDefault(because = "Validation Firebase — résultat dépendant de la config")
 abstract class ValidateFirebaseConfigTask : DefaultTask() {
-
     /** Service LLM injectable (null = validation mécanique seule). */
     @get:Internal
     var llmService: LlmService? = null
@@ -88,12 +85,13 @@ abstract class ValidateFirebaseConfigTask : DefaultTask() {
         val mechanicalResult = validateMechanically()
 
         // 2. Validation IA (optionnelle)
-        val iaResult = if (shouldUseIa()) {
-            validateWithLlm()
-        } else {
-            logger.lifecycle("[validateFirebaseConfig] Validation IA désactivée — utilisez -Pia.enabled=true ou dsl ia.enabled=true")
-            FirebaseValidationResult()
-        }
+        val iaResult =
+            if (shouldUseIa()) {
+                validateWithLlm()
+            } else {
+                logger.lifecycle("[validateFirebaseConfig] Validation IA désactivée — utilisez -Pia.enabled=true ou dsl ia.enabled=true")
+                FirebaseValidationResult()
+            }
 
         // 3. Fusionner les résultats
         val result = mechanicalResult.merge(iaResult)
@@ -108,15 +106,21 @@ abstract class ValidateFirebaseConfigTask : DefaultTask() {
         resolvedAuthConfig?.let { authConfig ->
             val authResult = FirebaseConfigValidator.validateAuthConfig(authConfig)
             result = result.merge(authResult)
-            logger.lifecycle("[validateFirebaseConfig] Auth config: {} erreurs, {} avertissements",
-                authResult.errors.size, authResult.warnings.size)
+            logger.lifecycle(
+                "[validateFirebaseConfig] Auth config: {} erreurs, {} avertissements",
+                authResult.errors.size,
+                authResult.warnings.size,
+            )
         }
 
         resolvedContactConfig?.let { contactConfig ->
             val contactResult = FirebaseConfigValidator.validateContactConfig(contactConfig)
             result = result.merge(contactResult)
-            logger.lifecycle("[validateFirebaseConfig] Contact config: {} erreurs, {} avertissements",
-                contactResult.errors.size, contactResult.warnings.size)
+            logger.lifecycle(
+                "[validateFirebaseConfig] Contact config: {} erreurs, {} avertissements",
+                contactResult.errors.size,
+                contactResult.warnings.size,
+            )
         }
 
         if (resolvedAuthConfig == null && resolvedContactConfig == null) {
@@ -133,40 +137,45 @@ abstract class ValidateFirebaseConfigTask : DefaultTask() {
     }
 
     private fun validateWithLlm(): FirebaseValidationResult {
-        val service = llmService
-            ?: throw IllegalStateException("Aucun LlmService injecté. Configurez bakery { ia { ... } }.")
+        val service =
+            llmService
+                ?: throw IllegalStateException("Aucun LlmService injecté. Configurez bakery { ia { ... } }.")
 
         val prompt = buildLlmPrompt()
         val response = runBlocking { service.complete(prompt) }
         return parseLlmResponse(response)
     }
 
-    internal fun buildLlmPrompt(): String = buildString {
-        appendLine("Tu es un expert Firebase. Valide la configuration Firebase suivante.")
-        appendLine("Vérifie la cohérence entre les champs et suggère des améliorations si nécessaire.")
-        appendLine()
-        resolvedAuthConfig?.let { auth ->
-            appendLine("[Firebase Auth]")
-            appendLine("apiKey: ${maskSecret(SecretField.ApiKey(auth.apiKey))}")
-            appendLine("authDomain: ${auth.authDomain}")
-            appendLine("projectId: ${auth.projectId}")
+    internal fun buildLlmPrompt(): String =
+        buildString {
+            appendLine("Tu es un expert Firebase. Valide la configuration Firebase suivante.")
+            appendLine("Vérifie la cohérence entre les champs et suggère des améliorations si nécessaire.")
+            appendLine()
+            resolvedAuthConfig?.let { auth ->
+                appendLine("[Firebase Auth]")
+                appendLine("apiKey: ${maskSecret(SecretField.ApiKey(auth.apiKey))}")
+                appendLine("authDomain: ${auth.authDomain}")
+                appendLine("projectId: ${auth.projectId}")
+            }
+            resolvedContactConfig?.let { contact ->
+                appendLine("[Firebase Contact Form]")
+                appendLine("projectId: ${contact.project.projectId}")
+                appendLine("apiKey: ${maskSecret(SecretField.ApiKey(contact.project.apiKey))}")
+                appendLine("firestore.contacts: ${contact.firestore.contacts.name}")
+                appendLine("firestore.messages: ${contact.firestore.messages.name}")
+            }
+            appendLine()
+            appendLine("Réponds au format JSON strict :")
+            appendLine("""{"errors": [{"field": "...", "message": "..."}], "warnings": [{"field": "...", "message": "..."}]}""")
+            appendLine("Si tout est cohérent, retourne des listes vides.")
         }
-        resolvedContactConfig?.let { contact ->
-            appendLine("[Firebase Contact Form]")
-            appendLine("projectId: ${contact.project.projectId}")
-            appendLine("apiKey: ${maskSecret(SecretField.ApiKey(contact.project.apiKey))}")
-            appendLine("firestore.contacts: ${contact.firestore.contacts.name}")
-            appendLine("firestore.messages: ${contact.firestore.messages.name}")
-        }
-        appendLine()
-        appendLine("Réponds au format JSON strict :")
-        appendLine("""{"errors": [{"field": "...", "message": "..."}], "warnings": [{"field": "...", "message": "..."}]}""")
-        appendLine("Si tout est cohérent, retourne des listes vides.")
-    }
 
     internal fun parseLlmResponse(response: String): FirebaseValidationResult {
-        val jsonBlock = response.substringAfter("{").substringBeforeLast("}")
-            .let { "{$it}" }
+        val jsonBlock =
+            response
+                .substringAfter("{")
+                .substringBeforeLast("}")
+                .let { "{$it}" }
         return jacksonObjectMapper().readValue(jsonBlock)
     }
 
@@ -190,7 +199,7 @@ abstract class ValidateFirebaseConfigTask : DefaultTask() {
             }
             throw IllegalStateException(
                 "Configuration Firebase invalide : ${result.errors.size} erreur(s). " +
-                result.errors.joinToString("; ") { "${it.field}: ${it.message}" }
+                    result.errors.joinToString("; ") { "${it.field}: ${it.message}" },
             )
         }
     }

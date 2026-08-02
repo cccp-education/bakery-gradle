@@ -1,6 +1,5 @@
 package bakery.a11y
 
-import org.gradle.api.Action
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import javax.inject.Inject
@@ -18,16 +17,20 @@ import javax.inject.Inject
  * }
  * ```
  */
-open class AccessibilityDsl @Inject constructor(objects: ObjectFactory) {
-    val auditDir: Property<String> = objects.property(String::class.java)
-    val reportPath: Property<String> = objects.property(String::class.java)
-    val conformanceLevel: Property<String> = objects.property(String::class.java)
-    val failOnNonCompliant: Property<Boolean> = objects.property(Boolean::class.java)
+open class AccessibilityDsl
+    @Inject
+    constructor(
+        objects: ObjectFactory,
+    ) {
+        val auditDir: Property<String> = objects.property(String::class.java)
+        val reportPath: Property<String> = objects.property(String::class.java)
+        val conformanceLevel: Property<String> = objects.property(String::class.java)
+        val failOnNonCompliant: Property<Boolean> = objects.property(Boolean::class.java)
 
-    init {
-        auditDir.convention("")
-        reportPath.convention("")
-        conformanceLevel.convention("")
-        failOnNonCompliant.convention(false)
+        init {
+            auditDir.convention("")
+            reportPath.convention("")
+            conformanceLevel.convention("")
+            failOnNonCompliant.convention(false)
+        }
     }
-}

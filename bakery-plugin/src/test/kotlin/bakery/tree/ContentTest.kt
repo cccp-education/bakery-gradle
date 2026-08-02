@@ -1,33 +1,36 @@
 package bakery.tree
 
+import bakery.tree.SiteNode.Article
 import document.translation.PivotArticle
 import document.translation.PivotBlock
 import document.translation.PivotFrontmatter
 import document.translation.PivotInline
-import bakery.tree.SiteNode.Article
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class ContentTest {
-
     private fun samplePivotArticle(): PivotArticle {
-        val frontmatter = PivotFrontmatter(
-            title = "Partitionnement AB",
-            date = "2026-06-25",
-            type = "page",
-            status = "published"
-        )
-        val blocks = listOf(
-            PivotBlock.Heading(level = 2, text = "Guide de demarrage", translatable = true),
-            PivotBlock.Paragraph(inline = listOf(
-                PivotInline.Text("Laissez la cle USB inseree", translatable = true),
-                PivotInline.Bold("balenaEtcher", translatable = true)
-            )),
-            PivotBlock.Source(language = "bash", content = "sudo dd if=img.iso of=/dev/sdX bs=4M")
-        )
+        val frontmatter =
+            PivotFrontmatter(
+                title = "Partitionnement AB",
+                date = "2026-06-25",
+                type = "page",
+                status = "published",
+            )
+        val blocks =
+            listOf(
+                PivotBlock.Heading(level = 2, text = "Guide de demarrage", translatable = true),
+                PivotBlock.Paragraph(
+                    inline =
+                        listOf(
+                            PivotInline.Text("Laissez la cle USB inseree", translatable = true),
+                            PivotInline.Bold("balenaEtcher", translatable = true),
+                        ),
+                ),
+                PivotBlock.Source(language = "bash", content = "sudo dd if=img.iso of=/dev/sdX bs=4M"),
+            )
         return PivotArticle(frontmatter = frontmatter, blocks = blocks)
     }
 
@@ -65,15 +68,21 @@ class ContentTest {
 
     @Test
     fun `inlineTexts collects inline from list blocks`() {
-        val pivot = PivotArticle(
-            frontmatter = PivotFrontmatter("T", "2026-01-01", "page", "published"),
-            blocks = listOf(
-                PivotBlock.ListBlock(ordered = false, items = listOf(
-                    listOf(PivotInline.Text("Premier item", translatable = true)),
-                    listOf(PivotInline.Text("Deuxieme item", translatable = true))
-                ))
+        val pivot =
+            PivotArticle(
+                frontmatter = PivotFrontmatter("T", "2026-01-01", "page", "published"),
+                blocks =
+                    listOf(
+                        PivotBlock.ListBlock(
+                            ordered = false,
+                            items =
+                                listOf(
+                                    listOf(PivotInline.Text("Premier item", translatable = true)),
+                                    listOf(PivotInline.Text("Deuxieme item", translatable = true)),
+                                ),
+                        ),
+                    ),
             )
-        )
         val content = Content(pivot)
 
         val inlines = content.inlineTexts()
@@ -85,16 +94,18 @@ class ContentTest {
 
     @Test
     fun `inlineTexts collects inline from table blocks`() {
-        val pivot = PivotArticle(
-            frontmatter = PivotFrontmatter("T", "2026-01-01", "page", "published"),
-            blocks = listOf(
-                PivotBlock.Table(
-                    cols = null,
-                    header = listOf(listOf(PivotInline.Text("Colonne A", translatable = true))),
-                    rows = listOf(listOf(listOf(PivotInline.Text("Cellule 1", translatable = true))))
-                )
+        val pivot =
+            PivotArticle(
+                frontmatter = PivotFrontmatter("T", "2026-01-01", "page", "published"),
+                blocks =
+                    listOf(
+                        PivotBlock.Table(
+                            cols = null,
+                            header = listOf(listOf(PivotInline.Text("Colonne A", translatable = true))),
+                            rows = listOf(listOf(listOf(PivotInline.Text("Cellule 1", translatable = true)))),
+                        ),
+                    ),
             )
-        )
         val content = Content(pivot)
 
         val inlines = content.inlineTexts()
@@ -106,19 +117,25 @@ class ContentTest {
 
     @Test
     fun `inlineTexts collects inline from nested admonition blocks`() {
-        val pivot = PivotArticle(
-            frontmatter = PivotFrontmatter("T", "2026-01-01", "page", "published"),
-            blocks = listOf(
-                PivotBlock.Admonition(
-                    kind = "note",
-                    blocks = listOf(
-                        PivotBlock.Paragraph(inline = listOf(
-                            PivotInline.Text("Note interne", translatable = true)
-                        ))
-                    )
-                )
+        val pivot =
+            PivotArticle(
+                frontmatter = PivotFrontmatter("T", "2026-01-01", "page", "published"),
+                blocks =
+                    listOf(
+                        PivotBlock.Admonition(
+                            kind = "note",
+                            blocks =
+                                listOf(
+                                    PivotBlock.Paragraph(
+                                        inline =
+                                            listOf(
+                                                PivotInline.Text("Note interne", translatable = true),
+                                            ),
+                                    ),
+                                ),
+                        ),
+                    ),
             )
-        )
         val content = Content(pivot)
 
         val inlines = content.inlineTexts()
@@ -129,13 +146,15 @@ class ContentTest {
 
     @Test
     fun `inlineTexts skips source and hr blocks`() {
-        val pivot = PivotArticle(
-            frontmatter = PivotFrontmatter("T", "2026-01-01", "page", "published"),
-            blocks = listOf(
-                PivotBlock.Source(language = "bash", content = "echo hello"),
-                PivotBlock.Hr
+        val pivot =
+            PivotArticle(
+                frontmatter = PivotFrontmatter("T", "2026-01-01", "page", "published"),
+                blocks =
+                    listOf(
+                        PivotBlock.Source(language = "bash", content = "echo hello"),
+                        PivotBlock.Hr,
+                    ),
             )
-        )
         val content = Content(pivot)
 
         val inlines = content.inlineTexts()
@@ -145,16 +164,21 @@ class ContentTest {
 
     @Test
     fun `translatableSegments filters inline by TextTranslatableClassifier`() {
-        val pivot = PivotArticle(
-            frontmatter = PivotFrontmatter("T", "2026-01-01", "page", "published"),
-            blocks = listOf(
-                PivotBlock.Paragraph(inline = listOf(
-                    PivotInline.Text("Laissez la cle USB inseree", translatable = true),
-                    PivotInline.Text("8 Go", translatable = false),
-                    PivotInline.Text("fr_FR.UTF-8", translatable = false)
-                ))
+        val pivot =
+            PivotArticle(
+                frontmatter = PivotFrontmatter("T", "2026-01-01", "page", "published"),
+                blocks =
+                    listOf(
+                        PivotBlock.Paragraph(
+                            inline =
+                                listOf(
+                                    PivotInline.Text("Laissez la cle USB inseree", translatable = true),
+                                    PivotInline.Text("8 Go", translatable = false),
+                                    PivotInline.Text("fr_FR.UTF-8", translatable = false),
+                                ),
+                        ),
+                    ),
             )
-        )
         val content = Content(pivot)
 
         val segments = content.translatableSegments()
@@ -165,10 +189,11 @@ class ContentTest {
 
     @Test
     fun `content of empty article has no blocs and no inlines`() {
-        val pivot = PivotArticle(
-            frontmatter = PivotFrontmatter("T", "2026-01-01", "page", "published"),
-            blocks = emptyList()
-        )
+        val pivot =
+            PivotArticle(
+                frontmatter = PivotFrontmatter("T", "2026-01-01", "page", "published"),
+                blocks = emptyList(),
+            )
         val content = Content(pivot)
 
         assertEquals(0, content.blocs().size)
@@ -206,24 +231,28 @@ class ContentTest {
 
     @Test
     fun `table with nested rows yields all inline in order`() {
-        val pivot = PivotArticle(
-            frontmatter = PivotFrontmatter("T", "2026-01-01", "page", "published"),
-            blocks = listOf(
-                PivotBlock.Table(
-                    cols = null,
-                    header = listOf(
-                        listOf(PivotInline.Text("H1", translatable = true)),
-                        listOf(PivotInline.Text("H2", translatable = true))
+        val pivot =
+            PivotArticle(
+                frontmatter = PivotFrontmatter("T", "2026-01-01", "page", "published"),
+                blocks =
+                    listOf(
+                        PivotBlock.Table(
+                            cols = null,
+                            header =
+                                listOf(
+                                    listOf(PivotInline.Text("H1", translatable = true)),
+                                    listOf(PivotInline.Text("H2", translatable = true)),
+                                ),
+                            rows =
+                                listOf(
+                                    listOf(
+                                        listOf(PivotInline.Text("R1C1", translatable = true)),
+                                        listOf(PivotInline.Text("R1C2", translatable = true)),
+                                    ),
+                                ),
+                        ),
                     ),
-                    rows = listOf(
-                        listOf(
-                            listOf(PivotInline.Text("R1C1", translatable = true)),
-                            listOf(PivotInline.Text("R1C2", translatable = true))
-                        )
-                    )
-                )
             )
-        )
         val content = Content(pivot)
 
         val inlines = content.inlineTexts()

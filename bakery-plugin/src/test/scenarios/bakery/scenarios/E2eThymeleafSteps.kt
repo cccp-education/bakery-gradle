@@ -19,19 +19,25 @@ import org.assertj.core.api.Assertions.assertThat
  * Call [renderTemplate] to render with the accumulated context.
  */
 class E2eThymeleafSteps {
-
     private val factory = ThymeleafRenderingTestFactory()
     private var renderedHtml: String = ""
     private var templateName: String = ""
     private var context: MutableMap<String, Any> = mutableMapOf()
 
     @Given("the template context has {string} = {string}")
-    fun addContextEntry(key: String, value: String) {
+    fun addContextEntry(
+        key: String,
+        value: String,
+    ) {
         context[key] = value
     }
 
     @Given("the nested context {string} has {string} = {string}")
-    fun addNestedContextEntry(parentKey: String, childKey: String, value: String) {
+    fun addNestedContextEntry(
+        parentKey: String,
+        childKey: String,
+        value: String,
+    ) {
         @Suppress("UNCHECKED_CAST")
         val nestedMap = context.getOrPut(parentKey) { mutableMapOf<String, Any>() } as MutableMap<String, Any>
         nestedMap[childKey] = value

@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test
 @Tag("e2e")
 @DisplayName("Playwright E2E - Sanity")
 class PlaywrightSanityTest {
-
     @Test
     @DisplayName("Playwright library is on classpath and factory creates successfully")
     fun `playwright library is on classpath and factory creates successfully`() {
@@ -33,19 +32,23 @@ class PlaywrightSanityTest {
     fun `chromium launches in headless mode when installed`() {
         assumeTrue(
             PlaywrightHelper.isAvailable(),
-            "Chromium is not available — run ./gradlew installPlaywright"
+            "Chromium is not available — run ./gradlew installPlaywright",
         )
 
         com.microsoft.playwright.Playwright.create().use { playwright ->
-            playwright.chromium().launch(
-                com.microsoft.playwright.BrowserType.LaunchOptions().setHeadless(true)
-            ).use { browser ->
-                val page = browser.newPage()
-                // data URI with HTML title element
-                page.navigate("data:text/html,<html><head><title>Bakery E2E Test</title></head><body><h1>Test</h1></body></html>")
-                assertThat(page.title()).isEqualTo("Bakery E2E Test")
-                page.close()
-            }
+            playwright
+                .chromium()
+                .launch(
+                    com.microsoft.playwright.BrowserType
+                        .LaunchOptions()
+                        .setHeadless(true),
+                ).use { browser ->
+                    val page = browser.newPage()
+                    // data URI with HTML title element
+                    page.navigate("data:text/html,<html><head><title>Bakery E2E Test</title></head><body><h1>Test</h1></body></html>")
+                    assertThat(page.title()).isEqualTo("Bakery E2E Test")
+                    page.close()
+                }
         }
     }
 }

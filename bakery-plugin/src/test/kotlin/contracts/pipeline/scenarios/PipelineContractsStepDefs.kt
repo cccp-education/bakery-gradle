@@ -16,7 +16,6 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class PipelineContractsStepDefs {
-
     private var commit: ConventionalCommit? = null
     private var config: ReleaseNotesConfig? = null
     private var renderedString: String = ""
@@ -24,7 +23,9 @@ class PipelineContractsStepDefs {
     private var tempDir: File = Files.createTempDirectory("pc-bdd-").toFile()
     private var generatedFile: File? = null
 
-    init { tempDir.deleteOnExit() }
+    init {
+        tempDir.deleteOnExit()
+    }
 
     @Given("a repository with conventional commits")
     fun givenRepository() {
@@ -32,25 +33,34 @@ class PipelineContractsStepDefs {
     }
 
     @When("a ConventionalCommit of type {string} with scope {string} and message {string} is created")
-    fun whenCommit(type: String, scope: String, message: String) {
-        commit = ConventionalCommit(
-            type = type,
-            scope = scope,
-            message = message,
-            hash = "abc123def",
-            date = "2026-06-14T10:00:00Z"
-        )
+    fun whenCommit(
+        type: String,
+        scope: String,
+        message: String,
+    ) {
+        commit =
+            ConventionalCommit(
+                type = type,
+                scope = scope,
+                message = message,
+                hash = "abc123def",
+                date = "2026-06-14T10:00:00Z",
+            )
     }
 
     @When("a ConventionalCommit of type {string} with no scope and message {string} is created")
-    fun whenCommitNoScope(type: String, message: String) {
-        commit = ConventionalCommit(
-            type = type,
-            scope = null,
-            message = message,
-            hash = "def456",
-            date = "2026-06-14T11:00:00Z"
-        )
+    fun whenCommitNoScope(
+        type: String,
+        message: String,
+    ) {
+        commit =
+            ConventionalCommit(
+                type = type,
+                scope = null,
+                message = message,
+                hash = "def456",
+                date = "2026-06-14T11:00:00Z",
+            )
     }
 
     @When("a default ReleaseNotesConfig is created")
@@ -59,7 +69,10 @@ class PipelineContractsStepDefs {
     }
 
     @When("a ReleaseNotesConfig is created with fromTag {string} and toTag {string}")
-    fun whenConfigTags(fromTag: String, toTag: String) {
+    fun whenConfigTags(
+        fromTag: String,
+        toTag: String,
+    ) {
         config = ReleaseNotesConfig(fromTag = fromTag, toTag = toTag)
     }
 
@@ -69,83 +82,141 @@ class PipelineContractsStepDefs {
     }
 
     @When("a GitLogParser implementation returns {int} commits between {string} and {string}")
-    fun whenParser(count: Int, fromTag: String, toTag: String) {
-        val commits = (1..count).map { i ->
-            ConventionalCommit(
-                type = if (i == 1) "feat" else "fix",
-                scope = null,
-                message = "commit $i",
-                hash = "hash$i",
-                date = "2026-01-0${i}T00:00:00Z"
-            )
-        }
-        val parser = object : GitLogParser {
-            override fun parse(fromTag: String, toTag: String): List<ConventionalCommit> = commits
-            override fun detectVersion(projectDir: File): String? = null
-            override fun detectFromTag(projectDir: File, toTag: String): String? = null
-        }
+    fun whenParser(
+        count: Int,
+        fromTag: String,
+        toTag: String,
+    ) {
+        val commits =
+            (1..count).map { i ->
+                ConventionalCommit(
+                    type = if (i == 1) "feat" else "fix",
+                    scope = null,
+                    message = "commit $i",
+                    hash = "hash$i",
+                    date = "2026-01-0${i}T00:00:00Z",
+                )
+            }
+        val parser =
+            object : GitLogParser {
+                override fun parse(
+                    fromTag: String,
+                    toTag: String,
+                ): List<ConventionalCommit> = commits
+
+                override fun detectVersion(projectDir: File): String? = null
+
+                override fun detectFromTag(
+                    projectDir: File,
+                    toTag: String,
+                ): String? = null
+            }
         val result = parser.parse(fromTag, toTag)
         this.commit = if (result.isNotEmpty()) result.first() else null
-        org.assertj.core.api.Assertions.assertThat(result).hasSize(count)
+        org.assertj.core.api.Assertions
+            .assertThat(result)
+            .hasSize(count)
     }
 
     @When("a GitLogParser implementation detects version {string} from project directory")
     fun whenDetectVersion(version: String) {
-        val parser = object : GitLogParser {
-            override fun parse(fromTag: String, toTag: String): List<ConventionalCommit> = emptyList()
-            override fun detectVersion(projectDir: File): String? = version
-            override fun detectFromTag(projectDir: File, toTag: String): String? = null
-        }
+        val parser =
+            object : GitLogParser {
+                override fun parse(
+                    fromTag: String,
+                    toTag: String,
+                ): List<ConventionalCommit> = emptyList()
+
+                override fun detectVersion(projectDir: File): String? = version
+
+                override fun detectFromTag(
+                    projectDir: File,
+                    toTag: String,
+                ): String? = null
+            }
         val result = parser.detectVersion(File("/tmp"))
         assertEquals(version, result)
     }
 
     @When("a ReleaseNotesRenderer implementation declares format {string}")
     fun whenRendererFormat(format: String) {
-        val renderer = object : ReleaseNotesRenderer {
-            override val format: String = format
-            override fun render(commits: List<ConventionalCommit>, config: ReleaseNotesConfig): String = ""
-            override fun renderToFile(commits: List<ConventionalCommit>, config: ReleaseNotesConfig, outputFile: File): File = outputFile
-        }
+        val renderer =
+            object : ReleaseNotesRenderer {
+                override val format: String = format
+
+                override fun render(
+                    commits: List<ConventionalCommit>,
+                    config: ReleaseNotesConfig,
+                ): String = ""
+
+                override fun renderToFile(
+                    commits: List<ConventionalCommit>,
+                    config: ReleaseNotesConfig,
+                    outputFile: File,
+                ): File = outputFile
+            }
         assertEquals(format, renderer.format)
     }
 
     @When("a ReleaseNotesRenderer renders {int} commits for version {string}")
-    fun whenRendererRenders(count: Int, version: String) {
-        val commits = (1..count).map { i ->
-            ConventionalCommit("feat", null, "commit $i", "hash$i", "2026-01-0${i}")
-        }
-        val renderer = object : ReleaseNotesRenderer {
-            override val format: String = "asciidoc"
-            override fun render(commits: List<ConventionalCommit>, config: ReleaseNotesConfig): String {
-                val header = "= Release ${config.version ?: "SNAPSHOT"}"
-                val body = commits.joinToString("\n") { "* ${it.message}" }
-                return "$header\n\n$body"
+    fun whenRendererRenders(
+        count: Int,
+        version: String,
+    ) {
+        val commits =
+            (1..count).map { i ->
+                ConventionalCommit("feat", null, "commit $i", "hash$i", "2026-01-0$i")
             }
-            override fun renderToFile(commits: List<ConventionalCommit>, config: ReleaseNotesConfig, outputFile: File): File {
-                outputFile.writeText(render(commits, config))
-                return outputFile
+        val renderer =
+            object : ReleaseNotesRenderer {
+                override val format: String = "asciidoc"
+
+                override fun render(
+                    commits: List<ConventionalCommit>,
+                    config: ReleaseNotesConfig,
+                ): String {
+                    val header = "= Release ${config.version ?: "SNAPSHOT"}"
+                    val body = commits.joinToString("\n") { "* ${it.message}" }
+                    return "$header\n\n$body"
+                }
+
+                override fun renderToFile(
+                    commits: List<ConventionalCommit>,
+                    config: ReleaseNotesConfig,
+                    outputFile: File,
+                ): File {
+                    outputFile.writeText(render(commits, config))
+                    return outputFile
+                }
             }
-        }
         renderedString = renderer.render(commits, ReleaseNotesConfig(version = version))
         this.commit = commits.first()
     }
 
     @When("a ReleaseNotesRenderer writes {int} commit to a file")
     fun whenRendererWritesToFile(count: Int) {
-        val commits = (1..count).map { i ->
-            ConventionalCommit("feat", null, "commit $i", "hash$i", "2026-01-0${i}")
-        }
-        val renderer = object : ReleaseNotesRenderer {
-            override val format: String = "json"
-            override fun render(commits: List<ConventionalCommit>, config: ReleaseNotesConfig): String =
-                commits.joinToString(",") { it.message }
-
-            override fun renderToFile(commits: List<ConventionalCommit>, config: ReleaseNotesConfig, outputFile: File): File {
-                outputFile.writeText(render(commits, config))
-                return outputFile
+        val commits =
+            (1..count).map { i ->
+                ConventionalCommit("feat", null, "commit $i", "hash$i", "2026-01-0$i")
             }
-        }
+        val renderer =
+            object : ReleaseNotesRenderer {
+                override val format: String = "json"
+
+                override fun render(
+                    commits: List<ConventionalCommit>,
+                    config: ReleaseNotesConfig,
+                ): String = commits.joinToString(",") { it.message }
+
+                override fun renderToFile(
+                    commits: List<ConventionalCommit>,
+                    config: ReleaseNotesConfig,
+                    outputFile: File,
+                ): File {
+                    outputFile.writeText(render(commits, config))
+                    return outputFile
+                }
+            }
         outputFile = File(tempDir, "release-notes.txt")
         renderer.renderToFile(commits, ReleaseNotesConfig(), outputFile!!)
         this.commit = commits.first()
@@ -153,35 +224,57 @@ class PipelineContractsStepDefs {
 
     @When("a ReleaseNotesGenerator generates release notes for version {string}")
     fun whenGeneratorGenerates(version: String) {
-        val parser = object : GitLogParser {
-            override fun parse(fromTag: String, toTag: String): List<ConventionalCommit> = listOf(
-                ConventionalCommit("feat", null, "new feature", "abc", "2026-01-01"),
-                ConventionalCommit("fix", null, "bug fix", "def", "2026-01-02")
-            )
-            override fun detectVersion(projectDir: File): String? = version
-            override fun detectFromTag(projectDir: File, toTag: String): String? = "v1.0.0"
-        }
-        val renderer = object : ReleaseNotesRenderer {
-            override val format: String = "asciidoc"
-            override fun render(commits: List<ConventionalCommit>, config: ReleaseNotesConfig): String {
-                val header = "= Release ${config.version ?: "SNAPSHOT"}"
-                val body = commits.joinToString("\n") { "* ${it.message}" }
-                return "$header\n\n$body"
+        val parser =
+            object : GitLogParser {
+                override fun parse(
+                    fromTag: String,
+                    toTag: String,
+                ): List<ConventionalCommit> =
+                    listOf(
+                        ConventionalCommit("feat", null, "new feature", "abc", "2026-01-01"),
+                        ConventionalCommit("fix", null, "bug fix", "def", "2026-01-02"),
+                    )
+
+                override fun detectVersion(projectDir: File): String? = version
+
+                override fun detectFromTag(
+                    projectDir: File,
+                    toTag: String,
+                ): String? = "v1.0.0"
             }
-            override fun renderToFile(commits: List<ConventionalCommit>, config: ReleaseNotesConfig, outputFile: File): File {
-                outputFile.writeText(render(commits, config))
-                return outputFile
+        val renderer =
+            object : ReleaseNotesRenderer {
+                override val format: String = "asciidoc"
+
+                override fun render(
+                    commits: List<ConventionalCommit>,
+                    config: ReleaseNotesConfig,
+                ): String {
+                    val header = "= Release ${config.version ?: "SNAPSHOT"}"
+                    val body = commits.joinToString("\n") { "* ${it.message}" }
+                    return "$header\n\n$body"
+                }
+
+                override fun renderToFile(
+                    commits: List<ConventionalCommit>,
+                    config: ReleaseNotesConfig,
+                    outputFile: File,
+                ): File {
+                    outputFile.writeText(render(commits, config))
+                    return outputFile
+                }
             }
-        }
-        val generator = object : ReleaseNotesGenerator {
-            override val parser: GitLogParser = parser
-            override val renderer: ReleaseNotesRenderer = renderer
-            override fun generate(config: ReleaseNotesConfig): File {
-                val commits = parser.parse(config.fromTag ?: "initial", config.toTag)
-                val outFile = File(tempDir, "RELEASE_NOTES.adoc")
-                return renderer.renderToFile(commits, config, outFile)
+        val generator =
+            object : ReleaseNotesGenerator {
+                override val parser: GitLogParser = parser
+                override val renderer: ReleaseNotesRenderer = renderer
+
+                override fun generate(config: ReleaseNotesConfig): File {
+                    val commits = parser.parse(config.fromTag ?: "initial", config.toTag)
+                    val outFile = File(tempDir, "RELEASE_NOTES.adoc")
+                    return renderer.renderToFile(commits, config, outFile)
+                }
             }
-        }
         generatedFile = generator.generate(ReleaseNotesConfig(version = version))
         commit = ConventionalCommit("feat", null, "new feature", "abc", "2026-01-01")
     }
@@ -222,7 +315,10 @@ class PipelineContractsStepDefs {
     }
 
     @Then("the category {string} maps to {string}")
-    fun thenCategoryMaps(type: String, label: String) {
+    fun thenCategoryMaps(
+        type: String,
+        label: String,
+    ) {
         assertEquals(label, config!!.categories[type])
     }
 

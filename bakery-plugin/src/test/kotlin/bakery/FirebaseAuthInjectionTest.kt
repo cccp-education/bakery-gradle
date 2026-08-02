@@ -7,17 +7,22 @@ import java.io.File
 import kotlin.text.Charsets.UTF_8
 
 class FirebaseAuthInjectionTest {
-
     @TempDir
     lateinit var tempDir: File
 
-    private val mapper = com.fasterxml.jackson.dataformat.yaml.YAMLFactory()
-        .let { com.fasterxml.jackson.databind.ObjectMapper(it) }
+    private val mapper =
+        com.fasterxml.jackson.dataformat.yaml
+            .YAMLFactory()
+            .let {
+                com.fasterxml.jackson.databind
+                    .ObjectMapper(it)
+            }
 
     @Test
     fun `site yml with firebaseAuth and comments injects properties into jbake properties`() {
         val siteYml = tempDir.resolve("site.yml")
-        siteYml.writeText("""
+        siteYml.writeText(
+            """
             bake:
               srcPath: site
               destDirPath: bake
@@ -28,7 +33,9 @@ class FirebaseAuthInjectionTest {
             comments:
               enabled: true
               collection: "session-comments"
-        """.trimIndent(), UTF_8)
+            """.trimIndent(),
+            UTF_8,
+        )
 
         val siteDir = tempDir.resolve("site")
         siteDir.mkdirs()
@@ -53,11 +60,14 @@ class FirebaseAuthInjectionTest {
     @Test
     fun `site yml without firebaseAuth and comments does not inject any auth or comments properties`() {
         val siteYml = tempDir.resolve("site.yml")
-        siteYml.writeText("""
+        siteYml.writeText(
+            """
             bake:
               srcPath: site
               destDirPath: bake
-        """.trimIndent(), UTF_8)
+            """.trimIndent(),
+            UTF_8,
+        )
 
         val siteDir = tempDir.resolve("site")
         siteDir.mkdirs()
@@ -80,7 +90,8 @@ class FirebaseAuthInjectionTest {
     @Test
     fun `site yml with firebaseAuth but comments disabled only injects auth properties`() {
         val siteYml = tempDir.resolve("site.yml")
-        siteYml.writeText("""
+        siteYml.writeText(
+            """
             bake:
               srcPath: site
               destDirPath: bake
@@ -90,7 +101,9 @@ class FirebaseAuthInjectionTest {
               projectId: "other-app"
             comments:
               enabled: false
-        """.trimIndent(), UTF_8)
+            """.trimIndent(),
+            UTF_8,
+        )
 
         val siteDir = tempDir.resolve("site")
         siteDir.mkdirs()
@@ -109,9 +122,16 @@ class FirebaseAuthInjectionTest {
         assertTrue(props.contains("commentsEnabled=false"), "must contain commentsEnabled=false")
     }
 
-    private fun injectFirebaseAuthIntoJbakeProperties(jbakeProps: File, firebaseAuth: FirebaseAuthConfig) {
+    private fun injectFirebaseAuthIntoJbakeProperties(
+        jbakeProps: File,
+        firebaseAuth: FirebaseAuthConfig,
+    ) {
         val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
-        fun updateProperty(key: String, value: String) {
+
+        fun updateProperty(
+            key: String,
+            value: String,
+        ) {
             val idx = lines.indexOfFirst { it.startsWith("$key=") }
             if (idx >= 0) {
                 lines[idx] = "$key=$value"
@@ -125,9 +145,16 @@ class FirebaseAuthInjectionTest {
         jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
     }
 
-    private fun injectCommentsIntoJbakeProperties(jbakeProps: File, comments: CommentsConfig) {
+    private fun injectCommentsIntoJbakeProperties(
+        jbakeProps: File,
+        comments: CommentsConfig,
+    ) {
         val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
-        fun updateProperty(key: String, value: String) {
+
+        fun updateProperty(
+            key: String,
+            value: String,
+        ) {
             val idx = lines.indexOfFirst { it.startsWith("$key=") }
             if (idx >= 0) {
                 lines[idx] = "$key=$value"

@@ -1,7 +1,5 @@
 package bakery.scaffold
 
-import bakery.tree.SiteNode.Article
-import bakery.tree.SiteNode.Section
 import bakery.tree.SiteNode.Site
 import bakery.tree.SiteNodeDto
 import bakery.tree.toDomain
@@ -20,7 +18,6 @@ import kotlin.test.assertTrue
  * Backward compat : `tree` absent = null (legacy templates liste plate).
  */
 class ScaffoldOutputDtoTreeTest {
-
     private val mapper = jacksonObjectMapper()
 
     @Test
@@ -34,7 +31,8 @@ class ScaffoldOutputDtoTreeTest {
 
     @Test
     fun `DTO with tree field deserializes to SiteNodeDto Site`() {
-        val json = """
+        val json =
+            """
             {
               "siteType": "blog",
               "projectName": "mon-blog",
@@ -52,7 +50,7 @@ class ScaffoldOutputDtoTreeTest {
                 ]
               }
             }
-        """.trimIndent()
+            """.trimIndent()
 
         val dto = mapper.readValue(json, ScaffoldOutputDto::class.java)
 
@@ -61,13 +59,26 @@ class ScaffoldOutputDtoTreeTest {
         assertEquals("", tree.path)
         assertEquals(1, tree.sections.size)
         assertEquals("blog", tree.sections.first().path)
-        assertEquals(1, tree.sections.first().articles.size)
-        assertEquals("blog/hello", tree.sections.first().articles.first().path)
+        assertEquals(
+            1,
+            tree.sections
+                .first()
+                .articles.size,
+        )
+        assertEquals(
+            "blog/hello",
+            tree.sections
+                .first()
+                .articles
+                .first()
+                .path,
+        )
     }
 
     @Test
     fun `DTO tree with 3 levels round-trips to domain and back`() {
-        val json = """
+        val json =
+            """
             {
               "siteType": "formation",
               "projectName": "ma-formation",
@@ -93,7 +104,7 @@ class ScaffoldOutputDtoTreeTest {
                 ]
               }
             }
-        """.trimIndent()
+            """.trimIndent()
 
         val dto = mapper.readValue(json, ScaffoldOutputDto::class.java)
         val domain = dto.tree!!.toDomain()
@@ -110,7 +121,8 @@ class ScaffoldOutputDtoTreeTest {
 
     @Test
     fun `DTO tree with empty sections yields site with no articles`() {
-        val json = """
+        val json =
+            """
             {
               "siteType": "blog",
               "projectName": "empty-site",
@@ -120,7 +132,7 @@ class ScaffoldOutputDtoTreeTest {
                 "sections": []
               }
             }
-        """.trimIndent()
+            """.trimIndent()
 
         val dto = mapper.readValue(json, ScaffoldOutputDto::class.java)
         val domain = dto.tree!!.toDomain()

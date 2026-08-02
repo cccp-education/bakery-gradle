@@ -8,32 +8,33 @@ import org.junit.jupiter.api.Test
 @Tag("e2e")
 @DisplayName("E2E - Language Selector UI")
 class E2ELanguageSelectorTest : E2ETestBase() {
-
-    private val supportedLanguages = listOf(
-        mapOf("code" to "en", "nativeName" to "English", "rtl" to false),
-        mapOf("code" to "zh", "nativeName" to "中文", "rtl" to false),
-        mapOf("code" to "hi", "nativeName" to "हिन्दी", "rtl" to false),
-        mapOf("code" to "es", "nativeName" to "Español", "rtl" to false),
-        mapOf("code" to "fr", "nativeName" to "Français", "rtl" to false),
-        mapOf("code" to "ar", "nativeName" to "العربية", "rtl" to true),
-        mapOf("code" to "bn", "nativeName" to "বাংলা", "rtl" to false),
-        mapOf("code" to "pt", "nativeName" to "Português", "rtl" to false),
-        mapOf("code" to "ru", "nativeName" to "Русский", "rtl" to false),
-        mapOf("code" to "ur", "nativeName" to "اردو", "rtl" to true),
-    )
+    private val supportedLanguages =
+        listOf(
+            mapOf("code" to "en", "nativeName" to "English", "rtl" to false),
+            mapOf("code" to "zh", "nativeName" to "中文", "rtl" to false),
+            mapOf("code" to "hi", "nativeName" to "हिन्दी", "rtl" to false),
+            mapOf("code" to "es", "nativeName" to "Español", "rtl" to false),
+            mapOf("code" to "fr", "nativeName" to "Français", "rtl" to false),
+            mapOf("code" to "ar", "nativeName" to "العربية", "rtl" to true),
+            mapOf("code" to "bn", "nativeName" to "বাংলা", "rtl" to false),
+            mapOf("code" to "pt", "nativeName" to "Português", "rtl" to false),
+            mapOf("code" to "ru", "nativeName" to "Русский", "rtl" to false),
+            mapOf("code" to "ur", "nativeName" to "اردو", "rtl" to true),
+        )
 
     @Test
     @DisplayName("Language selector dropdown renders in nav with all 10 languages")
     fun `language selector renders with all supported languages`() {
-        val path = serveHtml(
-            "blog",
-            mapOf(
-                "published_posts" to emptyList<Any>(),
-                "content" to mapOf("rootpath" to ""),
-                "supportedLanguages" to supportedLanguages,
-            ),
-            language = "fr"
-        )
+        val path =
+            serveHtml(
+                "blog",
+                mapOf(
+                    "published_posts" to emptyList<Any>(),
+                    "content" to mapOf("rootpath" to ""),
+                    "supportedLanguages" to supportedLanguages,
+                ),
+                language = "fr",
+            )
 
         val page = navigateTo(path)
         val selector = page.locator(".language-switcher-container")
@@ -62,15 +63,16 @@ class E2ELanguageSelectorTest : E2ETestBase() {
     @Test
     @DisplayName("Active language is highlighted with active class")
     fun `active language shows active class`() {
-        val path = serveHtml(
-            "blog",
-            mapOf(
-                "published_posts" to emptyList<Any>(),
-                "content" to mapOf("rootpath" to ""),
-                "supportedLanguages" to supportedLanguages,
-            ),
-            language = "fr"
-        )
+        val path =
+            serveHtml(
+                "blog",
+                mapOf(
+                    "published_posts" to emptyList<Any>(),
+                    "content" to mapOf("rootpath" to ""),
+                    "supportedLanguages" to supportedLanguages,
+                ),
+                language = "fr",
+            )
 
         val page = navigateTo(path)
         val selector = page.locator(".language-switcher-container")
@@ -84,15 +86,16 @@ class E2ELanguageSelectorTest : E2ETestBase() {
     @Test
     @DisplayName("Current language shows native name in trigger button")
     fun `trigger button shows current language native name`() {
-        val path = serveHtml(
-            "blog",
-            mapOf(
-                "published_posts" to emptyList<Any>(),
-                "content" to mapOf("rootpath" to ""),
-                "supportedLanguages" to supportedLanguages,
-            ),
-            language = "en"
-        )
+        val path =
+            serveHtml(
+                "blog",
+                mapOf(
+                    "published_posts" to emptyList<Any>(),
+                    "content" to mapOf("rootpath" to ""),
+                    "supportedLanguages" to supportedLanguages,
+                ),
+                language = "en",
+            )
 
         val page = navigateTo(path)
         val button = page.locator(".language-dropdown-btn")
@@ -103,15 +106,16 @@ class E2ELanguageSelectorTest : E2ETestBase() {
     @Test
     @DisplayName("Arabic trigger button shows Arabic native name")
     fun `arabic trigger shows Arabic native name`() {
-        val path = serveHtml(
-            "blog",
-            mapOf(
-                "published_posts" to emptyList<Any>(),
-                "content" to mapOf("rootpath" to ""),
-                "supportedLanguages" to supportedLanguages,
-            ),
-            language = "ar"
-        )
+        val path =
+            serveHtml(
+                "blog",
+                mapOf(
+                    "published_posts" to emptyList<Any>(),
+                    "content" to mapOf("rootpath" to ""),
+                    "supportedLanguages" to supportedLanguages,
+                ),
+                language = "ar",
+            )
 
         val page = navigateTo(path)
         val button = page.locator(".language-dropdown-btn")
@@ -122,15 +126,16 @@ class E2ELanguageSelectorTest : E2ETestBase() {
     @Test
     @DisplayName("RTL languages have rtl indicator in dropdown")
     fun `rtl languages show rtl badge`() {
-        val path = serveHtml(
-            "blog",
-            mapOf(
-                "published_posts" to emptyList<Any>(),
-                "content" to mapOf("rootpath" to ""),
-                "supportedLanguages" to supportedLanguages,
-            ),
-            language = "fr"
-        )
+        val path =
+            serveHtml(
+                "blog",
+                mapOf(
+                    "published_posts" to emptyList<Any>(),
+                    "content" to mapOf("rootpath" to ""),
+                    "supportedLanguages" to supportedLanguages,
+                ),
+                language = "fr",
+            )
 
         val page = navigateTo(path)
         val selector = page.locator(".language-switcher-container")
@@ -143,15 +148,16 @@ class E2ELanguageSelectorTest : E2ETestBase() {
     @Test
     @DisplayName("Language selector has aria-label for accessibility")
     fun `language selector has aria-label`() {
-        val path = serveHtml(
-            "blog",
-            mapOf(
-                "published_posts" to emptyList<Any>(),
-                "content" to mapOf("rootpath" to ""),
-                "supportedLanguages" to supportedLanguages,
-            ),
-            language = "fr"
-        )
+        val path =
+            serveHtml(
+                "blog",
+                mapOf(
+                    "published_posts" to emptyList<Any>(),
+                    "content" to mapOf("rootpath" to ""),
+                    "supportedLanguages" to supportedLanguages,
+                ),
+                language = "fr",
+            )
 
         val page = navigateTo(path)
         val button = page.locator(".language-dropdown-btn")
@@ -162,15 +168,16 @@ class E2ELanguageSelectorTest : E2ETestBase() {
     @Test
     @DisplayName("Language links use code as data attribute")
     fun `language links have data-lang attribute`() {
-        val path = serveHtml(
-            "blog",
-            mapOf(
-                "published_posts" to emptyList<Any>(),
-                "content" to mapOf("rootpath" to ""),
-                "supportedLanguages" to supportedLanguages,
-            ),
-            language = "fr"
-        )
+        val path =
+            serveHtml(
+                "blog",
+                mapOf(
+                    "published_posts" to emptyList<Any>(),
+                    "content" to mapOf("rootpath" to ""),
+                    "supportedLanguages" to supportedLanguages,
+                ),
+                language = "fr",
+            )
 
         val page = navigateTo(path)
         val selector = page.locator(".language-switcher-container")

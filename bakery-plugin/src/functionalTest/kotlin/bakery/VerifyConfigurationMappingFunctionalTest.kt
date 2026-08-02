@@ -13,7 +13,6 @@ import java.io.File
  * et échoue proprement quand le fichier est absent.
  */
 class VerifyConfigurationMappingFunctionalTest {
-
     @TempDir
     lateinit var projectDir: File
 
@@ -21,11 +20,13 @@ class VerifyConfigurationMappingFunctionalTest {
     fun `verifyConfigurationMapping succeeds with valid site yml`() {
         createProjectWithValidSiteYml()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("verifyConfigurationMapping")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("verifyConfigurationMapping")
+                .build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
         assertThat(result.output).contains("Configuration OK")
@@ -37,11 +38,13 @@ class VerifyConfigurationMappingFunctionalTest {
     fun `verifyConfigurationMapping fails with missing site yml`() {
         createProjectWithoutSiteYml()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("verifyConfigurationMapping")
-            .buildAndFail()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("verifyConfigurationMapping")
+                .buildAndFail()
 
         assertThat(result.output).contains("Configuration file not found")
     }
@@ -50,29 +53,36 @@ class VerifyConfigurationMappingFunctionalTest {
     fun `verifyConfigurationMapping task is registered in verification group`() {
         createProjectWithValidSiteYml()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("tasks", "--group", "verification")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("tasks", "--group", "verification")
+                .build()
 
         assertThat(result.output).contains("verifyConfigurationMapping")
     }
 
     private fun createProjectWithValidSiteYml() {
-        projectDir.resolve("settings.gradle.kts").writeText("""
+        projectDir.resolve("settings.gradle.kts").writeText(
+            """
             pluginManagement { repositories { gradlePluginPortal(); mavenLocal() } }
             rootProject.name = "verify-mapping-test"
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
-        projectDir.resolve("build.gradle.kts").writeText("""
+        projectDir.resolve("build.gradle.kts").writeText(
+            """
             plugins { id("education.cccp.bakery") }
             bakery {
                 configPath = file("site.yml").absolutePath
             }
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
-        projectDir.resolve("site.yml").writeText("""
+        projectDir.resolve("site.yml").writeText(
+            """
             bake:
               srcPath: "site"
               destDirPath: "build/bake"
@@ -98,24 +108,29 @@ class VerifyConfigurationMappingFunctionalTest {
                   password: "another-secret"
               branch: "main"
               message: "Deploy maquette"
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
         projectDir.resolve("site").mkdirs()
         projectDir.resolve("maquette").mkdirs()
     }
 
     private fun createProjectWithoutSiteYml() {
-        projectDir.resolve("settings.gradle.kts").writeText("""
+        projectDir.resolve("settings.gradle.kts").writeText(
+            """
             pluginManagement { repositories { gradlePluginPortal(); mavenLocal() } }
             rootProject.name = "verify-mapping-missing-test"
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
-        projectDir.resolve("build.gradle.kts").writeText("""
+        projectDir.resolve("build.gradle.kts").writeText(
+            """
             plugins { id("education.cccp.bakery") }
             bakery {
                 configPath = file("site.yml").absolutePath
             }
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
         // NO site.yml created — directories exist but config absent
         projectDir.resolve("site").mkdirs()

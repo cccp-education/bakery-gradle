@@ -7,16 +7,17 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 class OllamaConfigYamlTest {
-
     private val mapper = ObjectMapper(YAMLFactory()).registerKotlinModule()
 
     @Test
     fun `parse site yml with ollama section returns config with 29 device keys`() {
-        val keysYaml = (11437..11465).joinToString("\n") { port ->
-            "        - keyName: ollama-$port\n" +
-            "          privateKey: ssh-ed25519-fake-key-$port"
-        }
-        val yaml = """
+        val keysYaml =
+            (11437..11465).joinToString("\n") { port ->
+                "        - keyName: ollama-$port\n" +
+                    "          privateKey: ssh-ed25519-fake-key-$port"
+            }
+        val yaml =
+            """
 bake:
   srcPath: src
   destDirPath: build
@@ -36,24 +37,31 @@ $keysYaml
         assertEquals(300L, config.ollama!!.timeoutSeconds)
         assertEquals(29, config.ollama!!.deviceKeys.size)
         assertEquals("ollama-11437", config.ollama!!.deviceKeys[0].keyName)
-        assertTrue(config.ollama!!.deviceKeys[0].privateKey.contains("fake-key-11437"))
+        assertTrue(
+            config.ollama!!
+                .deviceKeys[0]
+                .privateKey
+                .contains("fake-key-11437"),
+        )
         assertEquals("ollama-11465", config.ollama!!.deviceKeys[28].keyName)
     }
 
     @Test
     fun `parse site yml without ollama section returns null`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: src
               destDirPath: build
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNull(config.ollama)
     }
 
     @Test
     fun `parse site yml with minimal ollama section uses defaults`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: src
               destDirPath: build
@@ -61,7 +69,7 @@ $keysYaml
               deviceKeys:
                 - keyName: ollama-11437
                   privateKey: ssh-ed25519-demo-key
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.ollama)
         assertEquals("gemma4:31b-cloud", config.ollama!!.model)
@@ -74,13 +82,14 @@ $keysYaml
 
     @Test
     fun `ollama section with no device keys is not configured`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: src
               destDirPath: build
             ollama:
               model: gemma4:31b-cloud
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.ollama)
         assertFalse(config.ollama!!.isConfigured)
@@ -98,7 +107,8 @@ $keysYaml
 
     @Test
     fun `portRange derived property is consistent with portStart and portEnd`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: src
               destDirPath: build
@@ -108,7 +118,7 @@ $keysYaml
                   privateKey: ssh-ed25519-demo
               portStart: 11440
               portEnd: 11450
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.ollama)
         assertEquals(11440, config.ollama!!.portStart)

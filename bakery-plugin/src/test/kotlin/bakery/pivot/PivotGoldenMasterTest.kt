@@ -4,10 +4,8 @@ import document.translation.AsciiDocParser
 import document.translation.PivotYamlRenderer
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class PivotGoldenMasterTest {
-
     private val parser = AsciiDocParser()
     private val renderer = PivotYamlRenderer()
 
@@ -43,15 +41,22 @@ class PivotGoldenMasterTest {
 
         val minLines = minOf(expectedLines.size, actualLines.size)
         for (i in 0 until minLines) {
-            assertEquals(expectedLines[i], actualLines[i],
-                "Line ${i + 1} mismatch in $baseName:\n  expected: ${expectedLines[i]}\n  actual:   ${actualLines[i]}")
+            assertEquals(
+                expectedLines[i],
+                actualLines[i],
+                "Line ${i + 1} mismatch in $baseName:\n  expected: ${expectedLines[i]}\n  actual:   ${actualLines[i]}",
+            )
         }
-        assertEquals(expectedLines.size, actualLines.size,
-            "Line count mismatch in $baseName: expected ${expectedLines.size}, got ${actualLines.size}")
+        assertEquals(
+            expectedLines.size,
+            actualLines.size,
+            "Line count mismatch in $baseName: expected ${expectedLines.size}, got ${actualLines.size}",
+        )
     }
 
     private fun normalizeYaml(yaml: String): List<String> =
-        yaml.lines()
+        yaml
+            .lines()
             .map { stripInlineComment(it).trimEnd() }
             .filter { it.isNotEmpty() && !it.trimStart().startsWith("#") }
             .filter { !it.trimStart().startsWith("translatable:") }
@@ -63,8 +68,9 @@ class PivotGoldenMasterTest {
     }
 
     private fun readResource(path: String): String {
-        val stream = Thread.currentThread().contextClassLoader.getResourceAsStream(path)
-            ?: error("Resource not found: $path")
+        val stream =
+            Thread.currentThread().contextClassLoader.getResourceAsStream(path)
+                ?: error("Resource not found: $path")
         return stream.bufferedReader().readText()
     }
 }

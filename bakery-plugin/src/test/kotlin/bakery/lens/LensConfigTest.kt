@@ -11,11 +11,9 @@ import org.junit.jupiter.api.Test
  * Méthodologie : DDD/TDD baby steps — chaque test compile ET passe AVANT de passer au suivant.
  */
 class LensConfigTest {
-
     @Nested
     @DisplayName("LensConfig — Valeurs par défaut")
     inner class Defaults {
-
         @Test
         @DisplayName("LensConfig scope par défaut = SUBGRAPH")
         fun `scope default is SUBGRAPH`() {
@@ -69,7 +67,6 @@ class LensConfigTest {
     @Nested
     @DisplayName("LensConfig — Modification des propriétés")
     inner class Mutation {
-
         @Test
         @DisplayName("LensConfig modifiable : communautés ajoutées")
         fun `communities can be set`() {
@@ -106,13 +103,14 @@ class LensConfigTest {
     @Nested
     @DisplayName("LensScope — Enum")
     inner class ScopeEnum {
-
         @Test
         @DisplayName("LensScope a exactement 3 valeurs")
         fun `LensScope has 3 values`() {
             assertThat(LensScope.values()).hasSize(3)
             assertThat(LensScope.values().map { it.name }).containsExactlyInAnyOrder(
-                "SUBGRAPH", "FULL", "SEMANTIC_ONLY"
+                "SUBGRAPH",
+                "FULL",
+                "SEMANTIC_ONLY",
             )
         }
     }
@@ -120,7 +118,6 @@ class LensConfigTest {
     @Nested
     @DisplayName("AugmentedContextDsl — Valeurs par défaut")
     inner class AugmentedContextDslDefaults {
-
         @Test
         @DisplayName("AugmentedContextDsl enabled par défaut = false")
         fun `enabled default is false`() {
@@ -161,7 +158,6 @@ class LensConfigTest {
     @Nested
     @DisplayName("AugmentedContextDsl — maxArticles (BKY-LENS-5)")
     inner class AugmentedContextDslMaxArticles {
-
         @Test
         @DisplayName("AugmentedContextDsl maxArticles par défaut = budget.maxArticlesPerPage = 4")
         fun `default maxArticles equals budget maxArticlesPerPage`() {
@@ -193,7 +189,6 @@ class LensConfigTest {
     @Nested
     @DisplayName("AugmentedContextDsl — Modification via Action")
     inner class AugmentedContextDslMutation {
-
         @Test
         @DisplayName("AugmentedContextDsl lens peut être configuré via Action")
         fun `lens can be configured via Action`() {
@@ -222,16 +217,16 @@ class LensConfigTest {
     @Nested
     @DisplayName("LensConfig — data class copy")
     inner class DataClassCopy {
-
         @Test
         @DisplayName("LensConfig copié avec modifications")
         fun `LensConfig can be copied with modifications`() {
             val original = LensConfig()
-            val modified = original.copy(
-                communities = listOf("bakery-gradle"),
-                maxDepth = 5,
-                scope = LensScope.SEMANTIC_ONLY
-            )
+            val modified =
+                original.copy(
+                    communities = listOf("bakery-gradle"),
+                    maxDepth = 5,
+                    scope = LensScope.SEMANTIC_ONLY,
+                )
             assertThat(modified.communities).containsExactly("bakery-gradle")
             assertThat(modified.maxDepth).isEqualTo(5)
             assertThat(modified.scope).isEqualTo(LensScope.SEMANTIC_ONLY)

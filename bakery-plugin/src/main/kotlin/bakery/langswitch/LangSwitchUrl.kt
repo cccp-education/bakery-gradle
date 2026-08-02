@@ -4,7 +4,7 @@ data class LangSwitchUrl(
     val targetLanguage: String,
     val currentLanguage: String,
     val currentPath: String,
-    val defaultLanguage: String
+    val defaultLanguage: String,
 ) {
     init {
         require(targetLanguage.isNotBlank()) { "targetLanguage must not be blank" }
@@ -26,7 +26,7 @@ data class LangSwitchUrl(
         return if (targetLanguage == defaultLanguage) {
             "${root}index.html"
         } else {
-            "${root}${targetLanguage}/index.html"
+            "${root}$targetLanguage/index.html"
         }
     }
 }

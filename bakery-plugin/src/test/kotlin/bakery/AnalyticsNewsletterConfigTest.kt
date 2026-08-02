@@ -6,12 +6,12 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 class AnalyticsNewsletterConfigTest {
-
     private val mapper = ObjectMapper(YAMLFactory())
 
     @Test
     fun `parse site yml with analytics returns config with values`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: src
               destDirPath: build
@@ -19,7 +19,7 @@ class AnalyticsNewsletterConfigTest {
               provider: "plausible"
               domain: "my-site.com"
               scriptSrc: "https://plausible.io/js/script.js"
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.analytics)
         assertEquals("plausible", config.analytics!!.provider)
@@ -29,18 +29,20 @@ class AnalyticsNewsletterConfigTest {
 
     @Test
     fun `parse site yml without analytics returns null`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: src
               destDirPath: build
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNull(config.analytics)
     }
 
     @Test
     fun `parse site yml with newsletter returns config with values`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: src
               destDirPath: build
@@ -48,7 +50,7 @@ class AnalyticsNewsletterConfigTest {
               enabled: true
               provider: "mailchimp"
               endpoint: "https://mailchimp.us1.list-manage.com/subscribe/post?u=xxx&id=yyy"
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.newsletter)
         assertTrue(config.newsletter!!.enabled)
@@ -58,18 +60,20 @@ class AnalyticsNewsletterConfigTest {
 
     @Test
     fun `parse site yml without newsletter returns null`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: src
               destDirPath: build
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNull(config.newsletter)
     }
 
     @Test
     fun `parse site yml with analytics and newsletter together returns both`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: src
               destDirPath: build
@@ -81,7 +85,7 @@ class AnalyticsNewsletterConfigTest {
               enabled: true
               provider: "mailchimp"
               endpoint: "https://mailchimp.example.com/subscribe"
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.analytics)
         assertNotNull(config.newsletter)
@@ -91,13 +95,14 @@ class AnalyticsNewsletterConfigTest {
 
     @Test
     fun `parse site yml with analytics defaults returns empty strings`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: src
               destDirPath: build
             analytics:
               provider: "plausible"
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.analytics)
         assertEquals("plausible", config.analytics!!.provider)
@@ -107,14 +112,15 @@ class AnalyticsNewsletterConfigTest {
 
     @Test
     fun `parse site yml with newsletter disabled by default`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: src
               destDirPath: build
             newsletter:
               provider: "mailerlite"
               endpoint: "https://mailerlite.com/subscribe"
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.newsletter)
         assertFalse(config.newsletter!!.enabled)

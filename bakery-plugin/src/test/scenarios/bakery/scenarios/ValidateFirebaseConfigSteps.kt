@@ -1,7 +1,6 @@
 package bakery.scenarios
 
 import io.cucumber.java.en.Given
-import org.assertj.core.api.Assertions.assertThat
 import kotlin.text.Charsets.UTF_8
 
 /**
@@ -14,26 +13,32 @@ import kotlin.text.Charsets.UTF_8
  * - `Then the build should fail` → GenerateArticleSteps
  * - `Then the output should contain {string}` → GenerateArticleSteps
  */
-class ValidateFirebaseConfigSteps(private val world: BakeryWorld) {
-
+class ValidateFirebaseConfigSteps(
+    private val world: BakeryWorld,
+) {
     @Given("the firebaseAuth DSL is configured with apiKey {string} and authDomain {string} and projectId {string}")
-    fun firebaseAuthDslConfiguredWith(apiKey: String, authDomain: String, projectId: String) {
+    fun firebaseAuthDslConfiguredWith(
+        apiKey: String,
+        authDomain: String,
+        projectId: String,
+    ) {
         val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
         val buildFile = projectDir.resolve("build.gradle.kts")
         val content = buildFile.readText(UTF_8)
 
         // Insert firebaseAuth block before the last closing brace of bakery { }
         val lastBraceIndex = content.lastIndexOf('}')
-        val updatedContent = if (lastBraceIndex >= 0) {
-            content.substring(0, lastBraceIndex) +
-                "\n    firebaseAuth {\n" +
-                "        apiKey = \"$apiKey\"\n" +
-                "        authDomain = \"$authDomain\"\n" +
-                "        projectId = \"$projectId\"\n" +
-                "    }\n}"
-        } else {
-            content
-        }
+        val updatedContent =
+            if (lastBraceIndex >= 0) {
+                content.substring(0, lastBraceIndex) +
+                    "\n    firebaseAuth {\n" +
+                    "        apiKey = \"$apiKey\"\n" +
+                    "        authDomain = \"$authDomain\"\n" +
+                    "        projectId = \"$projectId\"\n" +
+                    "    }\n}"
+            } else {
+                content
+            }
         buildFile.writeText(updatedContent, UTF_8)
     }
 
@@ -42,7 +47,8 @@ class ValidateFirebaseConfigSteps(private val world: BakeryWorld) {
         val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
         val siteYml = projectDir.resolve("site.yml")
 
-        val firebaseBlock = """
+        val firebaseBlock =
+            """
 firebase:
   project:
     projectId: "test-project"
@@ -67,7 +73,7 @@ firebase:
     params:
       - name: "message"
         type: "string"
-""".trimIndent()
+            """.trimIndent()
 
         val currentContent = if (siteYml.exists()) siteYml.readText(UTF_8) else ""
         val newContent = currentContent + "\n" + firebaseBlock

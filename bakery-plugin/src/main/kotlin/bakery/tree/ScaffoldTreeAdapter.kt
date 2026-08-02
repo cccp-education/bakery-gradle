@@ -10,11 +10,11 @@ package bakery.tree
  * Convention : article path + ".thyme" = template name.
  * Domaine pur, zero I/O, testable sans Gradle.
  */
-fun SiteNode.flattenTemplates(): List<String> =
-    walkLeaves().map { "$it.thyme" }
+fun SiteNode.flattenTemplates(): List<String> = walkLeaves().map { "$it.thyme" }
 
-private fun SiteNode.walkLeaves(): List<String> = when (this) {
-    is SiteNode.Site -> sections.flatMap { it.walkLeaves() }
-    is SiteNode.Section -> articles.flatMap { it.walkLeaves() }
-    is SiteNode.Article -> listOf(path)
-}
+private fun SiteNode.walkLeaves(): List<String> =
+    when (this) {
+        is SiteNode.Site -> sections.flatMap { it.walkLeaves() }
+        is SiteNode.Section -> articles.flatMap { it.walkLeaves() }
+        is SiteNode.Article -> listOf(path)
+    }

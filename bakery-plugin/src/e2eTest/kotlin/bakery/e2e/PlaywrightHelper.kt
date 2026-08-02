@@ -9,24 +9,28 @@ import com.microsoft.playwright.Playwright
  * Pattern inspired by capsule-gradle's PlaywrightCapture.
  */
 object PlaywrightHelper {
-
     /**
      * Checks if Playwright + Chromium are available on the system.
      * Returns true if a headless Chromium browser can be launched.
      * Catches all Throwables (Exception + Error) for robustness.
      */
-    fun isAvailable(): Boolean = try {
-        Playwright.create().use { playwright ->
-            playwright.chromium().launch(
-                com.microsoft.playwright.BrowserType.LaunchOptions().setHeadless(true)
-            ).use { browser ->
-                val page = browser.newPage()
-                page.navigate("data:text/html,<h1>test</h1>")
-                page.close()
+    fun isAvailable(): Boolean =
+        try {
+            Playwright.create().use { playwright ->
+                playwright
+                    .chromium()
+                    .launch(
+                        com.microsoft.playwright.BrowserType
+                            .LaunchOptions()
+                            .setHeadless(true),
+                    ).use { browser ->
+                        val page = browser.newPage()
+                        page.navigate("data:text/html,<h1>test</h1>")
+                        page.close()
+                    }
             }
+            true
+        } catch (_: Throwable) {
+            false
         }
-        true
-    } catch (_: Throwable) {
-        false
-    }
 }

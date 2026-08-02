@@ -12,7 +12,6 @@ import java.io.File
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class FirebaseAuthConfigUnitTest {
-
     @TempDir
     lateinit var projectDir: File
 
@@ -20,7 +19,8 @@ class FirebaseAuthConfigUnitTest {
     private lateinit var ext: BakeryExtension
 
     private val siteYamlContent: String
-        get() = """bake:
+        get() =
+            """bake:
               |  srcPath: site
               |  destDirPath: build/bake
               |pushPage:

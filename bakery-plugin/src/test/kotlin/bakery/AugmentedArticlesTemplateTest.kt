@@ -19,13 +19,11 @@ import org.junit.jupiter.api.Test
  * client-side. Tests here validate the Thymeleaf layer only.
  */
 class AugmentedArticlesTemplateTest {
-
     private val factory = ThymeleafRenderingTestFactory()
 
     @Nested
     @DisplayName("augmented-articles.thyme — source text assertions")
     inner class SourceAssertionsTest {
-
         private val template = java.io.File("src/main/resources/site/templates/augmented-articles.thyme")
 
         @Test
@@ -83,7 +81,6 @@ class AugmentedArticlesTemplateTest {
     @Nested
     @DisplayName("augmented-articles.thyme — Thymeleaf rendering tests")
     inner class RenderingTest {
-
         @Test
         fun `renders nothing when augmentedContextEnabled is absent`() {
             val html = factory.render("augmented-articles")
@@ -94,10 +91,14 @@ class AugmentedArticlesTemplateTest {
         @Test
         fun `renders aside when enabled with data`() {
             val augmentedData = """{"version":"1.0","pipeline":"LENS","scoredNodes":[],"totalCandidates":0}"""
-            val html = factory.render("augmented-articles", mapOf(
-                "augmentedContextEnabled" to "true",
-                "augmentedContextData" to augmentedData
-            ))
+            val html =
+                factory.render(
+                    "augmented-articles",
+                    mapOf(
+                        "augmentedContextEnabled" to "true",
+                        "augmentedContextData" to augmentedData,
+                    ),
+                )
             assertThat(html).contains("<aside")
             assertThat(html).contains("augmented-articles")
             assertThat(html).doesNotContain("th:if")
@@ -106,10 +107,14 @@ class AugmentedArticlesTemplateTest {
         @Test
         fun `renders data-augmented-context attribute with JSON`() {
             val augmentedData = """{"version":"1.0","pipeline":"LENS","scoredNodes":[{"id":"node-1","title":"Article","uri":"/a.html","score":0.92,"channels":["RAG"]}],"totalCandidates":1}"""
-            val html = factory.render("augmented-articles", mapOf(
-                "augmentedContextEnabled" to "true",
-                "augmentedContextData" to augmentedData
-            ))
+            val html =
+                factory.render(
+                    "augmented-articles",
+                    mapOf(
+                        "augmentedContextEnabled" to "true",
+                        "augmentedContextData" to augmentedData,
+                    ),
+                )
             // Thymeleaf injects augmentedContextData as a data- attribute
             assertThat(html).contains("data-augmented-context")
             assertThat(html).contains("scoredNodes")
@@ -118,40 +123,56 @@ class AugmentedArticlesTemplateTest {
         @Test
         fun `renders default heading when no custom heading`() {
             val augmentedData = """{"version":"1.0","pipeline":"LENS","scoredNodes":[]}"""
-            val html = factory.render("augmented-articles", mapOf(
-                "augmentedContextEnabled" to "true",
-                "augmentedContextData" to augmentedData
-            ))
+            val html =
+                factory.render(
+                    "augmented-articles",
+                    mapOf(
+                        "augmentedContextEnabled" to "true",
+                        "augmentedContextData" to augmentedData,
+                    ),
+                )
             assertThat(html).contains("Articles connexes")
         }
 
         @Test
         fun `renders custom heading when provided`() {
             val augmentedData = """{"version":"1.0","pipeline":"LENS","scoredNodes":[]}"""
-            val html = factory.render("augmented-articles", mapOf(
-                "augmentedContextEnabled" to "true",
-                "augmentedContextData" to augmentedData,
-                "relatedArticlesHeading" to "Voir aussi"
-            ))
+            val html =
+                factory.render(
+                    "augmented-articles",
+                    mapOf(
+                        "augmentedContextEnabled" to "true",
+                        "augmentedContextData" to augmentedData,
+                        "relatedArticlesHeading" to "Voir aussi",
+                    ),
+                )
             assertThat(html).contains("Voir aussi")
             assertThat(html).doesNotContain("th:text")
         }
 
         @Test
         fun `hides section when enabled flag is false`() {
-            val html = factory.render("augmented-articles", mapOf(
-                "augmentedContextEnabled" to "false",
-                "augmentedContextData" to """{"version":"1.0","pipeline":"LENS","scoredNodes":[]}"""
-            ))
+            val html =
+                factory.render(
+                    "augmented-articles",
+                    mapOf(
+                        "augmentedContextEnabled" to "false",
+                        "augmentedContextData" to """{"version":"1.0","pipeline":"LENS","scoredNodes":[]}""",
+                    ),
+                )
             assertThat(html).doesNotContain("<aside")
         }
 
         @Test
         fun `hides section when augmentedContextData is empty string`() {
-            val html = factory.render("augmented-articles", mapOf(
-                "augmentedContextEnabled" to "true",
-                "augmentedContextData" to ""
-            ))
+            val html =
+                factory.render(
+                    "augmented-articles",
+                    mapOf(
+                        "augmentedContextEnabled" to "true",
+                        "augmentedContextData" to "",
+                    ),
+                )
             // Empty data → th:if guards prevent rendering (augmentedContextData != '')
             assertThat(html).doesNotContain("<aside")
         }
@@ -159,11 +180,15 @@ class AugmentedArticlesTemplateTest {
         @Test
         fun `injects lensBudgetMaxArticlesPerPage as data attribute`() {
             val augmentedData = """{"version":"1.0","pipeline":"LENS","scoredNodes":[]}"""
-            val html = factory.render("augmented-articles", mapOf(
-                "augmentedContextEnabled" to "true",
-                "augmentedContextData" to augmentedData,
-                "lensBudgetMaxArticlesPerPage" to "6"
-            ))
+            val html =
+                factory.render(
+                    "augmented-articles",
+                    mapOf(
+                        "augmentedContextEnabled" to "true",
+                        "augmentedContextData" to augmentedData,
+                        "lensBudgetMaxArticlesPerPage" to "6",
+                    ),
+                )
             assertThat(html).contains("data-max-results=\"6\"")
         }
 
@@ -189,7 +214,6 @@ class AugmentedArticlesTemplateTest {
     @Nested
     @DisplayName("post.thyme — references augmented-articles fragment")
     inner class PostTemplateIntegrationTest {
-
         private val template = java.io.File("src/main/resources/site/templates/post.thyme")
 
         @Test
@@ -210,7 +234,6 @@ class AugmentedArticlesTemplateTest {
     @Nested
     @DisplayName("page.thyme — references augmented-articles fragment")
     inner class PageTemplateIntegrationTest {
-
         private val template = java.io.File("src/main/resources/site/templates/page.thyme")
 
         @Test

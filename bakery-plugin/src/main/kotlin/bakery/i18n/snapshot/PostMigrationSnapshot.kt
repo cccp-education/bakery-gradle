@@ -13,9 +13,8 @@ package bakery.i18n.snapshot
 data class PostMigrationSnapshot(
     val templatesMigrated: Map<String, String>,
     val messagesFr: Map<String, String>,
-    val messagesEn: Map<String, String>
+    val messagesEn: Map<String, String>,
 ) {
-
     /**
      * Checks that every FR key has a non-blank EN translation.
      */
@@ -35,9 +34,10 @@ data class PostMigrationSnapshot(
      */
     fun templateKeys(): Set<String> {
         val keyRegex = Regex("""#\{([^}]+)}""")
-        return templatesMigrated.values.flatMap { content ->
-            keyRegex.findAll(content).map { it.groupValues[1] }.toList()
-        }.toSet()
+        return templatesMigrated.values
+            .flatMap { content ->
+                keyRegex.findAll(content).map { it.groupValues[1] }.toList()
+            }.toSet()
     }
 
     /**
@@ -46,9 +46,8 @@ data class PostMigrationSnapshot(
      * - at least one FR message
      * - all FR keys translated to EN
      */
-    fun isComplete(): Boolean {
-        return templatesMigrated.isNotEmpty() &&
+    fun isComplete(): Boolean =
+        templatesMigrated.isNotEmpty() &&
             messagesFr.isNotEmpty() &&
             hasAllKeysTranslated()
-    }
 }

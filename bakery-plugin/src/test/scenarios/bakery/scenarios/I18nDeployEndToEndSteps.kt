@@ -1,16 +1,16 @@
 package bakery.scenarios
 
-import document.translation.ContentTranslationService
-import document.translation.plantuml.PlantUmlTranslationAdapter
 import bakery.i18n.rtl.RtlDirectionInjector
 import bakery.langswitch.LangSwitchInjector
 import bakery.langswitch.LangSwitchMenu
 import bakery.langswitch.LangSwitchThymeleafRenderer
-import document.translation.AsciiDocParser
-import document.translation.JbakeNativeRenderer
 import contracts.i18n.TranslationRequest
 import contracts.i18n.TranslationResult
 import contracts.i18n.TranslationService
+import document.translation.AsciiDocParser
+import document.translation.ContentTranslationService
+import document.translation.JbakeNativeRenderer
+import document.translation.plantuml.PlantUmlTranslationAdapter
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
@@ -39,7 +39,6 @@ import java.nio.file.Files
  * language unambiguously.
  */
 class I18nDeployEndToEndSteps {
-
     private val supportedLanguages = listOf("fr", "ar", "bn", "en", "es", "hi", "pt", "ru", "ur", "zh")
     private val defaultLanguage = "fr"
 
@@ -47,56 +46,62 @@ class I18nDeployEndToEndSteps {
     private lateinit var fakeTranslator: TranslationService
     private lateinit var translationService: ContentTranslationService
 
-    private val frToEnDictionary = mapOf(
-        "Utilisateur" to "User",
-        "Administrateur" to "Administrator",
-        "Visiteur" to "Visitor",
-        "Formateur" to "Trainer",
-        "Stagiaire" to "Trainee",
-        "Se connecter" to "Log in",
-        "Gérer les utilisateurs" to "Manage users",
-        "Consulter le catalogue" to "Browse the catalog",
-        "Valider les" to "Validate the",
-        "Compléter le" to "Complete the",
-        "Publier le" to "Publish the",
-        "Diagramme de cas d'utilisation" to "Use case diagram",
-        "Texte associé" to "Associated text",
-        "Diagramme avec labels traduisibles" to "Diagram with translatable labels",
-        "Ceci est un paragraphe en français. Il contient du texte traduisible que le service de traduction doit transformer dans la langue cible." to "This is a paragraph in French. It contains translatable text that the translation service must transform into the target language.",
-        "Les acteurs Utilisateur, Administrateur et Visiteur apparaissent dans le diagramme. La traduction doit transformer ces labels tout en préservant la structure PlantUML (startuml, enduml, flèches)." to "The actors User, Administrator and Visitor appear in the diagram. The translation must transform these labels while preserving the PlantUML structure (startuml, enduml, arrows)."
-    )
+    private val frToEnDictionary =
+        mapOf(
+            "Utilisateur" to "User",
+            "Administrateur" to "Administrator",
+            "Visiteur" to "Visitor",
+            "Formateur" to "Trainer",
+            "Stagiaire" to "Trainee",
+            "Se connecter" to "Log in",
+            "Gérer les utilisateurs" to "Manage users",
+            "Consulter le catalogue" to "Browse the catalog",
+            "Valider les" to "Validate the",
+            "Compléter le" to "Complete the",
+            "Publier le" to "Publish the",
+            "Diagramme de cas d'utilisation" to "Use case diagram",
+            "Texte associé" to "Associated text",
+            "Diagramme avec labels traduisibles" to "Diagram with translatable labels",
+            "Ceci est un paragraphe en français. Il contient du texte traduisible que le service de traduction doit transformer dans la langue cible." to
+                "This is a paragraph in French. It contains translatable text that the translation service must transform into the target language.",
+            "Les acteurs Utilisateur, Administrateur et Visiteur apparaissent dans le diagramme. La traduction doit transformer ces labels tout en préservant la structure PlantUML (startuml, enduml, flèches)." to
+                "The actors User, Administrator and Visitor appear in the diagram. The translation must transform these labels while preserving the PlantUML structure (startuml, enduml, arrows).",
+        )
 
     @Given("a cheroliv-com-i18n-deploy fixture with 3 French articles and 10 supported languages")
     fun setupFixture() {
-        val resourceUrl = this::class.java.classLoader.getResource("fixtures/cheroliv-com-i18n-deploy")
-            ?: throw IllegalStateException("fixture cheroliv-com-i18n-deploy not found on classpath")
+        val resourceUrl =
+            this::class.java.classLoader.getResource("fixtures/cheroliv-com-i18n-deploy")
+                ?: throw IllegalStateException("fixture cheroliv-com-i18n-deploy not found on classpath")
         val sourceFixture = File(resourceUrl.toURI())
         fixtureDir = Files.createTempDirectory("i18n-deploy-e2e-").toFile()
         sourceFixture.copyRecursively(fixtureDir, overwrite = true)
 
-        fakeTranslator = object : TranslationService {
-            override fun translate(request: TranslationRequest): TranslationResult {
-                val target = request.targetLanguage
-                val sourceText = request.sourceText
-                if (sourceText.isBlank()) return TranslationResult.Success(sourceText)
-                if (target == "en") {
-                    var translated = sourceText
-                    frToEnDictionary.forEach { (fr, en) ->
-                        translated = translated.replace(fr, en)
+        fakeTranslator =
+            object : TranslationService {
+                override fun translate(request: TranslationRequest): TranslationResult {
+                    val target = request.targetLanguage
+                    val sourceText = request.sourceText
+                    if (sourceText.isBlank()) return TranslationResult.Success(sourceText)
+                    if (target == "en") {
+                        var translated = sourceText
+                        frToEnDictionary.forEach { (fr, en) ->
+                            translated = translated.replace(fr, en)
+                        }
+                        return TranslationResult.Success(translated)
                     }
-                    return TranslationResult.Success(translated)
+                    return TranslationResult.Success("[$target] $sourceText")
                 }
-                return TranslationResult.Success("[$target] $sourceText")
             }
-        }
         val plantUmlAdapter = PlantUmlTranslationAdapter(fakeTranslator)
-        translationService = ContentTranslationService(
-            fakeTranslator,
-            parser = AsciiDocParser(),
-            renderer = JbakeNativeRenderer(),
-            jbakeRenderer = JbakeNativeRenderer(),
-            plantUmlAdapter = plantUmlAdapter
-        )
+        translationService =
+            ContentTranslationService(
+                fakeTranslator,
+                parser = AsciiDocParser(),
+                renderer = JbakeNativeRenderer(),
+                jbakeRenderer = JbakeNativeRenderer(),
+                plantUmlAdapter = plantUmlAdapter,
+            )
     }
 
     @When("the deploy pipeline translates the fixture from fr to {string}")
@@ -127,12 +132,19 @@ class I18nDeployEndToEndSteps {
         assertThat(menuThyme).exists()
         val injector = LangSwitchInjector()
         val links = LangSwitchMenu(supportedLanguages, defaultLanguage, defaultLanguage, "").generateLinks()
-        val labels = mapOf(
-            "fr" to "Fran\u00e7ais", "en" to "English", "ar" to "\u0627\u0644\u0639\u0631\u0628\u064a\u0629",
-            "zh" to "\u4e2d\u6587", "hi" to "\u0939\u093f\u0928\u094d\u0926\u0940", "es" to "Espa\u00f1ol",
-            "bn" to "\u09ac\u09be\u0982\u09b2\u09be", "pt" to "Portugu\u00eas",
-            "ru" to "\u0420\u0443\u0441\u0441\u043a\u0438\u0439", "ur" to "\u0627\u0631\u062f\u0648"
-        )
+        val labels =
+            mapOf(
+                "fr" to "Fran\u00e7ais",
+                "en" to "English",
+                "ar" to "\u0627\u0644\u0639\u0631\u0628\u064a\u0629",
+                "zh" to "\u4e2d\u6587",
+                "hi" to "\u0939\u093f\u0928\u094d\u0926\u0940",
+                "es" to "Espa\u00f1ol",
+                "bn" to "\u09ac\u09be\u0982\u09b2\u09be",
+                "pt" to "Portugu\u00eas",
+                "ru" to "\u0420\u0443\u0441\u0441\u043a\u0438\u0439",
+                "ur" to "\u0627\u0631\u062f\u0648",
+            )
         val fragment = LangSwitchThymeleafRenderer(labels).render(links)
         val original = menuThyme.readText()
         val updated = injector.inject(original, fragment)
@@ -140,7 +152,11 @@ class I18nDeployEndToEndSteps {
     }
 
     @Then("the translated {string} article {string} should start with {string}")
-    fun translatedArticleShouldStartWith(lang: String, articleName: String, prefix: String) {
+    fun translatedArticleShouldStartWith(
+        lang: String,
+        articleName: String,
+        prefix: String,
+    ) {
         val article = resolveTranslatedArticle(lang, articleName)
         assertThat(article).exists()
         val content = article.readText()
@@ -150,7 +166,11 @@ class I18nDeployEndToEndSteps {
     }
 
     @Then("the translated {string} article {string} should contain {string}")
-    fun translatedArticleShouldContain(lang: String, articleName: String, expected: String) {
+    fun translatedArticleShouldContain(
+        lang: String,
+        articleName: String,
+        expected: String,
+    ) {
         val article = resolveTranslatedArticle(lang, articleName)
         assertThat(article).exists()
         assertThat(article.readText())
@@ -159,7 +179,11 @@ class I18nDeployEndToEndSteps {
     }
 
     @Then("the translated {string} article {string} should not contain {string}")
-    fun translatedArticleShouldNotContain(lang: String, articleName: String, forbidden: String) {
+    fun translatedArticleShouldNotContain(
+        lang: String,
+        articleName: String,
+        forbidden: String,
+    ) {
         val article = resolveTranslatedArticle(lang, articleName)
         assertThat(article).exists()
         assertThat(article.readText())
@@ -168,7 +192,10 @@ class I18nDeployEndToEndSteps {
     }
 
     @Then("the translated {string} article {string} body should be in the target language")
-    fun translatedArticleBodyInTargetLang(lang: String, articleName: String) {
+    fun translatedArticleBodyInTargetLang(
+        lang: String,
+        articleName: String,
+    ) {
         val article = resolveTranslatedArticle(lang, articleName)
         assertThat(article).exists()
         val content = article.readText()
@@ -178,7 +205,10 @@ class I18nDeployEndToEndSteps {
     }
 
     @Then("the fixture should have {int} translated variants under {string}")
-    fun fixtureShouldHaveVariantCount(count: Int, dir: String) {
+    fun fixtureShouldHaveVariantCount(
+        count: Int,
+        dir: String,
+    ) {
         val i18nRoot = fixtureDir.resolve(dir)
         assertThat(i18nRoot).exists()
         val variants = i18nRoot.listFiles { f -> f.isDirectory } ?: emptyArray()
@@ -198,7 +228,10 @@ class I18nDeployEndToEndSteps {
     }
 
     @Then("the {string} variant should contain {string}")
-    fun variantShouldContain(lang: String, expected: String) {
+    fun variantShouldContain(
+        lang: String,
+        expected: String,
+    ) {
         val article = resolveTranslatedArticle(lang, "introduction-pivot.adoc")
         assertThat(article.readText())
             .describedAs("$lang variant should contain '$expected'")
@@ -206,7 +239,10 @@ class I18nDeployEndToEndSteps {
     }
 
     @Then("the {string} variant should not contain {string}")
-    fun variantShouldNotContain(lang: String, forbidden: String) {
+    fun variantShouldNotContain(
+        lang: String,
+        forbidden: String,
+    ) {
         val article = resolveTranslatedArticle(lang, "introduction-pivot.adoc")
         assertThat(article.readText())
             .describedAs("$lang variant should not contain '$forbidden'")
@@ -214,7 +250,10 @@ class I18nDeployEndToEndSteps {
     }
 
     @Then("the FR menu should contain a link to {string} for language {string}")
-    fun frMenuShouldContainLink(href: String, lang: String) {
+    fun frMenuShouldContainLink(
+        href: String,
+        lang: String,
+    ) {
         val menu = fixtureDir.resolve("templates/menu.thyme")
         assertThat(menu).exists()
         val content = menu.readText()
@@ -244,7 +283,8 @@ class I18nDeployEndToEndSteps {
         val parser = AsciiDocParser()
         val renderer = JbakeNativeRenderer()
         val injector = RtlDirectionInjector()
-        langBlog.walkTopDown()
+        langBlog
+            .walkTopDown()
             .filter { it.isFile && it.extension == "adoc" }
             .forEach { file ->
                 val article = parser.parse(file.readText())
@@ -254,6 +294,8 @@ class I18nDeployEndToEndSteps {
             }
     }
 
-    private fun resolveTranslatedArticle(lang: String, articleName: String): File =
-        fixtureDir.resolve("i18n/$lang/blog/$articleName")
+    private fun resolveTranslatedArticle(
+        lang: String,
+        articleName: String,
+    ): File = fixtureDir.resolve("i18n/$lang/blog/$articleName")
 }

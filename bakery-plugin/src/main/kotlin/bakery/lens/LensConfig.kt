@@ -44,30 +44,22 @@ import org.gradle.api.Action
 data class LensConfig(
     /** Scope de la lentille : SUBGRAPH (filtré), FULL (tout le graphe), SEMANTIC_ONLY (RAG seul) */
     var scope: LensScope = LensScope.SUBGRAPH,
-
     /** Communautés à inclure dans le sous-graphe (ex: ["bakery-gradle", "codebase-gradle"]) */
     var communities: List<String> = emptyList(),
-
     /** Types de nœuds à inclure (ex: ["file", "module", "class"]) */
     var nodeTypes: List<String> = listOf("file"),
-
     /** Types d'edges à inclure (ex: ["reference", "agent_reference"]) */
     var edgeTypes: List<String> = listOf("reference", "agent_reference"),
-
     /** Profondeur maximale de voisinage depuis la page courante (défaut: 2) */
     var maxDepth: Int = 2,
-
     /** Extensions de fichiers à retenir (ex: ["adoc", "md", "html"]) */
     var fileExtensions: List<String> = listOf("adoc", "md", "html"),
-
     /** Chemin vers le fichier graph.json (défaut: office/graph.json) */
     var graphFilePath: String = "office/graph.json",
-
     /** Règles métier éditoriales (BKY-LENS-2). */
     val rules: LensRules = LensRules(),
-
     /** Configuration RAG pgvector (BKY-LENS-2). */
-    val rag: LensRagConfig = LensRagConfig()
+    val rag: LensRagConfig = LensRagConfig(),
 ) {
     /** DSL : bakery { augmentedContext { lens { rules { ... } } } } */
     fun rules(action: Action<LensRules>) {
@@ -88,12 +80,10 @@ data class LensConfig(
 data class LensRagConfig(
     /** Active/désactive la recherche RAG (défaut: true). */
     var enabled: Boolean = true,
-
     /** Seuil de similarité minimale pour les résultats RAG (0.0–1.0, défaut: 0.7). */
     var similarityThreshold: Double = 0.7,
-
     /** Nombre maximum de résultats RAG à récupérer (top-K, défaut: 20). */
-    var topK: Int = 20
+    var topK: Int = 20,
 )
 
 /**
@@ -105,5 +95,5 @@ data class LensRagConfig(
 enum class LensScope {
     SUBGRAPH,
     FULL,
-    SEMANTIC_ONLY
+    SEMANTIC_ONLY,
 }

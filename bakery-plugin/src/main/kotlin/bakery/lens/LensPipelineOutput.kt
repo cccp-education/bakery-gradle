@@ -8,7 +8,7 @@ package bakery.lens
  */
 data class BudgetSummary(
     val maxArticlesPerPage: Int,
-    val minSimilarity: Double
+    val minSimilarity: Double,
 )
 
 /**
@@ -32,5 +32,5 @@ data class LensPipelineOutput(
     val scoredNodes: List<ScoredNode>,
     val totalCandidates: Int,
     val totalAfterRules: Int,
-    val totalAfterBudget: Int
+    val totalAfterBudget: Int,
 )

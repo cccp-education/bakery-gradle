@@ -14,7 +14,6 @@ import java.io.File
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ScaffoldIntentionUnitTest {
-
     @TempDir
     lateinit var projectDir: File
 
@@ -33,7 +32,7 @@ class ScaffoldIntentionUnitTest {
         description: String = "test",
         siteType: String? = null,
         lang: String? = null,
-        projectName: String? = null
+        projectName: String? = null,
     ) {
         ext.scaffoldIntention {
             it.description = description
@@ -59,7 +58,7 @@ class ScaffoldIntentionUnitTest {
             description = "Portfolio professionnel Kotlin",
             siteType = "portfolio",
             lang = "en",
-            projectName = "kotlin-dev"
+            projectName = "kotlin-dev",
         )
 
         assertThat(ext.scaffoldIntention.description).isEqualTo("Portfolio professionnel Kotlin")

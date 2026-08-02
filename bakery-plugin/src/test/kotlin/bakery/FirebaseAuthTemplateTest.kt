@@ -20,7 +20,6 @@ import java.io.File
  * verify different perspectives of the same templates. Both are valuable.
  */
 class FirebaseAuthTemplateTest {
-
     private val templatesDir = File("src/main/resources/site/templates")
 
     @Test
@@ -43,7 +42,7 @@ class FirebaseAuthTemplateTest {
         assertTrue(content.contains("th:if"), "must have th:if condition")
         assertTrue(
             content.contains("firebaseAuthApiKey") && content.contains("th:if"),
-            "th:if must guard on firebaseAuthApiKey so fragment renders nothing when absent"
+            "th:if must guard on firebaseAuthApiKey so fragment renders nothing when absent",
         )
     }
 
@@ -67,7 +66,7 @@ class FirebaseAuthTemplateTest {
         assertTrue(content.contains("th:if"), "must have th:if condition")
         assertTrue(
             content.contains("commentsEnabled") && content.contains("th:if"),
-            "th:if must guard on commentsEnabled so fragment renders nothing when disabled"
+            "th:if must guard on commentsEnabled so fragment renders nothing when disabled",
         )
     }
 

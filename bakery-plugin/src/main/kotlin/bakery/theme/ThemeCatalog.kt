@@ -30,59 +30,64 @@ package bakery.theme
  * BKY-IA-2 — Theme IA parametrique.
  */
 object ThemeCatalog {
-
-    private val presets: Map<ThemeVariant, ThemePreset> = mapOf(
-        ThemeVariant.MINIMAL to ThemePreset(
-            variant = ThemeVariant.MINIMAL,
-            primaryColor = "#2c3e50",
-            secondaryColor = "#95a5a6",
-            accentColor = "#34495e",
-            backgroundColor = "#ffffff",
-            textColor = "#333333",
-            fontFamily = "system-ui, sans-serif",
-            headingFont = "system-ui, sans-serif"
-        ),
-        ThemeVariant.MAGAZINE to ThemePreset(
-            variant = ThemeVariant.MAGAZINE,
-            primaryColor = "#e74c3c",
-            secondaryColor = "#ecf0f1",
-            accentColor = "#c0392b",
-            backgroundColor = "#ffffff",
-            textColor = "#2c3e50",
-            fontFamily = "Georgia, serif",
-            headingFont = "Playfair Display, serif"
-        ),
-        ThemeVariant.DOCUMENTATION to ThemePreset(
-            variant = ThemeVariant.DOCUMENTATION,
-            primaryColor = "#2980b9",
-            secondaryColor = "#ecf0f1",
-            accentColor = "#8e44ad",
-            backgroundColor = "#fafafa",
-            textColor = "#333333",
-            fontFamily = "'Roboto Mono', monospace",
-            headingFont = "'Inter', sans-serif"
-        ),
-        ThemeVariant.PORTFOLIO to ThemePreset(
-            variant = ThemeVariant.PORTFOLIO,
-            primaryColor = "#2ecc71",
-            secondaryColor = "#f5f5f5",
-            accentColor = "#27ae60",
-            backgroundColor = "#1a1a2e",
-            textColor = "#e0e0e0",
-            fontFamily = "'Fira Sans', sans-serif",
-            headingFont = "'Montserrat', sans-serif"
-        ),
-        ThemeVariant.FORMATION to ThemePreset(
-            variant = ThemeVariant.FORMATION,
-            primaryColor = "#0d6efd",
-            secondaryColor = "#f8f9fa",
-            accentColor = "#198754",
-            backgroundColor = "#ffffff",
-            textColor = "#212529",
-            fontFamily = "'Inter', sans-serif",
-            headingFont = "'Inter', sans-serif"
+    private val presets: Map<ThemeVariant, ThemePreset> =
+        mapOf(
+            ThemeVariant.MINIMAL to
+                ThemePreset(
+                    variant = ThemeVariant.MINIMAL,
+                    primaryColor = "#2c3e50",
+                    secondaryColor = "#95a5a6",
+                    accentColor = "#34495e",
+                    backgroundColor = "#ffffff",
+                    textColor = "#333333",
+                    fontFamily = "system-ui, sans-serif",
+                    headingFont = "system-ui, sans-serif",
+                ),
+            ThemeVariant.MAGAZINE to
+                ThemePreset(
+                    variant = ThemeVariant.MAGAZINE,
+                    primaryColor = "#e74c3c",
+                    secondaryColor = "#ecf0f1",
+                    accentColor = "#c0392b",
+                    backgroundColor = "#ffffff",
+                    textColor = "#2c3e50",
+                    fontFamily = "Georgia, serif",
+                    headingFont = "Playfair Display, serif",
+                ),
+            ThemeVariant.DOCUMENTATION to
+                ThemePreset(
+                    variant = ThemeVariant.DOCUMENTATION,
+                    primaryColor = "#2980b9",
+                    secondaryColor = "#ecf0f1",
+                    accentColor = "#8e44ad",
+                    backgroundColor = "#fafafa",
+                    textColor = "#333333",
+                    fontFamily = "'Roboto Mono', monospace",
+                    headingFont = "'Inter', sans-serif",
+                ),
+            ThemeVariant.PORTFOLIO to
+                ThemePreset(
+                    variant = ThemeVariant.PORTFOLIO,
+                    primaryColor = "#2ecc71",
+                    secondaryColor = "#f5f5f5",
+                    accentColor = "#27ae60",
+                    backgroundColor = "#1a1a2e",
+                    textColor = "#e0e0e0",
+                    fontFamily = "'Fira Sans', sans-serif",
+                    headingFont = "'Montserrat', sans-serif",
+                ),
+            ThemeVariant.FORMATION to
+                ThemePreset(
+                    variant = ThemeVariant.FORMATION,
+                    primaryColor = "#0d6efd",
+                    secondaryColor = "#f8f9fa",
+                    accentColor = "#198754",
+                    backgroundColor = "#ffffff",
+                    textColor = "#212529",
+                    fontFamily = "'Inter', sans-serif",
+                    headingFont = "'Inter', sans-serif",
+                ),
         )
-    )
 
     /**
      * Retourne le preset pour une variante donnee.
@@ -108,7 +113,7 @@ object ThemeCatalog {
      */
     fun resolve(
         variant: ThemeVariant,
-        overrides: ThemeOverrides = ThemeOverrides()
+        overrides: ThemeOverrides = ThemeOverrides(),
     ): ThemePreset {
         val base = presetFor(variant)
         return base.copy(
@@ -120,7 +125,7 @@ object ThemeCatalog {
             fontFamily = overrides.fontFamily ?: base.fontFamily,
             headingFont = overrides.headingFont ?: base.headingFont,
             logoUrl = overrides.logoUrl ?: base.logoUrl,
-            faviconUrl = overrides.faviconUrl ?: base.faviconUrl
+            faviconUrl = overrides.faviconUrl ?: base.faviconUrl,
         )
     }
 }
@@ -141,5 +146,5 @@ data class ThemeOverrides(
     val fontFamily: String? = null,
     val headingFont: String? = null,
     val logoUrl: String? = null,
-    val faviconUrl: String? = null
+    val faviconUrl: String? = null,
 )

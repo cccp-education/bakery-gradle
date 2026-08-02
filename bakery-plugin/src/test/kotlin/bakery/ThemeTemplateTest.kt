@@ -17,7 +17,6 @@ import java.io.File
  * *evaluated output*. Both perspectives are valuable.
  */
 class ThemeTemplateTest {
-
     private val templatesDir = File("src/main/resources/site/templates")
 
     @Test
@@ -40,7 +39,7 @@ class ThemeTemplateTest {
         assertTrue(content.contains("th:if"), "must have th:if condition")
         assertTrue(
             content.contains("themePrimaryColor") && content.contains("th:if"),
-            "th:if must guard on themePrimaryColor so fragment renders nothing when absent"
+            "th:if must guard on themePrimaryColor so fragment renders nothing when absent",
         )
     }
 

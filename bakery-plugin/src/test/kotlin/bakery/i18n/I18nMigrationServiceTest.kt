@@ -3,26 +3,24 @@ package bakery.i18n
 import contracts.i18n.TranslationRequest
 import contracts.i18n.TranslationResult
 import contracts.i18n.TranslationService
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.util.Properties
-import org.assertj.core.api.Assertions.assertThat
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class I18nMigrationServiceTest {
-
     private val service = I18nMigrationService()
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class ScanTemplates {
-
         @TempDir
         lateinit var tempDir: File
 
@@ -74,7 +72,6 @@ class I18nMigrationServiceTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class ExtractHardcodedText {
-
         @TempDir
         lateinit var tempDir: File
 
@@ -194,16 +191,16 @@ class I18nMigrationServiceTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class GenerateMessageFiles {
-
         @TempDir
         lateinit var tempDir: File
 
         @Test
         fun `creates one file per language`() {
-            val extractions = mapOf(
-                "header.thyme" to mapOf("header.1" to "Accueil", "header.2" to "Contact"),
-                "footer.thyme" to mapOf("footer.1" to "Pied de page")
-            )
+            val extractions =
+                mapOf(
+                    "header.thyme" to mapOf("header.1" to "Accueil", "header.2" to "Contact"),
+                    "footer.thyme" to mapOf("footer.1" to "Pied de page"),
+                )
             val templatesDir = tempDir.resolve("templates")
             templatesDir.mkdirs()
 
@@ -217,9 +214,10 @@ class I18nMigrationServiceTest {
 
         @Test
         fun `fr language gets original values`() {
-            val extractions = mapOf(
-                "header.thyme" to mapOf("header.1" to "Accueil")
-            )
+            val extractions =
+                mapOf(
+                    "header.thyme" to mapOf("header.1" to "Accueil"),
+                )
             val templatesDir = tempDir.resolve("templates")
             templatesDir.mkdirs()
 
@@ -231,9 +229,10 @@ class I18nMigrationServiceTest {
 
         @Test
         fun `non-fr languages get empty values when no translator provided`() {
-            val extractions = mapOf(
-                "header.thyme" to mapOf("header.1" to "Accueil")
-            )
+            val extractions =
+                mapOf(
+                    "header.thyme" to mapOf("header.1" to "Accueil"),
+                )
             val templatesDir = tempDir.resolve("templates")
             templatesDir.mkdirs()
 
@@ -287,7 +286,6 @@ class I18nMigrationServiceTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class ReplaceHardcodedWithMessageKeys {
-
         @TempDir
         lateinit var tempDir: File
 
@@ -379,7 +377,6 @@ class I18nMigrationServiceTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class TranslateMessageFiles {
-
         @TempDir
         lateinit var tempDir: File
 
@@ -426,20 +423,21 @@ class I18nMigrationServiceTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class WriteMessageFiles {
-
         @TempDir
         lateinit var tempDir: File
 
         @Test
         fun `creates parent directories for message files`() {
             val templatesDir = tempDir.resolve("templates")
-            val messageFiles = mapOf(
-                "messages_fr.properties" to templatesDir.resolve("messages_fr.properties"),
-                "messages_en.properties" to templatesDir.resolve("messages_en.properties")
-            )
-            val extractions = mapOf(
-                "header.thyme" to mapOf("header.1" to "Accueil")
-            )
+            val messageFiles =
+                mapOf(
+                    "messages_fr.properties" to templatesDir.resolve("messages_fr.properties"),
+                    "messages_en.properties" to templatesDir.resolve("messages_en.properties"),
+                )
+            val extractions =
+                mapOf(
+                    "header.thyme" to mapOf("header.1" to "Accueil"),
+                )
 
             service.writeMessageFiles(messageFiles, extractions)
 
@@ -452,7 +450,6 @@ class I18nMigrationServiceTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class InjectSiteLanguage {
-
         @TempDir
         lateinit var tempDir: File
 
@@ -512,7 +509,6 @@ class I18nMigrationServiceTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class Migrate {
-
         @TempDir
         lateinit var tempDir: File
 
@@ -607,7 +603,6 @@ class I18nMigrationServiceTest {
     }
 
     private class FakeTranslationService : TranslationService {
-
         val requestsReceived = mutableListOf<TranslationRequest>()
         private val resultQueue: MutableList<TranslationResult> = mutableListOf()
 

@@ -5,10 +5,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class SecretFieldTest {
-
     @Nested
     inner class PasswordTest {
-
         @Test
         fun `Password blank value returns not set`() {
             assertThat(maskSecret(SecretField.Password(""))).isEqualTo("(not set)")
@@ -27,7 +25,6 @@ class SecretFieldTest {
 
     @Nested
     inner class ApiKeyTest {
-
         @Test
         fun `ApiKey blank value returns not set`() {
             assertThat(maskSecret(SecretField.ApiKey(""))).isEqualTo("(not set)")
@@ -48,7 +45,6 @@ class SecretFieldTest {
 
     @Nested
     inner class TokenTest {
-
         @Test
         fun `Token blank value returns not set`() {
             assertThat(maskSecret(SecretField.Token(""))).isEqualTo("(not set)")
@@ -68,7 +64,6 @@ class SecretFieldTest {
 
     @Nested
     inner class DeviceKeyTest {
-
         @Test
         fun `DeviceKey blank value returns not set`() {
             assertThat(maskSecret(SecretField.DeviceKey(""))).isEqualTo("(not set)")

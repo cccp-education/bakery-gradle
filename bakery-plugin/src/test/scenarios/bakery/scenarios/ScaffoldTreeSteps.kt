@@ -12,7 +12,6 @@ import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 
 class ScaffoldTreeSteps {
-
     private var llmResponse: String = ""
     private var intention: ScaffoldIntention =
         ScaffoldIntention(description = "Formation FPA", siteType = ScaffoldSiteType.FORMATION)
@@ -21,7 +20,8 @@ class ScaffoldTreeSteps {
 
     @Given("an LLM response with a 3-level tree JSON")
     fun anLlmResponseWith3LevelTreeJson() {
-        llmResponse = """
+        llmResponse =
+            """
             {
               "siteType": "formation",
               "projectName": "ma-formation",
@@ -48,12 +48,13 @@ class ScaffoldTreeSteps {
                 ]
               }
             }
-        """.trimIndent()
+            """.trimIndent()
     }
 
     @Given("an LLM response with a tree containing 3 articles")
     fun anLlmResponseWithTreeContaining3Articles() {
-        llmResponse = """
+        llmResponse =
+            """
             {
               "siteType": "blog",
               "projectName": "mon-blog",
@@ -74,24 +75,26 @@ class ScaffoldTreeSteps {
                 ]
               }
             }
-        """.trimIndent()
+            """.trimIndent()
     }
 
     @Given("an LLM response with a legacy templates list and no tree")
     fun anLlmResponseWithLegacyTemplatesList() {
-        llmResponse = """
+        llmResponse =
+            """
             {
               "siteType": "blog",
               "projectName": "mon-blog",
               "description": "Blog",
               "templates": ["blog.thyme", "post.thyme", "page.thyme"]
             }
-        """.trimIndent()
+            """.trimIndent()
     }
 
     @Given("an LLM response with both tree and legacy templates")
     fun anLlmResponseWithBothTreeAndLegacyTemplates() {
-        llmResponse = """
+        llmResponse =
+            """
             {
               "siteType": "blog",
               "projectName": "mon-blog",
@@ -111,17 +114,18 @@ class ScaffoldTreeSteps {
                 ]
               }
             }
-        """.trimIndent()
+            """.trimIndent()
     }
 
     @Given("a scaffold intention for a formation site")
     fun aScaffoldIntentionForFormationSite() {
-        intention = ScaffoldIntention(
-            description = "Formation FPA complete",
-            siteType = ScaffoldSiteType.FORMATION,
-            lang = "fr",
-            projectName = "ma-formation"
-        )
+        intention =
+            ScaffoldIntention(
+                description = "Formation FPA complete",
+                siteType = ScaffoldSiteType.FORMATION,
+                lang = "fr",
+                projectName = "ma-formation",
+            )
     }
 
     @When("I generate the scaffold output")
@@ -148,7 +152,7 @@ class ScaffoldTreeSteps {
         assertThat(output.templates).contains(
             "formations/ab-partition.thyme",
             "formations/cd-partition.thyme",
-            "blog/hello.thyme"
+            "blog/hello.thyme",
         )
     }
 

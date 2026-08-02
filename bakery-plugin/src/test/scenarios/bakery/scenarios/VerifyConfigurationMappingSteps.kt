@@ -4,7 +4,6 @@ import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
 import org.assertj.core.api.Assertions.assertThat
-import java.io.File
 
 /**
  * US-61a — Cucumber steps pour verifyConfigurationMapping.
@@ -12,12 +11,14 @@ import java.io.File
  * Valide le mapping YAML sécurisé : masquage des secrets et gestion
  * des erreurs de parsing.
  */
-class VerifyConfigurationMappingSteps(private val world: BakeryWorld) {
-
+class VerifyConfigurationMappingSteps(
+    private val world: BakeryWorld,
+) {
     @Given("a valid site.yml with secrets")
     fun validSiteYmlWithSecrets() {
         val projectDir = world.projectDir ?: world.createGradleProjectWithSiteConfigured()
-        projectDir.resolve("site.yml").writeText("""
+        projectDir.resolve("site.yml").writeText(
+            """
             bake:
               srcPath: "site"
               destDirPath: "build/bake"
@@ -70,7 +71,8 @@ class VerifyConfigurationMappingSteps(private val world: BakeryWorld) {
               apiKey: "AIzaSy-test-api-key"
               authDomain: "test-project.firebaseapp.com"
               projectId: "test-project"
-        """.trimIndent())
+            """.trimIndent(),
+        )
     }
 
     @Given("a malformed site.yml")

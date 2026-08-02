@@ -3,7 +3,6 @@ package bakery.scenarios
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import org.assertj.core.api.Assertions.assertThat
-import java.io.File
 import kotlin.text.Charsets.UTF_8
 
 /**
@@ -13,8 +12,9 @@ import kotlin.text.Charsets.UTF_8
  * Tests use generateSite task which creates the site scaffold and
  * reads the YAML config to inject resolved properties into jbake.properties.
  */
-class ConfigResolverSteps(private val world: BakeryWorld) {
-
+class ConfigResolverSteps(
+    private val world: BakeryWorld,
+) {
     @Given("a new Bakery project with site configured")
     fun createBakeryProjectWithSiteConfigured() {
         // Use the standard project creation (no IA, no site/maquette dirs)
@@ -41,11 +41,12 @@ class ConfigResolverSteps(private val world: BakeryWorld) {
         val siteYml = projectDir.resolve("site.yml")
         val content = if (siteYml.exists()) siteYml.readText(UTF_8) else defaultSiteYml()
         // Replace or append googleForms block
-        val updatedContent = if (content.contains("googleForms:")) {
-            content.replace(Regex("googleForms:[\\s\\S]*?(?=\\n[a-zA-Z]|$)"), "googleForms:\n  formId: \"$formId\"\n  width: \"640\"\n  height: \"800\"")
-        } else {
-            content.trimEnd() + "\ngoogleForms:\n  formId: \"$formId\"\n  width: \"640\"\n  height: \"800\"\n"
-        }
+        val updatedContent =
+            if (content.contains("googleForms:")) {
+                content.replace(Regex("googleForms:[\\s\\S]*?(?=\\n[a-zA-Z]|$)"), "googleForms:\n  formId: \"$formId\"\n  width: \"640\"\n  height: \"800\"")
+            } else {
+                content.trimEnd() + "\ngoogleForms:\n  formId: \"$formId\"\n  width: \"640\"\n  height: \"800\"\n"
+            }
         siteYml.writeText(updatedContent, UTF_8)
     }
 
@@ -55,10 +56,11 @@ class ConfigResolverSteps(private val world: BakeryWorld) {
         val buildFile = projectDir.resolve("build.gradle.kts")
         val content = buildFile.readText(UTF_8)
         // Add googleForms DSL block inside bakery { }
-        val updatedContent = content.replace(
-            Regex("(bakery\\s*\\{)"),
-            "$1\n    googleForms {\n        formId = \"$formId\"\n    }"
-        )
+        val updatedContent =
+            content.replace(
+                Regex("(bakery\\s*\\{)"),
+                "$1\n    googleForms {\n        formId = \"$formId\"\n    }",
+            )
         buildFile.writeText(updatedContent, UTF_8)
     }
 
@@ -71,7 +73,10 @@ class ConfigResolverSteps(private val world: BakeryWorld) {
     }
 
     @Then("the file {string} should contain {string}")
-    fun fileShouldContain(filePath: String, expectedContent: String) {
+    fun fileShouldContain(
+        filePath: String,
+        expectedContent: String,
+    ) {
         val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
         val file = projectDir.resolve(filePath)
         assertThat(file)
@@ -84,7 +89,8 @@ class ConfigResolverSteps(private val world: BakeryWorld) {
             .contains(expectedContent)
     }
 
-    private fun defaultSiteYml(): String = """
+    private fun defaultSiteYml(): String =
+        """
         |bake:
         |  srcPath: "site"
         |  destDirPath: "build/bake"
@@ -110,5 +116,5 @@ class ConfigResolverSteps(private val world: BakeryWorld) {
         |      password: "token"
         |  branch: "main"
         |  message: "Deploy maquette"
-    """.trimMargin()
+        """.trimMargin()
 }

@@ -19,7 +19,6 @@ import java.nio.file.Files
  * sans passer par Gradle Task (trop lent pour Cucumber).
  */
 class AugmentedContextN3Steps {
-
     private lateinit var bakedDir: File
     private lateinit var outputDir: File
     private lateinit var augmentedContextDsl: AugmentedContextDsl
@@ -37,7 +36,7 @@ class AugmentedContextN3Steps {
             """<?xml version="1.0"?>
 <rss version="2.0">
 <channel><title>Test</title></channel>
-</rss>"""
+</rss>""",
         )
         outputDir = tempRoot.resolve("output")
     }
@@ -46,12 +45,13 @@ class AugmentedContextN3Steps {
     fun `a composite-context json file with non-empty channels`(channelCount: Int) {
         val tempRoot = bakedDir.parentFile
         val compositeFile = tempRoot.resolve("composite-context.json")
-        val sections = mapOf(
-            "eagerSection" to "Eager governance content.",
-            "ragSection" to "RAG similarity scores.",
-            "graphifySection" to "Graphify structural relations.",
-            "docsSection" to "Docs corpus documentation."
-        )
+        val sections =
+            mapOf(
+                "eagerSection" to "Eager governance content.",
+                "ragSection" to "RAG similarity scores.",
+                "graphifySection" to "Graphify structural relations.",
+                "docsSection" to "Docs corpus documentation.",
+            )
         // Select only the requested number of non-empty channels
         val selectedSections = sections.entries.take(channelCount)
         val emptySections = sections.entries.drop(channelCount)
@@ -122,8 +122,10 @@ class AugmentedContextN3Steps {
     @Then("the augmentedEntries channels should have {int} entries")
     fun `the augmentedEntries channels should have entries`(count: Int) {
         val metadata: Map<String, Any> = mapper.readValue(metadataFile)
+
         @Suppress("UNCHECKED_CAST")
         val augmentedEntries = metadata["augmentedEntries"] as Map<String, Any>
+
         @Suppress("UNCHECKED_CAST")
         val channels = augmentedEntries["channels"] as List<*>
         assertThat(channels).hasSize(count)
@@ -132,8 +134,10 @@ class AugmentedContextN3Steps {
     @Then("the augmentedEntries channels should be empty")
     fun `the augmentedEntries channels should be empty`() {
         val metadata: Map<String, Any> = mapper.readValue(metadataFile)
+
         @Suppress("UNCHECKED_CAST")
         val augmentedEntries = metadata["augmentedEntries"] as Map<String, Any>
+
         @Suppress("UNCHECKED_CAST")
         val channels = augmentedEntries["channels"] as List<*>
         assertThat(channels).isEmpty()

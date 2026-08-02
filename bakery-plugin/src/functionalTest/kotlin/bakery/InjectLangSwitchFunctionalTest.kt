@@ -7,18 +7,19 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
 class InjectLangSwitchFunctionalTest {
-
     @TempDir
     lateinit var projectDir: File
 
     @Test
     fun `injectLangSwitch injects fragment into menu dot thyme for 2 languages`() {
         createProjectWithFixture(2)
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("injectLangSwitch")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("injectLangSwitch")
+                .build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
         val frMenu = projectDir.resolve("site/templates/menu.thyme")
@@ -38,7 +39,8 @@ class InjectLangSwitchFunctionalTest {
     @Test
     fun `injectLangSwitch from EN subdir links to FR root correctly`() {
         createProjectWithFixture(2)
-        GradleRunner.create()
+        GradleRunner
+            .create()
             .withProjectDir(projectDir)
             .withPluginClasspath()
             .withArguments("injectLangSwitch")
@@ -52,7 +54,8 @@ class InjectLangSwitchFunctionalTest {
     @Test
     fun `injectLangSwitch from FR root links to EN subdir correctly`() {
         createProjectWithFixture(2)
-        GradleRunner.create()
+        GradleRunner
+            .create()
             .withProjectDir(projectDir)
             .withPluginClasspath()
             .withArguments("injectLangSwitch")
@@ -66,7 +69,8 @@ class InjectLangSwitchFunctionalTest {
     @Test
     fun `injectLangSwitch does not create self-loop on EN page`() {
         createProjectWithFixture(2)
-        GradleRunner.create()
+        GradleRunner
+            .create()
             .withProjectDir(projectDir)
             .withPluginClasspath()
             .withArguments("injectLangSwitch")
@@ -81,7 +85,8 @@ class InjectLangSwitchFunctionalTest {
     @Test
     fun `injectLangSwitch is idempotent on second invocation`() {
         createProjectWithFixture(2)
-        GradleRunner.create()
+        GradleRunner
+            .create()
             .withProjectDir(projectDir)
             .withPluginClasspath()
             .withArguments("injectLangSwitch")
@@ -90,11 +95,13 @@ class InjectLangSwitchFunctionalTest {
         val frMenu = projectDir.resolve("site/templates/menu.thyme")
         val firstContent = frMenu.readText()
 
-        val result2 = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("injectLangSwitch")
-            .build()
+        val result2 =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("injectLangSwitch")
+                .build()
 
         assertThat(result2.output).contains("BUILD SUCCESSFUL")
         val secondContent = frMenu.readText()
@@ -104,11 +111,13 @@ class InjectLangSwitchFunctionalTest {
     @Test
     fun `injectLangSwitch is registered in transform group`() {
         createProjectWithFixture(2)
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("tasks", "--group", "transform")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("tasks", "--group", "transform")
+                .build()
 
         println("DEBUG OUTPUT:\n${result.output}")
         assertThat(result.output).contains("injectLangSwitch")
@@ -117,7 +126,8 @@ class InjectLangSwitchFunctionalTest {
     @Test
     fun `injectLangSwitch with 3 languages links EN subdir to AR subdir`() {
         createProjectWithFixture(3)
-        GradleRunner.create()
+        GradleRunner
+            .create()
             .withProjectDir(projectDir)
             .withPluginClasspath()
             .withArguments("injectLangSwitch")
@@ -129,21 +139,26 @@ class InjectLangSwitchFunctionalTest {
     }
 
     private fun createProjectWithFixture(langCount: Int) {
-        projectDir.resolve("settings.gradle.kts").writeText("""
+        projectDir.resolve("settings.gradle.kts").writeText(
+            """
             pluginManagement { repositories { gradlePluginPortal(); mavenLocal() } }
             rootProject.name = "inject-lang-switch-test"
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
-        projectDir.resolve("build.gradle.kts").writeText("""
+        projectDir.resolve("build.gradle.kts").writeText(
+            """
             plugins { id("education.cccp.bakery") }
             bakery { configPath = "site.yml" }
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
         val siteDir = projectDir.resolve("site")
         siteDir.resolve("templates").mkdirs()
         siteDir.resolve("content").mkdirs()
 
-        val menuThyme = """
+        val menuThyme =
+            """
             <html xmlns:th="http://www.thymeleaf.org">
             <body>
             <nav class="navbar">
@@ -155,7 +170,7 @@ class InjectLangSwitchFunctionalTest {
             </nav>
             </body>
             </html>
-        """.trimIndent()
+            """.trimIndent()
 
         siteDir.resolve("templates/menu.thyme").writeText(menuThyme)
         siteDir.resolve("content/index.html").writeText("<h1>Hello FR</h1>")
@@ -172,12 +187,14 @@ class InjectLangSwitchFunctionalTest {
         }
 
         val langsYaml = langs.joinToString(", ")
-        projectDir.resolve("site.yml").writeText("""
+        projectDir.resolve("site.yml").writeText(
+            """
             bake:
               srcPath: site
               destDirPath: build/output
             language: fr
             supportedLanguages: [$langsYaml]
-        """.trimIndent())
+            """.trimIndent(),
+        )
     }
 }

@@ -26,8 +26,9 @@ import java.time.Duration.ofSeconds
  * val service = OllamaLlmService(fakeModel)
  * ```
  */
-class OllamaLlmService(private val model: ChatModel) : LlmService {
-
+class OllamaLlmService(
+    private val model: ChatModel,
+) : LlmService {
     override suspend fun complete(prompt: String): String {
         val messages = listOf<ChatMessage>(UserMessage.from(prompt))
         val response = model.chat(messages)
@@ -45,12 +46,14 @@ class OllamaLlmService(private val model: ChatModel) : LlmService {
         fun create(
             baseUrl: String,
             modelName: String,
-            timeout: Duration = ofSeconds(120)
-        ): OllamaLlmService = OllamaLlmService(
-            builder()
-            .baseUrl(baseUrl)
-            .modelName(modelName)
-            .timeout(timeout)
-            .build())
+            timeout: Duration = ofSeconds(120),
+        ): OllamaLlmService =
+            OllamaLlmService(
+                builder()
+                    .baseUrl(baseUrl)
+                    .modelName(modelName)
+                    .timeout(timeout)
+                    .build(),
+            )
     }
 }

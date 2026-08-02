@@ -45,7 +45,6 @@ import java.io.File
  */
 @DisableCachingByDefault(because = "Résolution de thème — résultat déterministe mais dépendant de la config")
 abstract class GenerateThemeTask : DefaultTask() {
-
     /**
      * Répertoire cible du site JBake.
      * Résolu depuis `bake.srcPath` du site config.
@@ -159,20 +158,28 @@ abstract class GenerateThemeTask : DefaultTask() {
     fun executeGenerate() {
         val resolvedIntention = resolveIntention()
 
-        logger.lifecycle("[generateTheme] Thème : variante={}, description={}",
-            resolvedIntention.variant, resolvedIntention.description)
+        logger.lifecycle(
+            "[generateTheme] Thème : variante={}, description={}",
+            resolvedIntention.variant,
+            resolvedIntention.description,
+        )
 
         // Résoudre le preset du catalogue
         val preset = ThemeCatalog.resolve(resolvedIntention.variant, resolvedIntention.overrides)
 
-        logger.lifecycle("[generateTheme] Preset résolu : primaryColor={}, accentColor={}, backgroundColor={}",
-            preset.primaryColor, preset.accentColor, preset.backgroundColor)
+        logger.lifecycle(
+            "[generateTheme] Preset résolu : primaryColor={}, accentColor={}, backgroundColor={}",
+            preset.primaryColor,
+            preset.accentColor,
+            preset.backgroundColor,
+        )
 
         // Écrire les propriétés de thème dans jbake.properties
-        val dir = targetDir
-            ?: throw IllegalStateException(
-                "Aucun targetDir configuré. Le site doit être initialisé avec generateSite d'abord."
-            )
+        val dir =
+            targetDir
+                ?: throw IllegalStateException(
+                    "Aucun targetDir configuré. Le site doit être initialisé avec generateSite d'abord.",
+                )
 
         val jbakeProps = dir.resolve("site/jbake.properties")
         if (jbakeProps.exists()) {
@@ -204,53 +211,63 @@ abstract class GenerateThemeTask : DefaultTask() {
      * 3. Defaults : variante MINIMAL, couleurs du preset
      */
     internal fun resolveIntention(): ThemeIntention {
-        val resolvedDescription = ResolveIntention.fromCli(
-            themeDescription.orNull,
-            dslIntention?.description,
-            "Thème généré par catalogue",
-        )
+        val resolvedDescription =
+            ResolveIntention.fromCli(
+                themeDescription.orNull,
+                dslIntention?.description,
+                "Thème généré par catalogue",
+            )
 
-        val resolvedVariant = ResolveIntention.fromCli(
-            themeVariant.orNull,
-            dslIntention?.variant?.name?.lowercase(),
-            "minimal",
-        )
+        val resolvedVariant =
+            ResolveIntention.fromCli(
+                themeVariant.orNull,
+                dslIntention?.variant?.name?.lowercase(),
+                "minimal",
+            )
 
-        val resolvedOverrides = ThemeOverrides(
-            primaryColor = ResolveIntention.fromCliNullable(
-                themePrimaryColor.orNull,
-                dslIntention?.overrides?.primaryColor,
-            ),
-            secondaryColor = ResolveIntention.fromCliNullable(
-                themeSecondaryColor.orNull,
-                dslIntention?.overrides?.secondaryColor,
-            ),
-            accentColor = ResolveIntention.fromCliNullable(
-                themeAccentColor.orNull,
-                dslIntention?.overrides?.accentColor,
-            ),
-            backgroundColor = ResolveIntention.fromCliNullable(
-                themeBackgroundColor.orNull,
-                dslIntention?.overrides?.backgroundColor,
-            ),
-            textColor = ResolveIntention.fromCliNullable(
-                themeTextColor.orNull,
-                dslIntention?.overrides?.textColor,
-            ),
-            fontFamily = ResolveIntention.fromCliNullable(
-                themeFontFamily.orNull,
-                dslIntention?.overrides?.fontFamily,
-            ),
-            headingFont = ResolveIntention.fromCliNullable(
-                themeHeadingFont.orNull,
-                dslIntention?.overrides?.headingFont,
-            ),
-        )
+        val resolvedOverrides =
+            ThemeOverrides(
+                primaryColor =
+                    ResolveIntention.fromCliNullable(
+                        themePrimaryColor.orNull,
+                        dslIntention?.overrides?.primaryColor,
+                    ),
+                secondaryColor =
+                    ResolveIntention.fromCliNullable(
+                        themeSecondaryColor.orNull,
+                        dslIntention?.overrides?.secondaryColor,
+                    ),
+                accentColor =
+                    ResolveIntention.fromCliNullable(
+                        themeAccentColor.orNull,
+                        dslIntention?.overrides?.accentColor,
+                    ),
+                backgroundColor =
+                    ResolveIntention.fromCliNullable(
+                        themeBackgroundColor.orNull,
+                        dslIntention?.overrides?.backgroundColor,
+                    ),
+                textColor =
+                    ResolveIntention.fromCliNullable(
+                        themeTextColor.orNull,
+                        dslIntention?.overrides?.textColor,
+                    ),
+                fontFamily =
+                    ResolveIntention.fromCliNullable(
+                        themeFontFamily.orNull,
+                        dslIntention?.overrides?.fontFamily,
+                    ),
+                headingFont =
+                    ResolveIntention.fromCliNullable(
+                        themeHeadingFont.orNull,
+                        dslIntention?.overrides?.headingFont,
+                    ),
+            )
 
         return ThemeIntention(
             description = resolvedDescription,
             variant = ThemeVariant.fromStringOrDefault(resolvedVariant),
-            overrides = resolvedOverrides
+            overrides = resolvedOverrides,
         )
     }
 }

@@ -11,7 +11,6 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
-import java.io.File
 
 /**
  * Session 159 — Tâche Gradle generatePivotYaml.
@@ -37,7 +36,6 @@ import java.io.File
  */
 @DisableCachingByDefault(because = "Transformation AsciiDoc → YAML pivot — résultat dépendant du fichier d'entrée")
 abstract class GeneratePivotYamlTask : DefaultTask {
-
     constructor() {
         group = BakeryConstants.GENERATE_GROUP
         description = "Transforme un fichier AsciiDoc en YAML pivot (séparation structure/contenu éditorial)"
@@ -70,7 +68,7 @@ abstract class GeneratePivotYamlTask : DefaultTask {
         if (inputRaw.isEmpty()) {
             throw GradleException(
                 "[generatePivotYaml] Paramètre --input requis. " +
-                    "Usage : ./gradlew generatePivotYaml --input=article.adoc [--output=article.pivot.yaml]"
+                    "Usage : ./gradlew generatePivotYaml --input=article.adoc [--output=article.pivot.yaml]",
             )
         }
 
@@ -78,7 +76,7 @@ abstract class GeneratePivotYamlTask : DefaultTask {
         if (!input.exists()) {
             throw GradleException(
                 "[generatePivotYaml] Le fichier d'entrée '$inputRaw' n'existe pas. " +
-                    "Résolu vers : ${input.absolutePath}"
+                    "Résolu vers : ${input.absolutePath}",
             )
         }
 
@@ -96,7 +94,7 @@ abstract class GeneratePivotYamlTask : DefaultTask {
             val existing = output.readText()
             if (existing == yaml) {
                 logger.lifecycle(
-                    "[generatePivotYaml] ⏭ ${input.name} → ${output.name} (identique, skip)"
+                    "[generatePivotYaml] ⏭ ${input.name} → ${output.name} (identique, skip)",
                 )
                 return
             }
@@ -105,7 +103,7 @@ abstract class GeneratePivotYamlTask : DefaultTask {
         output.writeText(yaml)
 
         logger.lifecycle(
-            "[generatePivotYaml] ✅ ${input.name} → ${output.name} (${yaml.lines().size} lignes)"
+            "[generatePivotYaml] ✅ ${input.name} → ${output.name} (${yaml.lines().size} lignes)",
         )
     }
 }

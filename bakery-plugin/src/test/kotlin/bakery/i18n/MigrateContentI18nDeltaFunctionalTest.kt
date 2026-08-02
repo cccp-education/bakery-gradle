@@ -1,9 +1,9 @@
 package bakery.i18n
 
-import org.gradle.testfixtures.ProjectBuilder
 import contracts.i18n.TranslationRequest
 import contracts.i18n.TranslationResult
 import contracts.i18n.TranslationService
+import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -13,11 +13,13 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class MigrateContentI18nDeltaFunctionalTest {
-
     @TempDir
     lateinit var testDir: File
 
-    private fun createAdocSource(dir: File, vararg files: Pair<String, String>) {
+    private fun createAdocSource(
+        dir: File,
+        vararg files: Pair<String, String>,
+    ) {
         for ((name, content) in files) {
             dir.resolve(name).also {
                 it.parentFile.mkdirs()
@@ -31,12 +33,14 @@ class MigrateContentI18nDeltaFunctionalTest {
         sourceDir: File,
         outputBase: File,
         targetLangs: String = "en",
-        dryRun: String = "false"
+        dryRun: String = "false",
     ): MigrateContentI18nTask {
-        val project = ProjectBuilder.builder()
-            .withProjectDir(testDir)
-            .withName(projectName)
-            .build()
+        val project =
+            ProjectBuilder
+                .builder()
+                .withProjectDir(testDir)
+                .withName(projectName)
+                .build()
         project.pluginManager.apply("java-base")
 
         val task = project.tasks.register("migrateContentI18n", MigrateContentI18nTask::class.java).get()
@@ -50,14 +54,13 @@ class MigrateContentI18nDeltaFunctionalTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class FreshMigration {
-
         @Test
         fun `fresh migration translates all articles`() {
             val sourceDir = testDir.resolve("src/content")
             createAdocSource(
                 sourceDir,
                 "intro.adoc" to "= Intro\n\nBonjour le monde.",
-                "blog/post-1.adoc" to "= Post 1\n\nContenu du post."
+                "blog/post-1.adoc" to "= Post 1\n\nContenu du post.",
             )
             val outputBase = testDir.resolve("build/i18n")
 
@@ -75,14 +78,13 @@ class MigrateContentI18nDeltaFunctionalTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class DeltaMigration {
-
         @Test
         fun `second run with unchanged source translates nothing`() {
             val sourceDir = testDir.resolve("src/content")
             createAdocSource(
                 sourceDir,
                 "intro.adoc" to "= Intro\n\nBonjour le monde.",
-                "blog/post-1.adoc" to "= Post 1\n\nContenu du post."
+                "blog/post-1.adoc" to "= Post 1\n\nContenu du post.",
             )
             val outputBase = testDir.resolve("build/i18n")
 
@@ -112,7 +114,7 @@ class MigrateContentI18nDeltaFunctionalTest {
             createAdocSource(
                 sourceDir,
                 "intro.adoc" to "= Intro\n\nBonjour le monde.",
-                "blog/post-1.adoc" to "= Post 1\n\nContenu du post."
+                "blog/post-1.adoc" to "= Post 1\n\nContenu du post.",
             )
             val outputBase = testDir.resolve("build/i18n")
 
@@ -141,7 +143,7 @@ class MigrateContentI18nDeltaFunctionalTest {
             val sourceDir = testDir.resolve("src/content")
             createAdocSource(
                 sourceDir,
-                "intro.adoc" to "= Intro\n\nBonjour le monde."
+                "intro.adoc" to "= Intro\n\nBonjour le monde.",
             )
             val outputBase = testDir.resolve("build/i18n")
 
@@ -168,7 +170,9 @@ class MigrateContentI18nDeltaFunctionalTest {
         }
     }
 
-    private class FakeTranslationService(private val suffix: String) : TranslationService {
+    private class FakeTranslationService(
+        private val suffix: String,
+    ) : TranslationService {
         override fun translate(request: TranslationRequest): TranslationResult {
             val sourceText = request.sourceText
             if (sourceText.isBlank()) return TranslationResult.Success(sourceText)

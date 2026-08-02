@@ -17,18 +17,19 @@ import org.junit.jupiter.api.Test
 @Tag("e2e")
 @DisplayName("E2E - Augmented Articles")
 class E2EAugmentedArticlesTest : E2ETestBase() {
-
     @Test
     @DisplayName("Augmented Articles: Section visible with data-attributes when context enabled")
     fun `augmented articles section visible when context enabled`() {
-        val path = serveHtml(
-            "augmented-articles",
-            mapOf(
-                "augmentedContextEnabled" to "true",
-                "augmentedContextData" to """{"scoredNodes":[{"uri":"/post1","title":"Post 1","channels":["RAG","KG"]},{"uri":"/post2","title":"Post 2","channels":["Docs"]}]}""",
-                "lensBudgetMaxArticlesPerPage" to "4"
+        val path =
+            serveHtml(
+                "augmented-articles",
+                mapOf(
+                    "augmentedContextEnabled" to "true",
+                    "augmentedContextData" to
+                        """{"scoredNodes":[{"uri":"/post1","title":"Post 1","channels":["RAG","KG"]},{"uri":"/post2","title":"Post 2","channels":["Docs"]}]}""",
+                    "lensBudgetMaxArticlesPerPage" to "4",
+                ),
             )
-        )
 
         val page = navigateTo(path)
 
@@ -68,14 +69,15 @@ class E2EAugmentedArticlesTest : E2ETestBase() {
     @Test
     @DisplayName("Augmented Articles: Empty scoredNodes hides the section")
     fun `empty scored nodes hides the section`() {
-        val path = serveHtml(
-            "augmented-articles",
-            mapOf(
-                "augmentedContextEnabled" to "true",
-                "augmentedContextData" to """{"scoredNodes":[]}""",
-                "lensBudgetMaxArticlesPerPage" to "4"
+        val path =
+            serveHtml(
+                "augmented-articles",
+                mapOf(
+                    "augmentedContextEnabled" to "true",
+                    "augmentedContextData" to """{"scoredNodes":[]}""",
+                    "lensBudgetMaxArticlesPerPage" to "4",
+                ),
             )
-        )
 
         val page = navigateTo(path)
 
@@ -90,15 +92,16 @@ class E2EAugmentedArticlesTest : E2ETestBase() {
     @Test
     @DisplayName("Augmented Articles: Custom heading text is rendered")
     fun `custom heading text is rendered`() {
-        val path = serveHtml(
-            "augmented-articles",
-            mapOf(
-                "augmentedContextEnabled" to "true",
-                "augmentedContextData" to """{"scoredNodes":[{"uri":"/post1","title":"Post 1","channels":["RAG"]}]}""",
-                "lensBudgetMaxArticlesPerPage" to "4",
-                "relatedArticlesHeading" to "Voir aussi"
+        val path =
+            serveHtml(
+                "augmented-articles",
+                mapOf(
+                    "augmentedContextEnabled" to "true",
+                    "augmentedContextData" to """{"scoredNodes":[{"uri":"/post1","title":"Post 1","channels":["RAG"]}]}""",
+                    "lensBudgetMaxArticlesPerPage" to "4",
+                    "relatedArticlesHeading" to "Voir aussi",
+                ),
             )
-        )
 
         val page = navigateTo(path)
 

@@ -2,8 +2,8 @@ package bakery.tree
 
 import bakery.LayoutType
 import bakery.ThemeConfig
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -12,7 +12,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class TreeBakeServiceTest {
-
     private val jsonMapper = ObjectMapper()
 
     @TempDir
@@ -20,28 +19,33 @@ class TreeBakeServiceTest {
 
     private fun srcDir(): File = tempDir.resolve("site").also { it.mkdirs() }
 
-    private fun writeJbakeProps(dir: File, content: String = "site.host=example.com\n") {
+    private fun writeJbakeProps(
+        dir: File,
+        content: String = "site.host=example.com\n",
+    ) {
         dir.resolve("jbake.properties").writeText(content)
     }
 
-    private fun readJbakeProps(dir: File): String =
-        dir.resolve("jbake.properties").readText()
+    private fun readJbakeProps(dir: File): String = dir.resolve("jbake.properties").readText()
 
     @Test
     fun `injectTreeConfig adds bakeTreeConfig to jbake properties`() {
         val dir = srcDir()
         writeJbakeProps(dir)
-        val dto = SiteNodeDto.SiteDto(
-            path = "",
-            sections = listOf(
-                SiteNodeDto.SectionDto(
-                    path = "docs",
-                    articles = listOf(
-                        SiteNodeDto.ArticleDto(path = "docs/guide")
-                    )
-                )
+        val dto =
+            SiteNodeDto.SiteDto(
+                path = "",
+                sections =
+                    listOf(
+                        SiteNodeDto.SectionDto(
+                            path = "docs",
+                            articles =
+                                listOf(
+                                    SiteNodeDto.ArticleDto(path = "docs/guide"),
+                                ),
+                        ),
+                    ),
             )
-        )
 
         TreeBakeService.injectTreeConfig(dto, dir)
 
@@ -53,17 +57,20 @@ class TreeBakeServiceTest {
     @Test
     fun `injectTreeConfig does nothing when no jbake properties exists`() {
         val dir = srcDir()
-        val dto = SiteNodeDto.SiteDto(
-            path = "",
-            sections = listOf(
-                SiteNodeDto.SectionDto(
-                    path = "docs",
-                    articles = listOf(
-                        SiteNodeDto.ArticleDto(path = "docs/guide")
-                    )
-                )
+        val dto =
+            SiteNodeDto.SiteDto(
+                path = "",
+                sections =
+                    listOf(
+                        SiteNodeDto.SectionDto(
+                            path = "docs",
+                            articles =
+                                listOf(
+                                    SiteNodeDto.ArticleDto(path = "docs/guide"),
+                                ),
+                        ),
+                    ),
             )
-        )
 
         TreeBakeService.injectTreeConfig(dto, dir)
 
@@ -74,29 +81,34 @@ class TreeBakeServiceTest {
     fun `injected config contains resolved output config for each article`() {
         val dir = srcDir()
         writeJbakeProps(dir)
-        val dto = SiteNodeDto.SiteDto(
-            path = "",
-            outputConfig = OutputConfig(
-                template = "default-page",
-                jsFiles = listOf("analytics.js")
-            ),
-            sections = listOf(
-                SiteNodeDto.SectionDto(
-                    path = "docs",
-                    outputConfig = OutputConfig(
-                        layout = LayoutType.SIDEBAR_LEFT,
-                        cssFiles = listOf("docs.css")
+        val dto =
+            SiteNodeDto.SiteDto(
+                path = "",
+                outputConfig =
+                    OutputConfig(
+                        template = "default-page",
+                        jsFiles = listOf("analytics.js"),
                     ),
-                    articles = listOf(
-                        SiteNodeDto.ArticleDto(
-                            path = "docs/guide",
-                            outputConfig = OutputConfig(template = "guide.ftl")
+                sections =
+                    listOf(
+                        SiteNodeDto.SectionDto(
+                            path = "docs",
+                            outputConfig =
+                                OutputConfig(
+                                    layout = LayoutType.SIDEBAR_LEFT,
+                                    cssFiles = listOf("docs.css"),
+                                ),
+                            articles =
+                                listOf(
+                                    SiteNodeDto.ArticleDto(
+                                        path = "docs/guide",
+                                        outputConfig = OutputConfig(template = "guide.ftl"),
+                                    ),
+                                    SiteNodeDto.ArticleDto(path = "docs/api"),
+                                ),
                         ),
-                        SiteNodeDto.ArticleDto(path = "docs/api")
-                    )
-                )
+                    ),
             )
-        )
 
         TreeBakeService.injectTreeConfig(dto, dir)
 
@@ -127,24 +139,28 @@ class TreeBakeServiceTest {
     fun `injected config includes asset references`() {
         val dir = srcDir()
         writeJbakeProps(dir)
-        val assets = PageAssets(
-            css = listOf(AssetRef(path = "theme.css", integrity = "sha256-abc")),
-            js = listOf(AssetRef(path = "app.js", defer = true))
-        )
-        val dto = SiteNodeDto.SiteDto(
-            path = "",
-            sections = listOf(
-                SiteNodeDto.SectionDto(
-                    path = "blog",
-                    articles = listOf(
-                        SiteNodeDto.ArticleDto(
-                            path = "blog/post-1",
-                            outputConfig = OutputConfig(assets = assets)
-                        )
-                    )
-                )
+        val assets =
+            PageAssets(
+                css = listOf(AssetRef(path = "theme.css", integrity = "sha256-abc")),
+                js = listOf(AssetRef(path = "app.js", defer = true)),
             )
-        )
+        val dto =
+            SiteNodeDto.SiteDto(
+                path = "",
+                sections =
+                    listOf(
+                        SiteNodeDto.SectionDto(
+                            path = "blog",
+                            articles =
+                                listOf(
+                                    SiteNodeDto.ArticleDto(
+                                        path = "blog/post-1",
+                                        outputConfig = OutputConfig(assets = assets),
+                                    ),
+                                ),
+                        ),
+                    ),
+            )
 
         TreeBakeService.injectTreeConfig(dto, dir)
 
@@ -154,8 +170,10 @@ class TreeBakeServiceTest {
         val json = props.substring(jsonStart)
 
         val parsed = jsonMapper.readValue<Map<String, Any?>>(json)
+
         @Suppress("UNCHECKED_CAST")
         val nodes = parsed["nodes"] as Map<String, Map<String, Any?>>
+
         @Suppress("UNCHECKED_CAST")
         val postAssets = nodes["blog/post-1"]?.get("assets") as Map<String, List<Map<String, Any?>>>
 
@@ -172,25 +190,29 @@ class TreeBakeServiceTest {
     fun `injected config includes metadata`() {
         val dir = srcDir()
         writeJbakeProps(dir)
-        val dto = SiteNodeDto.SiteDto(
-            path = "",
-            metadata = NodeMetadata(title = "My Site"),
-            sections = listOf(
-                SiteNodeDto.SectionDto(
-                    path = "docs",
-                    metadata = NodeMetadata(
-                        description = "Documentation section",
-                        tags = listOf("docs", "guide")
+        val dto =
+            SiteNodeDto.SiteDto(
+                path = "",
+                metadata = NodeMetadata(title = "My Site"),
+                sections =
+                    listOf(
+                        SiteNodeDto.SectionDto(
+                            path = "docs",
+                            metadata =
+                                NodeMetadata(
+                                    description = "Documentation section",
+                                    tags = listOf("docs", "guide"),
+                                ),
+                            articles =
+                                listOf(
+                                    SiteNodeDto.ArticleDto(
+                                        path = "docs/guide",
+                                        metadata = NodeMetadata(title = "User Guide"),
+                                    ),
+                                ),
+                        ),
                     ),
-                    articles = listOf(
-                        SiteNodeDto.ArticleDto(
-                            path = "docs/guide",
-                            metadata = NodeMetadata(title = "User Guide")
-                        )
-                    )
-                )
             )
-        )
 
         TreeBakeService.injectTreeConfig(dto, dir)
 
@@ -200,6 +222,7 @@ class TreeBakeServiceTest {
         val json = props.substring(jsonStart)
 
         val parsed = jsonMapper.readValue<Map<String, Any?>>(json)
+
         @Suppress("UNCHECKED_CAST")
         val nodes = parsed["nodes"] as Map<String, Map<String, Any?>>
 
@@ -214,28 +237,33 @@ class TreeBakeServiceTest {
     fun `injected config includes resolved theme from ThemeResolver`() {
         val dir = srcDir()
         writeJbakeProps(dir)
-        val dto = SiteNodeDto.SiteDto(
-            path = "",
-            sections = listOf(
-                SiteNodeDto.SectionDto(
-                    path = "docs",
-                    articles = listOf(
-                        SiteNodeDto.ArticleDto(path = "docs/guide"),
-                        SiteNodeDto.ArticleDto(path = "docs/api")
-                    )
-                ),
-                SiteNodeDto.SectionDto(
-                    path = "blog",
-                    articles = listOf(
-                        SiteNodeDto.ArticleDto(path = "blog/post-1")
-                    )
-                )
+        val dto =
+            SiteNodeDto.SiteDto(
+                path = "",
+                sections =
+                    listOf(
+                        SiteNodeDto.SectionDto(
+                            path = "docs",
+                            articles =
+                                listOf(
+                                    SiteNodeDto.ArticleDto(path = "docs/guide"),
+                                    SiteNodeDto.ArticleDto(path = "docs/api"),
+                                ),
+                        ),
+                        SiteNodeDto.SectionDto(
+                            path = "blog",
+                            articles =
+                                listOf(
+                                    SiteNodeDto.ArticleDto(path = "blog/post-1"),
+                                ),
+                        ),
+                    ),
             )
-        )
-        val themeOverrides = mapOf(
-            "docs" to ThemeConfig(primaryColor = "#f00", mode = "dark"),
-            "docs/guide" to ThemeConfig(primaryColor = "#00f", mode = "light")
-        )
+        val themeOverrides =
+            mapOf(
+                "docs" to ThemeConfig(primaryColor = "#f00", mode = "dark"),
+                "docs/guide" to ThemeConfig(primaryColor = "#00f", mode = "light"),
+            )
         val defaultTheme = ThemeConfig(primaryColor = "#abc", mode = "auto")
 
         TreeBakeService.injectTreeConfig(dto, dir, themeOverrides, defaultTheme)
@@ -246,6 +274,7 @@ class TreeBakeServiceTest {
         val json = props.substring(jsonStart)
 
         val parsed = jsonMapper.readValue<Map<String, Any?>>(json)
+
         @Suppress("UNCHECKED_CAST")
         val nodes = parsed["nodes"] as Map<String, Map<String, Any?>>
 
@@ -269,17 +298,20 @@ class TreeBakeServiceTest {
     fun `injected config without theme overrides uses default theme`() {
         val dir = srcDir()
         writeJbakeProps(dir)
-        val dto = SiteNodeDto.SiteDto(
-            path = "",
-            sections = listOf(
-                SiteNodeDto.SectionDto(
-                    path = "docs",
-                    articles = listOf(
-                        SiteNodeDto.ArticleDto(path = "docs/guide")
-                    )
-                )
+        val dto =
+            SiteNodeDto.SiteDto(
+                path = "",
+                sections =
+                    listOf(
+                        SiteNodeDto.SectionDto(
+                            path = "docs",
+                            articles =
+                                listOf(
+                                    SiteNodeDto.ArticleDto(path = "docs/guide"),
+                                ),
+                        ),
+                    ),
             )
-        )
         val defaultTheme = ThemeConfig(primaryColor = "#abc", mode = "auto")
 
         TreeBakeService.injectTreeConfig(dto, dir, emptyMap(), defaultTheme)
@@ -290,6 +322,7 @@ class TreeBakeServiceTest {
         val json = props.substring(jsonStart)
 
         val parsed = jsonMapper.readValue<Map<String, Any?>>(json)
+
         @Suppress("UNCHECKED_CAST")
         val nodes = parsed["nodes"] as Map<String, Map<String, Any?>>
 

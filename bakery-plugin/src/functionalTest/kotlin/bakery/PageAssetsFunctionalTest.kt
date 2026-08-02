@@ -14,7 +14,6 @@ import java.io.File
  * arbre `tree:`. Les assets ne cassent pas le pipeline existant.
  */
 class PageAssetsFunctionalTest {
-
     @TempDir
     lateinit var projectDir: File
 
@@ -22,11 +21,13 @@ class PageAssetsFunctionalTest {
     fun `tasks succeeds with tree config containing page assets`() {
         createProjectWithTreeAssets()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("tasks")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("tasks")
+                .build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
         assertThat(result.output).contains("bake")
@@ -37,30 +38,37 @@ class PageAssetsFunctionalTest {
     fun `verifyConfigurationMapping succeeds with tree assets config`() {
         createProjectWithTreeAssets()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("verifyConfigurationMapping")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("verifyConfigurationMapping")
+                .build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
         assertThat(result.output).contains("Configuration OK")
     }
 
     private fun createProjectWithTreeAssets() {
-        projectDir.resolve("settings.gradle.kts").writeText("""
+        projectDir.resolve("settings.gradle.kts").writeText(
+            """
             pluginManagement { repositories { gradlePluginPortal(); mavenLocal() } }
             rootProject.name = "page-assets-test"
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
-        projectDir.resolve("build.gradle.kts").writeText("""
+        projectDir.resolve("build.gradle.kts").writeText(
+            """
             plugins { id("education.cccp.bakery") }
             bakery {
                 configPath = file("site.yml").absolutePath
             }
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
-        projectDir.resolve("site.yml").writeText("""
+        projectDir.resolve("site.yml").writeText(
+            """
             bake:
               srcPath: "site"
               destDirPath: "build/bake"
@@ -107,7 +115,8 @@ class PageAssetsFunctionalTest {
                     assets:
                       css:
                         - path: "section.css"
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
         projectDir.resolve("site").mkdirs()
         projectDir.resolve("maquette").mkdirs()

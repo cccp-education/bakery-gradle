@@ -1,7 +1,6 @@
 package bakery.lens
 
 import org.assertj.core.api.Assertions.assertThat
-import org.gradle.api.Action
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -12,11 +11,9 @@ import org.junit.jupiter.api.Test
  * Méthodologie : DDD/TDD baby steps — chaque test compile ET passe AVANT de passer au suivant.
  */
 class LensBudgetTest {
-
     @Nested
     @DisplayName("LensBudget — Valeurs par défaut")
     inner class Defaults {
-
         @Test
         @DisplayName("LensBudget maxArticlesPerPage par défaut = 4")
         fun `default maxArticlesPerPage is 4`() {
@@ -35,7 +32,6 @@ class LensBudgetTest {
     @Nested
     @DisplayName("LensBudget — Modification des propriétés")
     inner class Mutation {
-
         @Test
         @DisplayName("LensBudget maxArticlesPerPage modifiable")
         fun `maxArticlesPerPage can be set`() {
@@ -56,7 +52,6 @@ class LensBudgetTest {
     @Nested
     @DisplayName("LensBudget — data class copy")
     inner class DataClassCopy {
-
         @Test
         @DisplayName("LensBudget copié avec modifications")
         fun `LensBudget can be copied with modifications`() {
@@ -73,14 +68,14 @@ class LensBudgetTest {
     @Nested
     @DisplayName("LensBudget.apply() — Filtrage et troncature")
     inner class ApplyBudget {
-
-        private val nodes = listOf(
-            ScoredNode("a.md", "A", null, emptyList(), 0.0, 0.0, 0.0, 0, 0.95),
-            ScoredNode("b.md", "B", null, emptyList(), 0.0, 0.0, 0.0, 0, 0.85),
-            ScoredNode("c.md", "C", null, emptyList(), 0.0, 0.0, 0.0, 0, 0.75),
-            ScoredNode("d.md", "D", null, emptyList(), 0.0, 0.0, 0.0, 0, 0.60),
-            ScoredNode("e.md", "E", null, emptyList(), 0.0, 0.0, 0.0, 0, 0.30),
-        )
+        private val nodes =
+            listOf(
+                ScoredNode("a.md", "A", null, emptyList(), 0.0, 0.0, 0.0, 0, 0.95),
+                ScoredNode("b.md", "B", null, emptyList(), 0.0, 0.0, 0.0, 0, 0.85),
+                ScoredNode("c.md", "C", null, emptyList(), 0.0, 0.0, 0.0, 0, 0.75),
+                ScoredNode("d.md", "D", null, emptyList(), 0.0, 0.0, 0.0, 0, 0.60),
+                ScoredNode("e.md", "E", null, emptyList(), 0.0, 0.0, 0.0, 0, 0.30),
+            )
 
         @Test
         @DisplayName("apply avec defaults : 4 articles, minSimilarity 0.7 → 3 gardés")
@@ -120,9 +115,10 @@ class LensBudgetTest {
         @Test
         @DisplayName("apply exclut les scores exactement au seuil (>= est inclusif)")
         fun `apply includes score exactly at threshold`() {
-            val nodes = listOf(
-                ScoredNode("a.md", "A", null, emptyList(), 0.0, 0.0, 0.0, 0, 0.7),
-            )
+            val nodes =
+                listOf(
+                    ScoredNode("a.md", "A", null, emptyList(), 0.0, 0.0, 0.0, 0, 0.7),
+                )
             val budget = LensBudget(minSimilarity = 0.7)
             val result = budget.apply(nodes)
             assertThat(result).hasSize(1)
@@ -131,9 +127,10 @@ class LensBudgetTest {
         @Test
         @DisplayName("apply exclut les scores juste en dessous du seuil")
         fun `apply excludes score just below threshold`() {
-            val nodes = listOf(
-                ScoredNode("a.md", "A", null, emptyList(), 0.0, 0.0, 0.0, 0, 0.69),
-            )
+            val nodes =
+                listOf(
+                    ScoredNode("a.md", "A", null, emptyList(), 0.0, 0.0, 0.0, 0, 0.69),
+                )
             val budget = LensBudget(minSimilarity = 0.7)
             val result = budget.apply(nodes)
             assertThat(result).isEmpty()
@@ -143,7 +140,6 @@ class LensBudgetTest {
     @Nested
     @DisplayName("AugmentedContextDsl — budget DSL")
     inner class BudgetDsl {
-
         @Test
         @DisplayName("AugmentedContextDsl budget est une LensBudget")
         fun `budget is LensBudget`() {

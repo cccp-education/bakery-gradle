@@ -13,24 +13,27 @@ import java.io.File
  * `-Pinput`/`-Poutput` → `--input`/`--output`. Ajout scénarios défaut
  * output (convention PivotOutputResolver) et `--input` manquant.
  */
-class GeneratePivotYamlSteps(private val world: BakeryWorld) {
-
+class GeneratePivotYamlSteps(
+    private val world: BakeryWorld,
+) {
     @Given("a new Bakery project without site.yml")
     fun createBakeryProjectWithoutSiteYml() {
         val pluginId = "education.cccp.bakery"
-        File.createTempFile("gradle-pivot-", "").apply {
-            delete()
-            mkdirs()
-        }.run {
-            resolve("settings.gradle.kts").writeText(
-                "pluginManagement.repositories.gradlePluginPortal()\n" +
-                    "rootProject.name = \"${name}\""
-            )
-            resolve("build.gradle.kts").writeText(
-                "plugins { id(\"$pluginId\") }\n"
-            )
-            world.projectDir = this
-        }
+        File
+            .createTempFile("gradle-pivot-", "")
+            .apply {
+                delete()
+                mkdirs()
+            }.run {
+                resolve("settings.gradle.kts").writeText(
+                    "pluginManagement.repositories.gradlePluginPortal()\n" +
+                        "rootProject.name = \"${name}\"",
+                )
+                resolve("build.gradle.kts").writeText(
+                    "plugins { id(\"$pluginId\") }\n",
+                )
+                world.projectDir = this
+            }
         assertThat(world.projectDir).exists()
     }
 
@@ -48,13 +51,16 @@ class GeneratePivotYamlSteps(private val world: BakeryWorld) {
             == Titre principal BDD
 
             Paragraphe de contenu pour test BDD.
-            """.trimIndent()
+            """.trimIndent(),
         )
         assertThat(dir.resolve(fileName)).exists()
     }
 
     @When("I execute generatePivotYaml with input {string} and output {string}")
-    fun executeGeneratePivotYaml(input: String, output: String) = runBlocking {
+    fun executeGeneratePivotYaml(
+        input: String,
+        output: String,
+    ) = runBlocking {
         try {
             world.executeGradle("generatePivotYaml", "--input=$input", "--output=$output")
         } catch (_: Exception) {
@@ -63,22 +69,24 @@ class GeneratePivotYamlSteps(private val world: BakeryWorld) {
     }
 
     @When("I execute generatePivotYaml with only input {string}")
-    fun executeGeneratePivotYamlWithOnlyInput(input: String) = runBlocking {
-        try {
-            world.executeGradle("generatePivotYaml", "--input=$input")
-        } catch (_: Exception) {
-            // capturé dans world.exception
+    fun executeGeneratePivotYamlWithOnlyInput(input: String) =
+        runBlocking {
+            try {
+                world.executeGradle("generatePivotYaml", "--input=$input")
+            } catch (_: Exception) {
+                // capturé dans world.exception
+            }
         }
-    }
 
     @When("I execute generatePivotYaml without any option")
-    fun executeGeneratePivotYamlWithoutOption() = runBlocking {
-        try {
-            world.executeGradle("generatePivotYaml")
-        } catch (_: Exception) {
-            // capturé dans world.exception
+    fun executeGeneratePivotYamlWithoutOption() =
+        runBlocking {
+            try {
+                world.executeGradle("generatePivotYaml")
+            } catch (_: Exception) {
+                // capturé dans world.exception
+            }
         }
-    }
 
     @Then("the pivot build should succeed")
     fun pivotBuildShouldSucceed() {
@@ -88,7 +96,10 @@ class GeneratePivotYamlSteps(private val world: BakeryWorld) {
     }
 
     @Then("the output file {string} should contain {string}")
-    fun outputFileShouldContain(fileName: String, expected: String) {
+    fun outputFileShouldContain(
+        fileName: String,
+        expected: String,
+    ) {
         val dir = world.projectDir!!
         val file = dir.resolve(fileName)
         assertThat(file).exists()

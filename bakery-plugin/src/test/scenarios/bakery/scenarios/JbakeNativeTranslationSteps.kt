@@ -1,11 +1,11 @@
 package bakery.scenarios
 
-import document.translation.ContentTranslationService
-import document.translation.AsciiDocRenderer
-import document.translation.JbakeNativeRenderer
 import contracts.i18n.TranslationRequest
 import contracts.i18n.TranslationResult
 import contracts.i18n.TranslationService
+import document.translation.AsciiDocRenderer
+import document.translation.ContentTranslationService
+import document.translation.JbakeNativeRenderer
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
@@ -14,14 +14,14 @@ import java.io.File
 import java.nio.file.Files
 
 class JbakeNativeTranslationSteps {
-
     private lateinit var articleContent: String
     private lateinit var translatedContent: String
     private val tempDir: File = Files.createTempDirectory("jbake-i18n-test").toFile()
 
     @Given("a JBake native AsciiDoc article with header and body")
     fun jbakeNativeArticleWithHeaderAndBody() {
-        articleContent = """
+        articleContent =
+            """
             = Article de Test
             @CherOliv
             2020-01-15
@@ -33,12 +33,13 @@ class JbakeNativeTranslationSteps {
             == Section
 
             Deuxième paragraphe.
-        """.trimIndent()
+            """.trimIndent()
     }
 
     @Given("a pivot format AsciiDoc article with title and body")
     fun pivotFormatArticleWithTitleAndBody() {
-        articleContent = """
+        articleContent =
+            """
             title=Article de Test
             date=2020-01-15
             type=post
@@ -50,12 +51,13 @@ class JbakeNativeTranslationSteps {
             == Section
 
             Deuxième paragraphe.
-        """.trimIndent()
+            """.trimIndent()
     }
 
     @Given("a JBake native AsciiDoc article with tags and summary attributes")
     fun jbakeNativeArticleWithTagsAndSummary() {
-        articleContent = """
+        articleContent =
+            """
             = Article Tagué
             @CherOliv
             2022-06-10
@@ -67,7 +69,7 @@ class JbakeNativeTranslationSteps {
             :summary: Un article de test
 
             Corps de l'article en français.
-        """.trimIndent()
+            """.trimIndent()
     }
 
     @When("the content translation service translates it from fr to en")
@@ -80,15 +82,16 @@ class JbakeNativeTranslationSteps {
         val enFile = File(enDir, "article.adoc")
         enFile.writeText(articleContent)
 
-        val fakeTranslator = object : TranslationService {
-            override fun translate(request: TranslationRequest): TranslationResult =
-                TranslationResult.Success("[EN] ${request.sourceText}")
-        }
-        val service = ContentTranslationService(
-            fakeTranslator,
-            renderer = AsciiDocRenderer(),
-            jbakeRenderer = JbakeNativeRenderer()
-        )
+        val fakeTranslator =
+            object : TranslationService {
+                override fun translate(request: TranslationRequest): TranslationResult = TranslationResult.Success("[EN] ${request.sourceText}")
+            }
+        val service =
+            ContentTranslationService(
+                fakeTranslator,
+                renderer = AsciiDocRenderer(),
+                jbakeRenderer = JbakeNativeRenderer(),
+            )
         service.translate(enDir, "fr", "en")
         translatedContent = enFile.readText()
     }

@@ -3,8 +3,6 @@
 package bakery
 
 import bakery.llm.IaConfig
-import java.io.File
-import java.util.Optional
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -12,8 +10,8 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ConfigurationContainer
 import org.gradle.api.artifacts.MinimalExternalModuleDependency
 import org.gradle.api.artifacts.VersionCatalog
-import org.gradle.api.artifacts.VersionConstraint
 import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.api.artifacts.VersionConstraint
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
@@ -32,25 +30,25 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.whenever
+import java.io.File
+import java.util.Optional
 
 class BakeryTestFixture(
     val project: Project,
     val pluginContainer: PluginContainer,
-    private val afterEvaluateActionRef: java.util.concurrent.atomic.AtomicReference<Action<Project>?>
+    private val afterEvaluateActionRef: java.util.concurrent.atomic.AtomicReference<Action<Project>?>,
 ) {
-
     companion object {
         fun create(): BakeryTestFixture = createInternal(configPathPresent = true)
 
         /** Fixture où `bakeryExtension.configPath` n'est PAS défini (Property absente). */
         fun createAbsentConfigPath(): BakeryTestFixture = createInternal(configPathPresent = false)
 
-        fun createWithProjectDir(projectDir: File): BakeryTestFixture =
-            createInternal(configPathPresent = true, projectDir = projectDir)
+        fun createWithProjectDir(projectDir: File): BakeryTestFixture = createInternal(configPathPresent = true, projectDir = projectDir)
 
         private fun createInternal(
             configPathPresent: Boolean,
-            projectDir: File = File(".").canonicalFile
+            projectDir: File = File(".").canonicalFile,
         ): BakeryTestFixture {
             val cpProp = mockProperty("site.yml", present = configPathPresent)
             val bakeryExt = mockBakeryExtension(cpProp)
@@ -65,18 +63,21 @@ class BakeryTestFixture(
             // AtomicReference : Mockito peut invoquer le stub sur un thread différent
             // ou après le retour de la méthode appelante. Un AtomicReference évite
             // les problèmes de publication mémoire.
-            val capturedActionRef = java.util.concurrent.atomic.AtomicReference<Action<Project>?>(null)
-            val project = mockProject(
-                extContainer = extContainer,
-                confContainer = confContainer,
-                depHandler = depHandler,
-                taskContainer = taskContainer,
-                pluginContainer = pluginContainer,
-                projectLayout = projectLayout,
-                logger = logger,
-                onAfterEvaluate = { action -> capturedActionRef.set(action) },
-                projectDir = projectDir
-            )
+            val capturedActionRef =
+                java.util.concurrent.atomic
+                    .AtomicReference<Action<Project>?>(null)
+            val project =
+                mockProject(
+                    extContainer = extContainer,
+                    confContainer = confContainer,
+                    depHandler = depHandler,
+                    taskContainer = taskContainer,
+                    pluginContainer = pluginContainer,
+                    projectLayout = projectLayout,
+                    logger = logger,
+                    onAfterEvaluate = { action -> capturedActionRef.set(action) },
+                    projectDir = projectDir,
+                )
 
             return BakeryTestFixture(project, pluginContainer, capturedActionRef)
         }
@@ -87,13 +88,17 @@ class BakeryTestFixture(
      * Utile pour tester la logique qui s'exécute après évaluation du DSL utilisateur.
      */
     fun runAfterEvaluate() {
-        val action = afterEvaluateActionRef.get()
-            ?: error("afterEvaluate action was not captured by the mock — was the plugin applied?")
+        val action =
+            afterEvaluateActionRef.get()
+                ?: error("afterEvaluate action was not captured by the mock — was the plugin applied?")
         action.execute(project)
     }
 }
 
-private fun mockProperty(value: String, present: Boolean): Property<String> {
+private fun mockProperty(
+    value: String,
+    present: Boolean,
+): Property<String> {
     val prop = mock<Property<String>>()
     whenever(prop.get()).thenReturn(value)
     whenever(prop.isPresent).thenReturn(present)
@@ -181,11 +186,13 @@ private fun mockTaskContainer(): TaskContainer {
 
     // 3-arg: register(name, type, action) — used by VerifyConfigurationMapping, serve (JavaExec), pagefind (NpxTask), etc.
     val typedProvider = mock<org.gradle.api.tasks.TaskProvider<Task>>()
-    whenever(taskContainer.register(
-        org.mockito.ArgumentMatchers.anyString(),
-        org.mockito.ArgumentMatchers.any<Class<Task>>(),
-        org.mockito.ArgumentMatchers.any<Action<Task>>()
-    )).thenReturn(typedProvider)
+    whenever(
+        taskContainer.register(
+            org.mockito.ArgumentMatchers.anyString(),
+            org.mockito.ArgumentMatchers.any<Class<Task>>(),
+            org.mockito.ArgumentMatchers.any<Action<Task>>(),
+        ),
+    ).thenReturn(typedProvider)
 
     whenever(taskContainer.register(eq("deploySite"), any<Action<Task>>())).thenReturn(mock())
     whenever(taskContainer.register(eq("deployMaquette"), any<Action<Task>>())).thenReturn(mock())
@@ -194,9 +201,7 @@ private fun mockTaskContainer(): TaskContainer {
     return taskContainer
 }
 
-private fun mockPluginContainer(): PluginContainer {
-    return mock()
-}
+private fun mockPluginContainer(): PluginContainer = mock()
 
 private fun mockProject(
     extContainer: ExtensionContainer,
@@ -207,7 +212,7 @@ private fun mockProject(
     projectLayout: ProjectLayout,
     logger: Logger,
     onAfterEvaluate: (Action<Project>) -> Unit = { /* default: run inline */ },
-    projectDir: File = File(".").canonicalFile
+    projectDir: File = File(".").canonicalFile,
 ): Project {
     val project = mock<Project>()
     val pluginManager = mock<org.gradle.api.plugins.PluginManager>()
@@ -247,15 +252,15 @@ private fun mockProjectLayout(projectDir: File = File(".").canonicalFile): Proje
     whenever(asFileProvider.get()).thenReturn(File(projectDir, "build"))
     whenever(buildDirProp.asFile).thenReturn(asFileProvider)
 
-                doAnswer { inv ->
-                    @Suppress("UNCHECKED_CAST")
-                    val path = inv.arguments[0] as String
-                    val dir = mock<Directory>()
-                    val dirProvider: Provider<Directory> = mock()
-                    whenever(dir.asFile).thenReturn(File(File(projectDir, "build"), path))
-                    whenever(dirProvider.get()).thenReturn(dir)
-                    dirProvider
-                }.whenever(buildDirProp).dir(org.mockito.kotlin.any<String>())
+    doAnswer { inv ->
+        @Suppress("UNCHECKED_CAST")
+        val path = inv.arguments[0] as String
+        val dir = mock<Directory>()
+        val dirProvider: Provider<Directory> = mock()
+        whenever(dir.asFile).thenReturn(File(File(projectDir, "build"), path))
+        whenever(dirProvider.get()).thenReturn(dir)
+        dirProvider
+    }.whenever(buildDirProp).dir(org.mockito.kotlin.any<String>())
 
     whenever(layout.projectDirectory).thenReturn(projectDirMock)
     whenever(layout.buildDirectory).thenReturn(buildDirProp)

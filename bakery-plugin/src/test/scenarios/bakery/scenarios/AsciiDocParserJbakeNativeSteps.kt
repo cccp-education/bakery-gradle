@@ -10,7 +10,6 @@ import io.cucumber.java.en.When
 import org.assertj.core.api.Assertions.assertThat
 
 class AsciiDocParserJbakeNativeSteps {
-
     private val parser = AsciiDocParser()
     private val renderer = AsciiDocRenderer()
     private var document: String = ""
@@ -19,7 +18,8 @@ class AsciiDocParserJbakeNativeSteps {
 
     @Given("a JBake native AsciiDoc document with title and jbake attributes")
     fun jbakeNativeDocumentWithTitleAndAttributes() {
-        document = """
+        document =
+            """
             = Groovy: Caractères ASCII
             @CherOliv
             2019-07-10
@@ -31,12 +31,13 @@ class AsciiDocParserJbakeNativeSteps {
             :summary: du groovy et de l'ascii
 
             Voici un bout de code.
-        """.trimIndent()
+            """.trimIndent()
     }
 
     @Given("a JBake native AsciiDoc document with heading and source block")
     fun jbakeNativeDocumentWithHeadingAndSource() {
-        document = """
+        document =
+            """
             = Test Article
             @Author
             2020-01-15
@@ -53,12 +54,13 @@ class AsciiDocParserJbakeNativeSteps {
             ----
 
             Second paragraph.
-        """.trimIndent()
+            """.trimIndent()
     }
 
     @Given("a JBake native AsciiDoc document with heading and paragraph")
     fun jbakeNativeDocumentWithHeadingAndParagraph() {
-        document = """
+        document =
+            """
             = Roundtrip Test
             @CherOliv
             2021-03-20
@@ -68,7 +70,7 @@ class AsciiDocParserJbakeNativeSteps {
             == Heading
 
             Paragraph with **bold** text.
-        """.trimIndent()
+            """.trimIndent()
     }
 
     @When("the parser parses the document")

@@ -14,7 +14,6 @@ import java.io.File
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ThemeIntentionUnitTest {
-
     @TempDir
     lateinit var projectDir: File
 
@@ -35,7 +34,7 @@ class ThemeIntentionUnitTest {
         accentColor: String? = null,
         backgroundColor: String? = null,
         textColor: String? = null,
-        headingFont: String? = null
+        headingFont: String? = null,
     ) {
         ext.themeIntention {
             it.description = description
@@ -64,7 +63,7 @@ class ThemeIntentionUnitTest {
             accentColor = "#FF5733",
             backgroundColor = "#F5F5F5",
             textColor = "#333333",
-            headingFont = "Merriweather"
+            headingFont = "Merriweather",
         )
 
         assertThat(ext.themeIntention.description).isEqualTo("Portfolio créatif")
@@ -79,7 +78,8 @@ class ThemeIntentionUnitTest {
     fun `generateTheme task is registered with themeIntention DSL`() {
         projectDir.resolve("site").mkdirs()
         projectDir.resolve("maquette").mkdirs()
-        projectDir.resolve("site.yml").writeText("""
+        projectDir.resolve("site.yml").writeText(
+            """
             bake:
               srcPath: site
               destDirPath: build/bake
@@ -105,7 +105,8 @@ class ThemeIntentionUnitTest {
                   password: p
               branch: main
               message: test
-        """.trimIndent())
+            """.trimIndent(),
+        )
         ext.themeIntention {
             it.description = "Documentation API"
             it.variant = "documentation"

@@ -8,6 +8,7 @@ article:
     date: "2026-04-24"                      # structure
     type: "page"                            # structure
     status: "published"                     # structure
+    author: ""                               # structure
 
   blocks:
 

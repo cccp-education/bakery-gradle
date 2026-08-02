@@ -5,7 +5,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class AssetRefTest {
-
     @Test
     fun `asset ref with path only`() {
         val asset = AssetRef(path = "styles.css")
@@ -17,12 +16,13 @@ class AssetRefTest {
 
     @Test
     fun `asset ref with all fields`() {
-        val asset = AssetRef(
-            path = "app.js",
-            integrity = "sha256-abc123",
-            async = true,
-            defer = true
-        )
+        val asset =
+            AssetRef(
+                path = "app.js",
+                integrity = "sha256-abc123",
+                async = true,
+                defer = true,
+            )
         assertEquals("app.js", asset.path)
         assertEquals("sha256-abc123", asset.integrity)
         assertEquals(true, asset.async)

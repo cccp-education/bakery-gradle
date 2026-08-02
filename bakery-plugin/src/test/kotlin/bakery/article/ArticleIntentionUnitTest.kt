@@ -14,7 +14,6 @@ import java.io.File
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ArticleIntentionUnitTest {
-
     @TempDir
     lateinit var projectDir: File
 
@@ -34,7 +33,7 @@ class ArticleIntentionUnitTest {
         ton: String? = null,
         audience: String? = null,
         keywords: List<String>? = null,
-        lang: String? = null
+        lang: String? = null,
     ) {
         ext.articleIntention {
             it.topic = topic
@@ -62,7 +61,7 @@ class ArticleIntentionUnitTest {
             ton = "technique",
             audience = "developpeur",
             keywords = listOf("suspend", "flow"),
-            lang = "en"
+            lang = "en",
         )
 
         assertThat(ext.articleIntention.topic).isEqualTo("Kotlin Coroutines")
@@ -77,7 +76,7 @@ class ArticleIntentionUnitTest {
         configureArticleIntention(
             topic = "Introduction à Gradle",
             ton = "pedagogique",
-            audience = "formateur"
+            audience = "formateur",
         )
 
         assertThat(ext.articleIntention.ton).isEqualTo("pedagogique")
@@ -88,7 +87,8 @@ class ArticleIntentionUnitTest {
     fun `generateArticle task is registered with articleIntention DSL`() {
         projectDir.resolve("site").mkdirs()
         projectDir.resolve("maquette").mkdirs()
-        projectDir.resolve("site.yml").writeText("""
+        projectDir.resolve("site.yml").writeText(
+            """
             bake:
               srcPath: site
               destDirPath: build/bake
@@ -114,7 +114,8 @@ class ArticleIntentionUnitTest {
                   password: p
               branch: main
               message: test
-        """.trimIndent())
+            """.trimIndent(),
+        )
         ext.articleIntention { it.topic = "Test article" }
         (project as ProjectInternal).evaluate()
 

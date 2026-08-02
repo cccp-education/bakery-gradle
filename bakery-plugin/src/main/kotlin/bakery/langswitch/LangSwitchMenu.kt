@@ -4,7 +4,7 @@ class LangSwitchMenu(
     val supportedLanguages: List<String>,
     val defaultLanguage: String,
     val currentLanguage: String,
-    val currentPath: String
+    val currentPath: String,
 ) {
     init {
         require(supportedLanguages.isNotEmpty()) { "supportedLanguages must not be empty" }
@@ -22,7 +22,7 @@ class LangSwitchMenu(
                 targetLanguage = lang,
                 currentLanguage = currentLanguage,
                 currentPath = currentPath,
-                defaultLanguage = defaultLanguage
+                defaultLanguage = defaultLanguage,
             )
         }
 }

@@ -20,10 +20,11 @@ open class ScaffoldIntentionDsl {
      * @throws IllegalArgumentException si la description est vide
      * (la validation est deleguee au constructeur de [ScaffoldIntention])
      */
-    fun toIntention(): ScaffoldIntention = ScaffoldIntention(
-        description = description,
-        siteType = ScaffoldSiteType.fromStringOrDefault(siteType),
-        lang = lang,
-        projectName = projectName
-    )
+    fun toIntention(): ScaffoldIntention =
+        ScaffoldIntention(
+            description = description,
+            siteType = ScaffoldSiteType.fromStringOrDefault(siteType),
+            lang = lang,
+            projectName = projectName,
+        )
 }

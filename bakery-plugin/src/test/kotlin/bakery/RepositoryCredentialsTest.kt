@@ -4,7 +4,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class RepositoryCredentialsTest {
-
     @Test
     fun `toString masks password and token`() {
         val creds = RepositoryCredentials("ghp_longtoken12345678", "my-password")

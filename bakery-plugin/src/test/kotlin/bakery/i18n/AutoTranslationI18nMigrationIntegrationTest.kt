@@ -18,9 +18,10 @@ import kotlin.test.assertTrue
  * jamais appeler de vrai LLM.
  */
 class AutoTranslationI18nMigrationIntegrationTest {
-
     @Test
-    fun `auto-translation fills english messages from fake translator`(@TempDir tempDir: File) {
+    fun `auto-translation fills english messages from fake translator`(
+        @TempDir tempDir: File,
+    ) {
         val siteDir = tempDir.resolve("site")
         siteDir.mkdirs()
         val templatesDir = siteDir.resolve("templates")
@@ -32,12 +33,13 @@ class AutoTranslationI18nMigrationIntegrationTest {
         val fakeTranslator = FakeTranslationService()
         val service = I18nMigrationService(fakeTranslator)
 
-        val result = service.migrate(
-            siteDir = siteDir,
-            languages = listOf("fr", "en"),
-            defaultLanguage = "fr",
-            dryRun = false
-        )
+        val result =
+            service.migrate(
+                siteDir = siteDir,
+                languages = listOf("fr", "en"),
+                defaultLanguage = "fr",
+                dryRun = false,
+            )
 
         assertTrue(result.keysExtracted > 0)
         assertEquals(2, result.filesGenerated)
@@ -58,7 +60,9 @@ class AutoTranslationI18nMigrationIntegrationTest {
     }
 
     @Test
-    fun `auto-translation reuses existing translations and only translates missing keys`(@TempDir tempDir: File) {
+    fun `auto-translation reuses existing translations and only translates missing keys`(
+        @TempDir tempDir: File,
+    ) {
         val siteDir = tempDir.resolve("site")
         siteDir.mkdirs()
         val templatesDir = siteDir.resolve("templates")
@@ -79,21 +83,31 @@ class AutoTranslationI18nMigrationIntegrationTest {
             siteDir = siteDir,
             languages = listOf("fr", "en"),
             defaultLanguage = "fr",
-            dryRun = false
+            dryRun = false,
         )
 
         val props = Properties()
         enFile.inputStream().use { props.load(it) }
-        assertEquals("Welcome (manual)", props.getProperty("header.1"),
-            "La traduction existante de header.1 doit être conservée")
-        assertTrue(props.getProperty("footer.1").startsWith("[en] "),
-            "La clé non-traduite footer.1 doit être traduite par le LLM")
-        assertEquals(1, fakeTranslator.requestsReceived.size,
-            "Le LLM ne doit être appelé que pour les clés manquantes")
+        assertEquals(
+            "Welcome (manual)",
+            props.getProperty("header.1"),
+            "La traduction existante de header.1 doit être conservée",
+        )
+        assertTrue(
+            props.getProperty("footer.1").startsWith("[en] "),
+            "La clé non-traduite footer.1 doit être traduite par le LLM",
+        )
+        assertEquals(
+            1,
+            fakeTranslator.requestsReceived.size,
+            "Le LLM ne doit être appelé que pour les clés manquantes",
+        )
     }
 
     @Test
-    fun `auto-translation falls back to french when translator fails`(@TempDir tempDir: File) {
+    fun `auto-translation falls back to french when translator fails`(
+        @TempDir tempDir: File,
+    ) {
         val siteDir = tempDir.resolve("site")
         siteDir.mkdirs()
         val templatesDir = siteDir.resolve("templates")
@@ -109,7 +123,7 @@ class AutoTranslationI18nMigrationIntegrationTest {
             siteDir = siteDir,
             languages = listOf("fr", "en"),
             defaultLanguage = "fr",
-            dryRun = false
+            dryRun = false,
         )
 
         val enFile = templatesDir.resolve("messages_en.properties")
@@ -119,7 +133,6 @@ class AutoTranslationI18nMigrationIntegrationTest {
     }
 
     private class FakeTranslationService : TranslationService {
-
         val requestsReceived = mutableListOf<TranslationRequest>()
         private val resultQueue: MutableList<TranslationResult> = mutableListOf()
 

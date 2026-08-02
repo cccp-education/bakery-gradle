@@ -1,26 +1,24 @@
 package bakery.langswitch
 
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 class LangSwitchThymeleafRendererTest {
-
-    private val labels = mapOf(
-        "fr" to "Fran\u00e7ais",
-        "en" to "English",
-        "ar" to "\u0627\u0644\u0639\u0631\u0628\u064a\u0629"
-    )
+    private val labels =
+        mapOf(
+            "fr" to "Fran\u00e7ais",
+            "en" to "English",
+            "ar" to "\u0627\u0644\u0639\u0631\u0628\u064a\u0629",
+        )
 
     private fun links(
         supported: List<String>,
         default: String,
         current: String,
-        path: String
-    ): List<LangSwitchUrl> =
-        LangSwitchMenu(supported, default, current, path).generateLinks()
+        path: String,
+    ): List<LangSwitchUrl> = LangSwitchMenu(supported, default, current, path).generateLinks()
 
     @Test
     fun `render 2 languages FR default from FR root`() {
@@ -34,12 +32,17 @@ class LangSwitchThymeleafRendererTest {
 
     @Test
     fun `render 10 languages from EN subdir`() {
-        val tenLabels = labels + mapOf(
-            "zh" to "\u4e2d\u6587", "hi" to "\u0939\u093f\u0928\u094d\u0926\u0940",
-            "es" to "Espa\u00f1ol", "bn" to "\u09ac\u09be\u0982\u09b2\u09be",
-            "pt" to "Portugu\u00eas", "ru" to "\u0420\u0443\u0441\u0441\u043a\u0438\u0439",
-            "ur" to "\u0627\u0631\u062f\u0648"
-        )
+        val tenLabels =
+            labels +
+                mapOf(
+                    "zh" to "\u4e2d\u6587",
+                    "hi" to "\u0939\u093f\u0928\u094d\u0926\u0940",
+                    "es" to "Espa\u00f1ol",
+                    "bn" to "\u09ac\u09be\u0982\u09b2\u09be",
+                    "pt" to "Portugu\u00eas",
+                    "ru" to "\u0420\u0443\u0441\u0441\u043a\u0438\u0439",
+                    "ur" to "\u0627\u0631\u062f\u0648",
+                )
         val supported = listOf("fr", "en", "ar", "zh", "hi", "es", "bn", "pt", "ru", "ur")
         val renderer = LangSwitchThymeleafRenderer(tenLabels)
         val rendered = renderer.render(links(supported, "fr", "en", "en/"))
@@ -64,7 +67,7 @@ class LangSwitchThymeleafRendererTest {
         val rendered = renderer.render(links(listOf("fr", "en"), "fr", "fr", ""))
         assertTrue(
             rendered.contains("th:href=\"'en/index.html'\""),
-            "EN link from FR root should be en/index.html, got: $rendered"
+            "EN link from FR root should be en/index.html, got: $rendered",
         )
     }
 
@@ -74,7 +77,7 @@ class LangSwitchThymeleafRendererTest {
         val rendered = renderer.render(links(listOf("fr", "en"), "fr", "en", "en/"))
         assertTrue(
             rendered.contains("th:href=\"'../index.html'\""),
-            "FR link from EN subdir should be ../index.html, got: $rendered"
+            "FR link from EN subdir should be ../index.html, got: $rendered",
         )
     }
 
@@ -84,7 +87,7 @@ class LangSwitchThymeleafRendererTest {
         val rendered = renderer.render(links(listOf("fr", "en"), "fr", "en", "en/"))
         assertTrue(
             rendered.contains("th:href=\"'index.html'\""),
-            "EN self-link from EN subdir should be index.html, got: $rendered"
+            "EN self-link from EN subdir should be index.html, got: $rendered",
         )
     }
 
@@ -94,7 +97,7 @@ class LangSwitchThymeleafRendererTest {
         val rendered = renderer.render(links(listOf("fr", "en", "ar"), "fr", "en", "en/"))
         assertTrue(
             rendered.contains("th:href=\"'../ar/index.html'\""),
-            "AR link from EN subdir should be ../ar/index.html, got: $rendered"
+            "AR link from EN subdir should be ../ar/index.html, got: $rendered",
         )
     }
 
@@ -105,7 +108,7 @@ class LangSwitchThymeleafRendererTest {
         val enItem = rendered.substringAfter("data-lang=\"en\"").substringBefore("</a>")
         assertFalse(
             enItem.contains("en/index.html"),
-            "EN self-link should not contain en/index.html (self-loop), got: $enItem"
+            "EN self-link should not contain en/index.html (self-loop), got: $enItem",
         )
     }
 
@@ -123,7 +126,7 @@ class LangSwitchThymeleafRendererTest {
         val rendered = renderer.render(links(listOf("fr", "en"), "fr", "fr", ""))
         assertTrue(
             rendered.contains("dropdown-item lang-option"),
-            "output should contain dropdown-item lang-option classes"
+            "output should contain dropdown-item lang-option classes",
         )
     }
 

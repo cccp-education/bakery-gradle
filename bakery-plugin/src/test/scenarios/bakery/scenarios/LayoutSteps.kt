@@ -8,4 +8,6 @@ package bakery.scenarios
  * This class exists to keep the step binding discoverable
  * should layout-specific steps be needed later.
  */
-class LayoutSteps(private val world: BakeryWorld)
+class LayoutSteps(
+    private val world: BakeryWorld,
+)

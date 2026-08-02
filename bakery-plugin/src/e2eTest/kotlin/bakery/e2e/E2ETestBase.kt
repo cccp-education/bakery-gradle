@@ -25,7 +25,6 @@ import java.nio.file.Path
  */
 @Tag("e2e")
 abstract class E2ETestBase {
-
     companion object {
         private const val PORT = 18763
 
@@ -44,7 +43,7 @@ abstract class E2ETestBase {
             if (!PlaywrightHelper.isAvailable()) {
                 org.junit.jupiter.api.Assumptions.assumeTrue(
                     false,
-                    "Chromium not available — run ./gradlew installPlaywright"
+                    "Chromium not available — run ./gradlew installPlaywright",
                 )
             }
             PlaywrightPool.getOrCreate()
@@ -58,35 +57,38 @@ abstract class E2ETestBase {
             stopServer()
             val wwwDir = tempDir!!.resolve("www").toFile()
             wwwDir.mkdirs()
-            httpServer = HttpServer.create(InetSocketAddress("127.0.0.1", PORT), 0).apply {
-                createContext("/") { exchange ->
-                    val requestedPath = exchange.requestURI.path.removePrefix("/")
-                    val file = if (requestedPath.isEmpty()) {
-                        wwwDir.resolve("index.html")
-                    } else {
-                        wwwDir.resolve(requestedPath)
-                    }
-                    if (file.exists() && file.isFile) {
-                        val contentType = when (file.extension) {
-                            "html" -> "text/html"
-                            "css" -> "text/css"
-                            "js" -> "application/javascript"
-                            else -> "application/octet-stream"
+            httpServer =
+                HttpServer.create(InetSocketAddress("127.0.0.1", PORT), 0).apply {
+                    createContext("/") { exchange ->
+                        val requestedPath = exchange.requestURI.path.removePrefix("/")
+                        val file =
+                            if (requestedPath.isEmpty()) {
+                                wwwDir.resolve("index.html")
+                            } else {
+                                wwwDir.resolve(requestedPath)
+                            }
+                        if (file.exists() && file.isFile) {
+                            val contentType =
+                                when (file.extension) {
+                                    "html" -> "text/html"
+                                    "css" -> "text/css"
+                                    "js" -> "application/javascript"
+                                    else -> "application/octet-stream"
+                                }
+                            val bytes = file.readBytes()
+                            exchange.responseHeaders.set("Content-Type", contentType)
+                            exchange.sendResponseHeaders(200, bytes.size.toLong())
+                            exchange.responseBody.write(bytes)
+                            exchange.responseBody.close()
+                        } else {
+                            val message = "Not Found: $requestedPath"
+                            exchange.sendResponseHeaders(404, message.toByteArray().size.toLong())
+                            exchange.responseBody.write(message.toByteArray())
+                            exchange.responseBody.close()
                         }
-                        val bytes = file.readBytes()
-                        exchange.responseHeaders.set("Content-Type", contentType)
-                        exchange.sendResponseHeaders(200, bytes.size.toLong())
-                        exchange.responseBody.write(bytes)
-                        exchange.responseBody.close()
-                    } else {
-                        val message = "Not Found: $requestedPath"
-                        exchange.sendResponseHeaders(404, message.toByteArray().size.toLong())
-                        exchange.responseBody.write(message.toByteArray())
-                        exchange.responseBody.close()
                     }
+                    start()
                 }
-                start()
-            }
         }
 
         fun stopServer() {
@@ -128,7 +130,7 @@ abstract class E2ETestBase {
         templateName: String,
         context: Map<String, Any> = emptyMap(),
         outputFileName: String = "$templateName.html",
-        language: String = "fr"
+        language: String = "fr",
     ): String {
         val html = thymeleafFactory.render(templateName, context, language)
 
@@ -137,11 +139,13 @@ abstract class E2ETestBase {
         wwwDir.resolve(outputFileName).writeText(html)
 
         // Also create a minimal index.html that links to the component
-        wwwDir.resolve("index.html").writeText("""
+        wwwDir.resolve("index.html").writeText(
+            """
             <!DOCTYPE html>
             <html><head><meta charset="UTF-8"><title>Bakery E2E Test</title></head>
             <body><h1>Bakery E2E Test Server</h1></body></html>
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
         return "/$outputFileName"
     }

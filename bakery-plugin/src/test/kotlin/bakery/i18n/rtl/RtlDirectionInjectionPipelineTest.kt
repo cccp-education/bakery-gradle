@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test
  * without forking a daemon.
  */
 class RtlDirectionInjectionPipelineTest {
-
     private val parser = AsciiDocParser()
     private val renderer = JbakeNativeRenderer()
     private val injector = RtlDirectionInjector()
@@ -85,7 +84,10 @@ Ceci est un paragraphe de test.
         assertThat(rendered).contains(":jbake-status: published")
     }
 
-    private fun injectAndRender(adoc: String, lang: String): String {
+    private fun injectAndRender(
+        adoc: String,
+        lang: String,
+    ): String {
         val article = parser.parse(adoc)
         val injected = injector.inject(article.frontmatter, lang)
         val updated = article.copy(frontmatter = injected)

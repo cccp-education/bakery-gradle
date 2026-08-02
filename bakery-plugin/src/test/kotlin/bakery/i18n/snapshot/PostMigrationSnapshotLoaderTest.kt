@@ -21,11 +21,12 @@ import kotlin.test.assertTrue
  * Methodology: baby step DDD -> TDD. Test fails until the loader exists.
  */
 class PostMigrationSnapshotLoaderTest {
-
     private val loader = PostMigrationSnapshotLoader()
 
     @Test
-    fun `loads complete snapshot from post-migration directory`(@TempDir tempDir: File) {
+    fun `loads complete snapshot from post-migration directory`(
+        @TempDir tempDir: File,
+    ) {
         val postMigrationDir = tempDir.resolve("post-migration")
         val templatesDir = postMigrationDir.resolve("templates")
         templatesDir.mkdirs()
@@ -46,7 +47,9 @@ class PostMigrationSnapshotLoaderTest {
     }
 
     @Test
-    fun `loads snapshot with nested templates subdirectory`(@TempDir tempDir: File) {
+    fun `loads snapshot with nested templates subdirectory`(
+        @TempDir tempDir: File,
+    ) {
         val postMigrationDir = tempDir.resolve("post-migration")
         val templatesDir = postMigrationDir.resolve("templates")
         val todoDir = templatesDir.resolve("TODO")
@@ -65,7 +68,9 @@ class PostMigrationSnapshotLoaderTest {
     }
 
     @Test
-    fun `loads snapshot returns incomplete when messages_en missing`(@TempDir tempDir: File) {
+    fun `loads snapshot returns incomplete when messages_en missing`(
+        @TempDir tempDir: File,
+    ) {
         val postMigrationDir = tempDir.resolve("post-migration")
         val templatesDir = postMigrationDir.resolve("templates")
         templatesDir.mkdirs()
@@ -80,7 +85,9 @@ class PostMigrationSnapshotLoaderTest {
     }
 
     @Test
-    fun `loads snapshot returns empty templates when no thyme files`(@TempDir tempDir: File) {
+    fun `loads snapshot returns empty templates when no thyme files`(
+        @TempDir tempDir: File,
+    ) {
         val postMigrationDir = tempDir.resolve("post-migration")
         val templatesDir = postMigrationDir.resolve("templates")
         templatesDir.mkdirs()
@@ -95,7 +102,9 @@ class PostMigrationSnapshotLoaderTest {
     }
 
     @Test
-    fun `loads snapshot uses relative path as template key`(@TempDir tempDir: File) {
+    fun `loads snapshot uses relative path as template key`(
+        @TempDir tempDir: File,
+    ) {
         val postMigrationDir = tempDir.resolve("post-migration")
         val templatesDir = postMigrationDir.resolve("templates")
         val todoDir = templatesDir.resolve("TODO")
@@ -111,7 +120,9 @@ class PostMigrationSnapshotLoaderTest {
     }
 
     @Test
-    fun `throws when post-migration directory does not exist`(@TempDir tempDir: File) {
+    fun `throws when post-migration directory does not exist`(
+        @TempDir tempDir: File,
+    ) {
         val missingDir = tempDir.resolve("does-not-exist")
 
         assertThrows<IOException> {
@@ -120,7 +131,9 @@ class PostMigrationSnapshotLoaderTest {
     }
 
     @Test
-    fun `loads snapshot with only non-thyme files in templates returns empty templates`(@TempDir tempDir: File) {
+    fun `loads snapshot with only non-thyme files in templates returns empty templates`(
+        @TempDir tempDir: File,
+    ) {
         val postMigrationDir = tempDir.resolve("post-migration")
         val templatesDir = postMigrationDir.resolve("templates")
         templatesDir.mkdirs()
@@ -136,7 +149,9 @@ class PostMigrationSnapshotLoaderTest {
     }
 
     @Test
-    fun `round trip load preserves template content byte-identical`(@TempDir tempDir: File) {
+    fun `round trip load preserves template content byte-identical`(
+        @TempDir tempDir: File,
+    ) {
         val postMigrationDir = tempDir.resolve("post-migration")
         val templatesDir = postMigrationDir.resolve("templates")
         templatesDir.mkdirs()
@@ -151,7 +166,10 @@ class PostMigrationSnapshotLoaderTest {
         assertEquals(originalContent, snapshot.templatesMigrated["menu.thyme"], "Byte-identical content expected")
     }
 
-    private fun writeProperties(file: File, entries: Map<String, String>) {
+    private fun writeProperties(
+        file: File,
+        entries: Map<String, String>,
+    ) {
         val props = Properties()
         entries.forEach { (k, v) -> props.setProperty(k, v) }
         file.outputStream().use { props.store(it, null) }

@@ -1,39 +1,37 @@
 package bakery
 
-import bakery.FileSystemManager.yamlMapper
+import arrow.core.Either
 import bakery.BakeryConstants.BAKERY_GROUP
+import bakery.ContentTaskRegistrar.registerGenerateArticleTask
+import bakery.ContentTaskRegistrar.registerGenerateSiteFromIntentionTask
+import bakery.ContentTaskRegistrar.registerGenerateThemeTask
+import bakery.ContentTaskRegistrar.registerInjectLangSwitchTask
+import bakery.ContentTaskRegistrar.registerMigrateContentI18nTask
+import bakery.ContentTaskRegistrar.registerMigrateToI18nTask
+import bakery.ContentTaskRegistrar.registerRtlDirectionInjectionTask
+import bakery.ContentTaskRegistrar.registerValidateFirebaseConfigTask
+import bakery.DeployTaskRegistrar.registerDeployMaquetteTask
+import bakery.DeployTaskRegistrar.registerDeployProfileTask
+import bakery.DeployTaskRegistrar.registerDeploySiteTask
+import bakery.DeployTaskRegistrar.registerPublishSiteTask
+import bakery.FileSystemManager.yamlMapper
+import bakery.LensTaskRegistrar.registerCollectAugmentedContextTask
+import bakery.LensTaskRegistrar.registerCollectSiteContextTask
 import bakery.SiteManager.configureConfigPath
-import bakery.SiteScaffolder.resolveAndValidateSiteTarget
 import bakery.SiteManager.createJBakeRuntimeConfiguration
-
+import bakery.SiteScaffolder.resolveAndValidateSiteTarget
 import bakery.SiteTaskRegistrar.configureBakeTask
 import bakery.SiteTaskRegistrar.configureJBakePlugin
 import bakery.SiteTaskRegistrar.registerCollectSiteConfigTask
 import bakery.SiteTaskRegistrar.registerGenerateSiteTask
 import bakery.SiteTaskRegistrar.registerPagefindTask
 import bakery.SiteTaskRegistrar.registerServeTask
-import bakery.DeployTaskRegistrar.registerDeployMaquetteTask
-import bakery.DeployTaskRegistrar.registerDeployProfileTask
-import bakery.DeployTaskRegistrar.registerDeploySiteTask
-import bakery.DeployTaskRegistrar.registerPublishSiteTask
-import bakery.LensTaskRegistrar.registerCollectAugmentedContextTask
-import bakery.LensTaskRegistrar.registerCollectSiteContextTask
-import bakery.ContentTaskRegistrar.registerGenerateArticleTask
-import bakery.ContentTaskRegistrar.registerGenerateSiteFromIntentionTask
-import bakery.ContentTaskRegistrar.registerGenerateThemeTask
-import bakery.ContentTaskRegistrar.registerMigrateContentI18nTask
-import bakery.ContentTaskRegistrar.registerMigrateToI18nTask
-import bakery.ContentTaskRegistrar.registerRtlDirectionInjectionTask
-import bakery.ContentTaskRegistrar.registerValidateFirebaseConfigTask
-import bakery.ContentTaskRegistrar.registerInjectLangSwitchTask
 import bakery.a11y.AccessibilityTaskRegistrar.registerAccessibilityAuditTask
-import bakery.llm.OllamaLlmService
 import bakery.pivot.PivotTaskRegistrar.registerGeneratePivotYamlTask
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import arrow.core.Either
 import java.io.File
 
 internal fun Project.registerVerifyConfigurationMappingTask(configPath: String) {
@@ -44,16 +42,15 @@ internal fun Project.registerVerifyConfigurationMappingTask(configPath: String) 
     }
 }
 
-
 class BakeryPlugin : Plugin<Project> {
-
     override fun apply(project: Project) {
         project.pluginManager.apply("com.github.node-gradle.node")
         val jbakeRuntime = project.createJBakeRuntimeConfiguration()
-        val bakeryExtension = project.extensions.create(
-            BAKERY_GROUP,
-            BakeryExtension::class.java
-        )
+        val bakeryExtension =
+            project.extensions.create(
+                BAKERY_GROUP,
+                BakeryExtension::class.java,
+            )
 
         // Session 159 — generatePivotYaml est indépendante du pipeline JBake
         // (pas de site.yml requis). Enregistrée avant afterEvaluate pour être
@@ -67,10 +64,11 @@ class BakeryPlugin : Plugin<Project> {
             // la config DSL via gradle.properties.
             val isGradlePropertiesEnabled = bakeryExtension.configPath.isPresent
 
-            project.configureConfigPath(bakeryExtension, isGradlePropertiesEnabled)
+            project
+                .configureConfigPath(bakeryExtension, isGradlePropertiesEnabled)
                 .fold(
                     ifLeft = { project.logger.info("[bakery] $it") },
-                    ifRight = { /* configPath loaded from gradle.properties — logged in SiteManager */ }
+                    ifRight = { /* configPath loaded from gradle.properties — logged in SiteManager */ },
                 )
 
             // US-61a — verifyConfigurationMapping est enregistrée AVANT le
@@ -79,7 +77,7 @@ class BakeryPlugin : Plugin<Project> {
             // (elle n'a pas de fichier à vérifier).
             if (bakeryExtension.configPath.isPresent) {
                 project.registerVerifyConfigurationMappingTask(
-                    bakeryExtension.configPath.get()
+                    bakeryExtension.configPath.get(),
                 )
             }
 
@@ -92,31 +90,33 @@ class BakeryPlugin : Plugin<Project> {
                 project.logger.warn(
                     "[bakery] configPath is not set — only scaffold tasks will be available. " +
                         "Define it via DSL (`bakery { configPath = \"site.yml\" }`), " +
-                        "`gradle.properties` (`bakery.config.path=site.yml`), or `-Pbakery.config.path=...`."
+                        "`gradle.properties` (`bakery.config.path=site.yml`), or `-Pbakery.config.path=...`.",
                 )
                 registerScaffoldOnlyTasks(project, bakeryExtension, jbakeRuntime)
                 return@afterEvaluate
             }
 
-            val configFile = project.layout
-                .projectDirectory.asFile
-                .toPath()
-                .resolve(bakeryExtension.configPath.get())
-                .toFile()
+            val configFile =
+                project.layout
+                    .projectDirectory.asFile
+                    .toPath()
+                    .resolve(bakeryExtension.configPath.get())
+                    .toFile()
             val configDir = configFile.parentFile
 
             if (!configFile.exists()) {
                 project.logger.lifecycle("Config file does not exist at $configFile — switching to scaffold only.")
                 registerScaffoldOnlyTasks(project, bakeryExtension, jbakeRuntime)
             } else {
-                val parseResult = Either.catch {
-                    yamlMapper.readValue<SiteConfiguration>(configFile)
-                }
+                val parseResult =
+                    Either.catch {
+                        yamlMapper.readValue<SiteConfiguration>(configFile)
+                    }
                 parseResult.fold(
                     ifLeft = { error ->
                         project.logger.warn(
                             "Failed to parse configuration file '${configFile.absolutePath}': ${error.message}. " +
-                                "Falling back to scaffold only."
+                                "Falling back to scaffold only.",
                         )
                         registerScaffoldOnlyTasks(project, bakeryExtension, jbakeRuntime)
                     },
@@ -125,13 +125,13 @@ class BakeryPlugin : Plugin<Project> {
                             !configDir.resolve(site.pushMaquette.from).exists()
                         ) {
                             project.logger.lifecycle(
-                                "Site and maquette directories do not exist — switching to scaffold only."
+                                "Site and maquette directories do not exist — switching to scaffold only.",
                             )
                             registerScaffoldOnlyTasks(project, bakeryExtension, jbakeRuntime)
                         } else {
                             registerFullPipelineTasks(project, bakeryExtension, jbakeRuntime, isGradlePropertiesEnabled, site)
                         }
-                    }
+                    },
                 )
             }
         }
@@ -146,13 +146,15 @@ class BakeryPlugin : Plugin<Project> {
     private fun registerScaffoldOnlyTasks(
         project: Project,
         bakeryExtension: BakeryExtension,
-        @Suppress("UNUSED_PARAMETER") jbakeRuntime: Configuration
+        @Suppress("UNUSED_PARAMETER") jbakeRuntime: Configuration,
     ) {
         val targetDir = project.resolveAndValidateSiteTarget()
         val siteType = SiteScaffolder.resolveSiteType(bakeryExtension)
         project.registerGenerateSiteTask(targetDir, siteType, bakeryExtension)
         project.registerGenerateSiteFromIntentionTask(
-            targetDir, bakeryExtension.ia, bakeryExtension.scaffoldIntention
+            targetDir,
+            bakeryExtension.ia,
+            bakeryExtension.scaffoldIntention,
         )
         // BKY-FIX-1 : deployProfile est toujours enregistrée pour donner une
         // erreur métier explicite au runtime si site.yml est absent/invalide,
@@ -170,22 +172,23 @@ class BakeryPlugin : Plugin<Project> {
      * - pagefind ∥ validateFirebaseConfig ∥ serve
      *
      * Chaîne séquentielle déjà configurée via `dependsOn` :
-      * bake → pagefind → deploySite → deploySite (via registerDeploySiteTask)
-      * publishSite (convenience aggregate) → bake + deploySite
+     * bake → pagefind → deploySite → deploySite (via registerDeploySiteTask)
+     * publishSite (convenience aggregate) → bake + deploySite
      */
     private fun registerFullPipelineTasks(
         project: Project,
         bakeryExtension: BakeryExtension,
         jbakeRuntime: Configuration,
         isGradlePropertiesEnabled: Boolean,
-        site: SiteConfiguration
+        site: SiteConfiguration,
     ) {
-        val configDir = project.layout
-            .projectDirectory.asFile
-            .toPath()
-            .resolve(bakeryExtension.configPath.get())
-            .toFile()
-            .parentFile
+        val configDir =
+            project.layout
+                .projectDirectory.asFile
+                .toPath()
+                .resolve(bakeryExtension.configPath.get())
+                .toFile()
+                .parentFile
         val resolvedSite = site.resolvePaths(configDir)
         project.configureJBakePlugin(resolvedSite)
         project.configureBakeTask(resolvedSite)
@@ -231,12 +234,15 @@ class BakeryPlugin : Plugin<Project> {
     }
 }
 
-internal fun SiteConfiguration.resolvePaths(base: File): SiteConfiguration = copy(
-    bake = bake.copy(srcPath = resolvePath(base, bake.srcPath)),
-    pushMaquette = pushMaquette.copy(from = resolvePath(base, pushMaquette.from)),
-    pushPage = pushPage.copy(from = resolvePath(base, pushPage.from)),
-    pushProfile = pushProfile?.copy(from = resolvePath(base, pushProfile.from)),
-)
+internal fun SiteConfiguration.resolvePaths(base: File): SiteConfiguration =
+    copy(
+        bake = bake.copy(srcPath = resolvePath(base, bake.srcPath)),
+        pushMaquette = pushMaquette.copy(from = resolvePath(base, pushMaquette.from)),
+        pushPage = pushPage.copy(from = resolvePath(base, pushPage.from)),
+        pushProfile = pushProfile?.copy(from = resolvePath(base, pushProfile.from)),
+    )
 
-internal fun resolvePath(base: File, path: String): String =
-    if (path.isBlank() || File(path).isAbsolute) path else base.resolve(path).absolutePath
+internal fun resolvePath(
+    base: File,
+    path: String,
+): String = if (path.isBlank() || File(path).isAbsolute) path else base.resolve(path).absolutePath

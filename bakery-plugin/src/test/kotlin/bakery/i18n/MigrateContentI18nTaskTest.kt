@@ -1,9 +1,9 @@
 package bakery.i18n
 
-import org.gradle.testfixtures.ProjectBuilder
 import contracts.i18n.TranslationRequest
 import contracts.i18n.TranslationResult
 import contracts.i18n.TranslationService
+import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
@@ -16,20 +16,20 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class MigrateContentI18nTaskTest {
-
     @TempDir
     lateinit var tempDir: File
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class TaskRegistration {
-
         @Test
         fun `task is registered with correct group and description`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(tempDir)
-                .withName("test-migrate-content-i18n")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(tempDir)
+                    .withName("test-migrate-content-i18n")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val task = project.tasks.register("migrateContentI18n", MigrateContentI18nTask::class.java).get()
@@ -41,10 +41,12 @@ class MigrateContentI18nTaskTest {
 
         @Test
         fun `task initializes all CLI properties with empty defaults`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(tempDir)
-                .withName("test-migrate-content-defaults")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(tempDir)
+                    .withName("test-migrate-content-defaults")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val task = project.tasks.register("migrateContentI18n", MigrateContentI18nTask::class.java).get()
@@ -63,12 +65,13 @@ class MigrateContentI18nTaskTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class ResolveIntention {
-
         private fun setupTask(name: String): MigrateContentI18nTask {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(tempDir)
-                .withName(name)
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(tempDir)
+                    .withName(name)
+                    .build()
             return project.tasks.register("migrateContentI18n", MigrateContentI18nTask::class.java).get()
         }
 
@@ -128,13 +131,14 @@ class MigrateContentI18nTaskTest {
         @Test
         fun `falls back to DSL when CLI is blank`() {
             val task = setupTask("test-dsl-fallback")
-            task.dslIntention = ContentMigrationIntention(
-                sourceDir = "/home/user/dsl-content",
-                outputDir = "/tmp/dsl-output",
-                targetLanguages = listOf("es", "zh"),
-                sourceLanguage = "en",
-                dryRun = false
-            )
+            task.dslIntention =
+                ContentMigrationIntention(
+                    sourceDir = "/home/user/dsl-content",
+                    outputDir = "/tmp/dsl-output",
+                    targetLanguages = listOf("es", "zh"),
+                    sourceLanguage = "en",
+                    dryRun = false,
+                )
 
             val intention = task.resolveIntention()
 
@@ -149,10 +153,11 @@ class MigrateContentI18nTaskTest {
         fun `CLI source wins over DSL`() {
             val task = setupTask("test-cli-wins-source")
             task.contentI18nSource.set("/home/user/cli-content")
-            task.dslIntention = ContentMigrationIntention(
-                sourceDir = "/home/user/dsl-content",
-                outputDir = "/tmp/output"
-            )
+            task.dslIntention =
+                ContentMigrationIntention(
+                    sourceDir = "/home/user/dsl-content",
+                    outputDir = "/tmp/output",
+                )
 
             val intention = task.resolveIntention()
 
@@ -164,10 +169,11 @@ class MigrateContentI18nTaskTest {
             val task = setupTask("test-cli-wins-output")
             task.contentI18nSource.set("/home/user/content")
             task.contentI18nOutput.set("/tmp/cli-output")
-            task.dslIntention = ContentMigrationIntention(
-                sourceDir = "/home/user/content",
-                outputDir = "/tmp/dsl-output"
-            )
+            task.dslIntention =
+                ContentMigrationIntention(
+                    sourceDir = "/home/user/content",
+                    outputDir = "/tmp/dsl-output",
+                )
 
             val intention = task.resolveIntention()
 
@@ -180,11 +186,12 @@ class MigrateContentI18nTaskTest {
             task.contentI18nSource.set("/home/user/content")
             task.contentI18nOutput.set("/tmp/output")
             task.contentI18nTargetLangs.set("en,ar")
-            task.dslIntention = ContentMigrationIntention(
-                sourceDir = "/home/user/content",
-                outputDir = "/tmp/output",
-                targetLanguages = listOf("en", "es", "zh")
-            )
+            task.dslIntention =
+                ContentMigrationIntention(
+                    sourceDir = "/home/user/content",
+                    outputDir = "/tmp/output",
+                    targetLanguages = listOf("en", "es", "zh"),
+                )
 
             val intention = task.resolveIntention()
 
@@ -197,11 +204,12 @@ class MigrateContentI18nTaskTest {
             task.contentI18nSource.set("/home/user/content")
             task.contentI18nOutput.set("/tmp/output")
             task.contentI18nSourceLang.set("ar")
-            task.dslIntention = ContentMigrationIntention(
-                sourceDir = "/home/user/content",
-                outputDir = "/tmp/output",
-                sourceLanguage = "fr"
-            )
+            task.dslIntention =
+                ContentMigrationIntention(
+                    sourceDir = "/home/user/content",
+                    outputDir = "/tmp/output",
+                    sourceLanguage = "fr",
+                )
 
             val intention = task.resolveIntention()
 
@@ -214,11 +222,12 @@ class MigrateContentI18nTaskTest {
             task.contentI18nSource.set("/home/user/content")
             task.contentI18nOutput.set("/tmp/output")
             task.contentI18nDryRun.set("false")
-            task.dslIntention = ContentMigrationIntention(
-                sourceDir = "/home/user/content",
-                outputDir = "/tmp/output",
-                dryRun = true
-            )
+            task.dslIntention =
+                ContentMigrationIntention(
+                    sourceDir = "/home/user/content",
+                    outputDir = "/tmp/output",
+                    dryRun = true,
+                )
 
             val intention = task.resolveIntention()
 
@@ -274,11 +283,13 @@ class MigrateContentI18nTaskTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class ExecuteContentMigration {
-
         @TempDir
         lateinit var testDir: File
 
-        private fun createAdocSource(dir: File, vararg files: String) {
+        private fun createAdocSource(
+            dir: File,
+            vararg files: String,
+        ) {
             for (file in files) {
                 dir.resolve(file).also {
                     it.parentFile.mkdirs()
@@ -289,10 +300,12 @@ class MigrateContentI18nTaskTest {
 
         @Test
         fun `warns when source directory does not exist`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(testDir)
-                .withName("test-no-source-dir")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(testDir)
+                    .withName("test-no-source-dir")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val task = project.tasks.register("migrateContentI18n", MigrateContentI18nTask::class.java).get()
@@ -304,10 +317,12 @@ class MigrateContentI18nTaskTest {
 
         @Test
         fun `dryRun does not write any output files`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(testDir)
-                .withName("test-dryrun")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(testDir)
+                    .withName("test-dryrun")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val sourceDir = testDir.resolve("src/content")
@@ -330,10 +345,12 @@ class MigrateContentI18nTaskTest {
 
         @Test
         fun `copies files without translation when no translationService`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(testDir)
-                .withName("test-copy-only")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(testDir)
+                    .withName("test-copy-only")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val sourceDir = testDir.resolve("src/content")
@@ -357,10 +374,12 @@ class MigrateContentI18nTaskTest {
 
         @Test
         fun `with translationService translates adoc files`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(testDir)
-                .withName("test-translate")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(testDir)
+                    .withName("test-translate")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val sourceDir = testDir.resolve("src/content")
@@ -384,10 +403,12 @@ class MigrateContentI18nTaskTest {
 
         @Test
         fun `non-adoc files are copied without translation`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(testDir)
-                .withName("test-non-adoc-preserved")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(testDir)
+                    .withName("test-non-adoc-preserved")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val sourceDir = testDir.resolve("src/content")
@@ -414,10 +435,12 @@ class MigrateContentI18nTaskTest {
 
         @Test
         fun `directory structure is preserved in output`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(testDir)
-                .withName("test-dir-structure")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(testDir)
+                    .withName("test-dir-structure")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val sourceDir = testDir.resolve("src/content")
@@ -441,10 +464,12 @@ class MigrateContentI18nTaskTest {
 
         @Test
         fun `relative sourceDir resolved against contentRootDir`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(testDir)
-                .withName("test-relative-source")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(testDir)
+                    .withName("test-relative-source")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val contentRoot = testDir.resolve("content-root")
@@ -468,7 +493,9 @@ class MigrateContentI18nTaskTest {
         }
     }
 
-    private class FakeTranslationService(private val suffix: String) : TranslationService {
+    private class FakeTranslationService(
+        private val suffix: String,
+    ) : TranslationService {
         override fun translate(request: TranslationRequest): TranslationResult {
             val sourceText = request.sourceText
             if (sourceText.isBlank()) return TranslationResult.Success(sourceText)

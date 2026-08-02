@@ -4,12 +4,10 @@ import bakery.BakeryConstants
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
@@ -45,7 +43,6 @@ import java.io.File
  */
 @DisableCachingByDefault(because = "Audit accessibilité — dépend du HTML baké, non-cacheable")
 abstract class AccessibilityAuditTask : DefaultTask() {
-
     /** Répertoire contenant les fichiers HTML à auditer (input). */
     @get:InputDirectory
     @get:Optional
@@ -83,25 +80,28 @@ abstract class AccessibilityAuditTask : DefaultTask() {
             throw IllegalStateException("Audit directory does not exist: ${htmlDir.absolutePath}")
         }
 
-        val htmlFiles = htmlDir.walkTopDown()
-            .filter { it.isFile && (it.extension.equals("html", ignoreCase = true) || it.extension.equals("htm", ignoreCase = true)) }
-            .toList()
+        val htmlFiles =
+            htmlDir
+                .walkTopDown()
+                .filter { it.isFile && (it.extension.equals("html", ignoreCase = true) || it.extension.equals("htm", ignoreCase = true)) }
+                .toList()
 
         if (htmlFiles.isEmpty()) {
             logger.warn("[accessibilityAudit] Aucun fichier HTML trouvé dans ${htmlDir.absolutePath}")
         }
 
-        val allFindings = htmlFiles.flatMap { file ->
-            val html = file.readText(Charsets.UTF_8)
-            val colorFindings = scanInlineColors(html)
-            val structuralFindings = scanStructural(html)
-            (colorFindings + structuralFindings).map { finding ->
-                finding.copy(
-                    selector = "${file.relativeTo(htmlDir).path} ${finding.selector}",
-                    message = "${finding.message} (${file.name})"
-                )
+        val allFindings =
+            htmlFiles.flatMap { file ->
+                val html = file.readText(Charsets.UTF_8)
+                val colorFindings = scanInlineColors(html)
+                val structuralFindings = scanStructural(html)
+                (colorFindings + structuralFindings).map { finding ->
+                    finding.copy(
+                        selector = "${file.relativeTo(htmlDir).path} ${finding.selector}",
+                        message = "${finding.message} (${file.name})",
+                    )
+                }
             }
-        }
 
         val report = audit(allFindings)
 
@@ -109,8 +109,13 @@ abstract class AccessibilityAuditTask : DefaultTask() {
         reportFile.parentFile.mkdirs()
         writeJsonReport(reportFile, report)
 
-        logger.lifecycle("[accessibilityAudit] {} fichiers scannés, {} findings, {} passed, {} failed",
-            htmlFiles.size, report.findings.size, report.passedCount, report.failedCount)
+        logger.lifecycle(
+            "[accessibilityAudit] {} fichiers scannés, {} findings, {} passed, {} failed",
+            htmlFiles.size,
+            report.findings.size,
+            report.passedCount,
+            report.failedCount,
+        )
 
         if (!report.isCompliant) {
             logger.warn("[accessibilityAudit] Site NON conforme — {} findings échoués", report.failedCount)
@@ -118,7 +123,7 @@ abstract class AccessibilityAuditTask : DefaultTask() {
                 throw GradleException(
                     "[accessibilityAudit] Site non conforme (échec ${report.failedCount} finding(s)). " +
                         "Rapport : ${reportFile.absolutePath}. " +
-                        "Pour ignorer, désactiver a11y.failOnNonCompliant."
+                        "Pour ignorer, désactiver a11y.failOnNonCompliant.",
                 )
             }
         } else {
@@ -129,35 +134,42 @@ abstract class AccessibilityAuditTask : DefaultTask() {
     internal fun resolveAuditDir(): File {
         val configured = auditDir.asFile.orNull
         return configured
-            ?: project.layout.buildDirectory.asFile.get().resolve("bake")
+            ?: project.layout.buildDirectory.asFile
+                .get()
+                .resolve("bake")
     }
 
-    private fun writeJsonReport(file: File, report: AccessibilityReport) {
-        val lines = buildList {
-            add("{")
-            add("  \"compliant\": ${report.isCompliant},")
-            add("  \"passedCount\": ${report.passedCount},")
-            add("  \"failedCount\": ${report.failedCount},")
-            add("  \"findings\": [")
-            report.findings.forEachIndexed { index, finding ->
-                val sep = if (index == report.findings.lastIndex) "" else ","
-                add("    {")
-                add("      \"selector\": \"${escapeJson(finding.selector)}\",")
-                add("      \"rule\": \"${escapeJson(finding.rule)}\",")
-                add("      \"pass\": ${finding.pass},")
-                add("      \"message\": \"${escapeJson(finding.message)}\"")
-                add("    }$sep")
+    private fun writeJsonReport(
+        file: File,
+        report: AccessibilityReport,
+    ) {
+        val lines =
+            buildList {
+                add("{")
+                add("  \"compliant\": ${report.isCompliant},")
+                add("  \"passedCount\": ${report.passedCount},")
+                add("  \"failedCount\": ${report.failedCount},")
+                add("  \"findings\": [")
+                report.findings.forEachIndexed { index, finding ->
+                    val sep = if (index == report.findings.lastIndex) "" else ","
+                    add("    {")
+                    add("      \"selector\": \"${escapeJson(finding.selector)}\",")
+                    add("      \"rule\": \"${escapeJson(finding.rule)}\",")
+                    add("      \"pass\": ${finding.pass},")
+                    add("      \"message\": \"${escapeJson(finding.message)}\"")
+                    add("    }$sep")
+                }
+                add("  ]")
+                add("}")
             }
-            add("  ]")
-            add("}")
-        }
         file.writeText(lines.joinToString("\n"), Charsets.UTF_8)
     }
 
-    private fun escapeJson(value: String): String = value
-        .replace("\\", "\\\\")
-        .replace("\"", "\\\"")
-        .replace("\n", "\\n")
-        .replace("\r", "\\r")
-        .replace("\t", "\\t")
+    private fun escapeJson(value: String): String =
+        value
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"")
+            .replace("\n", "\\n")
+            .replace("\r", "\\r")
+            .replace("\t", "\\t")
 }

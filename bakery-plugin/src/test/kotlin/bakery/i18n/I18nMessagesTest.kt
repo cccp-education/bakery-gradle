@@ -6,20 +6,22 @@ import org.junit.jupiter.api.Test
 import java.util.Properties
 
 class I18nMessagesTest {
-
     private val languages = listOf("fr", "en", "zh", "hi", "es", "ar", "bn", "pt", "ru", "ur")
     private val templateDirs = listOf("site/templates", "site-basic/templates")
 
-    private fun loadProperties(dir: String, lang: String): Properties {
+    private fun loadProperties(
+        dir: String,
+        lang: String,
+    ): Properties {
         val path = "$dir/messages_$lang.properties"
-        val stream = javaClass.classLoader.getResourceAsStream(path)
-            ?: throw AssertionError("File not found: $path")
+        val stream =
+            javaClass.classLoader.getResourceAsStream(path)
+                ?: throw AssertionError("File not found: $path")
         return Properties().apply { load(stream) }
     }
 
     @Nested
     inner class FileExistenceTest {
-
         @Test
         fun `all 20 message files exist`() {
             for (dir in templateDirs) {
@@ -35,7 +37,6 @@ class I18nMessagesTest {
 
     @Nested
     inner class KeyConsistencyTest {
-
         @Test
         fun `all languages have same keys as fr reference in site templates`() {
             val ref = loadProperties("site/templates", "fr")
@@ -48,10 +49,14 @@ class I18nMessagesTest {
                 val missingInLang = refKeys.filter { it !in keys }
                 val extraInLang = keys.filter { it !in refKeys }
 
-                assertTrue(missingInLang.isEmpty(),
-                    "[$lang] Missing keys: $missingInLang")
-                assertTrue(extraInLang.isEmpty(),
-                    "[$lang] Extra keys: $extraInLang")
+                assertTrue(
+                    missingInLang.isEmpty(),
+                    "[$lang] Missing keys: $missingInLang",
+                )
+                assertTrue(
+                    extraInLang.isEmpty(),
+                    "[$lang] Extra keys: $extraInLang",
+                )
             }
         }
 
@@ -67,25 +72,30 @@ class I18nMessagesTest {
                 val missingInLang = refKeys.filter { it !in keys }
                 val extraInLang = keys.filter { it !in refKeys }
 
-                assertTrue(missingInLang.isEmpty(),
-                    "[$lang] Missing keys: $missingInLang")
-                assertTrue(extraInLang.isEmpty(),
-                    "[$lang] Extra keys: $extraInLang")
+                assertTrue(
+                    missingInLang.isEmpty(),
+                    "[$lang] Missing keys: $missingInLang",
+                )
+                assertTrue(
+                    extraInLang.isEmpty(),
+                    "[$lang] Extra keys: $extraInLang",
+                )
             }
         }
     }
 
     @Nested
     inner class NonEmptyValuesTest {
-
         @Test
         fun `all values are non-blank in site templates`() {
             for (lang in languages) {
                 val props = loadProperties("site/templates", lang)
                 for (key in props.stringPropertyNames()) {
                     val value = props.getProperty(key)
-                    assertTrue(value.isNotBlank(),
-                        "[$lang] Key '$key' has blank value")
+                    assertTrue(
+                        value.isNotBlank(),
+                        "[$lang] Key '$key' has blank value",
+                    )
                 }
             }
         }
@@ -96,8 +106,10 @@ class I18nMessagesTest {
                 val props = loadProperties("site-basic/templates", lang)
                 for (key in props.stringPropertyNames()) {
                     val value = props.getProperty(key)
-                    assertTrue(value.isNotBlank(),
-                        "[$lang] Key '$key' has blank value")
+                    assertTrue(
+                        value.isNotBlank(),
+                        "[$lang] Key '$key' has blank value",
+                    )
                 }
             }
         }
@@ -105,7 +117,6 @@ class I18nMessagesTest {
 
     @Nested
     inner class KeyCountTest {
-
         @Test
         fun `site templates have expected key count`() {
             val ref = loadProperties("site/templates", "fr")

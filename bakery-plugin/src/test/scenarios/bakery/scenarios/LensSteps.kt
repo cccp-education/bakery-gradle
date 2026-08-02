@@ -4,17 +4,17 @@ import bakery.lens.AugmentedArticlesService
 import bakery.lens.LensConfig
 import bakery.lens.LensRules
 import bakery.lens.LensScope
+import bakery.lens.ScoredNode
 import bakery.lens.SiteSubgraph
 import bakery.lens.SubgraphExtractor
 import com.cheroliv.graphify.model.GraphCommunity
 import com.cheroliv.graphify.model.GraphEdge
+import com.cheroliv.graphify.model.GraphModel
 import com.cheroliv.graphify.model.GraphNode
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
 import org.assertj.core.api.Assertions.assertThat
-import bakery.lens.ScoredNode
-import com.cheroliv.graphify.model.GraphModel
 
 /**
  * Cucumber steps pour BKY-LENS — Pattern LENTILLE.
@@ -23,8 +23,9 @@ import com.cheroliv.graphify.model.GraphModel
  * 1. Scénarios unitaires (scoring, filtrage, budget) — testent les services LENS directement
  * 2. Scénarios d'intégration (injection jbake, extraction sous-graphe) — testent via Gradle Task
  */
-class LensSteps(private val world: BakeryWorld) {
-
+class LensSteps(
+    private val world: BakeryWorld,
+) {
     private val service = AugmentedArticlesService()
 
     // ─── Fixtures partagées ───
@@ -44,49 +45,60 @@ class LensSteps(private val world: BakeryWorld) {
 
     @Given("a subgraph with 6 nodes and 4 communities")
     fun `a subgraph with 6 nodes and 4 communities`() {
-        val nodes = listOf(
-            GraphNode("page.md", "Page Courante", "file", "community-a"),
-            GraphNode("article-a.md", "Article A", "file", "community-a"),
-            GraphNode("article-b.md", "Article B", "file", "community-a"),
-            GraphNode("article-c.md", "Article C", "file", "community-b"),
-            GraphNode("orphan.md", "Orphan", "file", community = null),
-            GraphNode("draft-article.md", "Draft Article", "file", "community-a")
-        )
-        val edges = listOf(
-            GraphEdge("page.md", "article-a.md", "reference"),
-            GraphEdge("article-a.md", "article-b.md", "reference"),
-            GraphEdge("page.md", "article-c.md", "agent_reference"),
-            GraphEdge("article-a.md", "article-c.md", "agent_reference"),
-            GraphEdge("article-b.md", "orphan.md", "agent_reference")
-        )
-        val communities = listOf(
-            GraphCommunity("community-a", "Community A", 4),
-            GraphCommunity("community-b", "Community B", 1)
-        )
+        val nodes =
+            listOf(
+                GraphNode("page.md", "Page Courante", "file", "community-a"),
+                GraphNode("article-a.md", "Article A", "file", "community-a"),
+                GraphNode("article-b.md", "Article B", "file", "community-a"),
+                GraphNode("article-c.md", "Article C", "file", "community-b"),
+                GraphNode("orphan.md", "Orphan", "file", community = null),
+                GraphNode("draft-article.md", "Draft Article", "file", "community-a"),
+            )
+        val edges =
+            listOf(
+                GraphEdge("page.md", "article-a.md", "reference"),
+                GraphEdge("article-a.md", "article-b.md", "reference"),
+                GraphEdge("page.md", "article-c.md", "agent_reference"),
+                GraphEdge("article-a.md", "article-c.md", "agent_reference"),
+                GraphEdge("article-b.md", "orphan.md", "agent_reference"),
+            )
+        val communities =
+            listOf(
+                GraphCommunity("community-a", "Community A", 4),
+                GraphCommunity("community-b", "Community B", 1),
+            )
         subgraph = SiteSubgraph(nodes = nodes, edges = edges, communities = communities)
     }
 
     @Given("a RAG result with similarity {double} for node {string}")
-    fun `a RAG result with similarity for node`(similarity: Double, nodeId: String) {
+    fun `a RAG result with similarity for node`(
+        similarity: Double,
+        nodeId: String,
+    ) {
         ragResults = mapOf(nodeId to similarity)
     }
 
     @When("I score node {string} with current page tags {string}")
-    fun `i score node with current page tags`(nodeId: String, tags: String) {
+    fun `i score node with current page tags`(
+        nodeId: String,
+        tags: String,
+    ) {
         currentPageTags = tags.split(",").map { it.trim() }
-        nodeTags = mapOf(
-            nodeId to currentPageTags,
-            "page.md" to currentPageTags
-        )
-        lastScoredNode = service.score(
-            nodeId = nodeId,
-            subgraph = subgraph,
-            ragResults = ragResults,
-            nodeTags = nodeTags,
-            currentPageTags = currentPageTags,
-            currentPageCommunity = "community-a",
-            lensRules = LensRules()
-        )
+        nodeTags =
+            mapOf(
+                nodeId to currentPageTags,
+                "page.md" to currentPageTags,
+            )
+        lastScoredNode =
+            service.score(
+                nodeId = nodeId,
+                subgraph = subgraph,
+                ragResults = ragResults,
+                nodeTags = nodeTags,
+                currentPageTags = currentPageTags,
+                currentPageCommunity = "community-a",
+                lensRules = LensRules(),
+            )
     }
 
     @Then("the scored node should have ragSimilarity {double}")
@@ -122,19 +134,25 @@ class LensSteps(private val world: BakeryWorld) {
     // ─── Scénario 2 : Filtrage des règles ───
 
     @Given("a list of scored nodes with tags {string}, {string}, and {string}")
-    fun `a list of scored nodes with tags draft wip and published`(tag1: String, tag2: String, tag3: String) {
-        scoredNodes = listOf(
-            ScoredNode("a.md", "Draft", null, listOf(tag1), 0.5, 0.3, 0.1, 0, 0.5),
-            ScoredNode("b.md", "WIP", null, listOf(tag2), 0.5, 0.3, 0.1, 0, 0.5),
-            ScoredNode("c.md", "Published", null, listOf(tag3), 0.5, 0.3, 0.1, 0, 0.5)
-        )
+    fun `a list of scored nodes with tags draft wip and published`(
+        tag1: String,
+        tag2: String,
+        tag3: String,
+    ) {
+        scoredNodes =
+            listOf(
+                ScoredNode("a.md", "Draft", null, listOf(tag1), 0.5, 0.3, 0.1, 0, 0.5),
+                ScoredNode("b.md", "WIP", null, listOf(tag2), 0.5, 0.3, 0.1, 0, 0.5),
+                ScoredNode("c.md", "Published", null, listOf(tag3), 0.5, 0.3, 0.1, 0, 0.5),
+            )
     }
 
     @Given("lens rules with excludeTags containing {string}")
     fun `lens rules with excludeTags containing`(excludedTags: String) {
-        rules = LensRules(
-            excludeTags = excludedTags.split(",").map { it.trim() }
-        )
+        rules =
+            LensRules(
+                excludeTags = excludedTags.split(",").map { it.trim() },
+            )
     }
 
     @When("I apply lens rules to the scored nodes")
@@ -149,7 +167,10 @@ class LensSteps(private val world: BakeryWorld) {
     }
 
     @Then("the result should contain exactly {int} node(s) with tag {string}")
-    fun `the result should contain exactly count nodes with tag`(count: Int, tag: String) {
+    fun `the result should contain exactly count nodes with tag`(
+        count: Int,
+        tag: String,
+    ) {
         val nodesWithTag = filteredNodes.filter { it.tags.any { t -> t.equals(tag, ignoreCase = true) } }
         assertThat(nodesWithTag).hasSize(count)
     }
@@ -159,12 +180,17 @@ class LensSteps(private val world: BakeryWorld) {
     @Given("a scored node list with {int} nodes and scores {double}, {double}, {double}, {double}, {double}")
     fun `a scored node list with 5 nodes and scores`(
         count: Int,
-        s1: Double, s2: Double, s3: Double, s4: Double, s5: Double
+        s1: Double,
+        s2: Double,
+        s3: Double,
+        s4: Double,
+        s5: Double,
     ) {
         val scores = listOf(s1, s2, s3, s4, s5)
-        scoredNodes = scores.mapIndexed { idx, score ->
-            ScoredNode("node-$idx.md", "Node $idx", null, emptyList(), 0.0, 0.0, 0.0, 0, score)
-        }
+        scoredNodes =
+            scores.mapIndexed { idx, score ->
+                ScoredNode("node-$idx.md", "Node $idx", null, emptyList(), 0.0, 0.0, 0.0, 0, score)
+            }
         assertThat(scoredNodes).hasSize(count)
     }
 
@@ -181,10 +207,11 @@ class LensSteps(private val world: BakeryWorld) {
     @When("I apply budget filtering")
     fun `i apply budget filtering`() {
         // Truncate à maxArticles après filtrage minSimilarity
-        filteredNodes = scoredNodes
-            .filter { it.score >= minSimilarity }
-            .sortedByDescending { it.score }
-            .take(maxArticles)
+        filteredNodes =
+            scoredNodes
+                .filter { it.score >= minSimilarity }
+                .sortedByDescending { it.score }
+                .take(maxArticles)
     }
 
     @Then("all nodes should have score greater than or equal to {double}")
@@ -214,12 +241,14 @@ class LensSteps(private val world: BakeryWorld) {
 
     @Given("the bakery DSL defines augmentedContext as enabled with maxArticlesPerPage {int} and minSimilarity {double}")
     fun `the bakery DSL defines augmentedContext enabled with budget`(
-        maxArticles: Int, minSimilarity: Double
+        maxArticles: Int,
+        minSimilarity: Double,
     ) {
         val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
         val buildFile = projectDir.resolve("build.gradle.kts")
         val content = buildFile.readText(Charsets.UTF_8)
-        val lensBlock = """
+        val lensBlock =
+            """
             augmentedContext {
                 enabled = true
                 budget {
@@ -227,7 +256,7 @@ class LensSteps(private val world: BakeryWorld) {
                     minSimilarity = $minSimilarity
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         // Insert before closing '}' of bakery { ... }
         val updatedContent = insertBeforeClosingBrace(content, "bakery", lensBlock)
         buildFile.writeText(updatedContent, Charsets.UTF_8)
@@ -238,19 +267,23 @@ class LensSteps(private val world: BakeryWorld) {
         val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
         val buildFile = projectDir.resolve("build.gradle.kts")
         val content = buildFile.readText(Charsets.UTF_8)
-        val augmentedBlock = """
+        val augmentedBlock =
+            """
             augmentedContext {
                 enabled = false
             }
-        """.trimIndent()
+            """.trimIndent()
         // Insert before closing '}' of bakery { ... }
         val updatedContent = insertBeforeClosingBrace(content, "bakery", augmentedBlock)
         buildFile.writeText(updatedContent, Charsets.UTF_8)
     }
 
     // Délègue à DslInjectionHelper pour insertion DSL robuste
-    private fun insertBeforeClosingBrace(content: String, blockName: String, blockToInsert: String): String =
-        bakery.lens.DslInjectionHelper.insertBeforeClosingBrace(content, blockName, blockToInsert)
+    private fun insertBeforeClosingBrace(
+        content: String,
+        blockName: String,
+        blockToInsert: String,
+    ): String = bakery.lens.DslInjectionHelper.insertBeforeClosingBrace(content, blockName, blockToInsert)
 
     // ─── Feature 18 : SubgraphExtractor — extraction sous-graphe ───
 
@@ -260,7 +293,9 @@ class LensSteps(private val world: BakeryWorld) {
 
     @Given("a graph.json file with {int} nodes in {int} communities and {int} edges")
     fun aGraphJsonFileWithNodesInCommunitiesAndEdges(
-        nodeCount: Int, communityCount: Int, edgeCount: Int
+        nodeCount: Int,
+        communityCount: Int,
+        edgeCount: Int,
     ) {
         val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
         val nodes = mutableListOf<GraphNode>()
@@ -285,8 +320,13 @@ class LensSteps(private val world: BakeryWorld) {
         }
 
         // Sérialiser en graph.json
-        val objectMapper = com.fasterxml.jackson.databind.ObjectMapper()
-            .registerModule(com.fasterxml.jackson.module.kotlin.kotlinModule())
+        val objectMapper =
+            com.fasterxml.jackson.databind
+                .ObjectMapper()
+                .registerModule(
+                    com.fasterxml.jackson.module.kotlin
+                        .kotlinModule(),
+                )
         val graphModel = GraphModel(nodes, edges, communitiesList)
         val graphFile = projectDir.resolve("office/graph.json")
         graphFile.parentFile.mkdirs()
@@ -295,13 +335,22 @@ class LensSteps(private val world: BakeryWorld) {
     }
 
     @Given("a graph.json file at custom path {string} with {int} nodes")
-    fun aGraphJsonFileAtCustomPathWithNodes(customPath: String, nodeCount: Int) {
+    fun aGraphJsonFileAtCustomPathWithNodes(
+        customPath: String,
+        nodeCount: Int,
+    ) {
         val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
-        val objectMapper = com.fasterxml.jackson.databind.ObjectMapper()
-            .registerModule(com.fasterxml.jackson.module.kotlin.kotlinModule())
-        val nodes = (0 until nodeCount).map {
-            GraphNode("custom-node-$it.adoc", "Custom Node $it", "file", "custom-community")
-        }
+        val objectMapper =
+            com.fasterxml.jackson.databind
+                .ObjectMapper()
+                .registerModule(
+                    com.fasterxml.jackson.module.kotlin
+                        .kotlinModule(),
+                )
+        val nodes =
+            (0 until nodeCount).map {
+                GraphNode("custom-node-$it.adoc", "Custom Node $it", "file", "custom-community")
+            }
         val communitiesList = listOf(GraphCommunity("custom-community", "Custom Community", nodeCount))
         val graphModel = GraphModel(nodes, emptyList(), communitiesList)
         val graphFile = projectDir.resolve(customPath)
@@ -312,13 +361,15 @@ class LensSteps(private val world: BakeryWorld) {
 
     @Given("the bakery DSL defines augmentedContext with lens scope={string} and communities {string}")
     fun `the bakery DSL defines augmentedContext with lens scope and communities`(
-        scope: String, communities: String
+        scope: String,
+        communities: String,
     ) {
         val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
         val buildFile = projectDir.resolve("build.gradle.kts")
         val content = buildFile.readText(Charsets.UTF_8)
         val communityList = communities.split(",").map { it.trim() }.joinToString(", ") { "\"$it\"" }
-        val lensBlock = """
+        val lensBlock =
+            """
             augmentedContext {
                 enabled = true
                 lens {
@@ -326,7 +377,7 @@ class LensSteps(private val world: BakeryWorld) {
                     communities = listOf($communityList)
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         val updatedContent = insertBeforeClosingBrace(content, "bakery", lensBlock)
         buildFile.writeText(updatedContent, Charsets.UTF_8)
     }
@@ -336,14 +387,15 @@ class LensSteps(private val world: BakeryWorld) {
         val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
         val buildFile = projectDir.resolve("build.gradle.kts")
         val content = buildFile.readText(Charsets.UTF_8)
-        val lensBlock = """
+        val lensBlock =
+            """
             augmentedContext {
                 enabled = true
                 lens {
                     graphFilePath = "$graphFilePath"
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         val updatedContent = insertBeforeClosingBrace(content, "bakery", lensBlock)
         buildFile.writeText(updatedContent, Charsets.UTF_8)
     }
@@ -354,11 +406,12 @@ class LensSteps(private val world: BakeryWorld) {
         extractor = SubgraphExtractor()
         val communityList = communities.split(",").map { it.trim() }
         val resolvedGraphPath = graphFilePath ?: projectDir.resolve("office/graph.json").absolutePath
-        val lensConfig = LensConfig(
-            scope = LensScope.SUBGRAPH,
-            communities = communityList,
-            graphFilePath = resolvedGraphPath
-        )
+        val lensConfig =
+            LensConfig(
+                scope = LensScope.SUBGRAPH,
+                communities = communityList,
+                graphFilePath = resolvedGraphPath,
+            )
         extractedSubgraph = extractor.extractFromPath(lensConfig.graphFilePath, lensConfig)
     }
 
@@ -368,11 +421,12 @@ class LensSteps(private val world: BakeryWorld) {
         extractor = SubgraphExtractor()
         val lensScope = LensScope.valueOf(scope)
         val resolvedGraphPath = graphFilePath ?: projectDir.resolve("office/graph.json").absolutePath
-        val lensConfig = LensConfig(
-            scope = lensScope,
-            communities = listOf("community-0", "community-1"),
-            graphFilePath = resolvedGraphPath
-        )
+        val lensConfig =
+            LensConfig(
+                scope = lensScope,
+                communities = listOf("community-0", "community-1"),
+                graphFilePath = resolvedGraphPath,
+            )
         extractedSubgraph = extractor.extractFromPath(lensConfig.graphFilePath, lensConfig)
     }
 

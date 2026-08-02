@@ -33,18 +33,21 @@ object GitService {
 
     sealed class PrePushValidation {
         data object Valid : PrePushValidation()
+
         data object RemoteNotConfigured : PrePushValidation()
+
         data object ContentAbsent : PrePushValidation()
     }
 
     fun validatePrePush(
         destPath: () -> String,
-        git: GitPushConfiguration
+        git: GitPushConfiguration,
     ): PrePushValidation {
         if (git.repo.repository.isBlank()) return PrePushValidation.RemoteNotConfigured
         val dest = File(destPath())
-        if (!dest.exists() || !dest.isDirectory || dest.listFiles()?.isEmpty() != false)
+        if (!dest.exists() || !dest.isDirectory || dest.listFiles()?.isEmpty() != false) {
             return PrePushValidation.ContentAbsent
+        }
         return PrePushValidation.Valid
     }
 
@@ -52,7 +55,7 @@ object GitService {
         destPath: () -> String,
         pathTo: () -> String,
         git: GitPushConfiguration,
-        logger: Logger
+        logger: Logger,
     ): Either<String, Unit> {
         when (validatePrePush(destPath, git)) {
             PrePushValidation.RemoteNotConfigured -> {
@@ -85,7 +88,7 @@ object GitService {
                     } catch (e: Exception) {
                         (e.message ?: "Unknown error during push").left()
                     }
-                }
+                },
             )
         } finally {
             cleanupPublicationArtifacts(repoDir, destPath(), logger)
@@ -97,7 +100,7 @@ object GitService {
         git: GitPushConfiguration,
         logger: Logger,
         force: Boolean = true,
-        preserveHistory: Boolean = false
+        preserveHistory: Boolean = false,
     ) {
         logger.info("Starting Git operations.")
         var effectiveForce = force
@@ -109,7 +112,7 @@ object GitService {
                 logger.warn(
                     "Failed to clone remote for history preservation: ${e.message}. " +
                         "Falling back to init+force.",
-                    e
+                    e,
                 )
             }
         }
@@ -118,7 +121,7 @@ object GitService {
             openRepository(repoDir, logger),
             git,
             logger,
-            effectiveForce
+            effectiveForce,
         ).forEach { pushResult ->
             val resultString = pushResult.toString()
             logger.info(resultString)
@@ -129,11 +132,12 @@ object GitService {
     private fun cloneAndOverlay(
         repoDir: File,
         git: GitPushConfiguration,
-        logger: Logger
+        logger: Logger,
     ) {
         val tempCloneDir = File(repoDir.parentFile, "${repoDir.name}.bakeryclone")
         try {
-            Git.cloneRepository()
+            Git
+                .cloneRepository()
                 .setURI(git.repo.repository)
                 .setDirectory(tempCloneDir)
                 .setBranch(git.branch)
@@ -155,7 +159,7 @@ object GitService {
             }
             if (!tempCloneDir.renameTo(repoDir)) {
                 throw IOException(
-                    "Failed to rename ${tempCloneDir.absolutePath} to ${repoDir.absolutePath}"
+                    "Failed to rename ${tempCloneDir.absolutePath} to ${repoDir.absolutePath}",
                 )
             }
             logger.info("Replaced repoDir with cloned repository.")
@@ -165,7 +169,10 @@ object GitService {
         }
     }
 
-    fun cleanupDir(dir: File, logger: Logger) {
+    fun cleanupDir(
+        dir: File,
+        logger: Logger,
+    ) {
         logger.info("Cleaning up directory: ${dir.absolutePath}")
         try {
             if (dir.exists()) {
@@ -180,7 +187,7 @@ object GitService {
     private fun cleanupPublicationArtifacts(
         repoDir: File,
         destPath: String,
-        logger: Logger
+        logger: Logger,
     ) {
         logger.info("Cleaning up publication artifacts.")
         try {
@@ -198,13 +205,18 @@ object GitService {
         }
     }
 
-    private fun openRepository(repoDir: File, logger: Logger): Git {
+    private fun openRepository(
+        repoDir: File,
+        logger: Logger,
+    ): Git {
         logger.info("Opening repository at: ${repoDir.absolutePath}")
-        val repository = FileRepositoryBuilder().setGitDir(File(repoDir, ".git"))
-            .readEnvironment()
-            .findGitDir()
-            .setMustExist(true)
-            .build()
+        val repository =
+            FileRepositoryBuilder()
+                .setGitDir(File(repoDir, ".git"))
+                .readEnvironment()
+                .findGitDir()
+                .setMustExist(true)
+                .build()
 
         if (repository.isBare) {
             val errorMessage = "$repository must not be bare."
@@ -219,51 +231,59 @@ object GitService {
         git: Git,
         gitConfig: GitPushConfiguration,
         logger: Logger,
-        force: Boolean = true
+        force: Boolean = true,
     ): MutableIterable<PushResult> {
         logger.info("Preparing to push to remote '$ORIGIN' on branch '${gitConfig.branch}' (force=$force)")
-        val credentialsProvider = UsernamePasswordCredentialsProvider(
-            gitConfig.repo.credentials.username,
-            gitConfig.repo.credentials.password
-        )
+        val credentialsProvider =
+            UsernamePasswordCredentialsProvider(
+                gitConfig.repo.credentials.username,
+                gitConfig.repo.credentials.password,
+            )
 
-        return git.push().apply {
-            setCredentialsProvider(credentialsProvider)
-            remote = ORIGIN
-            isForce = force
-        }.call()
+        return git
+            .push()
+            .apply {
+                setCredentialsProvider(credentialsProvider)
+                remote = ORIGIN
+                isForce = force
+            }.call()
     }
 
     fun initAddCommit(
         repoDir: File,
         git: GitPushConfiguration,
-        logger: Logger
-    ): RevCommit = initRepository(repoDir, git.branch, logger)
-        .addRemote(git.repo.repository, logger)
-        .addAllFiles(logger)
-        .commitChanges(git.message, logger)
+        logger: Logger,
+    ): RevCommit =
+        initRepository(repoDir, git.branch, logger)
+            .addRemote(git.repo.repository, logger)
+            .addAllFiles(logger)
+            .commitChanges(git.message, logger)
 
     private fun initRepository(
         repoDir: File,
         branch: String,
-        logger: Logger
+        logger: Logger,
     ): Git {
         logger.info("Initializing repository in $repoDir on branch $branch")
-        val git = Git.init()
-            .setInitialBranch(branch)
-            .setDirectory(repoDir)
-            .call()
-        if (git.repository.isBare)
+        val git =
+            Git
+                .init()
+                .setInitialBranch(branch)
+                .setDirectory(repoDir)
+                .call()
+        if (git.repository.isBare) {
             throw Exception("Repository must not be bare")
-        if (!git.repository.directory.isDirectory)
+        }
+        if (!git.repository.directory.isDirectory) {
             throw Exception("Repository path must be a directory")
+        }
         logger.info("Repository initialized successfully.")
         return git
     }
 
     private fun Git.addRemote(
         remoteUri: String,
-        logger: Logger
+        logger: Logger,
     ): Git {
         logger.info("Adding remote '$ORIGIN' with URI '$remoteUri'")
         remoteAdd()
@@ -285,12 +305,13 @@ object GitService {
 
     private fun Git.commitChanges(
         message: String,
-        logger: Logger
+        logger: Logger,
     ): RevCommit {
         logger.info("Committing changes with message: \"$message\"")
-        val revCommit = commit()
-            .setMessage(message)
-            .call()
+        val revCommit =
+            commit()
+                .setMessage(message)
+                .call()
         logger.info("Changes committed: ${revCommit.id.name}")
         return revCommit
     }

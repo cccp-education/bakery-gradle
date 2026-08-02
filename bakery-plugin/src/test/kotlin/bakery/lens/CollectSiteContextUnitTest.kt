@@ -14,7 +14,6 @@ import java.io.File
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CollectSiteContextUnitTest {
-
     @TempDir
     lateinit var projectDir: File
 
@@ -22,7 +21,8 @@ class CollectSiteContextUnitTest {
     private lateinit var ext: BakeryExtension
 
     private val siteYamlContent: String
-        get() = """bake:
+        get() =
+            """bake:
               |  srcPath: site
               |  destDirPath: build/bake
               |pushPage:

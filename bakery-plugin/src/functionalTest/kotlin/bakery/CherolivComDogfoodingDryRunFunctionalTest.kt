@@ -20,7 +20,6 @@ import java.io.File
  * it is NOT a CI test (LLM metered, non-deterministic, ~1080 calls).
  */
 class CherolivComDogfoodingDryRunFunctionalTest {
-
     @TempDir
     lateinit var projectDir: File
 
@@ -28,18 +27,19 @@ class CherolivComDogfoodingDryRunFunctionalTest {
     fun `dry-run migrateContentI18n on cheroliv sample parses all articles without writing`() {
         createCherolivSample()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments(
-                "migrateContentI18n",
-                "--contentI18nSource=content/blog",
-                "--contentI18nOutput=content-i18n",
-                "--contentI18nSourceLang=fr",
-                "--contentI18nTargetLangs=en",
-                "--contentI18nDryRun=true"
-            )
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "migrateContentI18n",
+                    "--contentI18nSource=content/blog",
+                    "--contentI18nOutput=content-i18n",
+                    "--contentI18nSourceLang=fr",
+                    "--contentI18nTargetLangs=en",
+                    "--contentI18nDryRun=true",
+                ).build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
         assertThat(result.output).contains("DRY-RUN")
@@ -53,18 +53,19 @@ class CherolivComDogfoodingDryRunFunctionalTest {
         val plantumlArticle = projectDir.resolve("jbake/content/blog/2022/0031_memo_design_system_post.adoc").readText()
         assertThat(plantumlArticle).contains("[plantuml]")
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments(
-                "migrateContentI18n",
-                "--contentI18nSource=content/blog",
-                "--contentI18nOutput=content-i18n",
-                "--contentI18nSourceLang=fr",
-                "--contentI18nTargetLangs=en",
-                "--contentI18nDryRun=true"
-            )
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "migrateContentI18n",
+                    "--contentI18nSource=content/blog",
+                    "--contentI18nOutput=content-i18n",
+                    "--contentI18nSourceLang=fr",
+                    "--contentI18nTargetLangs=en",
+                    "--contentI18nDryRun=true",
+                ).build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
         assertThat(result.output).doesNotContain("ERREUR")
@@ -78,18 +79,19 @@ class CherolivComDogfoodingDryRunFunctionalTest {
         assertThat(sourceSimple).contains(":jbake-title: Asciidoc/Markdown Mémo")
         assertThat(sourceSimple).contains(":jbake-type: post")
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments(
-                "migrateContentI18n",
-                "--contentI18nSource=content/blog",
-                "--contentI18nOutput=content-i18n",
-                "--contentI18nSourceLang=fr",
-                "--contentI18nTargetLangs=en",
-                "--contentI18nDryRun=true"
-            )
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "migrateContentI18n",
+                    "--contentI18nSource=content/blog",
+                    "--contentI18nOutput=content-i18n",
+                    "--contentI18nSourceLang=fr",
+                    "--contentI18nTargetLangs=en",
+                    "--contentI18nDryRun=true",
+                ).build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
         val after = projectDir.resolve("jbake/content/blog/2020/0016_simple_post.adoc").readText()
@@ -100,40 +102,47 @@ class CherolivComDogfoodingDryRunFunctionalTest {
     fun `dry-run migrateContentI18n on cheroliv sample supports 10 target languages`() {
         createCherolivSample()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments(
-                "migrateContentI18n",
-                "--contentI18nSource=content/blog",
-                "--contentI18nOutput=content-i18n",
-                "--contentI18nSourceLang=fr",
-                "--contentI18nTargetLangs=en,zh,hi,es,ar,bn,pt,ru,ur",
-                "--contentI18nDryRun=true"
-            )
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "migrateContentI18n",
+                    "--contentI18nSource=content/blog",
+                    "--contentI18nOutput=content-i18n",
+                    "--contentI18nSourceLang=fr",
+                    "--contentI18nTargetLangs=en,zh,hi,es,ar,bn,pt,ru,ur",
+                    "--contentI18nDryRun=true",
+                ).build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
         assertThat(result.output).contains("en, zh, hi, es, ar, bn, pt, ru, ur")
     }
 
     private fun createCherolivSample() {
-        projectDir.resolve("settings.gradle.kts").writeText("""
+        projectDir.resolve("settings.gradle.kts").writeText(
+            """
             pluginManagement { repositories { gradlePluginPortal(); mavenLocal() } }
             rootProject.name = "cheroliv-com-dogfooding"
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
-        projectDir.resolve("build.gradle.kts").writeText("""
+        projectDir.resolve("build.gradle.kts").writeText(
+            """
             plugins { id("education.cccp.bakery") }
             bakery { configPath = "site.yml" }
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
-        projectDir.resolve("site.yml").writeText("""
+        projectDir.resolve("site.yml").writeText(
+            """
             bake:
               srcPath: "jbake"
               destDirPath: "bake"
               cname: "cheroliv.com"
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
         val blog2020 = projectDir.resolve("jbake/content/blog/2020").apply { mkdirs() }
         blog2020.resolve("0016_simple_post.adoc").writeText(
@@ -155,7 +164,7 @@ Asciidoc est un langage de balisage, qui permet de produire du contenu, en appor
 .Liens :
 
 * https://blog.oxiane.com/2018/06/13/asciidoc-documentation-as-code/[jmdoudoux sur blog.oxiane.com, window="_blank"]
-"""
+""",
         )
 
         val blog2022 = projectDir.resolve("jbake/content/blog/2022").apply { mkdirs() }
@@ -183,7 +192,7 @@ Service --> User: Réponse
 ----
 
 Le design system organise les composants.
-"""
+""",
         )
 
         val blog2025 = projectDir.resolve("jbake/content/blog/2025").apply { mkdirs() }
@@ -206,7 +215,7 @@ poetry run pytest
 ----
 
 Poetry remplace les anciens outils de packaging.
-"""
+""",
         )
     }
 }

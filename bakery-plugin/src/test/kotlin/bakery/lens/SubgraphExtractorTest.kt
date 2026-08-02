@@ -20,7 +20,6 @@ import java.io.File
  * Méthodologie : DDD/TDD baby steps — chaque test compile ET passe AVANT de passer au suivant.
  */
 class SubgraphExtractorTest {
-
     private lateinit var extractor: SubgraphExtractor
 
     @TempDir
@@ -29,92 +28,100 @@ class SubgraphExtractorTest {
     // ─── Graphe de test construit en mémoire ───
 
     /** Nœuds du fixture (communautés: bakery-gradle, codebase-gradle, slider-gradle, workspace-bom, graphify-gradle) */
-    private val bakeryNodes = listOf(
-        GraphNode("bakery/BakeryPlugin.kt", "BakeryPlugin.kt", "file", "bakery-gradle"),
-        GraphNode("bakery/SiteManager.kt", "SiteManager.kt", "file", "bakery-gradle"),
-        GraphNode("bakery/BakeryExtension.kt", "BakeryExtension.kt", "file", "bakery-gradle"),
-        GraphNode("bakery/LensConfig.kt", "LensConfig.kt", "file", "bakery-gradle"),
-        GraphNode("bakery/SubgraphExtractor.kt", "SubgraphExtractor.kt", "file", "bakery-gradle"),
-        GraphNode("bakery/post.thyme", "post.thyme", "file", "bakery-gradle"),
-        GraphNode("bakery/docs/index.adoc", "index.adoc", "file", "bakery-gradle"),
-        GraphNode("bakery/docs/getting-started.adoc", "getting-started.adoc", "file", "bakery-gradle"),
-        GraphNode("bakery/README.adoc", "README.adoc", "file", "bakery-gradle"),
-        GraphNode("bakery-gradle", "bakery-gradle", "module", "bakery-gradle")
-    )
+    private val bakeryNodes =
+        listOf(
+            GraphNode("bakery/BakeryPlugin.kt", "BakeryPlugin.kt", "file", "bakery-gradle"),
+            GraphNode("bakery/SiteManager.kt", "SiteManager.kt", "file", "bakery-gradle"),
+            GraphNode("bakery/BakeryExtension.kt", "BakeryExtension.kt", "file", "bakery-gradle"),
+            GraphNode("bakery/LensConfig.kt", "LensConfig.kt", "file", "bakery-gradle"),
+            GraphNode("bakery/SubgraphExtractor.kt", "SubgraphExtractor.kt", "file", "bakery-gradle"),
+            GraphNode("bakery/post.thyme", "post.thyme", "file", "bakery-gradle"),
+            GraphNode("bakery/docs/index.adoc", "index.adoc", "file", "bakery-gradle"),
+            GraphNode("bakery/docs/getting-started.adoc", "getting-started.adoc", "file", "bakery-gradle"),
+            GraphNode("bakery/README.adoc", "README.adoc", "file", "bakery-gradle"),
+            GraphNode("bakery-gradle", "bakery-gradle", "module", "bakery-gradle"),
+        )
 
-    private val codebaseNodes = listOf(
-        GraphNode("codebase/RagService.kt", "RagService.kt", "file", "codebase-gradle"),
-        GraphNode("codebase/CodebasePlugin.kt", "CodebasePlugin.kt", "file", "codebase-gradle"),
-        GraphNode("codebase/VectorStore.kt", "VectorStore.kt", "file", "codebase-gradle"),
-        GraphNode("codebase/docs/architecture.adoc", "architecture.adoc", "file", "codebase-gradle"),
-        GraphNode("codebase-gradle", "codebase-gradle", "module", "codebase-gradle")
-    )
+    private val codebaseNodes =
+        listOf(
+            GraphNode("codebase/RagService.kt", "RagService.kt", "file", "codebase-gradle"),
+            GraphNode("codebase/CodebasePlugin.kt", "CodebasePlugin.kt", "file", "codebase-gradle"),
+            GraphNode("codebase/VectorStore.kt", "VectorStore.kt", "file", "codebase-gradle"),
+            GraphNode("codebase/docs/architecture.adoc", "architecture.adoc", "file", "codebase-gradle"),
+            GraphNode("codebase-gradle", "codebase-gradle", "module", "codebase-gradle"),
+        )
 
-    private val sliderNodes = listOf(
-        GraphNode("slider/SliderPlugin.kt", "SliderPlugin.kt", "file", "slider-gradle"),
-        GraphNode("slider/RevealJsTask.kt", "RevealJsTask.kt", "file", "slider-gradle"),
-        GraphNode("slider-gradle", "slider-gradle", "module", "slider-gradle")
-    )
+    private val sliderNodes =
+        listOf(
+            GraphNode("slider/SliderPlugin.kt", "SliderPlugin.kt", "file", "slider-gradle"),
+            GraphNode("slider/RevealJsTask.kt", "RevealJsTask.kt", "file", "slider-gradle"),
+            GraphNode("slider-gradle", "slider-gradle", "module", "slider-gradle"),
+        )
 
-    private val bomNodes = listOf(
-        GraphNode("bom/CompositeContext.kt", "CompositeContext.kt", "file", "workspace-bom"),
-        GraphNode("bom/ContextChannel.kt", "ContextChannel.kt", "file", "workspace-bom"),
-        GraphNode("bom/ChannelBudget.kt", "ChannelBudget.kt", "module", "workspace-bom"),
-        GraphNode("workspace-bom", "workspace-bom", "module", "workspace-bom")
-    )
+    private val bomNodes =
+        listOf(
+            GraphNode("bom/CompositeContext.kt", "CompositeContext.kt", "file", "workspace-bom"),
+            GraphNode("bom/ContextChannel.kt", "ContextChannel.kt", "file", "workspace-bom"),
+            GraphNode("bom/ChannelBudget.kt", "ChannelBudget.kt", "module", "workspace-bom"),
+            GraphNode("workspace-bom", "workspace-bom", "module", "workspace-bom"),
+        )
 
-    private val graphifyNodes = listOf(
-        GraphNode("graphify/GraphifyPlugin.kt", "GraphifyPlugin.kt", "file", "graphify-gradle"),
-        GraphNode("graphify/GraphModel.kt", "GraphModel.kt", "file", "graphify-gradle"),
-        GraphNode("graphify-gradle", "graphify-gradle", "module", "graphify-gradle")
-    )
+    private val graphifyNodes =
+        listOf(
+            GraphNode("graphify/GraphifyPlugin.kt", "GraphifyPlugin.kt", "file", "graphify-gradle"),
+            GraphNode("graphify/GraphModel.kt", "GraphModel.kt", "file", "graphify-gradle"),
+            GraphNode("graphify-gradle", "graphify-gradle", "module", "graphify-gradle"),
+        )
 
     private val orphanNode = GraphNode("orphan.adoc", "orphan.adoc", "file", community = null)
 
     private val allNodes: List<GraphNode>
         get() = bakeryNodes + codebaseNodes + sliderNodes + bomNodes + graphifyNodes + orphanNode
 
-    private val allEdges = listOf(
-        // Références internes bakery
-        GraphEdge("bakery/BakeryPlugin.kt", "bakery/SiteManager.kt", "reference"),
-        GraphEdge("bakery/BakeryPlugin.kt", "bakery/BakeryExtension.kt", "reference"),
-        GraphEdge("bakery/SiteManager.kt", "bakery/LensConfig.kt", "reference"),
-        GraphEdge("bakery/SubgraphExtractor.kt", "bakery/LensConfig.kt", "reference"),
-        // Cross-borough bakery → bom
-        GraphEdge("bakery/SubgraphExtractor.kt", "bom/CompositeContext.kt", "reference"),
-        GraphEdge("bakery/LensConfig.kt", "bom/ContextChannel.kt", "reference"),
-        // Cross-borough codebase → bom
-        GraphEdge("codebase/RagService.kt", "bom/CompositeContext.kt", "reference"),
-        GraphEdge("codebase/VectorStore.kt", "bom/ChannelBudget.kt", "reference"),
-        // Cross-borough slider → bom + bakery
-        GraphEdge("slider/SliderPlugin.kt", "bom/ContextChannel.kt", "reference"),
-        // Contains edges
-        GraphEdge("bakery-gradle", "bakery/BakeryPlugin.kt", "contains"),
-        GraphEdge("codebase-gradle", "codebase/CodebasePlugin.kt", "contains"),
-        GraphEdge("slider-gradle", "slider/SliderPlugin.kt", "contains"),
-        // Agent reference (cross-community)
-        GraphEdge("bakery/docs/index.adoc", "bakery/docs/getting-started.adoc", "agent_reference"),
-        GraphEdge("bakery/docs/index.adoc", "codebase/docs/architecture.adoc", "agent_reference"),
-        // Graphify internal
-        GraphEdge("graphify/GraphModel.kt", "graphify-gradle", "contains"),
-        // Orphan
-        GraphEdge("orphan.adoc", "bakery/docs/index.adoc", "reference")
-    )
+    private val allEdges =
+        listOf(
+            // Références internes bakery
+            GraphEdge("bakery/BakeryPlugin.kt", "bakery/SiteManager.kt", "reference"),
+            GraphEdge("bakery/BakeryPlugin.kt", "bakery/BakeryExtension.kt", "reference"),
+            GraphEdge("bakery/SiteManager.kt", "bakery/LensConfig.kt", "reference"),
+            GraphEdge("bakery/SubgraphExtractor.kt", "bakery/LensConfig.kt", "reference"),
+            // Cross-borough bakery → bom
+            GraphEdge("bakery/SubgraphExtractor.kt", "bom/CompositeContext.kt", "reference"),
+            GraphEdge("bakery/LensConfig.kt", "bom/ContextChannel.kt", "reference"),
+            // Cross-borough codebase → bom
+            GraphEdge("codebase/RagService.kt", "bom/CompositeContext.kt", "reference"),
+            GraphEdge("codebase/VectorStore.kt", "bom/ChannelBudget.kt", "reference"),
+            // Cross-borough slider → bom + bakery
+            GraphEdge("slider/SliderPlugin.kt", "bom/ContextChannel.kt", "reference"),
+            // Contains edges
+            GraphEdge("bakery-gradle", "bakery/BakeryPlugin.kt", "contains"),
+            GraphEdge("codebase-gradle", "codebase/CodebasePlugin.kt", "contains"),
+            GraphEdge("slider-gradle", "slider/SliderPlugin.kt", "contains"),
+            // Agent reference (cross-community)
+            GraphEdge("bakery/docs/index.adoc", "bakery/docs/getting-started.adoc", "agent_reference"),
+            GraphEdge("bakery/docs/index.adoc", "codebase/docs/architecture.adoc", "agent_reference"),
+            // Graphify internal
+            GraphEdge("graphify/GraphModel.kt", "graphify-gradle", "contains"),
+            // Orphan
+            GraphEdge("orphan.adoc", "bakery/docs/index.adoc", "reference"),
+        )
 
-    private val allCommunities = listOf(
-        GraphCommunity("bakery-gradle", "Bakery Gradle Plugin", 10),
-        GraphCommunity("codebase-gradle", "Codebase Gradle Plugin", 5),
-        GraphCommunity("slider-gradle", "Slider Gradle Plugin", 3),
-        GraphCommunity("workspace-bom", "Workspace BOM", 4),
-        GraphCommunity("graphify-gradle", "Graphify Gradle Plugin", 3)
-    )
+    private val allCommunities =
+        listOf(
+            GraphCommunity("bakery-gradle", "Bakery Gradle Plugin", 10),
+            GraphCommunity("codebase-gradle", "Codebase Gradle Plugin", 5),
+            GraphCommunity("slider-gradle", "Slider Gradle Plugin", 3),
+            GraphCommunity("workspace-bom", "Workspace BOM", 4),
+            GraphCommunity("graphify-gradle", "Graphify Gradle Plugin", 3),
+        )
 
     private val testGraphModel: GraphModel
-        get() = GraphModel(
-            nodes = allNodes,
-            edges = allEdges,
-            communities = allCommunities
-        )
+        get() =
+            GraphModel(
+                nodes = allNodes,
+                edges = allEdges,
+                communities = allCommunities,
+            )
 
     @BeforeEach
     fun setUp() {
@@ -128,7 +135,6 @@ class SubgraphExtractorTest {
     @Nested
     @DisplayName("LENS-1.3 : SubgraphExtractor — Filtrage par communauté")
     inner class CommunityFiltering {
-
         @Test
         @DisplayName("Filtrer par une seule communauté — bakery-gradle")
         fun `filter single community bakery-gradle`() {
@@ -169,14 +175,14 @@ class SubgraphExtractorTest {
     @Nested
     @DisplayName("LENS-1.3 : SubgraphExtractor — Filtrage par type de nœud")
     inner class NodeTypeFiltering {
-
         @Test
         @DisplayName("Filtrer type = file seulement (exclure les modules)")
         fun `filter file type only excludes modules`() {
-            val config = LensConfig(
-                communities = listOf("bakery-gradle"),
-                nodeTypes = listOf("file")
-            )
+            val config =
+                LensConfig(
+                    communities = listOf("bakery-gradle"),
+                    nodeTypes = listOf("file"),
+                )
             val result = extractor.extract(testGraphModel, config)
 
             // Pas de nœud "module" dans le résultat
@@ -188,10 +194,11 @@ class SubgraphExtractorTest {
         @Test
         @DisplayName("Filtrer type = module seulement")
         fun `filter module type only`() {
-            val config = LensConfig(
-                communities = listOf("bakery-gradle"),
-                nodeTypes = listOf("module")
-            )
+            val config =
+                LensConfig(
+                    communities = listOf("bakery-gradle"),
+                    nodeTypes = listOf("module"),
+                )
             val result = extractor.extract(testGraphModel, config)
 
             assertThat(result.nodes.map { it.type }).containsExactly("module")
@@ -205,15 +212,15 @@ class SubgraphExtractorTest {
     @Nested
     @DisplayName("LENS-1.3 : SubgraphExtractor — Filtrage par type d'edge")
     inner class EdgeTypeFiltering {
-
         @Test
         @DisplayName("Filtrer edges reference seulement (exclure contains)")
         fun `filter reference edges only`() {
-            val config = LensConfig(
-                communities = listOf("bakery-gradle", "workspace-bom"),
-                nodeTypes = listOf("file"),
-                edgeTypes = listOf("reference")
-            )
+            val config =
+                LensConfig(
+                    communities = listOf("bakery-gradle", "workspace-bom"),
+                    nodeTypes = listOf("file"),
+                    edgeTypes = listOf("reference"),
+                )
             val result = extractor.extract(testGraphModel, config)
 
             assertThat(result.edges.all { it.type == "reference" }).isTrue
@@ -223,11 +230,12 @@ class SubgraphExtractorTest {
         @Test
         @DisplayName("Filtrer edges agent_reference seulement")
         fun `filter agent_reference edges only`() {
-            val config = LensConfig(
-                communities = listOf("bakery-gradle", "codebase-gradle"),
-                nodeTypes = listOf("file"),
-                edgeTypes = listOf("agent_reference")
-            )
+            val config =
+                LensConfig(
+                    communities = listOf("bakery-gradle", "codebase-gradle"),
+                    nodeTypes = listOf("file"),
+                    edgeTypes = listOf("agent_reference"),
+                )
             val result = extractor.extract(testGraphModel, config)
 
             assertThat(result.edges.all { it.type == "agent_reference" }).isTrue
@@ -236,11 +244,12 @@ class SubgraphExtractorTest {
         @Test
         @DisplayName("EdgeTypes vide = tous les types d'edges inclus")
         fun `empty edge types includes all edge types`() {
-            val config = LensConfig(
-                communities = listOf("bakery-gradle", "workspace-bom"),
-                nodeTypes = listOf("file", "module"),
-                edgeTypes = emptyList()
-            )
+            val config =
+                LensConfig(
+                    communities = listOf("bakery-gradle", "workspace-bom"),
+                    nodeTypes = listOf("file", "module"),
+                    edgeTypes = emptyList(),
+                )
             val result = extractor.extract(testGraphModel, config)
 
             val edgeTypes = result.edges.map { it.type }.distinct()
@@ -255,15 +264,15 @@ class SubgraphExtractorTest {
     @Nested
     @DisplayName("LENS-1.3 : SubgraphExtractor — Filtrage par extension de fichier")
     inner class FileExtensionFiltering {
-
         @Test
         @DisplayName("Filtrer fichiers .kt seulement")
         fun `filter kt files only`() {
-            val config = LensConfig(
-                communities = listOf("bakery-gradle"),
-                nodeTypes = listOf("file"),
-                fileExtensions = listOf("kt")
-            )
+            val config =
+                LensConfig(
+                    communities = listOf("bakery-gradle"),
+                    nodeTypes = listOf("file"),
+                    fileExtensions = listOf("kt"),
+                )
             val result = extractor.extract(testGraphModel, config)
 
             // Tous les nœuds fichier doivent avoir l'extension .kt
@@ -273,11 +282,12 @@ class SubgraphExtractorTest {
         @Test
         @DisplayName("Filtrer fichiers .adoc seulement")
         fun `filter adoc files only`() {
-            val config = LensConfig(
-                communities = listOf("bakery-gradle"),
-                nodeTypes = listOf("file"),
-                fileExtensions = listOf("adoc")
-            )
+            val config =
+                LensConfig(
+                    communities = listOf("bakery-gradle"),
+                    nodeTypes = listOf("file"),
+                    fileExtensions = listOf("adoc"),
+                )
             val result = extractor.extract(testGraphModel, config)
 
             // Tous les nœuds fichier doivent avoir l'extension .adoc
@@ -287,17 +297,19 @@ class SubgraphExtractorTest {
         @Test
         @DisplayName("Filtrer fichiers .kt + .adoc")
         fun `filter kt and adoc files`() {
-            val config = LensConfig(
-                communities = listOf("bakery-gradle"),
-                nodeTypes = listOf("file"),
-                fileExtensions = listOf("kt", "adoc")
-            )
+            val config =
+                LensConfig(
+                    communities = listOf("bakery-gradle"),
+                    nodeTypes = listOf("file"),
+                    fileExtensions = listOf("kt", "adoc"),
+                )
             val result = extractor.extract(testGraphModel, config)
 
-            val extensions = result.nodes
-                .filter { it.type == "file" }
-                .map { it.id.substringAfterLast('.', "") }
-                .distinct()
+            val extensions =
+                result.nodes
+                    .filter { it.type == "file" }
+                    .map { it.id.substringAfterLast('.', "") }
+                    .distinct()
             assertThat(extensions).isSubsetOf("kt", "adoc")
         }
     }
@@ -309,16 +321,16 @@ class SubgraphExtractorTest {
     @Nested
     @DisplayName("LENS-1.3 : SubgraphExtractor — Profondeur BFS (maxDepth)")
     inner class BfsDepth {
-
         @Test
         @DisplayName("maxDepth=0 : seulement les nœuds des communautés ciblées")
         fun `maxDepth 0 returns only seed nodes`() {
-            val config = LensConfig(
-                communities = listOf("bakery-gradle"),
-                nodeTypes = listOf("file"),
-                edgeTypes = listOf("reference"),
-                maxDepth = 0
-            )
+            val config =
+                LensConfig(
+                    communities = listOf("bakery-gradle"),
+                    nodeTypes = listOf("file"),
+                    edgeTypes = listOf("reference"),
+                    maxDepth = 0,
+                )
             val result = extractor.extract(testGraphModel, config)
 
             // Avec maxDepth=0, on ne garde que les nœuds des communautés ciblées
@@ -332,12 +344,13 @@ class SubgraphExtractorTest {
         @Test
         @DisplayName("maxDepth=1 : semences + voisins directs (1 saut)")
         fun `maxDepth 1 expands to direct neighbors`() {
-            val configDepth0 = LensConfig(
-                communities = listOf("bakery-gradle"),
-                nodeTypes = listOf("file"),
-                edgeTypes = listOf("reference"),
-                maxDepth = 0
-            )
+            val configDepth0 =
+                LensConfig(
+                    communities = listOf("bakery-gradle"),
+                    nodeTypes = listOf("file"),
+                    edgeTypes = listOf("reference"),
+                    maxDepth = 0,
+                )
             val result0 = extractor.extract(testGraphModel, configDepth0)
 
             val configDepth1 = configDepth0.copy(maxDepth = 1)
@@ -351,12 +364,13 @@ class SubgraphExtractorTest {
         @Test
         @DisplayName("maxDepth=2 : semences + voisins + voisins des voisins")
         fun `maxDepth 2 expands further`() {
-            val configDepth1 = LensConfig(
-                communities = listOf("bakery-gradle"),
-                nodeTypes = listOf("file"),
-                edgeTypes = listOf("reference"),
-                maxDepth = 1
-            )
+            val configDepth1 =
+                LensConfig(
+                    communities = listOf("bakery-gradle"),
+                    nodeTypes = listOf("file"),
+                    edgeTypes = listOf("reference"),
+                    maxDepth = 1,
+                )
             val result1 = extractor.extract(testGraphModel, configDepth1)
 
             val configDepth2 = configDepth1.copy(maxDepth = 2)
@@ -374,7 +388,6 @@ class SubgraphExtractorTest {
     @Nested
     @DisplayName("LENS-1.3 : SubgraphExtractor — Scope (LensScope)")
     inner class ScopeSelection {
-
         @Test
         @DisplayName("FULL scope retourne tout le graphe")
         fun `FULL scope returns entire graph`() {
@@ -399,11 +412,12 @@ class SubgraphExtractorTest {
         @Test
         @DisplayName("SUBGRAPH scope applique le filtrage normal")
         fun `SUBGRAPH scope applies normal filtering`() {
-            val config = LensConfig(
-                scope = LensScope.SUBGRAPH,
-                communities = listOf("bakery-gradle"),
-                nodeTypes = listOf("file")
-            )
+            val config =
+                LensConfig(
+                    scope = LensScope.SUBGRAPH,
+                    communities = listOf("bakery-gradle"),
+                    nodeTypes = listOf("file"),
+                )
             val result = extractor.extract(testGraphModel, config)
 
             assertThat(result.nodes).isNotEmpty
@@ -418,7 +432,6 @@ class SubgraphExtractorTest {
     @Nested
     @DisplayName("LENS-1.3 : SubgraphExtractor — Nœuds orphelins (community=null)")
     inner class OrphanNodes {
-
         @Test
         @DisplayName("Les nœuds sans communauté sont inclus par défaut")
         fun `orphan nodes are included by default`() {
@@ -437,7 +450,6 @@ class SubgraphExtractorTest {
     @Nested
     @DisplayName("LENS-1.3 : SiteSubgraph — Utilitaires")
     inner class SiteSubgraphUtils {
-
         @Test
         @DisplayName("nodeCount, edgeCount, communityCount")
         fun `subgraph counts`() {
@@ -474,11 +486,12 @@ class SubgraphExtractorTest {
         @Test
         @DisplayName("neighbors retourne les voisins d'un nœud")
         fun `neighbors returns nodes connected to a given node`() {
-            val config = LensConfig(
-                communities = listOf("bakery-gradle"),
-                nodeTypes = listOf("file", "module"),
-                edgeTypes = listOf("reference")
-            )
+            val config =
+                LensConfig(
+                    communities = listOf("bakery-gradle"),
+                    nodeTypes = listOf("file", "module"),
+                    edgeTypes = listOf("reference"),
+                )
             val result = extractor.extract(testGraphModel, config)
 
             // BakeryPlugin.kt a des voisins reference dans bakery-gradle
@@ -497,7 +510,6 @@ class SubgraphExtractorTest {
     @Nested
     @DisplayName("LENS-1.4 : SubgraphExtractor — Chargement depuis fichier")
     inner class FileLoading {
-
         @Test
         @DisplayName("loadGraph retourne graphe vide si fichier inexistant")
         fun `loadGraph returns empty for non-existent file`() {
@@ -512,13 +524,16 @@ class SubgraphExtractorTest {
         fun `extractFromPath loads and filters from JSON file`() {
             // Écrire le fixture
             val graphFile = File(tempDir, "test-graph.json")
-            val objectMapper = com.fasterxml.jackson.module.kotlin.jacksonObjectMapper()
+            val objectMapper =
+                com.fasterxml.jackson.module.kotlin
+                    .jacksonObjectMapper()
             objectMapper.writerWithDefaultPrettyPrinter().writeValue(graphFile, testGraphModel)
 
-            val config = LensConfig(
-                communities = listOf("bakery-gradle"),
-                nodeTypes = listOf("file")
-            )
+            val config =
+                LensConfig(
+                    communities = listOf("bakery-gradle"),
+                    nodeTypes = listOf("file"),
+                )
             val result = extractor.extractFromPath(graphFile.absolutePath, config)
 
             assertThat(result.nodes).isNotEmpty
@@ -533,23 +548,24 @@ class SubgraphExtractorTest {
     @Nested
     @DisplayName("LENS-1.3 : SubgraphExtractor — Cross-community edges")
     inner class CrossCommunityEdges {
-
         @Test
         @DisplayName("Les edges cross-community sont inclus si les deux bouts sont dans le sous-graphe")
         fun `cross-community edges preserved when both endpoints in subgraph`() {
-            val config = LensConfig(
-                communities = listOf("bakery-gradle", "workspace-bom"),
-                nodeTypes = listOf("file", "module"),
-                edgeTypes = listOf("reference")
-            )
+            val config =
+                LensConfig(
+                    communities = listOf("bakery-gradle", "workspace-bom"),
+                    nodeTypes = listOf("file", "module"),
+                    edgeTypes = listOf("reference"),
+                )
             val result = extractor.extract(testGraphModel, config)
 
             // Les edges bakery→bom doivent être préservés
-            val crossEdges = result.edges.filter { edge ->
-                val sourceCommunity = result.nodes.find { it.id == edge.source }?.community
-                val targetCommunity = result.nodes.find { it.id == edge.target }?.community
-                sourceCommunity != targetCommunity
-            }
+            val crossEdges =
+                result.edges.filter { edge ->
+                    val sourceCommunity = result.nodes.find { it.id == edge.source }?.community
+                    val targetCommunity = result.nodes.find { it.id == edge.target }?.community
+                    sourceCommunity != targetCommunity
+                }
             // Il existe au moins un edge cross-community
             assertThat(crossEdges).isNotEmpty
         }
@@ -562,15 +578,15 @@ class SubgraphExtractorTest {
     @Nested
     @DisplayName("LENS-1.3 : SubgraphExtractor — Edges orphelins")
     inner class OrphanEdges {
-
         @Test
         @DisplayName("Les edges dont un bout est hors du sous-graphe sont exclus")
         fun `edges with one endpoint outside subgraph are excluded`() {
-            val config = LensConfig(
-                communities = listOf("bakery-gradle"),
-                nodeTypes = listOf("file"),
-                edgeTypes = listOf("reference", "agent_reference")
-            )
+            val config =
+                LensConfig(
+                    communities = listOf("bakery-gradle"),
+                    nodeTypes = listOf("file"),
+                    edgeTypes = listOf("reference", "agent_reference"),
+                )
             val result = extractor.extract(testGraphModel, config)
 
             // Tous les edges doivent avoir leurs deux bouts dans le sous-graphe

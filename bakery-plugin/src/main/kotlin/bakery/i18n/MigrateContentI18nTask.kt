@@ -22,7 +22,6 @@ import java.io.File
 
 @DisableCachingByDefault(because = "Migration contenu i18n — résultat non-déterministe (LLM), non-cacheable")
 abstract class MigrateContentI18nTask : DefaultTask() {
-
     @get:Internal
     var translationService: TranslationService? = null
 
@@ -59,7 +58,8 @@ abstract class MigrateContentI18nTask : DefaultTask() {
 
     init {
         group = BakeryConstants.TRANSFORM_GROUP
-        description = "Migre le contenu AsciiDoc d'un site bakery vers l'i18n — copie le contenu source, traduit les fichiers .adoc, preserve les fichiers non-adoc"
+        description =
+            "Migre le contenu AsciiDoc d'un site bakery vers l'i18n — copie le contenu source, traduit les fichiers .adoc, preserve les fichiers non-adoc"
         contentI18nSource.convention("")
         contentI18nOutput.convention("")
         contentI18nTargetLangs.convention("")
@@ -98,21 +98,27 @@ abstract class MigrateContentI18nTask : DefaultTask() {
             val storedChecksums = loadStoredChecksums(langDir)
             val delta = computeDelta(storedChecksums, currentChecksums)
 
-            val existingTargetFiles = if (langDir.exists()) {
-                langDir.walkTopDown()
-                    .filter { it.isFile && it.extension == "adoc" }
-                    .map { it.relativeTo(langDir).path }
-                    .toSet()
-            } else {
-                emptySet()
-            }
+            val existingTargetFiles =
+                if (langDir.exists()) {
+                    langDir
+                        .walkTopDown()
+                        .filter { it.isFile && it.extension == "adoc" }
+                        .map { it.relativeTo(langDir).path }
+                        .toSet()
+                } else {
+                    emptySet()
+                }
 
             val applier = I18nDeltaApplier(delta, existingTargetFiles)
             val applicationResult = applier.apply()
 
             val filesToTranslate = applicationResult.toTranslate.paths
-            logger.lifecycle("[migrateContentI18n] [{}] Delta : {} à traduire, {} préservés.",
-                targetLang, filesToTranslate.size, applicationResult.toPreserve.paths.size)
+            logger.lifecycle(
+                "[migrateContentI18n] [{}] Delta : {} à traduire, {} préservés.",
+                targetLang,
+                filesToTranslate.size,
+                applicationResult.toPreserve.paths.size,
+            )
 
             for (relPath in filesToTranslate) {
                 val sourceFile = sourceDir.resolve(relPath)
@@ -126,29 +132,42 @@ abstract class MigrateContentI18nTask : DefaultTask() {
             if (translationService != null && filesToTranslate.isNotEmpty()) {
                 val fileList = filesToTranslate.map { langDir.resolve(it) }
                 val plantUmlAdapter = PlantUmlTranslationAdapter(translationService)
-                val contentService = ContentTranslationService(
-                    translationService,
-                    parallelism = intention.parallelism,
-                    plantUmlAdapter = plantUmlAdapter
+                val contentService =
+                    ContentTranslationService(
+                        translationService,
+                        parallelism = intention.parallelism,
+                        plantUmlAdapter = plantUmlAdapter,
+                    )
+                val translationResult =
+                    contentService.translateFiles(
+                        files = fileList,
+                        langDir = langDir,
+                        sourceLanguage = intention.sourceLanguage,
+                        targetLanguage = targetLang,
+                    )
+                logger.lifecycle(
+                    "[migrateContentI18n] [{}] Fichiers traduits : {}, erreurs : {}",
+                    targetLang,
+                    translationResult.filesTranslated.size,
+                    translationResult.errors.size,
                 )
-                val translationResult = contentService.translateFiles(
-                    files = fileList,
-                    langDir = langDir,
-                    sourceLanguage = intention.sourceLanguage,
-                    targetLanguage = targetLang
-                )
-                logger.lifecycle("[migrateContentI18n] [{}] Fichiers traduits : {}, erreurs : {}",
-                    targetLang, translationResult.filesTranslated.size, translationResult.errors.size)
             } else if (translationService == null) {
-                logger.lifecycle("[migrateContentI18n] [{}] {} fichiers copiés sans traduction.",
-                    targetLang, filesToTranslate.size)
+                logger.lifecycle(
+                    "[migrateContentI18n] [{}] {} fichiers copiés sans traduction.",
+                    targetLang,
+                    filesToTranslate.size,
+                )
             }
 
             storeChecksums(langDir, currentChecksums)
         }
     }
 
-    private fun copyNonAdocFiles(sourceDir: File, langDir: File, excludeRelativePaths: Set<String>) {
+    private fun copyNonAdocFiles(
+        sourceDir: File,
+        langDir: File,
+        excludeRelativePaths: Set<String>,
+    ) {
         sourceDir.walkTopDown().forEach { file ->
             val relPath = file.relativeTo(sourceDir).path
             if (relPath in excludeRelativePaths) return@forEach
@@ -167,7 +186,8 @@ abstract class MigrateContentI18nTask : DefaultTask() {
     private fun loadStoredChecksums(langDir: File): Map<String, String> {
         val checksumFile = langDir.resolve(".bakery-checksums.properties")
         if (!checksumFile.exists()) return emptyMap()
-        return checksumFile.readLines()
+        return checksumFile
+            .readLines()
             .filter { it.contains("=") }
             .associate { line ->
                 val (path, hash) = line.split("=", limit = 2)
@@ -175,16 +195,19 @@ abstract class MigrateContentI18nTask : DefaultTask() {
             }
     }
 
-    private fun storeChecksums(langDir: File, checksums: Map<String, String>) {
+    private fun storeChecksums(
+        langDir: File,
+        checksums: Map<String, String>,
+    ) {
         val checksumFile = langDir.resolve(".bakery-checksums.properties")
         checksumFile.writeText(
-            checksums.entries.joinToString("\n") { "${it.key}=${it.value}" }
+            checksums.entries.joinToString("\n") { "${it.key}=${it.value}" },
         )
     }
 
     private fun computeDelta(
         beforeChecksums: Map<String, String>,
-        afterChecksums: Map<String, String>
+        afterChecksums: Map<String, String>,
     ): I18nDelta {
         val modified = mutableListOf<ArticleModification>()
         for ((path, afterHash) in afterChecksums) {
@@ -197,47 +220,54 @@ abstract class MigrateContentI18nTask : DefaultTask() {
     }
 
     internal fun resolveIntention(): ContentMigrationIntention {
-        val resolvedSource = ResolveIntention.fromCliRequired(
-            contentI18nSource.orNull,
-            dslIntention?.sourceDir,
-            ResolveIntentionError.MissingRequiredField(
-                cliFlag = "--contentI18nSource",
-                dslPath = "bakery { contentI18nMigration { sourceDir = \"...\" } }",
-            ),
-        ).fold(
-            ifLeft = { throw it.toException() },
-            ifRight = { it },
-        )
+        val resolvedSource =
+            ResolveIntention
+                .fromCliRequired(
+                    contentI18nSource.orNull,
+                    dslIntention?.sourceDir,
+                    ResolveIntentionError.MissingRequiredField(
+                        cliFlag = "--contentI18nSource",
+                        dslPath = "bakery { contentI18nMigration { sourceDir = \"...\" } }",
+                    ),
+                ).fold(
+                    ifLeft = { throw it.toException() },
+                    ifRight = { it },
+                )
 
-        val resolvedOutput = ResolveIntention.fromCliRequired(
-            contentI18nOutput.orNull,
-            dslIntention?.outputDir,
-            ResolveIntentionError.MissingRequiredField(
-                cliFlag = "--contentI18nOutput",
-                dslPath = "bakery { contentI18nMigration { outputDir = \"...\" } }",
-            ),
-        ).fold(
-            ifLeft = { throw it.toException() },
-            ifRight = { it },
-        )
+        val resolvedOutput =
+            ResolveIntention
+                .fromCliRequired(
+                    contentI18nOutput.orNull,
+                    dslIntention?.outputDir,
+                    ResolveIntentionError.MissingRequiredField(
+                        cliFlag = "--contentI18nOutput",
+                        dslPath = "bakery { contentI18nMigration { outputDir = \"...\" } }",
+                    ),
+                ).fold(
+                    ifLeft = { throw it.toException() },
+                    ifRight = { it },
+                )
 
-        val resolvedTargetLangs = ResolveIntention.fromCliList(
-            contentI18nTargetLangs.orNull,
-            dslIntention?.targetLanguages,
-            listOf("en"),
-        )
+        val resolvedTargetLangs =
+            ResolveIntention.fromCliList(
+                contentI18nTargetLangs.orNull,
+                dslIntention?.targetLanguages,
+                listOf("en"),
+            )
 
-        val resolvedSourceLang = ResolveIntention.fromCli(
-            contentI18nSourceLang.orNull,
-            dslIntention?.sourceLanguage,
-            "fr",
-        )
+        val resolvedSourceLang =
+            ResolveIntention.fromCli(
+                contentI18nSourceLang.orNull,
+                dslIntention?.sourceLanguage,
+                "fr",
+            )
 
-        val resolvedDryRun = ResolveIntention.fromCliBoolean(
-            contentI18nDryRun.orNull,
-            dslIntention?.dryRun,
-            true,
-        )
+        val resolvedDryRun =
+            ResolveIntention.fromCliBoolean(
+                contentI18nDryRun.orNull,
+                dslIntention?.dryRun,
+                true,
+            )
 
         val resolvedExclude = dslIntention?.excludePaths ?: emptyList()
 
@@ -248,7 +278,7 @@ abstract class MigrateContentI18nTask : DefaultTask() {
             targetLanguages = resolvedTargetLangs,
             dryRun = resolvedDryRun,
             excludePaths = resolvedExclude,
-            parallelism = dslIntention?.parallelism ?: 1
+            parallelism = dslIntention?.parallelism ?: 1,
         )
     }
 

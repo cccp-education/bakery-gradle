@@ -6,7 +6,6 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class PageAssetsTest {
-
     @Test
     fun `merge with null returns this`() {
         val assets = PageAssets(css = listOf(AssetRef(path = "a.css")))

@@ -3,7 +3,6 @@ package bakery
 import bakery.tree.SiteNodeDto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import contracts.i18n.OllamaConfig
-import contracts.i18n.OllamaDeviceKey
 
 data class GitPushConfiguration(
     val from: String = "",
@@ -25,7 +24,10 @@ data class RepositoryConfiguration(
     }
 }
 
-data class RepositoryCredentials(val username: String = "", val password: String = "") {
+data class RepositoryCredentials(
+    val username: String = "",
+    val password: String = "",
+) {
     override fun toString(): String =
         "RepositoryCredentials(username='${maskSecret(SecretField.Token(username))}', password='${maskSecret(SecretField.Password(password))}')"
 }
@@ -62,38 +64,38 @@ data class BakeConfiguration(
 data class FirebaseContactFormConfig(
     val project: FirebaseProjectInfo = FirebaseProjectInfo(),
     val firestore: FirebaseFirestoreSchema = FirebaseFirestoreSchema(),
-    val callable: FirebaseCallableFunction = FirebaseCallableFunction()
+    val callable: FirebaseCallableFunction = FirebaseCallableFunction(),
 )
 
 data class FirebaseProjectInfo(
     val projectId: String = "",
-    val apiKey: String = ""
+    val apiKey: String = "",
 )
 
 data class FirebaseFirestoreSchema(
     val contacts: FirebaseCollection = FirebaseCollection(),
-    val messages: FirebaseCollection = FirebaseCollection()
+    val messages: FirebaseCollection = FirebaseCollection(),
 )
 
 data class FirebaseCollection(
     val name: String = "",
     val fields: List<FirebaseField> = emptyList(),
-    val rulesEnabled: Boolean = false
+    val rulesEnabled: Boolean = false,
 )
 
 data class FirebaseField(
     val name: String = "",
-    val type: String = ""
+    val type: String = "",
 )
 
 data class FirebaseCallableFunction(
     val name: String = "",
-    val params: List<FirebaseCallableParam> = emptyList()
+    val params: List<FirebaseCallableParam> = emptyList(),
 )
 
 data class FirebaseCallableParam(
     val name: String = "",
-    val type: String = ""
+    val type: String = "",
 )
 
 data class GoogleFormsConfig(
@@ -148,4 +150,3 @@ data class ThemeConfig(
 data class LayoutConfig(
     val layoutType: LayoutType = LayoutType.FULL_WIDTH,
 )
-

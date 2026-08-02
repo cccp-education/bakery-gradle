@@ -7,17 +7,22 @@ import java.io.File
 import kotlin.text.Charsets.UTF_8
 
 class AnalyticsNewsletterInjectionTest {
-
     @TempDir
     lateinit var tempDir: File
 
-    private val mapper = com.fasterxml.jackson.dataformat.yaml.YAMLFactory()
-        .let { com.fasterxml.jackson.databind.ObjectMapper(it) }
+    private val mapper =
+        com.fasterxml.jackson.dataformat.yaml
+            .YAMLFactory()
+            .let {
+                com.fasterxml.jackson.databind
+                    .ObjectMapper(it)
+            }
 
     @Test
     fun `site yml with analytics and newsletter injects properties into jbake properties`() {
         val siteYml = tempDir.resolve("site.yml")
-        siteYml.writeText("""
+        siteYml.writeText(
+            """
             bake:
               srcPath: site
               destDirPath: bake
@@ -29,7 +34,9 @@ class AnalyticsNewsletterInjectionTest {
               enabled: true
               provider: "mailchimp"
               endpoint: "https://mailchimp.us1.list-manage.com/subscribe/post?u=xxx&id=yyy"
-        """.trimIndent(), UTF_8)
+            """.trimIndent(),
+            UTF_8,
+        )
 
         val siteDir = tempDir.resolve("site")
         siteDir.mkdirs()
@@ -55,11 +62,14 @@ class AnalyticsNewsletterInjectionTest {
     @Test
     fun `site yml without analytics and newsletter does not inject any analytics or newsletter properties`() {
         val siteYml = tempDir.resolve("site.yml")
-        siteYml.writeText("""
+        siteYml.writeText(
+            """
             bake:
               srcPath: site
               destDirPath: bake
-        """.trimIndent(), UTF_8)
+            """.trimIndent(),
+            UTF_8,
+        )
 
         val siteDir = tempDir.resolve("site")
         siteDir.mkdirs()
@@ -83,7 +93,8 @@ class AnalyticsNewsletterInjectionTest {
     @Test
     fun `site yml with analytics but newsletter disabled only injects analytics properties`() {
         val siteYml = tempDir.resolve("site.yml")
-        siteYml.writeText("""
+        siteYml.writeText(
+            """
             bake:
               srcPath: site
               destDirPath: bake
@@ -94,7 +105,9 @@ class AnalyticsNewsletterInjectionTest {
             newsletter:
               enabled: false
               provider: "mailchimp"
-        """.trimIndent(), UTF_8)
+            """.trimIndent(),
+            UTF_8,
+        )
 
         val siteDir = tempDir.resolve("site")
         siteDir.mkdirs()
@@ -114,9 +127,16 @@ class AnalyticsNewsletterInjectionTest {
         assertTrue(props.contains("newsletterEnabled=false"), "must contain newsletterEnabled=false")
     }
 
-    private fun injectAnalyticsIntoJbakeProperties(jbakeProps: File, analytics: AnalyticsConfig) {
+    private fun injectAnalyticsIntoJbakeProperties(
+        jbakeProps: File,
+        analytics: AnalyticsConfig,
+    ) {
         val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
-        fun updateProperty(key: String, value: String) {
+
+        fun updateProperty(
+            key: String,
+            value: String,
+        ) {
             val idx = lines.indexOfFirst { it.startsWith("$key=") }
             if (idx >= 0) {
                 lines[idx] = "$key=$value"
@@ -130,9 +150,16 @@ class AnalyticsNewsletterInjectionTest {
         jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
     }
 
-    private fun injectNewsletterIntoJbakeProperties(jbakeProps: File, newsletter: NewsletterConfig) {
+    private fun injectNewsletterIntoJbakeProperties(
+        jbakeProps: File,
+        newsletter: NewsletterConfig,
+    ) {
         val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
-        fun updateProperty(key: String, value: String) {
+
+        fun updateProperty(
+            key: String,
+            value: String,
+        ) {
             val idx = lines.indexOfFirst { it.startsWith("$key=") }
             if (idx >= 0) {
                 lines[idx] = "$key=$value"

@@ -1,17 +1,15 @@
 package bakery
 
-import bakery.FileSystemManager.from
-import bakery.BakeryConstants.BAKERY_GROUP
-import bakery.BakeryConstants.GENERATE_GROUP
-import bakery.BakeryConstants.DEPLOY_GROUP
-import bakery.BakeryConstants.TRANSFORM_GROUP
-import bakery.BakeryConstants.INFO_GROUP
 import bakery.BakeryConstants.COLLECT_GROUP
+import bakery.BakeryConstants.DEPLOY_GROUP
+import bakery.BakeryConstants.INFO_GROUP
+import bakery.BakeryConstants.TRANSFORM_GROUP
+import bakery.DeployTaskRegistrar.registerDeployMaquetteTask
+import bakery.DeployTaskRegistrar.registerDeploySiteTask
+import bakery.FileSystemManager.from
 import bakery.SiteManager.configureConfigPath
 import bakery.SiteManager.createJBakeRuntimeConfiguration
 import bakery.SiteTaskRegistrar.registerCollectSiteConfigTask
-import bakery.DeployTaskRegistrar.registerDeployMaquetteTask
-import bakery.DeployTaskRegistrar.registerDeploySiteTask
 import bakery.SiteTaskRegistrar.registerPagefindTask
 import bakery.SiteTaskRegistrar.registerServeTask
 import com.github.gradle.node.npm.task.NpxTask
@@ -29,10 +27,8 @@ import org.mockito.kotlin.mock
 import java.io.File
 
 class SiteManagerTest {
-
     @Nested
     inner class RegisterServeTaskTest {
-
         @TempDir
         lateinit var tempDir: File
         private lateinit var project: Project
@@ -48,9 +44,10 @@ class SiteManagerTest {
 
         @Test
         fun `should register serve task of type JavaExec`() {
-            val site = SiteConfiguration(
-                bake = BakeConfiguration("jbake", "bake")
-            )
+            val site =
+                SiteConfiguration(
+                    bake = BakeConfiguration("jbake", "bake"),
+                )
 
             project.registerServeTask(site, jbakeRuntime)
 
@@ -62,9 +59,10 @@ class SiteManagerTest {
 
         @Test
         fun `serve task should have correct main class`() {
-            val site = SiteConfiguration(
-                bake = BakeConfiguration("jbake", "bake")
-            )
+            val site =
+                SiteConfiguration(
+                    bake = BakeConfiguration("jbake", "bake"),
+                )
 
             project.registerServeTask(site, jbakeRuntime)
 
@@ -74,9 +72,10 @@ class SiteManagerTest {
 
         @Test
         fun `serve task should have correct args with src and dest paths`() {
-            val site = SiteConfiguration(
-                bake = BakeConfiguration("jbake", "bake")
-            )
+            val site =
+                SiteConfiguration(
+                    bake = BakeConfiguration("jbake", "bake"),
+                )
 
             project.registerServeTask(site, jbakeRuntime)
 
@@ -89,7 +88,6 @@ class SiteManagerTest {
 
     @Nested
     inner class RegisterPagefindTaskTest {
-
         @TempDir
         lateinit var tempDir: File
         private lateinit var project: Project
@@ -105,10 +103,11 @@ class SiteManagerTest {
 
         @Test
         fun `should register pagefind task of type NpxTask`() {
-            val site = SiteConfiguration(
-                bake = BakeConfiguration("jbake", "bake"),
-                pushPage = GitPushConfiguration()
-            )
+            val site =
+                SiteConfiguration(
+                    bake = BakeConfiguration("jbake", "bake"),
+                    pushPage = GitPushConfiguration(),
+                )
 
             project.registerPagefindTask(site)
 
@@ -120,10 +119,11 @@ class SiteManagerTest {
 
         @Test
         fun `pagefind task should depend on bake task`() {
-            val site = SiteConfiguration(
-                bake = BakeConfiguration("jbake", "bake"),
-                pushPage = GitPushConfiguration()
-            )
+            val site =
+                SiteConfiguration(
+                    bake = BakeConfiguration("jbake", "bake"),
+                    pushPage = GitPushConfiguration(),
+                )
 
             project.registerPagefindTask(site)
 
@@ -134,10 +134,11 @@ class SiteManagerTest {
 
         @Test
         fun `pagefind task should use pagefind command`() {
-            val site = SiteConfiguration(
-                bake = BakeConfiguration("jbake", "bake"),
-                pushPage = GitPushConfiguration()
-            )
+            val site =
+                SiteConfiguration(
+                    bake = BakeConfiguration("jbake", "bake"),
+                    pushPage = GitPushConfiguration(),
+                )
 
             project.registerPagefindTask(site)
 
@@ -154,10 +155,11 @@ class SiteManagerTest {
 
             emptyDir.resolve("build/empty-bake").mkdirs()
 
-            val site = SiteConfiguration(
-                bake = BakeConfiguration("jbake", "empty-bake"),
-                pushPage = GitPushConfiguration()
-            )
+            val site =
+                SiteConfiguration(
+                    bake = BakeConfiguration("jbake", "empty-bake"),
+                    pushPage = GitPushConfiguration(),
+                )
 
             emptyProject.registerPagefindTask(site)
 
@@ -172,7 +174,6 @@ class SiteManagerTest {
 
     @Nested
     inner class RegisterDeployMaquetteTaskTest {
-
         @TempDir
         lateinit var tempDir: File
         private lateinit var project: Project
@@ -187,10 +188,11 @@ class SiteManagerTest {
 
         @Test
         fun `should register deployMaquette task`() {
-            val site = SiteConfiguration(
-                pushMaquette = GitPushConfiguration(from = "maquette", to = "cvs-output"),
-                bake = BakeConfiguration("jbake", "bake")
-            )
+            val site =
+                SiteConfiguration(
+                    pushMaquette = GitPushConfiguration(from = "maquette", to = "cvs-output"),
+                    bake = BakeConfiguration("jbake", "bake"),
+                )
 
             project.registerDeployMaquetteTask(site)
 
@@ -205,10 +207,11 @@ class SiteManagerTest {
             noMaquetteDir.mkdirs()
             val noMdProject = ProjectBuilder.builder().withProjectDir(noMaquetteDir).build()
 
-            val site = SiteConfiguration(
-                pushMaquette = GitPushConfiguration(from = "maquette", to = "cvs-output"),
-                bake = BakeConfiguration("jbake", "bake")
-            )
+            val site =
+                SiteConfiguration(
+                    pushMaquette = GitPushConfiguration(from = "maquette", to = "cvs-output"),
+                    bake = BakeConfiguration("jbake", "bake"),
+                )
 
             noMdProject.registerDeployMaquetteTask(site)
 
@@ -223,7 +226,6 @@ class SiteManagerTest {
 
     @Nested
     inner class RegisterDeploySiteTaskTest {
-
         @TempDir
         lateinit var tempDir: File
         private lateinit var project: Project
@@ -237,10 +239,11 @@ class SiteManagerTest {
 
         @Test
         fun `should register deploySite task`() {
-            val site = SiteConfiguration(
-                bake = BakeConfiguration("jbake", "bake"),
-                pushPage = GitPushConfiguration(from = "bake", to = "cvs-output")
-            )
+            val site =
+                SiteConfiguration(
+                    bake = BakeConfiguration("jbake", "bake"),
+                    pushPage = GitPushConfiguration(from = "bake", to = "cvs-output"),
+                )
 
             project.registerDeploySiteTask(site)
 
@@ -251,10 +254,11 @@ class SiteManagerTest {
 
         @Test
         fun `deploySite task should depend on pagefind`() {
-            val site = SiteConfiguration(
-                bake = BakeConfiguration("jbake", "bake"),
-                pushPage = GitPushConfiguration(from = "bake", to = "cvs-output")
-            )
+            val site =
+                SiteConfiguration(
+                    bake = BakeConfiguration("jbake", "bake"),
+                    pushPage = GitPushConfiguration(from = "bake", to = "cvs-output"),
+                )
 
             project.registerDeploySiteTask(site)
 
@@ -266,7 +270,6 @@ class SiteManagerTest {
 
     @Nested
     inner class RegisterCollectSiteConfigTaskTest {
-
         @TempDir
         lateinit var tempDir: File
         private lateinit var project: Project
@@ -279,10 +282,11 @@ class SiteManagerTest {
 
         @Test
         fun `should register collectSiteConfig task`() {
-            val site = SiteConfiguration(
-                bake = BakeConfiguration("jbake", "bake"),
-                pushPage = GitPushConfiguration()
-            )
+            val site =
+                SiteConfiguration(
+                    bake = BakeConfiguration("jbake", "bake"),
+                    pushPage = GitPushConfiguration(),
+                )
 
             project.registerCollectSiteConfigTask(site, false)
 
@@ -294,7 +298,6 @@ class SiteManagerTest {
 
     @Nested
     inner class ConfigPathResolutionTest {
-
         @TempDir
         lateinit var tempDir: File
         private lateinit var project: Project
@@ -327,7 +330,6 @@ class SiteManagerTest {
 
     @Nested
     inner class CreateJBakeRuntimeConfigurationTest {
-
         @TempDir
         lateinit var tempDir: File
         private lateinit var project: Project
@@ -348,7 +350,6 @@ class SiteManagerTest {
 
     @Nested
     inner class YAMLToleranceTest {
-
         @TempDir
         lateinit var tempDir: File
         private lateinit var project: Project
@@ -366,13 +367,17 @@ class SiteManagerTest {
         @Test
         fun `should not fail when site yml contains unknown fields`() {
             val siteYml = tempDir.resolve("site.yml")
-            siteYml.writeText("bake:\n  srcPath: \"site\"\n  destDirPath: \"bake\"\n" +
+            siteYml.writeText(
+                "bake:\n  srcPath: \"site\"\n  destDirPath: \"bake\"\n" +
                     "pushPage:\n  from: \"bake\"\n  to: \"cvs\"\n" +
                     "pushMaquette:\n  from: \"maquette\"\n  to: \"cvs\"\n" +
-                    "superbase: \"legacy-field\"\nunknownSection:\n  key: value\n")
+                    "superbase: \"legacy-field\"\nunknownSection:\n  key: value\n",
+            )
 
-            val site: SiteConfiguration = project.from(siteYml.path)
-                .fold({ throw AssertionError("Should parse: ${it.message}") }, { it })
+            val site: SiteConfiguration =
+                project
+                    .from(siteYml.path)
+                    .fold({ throw AssertionError("Should parse: ${it.message}") }, { it })
 
             assertThat(site.bake).isNotNull
             assertThat(site.bake.srcPath).isEqualTo("site")

@@ -12,7 +12,6 @@ package bakery.pivot
  * projet, préservation du répertoire de l'entrée, extension `.pivot.yaml`.
  */
 object PivotOutputResolver {
-
     /**
      * Calcule le chemin de sortie par défaut depuis le chemin d'entrée.
      *
@@ -33,8 +32,13 @@ object PivotOutputResolver {
      * 1. [explicitOutput] non-blank → valeur explicite (CLI/DSL).
      * 2. sinon → [resolveDefaultOutput] calculé depuis [input].
      */
-    fun resolveOutput(input: String, explicitOutput: String?): String {
-        return if (!explicitOutput.isNullOrBlank()) explicitOutput
-        else resolveDefaultOutput(input)
-    }
+    fun resolveOutput(
+        input: String,
+        explicitOutput: String?,
+    ): String =
+        if (!explicitOutput.isNullOrBlank()) {
+            explicitOutput
+        } else {
+            resolveDefaultOutput(input)
+        }
 }

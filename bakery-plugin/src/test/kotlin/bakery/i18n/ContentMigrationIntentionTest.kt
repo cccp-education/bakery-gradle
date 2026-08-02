@@ -5,14 +5,14 @@ import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
 class ContentMigrationIntentionTest {
-
     @Test
     fun `valid intention creates successfully`() {
-        val intent = ContentMigrationIntention(
-            sourceDir = "site",
-            outputDir = "build/translated-site",
-            targetLanguages = listOf("en", "es")
-        )
+        val intent =
+            ContentMigrationIntention(
+                sourceDir = "site",
+                outputDir = "build/translated-site",
+                targetLanguages = listOf("en", "es"),
+            )
         assertEquals("site", intent.sourceDir)
         assertEquals("build/translated-site", intent.outputDir)
         assertEquals("fr", intent.sourceLanguage)
@@ -37,8 +37,9 @@ class ContentMigrationIntentionTest {
     fun `empty targetLanguages throws`() {
         assertThrows<IllegalArgumentException> {
             ContentMigrationIntention(
-                sourceDir = "site", outputDir = "out",
-                targetLanguages = emptyList()
+                sourceDir = "site",
+                outputDir = "out",
+                targetLanguages = emptyList(),
             )
         }
     }
@@ -47,8 +48,9 @@ class ContentMigrationIntentionTest {
     fun `unsupported target language throws`() {
         assertThrows<IllegalArgumentException> {
             ContentMigrationIntention(
-                sourceDir = "site", outputDir = "out",
-                targetLanguages = listOf("xx")
+                sourceDir = "site",
+                outputDir = "out",
+                targetLanguages = listOf("xx"),
             )
         }
     }
@@ -57,8 +59,9 @@ class ContentMigrationIntentionTest {
     fun `unsupported source language throws`() {
         assertThrows<IllegalArgumentException> {
             ContentMigrationIntention(
-                sourceDir = "site", outputDir = "out",
-                sourceLanguage = "xx"
+                sourceDir = "site",
+                outputDir = "out",
+                sourceLanguage = "xx",
             )
         }
     }
@@ -67,8 +70,10 @@ class ContentMigrationIntentionTest {
     fun `source language in target languages throws`() {
         assertThrows<IllegalArgumentException> {
             ContentMigrationIntention(
-                sourceDir = "site", outputDir = "out",
-                sourceLanguage = "fr", targetLanguages = listOf("fr", "en")
+                sourceDir = "site",
+                outputDir = "out",
+                sourceLanguage = "fr",
+                targetLanguages = listOf("fr", "en"),
             )
         }
     }
@@ -81,13 +86,14 @@ class ContentMigrationIntentionTest {
 
     @Test
     fun `DSL produces identical intention`() {
-        val dsl = ContentMigrationIntentionDsl().apply {
-            sourceDir = "site"
-            outputDir = "build/i18n"
-            sourceLanguage = "fr"
-            targetLanguages = listOf("en", "zh")
-            dryRun = false
-        }
+        val dsl =
+            ContentMigrationIntentionDsl().apply {
+                sourceDir = "site"
+                outputDir = "build/i18n"
+                sourceLanguage = "fr"
+                targetLanguages = listOf("en", "zh")
+                dryRun = false
+            }
         val intent = dsl.toIntention()
         assertEquals("site", intent.sourceDir)
         assertEquals("build/i18n", intent.outputDir)

@@ -7,7 +7,6 @@ import java.io.File
 import kotlin.text.Charsets.UTF_8
 
 class ToolsKtTest {
-
     @TempDir
     lateinit var tempDir: File
 

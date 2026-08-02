@@ -1,13 +1,13 @@
 package bakery.firebase
 
 import bakery.FirebaseAuthConfig
-import bakery.FirebaseContactFormConfig
-import bakery.FirebaseField
-import bakery.FirebaseCollection
-import bakery.FirebaseProjectInfo
 import bakery.FirebaseCallableFunction
 import bakery.FirebaseCallableParam
+import bakery.FirebaseCollection
+import bakery.FirebaseContactFormConfig
+import bakery.FirebaseField
 import bakery.FirebaseFirestoreSchema
+import bakery.FirebaseProjectInfo
 import bakery.llm.FakeLlmService
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Nested
@@ -19,36 +19,38 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class ValidateFirebaseConfigTaskTest {
-
     @TempDir
     lateinit var tempDir: File
 
     private fun createTask(): ValidateFirebaseConfigTask {
-        val project = ProjectBuilder.builder()
-            .withProjectDir(tempDir)
-            .withName("test-firebase-validate")
-            .build()
+        val project =
+            ProjectBuilder
+                .builder()
+                .withProjectDir(tempDir)
+                .withName("test-firebase-validate")
+                .build()
         project.pluginManager.apply("java-base")
         return project.tasks.register("validateFirebaseConfig", ValidateFirebaseConfigTask::class.java).get()
     }
 
     @Nested
     inner class MechanicalValidation {
-
         @Test
         fun `valid auth config passes validation`() {
-            val result = FirebaseConfigValidator.validateAuthConfig(
-                FirebaseAuthConfig(apiKey = "AIzaSyB-abc123", authDomain = "my-project.firebaseapp.com", projectId = "my-project")
-            )
+            val result =
+                FirebaseConfigValidator.validateAuthConfig(
+                    FirebaseAuthConfig(apiKey = "AIzaSyB-abc123", authDomain = "my-project.firebaseapp.com", projectId = "my-project"),
+                )
             assertTrue(result.isValid)
             assertEquals(0, result.errors.size)
         }
 
         @Test
         fun `missing fields produce errors`() {
-            val result = FirebaseConfigValidator.validateAuthConfig(
-                FirebaseAuthConfig(apiKey = "", authDomain = "", projectId = "")
-            )
+            val result =
+                FirebaseConfigValidator.validateAuthConfig(
+                    FirebaseAuthConfig(apiKey = "", authDomain = "", projectId = ""),
+                )
             assertEquals(3, result.errors.size)
             assertEquals(false, result.isValid)
         }
@@ -56,15 +58,15 @@ class ValidateFirebaseConfigTaskTest {
 
     @Nested
     inner class LlmPromptBuilding {
-
         @Test
         fun `buildLlmPrompt includes auth config fields`() {
             val task = createTask()
-            task.resolvedAuthConfig = FirebaseAuthConfig(
-                apiKey = "AIzaSyB-test",
-                authDomain = "test-project.firebaseapp.com",
-                projectId = "test-project"
-            )
+            task.resolvedAuthConfig =
+                FirebaseAuthConfig(
+                    apiKey = "AIzaSyB-test",
+                    authDomain = "test-project.firebaseapp.com",
+                    projectId = "test-project",
+                )
             val prompt = task.buildLlmPrompt()
             assertTrue(prompt.contains("AIza***test"))
             assertTrue(prompt.contains("test-project.firebaseapp.com"))
@@ -76,14 +78,16 @@ class ValidateFirebaseConfigTaskTest {
         @Test
         fun `buildLlmPrompt includes contact config fields`() {
             val task = createTask()
-            val contactConfig = FirebaseContactFormConfig(
-                project = FirebaseProjectInfo(projectId = "my-project", apiKey = "AIzaSyB-test"),
-                firestore = FirebaseFirestoreSchema(
-                    contacts = FirebaseCollection(name = "contacts", fields = listOf(FirebaseField("name", "string")), rulesEnabled = true),
-                    messages = FirebaseCollection(name = "messages", fields = listOf(FirebaseField("text", "string")), rulesEnabled = true)
-                ),
-                callable = FirebaseCallableFunction(name = "sendMessage", params = listOf(FirebaseCallableParam("message", "string")))
-            )
+            val contactConfig =
+                FirebaseContactFormConfig(
+                    project = FirebaseProjectInfo(projectId = "my-project", apiKey = "AIzaSyB-test"),
+                    firestore =
+                        FirebaseFirestoreSchema(
+                            contacts = FirebaseCollection(name = "contacts", fields = listOf(FirebaseField("name", "string")), rulesEnabled = true),
+                            messages = FirebaseCollection(name = "messages", fields = listOf(FirebaseField("text", "string")), rulesEnabled = true),
+                        ),
+                    callable = FirebaseCallableFunction(name = "sendMessage", params = listOf(FirebaseCallableParam("message", "string"))),
+                )
             task.resolvedContactConfig = contactConfig
             val prompt = task.buildLlmPrompt()
             assertTrue(prompt.contains("Firebase Contact Form"))
@@ -94,7 +98,6 @@ class ValidateFirebaseConfigTaskTest {
 
     @Nested
     inner class LlmResponseParsing {
-
         @Test
         fun `parseLlmResponse with errors and warnings`() {
             val task = createTask()
@@ -130,11 +133,12 @@ class ValidateFirebaseConfigTaskTest {
     @Test
     fun `task validate method succeeds with valid config`() {
         val task = createTask()
-        task.resolvedAuthConfig = FirebaseAuthConfig(
-            apiKey = "AIzaSyB-test",
-            authDomain = "test-project.firebaseapp.com",
-            projectId = "test-project"
-        )
+        task.resolvedAuthConfig =
+            FirebaseAuthConfig(
+                apiKey = "AIzaSyB-test",
+                authDomain = "test-project.firebaseapp.com",
+                projectId = "test-project",
+            )
         task.validate()
         // Should not throw
     }
@@ -144,9 +148,10 @@ class ValidateFirebaseConfigTaskTest {
         val task = createTask()
         task.resolvedAuthConfig = FirebaseAuthConfig(apiKey = "", authDomain = "", projectId = "")
 
-        val exception = org.junit.jupiter.api.assertThrows<java.lang.IllegalStateException> {
-            task.validate()
-        }
+        val exception =
+            org.junit.jupiter.api.assertThrows<java.lang.IllegalStateException> {
+                task.validate()
+            }
         assertTrue(exception.message?.contains("Configuration Firebase invalide") == true)
     }
 
@@ -161,11 +166,12 @@ class ValidateFirebaseConfigTaskTest {
     @Test
     fun `task with LLM mocked produces expected result`() {
         val task = createTask()
-        task.resolvedAuthConfig = FirebaseAuthConfig(
-            apiKey = "AIzaSyB-test",
-            authDomain = "test-project.firebaseapp.com",
-            projectId = "test-project"
-        )
+        task.resolvedAuthConfig =
+            FirebaseAuthConfig(
+                apiKey = "AIzaSyB-test",
+                authDomain = "test-project.firebaseapp.com",
+                projectId = "test-project",
+            )
         task.llmService = FakeLlmService("""{"errors": [], "warnings": []}""")
         task.validateWithIa.set("true")
         task.validate()

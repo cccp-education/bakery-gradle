@@ -1,16 +1,14 @@
 package bakery.theme
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
 class ThemeIntentionDslTest {
-
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class ToIntention {
-
         @Test
         fun `converts DSL to intention with defaults`() {
             val dsl = ThemeIntentionDsl()
@@ -91,17 +89,19 @@ class ThemeIntentionDslTest {
             dsl.logoUrl = "/logo.png"
             dsl.faviconUrl = "/favicon.ico"
             val intention = dsl.toIntention()
-            assertThat(intention.overrides).isEqualTo(ThemeOverrides(
-                primaryColor = "#111",
-                secondaryColor = "#222",
-                accentColor = "#333",
-                backgroundColor = "#444",
-                textColor = "#555",
-                fontFamily = "Font",
-                headingFont = "Heading",
-                logoUrl = "/logo.png",
-                faviconUrl = "/favicon.ico"
-            ))
+            assertThat(intention.overrides).isEqualTo(
+                ThemeOverrides(
+                    primaryColor = "#111",
+                    secondaryColor = "#222",
+                    accentColor = "#333",
+                    backgroundColor = "#444",
+                    textColor = "#555",
+                    fontFamily = "Font",
+                    headingFont = "Heading",
+                    logoUrl = "/logo.png",
+                    faviconUrl = "/favicon.ico",
+                ),
+            )
         }
     }
 }

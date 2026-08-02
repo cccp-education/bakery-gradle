@@ -3,21 +3,19 @@ package bakery.scenarios
 import bakery.ThemeConfig
 import bakery.tree.ResolvedTheme
 import bakery.tree.ThemeResolver
-import bakery.tree.SiteNode as BakerySiteNode
-import bakery.tree.SiteTree as BakerySiteTree
-import document.translation.delta.ArticleModification
 import document.translation.delta.I18nDelta
 import document.translation.plan.SubtreeI18nPlanner
-import document.translation.tree.SiteNode as DocSiteNode
-import document.translation.tree.SiteTree as DocSiteTree
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.assertThrows
+import bakery.tree.SiteNode as BakerySiteNode
+import bakery.tree.SiteTree as BakerySiteTree
+import document.translation.tree.SiteNode as DocSiteNode
+import document.translation.tree.SiteTree as DocSiteTree
 
 class ThemeResolverSteps {
-
     private var tree: BakerySiteTree? = null
     private var flatArticles: List<BakerySiteNode.Article>? = null
     private var defaultTheme: ThemeConfig = ThemeConfig()
@@ -30,31 +28,40 @@ class ThemeResolverSteps {
     private var docFlatArticles: List<DocSiteNode.Article>? = null
 
     @Given("a site tree with sections {string} and {string}")
-    fun aSiteTreeWithSections(s1: String, s2: String) {
-        val formations = BakerySiteNode.Section(
-            path = s1,
-            articles = listOf(
-                BakerySiteNode.Article(path = "$s1/ab-partition"),
-                BakerySiteNode.Article(path = "$s1/cd-partition")
+    fun aSiteTreeWithSections(
+        s1: String,
+        s2: String,
+    ) {
+        val formations =
+            BakerySiteNode.Section(
+                path = s1,
+                articles =
+                    listOf(
+                        BakerySiteNode.Article(path = "$s1/ab-partition"),
+                        BakerySiteNode.Article(path = "$s1/cd-partition"),
+                    ),
             )
-        )
         val blog = BakerySiteNode.Section(path = s2, articles = listOf(BakerySiteNode.Article(path = "$s2/hello")))
         tree = BakerySiteTree(BakerySiteNode.Site(path = "", sections = listOf(formations, blog)))
 
-        val docFormations = DocSiteNode.Section(
-            path = s1,
-            articles = listOf(
-                DocSiteNode.Article(path = "$s1/ab-partition"),
-                DocSiteNode.Article(path = "$s1/cd-partition")
+        val docFormations =
+            DocSiteNode.Section(
+                path = s1,
+                articles =
+                    listOf(
+                        DocSiteNode.Article(path = "$s1/ab-partition"),
+                        DocSiteNode.Article(path = "$s1/cd-partition"),
+                    ),
             )
-        )
-        val docBlog = DocSiteNode.Section(
-            path = s2,
-            articles = listOf(DocSiteNode.Article(path = "$s2/hello"))
-        )
-        docTree = DocSiteTree(
-            DocSiteNode.Site(path = "", sections = listOf(docFormations, docBlog))
-        )
+        val docBlog =
+            DocSiteNode.Section(
+                path = s2,
+                articles = listOf(DocSiteNode.Article(path = "$s2/hello")),
+            )
+        docTree =
+            DocSiteTree(
+                DocSiteNode.Site(path = "", sections = listOf(docFormations, docBlog)),
+            )
     }
 
     @Given("a default theme with primaryColor {string}")
@@ -63,22 +70,36 @@ class ThemeResolverSteps {
     }
 
     @Given("a default theme with primaryColor {string} and mode {string}")
-    fun aDefaultThemeWithPrimaryColorAndMode(primaryColor: String, mode: String) {
+    fun aDefaultThemeWithPrimaryColorAndMode(
+        primaryColor: String,
+        mode: String,
+    ) {
         defaultTheme = ThemeConfig(primaryColor = primaryColor, mode = mode)
     }
 
     @Given("a default theme with primaryColor {string} and mode {string} and fontFamily {string}")
-    fun aDefaultThemeWithPrimaryColorModeAndFontFamily(primaryColor: String, mode: String, fontFamily: String) {
+    fun aDefaultThemeWithPrimaryColorModeAndFontFamily(
+        primaryColor: String,
+        mode: String,
+        fontFamily: String,
+    ) {
         defaultTheme = ThemeConfig(primaryColor = primaryColor, mode = mode, fontFamily = fontFamily)
     }
 
     @Given("an override at {string} with primaryColor {string}")
-    fun anOverrideAtWithPrimaryColor(path: String, primaryColor: String) {
+    fun anOverrideAtWithPrimaryColor(
+        path: String,
+        primaryColor: String,
+    ) {
         overrides[path] = ThemeConfig(primaryColor = primaryColor)
     }
 
     @Given("an override at {string} with primaryColor {string} and mode {string}")
-    fun anOverrideAtWithPrimaryColorAndMode(path: String, primaryColor: String, mode: String) {
+    fun anOverrideAtWithPrimaryColorAndMode(
+        path: String,
+        primaryColor: String,
+        mode: String,
+    ) {
         overrides[path] = ThemeConfig(primaryColor = primaryColor, mode = mode)
     }
 
@@ -97,9 +118,10 @@ class ThemeResolverSteps {
 
     @When("I create the theme resolver")
     fun iCreateTheThemeResolver() {
-        creationError = assertThrows<IllegalArgumentException> {
-            ThemeResolver(tree!!, overrides.toMap(), defaultTheme)
-        }
+        creationError =
+            assertThrows<IllegalArgumentException> {
+                ThemeResolver(tree!!, overrides.toMap(), defaultTheme)
+            }
     }
 
     @Then("the resolved primaryColor is {string}")
@@ -130,25 +152,28 @@ class ThemeResolverSteps {
 
     @Given("a flat article list with {int} articles")
     fun aFlatArticleListWith(count: Int) {
-        flatArticles = listOf(
-            BakerySiteNode.Article(path = "formations/ab-partition"),
-            BakerySiteNode.Article(path = "formations/cd-partition"),
-            BakerySiteNode.Article(path = "blog/hello")
-        ).take(count)
-        docFlatArticles = listOf(
-            DocSiteNode.Article(path = "formations/ab-partition"),
-            DocSiteNode.Article(path = "formations/cd-partition"),
-            DocSiteNode.Article(path = "blog/hello")
-        ).take(count)
+        flatArticles =
+            listOf(
+                BakerySiteNode.Article(path = "formations/ab-partition"),
+                BakerySiteNode.Article(path = "formations/cd-partition"),
+                BakerySiteNode.Article(path = "blog/hello"),
+            ).take(count)
+        docFlatArticles =
+            listOf(
+                DocSiteNode.Article(path = "formations/ab-partition"),
+                DocSiteNode.Article(path = "formations/cd-partition"),
+                DocSiteNode.Article(path = "blog/hello"),
+            ).take(count)
     }
 
     @Given("before checksums for all articles")
     fun beforeChecksumsForAllArticles() {
-        beforeChecksums = if (docTree != null) {
-            docTree!!.leaves().associate { it.path to "hash-${it.path}-v1" }
-        } else {
-            docFlatArticles!!.associate { it.path to "hash-${it.path}-v1" }
-        }
+        beforeChecksums =
+            if (docTree != null) {
+                docTree!!.leaves().associate { it.path to "hash-${it.path}-v1" }
+            } else {
+                docFlatArticles!!.associate { it.path to "hash-${it.path}-v1" }
+            }
     }
 
     @When("I compute the delta with the same checksums")
@@ -158,22 +183,30 @@ class ThemeResolverSteps {
 
     @When("I compute the delta with {string} changed")
     fun iComputeTheDeltaWithChanged(path: String) {
-        val after = beforeChecksums.toMutableMap().apply { this[path] = "hash-${path}-v2" }
+        val after = beforeChecksums.toMutableMap().apply { this[path] = "hash-$path-v2" }
         delta = createPlanner().computeDelta(after)
     }
 
     @When("I compute the delta for subtree {string} with {string} and {string} changed")
-    fun iComputeTheDeltaForSubtreeWithAndChanged(subtree: String, p1: String, p2: String) {
-        val after = beforeChecksums.toMutableMap().apply {
-            this[p1] = "hash-${p1}-v2"
-            this[p2] = "hash-${p2}-v2"
-        }
+    fun iComputeTheDeltaForSubtreeWithAndChanged(
+        subtree: String,
+        p1: String,
+        p2: String,
+    ) {
+        val after =
+            beforeChecksums.toMutableMap().apply {
+                this[p1] = "hash-$p1-v2"
+                this[p2] = "hash-$p2-v2"
+            }
         delta = createPlanner().computeDelta(after, subtreePath = subtree)
     }
 
     @When("I compute the delta for subtree {string} with {string} changed")
-    fun iComputeTheDeltaForSubtreeWithChanged(subtree: String, path: String) {
-        val after = beforeChecksums.toMutableMap().apply { this[path] = "hash-${path}-v2" }
+    fun iComputeTheDeltaForSubtreeWithChanged(
+        subtree: String,
+        path: String,
+    ) {
+        val after = beforeChecksums.toMutableMap().apply { this[path] = "hash-$path-v2" }
         delta = createPlanner().computeDelta(after, subtreePath = subtree)
     }
 
@@ -210,6 +243,9 @@ class ThemeResolverSteps {
     }
 
     private fun createPlanner(beforeChecksums: Map<String, String> = this.beforeChecksums): SubtreeI18nPlanner =
-        if (docTree != null) SubtreeI18nPlanner(docTree!!, beforeChecksums)
-        else SubtreeI18nPlanner(docFlatArticles!!, beforeChecksums)
+        if (docTree != null) {
+            SubtreeI18nPlanner(docTree!!, beforeChecksums)
+        } else {
+            SubtreeI18nPlanner(docFlatArticles!!, beforeChecksums)
+        }
 }

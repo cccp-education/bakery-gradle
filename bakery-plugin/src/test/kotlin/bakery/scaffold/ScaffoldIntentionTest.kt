@@ -12,7 +12,6 @@ import kotlin.test.assertTrue
  * Pattern identique a [bakery.article.ArticleIntentionTest].
  */
 class ScaffoldIntentionTest {
-
     // ── Construction valide ────────────────────────────────────────────
 
     @Test
@@ -27,12 +26,13 @@ class ScaffoldIntentionTest {
 
     @Test
     fun `full intention with all parameters`() {
-        val intention = ScaffoldIntention(
-            description = "Portfolio professionnel Kotlin",
-            siteType = ScaffoldSiteType.PORTFOLIO,
-            lang = "en",
-            projectName = "kotlin-dev-portfolio"
-        )
+        val intention =
+            ScaffoldIntention(
+                description = "Portfolio professionnel Kotlin",
+                siteType = ScaffoldSiteType.PORTFOLIO,
+                lang = "en",
+                projectName = "kotlin-dev-portfolio",
+            )
 
         assertEquals("Portfolio professionnel Kotlin", intention.description)
         assertEquals(ScaffoldSiteType.PORTFOLIO, intention.siteType)
@@ -129,12 +129,13 @@ class ScaffoldIntentionTest {
 
     @Test
     fun `toPromptContext includes description and site type`() {
-        val intention = ScaffoldIntention(
-            description = "Site de documentation technique",
-            siteType = ScaffoldSiteType.DOC,
-            lang = "en",
-            projectName = "kotlin-docs"
-        )
+        val intention =
+            ScaffoldIntention(
+                description = "Site de documentation technique",
+                siteType = ScaffoldSiteType.DOC,
+                lang = "en",
+                projectName = "kotlin-docs",
+            )
         val context = intention.toPromptContext()
 
         assertTrue(context.contains("Site de documentation technique"), "Must contain description")

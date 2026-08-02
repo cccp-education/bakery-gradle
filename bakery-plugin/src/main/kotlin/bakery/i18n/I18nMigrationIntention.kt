@@ -6,7 +6,7 @@ data class I18nMigrationIntention(
     val siteDir: String,
     val languages: List<String> = listOf("en"),
     val defaultLanguage: String = "fr",
-    val dryRun: Boolean = true
+    val dryRun: Boolean = true,
 ) {
     init {
         require(siteDir.isNotBlank()) { "Le repertoire du site (siteDir) est obligatoire pour la migration i18n." }
@@ -21,10 +21,11 @@ data class I18nMigrationIntention(
         }
     }
 
-    fun toPromptContext(): String = buildString {
-        appendLine("Repertoire du site : $siteDir")
-        appendLine("Langues cibles : ${languages.joinToString(", ")}")
-        appendLine("Langue par defaut : $defaultLanguage")
-        appendLine("Mode dry-run : $dryRun")
-    }
+    fun toPromptContext(): String =
+        buildString {
+            appendLine("Repertoire du site : $siteDir")
+            appendLine("Langues cibles : ${languages.joinToString(", ")}")
+            appendLine("Langue par defaut : $defaultLanguage")
+            appendLine("Mode dry-run : $dryRun")
+        }
 }

@@ -1,16 +1,15 @@
 package bakery.scenarios
 
-import io.cucumber.java.en.Then
 import io.cucumber.java.en.And
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.When
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
-import java.io.File
 import java.util.Properties
 
-class I18nMigrationSteps(private val world: BakeryWorld) {
-
+class I18nMigrationSteps(
+    private val world: BakeryWorld,
+) {
     @Given("a new Bakery project with site fully configured")
     fun createBakeryProjectWithSiteFullyConfigured() {
         world.createGradleProjectWithSiteConfigured(iaEnabled = true)
@@ -18,7 +17,10 @@ class I18nMigrationSteps(private val world: BakeryWorld) {
     }
 
     @Given("a real site directory {string} copied from test resources {string}")
-    fun createRealSiteFromTestResources(name: String, resourcePath: String) {
+    fun createRealSiteFromTestResources(
+        name: String,
+        resourcePath: String,
+    ) {
         world.createGradleProjectWithSiteConfigured(iaEnabled = true)
         world.copyRealSiteFromTestResources(name, resourcePath)
         assertThat(world.realSiteDir).exists()
@@ -59,39 +61,43 @@ class I18nMigrationSteps(private val world: BakeryWorld) {
     fun configureI18nMigrationDslWithRealSite(
         languages: String,
         defaultLanguage: String,
-        dryRun: String
+        dryRun: String,
     ) {
         val dryRunBool = dryRun.toBooleanStrict()
         val langList = languages.split(",").map { it.trim() }.filter { it.isNotBlank() }
         val langListStr = langList.joinToString(", ") { "\"$it\"" }
         val siteDirPath = world.realSiteDir!!.absolutePath
-        val i18nMigrationBlock = """
+        val i18nMigrationBlock =
+            """
             i18nMigration {
                 siteDir = "$siteDirPath"
                 languages = listOf($langListStr)
                 defaultLanguage = "$defaultLanguage"
                 dryRun = $dryRunBool
             }
-        """.trimIndent()
-        val buildScriptContent = """
+            """.trimIndent()
+        val buildScriptContent =
+            """
             bakery {
                 configPath = file("site.yml").absolutePath
                 $i18nMigrationBlock
             }
-        """.trimIndent()
+            """.trimIndent()
         world.projectDir!!.resolve("build.gradle.kts").writeText(
             """plugins { id("education.cccp.bakery") }
 $buildScriptContent
-"""
+""",
         )
     }
 
-    @Given("a new Bakery project with i18n migration intention configured with siteDir {string} and languages {string} and defaultLanguage {string} and dryRun {word}")
+    @Given(
+        "a new Bakery project with i18n migration intention configured with siteDir {string} and languages {string} and defaultLanguage {string} and dryRun {word}",
+    )
     fun createBakeryProjectWithI18nMigrationIntention(
         siteDir: String,
         languages: String,
         defaultLanguage: String,
-        dryRun: String
+        dryRun: String,
     ) {
         val dryRunBool = dryRun.toBooleanStrict()
         val langList = languages.split(",").map { it.trim() }.filter { it.isNotBlank() }
@@ -100,25 +106,33 @@ $buildScriptContent
             siteDir = siteDir,
             languages = langList,
             defaultLanguage = defaultLanguage,
-            dryRun = dryRunBool
+            dryRun = dryRunBool,
         )
         assertThat(world.projectDir).exists()
     }
 
     @When("I am executing the task {string} with CLI options for the real site and languages {string} and dryRun {string}")
-    fun runTaskWithCliOptionsForRealSite(taskName: String, languages: String, dryRun: String) = runBlocking {
+    fun runTaskWithCliOptionsForRealSite(
+        taskName: String,
+        languages: String,
+        dryRun: String,
+    ) = runBlocking {
         val siteDirPath = world.realSiteDir!!.absolutePath
-        val args = listOf(
-            taskName,
-            "--i18nSite=$siteDirPath",
-            "--i18nLangs=$languages",
-            "--i18nDryRun=$dryRun"
-        )
+        val args =
+            listOf(
+                taskName,
+                "--i18nSite=$siteDirPath",
+                "--i18nLangs=$languages",
+                "--i18nDryRun=$dryRun",
+            )
         world.executeGradle(*args.toTypedArray())
     }
 
     @When("I am executing the task {string} with arguments {string}")
-    fun runTaskWithArguments(taskName: String, arguments: String) = runBlocking {
+    fun runTaskWithArguments(
+        taskName: String,
+        arguments: String,
+    ) = runBlocking {
         val args = listOf(taskName) + arguments.split(" ").filter { it.isNotBlank() }
         world.executeGradle(*args.toTypedArray())
     }
@@ -155,17 +169,19 @@ $buildScriptContent
     @And("the templates should contain th:text message keys")
     fun templatesShouldContainThText() {
         val templatesDir = world.realSiteDir!!.resolve("templates")
-        val hasAnyI18nAttribute = templatesDir.walkTopDown()
-            .filter { it.isFile && it.extension == "thyme" }
-            .any {
-                val c = it.readText()
-                c.contains("th:text=") ||
-                    c.contains("th:placeholder=") ||
-                    c.contains("th:content=") ||
-                    c.contains("th:alt=") ||
-                    c.contains("th:title=") ||
-                    c.contains("th:attr=")
-            }
+        val hasAnyI18nAttribute =
+            templatesDir
+                .walkTopDown()
+                .filter { it.isFile && it.extension == "thyme" }
+                .any {
+                    val c = it.readText()
+                    c.contains("th:text=") ||
+                        c.contains("th:placeholder=") ||
+                        c.contains("th:content=") ||
+                        c.contains("th:alt=") ||
+                        c.contains("th:title=") ||
+                        c.contains("th:attr=")
+                }
         assertThat(hasAnyI18nAttribute).isTrue()
     }
 

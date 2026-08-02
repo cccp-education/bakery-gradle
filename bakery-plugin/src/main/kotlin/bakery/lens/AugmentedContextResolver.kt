@@ -3,8 +3,6 @@ package bakery.lens
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import contracts.context.CompositeContext
-import contracts.context.CompositeContextConfig
-import contracts.context.ContextChannel
 import org.slf4j.LoggerFactory
 import java.io.File
 
@@ -30,7 +28,6 @@ import java.io.File
  * Contrat DAG : bakery (N2) importe codebase-contracts (N0).
  */
 class AugmentedContextResolver {
-
     private val logger = LoggerFactory.getLogger(AugmentedContextResolver::class.java)
     private val objectMapper = ObjectMapper().registerKotlinModule()
 
@@ -83,9 +80,7 @@ class AugmentedContextResolver {
      * Retourne les sections disponibles dans un contexte composite.
      * Utile pour le debug et le diagnostic.
      */
-    fun availableSections(contextFilePath: String): Set<ChannelType> {
-        return extractChannelsFromPath(contextFilePath).keys
-    }
+    fun availableSections(contextFilePath: String): Set<ChannelType> = extractChannelsFromPath(contextFilePath).keys
 }
 
 /**

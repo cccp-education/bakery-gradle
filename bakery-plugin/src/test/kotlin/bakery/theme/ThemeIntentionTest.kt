@@ -7,11 +7,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 
 class ThemeIntentionTest {
-
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class Construction {
-
         @Test
         fun `creates intention with description only — defaults to MINIMAL`() {
             val intention = ThemeIntention(description = "Blog tech moderne")
@@ -22,20 +20,22 @@ class ThemeIntentionTest {
 
         @Test
         fun `creates intention with variant and description`() {
-            val intention = ThemeIntention(
-                description = "Site de documentation",
-                variant = ThemeVariant.DOCUMENTATION
-            )
+            val intention =
+                ThemeIntention(
+                    description = "Site de documentation",
+                    variant = ThemeVariant.DOCUMENTATION,
+                )
             assertThat(intention.variant).isEqualTo(ThemeVariant.DOCUMENTATION)
         }
 
         @Test
         fun `creates intention with full overrides`() {
-            val intention = ThemeIntention(
-                description = "Portfolio creatif",
-                variant = ThemeVariant.PORTFOLIO,
-                overrides = ThemeOverrides(primaryColor = "#ff6600", fontFamily = "Custom")
-            )
+            val intention =
+                ThemeIntention(
+                    description = "Portfolio creatif",
+                    variant = ThemeVariant.PORTFOLIO,
+                    overrides = ThemeOverrides(primaryColor = "#ff6600", fontFamily = "Custom"),
+                )
             assertThat(intention.overrides.primaryColor).isEqualTo("#ff6600")
             assertThat(intention.overrides.fontFamily).isEqualTo("Custom")
         }
@@ -55,13 +55,13 @@ class ThemeIntentionTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class ToPromptContext {
-
         @Test
         fun `generates prompt context with description and variant`() {
-            val intention = ThemeIntention(
-                description = "Blog tech Kotlin",
-                variant = ThemeVariant.MAGAZINE
-            )
+            val intention =
+                ThemeIntention(
+                    description = "Blog tech Kotlin",
+                    variant = ThemeVariant.MAGAZINE,
+                )
             val context = intention.toPromptContext()
             assertThat(context).contains("Blog tech Kotlin")
             assertThat(context).contains("magazine")
@@ -70,11 +70,12 @@ class ThemeIntentionTest {
 
         @Test
         fun `includes overrides in prompt context when present`() {
-            val intention = ThemeIntention(
-                description = "Site formation",
-                variant = ThemeVariant.FORMATION,
-                overrides = ThemeOverrides(primaryColor = "#custom", fontFamily = "Fira")
-            )
+            val intention =
+                ThemeIntention(
+                    description = "Site formation",
+                    variant = ThemeVariant.FORMATION,
+                    overrides = ThemeOverrides(primaryColor = "#custom", fontFamily = "Fira"),
+                )
             val context = intention.toPromptContext()
             assertThat(context).contains("#custom")
             assertThat(context).contains("Fira")
@@ -82,11 +83,12 @@ class ThemeIntentionTest {
 
         @Test
         fun `does not include null overrides in prompt context`() {
-            val intention = ThemeIntention(
-                description = "Minimal site",
-                variant = ThemeVariant.MINIMAL,
-                overrides = ThemeOverrides(primaryColor = null)
-            )
+            val intention =
+                ThemeIntention(
+                    description = "Minimal site",
+                    variant = ThemeVariant.MINIMAL,
+                    overrides = ThemeOverrides(primaryColor = null),
+                )
             val context = intention.toPromptContext()
             assertThat(context).doesNotContain("Couleur primaire souhaitee")
         }

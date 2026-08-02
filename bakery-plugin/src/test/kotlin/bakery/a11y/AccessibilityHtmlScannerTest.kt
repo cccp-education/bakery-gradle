@@ -4,7 +4,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class AccessibilityHtmlScannerTest {
-
     @Test
     fun `skips element without inline colors`() {
         val html = "<div>Bonjour</div>"
@@ -31,10 +30,11 @@ class AccessibilityHtmlScannerTest {
 
     @Test
     fun `audits multiple elements`() {
-        val html = """
+        val html =
+            """
             <div style="color: #000000; background-color: #FFFFFF;">OK</div>
             <span style="color: #777777; background-color: #FFFFFF;">Weak</span>
-        """.trimIndent()
+            """.trimIndent()
         val findings = scanInlineColors(html)
         assertThat(findings).hasSize(2)
         assertThat(findings[0].pass).isTrue()
@@ -103,5 +103,4 @@ class AccessibilityHtmlScannerTest {
         val findings = scanStructural(html)
         assertThat(findings).isEmpty()
     }
-
 }

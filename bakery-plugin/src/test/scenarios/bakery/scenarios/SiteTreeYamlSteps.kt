@@ -1,22 +1,21 @@
 package bakery.scenarios
 
-import document.translation.PivotArticle
-import document.translation.PivotBlock
-import document.translation.PivotFrontmatter
-import document.translation.PivotInline
 import bakery.tree.Content
 import bakery.tree.SiteNode
 import bakery.tree.SiteNode.Article
 import bakery.tree.SiteNode.Section
 import bakery.tree.SiteNode.Site
 import bakery.tree.SiteTreeYaml
+import document.translation.PivotArticle
+import document.translation.PivotBlock
+import document.translation.PivotFrontmatter
+import document.translation.PivotInline
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
 import org.assertj.core.api.Assertions.assertThat
 
 class SiteTreeYamlSteps {
-
     private var original: SiteNode? = null
     private var serialized: String = ""
     private var reparsed: SiteNode? = null
@@ -37,10 +36,11 @@ class SiteTreeYamlSteps {
 
     @Given("an article {string} with content")
     fun anArticleWithContent(path: String) {
-        val pivot = PivotArticle(
-            frontmatter = PivotFrontmatter("T", "2026-01-01", "page", "published"),
-            blocks = listOf(PivotBlock.Paragraph(inline = listOf(PivotInline.Text("text", translatable = true))))
-        )
+        val pivot =
+            PivotArticle(
+                frontmatter = PivotFrontmatter("T", "2026-01-01", "page", "published"),
+                blocks = listOf(PivotBlock.Paragraph(inline = listOf(PivotInline.Text("text", translatable = true)))),
+            )
         original = Article(path = path, content = Content(pivot))
     }
 

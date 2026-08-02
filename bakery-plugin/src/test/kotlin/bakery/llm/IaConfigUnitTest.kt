@@ -14,7 +14,6 @@ import java.io.File
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class IaConfigUnitTest {
-
     @TempDir
     lateinit var projectDir: File
 
@@ -32,7 +31,7 @@ class IaConfigUnitTest {
     private fun configureIa(
         iaBaseUrl: String? = null,
         iaModelName: String? = null,
-        iaEnabled: Boolean? = null
+        iaEnabled: Boolean? = null,
     ) {
         ext.ia {
             iaBaseUrl?.let { b -> it.baseUrl = b }
@@ -55,7 +54,7 @@ class IaConfigUnitTest {
     fun `DSL ia block compiles with custom values`() {
         configureIa(
             iaBaseUrl = "https://ollama.custom.example.com:11462",
-            iaModelName = "custom-model:7b"
+            iaModelName = "custom-model:7b",
         )
 
         assertThat(ext.ia.baseUrl).isEqualTo("https://ollama.custom.example.com:11462")

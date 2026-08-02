@@ -21,7 +21,6 @@ import java.io.File
  * [bakery.ContentTaskRegistrar] after `registerMigrateContentI18nTask`.
  */
 class InjectRtlDirectionFunctionalTest {
-
     @TempDir
     lateinit var projectDir: File
 
@@ -29,15 +28,16 @@ class InjectRtlDirectionFunctionalTest {
     fun `injectRtlDirection injects jbake-lang and rtl directive for arabic articles`() {
         createMiniSiteWithTranslatedCopy()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments(
-                "injectRtlDirection",
-                "--contentI18nOutput=content-i18n",
-                "--contentI18nTargetLangs=ar"
-            )
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "injectRtlDirection",
+                    "--contentI18nOutput=content-i18n",
+                    "--contentI18nTargetLangs=ar",
+                ).build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
         val arArticle = projectDir.resolve("content-i18n/ar/blog/post.adoc").readText()
@@ -49,15 +49,15 @@ class InjectRtlDirectionFunctionalTest {
     fun `injectRtlDirection injects jbake-lang without rtl for french articles`() {
         createMiniSiteWithTranslatedCopy()
 
-        GradleRunner.create()
+        GradleRunner
+            .create()
             .withProjectDir(projectDir)
             .withPluginClasspath()
             .withArguments(
                 "injectRtlDirection",
                 "--contentI18nOutput=content-i18n",
-                "--contentI18nTargetLangs=fr"
-            )
-            .build()
+                "--contentI18nTargetLangs=fr",
+            ).build()
 
         val frArticle = projectDir.resolve("content-i18n/fr/blog/post.adoc").readText()
         assertThat(frArticle).contains(":jbake-lang: fr")
@@ -68,27 +68,28 @@ class InjectRtlDirectionFunctionalTest {
     fun `injectRtlDirection is idempotent on second invocation`() {
         createMiniSiteWithTranslatedCopy()
 
-        GradleRunner.create()
+        GradleRunner
+            .create()
             .withProjectDir(projectDir)
             .withPluginClasspath()
             .withArguments(
                 "injectRtlDirection",
                 "--contentI18nOutput=content-i18n",
-                "--contentI18nTargetLangs=ar"
-            )
-            .build()
+                "--contentI18nTargetLangs=ar",
+            ).build()
 
         val firstContent = projectDir.resolve("content-i18n/ar/blog/post.adoc").readText()
 
-        val result2 = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments(
-                "injectRtlDirection",
-                "--contentI18nOutput=content-i18n",
-                "--contentI18nTargetLangs=ar"
-            )
-            .build()
+        val result2 =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "injectRtlDirection",
+                    "--contentI18nOutput=content-i18n",
+                    "--contentI18nTargetLangs=ar",
+                ).build()
 
         assertThat(result2.output).contains("BUILD SUCCESSFUL")
         val secondContent = projectDir.resolve("content-i18n/ar/blog/post.adoc").readText()
@@ -99,25 +100,25 @@ class InjectRtlDirectionFunctionalTest {
     fun `injectRtlDirection drops pre-existing rtl marker when translating to ltr`() {
         createMiniSiteWithTranslatedCopy()
 
-        GradleRunner.create()
+        GradleRunner
+            .create()
             .withProjectDir(projectDir)
             .withPluginClasspath()
             .withArguments(
                 "injectRtlDirection",
                 "--contentI18nOutput=content-i18n",
-                "--contentI18nTargetLangs=ar"
-            )
-            .build()
+                "--contentI18nTargetLangs=ar",
+            ).build()
 
-        GradleRunner.create()
+        GradleRunner
+            .create()
             .withProjectDir(projectDir)
             .withPluginClasspath()
             .withArguments(
                 "injectRtlDirection",
                 "--contentI18nOutput=content-i18n",
-                "--contentI18nTargetLangs=fr"
-            )
-            .build()
+                "--contentI18nTargetLangs=fr",
+            ).build()
 
         val frArticle = projectDir.resolve("content-i18n/fr/blog/post.adoc").readText()
         assertThat(frArticle).contains(":jbake-lang: fr")
@@ -128,15 +129,16 @@ class InjectRtlDirectionFunctionalTest {
     fun `injectRtlDirection skips languages with no directory`() {
         createMiniSiteWithTranslatedCopy()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments(
-                "injectRtlDirection",
-                "--contentI18nOutput=content-i18n",
-                "--contentI18nTargetLangs=ar,zh"
-            )
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "injectRtlDirection",
+                    "--contentI18nOutput=content-i18n",
+                    "--contentI18nTargetLangs=ar,zh",
+                ).build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
         val arArticle = projectDir.resolve("content-i18n/ar/blog/post.adoc").readText()
@@ -147,11 +149,13 @@ class InjectRtlDirectionFunctionalTest {
     fun `injectRtlDirection is registered in transform group`() {
         createMiniSiteWithTranslatedCopy()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("tasks", "--group", "transform")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("tasks", "--group", "transform")
+                .build()
 
         assertThat(result.output).contains("injectRtlDirection")
     }
@@ -160,15 +164,16 @@ class InjectRtlDirectionFunctionalTest {
     fun `injectRtlDirection handles 10 target languages`() {
         createMiniSiteWithTranslatedCopy()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments(
-                "injectRtlDirection",
-                "--contentI18nOutput=content-i18n",
-                "--contentI18nTargetLangs=en,zh,hi,es,ar,bn,pt,ru,ur"
-            )
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "injectRtlDirection",
+                    "--contentI18nOutput=content-i18n",
+                    "--contentI18nTargetLangs=en,zh,hi,es,ar,bn,pt,ru,ur",
+                ).build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
         val arArticle = projectDir.resolve("content-i18n/ar/blog/post.adoc").readText()
@@ -183,22 +188,28 @@ class InjectRtlDirectionFunctionalTest {
     }
 
     private fun createMiniSiteWithTranslatedCopy() {
-        projectDir.resolve("settings.gradle.kts").writeText("""
+        projectDir.resolve("settings.gradle.kts").writeText(
+            """
             pluginManagement { repositories { gradlePluginPortal(); mavenLocal() } }
             rootProject.name = "inject-rtl-direction-test"
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
-        projectDir.resolve("build.gradle.kts").writeText("""
+        projectDir.resolve("build.gradle.kts").writeText(
+            """
             plugins { id("education.cccp.bakery") }
             bakery { configPath = "site.yml" }
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
-        projectDir.resolve("site.yml").writeText("""
+        projectDir.resolve("site.yml").writeText(
+            """
             bake:
               srcPath: "jbake"
               destDirPath: "bake"
               cname: "cheroliv.com"
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
         val jbakeDir = projectDir.resolve("jbake").apply { mkdirs() }
         jbakeDir.resolve("templates").mkdirs()

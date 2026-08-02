@@ -4,13 +4,13 @@ import bakery.ThemeConfig
 
 data class ResolvedTheme(
     val theme: ThemeConfig,
-    val resolvedAtPath: String
+    val resolvedAtPath: String,
 )
 
 class ThemeResolver(
     private val tree: SiteTree,
     private val overrides: Map<String, ThemeConfig> = emptyMap(),
-    private val default: ThemeConfig = ThemeConfig()
+    private val default: ThemeConfig = ThemeConfig(),
 ) {
     init {
         val knownPaths = tree.walk().map { it.path }.toSet()
@@ -31,8 +31,7 @@ class ThemeResolver(
         return ResolvedTheme(default, "")
     }
 
-    fun resolveAll(): Map<String, ResolvedTheme> =
-        tree.walk().associateBy({ it.path }, { effectiveTheme(it) })
+    fun resolveAll(): Map<String, ResolvedTheme> = tree.walk().associateBy({ it.path }, { effectiveTheme(it) })
 
     private fun ancestorChain(node: SiteNode): List<String> =
         if (node is SiteNode.Site) {

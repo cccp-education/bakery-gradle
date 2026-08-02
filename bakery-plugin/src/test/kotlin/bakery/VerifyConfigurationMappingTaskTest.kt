@@ -17,20 +17,22 @@ import java.io.File
  * de configuration.
  */
 class VerifyConfigurationMappingTaskTest {
-
     @TempDir
     lateinit var tempDir: File
 
     private fun createTask(): VerifyConfigurationMappingTask {
-        val project = ProjectBuilder.builder()
-            .withProjectDir(tempDir)
-            .withName("test-verify-mapping")
-            .build()
+        val project =
+            ProjectBuilder
+                .builder()
+                .withProjectDir(tempDir)
+                .withName("test-verify-mapping")
+                .build()
         project.pluginManager.apply("java-base")
-        return project.tasks.register(
-            "verifyConfigurationMapping",
-            VerifyConfigurationMappingTask::class.java
-        ).get()
+        return project.tasks
+            .register(
+                "verifyConfigurationMapping",
+                VerifyConfigurationMappingTask::class.java,
+            ).get()
     }
 
     private fun writeValidSiteYml(file: File) {
@@ -88,7 +90,7 @@ class VerifyConfigurationMappingTaskTest {
               apiKey: "AIzaSy-auth-api-key"
               authDomain: "test-project.firebaseapp.com"
               projectId: "test-project"
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 
@@ -124,22 +126,22 @@ class VerifyConfigurationMappingTaskTest {
               apiKey: "AIzaSy-auth-api-key"
               authDomain: "test-project.firebaseapp.com"
               projectId: "test-project"
-            """.trimIndent()
+            """.trimIndent(),
         )
     }
 
     @Nested
     inner class ValidConfigurationTest {
-
         @Test
         fun `task reads valid site yml and produces masked config summary`() {
             val siteYml = tempDir.resolve("site.yml")
             writeValidSiteYml(siteYml)
 
             val task = createTask()
-            val summary = task.buildMaskedSummary(
-                FileSystemManager.yamlMapper.readValue(siteYml)
-            )
+            val summary =
+                task.buildMaskedSummary(
+                    FileSystemManager.yamlMapper.readValue(siteYml),
+                )
 
             assertThat(summary).contains("srcPath=site")
             assertThat(summary).contains("destDirPath=build/bake")
@@ -154,9 +156,10 @@ class VerifyConfigurationMappingTaskTest {
             writeValidSiteYml(siteYml)
 
             val task = createTask()
-            val summary = task.buildMaskedSummary(
-                FileSystemManager.yamlMapper.readValue(siteYml)
-            )
+            val summary =
+                task.buildMaskedSummary(
+                    FileSystemManager.yamlMapper.readValue(siteYml),
+                )
 
             assertThat(summary).contains("credentials.password=***")
             assertThat(summary).doesNotContain("secret-token-42")
@@ -168,9 +171,10 @@ class VerifyConfigurationMappingTaskTest {
             writeValidSiteYml(siteYml)
 
             val task = createTask()
-            val summary = task.buildMaskedSummary(
-                FileSystemManager.yamlMapper.readValue(siteYml)
-            )
+            val summary =
+                task.buildMaskedSummary(
+                    FileSystemManager.yamlMapper.readValue(siteYml),
+                )
 
             assertThat(summary).contains("firebase.apiKey=AIza***-key")
             assertThat(summary).doesNotContain("AIzaSy-test-api-key")
@@ -182,9 +186,10 @@ class VerifyConfigurationMappingTaskTest {
             writeSiteYmlWithFirebaseAuth(siteYml)
 
             val task = createTask()
-            val summary = task.buildMaskedSummary(
-                FileSystemManager.yamlMapper.readValue(siteYml)
-            )
+            val summary =
+                task.buildMaskedSummary(
+                    FileSystemManager.yamlMapper.readValue(siteYml),
+                )
 
             assertThat(summary).contains("firebaseAuth.apiKey=AIza***-key")
             assertThat(summary).doesNotContain("AIzaSy-auth-api-key")
@@ -203,15 +208,15 @@ class VerifyConfigurationMappingTaskTest {
 
     @Nested
     inner class ErrorHandlingTest {
-
         @Test
         fun `task fails when configPath file does not exist`() {
             val task = createTask()
             task.configPath.set(tempDir.resolve("nonexistent.yml").absolutePath)
 
-            val exception = assertThrows<GradleException> {
-                task.verify()
-            }
+            val exception =
+                assertThrows<GradleException> {
+                    task.verify()
+                }
             assertThat(exception.message).contains("Configuration file not found")
         }
 
@@ -223,9 +228,10 @@ class VerifyConfigurationMappingTaskTest {
             val task = createTask()
             task.configPath.set(siteYml.absolutePath)
 
-            val exception = assertThrows<GradleException> {
-                task.verify()
-            }
+            val exception =
+                assertThrows<GradleException> {
+                    task.verify()
+                }
             assertThat(exception.message).contains("Failed to parse configuration file")
         }
 
@@ -256,15 +262,16 @@ class VerifyConfigurationMappingTaskTest {
                       password: "token"
                   branch: "main"
                   message: "Deploy maquette"
-                """.trimIndent()
+                """.trimIndent(),
             )
 
             val task = createTask()
             task.configPath.set(siteYml.absolutePath)
 
-            val exception = assertThrows<GradleException> {
-                task.verify()
-            }
+            val exception =
+                assertThrows<GradleException> {
+                    task.verify()
+                }
             assertThat(exception.message).contains("Missing required configuration fields")
             assertThat(exception.message).contains("bake.srcPath")
         }
@@ -272,7 +279,6 @@ class VerifyConfigurationMappingTaskTest {
 
     @Nested
     inner class MaskingUnitTest {
-
         @Test
         fun `maskSecret Password returns not set for blank`() {
             assertThat(maskSecret(SecretField.Password(""))).isEqualTo("(not set)")

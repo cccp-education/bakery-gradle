@@ -17,7 +17,6 @@ import com.microsoft.playwright.Playwright
  * Thread-safe via synchronized blocks.
  */
 object PlaywrightPool {
-
     @Volatile
     private var playwright: Playwright? = null
 
@@ -37,9 +36,12 @@ object PlaywrightPool {
         if (browser != null) return browser!!
 
         playwright = Playwright.create()
-        browser = playwright!!.chromium().launch(
-            com.microsoft.playwright.BrowserType.LaunchOptions().setHeadless(true)
-        )
+        browser =
+            playwright!!.chromium().launch(
+                com.microsoft.playwright.BrowserType
+                    .LaunchOptions()
+                    .setHeadless(true),
+            )
         return browser!!
     }
 
@@ -47,20 +49,25 @@ object PlaywrightPool {
      * Checks if Playwright + Chromium are available without keeping
      * the instances alive. Used for skip-if-missing assumptions.
      */
-    fun isAvailable(): Boolean = try {
-        Playwright.create().use { pw ->
-            pw.chromium().launch(
-                com.microsoft.playwright.BrowserType.LaunchOptions().setHeadless(true)
-            ).use { browser ->
-                browser.newPage().use { page ->
-                    page.navigate("data:text/html,<h1>test</h1>")
-                }
+    fun isAvailable(): Boolean =
+        try {
+            Playwright.create().use { pw ->
+                pw
+                    .chromium()
+                    .launch(
+                        com.microsoft.playwright.BrowserType
+                            .LaunchOptions()
+                            .setHeadless(true),
+                    ).use { browser ->
+                        browser.newPage().use { page ->
+                            page.navigate("data:text/html,<h1>test</h1>")
+                        }
+                    }
             }
+            true
+        } catch (_: Throwable) {
+            false
         }
-        true
-    } catch (_: Throwable) {
-        false
-    }
 
     /**
      * Closes the shared Browser + Playwright. Safe to call multiple times.

@@ -2,7 +2,6 @@ package bakery.scaffold
 
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 /**
  * Tests unitaires pour [ScaffoldIntentionDsl] — bridge Gradle → domaine.
@@ -10,15 +9,15 @@ import kotlin.test.assertTrue
  * Baby-step TDD : chaque test valide que la DSL produit une [ScaffoldIntention] correcte.
  */
 class ScaffoldIntentionDslTest {
-
     @Test
     fun `toIntention converts DSL values to domain model`() {
-        val dsl = ScaffoldIntentionDsl().apply {
-            description = "Mon site de portfolio"
-            siteType = "portfolio"
-            lang = "en"
-            projectName = "my-portfolio"
-        }
+        val dsl =
+            ScaffoldIntentionDsl().apply {
+                description = "Mon site de portfolio"
+                siteType = "portfolio"
+                lang = "en"
+                projectName = "my-portfolio"
+            }
 
         val intention = dsl.toIntention()
 
@@ -30,9 +29,10 @@ class ScaffoldIntentionDslTest {
 
     @Test
     fun `toIntention uses defaults for unspecified values`() {
-        val dsl = ScaffoldIntentionDsl().apply {
-            description = "Un blog"
-        }
+        val dsl =
+            ScaffoldIntentionDsl().apply {
+                description = "Un blog"
+            }
 
         val intention = dsl.toIntention()
 
@@ -53,10 +53,11 @@ class ScaffoldIntentionDslTest {
 
     @Test
     fun `toIntention resolves site type case insensitive`() {
-        val dsl = ScaffoldIntentionDsl().apply {
-            description = "Test"
-            siteType = "FORMATION"
-        }
+        val dsl =
+            ScaffoldIntentionDsl().apply {
+                description = "Test"
+                siteType = "FORMATION"
+            }
 
         val intention = dsl.toIntention()
         assertEquals(ScaffoldSiteType.FORMATION, intention.siteType)
@@ -64,10 +65,11 @@ class ScaffoldIntentionDslTest {
 
     @Test
     fun `toIntention falls back to BLOG for unknown site type`() {
-        val dsl = ScaffoldIntentionDsl().apply {
-            description = "Test"
-            siteType = "unknown-type"
-        }
+        val dsl =
+            ScaffoldIntentionDsl().apply {
+                description = "Test"
+                siteType = "unknown-type"
+            }
 
         val intention = dsl.toIntention()
         assertEquals(ScaffoldSiteType.BLOG, intention.siteType)

@@ -4,16 +4,21 @@ import org.gradle.api.Project
 import java.io.File
 
 object ConfigPrompts {
-
     fun Project.getOrPrompt(
         propertyName: String,
         cliProperty: String,
         sensitive: Boolean = false,
         example: String? = null,
-        default: String? = null
-    ): String = ConfigPromptM.resolveOrPrompt(
-        propertyName, cliProperty, sensitive, example, default
-    ).run(ConfigPromptEnvironment.defaultFor(logger, this))
+        default: String? = null,
+    ): String =
+        ConfigPromptM
+            .resolveOrPrompt(
+                propertyName,
+                cliProperty,
+                sensitive,
+                example,
+                default,
+            ).run(ConfigPromptEnvironment.defaultFor(logger, this))
 
     fun File.saveConfiguration(
         currentConfig: SiteConfiguration,
@@ -24,19 +29,21 @@ object ConfigPrompts {
     ) {
         if (username.isBlank() && repo.isBlank() && token.isBlank()) return
 
-        val updatedPushPage = currentConfig.pushPage.copy(
-            repo = currentConfig.pushPage.repo.copy(
-                repository = if (repo.isNotBlank()) repo else currentConfig.pushPage.repo.repository,
-                credentials = RepositoryCredentials(
-                    username = if (username.isNotBlank()) username else currentConfig.pushPage.repo.credentials.username,
-                    password = if (token.isNotBlank()) token else currentConfig.pushPage.repo.credentials.password,
-                )
+        val updatedPushPage =
+            currentConfig.pushPage.copy(
+                repo =
+                    currentConfig.pushPage.repo.copy(
+                        repository = if (repo.isNotBlank()) repo else currentConfig.pushPage.repo.repository,
+                        credentials =
+                            RepositoryCredentials(
+                                username = if (username.isNotBlank()) username else currentConfig.pushPage.repo.credentials.username,
+                                password = if (token.isNotBlank()) token else currentConfig.pushPage.repo.credentials.password,
+                            ),
+                    ),
             )
-        )
 
         val updatedConfig = currentConfig.copy(pushPage = updatedPushPage)
 
         FileSystemManager.yamlMapper.writeValue(siteYmlFile, updatedConfig)
     }
-
 }

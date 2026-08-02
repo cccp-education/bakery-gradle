@@ -26,7 +26,6 @@ import java.util.Properties
  * Non-`.thyme` files are ignored.
  */
 class PostMigrationSnapshotLoader {
-
     fun load(postMigrationDir: File): PostMigrationSnapshot {
         if (!postMigrationDir.exists()) {
             throw IOException("Post-migration directory not found: ${postMigrationDir.absolutePath}")
@@ -40,13 +39,14 @@ class PostMigrationSnapshotLoader {
         return PostMigrationSnapshot(
             templatesMigrated = templatesMigrated,
             messagesFr = messagesFr,
-            messagesEn = messagesEn
+            messagesEn = messagesEn,
         )
     }
 
     private fun loadTemplates(templatesDir: File): Map<String, String> {
         if (!templatesDir.exists()) return emptyMap()
-        return templatesDir.walkTopDown()
+        return templatesDir
+            .walkTopDown()
             .filter { it.isFile && it.extension == "thyme" }
             .associate { file ->
                 val relativePath = file.relativeTo(templatesDir).path

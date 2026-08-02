@@ -2,7 +2,6 @@ package bakery.scaffold
 
 import bakery.llm.LlmService
 import bakery.tree.SiteNode
-import bakery.tree.SiteNodeDto
 import bakery.tree.flattenTemplates
 import bakery.tree.toDomain
 import bakery.util.slugify
@@ -19,14 +18,16 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
  * Pattern identique a [bakery.article.ArticleGenerator].
  */
 class ScaffoldGenerator {
-
     /**
      * Genere une structure de site a partir d'une intention.
      *
      * Surcharge DDD : la [ScaffoldIntention] encapsule la description,
      * le type de site, la langue et le nom du projet pour guider le LLM.
      */
-    suspend fun generate(intention: ScaffoldIntention, llm: LlmService): ScaffoldOutput {
+    suspend fun generate(
+        intention: ScaffoldIntention,
+        llm: LlmService,
+    ): ScaffoldOutput {
         val prompt = buildPrompt(intention)
         val response = llm.complete(prompt)
         return parseResponse(response, intention)
@@ -41,7 +42,8 @@ class ScaffoldGenerator {
      * TREE-7 : le prompt demande une structure hierarchique `tree` (Site→
      * Section→Article) en plus de la liste plate `templates` (backward compat).
      */
-    internal fun buildPrompt(intention: ScaffoldIntention): String = """
+    internal fun buildPrompt(intention: ScaffoldIntention): String =
+        """
         Tu es un expert en architecture de sites statiques JBake.
         Genere la structure JSON pour un site statique correspondant a la demande suivante.
 
@@ -100,7 +102,7 @@ class ScaffoldGenerator {
         - Le champ metadata.title DOIT etre clair et descriptif
         - Le champ metadata.tags DOIT contenir 3 a 5 tags pertinents
         - Reponds UNIQUEMENT avec le JSON, sans texte avant ou apres
-    """.trimIndent()
+        """.trimIndent()
 
     /**
      * Parse la reponse LLM en [ScaffoldOutput].
@@ -110,7 +112,10 @@ class ScaffoldGenerator {
      * 2. Parse les champs obligatoires (siteType, projectName, description)
      * 3. Fallback : si parsing echoue, genere une structure minimale depuis l'intention
      */
-    internal fun parseResponse(response: String, intention: ScaffoldIntention): ScaffoldOutput {
+    internal fun parseResponse(
+        response: String,
+        intention: ScaffoldIntention,
+    ): ScaffoldOutput {
         if (response.isBlank()) {
             return fallbackOutput(intention)
         }
@@ -147,35 +152,44 @@ class ScaffoldGenerator {
      * (tree prioritaire sur templates liste plate). Si `tree` absent, fallback
      * `templates` legacy (backward compat).
      */
-    private fun parseJsonOutput(json: String, intention: ScaffoldIntention): ScaffoldOutput {
-        val mapper = jacksonObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+    private fun parseJsonOutput(
+        json: String,
+        intention: ScaffoldIntention,
+    ): ScaffoldOutput {
+        val mapper =
+            jacksonObjectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-        val dto = try {
-            mapper.readValue(json, ScaffoldOutputDto::class.java)
-        } catch (_: Exception) {
-            return fallbackOutput(intention)
-        }
+        val dto =
+            try {
+                mapper.readValue(json, ScaffoldOutputDto::class.java)
+            } catch (_: Exception) {
+                return fallbackOutput(intention)
+            }
 
-        val siteType = dto.siteType
-            ?.let { ScaffoldSiteType.fromStringOrDefault(it) }
-            ?: intention.siteType
+        val siteType =
+            dto.siteType
+                ?.let { ScaffoldSiteType.fromStringOrDefault(it) }
+                ?: intention.siteType
 
-        val projectName = dto.projectName
-            ?.takeIf { it.isNotBlank() }
-            ?: intention.projectName.ifBlank { intention.description.slugify() }
+        val projectName =
+            dto.projectName
+                ?.takeIf { it.isNotBlank() }
+                ?: intention.projectName.ifBlank { intention.description.slugify() }
 
         val description = dto.description ?: intention.description
 
         val tree: SiteNode? = dto.tree?.toDomain()
 
-        val templates = when {
-            tree != null -> tree.flattenTemplates().ifEmpty { defaultTemplatesFor(siteType) }
-            else -> dto.templates
-                ?.filter { it.isNotBlank() }
-                ?.ifEmpty { null }
-                ?: defaultTemplatesFor(siteType)
-        }
+        val templates =
+            when {
+                tree != null -> tree.flattenTemplates().ifEmpty { defaultTemplatesFor(siteType) }
+                else ->
+                    dto.templates
+                        ?.filter { it.isNotBlank() }
+                        ?.ifEmpty { null }
+                        ?: defaultTemplatesFor(siteType)
+            }
 
         val metadata = dto.metadata
 
@@ -185,39 +199,43 @@ class ScaffoldGenerator {
             description = description,
             templates = templates,
             tree = tree,
-            metadata = ScaffoldMetadata(
-                title = metadata?.title?.takeIf { it.isNotBlank() } ?: projectName,
-                description = metadata?.description?.takeIf { it.isNotBlank() } ?: description,
-                tags = metadata?.tags?.filter { it.isNotBlank() }?.ifEmpty { null }
-                    ?: listOf(intention.description.slugify()),
-                layout = metadata?.layout?.takeIf { it.isNotBlank() } ?: "post",
-                language = metadata?.language?.takeIf { it.isNotBlank() } ?: intention.lang
-            )
+            metadata =
+                ScaffoldMetadata(
+                    title = metadata?.title?.takeIf { it.isNotBlank() } ?: projectName,
+                    description = metadata?.description?.takeIf { it.isNotBlank() } ?: description,
+                    tags =
+                        metadata?.tags?.filter { it.isNotBlank() }?.ifEmpty { null }
+                            ?: listOf(intention.description.slugify()),
+                    layout = metadata?.layout?.takeIf { it.isNotBlank() } ?: "post",
+                    language = metadata?.language?.takeIf { it.isNotBlank() } ?: intention.lang,
+                ),
         )
     }
 
     /**
      * Templates par defaut selon le type de site.
      */
-    private fun defaultTemplatesFor(siteType: ScaffoldSiteType): List<String> = when (siteType) {
-        ScaffoldSiteType.BLOG -> listOf("blog.thyme", "post.thyme", "page.thyme")
-        ScaffoldSiteType.PORTFOLIO -> listOf("page.thyme", "project-list.thyme", "project-detail.thyme")
-        ScaffoldSiteType.DOC -> listOf("page.thyme", "section.thyme", "search.thyme")
-        ScaffoldSiteType.FORMATION -> listOf("page.thyme", "session.thyme", "module.thyme")
-    }
+    private fun defaultTemplatesFor(siteType: ScaffoldSiteType): List<String> =
+        when (siteType) {
+            ScaffoldSiteType.BLOG -> listOf("blog.thyme", "post.thyme", "page.thyme")
+            ScaffoldSiteType.PORTFOLIO -> listOf("page.thyme", "project-list.thyme", "project-detail.thyme")
+            ScaffoldSiteType.DOC -> listOf("page.thyme", "section.thyme", "search.thyme")
+            ScaffoldSiteType.FORMATION -> listOf("page.thyme", "session.thyme", "module.thyme")
+        }
 
-    private fun fallbackOutput(intention: ScaffoldIntention): ScaffoldOutput = ScaffoldOutput(
-        siteType = intention.siteType,
-        projectName = intention.projectName.ifBlank { intention.description.slugify() },
-        description = intention.description,
-        templates = defaultTemplatesFor(intention.siteType),
-        metadata = ScaffoldMetadata(
-            title = intention.projectName.ifBlank { intention.description },
+    private fun fallbackOutput(intention: ScaffoldIntention): ScaffoldOutput =
+        ScaffoldOutput(
+            siteType = intention.siteType,
+            projectName = intention.projectName.ifBlank { intention.description.slugify() },
             description = intention.description,
-            tags = listOf(intention.description.slugify()),
-            layout = "post",
-            language = intention.lang
+            templates = defaultTemplatesFor(intention.siteType),
+            metadata =
+                ScaffoldMetadata(
+                    title = intention.projectName.ifBlank { intention.description },
+                    description = intention.description,
+                    tags = listOf(intention.description.slugify()),
+                    layout = "post",
+                    language = intention.lang,
+                ),
         )
-    )
-
 }

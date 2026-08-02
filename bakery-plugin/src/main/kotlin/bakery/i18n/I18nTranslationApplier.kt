@@ -10,8 +10,10 @@ import java.util.Properties
  * d'un map de traductions validées, après migration automatique.
  */
 object I18nTranslationApplier {
-
-    fun applyTranslations(targetFile: File, translations: Map<String, String>): Boolean {
+    fun applyTranslations(
+        targetFile: File,
+        translations: Map<String, String>,
+    ): Boolean {
         if (!targetFile.exists()) return false
 
         val props = Properties()

@@ -11,7 +11,6 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 class SiteNodeTest {
-
     @Test
     fun `empty site has root path and no children`() {
         val site = Site(path = "", sections = emptyList())
@@ -127,19 +126,21 @@ class SiteNodeTest {
 
     @Test
     fun `sealed interface exhausts to site section article`() {
-        val nodes: List<SiteNode> = listOf(
-            Site(path = "", sections = emptyList()),
-            Section(path = "s", articles = emptyList()),
-            Article(path = "s/a")
-        )
+        val nodes: List<SiteNode> =
+            listOf(
+                Site(path = "", sections = emptyList()),
+                Section(path = "s", articles = emptyList()),
+                Article(path = "s/a"),
+            )
 
-        val labels = nodes.map {
-            when (it) {
-                is Site -> "site"
-                is Section -> "section"
-                is Article -> "article"
+        val labels =
+            nodes.map {
+                when (it) {
+                    is Site -> "site"
+                    is Section -> "section"
+                    is Article -> "article"
+                }
             }
-        }
 
         assertEquals(listOf("site", "section", "article"), labels)
     }

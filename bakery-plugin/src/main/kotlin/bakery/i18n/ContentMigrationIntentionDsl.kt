@@ -9,13 +9,14 @@ open class ContentMigrationIntentionDsl {
     var excludePaths: List<String> = emptyList()
     var parallelism: Int = 1
 
-    fun toIntention(): ContentMigrationIntention = ContentMigrationIntention(
-        sourceDir = sourceDir,
-        outputDir = outputDir,
-        sourceLanguage = sourceLanguage,
-        targetLanguages = targetLanguages,
-        dryRun = dryRun,
-        excludePaths = excludePaths,
-        parallelism = parallelism
-    )
+    fun toIntention(): ContentMigrationIntention =
+        ContentMigrationIntention(
+            sourceDir = sourceDir,
+            outputDir = outputDir,
+            sourceLanguage = sourceLanguage,
+            targetLanguages = targetLanguages,
+            dryRun = dryRun,
+            excludePaths = excludePaths,
+            parallelism = parallelism,
+        )
 }

@@ -6,7 +6,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class I18nMigrationIntentionTest {
-
     @Test
     fun `minimal intention with siteDir only has default values`() {
         val intention = I18nMigrationIntention(siteDir = "/path/to/site")
@@ -19,12 +18,13 @@ class I18nMigrationIntentionTest {
 
     @Test
     fun `full intention with all parameters`() {
-        val intention = I18nMigrationIntention(
-            siteDir = "/home/site",
-            languages = listOf("en", "ar", "zh"),
-            defaultLanguage = "en",
-            dryRun = false
-        )
+        val intention =
+            I18nMigrationIntention(
+                siteDir = "/home/site",
+                languages = listOf("en", "ar", "zh"),
+                defaultLanguage = "en",
+                dryRun = false,
+            )
 
         assertEquals("/home/site", intention.siteDir)
         assertEquals(listOf("en", "ar", "zh"), intention.languages)
@@ -70,22 +70,24 @@ class I18nMigrationIntentionTest {
     @Test
     fun `intention accepts all 10 supported languages`() {
         val codes = setOf("fr", "en", "zh", "hi", "es", "ar", "bn", "pt", "ru", "ur")
-        val intention = I18nMigrationIntention(
-            siteDir = "/path",
-            languages = codes.toList(),
-            defaultLanguage = "fr"
-        )
+        val intention =
+            I18nMigrationIntention(
+                siteDir = "/path",
+                languages = codes.toList(),
+                defaultLanguage = "fr",
+            )
         assertEquals(codes.toList(), intention.languages)
     }
 
     @Test
     fun `toPromptContext includes all fields`() {
-        val intention = I18nMigrationIntention(
-            siteDir = "/home/site",
-            languages = listOf("en", "ar"),
-            defaultLanguage = "fr",
-            dryRun = true
-        )
+        val intention =
+            I18nMigrationIntention(
+                siteDir = "/home/site",
+                languages = listOf("en", "ar"),
+                defaultLanguage = "fr",
+                dryRun = true,
+            )
         val context = intention.toPromptContext()
 
         assertTrue(context.contains("/home/site"), "Must contain siteDir")
@@ -96,11 +98,12 @@ class I18nMigrationIntentionTest {
 
     @Test
     fun `toPromptContext with dryRun false`() {
-        val intention = I18nMigrationIntention(
-            siteDir = "/path",
-            languages = listOf("en"),
-            dryRun = false
-        )
+        val intention =
+            I18nMigrationIntention(
+                siteDir = "/path",
+                languages = listOf("en"),
+                dryRun = false,
+            )
         val context = intention.toPromptContext()
 
         assertTrue(context.contains("false"), "Must contain dryRun=false")

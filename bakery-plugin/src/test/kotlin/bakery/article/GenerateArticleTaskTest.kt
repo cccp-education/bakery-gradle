@@ -18,11 +18,11 @@ import kotlin.test.assertTrue
  * la dépendance à une vraie instance Ollama.
  */
 class GenerateArticleTaskTest {
-
     @TempDir
     lateinit var tempDir: File
 
-    private val sampleArticle = """
+    private val sampleArticle =
+        """
         = Découvrir Kotlin pour Gradle
         :description: Un guide pratique pour débuter avec Kotlin et Gradle
         :tags: kotlin, gradle, tutoriel
@@ -35,14 +35,16 @@ class GenerateArticleTaskTest {
         == Premiers pas
 
         `./gradlew build` compile votre projet.
-    """.trimIndent()
+        """.trimIndent()
 
     @Test
     fun `task is registered with correct group and description`() {
-        val project = ProjectBuilder.builder()
-            .withProjectDir(tempDir)
-            .withName("test-article")
-            .build()
+        val project =
+            ProjectBuilder
+                .builder()
+                .withProjectDir(tempDir)
+                .withName("test-article")
+                .build()
         project.pluginManager.apply("java-base")
 
         val task = project.tasks.register("generateArticle", GenerateArticleTask::class.java).get()
@@ -55,10 +57,12 @@ class GenerateArticleTaskTest {
 
     @Test
     fun `executeGenerate creates article file in content dir`() {
-        val project = ProjectBuilder.builder()
-            .withProjectDir(tempDir)
-            .withName("test-article-gen")
-            .build()
+        val project =
+            ProjectBuilder
+                .builder()
+                .withProjectDir(tempDir)
+                .withName("test-article-gen")
+                .build()
         project.pluginManager.apply("java-base")
 
         val contentRoot = tempDir.resolve("site")
@@ -79,10 +83,12 @@ class GenerateArticleTaskTest {
 
     @Test
     fun `executeGenerate writes AsciiDoc content with metadata`() {
-        val project = ProjectBuilder.builder()
-            .withProjectDir(tempDir)
-            .withName("test-article-meta")
-            .build()
+        val project =
+            ProjectBuilder
+                .builder()
+                .withProjectDir(tempDir)
+                .withName("test-article-meta")
+                .build()
         project.pluginManager.apply("java-base")
 
         val contentRoot = tempDir.resolve("mysite")
@@ -109,61 +115,72 @@ class GenerateArticleTaskTest {
 
     @Test
     fun `executeGenerate fails with meaningful error when no topic set`() {
-        val project = ProjectBuilder.builder()
-            .withProjectDir(tempDir)
-            .withName("test-article-no-topic")
-            .build()
+        val project =
+            ProjectBuilder
+                .builder()
+                .withProjectDir(tempDir)
+                .withName("test-article-no-topic")
+                .build()
         project.pluginManager.apply("java-base")
 
         val task = project.tasks.register("generateArticle", GenerateArticleTask::class.java).get()
 
-        val exception = org.junit.jupiter.api.assertThrows<java.lang.IllegalArgumentException> {
-            task.executeGenerate()
-        }
+        val exception =
+            org.junit.jupiter.api.assertThrows<java.lang.IllegalArgumentException> {
+                task.executeGenerate()
+            }
         assertTrue(exception.message?.contains("-Ptopic") == true)
     }
 
     @Test
     fun `executeGenerate fails with meaningful error when no llmService injected`() {
-        val project = ProjectBuilder.builder()
-            .withProjectDir(tempDir)
-            .withName("test-article-no-llm")
-            .build()
+        val project =
+            ProjectBuilder
+                .builder()
+                .withProjectDir(tempDir)
+                .withName("test-article-no-llm")
+                .build()
         project.pluginManager.apply("java-base")
 
         val task = project.tasks.register("generateArticle", GenerateArticleTask::class.java).get()
         task.topic.set("Sujet test")
 
-        val exception = org.junit.jupiter.api.assertThrows<java.lang.IllegalStateException> {
-            task.executeGenerate()
-        }
+        val exception =
+            org.junit.jupiter.api.assertThrows<java.lang.IllegalStateException> {
+                task.executeGenerate()
+            }
         assertTrue(exception.message?.contains("LlmService") == true)
     }
 
     @Test
     fun `executeGenerate fails with meaningful error when no contentRootDir configured`() {
-        val project = ProjectBuilder.builder()
-            .withProjectDir(tempDir)
-            .withName("test-article-no-root")
-            .build()
+        val project =
+            ProjectBuilder
+                .builder()
+                .withProjectDir(tempDir)
+                .withName("test-article-no-root")
+                .build()
         project.pluginManager.apply("java-base")
 
         val task = project.tasks.register("generateArticle", GenerateArticleTask::class.java).get()
         task.topic.set("Sujet test")
         task.llmService = FakeLlmService(sampleArticle)
 
-        val exception = org.junit.jupiter.api.assertThrows<java.lang.IllegalStateException> {
-            task.executeGenerate()
-        }
+        val exception =
+            org.junit.jupiter.api.assertThrows<java.lang.IllegalStateException> {
+                task.executeGenerate()
+            }
         assertTrue(exception.message?.contains("contentRootDir") == true)
     }
 
     @Test
     fun `executeGenerate respects custom topic from CLI`() {
-        val project = ProjectBuilder.builder()
-            .withProjectDir(tempDir)
-            .withName("test-article-topic")
-            .build()
+        val project =
+            ProjectBuilder
+                .builder()
+                .withProjectDir(tempDir)
+                .withName("test-article-topic")
+                .build()
         project.pluginManager.apply("java-base")
 
         val contentRoot = tempDir.resolve("site")
@@ -182,10 +199,12 @@ class GenerateArticleTaskTest {
 
     @Test
     fun `executeGenerate creates slug-based filename`() {
-        val project = ProjectBuilder.builder()
-            .withProjectDir(tempDir)
-            .withName("test-article-slug")
-            .build()
+        val project =
+            ProjectBuilder
+                .builder()
+                .withProjectDir(tempDir)
+                .withName("test-article-slug")
+                .build()
         project.pluginManager.apply("java-base")
 
         val contentRoot = tempDir.resolve("site")
@@ -201,18 +220,22 @@ class GenerateArticleTaskTest {
         val articleFile = blogDir.listFiles()?.firstOrNull { it.name.endsWith(".adoc") }
         assertNotNull(articleFile)
 
-        assertTrue(articleFile!!.name.startsWith("decouvrir-kotlin-pour-gradle"),
-            "Filename should be based on slug: ${articleFile.name}")
+        assertTrue(
+            articleFile!!.name.startsWith("decouvrir-kotlin-pour-gradle"),
+            "Filename should be based on slug: ${articleFile.name}",
+        )
     }
 
     // ── resolveIntention() — BKY-JB-8 ──────────────────────────────────
 
     @Test
     fun `resolveIntention with topic only uses defaults`() {
-        val project = ProjectBuilder.builder()
-            .withProjectDir(tempDir)
-            .withName("test-resolve-intention")
-            .build()
+        val project =
+            ProjectBuilder
+                .builder()
+                .withProjectDir(tempDir)
+                .withName("test-resolve-intention")
+                .build()
         project.pluginManager.apply("java-base")
 
         val task = project.tasks.register("generateArticle", GenerateArticleTask::class.java).get()
@@ -229,10 +252,12 @@ class GenerateArticleTaskTest {
 
     @Test
     fun `resolveIntention with CLI ton overrides default`() {
-        val project = ProjectBuilder.builder()
-            .withProjectDir(tempDir)
-            .withName("test-cli-ton")
-            .build()
+        val project =
+            ProjectBuilder
+                .builder()
+                .withProjectDir(tempDir)
+                .withName("test-cli-ton")
+                .build()
         project.pluginManager.apply("java-base")
 
         val task = project.tasks.register("generateArticle", GenerateArticleTask::class.java).get()
@@ -246,10 +271,12 @@ class GenerateArticleTaskTest {
 
     @Test
     fun `resolveIntention with CLI audience overrides default`() {
-        val project = ProjectBuilder.builder()
-            .withProjectDir(tempDir)
-            .withName("test-cli-audience")
-            .build()
+        val project =
+            ProjectBuilder
+                .builder()
+                .withProjectDir(tempDir)
+                .withName("test-cli-audience")
+                .build()
         project.pluginManager.apply("java-base")
 
         val task = project.tasks.register("generateArticle", GenerateArticleTask::class.java).get()
@@ -263,10 +290,12 @@ class GenerateArticleTaskTest {
 
     @Test
     fun `resolveIntention with CLI keywords parses comma-separated`() {
-        val project = ProjectBuilder.builder()
-            .withProjectDir(tempDir)
-            .withName("test-cli-keywords")
-            .build()
+        val project =
+            ProjectBuilder
+                .builder()
+                .withProjectDir(tempDir)
+                .withName("test-cli-keywords")
+                .build()
         project.pluginManager.apply("java-base")
 
         val task = project.tasks.register("generateArticle", GenerateArticleTask::class.java).get()
@@ -280,21 +309,24 @@ class GenerateArticleTaskTest {
 
     @Test
     fun `resolveIntention with DSL intention overrides defaults`() {
-        val project = ProjectBuilder.builder()
-            .withProjectDir(tempDir)
-            .withName("test-dsl-intention")
-            .build()
+        val project =
+            ProjectBuilder
+                .builder()
+                .withProjectDir(tempDir)
+                .withName("test-dsl-intention")
+                .build()
         project.pluginManager.apply("java-base")
 
         val task = project.tasks.register("generateArticle", GenerateArticleTask::class.java).get()
         task.topic.set("Kotlin Flow")
-        task.dslIntention = ArticleIntention(
-            topic = "Kotlin Flow",
-            ton = ArticleTon.PEDAGOGIQUE,
-            audience = ArticleAudience.FORMATEUR,
-            rawKeywords = listOf("flow", "reactive"),
-            lang = "en"
-        )
+        task.dslIntention =
+            ArticleIntention(
+                topic = "Kotlin Flow",
+                ton = ArticleTon.PEDAGOGIQUE,
+                audience = ArticleAudience.FORMATEUR,
+                rawKeywords = listOf("flow", "reactive"),
+                lang = "en",
+            )
 
         val intention = task.resolveIntention()
 
@@ -309,19 +341,22 @@ class GenerateArticleTaskTest {
 
     @Test
     fun `resolveIntention CLI overrides DSL`() {
-        val project = ProjectBuilder.builder()
-            .withProjectDir(tempDir)
-            .withName("test-cli-overrides-dsl")
-            .build()
+        val project =
+            ProjectBuilder
+                .builder()
+                .withProjectDir(tempDir)
+                .withName("test-cli-overrides-dsl")
+                .build()
         project.pluginManager.apply("java-base")
 
         val task = project.tasks.register("generateArticle", GenerateArticleTask::class.java).get()
         task.topic.set("CLI Topic")
         task.articleTon.set("convaincre")
-        task.dslIntention = ArticleIntention(
-            topic = "DSL Topic",
-            ton = ArticleTon.INFORMATIF
-        )
+        task.dslIntention =
+            ArticleIntention(
+                topic = "DSL Topic",
+                ton = ArticleTon.INFORMATIF,
+            )
 
         val intention = task.resolveIntention()
 
@@ -331,10 +366,12 @@ class GenerateArticleTaskTest {
 
     @Test
     fun `resolveIntention fails when no topic and no DSL`() {
-        val project = ProjectBuilder.builder()
-            .withProjectDir(tempDir)
-            .withName("test-no-topic")
-            .build()
+        val project =
+            ProjectBuilder
+                .builder()
+                .withProjectDir(tempDir)
+                .withName("test-no-topic")
+                .build()
         project.pluginManager.apply("java-base")
 
         val task = project.tasks.register("generateArticle", GenerateArticleTask::class.java).get()
@@ -347,10 +384,12 @@ class GenerateArticleTaskTest {
 
     @Test
     fun `executeGenerate with intention enriches prompt`() {
-        val project = ProjectBuilder.builder()
-            .withProjectDir(tempDir)
-            .withName("test-intention-prompt")
-            .build()
+        val project =
+            ProjectBuilder
+                .builder()
+                .withProjectDir(tempDir)
+                .withName("test-intention-prompt")
+                .build()
         project.pluginManager.apply("java-base")
 
         val contentRoot = tempDir.resolve("site")

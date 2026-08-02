@@ -6,7 +6,9 @@ package bakery.llm
  * Retourne une réponse configurée à l'avance, enregistre tous les prompts reçus.
  * Inspiré de [codebase.koog.llm.FakeLlmProvider].
  */
-class FakeLlmService(private val response: String) : LlmService {
+class FakeLlmService(
+    private val response: String,
+) : LlmService {
     val promptsReceived = mutableListOf<String>()
 
     override suspend fun complete(prompt: String): String {

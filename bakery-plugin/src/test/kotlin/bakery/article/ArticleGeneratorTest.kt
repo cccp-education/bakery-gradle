@@ -15,9 +15,9 @@ import kotlin.test.assertTrue
  * Baby-step 🔴 RED : ces tests échouent (ArticleGenerator n'existe pas encore).
  */
 class ArticleGeneratorTest {
-
     // ── Sample AsciiDoc response from LLM ──────────────────────────────────
-    private val sampleAsciiDoc = """
+    private val sampleAsciiDoc =
+        """
         = Introduction à Kotlin pour les plugins Gradle
         :description: Découvrez les bases de Kotlin pour créer des plugins Gradle robustes
         :tags: kotlin, gradle, plugin, tutoriel
@@ -46,220 +46,242 @@ class ArticleGeneratorTest {
         == Conclusion
 
         Kotlin + Gradle = une combinaison puissante pour l'automatisation.
-    """.trimIndent()
+        """.trimIndent()
 
     @Test
-    fun `generate produces ArticleOutput with parsed title`() = runBlocking {
-        val fakeLlm = FakeLlmService(sampleAsciiDoc)
-        val generator = ArticleGenerator()
+    fun `generate produces ArticleOutput with parsed title`() =
+        runBlocking {
+            val fakeLlm = FakeLlmService(sampleAsciiDoc)
+            val generator = ArticleGenerator()
 
-        val article = generator.generate("Kotlin pour Gradle", fakeLlm)
+            val article = generator.generate("Kotlin pour Gradle", fakeLlm)
 
-        assertNotNull(article)
-        assertEquals("Introduction à Kotlin pour les plugins Gradle", article.titre)
-    }
-
-    @Test
-    fun `generate produces ArticleOutput with parsed description`() = runBlocking {
-        val fakeLlm = FakeLlmService(sampleAsciiDoc)
-        val generator = ArticleGenerator()
-
-        val article = generator.generate("Kotlin pour Gradle", fakeLlm)
-
-        assertEquals(
-            "Découvrez les bases de Kotlin pour créer des plugins Gradle robustes",
-            article.description
-        )
-    }
+            assertNotNull(article)
+            assertEquals("Introduction à Kotlin pour les plugins Gradle", article.titre)
+        }
 
     @Test
-    fun `generate produces ArticleOutput with parsed tags`() = runBlocking {
-        val fakeLlm = FakeLlmService(sampleAsciiDoc)
-        val generator = ArticleGenerator()
+    fun `generate produces ArticleOutput with parsed description`() =
+        runBlocking {
+            val fakeLlm = FakeLlmService(sampleAsciiDoc)
+            val generator = ArticleGenerator()
 
-        val article = generator.generate("Kotlin pour Gradle", fakeLlm)
+            val article = generator.generate("Kotlin pour Gradle", fakeLlm)
 
-        assertEquals(listOf("kotlin", "gradle", "plugin", "tutoriel"), article.tags)
-    }
-
-    @Test
-    fun `generate produces ArticleOutput with today date by default`() = runBlocking {
-        val fakeLlm = FakeLlmService(sampleAsciiDoc)
-        val generator = ArticleGenerator()
-
-        val article = generator.generate("Kotlin pour Gradle", fakeLlm)
-
-        assertEquals(LocalDate.of(2026, 5, 30), article.date)
-    }
+            assertEquals(
+                "Découvrez les bases de Kotlin pour créer des plugins Gradle robustes",
+                article.description,
+            )
+        }
 
     @Test
-    fun `generate produces ArticleOutput with slug from title`() = runBlocking {
-        val fakeLlm = FakeLlmService(sampleAsciiDoc)
-        val generator = ArticleGenerator()
+    fun `generate produces ArticleOutput with parsed tags`() =
+        runBlocking {
+            val fakeLlm = FakeLlmService(sampleAsciiDoc)
+            val generator = ArticleGenerator()
 
-        val article = generator.generate("Kotlin pour Gradle", fakeLlm)
+            val article = generator.generate("Kotlin pour Gradle", fakeLlm)
 
-        assertEquals("introduction-a-kotlin-pour-les-plugins-gradle", article.slug)
-    }
-
-    @Test
-    fun `generate produces ArticleOutput with body containing content`() = runBlocking {
-        val fakeLlm = FakeLlmService(sampleAsciiDoc)
-        val generator = ArticleGenerator()
-
-        val article = generator.generate("Kotlin pour Gradle", fakeLlm)
-
-        assertTrue(article.body.contains("Pourquoi Kotlin pour Gradle ?"))
-        assertTrue(article.body.contains("Créer son premier plugin"))
-        assertTrue(article.body.contains("Conclusion"))
-    }
+            assertEquals(listOf("kotlin", "gradle", "plugin", "tutoriel"), article.tags)
+        }
 
     @Test
-    fun `generate sends prompt containing the topic to LLM`() = runBlocking {
-        val fakeLlm = FakeLlmService(sampleAsciiDoc)
-        val generator = ArticleGenerator()
+    fun `generate produces ArticleOutput with today date by default`() =
+        runBlocking {
+            val fakeLlm = FakeLlmService(sampleAsciiDoc)
+            val generator = ArticleGenerator()
 
-        generator.generate("Kotlin pour Gradle", fakeLlm)
+            val article = generator.generate("Kotlin pour Gradle", fakeLlm)
 
-        assertTrue(fakeLlm.promptsReceived.isNotEmpty())
-        assertTrue(fakeLlm.promptsReceived.first().contains("Kotlin pour Gradle"))
-    }
-
-    @Test
-    fun `generate handles empty response gracefully`() = runBlocking {
-        val fakeLlm = FakeLlmService("") // réponse vide
-        val generator = ArticleGenerator()
-
-        val article = generator.generate("Sujet quelconque", fakeLlm)
-
-        assertNotNull(article)
-        assertFalse(article.titre.isBlank(), "Doit générer une article même sur réponse vide")
-    }
+            assertEquals(LocalDate.of(2026, 5, 30), article.date)
+        }
 
     @Test
-    fun `generate builds prompt with AsciiDoc format instruction`() = runBlocking {
-        val fakeLlm = FakeLlmService(sampleAsciiDoc)
-        val generator = ArticleGenerator()
+    fun `generate produces ArticleOutput with slug from title`() =
+        runBlocking {
+            val fakeLlm = FakeLlmService(sampleAsciiDoc)
+            val generator = ArticleGenerator()
 
-        generator.generate("Kotlin pour Gradle", fakeLlm)
+            val article = generator.generate("Kotlin pour Gradle", fakeLlm)
 
-        val prompt = fakeLlm.promptsReceived.first()
-        assertTrue(prompt.contains("AsciiDoc"), "Le prompt doit demander du format AsciiDoc")
-        assertTrue(prompt.contains(":tags:"), "Le prompt doit demander les metadata :tags:")
-        assertTrue(prompt.contains(":description:"), "Le prompt doit demander :description:")
-    }
+            assertEquals("introduction-a-kotlin-pour-les-plugins-gradle", article.slug)
+        }
+
+    @Test
+    fun `generate produces ArticleOutput with body containing content`() =
+        runBlocking {
+            val fakeLlm = FakeLlmService(sampleAsciiDoc)
+            val generator = ArticleGenerator()
+
+            val article = generator.generate("Kotlin pour Gradle", fakeLlm)
+
+            assertTrue(article.body.contains("Pourquoi Kotlin pour Gradle ?"))
+            assertTrue(article.body.contains("Créer son premier plugin"))
+            assertTrue(article.body.contains("Conclusion"))
+        }
+
+    @Test
+    fun `generate sends prompt containing the topic to LLM`() =
+        runBlocking {
+            val fakeLlm = FakeLlmService(sampleAsciiDoc)
+            val generator = ArticleGenerator()
+
+            generator.generate("Kotlin pour Gradle", fakeLlm)
+
+            assertTrue(fakeLlm.promptsReceived.isNotEmpty())
+            assertTrue(fakeLlm.promptsReceived.first().contains("Kotlin pour Gradle"))
+        }
+
+    @Test
+    fun `generate handles empty response gracefully`() =
+        runBlocking {
+            val fakeLlm = FakeLlmService("") // réponse vide
+            val generator = ArticleGenerator()
+
+            val article = generator.generate("Sujet quelconque", fakeLlm)
+
+            assertNotNull(article)
+            assertFalse(article.titre.isBlank(), "Doit générer une article même sur réponse vide")
+        }
+
+    @Test
+    fun `generate builds prompt with AsciiDoc format instruction`() =
+        runBlocking {
+            val fakeLlm = FakeLlmService(sampleAsciiDoc)
+            val generator = ArticleGenerator()
+
+            generator.generate("Kotlin pour Gradle", fakeLlm)
+
+            val prompt = fakeLlm.promptsReceived.first()
+            assertTrue(prompt.contains("AsciiDoc"), "Le prompt doit demander du format AsciiDoc")
+            assertTrue(prompt.contains(":tags:"), "Le prompt doit demander les metadata :tags:")
+            assertTrue(prompt.contains(":description:"), "Le prompt doit demander :description:")
+        }
 
     // ── generate(ArticleIntention) — BKY-JB-8 ────────────────────────────
 
     @Test
-    fun `generate with intention includes audience in prompt`() = runBlocking {
-        val fakeLlm = FakeLlmService(sampleAsciiDoc)
-        val generator = ArticleGenerator()
+    fun `generate with intention includes audience in prompt`() =
+        runBlocking {
+            val fakeLlm = FakeLlmService(sampleAsciiDoc)
+            val generator = ArticleGenerator()
 
-        val intention = ArticleIntention(
-            topic = "Kotlin pour Gradle",
-            audience = ArticleAudience.DEVELOPPEUR
-        )
-        generator.generate(intention, fakeLlm)
+            val intention =
+                ArticleIntention(
+                    topic = "Kotlin pour Gradle",
+                    audience = ArticleAudience.DEVELOPPEUR,
+                )
+            generator.generate(intention, fakeLlm)
 
-        val prompt = fakeLlm.promptsReceived.first()
-        assertTrue(prompt.contains("développeur"), "Le prompt doit contenir l'audience")
-    }
-
-    @Test
-    fun `generate with intention includes ton in prompt`() = runBlocking {
-        val fakeLlm = FakeLlmService(sampleAsciiDoc)
-        val generator = ArticleGenerator()
-
-        val intention = ArticleIntention(
-            topic = "Kotlin pour Gradle",
-            ton = ArticleTon.PEDAGOGIQUE
-        )
-        generator.generate(intention, fakeLlm)
-
-        val prompt = fakeLlm.promptsReceived.first()
-        assertTrue(prompt.contains("pédagogique"), "Le prompt doit contenir le ton")
-    }
+            val prompt = fakeLlm.promptsReceived.first()
+            assertTrue(prompt.contains("développeur"), "Le prompt doit contenir l'audience")
+        }
 
     @Test
-    fun `generate with intention includes keywords in prompt`() = runBlocking {
-        val fakeLlm = FakeLlmService(sampleAsciiDoc)
-        val generator = ArticleGenerator()
+    fun `generate with intention includes ton in prompt`() =
+        runBlocking {
+            val fakeLlm = FakeLlmService(sampleAsciiDoc)
+            val generator = ArticleGenerator()
 
-        val intention = ArticleIntention(
-            topic = "Kotlin pour Gradle",
-            rawKeywords = listOf("dsl", "plugin")
-        )
-        generator.generate(intention, fakeLlm)
+            val intention =
+                ArticleIntention(
+                    topic = "Kotlin pour Gradle",
+                    ton = ArticleTon.PEDAGOGIQUE,
+                )
+            generator.generate(intention, fakeLlm)
 
-        val prompt = fakeLlm.promptsReceived.first()
-        assertTrue(prompt.contains("dsl"), "Le prompt doit contenir le mot-clé 'dsl'")
-        assertTrue(prompt.contains("plugin"), "Le prompt doit contenir le mot-clé 'plugin'")
-    }
-
-    @Test
-    fun `generate with intention includes language guidance in prompt`() = runBlocking {
-        val fakeLlm = FakeLlmService(sampleAsciiDoc)
-        val generator = ArticleGenerator()
-
-        val intention = ArticleIntention(
-            topic = "Kotlin for Gradle",
-            lang = "en"
-        )
-        generator.generate(intention, fakeLlm)
-
-        val prompt = fakeLlm.promptsReceived.first()
-        assertTrue(prompt.contains("en"), "Le prompt doit contenir la langue 'en'")
-    }
+            val prompt = fakeLlm.promptsReceived.first()
+            assertTrue(prompt.contains("pédagogique"), "Le prompt doit contenir le ton")
+        }
 
     @Test
-    fun `generate with intention delegates to same parseResponse`() = runBlocking {
-        val fakeLlm = FakeLlmService(sampleAsciiDoc)
-        val generator = ArticleGenerator()
+    fun `generate with intention includes keywords in prompt`() =
+        runBlocking {
+            val fakeLlm = FakeLlmService(sampleAsciiDoc)
+            val generator = ArticleGenerator()
 
-        val intention = ArticleIntention(
-            topic = "Kotlin pour Gradle",
-            ton = ArticleTon.TECHNIQUE,
-            audience = ArticleAudience.DEVELOPPEUR
-        )
-        val article = generator.generate(intention, fakeLlm)
+            val intention =
+                ArticleIntention(
+                    topic = "Kotlin pour Gradle",
+                    rawKeywords = listOf("dsl", "plugin"),
+                )
+            generator.generate(intention, fakeLlm)
 
-        assertEquals("Introduction à Kotlin pour les plugins Gradle", article.titre)
-        assertEquals("introduction-a-kotlin-pour-les-plugins-gradle", article.slug)
-    }
-
-    @Test
-    fun `generate with minimal intention uses defaults in prompt`() = runBlocking {
-        val fakeLlm = FakeLlmService(sampleAsciiDoc)
-        val generator = ArticleGenerator()
-
-        val intention = ArticleIntention(topic = "Test simple")
-        generator.generate(intention, fakeLlm)
-
-        val prompt = fakeLlm.promptsReceived.first()
-        assertTrue(prompt.contains("informatif"), "Default ton must appear in prompt")
-        assertTrue(prompt.contains("grand public"), "Default audience must appear in prompt")
-        assertTrue(prompt.contains("fr"), "Default lang must appear in prompt")
-    }
+            val prompt = fakeLlm.promptsReceived.first()
+            assertTrue(prompt.contains("dsl"), "Le prompt doit contenir le mot-clé 'dsl'")
+            assertTrue(prompt.contains("plugin"), "Le prompt doit contenir le mot-clé 'plugin'")
+        }
 
     @Test
-    fun `buildPrompt from intention includes all contextual guidance`() = runBlocking {
-        val generator = ArticleGenerator()
+    fun `generate with intention includes language guidance in prompt`() =
+        runBlocking {
+            val fakeLlm = FakeLlmService(sampleAsciiDoc)
+            val generator = ArticleGenerator()
 
-        val intention = ArticleIntention(
-            topic = "Kotlin Coroutines",
-            ton = ArticleTon.TECHNIQUE,
-            audience = ArticleAudience.DEVELOPPEUR,
-            rawKeywords = listOf("suspend", "flow"),
-            lang = "en"
-        )
-        val prompt = generator.buildPrompt(intention)
+            val intention =
+                ArticleIntention(
+                    topic = "Kotlin for Gradle",
+                    lang = "en",
+                )
+            generator.generate(intention, fakeLlm)
 
-        assertTrue(prompt.contains("Kotlin Coroutines"), "Must contain topic")
-        assertTrue(prompt.contains("technique"), "Must contain ton")
-        assertTrue(prompt.contains("développeur"), "Must contain audience")
-        assertTrue(prompt.contains("suspend"), "Must contain keyword")
-        assertTrue(prompt.contains("en"), "Must contain language")
-        assertTrue(prompt.contains("AsciiDoc"), "Must contain format instruction")
-    }
+            val prompt = fakeLlm.promptsReceived.first()
+            assertTrue(prompt.contains("en"), "Le prompt doit contenir la langue 'en'")
+        }
+
+    @Test
+    fun `generate with intention delegates to same parseResponse`() =
+        runBlocking {
+            val fakeLlm = FakeLlmService(sampleAsciiDoc)
+            val generator = ArticleGenerator()
+
+            val intention =
+                ArticleIntention(
+                    topic = "Kotlin pour Gradle",
+                    ton = ArticleTon.TECHNIQUE,
+                    audience = ArticleAudience.DEVELOPPEUR,
+                )
+            val article = generator.generate(intention, fakeLlm)
+
+            assertEquals("Introduction à Kotlin pour les plugins Gradle", article.titre)
+            assertEquals("introduction-a-kotlin-pour-les-plugins-gradle", article.slug)
+        }
+
+    @Test
+    fun `generate with minimal intention uses defaults in prompt`() =
+        runBlocking {
+            val fakeLlm = FakeLlmService(sampleAsciiDoc)
+            val generator = ArticleGenerator()
+
+            val intention = ArticleIntention(topic = "Test simple")
+            generator.generate(intention, fakeLlm)
+
+            val prompt = fakeLlm.promptsReceived.first()
+            assertTrue(prompt.contains("informatif"), "Default ton must appear in prompt")
+            assertTrue(prompt.contains("grand public"), "Default audience must appear in prompt")
+            assertTrue(prompt.contains("fr"), "Default lang must appear in prompt")
+        }
+
+    @Test
+    fun `buildPrompt from intention includes all contextual guidance`() =
+        runBlocking {
+            val generator = ArticleGenerator()
+
+            val intention =
+                ArticleIntention(
+                    topic = "Kotlin Coroutines",
+                    ton = ArticleTon.TECHNIQUE,
+                    audience = ArticleAudience.DEVELOPPEUR,
+                    rawKeywords = listOf("suspend", "flow"),
+                    lang = "en",
+                )
+            val prompt = generator.buildPrompt(intention)
+
+            assertTrue(prompt.contains("Kotlin Coroutines"), "Must contain topic")
+            assertTrue(prompt.contains("technique"), "Must contain ton")
+            assertTrue(prompt.contains("développeur"), "Must contain audience")
+            assertTrue(prompt.contains("suspend"), "Must contain keyword")
+            assertTrue(prompt.contains("en"), "Must contain language")
+            assertTrue(prompt.contains("AsciiDoc"), "Must contain format instruction")
+        }
 }

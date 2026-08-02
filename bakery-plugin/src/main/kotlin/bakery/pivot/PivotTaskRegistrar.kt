@@ -17,7 +17,6 @@ import org.gradle.api.Project
  * [PivotOutputResolver] dans la tâche elle-même, au moment de l'exécution.
  */
 object PivotTaskRegistrar {
-
     internal fun Project.registerGeneratePivotYamlTask() {
         tasks.register("generatePivotYaml", GeneratePivotYamlTask::class.java) { task ->
             task.group = BakeryConstants.GENERATE_GROUP

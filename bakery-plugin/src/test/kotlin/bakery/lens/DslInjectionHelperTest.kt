@@ -15,13 +15,11 @@ import org.junit.jupiter.api.Test
  */
 @DisplayName("DSL Injection Helper — insertBeforeClosingBrace")
 class DslInjectionHelperTest {
-
     private val helper = DslInjectionHelper
 
     @Nested
     @DisplayName("Single-line bakery block")
     inner class SingleLineBlock {
-
         @Test
         @DisplayName("Inserts augmentedContext before closing brace of single-line bakery block")
         fun insertsBeforeClosingBraceSingleLine() {
@@ -57,16 +55,16 @@ bakery { configPath = file("site.yml").absolutePath }"""
     @Nested
     @DisplayName("Multi-line bakery block")
     inner class MultiLineBlock {
-
         @Test
         @DisplayName("Inserts before closing brace of multi-line bakery block")
         fun insertsBeforeClosingBraceMultiLine() {
-            val content = """
+            val content =
+                """
 plugins { id("education.cccp.bakery") }
 bakery {
     configPath = file("site.yml").absolutePath
 }
-            """.trimIndent()
+                """.trimIndent()
             val block = "augmentedContext {\n    enabled = true\n}"
             val result = helper.insertBeforeClosingBrace(content, "bakery", block)
 
@@ -79,7 +77,8 @@ bakery {
         @Test
         @DisplayName("Preserves existing nested blocks when inserting new one")
         fun preservesExistingNestedBlocks() {
-            val content = """
+            val content =
+                """
 plugins { id("education.cccp.bakery") }
 bakery {
     configPath = file("site.yml").absolutePath
@@ -87,7 +86,7 @@ bakery {
         baseUrl = "http://localhost:11464"
     }
 }
-            """.trimIndent()
+                """.trimIndent()
             val block = "augmentedContext {\n    enabled = true\n}"
             val result = helper.insertBeforeClosingBrace(content, "bakery", block)
 
@@ -103,7 +102,6 @@ bakery {
     @Nested
     @DisplayName("Edge cases")
     inner class EdgeCases {
-
         @Test
         @DisplayName("Returns content unchanged when blockName not found")
         fun returnsUnchangedWhenBlockNameNotFound() {
@@ -120,7 +118,8 @@ something { configPath = file("site.yml").absolutePath }"""
         fun handlesBudgetWithNestedDsl() {
             val content = """plugins { id("education.cccp.bakery") }
 bakery { configPath = file("site.yml").absolutePath }"""
-            val block = """
+            val block =
+                """
 augmentedContext {
     enabled = true
     budget {
@@ -128,7 +127,7 @@ augmentedContext {
         minSimilarity = 0.7
     }
 }
-            """.trimIndent()
+                """.trimIndent()
             val result = helper.insertBeforeClosingBrace(content, "bakery", block)
 
             assertThat(result).contains("maxArticlesPerPage = 4")
@@ -146,12 +145,15 @@ augmentedContext {
  * Extracted from LensSteps for testability.
  */
 object DslInjectionHelper {
-
     /**
      * Insères [blockToInsert] avant le '}' fermant du bloc [blockName] { ... }.
      * Gère les blocs sur une ou plusieurs lignes, avec accolades imbriquées.
      */
-    fun insertBeforeClosingBrace(content: String, blockName: String, blockToInsert: String): String {
+    fun insertBeforeClosingBrace(
+        content: String,
+        blockName: String,
+        blockToInsert: String,
+    ): String {
         val blockStart = content.indexOf("$blockName {")
         if (blockStart == -1) return content
 
@@ -176,7 +178,7 @@ object DslInjectionHelper {
         // Insérer le bloc avant le '}' fermant
         val indentedBlock = blockToInsert.prependIndent("    ")
         return content.substring(0, closingBraceIndex) +
-                "\n$indentedBlock\n" +
-                content.substring(closingBraceIndex)
+            "\n$indentedBlock\n" +
+            content.substring(closingBraceIndex)
     }
 }

@@ -22,7 +22,6 @@ import java.util.Properties
  * Does not use BakeryWorld — drives I18nMigrationService directly.
  */
 class I18nRealMigrationSteps {
-
     private val service = I18nMigrationService()
     private val loader = PostMigrationSnapshotLoader()
 
@@ -40,8 +39,9 @@ class I18nRealMigrationSteps {
     @Given("a copy of pre-migration fixture {string}")
     fun givenCopyOfPreMigrationFixture(fixtureId: String) {
         siteId = fixtureId
-        val resource = this::class.java.classLoader.getResource("i18n-fixtures/$fixtureId/jbake")
-            ?: throw IllegalStateException("Pre-migration fixture not found: $fixtureId")
+        val resource =
+            this::class.java.classLoader.getResource("i18n-fixtures/$fixtureId/jbake")
+                ?: throw IllegalStateException("Pre-migration fixture not found: $fixtureId")
         val fixture = File(resource.toURI())
         val tempDir = Files.createTempDirectory("i18n-bdd-$fixtureId-").toFile()
         tempDir.deleteOnExit()
@@ -49,20 +49,25 @@ class I18nRealMigrationSteps {
     }
 
     @When("the fixture is migrated with languages {string} and defaultLanguage {string}")
-    fun whenFixtureIsMigrated(languagesCsv: String, defaultLanguage: String) {
+    fun whenFixtureIsMigrated(
+        languagesCsv: String,
+        defaultLanguage: String,
+    ) {
         val languages = languagesCsv.split(",").map { it.trim() }
-        firstMigrationResult = service.migrate(
-            siteDir = siteCopy!!,
-            languages = languages,
-            defaultLanguage = defaultLanguage,
-            dryRun = false
-        )
+        firstMigrationResult =
+            service.migrate(
+                siteDir = siteCopy!!,
+                languages = languages,
+                defaultLanguage = defaultLanguage,
+                dryRun = false,
+            )
     }
 
     @And("english translations from {string} are applied")
     fun andEnglishTranslationsApplied(resourcePath: String) {
-        val url = this::class.java.classLoader.getResource(resourcePath)
-            ?: throw IllegalStateException("Resource not found: $resourcePath")
+        val url =
+            this::class.java.classLoader.getResource(resourcePath)
+                ?: throw IllegalStateException("Resource not found: $resourcePath")
         val props = Properties()
         url.openStream().use { props.load(it) }
         val translations = props.map { it.key.toString() to it.value.toString() }.toMap()
@@ -78,13 +83,13 @@ class I18nRealMigrationSteps {
         assertEquals(
             goldenMaster.templatesMigrated.keys,
             actual.templatesMigrated.keys,
-            "[$expectedSiteId] Migrated templates: key set mismatch with golden master"
+            "[$expectedSiteId] Migrated templates: key set mismatch with golden master",
         )
         for (templateName in goldenMaster.templatesMigrated.keys) {
             assertEquals(
                 goldenMaster.templatesMigrated[templateName],
                 actual.templatesMigrated[templateName],
-                "[$expectedSiteId] Template '$templateName' differs from golden master"
+                "[$expectedSiteId] Template '$templateName' differs from golden master",
             )
         }
     }
@@ -96,7 +101,7 @@ class I18nRealMigrationSteps {
         assertEquals(
             goldenMaster.messagesFr,
             actual.messagesFr,
-            "[$expectedSiteId] messages_fr.properties differs from golden master"
+            "[$expectedSiteId] messages_fr.properties differs from golden master",
         )
     }
 
@@ -107,19 +112,20 @@ class I18nRealMigrationSteps {
         assertEquals(
             goldenMaster.messagesEn,
             actual.messagesEn,
-            "[$expectedSiteId] messages_en.properties differs from golden master"
+            "[$expectedSiteId] messages_en.properties differs from golden master",
         )
     }
 
     @And("the already migrated fixture is migrated again")
     fun andAlreadyMigratedFixtureIsMigratedAgain() {
         templatesBeforeReMigration = captureTemplates(siteCopy!!)
-        secondMigrationResult = service.migrate(
-            siteDir = siteCopy!!,
-            languages = listOf("fr", "en"),
-            defaultLanguage = "fr",
-            dryRun = false
-        )
+        secondMigrationResult =
+            service.migrate(
+                siteDir = siteCopy!!,
+                languages = listOf("fr", "en"),
+                defaultLanguage = "fr",
+                dryRun = false,
+            )
     }
 
     @Then("the second migration should extract {int} keys")
@@ -138,23 +144,26 @@ class I18nRealMigrationSteps {
         assertEquals(
             templatesBeforeReMigration,
             templatesAfter,
-            "Templates unchanged after re-migration (idempotence)"
+            "Templates unchanged after re-migration (idempotence)",
         )
     }
 
     private fun buildActualSnapshot(siteDir: File): PostMigrationSnapshot {
         val templatesDir = siteDir.resolve("templates")
-        val templatesMigrated = templatesDir.walkTopDown()
-            .filter { it.isFile && it.extension == "thyme" }
-            .associate { it.relativeTo(templatesDir).path to it.readText() }
+        val templatesMigrated =
+            templatesDir
+                .walkTopDown()
+                .filter { it.isFile && it.extension == "thyme" }
+                .associate { it.relativeTo(templatesDir).path to it.readText() }
         val messagesFr = loadProperties(templatesDir.resolve("messages_fr.properties"))
         val messagesEn = loadProperties(templatesDir.resolve("messages_en.properties"))
         return PostMigrationSnapshot(templatesMigrated, messagesFr, messagesEn)
     }
 
     private fun loadGoldenMaster(siteId: String): PostMigrationSnapshot {
-        val resource = this::class.java.classLoader.getResource("i18n-fixtures/$siteId/post-migration")
-            ?: throw IllegalStateException("Golden master not found for $siteId")
+        val resource =
+            this::class.java.classLoader.getResource("i18n-fixtures/$siteId/post-migration")
+                ?: throw IllegalStateException("Golden master not found for $siteId")
         return loader.load(File(resource.toURI()))
     }
 
@@ -167,7 +176,8 @@ class I18nRealMigrationSteps {
 
     private fun captureTemplates(siteDir: File): Map<String, String> {
         val templatesDir = siteDir.resolve("templates")
-        return templatesDir.walkTopDown()
+        return templatesDir
+            .walkTopDown()
             .filter { it.isFile && it.extension == "thyme" }
             .associate { it.relativeTo(templatesDir).path to it.readText() }
     }

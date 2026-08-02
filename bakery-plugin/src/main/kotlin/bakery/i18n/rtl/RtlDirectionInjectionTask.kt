@@ -1,14 +1,13 @@
 package bakery.i18n.rtl
 
 import bakery.BakeryConstants
-import document.translation.AsciiDocParser
 import document.translation.ArticleRenderer
+import document.translation.AsciiDocParser
 import document.translation.AsciiDocRenderer
 import document.translation.JbakeNativeRenderer
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
@@ -33,7 +32,6 @@ import java.io.File
  */
 @DisableCachingByDefault(because = "RTL injection — file I/O on translated content, non-cacheable")
 abstract class RtlDirectionInjectionTask : DefaultTask() {
-
     @get:Input
     @get:Optional
     @get:Option(option = "contentI18nOutput", description = "Répertoire de sortie i18n (ex: content-i18n) — persistant, hors build/")
@@ -79,9 +77,11 @@ abstract class RtlDirectionInjectionTask : DefaultTask() {
                 logger.lifecycle("[injectRtlDirection] [{}] Répertoire absent — ignoré.", lang)
                 continue
             }
-            val adocFiles = langDir.walkTopDown()
-                .filter { it.isFile && it.extension == "adoc" }
-                .toList()
+            val adocFiles =
+                langDir
+                    .walkTopDown()
+                    .filter { it.isFile && it.extension == "adoc" }
+                    .toList()
             logger.lifecycle("[injectRtlDirection] [{}] {} fichiers .adoc trouvés.", lang, adocFiles.size)
             for (file in adocFiles) {
                 val original = file.readText()
@@ -107,5 +107,9 @@ abstract class RtlDirectionInjectionTask : DefaultTask() {
     }
 
     private fun resolveTargetLangs(): List<String> =
-        contentI18nTargetLangs.get().split(",").map { it.trim() }.filter { it.isNotBlank() }
+        contentI18nTargetLangs
+            .get()
+            .split(",")
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
 }

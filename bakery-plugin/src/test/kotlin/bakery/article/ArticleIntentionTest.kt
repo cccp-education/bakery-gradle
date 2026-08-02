@@ -12,7 +12,6 @@ import kotlin.test.assertTrue
  * Baby-step TDD : chaque test définit une règle métier avant l'implémentation.
  */
 class ArticleIntentionTest {
-
     // ── Construction valide ────────────────────────────────────────────
 
     @Test
@@ -28,13 +27,14 @@ class ArticleIntentionTest {
 
     @Test
     fun `full intention with all parameters`() {
-        val intention = ArticleIntention(
-            topic = "Kotlin Coroutines",
-            ton = ArticleTon.TECHNIQUE,
-            audience = ArticleAudience.DEVELOPPEUR,
-            rawKeywords = listOf("coroutines", "async", "flow"),
-            lang = "en"
-        )
+        val intention =
+            ArticleIntention(
+                topic = "Kotlin Coroutines",
+                ton = ArticleTon.TECHNIQUE,
+                audience = ArticleAudience.DEVELOPPEUR,
+                rawKeywords = listOf("coroutines", "async", "flow"),
+                lang = "en",
+            )
 
         assertEquals("Kotlin Coroutines", intention.topic)
         assertEquals(ArticleTon.TECHNIQUE, intention.ton)
@@ -101,19 +101,21 @@ class ArticleIntentionTest {
 
     @Test
     fun `keywords are trimmed and empty ones removed`() {
-        val intention = ArticleIntention(
-            topic = "Kotlin",
-            rawKeywords = listOf("  coroutines  ", "", "  flow  ", "  ")
-        )
+        val intention =
+            ArticleIntention(
+                topic = "Kotlin",
+                rawKeywords = listOf("  coroutines  ", "", "  flow  ", "  "),
+            )
         assertEquals(listOf("coroutines", "flow"), intention.keywords)
     }
 
     @Test
     fun `intention with duplicate keywords deduplicates them`() {
-        val intention = ArticleIntention(
-            topic = "Kotlin",
-            rawKeywords = listOf("coroutines", "coroutines", "flow")
-        )
+        val intention =
+            ArticleIntention(
+                topic = "Kotlin",
+                rawKeywords = listOf("coroutines", "coroutines", "flow"),
+            )
         assertEquals(listOf("coroutines", "flow"), intention.keywords)
     }
 
@@ -145,12 +147,13 @@ class ArticleIntentionTest {
 
     @Test
     fun `toPromptContext includes topic and audience guidance`() {
-        val intention = ArticleIntention(
-            topic = "Kotlin pour Gradle",
-            ton = ArticleTon.TECHNIQUE,
-            audience = ArticleAudience.DEVELOPPEUR,
-            rawKeywords = listOf("gradle", "dsl")
-        )
+        val intention =
+            ArticleIntention(
+                topic = "Kotlin pour Gradle",
+                ton = ArticleTon.TECHNIQUE,
+                audience = ArticleAudience.DEVELOPPEUR,
+                rawKeywords = listOf("gradle", "dsl"),
+            )
         val context = intention.toPromptContext()
 
         assertTrue(context.contains("Kotlin pour Gradle"), "Must contain topic")

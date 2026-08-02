@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test
 import java.io.File
 
 class LayoutTemplateTest {
-
     private val templatesDir = File("src/main/resources/site/templates")
 
     @Test

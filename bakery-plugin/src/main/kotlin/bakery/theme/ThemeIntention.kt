@@ -29,7 +29,7 @@ package bakery.theme
 data class ThemeIntention(
     val description: String,
     val variant: ThemeVariant = ThemeVariant.MINIMAL,
-    val overrides: ThemeOverrides = ThemeOverrides()
+    val overrides: ThemeOverrides = ThemeOverrides(),
 ) {
     init {
         require(description.isNotBlank()) { "La description est obligatoire pour le theme assiste par IA." }
@@ -38,12 +38,13 @@ data class ThemeIntention(
     /**
      * Genere un contexte lisible par le LLM a partir de l'intention.
      */
-    fun toPromptContext(): String = buildString {
-        appendLine("Description du theme : $description")
-        appendLine("Variante de base : ${variant.label}")
-        appendLine("Variantes disponibles : ${ThemeVariant.entries.joinToString(", ") { "${it.name} (${it.description})" }}")
-        if (overrides.primaryColor != null) appendLine("Couleur primaire souhaitee : ${overrides.primaryColor}")
-        if (overrides.secondaryColor != null) appendLine("Couleur secondaire souhaitee : ${overrides.secondaryColor}")
-        if (overrides.fontFamily != null) appendLine("Police souhaitee : ${overrides.fontFamily}")
-    }
+    fun toPromptContext(): String =
+        buildString {
+            appendLine("Description du theme : $description")
+            appendLine("Variante de base : ${variant.label}")
+            appendLine("Variantes disponibles : ${ThemeVariant.entries.joinToString(", ") { "${it.name} (${it.description})" }}")
+            if (overrides.primaryColor != null) appendLine("Couleur primaire souhaitee : ${overrides.primaryColor}")
+            if (overrides.secondaryColor != null) appendLine("Couleur secondaire souhaitee : ${overrides.secondaryColor}")
+            if (overrides.fontFamily != null) appendLine("Police souhaitee : ${overrides.fontFamily}")
+        }
 }

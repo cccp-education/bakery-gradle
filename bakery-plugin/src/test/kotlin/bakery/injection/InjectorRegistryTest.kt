@@ -6,10 +6,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class InjectorRegistryTest {
-
     @Nested
     inner class Structure {
-
         @Test
         fun `exposes exactly 9 domains`() {
             assertEquals(9, InjectorRegistry.all.size)
@@ -19,7 +17,9 @@ class InjectorRegistryTest {
         fun `exposes all expected domain keys`() {
             assertEquals(
                 listOf("analytics", "comments", "firebase", "firebaseAuth", "googleForms", "language", "layout", "newsletter", "theme"),
-                InjectorRegistry.all.keys.toList().sorted()
+                InjectorRegistry.all.keys
+                    .toList()
+                    .sorted(),
             )
         }
 
@@ -71,7 +71,6 @@ class InjectorRegistryTest {
 
     @Nested
     inner class GateOnTriggerFieldBehaviour {
-
         private val spec = InjectorRegistry.all["firebase"]!! as InjectorSpec.GateOnTriggerField
 
         @Test
@@ -98,7 +97,6 @@ class InjectorRegistryTest {
 
     @Nested
     inner class GateOnBooleanBehaviour {
-
         private val spec = InjectorRegistry.all["comments"]!! as InjectorSpec.GateOnBoolean
 
         @Test
@@ -140,7 +138,6 @@ class InjectorRegistryTest {
 
     @Nested
     inner class AlwaysBehaviour {
-
         private val spec = InjectorRegistry.all["layout"]!! as InjectorSpec.Always
 
         @Test
@@ -156,7 +153,6 @@ class InjectorRegistryTest {
 
     @Nested
     inner class LanguageWriteKey {
-
         private val spec = InjectorRegistry.all["language"]!! as InjectorSpec.Always
 
         @Test

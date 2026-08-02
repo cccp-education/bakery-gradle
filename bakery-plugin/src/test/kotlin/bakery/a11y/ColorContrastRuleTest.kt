@@ -4,7 +4,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class ColorContrastRuleTest {
-
     @Test
     fun `black on white passes AA threshold`() {
         val result = evaluateContrast("#000000", "#FFFFFF")

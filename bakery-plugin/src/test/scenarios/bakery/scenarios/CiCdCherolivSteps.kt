@@ -6,16 +6,18 @@ import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
-import org.gradle.testkit.runner.GradleRunner
 import java.io.File
 import kotlin.text.Charsets.UTF_8
 
-//TODO: CHANGER le nommage qui ne va pas du tout
-class CiCdCherolivSteps(private val world: BakeryWorld) {
-
-    private val jbakeSourcePath = System.getenv("OFFICE_PATH")
-        ?.let { "$it/sites/cheroliv.com/jbake" }
-        ?: "/home/cheroliv/workspace/office/sites/cheroliv.com/jbake"
+// TODO: CHANGER le nommage qui ne va pas du tout
+class CiCdCherolivSteps(
+    private val world: BakeryWorld,
+) {
+    private val jbakeSourcePath =
+        System
+            .getenv("OFFICE_PATH")
+            ?.let { "$it/sites/cheroliv.com/jbake" }
+            ?: "/home/cheroliv/workspace/office/sites/cheroliv.com/jbake"
 
     @Given("the cheroliv.com jbake source in the engine-style project")
     fun copyCherolivJbakeSource() {
@@ -63,7 +65,7 @@ class CiCdCherolivSteps(private val world: BakeryWorld) {
               branch: "main"
               message: "cheroliv.com"
             """.trimIndent(),
-            UTF_8
+            UTF_8,
         )
         assertThat(siteYml.readText(UTF_8))
             .describedAs("site.yml must contain credentials block")
@@ -71,9 +73,10 @@ class CiCdCherolivSteps(private val world: BakeryWorld) {
     }
 
     @When("I run the {string} task for cheroliv.com")
-    fun runTaskForCheroliv(taskName: String) = runBlocking {
-        world.executeGradle(taskName)
-    }
+    fun runTaskForCheroliv(taskName: String) =
+        runBlocking {
+            world.executeGradle(taskName)
+        }
 
     @Then("the baked output should contain {string}")
     fun checkBakedOutputContains(fileName: String) {
@@ -93,7 +96,10 @@ class CiCdCherolivSteps(private val world: BakeryWorld) {
     }
 
     @Then("the baked article {string} should contain {string}")
-    fun checkArticleContains(path: String, expected: String) {
+    fun checkArticleContains(
+        path: String,
+        expected: String,
+    ) {
         val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
         val article = projectDir.resolve("build/bake").resolve(path)
         assertThat(article)

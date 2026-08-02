@@ -8,34 +8,37 @@ import com.rometools.rome.io.XmlReader
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.time.Instant
-import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import javax.xml.parsers.DocumentBuilderFactory
 
 object SiteContextCollector {
-
     private val logger = LoggerFactory.getLogger(SiteContextCollector::class.java)
     private val isoDate = DateTimeFormatter.ISO_LOCAL_DATE
 
-    fun collect(bakedDir: File, outputDir: File) {
+    fun collect(
+        bakedDir: File,
+        outputDir: File,
+    ) {
         val articles = parseFeed(bakedDir)
         val sitemap = parseSitemap(bakedDir)
-        val metadata = mapOf(
-            "source" to "bakery",
-            "type" to "site",
-            "version" to "1.0",
-            "model" to "jbake",
-            "generatedAt" to Instant.now().toString(),
-            "sessions" to articles.size,
-            "dependencies" to listOf("jbake"),
-            "articles" to articles,
-            "sitemap" to sitemap,
-            "feed" to "/feed.xml"
-        )
+        val metadata =
+            mapOf(
+                "source" to "bakery",
+                "type" to "site",
+                "version" to "1.0",
+                "model" to "jbake",
+                "generatedAt" to Instant.now().toString(),
+                "sessions" to articles.size,
+                "dependencies" to listOf("jbake"),
+                "articles" to articles,
+                "sitemap" to sitemap,
+                "feed" to "/feed.xml",
+            )
         outputDir.mkdirs()
         val mapper = jacksonObjectMapper()
-        mapper.writerWithDefaultPrettyPrinter()
+        mapper
+            .writerWithDefaultPrettyPrinter()
             .writeValue(outputDir.resolve("metadata.json"), metadata)
     }
 
@@ -53,7 +56,7 @@ object SiteContextCollector {
     fun collectWithAugmentedContext(
         bakedDir: File,
         outputDir: File,
-        augmentedContext: AugmentedContextDsl
+        augmentedContext: AugmentedContextDsl,
     ) {
         // 1. Collecte standard
         collect(bakedDir, outputDir)
@@ -72,16 +75,18 @@ object SiteContextCollector {
         }
 
         // 4. Construire les augmented entries
-        val channelsList = channels.map { (type, content) ->
-            mapOf("channel" to type.name, "content" to content)
-        }
+        val channelsList =
+            channels.map { (type, content) ->
+                mapOf("channel" to type.name, "content" to content)
+            }
 
         // 5. Appliquer maxArticles (troncature)
-        val truncated = if (augmentedContext.maxArticles > 0) {
-            channelsList.take(augmentedContext.maxArticles)
-        } else {
-            channelsList
-        }
+        val truncated =
+            if (augmentedContext.maxArticles > 0) {
+                channelsList.take(augmentedContext.maxArticles)
+            } else {
+                channelsList
+            }
 
         val augmentedEntries = mapOf("channels" to truncated)
         enrichMetadataWithAugmentedEntries(outputDir, augmentedEntries)
@@ -92,20 +97,22 @@ object SiteContextCollector {
      */
     private fun enrichMetadataWithAugmentedEntries(
         outputDir: File,
-        augmentedEntries: Map<String, Any>
+        augmentedEntries: Map<String, Any>,
     ) {
         val metadataFile = outputDir.resolve("metadata.json")
         if (!metadataFile.exists()) return
 
         val mapper = jacksonObjectMapper()
-        val metadata: MutableMap<String, Any> = mapper.readValue(metadataFile, MutableMap::class.java)
-            as MutableMap<String, Any>
+        val metadata: MutableMap<String, Any> =
+            mapper.readValue(metadataFile, MutableMap::class.java)
+                as MutableMap<String, Any>
 
         if (augmentedEntries.isNotEmpty()) {
             metadata["augmentedEntries"] = augmentedEntries
         }
 
-        mapper.writerWithDefaultPrettyPrinter()
+        mapper
+            .writerWithDefaultPrettyPrinter()
             .writeValue(metadataFile, metadata)
     }
 
@@ -117,9 +124,10 @@ object SiteContextCollector {
             SyndFeedInput().build(XmlReader(feedFile)).entries.map { entry ->
                 val title: String = entry.title as? String ?: ""
                 val url: String = (entry.link as? String)?.let { normalizeUrl(it) } ?: ""
-                val date: String = (entry.publishedDate as? java.util.Date)?.let {
-                    isoDate.format(it.toInstant().atZone(ZoneId.systemDefault()).toLocalDate())
-                } ?: ""
+                val date: String =
+                    (entry.publishedDate as? java.util.Date)?.let {
+                        isoDate.format(it.toInstant().atZone(ZoneId.systemDefault()).toLocalDate())
+                    } ?: ""
                 val tags: List<String> = entry.categories.map { (it.name as? String)?.trim() ?: "" }.filter { it.isNotBlank() }
                 val author: String = entry.author as? String ?: ""
 
@@ -128,7 +136,7 @@ object SiteContextCollector {
                     "url" to url,
                     "date" to date,
                     "tags" to tags,
-                    "author" to author
+                    "author" to author,
                 )
             }
         }.onFailure { e ->
@@ -137,25 +145,32 @@ object SiteContextCollector {
     }
 
     private fun normalizeUrl(link: String): String =
-        "/" + link.substringAfter("://")
-            .substringAfter("/")
-            .removePrefix("/")
+        "/" +
+            link
+                .substringAfter("://")
+                .substringAfter("/")
+                .removePrefix("/")
 
     private fun parseSitemap(bakedDir: File): List<String> {
         val sitemapFile = bakedDir.resolve("sitemap.xml")
         if (!sitemapFile.exists()) return emptyList()
 
         return runCatching {
-            val doc = DocumentBuilderFactory.newInstance()
-                .newDocumentBuilder()
-                .parse(sitemapFile)
+            val doc =
+                DocumentBuilderFactory
+                    .newInstance()
+                    .newDocumentBuilder()
+                    .parse(sitemapFile)
             val locs = doc.getElementsByTagName("loc")
-            (0 until locs.length).map { i ->
-                val url = locs.item(i).textContent.trim()
-                "/" + url.substringAfter("://")
-                    .substringAfter("/")
-                    .removePrefix("/")
-            }.filter { it.isNotBlank() }
+            (0 until locs.length)
+                .map { i ->
+                    val url = locs.item(i).textContent.trim()
+                    "/" +
+                        url
+                            .substringAfter("://")
+                            .substringAfter("/")
+                            .removePrefix("/")
+                }.filter { it.isNotBlank() }
         }.onFailure { e ->
             logger.warn("Failed to parse sitemap.xml at {}: {}", sitemapFile.absolutePath, e.message)
         }.getOrDefault(emptyList())

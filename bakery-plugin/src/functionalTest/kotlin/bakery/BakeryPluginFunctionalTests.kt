@@ -2,7 +2,6 @@
 
 package bakery
 
-
 import bakery.FuncTestsConstants.BAKERY_GROUP
 import bakery.FuncTestsConstants.BAKE_TASK
 import bakery.FuncTestsConstants.BUILD_FILE
@@ -30,30 +29,33 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.text.Charsets.UTF_8
 
-
 class BakeryPluginFunctionalTests {
     companion object {
         const val VERSION = "0.0.9"
         private val log: Logger by lazy { getLogger(BakeryPluginFunctionalTests::class.java) }
 
-        private fun info(message: String) = message
-            .apply(log::info)
-            .run(::println)
+        private fun info(message: String) =
+            message
+                .apply(log::info)
+                .run(::println)
     }
 
     @field:TempDir
     private lateinit var projectDir: File
 
     private val File.configFile: File
-        get() = if (absolutePath == projectDir.absolutePath) resolve(CONFIG_FILE)
-        else projectDir.resolve(CONFIG_FILE)
+        get() =
+            if (absolutePath == projectDir.absolutePath) {
+                resolve(CONFIG_FILE)
+            } else {
+                projectDir.resolve(CONFIG_FILE)
+            }
 
     private fun File.deleteConfigFile(): Boolean = configFile.delete()
 
-
     @BeforeTest
     fun setUp() {
-        //directory empty
+        // directory empty
         assertThat(projectDir.isDirectory)
             .describedAs("$projectDir should be a directory.")
             .isTrue
@@ -91,13 +93,15 @@ class BakeryPluginFunctionalTests {
     }
 
     @AfterEach
-    fun teardown(testInfo: TestInfo) = listOf(
-        "✓ Test finished: ${testInfo.displayName}",
-        "─".repeat(60)
-    ).forEach {
-        it.apply(log::info)
-            .apply(::println)
-    }
+    fun teardown(testInfo: TestInfo) =
+        listOf(
+            "✓ Test finished: ${testInfo.displayName}",
+            "─".repeat(60),
+        ).forEach {
+            it
+                .apply(log::info)
+                .apply(::println)
+        }
 
     /**
      * # Mode interactif
@@ -133,18 +137,18 @@ class BakeryPluginFunctionalTests {
 //        -PGitHubRepositoryURL=https://github.com/cheroliv/bakery.git```
     }
 
-
     @Test
     fun `test collectSiteConfig task exists without config file`() {
         projectDir.deleteConfigFile()
         info("$CONFIG_FILE file successfully deleted.")
         info("Run gradle task :tasks --group=$BAKERY_GROUP.")
-        val result = create()
-            .forwardOutput()
-            .withPluginClasspath()
-            .withArguments("tasks", "--group=$BAKERY_GROUP")
-            .withProjectDir(projectDir)
-            .build()
+        val result =
+            create()
+                .forwardOutput()
+                .withPluginClasspath()
+                .withArguments("tasks", "--group=$BAKERY_GROUP")
+                .withProjectDir(projectDir)
+                .build()
         assertThat(result.output)
             .describedAs("""Gradle task tasks output should contains 'collectSiteConfig' and 'Initialize configuration.'""")
             .doesNotContain("collectSiteConfig", "Initialize Bakery configuration.")
@@ -161,15 +165,15 @@ class BakeryPluginFunctionalTests {
         info("✓ tasks displays the collectSiteConfig task's description correctly without config file.")
     }
 
-
     @Test
     fun `tasks displays with config file`() {
-        val result = create()
-            .forwardOutput()
-            .withPluginClasspath()
-            .withArguments("tasks", "--group=$BAKERY_GROUP")
-            .withProjectDir(projectDir)
-            .build()
+        val result =
+            create()
+                .forwardOutput()
+                .withPluginClasspath()
+                .withArguments("tasks", "--group=$BAKERY_GROUP")
+                .withProjectDir(projectDir)
+                .build()
         assertThat(result.output)
             .describedAs("""Gradle task tasks output should contain 'collectSiteConfig' and 'Initialize configuration.'""")
             .doesNotContain("Initialize Bakery configuration.", "collectSiteConfig")
@@ -215,12 +219,13 @@ class BakeryPluginFunctionalTests {
                 "Test: The bake task executes successfully"
                     .apply(log::info)
                     .apply(::println)
-                val result = create()
-                    .withProjectDir(this)
-                    .withPluginClasspath()
-                    .withArguments("help", "--task", BAKE_TASK)
-                    .forwardOutput()
-                    .build()
+                val result =
+                    create()
+                        .withProjectDir(this)
+                        .withPluginClasspath()
+                        .withArguments("help", "--task", BAKE_TASK)
+                        .forwardOutput()
+                        .build()
 
                 assertThat(result.output)
                     .describedAs("Gradle task bake output should contains bake help description")
@@ -250,9 +255,10 @@ class BakeryPluginFunctionalTests {
             .describedAs("$SETTINGS_FILE should exists.")
             .isEqualTo("${projectDir.path}$separator$SETTINGS_FILE")
         assertThat(
-            projectDir.resolve(GRADLE_DIR)
+            projectDir
+                .resolve(GRADLE_DIR)
                 .resolve(LIBS_VERSIONS_TOML_FILE)
-                .path
+                .path,
         ).describedAs("$LIBS_VERSIONS_TOML_FILE should exists.")
             .isEqualTo("${projectDir.path}$separator$GRADLE_DIR$separator$LIBS_VERSIONS_TOML_FILE")
         assertThat(projectDir.resolve(CONFIG_FILE).path)
@@ -321,18 +327,20 @@ class BakeryPluginFunctionalTests {
             .apply(log::info)
             .apply(::println)
 
-        projectDir.resolve(BUILD_FILE)
+        projectDir
+            .resolve(BUILD_FILE)
             .readText(UTF_8)
             .run(::assertThat)
             .describedAs("Proves gradle script use extension and config file are accorded")
             .contains("""bakery { configPath = file("$CONFIG_FILE").absolutePath }""")
 
-        val result = create()
-            .forwardOutput()
-            .withPluginClasspath()
-            .withArguments("tasks", "--group=$BAKERY_GROUP")
-            .withProjectDir(projectDir)
-            .build()
+        val result =
+            create()
+                .forwardOutput()
+                .withPluginClasspath()
+                .withArguments("tasks", "--group=$BAKERY_GROUP")
+                .withProjectDir(projectDir)
+                .build()
 
         assertThat(result.output)
             .describedAs("""Gradle task tasks output should contains deploySite and deployMaquette""")
@@ -342,7 +350,6 @@ class BakeryPluginFunctionalTests {
             .apply(log::info)
             .apply(::println)
     }
-
 
     // ========================================================================
     // PHASE 3: Integration Tests (Future)
@@ -384,6 +391,5 @@ class BakeryPluginFunctionalTests {
             .apply(::println)
     }
 
-    //TODO: WIP there, testing differents type of configuration like gradle.properties, yaml file or cli parameters
-
+    // TODO: WIP there, testing differents type of configuration like gradle.properties, yaml file or cli parameters
 }

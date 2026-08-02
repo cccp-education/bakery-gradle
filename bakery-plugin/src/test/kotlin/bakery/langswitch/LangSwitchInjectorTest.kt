@@ -1,15 +1,15 @@
 package bakery.langswitch
 
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
 
 class LangSwitchInjectorTest {
-
     private val labels = mapOf("fr" to "Fran\u00e7ais", "en" to "English")
 
-    private val menuThyme = """
+    private val menuThyme =
+        """
         <nav class="navbar">
             <div class="container">
                 <a class="navbar-brand" href="#">Fixture</a>
@@ -18,9 +18,14 @@ class LangSwitchInjectorTest {
                 </div>
             </div>
         </nav>
-    """.trimIndent()
+        """.trimIndent()
 
-    private fun render(supported: List<String>, default: String, current: String, path: String): String {
+    private fun render(
+        supported: List<String>,
+        default: String,
+        current: String,
+        path: String,
+    ): String {
         val links = LangSwitchMenu(supported, default, current, path).generateLinks()
         return LangSwitchThymeleafRenderer(labels).render(links)
     }
@@ -42,20 +47,21 @@ class LangSwitchInjectorTest {
         val result = injector.inject(menuThyme, fragment)
         assertTrue(
             result.contains("lang-switcher-container"),
-            "the lang-switcher-container div should still be present"
+            "the lang-switcher-container div should still be present",
         )
     }
 
     @Test
     fun `inject replaces existing content inside lang-switcher-container`() {
         val injector = LangSwitchInjector()
-        val menuWithExisting = """
+        val menuWithExisting =
+            """
             <nav>
                 <div class="lang-switcher-container">
                     <p>old content</p>
                 </div>
             </nav>
-        """.trimIndent()
+            """.trimIndent()
         val fragment = render(listOf("fr", "en"), "fr", "fr", "")
         val result = injector.inject(menuWithExisting, fragment)
         assertFalse(result.contains("old content"), "old content should be replaced")

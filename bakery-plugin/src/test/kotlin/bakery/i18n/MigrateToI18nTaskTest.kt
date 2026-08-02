@@ -12,20 +12,20 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class MigrateToI18nTaskTest {
-
     @TempDir
     lateinit var tempDir: File
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class TaskRegistration {
-
         @Test
         fun `task is registered with correct group and description`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(tempDir)
-                .withName("test-migrate-i18n")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(tempDir)
+                    .withName("test-migrate-i18n")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val task = project.tasks.register("migrateToI18n", MigrateToI18nTask::class.java).get()
@@ -37,10 +37,12 @@ class MigrateToI18nTaskTest {
 
         @Test
         fun `task initializes all CLI properties with empty defaults`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(tempDir)
-                .withName("test-migrate-defaults")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(tempDir)
+                    .withName("test-migrate-defaults")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val task = project.tasks.register("migrateToI18n", MigrateToI18nTask::class.java).get()
@@ -58,13 +60,14 @@ class MigrateToI18nTaskTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class ResolveIntention {
-
         @Test
         fun `uses CLI siteDir when set`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(tempDir)
-                .withName("test-cli-site")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(tempDir)
+                    .withName("test-cli-site")
+                    .build()
 
             val task = project.tasks.register("migrateToI18n", MigrateToI18nTask::class.java).get()
             task.i18nSite.set("/home/user/mon-site")
@@ -79,10 +82,12 @@ class MigrateToI18nTaskTest {
 
         @Test
         fun `uses CLI langs when set`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(tempDir)
-                .withName("test-cli-langs")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(tempDir)
+                    .withName("test-cli-langs")
+                    .build()
 
             val task = project.tasks.register("migrateToI18n", MigrateToI18nTask::class.java).get()
             task.i18nSite.set("/home/user/mon-site")
@@ -95,10 +100,12 @@ class MigrateToI18nTaskTest {
 
         @Test
         fun `uses CLI defaultLang when set`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(tempDir)
-                .withName("test-cli-default-lang")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(tempDir)
+                    .withName("test-cli-default-lang")
+                    .build()
 
             val task = project.tasks.register("migrateToI18n", MigrateToI18nTask::class.java).get()
             task.i18nSite.set("/home/user/mon-site")
@@ -111,10 +118,12 @@ class MigrateToI18nTaskTest {
 
         @Test
         fun `uses CLI dryRun false when set`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(tempDir)
-                .withName("test-cli-dryrun")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(tempDir)
+                    .withName("test-cli-dryrun")
+                    .build()
 
             val task = project.tasks.register("migrateToI18n", MigrateToI18nTask::class.java).get()
             task.i18nSite.set("/home/user/mon-site")
@@ -127,18 +136,21 @@ class MigrateToI18nTaskTest {
 
         @Test
         fun `falls back to DSL when CLI is blank`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(tempDir)
-                .withName("test-dsl-fallback")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(tempDir)
+                    .withName("test-dsl-fallback")
+                    .build()
 
             val task = project.tasks.register("migrateToI18n", MigrateToI18nTask::class.java).get()
-            task.dslIntention = I18nMigrationIntention(
-                siteDir = "/home/user/dsl-site",
-                languages = listOf("en", "es"),
-                defaultLanguage = "en",
-                dryRun = false
-            )
+            task.dslIntention =
+                I18nMigrationIntention(
+                    siteDir = "/home/user/dsl-site",
+                    languages = listOf("en", "es"),
+                    defaultLanguage = "en",
+                    dryRun = false,
+                )
 
             val intention = task.resolveIntention()
 
@@ -150,17 +162,20 @@ class MigrateToI18nTaskTest {
 
         @Test
         fun `CLI siteDir wins over DSL`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(tempDir)
-                .withName("test-cli-wins-site")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(tempDir)
+                    .withName("test-cli-wins-site")
+                    .build()
 
             val task = project.tasks.register("migrateToI18n", MigrateToI18nTask::class.java).get()
             task.i18nSite.set("/home/user/cli-site")
-            task.dslIntention = I18nMigrationIntention(
-                siteDir = "/home/user/dsl-site",
-                languages = listOf("en")
-            )
+            task.dslIntention =
+                I18nMigrationIntention(
+                    siteDir = "/home/user/dsl-site",
+                    languages = listOf("en"),
+                )
 
             val intention = task.resolveIntention()
 
@@ -169,18 +184,21 @@ class MigrateToI18nTaskTest {
 
         @Test
         fun `CLI langs win over DSL`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(tempDir)
-                .withName("test-cli-wins-langs")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(tempDir)
+                    .withName("test-cli-wins-langs")
+                    .build()
 
             val task = project.tasks.register("migrateToI18n", MigrateToI18nTask::class.java).get()
             task.i18nSite.set("/home/user/mon-site")
             task.i18nLangs.set("en,ar")
-            task.dslIntention = I18nMigrationIntention(
-                siteDir = "/home/user/mon-site",
-                languages = listOf("en", "es", "zh")
-            )
+            task.dslIntention =
+                I18nMigrationIntention(
+                    siteDir = "/home/user/mon-site",
+                    languages = listOf("en", "es", "zh"),
+                )
 
             val intention = task.resolveIntention()
 
@@ -189,18 +207,21 @@ class MigrateToI18nTaskTest {
 
         @Test
         fun `CLI defaultLang wins over DSL`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(tempDir)
-                .withName("test-cli-wins-default-lang")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(tempDir)
+                    .withName("test-cli-wins-default-lang")
+                    .build()
 
             val task = project.tasks.register("migrateToI18n", MigrateToI18nTask::class.java).get()
             task.i18nSite.set("/home/user/mon-site")
             task.i18nDefaultLang.set("ar")
-            task.dslIntention = I18nMigrationIntention(
-                siteDir = "/home/user/mon-site",
-                defaultLanguage = "en"
-            )
+            task.dslIntention =
+                I18nMigrationIntention(
+                    siteDir = "/home/user/mon-site",
+                    defaultLanguage = "en",
+                )
 
             val intention = task.resolveIntention()
 
@@ -209,18 +230,21 @@ class MigrateToI18nTaskTest {
 
         @Test
         fun `CLI dryRun wins over DSL`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(tempDir)
-                .withName("test-cli-wins-dryrun")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(tempDir)
+                    .withName("test-cli-wins-dryrun")
+                    .build()
 
             val task = project.tasks.register("migrateToI18n", MigrateToI18nTask::class.java).get()
             task.i18nSite.set("/home/user/mon-site")
             task.i18nDryRun.set("false")
-            task.dslIntention = I18nMigrationIntention(
-                siteDir = "/home/user/mon-site",
-                dryRun = true
-            )
+            task.dslIntention =
+                I18nMigrationIntention(
+                    siteDir = "/home/user/mon-site",
+                    dryRun = true,
+                )
 
             val intention = task.resolveIntention()
 
@@ -229,10 +253,12 @@ class MigrateToI18nTaskTest {
 
         @Test
         fun `throws when no siteDir in CLI or DSL`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(tempDir)
-                .withName("test-no-site")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(tempDir)
+                    .withName("test-no-site")
+                    .build()
 
             val task = project.tasks.register("migrateToI18n", MigrateToI18nTask::class.java).get()
 
@@ -243,10 +269,12 @@ class MigrateToI18nTaskTest {
 
         @Test
         fun `uses defaults for langs and dryRun when only CLI siteDir set`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(tempDir)
-                .withName("test-defaults")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(tempDir)
+                    .withName("test-defaults")
+                    .build()
 
             val task = project.tasks.register("migrateToI18n", MigrateToI18nTask::class.java).get()
             task.i18nSite.set("/home/user/mon-site")
@@ -260,10 +288,12 @@ class MigrateToI18nTaskTest {
 
         @Test
         fun `parses comma-separated langs with whitespace`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(tempDir)
-                .withName("test-langs-whitespace")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(tempDir)
+                    .withName("test-langs-whitespace")
+                    .build()
 
             val task = project.tasks.register("migrateToI18n", MigrateToI18nTask::class.java).get()
             task.i18nSite.set("/home/user/mon-site")
@@ -278,16 +308,17 @@ class MigrateToI18nTaskTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class ExecuteMigration {
-
         @TempDir
         lateinit var testDir: File
 
         @Test
         fun `warns when site directory does not exist`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(testDir)
-                .withName("test-no-site-dir")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(testDir)
+                    .withName("test-no-site-dir")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val task = project.tasks.register("migrateToI18n", MigrateToI18nTask::class.java).get()
@@ -298,10 +329,12 @@ class MigrateToI18nTaskTest {
 
         @Test
         fun `warns when templates directory does not exist`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(testDir)
-                .withName("test-no-templates")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(testDir)
+                    .withName("test-no-templates")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val siteDir = testDir.resolve("site-no-tpl")
@@ -315,10 +348,12 @@ class MigrateToI18nTaskTest {
 
         @Test
         fun `executes migration with FakeLlmService and logs result`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(testDir)
-                .withName("test-execute-migration")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(testDir)
+                    .withName("test-execute-migration")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val siteDir = testDir.resolve("my-site")
@@ -339,10 +374,12 @@ class MigrateToI18nTaskTest {
 
         @Test
         fun `dry-run true does not write files`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(testDir)
-                .withName("test-dryrun-true")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(testDir)
+                    .withName("test-dryrun-true")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val siteDir = testDir.resolve("dryrun-site")
@@ -363,10 +400,12 @@ class MigrateToI18nTaskTest {
 
         @Test
         fun `resolves siteDir relative to contentRootDir`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(testDir)
-                .withName("test-relative-site")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(testDir)
+                    .withName("test-relative-site")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val contentRoot = testDir.resolve("content-root")

@@ -5,21 +5,25 @@ import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
 import org.assertj.core.api.Assertions.assertThat
 import org.gradle.testkit.runner.GradleRunner.create
-import java.io.File
 import kotlin.text.Charsets.UTF_8
 
-class ScaffoldSteps(private val world: BakeryWorld) {
-
+class ScaffoldSteps(
+    private val world: BakeryWorld,
+) {
     var lastFailedOutput: String? = null
     private val props = linkedMapOf("configPath" to "file(\"site.yml\").absolutePath")
 
     @And("the bakery extension defines {string} as {string}")
-    fun defineExtensionProperty(key: String, value: String) {
-        props[key] = when (key) {
-            "sitesBaseDir" -> "file(\"$value\").absolutePath"
-            "siteName" -> "\"$value\""
-            else -> "file(\"$value\").absolutePath"
-        }
+    fun defineExtensionProperty(
+        key: String,
+        value: String,
+    ) {
+        props[key] =
+            when (key) {
+                "sitesBaseDir" -> "file(\"$value\").absolutePath"
+                "siteName" -> "\"$value\""
+                else -> "file(\"$value\").absolutePath"
+            }
         rebuildBuildFile()
     }
 
@@ -31,11 +35,12 @@ class ScaffoldSteps(private val world: BakeryWorld) {
 
     @When("I am executing the task {string} expecting failure")
     fun runTaskExpectingFailure(taskName: String) {
-        val result = create()
-            .withProjectDir(world.projectDir!!)
-            .withArguments(taskName, "--stacktrace")
-            .withPluginClasspath()
-            .buildAndFail()
+        val result =
+            create()
+                .withProjectDir(world.projectDir!!)
+                .withArguments(taskName, "--stacktrace")
+                .withPluginClasspath()
+                .buildAndFail()
         world.buildResult = result
         lastFailedOutput = result.output
     }
@@ -52,19 +57,35 @@ class ScaffoldSteps(private val world: BakeryWorld) {
     }
 
     @Then("the directory {string} should have a {string} file for site configuration")
-    fun checkSiteConfigInDirectory(dirPath: String, configFileName: String) {
+    fun checkSiteConfigInDirectory(
+        dirPath: String,
+        configFileName: String,
+    ) {
         assertThat(world.projectDir!!.resolve(dirPath).resolve(configFileName)).exists().isFile
     }
 
     @Then("the directory {string} should have a directory named {string} who contains {string} file")
-    fun checkSiteFolderInDirectory(dirPath: String, siteDirName: String, fileName: String) {
-        assertThat(world.projectDir!!.resolve(dirPath).resolve(siteDirName).resolve(fileName)).exists().isFile
+    fun checkSiteFolderInDirectory(
+        dirPath: String,
+        siteDirName: String,
+        fileName: String,
+    ) {
+        assertThat(
+            world.projectDir!!
+                .resolve(dirPath)
+                .resolve(siteDirName)
+                .resolve(fileName),
+        ).exists().isFile
     }
 
     @Then("the directory {string} should have a file named {string} who contains {string}, {string}, {string} and {string}")
     fun checkGitIgnoreInDirectory(
-        dirPath: String, gitIgnoreFileName: String,
-        config: String, dotGradle: String, buildDir: String, dotKotlin: String,
+        dirPath: String,
+        gitIgnoreFileName: String,
+        config: String,
+        dotGradle: String,
+        buildDir: String,
+        dotKotlin: String,
     ) {
         val file = world.projectDir!!.resolve(dirPath).resolve(gitIgnoreFileName)
         assertThat(file).exists().isFile
@@ -72,7 +93,12 @@ class ScaffoldSteps(private val world: BakeryWorld) {
     }
 
     @Then("the directory {string} should have a file named {string} who contains {string} and {string}")
-    fun checkGitAttributesInDirectory(dirPath: String, name: String, eol: String, crlf: String) {
+    fun checkGitAttributesInDirectory(
+        dirPath: String,
+        name: String,
+        eol: String,
+        crlf: String,
+    ) {
         val file = world.projectDir!!.resolve(dirPath).resolve(name)
         assertThat(file).exists().isFile
         assertThat(file.readText(UTF_8)).contains(eol, crlf)
@@ -91,7 +117,8 @@ class ScaffoldSteps(private val world: BakeryWorld) {
 bakery {
 $dslBody
 }
-""", UTF_8
+""",
+            UTF_8,
         )
     }
 }

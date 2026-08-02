@@ -11,7 +11,6 @@ class LlmServiceTranslationAdapter(
     private val llm: LlmService,
     private val docKnowledgeBase: DocKnowledgeBase = DocKnowledgeBase.forJBake(),
 ) : TranslationService {
-
     override fun translate(request: TranslationRequest): TranslationResult {
         val prompt = buildPrompt(request)
         return try {
@@ -29,17 +28,20 @@ class LlmServiceTranslationAdapter(
 
     private fun buildPrompt(request: TranslationRequest): String {
         val docContext = docKnowledgeBase.queryContext(request.sourceText)
-        val docSection = if (docContext.isNotBlank()) {
-            """JBake reference (this content uses JBake templates and conventions):
+        val docSection =
+            if (docContext.isNotBlank()) {
+                """JBake reference (this content uses JBake templates and conventions):
 $docContext
 
 """
-        } else ""
+            } else {
+                ""
+            }
 
-        return """${docSection}Translate from ${request.sourceLanguage} to ${request.targetLanguage}.
+        return """You are a professional translator. ${docSection}Translate from ${request.sourceLanguage} to ${request.targetLanguage}.
 Preserve ALL backtick code spans (`...`) exactly as-is — never modify backtick content, spacing, or position.
 This text may be a fragment of a larger sentence — translate the fragment without requesting more context.
-Output ONLY the translated text with zero explanation, commentary, introduction, or options.
+Output only the translated text — no explanation, no commentary, no introduction, no alternatives, no options.
 
 ${request.sourceText}"""
     }

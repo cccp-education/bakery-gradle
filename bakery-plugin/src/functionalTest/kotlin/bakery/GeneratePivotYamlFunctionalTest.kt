@@ -19,7 +19,6 @@ import java.io.File
  * AsciiDoc → YAML pivot.
  */
 class GeneratePivotYamlFunctionalTest {
-
     @TempDir
     lateinit var projectDir: File
 
@@ -27,7 +26,8 @@ class GeneratePivotYamlFunctionalTest {
     fun `generatePivotYaml produces yaml file from adoc input via --input option`() {
         createProject()
         val adocFile = projectDir.resolve("input.adoc")
-        adocFile.writeText("""
+        adocFile.writeText(
+            """
             title=Test pivot
             date=2026-01-01
             type=page
@@ -37,13 +37,16 @@ class GeneratePivotYamlFunctionalTest {
             == Titre principal
 
             Paragraphe de contenu.
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("generatePivotYaml", "--input=input.adoc", "--output=pivot.yaml")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generatePivotYaml", "--input=input.adoc", "--output=pivot.yaml")
+                .build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
         val outputFile = projectDir.resolve("pivot.yaml")
@@ -62,7 +65,8 @@ class GeneratePivotYamlFunctionalTest {
     fun `generatePivotYaml derives default output path from --input when --output omitted`() {
         createProject()
         val adocFile = projectDir.resolve("article.adoc")
-        adocFile.writeText("""
+        adocFile.writeText(
+            """
             title=Convention output
             date=2026-06-24
             type=page
@@ -72,13 +76,16 @@ class GeneratePivotYamlFunctionalTest {
             == Section
 
             Contenu.
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("generatePivotYaml", "--input=article.adoc")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generatePivotYaml", "--input=article.adoc")
+                .build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
         // Convention PivotOutputResolver : {stem}.pivot.yaml
@@ -91,11 +98,13 @@ class GeneratePivotYamlFunctionalTest {
     fun `generatePivotYaml fails when input file does not exist`() {
         createProject()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("generatePivotYaml", "--input=nonexistent.adoc", "--output=pivot.yaml")
-            .buildAndFail()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generatePivotYaml", "--input=nonexistent.adoc", "--output=pivot.yaml")
+                .buildAndFail()
 
         assertThat(result.output).contains("nonexistent.adoc")
         assertThat(result.output).contains("n'existe pas")
@@ -105,11 +114,13 @@ class GeneratePivotYamlFunctionalTest {
     fun `generatePivotYaml fails when --input option is missing`() {
         createProject()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("generatePivotYaml")
-            .buildAndFail()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generatePivotYaml")
+                .buildAndFail()
 
         assertThat(result.output).contains("--input")
         assertThat(result.output).contains("requis")
@@ -119,11 +130,13 @@ class GeneratePivotYamlFunctionalTest {
     fun `generatePivotYaml task is registered in generate group`() {
         createProject()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("tasks", "--group", "generate")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("tasks", "--group", "generate")
+                .build()
 
         assertThat(result.output).contains("generatePivotYaml")
     }
@@ -132,7 +145,8 @@ class GeneratePivotYamlFunctionalTest {
     fun `generatePivotYaml does not rewrite identical output on second invocation`() {
         createProject()
         val adocFile = projectDir.resolve("article.adoc")
-        adocFile.writeText("""
+        adocFile.writeText(
+            """
             title=Idempotence test
             date=2026-06-24
             type=page
@@ -142,9 +156,11 @@ class GeneratePivotYamlFunctionalTest {
             == Section unique
 
             Contenu stable.
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
-        GradleRunner.create()
+        GradleRunner
+            .create()
             .withProjectDir(projectDir)
             .withPluginClasspath()
             .withArguments("generatePivotYaml", "--input=article.adoc", "--output=pivot.yaml")
@@ -155,11 +171,13 @@ class GeneratePivotYamlFunctionalTest {
         val firstContent = outputFile.readText()
         assertThat(firstContent).contains("Section unique")
 
-        val result2 = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("generatePivotYaml", "--input=article.adoc", "--output=pivot.yaml")
-            .build()
+        val result2 =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("generatePivotYaml", "--input=article.adoc", "--output=pivot.yaml")
+                .build()
 
         assertThat(result2.output).contains("BUILD SUCCESSFUL")
         val secondContent = outputFile.readText()
@@ -167,13 +185,17 @@ class GeneratePivotYamlFunctionalTest {
     }
 
     private fun createProject() {
-        projectDir.resolve("settings.gradle.kts").writeText("""
+        projectDir.resolve("settings.gradle.kts").writeText(
+            """
             pluginManagement { repositories { gradlePluginPortal(); mavenLocal() } }
             rootProject.name = "pivot-yaml-test"
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
-        projectDir.resolve("build.gradle.kts").writeText("""
+        projectDir.resolve("build.gradle.kts").writeText(
+            """
             plugins { id("education.cccp.bakery") }
-        """.trimIndent())
+            """.trimIndent(),
+        )
     }
 }

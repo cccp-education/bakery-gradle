@@ -9,7 +9,7 @@ data class ContentMigrationIntention(
     val targetLanguages: List<String> = listOf("en"),
     val dryRun: Boolean = true,
     val excludePaths: List<String> = emptyList(),
-    val parallelism: Int = 1
+    val parallelism: Int = 1,
 ) {
     init {
         require(sourceDir.isNotBlank()) { "Le repertoire source (sourceDir) est obligatoire pour la migration de contenu." }

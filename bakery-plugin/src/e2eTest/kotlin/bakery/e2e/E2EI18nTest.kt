@@ -8,18 +8,18 @@ import org.junit.jupiter.api.Test
 @Tag("e2e")
 @DisplayName("E2E - i18n Language Support")
 class E2EI18nTest : E2ETestBase() {
-
     @Test
     @DisplayName("i18n: English site renders with lang=en, dir=ltr, and English messages")
     fun `english site renders with correct lang dir and messages`() {
-        val path = serveHtml(
-            "blog",
-            mapOf(
-                "published_posts" to emptyList<Any>(),
-                "content" to mapOf("rootpath" to "")
-            ),
-            language = "en"
-        )
+        val path =
+            serveHtml(
+                "blog",
+                mapOf(
+                    "published_posts" to emptyList<Any>(),
+                    "content" to mapOf("rootpath" to ""),
+                ),
+                language = "en",
+            )
 
         val page = navigateTo(path)
 
@@ -34,14 +34,15 @@ class E2EI18nTest : E2ETestBase() {
     @Test
     @DisplayName("i18n: Arabic site renders with lang=ar, dir=rtl, and Arabic messages")
     fun `arabic site renders with correct lang dir and arabic messages`() {
-        val path = serveHtml(
-            "blog",
-            mapOf(
-                "published_posts" to emptyList<Any>(),
-                "content" to mapOf("rootpath" to "")
-            ),
-            language = "ar"
-        )
+        val path =
+            serveHtml(
+                "blog",
+                mapOf(
+                    "published_posts" to emptyList<Any>(),
+                    "content" to mapOf("rootpath" to ""),
+                ),
+                language = "ar",
+            )
 
         val page = navigateTo(path)
 

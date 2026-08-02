@@ -28,19 +28,21 @@ open class ThemeIntentionDsl {
      *
      * @throws IllegalArgumentException si la description est vide
      */
-    fun toIntention(): ThemeIntention = ThemeIntention(
-        description = description,
-        variant = ThemeVariant.fromStringOrDefault(variant),
-        overrides = ThemeOverrides(
-            primaryColor = primaryColor,
-            secondaryColor = secondaryColor,
-            accentColor = accentColor,
-            backgroundColor = backgroundColor,
-            textColor = textColor,
-            fontFamily = fontFamily,
-            headingFont = headingFont,
-            logoUrl = logoUrl,
-            faviconUrl = faviconUrl
+    fun toIntention(): ThemeIntention =
+        ThemeIntention(
+            description = description,
+            variant = ThemeVariant.fromStringOrDefault(variant),
+            overrides =
+                ThemeOverrides(
+                    primaryColor = primaryColor,
+                    secondaryColor = secondaryColor,
+                    accentColor = accentColor,
+                    backgroundColor = backgroundColor,
+                    textColor = textColor,
+                    fontFamily = fontFamily,
+                    headingFont = headingFont,
+                    logoUrl = logoUrl,
+                    faviconUrl = faviconUrl,
+                ),
         )
-    )
 }

@@ -28,7 +28,7 @@ data class ArticleIntention(
     val ton: ArticleTon = ArticleTon.INFORMATIF,
     val audience: ArticleAudience = ArticleAudience.GENERAL,
     private val rawKeywords: List<String> = emptyList(),
-    val lang: String = "fr"
+    val lang: String = "fr",
 ) {
     init {
         require(topic.isNotBlank()) { "Le sujet (topic) est obligatoire pour générer un article." }
@@ -36,10 +36,11 @@ data class ArticleIntention(
     }
 
     /** Mots-clés nettoyés : trimmés, non-vides, dédupliqués. */
-    val keywords: List<String> = rawKeywords
-        .map { it.trim() }
-        .filter { it.isNotBlank() }
-        .distinct()
+    val keywords: List<String> =
+        rawKeywords
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+            .distinct()
 
     /**
      * Génère un contexte textuel injectable dans le prompt LLM.
@@ -47,15 +48,16 @@ data class ArticleIntention(
      * Format structuré pour guider le modèle vers le ton, l'audience
      * et les mots-clés attendus.
      */
-    fun toPromptContext(): String = buildString {
-        appendLine("Sujet : $topic")
-        appendLine("Ton : ${ton.label}")
-        appendLine("Public cible : ${audience.label}")
-        appendLine("Langue : $lang")
-        if (keywords.isNotEmpty()) {
-            appendLine("Mots-clés : ${keywords.joinToString(", ")}")
+    fun toPromptContext(): String =
+        buildString {
+            appendLine("Sujet : $topic")
+            appendLine("Ton : ${ton.label}")
+            appendLine("Public cible : ${audience.label}")
+            appendLine("Langue : $lang")
+            if (keywords.isNotEmpty()) {
+                appendLine("Mots-clés : ${keywords.joinToString(", ")}")
+            }
         }
-    }
 }
 
 /**
@@ -66,11 +68,13 @@ data class ArticleIntention(
  * - PEDAGOGIQUE : progressif, exemples, exercices
  * - CONVAINCRE : argumenté, comparaisons, avis tranché
  */
-enum class ArticleTon(val label: String) {
+enum class ArticleTon(
+    val label: String,
+) {
     INFORMATIF("informatif"),
     TECHNIQUE("technique"),
     PEDAGOGIQUE("pédagogique"),
-    CONVAINCRE("convaincre")
+    CONVAINCRE("convaincre"),
 }
 
 /**
@@ -80,8 +84,10 @@ enum class ArticleTon(val label: String) {
  * - DEVELOPPEUR : professionnel logiciel, familiarité code/outils
  * - FORMATEUR : enseignant, familiarité pédagogie et contenu
  */
-enum class ArticleAudience(val label: String) {
+enum class ArticleAudience(
+    val label: String,
+) {
     GENERAL("grand public"),
     DEVELOPPEUR("développeur"),
-    FORMATEUR("formateur")
+    FORMATEUR("formateur"),
 }

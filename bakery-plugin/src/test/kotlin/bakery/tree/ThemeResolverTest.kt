@@ -9,7 +9,6 @@ import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
 class ThemeResolverTest {
-
     private fun sampleTree(): SiteTree {
         val ab = Article(path = "formations/ab-partition")
         val cd = Article(path = "formations/cd-partition")
@@ -86,10 +85,11 @@ class ThemeResolverTest {
     @Test
     fun `article own override takes precedence over section override`() {
         val tree = sampleTree()
-        val overrides = mapOf(
-            "formations" to ThemeConfig(primaryColor = "#f00", mode = "dark"),
-            "formations/ab-partition" to ThemeConfig(primaryColor = "#00f", mode = "light")
-        )
+        val overrides =
+            mapOf(
+                "formations" to ThemeConfig(primaryColor = "#f00", mode = "dark"),
+                "formations/ab-partition" to ThemeConfig(primaryColor = "#00f", mode = "light"),
+            )
 
         val resolver = ThemeResolver(tree, overrides, default = ThemeConfig(primaryColor = "#abc", mode = "auto"))
 
@@ -104,10 +104,11 @@ class ThemeResolverTest {
     @Test
     fun `sibling article without own override inherits section override`() {
         val tree = sampleTree()
-        val overrides = mapOf(
-            "formations" to ThemeConfig(primaryColor = "#f00", mode = "dark"),
-            "formations/ab-partition" to ThemeConfig(primaryColor = "#00f", mode = "light")
-        )
+        val overrides =
+            mapOf(
+                "formations" to ThemeConfig(primaryColor = "#f00", mode = "dark"),
+                "formations/ab-partition" to ThemeConfig(primaryColor = "#00f", mode = "light"),
+            )
 
         val resolver = ThemeResolver(tree, overrides, default = ThemeConfig(primaryColor = "#abc", mode = "auto"))
 
@@ -137,13 +138,22 @@ class ThemeResolverTest {
     @Test
     fun `override does not merge with inherited - replacement is total`() {
         val tree = sampleTree()
-        val overrides = mapOf(
-            "formations" to ThemeConfig(primaryColor = "#f00")
-        )
+        val overrides =
+            mapOf(
+                "formations" to ThemeConfig(primaryColor = "#f00"),
+            )
 
-        val resolver = ThemeResolver(tree, overrides, default = ThemeConfig(
-            primaryColor = "#abc", mode = "dark", fontFamily = "Inter"
-        ))
+        val resolver =
+            ThemeResolver(
+                tree,
+                overrides,
+                default =
+                    ThemeConfig(
+                        primaryColor = "#abc",
+                        mode = "dark",
+                        fontFamily = "Inter",
+                    ),
+            )
 
         val section = tree.findByPath("formations")!!
         val resolved = resolver.effectiveTheme(section)

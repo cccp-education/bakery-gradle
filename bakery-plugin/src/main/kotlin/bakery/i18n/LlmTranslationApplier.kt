@@ -12,8 +12,9 @@ import contracts.i18n.TranslationService
  * chaque valeur FR est traduite une par une. En cas d'échec du service,
  * la valeur FR originale est conservée (fallback, pas de crash).
  */
-class LlmTranslationApplier(private val translator: TranslationService) {
-
+class LlmTranslationApplier(
+    private val translator: TranslationService,
+) {
     fun translateFrenchToEnglish(frenchValues: Map<String, String>): Map<String, String> {
         if (frenchValues.isEmpty()) return emptyMap()
 
@@ -26,11 +27,12 @@ class LlmTranslationApplier(private val translator: TranslationService) {
     }
 
     private fun translateSingle(value: String): String {
-        val request = TranslationRequest(
-            sourceText = value,
-            sourceLanguage = "fr",
-            targetLanguage = "en"
-        )
+        val request =
+            TranslationRequest(
+                sourceText = value,
+                sourceLanguage = "fr",
+                targetLanguage = "en",
+            )
         return when (val outcome = translator.translate(request)) {
             is TranslationResult.Success -> outcome.translatedText
             is TranslationResult.Failure -> value

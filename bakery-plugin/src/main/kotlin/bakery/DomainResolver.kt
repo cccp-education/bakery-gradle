@@ -15,7 +15,7 @@ data class DomainResolver<T>(
                         domain = name,
                         message = e.message ?: "Unknown error",
                         cause = e as? Exception,
-                    )
+                    ),
                 )
                 fallback
             },

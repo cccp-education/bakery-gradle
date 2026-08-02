@@ -6,7 +6,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class NodeMetadataTest {
-
     @Test
     fun `empty metadata has all null fields`() {
         val meta = NodeMetadata()
@@ -27,12 +26,13 @@ class NodeMetadataTest {
 
     @Test
     fun `metadata with all fields`() {
-        val meta = NodeMetadata(
-            title = "AB Partition",
-            description = "Apprendre la technique AB Partition",
-            tags = listOf("formation", "partition", "docker"),
-            layout = LayoutType.SIDEBAR_RIGHT
-        )
+        val meta =
+            NodeMetadata(
+                title = "AB Partition",
+                description = "Apprendre la technique AB Partition",
+                tags = listOf("formation", "partition", "docker"),
+                layout = LayoutType.SIDEBAR_RIGHT,
+            )
         assertEquals("AB Partition", meta.title)
         assertEquals("Apprendre la technique AB Partition", meta.description)
         assertEquals(listOf("formation", "partition", "docker"), meta.tags)

@@ -25,11 +25,9 @@ import kotlin.text.Charsets.UTF_8
  * Ici : on vérifie que le fichier généré contient bien les bonnes propriétés.
  */
 class IntegrationRestoredFunctionalTests {
-
     @Nested
     @DisplayName("ThemeIntention — injection preset colors (BKY-IA-2)")
     inner class ThemePresetInjectionTest {
-
         @TempDir
         lateinit var projectDir: File
 
@@ -39,14 +37,16 @@ class IntegrationRestoredFunctionalTests {
                 description = "Magazine editorial",
                 variant = "magazine",
                 sitesBaseDir = "office/sites",
-                siteName = "mag-site"
+                siteName = "mag-site",
             )
 
-            val result = GradleRunner.create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
+            val result =
+                GradleRunner
+                    .create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite")
+                    .build()
 
             val siteDir = projectDir.resolve("office/sites/mag-site")
             val jbakeProps = siteDir.resolve("site/jbake.properties")
@@ -61,7 +61,7 @@ class IntegrationRestoredFunctionalTests {
             description: String,
             variant: String,
             sitesBaseDir: String,
-            siteName: String
+            siteName: String,
         ) {
             val sbDsl = StringBuilder()
             sbDsl.appendLine("    sitesBaseDir = file(\"$sitesBaseDir\").absolutePath")
@@ -71,24 +71,27 @@ class IntegrationRestoredFunctionalTests {
             sbDsl.appendLine("        variant = \"$variant\"")
             sbDsl.appendLine("    }")
 
-            projectDir.resolve("settings.gradle.kts").writeText("""
+            projectDir.resolve("settings.gradle.kts").writeText(
+                """
                 pluginManagement { repositories { gradlePluginPortal(); mavenLocal() } }
                 rootProject.name = "theme-ia-site-test"
-            """.trimIndent())
+                """.trimIndent(),
+            )
 
-            projectDir.resolve("build.gradle.kts").writeText("""
+            projectDir.resolve("build.gradle.kts").writeText(
+                """
                 plugins { id("education.cccp.bakery") }
                 bakery {
                     configPath = file("site.yml").absolutePath
 $sbDsl            }
-            """.trimIndent() + "\n")
+                """.trimIndent() + "\n",
+            )
         }
     }
 
     @Nested
     @DisplayName("ScaffoldIntention — generateSite exécution réelle (BKY-IA-1)")
     inner class ScaffoldExecutionTest {
-
         @TempDir
         lateinit var projectDir: File
 
@@ -97,14 +100,16 @@ $sbDsl            }
             createProjectWithScaffoldIntention(
                 description = "Documentation API",
                 sitesBaseDir = "office/sites",
-                siteName = "api-docs"
+                siteName = "api-docs",
             )
 
-            val result = GradleRunner.create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
+            val result =
+                GradleRunner
+                    .create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite")
+                    .build()
 
             val siteDir = projectDir.resolve("office/sites/api-docs")
             assertThat(siteDir).exists().isDirectory
@@ -115,14 +120,16 @@ $sbDsl            }
         fun `backward compatibility - generateSite task produces siteDir with site yml`() {
             createMinimalBakeryProject(
                 sitesBaseDir = "office/sites",
-                siteName = "backward-compat"
+                siteName = "backward-compat",
             )
 
-            val result = GradleRunner.create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("generateSite")
-                .build()
+            val result =
+                GradleRunner
+                    .create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("generateSite")
+                    .build()
 
             val siteDir = projectDir.resolve("office/sites/backward-compat")
             assertThat(siteDir).exists().isDirectory
@@ -133,7 +140,7 @@ $sbDsl            }
         private fun createProjectWithScaffoldIntention(
             description: String,
             sitesBaseDir: String,
-            siteName: String
+            siteName: String,
         ) {
             val sbDsl = StringBuilder()
             sbDsl.appendLine("    sitesBaseDir = file(\"$sitesBaseDir\").absolutePath")
@@ -142,45 +149,52 @@ $sbDsl            }
             sbDsl.appendLine("        description = \"$description\"")
             sbDsl.appendLine("    }")
 
-            projectDir.resolve("settings.gradle.kts").writeText("""
+            projectDir.resolve("settings.gradle.kts").writeText(
+                """
                 pluginManagement { repositories { gradlePluginPortal(); mavenLocal() } }
                 rootProject.name = "scaffold-ia-test"
-            """.trimIndent())
+                """.trimIndent(),
+            )
 
-            projectDir.resolve("build.gradle.kts").writeText("""
+            projectDir.resolve("build.gradle.kts").writeText(
+                """
                 plugins { id("education.cccp.bakery") }
                 bakery {
                     configPath = file("site.yml").absolutePath
 $sbDsl            }
-            """.trimIndent() + "\n")
+                """.trimIndent() + "\n",
+            )
         }
 
         private fun createMinimalBakeryProject(
             sitesBaseDir: String,
-            siteName: String
+            siteName: String,
         ) {
             val sbDsl = StringBuilder()
             sbDsl.appendLine("    sitesBaseDir = file(\"$sitesBaseDir\").absolutePath")
             sbDsl.appendLine("    siteName = \"$siteName\"")
 
-            projectDir.resolve("settings.gradle.kts").writeText("""
+            projectDir.resolve("settings.gradle.kts").writeText(
+                """
                 pluginManagement { repositories { gradlePluginPortal(); mavenLocal() } }
                 rootProject.name = "backward-compat-test"
-            """.trimIndent())
+                """.trimIndent(),
+            )
 
-            projectDir.resolve("build.gradle.kts").writeText("""
+            projectDir.resolve("build.gradle.kts").writeText(
+                """
                 plugins { id("education.cccp.bakery") }
                 bakery {
                     configPath = file("site.yml").absolutePath
 $sbDsl                }
-            """.trimIndent() + "\n")
+                """.trimIndent() + "\n",
+            )
         }
     }
 
     @Nested
     @DisplayName("CollectAugmentedContext — tâches visibles dans collect group")
     inner class CollectGroupVisibilityTest {
-
         @TempDir
         lateinit var projectDir: File
 
@@ -189,11 +203,13 @@ $sbDsl                }
             setupGradleProject()
             setupSiteContent()
 
-            val result = GradleRunner.create()
-                .withProjectDir(projectDir)
-                .withPluginClasspath()
-                .withArguments("tasks", "--group", "collect")
-                .build()
+            val result =
+                GradleRunner
+                    .create()
+                    .withProjectDir(projectDir)
+                    .withPluginClasspath()
+                    .withArguments("tasks", "--group", "collect")
+                    .build()
 
             assertThat(result.output).contains("collectAugmentedContext")
             assertThat(result.output).contains("collectSiteContext")
@@ -205,14 +221,14 @@ $sbDsl                }
                 """
                 pluginManagement { repositories { gradlePluginPortal(); mavenLocal() } }
                 rootProject.name = "lens-test"
-                """.trimIndent()
+                """.trimIndent(),
             )
 
             projectDir.resolve("build.gradle.kts").writeText(
                 """
                 plugins { id("education.cccp.bakery") }
                 bakery { configPath = file("site.yml").absolutePath }
-                """.trimIndent()
+                """.trimIndent(),
             )
 
             projectDir.resolve("site.yml").writeText(
@@ -220,7 +236,7 @@ $sbDsl                }
                 bake: { srcPath: site, destDirPath: build/bake }
                 pushPage: { from: site, to: pages }
                 pushMaquette: { from: maquette, to: maquette-pages }
-                """.trimIndent()
+                """.trimIndent(),
             )
         }
 
@@ -232,7 +248,7 @@ $sbDsl                }
                 template.folder=templates
                 content.folder=content
                 render.tags=true
-                """.trimIndent()
+                """.trimIndent(),
             )
 
             val templatesDir = siteDir.resolve("templates")

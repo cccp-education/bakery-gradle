@@ -11,8 +11,9 @@ import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
 import org.assertj.core.api.Assertions.assertThat
 
-class SiteTreeTraversalSteps(private val world: BakeryWorld) {
-
+class SiteTreeTraversalSteps(
+    private val world: BakeryWorld,
+) {
     private fun sampleTree(): SiteTree {
         val ab = Article(path = "formations/ab-partition")
         val cd = Article(path = "formations/cd-partition")
@@ -32,7 +33,10 @@ class SiteTreeTraversalSteps(private val world: BakeryWorld) {
     private var labels: List<String> = emptyList()
 
     @Given("a tree with two sections {string} and {string} and two articles")
-    fun aTreeWithTwoSectionsAndTwoArticles(s1: String, s2: String) {
+    fun aTreeWithTwoSectionsAndTwoArticles(
+        s1: String,
+        s2: String,
+    ) {
         world.siteTree = sampleTree()
         assertThat(world.siteTree).isNotNull()
     }
@@ -48,7 +52,11 @@ class SiteTreeTraversalSteps(private val world: BakeryWorld) {
     }
 
     @Then("the path {string} comes before {string} before {string}")
-    fun thePathComesBeforeBefore(p1: String, p2: String, p3: String) {
+    fun thePathComesBeforeBefore(
+        p1: String,
+        p2: String,
+        p3: String,
+    ) {
         val i1 = walkedPaths.indexOf(p1)
         val i2 = walkedPaths.indexOf(p2)
         val i3 = walkedPaths.indexOf(p3)
@@ -74,7 +82,10 @@ class SiteTreeTraversalSteps(private val world: BakeryWorld) {
     }
 
     @Then("the leaves have paths {string} and {string}")
-    fun theLeavesHavePathsAnd(p1: String, p2: String) {
+    fun theLeavesHavePathsAnd(
+        p1: String,
+        p2: String,
+    ) {
         assertThat(leavesPaths).containsExactlyInAnyOrder(p1, p2)
     }
 
@@ -91,7 +102,11 @@ class SiteTreeTraversalSteps(private val world: BakeryWorld) {
     }
 
     @Then("the sections have paths {string} {string} and {string}")
-    fun theSectionsHavePaths(p1: String, p2: String, p3: String) {
+    fun theSectionsHavePaths(
+        p1: String,
+        p2: String,
+        p3: String,
+    ) {
         assertThat(sectionsPaths).containsExactlyInAnyOrder(p1, p2, p3)
     }
 
@@ -144,13 +159,14 @@ class SiteTreeTraversalSteps(private val world: BakeryWorld) {
 
     @When("I visit the tree labelling each node by its type")
     fun iVisitTheTreeLabellingEachNodeByItsType() {
-        labels = world.siteTree!!.visit { node ->
-            when (node) {
-                is Site -> "site"
-                is Section -> "section"
-                is Article -> "article"
+        labels =
+            world.siteTree!!.visit { node ->
+                when (node) {
+                    is Site -> "site"
+                    is Section -> "section"
+                    is Article -> "article"
+                }
             }
-        }
     }
 
     @Then("I get {int} labels")

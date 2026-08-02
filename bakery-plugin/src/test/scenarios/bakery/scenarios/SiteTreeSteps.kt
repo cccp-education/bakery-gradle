@@ -10,7 +10,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.assertThrows
 
 class SiteTreeSteps {
-
     private var site: Site? = null
     private var section: Section? = null
     private var article: Article? = null
@@ -50,7 +49,10 @@ class SiteTreeSteps {
     }
 
     @Given("a section {string} with an article {string}")
-    fun aSectionWithAnArticle(sectionPath: String, articlePath: String) {
+    fun aSectionWithAnArticle(
+        sectionPath: String,
+        articlePath: String,
+    ) {
         article = Article(path = articlePath)
         section = Section(path = sectionPath, articles = listOf(article!!))
     }
@@ -66,16 +68,21 @@ class SiteTreeSteps {
     }
 
     @Then("the section {string} has {int} article")
-    fun theSectionHasArticle(sectionPath: String, count: Int) {
+    fun theSectionHasArticle(
+        sectionPath: String,
+        count: Int,
+    ) {
         val found = site!!.sections.first { it.path == sectionPath }
         assertThat(found.articles).hasSize(count)
     }
 
     @Then("the article {string} is a leaf")
     fun theArticleIsALeaf(articlePath: String) {
-        val found = site!!.sections
-            .flatMap { it.articles }
-            .first { it.path == articlePath }
+        val found =
+            site!!
+                .sections
+                .flatMap { it.articles }
+                .first { it.path == articlePath }
         assertThat(found.isLeaf()).isTrue()
         assertThat(found.isSection()).isFalse()
     }

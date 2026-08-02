@@ -16,7 +16,6 @@ import java.io.File
 import java.io.File.createTempFile
 
 class TreeBakeSteps {
-
     private var yamlString: String? = null
     private var parsedConfig: SiteConfiguration? = null
     private var treeDto: SiteNodeDto? = null
@@ -24,26 +23,24 @@ class TreeBakeSteps {
     private var jbakePropsText: String? = null
     private val jsonMapper = jacksonObjectMapper()
 
-
     // ── helpers ──────────────────────────────────────────────────────
 
-    private fun siteDir(): File =
-        tempDir!!.resolve("site").also { it.mkdirs() }
+    private fun siteDir(): File = tempDir!!.resolve("site").also { it.mkdirs() }
 
     private fun writeDefaultJbakeProps(dir: File) {
         dir.resolve("jbake.properties").writeText("site.host=example.com\n")
     }
 
-
     // ── Scenario 1: null tree ────────────────────────────────────────
 
     @Given("a basic site.yml")
     fun aBasicSiteYml() {
-        yamlString = """
+        yamlString =
+            """
             |bake:
             |  srcPath: "site"
             |  destDirPath: "build/bake"
-        """.trimMargin()
+            """.trimMargin()
     }
 
     @When("I parse the site configuration")
@@ -56,12 +53,12 @@ class TreeBakeSteps {
         assertThat(parsedConfig!!.tree).isNull()
     }
 
-
     // ── Scenario 2: tree parsing ─────────────────────────────────────
 
     @Given("a site.yml with a tree section")
     fun aSiteYmlWithATreeSection() {
-        yamlString = """
+        yamlString =
+            """
             |bake:
             |  srcPath: "site"
             |  destDirPath: "build/bake"
@@ -74,7 +71,7 @@ class TreeBakeSteps {
             |      articles:
             |        - type: article
             |          path: "blog/post-1"
-        """.trimMargin()
+            """.trimMargin()
     }
 
     @Then("the tree field is present")
@@ -89,27 +86,35 @@ class TreeBakeSteps {
     }
 
     @Then("the parsed section {string} has {int} article")
-    fun theParsedSectionHasArticle(sectionPath: String, count: Int) {
+    fun theParsedSectionHasArticle(
+        sectionPath: String,
+        count: Int,
+    ) {
         val siteDto = parsedConfig!!.tree as SiteNodeDto.SiteDto
         val section = siteDto.sections.first { it.path == sectionPath }
         assertThat(section.articles).hasSize(count)
     }
 
-
     // ── Scenario 3: injection ────────────────────────────────────────
 
     @Given("a site.yml with tree section and output config")
     fun aSiteYmlWithTreeSectionAndOutputConfig() {
-        treeDto = SiteNodeDto.SiteDto(
-            path = "",
-            sections = listOf(
-                SiteNodeDto.SectionDto(
-                    path = "blog",
-                    articles = listOf(SiteNodeDto.ArticleDto(path = "blog/post-1"))
-                )
+        treeDto =
+            SiteNodeDto.SiteDto(
+                path = "",
+                sections =
+                    listOf(
+                        SiteNodeDto.SectionDto(
+                            path = "blog",
+                            articles = listOf(SiteNodeDto.ArticleDto(path = "blog/post-1")),
+                        ),
+                    ),
             )
-        )
-        tempDir = createTempFile("tree-bake-", "").apply { delete(); mkdirs() }
+        tempDir =
+            createTempFile("tree-bake-", "").apply {
+                delete()
+                mkdirs()
+            }
         writeDefaultJbakeProps(siteDir())
     }
 
@@ -130,22 +135,27 @@ class TreeBakeSteps {
         assertThat(jbakePropsText!!).contains("bakeTreeConfig=")
     }
 
-
     // ── Scenario 4: inheritance ──────────────────────────────────────
 
     @Given("a site.yml with section-level layout")
     fun aSiteYmlWithSectionLevelLayout() {
-        treeDto = SiteNodeDto.SiteDto(
-            path = "",
-            sections = listOf(
-                SiteNodeDto.SectionDto(
-                    path = "docs",
-                    outputConfig = OutputConfig(layout = LayoutType.SIDEBAR_LEFT),
-                    articles = listOf(SiteNodeDto.ArticleDto(path = "docs/guide"))
-                )
+        treeDto =
+            SiteNodeDto.SiteDto(
+                path = "",
+                sections =
+                    listOf(
+                        SiteNodeDto.SectionDto(
+                            path = "docs",
+                            outputConfig = OutputConfig(layout = LayoutType.SIDEBAR_LEFT),
+                            articles = listOf(SiteNodeDto.ArticleDto(path = "docs/guide")),
+                        ),
+                    ),
             )
-        )
-        tempDir = createTempFile("tree-bake-", "").apply { delete(); mkdirs() }
+        tempDir =
+            createTempFile("tree-bake-", "").apply {
+                delete()
+                mkdirs()
+            }
         writeDefaultJbakeProps(siteDir())
     }
 
@@ -159,6 +169,7 @@ class TreeBakeSteps {
         val dir = siteDir()
         val propsText = dir.resolve("jbake.properties").readText()
         val json = extractJsonPayload(propsText)
+
         @Suppress("UNCHECKED_CAST")
         val nodes = (json["nodes"] as Map<String, Map<String, Any?>>)
         val article = nodes["docs/guide"]
@@ -166,22 +177,27 @@ class TreeBakeSteps {
         assertThat(article!!["layout"]).isEqualTo(layoutName)
     }
 
-
     // ── Scenario 5: override ─────────────────────────────────────────
 
     @Given("a site.yml with a section that has layout {string}")
     fun aSiteYmlWithSectionThatHasLayout(layoutName: String) {
-        treeDto = SiteNodeDto.SiteDto(
-            path = "",
-            sections = listOf(
-                SiteNodeDto.SectionDto(
-                    path = "docs",
-                    outputConfig = OutputConfig(layout = LayoutType.valueOf(layoutName)),
-                    articles = emptyList()
-                )
+        treeDto =
+            SiteNodeDto.SiteDto(
+                path = "",
+                sections =
+                    listOf(
+                        SiteNodeDto.SectionDto(
+                            path = "docs",
+                            outputConfig = OutputConfig(layout = LayoutType.valueOf(layoutName)),
+                            articles = emptyList(),
+                        ),
+                    ),
             )
-        )
-        tempDir = createTempFile("tree-bake-", "").apply { delete(); mkdirs() }
+        tempDir =
+            createTempFile("tree-bake-", "").apply {
+                delete()
+                mkdirs()
+            }
         writeDefaultJbakeProps(siteDir())
     }
 
@@ -189,17 +205,18 @@ class TreeBakeSteps {
     fun anArticleWithLayout(layoutName: String) {
         val siteDto = treeDto as SiteNodeDto.SiteDto
         val section = siteDto.sections.first()
-        val updatedSection = section.copy(
-            articles = listOf(
-                SiteNodeDto.ArticleDto(
-                    path = "docs/guide",
-                    outputConfig = OutputConfig(layout = LayoutType.valueOf(layoutName))
-                )
+        val updatedSection =
+            section.copy(
+                articles =
+                    listOf(
+                        SiteNodeDto.ArticleDto(
+                            path = "docs/guide",
+                            outputConfig = OutputConfig(layout = LayoutType.valueOf(layoutName)),
+                        ),
+                    ),
             )
-        )
         treeDto = siteDto.copy(sections = listOf(updatedSection))
     }
-
 
     // ── helpers ──────────────────────────────────────────────────────
 

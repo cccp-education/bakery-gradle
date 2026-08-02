@@ -5,8 +5,8 @@ import arrow.core.Either.Right
 import bakery.FileSystemManager.copyBakedFilesToRepo
 import bakery.FileSystemManager.copyFromFileSystemUrl
 import bakery.FileSystemManager.copyFromJarUrl
-import bakery.FileSystemManager.copyResourceDirectory
 import bakery.FileSystemManager.copyFromResourceUrl
+import bakery.FileSystemManager.copyResourceDirectory
 import bakery.FileSystemManager.createRepoDir
 import bakery.FileSystemManager.isYmlUri
 import bakery.FileSystemManager.read
@@ -23,13 +23,11 @@ import java.util.jar.JarEntry
 import java.util.jar.JarOutputStream
 
 class FileSystemManagerTest {
-
     private val logger = LoggerFactory.getLogger(FileSystemManagerTest::class.java)
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class CreateRepoDirTest {
-
         @TempDir
         lateinit var tempDir: File
 
@@ -80,7 +78,6 @@ class FileSystemManagerTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class CopyBakedFilesToRepoTest {
-
         @TempDir
         lateinit var tempDir: File
 
@@ -101,11 +98,12 @@ class FileSystemManagerTest {
         fun `returns failure when bakeDir does not exist`() {
             val repoDir = tempDir.resolve("repo").apply { mkdirs() }
 
-            val result = copyBakedFilesToRepo(
-                tempDir.resolve("nonexistent").absolutePath,
-                repoDir,
-                logger
-            )
+            val result =
+                copyBakedFilesToRepo(
+                    tempDir.resolve("nonexistent").absolutePath,
+                    repoDir,
+                    logger,
+                )
 
             assertThat(result).isInstanceOf(Left::class.java)
         }
@@ -151,7 +149,6 @@ class FileSystemManagerTest {
 
     @Nested
     inner class IsYmlUriTest {
-
         @Test
         fun `valid yml URIs are recognized`() {
             assertThat("config.yml".isYmlUri).isTrue()
@@ -173,7 +170,6 @@ class FileSystemManagerTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class CopyResourceDirectoryEdgeCaseTest {
-
         @TempDir
         lateinit var tempDir: File
 
@@ -203,7 +199,6 @@ class FileSystemManagerTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class CopyFromResourceUrlTest {
-
         @TempDir
         lateinit var tempDir: File
 
@@ -223,7 +218,6 @@ class FileSystemManagerTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class CopyFromJarUrlTest {
-
         @TempDir
         lateinit var tempDir: File
 
@@ -231,11 +225,12 @@ class FileSystemManagerTest {
         fun `copies files from JAR to target directory`() {
             val project = ProjectBuilder.builder().withProjectDir(tempDir).build()
             val targetDir = tempDir.resolve("target")
-            val jarFile = createJarWithEntries(
-                "templates/index.thyme" to "<html></html>",
-                "templates/header.thyme" to "<header>Bakery</header>",
-                "templates/sub/footer.thyme" to "<footer>End</footer>"
-            )
+            val jarFile =
+                createJarWithEntries(
+                    "templates/index.thyme" to "<html></html>",
+                    "templates/header.thyme" to "<header>Bakery</header>",
+                    "templates/sub/footer.thyme" to "<footer>End</footer>",
+                )
 
             val result = copyFromJarUrl("templates", targetDir, project, jarFile.toURI().toURL())
 
@@ -287,9 +282,13 @@ class FileSystemManagerTest {
             val targetDir = tempDir.resolve("target")
             val nonexistentJar = tempDir.resolve("nonexistent.jar")
 
-            val result = copyFromJarUrl(
-                "templates", targetDir, project, nonexistentJar.toURI().toURL()
-            )
+            val result =
+                copyFromJarUrl(
+                    "templates",
+                    targetDir,
+                    project,
+                    nonexistentJar.toURI().toURL(),
+                )
 
             assertThat(result).isInstanceOf(Left::class.java)
         }
@@ -299,9 +298,13 @@ class FileSystemManagerTest {
             val project = ProjectBuilder.builder().withProjectDir(tempDir).build()
             val targetDir = tempDir.resolve("target")
 
-            val result = copyFromJarUrl(
-                "templates", targetDir, project, tempDir.toURI().toURL()
-            )
+            val result =
+                copyFromJarUrl(
+                    "templates",
+                    targetDir,
+                    project,
+                    tempDir.toURI().toURL(),
+                )
 
             assertThat(result).isInstanceOf(Left::class.java)
         }
@@ -331,7 +334,6 @@ class FileSystemManagerTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class CopyFromFileSystemUrlTest {
-
         @TempDir
         lateinit var tempDir: File
 
@@ -341,9 +343,13 @@ class FileSystemManagerTest {
             val targetDir = tempDir.resolve("target")
             val nonexistentDir = tempDir.resolve("nonexistent")
 
-            val result = copyFromFileSystemUrl(
-                "faked", targetDir, project, nonexistentDir.toURI().toURL()
-            )
+            val result =
+                copyFromFileSystemUrl(
+                    "faked",
+                    targetDir,
+                    project,
+                    nonexistentDir.toURI().toURL(),
+                )
 
             assertThat(result).isInstanceOf(Left::class.java)
             assertThat((result as Left).value).contains("does not exist")
@@ -355,9 +361,13 @@ class FileSystemManagerTest {
             val targetDir = tempDir.resolve("target")
             val sourceFile = tempDir.resolve("plainFile.txt").apply { writeText("hello") }
 
-            val result = copyFromFileSystemUrl(
-                "faked", targetDir, project, sourceFile.toURI().toURL()
-            )
+            val result =
+                copyFromFileSystemUrl(
+                    "faked",
+                    targetDir,
+                    project,
+                    sourceFile.toURI().toURL(),
+                )
 
             assertThat(result).isInstanceOf(Left::class.java)
             assertThat((result as Left).value).contains("not a directory")
@@ -369,11 +379,18 @@ class FileSystemManagerTest {
             val targetDir = tempDir.resolve("target")
             val sourceDir = tempDir.resolve("sourceCopy").apply { mkdirs() }
             sourceDir.resolve("index.html").writeText("<h1>Bakery</h1>")
-            sourceDir.resolve("assets/css/style.css").apply { parentFile.mkdirs(); writeText("body{}") }
+            sourceDir.resolve("assets/css/style.css").apply {
+                parentFile.mkdirs()
+                writeText("body{}")
+            }
 
-            val result = copyFromFileSystemUrl(
-                "siteCopy", targetDir, project, sourceDir.toURI().toURL()
-            )
+            val result =
+                copyFromFileSystemUrl(
+                    "siteCopy",
+                    targetDir,
+                    project,
+                    sourceDir.toURI().toURL(),
+                )
 
             assertThat(result).isInstanceOf(Right::class.java)
             val dest = targetDir.resolve("siteCopy")
@@ -385,16 +402,16 @@ class FileSystemManagerTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class ReadInvalidYamlTest {
-
         @TempDir
         lateinit var tempDir: File
 
         @Test
         fun `returns Left when YAML is invalid`() {
             val project = ProjectBuilder.builder().withProjectDir(tempDir).build()
-            val malformedFile = tempDir.resolve("malformed.yml").apply {
-                writeText("bake: { invalid: \n\t\tbad: [unclosed")
-            }
+            val malformedFile =
+                tempDir.resolve("malformed.yml").apply {
+                    writeText("bake: { invalid: \n\t\tbad: [unclosed")
+                }
 
             val result = project.read(malformedFile)
 

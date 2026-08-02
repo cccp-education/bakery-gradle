@@ -5,7 +5,6 @@ import org.thymeleaf.TemplateEngine
 import org.thymeleaf.context.Context
 import org.thymeleaf.messageresolver.IMessageResolver
 import org.thymeleaf.templatemode.TemplateMode
-import org.thymeleaf.templateresolver.AbstractConfigurableTemplateResolver
 import org.thymeleaf.templateresolver.FileTemplateResolver
 import java.io.File
 import java.io.InputStreamReader
@@ -23,17 +22,23 @@ import java.util.*
  * - `~{name.thyme::fragment}` (menu.thyme, page.thyme style — with file extension)
  */
 class ThymeleafRenderingTestFactory {
-
     private val templatesDir = File("src/main/resources/site/templates")
 
-    fun render(templateName: String, variables: Map<String, Any?> = emptyMap()): String =
-        render(templateName, variables, "fr")
+    fun render(
+        templateName: String,
+        variables: Map<String, Any?> = emptyMap(),
+    ): String = render(templateName, variables, "fr")
 
-    fun render(templateName: String, variables: Map<String, Any?>, language: String): String {
-        val engine = TemplateEngine().apply {
-            setTemplateResolver(DualConventionResolver(templatesDir))
-            setMessageResolver(ClasspathMessageResolver(language))
-        }
+    fun render(
+        templateName: String,
+        variables: Map<String, Any?>,
+        language: String,
+    ): String {
+        val engine =
+            TemplateEngine().apply {
+                setTemplateResolver(DualConventionResolver(templatesDir))
+                setMessageResolver(ClasspathMessageResolver(language))
+            }
         val context = Context()
         context.setVariable("config", mapOf("site_language" to language))
         variables.forEach { (key, value) -> context.setVariable(key, value) }
@@ -54,8 +59,9 @@ class ThymeleafRenderingTestFactory {
  * This resolver overrides [computeResourceName] to detect the double-suffix case and
  * strip it before the file lookup fails.
  */
-private class DualConventionResolver(private val templatesDir: File) : FileTemplateResolver() {
-
+private class DualConventionResolver(
+    private val templatesDir: File,
+) : FileTemplateResolver() {
     init {
         prefix = "${templatesDir.absolutePath}/"
         suffix = ".thyme"
@@ -72,12 +78,19 @@ private class DualConventionResolver(private val templatesDir: File) : FileTempl
         suffix: String?,
         forceSuffix: Boolean,
         templateAliases: Map<String, String>?,
-        templateResolutionAttributes: Map<String, Any>?
+        templateResolutionAttributes: Map<String, Any>?,
     ): String? {
-        val resourceName = super.computeResourceName(
-            configuration, ownerTemplate, template, prefix, suffix, forceSuffix,
-            templateAliases, templateResolutionAttributes
-        ) ?: return null
+        val resourceName =
+            super.computeResourceName(
+                configuration,
+                ownerTemplate,
+                template,
+                prefix,
+                suffix,
+                forceSuffix,
+                templateAliases,
+                templateResolutionAttributes,
+            ) ?: return null
 
         // Check if the resolved file exists (e.g. "analytics-script.thyme" → exists ✓)
         val file = File(resourceName)
@@ -92,21 +105,24 @@ private class DualConventionResolver(private val templatesDir: File) : FileTempl
 
         // No-suffix case: some templates reference without .thyme but the suffix wasn't applied
         // Try the template name as-is (for references like ~{theme-script :: ...})
-        val asIs = File("${prefix}${template}")
+        val asIs = File("${prefix}$template")
         if (asIs.isFile) return asIs.absolutePath
 
         return resourceName // let Thymeleaf raise the proper error
     }
 }
 
-private class ClasspathMessageResolver(language: String) : IMessageResolver {
-
-    private val properties: Properties = Properties().apply {
-        val resourcePath = "site/templates/messages_$language.properties"
-        val stream = ThymeleafRenderingTestFactory::class.java.classLoader
-            .getResourceAsStream(resourcePath)
-        stream?.use { load(InputStreamReader(it, Charsets.UTF_8)) }
-    }
+private class ClasspathMessageResolver(
+    language: String,
+) : IMessageResolver {
+    private val properties: Properties =
+        Properties().apply {
+            val resourcePath = "site/templates/messages_$language.properties"
+            val stream =
+                ThymeleafRenderingTestFactory::class.java.classLoader
+                    .getResourceAsStream(resourcePath)
+            stream?.use { load(InputStreamReader(it, Charsets.UTF_8)) }
+        }
 
     override fun getName(): String = "ClasspathMessageResolver"
 
@@ -116,13 +132,13 @@ private class ClasspathMessageResolver(language: String) : IMessageResolver {
         context: org.thymeleaf.context.ITemplateContext?,
         origin: Class<*>?,
         key: String,
-        messageParameters: Array<out Any>?
+        messageParameters: Array<out Any>?,
     ): String? = properties.getProperty(key)
 
     override fun createAbsentMessageRepresentation(
         context: org.thymeleaf.context.ITemplateContext?,
         target: Class<*>?,
         key: String,
-        messageParameters: Array<out Any>?
-    ): String = "??${key}??"
+        messageParameters: Array<out Any>?,
+    ): String = "??$key??"
 }

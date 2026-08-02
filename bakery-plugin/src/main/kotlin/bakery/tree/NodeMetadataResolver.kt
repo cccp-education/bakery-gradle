@@ -5,7 +5,7 @@ import bakery.tree.SiteNode.Section
 import bakery.tree.SiteNode.Site
 
 class NodeMetadataResolver(
-    private val tree: SiteTree
+    private val tree: SiteTree,
 ) {
     fun effectiveMetadata(node: SiteNode): NodeMetadata {
         val chain = ancestorChain(node)
@@ -17,8 +17,7 @@ class NodeMetadataResolver(
         return resolved
     }
 
-    fun resolveAll(): Map<String, NodeMetadata> =
-        tree.walk().associateBy({ it.path }, { effectiveMetadata(it) })
+    fun resolveAll(): Map<String, NodeMetadata> = tree.walk().associateBy({ it.path }, { effectiveMetadata(it) })
 
     private fun ancestorChain(node: SiteNode): List<String> {
         if (node is Site) return listOf(node.path)
@@ -46,6 +45,6 @@ class NodeMetadataResolver(
             title = other.title ?: title,
             description = other.description ?: description,
             tags = other.tags ?: tags,
-            layout = other.layout ?: layout
+            layout = other.layout ?: layout,
         )
 }

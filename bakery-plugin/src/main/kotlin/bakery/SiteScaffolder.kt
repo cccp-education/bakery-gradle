@@ -8,30 +8,35 @@ import java.io.File
  * - **blog** (défaut) : site/blog classique avec articles, tags, archives
  * - **basic** : site minimal (index, about, contact)
  */
-enum class SiteType(val alias: String) {
+enum class SiteType(
+    val alias: String,
+) {
     BLOG("blog"),
-    BASIC("basic");
+    BASIC("basic"),
+    ;
 
     companion object {
         /** Résout un nom de type depuis une string, insensible à la casse. */
         fun fromString(value: String): SiteType =
             entries.firstOrNull { it.alias.equals(value, ignoreCase = true) }
                 ?: throw IllegalArgumentException(
-                    "Site type inconnu : '$value'. Types supportés : ${entries.joinToString(", ") { it.alias }}"
+                    "Site type inconnu : '$value'. Types supportés : ${entries.joinToString(", ") { it.alias }}",
                 )
 
         /** Résoud un nom de type avec fallback vers BLOG. */
         fun fromStringOrDefault(value: String?): SiteType =
-            if (value.isNullOrBlank()) BLOG
-            else runCatching { fromString(value) }.getOrDefault(BLOG)
+            if (value.isNullOrBlank()) {
+                BLOG
+            } else {
+                runCatching { fromString(value) }.getOrDefault(BLOG)
+            }
     }
 }
 
 object SiteScaffolder {
-
     fun resolveSiteTargetDir(
         bakeryExtension: BakeryExtension,
-        projectDir: File
+        projectDir: File,
     ): File {
         val sitesBaseDir = bakeryExtension.sitesBaseDir.orNull
         val siteName = bakeryExtension.siteName.orNull

@@ -7,17 +7,22 @@ import java.io.File
 import kotlin.text.Charsets.UTF_8
 
 class ThemeInjectionTest {
-
     @TempDir
     lateinit var tempDir: File
 
-    private val mapper = com.fasterxml.jackson.dataformat.yaml.YAMLFactory()
-        .let { com.fasterxml.jackson.databind.ObjectMapper(it) }
+    private val mapper =
+        com.fasterxml.jackson.dataformat.yaml
+            .YAMLFactory()
+            .let {
+                com.fasterxml.jackson.databind
+                    .ObjectMapper(it)
+            }
 
     @Test
     fun `site yml with theme injects all theme properties into jbake properties`() {
         val siteYml = tempDir.resolve("site.yml")
-        siteYml.writeText("""
+        siteYml.writeText(
+            """
             bake:
               srcPath: site
               destDirPath: bake
@@ -28,7 +33,9 @@ class ThemeInjectionTest {
               fontFamily: "Inter"
               logoUrl: "/img/logo.png"
               faviconUrl: "/img/favicon.ico"
-        """.trimIndent(), UTF_8)
+            """.trimIndent(),
+            UTF_8,
+        )
 
         val siteDir = tempDir.resolve("site")
         siteDir.mkdirs()
@@ -52,11 +59,14 @@ class ThemeInjectionTest {
     @Test
     fun `site yml without theme does not inject any theme properties`() {
         val siteYml = tempDir.resolve("site.yml")
-        siteYml.writeText("""
+        siteYml.writeText(
+            """
             bake:
               srcPath: site
               destDirPath: bake
-        """.trimIndent(), UTF_8)
+            """.trimIndent(),
+            UTF_8,
+        )
 
         val siteDir = tempDir.resolve("site")
         siteDir.mkdirs()
@@ -78,14 +88,17 @@ class ThemeInjectionTest {
     @Test
     fun `site yml with theme minimal config injects mode and colors`() {
         val siteYml = tempDir.resolve("site.yml")
-        siteYml.writeText("""
+        siteYml.writeText(
+            """
             bake:
               srcPath: site
               destDirPath: bake
             theme:
               mode: "light"
               primaryColor: "#ff6600"
-        """.trimIndent(), UTF_8)
+            """.trimIndent(),
+            UTF_8,
+        )
 
         val siteDir = tempDir.resolve("site")
         siteDir.mkdirs()
@@ -105,9 +118,16 @@ class ThemeInjectionTest {
         assertTrue(props.contains("themeLogoUrl="), "must contain empty themeLogoUrl")
     }
 
-    private fun injectThemeIntoJbakeProperties(jbakeProps: File, theme: ThemeConfig) {
+    private fun injectThemeIntoJbakeProperties(
+        jbakeProps: File,
+        theme: ThemeConfig,
+    ) {
         val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
-        fun updateProperty(key: String, value: String) {
+
+        fun updateProperty(
+            key: String,
+            value: String,
+        ) {
             val idx = lines.indexOfFirst { it.startsWith("$key=") }
             if (idx >= 0) {
                 lines[idx] = "$key=$value"

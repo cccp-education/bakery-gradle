@@ -14,25 +14,25 @@ import org.slf4j.LoggerFactory
 import java.io.File
 
 class GitServiceTest {
-
     private val logger = LoggerFactory.getLogger(GitServiceTest::class.java)
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class ValidatePrePushTest {
-
         @TempDir
         lateinit var tempDir: File
 
         @Test
         fun `validatePrePush returns Valid when dest has content and remote is configured`() {
-            val destPath = tempDir.resolve("dest").apply {
-                mkdirs()
-                resolve("index.html").writeText("<h1>Hello</h1>")
-            }
-            val git = GitPushConfiguration(
-                repo = RepositoryConfiguration(repository = "https://github.com/test/test.git")
-            )
+            val destPath =
+                tempDir.resolve("dest").apply {
+                    mkdirs()
+                    resolve("index.html").writeText("<h1>Hello</h1>")
+                }
+            val git =
+                GitPushConfiguration(
+                    repo = RepositoryConfiguration(repository = "https://github.com/test/test.git"),
+                )
 
             val result = GitService.validatePrePush({ destPath.absolutePath }, git)
 
@@ -41,13 +41,15 @@ class GitServiceTest {
 
         @Test
         fun `validatePrePush returns RemoteNotConfigured when repository URL is blank`() {
-            val destPath = tempDir.resolve("dest").apply {
-                mkdirs()
-                resolve("index.html").writeText("<h1>Hello</h1>")
-            }
-            val git = GitPushConfiguration(
-                repo = RepositoryConfiguration(repository = "")
-            )
+            val destPath =
+                tempDir.resolve("dest").apply {
+                    mkdirs()
+                    resolve("index.html").writeText("<h1>Hello</h1>")
+                }
+            val git =
+                GitPushConfiguration(
+                    repo = RepositoryConfiguration(repository = ""),
+                )
 
             val result = GitService.validatePrePush({ destPath.absolutePath }, git)
 
@@ -57,9 +59,10 @@ class GitServiceTest {
         @Test
         fun `validatePrePush returns ContentAbsent when dest directory is empty`() {
             val destPath = tempDir.resolve("dest").apply { mkdirs() }
-            val git = GitPushConfiguration(
-                repo = RepositoryConfiguration(repository = "https://github.com/test/test.git")
-            )
+            val git =
+                GitPushConfiguration(
+                    repo = RepositoryConfiguration(repository = "https://github.com/test/test.git"),
+                )
 
             val result = GitService.validatePrePush({ destPath.absolutePath }, git)
 
@@ -69,9 +72,10 @@ class GitServiceTest {
         @Test
         fun `validatePrePush returns ContentAbsent when dest directory does not exist`() {
             val destPath = tempDir.resolve("nonexistent")
-            val git = GitPushConfiguration(
-                repo = RepositoryConfiguration(repository = "https://github.com/test/test.git")
-            )
+            val git =
+                GitPushConfiguration(
+                    repo = RepositoryConfiguration(repository = "https://github.com/test/test.git"),
+                )
 
             val result = GitService.validatePrePush({ destPath.absolutePath }, git)
 
@@ -82,7 +86,6 @@ class GitServiceTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class CleanupDirTest {
-
         @TempDir
         lateinit var tempDir: File
 
@@ -127,7 +130,6 @@ class GitServiceTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class InitAddCommitTest {
-
         @TempDir
         lateinit var tempDir: File
 
@@ -137,17 +139,19 @@ class GitServiceTest {
             repoDir.mkdirs()
             repoDir.resolve("index.html").writeText("<h1>Hello</h1>")
 
-            val config = GitPushConfiguration(
-                from = "",
-                to = "",
-                repo = RepositoryConfiguration(
-                    name = "test",
-                    repository = "https://github.com/test/test.git",
-                    credentials = RepositoryCredentials("user", "token")
-                ),
-                branch = "main",
-                message = "deploy: cheroliv.com"
-            )
+            val config =
+                GitPushConfiguration(
+                    from = "",
+                    to = "",
+                    repo =
+                        RepositoryConfiguration(
+                            name = "test",
+                            repository = "https://github.com/test/test.git",
+                            credentials = RepositoryCredentials("user", "token"),
+                        ),
+                    branch = "main",
+                    message = "deploy: cheroliv.com",
+                )
 
             val revCommit = GitService.initAddCommit(repoDir, config, logger)
 
@@ -167,17 +171,19 @@ class GitServiceTest {
             repoDir.mkdirs()
             repoDir.resolve("file.txt").writeText("data")
 
-            val config = GitPushConfiguration(
-                from = "",
-                to = "",
-                repo = RepositoryConfiguration(
-                    name = "test",
-                    repository = "https://github.com/test/test.git",
-                    credentials = RepositoryCredentials("user", "ghp_abc123")
-                ),
-                branch = "main",
-                message = "deploy: test"
-            )
+            val config =
+                GitPushConfiguration(
+                    from = "",
+                    to = "",
+                    repo =
+                        RepositoryConfiguration(
+                            name = "test",
+                            repository = "https://github.com/test/test.git",
+                            credentials = RepositoryCredentials("user", "ghp_abc123"),
+                        ),
+                    branch = "main",
+                    message = "deploy: test",
+                )
 
             val commit = GitService.initAddCommit(repoDir, config, logger)
             assertThat(commit.fullMessage).contains("deploy: test")
@@ -187,28 +193,40 @@ class GitServiceTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class PushToRemoteHistoryPreservationTest {
-
         @TempDir
         lateinit var tempDir: File
 
         private fun createBareRemoteRepository(): Git {
             val remoteDir = tempDir.resolve("remote.git")
             remoteDir.mkdirs()
-            return Git.init()
+            return Git
+                .init()
                 .setDirectory(remoteDir)
                 .setBare(true)
                 .call()
         }
 
-        private fun pushHeadToRemote(git: Git, branch: String, remoteName: String = "origin") {
-            git.push()
+        private fun pushHeadToRemote(
+            git: Git,
+            branch: String,
+            remoteName: String = "origin",
+        ) {
+            git
+                .push()
                 .setRemote(remoteName)
                 .setRefSpecs(RefSpec("+HEAD:refs/heads/$branch"))
                 .call()
         }
 
-        private fun commitOnBranch(localClone: Git, fileName: String, content: String, message: String): RevCommit {
-            localClone.repository.workTree.resolve(fileName).writeText(content)
+        private fun commitOnBranch(
+            localClone: Git,
+            fileName: String,
+            content: String,
+            message: String,
+        ): RevCommit {
+            localClone.repository.workTree
+                .resolve(fileName)
+                .writeText(content)
             localClone.add().addFilepattern(fileName).call()
             return localClone.commit().setMessage(message).call()
         }
@@ -216,15 +234,22 @@ class GitServiceTest {
         @Test
         fun `pushToRemote with preserveHistory clones remote and keeps existing files`() {
             val remoteGit = createBareRemoteRepository()
-            val remoteUri = remoteGit.repository.directory.toURI().toString()
+            val remoteUri =
+                remoteGit.repository.directory
+                    .toURI()
+                    .toString()
 
             val localRemote = tempDir.resolve("localRemote")
-            val cloneGit = Git.cloneRepository()
-                .setURI(remoteUri)
-                .setDirectory(localRemote)
-                .call()
+            val cloneGit =
+                Git
+                    .cloneRepository()
+                    .setURI(remoteUri)
+                    .setDirectory(localRemote)
+                    .call()
             try {
-                cloneGit.repository.workTree.resolve("old.txt").writeText("old content")
+                cloneGit.repository.workTree
+                    .resolve("old.txt")
+                    .writeText("old content")
                 cloneGit.add().addFilepattern("old.txt").call()
                 cloneGit.commit().setMessage("initial commit").call()
                 pushHeadToRemote(cloneGit, "main")
@@ -236,23 +261,25 @@ class GitServiceTest {
             repoDir.mkdirs()
             repoDir.resolve("new.txt").writeText("new content")
 
-            val config = GitPushConfiguration(
-                from = "",
-                to = "",
-                repo = RepositoryConfiguration(
-                    name = "test",
-                    repository = remoteUri,
-                    credentials = RepositoryCredentials("", "")
-                ),
-                branch = "main",
-                message = "update"
-            )
+            val config =
+                GitPushConfiguration(
+                    from = "",
+                    to = "",
+                    repo =
+                        RepositoryConfiguration(
+                            name = "test",
+                            repository = remoteUri,
+                            credentials = RepositoryCredentials("", ""),
+                        ),
+                    branch = "main",
+                    message = "update",
+                )
 
             GitService.pushToRemote(
                 repoDir = repoDir,
                 git = config,
                 logger = logger,
-                preserveHistory = true
+                preserveHistory = true,
             )
 
             assertThat(repoDir.resolve("old.txt")).exists()
@@ -267,15 +294,22 @@ class GitServiceTest {
         @Test
         fun `pushToRemote without preserveHistory does not clone and overwrites`() {
             val remoteGit = createBareRemoteRepository()
-            val remoteUri = remoteGit.repository.directory.toURI().toString()
+            val remoteUri =
+                remoteGit.repository.directory
+                    .toURI()
+                    .toString()
 
             val localRemote = tempDir.resolve("localRemote2")
-            val cloneGit = Git.cloneRepository()
-                .setURI(remoteUri)
-                .setDirectory(localRemote)
-                .call()
+            val cloneGit =
+                Git
+                    .cloneRepository()
+                    .setURI(remoteUri)
+                    .setDirectory(localRemote)
+                    .call()
             try {
-                cloneGit.repository.workTree.resolve("old.txt").writeText("old content")
+                cloneGit.repository.workTree
+                    .resolve("old.txt")
+                    .writeText("old content")
                 cloneGit.add().addFilepattern("old.txt").call()
                 cloneGit.commit().setMessage("initial commit").call()
                 pushHeadToRemote(cloneGit, "main")
@@ -287,23 +321,25 @@ class GitServiceTest {
             repoDir.mkdirs()
             repoDir.resolve("new.txt").writeText("new content")
 
-            val config = GitPushConfiguration(
-                from = "",
-                to = "",
-                repo = RepositoryConfiguration(
-                    name = "test",
-                    repository = remoteUri,
-                    credentials = RepositoryCredentials("", "")
-                ),
-                branch = "main",
-                message = "update"
-            )
+            val config =
+                GitPushConfiguration(
+                    from = "",
+                    to = "",
+                    repo =
+                        RepositoryConfiguration(
+                            name = "test",
+                            repository = remoteUri,
+                            credentials = RepositoryCredentials("", ""),
+                        ),
+                    branch = "main",
+                    message = "update",
+                )
 
             GitService.pushToRemote(
                 repoDir = repoDir,
                 git = config,
                 logger = logger,
-                preserveHistory = false
+                preserveHistory = false,
             )
 
             val log = remoteGit.log().call().toList()
@@ -316,24 +352,26 @@ class GitServiceTest {
             repoDir.mkdirs()
             repoDir.resolve("file.txt").writeText("content")
 
-            val config = GitPushConfiguration(
-                from = "",
-                to = "",
-                repo = RepositoryConfiguration(
-                    name = "test",
-                    repository = "invalid://no-such-repo.git",
-                    credentials = RepositoryCredentials("", "")
-                ),
-                branch = "main",
-                message = "update"
-            )
+            val config =
+                GitPushConfiguration(
+                    from = "",
+                    to = "",
+                    repo =
+                        RepositoryConfiguration(
+                            name = "test",
+                            repository = "invalid://no-such-repo.git",
+                            credentials = RepositoryCredentials("", ""),
+                        ),
+                    branch = "main",
+                    message = "update",
+                )
 
             assertThatThrownBy {
                 GitService.pushToRemote(
                     repoDir = repoDir,
                     git = config,
                     logger = logger,
-                    preserveHistory = true
+                    preserveHistory = true,
                 )
             }.isInstanceOf(Exception::class.java)
 
@@ -343,15 +381,22 @@ class GitServiceTest {
         @Test
         fun `preserveHistory clones remote even when repoDir is initially empty`() {
             val remoteGit = createBareRemoteRepository()
-            val remoteUri = remoteGit.repository.directory.toURI().toString()
+            val remoteUri =
+                remoteGit.repository.directory
+                    .toURI()
+                    .toString()
 
             val localRemote = tempDir.resolve("localRemote3")
-            val cloneGit = Git.cloneRepository()
-                .setURI(remoteUri)
-                .setDirectory(localRemote)
-                .call()
+            val cloneGit =
+                Git
+                    .cloneRepository()
+                    .setURI(remoteUri)
+                    .setDirectory(localRemote)
+                    .call()
             try {
-                cloneGit.repository.workTree.resolve("remote_only.txt").writeText("remote")
+                cloneGit.repository.workTree
+                    .resolve("remote_only.txt")
+                    .writeText("remote")
                 cloneGit.add().addFilepattern("remote_only.txt").call()
                 cloneGit.commit().setMessage("initial commit").call()
                 pushHeadToRemote(cloneGit, "main")
@@ -362,23 +407,25 @@ class GitServiceTest {
             val repoDir = tempDir.resolve("repoDirEmpty")
             repoDir.mkdirs()
 
-            val config = GitPushConfiguration(
-                from = "",
-                to = "",
-                repo = RepositoryConfiguration(
-                    name = "test",
-                    repository = remoteUri,
-                    credentials = RepositoryCredentials("", "")
-                ),
-                branch = "main",
-                message = "update"
-            )
+            val config =
+                GitPushConfiguration(
+                    from = "",
+                    to = "",
+                    repo =
+                        RepositoryConfiguration(
+                            name = "test",
+                            repository = remoteUri,
+                            credentials = RepositoryCredentials("", ""),
+                        ),
+                    branch = "main",
+                    message = "update",
+                )
 
             GitService.pushToRemote(
                 repoDir = repoDir,
                 git = config,
                 logger = logger,
-                preserveHistory = true
+                preserveHistory = true,
             )
 
             assertThat(repoDir.resolve("remote_only.txt")).exists().hasContent("remote")
@@ -387,15 +434,22 @@ class GitServiceTest {
         @Test
         fun `preserveHistory overlay overwrites existing remote file with local content`() {
             val remoteGit = createBareRemoteRepository()
-            val remoteUri = remoteGit.repository.directory.toURI().toString()
+            val remoteUri =
+                remoteGit.repository.directory
+                    .toURI()
+                    .toString()
 
             val localRemote = tempDir.resolve("localRemote4")
-            val cloneGit = Git.cloneRepository()
-                .setURI(remoteUri)
-                .setDirectory(localRemote)
-                .call()
+            val cloneGit =
+                Git
+                    .cloneRepository()
+                    .setURI(remoteUri)
+                    .setDirectory(localRemote)
+                    .call()
             try {
-                cloneGit.repository.workTree.resolve("shared.txt").writeText("remote_version")
+                cloneGit.repository.workTree
+                    .resolve("shared.txt")
+                    .writeText("remote_version")
                 cloneGit.add().addFilepattern("shared.txt").call()
                 cloneGit.commit().setMessage("initial commit").call()
                 pushHeadToRemote(cloneGit, "main")
@@ -407,23 +461,25 @@ class GitServiceTest {
             repoDir.mkdirs()
             repoDir.resolve("shared.txt").writeText("local_version")
 
-            val config = GitPushConfiguration(
-                from = "",
-                to = "",
-                repo = RepositoryConfiguration(
-                    name = "test",
-                    repository = remoteUri,
-                    credentials = RepositoryCredentials("", "")
-                ),
-                branch = "main",
-                message = "update"
-            )
+            val config =
+                GitPushConfiguration(
+                    from = "",
+                    to = "",
+                    repo =
+                        RepositoryConfiguration(
+                            name = "test",
+                            repository = remoteUri,
+                            credentials = RepositoryCredentials("", ""),
+                        ),
+                    branch = "main",
+                    message = "update",
+                )
 
             GitService.pushToRemote(
                 repoDir = repoDir,
                 git = config,
                 logger = logger,
-                preserveHistory = true
+                preserveHistory = true,
             )
 
             assertThat(repoDir.resolve("shared.txt")).exists().hasContent("local_version")
@@ -432,15 +488,22 @@ class GitServiceTest {
         @Test
         fun `preserveHistory works when repoDir contains nested directories`() {
             val remoteGit = createBareRemoteRepository()
-            val remoteUri = remoteGit.repository.directory.toURI().toString()
+            val remoteUri =
+                remoteGit.repository.directory
+                    .toURI()
+                    .toString()
 
             val localRemote = tempDir.resolve("localRemote5")
-            val cloneGit = Git.cloneRepository()
-                .setURI(remoteUri)
-                .setDirectory(localRemote)
-                .call()
+            val cloneGit =
+                Git
+                    .cloneRepository()
+                    .setURI(remoteUri)
+                    .setDirectory(localRemote)
+                    .call()
             try {
-                cloneGit.repository.workTree.resolve("root.txt").writeText("root")
+                cloneGit.repository.workTree
+                    .resolve("root.txt")
+                    .writeText("root")
                 cloneGit.add().addFilepattern("root.txt").call()
                 cloneGit.commit().setMessage("initial commit").call()
                 pushHeadToRemote(cloneGit, "main")
@@ -453,23 +516,25 @@ class GitServiceTest {
             val subDir = repoDir.resolve("sub").apply { mkdirs() }
             subDir.resolve("nested.txt").writeText("nested content")
 
-            val config = GitPushConfiguration(
-                from = "",
-                to = "",
-                repo = RepositoryConfiguration(
-                    name = "test",
-                    repository = remoteUri,
-                    credentials = RepositoryCredentials("", "")
-                ),
-                branch = "main",
-                message = "update"
-            )
+            val config =
+                GitPushConfiguration(
+                    from = "",
+                    to = "",
+                    repo =
+                        RepositoryConfiguration(
+                            name = "test",
+                            repository = remoteUri,
+                            credentials = RepositoryCredentials("", ""),
+                        ),
+                    branch = "main",
+                    message = "update",
+                )
 
             GitService.pushToRemote(
                 repoDir = repoDir,
                 git = config,
                 logger = logger,
-                preserveHistory = true
+                preserveHistory = true,
             )
 
             assertThat(repoDir.resolve("root.txt")).exists().hasContent("root")
@@ -479,15 +544,22 @@ class GitServiceTest {
         @Test
         fun `pushToRemote with force push sends without cloning`() {
             val remoteGit = createBareRemoteRepository()
-            val remoteUri = remoteGit.repository.directory.toURI().toString()
+            val remoteUri =
+                remoteGit.repository.directory
+                    .toURI()
+                    .toString()
 
             val localRemote = tempDir.resolve("localForce")
-            val cloneGit = Git.cloneRepository()
-                .setURI(remoteUri)
-                .setDirectory(localRemote)
-                .call()
+            val cloneGit =
+                Git
+                    .cloneRepository()
+                    .setURI(remoteUri)
+                    .setDirectory(localRemote)
+                    .call()
             try {
-                cloneGit.repository.workTree.resolve("old.txt").writeText("old")
+                cloneGit.repository.workTree
+                    .resolve("old.txt")
+                    .writeText("old")
                 cloneGit.add().addFilepattern("old.txt").call()
                 cloneGit.commit().setMessage("initial").call()
                 pushHeadToRemote(cloneGit, "main")
@@ -499,24 +571,26 @@ class GitServiceTest {
             repoDir.mkdirs()
             repoDir.resolve("new.txt").writeText("forced content")
 
-            val config = GitPushConfiguration(
-                from = "",
-                to = "",
-                repo = RepositoryConfiguration(
-                    name = "test",
-                    repository = remoteUri,
-                    credentials = RepositoryCredentials("", "")
-                ),
-                branch = "main",
-                message = "force push"
-            )
+            val config =
+                GitPushConfiguration(
+                    from = "",
+                    to = "",
+                    repo =
+                        RepositoryConfiguration(
+                            name = "test",
+                            repository = remoteUri,
+                            credentials = RepositoryCredentials("", ""),
+                        ),
+                    branch = "main",
+                    message = "force push",
+                )
 
             GitService.pushToRemote(
                 repoDir = repoDir,
                 git = config,
                 logger = logger,
                 force = true,
-                preserveHistory = false
+                preserveHistory = false,
             )
 
             val log = remoteGit.log().call().toList()
@@ -528,7 +602,6 @@ class GitServiceTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class PushPagesTest {
-
         @TempDir
         lateinit var tempDir: File
 
@@ -539,26 +612,34 @@ class GitServiceTest {
             val repoDir = tempDir.resolve("gh-pages")
 
             val remoteDir = tempDir.resolve("remote.git").apply { mkdirs() }
-            val remoteGit = Git.init().setDirectory(remoteDir).setBare(true).call()
+            val remoteGit =
+                Git
+                    .init()
+                    .setDirectory(remoteDir)
+                    .setBare(true)
+                    .call()
             try {
-                val config = GitPushConfiguration(
-                    from = "",
-                    to = "",
-                    repo = RepositoryConfiguration(
-                        name = "pages",
-                        repository = remoteDir.toURI().toString(),
-                        credentials = RepositoryCredentials("testuser", "testtoken")
-                    ),
-                    branch = "gh-pages",
-                    message = "ci: deploy bakery site"
-                )
+                val config =
+                    GitPushConfiguration(
+                        from = "",
+                        to = "",
+                        repo =
+                            RepositoryConfiguration(
+                                name = "pages",
+                                repository = remoteDir.toURI().toString(),
+                                credentials = RepositoryCredentials("testuser", "testtoken"),
+                            ),
+                        branch = "gh-pages",
+                        message = "ci: deploy bakery site",
+                    )
 
-                val result = GitService.pushPages(
-                    destPath = { destDir.absolutePath },
-                    pathTo = { repoDir.absolutePath },
-                    git = config,
-                    logger = logger
-                )
+                val result =
+                    GitService.pushPages(
+                        destPath = { destDir.absolutePath },
+                        pathTo = { repoDir.absolutePath },
+                        git = config,
+                        logger = logger,
+                    )
 
                 assertThat(result.isRight()).isTrue()
             } finally {
@@ -572,23 +653,26 @@ class GitServiceTest {
             destDir.resolve("index.html").writeText("<h1>Site</h1>")
             val repoDir = tempDir.resolve("gh-pages-exception")
 
-            val config = GitPushConfiguration(
-                from = "",
-                to = "",
-                repo = RepositoryConfiguration(
-                    name = "pages",
-                    repository = "invalid://no-such-remote.git"
-                ),
-                branch = "gh-pages",
-                message = "ci: deploy bakery site"
-            )
+            val config =
+                GitPushConfiguration(
+                    from = "",
+                    to = "",
+                    repo =
+                        RepositoryConfiguration(
+                            name = "pages",
+                            repository = "invalid://no-such-remote.git",
+                        ),
+                    branch = "gh-pages",
+                    message = "ci: deploy bakery site",
+                )
 
-            val result = GitService.pushPages(
-                destPath = { destDir.absolutePath },
-                pathTo = { repoDir.absolutePath },
-                git = config,
-                logger = logger
-            )
+            val result =
+                GitService.pushPages(
+                    destPath = { destDir.absolutePath },
+                    pathTo = { repoDir.absolutePath },
+                    git = config,
+                    logger = logger,
+                )
 
             assertThat(result.isLeft()).isTrue()
             result.onLeft { error ->
@@ -602,20 +686,22 @@ class GitServiceTest {
             destDir.resolve("index.html").writeText("<h1>Site</h1>")
             val repoDir = tempDir.resolve("gh-pages")
 
-            val config = GitPushConfiguration(
-                from = "",
-                to = "",
-                repo = RepositoryConfiguration(repository = ""),
-                branch = "gh-pages",
-                message = "deploy"
-            )
+            val config =
+                GitPushConfiguration(
+                    from = "",
+                    to = "",
+                    repo = RepositoryConfiguration(repository = ""),
+                    branch = "gh-pages",
+                    message = "deploy",
+                )
 
-            val result = GitService.pushPages(
-                destPath = { destDir.absolutePath },
-                pathTo = { repoDir.absolutePath },
-                git = config,
-                logger = logger
-            )
+            val result =
+                GitService.pushPages(
+                    destPath = { destDir.absolutePath },
+                    pathTo = { repoDir.absolutePath },
+                    git = config,
+                    logger = logger,
+                )
 
             assertThat(result.isLeft()).isTrue()
             result.onLeft { error ->
@@ -628,23 +714,26 @@ class GitServiceTest {
             val destDir = tempDir.resolve("emptyOutput").apply { mkdirs() }
             val repoDir = tempDir.resolve("gh-pages")
 
-            val config = GitPushConfiguration(
-                from = "",
-                to = "",
-                repo = RepositoryConfiguration(
-                    name = "pages",
-                    repository = "https://github.com/test/pages.git"
-                ),
-                branch = "gh-pages",
-                message = "deploy"
-            )
+            val config =
+                GitPushConfiguration(
+                    from = "",
+                    to = "",
+                    repo =
+                        RepositoryConfiguration(
+                            name = "pages",
+                            repository = "https://github.com/test/pages.git",
+                        ),
+                    branch = "gh-pages",
+                    message = "deploy",
+                )
 
-            val result = GitService.pushPages(
-                destPath = { destDir.absolutePath },
-                pathTo = { repoDir.absolutePath },
-                git = config,
-                logger = logger
-            )
+            val result =
+                GitService.pushPages(
+                    destPath = { destDir.absolutePath },
+                    pathTo = { repoDir.absolutePath },
+                    git = config,
+                    logger = logger,
+                )
 
             assertThat(result.isLeft()).isTrue()
             result.onLeft { error ->

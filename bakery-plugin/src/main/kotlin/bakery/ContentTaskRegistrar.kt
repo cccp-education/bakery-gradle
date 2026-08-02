@@ -1,6 +1,14 @@
 package bakery
 
 import bakery.article.GenerateArticleTask
+import bakery.firebase.ValidateFirebaseConfigTask
+import bakery.i18n.ContentMigrationIntentionDsl
+import bakery.i18n.I18nMigrationIntentionDsl
+import bakery.i18n.LlmServiceTranslationAdapter
+import bakery.i18n.MigrateContentI18nTask
+import bakery.i18n.MigrateToI18nTask
+import bakery.i18n.rtl.RtlDirectionInjectionTask
+import bakery.langswitch.InjectLangSwitchTask
 import bakery.llm.IaConfig
 import bakery.llm.LlmService
 import bakery.llm.OllamaLlmService
@@ -9,20 +17,10 @@ import bakery.scaffold.GenerateSiteFromIntentionTask
 import bakery.scaffold.ScaffoldIntentionDsl
 import bakery.theme.GenerateThemeTask
 import bakery.theme.ThemeIntentionDsl
-import bakery.firebase.ValidateFirebaseConfigTask
-import bakery.i18n.ContentMigrationIntentionDsl
-import document.translation.ContentTranslationService
-import bakery.i18n.I18nMigrationIntentionDsl
-import bakery.i18n.LlmServiceTranslationAdapter
-import bakery.i18n.MigrateContentI18nTask
-import bakery.i18n.MigrateToI18nTask
-import bakery.i18n.rtl.RtlDirectionInjectionTask
-import bakery.langswitch.InjectLangSwitchTask
 import org.gradle.api.Project
 import java.io.File
 
 object ContentTaskRegistrar {
-
     /**
      * Enregistre la tâche `generateArticle` pour un site configuré.
      *
@@ -33,7 +31,7 @@ object ContentTaskRegistrar {
     internal fun Project.registerGenerateArticleTask(
         site: SiteConfiguration,
         iaConfig: IaConfig = IaConfig(),
-        articleIntentionDsl: bakery.article.ArticleIntentionDsl? = null
+        articleIntentionDsl: bakery.article.ArticleIntentionDsl? = null,
     ) {
         val contentRoot = project.projectDir.resolve(site.bake.srcPath)
         tasks.register("generateArticle", GenerateArticleTask::class.java) { task ->
@@ -51,7 +49,7 @@ object ContentTaskRegistrar {
                 isConfigured = { it.topic.isNotBlank() },
                 toIntention = { it.toIntention() },
                 taskLabel = "article",
-                setIntention = { task.dslIntention = it }
+                setIntention = { task.dslIntention = it },
             )
 
             createLlmServiceIfEnabled(iaConfig) { task.llmService = it }
@@ -69,7 +67,7 @@ object ContentTaskRegistrar {
     internal fun Project.registerGenerateSiteFromIntentionTask(
         targetDir: File,
         iaConfig: IaConfig = IaConfig(),
-        scaffoldIntentionDsl: ScaffoldIntentionDsl? = null
+        scaffoldIntentionDsl: ScaffoldIntentionDsl? = null,
     ) {
         tasks.register("generateSiteFromIntention", GenerateSiteFromIntentionTask::class.java) { task ->
             task.group = BakeryConstants.GENERATE_GROUP
@@ -85,7 +83,7 @@ object ContentTaskRegistrar {
                 isConfigured = { it.description.isNotBlank() },
                 toIntention = { it.toIntention() },
                 taskLabel = "scaffold",
-                setIntention = { task.dslIntention = it }
+                setIntention = { task.dslIntention = it },
             )
 
             createLlmServiceIfEnabled(iaConfig) { task.llmService = it }
@@ -101,7 +99,7 @@ object ContentTaskRegistrar {
      */
     internal fun Project.registerGenerateThemeTask(
         site: SiteConfiguration,
-        themeIntentionDsl: bakery.theme.ThemeIntentionDsl? = null
+        themeIntentionDsl: bakery.theme.ThemeIntentionDsl? = null,
     ) {
         val contentRoot = project.projectDir.resolve(site.bake.srcPath)
         tasks.register("generateTheme", GenerateThemeTask::class.java) { task ->
@@ -124,7 +122,7 @@ object ContentTaskRegistrar {
                 isConfigured = { it.description.isNotBlank() },
                 toIntention = { it.toIntention() },
                 taskLabel = "theme",
-                setIntention = { task.dslIntention = it }
+                setIntention = { task.dslIntention = it },
             )
 
             project.logger.info("[BakeryPlugin] generateTheme tâche enregistrée (variante=${themeIntentionDsl?.variant ?: "par défaut"})")
@@ -142,16 +140,19 @@ object ContentTaskRegistrar {
         site: SiteConfiguration,
         iaConfig: IaConfig = IaConfig(),
         firebaseAuthDsl: FirebaseAuthDsl = FirebaseAuthDsl(),
-        props: Map<String, String> = emptyMap()
+        props: Map<String, String> = emptyMap(),
     ) {
         tasks.register("validateFirebaseConfig", ValidateFirebaseConfigTask::class.java) { task ->
             task.group = BakeryConstants.VALIDATE_GROUP
             task.description = "Valide la cohérence de la configuration Firebase (mécanique + IA optionnelle)"
 
             // Résoudre les configs via ConfigResolver 4-layer cascade
-            val resolvedFirebaseAuth = ConfigResolver.resolveFirebaseAuthConfig(
-                props, firebaseAuthDsl, site.firebaseAuth
-            )
+            val resolvedFirebaseAuth =
+                ConfigResolver.resolveFirebaseAuthConfig(
+                    props,
+                    firebaseAuthDsl,
+                    site.firebaseAuth,
+                )
             val resolvedFirebaseContact = site.firebase
 
             task.resolvedAuthConfig = resolvedFirebaseAuth
@@ -172,7 +173,7 @@ object ContentTaskRegistrar {
     internal fun Project.registerMigrateToI18nTask(
         site: SiteConfiguration,
         iaConfig: IaConfig = IaConfig(),
-        i18nMigrationDsl: I18nMigrationIntentionDsl? = null
+        i18nMigrationDsl: I18nMigrationIntentionDsl? = null,
     ) {
         val contentRoot = project.projectDir.resolve(site.bake.srcPath)
         tasks.register("migrateToI18n", MigrateToI18nTask::class.java) { task ->
@@ -189,7 +190,7 @@ object ContentTaskRegistrar {
                 isConfigured = { it.siteDir.isNotBlank() },
                 toIntention = { it.toIntention() },
                 taskLabel = "i18nMigration",
-                setIntention = { task.dslIntention = it }
+                setIntention = { task.dslIntention = it },
             )
 
             createLlmServiceIfEnabled(iaConfig) { task.llmService = it }
@@ -211,12 +212,13 @@ object ContentTaskRegistrar {
     internal fun Project.registerMigrateContentI18nTask(
         site: SiteConfiguration,
         iaConfig: IaConfig = IaConfig(),
-        contentMigrationDsl: ContentMigrationIntentionDsl? = null
+        contentMigrationDsl: ContentMigrationIntentionDsl? = null,
     ) {
         val contentRoot = project.projectDir.resolve(site.bake.srcPath)
         tasks.register("migrateContentI18n", MigrateContentI18nTask::class.java) { task ->
             task.group = BakeryConstants.TRANSFORM_GROUP
-            task.description = "Migre le contenu AsciiDoc d'un site bakery vers l'i18n — copie le contenu source, traduit les fichiers .adoc, preserve les fichiers non-adoc"
+            task.description =
+                "Migre le contenu AsciiDoc d'un site bakery vers l'i18n — copie le contenu source, traduit les fichiers .adoc, preserve les fichiers non-adoc"
             task.contentRootDir = contentRoot
             task.contentI18nSource.set(project.providers.gradleProperty("contentI18nSource").orElse(""))
             task.contentI18nOutput.set(project.providers.gradleProperty("contentI18nOutput").orElse(""))
@@ -229,7 +231,7 @@ object ContentTaskRegistrar {
                 isConfigured = { it.sourceDir.isNotBlank() },
                 toIntention = { it.toIntention() },
                 taskLabel = "contentI18nMigration",
-                setIntention = { task.dslIntention = it }
+                setIntention = { task.dslIntention = it },
             )
 
             createLlmServiceIfEnabled(iaConfig) { task.translationService = it.let(::LlmServiceTranslationAdapter) }
@@ -244,9 +246,7 @@ object ContentTaskRegistrar {
      * @param site Configuration du site (utilise bake.srcPath pour le content root,
      *             site.language comme langue par défaut, site.supportedLanguages)
      */
-    internal fun Project.registerInjectLangSwitchTask(
-        site: SiteConfiguration
-    ) {
+    internal fun Project.registerInjectLangSwitchTask(site: SiteConfiguration) {
         val contentRoot = project.projectDir.resolve(site.bake.srcPath)
         tasks.register("injectLangSwitch", InjectLangSwitchTask::class.java) { task ->
             task.group = BakeryConstants.TRANSFORM_GROUP
@@ -266,9 +266,7 @@ object ContentTaskRegistrar {
      *
      * @param site Configuration du site (utilise bake.srcPath pour le content root)
      */
-    internal fun Project.registerRtlDirectionInjectionTask(
-        site: SiteConfiguration
-    ) {
+    internal fun Project.registerRtlDirectionInjectionTask(site: SiteConfiguration) {
         tasks.register("injectRtlDirection", RtlDirectionInjectionTask::class.java) { task ->
             task.group = BakeryConstants.TRANSFORM_GROUP
             task.description = "Injects :jbake-lang: and :lang: rtl directives into translated articles frontmatter (ar/ur RTL, others LTR)"
@@ -280,22 +278,23 @@ object ContentTaskRegistrar {
     /** Construit un [LlmService] si l'IA est activée et l'injecte via [applyService]. */
     private fun createLlmServiceIfEnabled(
         iaConfig: IaConfig,
-        applyService: (LlmService) -> Unit
+        applyService: (LlmService) -> Unit,
     ) {
         if (iaConfig.enabled) {
-            val service = if (iaConfig.portRange != null) {
-                PooledOllamaLlmService.create(
-                    portRange = iaConfig.portRange!!,
-                    modelName = iaConfig.modelName,
-                    timeout = iaConfig.timeout
-                )
-            } else {
-                OllamaLlmService.create(
-                    baseUrl = iaConfig.baseUrl,
-                    modelName = iaConfig.modelName,
-                    timeout = iaConfig.timeout
-                )
-            }
+            val service =
+                if (iaConfig.portRange != null) {
+                    PooledOllamaLlmService.create(
+                        portRange = iaConfig.portRange!!,
+                        modelName = iaConfig.modelName,
+                        timeout = iaConfig.timeout,
+                    )
+                } else {
+                    OllamaLlmService.create(
+                        baseUrl = iaConfig.baseUrl,
+                        modelName = iaConfig.modelName,
+                        timeout = iaConfig.timeout,
+                    )
+                }
             applyService(service)
         }
     }
@@ -306,16 +305,18 @@ object ContentTaskRegistrar {
         isConfigured: (D) -> Boolean,
         toIntention: (D) -> T,
         taskLabel: String,
-        setIntention: (T?) -> Unit
+        setIntention: (T?) -> Unit,
     ) {
         dsl?.let { d ->
             if (isConfigured(d)) {
-                setIntention(try {
-                    toIntention(d)
-                } catch (e: IllegalArgumentException) {
-                    logger.warn("[BakeryPlugin] Failed to parse $taskLabel intention from DSL: ${e.message}")
-                    null
-                })
+                setIntention(
+                    try {
+                        toIntention(d)
+                    } catch (e: IllegalArgumentException) {
+                        logger.warn("[BakeryPlugin] Failed to parse $taskLabel intention from DSL: ${e.message}")
+                        null
+                    },
+                )
             }
         }
     }

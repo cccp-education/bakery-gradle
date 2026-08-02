@@ -3,15 +3,14 @@ package bakery.scenarios
 import bakery.FileSystemManager
 import bakery.SecretField
 import bakery.maskSecret
-import contracts.i18n.OllamaDeviceKey
 import com.fasterxml.jackson.module.kotlin.readValue
+import contracts.i18n.OllamaDeviceKey
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
 import org.assertj.core.api.Assertions.assertThat
 
 class OllamaConfigSteps {
-
     private var yamlString: String? = null
     private var ollamaConfig: contracts.i18n.OllamaConfig? = null
     private var siteParseResult: bakery.SiteConfiguration? = null
@@ -21,20 +20,23 @@ class OllamaConfigSteps {
 
     @Given("a site.yml without ollama section")
     fun aSiteYmlWithoutOllamaSection() {
-        yamlString = """
+        yamlString =
+            """
             |bake:
             |  srcPath: "site"
             |  destDirPath: "build/bake"
-        """.trimMargin()
+            """.trimMargin()
     }
 
     @Given("a site.yml with 29 ollama device keys for ports 11437 to 11465")
     fun aSiteYmlWith29OllamaDeviceKeys() {
-        val keysYaml = (11437..11465).joinToString("\n") { port ->
-            "|        - keyName: ollama-$port\n" +
-            "|          privateKey: ssh-ed25519-fake-key-$port"
-        }
-        yamlString = """
+        val keysYaml =
+            (11437..11465).joinToString("\n") { port ->
+                "|        - keyName: ollama-$port\n" +
+                    "|          privateKey: ssh-ed25519-fake-key-$port"
+            }
+        yamlString =
+            """
             |bake:
             |  srcPath: "site"
             |  destDirPath: "build/bake"
@@ -45,7 +47,7 @@ class OllamaConfigSteps {
             |  timeoutSeconds: 300
             |  deviceKeys:
 $keysYaml
-        """.trimMargin()
+            """.trimMargin()
     }
 
     @Given("an Ollama device key with private key {string}")

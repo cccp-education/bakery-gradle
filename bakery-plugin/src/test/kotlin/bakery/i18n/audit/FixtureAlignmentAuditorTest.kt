@@ -13,7 +13,6 @@ import kotlin.test.assertTrue
  * échouer aujourd'hui (fixtures ≠ sites réels) et passer après correction.
  */
 class FixtureAlignmentAuditorTest {
-
     private val auditor = FixtureAlignmentAuditor()
 
     @Test
@@ -38,7 +37,9 @@ class FixtureAlignmentAuditorTest {
     }
 
     @Test
-    fun `fixture and real site with identical content produce aligned report`(@org.junit.jupiter.api.io.TempDir tempDir: File) {
+    fun `fixture and real site with identical content produce aligned report`(
+        @org.junit.jupiter.api.io.TempDir tempDir: File,
+    ) {
         val fixtureDir = tempDir.resolve("fixture/templates").apply { mkdirs() }
         val realDir = tempDir.resolve("real/templates").apply { mkdirs() }
 
@@ -54,7 +55,9 @@ class FixtureAlignmentAuditorTest {
     }
 
     @Test
-    fun `fixture missing template is reported as missingInFixture`(@org.junit.jupiter.api.io.TempDir tempDir: File) {
+    fun `fixture missing template is reported as missingInFixture`(
+        @org.junit.jupiter.api.io.TempDir tempDir: File,
+    ) {
         val fixtureDir = tempDir.resolve("fixture/templates").apply { mkdirs() }
         val realDir = tempDir.resolve("real/templates").apply { mkdirs() }
 
@@ -67,7 +70,9 @@ class FixtureAlignmentAuditorTest {
     }
 
     @Test
-    fun `fixture extra template is reported as extraInFixture`(@org.junit.jupiter.api.io.TempDir tempDir: File) {
+    fun `fixture extra template is reported as extraInFixture`(
+        @org.junit.jupiter.api.io.TempDir tempDir: File,
+    ) {
         val fixtureDir = tempDir.resolve("fixture/templates").apply { mkdirs() }
         val realDir = tempDir.resolve("real/templates").apply { mkdirs() }
 
@@ -80,7 +85,9 @@ class FixtureAlignmentAuditorTest {
     }
 
     @Test
-    fun `template with different content is reported as mismatched`(@org.junit.jupiter.api.io.TempDir tempDir: File) {
+    fun `template with different content is reported as mismatched`(
+        @org.junit.jupiter.api.io.TempDir tempDir: File,
+    ) {
         val fixtureDir = tempDir.resolve("fixture/templates").apply { mkdirs() }
         val realDir = tempDir.resolve("real/templates").apply { mkdirs() }
 
@@ -94,7 +101,10 @@ class FixtureAlignmentAuditorTest {
         assertEquals("index.thyme", report.mismatchedContent.single().templateName)
     }
 
-    private fun audit(fixtureResourcePath: String, siteDirName: String): FixtureAlignmentAuditor.AlignmentReport {
+    private fun audit(
+        fixtureResourcePath: String,
+        siteDirName: String,
+    ): FixtureAlignmentAuditor.AlignmentReport {
         val fixtureDir = loadResourceDir(fixtureResourcePath)
         val realSiteDir = File("/home/cheroliv/workspace/office/sites/$siteDirName/jbake/templates")
         require(realSiteDir.isDirectory) { "Répertoire site réel introuvable: $realSiteDir" }
@@ -102,15 +112,17 @@ class FixtureAlignmentAuditorTest {
     }
 
     private fun loadResourceDir(resourcePath: String): File {
-        val resource = this::class.java.classLoader.getResource(resourcePath)
-            ?: throw IllegalStateException("Resource non trouvée: $resourcePath")
+        val resource =
+            this::class.java.classLoader.getResource(resourcePath)
+                ?: throw IllegalStateException("Resource non trouvée: $resourcePath")
         return File(resource.toURI())
     }
 
     private fun buildAlignmentMessage(report: FixtureAlignmentAuditor.AlignmentReport): String {
-        val lines = mutableListOf(
-            "Fixture ${report.fixtureDir} non alignée avec ${report.realSiteDir} :"
-        )
+        val lines =
+            mutableListOf(
+                "Fixture ${report.fixtureDir} non alignée avec ${report.realSiteDir} :",
+            )
         if (report.missingInFixture.isNotEmpty()) {
             lines.add("  Templates manquants dans la fixture : ${report.missingInFixture}")
         }

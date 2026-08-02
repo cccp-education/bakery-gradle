@@ -6,21 +6,20 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatCode
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.ClassOrderer
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.MethodOrderer
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestClassOrder
 import org.junit.jupiter.api.TestMethodOrder
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.ClassOrderer
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
 @TestClassOrder(ClassOrderer.OrderAnnotation::class)
 class ArchitectureValidationTest {
-
     companion object {
         private const val SITE_NAME = "un-site-test"
 
@@ -61,7 +60,8 @@ class ArchitectureValidationTest {
         }
 
         fun runner(vararg args: String): GradleRunner =
-            GradleRunner.create()
+            GradleRunner
+                .create()
                 .forwardOutput()
                 .withPluginClasspath()
                 .withArguments(*args)
@@ -81,7 +81,7 @@ class ArchitectureValidationTest {
                 :jbake-type: page
 
                 Test Homepage content.
-                """.trimIndent()
+                """.trimIndent(),
             )
 
             blogDir.resolve("0000_test_article_post.adoc").writeText(
@@ -92,7 +92,7 @@ class ArchitectureValidationTest {
                 :jbake-type: post
 
                 Content of the test article.
-                """.trimIndent()
+                """.trimIndent(),
             )
 
             val baseThyme = """<!DOCTYPE html><html><head><title th:text="|Test - ${'$'}{content.title}|"></title></head><body th:utext="${'$'}{content.body}"></body></html>"""
@@ -105,7 +105,11 @@ class ArchitectureValidationTest {
             templatesDir.resolve("feed.thyme").writeText(baseThyme)
             templatesDir.resolve("blog.thyme").writeText(baseThyme)
 
-            assetsDir.resolve("css").also { it.mkdirs() }.resolve("styles.css").writeText("body { color: black; }")
+            assetsDir
+                .resolve("css")
+                .also { it.mkdirs() }
+                .resolve("styles.css")
+                .writeText("body { color: black; }")
             jbakeDir.resolve("jbake.properties").writeText(
                 """
                 site.host=https://un-site-test.cheroliv.com/
@@ -125,7 +129,7 @@ class ArchitectureValidationTest {
                 template.feed.file=feed.thyme
                 template.blog.file=blog.thyme
                 destination.folder=../build/jbake-build
-                """.trimIndent()
+                """.trimIndent(),
             )
         }
 
@@ -138,10 +142,10 @@ class ArchitectureValidationTest {
                 bakery {
                     configPath.set(file("site.yml").absolutePath)
                 }
-                """.trimIndent()
+                """.trimIndent(),
             )
             projectDir.resolve("settings.gradle.kts").writeText(
-                "rootProject.name = \"$SITE_NAME\""
+                "rootProject.name = \"$SITE_NAME\"",
             )
         }
 
@@ -163,7 +167,7 @@ class ArchitectureValidationTest {
                       password: ""
                   branch: "main"
                   message: "test deploy"
-                """.trimIndent()
+                """.trimIndent(),
             )
         }
     }
@@ -173,7 +177,6 @@ class ArchitectureValidationTest {
     @DisplayName("Bake tasks")
     @TestMethodOrder(MethodOrderer.OrderAnnotation::class)
     inner class BakeTasks {
-
         @Test
         @Order(1)
         @Tag("quick")
@@ -220,7 +223,6 @@ class ArchitectureValidationTest {
     @Order(2)
     @DisplayName("Task registration and inspection")
     inner class TaskInspection {
-
         @Test
         fun `tasks are registered correctly from office sites structure`() {
             val result = runner("tasks").build()

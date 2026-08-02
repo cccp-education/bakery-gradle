@@ -18,79 +18,90 @@ import kotlin.test.assertTrue
  * métier (pas de faux positifs, clés cohérentes, dry-run safe).
  */
 class MagicStickI18nMigrationIntegrationTest {
-
     private val service = I18nMigrationService()
 
     /**
      * Charge le répertoire jbake de la fixture magic-stick depuis les resources de test.
      */
     private fun loadMagicStickFixture(): File {
-        val resource = this::class.java.classLoader.getResource("i18n-fixtures/magic-stick/jbake")
-            ?: throw IllegalStateException("Fixture magic-stick non trouvée dans test resources")
+        val resource =
+            this::class.java.classLoader.getResource("i18n-fixtures/magic-stick/jbake")
+                ?: throw IllegalStateException("Fixture magic-stick non trouvée dans test resources")
         return File(resource.toURI())
     }
 
     @Test
-    fun `dry-run on magic-stick fixture scans all 12 templates without modifying them`(@TempDir tempDir: File) {
+    fun `dry-run on magic-stick fixture scans all 12 templates without modifying them`(
+        @TempDir tempDir: File,
+    ) {
         val siteDir = copyFixtureToTemp(tempDir)
         val templatesDir = siteDir.resolve("templates")
-        val originalChecksums = templatesDir.walkTopDown()
-            .filter { it.isFile && it.extension == "thyme" }
-            .associate { it.name to it.readText() }
+        val originalChecksums =
+            templatesDir
+                .walkTopDown()
+                .filter { it.isFile && it.extension == "thyme" }
+                .associate { it.name to it.readText() }
 
-        val result = service.migrate(
-            siteDir = siteDir,
-            languages = listOf("fr", "en"),
-            defaultLanguage = "fr",
-            dryRun = true
-        )
+        val result =
+            service.migrate(
+                siteDir = siteDir,
+                languages = listOf("fr", "en"),
+                defaultLanguage = "fr",
+                dryRun = true,
+            )
 
         assertTrue(result.keysExtracted > 0, "Des clés doivent être extraites")
         assertEquals(0, result.filesGenerated, "Dry-run ne génère aucun fichier")
         assertEquals(0, result.templatesModified, "Dry-run ne modifie aucun template")
 
-        templatesDir.walkTopDown()
+        templatesDir
+            .walkTopDown()
             .filter { it.isFile && it.extension == "thyme" }
             .forEach { file ->
                 assertEquals(
                     originalChecksums[file.name],
                     file.readText(),
-                    "Le template ${file.name} ne doit pas être modifié en dry-run"
+                    "Le template ${file.name} ne doit pas être modifié en dry-run",
                 )
             }
     }
 
     @Test
-    fun `proper names are not extracted as i18n keys`(@TempDir tempDir: File) {
+    fun `proper names are not extracted as i18n keys`(
+        @TempDir tempDir: File,
+    ) {
         val siteDir = copyFixtureToTemp(tempDir)
 
-        val result = service.migrate(
-            siteDir = siteDir,
-            languages = listOf("fr", "en"),
-            defaultLanguage = "fr",
-            dryRun = true
-        )
+        val result =
+            service.migrate(
+                siteDir = siteDir,
+                languages = listOf("fr", "en"),
+                defaultLanguage = "fr",
+                dryRun = true,
+            )
 
         val allValues = collectAllExtractedValues(siteDir)
         assertFalse(
             allValues.any { it.contains("Magic Stick", ignoreCase = true) },
-            "Le nom propre 'Magic Stick' ne doit pas être extrait"
+            "Le nom propre 'Magic Stick' ne doit pas être extrait",
         )
         assertFalse(
             allValues.any { it.contains("cccp.education", ignoreCase = true) },
-            "Le nom propre 'cccp.education' ne doit pas être extrait"
+            "Le nom propre 'cccp.education' ne doit pas être extrait",
         )
     }
 
     @Test
-    fun `technical terms and identifiers are not extracted as standalone i18n keys`(@TempDir tempDir: File) {
+    fun `technical terms and identifiers are not extracted as standalone i18n keys`(
+        @TempDir tempDir: File,
+    ) {
         val siteDir = copyFixtureToTemp(tempDir)
 
         service.migrate(
             siteDir = siteDir,
             languages = listOf("fr", "en"),
             defaultLanguage = "fr",
-            dryRun = true
+            dryRun = true,
         )
 
         val allValues = collectAllExtractedValues(siteDir)
@@ -98,65 +109,72 @@ class MagicStickI18nMigrationIntegrationTest {
         for (term in standaloneTechnicalTerms) {
             assertFalse(
                 allValues.any { it.equals(term, ignoreCase = true) },
-                "Le terme technique/identifiant '$term' ne doit pas être extrait comme clé autonome"
+                "Le terme technique/identifiant '$term' ne doit pas être extrait comme clé autonome",
             )
         }
     }
 
     @Test
-    fun `URLs and email links are not extracted as i18n keys`(@TempDir tempDir: File) {
+    fun `URLs and email links are not extracted as i18n keys`(
+        @TempDir tempDir: File,
+    ) {
         val siteDir = copyFixtureToTemp(tempDir)
 
         service.migrate(
             siteDir = siteDir,
             languages = listOf("fr", "en"),
             defaultLanguage = "fr",
-            dryRun = true
+            dryRun = true,
         )
 
         val allValues = collectAllExtractedValues(siteDir)
         assertFalse(
             allValues.any { it.startsWith("http://") || it.startsWith("https://") || it.startsWith("mailto:") },
-            "Les URLs ne doivent pas être extraites"
+            "Les URLs ne doivent pas être extraites",
         )
     }
 
     @Test
-    fun `real french UI text is extracted`(@TempDir tempDir: File) {
+    fun `real french UI text is extracted`(
+        @TempDir tempDir: File,
+    ) {
         val siteDir = copyFixtureToTemp(tempDir)
 
         service.migrate(
             siteDir = siteDir,
             languages = listOf("fr", "en"),
             defaultLanguage = "fr",
-            dryRun = true
+            dryRun = true,
         )
 
         val allValues = collectAllExtractedValues(siteDir)
         assertTrue(
             allValues.any { it.contains("Accueil", ignoreCase = true) },
-            "'Accueil' doit être extrait"
+            "'Accueil' doit être extrait",
         )
         assertTrue(
             allValues.any { it.contains("Guide d'installation", ignoreCase = true) },
-            "'Guide d'installation' doit être extrait"
+            "'Guide d'installation' doit être extrait",
         )
         assertTrue(
             allValues.any { it.contains("Démarrage rapide", ignoreCase = true) || it.contains("Demarrage rapide", ignoreCase = true) },
-            "'Démarrage rapide' doit être extrait"
+            "'Démarrage rapide' doit être extrait",
         )
     }
 
     @Test
-    fun `real migration generates messages_fr and messages_en files`(@TempDir tempDir: File) {
+    fun `real migration generates messages_fr and messages_en files`(
+        @TempDir tempDir: File,
+    ) {
         val siteDir = copyFixtureToTemp(tempDir)
 
-        val result = service.migrate(
-            siteDir = siteDir,
-            languages = listOf("fr", "en"),
-            defaultLanguage = "fr",
-            dryRun = false
-        )
+        val result =
+            service.migrate(
+                siteDir = siteDir,
+                languages = listOf("fr", "en"),
+                defaultLanguage = "fr",
+                dryRun = false,
+            )
 
         assertFalse(result.dryRun)
         assertTrue(result.keysExtracted > 0, "Des clés doivent être extraites")
@@ -169,21 +187,25 @@ class MagicStickI18nMigrationIntegrationTest {
     }
 
     @Test
-    fun `real migration replaces templates with th text message keys`(@TempDir tempDir: File) {
+    fun `real migration replaces templates with th text message keys`(
+        @TempDir tempDir: File,
+    ) {
         val siteDir = copyFixtureToTemp(tempDir)
 
         service.migrate(
             siteDir = siteDir,
             languages = listOf("fr", "en"),
             defaultLanguage = "fr",
-            dryRun = false
+            dryRun = false,
         )
 
         val templatesDir = siteDir.resolve("templates")
-        val modifiedTemplates = templatesDir.walkTopDown()
-            .filter { it.isFile && it.extension == "thyme" }
-            .filter { it.readText().contains("th:text=\"") || it.readText().contains("th:placeholder=\"") }
-            .toList()
+        val modifiedTemplates =
+            templatesDir
+                .walkTopDown()
+                .filter { it.isFile && it.extension == "thyme" }
+                .filter { it.readText().contains("th:text=\"") || it.readText().contains("th:placeholder=\"") }
+                .toList()
 
         assertTrue(modifiedTemplates.isNotEmpty(), "Au moins un template doit contenir des th:* i18n")
 
@@ -191,20 +213,22 @@ class MagicStickI18nMigrationIntegrationTest {
         if (menuFile.exists()) {
             assertTrue(
                 menuFile.readText().contains("th:text=\"#{menu.1}\"", ignoreCase = true),
-                "menu.thyme doit remplacer 'Accueil' par th:text=\"#{menu.1}\""
+                "menu.thyme doit remplacer 'Accueil' par th:text=\"#{menu.1}\"",
             )
         }
     }
 
     @Test
-    fun `real migration injects site language into jbake properties`(@TempDir tempDir: File) {
+    fun `real migration injects site language into jbake properties`(
+        @TempDir tempDir: File,
+    ) {
         val siteDir = copyFixtureToTemp(tempDir)
 
         service.migrate(
             siteDir = siteDir,
             languages = listOf("fr", "en"),
             defaultLanguage = "fr",
-            dryRun = false
+            dryRun = false,
         )
 
         val jbakeProps = siteDir.resolve("jbake.properties")
@@ -214,14 +238,16 @@ class MagicStickI18nMigrationIntegrationTest {
     }
 
     @Test
-    fun `english translations reference file covers all extracted keys`(@TempDir tempDir: File) {
+    fun `english translations reference file covers all extracted keys`(
+        @TempDir tempDir: File,
+    ) {
         val siteDir = copyFixtureToTemp(tempDir)
 
         service.migrate(
             siteDir = siteDir,
             languages = listOf("fr", "en"),
             defaultLanguage = "fr",
-            dryRun = false
+            dryRun = false,
         )
 
         val translations = loadTranslationsFromResources("i18n-fixtures/magic-stick/translations_en.properties")
@@ -233,14 +259,16 @@ class MagicStickI18nMigrationIntegrationTest {
     }
 
     @Test
-    fun `applying english translations fills messages_en properties`(@TempDir tempDir: File) {
+    fun `applying english translations fills messages_en properties`(
+        @TempDir tempDir: File,
+    ) {
         val siteDir = copyFixtureToTemp(tempDir)
 
         service.migrate(
             siteDir = siteDir,
             languages = listOf("fr", "en"),
             defaultLanguage = "fr",
-            dryRun = false
+            dryRun = false,
         )
 
         val translations = loadTranslationsFromResources("i18n-fixtures/magic-stick/translations_en.properties")
@@ -253,7 +281,7 @@ class MagicStickI18nMigrationIntegrationTest {
         enFile.inputStream().use { enProps.load(it) }
         assertTrue(
             enProps.values.any { (it as String).isNotBlank() },
-            "messages_en.properties doit contenir des traductions non vides"
+            "messages_en.properties doit contenir des traductions non vides",
         )
         assertEquals("Home", enProps.getProperty("menu.1"))
         assertEquals("Installation guide", enProps.getProperty("menu.5"))
@@ -263,8 +291,9 @@ class MagicStickI18nMigrationIntegrationTest {
      * Charge un fichier .properties depuis les resources de test.
      */
     private fun loadTranslationsFromResources(resourcePath: String): Map<String, String> {
-        val url = this::class.java.classLoader.getResource(resourcePath)
-            ?: throw IllegalStateException("Resource non trouvée: $resourcePath")
+        val url =
+            this::class.java.classLoader.getResource(resourcePath)
+                ?: throw IllegalStateException("Resource non trouvée: $resourcePath")
         val props = Properties()
         url.openStream().use { props.load(it) }
         return props.map { it.key.toString() to it.value.toString() }.toMap()
@@ -282,19 +311,23 @@ class MagicStickI18nMigrationIntegrationTest {
     }
 
     @Test
-    fun `diagnostic print all extracted keys and values`(@TempDir tempDir: File) {
+    fun `diagnostic print all extracted keys and values`(
+        @TempDir tempDir: File,
+    ) {
         val siteDir = copyFixtureToTemp(tempDir)
 
-        val result = service.migrate(
-            siteDir = siteDir,
-            languages = listOf("fr", "en"),
-            defaultLanguage = "fr",
-            dryRun = true
-        )
+        val result =
+            service.migrate(
+                siteDir = siteDir,
+                languages = listOf("fr", "en"),
+                defaultLanguage = "fr",
+                dryRun = true,
+            )
 
         println("=== DIAGNOSTIC: ${result.keysExtracted} keys extracted ===")
         val templatesDir = siteDir.resolve("templates")
-        templatesDir.walkTopDown()
+        templatesDir
+            .walkTopDown()
             .filter { it.isFile && it.extension == "thyme" }
             .forEach { file ->
                 val extractions = service.extractHardcodedText(file)
@@ -311,7 +344,8 @@ class MagicStickI18nMigrationIntegrationTest {
      */
     private fun collectAllExtractedValues(siteDir: File): List<String> {
         val templatesDir = siteDir.resolve("templates")
-        return templatesDir.walkTopDown()
+        return templatesDir
+            .walkTopDown()
             .filter { it.isFile && it.extension == "thyme" }
             .flatMap { service.extractHardcodedText(it).values }
             .toList()

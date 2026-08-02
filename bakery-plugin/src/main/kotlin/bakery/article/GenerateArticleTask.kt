@@ -54,7 +54,6 @@ import java.time.YearMonth
  */
 @DisableCachingByDefault(because = "Génération IA — résultat non-déterministe, non-cacheable")
 abstract class GenerateArticleTask : DefaultTask() {
-
     /**
      * Service LLM injectable.
      * En production : [OllamaLlmService] configuré depuis `bakery { ia { ... } }`.
@@ -138,15 +137,20 @@ abstract class GenerateArticleTask : DefaultTask() {
         val resolvedIntention = resolveIntention()
 
         logger.lifecycle("[generateArticle] Génération article sur : {}", resolvedIntention.topic)
-        logger.lifecycle("[generateArticle] Ton : {}, Audience : {}, Lang : {}",
-            resolvedIntention.ton, resolvedIntention.audience, resolvedIntention.lang)
+        logger.lifecycle(
+            "[generateArticle] Ton : {}, Audience : {}, Lang : {}",
+            resolvedIntention.ton,
+            resolvedIntention.audience,
+            resolvedIntention.lang,
+        )
 
         // Résoudre le service LLM
-        val service = llmService
-            ?: throw IllegalStateException(
-                "Aucun LlmService injecté. Configurez bakery { ia { ... } } " +
-                "ou injectez FakeLlmService en test."
-            )
+        val service =
+            llmService
+                ?: throw IllegalStateException(
+                    "Aucun LlmService injecté. Configurez bakery { ia { ... } } " +
+                        "ou injectez FakeLlmService en test.",
+                )
 
         // Résoudre le répertoire de destination
         val targetDir = resolveTargetDir()
@@ -154,9 +158,10 @@ abstract class GenerateArticleTask : DefaultTask() {
 
         // Générer l'article
         val generator = ArticleGenerator()
-        val article = runBlocking {
-            generator.generate(resolvedIntention, service)
-        }
+        val article =
+            runBlocking {
+                generator.generate(resolvedIntention, service)
+            }
 
         // Écrire le fichier
         val articleFile = targetDir.resolve("${article.slug}.adoc")
@@ -178,50 +183,58 @@ abstract class GenerateArticleTask : DefaultTask() {
      * 3. Défauts : ton=informatif, audience=general, lang=fr
      */
     internal fun resolveIntention(): ArticleIntention {
-        val resolvedTopic = ResolveIntention.fromCliRequired(
-            topic.orNull,
-            dslIntention?.topic,
-            ResolveIntentionError.MissingRequiredField(
-                cliFlag = "-Ptopic",
-                dslPath = "bakery { articleIntention { topic = \"...\" } }",
-            ),
-        ).fold(
-            ifLeft = { throw it.toException() },
-            ifRight = { it },
-        )
+        val resolvedTopic =
+            ResolveIntention
+                .fromCliRequired(
+                    topic.orNull,
+                    dslIntention?.topic,
+                    ResolveIntentionError.MissingRequiredField(
+                        cliFlag = "-Ptopic",
+                        dslPath = "bakery { articleIntention { topic = \"...\" } }",
+                    ),
+                ).fold(
+                    ifLeft = { throw it.toException() },
+                    ifRight = { it },
+                )
 
-        val resolvedTon = ResolveIntention.fromCli(
-            articleTon.orNull,
-            dslIntention?.ton?.name?.lowercase(),
-            ArticleTon.INFORMATIF.name.lowercase(),
-        )
+        val resolvedTon =
+            ResolveIntention.fromCli(
+                articleTon.orNull,
+                dslIntention?.ton?.name?.lowercase(),
+                ArticleTon.INFORMATIF.name.lowercase(),
+            )
 
-        val resolvedAudience = ResolveIntention.fromCli(
-            articleAudience.orNull,
-            dslIntention?.audience?.name?.lowercase(),
-            ArticleAudience.GENERAL.name.lowercase(),
-        )
+        val resolvedAudience =
+            ResolveIntention.fromCli(
+                articleAudience.orNull,
+                dslIntention?.audience?.name?.lowercase(),
+                ArticleAudience.GENERAL.name.lowercase(),
+            )
 
-        val resolvedKeywords = ResolveIntention.fromCliList(
-            articleKeywords.orNull,
-            dslIntention?.keywords,
-            emptyList(),
-        )
+        val resolvedKeywords =
+            ResolveIntention.fromCliList(
+                articleKeywords.orNull,
+                dslIntention?.keywords,
+                emptyList(),
+            )
 
-        val resolvedLang = ResolveIntention.fromCli(
-            articleLang.orNull,
-            dslIntention?.lang,
-            "fr",
-        )
+        val resolvedLang =
+            ResolveIntention.fromCli(
+                articleLang.orNull,
+                dslIntention?.lang,
+                "fr",
+            )
 
         return ArticleIntention(
             topic = resolvedTopic,
-            ton = ArticleTon.entries.firstOrNull { it.name.lowercase() == resolvedTon.lowercase() }
-                ?: ArticleTon.INFORMATIF,
-            audience = ArticleAudience.entries.firstOrNull { it.name.lowercase() == resolvedAudience.lowercase() }
-                ?: ArticleAudience.GENERAL,
+            ton =
+                ArticleTon.entries.firstOrNull { it.name.lowercase() == resolvedTon.lowercase() }
+                    ?: ArticleTon.INFORMATIF,
+            audience =
+                ArticleAudience.entries.firstOrNull { it.name.lowercase() == resolvedAudience.lowercase() }
+                    ?: ArticleAudience.GENERAL,
             rawKeywords = resolvedKeywords,
-            lang = resolvedLang
+            lang = resolvedLang,
         )
     }
 
@@ -230,40 +243,47 @@ abstract class GenerateArticleTask : DefaultTask() {
      * Chemin : `{contentRootDir}/content/blog/YYYY/MM/`
      */
     private fun resolveTargetDir(): File {
-        val root = contentRootDir
-            ?: throw IllegalStateException(
-                "Aucun contentRootDir configuré. " +
-                "Le site doit être initialisé avec generateSite d'abord."
-            )
+        val root =
+            contentRootDir
+                ?: throw IllegalStateException(
+                    "Aucun contentRootDir configuré. " +
+                        "Le site doit être initialisé avec generateSite d'abord.",
+                )
 
         val now = LocalDate.now()
         val yearMonth = YearMonth.from(now)
-        return root.resolve("content/blog/${yearMonth.year}/${yearMonth.monthValue}")
+        return root
+            .resolve("content/blog/${yearMonth.year}/${yearMonth.monthValue}")
             .also { it.mkdirs() }
     }
 
     /**
      * Construit le contenu complet du fichier article AsciiDoc.
      */
-    private fun buildArticleContent(article: ArticleOutput, lang: String): String = buildString {
-        appendLine("= ${article.titre}")
-        appendLine(":description: ${article.description}")
-        appendLine(":tags: ${article.tags.joinToString(", ")}")
-        appendLine(":date: ${article.date}")
-        appendLine(":slug: ${article.slug}")
-        appendLine(":page-liquid: blog")
-        appendLine()
-        appendLine(article.body)
-        appendLine()
-        appendLine("[NOTE]")
-        appendLine("=====")
-        appendLine(articleGeneratedNote(lang))
-        appendLine("=====")
-    }
+    private fun buildArticleContent(
+        article: ArticleOutput,
+        lang: String,
+    ): String =
+        buildString {
+            appendLine("= ${article.titre}")
+            appendLine(":description: ${article.description}")
+            appendLine(":tags: ${article.tags.joinToString(", ")}")
+            appendLine(":date: ${article.date}")
+            appendLine(":slug: ${article.slug}")
+            appendLine(":page-liquid: blog")
+            appendLine()
+            appendLine(article.body)
+            appendLine()
+            appendLine("[NOTE]")
+            appendLine("=====")
+            appendLine(articleGeneratedNote(lang))
+            appendLine("=====")
+        }
 
-    private fun articleGeneratedNote(lang: String): String = when (lang) {
-        "en" -> "Article generated by bakery-gradle AI assistant."
-        "fr" -> "Article généré par l'assistant IA bakery-gradle."
-        else -> "Article généré par l'assistant IA bakery-gradle."
-    }
+    private fun articleGeneratedNote(lang: String): String =
+        when (lang) {
+            "en" -> "Article generated by bakery-gradle AI assistant."
+            "fr" -> "Article généré par l'assistant IA bakery-gradle."
+            else -> "Article généré par l'assistant IA bakery-gradle."
+        }
 }

@@ -11,31 +11,30 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import kotlin.text.Charsets.UTF_8
 
 class SiteScaffolderTest {
-
     @Nested
     inner class ResolveSiteTargetDirTest {
-
         @TempDir
         lateinit var tempDir: File
 
         @Test
         fun `should resolve to baseDir siteName when both are defined`() {
-            val target = SiteScaffolder.resolveSiteTargetDir(
-                bakeryExtension("office/sites", "my-company"),
-                tempDir
-            )
+            val target =
+                SiteScaffolder.resolveSiteTargetDir(
+                    bakeryExtension("office/sites", "my-company"),
+                    tempDir,
+                )
             assertThat(target).isEqualTo(tempDir.resolve("office/sites/my-company"))
         }
 
         @Test
         fun `should resolve to projectDir siteName when only siteName is defined`() {
-            val target = SiteScaffolder.resolveSiteTargetDir(
-                bakeryExtension(null, "mysite"),
-                tempDir
-            )
+            val target =
+                SiteScaffolder.resolveSiteTargetDir(
+                    bakeryExtension(null, "mysite"),
+                    tempDir,
+                )
             assertThat(target).isEqualTo(tempDir.resolve("mysite"))
         }
 
@@ -44,7 +43,7 @@ class SiteScaffolderTest {
             assertThatThrownBy {
                 SiteScaffolder.resolveSiteTargetDir(
                     bakeryExtension("office/sites", null),
-                    tempDir
+                    tempDir,
                 )
             }.isInstanceOf(IllegalStateException::class.java)
                 .hasMessageContaining("siteName must be defined")
@@ -52,26 +51,27 @@ class SiteScaffolderTest {
 
         @Test
         fun `should fall back to projectDir when neither is defined`() {
-            val target = SiteScaffolder.resolveSiteTargetDir(
-                bakeryExtension(null, null),
-                tempDir
-            )
+            val target =
+                SiteScaffolder.resolveSiteTargetDir(
+                    bakeryExtension(null, null),
+                    tempDir,
+                )
             assertThat(target).isEqualTo(tempDir)
         }
 
         @Test
         fun `should resolve with nested sites base directory`() {
-            val target = SiteScaffolder.resolveSiteTargetDir(
-                bakeryExtension("a/b/c/sites", "deep-site"),
-                tempDir
-            )
+            val target =
+                SiteScaffolder.resolveSiteTargetDir(
+                    bakeryExtension("a/b/c/sites", "deep-site"),
+                    tempDir,
+                )
             assertThat(target).isEqualTo(tempDir.resolve("a/b/c/sites/deep-site"))
         }
     }
 
     @Nested
     inner class ValidateSiteTargetDoesNotExistTest {
-
         @TempDir
         lateinit var tempDir: File
 
@@ -101,7 +101,6 @@ class SiteScaffolderTest {
 
     @Nested
     inner class BakeryExtensionScaffoldingPropertiesTest {
-
         @TempDir
         lateinit var tempDir: File
 
@@ -133,7 +132,6 @@ class SiteScaffolderTest {
 
     @Nested
     inner class SiteTypeTest {
-
         @Test
         fun `fromString should return BLOG for blog`() {
             assertThat(SiteType.fromString("blog")).isEqualTo(SiteType.BLOG)
@@ -187,7 +185,6 @@ class SiteScaffolderTest {
 
     @Nested
     inner class ResolveAndValidateSiteTargetTest {
-
         @TempDir
         lateinit var tempDir: File
 
@@ -220,7 +217,6 @@ class SiteScaffolderTest {
 
     @Nested
     inner class ResolveSiteTypeTest {
-
         @TempDir
         lateinit var tempDir: File
 
@@ -257,31 +253,47 @@ class SiteScaffolderTest {
         @Test
         fun `resolveSiteType should return BLOG when siteType property is null`() {
             val ext = mockBakeryExtension(null, null, null)
-            org.mockito.kotlin.whenever(ext.siteType).thenReturn(null)
+            org.mockito.kotlin
+                .whenever(ext.siteType)
+                .thenReturn(null)
             assertThat(SiteScaffolder.resolveSiteType(ext)).isEqualTo(SiteType.BLOG)
         }
     }
 
     companion object {
-        private fun bakeryExtension(sitesBaseDir: String?, siteName: String?): BakeryExtension =
-            mockBakeryExtension(sitesBaseDir, siteName, null)
+        private fun bakeryExtension(
+            sitesBaseDir: String?,
+            siteName: String?,
+        ): BakeryExtension = mockBakeryExtension(sitesBaseDir, siteName, null)
 
         @Suppress("UNCHECKED_CAST")
         private fun mockBakeryExtension(
             sitesBaseDir: String?,
             siteName: String?,
-            siteType: String?
+            siteType: String?,
         ): BakeryExtension {
             val ext = org.mockito.kotlin.mock<BakeryExtension>()
             val sbMock = org.mockito.kotlin.mock<org.gradle.api.provider.Property<String>>()
             val snMock = org.mockito.kotlin.mock<org.gradle.api.provider.Property<String>>()
             val stMock = org.mockito.kotlin.mock<org.gradle.api.provider.Property<String>>()
-            org.mockito.kotlin.whenever(sbMock.orNull).thenReturn(sitesBaseDir)
-            org.mockito.kotlin.whenever(snMock.orNull).thenReturn(siteName)
-            org.mockito.kotlin.whenever(stMock.orNull).thenReturn(siteType)
-            org.mockito.kotlin.whenever(ext.sitesBaseDir).thenReturn(sbMock)
-            org.mockito.kotlin.whenever(ext.siteName).thenReturn(snMock)
-            org.mockito.kotlin.whenever(ext.siteType).thenReturn(stMock)
+            org.mockito.kotlin
+                .whenever(sbMock.orNull)
+                .thenReturn(sitesBaseDir)
+            org.mockito.kotlin
+                .whenever(snMock.orNull)
+                .thenReturn(siteName)
+            org.mockito.kotlin
+                .whenever(stMock.orNull)
+                .thenReturn(siteType)
+            org.mockito.kotlin
+                .whenever(ext.sitesBaseDir)
+                .thenReturn(sbMock)
+            org.mockito.kotlin
+                .whenever(ext.siteName)
+                .thenReturn(snMock)
+            org.mockito.kotlin
+                .whenever(ext.siteType)
+                .thenReturn(stMock)
             return ext
         }
     }

@@ -6,12 +6,12 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 class FirebaseAuthConfigTest {
-
     private val mapper = ObjectMapper(YAMLFactory())
 
     @Test
     fun `parse site yml with firebaseAuth returns config with values`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: src
               destDirPath: build
@@ -19,7 +19,7 @@ class FirebaseAuthConfigTest {
               apiKey: "AIzaSyDemo123"
               authDomain: "my-app.firebaseapp.com"
               projectId: "my-app"
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.firebaseAuth)
         assertEquals("AIzaSyDemo123", config.firebaseAuth!!.apiKey)
@@ -29,25 +29,27 @@ class FirebaseAuthConfigTest {
 
     @Test
     fun `parse site yml without firebaseAuth returns null`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: src
               destDirPath: build
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNull(config.firebaseAuth)
     }
 
     @Test
     fun `parse site yml with comments returns config with values`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: src
               destDirPath: build
             comments:
               enabled: true
               collection: "session-comments"
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.comments)
         assertTrue(config.comments!!.enabled)
@@ -56,18 +58,20 @@ class FirebaseAuthConfigTest {
 
     @Test
     fun `parse site yml without comments returns null`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: src
               destDirPath: build
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNull(config.comments)
     }
 
     @Test
     fun `parse site yml with firebaseAuth and comments together returns both`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: src
               destDirPath: build
@@ -78,7 +82,7 @@ class FirebaseAuthConfigTest {
             comments:
               enabled: true
               collection: "comments"
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.firebaseAuth)
         assertNotNull(config.comments)

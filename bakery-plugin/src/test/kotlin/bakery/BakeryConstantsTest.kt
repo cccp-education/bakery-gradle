@@ -5,7 +5,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class BakeryConstantsTest {
-
     @Test
     fun `SUPPORTED_LANGS contains all 10 languages`() {
         val expected = setOf("fr", "en", "zh", "hi", "es", "ar", "bn", "pt", "ru", "ur")

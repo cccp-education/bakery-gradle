@@ -4,8 +4,9 @@ import io.cucumber.java.en.And
 import io.cucumber.java.en.Then
 import org.assertj.core.api.Assertions.assertThat
 
-class ConfigureSiteSteps(private val world: BakeryWorld) {
-
+class ConfigureSiteSteps(
+    private val world: BakeryWorld,
+) {
     @And("the project has the bake and maquette directories ready")
     fun projectHasBakeAndMaquetteDirectoriesReady() {
         val dir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")

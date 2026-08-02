@@ -3,13 +3,12 @@ package bakery.i18n
 import java.io.File
 
 class ContentCopyService {
-
     fun copy(
         sourceDir: File,
         outputBaseDir: File,
         targetLanguages: List<String>,
         dryRun: Boolean = false,
-        excludeRelativePaths: Set<String> = emptySet()
+        excludeRelativePaths: Set<String> = emptySet(),
     ): ContentCopyResult {
         val copied = mutableListOf<String>()
         val skipped = mutableListOf<String>()
@@ -31,9 +30,10 @@ class ContentCopyService {
 
             for (lang in targetLanguages) {
                 val target = outputBaseDir.resolve(lang).resolve(relativePath)
-                val dirsToCheck = generateSequence(relativePath) { path ->
-                    path.lastIndexOf('/').let { if (it > 0) path.substring(0, it) else null }
-                }.toSet()
+                val dirsToCheck =
+                    generateSequence(relativePath) { path ->
+                        path.lastIndexOf('/').let { if (it > 0) path.substring(0, it) else null }
+                    }.toSet()
                 if (excludeRelativePaths.any { it in dirsToCheck }) {
                     skipped.add("$lang/$relativePath")
                     return@forEach
@@ -54,7 +54,7 @@ class ContentCopyService {
 
 data class ContentCopyResult(
     val filesCopied: List<String>,
-    val filesSkipped: List<String>
+    val filesSkipped: List<String>,
 ) {
     val totalFiles: Int get() = filesCopied.size + filesSkipped.size
 }

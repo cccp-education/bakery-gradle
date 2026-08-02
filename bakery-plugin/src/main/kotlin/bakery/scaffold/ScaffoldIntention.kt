@@ -17,7 +17,7 @@ data class ScaffoldIntention(
     val description: String,
     val siteType: ScaffoldSiteType = ScaffoldSiteType.BLOG,
     val lang: String = "fr",
-    val projectName: String = ""
+    val projectName: String = "",
 ) {
     init {
         require(description.isNotBlank()) { "La description est obligatoire pour le scaffolding assiste par IA." }
@@ -27,12 +27,13 @@ data class ScaffoldIntention(
     /**
      * Genere un contexte lisible par le LLM a partir de l'intention.
      */
-    fun toPromptContext(): String = buildString {
-        appendLine("Description du site : $description")
-        appendLine("Type de site : ${siteType.label}")
-        appendLine("Langue : $lang")
-        if (projectName.isNotBlank()) appendLine("Nom du projet : $projectName")
-    }
+    fun toPromptContext(): String =
+        buildString {
+            appendLine("Description du site : $description")
+            appendLine("Type de site : ${siteType.label}")
+            appendLine("Langue : $lang")
+            if (projectName.isNotBlank()) appendLine("Nom du projet : $projectName")
+        }
 }
 
 /**
@@ -41,16 +42,22 @@ data class ScaffoldIntention(
  * Chaque type correspond a un ensemble de templates et de metadonnees JBake
  * que le LLM peut selectionner et configurer.
  */
-enum class ScaffoldSiteType(val label: String) {
+enum class ScaffoldSiteType(
+    val label: String,
+) {
     BLOG("blog"),
     PORTFOLIO("portfolio"),
     DOC("documentation"),
-    FORMATION("formation");
+    FORMATION("formation"),
+    ;
 
     companion object {
         fun fromStringOrDefault(value: String?): ScaffoldSiteType =
-            if (value.isNullOrBlank()) BLOG
-            else entries.firstOrNull { it.name.equals(value, ignoreCase = true) }
-                ?: BLOG
+            if (value.isNullOrBlank()) {
+                BLOG
+            } else {
+                entries.firstOrNull { it.name.equals(value, ignoreCase = true) }
+                    ?: BLOG
+            }
     }
 }

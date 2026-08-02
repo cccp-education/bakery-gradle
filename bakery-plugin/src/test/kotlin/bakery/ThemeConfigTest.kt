@@ -6,12 +6,12 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
 class ThemeConfigTest {
-
     private val mapper = ObjectMapper(YAMLFactory())
 
     @Test
     fun `parse site yml with theme returns config with values`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: src
               destDirPath: build
@@ -22,7 +22,7 @@ class ThemeConfigTest {
               fontFamily: "Inter"
               logoUrl: "/img/logo.png"
               faviconUrl: "/img/favicon.ico"
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.theme)
         assertEquals("dark", config.theme!!.mode)
@@ -35,24 +35,26 @@ class ThemeConfigTest {
 
     @Test
     fun `parse site yml without theme returns null`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: src
               destDirPath: build
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNull(config.theme)
     }
 
     @Test
     fun `parse site yml with theme defaults returns auto mode and bootstrap colors`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: src
               destDirPath: build
             theme:
               mode: "auto"
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.theme)
         assertEquals("auto", config.theme!!.mode)
@@ -65,14 +67,15 @@ class ThemeConfigTest {
 
     @Test
     fun `parse site yml with theme light mode`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: src
               destDirPath: build
             theme:
               mode: "light"
               primaryColor: "#ff6600"
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.theme)
         assertEquals("light", config.theme!!.mode)
@@ -81,14 +84,15 @@ class ThemeConfigTest {
 
     @Test
     fun `parse site yml with theme dark mode and custom font`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: src
               destDirPath: build
             theme:
               mode: "dark"
               fontFamily: "Fira Code"
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.theme)
         assertEquals("dark", config.theme!!.mode)
@@ -97,14 +101,15 @@ class ThemeConfigTest {
 
     @Test
     fun `parse site yml with theme logo and favicon only`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: src
               destDirPath: build
             theme:
               logoUrl: "/assets/brand.svg"
               faviconUrl: "/assets/icon.png"
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.theme)
         assertEquals("auto", config.theme!!.mode)
@@ -114,7 +119,8 @@ class ThemeConfigTest {
 
     @Test
     fun `parse site yml with theme and analytics together returns both`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: site
               destDirPath: build
@@ -125,7 +131,7 @@ class ThemeConfigTest {
             theme:
               mode: "dark"
               primaryColor: "#1a1a2e"
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.analytics)
         assertNotNull(config.theme)
@@ -137,13 +143,14 @@ class ThemeConfigTest {
 
     @Test
     fun `parse site yml with theme variant returns variant name`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: site
               destDirPath: build
             theme:
               variant: "magazine"
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.theme)
         assertEquals("magazine", config.theme!!.variant)
@@ -151,7 +158,8 @@ class ThemeConfigTest {
 
     @Test
     fun `parse site yml with theme extended properties`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: site
               destDirPath: build
@@ -161,7 +169,7 @@ class ThemeConfigTest {
               backgroundColor: "#fafafa"
               textColor: "#333333"
               headingFont: "Inter"
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.theme)
         assertEquals("documentation", config.theme!!.variant)
@@ -173,14 +181,15 @@ class ThemeConfigTest {
 
     @Test
     fun `parse site yml with theme variant and override primary color`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: site
               destDirPath: build
             theme:
               variant: "magazine"
               primaryColor: "#ff6600"
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.theme)
         assertEquals("magazine", config.theme!!.variant)
@@ -189,13 +198,14 @@ class ThemeConfigTest {
 
     @Test
     fun `parse site yml without variant returns empty variant`() {
-        val yaml = """
+        val yaml =
+            """
             bake:
               srcPath: site
               destDirPath: build
             theme:
               mode: "dark"
-        """.trimIndent()
+            """.trimIndent()
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.theme)
         assertEquals("", config.theme!!.variant)

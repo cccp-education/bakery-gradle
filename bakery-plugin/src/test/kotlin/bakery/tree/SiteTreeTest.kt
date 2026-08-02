@@ -9,7 +9,6 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class SiteTreeTest {
-
     private fun sampleTree(): SiteTree {
         val ab = Article(path = "formations/ab-partition")
         val cd = Article(path = "formations/cd-partition")
@@ -26,7 +25,7 @@ class SiteTreeTest {
 
         assertEquals(
             listOf("", "formations", "formations/ab-partition", "formations/cd-partition", "blog"),
-            paths
+            paths,
         )
     }
 
@@ -38,7 +37,7 @@ class SiteTreeTest {
 
         assertEquals(
             listOf("formations/ab-partition", "formations/cd-partition", "formations", "blog", ""),
-            paths
+            paths,
         )
     }
 
@@ -62,7 +61,7 @@ class SiteTreeTest {
         assertTrue(leaves.all { it is Article })
         assertEquals(
             listOf("formations/ab-partition", "formations/cd-partition"),
-            leaves.map { it.path }
+            leaves.map { it.path },
         )
     }
 
@@ -160,18 +159,24 @@ class SiteTreeTest {
     fun `visit applies transform to every node and collects results`() {
         val tree = sampleTree()
 
-        val labels = tree.visit { node ->
-            when (node) {
-                is Site -> "site"
-                is Section -> "section:${node.path}"
-                is Article -> "article:${node.path}"
+        val labels =
+            tree.visit { node ->
+                when (node) {
+                    is Site -> "site"
+                    is Section -> "section:${node.path}"
+                    is Article -> "article:${node.path}"
+                }
             }
-        }
 
         assertEquals(
-            listOf("site", "section:formations", "article:formations/ab-partition",
-                "article:formations/cd-partition", "section:blog"),
-            labels
+            listOf(
+                "site",
+                "section:formations",
+                "article:formations/ab-partition",
+                "article:formations/cd-partition",
+                "section:blog",
+            ),
+            labels,
         )
     }
 
@@ -202,7 +207,7 @@ class SiteTreeTest {
         assertEquals(3, formationsNodes.size)
         assertEquals(
             listOf("formations", "formations/ab-partition", "formations/cd-partition"),
-            formationsNodes.map { it.path }
+            formationsNodes.map { it.path },
         )
     }
 }

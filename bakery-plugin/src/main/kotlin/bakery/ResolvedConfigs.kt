@@ -44,13 +44,14 @@ data class ResolvedConfigs(
             "themeHeadingFont" to theme.headingFont,
             "layoutType" to layout.layoutType.name,
             "language" to language,
-            "supportedLanguages" to supportedLanguages.joinToString(",")
+            "supportedLanguages" to supportedLanguages.joinToString(","),
         )
     }
 
-    fun toResolver(): (String, String) -> String = { key, defaultValue ->
-        propertyMap[key] ?: defaultValue
-    }
+    fun toResolver(): (String, String) -> String =
+        { key, defaultValue ->
+            propertyMap[key] ?: defaultValue
+        }
 }
 
 sealed class ConfigResolutionError {
@@ -60,19 +61,19 @@ sealed class ConfigResolutionError {
     data class MissingRequiredField(
         override val domain: String,
         val field: String,
-        override val message: String
+        override val message: String,
     ) : ConfigResolutionError()
 
     data class InvalidValue(
         override val domain: String,
         val field: String,
         val value: String,
-        override val message: String
+        override val message: String,
     ) : ConfigResolutionError()
 
     data class DomainFailure(
         override val domain: String,
         override val message: String,
-        val cause: Exception? = null
+        val cause: Exception? = null,
     ) : ConfigResolutionError()
 }

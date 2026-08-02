@@ -15,7 +15,6 @@ import kotlin.test.assertTrue
  * Convention : article path = template name (ex "blog/hello" → "blog/hello.thyme").
  */
 class ScaffoldTreeAdapterTest {
-
     @Test
     fun `flattenTemplates of a 3-level tree yields one template per article`() {
         val ab = Article(path = "formations/ab-partition")
@@ -76,7 +75,7 @@ class ScaffoldTreeAdapterTest {
 
         assertEquals(
             listOf("section/first.thyme", "section/second.thyme", "section/third.thyme"),
-            templates
+            templates,
         )
     }
 

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 
 object SiteTreeYaml {
-
     private val mapper: ObjectMapper by lazy {
         YAMLFactory()
             .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER)
@@ -22,6 +21,13 @@ object SiteTreeYaml {
     fun parse(yaml: String): SiteNode = mapper.readValue(yaml, SiteNodeDto::class.java).toDomain()
 
     fun parseOrNull(yaml: String?): SiteNode? =
-        if (yaml.isNullOrBlank()) null
-        else try { parse(yaml) } catch (_: Exception) { null }
+        if (yaml.isNullOrBlank()) {
+            null
+        } else {
+            try {
+                parse(yaml)
+            } catch (_: Exception) {
+                null
+            }
+        }
 }

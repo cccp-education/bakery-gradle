@@ -5,5 +5,5 @@ data class ConventionalCommit(
     val scope: String?,
     val message: String,
     val hash: String,
-    val date: String
+    val date: String,
 )

@@ -5,15 +5,15 @@ import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
 class I18nMigrationIntentionDslTest {
-
     @Test
     fun `toIntention converts DSL values to domain model`() {
-        val dsl = I18nMigrationIntentionDsl().apply {
-            siteDir = "/home/site"
-            languages = listOf("en", "ar")
-            defaultLanguage = "en"
-            dryRun = false
-        }
+        val dsl =
+            I18nMigrationIntentionDsl().apply {
+                siteDir = "/home/site"
+                languages = listOf("en", "ar")
+                defaultLanguage = "en"
+                dryRun = false
+            }
 
         val intention = dsl.toIntention()
 
@@ -25,9 +25,10 @@ class I18nMigrationIntentionDslTest {
 
     @Test
     fun `toIntention uses defaults for unspecified values`() {
-        val dsl = I18nMigrationIntentionDsl().apply {
-            siteDir = "/path"
-        }
+        val dsl =
+            I18nMigrationIntentionDsl().apply {
+                siteDir = "/path"
+            }
 
         val intention = dsl.toIntention()
 
@@ -48,10 +49,11 @@ class I18nMigrationIntentionDslTest {
 
     @Test
     fun `toIntention throws when languages is empty`() {
-        val dsl = I18nMigrationIntentionDsl().apply {
-            siteDir = "/path"
-            languages = emptyList()
-        }
+        val dsl =
+            I18nMigrationIntentionDsl().apply {
+                siteDir = "/path"
+                languages = emptyList()
+            }
 
         assertThrows<IllegalArgumentException> {
             dsl.toIntention()
@@ -60,10 +62,11 @@ class I18nMigrationIntentionDslTest {
 
     @Test
     fun `toIntention throws when language is unsupported`() {
-        val dsl = I18nMigrationIntentionDsl().apply {
-            siteDir = "/path"
-            languages = listOf("de")
-        }
+        val dsl =
+            I18nMigrationIntentionDsl().apply {
+                siteDir = "/path"
+                languages = listOf("de")
+            }
 
         assertThrows<IllegalArgumentException> {
             dsl.toIntention()

@@ -40,13 +40,16 @@ open class ArticleIntentionDsl {
      *
      * @throws IllegalArgumentException si le topic est vide, le ton ou l'audience invalide
      */
-    fun toIntention(): ArticleIntention = ArticleIntention(
-        topic = topic,
-        ton = ArticleTon.entries.firstOrNull { it.name.lowercase() == ton.lowercase() }
-            ?: throw IllegalArgumentException("Ton '$ton' inconnu. Valeurs : ${ArticleTon.entries.map { it.name.lowercase() }}"),
-        audience = ArticleAudience.entries.firstOrNull { it.name.lowercase() == audience.lowercase() }
-            ?: throw IllegalArgumentException("Audience '$audience' inconnue. Valeurs : ${ArticleAudience.entries.map { it.name.lowercase() }}"),
-        rawKeywords = keywords,
-        lang = lang
-    )
+    fun toIntention(): ArticleIntention =
+        ArticleIntention(
+            topic = topic,
+            ton =
+                ArticleTon.entries.firstOrNull { it.name.lowercase() == ton.lowercase() }
+                    ?: throw IllegalArgumentException("Ton '$ton' inconnu. Valeurs : ${ArticleTon.entries.map { it.name.lowercase() }}"),
+            audience =
+                ArticleAudience.entries.firstOrNull { it.name.lowercase() == audience.lowercase() }
+                    ?: throw IllegalArgumentException("Audience '$audience' inconnue. Valeurs : ${ArticleAudience.entries.map { it.name.lowercase() }}"),
+            rawKeywords = keywords,
+            lang = lang,
+        )
 }

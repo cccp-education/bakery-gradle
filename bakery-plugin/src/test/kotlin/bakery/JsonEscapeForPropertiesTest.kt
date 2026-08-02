@@ -19,11 +19,9 @@ import org.junit.jupiter.api.Test
  * cette fonction.
  */
 class JsonEscapeForPropertiesTest {
-
     @Nested
     @DisplayName("CS-FIN-2 — Échappement JSON pour Java properties")
     inner class EscapeJsonForJavaProperties {
-
         @Test
         @DisplayName("échappe les sauts de ligne (\\\\n dans properties → newline dans JSON)")
         fun `escapes newlines in JSON content`() {

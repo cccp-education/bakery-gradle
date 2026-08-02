@@ -22,7 +22,6 @@ import java.util.Properties
  */
 @Disabled("Golden masters generated S170. Regenerate only if migration changes.")
 class PostMigrationSnapshotGenerator {
-
     private val service = I18nMigrationService()
 
     @Test
@@ -42,25 +41,27 @@ class PostMigrationSnapshotGenerator {
 
     private fun generateSnapshot(siteId: String) {
         val preMigrationFixture = loadPreMigrationFixture(siteId)
-        val targetOutput = File(
-            "src/test/resources/i18n-fixtures/$siteId/post-migration"
-        )
+        val targetOutput =
+            File(
+                "src/test/resources/i18n-fixtures/$siteId/post-migration",
+            )
 
         if (targetOutput.exists()) {
             targetOutput.deleteRecursively()
         }
 
-        val siteCopy = File(targetOutput.parentFile, "$siteId-temp-copy").apply {
-            deleteRecursively()
-            mkdirs()
-        }
+        val siteCopy =
+            File(targetOutput.parentFile, "$siteId-temp-copy").apply {
+                deleteRecursively()
+                mkdirs()
+            }
         preMigrationFixture.copyRecursively(siteCopy, overwrite = true)
 
         service.migrate(
             siteDir = siteCopy,
             languages = listOf("fr", "en"),
             defaultLanguage = "fr",
-            dryRun = false
+            dryRun = false,
         )
 
         val translationsEn = loadTranslationsFromResources("i18n-fixtures/$siteId/translations_en.properties")
@@ -72,7 +73,8 @@ class PostMigrationSnapshotGenerator {
         val targetTemplates = targetOutput.resolve("templates")
         targetTemplates.mkdirs()
 
-        postMigrationTemplates.walkTopDown()
+        postMigrationTemplates
+            .walkTopDown()
             .filter { it.isFile && (it.extension == "thyme" || it.name.endsWith(".properties")) }
             .forEach { sourceFile ->
                 val relativePath = sourceFile.relativeTo(postMigrationTemplates)
@@ -96,14 +98,16 @@ class PostMigrationSnapshotGenerator {
     }
 
     private fun loadPreMigrationFixture(siteId: String): File {
-        val resource = this::class.java.classLoader.getResource("i18n-fixtures/$siteId/jbake")
-            ?: throw IllegalStateException("Pre-migration fixture not found: $siteId")
+        val resource =
+            this::class.java.classLoader.getResource("i18n-fixtures/$siteId/jbake")
+                ?: throw IllegalStateException("Pre-migration fixture not found: $siteId")
         return File(resource.toURI())
     }
 
     private fun loadTranslationsFromResources(resourcePath: String): Map<String, String> {
-        val url = this::class.java.classLoader.getResource(resourcePath)
-            ?: throw IllegalStateException("Resource not found: $resourcePath")
+        val url =
+            this::class.java.classLoader.getResource(resourcePath)
+                ?: throw IllegalStateException("Resource not found: $resourcePath")
         val props = Properties()
         url.openStream().use { props.load(it) }
         return props.map { it.key.toString() to it.value.toString() }.toMap()

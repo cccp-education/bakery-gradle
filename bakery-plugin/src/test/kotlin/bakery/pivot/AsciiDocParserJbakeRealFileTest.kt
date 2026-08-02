@@ -8,13 +8,13 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class AsciiDocParserJbakeRealFileTest {
-
     private val parser = AsciiDocParser()
     private val renderer = AsciiDocRenderer()
 
     @Test
     fun `parses real cheroliv com 2019 article with jbake native header`() {
-        val adoc = """
+        val adoc =
+            """
 = Groovy: Caractères ASCII
 @CherOliv
 2019-07-10
@@ -47,7 +47,7 @@ résultat:
 ----
   0  1  2  3  4  5  6  7  8  9
 ----
-""".trimIndent()
+            """.trimIndent()
 
         val article = parser.parse(adoc)
 
@@ -58,19 +58,24 @@ résultat:
 
         assertTrue(article.blocks.isNotEmpty(), "Blocks should not be empty")
         val firstBlock = article.blocks[0]
-        assertTrue(firstBlock is PivotBlock.Paragraph,
-            "First block should be a paragraph, got $firstBlock")
+        assertTrue(
+            firstBlock is PivotBlock.Paragraph,
+            "First block should be a paragraph, got $firstBlock",
+        )
 
         val sourceBlocks = article.blocks.filterIsInstance<PivotBlock.Source>()
-        assertTrue(sourceBlocks.size >= 2,
-            "Should have at least 2 source blocks, got ${sourceBlocks.size}")
+        assertTrue(
+            sourceBlocks.size >= 2,
+            "Should have at least 2 source blocks, got ${sourceBlocks.size}",
+        )
         assertEquals("groovy", sourceBlocks[0].language)
         assertEquals("bash", sourceBlocks[1].language)
     }
 
     @Test
     fun `roundtrip real jbake article preserves title and block count`() {
-        val adoc = """
+        val adoc =
+            """
 = Test Real Article
 @CherOliv
 2020-06-15
@@ -91,7 +96,7 @@ fun main() {
 == Conclusion
 
 Dernier paragraphe.
-""".trimIndent()
+            """.trimIndent()
 
         val article = parser.parse(adoc)
         val rendered = renderer.render(article)

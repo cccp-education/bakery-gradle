@@ -12,12 +12,11 @@ import kotlin.test.assertEquals
  * (S159) qui calculait le défaut avant que la tâche ne soit créée.
  */
 class PivotOutputResolverTest {
-
     @Test
     fun `default output derives from input basename`() {
         assertEquals(
             "article.pivot.yaml",
-            PivotOutputResolver.resolveDefaultOutput("article.adoc")
+            PivotOutputResolver.resolveDefaultOutput("article.adoc"),
         )
     }
 
@@ -25,7 +24,7 @@ class PivotOutputResolverTest {
     fun `default output preserves directory of input`() {
         assertEquals(
             "site/content/article.pivot.yaml",
-            PivotOutputResolver.resolveDefaultOutput("site/content/article.adoc")
+            PivotOutputResolver.resolveDefaultOutput("site/content/article.adoc"),
         )
     }
 
@@ -33,7 +32,7 @@ class PivotOutputResolverTest {
     fun `default output handles input without extension`() {
         assertEquals(
             "README.pivot.yaml",
-            PivotOutputResolver.resolveDefaultOutput("README")
+            PivotOutputResolver.resolveDefaultOutput("README"),
         )
     }
 
@@ -42,7 +41,7 @@ class PivotOutputResolverTest {
         // ".adoc" seul (pas de stem) → fallback "pivot"
         assertEquals(
             "pivot.pivot.yaml",
-            PivotOutputResolver.resolveDefaultOutput(".adoc")
+            PivotOutputResolver.resolveDefaultOutput(".adoc"),
         )
     }
 
@@ -50,7 +49,7 @@ class PivotOutputResolverTest {
     fun `default output handles empty path`() {
         assertEquals(
             "pivot.pivot.yaml",
-            PivotOutputResolver.resolveDefaultOutput("")
+            PivotOutputResolver.resolveDefaultOutput(""),
         )
     }
 
@@ -58,7 +57,7 @@ class PivotOutputResolverTest {
     fun `default output handles multi-dot basename`() {
         assertEquals(
             "article.fr.pivot.yaml",
-            PivotOutputResolver.resolveDefaultOutput("article.fr.adoc")
+            PivotOutputResolver.resolveDefaultOutput("article.fr.adoc"),
         )
     }
 
@@ -68,8 +67,8 @@ class PivotOutputResolverTest {
             "out/custom.yaml",
             PivotOutputResolver.resolveOutput(
                 input = "article.adoc",
-                explicitOutput = "out/custom.yaml"
-            )
+                explicitOutput = "out/custom.yaml",
+            ),
         )
     }
 
@@ -79,8 +78,8 @@ class PivotOutputResolverTest {
             "article.pivot.yaml",
             PivotOutputResolver.resolveOutput(
                 input = "article.adoc",
-                explicitOutput = ""
-            )
+                explicitOutput = "",
+            ),
         )
     }
 
@@ -90,8 +89,8 @@ class PivotOutputResolverTest {
             "article.pivot.yaml",
             PivotOutputResolver.resolveOutput(
                 input = "article.adoc",
-                explicitOutput = null
-            )
+                explicitOutput = null,
+            ),
         )
     }
 }

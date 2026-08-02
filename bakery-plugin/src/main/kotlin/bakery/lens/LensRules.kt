@@ -27,13 +27,10 @@ package bakery.lens
 data class LensRules(
     /** Tags éditoriaux à exclure du scoring (ex: ["wip", "draft"]). */
     var excludeTags: List<String> = listOf("wip", "draft"),
-
     /** Prioriser les articles qui ont des cross-references AsciiDoc (xref) vers la page courante. */
     var prioritizeCrossReferences: Boolean = true,
-
     /** Bonus de score pour les cross-references AsciiDoc vérifiées (défaut: 0.2). */
     var crossRefBonus: Double = 0.2,
-
     /** Bonus de score pour les articles dans la même communauté que la page courante (défaut: 0.3). */
-    var communityAffinity: Double = 0.3
+    var communityAffinity: Double = 0.3,
 )

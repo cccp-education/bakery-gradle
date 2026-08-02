@@ -1,7 +1,7 @@
 package bakery.i18n.rtl
 
-import document.translation.PivotFrontmatter
 import contracts.i18n.LanguageCatalog
+import document.translation.PivotFrontmatter
 
 /**
  * EPIC BKY-I18N-DEPLOY — US DEPLOY-3.
@@ -18,11 +18,16 @@ import contracts.i18n.LanguageCatalog
  * MEM-3). Pure domain: no I/O, no file writing. Inspired by the
  * `DeckTranslator.ensureRtlDirection` pattern (MIAMI EPIC SLD-5).
  */
-data class RtlDirective(val lang: String, val rtl: Boolean)
+data class RtlDirective(
+    val lang: String,
+    val rtl: Boolean,
+)
 
 class RtlDirectionInjector {
-
-    fun inject(frontmatter: PivotFrontmatter, lang: String): PivotFrontmatter {
+    fun inject(
+        frontmatter: PivotFrontmatter,
+        lang: String,
+    ): PivotFrontmatter {
         val supported = LanguageCatalog.findByCode(lang) ?: return frontmatter
         val directive = RtlDirective(lang, supported.rtl)
         val updatedJbake = frontmatter.jbakeAttributes.toMutableMap()
@@ -35,7 +40,7 @@ class RtlDirectionInjector {
         }
         return frontmatter.copy(
             jbakeAttributes = updatedJbake,
-            asciidocAttributes = updatedAsciidoc
+            asciidocAttributes = updatedAsciidoc,
         )
     }
 }

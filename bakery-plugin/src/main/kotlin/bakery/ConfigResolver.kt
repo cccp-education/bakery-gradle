@@ -28,7 +28,6 @@ import org.gradle.api.Project
  * for testability and idiomatie Kotlin.
  */
 object ConfigResolver {
-
     @Deprecated("Use BakeryConstants.SUPPORTED_LANGS instead", ReplaceWith("BakeryConstants.SUPPORTED_LANGS"))
     val SUPPORTED_LANGS = BakeryConstants.SUPPORTED_LANGS
 
@@ -50,9 +49,7 @@ object ConfigResolver {
     /**
      * Loads properties from a map (for testing or direct usage).
      */
-    fun loadPropertiesFromMap(props: Map<String, String>): Map<String, String> {
-        return props.filterKeys { it.startsWith("bakery.") }
-    }
+    fun loadPropertiesFromMap(props: Map<String, String>): Map<String, String> = props.filterKeys { it.startsWith("bakery.") }
 
     private fun <T> resolve(
         props: Map<String, String>,
@@ -63,9 +60,9 @@ object ConfigResolver {
         default: T,
         parseCli: (String) -> T?,
         isExplicitlySet: (T, T) -> Boolean,
-        isPresent: (T?) -> Boolean
+        isPresent: (T?) -> Boolean,
     ): T {
-        val cliValue = props["${prefix}.${key}"]
+        val cliValue = props["$prefix.$key"]
         if (cliValue != null) {
             return parseCli(cliValue) ?: default
         }
@@ -87,13 +84,19 @@ object ConfigResolver {
         key: String,
         dslValue: String,
         yamlValue: String?,
-        default: String = ""
-    ): String = resolve(
-        props, prefix, key, dslValue, yamlValue, default,
-        parseCli = { it },
-        isExplicitlySet = { dsl, def -> dsl.isNotBlank() && dsl != def },
-        isPresent = { it != null && it.isNotBlank() }
-    )
+        default: String = "",
+    ): String =
+        resolve(
+            props,
+            prefix,
+            key,
+            dslValue,
+            yamlValue,
+            default,
+            parseCli = { it },
+            isExplicitlySet = { dsl, def -> dsl.isNotBlank() && dsl != def },
+            isPresent = { it != null && it.isNotBlank() },
+        )
 
     /**
      * Resolves an Int property through the 4-layer cascade.
@@ -104,13 +107,19 @@ object ConfigResolver {
         key: String,
         dslValue: Int,
         yamlValue: Int?,
-        default: Int
-    ): Int = resolve(
-        props, prefix, key, dslValue, yamlValue, default,
-        parseCli = { it.toIntOrNull() },
-        isExplicitlySet = { dsl, def -> dsl != def },
-        isPresent = { it != null }
-    )
+        default: Int,
+    ): Int =
+        resolve(
+            props,
+            prefix,
+            key,
+            dslValue,
+            yamlValue,
+            default,
+            parseCli = { it.toIntOrNull() },
+            isExplicitlySet = { dsl, def -> dsl != def },
+            isPresent = { it != null },
+        )
 
     /**
      * Resolves a Boolean property through the 4-layer cascade.
@@ -121,32 +130,57 @@ object ConfigResolver {
         key: String,
         dslValue: Boolean,
         yamlValue: Boolean?,
-        default: Boolean
-    ): Boolean = resolve(
-        props, prefix, key, dslValue, yamlValue, default,
-        parseCli = { it.toBooleanStrictOrNull() },
-        isExplicitlySet = { dsl, def -> dsl != def },
-        isPresent = { it != null }
-    )
+        default: Boolean,
+    ): Boolean =
+        resolve(
+            props,
+            prefix,
+            key,
+            dslValue,
+            yamlValue,
+            default,
+            parseCli = { it.toBooleanStrictOrNull() },
+            isExplicitlySet = { dsl, def -> dsl != def },
+            isPresent = { it != null },
+        )
 
     private class Scope(
         val props: Map<String, String>,
-        val prefix: String
+        val prefix: String,
     ) {
-        fun string(key: String, dsl: String, yaml: String?, default: String = "") =
-            resolveString(props, prefix, key, dsl, yaml, default)
-        fun int(key: String, dsl: Int, yaml: Int?, default: Int) =
-            resolveInt(props, prefix, key, dsl, yaml, default)
-        fun boolean(key: String, dsl: Boolean, yaml: Boolean?, default: Boolean) =
-            resolveBoolean(props, prefix, key, dsl, yaml, default)
-        inline fun <reified E : Enum<E>> enum(key: String, dsl: E, yaml: E?, default: E) =
-            resolveEnum(props, prefix, key, dsl, yaml, default)
+        fun string(
+            key: String,
+            dsl: String,
+            yaml: String?,
+            default: String = "",
+        ) = resolveString(props, prefix, key, dsl, yaml, default)
+
+        fun int(
+            key: String,
+            dsl: Int,
+            yaml: Int?,
+            default: Int,
+        ) = resolveInt(props, prefix, key, dsl, yaml, default)
+
+        fun boolean(
+            key: String,
+            dsl: Boolean,
+            yaml: Boolean?,
+            default: Boolean,
+        ) = resolveBoolean(props, prefix, key, dsl, yaml, default)
+
+        inline fun <reified E : Enum<E>> enum(
+            key: String,
+            dsl: E,
+            yaml: E?,
+            default: E,
+        ) = resolveEnum(props, prefix, key, dsl, yaml, default)
     }
 
     private inline fun <T> resolveConfig(
         props: Map<String, String>,
         prefix: String,
-        block: Scope.() -> T
+        block: Scope.() -> T,
     ): T = Scope(props, prefix).block()
 
     /**
@@ -157,15 +191,16 @@ object ConfigResolver {
         props: Map<String, String>,
         dsl: GoogleFormsDsl,
         yaml: GoogleFormsConfig?,
-        default: GoogleFormsConfig = GoogleFormsConfig()
-    ): GoogleFormsConfig = resolveConfig(props, "bakery.googleForms") {
-        GoogleFormsConfig(
-            formId = string("formId", dsl.formId, yaml?.formId, default.formId),
-            width = string("width", dsl.width, yaml?.width, default.width),
-            height = string("height", dsl.height, yaml?.height, default.height),
-            allowMultiple = boolean("allowMultiple", dsl.allowMultiple, yaml?.allowMultiple, default.allowMultiple),
-        )
-    }
+        default: GoogleFormsConfig = GoogleFormsConfig(),
+    ): GoogleFormsConfig =
+        resolveConfig(props, "bakery.googleForms") {
+            GoogleFormsConfig(
+                formId = string("formId", dsl.formId, yaml?.formId, default.formId),
+                width = string("width", dsl.width, yaml?.width, default.width),
+                height = string("height", dsl.height, yaml?.height, default.height),
+                allowMultiple = boolean("allowMultiple", dsl.allowMultiple, yaml?.allowMultiple, default.allowMultiple),
+            )
+        }
 
     /**
      * Resolves an AnalyticsConfig through the 4-layer cascade.
@@ -174,14 +209,15 @@ object ConfigResolver {
         props: Map<String, String>,
         dsl: AnalyticsDsl,
         yaml: AnalyticsConfig?,
-        default: AnalyticsConfig = AnalyticsConfig()
-    ): AnalyticsConfig = resolveConfig(props, "bakery.analytics") {
-        AnalyticsConfig(
-            provider = string("provider", dsl.provider, yaml?.provider, default.provider),
-            domain = string("domain", dsl.domain, yaml?.domain, default.domain),
-            scriptSrc = string("scriptSrc", dsl.scriptSrc, yaml?.scriptSrc, default.scriptSrc),
-        )
-    }
+        default: AnalyticsConfig = AnalyticsConfig(),
+    ): AnalyticsConfig =
+        resolveConfig(props, "bakery.analytics") {
+            AnalyticsConfig(
+                provider = string("provider", dsl.provider, yaml?.provider, default.provider),
+                domain = string("domain", dsl.domain, yaml?.domain, default.domain),
+                scriptSrc = string("scriptSrc", dsl.scriptSrc, yaml?.scriptSrc, default.scriptSrc),
+            )
+        }
 
     /**
      * Resolves a FirebaseAuthConfig through the 4-layer cascade.
@@ -190,14 +226,15 @@ object ConfigResolver {
         props: Map<String, String>,
         dsl: FirebaseAuthDsl,
         yaml: FirebaseAuthConfig?,
-        default: FirebaseAuthConfig = FirebaseAuthConfig()
-    ): FirebaseAuthConfig = resolveConfig(props, "bakery.firebaseAuth") {
-        FirebaseAuthConfig(
-            apiKey = string("apiKey", dsl.apiKey, yaml?.apiKey, default.apiKey),
-            authDomain = string("authDomain", dsl.authDomain, yaml?.authDomain, default.authDomain),
-            projectId = string("projectId", dsl.projectId, yaml?.projectId, default.projectId),
-        )
-    }
+        default: FirebaseAuthConfig = FirebaseAuthConfig(),
+    ): FirebaseAuthConfig =
+        resolveConfig(props, "bakery.firebaseAuth") {
+            FirebaseAuthConfig(
+                apiKey = string("apiKey", dsl.apiKey, yaml?.apiKey, default.apiKey),
+                authDomain = string("authDomain", dsl.authDomain, yaml?.authDomain, default.authDomain),
+                projectId = string("projectId", dsl.projectId, yaml?.projectId, default.projectId),
+            )
+        }
 
     /**
      * Resolves a CommentsConfig through the 4-layer cascade.
@@ -206,13 +243,14 @@ object ConfigResolver {
         props: Map<String, String>,
         dsl: CommentsDsl,
         yaml: CommentsConfig?,
-        default: CommentsConfig = CommentsConfig()
-    ): CommentsConfig = resolveConfig(props, "bakery.comments") {
-        CommentsConfig(
-            enabled = boolean("enabled", dsl.enabled, yaml?.enabled, default.enabled),
-            collection = string("collection", dsl.collection, yaml?.collection, default.collection),
-        )
-    }
+        default: CommentsConfig = CommentsConfig(),
+    ): CommentsConfig =
+        resolveConfig(props, "bakery.comments") {
+            CommentsConfig(
+                enabled = boolean("enabled", dsl.enabled, yaml?.enabled, default.enabled),
+                collection = string("collection", dsl.collection, yaml?.collection, default.collection),
+            )
+        }
 
     /**
      * Resolves a NewsletterConfig through the 4-layer cascade.
@@ -221,14 +259,15 @@ object ConfigResolver {
         props: Map<String, String>,
         dsl: NewsletterDsl,
         yaml: NewsletterConfig?,
-        default: NewsletterConfig = NewsletterConfig()
-    ): NewsletterConfig = resolveConfig(props, "bakery.newsletter") {
-        NewsletterConfig(
-            enabled = boolean("enabled", dsl.enabled, yaml?.enabled, default.enabled),
-            provider = string("provider", dsl.provider, yaml?.provider, default.provider),
-            endpoint = string("endpoint", dsl.endpoint, yaml?.endpoint, default.endpoint),
-        )
-    }
+        default: NewsletterConfig = NewsletterConfig(),
+    ): NewsletterConfig =
+        resolveConfig(props, "bakery.newsletter") {
+            NewsletterConfig(
+                enabled = boolean("enabled", dsl.enabled, yaml?.enabled, default.enabled),
+                provider = string("provider", dsl.provider, yaml?.provider, default.provider),
+                endpoint = string("endpoint", dsl.endpoint, yaml?.endpoint, default.endpoint),
+            )
+        }
 
     /**
      * Resolves a ThemeConfig through the 4-layer cascade.
@@ -239,7 +278,7 @@ object ConfigResolver {
         props: Map<String, String>,
         dsl: ThemeDsl,
         yaml: ThemeConfig?,
-        default: ThemeConfig = ThemeConfig()
+        default: ThemeConfig = ThemeConfig(),
     ): ThemeConfig {
         val prefix = "bakery.theme"
         // BKY-IA-2: if variant is set, resolve it to a ThemePreset and use as YAML-layer defaults
@@ -250,13 +289,29 @@ object ConfigResolver {
         return ThemeConfig(
             mode = resolveString(props, prefix, "mode", dsl.mode, yaml?.mode, default.mode),
             primaryColor = resolveString(props, prefix, "primaryColor", dsl.primaryColor, yaml?.primaryColor, preset?.primaryColor ?: default.primaryColor),
-            secondaryColor = resolveString(props, prefix, "secondaryColor", dsl.secondaryColor, yaml?.secondaryColor, preset?.secondaryColor ?: default.secondaryColor),
+            secondaryColor =
+                resolveString(
+                    props,
+                    prefix,
+                    "secondaryColor",
+                    dsl.secondaryColor,
+                    yaml?.secondaryColor,
+                    preset?.secondaryColor ?: default.secondaryColor,
+                ),
             fontFamily = resolveString(props, prefix, "fontFamily", dsl.fontFamily, yaml?.fontFamily, preset?.fontFamily ?: default.fontFamily),
             logoUrl = resolveString(props, prefix, "logoUrl", dsl.logoUrl, yaml?.logoUrl, preset?.logoUrl ?: default.logoUrl),
             faviconUrl = resolveString(props, prefix, "faviconUrl", dsl.faviconUrl, yaml?.faviconUrl, preset?.faviconUrl ?: default.faviconUrl),
             variant = variantName,
             accentColor = resolveString(props, prefix, "accentColor", dsl.accentColor, yaml?.accentColor, preset?.accentColor ?: default.accentColor),
-            backgroundColor = resolveString(props, prefix, "backgroundColor", dsl.backgroundColor, yaml?.backgroundColor, preset?.backgroundColor ?: default.backgroundColor),
+            backgroundColor =
+                resolveString(
+                    props,
+                    prefix,
+                    "backgroundColor",
+                    dsl.backgroundColor,
+                    yaml?.backgroundColor,
+                    preset?.backgroundColor ?: default.backgroundColor,
+                ),
             textColor = resolveString(props, prefix, "textColor", dsl.textColor, yaml?.textColor, preset?.textColor ?: default.textColor),
             headingFont = resolveString(props, prefix, "headingFont", dsl.headingFont, yaml?.headingFont, preset?.headingFont ?: default.headingFont),
         )
@@ -269,12 +324,13 @@ object ConfigResolver {
         props: Map<String, String>,
         dsl: LayoutDsl,
         yaml: LayoutConfig?,
-        default: LayoutConfig = LayoutConfig()
-    ): LayoutConfig = resolveConfig(props, "bakery.layout") {
-        LayoutConfig(
-            layoutType = enum("layoutType", dsl.layoutType, yaml?.layoutType, default.layoutType),
-        )
-    }
+        default: LayoutConfig = LayoutConfig(),
+    ): LayoutConfig =
+        resolveConfig(props, "bakery.layout") {
+            LayoutConfig(
+                layoutType = enum("layoutType", dsl.layoutType, yaml?.layoutType, default.layoutType),
+            )
+        }
 
     /**
      * Resolves Firebase contact form config (apiKey, projectId) through the 4-layer cascade.
@@ -283,7 +339,7 @@ object ConfigResolver {
     fun resolveFirebaseConfig(
         props: Map<String, String>,
         yaml: FirebaseContactFormConfig?,
-        default: FirebaseProjectInfo = FirebaseProjectInfo(projectId = "", apiKey = "")
+        default: FirebaseProjectInfo = FirebaseProjectInfo(projectId = "", apiKey = ""),
     ): FirebaseProjectInfo {
         val prefix = "bakery.firebase"
         val yamlProject = yaml?.project ?: default
@@ -302,10 +358,10 @@ object ConfigResolver {
         key: String,
         dslValue: E,
         yamlValue: E?,
-        default: E
+        default: E,
     ): E {
         // Layer 1+2: CLI / gradle.properties
-        val cliValue = props["${prefix}.${key}"]
+        val cliValue = props["$prefix.$key"]
         if (cliValue != null) {
             return try {
                 java.lang.Enum.valueOf(E::class.java, cliValue)
@@ -331,29 +387,29 @@ object ConfigResolver {
     fun resolveAll(
         props: Map<String, String>,
         extension: BakeryExtension,
-        site: SiteConfiguration
-    ): Pair<ResolvedConfigs, List<ConfigResolutionError>> =
-        resolveAllDataDriven(props, extension, site)
+        site: SiteConfiguration,
+    ): Pair<ResolvedConfigs, List<ConfigResolutionError>> = resolveAllDataDriven(props, extension, site)
 
     fun resolveAllDataDriven(
         props: Map<String, String>,
         extension: BakeryExtension,
-        site: SiteConfiguration
+        site: SiteConfiguration,
     ): Pair<ResolvedConfigs, List<ConfigResolutionError>> {
         val errors = mutableListOf<ConfigResolutionError>()
 
-        val domainResolvers: List<DomainResolver<*>> = listOf(
-            DomainResolver("firebase", { resolveFirebaseConfig(props, site.firebase) }, FirebaseProjectInfo(projectId = "", apiKey = "")),
-            DomainResolver("googleForms", { resolveGoogleFormsConfig(props, extension.googleForms, site.googleForms) }, GoogleFormsConfig()),
-            DomainResolver("firebaseAuth", { resolveFirebaseAuthConfig(props, extension.firebaseAuth, site.firebaseAuth) }, FirebaseAuthConfig()),
-            DomainResolver("comments", { resolveCommentsConfig(props, extension.commentsConfig, site.comments) }, CommentsConfig()),
-            DomainResolver("analytics", { resolveAnalyticsConfig(props, extension.analytics, site.analytics) }, AnalyticsConfig()),
-            DomainResolver("newsletter", { resolveNewsletterConfig(props, extension.newsletter, site.newsletter) }, NewsletterConfig()),
-            DomainResolver("theme", { resolveThemeConfig(props, extension.theme, site.theme) }, ThemeConfig()),
-            DomainResolver("layout", { resolveLayoutConfig(props, extension.layout, site.layout) }, LayoutConfig()),
-            DomainResolver("language", { resolveLanguage(props, extension, site) }, "fr"),
-            DomainResolver("supportedLanguages", { resolveSupportedLanguages(props, extension, site) }, listOf("fr")),
-        )
+        val domainResolvers: List<DomainResolver<*>> =
+            listOf(
+                DomainResolver("firebase", { resolveFirebaseConfig(props, site.firebase) }, FirebaseProjectInfo(projectId = "", apiKey = "")),
+                DomainResolver("googleForms", { resolveGoogleFormsConfig(props, extension.googleForms, site.googleForms) }, GoogleFormsConfig()),
+                DomainResolver("firebaseAuth", { resolveFirebaseAuthConfig(props, extension.firebaseAuth, site.firebaseAuth) }, FirebaseAuthConfig()),
+                DomainResolver("comments", { resolveCommentsConfig(props, extension.commentsConfig, site.comments) }, CommentsConfig()),
+                DomainResolver("analytics", { resolveAnalyticsConfig(props, extension.analytics, site.analytics) }, AnalyticsConfig()),
+                DomainResolver("newsletter", { resolveNewsletterConfig(props, extension.newsletter, site.newsletter) }, NewsletterConfig()),
+                DomainResolver("theme", { resolveThemeConfig(props, extension.theme, site.theme) }, ThemeConfig()),
+                DomainResolver("layout", { resolveLayoutConfig(props, extension.layout, site.layout) }, LayoutConfig()),
+                DomainResolver("language", { resolveLanguage(props, extension, site) }, "fr"),
+                DomainResolver("supportedLanguages", { resolveSupportedLanguages(props, extension, site) }, listOf("fr")),
+            )
 
         val resolved = domainResolvers.map { it.resolve(errors) }
 
@@ -375,7 +431,7 @@ object ConfigResolver {
     fun resolveLanguage(
         props: Map<String, String>,
         extension: BakeryExtension,
-        site: SiteConfiguration
+        site: SiteConfiguration,
     ): String {
         val prefix = "bakery.language"
         val dslValue = extension.language.orNull ?: ""
@@ -388,10 +444,10 @@ object ConfigResolver {
     fun resolveSupportedLanguages(
         props: Map<String, String>,
         extension: BakeryExtension,
-        site: SiteConfiguration
+        site: SiteConfiguration,
     ): List<String> {
         val prefix = "bakery.supportedLanguages"
-        val cliValue = props["${prefix}.supportedLanguages"]
+        val cliValue = props["$prefix.supportedLanguages"]
         if (cliValue != null && cliValue.isNotBlank()) {
             return cliValue.split(",").map { it.trim() }.filter { it.isNotBlank() }
         }

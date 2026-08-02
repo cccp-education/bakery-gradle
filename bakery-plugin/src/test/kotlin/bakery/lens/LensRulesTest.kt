@@ -14,11 +14,9 @@ import org.junit.jupiter.api.Test
  * Méthodologie : DDD/TDD baby steps — chaque test compile ET passe AVANT de passer au suivant.
  */
 class LensRulesTest {
-
     @Nested
     @DisplayName("LensRules — Valeurs par défaut")
     inner class Defaults {
-
         @Test
         @DisplayName("excludeTags par défaut = [wip, draft]")
         fun `default excludeTags`() {
@@ -51,7 +49,6 @@ class LensRulesTest {
     @Nested
     @DisplayName("LensRules — Modification des propriétés")
     inner class Mutation {
-
         @Test
         @DisplayName("excludeTags peut être modifié")
         fun `excludeTags can be changed`() {
@@ -88,17 +85,17 @@ class LensRulesTest {
     @Nested
     @DisplayName("LensRules — data class copy")
     inner class DataClassCopy {
-
         @Test
         @DisplayName("LensRules copié avec modifications")
         fun `LensRules can be copied with modifications`() {
             val original = LensRules()
-            val modified = original.copy(
-                excludeTags = listOf("deprecated"),
-                prioritizeCrossReferences = false,
-                crossRefBonus = 0.1,
-                communityAffinity = 0.0
-            )
+            val modified =
+                original.copy(
+                    excludeTags = listOf("deprecated"),
+                    prioritizeCrossReferences = false,
+                    crossRefBonus = 0.1,
+                    communityAffinity = 0.0,
+                )
             assertThat(modified.excludeTags).containsExactly("deprecated")
             assertThat(modified.prioritizeCrossReferences).isFalse()
             assertThat(modified.crossRefBonus).isEqualTo(0.1)
@@ -114,7 +111,6 @@ class LensRulesTest {
     @Nested
     @DisplayName("LensRules — Filtre sémantique (excludeTags)")
     inner class TagFiltering {
-
         @Test
         @DisplayName("excludeTags contient 'wip' et 'draft' par défaut")
         fun `default excludeTags blocks wip and draft`() {

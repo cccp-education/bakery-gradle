@@ -8,6 +8,7 @@ article:
     date: "2026-06-24"
     type: "page"
     status: "published"
+    author: ""
 
   blocks:
     - type: heading

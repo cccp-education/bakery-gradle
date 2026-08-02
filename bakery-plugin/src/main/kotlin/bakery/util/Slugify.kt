@@ -1,7 +1,8 @@
 package bakery.util
 
-fun String.slugify(): String {
-    return this.lowercase()
+fun String.slugify(): String =
+    this
+        .lowercase()
         .replace(Regex("[éèêë]"), "e")
         .replace(Regex("[àâä]"), "a")
         .replace(Regex("[ùûü]"), "u")
@@ -12,4 +13,3 @@ fun String.slugify(): String {
         .replace(Regex("\\s+"), "-")
         .replace(Regex("-+"), "-")
         .trim('-')
-}

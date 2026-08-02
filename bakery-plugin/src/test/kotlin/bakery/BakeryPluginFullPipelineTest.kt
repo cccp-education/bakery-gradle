@@ -9,7 +9,6 @@ import java.io.File
 import kotlin.text.Charsets.UTF_8
 
 class BakeryPluginFullPipelineTest {
-
     @TempDir
     lateinit var projectDir: File
 
@@ -43,7 +42,7 @@ class BakeryPluginFullPipelineTest {
               branch: main
               message: maquette
             """.trimIndent(),
-            UTF_8
+            UTF_8,
         )
     }
 
@@ -59,11 +58,12 @@ class BakeryPluginFullPipelineTest {
         val project = ProjectBuilder.builder().withProjectDir(projectDir).build()
         project.pluginManager.apply(BakeryPlugin::class.java)
         project.extensions.getByType(BakeryExtension::class.java).configPath.set(
-            projectDir.resolve("site.yml").absolutePath
+            projectDir.resolve("site.yml").absolutePath,
         )
         if (pushProfile != null) {
             // pushProfile ne peut pas être injecté via le DSL ; on le patch dans la config YAML directement
-            val profile = """
+            val profile =
+                """
                 pushProfile:
                   from: profile
                   to: cvs
@@ -75,7 +75,7 @@ class BakeryPluginFullPipelineTest {
                       password: p
                   branch: main
                   message: profile
-            """.trimIndent()
+                """.trimIndent()
             projectDir.resolve("site.yml").appendText("\n$profile", UTF_8)
             projectDir.resolve("profile").mkdirs()
         }
@@ -99,19 +99,27 @@ class BakeryPluginFullPipelineTest {
         assertThat(project.tasks.findByName("generateTheme")).isNotNull
         assertThat(project.tasks.findByName("validateFirebaseConfig")).isNotNull
         assertThat(project.tasks.findByName("migrateToI18n")).isNotNull
-        assertThat(project.tasks.findByName("deployProfile")).isNotNull
+        assertThat(project.tasks.findByName("deployProfile"))
+            .isNotNull
             .isInstanceOf(DeployProfileTask::class.java)
     }
 
     @Test
     fun `deployProfile task is registered when pushProfile is configured`() {
-        val project = buildProject(pushProfile = GitPushConfiguration(
-            from = "profile", to = "cvs",
-            repo = RepositoryConfiguration("profile", "https://github.com/test/profile.git", RepositoryCredentials("u", "p")),
-            branch = "main", message = "profile"
-        ))
+        val project =
+            buildProject(
+                pushProfile =
+                    GitPushConfiguration(
+                        from = "profile",
+                        to = "cvs",
+                        repo = RepositoryConfiguration("profile", "https://github.com/test/profile.git", RepositoryCredentials("u", "p")),
+                        branch = "main",
+                        message = "profile",
+                    ),
+            )
 
-        assertThat(project.tasks.findByName("deployProfile")).isNotNull
+        assertThat(project.tasks.findByName("deployProfile"))
+            .isNotNull
             .isInstanceOf(DeployProfileTask::class.java)
     }
 }

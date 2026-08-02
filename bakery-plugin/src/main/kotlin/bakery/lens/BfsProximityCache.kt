@@ -18,8 +18,9 @@ package bakery.lens
  *     └── proximityFor(nodeId): Double              (O(1) après calcul)
  * ```
  */
-class BfsProximityCache(subgraph: SiteSubgraph) {
-
+class BfsProximityCache(
+    subgraph: SiteSubgraph,
+) {
     companion object {
         const val PROXIMITY_SELF = 1.0
         const val PROXIMITY_DIRECT_NEIGHBOR = 0.7
@@ -59,15 +60,16 @@ class BfsProximityCache(subgraph: SiteSubgraph) {
         val distances = bfsDistances(nodeId)
         if (distances.isEmpty()) return PROXIMITY_SELF
 
-        val proximityScore = distances.values.sumOf { distance ->
-            when {
-                distance == 0 -> PROXIMITY_SELF
-                distance == 1 -> PROXIMITY_DIRECT_NEIGHBOR
-                distance == 2 -> PROXIMITY_DISTANCE_2
-                distance >= 3 -> PROXIMITY_DISTANCE_3_PLUS
-                else -> PROXIMITY_UNREACHABLE
-            }
-        } / totalNodes
+        val proximityScore =
+            distances.values.sumOf { distance ->
+                when {
+                    distance == 0 -> PROXIMITY_SELF
+                    distance == 1 -> PROXIMITY_DIRECT_NEIGHBOR
+                    distance == 2 -> PROXIMITY_DISTANCE_2
+                    distance >= 3 -> PROXIMITY_DISTANCE_3_PLUS
+                    else -> PROXIMITY_UNREACHABLE
+                }
+            } / totalNodes
 
         return minOf(PROXIMITY_SELF, proximityScore)
     }

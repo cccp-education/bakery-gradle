@@ -27,14 +27,13 @@ import kotlin.math.min
  * ```
  */
 class AugmentedArticlesService {
-
     companion object {
-        const val ALPHA = 0.40           // poids RAG
-        const val BETA = 0.30            // poids graphe
-        const val GAMMA = 0.15           // poids tags
-        const val DELTA = 0.15           // poids xref
-        const val COMMUNITY_BONUS = 0.2  // bonus même communauté
-        const val CROSS_REF_BONUS = 0.2  // bonus xref vérifiée
+        const val ALPHA = 0.40 // poids RAG
+        const val BETA = 0.30 // poids graphe
+        const val GAMMA = 0.15 // poids tags
+        const val DELTA = 0.15 // poids xref
+        const val COMMUNITY_BONUS = 0.2 // bonus même communauté
+        const val CROSS_REF_BONUS = 0.2 // bonus xref vérifiée
     }
 
     /**
@@ -56,7 +55,7 @@ class AugmentedArticlesService {
         nodeTags: Map<String, List<String>> = emptyMap(),
         currentPageTags: List<String> = emptyList(),
         currentPageCommunity: String? = null,
-        lensRules: LensRules = LensRules()
+        lensRules: LensRules = LensRules(),
     ): ScoredNode {
         val proximityCache = BfsProximityCache(subgraph)
         return scoreWithCache(
@@ -67,7 +66,7 @@ class AugmentedArticlesService {
             nodeTags = nodeTags,
             currentPageTags = currentPageTags,
             currentPageCommunity = currentPageCommunity,
-            lensRules = lensRules
+            lensRules = lensRules,
         )
     }
 
@@ -83,33 +82,36 @@ class AugmentedArticlesService {
         nodeTags: Map<String, List<String>> = emptyMap(),
         currentPageTags: List<String> = emptyList(),
         currentPageCommunity: String? = null,
-        lensRules: LensRules = LensRules()
+        lensRules: LensRules = LensRules(),
     ): ScoredNode {
-        val node = subgraph.nodes.find { it.id == nodeId }
-            ?: return ScoredNode(
-                nodeId = nodeId,
-                nodeName = nodeId,
-                community = null,
-                tags = emptyList(),
-                ragSimilarity = 0.0,
-                graphProximity = 0.0,
-                tagOverlap = 0.0,
-                crossRefCount = 0,
-                score = 0.0
-            )
+        val node =
+            subgraph.nodes.find { it.id == nodeId }
+                ?: return ScoredNode(
+                    nodeId = nodeId,
+                    nodeName = nodeId,
+                    community = null,
+                    tags = emptyList(),
+                    ragSimilarity = 0.0,
+                    graphProximity = 0.0,
+                    tagOverlap = 0.0,
+                    crossRefCount = 0,
+                    score = 0.0,
+                )
 
         val ragSimilarity = ragResults[nodeId] ?: 0.0
         val graphProximity = proximityCache.proximityFor(nodeId)
         val nodeTagList = nodeTags[nodeId] ?: emptyList()
         val tagOverlap = jaccardSimilarity(currentPageTags, nodeTagList)
-        val crossRefCount = subgraph.edges.count {
-            it.type == "agent_reference" && (it.target == nodeId || it.source == nodeId)
-        }
+        val crossRefCount =
+            subgraph.edges.count {
+                it.type == "agent_reference" && (it.target == nodeId || it.source == nodeId)
+            }
 
-        var score = ALPHA * ragSimilarity +
-            BETA * graphProximity +
-            GAMMA * tagOverlap +
-            DELTA * min(1.0, crossRefCount / 3.0)
+        var score =
+            ALPHA * ragSimilarity +
+                BETA * graphProximity +
+                GAMMA * tagOverlap +
+                DELTA * min(1.0, crossRefCount / 3.0)
 
         if (lensRules.communityAffinity > 0 &&
             currentPageCommunity != null &&
@@ -133,7 +135,7 @@ class AugmentedArticlesService {
             graphProximity = graphProximity,
             tagOverlap = tagOverlap,
             crossRefCount = crossRefCount,
-            score = score
+            score = score,
         )
     }
 
@@ -150,7 +152,7 @@ class AugmentedArticlesService {
         nodeTags: Map<String, List<String>> = emptyMap(),
         currentPageTags: List<String> = emptyList(),
         currentPageCommunity: String? = null,
-        lensRules: LensRules = LensRules()
+        lensRules: LensRules = LensRules(),
     ): List<ScoredNode> {
         val proximityCache = BfsProximityCache(subgraph)
         return subgraph.nodes
@@ -163,10 +165,9 @@ class AugmentedArticlesService {
                     nodeTags = nodeTags,
                     currentPageTags = currentPageTags,
                     currentPageCommunity = currentPageCommunity,
-                    lensRules = lensRules
+                    lensRules = lensRules,
                 )
-            }
-            .sortedByDescending { it.score }
+            }.sortedByDescending { it.score }
     }
 
     /**
@@ -181,7 +182,7 @@ class AugmentedArticlesService {
      */
     fun applyRules(
         scoredNodes: List<ScoredNode>,
-        lensRules: LensRules
+        lensRules: LensRules,
     ): List<ScoredNode> {
         val excludeTagsLower = lensRules.excludeTags.map { it.lowercase() }.toSet()
         return scoredNodes.filter { node ->
@@ -193,7 +194,10 @@ class AugmentedArticlesService {
      * Indice de Jaccard entre deux ensembles de tags.
      * |A ∩ B| / |A ∪ B|. Retourne 0.0 si l'union est vide.
      */
-    private fun jaccardSimilarity(a: List<String>, b: List<String>): Double {
+    private fun jaccardSimilarity(
+        a: List<String>,
+        b: List<String>,
+    ): Double {
         val setA = a.map { it.lowercase() }.toSet()
         val setB = b.map { it.lowercase() }.toSet()
         val intersection = setA.intersect(setB)
@@ -226,5 +230,5 @@ data class ScoredNode(
     /** Nombre de xref AsciiDoc pointant vers ce nœud */
     val crossRefCount: Int,
     /** Score composite final (0.0–1.0+, clampé) */
-    val score: Double
+    val score: Double,
 )

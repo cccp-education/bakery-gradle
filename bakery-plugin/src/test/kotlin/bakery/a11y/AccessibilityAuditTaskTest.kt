@@ -13,20 +13,20 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class AccessibilityAuditTaskTest {
-
     @TempDir
     lateinit var tempDir: File
 
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class TaskRegistration {
-
         @Test
         fun `task is registered with correct group and description`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(tempDir)
-                .withName("test-a11y")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(tempDir)
+                    .withName("test-a11y")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val task = project.tasks.register("accessibilityAudit", AccessibilityAuditTask::class.java).get()
@@ -38,10 +38,12 @@ class AccessibilityAuditTaskTest {
 
         @Test
         fun `task initializes properties with defaults`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(tempDir)
-                .withName("test-a11y-defaults")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(tempDir)
+                    .withName("test-a11y-defaults")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val task = project.tasks.register("accessibilityAudit", AccessibilityAuditTask::class.java).get()
@@ -54,13 +56,14 @@ class AccessibilityAuditTaskTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class ResolveAuditDir {
-
         @Test
         fun `uses configured audit directory when set`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(tempDir)
-                .withName("test-a11y-dir")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(tempDir)
+                    .withName("test-a11y-dir")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val task = project.tasks.register("accessibilityAudit", AccessibilityAuditTask::class.java).get()
@@ -73,14 +76,19 @@ class AccessibilityAuditTaskTest {
 
         @Test
         fun `falls back to build slash bake when auditDir is not set`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(tempDir)
-                .withName("test-a11y-fallback")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(tempDir)
+                    .withName("test-a11y-fallback")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val task = project.tasks.register("accessibilityAudit", AccessibilityAuditTask::class.java).get()
-            val expected = project.layout.buildDirectory.asFile.get().resolve("bake")
+            val expected =
+                project.layout.buildDirectory.asFile
+                    .get()
+                    .resolve("bake")
 
             assertEquals(expected, task.resolveAuditDir())
         }
@@ -89,21 +97,23 @@ class AccessibilityAuditTaskTest {
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class ExecuteAudit {
-
         @TempDir
         lateinit var auditTempDir: File
 
         @Test
         fun `audits html files and writes json report`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(auditTempDir)
-                .withName("test-a11y-execute")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(auditTempDir)
+                    .withName("test-a11y-execute")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val bakedDir = auditTempDir.resolve("build/bake").apply { mkdirs() }
             bakedDir.resolve("index.html").writeText(
-                """<p style="color: #000000; background-color: #FFFFFF;">OK</p>""", Charsets.UTF_8
+                """<p style="color: #000000; background-color: #FFFFFF;">OK</p>""",
+                Charsets.UTF_8,
             )
 
             val task = project.tasks.register("accessibilityAudit", AccessibilityAuditTask::class.java).get()
@@ -122,10 +132,12 @@ class AccessibilityAuditTaskTest {
 
         @Test
         fun `fails when audit directory does not exist`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(auditTempDir)
-                .withName("test-a11y-missing-dir")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(auditTempDir)
+                    .withName("test-a11y-missing-dir")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val task = project.tasks.register("accessibilityAudit", AccessibilityAuditTask::class.java).get()
@@ -138,15 +150,18 @@ class AccessibilityAuditTaskTest {
 
         @Test
         fun `reports non-compliant for failing contrast`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(auditTempDir)
-                .withName("test-a11y-fail")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(auditTempDir)
+                    .withName("test-a11y-fail")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val bakedDir = auditTempDir.resolve("build/bake").apply { mkdirs() }
             bakedDir.resolve("index.html").writeText(
-                """<p style="color: #FFA500; background-color: #FFFFFF;">Weak</p>""", Charsets.UTF_8
+                """<p style="color: #FFA500; background-color: #FFFFFF;">Weak</p>""",
+                Charsets.UTF_8,
             )
 
             val task = project.tasks.register("accessibilityAudit", AccessibilityAuditTask::class.java).get()
@@ -164,10 +179,12 @@ class AccessibilityAuditTaskTest {
 
         @Test
         fun `warns when no html files found`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(auditTempDir)
-                .withName("test-a11y-empty")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(auditTempDir)
+                    .withName("test-a11y-empty")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val bakedDir = auditTempDir.resolve("build/bake").apply { mkdirs() }
@@ -189,15 +206,18 @@ class AccessibilityAuditTaskTest {
 
         @Test
         fun `fails when non compliant and failOnNonCompliant is true`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(auditTempDir)
-                .withName("test-a11y-gate")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(auditTempDir)
+                    .withName("test-a11y-gate")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val bakedDir = auditTempDir.resolve("build/bake").apply { mkdirs() }
             bakedDir.resolve("index.html").writeText(
-                """<p style="color: #FFA500; background-color: #FFFFFF;">Weak</p>""", Charsets.UTF_8
+                """<p style="color: #FFA500; background-color: #FFFFFF;">Weak</p>""",
+                Charsets.UTF_8,
             )
 
             val task = project.tasks.register("accessibilityAudit", AccessibilityAuditTask::class.java).get()
@@ -212,15 +232,18 @@ class AccessibilityAuditTaskTest {
 
         @Test
         fun `does not fail when non compliant and failOnNonCompliant is false`() {
-            val project = ProjectBuilder.builder()
-                .withProjectDir(auditTempDir)
-                .withName("test-a11y-no-gate")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(auditTempDir)
+                    .withName("test-a11y-no-gate")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val bakedDir = auditTempDir.resolve("build/bake").apply { mkdirs() }
             bakedDir.resolve("index.html").writeText(
-                """<p style="color: #FFA500; background-color: #FFFFFF;">Weak</p>""", Charsets.UTF_8
+                """<p style="color: #FFA500; background-color: #FFFFFF;">Weak</p>""",
+                Charsets.UTF_8,
             )
 
             val task = project.tasks.register("accessibilityAudit", AccessibilityAuditTask::class.java).get()

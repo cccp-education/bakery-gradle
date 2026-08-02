@@ -1,7 +1,6 @@
 package bakery.scaffold
 
 import bakery.llm.FakeLlmService
-import org.gradle.api.provider.Property
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -19,10 +18,8 @@ import kotlin.test.assertTrue
  * Pattern identique a [bakery.article.GenerateArticleTaskTest].
  */
 class GenerateSiteFromIntentionTaskTest {
-
     @Nested
     inner class ResolveIntentionTest {
-
         @TempDir
         lateinit var tempDir: File
 
@@ -32,10 +29,12 @@ class GenerateSiteFromIntentionTaskTest {
         @BeforeEach
         fun setUp() {
             project = ProjectBuilder.builder().withProjectDir(tempDir).build()
-            task = project.tasks.register(
-                "generateSiteFromIntentionTest",
-                GenerateSiteFromIntentionTask::class.java
-            ).get()
+            task =
+                project.tasks
+                    .register(
+                        "generateSiteFromIntentionTest",
+                        GenerateSiteFromIntentionTask::class.java,
+                    ).get()
         }
 
         @Test
@@ -47,11 +46,12 @@ class GenerateSiteFromIntentionTaskTest {
 
         @Test
         fun `resolveIntention uses scaffoldDescription from DSL when set`() {
-            task.dslIntention = ScaffoldIntention(
-                description = "Un blog sur Kotlin",
-                siteType = ScaffoldSiteType.BLOG,
-                lang = "fr"
-            )
+            task.dslIntention =
+                ScaffoldIntention(
+                    description = "Un blog sur Kotlin",
+                    siteType = ScaffoldSiteType.BLOG,
+                    lang = "fr",
+                )
 
             val intention = task.resolveIntention()
 
@@ -62,12 +62,13 @@ class GenerateSiteFromIntentionTaskTest {
 
         @Test
         fun `resolveIntention uses DSL defaults when scaffoldDescription is set`() {
-            task.dslIntention = ScaffoldIntention(
-                description = "Documentation API",
-                siteType = ScaffoldSiteType.DOC,
-                lang = "en",
-                projectName = "api-docs"
-            )
+            task.dslIntention =
+                ScaffoldIntention(
+                    description = "Documentation API",
+                    siteType = ScaffoldSiteType.DOC,
+                    lang = "en",
+                    projectName = "api-docs",
+                )
 
             val intention = task.resolveIntention()
 
@@ -79,10 +80,11 @@ class GenerateSiteFromIntentionTaskTest {
 
         @Test
         fun `resolveIntention falls back to BLOG for unknown site type`() {
-            task.dslIntention = ScaffoldIntention(
-                description = "Test site",
-                siteType = ScaffoldSiteType.BLOG
-            )
+            task.dslIntention =
+                ScaffoldIntention(
+                    description = "Test site",
+                    siteType = ScaffoldSiteType.BLOG,
+                )
 
             val intention = task.resolveIntention()
 
@@ -92,17 +94,18 @@ class GenerateSiteFromIntentionTaskTest {
 
     @Nested
     inner class TaskRegistrationTest {
-
         @TempDir
         lateinit var tempDir: File
 
         @Test
         fun `task is registered with BKY-IA-1 scaffolding group`() {
             val project = ProjectBuilder.builder().withProjectDir(tempDir).build()
-            val task = project.tasks.register(
-                "generateSiteFromIntentionTest",
-                GenerateSiteFromIntentionTask::class.java
-            ).get()
+            val task =
+                project.tasks
+                    .register(
+                        "generateSiteFromIntentionTest",
+                        GenerateSiteFromIntentionTask::class.java,
+                    ).get()
 
             assertEquals("generate", task.group)
         }
@@ -110,10 +113,12 @@ class GenerateSiteFromIntentionTaskTest {
         @Test
         fun `task has scaffoldDescription property`() {
             val project = ProjectBuilder.builder().withProjectDir(tempDir).build()
-            val task = project.tasks.register(
-                "generateSiteFromIntentionTest2",
-                GenerateSiteFromIntentionTask::class.java
-            ).get()
+            val task =
+                project.tasks
+                    .register(
+                        "generateSiteFromIntentionTest2",
+                        GenerateSiteFromIntentionTask::class.java,
+                    ).get()
 
             assertNotNull(task.scaffoldDescription)
             assertTrue(task.scaffoldDescription.isPresent == false || task.scaffoldDescription.orNull == "")
@@ -122,10 +127,12 @@ class GenerateSiteFromIntentionTaskTest {
         @Test
         fun `task has siteType property`() {
             val project = ProjectBuilder.builder().withProjectDir(tempDir).build()
-            val task = project.tasks.register(
-                "generateSiteFromIntentionTest3",
-                GenerateSiteFromIntentionTask::class.java
-            ).get()
+            val task =
+                project.tasks
+                    .register(
+                        "generateSiteFromIntentionTest3",
+                        GenerateSiteFromIntentionTask::class.java,
+                    ).get()
 
             assertNotNull(task.siteType)
         }
@@ -133,10 +140,12 @@ class GenerateSiteFromIntentionTaskTest {
         @Test
         fun `task has scaffoldLang property`() {
             val project = ProjectBuilder.builder().withProjectDir(tempDir).build()
-            val task = project.tasks.register(
-                "generateSiteFromIntentionTest4",
-                GenerateSiteFromIntentionTask::class.java
-            ).get()
+            val task =
+                project.tasks
+                    .register(
+                        "generateSiteFromIntentionTest4",
+                        GenerateSiteFromIntentionTask::class.java,
+                    ).get()
 
             assertNotNull(task.scaffoldLang)
         }
@@ -144,10 +153,12 @@ class GenerateSiteFromIntentionTaskTest {
         @Test
         fun `task has projectName property`() {
             val project = ProjectBuilder.builder().withProjectDir(tempDir).build()
-            val task = project.tasks.register(
-                "generateSiteFromIntentionTest5",
-                GenerateSiteFromIntentionTask::class.java
-            ).get()
+            val task =
+                project.tasks
+                    .register(
+                        "generateSiteFromIntentionTest5",
+                        GenerateSiteFromIntentionTask::class.java,
+                    ).get()
 
             assertNotNull(task.projectName)
         }
@@ -155,7 +166,6 @@ class GenerateSiteFromIntentionTaskTest {
 
     @Nested
     inner class ApplyScaffoldOutputTest {
-
         @TempDir
         lateinit var tempDir: File
 
@@ -166,18 +176,21 @@ class GenerateSiteFromIntentionTaskTest {
             val fakeLlm = FakeLlmService(fakeResponse)
 
             val project = ProjectBuilder.builder().withProjectDir(tempDir).build()
-            val task = project.tasks.register(
-                "generateSiteFromIntentionApply",
-                GenerateSiteFromIntentionTask::class.java
-            ).get()
+            val task =
+                project.tasks
+                    .register(
+                        "generateSiteFromIntentionApply",
+                        GenerateSiteFromIntentionTask::class.java,
+                    ).get()
 
             task.llmService = fakeLlm
             task.targetDir = tempDir.resolve("target-site")
-            task.dslIntention = ScaffoldIntention(
-                description = "Mon blog technique",
-                siteType = ScaffoldSiteType.BLOG,
-                projectName = "mon-blog"
-            )
+            task.dslIntention =
+                ScaffoldIntention(
+                    description = "Mon blog technique",
+                    siteType = ScaffoldSiteType.BLOG,
+                    projectName = "mon-blog",
+                )
 
             task.executeGenerate()
 
@@ -194,18 +207,21 @@ class GenerateSiteFromIntentionTaskTest {
             val fakeLlm = FakeLlmService(fakeResponse)
 
             val project = ProjectBuilder.builder().withProjectDir(tempDir).build()
-            val task = project.tasks.register(
-                "generateSiteFromIntentionTree",
-                GenerateSiteFromIntentionTask::class.java
-            ).get()
+            val task =
+                project.tasks
+                    .register(
+                        "generateSiteFromIntentionTree",
+                        GenerateSiteFromIntentionTask::class.java,
+                    ).get()
 
             task.llmService = fakeLlm
             task.targetDir = tempDir.resolve("tree-site")
-            task.dslIntention = ScaffoldIntention(
-                description = "Formation FPA",
-                siteType = ScaffoldSiteType.FORMATION,
-                projectName = "ma-formation"
-            )
+            task.dslIntention =
+                ScaffoldIntention(
+                    description = "Formation FPA",
+                    siteType = ScaffoldSiteType.FORMATION,
+                    projectName = "ma-formation",
+                )
 
             task.executeGenerate()
 
@@ -221,10 +237,12 @@ class GenerateSiteFromIntentionTaskTest {
         @Test
         fun `task throws when no LlmService injected`() {
             val project = ProjectBuilder.builder().withProjectDir(tempDir).build()
-            val task = project.tasks.register(
-                "generateSiteFromIntentionNoLlm",
-                GenerateSiteFromIntentionTask::class.java
-            ).get()
+            val task =
+                project.tasks
+                    .register(
+                        "generateSiteFromIntentionNoLlm",
+                        GenerateSiteFromIntentionTask::class.java,
+                    ).get()
 
             task.dslIntention = ScaffoldIntention(description = "Test")
             task.targetDir = tempDir

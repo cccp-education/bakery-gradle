@@ -8,19 +8,17 @@ import org.assertj.core.api.Assertions.assertThatCode
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.*
+import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.junit.jupiter.api.io.TempDir
 import org.mockito.kotlin.verify
 import java.io.File
 import kotlin.text.Charsets.UTF_8
-import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 
 class BakeryPluginTest {
-
     @Nested
     @TestInstance(PER_CLASS)
     inner class AbsentConfigPathTest {
-
         private lateinit var fixture: BakeryTestFixture
 
         @BeforeEach
@@ -62,7 +60,7 @@ class BakeryPluginTest {
             verify(fixture.project.logger).warn(
                 org.mockito.kotlin.argThat { msg: String ->
                     msg.contains("configPath", ignoreCase = true)
-                }
+                },
             )
         }
     }
@@ -70,7 +68,6 @@ class BakeryPluginTest {
     @Nested
     @TestInstance(PER_CLASS)
     inner class PluginApplicationTest {
-
         private lateinit var fixture: BakeryTestFixture
 
         @BeforeEach
@@ -105,7 +102,6 @@ class BakeryPluginTest {
     @Nested
     @TestInstance(PER_CLASS)
     inner class SiteConfigurationParsingTest {
-
         private lateinit var config: SiteConfiguration
 
         @BeforeAll
@@ -115,8 +111,10 @@ class BakeryPluginTest {
             assertThat(configFile)
                 .describedAs("Configuration file '%s' not found.", configPath)
                 .exists()
-            config = configFile.readText()
-                .run(yamlMapper::readValue)
+            config =
+                configFile
+                    .readText()
+                    .run(yamlMapper::readValue)
         }
 
         @Test
@@ -202,25 +200,38 @@ class BakeryPluginTest {
 
         @Test
         fun `check SiteConfiguration#firebase#firestore#contacts properties`() {
-            assertThat(config.firebase!!.firestore.contacts.name)
-                .describedAs("SiteConfiguration.firebase.firestore.contacts.name should be 'contacts'")
+            assertThat(
+                config.firebase!!
+                    .firestore.contacts.name,
+            ).describedAs("SiteConfiguration.firebase.firestore.contacts.name should be 'contacts'")
                 .isEqualTo("contacts")
 
-            assertThat(config.firebase!!.firestore.contacts.fields.map { it.name })
-                .describedAs("SiteConfiguration.firebase.firestore.contacts.fields should contains 'id', 'created_at', 'name', 'email', 'phone'")
+            assertThat(
+                config.firebase!!
+                    .firestore.contacts.fields
+                    .map { it.name },
+            ).describedAs("SiteConfiguration.firebase.firestore.contacts.fields should contains 'id', 'created_at', 'name', 'email', 'phone'")
                 .contains("id", "created_at", "name", "email", "phone")
 
-            assertThat(config.firebase!!.firestore.contacts.rulesEnabled).isTrue
+            assertThat(
+                config.firebase!!
+                    .firestore.contacts.rulesEnabled,
+            ).isTrue
         }
 
         @Test
         fun `check SiteConfiguration#firebase#firestore#messages properties`() {
-            assertThat(config.firebase!!.firestore.messages.name)
-                .describedAs("SiteConfiguration.firebase.firestore.messages.name should be 'messages'")
+            assertThat(
+                config.firebase!!
+                    .firestore.messages.name,
+            ).describedAs("SiteConfiguration.firebase.firestore.messages.name should be 'messages'")
                 .isEqualTo("messages")
 
-            assertThat(config.firebase!!.firestore.messages.fields.map { it.name })
-                .describedAs("SiteConfiguration.firebase.firestore.messages.fields should contains 'id', 'created_at', 'contact_id', 'subject', 'message'")
+            assertThat(
+                config.firebase!!
+                    .firestore.messages.fields
+                    .map { it.name },
+            ).describedAs("SiteConfiguration.firebase.firestore.messages.fields should contains 'id', 'created_at', 'contact_id', 'subject', 'message'")
                 .contains("id", "created_at", "contact_id", "subject", "message")
         }
 
@@ -230,21 +241,27 @@ class BakeryPluginTest {
                 .describedAs("SiteConfiguration.firebase.callable.name should be 'handleContactForm'")
                 .isEqualTo("handleContactForm")
 
-            assertThat(config.firebase!!.callable.params.map { it.name })
-                .describedAs("SiteConfiguration.firebase.callable.params should contain 'p_name', 'p_email', 'p_subject', 'p_message'")
+            assertThat(
+                config.firebase!!
+                    .callable.params
+                    .map { it.name },
+            ).describedAs("SiteConfiguration.firebase.callable.params should contain 'p_name', 'p_email', 'p_subject', 'p_message'")
                 .contains("p_name", "p_email", "p_subject", "p_message")
         }
 
         @Test
         fun `check SiteConfiguration#firebase#firestore#contacts#field properties types are correctly mapped`() {
-            val fields = config.firebase!!.firestore.contacts.fields
-            val expectedTypes = mapOf(
-                "id" to "string",
-                "created_at" to "timestamp",
-                "name" to "string",
-                "email" to "string",
-                "phone" to "string"
-            )
+            val fields =
+                config.firebase!!
+                    .firestore.contacts.fields
+            val expectedTypes =
+                mapOf(
+                    "id" to "string",
+                    "created_at" to "timestamp",
+                    "name" to "string",
+                    "email" to "string",
+                    "phone" to "string",
+                )
 
             assertThat(fields).hasSize(expectedTypes.size)
 
@@ -261,14 +278,17 @@ class BakeryPluginTest {
 
         @Test
         fun `check SiteConfiguration#firebase#firestore#messages#field properties types are correctly mapped`() {
-            val fields = config.firebase!!.firestore.messages.fields
-            val expectedTypes = mapOf(
-                "id" to "string",
-                "created_at" to "timestamp",
-                "contact_id" to "string",
-                "subject" to "string",
-                "message" to "string"
-            )
+            val fields =
+                config.firebase!!
+                    .firestore.messages.fields
+            val expectedTypes =
+                mapOf(
+                    "id" to "string",
+                    "created_at" to "timestamp",
+                    "contact_id" to "string",
+                    "subject" to "string",
+                    "message" to "string",
+                )
 
             assertThat(fields).hasSize(expectedTypes.size)
 
@@ -286,12 +306,13 @@ class BakeryPluginTest {
         @Test
         fun `check SiteConfiguration#firebase#callable#param properties types are correctly mapped`() {
             val params = config.firebase!!.callable.params
-            val expectedTypes = mapOf(
-                "p_name" to "string",
-                "p_email" to "string",
-                "p_subject" to "string",
-                "p_message" to "string"
-            )
+            val expectedTypes =
+                mapOf(
+                    "p_name" to "string",
+                    "p_email" to "string",
+                    "p_subject" to "string",
+                    "p_message" to "string",
+                )
 
             assertThat(params).hasSize(expectedTypes.size)
 
@@ -310,10 +331,10 @@ class BakeryPluginTest {
     @Nested
     @TestInstance(PER_CLASS)
     inner class YamlToleranceTest {
-
         @Test
         fun `SiteConfiguration ignores unknown fields like supabase`() {
-            val yaml = """
+            val yaml =
+                """
                 bake:
                   srcPath: site
                   destDirPath: bake
@@ -343,7 +364,7 @@ class BakeryPluginTest {
                     params:
                       - name: p_name
                         type: string
-            """.trimIndent()
+                """.trimIndent()
 
             val config = yamlMapper.readValue<SiteConfiguration>(yaml)
             assertThat(config.bake.srcPath).isEqualTo("site")
@@ -353,7 +374,8 @@ class BakeryPluginTest {
 
         @Test
         fun `SiteConfiguration ignores multiple unknown top-level fields`() {
-            val yaml = """
+            val yaml =
+                """
                 bake:
                   srcPath: site
                   destDirPath: bake
@@ -362,7 +384,7 @@ class BakeryPluginTest {
                   deprecated: true
                 custom_extension:
                   feature: experimental
-            """.trimIndent()
+                """.trimIndent()
 
             val config = yamlMapper.readValue<SiteConfiguration>(yaml)
             assertThat(config.bake.srcPath).isEqualTo("site")
@@ -374,7 +396,8 @@ class BakeryPluginTest {
             // Known limitation of @JsonIgnoreProperties(ignoreUnknown = true):
             // a typo like 'pusPage' instead of 'pushPage' is silently ignored.
             // This test documents the behavior, not a bug to fix.
-            val yaml = """
+            val yaml =
+                """
                 bake:
                   srcPath: site
                   destDirPath: bake
@@ -382,7 +405,7 @@ class BakeryPluginTest {
                 pusPage:
                   from: bake
                   to: cvs
-            """.trimIndent()
+                """.trimIndent()
 
             val config = yamlMapper.readValue<SiteConfiguration>(yaml)
             // pushPage keeps its default values — the typo'd key is ignored
@@ -404,7 +427,6 @@ class BakeryPluginTest {
 
     @Nested
     inner class FileSystemManagerTest {
-
         @TempDir
         lateinit var tempDir: File
 
@@ -415,26 +437,33 @@ class BakeryPluginTest {
             project = ProjectBuilder.builder().withProjectDir(tempDir).build()
         }
 
-        private fun createFakeSiteConfiguration(cname: String = "") = SiteConfiguration(
-            BakeConfiguration("site", "bake", cname)
-        )
+        private fun createFakeSiteConfiguration(cname: String = "") =
+            SiteConfiguration(
+                BakeConfiguration("site", "bake", cname),
+            )
 
         @Test
         fun `createCnameFile should create CNAME file with correct content when cname is provided`() {
             @Suppress("LocalVariableName")
             val CNAME_VALUE = "test.cheroliv.com"
             val siteConfiguration = createFakeSiteConfiguration(CNAME_VALUE)
-            project.layout.buildDirectory.get().asFile.mkdirs()
-            val expectedCnameFile: File = project.layout.buildDirectory.run {
-                file(siteConfiguration.bake.destDirPath).apply { get().asFile.mkdir() }
-                file("${siteConfiguration.bake.destDirPath}/CNAME").get().asFile.apply {
-                    createNewFile()
-                    writeText(CNAME_VALUE, UTF_8)
-                }
-            }
-            project.layout.buildDirectory.get()
+            project.layout.buildDirectory
+                .get()
                 .asFile
-                .resolve(siteConfiguration.bake.destDirPath).apply {
+                .mkdirs()
+            val expectedCnameFile: File =
+                project.layout.buildDirectory.run {
+                    file(siteConfiguration.bake.destDirPath).apply { get().asFile.mkdir() }
+                    file("${siteConfiguration.bake.destDirPath}/CNAME").get().asFile.apply {
+                        createNewFile()
+                        writeText(CNAME_VALUE, UTF_8)
+                    }
+                }
+            project.layout.buildDirectory
+                .get()
+                .asFile
+                .resolve(siteConfiguration.bake.destDirPath)
+                .apply {
                     run(::assertThat)
                         .describedAs("destDirPath should exist")
                         .exists()
@@ -455,8 +484,10 @@ class BakeryPluginTest {
             expectedCnameFile
                 .run(::assertThat)
                 .describedAs("CNAME file should exist")
-                .exists().isFile
-            expectedCnameFile.readText(UTF_8)
+                .exists()
+                .isFile
+            expectedCnameFile
+                .readText(UTF_8)
                 .run(::assertThat)
                 .describedAs("CNAME file should contains '$CNAME_VALUE'")
                 .isEqualTo(CNAME_VALUE)
@@ -465,10 +496,16 @@ class BakeryPluginTest {
         @Test
         fun `createCnameFile should do nothing if cname is null`() {
             val siteConfiguration = createFakeSiteConfiguration()
-            project.layout.buildDirectory.get().asFile.mkdirs()
-            val cnameFile = project.layout.buildDirectory.file(
-                "${siteConfiguration.bake.destDirPath}/CNAME"
-            ).get().asFile
+            project.layout.buildDirectory
+                .get()
+                .asFile
+                .mkdirs()
+            val cnameFile =
+                project.layout.buildDirectory
+                    .file(
+                        "${siteConfiguration.bake.destDirPath}/CNAME",
+                    ).get()
+                    .asFile
 
             siteConfiguration.createCnameFile(project)
 
@@ -478,10 +515,16 @@ class BakeryPluginTest {
         @Test
         fun `createCnameFile should do nothing if cname is blank`() {
             val siteConfiguration = createFakeSiteConfiguration("   ")
-            project.layout.buildDirectory.get().asFile.mkdirs()
-            val cnameFile = project.layout.buildDirectory.file(
-                "${siteConfiguration.bake.destDirPath}/CNAME"
-            ).get().asFile
+            project.layout.buildDirectory
+                .get()
+                .asFile
+                .mkdirs()
+            val cnameFile =
+                project.layout.buildDirectory
+                    .file(
+                        "${siteConfiguration.bake.destDirPath}/CNAME",
+                    ).get()
+                    .asFile
 
             siteConfiguration.createCnameFile(project)
 
@@ -491,10 +534,16 @@ class BakeryPluginTest {
         @Test
         fun `createCnameFile should overwrite existing CNAME file`() {
             val siteConfiguration = createFakeSiteConfiguration("new.cheroliv.com")
-            project.layout.buildDirectory.get().asFile.mkdirs()
-            val cnameFile = project.layout.buildDirectory.file(
-                "${siteConfiguration.bake.destDirPath}/CNAME"
-            ).get().asFile
+            project.layout.buildDirectory
+                .get()
+                .asFile
+                .mkdirs()
+            val cnameFile =
+                project.layout.buildDirectory
+                    .file(
+                        "${siteConfiguration.bake.destDirPath}/CNAME",
+                    ).get()
+                    .asFile
             cnameFile.parentFile.mkdirs()
             cnameFile.writeText("old.cheroliv.com", UTF_8)
 
@@ -507,10 +556,16 @@ class BakeryPluginTest {
         @Test
         fun `createCnameFile should replace existing CNAME directory`() {
             val siteConfiguration = createFakeSiteConfiguration("another.cheroliv.com")
-            project.layout.buildDirectory.get().asFile.mkdirs()
-            val cnameFile = project.layout.buildDirectory.file(
-                "${siteConfiguration.bake.destDirPath}/CNAME"
-            ).get().asFile
+            project.layout.buildDirectory
+                .get()
+                .asFile
+                .mkdirs()
+            val cnameFile =
+                project.layout.buildDirectory
+                    .file(
+                        "${siteConfiguration.bake.destDirPath}/CNAME",
+                    ).get()
+                    .asFile
 
             cnameFile.mkdirs()
             assertThat(cnameFile).exists().isDirectory
@@ -524,11 +579,13 @@ class BakeryPluginTest {
 
     @Nested
     inner class FirebaseConfigInjectionTest {
-
         @TempDir
         lateinit var tempDir: File
 
-        private fun injectFirebaseConfig(jbakeProps: File, site: SiteConfiguration) {
+        private fun injectFirebaseConfig(
+            jbakeProps: File,
+            site: SiteConfiguration,
+        ) {
             val resolved = ConfigResolver.resolveFirebaseConfig(emptyMap(), site.firebase)
             if (resolved.apiKey.isBlank() && resolved.projectId.isBlank()) return
             val lines = jbakeProps.readText(UTF_8).lines().toMutableList()
@@ -537,7 +594,11 @@ class BakeryPluginTest {
             jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
         }
 
-        private fun updatePropertyHelper(lines: MutableList<String>, key: String, value: String) {
+        private fun updatePropertyHelper(
+            lines: MutableList<String>,
+            key: String,
+            value: String,
+        ) {
             val idx = lines.indexOfFirst { it.startsWith("$key=") }
             if (idx >= 0) {
                 lines[idx] = "$key=$value"
@@ -553,17 +614,20 @@ class BakeryPluginTest {
             val jbakeProps = srcDir.resolve("jbake.properties")
             jbakeProps.writeText("site.host=https://example.com/", UTF_8)
 
-            val site = SiteConfiguration(
-                bake = BakeConfiguration(srcPath = "site", destDirPath = "bake"),
-                firebase = FirebaseContactFormConfig(
-                    project = FirebaseProjectInfo(projectId = "test-project", apiKey = "test-api-key"),
-                    firestore = FirebaseFirestoreSchema(
-                        contacts = FirebaseCollection("contacts", emptyList(), true),
-                        messages = FirebaseCollection("messages", emptyList(), true)
-                    ),
-                    callable = FirebaseCallableFunction("handleContactForm", emptyList())
+            val site =
+                SiteConfiguration(
+                    bake = BakeConfiguration(srcPath = "site", destDirPath = "bake"),
+                    firebase =
+                        FirebaseContactFormConfig(
+                            project = FirebaseProjectInfo(projectId = "test-project", apiKey = "test-api-key"),
+                            firestore =
+                                FirebaseFirestoreSchema(
+                                    contacts = FirebaseCollection("contacts", emptyList(), true),
+                                    messages = FirebaseCollection("messages", emptyList(), true),
+                                ),
+                            callable = FirebaseCallableFunction("handleContactForm", emptyList()),
+                        ),
                 )
-            )
 
             injectFirebaseConfig(jbakeProps, site)
 
@@ -575,17 +639,20 @@ class BakeryPluginTest {
         @Test
         fun `should do nothing when jbake properties file does not exist`() {
             // No file created - nothing to test, just verify no exception
-            val site = SiteConfiguration(
-                bake = BakeConfiguration(srcPath = "site", destDirPath = "bake"),
-                firebase = FirebaseContactFormConfig(
-                    project = FirebaseProjectInfo(projectId = "test-project", apiKey = "test-api-key"),
-                    firestore = FirebaseFirestoreSchema(
-                        contacts = FirebaseCollection("contacts", emptyList(), true),
-                        messages = FirebaseCollection("messages", emptyList(), true)
-                    ),
-                    callable = FirebaseCallableFunction("handleContactForm", emptyList())
+            val site =
+                SiteConfiguration(
+                    bake = BakeConfiguration(srcPath = "site", destDirPath = "bake"),
+                    firebase =
+                        FirebaseContactFormConfig(
+                            project = FirebaseProjectInfo(projectId = "test-project", apiKey = "test-api-key"),
+                            firestore =
+                                FirebaseFirestoreSchema(
+                                    contacts = FirebaseCollection("contacts", emptyList(), true),
+                                    messages = FirebaseCollection("messages", emptyList(), true),
+                                ),
+                            callable = FirebaseCallableFunction("handleContactForm", emptyList()),
+                        ),
                 )
-            )
 
             // ConfigResolver resolves the config — injection is not called (no file)
             val resolved = ConfigResolver.resolveFirebaseConfig(emptyMap(), site.firebase)
@@ -600,10 +667,11 @@ class BakeryPluginTest {
             val jbakeProps = srcDir.resolve("jbake.properties")
             jbakeProps.writeText("site.host=https://example.com/", UTF_8)
 
-            val site = SiteConfiguration(
-                bake = BakeConfiguration(srcPath = "site", destDirPath = "bake"),
-                firebase = null
-            )
+            val site =
+                SiteConfiguration(
+                    bake = BakeConfiguration(srcPath = "site", destDirPath = "bake"),
+                    firebase = null,
+                )
 
             injectFirebaseConfig(jbakeProps, site)
 
@@ -619,17 +687,20 @@ class BakeryPluginTest {
             val jbakeProps = srcDir.resolve("jbake.properties")
             jbakeProps.writeText("site.host=https://example.com/\nfirebaseApiKey=old-key\nfirebaseProjectId=old-project", UTF_8)
 
-            val site = SiteConfiguration(
-                bake = BakeConfiguration(srcPath = "site", destDirPath = "bake"),
-                firebase = FirebaseContactFormConfig(
-                    project = FirebaseProjectInfo(projectId = "new-project", apiKey = "new-key"),
-                    firestore = FirebaseFirestoreSchema(
-                        contacts = FirebaseCollection("contacts", emptyList(), true),
-                        messages = FirebaseCollection("messages", emptyList(), true)
-                    ),
-                    callable = FirebaseCallableFunction("handleContactForm", emptyList())
+            val site =
+                SiteConfiguration(
+                    bake = BakeConfiguration(srcPath = "site", destDirPath = "bake"),
+                    firebase =
+                        FirebaseContactFormConfig(
+                            project = FirebaseProjectInfo(projectId = "new-project", apiKey = "new-key"),
+                            firestore =
+                                FirebaseFirestoreSchema(
+                                    contacts = FirebaseCollection("contacts", emptyList(), true),
+                                    messages = FirebaseCollection("messages", emptyList(), true),
+                                ),
+                            callable = FirebaseCallableFunction("handleContactForm", emptyList()),
+                        ),
                 )
-            )
 
             injectFirebaseConfig(jbakeProps, site)
 
@@ -647,17 +718,20 @@ class BakeryPluginTest {
             val jbakeProps = srcDir.resolve("jbake.properties")
             jbakeProps.writeText("site.host=https://example.com/", UTF_8)
 
-            val site = SiteConfiguration(
-                bake = BakeConfiguration(srcPath = "site", destDirPath = "bake"),
-                firebase = FirebaseContactFormConfig(
-                    project = FirebaseProjectInfo(projectId = "test-project", apiKey = "test-api-key"),
-                    firestore = FirebaseFirestoreSchema(
-                        contacts = FirebaseCollection("contacts", emptyList(), true),
-                        messages = FirebaseCollection("messages", emptyList(), true)
-                    ),
-                    callable = FirebaseCallableFunction("handleContactForm", emptyList())
+            val site =
+                SiteConfiguration(
+                    bake = BakeConfiguration(srcPath = "site", destDirPath = "bake"),
+                    firebase =
+                        FirebaseContactFormConfig(
+                            project = FirebaseProjectInfo(projectId = "test-project", apiKey = "test-api-key"),
+                            firestore =
+                                FirebaseFirestoreSchema(
+                                    contacts = FirebaseCollection("contacts", emptyList(), true),
+                                    messages = FirebaseCollection("messages", emptyList(), true),
+                                ),
+                            callable = FirebaseCallableFunction("handleContactForm", emptyList()),
+                        ),
                 )
-            )
 
             injectFirebaseConfig(jbakeProps, site)
 
@@ -671,7 +745,6 @@ class BakeryPluginTest {
     @Nested
     @TestInstance(PER_CLASS)
     inner class AfterEvaluateBranchingTest {
-
         @TempDir
         lateinit var projectDir: File
 
@@ -685,7 +758,7 @@ class BakeryPluginTest {
             verify(fixture.project.logger).lifecycle(
                 org.mockito.kotlin.argThat { msg: String ->
                     msg.contains("switching to scaffold only", ignoreCase = true)
-                }
+                },
             )
         }
 
@@ -702,21 +775,24 @@ class BakeryPluginTest {
             verify(fixture.project.logger).warn(
                 org.mockito.kotlin.argThat { msg: String ->
                     msg.contains("Failed to parse", ignoreCase = true)
-                }
+                },
             )
         }
 
         @Test
         fun `runs scaffold only when site and maquette directories do not exist`() {
             val siteYml = projectDir.resolve("site.yml")
-            siteYml.writeText("""
+            siteYml.writeText(
+                """
                 bake:
                   srcPath: missing_site
                   destDirPath: build/bake
                   cname: test
                 pushMaquette:
                   from: missing_maquette
-            """.trimIndent(), UTF_8)
+                """.trimIndent(),
+                UTF_8,
+            )
 
             val fixture = BakeryTestFixture.createWithProjectDir(projectDir)
             val plugin = BakeryPlugin()
@@ -724,13 +800,11 @@ class BakeryPluginTest {
 
             assertDoesNotThrow { fixture.runAfterEvaluate() }
         }
-
     }
 
     @Nested
     @TestInstance(PER_CLASS)
     inner class ResolvePathsTest {
-
         private val base = java.io.File(".")
 
         @Test
@@ -753,27 +827,49 @@ class BakeryPluginTest {
 
         @Test
         fun `resolvePaths resolves all fields`() {
-            val config = SiteConfiguration(
-                bake = BakeConfiguration("my_site", "output", "test.com"),
-                pushMaquette = GitPushConfiguration(
-                    from = "maquette", to = "cvs",
-                    repo = RepositoryConfiguration("test", "https://github.com/test/repo.git",
-                        RepositoryCredentials("u", "p")),
-                    branch = "main", message = "deploy"
-                ),
-                pushPage = GitPushConfiguration(
-                    from = "bake_output", to = "cvs",
-                    repo = RepositoryConfiguration("test-pages", "https://github.com/test/pages.git",
-                        RepositoryCredentials("u", "p")),
-                    branch = "gh-pages", message = "pages"
-                ),
-                pushProfile = GitPushConfiguration(
-                    from = "profile_src", to = "cvs",
-                    repo = RepositoryConfiguration("profile", "https://github.com/test/profile.git",
-                        RepositoryCredentials("u", "p")),
-                    branch = "main", message = "profile"
+            val config =
+                SiteConfiguration(
+                    bake = BakeConfiguration("my_site", "output", "test.com"),
+                    pushMaquette =
+                        GitPushConfiguration(
+                            from = "maquette",
+                            to = "cvs",
+                            repo =
+                                RepositoryConfiguration(
+                                    "test",
+                                    "https://github.com/test/repo.git",
+                                    RepositoryCredentials("u", "p"),
+                                ),
+                            branch = "main",
+                            message = "deploy",
+                        ),
+                    pushPage =
+                        GitPushConfiguration(
+                            from = "bake_output",
+                            to = "cvs",
+                            repo =
+                                RepositoryConfiguration(
+                                    "test-pages",
+                                    "https://github.com/test/pages.git",
+                                    RepositoryCredentials("u", "p"),
+                                ),
+                            branch = "gh-pages",
+                            message = "pages",
+                        ),
+                    pushProfile =
+                        GitPushConfiguration(
+                            from = "profile_src",
+                            to = "cvs",
+                            repo =
+                                RepositoryConfiguration(
+                                    "profile",
+                                    "https://github.com/test/profile.git",
+                                    RepositoryCredentials("u", "p"),
+                                ),
+                            branch = "main",
+                            message = "profile",
+                        ),
                 )
-            )
             val resolved = config.resolvePaths(base)
 
             assertThat(resolved.bake.srcPath).isEqualTo(base.resolve("my_site").absolutePath)
@@ -784,9 +880,10 @@ class BakeryPluginTest {
 
         @Test
         fun `resolvePaths preserves pushProfile null`() {
-            val config = SiteConfiguration(
-                BakeConfiguration("site", "build/bake", "test.com")
-            )
+            val config =
+                SiteConfiguration(
+                    BakeConfiguration("site", "build/bake", "test.com"),
+                )
             val resolved = config.resolvePaths(base)
             assertThat(resolved.pushProfile).isNull()
         }
@@ -795,10 +892,10 @@ class BakeryPluginTest {
     @Nested
     @TestInstance(PER_CLASS)
     inner class TreeParsingTest {
-
         @Test
         fun `parse site yml with tree section returns tree field`() {
-            val yml = """
+            val yml =
+                """
                 bake:
                   srcPath: site
                   destDirPath: build/bake
@@ -813,7 +910,7 @@ class BakeryPluginTest {
                           path: /formations/ab-partition
                           outputConfig:
                             template: custom.ftl
-            """.trimIndent()
+                """.trimIndent()
 
             val config = yamlMapper.readValue<SiteConfiguration>(yml)
 
@@ -825,16 +922,22 @@ class BakeryPluginTest {
             assertThat(site.sections[0].articles).hasSize(1)
             assertThat(site.sections[0].articles[0].path).isEqualTo("/formations/ab-partition")
             assertThat(site.sections[0].articles[0].outputConfig).isNotNull
-            assertThat(site.sections[0].articles[0].outputConfig!!.template).isEqualTo("custom.ftl")
+            assertThat(
+                site.sections[0]
+                    .articles[0]
+                    .outputConfig!!
+                    .template,
+            ).isEqualTo("custom.ftl")
         }
 
         @Test
         fun `parse site yml without tree section yields null tree`() {
-            val yml = """
+            val yml =
+                """
                 bake:
                   srcPath: site
                   destDirPath: build/bake
-            """.trimIndent()
+                """.trimIndent()
 
             val config = yamlMapper.readValue<SiteConfiguration>(yml)
 
@@ -843,20 +946,24 @@ class BakeryPluginTest {
 
         @Test
         fun `resolvePaths preserves tree field`() {
-            val config = SiteConfiguration(
-                bake = BakeConfiguration("site", "build/bake"),
-                tree = bakery.tree.SiteNodeDto.SiteDto(
-                    path = "/",
-                    sections = listOf(
-                        bakery.tree.SiteNodeDto.SectionDto(
-                            path = "/docs",
-                            articles = listOf(
-                                bakery.tree.SiteNodeDto.ArticleDto(path = "/docs/guide")
-                            )
-                        )
-                    )
+            val config =
+                SiteConfiguration(
+                    bake = BakeConfiguration("site", "build/bake"),
+                    tree =
+                        bakery.tree.SiteNodeDto.SiteDto(
+                            path = "/",
+                            sections =
+                                listOf(
+                                    bakery.tree.SiteNodeDto.SectionDto(
+                                        path = "/docs",
+                                        articles =
+                                            listOf(
+                                                bakery.tree.SiteNodeDto.ArticleDto(path = "/docs/guide"),
+                                            ),
+                                    ),
+                                ),
+                        ),
                 )
-            )
             val resolved = config.resolvePaths(java.io.File("."))
             assertThat(resolved.tree).isNotNull
             assertThat(resolved.tree!!.path).isEqualTo("/")

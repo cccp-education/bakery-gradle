@@ -18,5 +18,5 @@ data class ThemePreset(
     val fontFamily: String,
     val headingFont: String,
     val logoUrl: String = "",
-    val faviconUrl: String = ""
+    val faviconUrl: String = "",
 )

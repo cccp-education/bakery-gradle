@@ -6,10 +6,11 @@ open class I18nMigrationIntentionDsl {
     var defaultLanguage: String = "fr"
     var dryRun: Boolean = true
 
-    fun toIntention(): I18nMigrationIntention = I18nMigrationIntention(
-        siteDir = siteDir,
-        languages = languages,
-        defaultLanguage = defaultLanguage,
-        dryRun = dryRun
-    )
+    fun toIntention(): I18nMigrationIntention =
+        I18nMigrationIntention(
+            siteDir = siteDir,
+            languages = languages,
+            defaultLanguage = defaultLanguage,
+            dryRun = dryRun,
+        )
 }

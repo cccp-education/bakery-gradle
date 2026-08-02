@@ -17,7 +17,6 @@ import org.assertj.core.api.Assertions.assertThat
  * that the task applies to each `.adoc` in `content-i18n/{lang}/`.
  */
 class RtlDirectionInjectionTaskSteps {
-
     private val parser = AsciiDocParser()
     private val renderer = JbakeNativeRenderer()
     private val injector = RtlDirectionInjector()
@@ -44,11 +43,16 @@ Ceci est un paragraphe de test.
     }
 
     @Given("a translated {string} article with {string} and {string}")
-    fun translatedArticleWithDirective(lang: String, attr1: String, attr2: String) {
-        sourceAdoc = baseAdoc.replace(
-            ":summary: un article de test",
-            ":summary: un article de test\n$attr1\n$attr2"
-        )
+    fun translatedArticleWithDirective(
+        lang: String,
+        attr1: String,
+        attr2: String,
+    ) {
+        sourceAdoc =
+            baseAdoc.replace(
+                ":summary: un article de test",
+                ":summary: un article de test\n$attr1\n$attr2",
+            )
     }
 
     @Given("a translated {string} article with jbake header attributes")

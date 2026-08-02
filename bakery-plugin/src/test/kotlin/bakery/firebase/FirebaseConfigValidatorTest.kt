@@ -1,30 +1,29 @@
 package bakery.firebase
 
 import bakery.FirebaseAuthConfig
-import bakery.FirebaseContactFormConfig
-import bakery.FirebaseCollection
-import bakery.FirebaseField
-import bakery.FirebaseProjectInfo
 import bakery.FirebaseCallableFunction
 import bakery.FirebaseCallableParam
+import bakery.FirebaseCollection
+import bakery.FirebaseContactFormConfig
+import bakery.FirebaseField
 import bakery.FirebaseFirestoreSchema
+import bakery.FirebaseProjectInfo
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class FirebaseConfigValidatorTest {
-
     @Nested
     inner class AuthConfigValidation {
-
         @Test
         fun `valid auth config passes all checks`() {
-            val config = FirebaseAuthConfig(
-                apiKey = "AIzaSyB-abc123",
-                authDomain = "my-project.firebaseapp.com",
-                projectId = "my-project"
-            )
+            val config =
+                FirebaseAuthConfig(
+                    apiKey = "AIzaSyB-abc123",
+                    authDomain = "my-project.firebaseapp.com",
+                    projectId = "my-project",
+                )
             val result = FirebaseConfigValidator.validateAuthConfig(config)
             assertTrue(result.isValid)
             assertEquals(0, result.errors.size)
@@ -89,15 +88,21 @@ class FirebaseConfigValidatorTest {
 
     @Nested
     inner class ContactConfigValidation {
-
-        private val validContactConfig = FirebaseContactFormConfig(
-            project = FirebaseProjectInfo(projectId = "my-project", apiKey = "AIzaSyB-abc123"),
-            firestore = FirebaseFirestoreSchema(
-                contacts = FirebaseCollection(name = "contacts", fields = listOf(FirebaseField("name", "string"), FirebaseField("phone", "string")), rulesEnabled = true),
-                messages = FirebaseCollection(name = "messages", fields = listOf(FirebaseField("text", "string")), rulesEnabled = true)
-            ),
-            callable = FirebaseCallableFunction(name = "sendMessage", params = listOf(FirebaseCallableParam("message", "string")))
-        )
+        private val validContactConfig =
+            FirebaseContactFormConfig(
+                project = FirebaseProjectInfo(projectId = "my-project", apiKey = "AIzaSyB-abc123"),
+                firestore =
+                    FirebaseFirestoreSchema(
+                        contacts =
+                            FirebaseCollection(
+                                name = "contacts",
+                                fields = listOf(FirebaseField("name", "string"), FirebaseField("phone", "string")),
+                                rulesEnabled = true,
+                            ),
+                        messages = FirebaseCollection(name = "messages", fields = listOf(FirebaseField("text", "string")), rulesEnabled = true),
+                    ),
+                callable = FirebaseCallableFunction(name = "sendMessage", params = listOf(FirebaseCallableParam("message", "string"))),
+            )
 
         @Test
         fun `valid contact config passes all checks`() {
@@ -132,34 +137,40 @@ class FirebaseConfigValidatorTest {
 
         @Test
         fun `blank contacts collection name is an error`() {
-            val config = validContactConfig.copy(
-                firestore = validContactConfig.firestore.copy(
-                    contacts = FirebaseCollection(name = "", fields = listOf(FirebaseField("name", "string")), rulesEnabled = true)
+            val config =
+                validContactConfig.copy(
+                    firestore =
+                        validContactConfig.firestore.copy(
+                            contacts = FirebaseCollection(name = "", fields = listOf(FirebaseField("name", "string")), rulesEnabled = true),
+                        ),
                 )
-            )
             val result = FirebaseConfigValidator.validateContactConfig(config)
             assertEquals(1, result.errors.filter { it.field == "firestore.contacts.name" }.size)
         }
 
         @Test
         fun `blank messages collection name is an error`() {
-            val config = validContactConfig.copy(
-                firestore = validContactConfig.firestore.copy(
-                    messages = FirebaseCollection(name = "", fields = listOf(FirebaseField("text", "string")), rulesEnabled = true)
+            val config =
+                validContactConfig.copy(
+                    firestore =
+                        validContactConfig.firestore.copy(
+                            messages = FirebaseCollection(name = "", fields = listOf(FirebaseField("text", "string")), rulesEnabled = true),
+                        ),
                 )
-            )
             val result = FirebaseConfigValidator.validateContactConfig(config)
             assertEquals(1, result.errors.filter { it.field == "firestore.messages.name" }.size)
         }
 
         @Test
         fun `empty fields lists are warnings`() {
-            val config = validContactConfig.copy(
-                firestore = validContactConfig.firestore.copy(
-                    contacts = FirebaseCollection(name = "contacts", fields = emptyList(), rulesEnabled = true),
-                    messages = FirebaseCollection(name = "messages", fields = emptyList(), rulesEnabled = true)
+            val config =
+                validContactConfig.copy(
+                    firestore =
+                        validContactConfig.firestore.copy(
+                            contacts = FirebaseCollection(name = "contacts", fields = emptyList(), rulesEnabled = true),
+                            messages = FirebaseCollection(name = "messages", fields = emptyList(), rulesEnabled = true),
+                        ),
                 )
-            )
             val result = FirebaseConfigValidator.validateContactConfig(config)
             assertEquals(2, result.warnings.size)
             assertTrue(result.isValid) // warnings don't block validity
@@ -174,11 +185,18 @@ class FirebaseConfigValidatorTest {
 
         @Test
         fun `phone field with non-string type is a warning`() {
-            val config = validContactConfig.copy(
-                firestore = validContactConfig.firestore.copy(
-                    contacts = FirebaseCollection(name = "contacts", fields = listOf(FirebaseField("name", "string"), FirebaseField("phone", "number")), rulesEnabled = true)
+            val config =
+                validContactConfig.copy(
+                    firestore =
+                        validContactConfig.firestore.copy(
+                            contacts =
+                                FirebaseCollection(
+                                    name = "contacts",
+                                    fields = listOf(FirebaseField("name", "string"), FirebaseField("phone", "number")),
+                                    rulesEnabled = true,
+                                ),
+                        ),
                 )
-            )
             val result = FirebaseConfigValidator.validateContactConfig(config)
             assertTrue(result.isValid) // warnings don't block validity
             assertEquals(1, result.warnings.filter { it.field == "firestore.contacts.fields.phone" }.size)
@@ -186,11 +204,13 @@ class FirebaseConfigValidatorTest {
 
         @Test
         fun `phone field missing does not block`() {
-            val config = validContactConfig.copy(
-                firestore = validContactConfig.firestore.copy(
-                    contacts = FirebaseCollection(name = "contacts", fields = listOf(FirebaseField("name", "string")), rulesEnabled = true)
+            val config =
+                validContactConfig.copy(
+                    firestore =
+                        validContactConfig.firestore.copy(
+                            contacts = FirebaseCollection(name = "contacts", fields = listOf(FirebaseField("name", "string")), rulesEnabled = true),
+                        ),
                 )
-            )
             val result = FirebaseConfigValidator.validateContactConfig(config)
             assertTrue(result.isValid)
         }
@@ -198,17 +218,18 @@ class FirebaseConfigValidatorTest {
 
     @Nested
     inner class ValidationResultComposition {
-
         @Test
         fun `merge combines errors and warnings`() {
-            val r1 = FirebaseValidationResult(
-                errors = listOf(ValidationIssue("a", "err a")),
-                warnings = listOf(ValidationIssue("b", "warn b"))
-            )
-            val r2 = FirebaseValidationResult(
-                errors = listOf(ValidationIssue("c", "err c")),
-                warnings = listOf(ValidationIssue("d", "warn d"))
-            )
+            val r1 =
+                FirebaseValidationResult(
+                    errors = listOf(ValidationIssue("a", "err a")),
+                    warnings = listOf(ValidationIssue("b", "warn b")),
+                )
+            val r2 =
+                FirebaseValidationResult(
+                    errors = listOf(ValidationIssue("c", "err c")),
+                    warnings = listOf(ValidationIssue("d", "warn d")),
+                )
             val merged = r1.merge(r2)
             assertEquals(2, merged.errors.size)
             assertEquals(2, merged.warnings.size)

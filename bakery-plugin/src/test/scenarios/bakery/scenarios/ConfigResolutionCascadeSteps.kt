@@ -1,5 +1,6 @@
 package bakery.scenarios
 
+import bakery.*
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
@@ -7,10 +8,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import java.io.File
-import bakery.*
 
 class ConfigResolutionCascadeSteps {
-
     private lateinit var project: Project
     private lateinit var extension: BakeryExtension
     private var resolvedConfigs: ResolvedConfigs? = null
@@ -33,10 +32,11 @@ class ConfigResolutionCascadeSteps {
 
     @When("I resolve all configs with CLI override {string}")
     fun resolveAllWithCliOverride(cliProps: String) {
-        val props = cliProps.split(",").associate { pair ->
-            val (key, value) = pair.split("=", limit = 2)
-            key.trim() to value.trim()
-        }
+        val props =
+            cliProps.split(",").associate { pair ->
+                val (key, value) = pair.split("=", limit = 2)
+                key.trim() to value.trim()
+            }
         val site = SiteConfiguration()
         val (configs, errs) = ConfigResolver.resolveAll(props, extension, site)
         resolvedConfigs = configs
@@ -79,16 +79,17 @@ class ConfigResolutionCascadeSteps {
 
     @Given("a fully populated ResolvedConfigs")
     fun fullyPopulatedResolvedConfigs() {
-        resolvedConfigs = ResolvedConfigs(
-            firebase = FirebaseProjectInfo(projectId = "proj-1", apiKey = "key-1"),
-            googleForms = GoogleFormsConfig(formId = "form-1", width = "800", height = "600", allowMultiple = true),
-            firebaseAuth = FirebaseAuthConfig(apiKey = "auth-key", authDomain = "auth-domain", projectId = "proj-1"),
-            comments = CommentsConfig(enabled = true, collection = "my-comments"),
-            analytics = AnalyticsConfig(provider = "matomo", domain = "stats.example.com", scriptSrc = "https://cdn.matomo"),
-            newsletter = NewsletterConfig(enabled = true, provider = "mailchimp", endpoint = "https://api.mc"),
-            theme = ThemeConfig(mode = "dark", primaryColor = "#333", secondaryColor = "#666", variant = "magazine"),
-            layout = LayoutConfig(layoutType = LayoutType.SIDEBAR_LEFT)
-        )
+        resolvedConfigs =
+            ResolvedConfigs(
+                firebase = FirebaseProjectInfo(projectId = "proj-1", apiKey = "key-1"),
+                googleForms = GoogleFormsConfig(formId = "form-1", width = "800", height = "600", allowMultiple = true),
+                firebaseAuth = FirebaseAuthConfig(apiKey = "auth-key", authDomain = "auth-domain", projectId = "proj-1"),
+                comments = CommentsConfig(enabled = true, collection = "my-comments"),
+                analytics = AnalyticsConfig(provider = "matomo", domain = "stats.example.com", scriptSrc = "https://cdn.matomo"),
+                newsletter = NewsletterConfig(enabled = true, provider = "mailchimp", endpoint = "https://api.mc"),
+                theme = ThemeConfig(mode = "dark", primaryColor = "#333", secondaryColor = "#666", variant = "magazine"),
+                layout = LayoutConfig(layoutType = LayoutType.SIDEBAR_LEFT),
+            )
     }
 
     @When("I convert it to a resolver function")

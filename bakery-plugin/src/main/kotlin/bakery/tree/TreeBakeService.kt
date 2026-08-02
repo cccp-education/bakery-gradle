@@ -9,7 +9,6 @@ import java.io.File
 import kotlin.text.Charsets.UTF_8
 
 object TreeBakeService {
-
     private val jsonMapper: ObjectMapper by lazy {
         ObjectMapper().registerKotlinModule()
     }
@@ -18,7 +17,7 @@ object TreeBakeService {
         tree: SiteNodeDto,
         srcDir: File,
         themeOverrides: Map<String, ThemeConfig> = emptyMap(),
-        defaultTheme: ThemeConfig = ThemeConfig()
+        defaultTheme: ThemeConfig = ThemeConfig(),
     ) {
         val jbakeProps = srcDir.resolve("jbake.properties")
         if (!jbakeProps.exists()) return
@@ -32,18 +31,21 @@ object TreeBakeService {
         val resolvedMetas = metaResolver.resolveAll()
         val resolvedThemes = themeResolver.resolveAll()
 
-        val leafConfigs: Map<String, Map<String, Any?>> = siteTree.leaves()
-            .associate { article ->
-                val out = resolvedOutputs[article.path] ?: OutputConfig()
-                val meta = resolvedMetas[article.path] ?: NodeMetadata()
-                val theme = resolvedThemes[article.path]?.theme
-                article.path to buildConfigMap(out, meta, theme)
-            }
+        val leafConfigs: Map<String, Map<String, Any?>> =
+            siteTree
+                .leaves()
+                .associate { article ->
+                    val out = resolvedOutputs[article.path] ?: OutputConfig()
+                    val meta = resolvedMetas[article.path] ?: NodeMetadata()
+                    val theme = resolvedThemes[article.path]?.theme
+                    article.path to buildConfigMap(out, meta, theme)
+                }
 
-        val treePayload = mapOf(
-            "present" to true,
-            "nodes" to leafConfigs
-        )
+        val treePayload =
+            mapOf(
+                "present" to true,
+                "nodes" to leafConfigs,
+            )
         val rawJson = jsonMapper.writeValueAsString(treePayload)
         val escaped = escapeJsonForJavaProperties(rawJson)
 
@@ -52,36 +54,45 @@ object TreeBakeService {
         jbakeProps.writeText(lines.joinToString("\n"), UTF_8)
     }
 
-    private fun buildConfigMap(out: OutputConfig, meta: NodeMetadata, theme: ThemeConfig? = null): Map<String, Any?> {
+    private fun buildConfigMap(
+        out: OutputConfig,
+        meta: NodeMetadata,
+        theme: ThemeConfig? = null,
+    ): Map<String, Any?> {
         val map = mutableMapOf<String, Any?>()
         if (out.template != null) map["template"] = out.template
         if (out.layout != null) map["layout"] = out.layout!!.name
         if (out.cssFiles != null) map["cssFiles"] = out.cssFiles
         if (out.jsFiles != null) map["jsFiles"] = out.jsFiles
         val effectiveTheme = theme ?: out.theme
-        if (effectiveTheme != null) map["theme"] = mapOf(
-            "mode" to effectiveTheme.mode,
-            "primaryColor" to effectiveTheme.primaryColor,
-            "secondaryColor" to effectiveTheme.secondaryColor,
-        )
+        if (effectiveTheme != null) {
+            map["theme"] =
+                mapOf(
+                    "mode" to effectiveTheme.mode,
+                    "primaryColor" to effectiveTheme.primaryColor,
+                    "secondaryColor" to effectiveTheme.secondaryColor,
+                )
+        }
         if (meta.title != null) map["title"] = meta.title
         if (meta.description != null) map["description"] = meta.description
         if (meta.tags != null) map["tags"] = meta.tags
         val assets = out.assets
         if (assets != null) {
             val assetsMap = mutableMapOf<String, List<Map<String, Any?>>>()
-            val css = assets.css?.map { a ->
-                val m: MutableMap<String, Any?> = mutableMapOf("path" to a.path)
-                if (a.integrity != null) m["integrity"] = a.integrity
-                m
-            }
-            val js = assets.js?.map { a ->
-                val m: MutableMap<String, Any?> = mutableMapOf("path" to a.path)
-                if (a.integrity != null) m["integrity"] = a.integrity
-                if (a.async == true) m["async"] = true
-                if (a.defer == true) m["defer"] = true
-                m
-            }
+            val css =
+                assets.css?.map { a ->
+                    val m: MutableMap<String, Any?> = mutableMapOf("path" to a.path)
+                    if (a.integrity != null) m["integrity"] = a.integrity
+                    m
+                }
+            val js =
+                assets.js?.map { a ->
+                    val m: MutableMap<String, Any?> = mutableMapOf("path" to a.path)
+                    if (a.integrity != null) m["integrity"] = a.integrity
+                    if (a.async == true) m["async"] = true
+                    if (a.defer == true) m["defer"] = true
+                    m
+                }
             if (css != null) assetsMap["css"] = css
             if (js != null) assetsMap["js"] = js
             if (assetsMap.isNotEmpty()) map["assets"] = assetsMap

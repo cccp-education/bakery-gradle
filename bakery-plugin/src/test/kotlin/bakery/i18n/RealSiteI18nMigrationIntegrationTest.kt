@@ -20,7 +20,6 @@ import kotlin.test.assertTrue
  * Note : cheroliv.com exclut le répertoire content/draft/ (brouillons).
  */
 class RealSiteI18nMigrationIntegrationTest {
-
     private val service = I18nMigrationService()
     private val loader = PostMigrationSnapshotLoader()
     private val workspace = File("/home/cheroliv/workspace")
@@ -28,17 +27,20 @@ class RealSiteI18nMigrationIntegrationTest {
     private data class SiteMapping(
         val fixtureId: String,
         val realSiteDirName: String,
-        val excludeDirs: Set<String> = emptySet()
+        val excludeDirs: Set<String> = emptySet(),
     )
 
-    private val sites = listOf(
-        SiteMapping("magic-stick", "magic-stick"),
-        SiteMapping("cccp-education", "cccp.education"),
-        SiteMapping("cheroliv-com", "cheroliv.com", excludeDirs = setOf("content/draft")),
-    )
+    private val sites =
+        listOf(
+            SiteMapping("magic-stick", "magic-stick"),
+            SiteMapping("cccp-education", "cccp.education"),
+            SiteMapping("cheroliv-com", "cheroliv.com", excludeDirs = setOf("content/draft")),
+        )
 
     @Test
-    fun `migration from real site copy matches golden master for all sites`(@TempDir tempDir: File) {
+    fun `migration from real site copy matches golden master for all sites`(
+        @TempDir tempDir: File,
+    ) {
         for (site in sites) {
             val siteCopy = copyRealSite(site, tempDir.resolve(site.fixtureId))
             migrateThenCompare(site, siteCopy)
@@ -46,7 +48,9 @@ class RealSiteI18nMigrationIntegrationTest {
     }
 
     @Test
-    fun `idempotence from real site copy produces zero changes for all sites`(@TempDir tempDir: File) {
+    fun `idempotence from real site copy produces zero changes for all sites`(
+        @TempDir tempDir: File,
+    ) {
         for (site in sites) {
             val siteCopy = copyRealSite(site, tempDir.resolve(site.fixtureId))
             service.migrate(siteCopy, listOf("fr", "en"), "fr", dryRun = false)
@@ -57,8 +61,9 @@ class RealSiteI18nMigrationIntegrationTest {
 
             val afterChecksums = checksumTemplates(siteCopy)
             assertEquals(
-                beforeChecksums, afterChecksums,
-                "[${site.fixtureId}] Re-migration modifié des templates (économie d'encre violée)"
+                beforeChecksums,
+                afterChecksums,
+                "[${site.fixtureId}] Re-migration modifié des templates (économie d'encre violée)",
             )
 
             val frProps = loadPropertiesFromDir(siteCopy.resolve("templates/messages_fr.properties"))
@@ -68,7 +73,10 @@ class RealSiteI18nMigrationIntegrationTest {
         }
     }
 
-    private fun migrateThenCompare(site: SiteMapping, siteCopy: File) {
+    private fun migrateThenCompare(
+        site: SiteMapping,
+        siteCopy: File,
+    ) {
         val result = service.migrate(siteCopy, listOf("fr", "en"), "fr", dryRun = false)
 
         assertFalse(result.dryRun, "[${site.fixtureId}] La migration doit être réelle")
@@ -85,16 +93,21 @@ class RealSiteI18nMigrationIntegrationTest {
         assertSnapshotsMatch(site.fixtureId, actual, goldenMaster)
     }
 
-    private fun assertSnapshotsMatch(siteId: String, actual: PostMigrationSnapshot, expected: PostMigrationSnapshot) {
+    private fun assertSnapshotsMatch(
+        siteId: String,
+        actual: PostMigrationSnapshot,
+        expected: PostMigrationSnapshot,
+    ) {
         assertEquals(
-            expected.templatesMigrated.keys, actual.templatesMigrated.keys,
-            "[$siteId] Templates migrés : jeu de clés différent"
+            expected.templatesMigrated.keys,
+            actual.templatesMigrated.keys,
+            "[$siteId] Templates migrés : jeu de clés différent",
         )
         for (templateName in expected.templatesMigrated.keys) {
             assertEquals(
                 expected.templatesMigrated[templateName],
                 actual.templatesMigrated[templateName],
-                "[$siteId] Template '$templateName' diffère du golden master"
+                "[$siteId] Template '$templateName' diffère du golden master",
             )
         }
         assertEquals(expected.messagesFr, actual.messagesFr, "[$siteId] messages_fr diffère du golden master")
@@ -102,7 +115,10 @@ class RealSiteI18nMigrationIntegrationTest {
         assertTrue(actual.isComplete(), "[$siteId] Le snapshot réel doit être complet")
     }
 
-    private fun copyRealSite(site: SiteMapping, targetDir: File): File {
+    private fun copyRealSite(
+        site: SiteMapping,
+        targetDir: File,
+    ): File {
         val realJbakeDir = workspace.resolve("office/sites/${site.realSiteDirName}/jbake")
         require(realJbakeDir.isDirectory) { "Répertoire site réel introuvable : $realJbakeDir" }
 
@@ -124,25 +140,29 @@ class RealSiteI18nMigrationIntegrationTest {
 
     private fun buildSnapshot(siteCopy: File): PostMigrationSnapshot {
         val templatesDir = siteCopy.resolve("templates")
-        val templatesMigrated = templatesDir.walkTopDown()
-            .filter { it.isFile && it.extension == "thyme" }
-            .associate { it.relativeTo(templatesDir).path to it.readText() }
+        val templatesMigrated =
+            templatesDir
+                .walkTopDown()
+                .filter { it.isFile && it.extension == "thyme" }
+                .associate { it.relativeTo(templatesDir).path to it.readText() }
         val messagesFr = loadPropertiesFromDir(templatesDir.resolve("messages_fr.properties"))
         val messagesEn = loadPropertiesFromDir(templatesDir.resolve("messages_en.properties"))
         return PostMigrationSnapshot(templatesMigrated, messagesFr, messagesEn)
     }
 
     private fun loadGoldenMaster(siteId: String): PostMigrationSnapshot {
-        val resource = this::class.java.classLoader.getResource("i18n-fixtures/$siteId/post-migration")
-            ?: throw IllegalStateException(
-                "Golden master introuvable pour $siteId dans les resources de test"
-            )
+        val resource =
+            this::class.java.classLoader.getResource("i18n-fixtures/$siteId/post-migration")
+                ?: throw IllegalStateException(
+                    "Golden master introuvable pour $siteId dans les resources de test",
+                )
         return loader.load(File(resource.toURI()))
     }
 
     private fun loadTranslationsFromResources(siteId: String): Map<String, String> {
-        val url = this::class.java.classLoader.getResource("i18n-fixtures/$siteId/translations_en.properties")
-            ?: throw IllegalStateException("Traductions EN introuvables pour $siteId")
+        val url =
+            this::class.java.classLoader.getResource("i18n-fixtures/$siteId/translations_en.properties")
+                ?: throw IllegalStateException("Traductions EN introuvables pour $siteId")
         val props = Properties()
         url.openStream().use { props.load(it) }
         return props.map { it.key.toString() to it.value.toString() }.toMap()
@@ -157,7 +177,8 @@ class RealSiteI18nMigrationIntegrationTest {
 
     private fun checksumTemplates(siteCopy: File): Map<String, String> {
         val templatesDir = siteCopy.resolve("templates")
-        return templatesDir.walkTopDown()
+        return templatesDir
+            .walkTopDown()
             .filter { it.isFile && it.extension == "thyme" }
             .associate { it.relativeTo(templatesDir).path to it.readText() }
     }

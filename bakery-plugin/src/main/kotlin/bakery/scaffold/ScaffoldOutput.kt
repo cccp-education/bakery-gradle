@@ -23,7 +23,7 @@ data class ScaffoldOutput(
     val description: String,
     val templates: List<String> = emptyList(),
     val tree: SiteNode? = null,
-    val metadata: ScaffoldMetadata = ScaffoldMetadata()
+    val metadata: ScaffoldMetadata = ScaffoldMetadata(),
 )
 
 /**
@@ -37,5 +37,5 @@ data class ScaffoldMetadata(
     val description: String = "",
     val tags: List<String> = emptyList(),
     val layout: String = "post",
-    val language: String = "fr"
+    val language: String = "fr",
 )

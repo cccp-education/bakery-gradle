@@ -1,7 +1,6 @@
 package bakery.tree
 
 import bakery.LayoutType
-import bakery.ThemeConfig
 import bakery.tree.SiteNode.Article
 import bakery.tree.SiteNode.Section
 import bakery.tree.SiteNode.Site
@@ -10,30 +9,35 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class NodeMetadataResolverTest {
-
     private fun sampleTree(): SiteTree {
-        val formationsSection = Section(
-            path = "formations",
-            articles = listOf(
-                Article(path = "formations/ab-partition"),
-                Article(path = "formations/cd-partition")
-            ),
-            metadata = NodeMetadata(
-                title = "Formations",
-                description = "Toutes nos formations",
-                layout = LayoutType.SIDEBAR_LEFT
+        val formationsSection =
+            Section(
+                path = "formations",
+                articles =
+                    listOf(
+                        Article(path = "formations/ab-partition"),
+                        Article(path = "formations/cd-partition"),
+                    ),
+                metadata =
+                    NodeMetadata(
+                        title = "Formations",
+                        description = "Toutes nos formations",
+                        layout = LayoutType.SIDEBAR_LEFT,
+                    ),
             )
+        val blog =
+            Section(
+                path = "blog",
+                articles = emptyList(),
+                metadata = NodeMetadata(title = "Blog"),
+            )
+        return SiteTree(
+            Site(
+                path = "",
+                sections = listOf(formationsSection, blog),
+                metadata = NodeMetadata(title = "Mon Site", tags = listOf("education")),
+            ),
         )
-        val blog = Section(
-            path = "blog",
-            articles = emptyList(),
-            metadata = NodeMetadata(title = "Blog")
-        )
-        return SiteTree(Site(
-            path = "",
-            sections = listOf(formationsSection, blog),
-            metadata = NodeMetadata(title = "Mon Site", tags = listOf("education"))
-        ))
     }
 
     @Test
@@ -71,15 +75,17 @@ class NodeMetadataResolverTest {
 
     @Test
     fun `resolve metadata on article with own override wins`() {
-        val article = Article(
-            path = "formations/ab-partition",
-            metadata = NodeMetadata(title = "AB Partition Custom", layout = LayoutType.CENTERED)
-        )
-        val section = Section(
-            path = "formations",
-            articles = listOf(article),
-            metadata = NodeMetadata(title = "Formations", layout = LayoutType.SIDEBAR_LEFT)
-        )
+        val article =
+            Article(
+                path = "formations/ab-partition",
+                metadata = NodeMetadata(title = "AB Partition Custom", layout = LayoutType.CENTERED),
+            )
+        val section =
+            Section(
+                path = "formations",
+                articles = listOf(article),
+                metadata = NodeMetadata(title = "Formations", layout = LayoutType.SIDEBAR_LEFT),
+            )
         val tree = SiteTree(Site(path = "", sections = listOf(section)))
         val resolver = NodeMetadataResolver(tree)
         val resolved = resolver.effectiveMetadata(article)

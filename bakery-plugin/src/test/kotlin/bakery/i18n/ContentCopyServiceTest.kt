@@ -8,13 +8,13 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class ContentCopyServiceTest {
-
     private val service = ContentCopyService()
 
     @TempDir
     lateinit var tempDir: File
 
     private fun sourceDir(): File = tempDir.resolve("source").also { it.mkdirs() }
+
     private fun outputDir(): File = tempDir.resolve("output").also { it.mkdirs() }
 
     @Test

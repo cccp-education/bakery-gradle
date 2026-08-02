@@ -2,18 +2,15 @@ package bakery.intention
 
 import arrow.core.Either
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 @DisplayName("ResolveIntention — helper CLI > DSL > defaults")
 class ResolveIntentionTest {
-
     @Nested
     @DisplayName("fromCli() — String avec default")
     inner class FromCliTest {
-
         @Test
         fun `CLI set overrides DSL and default`() {
             assertThat(ResolveIntention.fromCli("cli-value", "dsl-value", "default"))
@@ -54,7 +51,6 @@ class ResolveIntentionTest {
     @Nested
     @DisplayName("fromCliNullable() — String sans default")
     inner class FromCliNullableTest {
-
         @Test
         fun `CLI set returns CLI value`() {
             assertThat(ResolveIntention.fromCliNullable("cli-value", "dsl-value"))
@@ -83,11 +79,11 @@ class ResolveIntentionTest {
     @Nested
     @DisplayName("fromCliRequired() — Either error or value")
     inner class FromCliRequiredTest {
-
-        private val error = ResolveIntentionError.MissingRequiredField(
-            cliFlag = "-Ptopic",
-            dslPath = "bakery { articleIntention { topic = \"...\" } }",
-        )
+        private val error =
+            ResolveIntentionError.MissingRequiredField(
+                cliFlag = "-Ptopic",
+                dslPath = "bakery { articleIntention { topic = \"...\" } }",
+            )
 
         @Test
         fun `CLI set returns Right with CLI value`() {
@@ -130,7 +126,6 @@ class ResolveIntentionTest {
     @Nested
     @DisplayName("fromCliList() — List<String> avec default")
     inner class FromCliListTest {
-
         @Test
         fun `CLI set parses comma-separated`() {
             assertThat(ResolveIntention.fromCliList("a, b, c", listOf("dsl"), emptyList()))
@@ -171,7 +166,6 @@ class ResolveIntentionTest {
     @Nested
     @DisplayName("fromCliBoolean() — Boolean avec default")
     inner class FromCliBooleanTest {
-
         @Test
         fun `CLI true overrides DSL and default`() {
             assertThat(ResolveIntention.fromCliBoolean("true", false, false)).isTrue()

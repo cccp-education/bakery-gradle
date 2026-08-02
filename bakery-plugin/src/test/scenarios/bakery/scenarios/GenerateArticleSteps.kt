@@ -6,8 +6,9 @@ import io.cucumber.java.en.When
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 
-class GenerateArticleSteps(private val world: BakeryWorld) {
-
+class GenerateArticleSteps(
+    private val world: BakeryWorld,
+) {
     @Given("a new Bakery project with site configured and IA enabled")
     fun createBakeryProjectWithSiteConfiguredAndIa() {
         world.createGradleProjectWithSiteConfigured(iaEnabled = true)
@@ -26,24 +27,37 @@ class GenerateArticleSteps(private val world: BakeryWorld) {
         assertThat(world.projectDir).exists()
     }
 
-    @Given("a new Bakery project with article intention configured with topic {string} and ton {string} and audience {string} and keywords {string} and lang {string}")
+    @Given(
+        "a new Bakery project with article intention configured with topic {string} and ton {string} and audience {string} and keywords {string} and lang {string}",
+    )
     fun createBakeryProjectWithArticleIntentionFull(
-        topic: String, ton: String, audience: String, keywords: String, lang: String
+        topic: String,
+        ton: String,
+        audience: String,
+        keywords: String,
+        lang: String,
     ) {
         world.createGradleProjectWithArticleIntention(
-            topic = topic, ton = ton, audience = audience,
-            keywords = keywords, lang = lang
+            topic = topic,
+            ton = ton,
+            audience = audience,
+            keywords = keywords,
+            lang = lang,
         )
         assertThat(world.projectDir).exists()
     }
 
     @When("I check for task {string}")
-    fun checkForTask(taskName: String) = runBlocking {
-        world.executeGradle("tasks", "--all")
-    }
+    fun checkForTask(taskName: String) =
+        runBlocking {
+            world.executeGradle("tasks", "--all")
+        }
 
     @When("I execute task {string} with topic {string}")
-    fun executeTaskWithTopic(taskName: String, topic: String) = runBlocking {
+    fun executeTaskWithTopic(
+        taskName: String,
+        topic: String,
+    ) = runBlocking {
         try {
             world.executeGradle(taskName, "-Ptopic=$topic")
         } catch (_: Exception) {
@@ -52,7 +66,12 @@ class GenerateArticleSteps(private val world: BakeryWorld) {
     }
 
     @When("I execute task {string} with topic {string} and ton {string} and audience {string}")
-    fun executeTaskWithTopicTonAudience(taskName: String, topic: String, ton: String, audience: String) = runBlocking {
+    fun executeTaskWithTopicTonAudience(
+        taskName: String,
+        topic: String,
+        ton: String,
+        audience: String,
+    ) = runBlocking {
         try {
             world.executeGradle(taskName, "-Ptopic=$topic", "-ParticleTon=$ton", "-ParticleAudience=$audience")
         } catch (_: Exception) {
@@ -69,7 +88,10 @@ class GenerateArticleSteps(private val world: BakeryWorld) {
     }
 
     @Then("task {string} should be in group {string}")
-    fun taskShouldBeInGroup(taskName: String, group: String) {
+    fun taskShouldBeInGroup(
+        taskName: String,
+        group: String,
+    ) {
         val output = world.buildResult?.output
         assertThat(output)
             .describedAs("Task '$taskName' should be in group '$group'")

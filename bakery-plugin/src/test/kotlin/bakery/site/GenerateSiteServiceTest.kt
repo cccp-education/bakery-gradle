@@ -1,36 +1,31 @@
 package bakery.site
 
 import bakery.AnalyticsConfig
-import bakery.lens.AugmentedContextDsl
 import bakery.CommentsConfig
 import bakery.FirebaseAuthConfig
 import bakery.FirebaseProjectInfo
 import bakery.GoogleFormsConfig
 import bakery.LayoutConfig
-import bakery.LayoutType
 import bakery.NewsletterConfig
 import bakery.ResolvedConfigs
 import bakery.SiteConfiguration
 import bakery.SiteType
 import bakery.ThemeConfig
+import bakery.lens.AugmentedContextDsl
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
-import java.nio.file.Files
 
 class GenerateSiteServiceTest {
-
     @TempDir
     lateinit var tempDir: File
 
     @Nested
     inner class ResourcePathForTypeTest {
-
         @Test
         fun `BLOG returns site directory`() {
             assertEquals("site", GenerateSiteService.resourcePathForType(SiteType.BLOG))
@@ -44,7 +39,6 @@ class GenerateSiteServiceTest {
 
     @Nested
     inner class DefaultSiteDescriptionTest {
-
         @Test
         fun `BLOG returns descriptive text`() {
             val desc = GenerateSiteService.defaultSiteDescription(SiteType.BLOG)
@@ -62,7 +56,6 @@ class GenerateSiteServiceTest {
 
     @Nested
     inner class CreateAndConfigureSiteYmlTest {
-
         @Test
         fun `creates siteYml with BLOG type configuration`() {
             val siteYmlFile = tempDir.resolve("site.yml")
@@ -91,7 +84,6 @@ class GenerateSiteServiceTest {
 
     @Nested
     inner class SetupGitIgnoreTest {
-
         @Test
         fun `creates gitignore when it does not exist`() {
             val gitignore = tempDir.resolve(".gitignore")
@@ -131,7 +123,6 @@ class GenerateSiteServiceTest {
 
     @Nested
     inner class SetupGitAttributesTest {
-
         @Test
         fun `creates gitattributes when it does not exist`() {
             val gitattributes = tempDir.resolve(".gitattributes")
@@ -159,16 +150,18 @@ class GenerateSiteServiceTest {
 
     @Nested
     inner class InjectConfigIntoJbakePropertiesTest {
-
         @Test
         fun `returns false when jbake properties does not exist`() {
             val targetDir = tempDir.resolve("nonexistent")
             targetDir.mkdirs()
             val site = SiteConfiguration()
 
-            val result = GenerateSiteService.injectConfigIntoJbakeProperties(
-                targetDir, site, createDefaultResolvedConfigs()
-            )
+            val result =
+                GenerateSiteService.injectConfigIntoJbakeProperties(
+                    targetDir,
+                    site,
+                    createDefaultResolvedConfigs(),
+                )
 
             assertFalse(result)
         }
@@ -181,9 +174,12 @@ class GenerateSiteServiceTest {
             jbakeProps.writeText("blog.version=1.0\n")
 
             val site = SiteConfiguration(bake = bakery.BakeConfiguration("site", "build"))
-            val result = GenerateSiteService.injectConfigIntoJbakeProperties(
-                tempDir, site, createDefaultResolvedConfigs()
-            )
+            val result =
+                GenerateSiteService.injectConfigIntoJbakeProperties(
+                    tempDir,
+                    site,
+                    createDefaultResolvedConfigs(),
+                )
 
             assertTrue(result)
             val content = jbakeProps.readText()
@@ -205,9 +201,13 @@ class GenerateSiteServiceTest {
             augmentedDsl.budget.maxArticlesPerPage = 6
             augmentedDsl.budget.minSimilarity = 0.8
 
-            val result = GenerateSiteService.injectConfigIntoJbakeProperties(
-                tempDir, site, createDefaultResolvedConfigs(), augmentedDsl
-            )
+            val result =
+                GenerateSiteService.injectConfigIntoJbakeProperties(
+                    tempDir,
+                    site,
+                    createDefaultResolvedConfigs(),
+                    augmentedDsl,
+                )
 
             assertTrue(result)
             val content = jbakeProps.readText()
@@ -227,9 +227,13 @@ class GenerateSiteServiceTest {
             val augmentedDsl = AugmentedContextDsl()
             augmentedDsl.enabled = false
 
-            val result = GenerateSiteService.injectConfigIntoJbakeProperties(
-                tempDir, site, createDefaultResolvedConfigs(), augmentedDsl
-            )
+            val result =
+                GenerateSiteService.injectConfigIntoJbakeProperties(
+                    tempDir,
+                    site,
+                    createDefaultResolvedConfigs(),
+                    augmentedDsl,
+                )
 
             assertTrue(result)
             val content = jbakeProps.readText()
@@ -244,21 +248,25 @@ class GenerateSiteServiceTest {
             jbakeProps.writeText("blog.version=1.0\n")
 
             val site = SiteConfiguration(bake = bakery.BakeConfiguration("site", "build"))
-            val configs = ResolvedConfigs(
-                firebase = FirebaseProjectInfo(projectId = "", apiKey = ""),
-                googleForms = GoogleFormsConfig(),
-                firebaseAuth = FirebaseAuthConfig(),
-                comments = CommentsConfig(),
-                analytics = AnalyticsConfig(),
-                newsletter = NewsletterConfig(),
-                theme = ThemeConfig(),
-                layout = LayoutConfig(),
-                language = "en"
-            )
+            val configs =
+                ResolvedConfigs(
+                    firebase = FirebaseProjectInfo(projectId = "", apiKey = ""),
+                    googleForms = GoogleFormsConfig(),
+                    firebaseAuth = FirebaseAuthConfig(),
+                    comments = CommentsConfig(),
+                    analytics = AnalyticsConfig(),
+                    newsletter = NewsletterConfig(),
+                    theme = ThemeConfig(),
+                    layout = LayoutConfig(),
+                    language = "en",
+                )
 
-            val result = GenerateSiteService.injectConfigIntoJbakeProperties(
-                tempDir, site, configs
-            )
+            val result =
+                GenerateSiteService.injectConfigIntoJbakeProperties(
+                    tempDir,
+                    site,
+                    configs,
+                )
 
             assertTrue(result)
             val content = jbakeProps.readText()
@@ -273,20 +281,24 @@ class GenerateSiteServiceTest {
             jbakeProps.writeText("blog.version=1.0\n")
 
             val site = SiteConfiguration(bake = bakery.BakeConfiguration("site", "build"))
-            val configs = ResolvedConfigs(
-                firebase = FirebaseProjectInfo(projectId = "", apiKey = ""),
-                googleForms = GoogleFormsConfig(),
-                firebaseAuth = FirebaseAuthConfig(),
-                comments = CommentsConfig(),
-                analytics = AnalyticsConfig(),
-                newsletter = NewsletterConfig(),
-                theme = ThemeConfig(),
-                layout = LayoutConfig()
-            )
+            val configs =
+                ResolvedConfigs(
+                    firebase = FirebaseProjectInfo(projectId = "", apiKey = ""),
+                    googleForms = GoogleFormsConfig(),
+                    firebaseAuth = FirebaseAuthConfig(),
+                    comments = CommentsConfig(),
+                    analytics = AnalyticsConfig(),
+                    newsletter = NewsletterConfig(),
+                    theme = ThemeConfig(),
+                    layout = LayoutConfig(),
+                )
 
-            val result = GenerateSiteService.injectConfigIntoJbakeProperties(
-                tempDir, site, configs
-            )
+            val result =
+                GenerateSiteService.injectConfigIntoJbakeProperties(
+                    tempDir,
+                    site,
+                    configs,
+                )
 
             assertTrue(result)
             val content = jbakeProps.readText()
@@ -301,21 +313,25 @@ class GenerateSiteServiceTest {
             jbakeProps.writeText("blog.version=1.0\nsite.language=fr\n")
 
             val site = SiteConfiguration(bake = bakery.BakeConfiguration("site", "build"))
-            val configs = ResolvedConfigs(
-                firebase = FirebaseProjectInfo(projectId = "", apiKey = ""),
-                googleForms = GoogleFormsConfig(),
-                firebaseAuth = FirebaseAuthConfig(),
-                comments = CommentsConfig(),
-                analytics = AnalyticsConfig(),
-                newsletter = NewsletterConfig(),
-                theme = ThemeConfig(),
-                layout = LayoutConfig(),
-                language = "ar"
-            )
+            val configs =
+                ResolvedConfigs(
+                    firebase = FirebaseProjectInfo(projectId = "", apiKey = ""),
+                    googleForms = GoogleFormsConfig(),
+                    firebaseAuth = FirebaseAuthConfig(),
+                    comments = CommentsConfig(),
+                    analytics = AnalyticsConfig(),
+                    newsletter = NewsletterConfig(),
+                    theme = ThemeConfig(),
+                    layout = LayoutConfig(),
+                    language = "ar",
+                )
 
-            val result = GenerateSiteService.injectConfigIntoJbakeProperties(
-                tempDir, site, configs
-            )
+            val result =
+                GenerateSiteService.injectConfigIntoJbakeProperties(
+                    tempDir,
+                    site,
+                    configs,
+                )
 
             assertTrue(result)
             val content = jbakeProps.readText()
@@ -335,7 +351,7 @@ class GenerateSiteServiceTest {
             val augmentedContextJson = bakeryBuildDir.resolve("augmented-context.json")
             augmentedContextJson.writeText(
                 """{"version":"1.0","pipeline":"LENS","scoredNodes":[]}""",
-                java.nio.charset.StandardCharsets.UTF_8
+                java.nio.charset.StandardCharsets.UTF_8,
             )
 
             val site = SiteConfiguration(bake = bakery.BakeConfiguration("site", "build"))
@@ -344,32 +360,37 @@ class GenerateSiteServiceTest {
             augmentedDsl.budget.maxArticlesPerPage = 4
             augmentedDsl.budget.minSimilarity = 0.7
 
-            val result = GenerateSiteService.injectConfigIntoJbakeProperties(
-                tempDir, site, createDefaultResolvedConfigs(), augmentedDsl
-            )
+            val result =
+                GenerateSiteService.injectConfigIntoJbakeProperties(
+                    tempDir,
+                    site,
+                    createDefaultResolvedConfigs(),
+                    augmentedDsl,
+                )
 
             assertTrue(result)
             val content = jbakeProps.readText()
             assertTrue(content.contains("augmentedContextData="))
             assertTrue(
                 content.contains("augmentedContextData={\"version\":\"1.0\""),
-                "Le JSON doit être échappé et injecté sur une seule ligne properties"
+                "Le JSON doit être échappé et injecté sur une seule ligne properties",
             )
             assertFalse(
                 content.contains("\n\"scoredNodes\""),
-                "Le JSON multi-lignes doit être échappé en une seule valeur properties"
+                "Le JSON multi-lignes doit être échappé en une seule valeur properties",
             )
         }
     }
 
-    private fun createDefaultResolvedConfigs() = ResolvedConfigs(
-        firebase = FirebaseProjectInfo(projectId = "test-project", apiKey = "test-key"),
-        googleForms = GoogleFormsConfig(),
-        firebaseAuth = FirebaseAuthConfig(),
-        comments = CommentsConfig(),
-        analytics = AnalyticsConfig(),
-        newsletter = NewsletterConfig(),
-        theme = ThemeConfig(),
-        layout = LayoutConfig()
-    )
+    private fun createDefaultResolvedConfigs() =
+        ResolvedConfigs(
+            firebase = FirebaseProjectInfo(projectId = "test-project", apiKey = "test-key"),
+            googleForms = GoogleFormsConfig(),
+            firebaseAuth = FirebaseAuthConfig(),
+            comments = CommentsConfig(),
+            analytics = AnalyticsConfig(),
+            newsletter = NewsletterConfig(),
+            theme = ThemeConfig(),
+            layout = LayoutConfig(),
+        )
 }

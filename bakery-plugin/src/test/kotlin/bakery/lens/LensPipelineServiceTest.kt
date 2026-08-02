@@ -1,6 +1,5 @@
 package bakery.lens
 
-import contracts.context.ChannelType
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -22,7 +21,6 @@ import java.io.File
  * Méthodologie : baby-step TDD — chaque test compile ET passe AVANT le suivant.
  */
 class LensPipelineServiceTest {
-
     @TempDir
     lateinit var tempDir: File
 
@@ -55,20 +53,25 @@ class LensPipelineServiceTest {
 
     private fun createEmptyCompositeContext(): File {
         val f = tempDir.resolve("composite-context.json")
-        f.writeText("""{
-            "eagerSection": "test",
-            "ragSection": "",
-            "graphifySection": "",
-            "docsSection": "",
-            "config": {
-                "totalTokenBudget": 8000,
-                "budgetEagerLazy": 0.40,
-                "budgetRag": 0.30,
-                "budgetGraphify": 0.20,
-                "budgetDocs": 0.10,
-                "budgetOverhead": 0.0
+        f.writeText(
+            """
+            {
+                "eagerSection": "test",
+                "ragSection": "",
+                "graphifySection": "",
+                "docsSection": "",
+                "config": {
+                    "totalTokenBudget": 8000,
+                    "budgetEagerLazy": 0.40,
+                    "budgetRag": 0.30,
+                    "budgetGraphify": 0.20,
+                    "budgetDocs": 0.10,
+                    "budgetOverhead": 0.0
+                }
             }
-        }""".trimIndent(), Charsets.UTF_8)
+            """.trimIndent(),
+            Charsets.UTF_8,
+        )
         return f
     }
 
@@ -77,7 +80,6 @@ class LensPipelineServiceTest {
     @Nested
     @DisplayName("Pipeline execute — configuration désactivée")
     inner class Disabled {
-
         @Test
         @DisplayName("retourne output vide quand enabled=false")
         fun `returns empty output when disabled`() {
@@ -102,7 +104,6 @@ class LensPipelineServiceTest {
     @Nested
     @DisplayName("Pipeline execute — fichiers absents")
     inner class MissingFiles {
-
         @Test
         @DisplayName("graphique absent → sous-graphe vide → 0 nœuds")
         fun `skips graph when file missing`() {
@@ -137,7 +138,6 @@ class LensPipelineServiceTest {
     @Nested
     @DisplayName("Pipeline execute — fichiers présents")
     inner class FullPipeline {
-
         @Test
         @DisplayName("pipeline complet → JSON écrit avec métriques")
         fun `full pipeline writes json with metrics`() {
@@ -182,7 +182,6 @@ class LensPipelineServiceTest {
     @Nested
     @DisplayName("Jackson Serialization — CS-FIN-2")
     inner class JacksonSerialization {
-
         @Test
         @DisplayName("sérialise LensPipelineOutput directement via Jackson avec contenu complexe")
         fun `serializes directly via Jackson with complex content`() {
@@ -191,22 +190,26 @@ class LensPipelineServiceTest {
             createEmptyGraphJson()
             createEmptyCompositeContext()
 
-            val result = service.execute(
-                config,
-                tempDir.resolve("composite-context.json"),
-                tempDir.resolve("graph.json"),
-                outputDir
-            )
+            val result =
+                service.execute(
+                    config,
+                    tempDir.resolve("composite-context.json"),
+                    tempDir.resolve("graph.json"),
+                    outputDir,
+                )
 
             // Le JSON doit être lisible et désérialisable
             val jsonFile = outputDir.resolve("augmented-context.json")
             assertThat(jsonFile).exists()
 
-            val mapper = com.fasterxml.jackson.module.kotlin.jacksonObjectMapper()
-            val roundTrip = mapper.readValue(
-                jsonFile.readText(Charsets.UTF_8),
-                LensPipelineOutput::class.java
-            )
+            val mapper =
+                com.fasterxml.jackson.module.kotlin
+                    .jacksonObjectMapper()
+            val roundTrip =
+                mapper.readValue(
+                    jsonFile.readText(Charsets.UTF_8),
+                    LensPipelineOutput::class.java,
+                )
 
             assertThat(roundTrip.version).isEqualTo("1.0")
             assertThat(roundTrip.pipeline).isEqualTo("LENS")
@@ -221,39 +224,43 @@ class LensPipelineServiceTest {
         @Test
         @DisplayName("CS-22 — round-trip Jackson avec ScoredNodes non-vides préserve tous les champs")
         fun `round trip with non empty scored nodes preserves all fields`() {
-            val scored = listOf(
-                ScoredNode(
-                    nodeId = "file:src/foo.adoc",
-                    nodeName = "Foo Article",
-                    community = "docs-core",
-                    tags = listOf("kotlin", "gradle", "bakery"),
-                    ragSimilarity = 0.87,
-                    graphProximity = 0.42,
-                    tagOverlap = 0.66,
-                    crossRefCount = 3,
-                    score = 0.91
-                ),
-                ScoredNode(
-                    nodeId = "file:src/bar.adoc",
-                    nodeName = "Bar Article",
-                    community = null,
-                    tags = emptyList(),
-                    ragSimilarity = 0.12,
-                    graphProximity = 0.0,
-                    tagOverlap = 0.0,
-                    crossRefCount = 0,
-                    score = 0.05
+            val scored =
+                listOf(
+                    ScoredNode(
+                        nodeId = "file:src/foo.adoc",
+                        nodeName = "Foo Article",
+                        community = "docs-core",
+                        tags = listOf("kotlin", "gradle", "bakery"),
+                        ragSimilarity = 0.87,
+                        graphProximity = 0.42,
+                        tagOverlap = 0.66,
+                        crossRefCount = 3,
+                        score = 0.91,
+                    ),
+                    ScoredNode(
+                        nodeId = "file:src/bar.adoc",
+                        nodeName = "Bar Article",
+                        community = null,
+                        tags = emptyList(),
+                        ragSimilarity = 0.12,
+                        graphProximity = 0.0,
+                        tagOverlap = 0.0,
+                        crossRefCount = 0,
+                        score = 0.05,
+                    ),
                 )
-            )
-            val output = LensPipelineOutput(
-                budget = BudgetSummary(maxArticlesPerPage = 4, minSimilarity = 0.7),
-                scoredNodes = scored,
-                totalCandidates = 12,
-                totalAfterRules = 5,
-                totalAfterBudget = 2
-            )
+            val output =
+                LensPipelineOutput(
+                    budget = BudgetSummary(maxArticlesPerPage = 4, minSimilarity = 0.7),
+                    scoredNodes = scored,
+                    totalCandidates = 12,
+                    totalAfterRules = 5,
+                    totalAfterBudget = 2,
+                )
 
-            val mapper = com.fasterxml.jackson.module.kotlin.jacksonObjectMapper()
+            val mapper =
+                com.fasterxml.jackson.module.kotlin
+                    .jacksonObjectMapper()
             val json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(output)
             val roundTrip = mapper.readValue(json, LensPipelineOutput::class.java)
 
@@ -269,17 +276,17 @@ class LensPipelineServiceTest {
     @Nested
     @DisplayName("LensPipelineOutput — data class")
     inner class OutputModel {
-
         @Test
         @DisplayName("valeurs par défaut correctes")
         fun `default values`() {
-            val output = LensPipelineOutput(
-                budget = BudgetSummary(maxArticlesPerPage = 6, minSimilarity = 0.5),
-                scoredNodes = emptyList(),
-                totalCandidates = 0,
-                totalAfterRules = 0,
-                totalAfterBudget = 0
-            )
+            val output =
+                LensPipelineOutput(
+                    budget = BudgetSummary(maxArticlesPerPage = 6, minSimilarity = 0.5),
+                    scoredNodes = emptyList(),
+                    totalCandidates = 0,
+                    totalAfterRules = 0,
+                    totalAfterBudget = 0,
+                )
             assertThat(output.version).isEqualTo("1.0")
             assertThat(output.pipeline).isEqualTo("LENS")
         }

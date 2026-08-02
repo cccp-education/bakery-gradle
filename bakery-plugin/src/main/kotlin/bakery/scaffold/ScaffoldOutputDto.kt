@@ -23,7 +23,7 @@ internal data class ScaffoldOutputDto(
     val description: String? = null,
     val templates: List<String>? = null,
     val tree: SiteNodeDto? = null,
-    val metadata: ScaffoldMetadataDto? = null
+    val metadata: ScaffoldMetadataDto? = null,
 )
 
 internal data class ScaffoldMetadataDto(
@@ -31,5 +31,5 @@ internal data class ScaffoldMetadataDto(
     val description: String? = null,
     val tags: List<String>? = null,
     val layout: String? = null,
-    val language: String? = null
+    val language: String? = null,
 )

@@ -17,7 +17,6 @@ import java.io.File
 
 @DisableCachingByDefault(because = "Migration i18n — résultat non-déterministe (LLM), non-cacheable")
 abstract class MigrateToI18nTask : DefaultTask() {
-
     @get:Internal
     var llmService: LlmService? = null
 
@@ -81,12 +80,13 @@ abstract class MigrateToI18nTask : DefaultTask() {
         }
 
         val migrationService = I18nMigrationService(translationService)
-        val result = migrationService.migrate(
-            siteDir = siteDir,
-            languages = intention.languages,
-            defaultLanguage = intention.defaultLanguage,
-            dryRun = intention.dryRun
-        )
+        val result =
+            migrationService.migrate(
+                siteDir = siteDir,
+                languages = intention.languages,
+                defaultLanguage = intention.defaultLanguage,
+                dryRun = intention.dryRun,
+            )
 
         logger.lifecycle("[migrateToI18n] Clés extraites : {}", result.keysExtracted)
         logger.lifecycle("[migrateToI18n] Fichiers générés : {}", result.filesGenerated)
@@ -96,47 +96,53 @@ abstract class MigrateToI18nTask : DefaultTask() {
     }
 
     internal fun resolveIntention(): I18nMigrationIntention {
-        val resolvedSiteDir = ResolveIntention.fromCliRequired(
-            i18nSite.orNull,
-            dslIntention?.siteDir,
-            ResolveIntentionError.MissingRequiredField(
-                cliFlag = "--i18nSite",
-                dslPath = "bakery { i18nMigration { siteDir = \"...\" } }",
-            ),
-        ).fold(
-            ifLeft = { throw it.toException() },
-            ifRight = { it },
-        )
+        val resolvedSiteDir =
+            ResolveIntention
+                .fromCliRequired(
+                    i18nSite.orNull,
+                    dslIntention?.siteDir,
+                    ResolveIntentionError.MissingRequiredField(
+                        cliFlag = "--i18nSite",
+                        dslPath = "bakery { i18nMigration { siteDir = \"...\" } }",
+                    ),
+                ).fold(
+                    ifLeft = { throw it.toException() },
+                    ifRight = { it },
+                )
 
-        val resolvedLangs = ResolveIntention.fromCliList(
-            i18nLangs.orNull,
-            dslIntention?.languages,
-            listOf("en"),
-        )
+        val resolvedLangs =
+            ResolveIntention.fromCliList(
+                i18nLangs.orNull,
+                dslIntention?.languages,
+                listOf("en"),
+            )
 
-        val resolvedDefaultLang = ResolveIntention.fromCli(
-            i18nDefaultLang.orNull,
-            dslIntention?.defaultLanguage,
-            "fr",
-        )
+        val resolvedDefaultLang =
+            ResolveIntention.fromCli(
+                i18nDefaultLang.orNull,
+                dslIntention?.defaultLanguage,
+                "fr",
+            )
 
-        val resolvedDryRun = ResolveIntention.fromCliBoolean(
-            i18nDryRun.orNull,
-            dslIntention?.dryRun,
-            true,
-        )
+        val resolvedDryRun =
+            ResolveIntention.fromCliBoolean(
+                i18nDryRun.orNull,
+                dslIntention?.dryRun,
+                true,
+            )
 
         return I18nMigrationIntention(
             siteDir = resolvedSiteDir,
             languages = resolvedLangs,
             defaultLanguage = resolvedDefaultLang,
-            dryRun = resolvedDryRun
+            dryRun = resolvedDryRun,
         )
     }
 
     private fun resolveSiteDir(intention: I18nMigrationIntention): File {
-        val root = contentRootDir
-            ?: return File(intention.siteDir)
+        val root =
+            contentRootDir
+                ?: return File(intention.siteDir)
 
         val candidate = File(intention.siteDir)
         return if (candidate.isAbsolute) candidate else root.resolve(intention.siteDir)

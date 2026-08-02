@@ -8,7 +8,6 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
-import java.io.File
 
 /**
  * US-61a — Tâche de vérification du mapping YAML ↔ Gradle properties sécurisé.
@@ -28,7 +27,6 @@ import java.io.File
  */
 @DisableCachingByDefault(because = "Validation YAML — résultat dépendant du fichier de configuration")
 abstract class VerifyConfigurationMappingTask : DefaultTask() {
-
     /** Chemin vers le fichier de configuration YAML (input requis). */
     @get:Input
     abstract val configPath: Property<String>
@@ -47,14 +45,15 @@ abstract class VerifyConfigurationMappingTask : DefaultTask() {
             throw GradleException("Configuration file not found: $path")
         }
 
-        val site = try {
-            yamlMapper.readValue<SiteConfiguration>(configFile)
-        } catch (e: Exception) {
-            throw GradleException(
-                "Failed to parse configuration file '$path': ${e.message}",
-                e
-            )
-        }
+        val site =
+            try {
+                yamlMapper.readValue<SiteConfiguration>(configFile)
+            } catch (e: Exception) {
+                throw GradleException(
+                    "Failed to parse configuration file '$path': ${e.message}",
+                    e,
+                )
+            }
 
         validateRequiredFields(site)
 
@@ -74,7 +73,7 @@ abstract class VerifyConfigurationMappingTask : DefaultTask() {
 
         if (missing.isNotEmpty()) {
             throw GradleException(
-                "Missing required configuration fields: ${missing.joinToString(", ")}"
+                "Missing required configuration fields: ${missing.joinToString(", ")}",
             )
         }
     }

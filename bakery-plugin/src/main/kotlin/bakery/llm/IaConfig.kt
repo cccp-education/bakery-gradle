@@ -22,5 +22,5 @@ open class IaConfig(
     var modelName: String = "gpt-oss:120b-cloud",
     var timeout: Duration = Duration.ofSeconds(120),
     var enabled: Boolean = false,
-    var portRange: IntRange? = null
+    var portRange: IntRange? = null,
 )

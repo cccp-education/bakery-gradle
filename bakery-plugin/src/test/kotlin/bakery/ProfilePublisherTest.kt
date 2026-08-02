@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory
 import java.io.File
 
 class ProfilePublisherTest {
-
     @TempDir
     lateinit var tempDir: File
 
@@ -19,20 +18,20 @@ class ProfilePublisherTest {
 
     @Nested
     inner class ResolveCredentialsTest {
-
         private fun gitConfig(
             username: String = "yamlUser",
-            password: String = "yamlPass"
+            password: String = "yamlPass",
         ) = GitPushConfiguration(
             from = "",
             to = "profile-cvs",
-            repo = RepositoryConfiguration(
-                name = "test",
-                repository = "https://example.com/test.git",
-                credentials = RepositoryCredentials(username, password)
-            ),
+            repo =
+                RepositoryConfiguration(
+                    name = "test",
+                    repository = "https://example.com/test.git",
+                    credentials = RepositoryCredentials(username, password),
+                ),
             branch = "main",
-            message = "deploy"
+            message = "deploy",
         )
 
         @Test
@@ -106,7 +105,6 @@ class ProfilePublisherTest {
 
     @Nested
     inner class CopyProfileFilesTest {
-
         @Test
         fun `copies a single file from projectDir to repoDir`() {
             val projectDir = tempDir.resolve("project").apply { mkdirs() }
@@ -118,7 +116,7 @@ class ProfilePublisherTest {
                 projectDir = projectDir,
                 from = "",
                 repoDir = repoDir,
-                logger = logger
+                logger = logger,
             )
 
             assertThat(repoDir.resolve("README.md")).exists().hasContent("profile content")
@@ -137,7 +135,7 @@ class ProfilePublisherTest {
                 projectDir = projectDir,
                 from = "",
                 repoDir = repoDir,
-                logger = logger
+                logger = logger,
             )
 
             assertThat(repoDir.resolve("README.md")).exists().hasContent("readme")
@@ -157,7 +155,7 @@ class ProfilePublisherTest {
                 projectDir = projectDir,
                 from = "docs",
                 repoDir = repoDir,
-                logger = logger
+                logger = logger,
             )
 
             assertThat(repoDir.resolve("README.md")).exists().hasContent("from subdir")
@@ -175,7 +173,7 @@ class ProfilePublisherTest {
                 projectDir = projectDir,
                 from = "",
                 repoDir = repoDir,
-                logger = logger
+                logger = logger,
             )
 
             assertThat(repoDir.resolve("README.md")).exists().hasContent("new version")
@@ -192,7 +190,7 @@ class ProfilePublisherTest {
                     projectDir = projectDir,
                     from = "",
                     repoDir = repoDir,
-                    logger = logger
+                    logger = logger,
                 )
             }.isInstanceOf(IllegalStateException::class.java)
                 .hasMessageContaining("No profile files specified")
@@ -209,7 +207,7 @@ class ProfilePublisherTest {
                     projectDir = projectDir,
                     from = "nonexistent",
                     repoDir = repoDir,
-                    logger = logger
+                    logger = logger,
                 )
             }.isInstanceOf(IllegalStateException::class.java)
                 .hasMessageContaining("does not exist")
@@ -227,7 +225,7 @@ class ProfilePublisherTest {
                     projectDir = projectDir,
                     from = "notadir",
                     repoDir = repoDir,
-                    logger = logger
+                    logger = logger,
                 )
             }.isInstanceOf(IllegalStateException::class.java)
                 .hasMessageContaining("not a directory")
@@ -244,7 +242,7 @@ class ProfilePublisherTest {
                     projectDir = projectDir,
                     from = "",
                     repoDir = repoDir,
-                    logger = logger
+                    logger = logger,
                 )
             }.isInstanceOf(IllegalStateException::class.java)
                 .hasMessageContaining("Profile file not found")
@@ -262,7 +260,7 @@ class ProfilePublisherTest {
                     projectDir = projectDir,
                     from = "",
                     repoDir = repoDir,
-                    logger = logger
+                    logger = logger,
                 )
             }.isInstanceOf(IllegalStateException::class.java)
                 .hasMessageContaining("Forbidden profile files")
@@ -280,7 +278,7 @@ class ProfilePublisherTest {
                     projectDir = projectDir,
                     from = "",
                     repoDir = repoDir,
-                    logger = logger
+                    logger = logger,
                 )
             }.isInstanceOf(IllegalStateException::class.java)
                 .hasMessageContaining("Forbidden profile files")

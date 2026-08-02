@@ -7,7 +7,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class LlmTranslationApplierTest {
-
     @Test
     fun `translateFrenchToEnglish returns empty map for empty input`() {
         val applier = LlmTranslationApplier(FakeTranslationService())
@@ -26,7 +25,7 @@ class LlmTranslationApplierTest {
         val result = applier.translateFrenchToEnglish(input)
 
         assertThat(result).containsExactlyInAnyOrderEntriesOf(
-            mapOf("menu.home" to "[en] Accueil", "menu.contact" to "[en] Contact")
+            mapOf("menu.home" to "[en] Accueil", "menu.contact" to "[en] Contact"),
         )
         assertThat(fake.requestsReceived).hasSize(2)
         assertThat(fake.requestsReceived.map { it.sourceText }).containsExactlyInAnyOrder("Accueil", "Contact")
@@ -48,11 +47,12 @@ class LlmTranslationApplierTest {
     fun `translateFrenchToEnglish preserves key order`() {
         val fake = FakeTranslationService()
         val applier = LlmTranslationApplier(fake)
-        val input = linkedMapOf(
-            "a" to "Premier",
-            "b" to "Deuxième",
-            "c" to "Troisième"
-        )
+        val input =
+            linkedMapOf(
+                "a" to "Premier",
+                "b" to "Deuxième",
+                "c" to "Troisième",
+            )
 
         val result = applier.translateFrenchToEnglish(input)
 
@@ -60,7 +60,6 @@ class LlmTranslationApplierTest {
     }
 
     private class FakeTranslationService : TranslationService {
-
         val requestsReceived = mutableListOf<TranslationRequest>()
         private val resultQueue: MutableList<TranslationResult> = mutableListOf()
 

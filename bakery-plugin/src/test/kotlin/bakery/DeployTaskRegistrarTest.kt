@@ -7,12 +7,10 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
 class DeployTaskRegistrarTest {
-
     @TempDir
     lateinit var tempDir: File
 
-    private fun createProject(): org.gradle.api.Project =
-        ProjectBuilder.builder().withProjectDir(tempDir.resolve("project").apply { mkdirs() }).build()
+    private fun createProject(): org.gradle.api.Project = ProjectBuilder.builder().withProjectDir(tempDir.resolve("project").apply { mkdirs() }).build()
 
     @Test
     fun `registerPublishSiteTask creates publishSite aggregate with bake and deploySite dependencies`() {

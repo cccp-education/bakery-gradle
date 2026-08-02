@@ -1,6 +1,5 @@
 package bakery
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.eclipse.jgit.api.Git
@@ -12,13 +11,13 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
 class DeployProfileTaskTest {
-
     @TempDir
     lateinit var tempDir: File
 
     private fun createProject(): org.gradle.api.Project {
         val projectDir = tempDir.resolve("project").apply { mkdirs() }
-        return ProjectBuilder.builder()
+        return ProjectBuilder
+            .builder()
             .withProjectDir(projectDir)
             .withName("test-deploy-profile")
             .build()
@@ -27,26 +26,33 @@ class DeployProfileTaskTest {
     private fun registerExtension(project: org.gradle.api.Project): BakeryExtension =
         project.extensions.create("bakery", BakeryExtension::class.java, project.objects)
 
-    private fun writeSiteYml(projectDir: File, content: String) {
+    private fun writeSiteYml(
+        projectDir: File,
+        content: String,
+    ) {
         projectDir.resolve("site.yml").writeText(content)
     }
 
     private fun createBareRemote(): Pair<File, String> {
         val remoteDir = tempDir.resolve("simulated-remote").apply { mkdirs() }
-        Git.init().setBare(true).setDirectory(remoteDir).call().close()
+        Git
+            .init()
+            .setBare(true)
+            .setDirectory(remoteDir)
+            .call()
+            .close()
         return remoteDir to remoteDir.toURI().toString()
     }
 
-    private fun createTask(
-        project: org.gradle.api.Project
-    ): DeployProfileTask = project.tasks.register(
-        "deployProfile",
-        DeployProfileTask::class.java
-    ).get()
+    private fun createTask(project: org.gradle.api.Project): DeployProfileTask =
+        project.tasks
+            .register(
+                "deployProfile",
+                DeployProfileTask::class.java,
+            ).get()
 
     @Nested
     inner class ConfigReadFailureTest {
-
         @Test
         fun `throws when site yml file does not exist`() {
             val project = createProject()
@@ -92,7 +98,6 @@ class DeployProfileTaskTest {
 
     @Nested
     inner class ConfigPathFromExtensionTest {
-
         @Test
         fun `uses configPath from bakery extension when set`() {
             val project = createProject()
@@ -109,17 +114,18 @@ class DeployProfileTaskTest {
             task.deployProfile()
 
             val cloneDir = tempDir.resolve("clone-custom-config").apply { mkdirs() }
-            Git.cloneRepository()
+            Git
+                .cloneRepository()
                 .setURI(remoteUri)
                 .setDirectory(cloneDir)
-                .call().use { _ -> }
+                .call()
+                .use { _ -> }
             assertThat(cloneDir.resolve("README.md")).exists().hasContent("custom config path")
         }
     }
 
     @Nested
     inner class PushProfileMissingTest {
-
         @Test
         fun `throws when pushProfile section is missing from site yml`() {
             val project = createProject()
@@ -138,7 +144,6 @@ class DeployProfileTaskTest {
 
     @Nested
     inner class CredentialsResolutionTest {
-
         @Test
         fun `uses CLI credentials when provided via project properties`() {
             val project = createProject()
@@ -153,10 +158,12 @@ class DeployProfileTaskTest {
             task.deployProfile()
 
             val cloneDir = tempDir.resolve("clone-verify").apply { mkdirs() }
-            Git.cloneRepository()
+            Git
+                .cloneRepository()
                 .setURI(remoteUri)
                 .setDirectory(cloneDir)
-                .call().use { _ -> }
+                .call()
+                .use { _ -> }
             assertThat(cloneDir.resolve("README.md")).exists().hasContent("cli content")
         }
 
@@ -174,10 +181,12 @@ class DeployProfileTaskTest {
             task.deployProfile()
 
             val cloneDir = tempDir.resolve("clone-verify").apply { mkdirs() }
-            Git.cloneRepository()
+            Git
+                .cloneRepository()
                 .setURI(remoteUri)
                 .setDirectory(cloneDir)
-                .call().use { _ -> }
+                .call()
+                .use { _ -> }
             assertThat(cloneDir.resolve("README.md")).exists()
         }
 
@@ -212,17 +221,18 @@ class DeployProfileTaskTest {
             task.deployProfile()
 
             val cloneDir = tempDir.resolve("clone-verify").apply { mkdirs() }
-            Git.cloneRepository()
+            Git
+                .cloneRepository()
                 .setURI(remoteUri)
                 .setDirectory(cloneDir)
-                .call().use { _ -> }
+                .call()
+                .use { _ -> }
             assertThat(cloneDir.resolve("README.md")).exists()
         }
     }
 
     @Nested
     inner class ProfileFilesValidationTest {
-
         @Test
         fun `throws when profileFiles is empty`() {
             val project = createProject()
@@ -308,7 +318,6 @@ class DeployProfileTaskTest {
 
     @Nested
     inner class CleanupAfterErrorTest {
-
         @Test
         fun `cleans up repoDir even when copyProfileFiles throws`() {
             val project = createProject()
@@ -319,7 +328,10 @@ class DeployProfileTaskTest {
             project.extensions.extraProperties.set("profileUsername", "user")
 
             val task = createTask(project)
-            val buildDir = project.layout.buildDirectory.get().asFile
+            val buildDir =
+                project.layout.buildDirectory
+                    .get()
+                    .asFile
 
             try {
                 task.deployProfile()
@@ -335,13 +347,21 @@ class DeployProfileTaskTest {
 
     @Nested
     inner class HappyPathWithMultipleFilesTest {
-
         @Test
         fun `deploys multiple profile files to simulated remote and cleans up repoDir`() {
             val project = createProject()
             registerExtension(project)
             val (_, remoteUri) = createBareRemote()
-            writeSiteYml(project.projectDir, makeSiteYml(remoteUri, pushFrom = "docs", yamlUsername = "cliUser", yamlPassword = "cliToken", profileFilesYaml = "  - README.md\n  - README_fr.md"))
+            writeSiteYml(
+                project.projectDir,
+                makeSiteYml(
+                    remoteUri,
+                    pushFrom = "docs",
+                    yamlUsername = "cliUser",
+                    yamlPassword = "cliToken",
+                    profileFilesYaml = "  - README.md\n  - README_fr.md",
+                ),
+            )
             project.extensions.extraProperties.set("profileToken", "")
             project.extensions.extraProperties.set("profileUsername", "")
             val docsDir = project.projectDir.resolve("docs").apply { mkdirs() }
@@ -352,21 +372,27 @@ class DeployProfileTaskTest {
             task.deployProfile()
 
             val cloneDir = tempDir.resolve("clone-verify-multi").apply { mkdirs() }
-            Git.cloneRepository()
+            Git
+                .cloneRepository()
                 .setURI(remoteUri)
                 .setDirectory(cloneDir)
-                .call().use { _ -> }
+                .call()
+                .use { _ -> }
             assertThat(cloneDir.resolve("README.md")).exists().hasContent("English readme")
             assertThat(cloneDir.resolve("README_fr.md")).exists().hasContent("Lisez-moi en francais")
 
-            val buildDir = project.layout.buildDirectory.get().asFile
+            val buildDir =
+                project.layout.buildDirectory
+                    .get()
+                    .asFile
             val repoDir = buildDir.resolve("profile-cvs")
             assertThat(repoDir).doesNotExist()
         }
     }
 
     companion object {
-        private val minimalSiteYmlEmpty = """
+        private val minimalSiteYmlEmpty =
+            """
 bake:
   srcPath: "site"
   destDirPath: "build/bake"
@@ -399,8 +425,9 @@ pushMaquette:
             pushFrom: String = "",
             yamlUsername: String = "user",
             yamlPassword: String = "pass",
-            profileFilesYaml: String = "  - README.md"
-        ): String = """
+            profileFilesYaml: String = "  - README.md",
+        ): String =
+            """
 bake:
   srcPath: "site"
   destDirPath: "build/bake"

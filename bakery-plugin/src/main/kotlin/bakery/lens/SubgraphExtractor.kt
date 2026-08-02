@@ -36,7 +36,6 @@ import java.io.File
  * Contrat DAG : bakery (N2) importe graphify-plugin (N0).
  */
 class SubgraphExtractor {
-
     private val objectMapper = ObjectMapper().registerKotlinModule()
 
     /**
@@ -63,12 +62,15 @@ class SubgraphExtractor {
      * @param lensConfig La configuration de la lentille
      * @return [SiteSubgraph] contenant les nœuds et edges filtrés
      */
-    fun extract(graphModel: GraphModel, lensConfig: LensConfig): SiteSubgraph {
+    fun extract(
+        graphModel: GraphModel,
+        lensConfig: LensConfig,
+    ): SiteSubgraph {
         if (lensConfig.scope == LensScope.FULL) {
             return SiteSubgraph(
                 nodes = graphModel.nodes,
                 edges = graphModel.edges,
-                communities = graphModel.communities
+                communities = graphModel.communities,
             )
         }
 
@@ -76,53 +78,61 @@ class SubgraphExtractor {
             return SiteSubgraph(
                 nodes = emptyList(),
                 edges = emptyList(),
-                communities = emptyList()
+                communities = emptyList(),
             )
         }
 
         // SUBGRAPH — filtrer par communautés, types, extensions
 
         // 1. Filtrer les nœuds
-        val filteredNodes = graphModel.nodes.filter { node ->
-            val communityMatch = lensConfig.communities.isEmpty() ||
-                node.community in lensConfig.communities ||
-                node.community == null // nœuds sans communauté = orphelins
+        val filteredNodes =
+            graphModel.nodes.filter { node ->
+                val communityMatch =
+                    lensConfig.communities.isEmpty() ||
+                        node.community in lensConfig.communities ||
+                        node.community == null // nœuds sans communauté = orphelins
 
-            val typeMatch = lensConfig.nodeTypes.isEmpty() ||
-                node.type in lensConfig.nodeTypes
+                val typeMatch =
+                    lensConfig.nodeTypes.isEmpty() ||
+                        node.type in lensConfig.nodeTypes
 
-            val extensionMatch = lensConfig.fileExtensions.isEmpty() ||
-                node.id.substringAfterLast('.', "").lowercase() in lensConfig.fileExtensions ||
-                node.type != "file" // les modules passent toujours le filtre d'extension
+                val extensionMatch =
+                    lensConfig.fileExtensions.isEmpty() ||
+                        node.id.substringAfterLast('.', "").lowercase() in lensConfig.fileExtensions ||
+                        node.type != "file" // les modules passent toujours le filtre d'extension
 
-            communityMatch && typeMatch && extensionMatch
-        }
+                communityMatch && typeMatch && extensionMatch
+            }
 
         // 2. Filtrer les edges par type
         val edgeTypeSet = lensConfig.edgeTypes.toSet()
-        val filteredEdges = graphModel.edges.filter { edge ->
-            edgeTypeSet.isEmpty() || edge.type in edgeTypeSet
-        }
+        val filteredEdges =
+            graphModel.edges.filter { edge ->
+                edgeTypeSet.isEmpty() || edge.type in edgeTypeSet
+            }
 
         // 3. Conserver les edges dont les deux bouts sont dans le sous-graphe
         val nodeIds = filteredNodes.map { it.id }.toSet()
-        val connectedEdges = filteredEdges.filter { edge ->
-            edge.source in nodeIds && edge.target in nodeIds
-        }
+        val connectedEdges =
+            filteredEdges.filter { edge ->
+                edge.source in nodeIds && edge.target in nodeIds
+            }
 
         // 4. Appliquer la profondeur max
-        val resultNodes = if (lensConfig.communities.isNotEmpty()) {
-            // BFS depuis les nœuds des communautés ciblées
-            // maxDepth=0 → semences seulement, maxDepth=1 → +voisins directs, etc.
-            val seedIds = filteredNodes
-                .filter { it.community in lensConfig.communities }
-                .map { it.id }
-                .toSet()
-            expandBfs(seedIds, nodeIds, connectedEdges, lensConfig.maxDepth)
-        } else {
-            // Pas de communauté cible → tous les nœuds filtrés
-            nodeIds
-        }
+        val resultNodes =
+            if (lensConfig.communities.isNotEmpty()) {
+                // BFS depuis les nœuds des communautés ciblées
+                // maxDepth=0 → semences seulement, maxDepth=1 → +voisins directs, etc.
+                val seedIds =
+                    filteredNodes
+                        .filter { it.community in lensConfig.communities }
+                        .map { it.id }
+                        .toSet()
+                expandBfs(seedIds, nodeIds, connectedEdges, lensConfig.maxDepth)
+            } else {
+                // Pas de communauté cible → tous les nœuds filtrés
+                nodeIds
+            }
 
         val finalNodes = filteredNodes.filter { it.id in resultNodes }
         val finalEdges = connectedEdges.filter { it.source in resultNodes && it.target in resultNodes }
@@ -134,7 +144,7 @@ class SubgraphExtractor {
         return SiteSubgraph(
             nodes = finalNodes,
             edges = finalEdges,
-            communities = visibleCommunities
+            communities = visibleCommunities,
         )
     }
 
@@ -142,7 +152,10 @@ class SubgraphExtractor {
      * Extrait un sous-graphe depuis un fichier graph.json.
      * Convenience method combining [loadGraph] and [extract].
      */
-    fun extractFromPath(graphFilePath: String, lensConfig: LensConfig): SiteSubgraph {
+    fun extractFromPath(
+        graphFilePath: String,
+        lensConfig: LensConfig,
+    ): SiteSubgraph {
         val graphModel = loadGraph(graphFilePath)
         return extract(graphModel, lensConfig)
     }
@@ -156,7 +169,7 @@ class SubgraphExtractor {
         seedIds: Set<String>,
         candidateIds: Set<String>,
         edges: List<GraphEdge>,
-        maxDepth: Int
+        maxDepth: Int,
     ): Set<String> {
         val seeds = seedIds.intersect(candidateIds)
         if (maxDepth <= 0) return seeds
@@ -206,7 +219,7 @@ data class SiteSubgraph(
     /** Edges filtrés (les deux bouts dans [nodes]) */
     val edges: List<GraphEdge>,
     /** Communautés visibles dans le sous-graphe */
-    val communities: List<GraphCommunity>
+    val communities: List<GraphCommunity>,
 ) {
     /** Nombre de nœuds dans le sous-graphe */
     val nodeCount: Int get() = nodes.size
@@ -230,19 +243,18 @@ data class SiteSubgraph(
     val edgesByType: Map<String, List<GraphEdge>> get() = edges.groupBy { it.type }
 
     /** Retourne les nœuds correspondant à une communauté donnée */
-    fun nodesInCommunity(communityId: String): List<GraphNode> =
-        nodes.filter { it.community == communityId }
+    fun nodesInCommunity(communityId: String): List<GraphNode> = nodes.filter { it.community == communityId }
 
     /** Retourne les edges d'un type donné */
-    fun edgesOfType(type: String): List<GraphEdge> =
-        edges.filter { it.type == type }
+    fun edgesOfType(type: String): List<GraphEdge> = edges.filter { it.type == type }
 
     /** Retourne les voisins d'un nœud */
     fun neighbors(nodeId: String): List<GraphNode> {
-        val neighborIds = edges
-            .filter { it.source == nodeId || it.target == nodeId }
-            .map { if (it.source == nodeId) it.target else it.source }
-            .toSet()
+        val neighborIds =
+            edges
+                .filter { it.source == nodeId || it.target == nodeId }
+                .map { if (it.source == nodeId) it.target else it.source }
+                .toSet()
         return nodes.filter { it.id in neighborIds }
     }
 }

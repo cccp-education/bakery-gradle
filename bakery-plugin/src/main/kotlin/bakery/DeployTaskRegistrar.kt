@@ -1,14 +1,11 @@
 package bakery
 
-import arrow.core.Either
 import bakery.FileSystemManager.createCnameFile
 import bakery.GitService.pushPages
 import org.gradle.api.Project
-import java.io.File
 import java.io.File.separator
 
 object DeployTaskRegistrar {
-
     internal fun Project.registerGitPushTask(
         taskName: String,
         taskDescription: String,
@@ -17,7 +14,7 @@ object DeployTaskRegistrar {
         doFirstAction: (org.gradle.api.Task).() -> Unit = {},
         fromPath: () -> String,
         toPath: () -> String,
-        gitConfig: GitPushConfiguration
+        gitConfig: GitPushConfiguration,
     ) {
         tasks.register(taskName) { task ->
             task.apply {
@@ -34,7 +31,10 @@ object DeployTaskRegistrar {
     }
 
     internal fun Project.registerDeploySiteTask(site: SiteConfiguration) {
-        val buildDir = layout.buildDirectory.get().asFile.absolutePath
+        val buildDir =
+            layout.buildDirectory
+                .get()
+                .asFile.absolutePath
         val destDirPath = site.bake.destDirPath
         val pushPage = site.pushPage
 
@@ -45,7 +45,7 @@ object DeployTaskRegistrar {
             doFirstAction = { site.createCnameFile(project) },
             fromPath = { "$buildDir$separator$destDirPath" },
             toPath = { "$buildDir$separator${pushPage.to}" },
-            gitConfig = pushPage
+            gitConfig = pushPage,
         )
     }
 
@@ -62,15 +62,18 @@ object DeployTaskRegistrar {
                 val buildDir = layout.buildDirectory.get().asFile
                 buildDir.resolve(site.pushMaquette.to).absolutePath
             },
-            gitConfig = site.pushMaquette
+            gitConfig = site.pushMaquette,
         )
     }
 
     private fun Project.prepareAndCopyMaquette(site: SiteConfiguration) {
-        val uiDir = layout.projectDirectory.asFile
-            .resolve(site.pushMaquette.from)
-        val uiBuildDir = layout.buildDirectory.asFile.get()
-            .resolve(site.pushMaquette.from)
+        val uiDir =
+            layout.projectDirectory.asFile
+                .resolve(site.pushMaquette.from)
+        val uiBuildDir =
+            layout.buildDirectory.asFile
+                .get()
+                .resolve(site.pushMaquette.from)
 
         // Validation
         if (!uiDir.exists()) throw IllegalStateException("$uiDir does not exist")

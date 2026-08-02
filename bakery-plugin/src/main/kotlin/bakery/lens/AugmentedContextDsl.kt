@@ -37,7 +37,6 @@ import org.gradle.api.Action
  * ```
  */
 open class AugmentedContextDsl {
-
     /** Active/désactive le contexte augmenté (Pattern LENTILLE). */
     var enabled: Boolean = false
 

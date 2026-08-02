@@ -17,42 +17,47 @@ import java.io.File
  * Fixture : fichiers composite-context.json valides/invalides/inexistants.
  */
 class AugmentedContextResolverTest {
-
     private lateinit var resolver: AugmentedContextResolver
 
     @TempDir
     lateinit var tempDir: File
 
     // ─── Fixture JSON manuel (évite les problèmes de sérialisation data class) ───
-    private fun validCompositeContextJson(): String = """{
-        "eagerSection": "Eager content: rules and governance.",
-        "ragSection": "RAG content: similarity scores.",
-        "graphifySection": "Graphify: structural relations.",
-        "docsSection": "Docs: corpus documentation.",
-        "config": {
-            "totalTokenBudget": 8000,
-            "budgetEagerLazy": 0.40,
-            "budgetRag": 0.30,
-            "budgetGraphify": 0.20,
-            "budgetDocs": 0.10,
-            "budgetOverhead": 0.0
+    private fun validCompositeContextJson(): String =
+        """
+        {
+            "eagerSection": "Eager content: rules and governance.",
+            "ragSection": "RAG content: similarity scores.",
+            "graphifySection": "Graphify: structural relations.",
+            "docsSection": "Docs: corpus documentation.",
+            "config": {
+                "totalTokenBudget": 8000,
+                "budgetEagerLazy": 0.40,
+                "budgetRag": 0.30,
+                "budgetGraphify": 0.20,
+                "budgetDocs": 0.10,
+                "budgetOverhead": 0.0
+            }
         }
-    }""".trimIndent()
+        """.trimIndent()
 
-    private fun emptyChannelsJson(): String = """{
-        "eagerSection": "content",
-        "ragSection": "",
-        "graphifySection": "",
-        "docsSection": "",
-        "config": {
-            "totalTokenBudget": 8000,
-            "budgetEagerLazy": 0.40,
-            "budgetRag": 0.30,
-            "budgetGraphify": 0.20,
-            "budgetDocs": 0.10,
-            "budgetOverhead": 0.0
+    private fun emptyChannelsJson(): String =
+        """
+        {
+            "eagerSection": "content",
+            "ragSection": "",
+            "graphifySection": "",
+            "docsSection": "",
+            "config": {
+                "totalTokenBudget": 8000,
+                "budgetEagerLazy": 0.40,
+                "budgetRag": 0.30,
+                "budgetGraphify": 0.20,
+                "budgetDocs": 0.10,
+                "budgetOverhead": 0.0
+            }
         }
-    }""".trimIndent()
+        """.trimIndent()
 
     @BeforeEach
     fun setUp() {
@@ -66,7 +71,6 @@ class AugmentedContextResolverTest {
     @Nested
     @DisplayName("LENS-2.2 : AugmentedContextResolver — resolve()")
     inner class Resolve {
-
         @Test
         @DisplayName("resolve() avec fichier composite-context.json valide → CompositeContext")
         fun `resolve returns CompositeContext for valid file`() {
@@ -108,7 +112,6 @@ class AugmentedContextResolverTest {
     @Nested
     @DisplayName("LENS-2.2 : AugmentedContextResolver — extractChannels()")
     inner class ExtractChannels {
-
         @Test
         @DisplayName("extractChannels() retourne les canaux non vides")
         fun `extractChannels returns non-empty channels`() {
@@ -123,7 +126,7 @@ class AugmentedContextResolverTest {
                 ChannelType.EAGER,
                 ChannelType.RAG,
                 ChannelType.GRAPHIFY,
-                ChannelType.DOCS
+                ChannelType.DOCS,
             )
         }
 
@@ -162,7 +165,6 @@ class AugmentedContextResolverTest {
     @Nested
     @DisplayName("LENS-2.2 : AugmentedContextResolver — extractChannelsFromPath()")
     inner class ExtractChannelsFromPath {
-
         @Test
         @DisplayName("extractChannelsFromPath() avec fichier valide → canaux")
         fun `extractChannelsFromPath returns channels for valid file`() {
@@ -176,7 +178,7 @@ class AugmentedContextResolverTest {
                 ChannelType.EAGER,
                 ChannelType.RAG,
                 ChannelType.GRAPHIFY,
-                ChannelType.DOCS
+                ChannelType.DOCS,
             )
         }
 
@@ -205,7 +207,6 @@ class AugmentedContextResolverTest {
     @Nested
     @DisplayName("LENS-2.2 : AugmentedContextResolver — availableSections()")
     inner class AvailableSections {
-
         @Test
         @DisplayName("availableSections() retourne les sections disponibles")
         fun `availableSections returns available sections`() {
@@ -219,7 +220,7 @@ class AugmentedContextResolverTest {
                 ChannelType.EAGER,
                 ChannelType.RAG,
                 ChannelType.GRAPHIFY,
-                ChannelType.DOCS
+                ChannelType.DOCS,
             )
         }
 
@@ -249,7 +250,6 @@ class AugmentedContextResolverTest {
     @Nested
     @DisplayName("LENS-2.3 : AugmentedContextResolver — Boundary cases")
     inner class BoundaryCases {
-
         @Test
         @DisplayName("resolve() avec fichier vide → null")
         fun `resolve returns null for empty file`() {
@@ -263,20 +263,23 @@ class AugmentedContextResolverTest {
         @Test
         @DisplayName("extractChannels avec toutes les sections vides → map vide")
         fun `extractChannels with all empty sections returns empty map`() {
-            val allEmptyJson = """{
-                "eagerSection": "",
-                "ragSection": "",
-                "graphifySection": "",
-                "docsSection": "",
-                "config": {
-                    "totalTokenBudget": 8000,
-                    "budgetEagerLazy": 0.40,
-                    "budgetRag": 0.30,
-                    "budgetGraphify": 0.20,
-                    "budgetDocs": 0.10,
-                    "budgetOverhead": 0.0
+            val allEmptyJson =
+                """
+                {
+                    "eagerSection": "",
+                    "ragSection": "",
+                    "graphifySection": "",
+                    "docsSection": "",
+                    "config": {
+                        "totalTokenBudget": 8000,
+                        "budgetEagerLazy": 0.40,
+                        "budgetRag": 0.30,
+                        "budgetGraphify": 0.20,
+                        "budgetDocs": 0.10,
+                        "budgetOverhead": 0.0
+                    }
                 }
-            }""".trimIndent()
+                """.trimIndent()
             val contextFile = File(tempDir, "all-empty.json")
             contextFile.writeText(allEmptyJson)
 

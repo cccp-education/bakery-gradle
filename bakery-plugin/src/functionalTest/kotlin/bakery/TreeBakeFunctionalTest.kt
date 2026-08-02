@@ -7,7 +7,6 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
 class TreeBakeFunctionalTest {
-
     @TempDir
     lateinit var projectDir: File
 
@@ -15,11 +14,13 @@ class TreeBakeFunctionalTest {
     fun `tasks succeeds with tree config`() {
         createProjectWithTreeConfig()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("tasks")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("tasks")
+                .build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
         assertThat(result.output).contains("bake")
@@ -30,30 +31,37 @@ class TreeBakeFunctionalTest {
     fun `verifyConfigurationMapping succeeds with tree config`() {
         createProjectWithTreeConfig()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("verifyConfigurationMapping")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("verifyConfigurationMapping")
+                .build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
         assertThat(result.output).contains("Configuration OK")
     }
 
     private fun createProjectWithTreeConfig() {
-        projectDir.resolve("settings.gradle.kts").writeText("""
+        projectDir.resolve("settings.gradle.kts").writeText(
+            """
             pluginManagement { repositories { gradlePluginPortal(); mavenLocal() } }
             rootProject.name = "tree-bake-test"
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
-        projectDir.resolve("build.gradle.kts").writeText("""
+        projectDir.resolve("build.gradle.kts").writeText(
+            """
             plugins { id("education.cccp.bakery") }
             bakery {
                 configPath = file("site.yml").absolutePath
             }
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
-        projectDir.resolve("site.yml").writeText("""
+        projectDir.resolve("site.yml").writeText(
+            """
             bake:
               srcPath: "site"
               destDirPath: "build/bake"
@@ -92,7 +100,8 @@ class TreeBakeFunctionalTest {
                       path: blog/post-1
                       outputConfig:
                         template: "custom.ftl"
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
         projectDir.resolve("site").mkdirs()
         projectDir.resolve("maquette").mkdirs()

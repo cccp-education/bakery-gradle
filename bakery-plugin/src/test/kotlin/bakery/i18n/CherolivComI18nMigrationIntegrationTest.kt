@@ -15,18 +15,19 @@ import kotlin.test.assertTrue
  * la génération des fichiers de messages et l'application des traductions EN.
  */
 class CherolivComI18nMigrationIntegrationTest {
-
     private val service = I18nMigrationService()
 
     private fun loadFixture(): File {
-        val resource = this::class.java.classLoader.getResource("i18n-fixtures/cheroliv-com/jbake")
-            ?: throw IllegalStateException("Fixture cheroliv-com non trouvée")
+        val resource =
+            this::class.java.classLoader.getResource("i18n-fixtures/cheroliv-com/jbake")
+                ?: throw IllegalStateException("Fixture cheroliv-com non trouvée")
         return File(resource.toURI())
     }
 
     private fun loadTranslationsFromResources(): Map<String, String> {
-        val url = this::class.java.classLoader.getResource("i18n-fixtures/cheroliv-com/translations_en.properties")
-            ?: throw IllegalStateException("Traductions EN cheroliv-com non trouvées")
+        val url =
+            this::class.java.classLoader.getResource("i18n-fixtures/cheroliv-com/translations_en.properties")
+                ?: throw IllegalStateException("Traductions EN cheroliv-com non trouvées")
         val props = Properties()
         url.openStream().use { props.load(it) }
         return props.map { it.key.toString() to it.value.toString() }.toMap()
@@ -40,59 +41,70 @@ class CherolivComI18nMigrationIntegrationTest {
     }
 
     @Test
-    fun `dry-run on cheroliv-com fixture scans templates without modifying them`(@TempDir tempDir: File) {
+    fun `dry-run on cheroliv-com fixture scans templates without modifying them`(
+        @TempDir tempDir: File,
+    ) {
         val siteDir = copyFixtureToTemp(tempDir)
         val templatesDir = siteDir.resolve("templates")
-        val originalChecksums = templatesDir.walkTopDown()
-            .filter { it.isFile && it.extension == "thyme" }
-            .associate { it.name to it.readText() }
+        val originalChecksums =
+            templatesDir
+                .walkTopDown()
+                .filter { it.isFile && it.extension == "thyme" }
+                .associate { it.name to it.readText() }
 
-        val result = service.migrate(
-            siteDir = siteDir,
-            languages = listOf("fr", "en"),
-            defaultLanguage = "fr",
-            dryRun = true
-        )
+        val result =
+            service.migrate(
+                siteDir = siteDir,
+                languages = listOf("fr", "en"),
+                defaultLanguage = "fr",
+                dryRun = true,
+            )
 
         assertTrue(result.keysExtracted > 0, "Des clés doivent être extraites")
         assertEquals(0, result.filesGenerated, "Dry-run ne génère aucun fichier")
         assertEquals(0, result.templatesModified, "Dry-run ne modifie aucun template")
 
-        templatesDir.walkTopDown()
+        templatesDir
+            .walkTopDown()
             .filter { it.isFile && it.extension == "thyme" }
             .forEach { file ->
                 assertEquals(
                     originalChecksums[file.name],
                     file.readText(),
-                    "Le template ${file.name} ne doit pas être modifié en dry-run"
+                    "Le template ${file.name} ne doit pas être modifié en dry-run",
                 )
             }
     }
 
     @Test
-    fun `proper names and technical identifiers are not extracted`(@TempDir tempDir: File) {
+    fun `proper names and technical identifiers are not extracted`(
+        @TempDir tempDir: File,
+    ) {
         val siteDir = copyFixtureToTemp(tempDir)
         val allValues = collectAllExtractedValues(siteDir)
         assertFalse(
             allValues.any { it.contains("cheroliv.com", ignoreCase = true) },
-            "Le nom propre 'cheroliv.com' ne doit pas être extrait"
+            "Le nom propre 'cheroliv.com' ne doit pas être extrait",
         )
         assertFalse(
             allValues.any { it.contains("Olivier Chéron", ignoreCase = true) },
-            "Le nom propre 'Olivier Chéron' ne doit pas être extrait"
+            "Le nom propre 'Olivier Chéron' ne doit pas être extrait",
         )
     }
 
     @Test
-    fun `real migration generates messages files and modifies templates`(@TempDir tempDir: File) {
+    fun `real migration generates messages files and modifies templates`(
+        @TempDir tempDir: File,
+    ) {
         val siteDir = copyFixtureToTemp(tempDir)
 
-        val result = service.migrate(
-            siteDir = siteDir,
-            languages = listOf("fr", "en"),
-            defaultLanguage = "fr",
-            dryRun = false
-        )
+        val result =
+            service.migrate(
+                siteDir = siteDir,
+                languages = listOf("fr", "en"),
+                defaultLanguage = "fr",
+                dryRun = false,
+            )
 
         assertFalse(result.dryRun)
         assertTrue(result.keysExtracted > 0)
@@ -105,7 +117,9 @@ class CherolivComI18nMigrationIntegrationTest {
     }
 
     @Test
-    fun `english translations cover all extracted keys and fill messages_en`(@TempDir tempDir: File) {
+    fun `english translations cover all extracted keys and fill messages_en`(
+        @TempDir tempDir: File,
+    ) {
         val siteDir = copyFixtureToTemp(tempDir)
 
         service.migrate(siteDir, listOf("fr", "en"), "fr", dryRun = false)
@@ -127,7 +141,9 @@ class CherolivComI18nMigrationIntegrationTest {
     }
 
     @Test
-    fun `real migration injects site language into jbake properties`(@TempDir tempDir: File) {
+    fun `real migration injects site language into jbake properties`(
+        @TempDir tempDir: File,
+    ) {
         val siteDir = copyFixtureToTemp(tempDir)
         service.migrate(siteDir, listOf("fr", "en"), "fr", dryRun = false)
         val content = siteDir.resolve("jbake.properties").readText()
@@ -136,7 +152,8 @@ class CherolivComI18nMigrationIntegrationTest {
 
     private fun collectAllExtractedValues(siteDir: File): List<String> {
         val templatesDir = siteDir.resolve("templates")
-        return templatesDir.walkTopDown()
+        return templatesDir
+            .walkTopDown()
             .filter { it.isFile && it.extension == "thyme" }
             .flatMap { service.extractHardcodedText(it).values }
             .toList()

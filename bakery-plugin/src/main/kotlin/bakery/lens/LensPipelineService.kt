@@ -28,7 +28,6 @@ import java.io.File
  * @see LensPipelineOutput Sortie structurée du pipeline
  */
 class LensPipelineService {
-
     private val logger: Logger = Logging.getLogger(LensPipelineService::class.java)
     private val mapper = jacksonObjectMapper()
 
@@ -45,41 +44,43 @@ class LensPipelineService {
         augmentedContextDsl: AugmentedContextDsl,
         contextFile: File,
         graphFile: File,
-        outputDir: File
+        outputDir: File,
     ): LensPipelineOutput {
-
         if (!augmentedContextDsl.enabled) {
             logger.info("[LensPipeline] AugmentedContext désactivé. Skip.")
             return LensPipelineOutput(
-                budget = BudgetSummary(
-                    maxArticlesPerPage = augmentedContextDsl.budget.maxArticlesPerPage,
-                    minSimilarity = augmentedContextDsl.budget.minSimilarity
-                ),
+                budget =
+                    BudgetSummary(
+                        maxArticlesPerPage = augmentedContextDsl.budget.maxArticlesPerPage,
+                        minSimilarity = augmentedContextDsl.budget.minSimilarity,
+                    ),
                 scoredNodes = emptyList(),
                 totalCandidates = 0,
                 totalAfterRules = 0,
-                totalAfterBudget = 0
+                totalAfterBudget = 0,
             )
         }
 
         // 1. Charger composite-context.json
         val resolver = AugmentedContextResolver()
-        val compositeContext = if (contextFile.exists()) {
-            resolver.resolve(contextFile.absolutePath)
-        } else {
-            logger.info("[LensPipeline] composite-context.json non trouvé à {}. RAG désactivé.", contextFile.absolutePath)
-            null
-        }
+        val compositeContext =
+            if (contextFile.exists()) {
+                resolver.resolve(contextFile.absolutePath)
+            } else {
+                logger.info("[LensPipeline] composite-context.json non trouvé à {}. RAG désactivé.", contextFile.absolutePath)
+                null
+            }
 
         // 2. Extraire le sous-graphe depuis graph.json
         val extractor = SubgraphExtractor()
-        val subgraph = if (graphFile.exists()) {
-            val fullGraph = extractor.loadGraph(graphFile.absolutePath)
-            extractor.extract(fullGraph, augmentedContextDsl.lens)
-        } else {
-            logger.info("[LensPipeline] graph.json non trouvé à {}. Sous-graphe vide.", graphFile.absolutePath)
-            SiteSubgraph(emptyList(), emptyList(), emptyList())
-        }
+        val subgraph =
+            if (graphFile.exists()) {
+                val fullGraph = extractor.loadGraph(graphFile.absolutePath)
+                extractor.extract(fullGraph, augmentedContextDsl.lens)
+            } else {
+                logger.info("[LensPipeline] graph.json non trouvé à {}. Sous-graphe vide.", graphFile.absolutePath)
+                SiteSubgraph(emptyList(), emptyList(), emptyList())
+            }
 
         // 3. RAG results — le canal RAG du composite-context fournit le contenu textuel,
         //    pas des scores structurés. Les scores RAG viendront de pgvector via codebase-gradle.
@@ -95,37 +96,43 @@ class LensPipelineService {
 
         // 4. Scoring hybride
         val service = AugmentedArticlesService()
-        val allScored = service.scoreAll(
-            subgraph = subgraph,
-            ragResults = ragResults,
-            lensRules = augmentedContextDsl.lens.rules
-        )
+        val allScored =
+            service.scoreAll(
+                subgraph = subgraph,
+                ragResults = ragResults,
+                lensRules = augmentedContextDsl.lens.rules,
+            )
 
         // 5. Filtrer par règles + budget
         val filtered = service.applyRules(allScored, augmentedContextDsl.lens.rules)
         val budgeted = augmentedContextDsl.budget.apply(filtered)
 
         // 6. Construire la sortie
-        val output = LensPipelineOutput(
-            budget = BudgetSummary(
-                maxArticlesPerPage = augmentedContextDsl.budget.maxArticlesPerPage,
-                minSimilarity = augmentedContextDsl.budget.minSimilarity
-            ),
-            scoredNodes = budgeted,
-            totalCandidates = allScored.size,
-            totalAfterRules = filtered.size,
-            totalAfterBudget = budgeted.size
-        )
+        val output =
+            LensPipelineOutput(
+                budget =
+                    BudgetSummary(
+                        maxArticlesPerPage = augmentedContextDsl.budget.maxArticlesPerPage,
+                        minSimilarity = augmentedContextDsl.budget.minSimilarity,
+                    ),
+                scoredNodes = budgeted,
+                totalCandidates = allScored.size,
+                totalAfterRules = filtered.size,
+                totalAfterBudget = budgeted.size,
+            )
 
         // 7. Écrire le JSON
         outputDir.mkdirs()
-        mapper.writerWithDefaultPrettyPrinter()
+        mapper
+            .writerWithDefaultPrettyPrinter()
             .writeValue(outputDir.resolve("augmented-context.json"), output)
 
         logger.info(
             "[LensPipeline] {} nœuds scorés → {} après règles → {} après budget → {}",
-            output.totalCandidates, output.totalAfterRules, output.totalAfterBudget,
-            outputDir.resolve("augmented-context.json").absolutePath
+            output.totalCandidates,
+            output.totalAfterRules,
+            output.totalAfterBudget,
+            outputDir.resolve("augmented-context.json").absolutePath,
         )
 
         return output

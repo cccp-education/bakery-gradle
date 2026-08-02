@@ -21,31 +21,34 @@ import org.junit.jupiter.api.Test
  * Méthodologie : DDD/TDD baby steps — RED d'abord, GREEN ensuite.
  */
 class BfsProximityCacheTest {
+    private val nodes =
+        listOf(
+            GraphNode("a.md", "A", "file", "community-a"),
+            GraphNode("b.md", "B", "file", "community-a"),
+            GraphNode("c.md", "C", "file", "community-b"),
+            GraphNode("d.md", "D", "file", null),
+        )
 
-    private val nodes = listOf(
-        GraphNode("a.md", "A", "file", "community-a"),
-        GraphNode("b.md", "B", "file", "community-a"),
-        GraphNode("c.md", "C", "file", "community-b"),
-        GraphNode("d.md", "D", "file", null)
-    )
+    private val edges =
+        listOf(
+            GraphEdge("a.md", "b.md", "reference"),
+            GraphEdge("b.md", "c.md", "reference"),
+            GraphEdge("a.md", "c.md", "agent_reference"),
+            GraphEdge("b.md", "d.md", "agent_reference"),
+        )
 
-    private val edges = listOf(
-        GraphEdge("a.md", "b.md", "reference"),
-        GraphEdge("b.md", "c.md", "reference"),
-        GraphEdge("a.md", "c.md", "agent_reference"),
-        GraphEdge("b.md", "d.md", "agent_reference")
-    )
+    private val communities =
+        listOf(
+            GraphCommunity("community-a", "Community A", 2),
+            GraphCommunity("community-b", "Community B", 1),
+        )
 
-    private val communities = listOf(
-        GraphCommunity("community-a", "Community A", 2),
-        GraphCommunity("community-b", "Community B", 1)
-    )
-
-    private val subgraph = SiteSubgraph(
-        nodes = nodes,
-        edges = edges,
-        communities = communities
-    )
+    private val subgraph =
+        SiteSubgraph(
+            nodes = nodes,
+            edges = edges,
+            communities = communities,
+        )
 
     private lateinit var cache: BfsProximityCache
 
@@ -57,23 +60,26 @@ class BfsProximityCacheTest {
     @Nested
     @DisplayName("CS-FIN-9 : BfsProximityCache — Construction")
     inner class Construction {
-
         @Test
         @DisplayName("BfsProximityCache — contient tous les nodeIds du sous-graphe")
         fun `cache contains all node ids`() {
             assertThat(cache.nodeIds).containsExactlyInAnyOrder(
-                "a.md", "b.md", "c.md", "d.md"
+                "a.md",
+                "b.md",
+                "c.md",
+                "d.md",
             )
         }
 
         @Test
         @DisplayName("BfsProximityCache — nœud isolé a une proximité de 1.0")
         fun `isolated node has proximity 1_0`() {
-            val isolatedSubgraph = SiteSubgraph(
-                nodes = listOf(GraphNode("solo.md", "Solo", "file", null)),
-                edges = emptyList(),
-                communities = emptyList()
-            )
+            val isolatedSubgraph =
+                SiteSubgraph(
+                    nodes = listOf(GraphNode("solo.md", "Solo", "file", null)),
+                    edges = emptyList(),
+                    communities = emptyList(),
+                )
             val isolatedCache = BfsProximityCache(isolatedSubgraph)
 
             assertThat(isolatedCache.proximityFor("solo.md")).isEqualTo(1.0)
@@ -88,11 +94,12 @@ class BfsProximityCacheTest {
         @Test
         @DisplayName("BfsProximityCache — sous-graphe vide retourne nodeIds vide")
         fun `empty subgraph has empty nodeIds`() {
-            val emptySubgraph = SiteSubgraph(
-                nodes = emptyList(),
-                edges = emptyList(),
-                communities = emptyList()
-            )
+            val emptySubgraph =
+                SiteSubgraph(
+                    nodes = emptyList(),
+                    edges = emptyList(),
+                    communities = emptyList(),
+                )
             val emptyCache = BfsProximityCache(emptySubgraph)
 
             assertThat(emptyCache.nodeIds).isEmpty()
@@ -102,7 +109,6 @@ class BfsProximityCacheTest {
     @Nested
     @DisplayName("CS-FIN-9 : BfsProximityCache — Proximité BFS")
     inner class ProximityBfs {
-
         @Test
         @DisplayName("proximityFor — nœud bien connecté a une proximité > 0")
         fun `well connected node has proximity above zero`() {
@@ -144,7 +150,6 @@ class BfsProximityCacheTest {
     @Nested
     @DisplayName("CS-FIN-9 : BfsProximityCache — Performance")
     inner class Performance {
-
         @Test
         @DisplayName("BfsProximityCache — adjacency construite une seule fois (idempotent)")
         fun `adjacency is built only once`() {

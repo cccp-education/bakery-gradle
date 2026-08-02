@@ -17,7 +17,6 @@ import java.io.File
  * *evaluated output*. Both perspectives are valuable.
  */
 class AnalyticsNewsletterTemplateTest {
-
     private val templatesDir = File("src/main/resources/site/templates")
 
     @Test
@@ -41,7 +40,7 @@ class AnalyticsNewsletterTemplateTest {
         assertTrue(content.contains("th:if"), "must have th:if condition")
         assertTrue(
             content.contains("analyticsProvider") && content.contains("th:if"),
-            "th:if must guard on analyticsProvider so fragment renders nothing when absent"
+            "th:if must guard on analyticsProvider so fragment renders nothing when absent",
         )
     }
 
@@ -74,7 +73,7 @@ class AnalyticsNewsletterTemplateTest {
         assertTrue(content.contains("th:if"), "must have th:if condition")
         assertTrue(
             content.contains("newsletterEnabled") && content.contains("th:if"),
-            "th:if must guard on newsletterEnabled so fragment renders nothing when disabled"
+            "th:if must guard on newsletterEnabled so fragment renders nothing when disabled",
         )
     }
 

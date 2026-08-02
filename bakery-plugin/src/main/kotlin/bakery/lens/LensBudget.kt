@@ -1,7 +1,5 @@
 package bakery.lens
 
-import org.gradle.api.Action
-
 /**
  * Budget du Pattern LENTILLE — BKY-LENS-3.
  *
@@ -28,9 +26,8 @@ import org.gradle.api.Action
 data class LensBudget(
     /** Nombre max d'articles connexes par page (défaut: 4) */
     var maxArticlesPerPage: Int = 4,
-
     /** Seuil de similarité minimum pour les suggestions (défaut: 0.7) */
-    var minSimilarity: Double = 0.7
+    var minSimilarity: Double = 0.7,
 ) {
     /**
      * Filtre une liste de nœuds scorés selon le budget.
@@ -41,9 +38,8 @@ data class LensBudget(
      * @param scoredNodes Liste de nœuds scorés (tri décroissant recommandé)
      * @return Nœuds filtrés et tronqués
      */
-    fun apply(scoredNodes: List<ScoredNode>): List<ScoredNode> {
-        return scoredNodes
+    fun apply(scoredNodes: List<ScoredNode>): List<ScoredNode> =
+        scoredNodes
             .filter { it.score >= minSimilarity }
             .take(maxArticlesPerPage)
-    }
 }

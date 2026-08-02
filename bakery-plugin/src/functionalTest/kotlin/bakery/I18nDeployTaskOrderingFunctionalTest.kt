@@ -23,7 +23,6 @@ import java.io.File
  * the ordering is guaranteed.
  */
 class I18nDeployTaskOrderingFunctionalTest {
-
     @TempDir
     lateinit var projectDir: File
 
@@ -31,18 +30,20 @@ class I18nDeployTaskOrderingFunctionalTest {
     fun `injectRtlDirection runs after migrateContentI18n when both requested`() {
         createMiniSite()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments(
-                "migrateContentI18n", "injectRtlDirection",
-                "-PcontentI18nSource=jbake/content/blog",
-                "-PcontentI18nOutput=content-i18n",
-                "-PcontentI18nTargetLangs=en",
-                "-PcontentI18nSourceLang=fr",
-                "-PcontentI18nDryRun=true"
-            )
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "migrateContentI18n",
+                    "injectRtlDirection",
+                    "-PcontentI18nSource=jbake/content/blog",
+                    "-PcontentI18nOutput=content-i18n",
+                    "-PcontentI18nTargetLangs=en",
+                    "-PcontentI18nSourceLang=fr",
+                    "-PcontentI18nDryRun=true",
+                ).build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
         val migrate = result.task(":migrateContentI18n")
@@ -57,18 +58,20 @@ class I18nDeployTaskOrderingFunctionalTest {
     fun `injectLangSwitch runs after migrateContentI18n when both requested`() {
         createMiniSite()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments(
-                "migrateContentI18n", "injectLangSwitch",
-                "-PcontentI18nSource=jbake/content/blog",
-                "-PcontentI18nOutput=content-i18n",
-                "-PcontentI18nTargetLangs=en",
-                "-PcontentI18nSourceLang=fr",
-                "-PcontentI18nDryRun=true"
-            )
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "migrateContentI18n",
+                    "injectLangSwitch",
+                    "-PcontentI18nSource=jbake/content/blog",
+                    "-PcontentI18nOutput=content-i18n",
+                    "-PcontentI18nTargetLangs=en",
+                    "-PcontentI18nSourceLang=fr",
+                    "-PcontentI18nDryRun=true",
+                ).build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
         val migrate = result.task(":migrateContentI18n")
@@ -81,15 +84,16 @@ class I18nDeployTaskOrderingFunctionalTest {
     fun `injectRtlDirection stays runnable independently`() {
         createMiniSite()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments(
-                "injectRtlDirection",
-                "-PcontentI18nOutput=content-i18n",
-                "-PcontentI18nTargetLangs=ar"
-            )
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "injectRtlDirection",
+                    "-PcontentI18nOutput=content-i18n",
+                    "-PcontentI18nTargetLangs=ar",
+                ).build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
         val rtl = result.task(":injectRtlDirection")
@@ -101,18 +105,19 @@ class I18nDeployTaskOrderingFunctionalTest {
     fun `migrateContentI18n stays runnable independently`() {
         createMiniSite()
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments(
-                "migrateContentI18n",
-                "-PcontentI18nSource=jbake/content/blog",
-                "-PcontentI18nOutput=content-i18n",
-                "-PcontentI18nTargetLangs=en",
-                "-PcontentI18nSourceLang=fr",
-                "-PcontentI18nDryRun=true"
-            )
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "migrateContentI18n",
+                    "-PcontentI18nSource=jbake/content/blog",
+                    "-PcontentI18nOutput=content-i18n",
+                    "-PcontentI18nTargetLangs=en",
+                    "-PcontentI18nSourceLang=fr",
+                    "-PcontentI18nDryRun=true",
+                ).build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
         val migrate = result.task(":migrateContentI18n")
@@ -120,27 +125,34 @@ class I18nDeployTaskOrderingFunctionalTest {
     }
 
     private fun createMiniSite() {
-        projectDir.resolve("settings.gradle.kts").writeText("""
+        projectDir.resolve("settings.gradle.kts").writeText(
+            """
             pluginManagement { repositories { gradlePluginPortal(); mavenLocal() } }
             rootProject.name = "i18n-deploy-ordering-test"
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
-        projectDir.resolve("build.gradle.kts").writeText("""
+        projectDir.resolve("build.gradle.kts").writeText(
+            """
             plugins { id("education.cccp.bakery") }
             bakery { configPath = "site.yml" }
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
-        projectDir.resolve("site.yml").writeText("""
+        projectDir.resolve("site.yml").writeText(
+            """
             bake:
               srcPath: "jbake"
               destDirPath: "bake"
               cname: "cheroliv.com"
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
         val jbakeDir = projectDir.resolve("jbake").apply { mkdirs() }
         jbakeDir.resolve("templates").mkdirs()
         val blog = jbakeDir.resolve("content/blog").apply { mkdirs() }
-        blog.resolve("post.adoc").writeText("""= Test article
+        blog.resolve("post.adoc").writeText(
+            """= Test article
 @CherOliv
 2026-07-19
 :jbake-title: Test article
@@ -151,12 +163,14 @@ class I18nDeployTaskOrderingFunctionalTest {
 == Intro
 
 Ceci est un test.
-""")
+""",
+        )
 
         val i18nBase = projectDir.resolve("content-i18n").apply { mkdirs() }
         for (lang in listOf("ar", "en")) {
             val langBlog = i18nBase.resolve("$lang/blog").apply { mkdirs() }
-            langBlog.resolve("post.adoc").writeText("""= Test article
+            langBlog.resolve("post.adoc").writeText(
+                """= Test article
 @CherOliv
 2026-07-19
 :jbake-title: Test article
@@ -167,7 +181,8 @@ Ceci est un test.
 == Intro
 
 Ceci est un test.
-""")
+""",
+            )
         }
     }
 }

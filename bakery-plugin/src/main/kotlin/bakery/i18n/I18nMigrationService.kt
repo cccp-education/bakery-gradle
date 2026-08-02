@@ -4,8 +4,9 @@ import contracts.i18n.TranslationService
 import java.io.File
 import java.util.Properties
 
-class I18nMigrationService(private val translationService: TranslationService? = null) {
-
+class I18nMigrationService(
+    private val translationService: TranslationService? = null,
+) {
     /**
      * Whitelist de textes qui ne doivent pas être extraits pour l'i18n.
      *
@@ -16,78 +17,80 @@ class I18nMigrationService(private val translationService: TranslationService? =
      * - labels d'interface anglais non traduits (Light, Dark, High Contrast)
      * - termes UI Bootstrap (Toggle navigation)
      */
-    private val extractionWhitelist = setOf(
-        "Magic Stick",
-        "cccp.education",
-        "GitHub",
-        "SourceForge",
-        "Bootstrap",
-        "USB",
-        "RSS",
-        "Flux RSS",
-        "Toggle navigation",
-        "Light",
-        "Dark",
-        "High Contrast",
-        "width=device-width, initial-scale=1.0",
-        "(lecture seule)",
-        "(lecture/ecriture)",
-        "magic",
-        "ISO brute",
-        "Xubuntu",
-        "BIOS",
-        "UEFI",
-        "v0.1.14",
-        "cheroliv.com",
-        "Olivier Chéron",
-        "Olivier Cheron",
-        "plantuml-gradle",
-        "codex-gradle",
-        "bakery-gradle",
-        "codebase-gradle",
-        "runner-gradle",
-        "workspace-gradle",
-        "Common Content Creator Proletarian",
-        "Kotlin",
-        "Gradle",
-        "IA",
-        "Licence Apache 2.0",
-        "Apache 2.0",
-        "Apache License 2.0",
-        "SPG",
-        "FPA",
-        "Knowledge Work",
-        "workspace agent"
-    )
+    private val extractionWhitelist =
+        setOf(
+            "Magic Stick",
+            "cccp.education",
+            "GitHub",
+            "SourceForge",
+            "Bootstrap",
+            "USB",
+            "RSS",
+            "Flux RSS",
+            "Toggle navigation",
+            "Light",
+            "Dark",
+            "High Contrast",
+            "width=device-width, initial-scale=1.0",
+            "(lecture seule)",
+            "(lecture/ecriture)",
+            "magic",
+            "ISO brute",
+            "Xubuntu",
+            "BIOS",
+            "UEFI",
+            "v0.1.14",
+            "cheroliv.com",
+            "Olivier Chéron",
+            "Olivier Cheron",
+            "plantuml-gradle",
+            "codex-gradle",
+            "bakery-gradle",
+            "codebase-gradle",
+            "runner-gradle",
+            "workspace-gradle",
+            "Common Content Creator Proletarian",
+            "Kotlin",
+            "Gradle",
+            "IA",
+            "Licence Apache 2.0",
+            "Apache 2.0",
+            "Apache License 2.0",
+            "SPG",
+            "FPA",
+            "Knowledge Work",
+            "workspace agent",
+        )
 
-    private val substringBlacklist = setOf(
-        "Magic Stick",
-        "cccp.education",
-        "Xubuntu",
-        "BIOS",
-        "UEFI",
-        "ISO brute",
-        "v0.1.14",
-        "cheroliv.com",
-        "Olivier Chéron",
-        "plantuml-gradle",
-        "codex-gradle",
-        "bakery-gradle",
-        "codebase-gradle",
-        "runner-gradle",
-        "workspace-gradle",
-        "Common Content Creator Proletarian",
-        "SPG",
-        "FPA",
-        "Knowledge Work",
-        "workspace agent"
-    )
+    private val substringBlacklist =
+        setOf(
+            "Magic Stick",
+            "cccp.education",
+            "Xubuntu",
+            "BIOS",
+            "UEFI",
+            "ISO brute",
+            "v0.1.14",
+            "cheroliv.com",
+            "Olivier Chéron",
+            "plantuml-gradle",
+            "codex-gradle",
+            "bakery-gradle",
+            "codebase-gradle",
+            "runner-gradle",
+            "workspace-gradle",
+            "Common Content Creator Proletarian",
+            "SPG",
+            "FPA",
+            "Knowledge Work",
+            "workspace agent",
+        )
 
     fun migrate(
         siteDir: File,
         languages: List<String>,
         defaultLanguage: String,
-        dryRun: Boolean
+        dryRun: Boolean,
     ): I18nMigrationResult {
         val templatesDir = siteDir.resolve("templates")
         val templateFiles = scanTemplates(templatesDir)
@@ -137,13 +140,14 @@ class I18nMigrationService(private val translationService: TranslationService? =
             keysExtracted = totalKeys,
             filesGenerated = filesGenerated,
             templatesModified = templatesModified,
-            dryRun = dryRun
+            dryRun = dryRun,
         )
     }
 
     fun scanTemplates(templatesDir: File): List<File> {
         if (!templatesDir.exists()) return emptyList()
-        return templatesDir.walkTopDown()
+        return templatesDir
+            .walkTopDown()
             .filter { it.isFile && it.extension == "thyme" }
             .toList()
     }
@@ -165,30 +169,35 @@ class I18nMigrationService(private val translationService: TranslationService? =
             var modifiedLine = line
 
             if (!alreadyI18n.containsMatchIn(line) && !thAttrWithI18n.containsMatchIn(line) && !thValueExpr.containsMatchIn(line)) {
+                modifiedLine =
+                    extractTextContent(modifiedLine, baseName, counter, extractions).also {
+                        counter += extractions.count { it.key.startsWith("$baseName.") } - (counter - 1)
+                    }
 
-                modifiedLine = extractTextContent(modifiedLine, baseName, counter, extractions).also {
-                    counter += extractions.count { it.key.startsWith("$baseName.") } - (counter - 1)
-                }
+                modifiedLine =
+                    extractPlaceholderAttribute(modifiedLine, baseName, counter, extractions).also {
+                        counter = baseName.let { bn -> extractions.keys.count { k -> k.startsWith("$bn.") } } + 1
+                    }
 
-                modifiedLine = extractPlaceholderAttribute(modifiedLine, baseName, counter, extractions).also {
-                    counter = baseName.let { bn -> extractions.keys.count { k -> k.startsWith("$bn.") } } + 1
-                }
+                modifiedLine =
+                    extractAriaLabelAttribute(modifiedLine, baseName, counter, extractions).also {
+                        counter = baseName.let { bn -> extractions.keys.count { k -> k.startsWith("$bn.") } } + 1
+                    }
 
-                modifiedLine = extractAriaLabelAttribute(modifiedLine, baseName, counter, extractions).also {
-                    counter = baseName.let { bn -> extractions.keys.count { k -> k.startsWith("$bn.") } } + 1
-                }
+                modifiedLine =
+                    extractMetaContentAttribute(modifiedLine, baseName, counter, extractions).also {
+                        counter = baseName.let { bn -> extractions.keys.count { k -> k.startsWith("$bn.") } } + 1
+                    }
 
-                modifiedLine = extractMetaContentAttribute(modifiedLine, baseName, counter, extractions).also {
-                    counter = baseName.let { bn -> extractions.keys.count { k -> k.startsWith("$bn.") } } + 1
-                }
+                modifiedLine =
+                    extractAltAttribute(modifiedLine, baseName, counter, extractions).also {
+                        counter = baseName.let { bn -> extractions.keys.count { k -> k.startsWith("$bn.") } } + 1
+                    }
 
-                modifiedLine = extractAltAttribute(modifiedLine, baseName, counter, extractions).also {
-                    counter = baseName.let { bn -> extractions.keys.count { k -> k.startsWith("$bn.") } } + 1
-                }
-
-                modifiedLine = extractTitleAttribute(modifiedLine, baseName, counter, extractions).also {
-                    counter = baseName.let { bn -> extractions.keys.count { k -> k.startsWith("$bn.") } } + 1
-                }
+                modifiedLine =
+                    extractTitleAttribute(modifiedLine, baseName, counter, extractions).also {
+                        counter = baseName.let { bn -> extractions.keys.count { k -> k.startsWith("$bn.") } } + 1
+                    }
             }
 
             result.appendLine(modifiedLine)
@@ -201,7 +210,7 @@ class I18nMigrationService(private val translationService: TranslationService? =
         line: String,
         baseName: String,
         counter: Int,
-        extractions: MutableMap<String, String>
+        extractions: MutableMap<String, String>,
     ): String {
         val textContentRegex = Regex("""<(?!script\b|style\b)(\w+)((?:\s+[^>]*?)?)\s*>\s*([^<]{2,})\s*</\1>""")
         return textContentRegex.replace(line) { match ->
@@ -216,7 +225,7 @@ class I18nMigrationService(private val translationService: TranslationService? =
 
             val key = "$baseName.$counter"
             extractions[key] = text
-            "<$tagName$attrs th:text=\"#{${key}}\">$text</$tagName>"
+            "<$tagName$attrs th:text=\"#{$key}\">$text</$tagName>"
         }
     }
 
@@ -232,7 +241,7 @@ class I18nMigrationService(private val translationService: TranslationService? =
         line: String,
         baseName: String,
         counter: Int,
-        extractions: MutableMap<String, String>
+        extractions: MutableMap<String, String>,
     ): String {
         val placeholderRegex = Regex("""placeholder\s*=\s*"([^"]{2,})"(?!\s*th:)""")
         return placeholderRegex.replace(line) { match ->
@@ -251,7 +260,7 @@ class I18nMigrationService(private val translationService: TranslationService? =
         line: String,
         baseName: String,
         counter: Int,
-        extractions: MutableMap<String, String>
+        extractions: MutableMap<String, String>,
     ): String {
         val ariaLabelRegex = Regex("""aria-label\s*=\s*"([^"]{2,})"(?!\s*th:)""")
         return ariaLabelRegex.replace(line) { match ->
@@ -264,7 +273,7 @@ class I18nMigrationService(private val translationService: TranslationService? =
             extractions[key] = text
             line.replace(
                 """aria-label="$text""",
-                """th:attr="aria-label=#{${key}}" aria-label="$text"""
+                """th:attr="aria-label=#{$key}" aria-label="$text""",
             )
         }
     }
@@ -273,7 +282,7 @@ class I18nMigrationService(private val translationService: TranslationService? =
         line: String,
         baseName: String,
         counter: Int,
-        extractions: MutableMap<String, String>
+        extractions: MutableMap<String, String>,
     ): String {
         val metaContentRegex = Regex("""<meta\s[^>]*?\bcontent\s*=\s*"([^"]{2,})"(?!\s*th:)[^>]*?>""")
         return metaContentRegex.replace(line) { match ->
@@ -292,7 +301,7 @@ class I18nMigrationService(private val translationService: TranslationService? =
         line: String,
         baseName: String,
         counter: Int,
-        extractions: MutableMap<String, String>
+        extractions: MutableMap<String, String>,
     ): String {
         val altRegex = Regex("""\balt\s*=\s*"([^"]{2,})"(?!\s*th:)""")
         return altRegex.replace(line) { match ->
@@ -311,7 +320,7 @@ class I18nMigrationService(private val translationService: TranslationService? =
         line: String,
         baseName: String,
         counter: Int,
-        extractions: MutableMap<String, String>
+        extractions: MutableMap<String, String>,
     ): String {
         val titleRegex = Regex("""\btitle\s*=\s*"([^"]{2,})"(?!\s*th:title)""")
         return titleRegex.replace(line) { match ->
@@ -330,7 +339,7 @@ class I18nMigrationService(private val translationService: TranslationService? =
         allExtractions: Map<String, Map<String, String>>,
         languages: List<String>,
         templatesDir: File,
-        translatedKeys: Map<String, Map<String, String>> = emptyMap()
+        translatedKeys: Map<String, Map<String, String>> = emptyMap(),
     ): Map<String, File> {
         val allKeys = linkedMapOf<String, String>()
         for ((_, extractions) in allExtractions) {
@@ -353,7 +362,7 @@ class I18nMigrationService(private val translationService: TranslationService? =
     private fun translateNonFrenchKeys(
         allKeys: Map<String, String>,
         languages: List<String>,
-        templatesDir: File
+        templatesDir: File,
     ): Map<String, Map<String, String>> {
         if (translationService == null) return emptyMap()
         val nonFrenchLanguages = languages.filter { it != "fr" }
@@ -368,7 +377,10 @@ class I18nMigrationService(private val translationService: TranslationService? =
         }
     }
 
-    private fun loadExistingTranslations(templatesDir: File, lang: String): Map<String, String> {
+    private fun loadExistingTranslations(
+        templatesDir: File,
+        lang: String,
+    ): Map<String, String> {
         val file = templatesDir.resolve("messages_$lang.properties")
         if (!file.exists()) return emptyMap()
         val props = Properties()
@@ -380,7 +392,7 @@ class I18nMigrationService(private val translationService: TranslationService? =
         lang: String,
         key: String,
         frenchValue: String,
-        translatedKeys: Map<String, Map<String, String>>
+        translatedKeys: Map<String, Map<String, String>>,
     ): String {
         if (lang == "fr") return frenchValue
         return translatedKeys[lang]?.get(key) ?: ""
@@ -388,7 +400,7 @@ class I18nMigrationService(private val translationService: TranslationService? =
 
     fun replaceHardcodedWithMessageKeys(
         templateFile: File,
-        extractions: Map<String, String>
+        extractions: Map<String, String>,
     ): File {
         val content = templateFile.readText()
         val alreadyI18n = Regex("""th:(text|utext|placeholder|content|alt|title)\s*=\s*"#\{[^}]+}"""")
@@ -417,7 +429,10 @@ class I18nMigrationService(private val translationService: TranslationService? =
         return templateFile
     }
 
-    private fun applyTextContentReplacement(line: String, extractions: Map<String, String>): String {
+    private fun applyTextContentReplacement(
+        line: String,
+        extractions: Map<String, String>,
+    ): String {
         val textContentRegex = Regex("""<(?!script\b|style\b)(\w+)((?:\s+[^>]*?)?)\s*>\s*([^<]{2,})\s*</\1>""")
         return textContentRegex.replace(line) { match ->
             val tagName = match.groupValues[1]
@@ -429,7 +444,10 @@ class I18nMigrationService(private val translationService: TranslationService? =
         }
     }
 
-    private fun applyPlaceholderReplacement(line: String, extractions: Map<String, String>): String {
+    private fun applyPlaceholderReplacement(
+        line: String,
+        extractions: Map<String, String>,
+    ): String {
         val placeholderRegex = Regex("""placeholder\s*=\s*"([^"]{2,})"(?!\s*th:)""")
         return placeholderRegex.replace(line) { match ->
             val text = match.groupValues[1]
@@ -439,7 +457,10 @@ class I18nMigrationService(private val translationService: TranslationService? =
         }
     }
 
-    private fun applyAriaLabelReplacement(line: String, extractions: Map<String, String>): String {
+    private fun applyAriaLabelReplacement(
+        line: String,
+        extractions: Map<String, String>,
+    ): String {
         val ariaLabelRegex = Regex("""aria-label\s*=\s*"([^"]{2,})"(?!\s*th:)""")
         return ariaLabelRegex.replace(line) { match ->
             val text = match.groupValues[1]
@@ -447,12 +468,15 @@ class I18nMigrationService(private val translationService: TranslationService? =
             val entry = extractions.entries.find { it.value == text } ?: return@replace match.value
             line.replace(
                 """aria-label="$text""",
-                """th:attr="aria-label=#{${entry.key}}" aria-label="$text"""
+                """th:attr="aria-label=#{${entry.key}}" aria-label="$text""",
             )
         }
     }
 
-    private fun applyMetaContentReplacement(line: String, extractions: Map<String, String>): String {
+    private fun applyMetaContentReplacement(
+        line: String,
+        extractions: Map<String, String>,
+    ): String {
         val metaContentRegex = Regex("""<meta\s[^>]*?\bcontent\s*=\s*"([^"]{2,})"(?!\s*th:)[^>]*?>""")
         return metaContentRegex.replace(line) { match ->
             val text = match.groupValues[1]
@@ -462,7 +486,10 @@ class I18nMigrationService(private val translationService: TranslationService? =
         }
     }
 
-    private fun applyAltReplacement(line: String, extractions: Map<String, String>): String {
+    private fun applyAltReplacement(
+        line: String,
+        extractions: Map<String, String>,
+    ): String {
         val altRegex = Regex("""\balt\s*=\s*"([^"]{2,})"(?!\s*th:)""")
         return altRegex.replace(line) { match ->
             val text = match.groupValues[1]
@@ -472,7 +499,10 @@ class I18nMigrationService(private val translationService: TranslationService? =
         }
     }
 
-    private fun applyTitleReplacement(line: String, extractions: Map<String, String>): String {
+    private fun applyTitleReplacement(
+        line: String,
+        extractions: Map<String, String>,
+    ): String {
         val titleRegex = Regex("""\btitle\s*=\s*"([^"]{2,})"(?!\s*th:title)""")
         return titleRegex.replace(line) { match ->
             val text = match.groupValues[1]
@@ -485,7 +515,7 @@ class I18nMigrationService(private val translationService: TranslationService? =
     fun writeMessageFiles(
         messageFiles: Map<String, File>,
         allExtractions: Map<String, Map<String, String>>,
-        translatedKeys: Map<String, Map<String, String>> = emptyMap()
+        translatedKeys: Map<String, Map<String, String>> = emptyMap(),
     ) {
         val allKeys = linkedMapOf<String, String>()
         for ((_, extractions) in allExtractions) {
@@ -503,18 +533,22 @@ class I18nMigrationService(private val translationService: TranslationService? =
         }
     }
 
-    fun injectSiteLanguage(siteDir: File, defaultLanguage: String): Boolean {
+    fun injectSiteLanguage(
+        siteDir: File,
+        defaultLanguage: String,
+    ): Boolean {
         val jbakeProperties = siteDir.resolve("jbake.properties")
         if (!jbakeProperties.exists()) return false
 
         val content = jbakeProperties.readText()
         if (content.contains("site.language=")) return false
 
-        val updated = if (content.endsWith("\n")) {
-            content + "site.language=$defaultLanguage\n"
-        } else {
-            content + "\nsite.language=$defaultLanguage\n"
-        }
+        val updated =
+            if (content.endsWith("\n")) {
+                content + "site.language=$defaultLanguage\n"
+            } else {
+                content + "\nsite.language=$defaultLanguage\n"
+            }
         jbakeProperties.writeText(updated)
         return true
     }

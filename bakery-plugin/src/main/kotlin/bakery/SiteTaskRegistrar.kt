@@ -15,11 +15,10 @@ import org.jbake.gradle.JBakeTask
 import java.io.File
 
 object SiteTaskRegistrar {
-
     fun Project.registerGenerateSiteTask(
         siteTargetDir: File = projectDir,
         siteType: SiteType = SiteType.BLOG,
-        extension: BakeryExtension? = null
+        extension: BakeryExtension? = null,
     ) {
         tasks.register("generateSite") { task ->
             task.apply {
@@ -48,13 +47,17 @@ object SiteTaskRegistrar {
         resourcePath: String = "site",
         siteType: SiteType = SiteType.BLOG,
         extension: BakeryExtension? = null,
-        props: Map<String, String> = emptyMap()
+        props: Map<String, String> = emptyMap(),
     ) {
-        val site = from(configFile.absolutePath)
-            .fold(
-                { logger.warn("Failed to read site config, using defaults: ${it.message}"); SiteConfiguration() },
-                { it }
-            )
+        val site =
+            from(configFile.absolutePath)
+                .fold(
+                    {
+                        logger.warn("Failed to read site config, using defaults: ${it.message}")
+                        SiteConfiguration()
+                    },
+                    { it },
+                )
         val result1 = copyResourceDirectory(resourcePath, targetDir, project)
         if (result1 is Either.Left) {
             logger.error("Failed to copy resource '$resourcePath': ${result1.value}")
@@ -70,7 +73,10 @@ object SiteTaskRegistrar {
         val (resolvedConfigs, _) = ConfigResolver.resolveAll(props, ext, site)
 
         bakery.site.GenerateSiteService.injectConfigIntoJbakeProperties(
-            targetDir, site, resolvedConfigs, ext.augmentedContext.takeIf { it.enabled }
+            targetDir,
+            site,
+            resolvedConfigs,
+            ext.augmentedContext.takeIf { it.enabled },
         )
 
         logger.lifecycle("✓ Site scaffolded (type: ${siteType.alias}) from resource: $resourcePath")
@@ -83,22 +89,26 @@ object SiteTaskRegistrar {
             it.srcDirName = site.bake.srcPath
             it.destDirName = site.bake.destDirPath
             it.configuration[BakeryConstants.ASCIIDOCTOR_OPTION_REQUIRES] = BakeryConstants.ASCIIDOCTOR_DIAGRAM
-            it.configuration[BakeryConstants.ASCIIDOC_ATTRIBUTES_PROP] = arrayOf(
-                "${BakeryConstants.ASCIIDOC_SOURCE_DIR}=${project.projectDir.resolve(site.bake.srcPath)}",
-                BakeryConstants.ASCIIDOC_DIAGRAMS_DIRECTORY,
-            )
+            it.configuration[BakeryConstants.ASCIIDOC_ATTRIBUTES_PROP] =
+                arrayOf(
+                    "${BakeryConstants.ASCIIDOC_SOURCE_DIR}=${project.projectDir.resolve(site.bake.srcPath)}",
+                    BakeryConstants.ASCIIDOC_DIAGRAMS_DIRECTORY,
+                )
         }
     }
 
     internal fun Project.configureBakeTask(site: SiteConfiguration) {
-        tasks.withType(JBakeTask::class.java)
-            .findByName(BakeryConstants.BAKE_TASK)?.apply {
+        tasks
+            .withType(JBakeTask::class.java)
+            .findByName(BakeryConstants.BAKE_TASK)
+            ?.apply {
                 group = BakeryConstants.GENERATE_GROUP
                 input = file(site.bake.srcPath)
-                output = layout.buildDirectory
-                    .dir(site.bake.destDirPath)
-                    .get()
-                    .asFile
+                output =
+                    layout.buildDirectory
+                        .dir(site.bake.destDirPath)
+                        .get()
+                        .asFile
                 doFirst {
                     val tree = site.tree
                     if (tree != null) {
@@ -118,11 +128,20 @@ object SiteTaskRegistrar {
 
                 command.set("pagefind")
                 args.addAll(
-                    "--site", layout.buildDirectory.get().asFile.resolve(site.bake.destDirPath).absolutePath
+                    "--site",
+                    layout.buildDirectory
+                        .get()
+                        .asFile
+                        .resolve(site.bake.destDirPath)
+                        .absolutePath,
                 )
 
                 doFirst {
-                    val bakedDir = layout.buildDirectory.get().asFile.resolve(site.bake.destDirPath)
+                    val bakedDir =
+                        layout.buildDirectory
+                            .get()
+                            .asFile
+                            .resolve(site.bake.destDirPath)
                     if (!bakedDir.exists() || bakedDir.listFiles().isNullOrEmpty()) {
                         throw IllegalStateException("Baked directory is empty or does not exist at ${bakedDir.absolutePath}")
                     }
@@ -133,7 +152,7 @@ object SiteTaskRegistrar {
 
     internal fun Project.registerCollectSiteConfigTask(
         site: SiteConfiguration,
-        isGradlePropertiesEnabled: Boolean
+        isGradlePropertiesEnabled: Boolean,
     ) {
         tasks.register("collectSiteConfig") { task ->
             task.apply {
@@ -141,29 +160,33 @@ object SiteTaskRegistrar {
                 description = "Initialize Bakery configuration."
 
                 doLast {
-                    val token = getOrPrompt(
-                        propertyName = "GitHub Token",
-                        cliProperty = "githubToken",
-                        sensitive = true
-                    )
-                    val username = getOrPrompt(
-                        propertyName = "GitHub Username",
-                        cliProperty = "githubUsername",
-                        sensitive = false
-                    )
-                    val repo = getOrPrompt(
-                        propertyName = "GitHub Repository URL",
-                        cliProperty = "githubRepo",
-                        sensitive = false,
-                        example = "https://github.com/username/repo.git"
-                    )
-                    val configPath = getOrPrompt(
-                        propertyName = "Config Path",
-                        cliProperty = "configPath",
-                        sensitive = false,
-                        example = "site.yml",
-                        default = "site.yml"
-                    )
+                    val token =
+                        getOrPrompt(
+                            propertyName = "GitHub Token",
+                            cliProperty = "githubToken",
+                            sensitive = true,
+                        )
+                    val username =
+                        getOrPrompt(
+                            propertyName = "GitHub Username",
+                            cliProperty = "githubUsername",
+                            sensitive = false,
+                        )
+                    val repo =
+                        getOrPrompt(
+                            propertyName = "GitHub Repository URL",
+                            cliProperty = "githubRepo",
+                            sensitive = false,
+                            example = "https://github.com/username/repo.git",
+                        )
+                    val configPath =
+                        getOrPrompt(
+                            propertyName = "Config Path",
+                            cliProperty = "configPath",
+                            sensitive = false,
+                            example = "site.yml",
+                            default = "site.yml",
+                        )
                     logger.lifecycle("✓ Bakery configuration completed:")
                     logger.lifecycle("  Username: $username")
                     logger.lifecycle("  Repository: $repo")
@@ -183,7 +206,7 @@ object SiteTaskRegistrar {
 
     internal fun Project.registerServeTask(
         site: SiteConfiguration,
-        jbakeRuntime: Configuration
+        jbakeRuntime: Configuration,
     ) {
         tasks.register("serve", JavaExec::class.java) { task ->
             task.apply {
@@ -196,15 +219,18 @@ object SiteTaskRegistrar {
                     "--add-opens=java.base/java.lang=ALL-UNNAMED",
                     "--add-opens=java.base/java.util=ALL-UNNAMED",
                     "--add-opens=java.base/java.io=ALL-UNNAMED",
-                    "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED"
+                    "--add-opens=java.base/sun.nio.ch=ALL-UNNAMED",
                 )
-                args = listOf(
-                    file(site.bake.srcPath).absolutePath,
-                    layout.buildDirectory.get()
-                        .asFile.resolve(site.bake.destDirPath)
-                        .absolutePath,
-                    "-s"
-                )
+                args =
+                    listOf(
+                        file(site.bake.srcPath).absolutePath,
+                        layout.buildDirectory
+                            .get()
+                            .asFile
+                            .resolve(site.bake.destDirPath)
+                            .absolutePath,
+                        "-s",
+                    )
 
                 doFirst {
                     logger.lifecycle("Serving $group at: https://localhost:8820/")

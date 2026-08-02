@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class RtlDirectionInjectorTest {
-
     private val injector = RtlDirectionInjector()
 
     private fun baseFm(asciidoc: Map<String, String> = emptyMap()): PivotFrontmatter =
@@ -15,12 +14,11 @@ class RtlDirectionInjectorTest {
             date = "2026-07-18",
             type = "post",
             status = "published",
-            asciidocAttributes = asciidoc
+            asciidocAttributes = asciidoc,
         )
 
     @Nested
     inner class RtlInjection {
-
         @Test
         fun `inject arabic sets jbake-lang and rtl directive`() {
             val result = injector.inject(baseFm(), "ar")
@@ -59,7 +57,6 @@ class RtlDirectionInjectorTest {
 
     @Nested
     inner class UnknownLanguage {
-
         @Test
         fun `unknown language is a no-op`() {
             val fm = baseFm()
@@ -77,7 +74,6 @@ class RtlDirectionInjectorTest {
 
     @Nested
     inner class Idempotence {
-
         @Test
         fun `injecting arabic twice yields same result`() {
             val once = injector.inject(baseFm(), "ar")
@@ -95,13 +91,14 @@ class RtlDirectionInjectorTest {
 
         @Test
         fun `re-injecting overwrites previous jbake-lang value`() {
-            val source = PivotFrontmatter(
-                title = "Test",
-                date = "2026-07-18",
-                type = "post",
-                status = "published",
-                jbakeAttributes = mapOf("lang" to "fr")
-            )
+            val source =
+                PivotFrontmatter(
+                    title = "Test",
+                    date = "2026-07-18",
+                    type = "post",
+                    status = "published",
+                    jbakeAttributes = mapOf("lang" to "fr"),
+                )
             val result = injector.inject(source, "ar")
             assertThat(result.jbakeAttributes["lang"]).isEqualTo("ar")
             assertThat(result.asciidocAttributes["lang"]).isEqualTo("rtl")
@@ -118,7 +115,6 @@ class RtlDirectionInjectorTest {
 
     @Nested
     inner class DirectiveModel {
-
         @Test
         fun `rtl directive equality is structural`() {
             assertThat(RtlDirective("ar", true)).isEqualTo(RtlDirective("ar", true))

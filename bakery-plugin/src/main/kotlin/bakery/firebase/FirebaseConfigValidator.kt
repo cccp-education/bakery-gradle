@@ -18,7 +18,6 @@ import bakery.FirebaseContactFormConfig
  * - Warning: newsletter suggested if contact form present but no analytics
  */
 object FirebaseConfigValidator {
-
     fun validateAuthConfig(config: FirebaseAuthConfig): FirebaseValidationResult {
         val result = FirebaseValidationResult()
         var current = result
@@ -27,7 +26,8 @@ object FirebaseConfigValidator {
         if (config.apiKey.isBlank()) {
             current = current.addError(ValidationIssue("apiKey", "apiKey is required for Firebase Auth"))
         } else if (!config.apiKey.startsWith("AIzaSy")) {
-            current = current.addWarning(ValidationIssue("apiKey", "apiKey does not follow Firebase convention (should start with 'AIzaSy')", IssueSeverity.WARNING))
+            current =
+                current.addWarning(ValidationIssue("apiKey", "apiKey does not follow Firebase convention (should start with 'AIzaSy')", IssueSeverity.WARNING))
         }
 
         // authDomain validation
@@ -45,7 +45,14 @@ object FirebaseConfigValidator {
         // Cross-field coherence: authDomain should contain projectId
         if (config.authDomain.isNotBlank() && config.projectId.isNotBlank()) {
             if (!config.authDomain.contains(config.projectId)) {
-                current = current.addWarning(ValidationIssue("authDomain", "authDomain should contain the projectId (expected format: projectId.firebaseapp.com)", IssueSeverity.WARNING))
+                current =
+                    current.addWarning(
+                        ValidationIssue(
+                            "authDomain",
+                            "authDomain should contain the projectId (expected format: projectId.firebaseapp.com)",
+                            IssueSeverity.WARNING,
+                        ),
+                    )
             }
         }
 
@@ -67,29 +74,38 @@ object FirebaseConfigValidator {
         }
 
         // firestore validation
-        if (config.firestore.contacts.name.isBlank()) {
+        if (config.firestore.contacts.name
+                .isBlank()
+        ) {
             current = current.addError(ValidationIssue("firestore.contacts.name", "contacts collection name is required"))
         }
-        if (config.firestore.messages.name.isBlank()) {
+        if (config.firestore.messages.name
+                .isBlank()
+        ) {
             current = current.addError(ValidationIssue("firestore.messages.name", "messages collection name is required"))
         }
-        if (config.firestore.contacts.fields.isEmpty()) {
+        if (config.firestore.contacts.fields
+                .isEmpty()
+        ) {
             current = current.addWarning(ValidationIssue("firestore.contacts.fields", "contacts collection has no fields defined", IssueSeverity.WARNING))
         }
-        if (config.firestore.messages.fields.isEmpty()) {
+        if (config.firestore.messages.fields
+                .isEmpty()
+        ) {
             current = current.addWarning(ValidationIssue("firestore.messages.fields", "messages collection has no fields defined", IssueSeverity.WARNING))
         }
 
         // Validate phone field type if present
         config.firestore.contacts.fields.find { it.name == "phone" }?.let { phoneField ->
             if (phoneField.type != "string") {
-                current = current.addWarning(
-                    ValidationIssue(
-                        "firestore.contacts.fields.phone",
-                        "phone field should be of type 'string' (found: '${phoneField.type}')",
-                        IssueSeverity.WARNING
+                current =
+                    current.addWarning(
+                        ValidationIssue(
+                            "firestore.contacts.fields.phone",
+                            "phone field should be of type 'string' (found: '${phoneField.type}')",
+                            IssueSeverity.WARNING,
+                        ),
                     )
-                )
             }
         }
 

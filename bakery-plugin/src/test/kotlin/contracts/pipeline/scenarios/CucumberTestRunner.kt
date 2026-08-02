@@ -15,7 +15,7 @@ import org.junit.platform.suite.api.Suite
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "contracts.pipeline.scenarios")
 @ConfigurationParameter(
     key = PLUGIN_PROPERTY_NAME,
-    value = "pretty, html:build/reports/cucumber-pipeline.html, json:build/reports/cucumber-pipeline.json"
+    value = "pretty, html:build/reports/cucumber-pipeline.html, json:build/reports/cucumber-pipeline.json",
 )
 @ConfigurationParameter(key = FEATURES_PROPERTY_NAME, value = "src/test/features")
 @ConfigurationParameter(key = FILTER_TAGS_PROPERTY_NAME, value = "@pipeline-contracts and not @wip")

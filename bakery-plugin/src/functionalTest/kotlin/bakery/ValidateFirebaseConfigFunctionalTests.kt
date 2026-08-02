@@ -17,7 +17,6 @@ import java.io.File
  * (exécution runtime avec validation métier) restent ici.
  */
 class ValidateFirebaseConfigFunctionalTests {
-
     @TempDir
     lateinit var projectDir: File
 
@@ -26,14 +25,16 @@ class ValidateFirebaseConfigFunctionalTests {
         createProjectWithFirebaseAuth(
             apiKey = "AIzaSyB-valid-key",
             authDomain = "my-project.firebaseapp.com",
-            projectId = "my-project"
+            projectId = "my-project",
         )
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("validateFirebaseConfig")
-            .build()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("validateFirebaseConfig")
+                .build()
 
         assertThat(result.output).contains("BUILD SUCCESSFUL")
         assertThat(result.output).contains("[validateFirebaseConfig]")
@@ -44,14 +45,16 @@ class ValidateFirebaseConfigFunctionalTests {
         createProjectWithFirebaseAuth(
             apiKey = "",
             authDomain = "",
-            projectId = ""
+            projectId = "",
         )
 
-        val result = GradleRunner.create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("validateFirebaseConfig")
-            .buildAndFail()
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("validateFirebaseConfig")
+                .buildAndFail()
 
         assertThat(result.output).contains("Configuration Firebase invalide")
     }
@@ -59,14 +62,17 @@ class ValidateFirebaseConfigFunctionalTests {
     private fun createProjectWithFirebaseAuth(
         apiKey: String,
         authDomain: String,
-        projectId: String
+        projectId: String,
     ) {
-        projectDir.resolve("settings.gradle.kts").writeText("""
+        projectDir.resolve("settings.gradle.kts").writeText(
+            """
             pluginManagement { repositories { gradlePluginPortal(); mavenLocal() } }
             rootProject.name = "firebase-validate-test"
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
-        projectDir.resolve("build.gradle.kts").writeText("""
+        projectDir.resolve("build.gradle.kts").writeText(
+            """
             plugins { id("education.cccp.bakery") }
             bakery {
                 configPath = file("site.yml").absolutePath
@@ -76,10 +82,12 @@ class ValidateFirebaseConfigFunctionalTests {
                     projectId = "$projectId"
                 }
             }
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
         // Write a site.yml that triggers the "else" branch (existing site directories)
-        projectDir.resolve("site.yml").writeText("""
+        projectDir.resolve("site.yml").writeText(
+            """
             bake:
               srcPath: "site"
               destDirPath: "build/bake"
@@ -105,7 +113,8 @@ class ValidateFirebaseConfigFunctionalTests {
                   password: "token"
               branch: "main"
               message: "Deploy maquette"
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
         // Create directories so plugin takes the "else" branch
         projectDir.resolve("site").mkdirs()

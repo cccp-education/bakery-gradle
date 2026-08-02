@@ -17,18 +17,18 @@ import org.junit.jupiter.api.Test
 @Tag("e2e")
 @DisplayName("E2E - Analytics & Newsletter")
 class E2EAnalyticsNewsletterTest : E2ETestBase() {
-
     @Test
     @DisplayName("Analytics: Plausible script is rendered when analytics is configured")
     fun `plausible script is rendered when analytics is configured`() {
-        val path = serveHtml(
-            "analytics-script",
-            mapOf(
-                "analyticsProvider" to "plausible",
-                "analyticsDomain" to "my-site.com",
-                "analyticsScriptSrc" to "https://plausible.io/js/script.js"
+        val path =
+            serveHtml(
+                "analytics-script",
+                mapOf(
+                    "analyticsProvider" to "plausible",
+                    "analyticsDomain" to "my-site.com",
+                    "analyticsScriptSrc" to "https://plausible.io/js/script.js",
+                ),
             )
-        )
 
         val page = navigateTo(path)
 
@@ -57,14 +57,15 @@ class E2EAnalyticsNewsletterTest : E2ETestBase() {
     @Test
     @DisplayName("Analytics: Matomo script is rendered when configured")
     fun `matomo script is rendered when configured`() {
-        val path = serveHtml(
-            "analytics-script",
-            mapOf(
-                "analyticsProvider" to "matomo",
-                "analyticsDomain" to "my-site.com",
-                "analyticsScriptSrc" to "https://matomo.example.com/"
+        val path =
+            serveHtml(
+                "analytics-script",
+                mapOf(
+                    "analyticsProvider" to "matomo",
+                    "analyticsDomain" to "my-site.com",
+                    "analyticsScriptSrc" to "https://matomo.example.com/",
+                ),
             )
-        )
 
         val page = navigateTo(path)
 
@@ -77,13 +78,14 @@ class E2EAnalyticsNewsletterTest : E2ETestBase() {
     @Test
     @DisplayName("Newsletter: Form is visible when newsletter is enabled")
     fun `newsletter form is visible when enabled`() {
-        val path = serveHtml(
-            "newsletter-form",
-            mapOf(
-                "newsletterEnabled" to "true",
-                "newsletterEndpoint" to "https://mailchimp.example.com/subscribe"
+        val path =
+            serveHtml(
+                "newsletter-form",
+                mapOf(
+                    "newsletterEnabled" to "true",
+                    "newsletterEndpoint" to "https://mailchimp.example.com/subscribe",
+                ),
             )
-        )
 
         val page = navigateTo(path)
 
