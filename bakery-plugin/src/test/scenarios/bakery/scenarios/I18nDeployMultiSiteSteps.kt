@@ -55,10 +55,6 @@ class I18nDeployMultiSiteSteps {
             "Diagramme de cas d'utilisation" to "Use case diagram",
             "Texte associé" to "Associated text",
             "Diagramme avec labels traduisibles" to "Diagram with translatable labels",
-            "Ceci est un paragraphe en français. Il contient du texte traduisible que le service de traduction doit transformer dans la langue cible." to
-                "This is a paragraph in French. It contains translatable text that the translation service must transform into the target language.",
-            "Les acteurs Utilisateur, Administrateur et Visiteur apparaissent dans le diagramme. La traduction doit transformer ces labels tout en préservant la structure PlantUML (startuml, enduml, flèches)." to
-                "The actors User, Administrator and Visitor appear in the diagram. The translation must transform these labels while preserving the PlantUML structure (startuml, enduml, arrows).",
         )
 
     @Given("a multi-site i18n deploy fixture with 3 sites and 3 French articles each")
@@ -78,12 +74,9 @@ class I18nDeployMultiSiteSteps {
                     val target = request.targetLanguage
                     val sourceText = request.sourceText
                     if (sourceText.isBlank()) return TranslationResult.Success(sourceText)
-                    if (target == "en") {
-                        var translated = sourceText
-                        frToEnDictionary.forEach { (fr, en) -> translated = translated.replace(fr, en) }
-                        return TranslationResult.Success(translated)
-                    }
-                    return TranslationResult.Success("[$target] $sourceText")
+                    var translated = sourceText
+                    frToEnDictionary.forEach { (fr, en) -> translated = translated.replace(fr, en) }
+                    return TranslationResult.Success("[$target] $translated")
                 }
             }
         val plantUmlAdapter = PlantUmlTranslationAdapter(fakeTranslator)

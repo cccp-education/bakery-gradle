@@ -23,7 +23,7 @@ Feature: i18n deploy end-to-end — 10 languages pipeline
     And the translated "en" article "introduction-pivot.adoc" should contain ":jbake-type: post"
     And the translated "en" article "introduction-pivot.adoc" should not contain ":lang: rtl"
     And the translated "en" article "introduction-pivot.adoc" should contain ":jbake-lang: en"
-    And the translated "en" article "introduction-pivot.adoc" should contain "This is a paragraph in French"
+    And the translated "en" article "introduction-pivot.adoc" body should be in the target language
 
   Scenario: FR to AR translation injects RTL directive and jbake-lang
     When the deploy pipeline translates the fixture from fr to "ar"
