@@ -227,6 +227,17 @@ Filtre les bots à grande échelle sans dépendance externe.
 
 == 5. Procédure opérateur (reprise en main du runtime)
 
+[IMPORTANT]
+====
+**Aucun identifiant réel dans le repo bakery.** Le repo OSS public ne contient
+que des mocks : `example.com`, `0xTESTKEY`, `<script-endpoint>`, fixture
+`cheroliv-com-contact`. Les credentials réels (endpoint Apps Script, sitekey
+Turnstile, projet Firebase, Gmail) vivent **exclusivement** :
+. dans le repo privé du site consommateur (`office/sites/<site>/`, non commité
+  dans bakery), et
+. en **GitHub Secrets** ou **env vars locales** pour la validation réelle (§5bis).
+====
+
 Quand un site consomme le scaffold bakery, l'opérateur doit :
 . Créer un projet Firebase (région europe-west1) + App Web → récupérer config
 . Publier les `firestore.rules` générées (console ou `firebase deploy`)
@@ -234,13 +245,57 @@ Quand un site consomme le scaffold bakery, l'opérateur doit :
   * coller le code de référence généré (§4 — Turnstile siteverify, RateLimiter, SessionTokenManager, PowVerifier, ContentHeuristics, MailApp)
   * `secret` Turnstile en propriété script (`PropertiesService`) ou constante non commitée
   * Déployer → "Nouveau déploiement" → "Exécuter en tant que : moi" → "Qui a accès : Tout le monde" → copier l'URL `/exec`
-. Renseigner `contact.endpointUrl` + `contact.turnstile.siteKey` dans `site.yml`
-. Test manuel complet (succès, honeypot, timing, email invalide, rejeu token, PoW invalide, rate limit)
+. Renseigner `contact.endpointUrl` + `contact.turnstile.siteKey` dans `site.yml` **local** (gitignoré)
+. Valider selon §5bis
 
 **Backup** : le script Apps Script actuel de cheroliv.com (endpoint
 `<script-endpoint>`, version réelle dans le repo privé `office/`) est la
 référence runtime — à sauvegarder avant toute modification (pas de git côté
 Apps Script, export .gs manuel).
+
+'''
+
+== 5bis. Validation réelle — credentials perso hors repo OSS
+
+Le repo bakery ne peut PAS valider le runtime (il n'a ni credentials ni infra
+Google). Deux chemins de validation réelle, tous deux **exclus du CI public**
+(jamais dans le workflow bakery standard) :
+
+=== 5bis.1 Validation locale (recommandée, zéro secret en CI)
+
+L'utilisateur exécute une tâche Gradle custom `contactSecSmokeTest` **sur le
+repo privé du site** (`office/sites/cheroliv.com/`), qui lit les credentials
+réels depuis des **env vars locales** (jamais commitées) :
+
+[source,shell]
+----
+CONTACT_ENDPOINT_URL="https://script.google.com/macros/s/<REEL>/exec" \
+CONTACT_TURNSTILE_SITEKEY="0x4AAAAAAA<REEL>" \
+CONTACT_TURNSTILE_SECRET="<REEL>" \
+./gradlew contactSecSmokeTest
+----
+
+La tâche exécute les scénarios réels : succès nominal (mail reçu + doc
+Firestore), honeypot (rejet), timing (<2.5s rejet), email invalide, token
+anti-rejeu (double soumission), PoW invalide, rate limit (3/h). Elle n'est
+**pas dans le code bakery** — c'est un test consommateur du repo privé.
+
+=== 5bis.2 GitHub Action manuelle `workflow_dispatch` (pattern BKY-I18N-CI)
+
+Le workflow `deploy-cheroliv-com.yml` (repo privé du site) gagne un job
+**manuel** `contact-sec-validation` (déclenché par `workflow_dispatch`, jamais
+sur push), qui injecte les credentials via **GitHub Secrets** :
+
+* `CHEROLIV_CONTACT_ENDPOINT` → `<script-endpoint>`
+* `CHEROLIV_TURNSTILE_SITEKEY` / `CHEROLIV_TURNSTILE_SECRET`
+* `CHEROLIV_FIREBASE_CONFIG` → config Web (comme `CHEROLIV_COM_CONFIG`)
+
+Le job lance `contactSecSmokeTest` avec ces secrets en env. Résultat : la
+validation réelle se fait **à la demande de l'utilisateur**, en local ou en CI
+privée, sans jamais exposer les identifiants dans le code OSS.
+
+*Pattern de référence* : BKY-I18N-CI (site.yml.example sans clés tracké, vrai
+site.yml gitignoré, secret `CHEROLIV_COM_CONFIG`, job `workflow_dispatch`).
 
 '''
 
@@ -253,6 +308,10 @@ Détaillés dans `BACKLOG.adoc` section `== EPIC BKY-CONTACT-SEC`.
 * *DAG* : CONTACT-SEC-1 (config) racine → domaine (2,3,4,5) en parallèle → renderer+task (6) → fixture (7, parallèle) → BDD (8) clôture.
 * *Point de bascule* : CONTACT-SEC-6 (task + bake) consume renderer + config.
 * *Risque majeur* : Turnstile nécessite un compte Cloudflare (prérequis opérateur, pas bloquant pour le code bakery — stub en test).
+* *Sécurité* : **zéro identifiant réel dans le repo OSS** — mocks uniquement
+  (`example.com`, `0xTESTKEY`, `<script-endpoint>`). Validation réelle par
+  l'utilisateur (local env vars) ou GitHub Action manuelle avec secrets
+  (§5bis, pattern BKY-I18N-CI).
 
 '''
 
@@ -264,4 +323,7 @@ Détaillés dans `BACKLOG.adoc` section `== EPIC BKY-CONTACT-SEC`.
 
 *Le code bakery est testable à 100% sans compte Cloudflare ni projet Firebase* —
 tout est stubbe/domaine pur. Le déploiement runtime est une procédure opérateur
-documentée (§5), hors CI.
+documentée (§5), hors CI. La validation réelle du runtime est **explicitement
+hors périmètre du code OSS** : elle passe par l'utilisateur (env vars locales)
+ou une GitHub Action manuelle `workflow_dispatch` sur le repo privé du site
+(§5bis), pattern identique à BKY-I18N-CI.
