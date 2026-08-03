@@ -1633,7 +1633,7 @@ cheroliv.com envoie à Firestore + Apps Script Gmail. 4 défenses existent déj�
 (honeypot `hp_name` client+serveur, timing `ts_render` <2.5s, validation email,
 rate limit 3/h/email + 30/jour). **Point faible structurel** : le POST `no-cors`
 vers l'endpoint Apps Script est directement rejouable par un bot — il ignore le
-JS, appelle `AKfycbyXWgSUaRc9.../exec` en brut avec `hp_name=""` +
+JS, appelle `<script-endpoint>/exec` en brut avec `hp_name=""` +
 `ts_render=Date.now()`. Aucune vérification serveur réelle (CAPTCHA/vérif
 humaine) n'existe. Le site est statique — le seul "backend" est l'endpoint Apps
 Script lui-même (`UrlFetchApp` appelle des API externes)._

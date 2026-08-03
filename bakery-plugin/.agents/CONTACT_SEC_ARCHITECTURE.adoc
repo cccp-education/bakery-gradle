@@ -14,13 +14,21 @@
 
 == 1. État actuel du formulaire cheroliv.com (avant durcissement)
 
+[NOTE]
+====
+Identifiants réels (endpoint Apps Script, projet Firebase, Gmail) **volontairement
+omis** — repo OSS public. Valeurs anonymisées : `<script-endpoint>`, `<firebase-project>`,
+`<gmail-recipient>`. La version runtime réelle vit dans le repo privé du site
+(`office/`, non commité dans bakery).
+====
+
 === 1.1 Architecture runtime (existant, déployé)
 
 ----
-Navigateur (cheroliv.com)                     Google (runtime gratuit)
+Navigateur (site consommateur)            Google (runtime gratuit)
 ┌───────────────────────────────┐            ┌──────────────────────────────┐
 │ contact-form (footer.thyme)   │            │ Firebase projet              │
-│   ├─ name/email/phone/        │  POST      │   cheroliv-contact           │
+│   ├─ name/email/phone/        │  POST      │   <firebase-project>         │
 │   │   subject/message         │  no-cors   │   ├─ Firestore:              │
 │   │   hp_name (honeypot)      │──────────▶ │   │  contact_messages/        │
 │   │   ts_render (timing)      │  URLSearch │   │   {name,email,phone,      │
@@ -28,11 +36,11 @@ Navigateur (cheroliv.com)                     Google (runtime gratuit)
 │       ├─ validateForm()       │            │   │    created_at (serverTS), │
 │       ├─ sendToEmailService() │  endpoint  │   │    user_agent}            │
 │       │   POST no-cors        │──────────▶ │   └─ rules: create only      │
-│       │   AKfycbyXWgSUaRc9…   │            │                              │
+│       │   <script-endpoint>   │            │                              │
 │       └─ saveToFirestore()    │            │ Apps Script (Gmail notif)    │
 │           Promise.all(email+  │            │   doPost → MailApp            │
 │           firestore)          │            │   destinataire en dur:       │
-│                               │            │   cheroliv.contact@gmail.com │
+│                               │            │   <gmail-recipient>          │
 └───────────────────────────────┘            └──────────────────────────────┘
 ----
 
@@ -62,7 +70,7 @@ Navigateur (cheroliv.com)                     Google (runtime gratuit)
 === 1.3 Point faible structurel (motivation de l'EPIC)
 
 *Le POST `no-cors` vers l'endpoint Apps Script est directement rejouable.* Un bot
-ignore le JS, appelle `AKfycbyXWgSUaRc9.../exec` en brut avec `hp_name=""` +
+ignore le JS, appelle `<script-endpoint>/exec` en brut avec `hp_name=""` +
 `ts_render=Date.now()`. Les 4 défenses actuelles filtrent uniquement les bots
 naïfs. Aucune vérification serveur réelle (CAPTCHA/vérif humaine) n'existe.
 
@@ -100,9 +108,9 @@ contrat Apps Script/Firestore — bakery génère le code de référence.
 
 === 2.2 Ce que bakery NE fait PAS (runtime site-spécifique)
 
-* Le projet Firebase réel `cheroliv-contact` (numéro 165984851604)
-* Le script Apps Script déployé (endpoint `AKfycbyXWgSUaRc9...`)
-* La boîte mail `cheroliv.contact@gmail.com`
+* Le projet Firebase réel `<firebase-project>` (numéro non commité)
+* Le script Apps Script déployé (endpoint `<script-endpoint>`)
+* La boîte mail `<gmail-recipient>`
 * Les règles Firestore *réelles* publiées
 
 Ces éléments restent la propriété du site consommateur. Bakery génère le **code de
@@ -230,8 +238,9 @@ Quand un site consomme le scaffold bakery, l'opérateur doit :
 . Test manuel complet (succès, honeypot, timing, email invalide, rejeu token, PoW invalide, rate limit)
 
 **Backup** : le script Apps Script actuel de cheroliv.com (endpoint
-`AKfycbyXWgSUaRc9...`) est la référence runtime — à sauvegarder avant toute
-modification (pas de git côté Apps Script, export .gs manuel).
+`<script-endpoint>`, version réelle dans le repo privé `office/`) est la
+référence runtime — à sauvegarder avant toute modification (pas de git côté
+Apps Script, export .gs manuel).
 
 '''
 
