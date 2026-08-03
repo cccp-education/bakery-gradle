@@ -1,0 +1,258 @@
+= Contact Form Security — Architecture & Plan de Reprise (EPIC BKY-CONTACT-SEC)
+
+:description: Cadrage exhaustif EPIC BKY-CONTACT-SEC — durcissement du formulaire contact cheroliv.com, généralisé dans bakery
+:toc: left
+:toclevels: 3
+:icons: font
+:sectnums:
+
+*Statut* : 📋 CADRÉ — Session 190, 2026-08-04
+*Backlog* : `bakery-plugin/BACKLOG.adoc` — section `== EPIC BKY-CONTACT-SEC`
+*Source* : Session 034 office/sites/cheroliv.com (formulaire contact Firebase + Apps Script)
+
+'''
+
+== 1. État actuel du formulaire cheroliv.com (avant durcissement)
+
+=== 1.1 Architecture runtime (existant, déployé)
+
+----
+Navigateur (cheroliv.com)                     Google (runtime gratuit)
+┌───────────────────────────────┐            ┌──────────────────────────────┐
+│ contact-form (footer.thyme)   │            │ Firebase projet              │
+│   ├─ name/email/phone/        │  POST      │   cheroliv-contact           │
+│   │   subject/message         │  no-cors   │   ├─ Firestore:              │
+│   │   hp_name (honeypot)      │──────────▶ │   │  contact_messages/        │
+│   │   ts_render (timing)      │  URLSearch │   │   {name,email,phone,      │
+│   └─ contact.js               │  Params    │   │    subject,message,       │
+│       ├─ validateForm()       │            │   │    created_at (serverTS), │
+│       ├─ sendToEmailService() │  endpoint  │   │    user_agent}            │
+│       │   POST no-cors        │──────────▶ │   └─ rules: create only      │
+│       │   AKfycbyXWgSUaRc9…   │            │                              │
+│       └─ saveToFirestore()    │            │ Apps Script (Gmail notif)    │
+│           Promise.all(email+  │            │   doPost → MailApp            │
+│           firestore)          │            │   destinataire en dur:       │
+│                               │            │   cheroliv.contact@gmail.com │
+└───────────────────────────────┘            └──────────────────────────────┘
+----
+
+=== 1.2 Défenses déjà en place (Session 034)
+
+[cols="2,3,3"]
+|===
+| Couche | Client (contact.js) | Serveur (Apps Script)
+
+| Honeypot
+| Champ caché `hp_name` ; si rempli → faux succès silencieux
+| Champ `hp_name` non vide → rejet silencieux
+
+| Timing anti-bot
+| `ts_render` = `Date.now()` au DOMContentLoaded
+| Soumission < 2.5s après render → rejet
+
+| Validation email
+| Regex `^[^\s@]+@[^\s@]+\.[^\s@]+$`
+| Regex identique côté serveur
+
+| Rate limit
+| — (aucun, coté client impossible)
+| 3/h par email + cap 30/jour (CacheService)
+|===
+
+=== 1.3 Point faible structurel (motivation de l'EPIC)
+
+*Le POST `no-cors` vers l'endpoint Apps Script est directement rejouable.* Un bot
+ignore le JS, appelle `AKfycbyXWgSUaRc9.../exec` en brut avec `hp_name=""` +
+`ts_render=Date.now()`. Les 4 défenses actuelles filtrent uniquement les bots
+naïfs. Aucune vérification serveur réelle (CAPTCHA/vérif humaine) n'existe.
+
+**Racine** : le site est *statique* — aucun backend propre pour vérifier une
+preuve. Le seul "backend" disponible est l'endpoint Apps Script lui-même
+(`UrlFetchApp` permet d'appeler des API externes depuis le script).
+
+'''
+
+== 2. Périmètre de l'EPIC
+
+=== 2.1 Ce que bakery généralise (feature de génération)
+
+Bakery fournit au *consommateur* (cheroliv.com, magic-stick, cccp.education…) un
+**scaffold de formulaire contact sécurisé** : templates + JS + config. Les
+défenses *serveur* (vérif Turnstile, rate limit, token) sont documentées comme
+contrat Apps Script/Firestore — bakery génère le code de référence.
+
+[cols="3,5]
+|===
+| Artéfact bakery | Contenu
+
+| `ContactSecConfig` (site.yml `contact:`)
+| `enabled`, `endpointUrl`, `firestoreCollection`, `turnstile: {siteKey}`, `maxHpFields`, `minRenderTimeMs`, `rateLimit: {perHour, perDay}`, `dailyGlobalCap`
+
+| Scaffold templates
+| `contact-form.thyme` (honeypot + ts_render + token + turnstile div), `contact.js` durci (voir §4)
+
+| Tâche Gradle
+| `scaffoldContactSec` — copie templates/JS, valide config, génère `firestore.rules` de référence
+
+| Fixture publique
+| `cheroliv-com-contact` — copie anonymisée minimaliste (voir §3)
+|===
+
+=== 2.2 Ce que bakery NE fait PAS (runtime site-spécifique)
+
+* Le projet Firebase réel `cheroliv-contact` (numéro 165984851604)
+* Le script Apps Script déployé (endpoint `AKfycbyXWgSUaRc9...`)
+* La boîte mail `cheroliv.contact@gmail.com`
+* Les règles Firestore *réelles* publiées
+
+Ces éléments restent la propriété du site consommateur. Bakery génère le **code de
+référence** que l'opérateur déploie dans sa propre infra Google (procédure
+documentée §5).
+
+'''
+
+== 3. Fixture publique `cheroliv-com-contact`
+
+*À créer en Session 194* (US BKY-CONTACT-SEC-7) :
+`bakery-plugin/src/test/resources/fixtures/cheroliv-com-contact/`
+
+[cols="2,3]
+|===
+| Chemin | Rôle
+
+| `site.yml`
+| Config `contact:` + `i18n:` (2 langues fr/en)
+
+| `jbake/templates/footer.thyme`
+| Fragment `<form id="contact-form">` + honeypot + token + turnstile div (avec marker `<!-- CONTACT-SEC: bakery -->`)
+
+| `jbake/assets/js/contact.js`
+| JS durci complet (voir §4)
+
+| `jbake/assets/js/turnstile.placeholder.js`
+| Stub pour tests (remplace la vraie lib Cloudflare en CI)
+
+| `firestore.rules` (racine fixture)
+| Règles Firestore de référence générées par la tâche
+
+| `i18n/en/templates/footer.thyme`
+| Variante EN (mêmes champs, textes EN)
+
+| `jbake/content/index.html` + `jbake/jbake.properties`
+| Site minimal bakable
+
+| `og-images/` placeholder
+| Cohérence avec BKY-SEO
+|===
+
+**Anonymisation** : zéro donnée perso, `example.com`, pas d'endpoint réel (URL
+`https://script.example.com/exec`), pas de sitekey réelle (`0xTESTKEY`).
+
+'''
+
+== 4. Les 6 améliorations — plan détaillé
+
+=== 4.1 Turnstile (Cloudflare) — vérification serveur réelle — **PRIORITÉ 1**
+
+Le seul moyen d'avoir une vérification humaine *réelle* sur un site statique.
+`sitekey` est public (JS), `secret` vit dans le script Apps Script (jamais exposé).
+
+**Flux** :
+----
+Navigateur                       Apps Script                     Cloudflare
+  │ widget Turnstile (invisible)   │                              │
+  │ → token                        │                              │
+  │ POST {token, ...}  ──────────▶ │ doPost                        │
+  │                               │ UrlFetchApp POST              │
+  │                               │ challenges.cloudflare.com     │
+  │                               │ /turnstile/v0/siteverify      │
+  │                               │   {secret, response=token}    │
+  │                               │ ◀── {success: true/false}     │
+  │ ◀── 400 si invalid             │                              │
+----
+
+* **Client** : charger `https://challenges.cloudflare.com/turnstile/v0/api.js` dans `footer.thyme` (attribut `data-sitekey`), écouter `window.turnstile.getResponse()` à la soumission, injecter `cf_turnstile_token` dans le payload.
+* **Serveur (contrat)** : `UrlFetchApp.fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {method:"POST", payload:{secret, response}, muteHttpExceptions:true})` → si `success != true` → 400.
+* **Bénéfice** : bloque ~100% du spam automatisé. Gratuit illimité, privacy-friendly, invisible pour l'utilisateur.
+* **Prérequis opérateur** : compte Cloudflare → domaine cheroliv.com → Turnstile → sitekey+secret.
+* **Tests bakery** : stub `turnstile.placeholder.js` (token factice `0xTEST`), unit test du renderer (div + data-sitekey), functional test de la config (`siteKey` requis si `turnstile.enabled`).
+
+=== 4.2 Rate limit par empreinte + cap global — renforcer l'existant
+
+Apps Script n'a **pas l'IP client** (impossible). À la place :
+* **Clé de cache** = `sha256(fingerprint + email)` via `CacheService` (TTL 1h), en plus de l'email seul.
+* **Fingerprint client** : hash(UA + screen + language + canvas signature partielle) calculé dans `contact.js`, envoyé comme `fp` (déjà haché, pas de donnée brute).
+* **Cap global quotidien** : compteur total dans `CacheService` (TTL 24h), ex. 50/jour toutes origines → anti-flood massif.
+* **Tests** : domaine pur `RateLimiter` (allow/deny/expiry), unit test fingerprint hashing, functional test cap global.
+
+=== 4.3 Token anti-rejeu à usage unique
+
+Neutralise le rejeu pur du payload capturé (un bot qui répète un POST valide).
+* **Client** : `GET <endpoint>?action=new-session` au chargement → reçoit `session_token` (CacheService, TTL 10min).
+* **Soumission** : inclut `session_token` ; le script le consomme (get + remove → usage unique).
+* **Serveur (contrat)** : si token absent/expiré/déjà consommé → 400.
+* **Tests** : domaine pur `SessionTokenManager` (issue/validate/consume/expiry/double-consume refusé).
+
+=== 4.4 Preuve de travail côté client (PoW) — sans tiers
+
+Filtre les bots à grande échelle sans dépendance externe.
+* **Client** : le site fournit `pow_challenge` (généré par le script ou en dur dans la config) ; `contact.js` trouve `pow_nonce` tel que `sha256(challenge + nonce)` commence par N zéros (~200ms CPU humain, coûteux en masse).
+* **Serveur (contrat)** : vérifie le nonce avant traitement.
+* **Tests** : domaine pur `PowVerifier` (difficulté N, nonce valide/invalide, idempotent challenge).
+
+=== 4.5 Heuristiques de contenu (antispam classique)
+
+* ≥3 URLs dans le message → rejet (les vraies demandes de contact ont rarement 3 liens).
+* message == subject (copie) → rejet.
+* Domaine email jetable → rejet (petite denylist embarquée : mailinator, guerrillamail, 10minutemail, etc.).
+* Texte incohérent : ratio caractères non-Latin > 50% ou pas d'espace (gibberish) → rejet.
+* **Tests** : domaine pur `ContentHeuristics` (detectUrls, detectGibberish, isDisposableDomain, isDuplicateSubject).
+
+=== 4.6 Firestore rules renforcées
+
+* Règles actuelles : `create` sur `contact_messages` only, typage string, bornes tailles.
+* Renforcer : exiger `created_at == request.time` (serverTimestamp), interdire les champs inconnus (whitelist), cap longueur message (ex. 4000 chars), rejeter si `hp_name` non vide (double couche avec Apps Script).
+* **Génération** : la tâche bakery `scaffoldContactSec` produit `firestore.rules` de référence (paramétré par `ContactSecConfig`).
+* **Tests** : unit test du générateur de règles (template → sortie attendue, scénarios create valide/invalide).
+
+'''
+
+== 5. Procédure opérateur (reprise en main du runtime)
+
+Quand un site consomme le scaffold bakery, l'opérateur doit :
+. Créer un projet Firebase (région europe-west1) + App Web → récupérer config
+. Publier les `firestore.rules` générées (console ou `firebase deploy`)
+. Créer le script Apps Script (Apps Script → Nouveau projet) :
+  * coller le code de référence généré (§4 — Turnstile siteverify, RateLimiter, SessionTokenManager, PowVerifier, ContentHeuristics, MailApp)
+  * `secret` Turnstile en propriété script (`PropertiesService`) ou constante non commitée
+  * Déployer → "Nouveau déploiement" → "Exécuter en tant que : moi" → "Qui a accès : Tout le monde" → copier l'URL `/exec`
+. Renseigner `contact.endpointUrl` + `contact.turnstile.siteKey` dans `site.yml`
+. Test manuel complet (succès, honeypot, timing, email invalide, rejeu token, PoW invalide, rate limit)
+
+**Backup** : le script Apps Script actuel de cheroliv.com (endpoint
+`AKfycbyXWgSUaRc9...`) est la référence runtime — à sauvegarder avant toute
+modification (pas de git côté Apps Script, export .gs manuel).
+
+'''
+
+== 6. US, DAG, projection, risques
+
+Détaillés dans `BACKLOG.adoc` section `== EPIC BKY-CONTACT-SEC`.
+
+* *Total* : ~28 pts, 8 US.
+* *Projection* : 3 sessions (S194-S196).
+* *DAG* : CONTACT-SEC-1 (config) racine → domaine (2,3,4,5) en parallèle → renderer+task (6) → fixture (7, parallèle) → BDD (8) clôture.
+* *Point de bascule* : CONTACT-SEC-6 (task + bake) consume renderer + config.
+* *Risque majeur* : Turnstile nécessite un compte Cloudflare (prérequis opérateur, pas bloquant pour le code bakery — stub en test).
+
+'''
+
+== 7. Chemin critique reprise (ordre d'exécution conseillé)
+
+. **S194** — CONTACT-SEC-1 (ContactSecConfig POJO, 3 pts) + CONTACT-SEC-7 (fixture publique, 4 pts)
+. **S195** — CONTACT-SEC-2..5 (domaine pur : TurnstileVerify client/serveur, RateLimiter, SessionTokenManager, PowVerifier, ContentHeuristics — 12 pts, 5 US parallélisables)
+. **S196** — CONTACT-SEC-6 (ContactSecRenderer + scaffoldContactSec task + firestore.rules, 6 pts) + CONTACT-SEC-8 (BDD Cucumber, 3 pts) — clôture EPIC
+
+*Le code bakery est testable à 100% sans compte Cloudflare ni projet Firebase* —
+tout est stubbe/domaine pur. Le déploiement runtime est une procédure opérateur
+documentée (§5), hors CI.

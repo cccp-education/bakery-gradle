@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-08-04 — Session 189 EPIC BKY-OUTPUT CLOS (49/49 pts, 100%)._
-_Session en cours_ : 189 terminée — EPIC BKY-OUTPUT CLOS ✅. Tous les EPICs bakery sont clos. Backlog vide._
-_Prochaine session_ : 190 — Publication Maven Central 0.0.5 ou EPIC BKY-I18N-BATCH (stratégie lot annuel traduction).
+_Derniere mise a jour : 2026-08-04 — Session 190 Renfort couverture tests i18n deploy._
+_Session en cours_ : 190 terminée — Renfort couverture tests i18n deploy ✅._
+_Prochaine session_ : 191 — Publication Maven Central 0.0.5 ou EPIC BKY-I18N-BATCH.
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 190 | 2026-08-04 | DDD + TDD + BDD | **Renfort couverture tests i18n deploy** — Fake translator fixé (fragment-level). Feature 55 8/8 PASS (+1 mixed strategies). Fixture `diagrammes-mixtes.adoc`. Standalone runner `I18nDeployEndToEndCucumberTest`. Dictionnaire labels 20 entrées. | 9/10
   | 189 | 2026-08-04 | DDD + TDD + BDD | **EPIC BKY-OUTPUT CLOS — OUTPUT-5 ThemeResolver wiring (5 pts)** — `OutputConfigResolver` accepte `ThemeResolver?` optionnel, résout le thème dans `effectiveConfig`. `TreeBakeService` simplifié (ThemeResolver passé à OutputConfigResolver, buildConfigMap sans paramètre theme). +6 UT OutputConfigResolverTest. 12/12 OutputConfigResolverTest + 7/7 TreeBakeServiceTest + 100+ tree PASS. Cucumber features 39-48 tous PASS. publishToMavenLocal OK. 49/49 pts EPIC (100%). Tous les EPICs bakery sont clos. Backlog vide. | 9/10
   | 188 | 2026-08-03 | DDD + TDD + BDD + CI | **EPIC BKY-I18N-CI CLOS (19/19 pts)** — CI-4 site.yml.example 29 Device Keys template créé dans office/. CI-5 workflows déjà existants. CI-6 BDD feature 58 (4 scénarios, 4/4 PASS). CI-2 gap comblé : buildMaskedSummary ollama. 1 UT + 4 BDD ajoutés. | 9/10
   | 183 | 2026-07-19 | DDD + TDD + BDD + CI | **EPIC BKY-I18N-DEPLOY CLOS — DEPLOY-7 Généralisation multi-sites + SiteTranslationPlan + CI réutilisable (7 pts)** — 5 baby steps. (1) DDD : `SiteTranslationPlan` (52 lignes, 4 méthodes `rtlTargets`/`ltrTargets`/`missingLanguages`/`isComplete`, délègue `LanguageCatalog`). (2) TDD FT : câblage `mustRunAfter` dans `BakeryPlugin.wireI18nDeployTaskOrdering` (3 tâches ordonnées sans dépendance dure, 4 FT). (3) BDD : Feature 56 (7 scénarios multi-sites : 3 sites × 9 langues, dry-run, RTL ar/ur, headers JBake, PlantUml ×3 stratégies, SiteTranslationPlan). Runner standalone `I18nDeployMultiSiteCucumberTest` via `LauncherDiscoveryRequestBuilder`. (4) CI : workflow réutilisable `deploy-i18n-site.yml` (paramétré `workflow_call`), `deploy-cheroliv-com.yml` migré (-68 lignes). (5) Fix : bump catalog root + plugin 0.0.3/0.0.2 → 0.0.4, `BakeryPluginPublicationTest` 2/2 PASS. 30 nouveaux tests (19 UT + 4 FT + 7 BDD). `./gradlew test` SUCCESS 2m27s. EPIC CLOS 35/35 pts (100%). | 9/10

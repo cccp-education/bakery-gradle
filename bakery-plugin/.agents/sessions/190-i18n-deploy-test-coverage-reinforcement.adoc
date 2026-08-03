@@ -1,0 +1,50 @@
+= Session 190 — Renfort couverture tests i18n deploy (fake translator fix + mixed strategies + standalone runner)
+:date: 2026-08-04
+:type: DDD + TDD + BDD
+:epic: BKY-I18N-DEPLOY (renfort couverture)
+:score: 9/10
+
+== Contexte
+
+Analyse des gaps de couverture sur la traduction i18n d'articles contenant
+du PlantUML. 3 gaps identifiés et résolus dans bakery.
+
+== Baby steps
+
+=== Fix fake translator (fragment-level)
+
+Le `AsciiDocParser` découpe les paragraphes multi-lignes en fragments
+`PivotInline.Text` séparés par `Text(" ")`. Le fake translator utilisait
+des clés de dictionnaire phrase-entière qui ne matchent jamais → le test
+feature 55 "FR→EN" échouait silencieusement.
+
+Correctif : le fake translator préfixe TOUJOURS avec `[lang]` (y compris EN),
+le dictionnaire ne contient que les labels PlantUML. L'assertion FR→EN
+utilise `body should be in the target language` (vérifie `[en]`).
+
+Fichiers : `I18nDeployEndToEndSteps.kt`, `I18nDeployMultiSiteSteps.kt`,
+`55_i18n_deploy_end_to_end.feature`.
+
+=== Fixture article avec 2+ blocs plantuml de stratégies différentes
+
+Nouvel article `diagrammes-mixtes.adoc` : 1 bloc PreserveTechnical
+(class OrderService) + 1 bloc TranslateLabels (Client/Gestionnaire/Livreur).
+
+=== Standalone Cucumber runner pour feature 55
+
+`I18nDeployEndToEndCucumberTest.kt` — pattern identique à
+`I18nDeployMultiSiteCucumberTest` (feature 56) et `I18nDeltaWireCucumberTest`
+(feature 57). Permet l'itération rapide sans lancer la suite complète.
+
+=== BDD scenario mixed strategies
+
+Feature 55 +1 scénario : "Mixed PlantUml strategies in one article".
+Vérifie que le bloc technique est préservé ET les labels du second bloc
+sont traduits.
+
+== Résultats
+
+- Feature 55 : 8/8 PASS (7 existants + 1 nouveau)
+- Standalone runner : BUILD SUCCESSFUL
+- compileTestKotlin : BUILD SUCCESSFUL
+- publishToMavenLocal : OK

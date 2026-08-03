@@ -1,0 +1,45 @@
+= Article avec deux diagrammes de stratégies différentes
+@CherOliv
+2026-07-18
+:jbake-title: Article avec deux diagrammes de stratégies différentes
+:jbake-type: post
+:jbake-status: published
+:jbake-date: 2026-07-18
+:jbake-tags: plantuml, mixed, strategies
+:summary: Un article contenant un diagramme technique et un diagramme à labels traduisibles.
+
+== Diagramme technique
+
+Le premier diagramme est purement technique, sans labels humains. Il doit
+être préservé tel quel par la stratégie PreserveTechnical.
+
+[source,plantuml]
+----
+@startuml
+class OrderService {
+  +placeOrder(item: String): Order
+  +cancelOrder(id: Long): void
+}
+OrderService --> PaymentGateway
+OrderService --> InventoryService
+@enduml
+----
+
+== Diagramme avec labels
+
+Le second diagramme contient des labels humains à traduire. La stratégie
+TranslateLabels doit s'appliquer uniquement à ce bloc.
+
+[source,plantuml]
+----
+@startuml
+"Client" --> (Passer commande)
+"Gestionnaire" --> (Valider la commande)
+"Livreur" --> (Expédier le colis)
+@enduml
+----
+
+== Conclusion
+
+Les deux diagrammes dans un même article doivent recevoir des traitements
+différents : le premier préservé, le second traduit.

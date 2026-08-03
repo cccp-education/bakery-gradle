@@ -62,6 +62,12 @@ class I18nDeployEndToEndSteps {
             "Diagramme de cas d'utilisation" to "Use case diagram",
             "Texte associé" to "Associated text",
             "Diagramme avec labels traduisibles" to "Diagram with translatable labels",
+            "Client" to "Customer",
+            "Passer commande" to "Place order",
+            "Gestionnaire" to "Manager",
+            "Valider la commande" to "Validate order",
+            "Livreur" to "Delivery person",
+            "Expédier le colis" to "Ship the package",
         )
 
     @Given("a cheroliv-com-i18n-deploy fixture with 3 French articles and 10 supported languages")

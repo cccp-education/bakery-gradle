@@ -1,33 +1,34 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 190
+:session: 191
 :date: 2026-08-04
-:etat: EPIC BKY-OUTPUT CLOS (49/49 pts, 100%). BKY-OUTPUT-5 livré S189 — ThemeResolver câblé dans OutputConfigResolver. Tous les EPICs bakery sont clos. Backlog vide.
-:epic_actif: Aucun — backlog vide. Prochaine étape : publication Maven Central 0.0.5 ou EPIC BKY-I18N-BATCH (stratégie lot annuel traduction).
+:etat: Session 190 — Renfort couverture tests i18n deploy (fake translator fix + mixed strategies + standalone runner). Tous les EPICs bakery sont clos. Backlog vide.
+:epic_actif: Aucun — backlog vide. Prochaine étape : publication Maven Central 0.0.5 ou EPIC BKY-I18N-BATCH.
 
 == Contexte de fin
 
-Session 189 — BKY-OUTPUT-5 livré (5 pts) :
-- `OutputConfigResolver` accepte `ThemeResolver?` optionnel, résout le thème dans `effectiveConfig`
-- `TreeBakeService` simplifié : `ThemeResolver` passé à `OutputConfigResolver`, `buildConfigMap` sans paramètre `theme`
-- +6 UT OutputConfigResolverTest (thème via ThemeResolver, défaut, override, sibling, resolveAll, backward compat)
-- 12/12 OutputConfigResolverTest PASS, 7/7 TreeBakeServiceTest PASS, 100+ tree PASS
-- Cucumber features 39-48 (tree) tous PASS
-- 2 échecs préexistants non liés (FixtureAlignmentAuditorTest, RealSiteI18nMigrationIntegrationTest)
+Session 190 — Renfort couverture tests i18n deploy :
+- Fake translator fixé (fragment-level) : préfixe `[lang]` systématique, dictionnaire labels PlantUML uniquement
+- Feature 55 : 8/8 PASS (7 existants + 1 nouveau mixed strategies)
+- Nouvel article fixture `diagrammes-mixtes.adoc` (2 blocs plantuml stratégies différentes)
+- Standalone runner `I18nDeployEndToEndCucumberTest` créé (pattern feature 56/57)
+- `I18nDeployEndToEndSteps` + `I18nDeployMultiSiteSteps` : dictionnaire aligné (20 entrées labels)
 - publishToMavenLocal OK
 
 == Reprendre à
 
 . `git status` dans bakery-gradle
-. Backlog vide — tous les EPICs sont clos (49/49 pts BKY-OUTPUT, 19/19 BKY-I18N-CI, 35/35 BKY-I18N-DEPLOY)
+. Backlog vide — tous les EPICs sont clos
 . Options prochaine session :
-  * Publication Maven Central 0.0.5 (plugin 0.0.4 en mavenLocal depuis S183)
-  * EPIC BKY-I18N-BATCH — stratégie lot annuel traduction cheroliv.com (cadré S029 document/gradle)
-  * Nouvel EPIC à cadrer selon besoin
+  * Publication Maven Central 0.0.5
+  * EPIC BKY-I18N-BATCH — stratégie lot annuel traduction
+  * Nouvel EPIC à cadrer
 . `publishToMavenLocal` après chaque modification code source
 
-== Fichiers touchés S189
+== Fichiers touchés S190
 
 *bakery-gradle/bakery-plugin* :
-- `src/main/kotlin/bakery/tree/OutputConfigResolver.kt` — +themeResolver param
-- `src/main/kotlin/bakery/tree/TreeBakeService.kt` — ThemeResolver via OutputConfigResolver
-- `src/test/kotlin/bakery/tree/OutputConfigResolverTest.kt` — +6 tests
+- `src/test/scenarios/bakery/scenarios/I18nDeployEndToEndSteps.kt` — fake translator fragment-level
+- `src/test/scenarios/bakery/scenarios/I18nDeployMultiSiteSteps.kt` — idem
+- `src/test/features/55_i18n_deploy_end_to_end.feature` — +1 scénario mixed strategies
+- `src/test/resources/fixtures/cheroliv-com-i18n-deploy/content/blog/diagrammes-mixtes.adoc` — nouveau
+- `src/test/kotlin/bakery/i18n/deploy/I18nDeployEndToEndCucumberTest.kt` — nouveau

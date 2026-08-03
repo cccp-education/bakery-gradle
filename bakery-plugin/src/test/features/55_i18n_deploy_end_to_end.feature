@@ -68,3 +68,12 @@ Feature: i18n deploy end-to-end — 10 languages pipeline
     And the "en" variant should not contain ":lang: rtl"
     And the FR menu should contain a link to "en/index.html" for language "en"
     And the FR menu should contain a link to "ar/index.html" for language "ar"
+
+  Scenario: Mixed PlantUml strategies in one article — PreserveTechnical + TranslateLabels
+    When the deploy pipeline translates the fixture from fr to "en"
+    Then the translated "en" article "diagrammes-mixtes.adoc" should contain "@startuml"
+    And the translated "en" article "diagrammes-mixtes.adoc" should contain "class OrderService"
+    And the translated "en" article "diagrammes-mixtes.adoc" should contain "OrderService --> PaymentGateway"
+    And the translated "en" article "diagrammes-mixtes.adoc" should not contain "\"Client\""
+    And the translated "en" article "diagrammes-mixtes.adoc" should not contain "\"Gestionnaire\""
+    And the translated "en" article "diagrammes-mixtes.adoc" should not contain "\"Livreur\""

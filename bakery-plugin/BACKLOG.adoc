@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-08-04 — Session 190. EPIC BKY-SEO ouvert (27 pts, 7 US) : généralisation features SEO sur copie anonymisée cheroliv-com-seo. Tous les autres EPICs bakery sont clos._
+_Dernière mise à jour : 2026-08-04 — Session 190. EPIC BKY-SEO ouvert (27 pts, 7 US) + EPIC BKY-CONTACT-SEC ouvert (26 pts, 8 US) : durcissement formulaire contact (Turnstile, rate limit, token anti-rejeu, PoW, heuristiques, firestore.rules) sur fixture cheroliv-com-contact. Tous les autres EPICs bakery sont clos._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -233,6 +233,15 @@ pour introduire le concept unifiant `SiteTree` (Composite Site→Section→Artic
   (court 173l, moyen 811l, long 1403l) avant déploiement complet. CI
   `deploy-cheroliv-com.yml` inchangée — bake les `content-i18n/en/` déjà traduits.
 | DDD/TDD/BDD + dogfooding LLM réel
+
+| 9
+| **BKY-CONTACT-SEC — Durcissement formulaire contact** (Session 190, 26 pts,
+  8 US). Scaffold bakery de formulaire sécurisé : Turnstile (siteverify via
+  Apps Script UrlFetchApp), rate limit par empreinte + cap global 50/jour,
+  token anti-rejeu single-use, PoW client, heuristiques contenu, firestore.rules
+  renforcées. Fixture publique `cheroliv-com-contact`. Cadrage exhaustif :
+  `.agents/CONTACT_SEC_ARCHITECTURE.adoc`. Projection S194-S196.
+| DDD/TDD/BDD
 |===
 
 '''
@@ -1617,11 +1626,219 @@ DDD/TDD/BDD préservée à chaque US.
 
 '''
 
+== EPIC BKY-CONTACT-SEC — Durcissement formulaire contact (Turnstile, rate limit, token anti-rejeu, PoW, heuristiques) — scaffold bakery + fixture publique
+
+_Cadré Session 190 (2026-08-04). Constat Session 034 : le formulaire contact
+cheroliv.com envoie à Firestore + Apps Script Gmail. 4 défenses existent déjà
+(honeypot `hp_name` client+serveur, timing `ts_render` <2.5s, validation email,
+rate limit 3/h/email + 30/jour). **Point faible structurel** : le POST `no-cors`
+vers l'endpoint Apps Script est directement rejouable par un bot — il ignore le
+JS, appelle `AKfycbyXWgSUaRc9.../exec` en brut avec `hp_name=""` +
+`ts_render=Date.now()`. Aucune vérification serveur réelle (CAPTCHA/vérif
+humaine) n'existe. Le site est statique — le seul "backend" est l'endpoint Apps
+Script lui-même (`UrlFetchApp` appelle des API externes)._
+
+_Cadrage exhaustif_ : `.agents/CONTACT_SEC_ARCHITECTURE.adoc` (état actuel,
+périmètre bakery vs runtime, fixture, procédure opérateur, chemin critique).
+
+[CAUTION]
+====
+**Motivation** : les 4 défenses actuelles filtrent uniquement les bots naïfs.
+Un bot moyen peut les contourner toutes (pas de JS à exécuter, champs facultatifs
+falsifiables). Pour un site personnel à faible volume (cheroliv.com), le spam
+email est un problème réel (boîte mail saturée, faux leads). L'EPIC généralise
+dans bakery un **scaffold de formulaire contact sécurisé** réutilisable par tout
+site consommateur (cheroliv.com, magic-stick, cccp.education).
+
+**Vision** : une config `contact:` dans `site.yml` + une tâche Gradle
+`scaffoldContactSec` qui génère le formulaire sécurisé (templates + JS durci +
+`firestore.rules` de référence). 6 couches de défense :
+. *Turnstile (Cloudflare)* — vérification humaine serveur réelle via
+  `UrlFetchApp` siteverify. PRIORITÉ 1 (le seul vrai bloquant).
+. *Rate limit par empreinte + cap global* — clé = `sha256(fp + email)`, cap
+  50/jour toutes origines (pas d'IP client en Apps Script).
+. *Token anti-rejeu à usage unique* — `session_token` CacheService TTL 10min,
+  consommé à la soumission.
+. *Preuve de travail client (PoW)* — nonce `sha256(challenge+nonce)` à N zéros.
+. *Heuristiques de contenu* — ≥3 URLs, message==subject, domaine jetable,
+  gibberish non-Latin.
+. *Firestore rules renforcées* — `created_at == request.time`, whitelist champs,
+  cap longueur, double couche `hp_name`.
+
+**Boundary bakery** : bakery génère le *scaffold* (code de référence). Le
+runtime (projet Firebase, script Apps Script déployé, boîte mail) reste la
+propriété du site consommateur — procédure opérateur documentée
+(CONTACT_SEC_ARCHITECTURE §5). Le code bakery est 100% testable sans compte
+Cloudflare ni projet Firebase (stubs + domaine pur).
+
+**Pré-requis respectés** :
+. *Ne pas toucher aux sites privés* — fixture publique
+  `src/test/resources/fixtures/cheroliv-com-contact/` (exemple.com, `0xTESTKEY`,
+  endpoint `script.example.com`, zéro donnée perso).
+. *Backward compat* — sans config `contact:`, aucun scaffold (no-op).
+. *Complémentaire à BKY-SEO* — BKY-SEO (SEO) et BKY-CONTACT-SEC (contact form)
+  sont deux EPICs séparés, tous deux cadrés Session 190, sur fixtures distinctes.
+. *Méthodo* — baby steps DDD (concept pur, testable sans Gradle) → TDD (UT rouge
+  avant code) → BDD (feature Cucumber bout en bout). Aucune I/O dans les classes
+  de domaine.
+====
+
+=== User Stories — baby steps DDD/TDD/BDD
+
+[cols="1,4,2,2,2]
+|===
+| US | Description (domaine pur, no I/O) | Tests | Pts | Dépend de
+
+| BKY-CONTACT-SEC-1
+| *`ContactSecConfig` POJO pur* — data class `ContactSecConfig(enabled: Boolean,
+  endpointUrl: String, firestoreCollection: String, turnstile: TurnstileConfig?,
+  maxHpFields: Int = 1, minRenderTimeMs: Int = 2500, rateLimit:
+  RateLimitConfig?, dailyGlobalCap: Int = 50)`. `TurnstileConfig(siteKey: String)`,
+  `RateLimitConfig(perHour: Int = 3, perDay: Int = 30)`. Désérialisable depuis
+  `site.yml` (`contact:` section). `@JsonIgnoreProperties`. Backward-compat :
+  absent = no-op.
+| UT : construction, égalité, immutabilité, parse `contact:` YAML → config,
+  parse sans `contact:` → null, `turnstile.enabled` requis siteKey, defaults
+  (minRenderTimeMs 2500, dailyGlobalCap 50)
+| 3
+| —
+
+| BKY-CONTACT-SEC-2
+| *`TurnstileClient` domaine pur* — data class `TurnstileVerifyRequest(secret,
+  response, remoteIp?)` + port `TurnstileVerifier { fun verify(request):
+  VerifyResult }`. `VerifyResult` sealed (Success / Failure(code)). Construction
+  de l'URL siteverify `https://challenges.cloudflare.com/turnstile/v0/siteverify`.
+  Pas d'appel réseau dans le domaine (port I/O isolé).
+| UT : build siteverify URL, VerifyResult Success/Failure, empty response →
+  Failure, secret vide → Failure
+| 2
+| SEC-1
+
+| BKY-CONTACT-SEC-3
+| *`RateLimiter` domaine pur* — cache clé→compteur avec TTL. `fun allow(key:
+  String, now: Long): Boolean`, `fun reset(key: String)`, cap par fenêtre
+  (perHour/perDay) + `globalCap`. Pure fonction de décision (stockage injecté,
+  impl `CacheService` hors domaine).
+| UT : allow sous cap, deny au-delà perHour, deny au-delà perDay, reset, cap
+  global 50/jour, expiry TTL (now > now+TTL → allow à nouveau)
+| 3
+| SEC-1
+
+| BKY-CONTACT-SEC-4
+| *`SessionTokenManager` domaine pur* — issue/validate/consume d'un token
+  single-use. `fun issue(now: Long): SessionToken` (random + TTL 10min),
+  `fun validate(token, now): Boolean`, `fun consume(token): Boolean` (usage
+  unique : seconde soumission refusée). Stockage injecté (impl CacheService
+  hors domaine).
+| UT : issue → validate true, expiry TTL, double consume → false, token inconnu
+  → false, token vide → false
+| 2
+| SEC-1
+
+| BKY-CONTACT-SEC-5
+| *`PowVerifier` + `ContentHeuristics` domaine pur* — `PowVerifier.verify(
+  challenge, nonce, difficulty): Boolean` (sha256(challenge+nonce) commence par
+  N zéros). `ContentHeuristics`: `countUrls(text)`, `isDuplicateSubject(subject,
+  message)`, `isDisposableDomain(email)` (denylist embarquée : mailinator,
+  guerrillamail, 10minutemail…), `isGibberish(text)` (ratio non-Latin > 50% ou
+  sans espace).
+| UT : PowVerifier nonce valide/invalide, difficulté 0/1/2, hashing déterministe;
+  heuristics countUrls 0/1/3, duplicate subject, disposable domain, gibberish
+  Latin/non-Latin, empty text
+| 3
+| SEC-1
+
+| BKY-CONTACT-SEC-6
+| *`ContactSecRenderer` + tâche `scaffoldContactSec`* — renderer transforme
+  `ContactSecConfig` en fragment `footer.thyme` (form + honeypot + token +
+  turnstile div `<!-- CONTACT-SEC: bakery -->`) + `contact.js` durci (honeypot,
+  ts_render, fingerprint, PoW, turnstile getResponse, fetch parallel email +
+  firestore). Tâche Gradle copie dans le site cible (FR + langues i18n), génère
+  `firestore.rules` de référence. Backward-compat : sans config `contact:`, no-op.
+| FT : scaffold dans fixture FR, scaffold EN, idempotent (re-run = même résultat),
+  scaffold avec bloc existant (remplace), scaffold sans config (no-op), génère
+  firestore.rules attendues
+| 6
+| SEC-2, SEC-3, SEC-4, SEC-5
+
+| BKY-CONTACT-SEC-7
+| *Fixture public `cheroliv-com-contact`* — copie minimaliste du formulaire
+  cheroliv.com dans `src/test/resources/fixtures/cheroliv-com-contact/` : `site.yml`
+  avec `contact:`, `jbake/templates/footer.thyme` (form + honeypot + marker),
+  `jbake/assets/js/contact.js` (JS durci), `jbake/assets/js/turnstile.placeholder.js`
+  (stub `0xTESTKEY` pour CI), `firestore.rules` (référence), `i18n/en/templates/
+  footer.thyme` (variante EN), index.html + jbake.properties minimal. Zéro donnée
+  privée.
+| — (production d'artefacts, validé par SEC-6/SEC-8)
+| 4
+| —
+
+| BKY-CONTACT-SEC-8
+| *BDD Cucumber bout en bout* — feature `60_contact_sec.feature` : bake fixture
+  `cheroliv-com-contact` → assert form présent + honeypot + token + turnstile div,
+  JS durci contient poW challenge + fingerprint + turnstile getResponse,
+  `firestore.rules` générées (create only, created_at request.time, whitelist).
+  Scénarios : scaffold FR, scaffold EN, no-op sans config, firestore rules.
+| BDD : 4 scénarios (scaffold FR, scaffold EN, no-op sans contact:, firestore
+  rules conformes)
+| 3
+| SEC-7
+|===
+
+_Total_ : ~26 pts, 8 US.
+
+=== Dépendances (DAG)
+
+----
+SEC-1 (ContactSecConfig) ─┬─→ SEC-2 (Turnstile) ──┐
+                          ├─→ SEC-3 (RateLimiter) ─┤
+                          ├─→ SEC-4 (SessionToken)─┼─→ SEC-6 (Renderer + Task) ─→ SEC-8 (BDD)
+                          └─→ SEC-5 (PoW+Heuristics)┘
+SEC-7 (Fixture) ───────────────────────────────────┘
+----
+
+*SEC-1* est racine (tout dépend de lui).
+*SEC-7* (fixture) est indépendant, peut être créé en parallèle.
+*SEC-6* est le point de fusion (consume les 4 domaines + fixture).
+*SEC-8* clôture l'EPIC (valide bout en bout sur fixture public).
+
+=== Projection sessions
+
+* *S194* — SEC-1 + SEC-7 (7 pts, 2 US, config + fixture)
+* *S195* — SEC-2 + SEC-3 + SEC-4 + SEC-5 (10 pts, 4 US, domaine pur parallélisable)
+* *S196* — SEC-6 + SEC-8 (9 pts, 2 US, renderer + task + BDD, clôture EPIC)
+
+Projection conservatrice : 3 sessions, ~26 pts, méthodo baby step
+DDD/TDD/BDD préservée à chaque US.
+
+=== Risques et mitigations
+
+[cols="3,5,4]
+|===
+| Risque | Mitigation
+| Turnstile nécessite un compte Cloudflare (prérequis opérateur) | Non bloquant
+  pour le code bakery — `TurnstileVerifier` port abstrait, stub `turnstile.placeholder.js`
+  + sitekey `0xTESTKEY` en tests. L'opérateur renseigne sitekey/secret au déploiement
+  (procédure CONTACT_SEC_ARCHITECTURE §5).
+| Apps Script n'a pas l'IP client | Impossible en Apps Script. Remplacement :
+  empreinte navigateur hachée (fp) + cap global quotidien 50/jour. Documenté.
+| Rejeu du payload capturé | Token anti-rejeu single-use (SEC-4) consommé à la
+  soumission — une capture rejouée est refusée.
+| Firestore rules divergentes du script | Le `firestore.rules` de référence est
+  généré par `scaffoldContactSec` depuis la même `ContactSecConfig` — cohérence
+  garantie par construction.
+| Runtime Google (Firebase/Apps Script) hors CI bakery | Le code bakery est 100%
+  testable sans infra Google (domaine pur + stubs). Le déploiement runtime est une
+  procédure opérateur documentée, hors CI.
+|===
+
+'''
+
 [cols="2,3]
 |===
 | Document | `BACKLOG.adoc`
- | Version | 22.0 — Session 190 (EPIC BKY-SEO cadré, fixture cheroliv-com-seo créée)
+ | Version | 23.0 — Session 190 (EPIC BKY-CONTACT-SEC cadré, cadrage CONTACT_SEC_ARCHITECTURE)
  | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
- | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-184 + EPIC I18N-BATCH + EPIC I18N-CI + EPIC BKY-SEO
- | Prochaine màj | Session 191 — SEO-1 SeoConfig POJO
+ | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-184 + EPIC I18N-BATCH + EPIC I18N-CI + EPIC BKY-SEO + EPIC BKY-CONTACT-SEC
+ | Prochaine màj | Session 191 — SEO-1 SeoConfig POJO ou SEC-1 ContactSecConfig POJO
 |===
