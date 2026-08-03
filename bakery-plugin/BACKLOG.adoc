@@ -1671,6 +1671,15 @@ propriété du site consommateur — procédure opérateur documentée
 (CONTACT_SEC_ARCHITECTURE §5). Le code bakery est 100% testable sans compte
 Cloudflare ni projet Firebase (stubs + domaine pur).
 
+**Sécurité OSS** : le repo bakery est public (Apache 2.0). **Zéro identifiant
+réel** (endpoint Apps Script, projet Firebase, Gmail, sitekey Turnstile) n'y
+est commité — mocks uniquement (`example.com`, `0xTESTKEY`, `<script-endpoint>`).
+Les credentials réels vivent dans le repo privé du site + env vars / GitHub
+Secrets. La validation réelle est faite par l'utilisateur (local) ou un job
+GitHub Action manuel `workflow_dispatch` sur le repo privé du site
+(`contactSecSmokeTest`, pattern BKY-I18N-CI) — jamais dans le CI bakery public
+(voir CONTACT_SEC_ARCHITECTURE §5bis).
+
 **Pré-requis respectés** :
 . *Ne pas toucher aux sites privés* — fixture publique
   `src/test/resources/fixtures/cheroliv-com-contact/` (exemple.com, `0xTESTKEY`,
@@ -1764,11 +1773,12 @@ Cloudflare ni projet Firebase (stubs + domaine pur).
 | BKY-CONTACT-SEC-7
 | *Fixture public `cheroliv-com-contact`* — copie minimaliste du formulaire
   cheroliv.com dans `src/test/resources/fixtures/cheroliv-com-contact/` : `site.yml`
-  avec `contact:`, `jbake/templates/footer.thyme` (form + honeypot + marker),
-  `jbake/assets/js/contact.js` (JS durci), `jbake/assets/js/turnstile.placeholder.js`
-  (stub `0xTESTKEY` pour CI), `firestore.rules` (référence), `i18n/en/templates/
-  footer.thyme` (variante EN), index.html + jbake.properties minimal. Zéro donnée
-  privée.
+  avec `contact:` (**mocks uniquement** : endpoint `<script-endpoint>`, sitekey
+  `0xTESTKEY`, `example.com`), `jbake/templates/footer.thyme` (form + honeypot +
+  marker), `jbake/assets/js/contact.js` (JS durci), `jbake/assets/js/
+  turnstile.placeholder.js` (stub pour CI), `firestore.rules` (référence),
+  `i18n/en/templates/footer.thyme` (variante EN), index.html + jbake.properties
+  minimal. Zéro donnée privée, **zéro identifiant réel** — tout mock.
 | — (production d'artefacts, validé par SEC-6/SEC-8)
 | 4
 | —
