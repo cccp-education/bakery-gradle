@@ -32,7 +32,7 @@ class OutputConfigResolverTest {
         val blog =
             Section(
                 path = "blog",
-                articles = emptyList(),
+                articles = listOf(Article(path = "blog/hello")),
                 outputConfig = OutputConfig(template = "blog-index"),
             )
         return SiteTree(
@@ -129,11 +129,136 @@ class OutputConfigResolverTest {
         val tree = sampleTree()
         val resolver = OutputConfigResolver(tree)
         val all = resolver.resolveAll()
-        assertEquals(5, all.size)
+        assertEquals(6, all.size)
         assertEquals("default-page", all[""]?.template)
         assertEquals("default-page", all["formations/ab-partition"]?.template)
         assertEquals(LayoutType.SIDEBAR_LEFT, all["formations/ab-partition"]?.layout)
         assertEquals("blog-index", all["blog"]?.template)
         assertEquals(LayoutType.SIDEBAR_LEFT, all["formations"]?.layout)
+    }
+
+    @Test
+    fun `with ThemeResolver resolves theme via OutputConfig`() {
+        val tree = sampleTree()
+        val themeResolver =
+            ThemeResolver(
+                tree,
+                overrides = mapOf("formations" to ThemeConfig(primaryColor = "#f00", mode = "dark")),
+                default = ThemeConfig(primaryColor = "#abc", mode = "auto"),
+            )
+        val resolver = OutputConfigResolver(tree, themeResolver)
+
+        val article = tree.findByPath("formations/ab-partition")!!
+        val config = resolver.effectiveConfig(article)
+
+        assertEquals("#f00", config.theme?.primaryColor)
+        assertEquals("dark", config.theme?.mode)
+    }
+
+    @Test
+    fun `with ThemeResolver default theme flows through OutputConfig`() {
+        val tree = sampleTree()
+        val themeResolver =
+            ThemeResolver(
+                tree,
+                overrides = emptyMap(),
+                default = ThemeConfig(primaryColor = "#abc", mode = "auto"),
+            )
+        val resolver = OutputConfigResolver(tree, themeResolver)
+
+        val article = tree.findByPath("formations/ab-partition")!!
+        val config = resolver.effectiveConfig(article)
+
+        assertEquals("#abc", config.theme?.primaryColor)
+        assertEquals("auto", config.theme?.mode)
+    }
+
+    @Test
+    fun `with ThemeResolver article override wins in OutputConfig`() {
+        val tree = sampleTree()
+        val themeResolver =
+            ThemeResolver(
+                tree,
+                overrides =
+                    mapOf(
+                        "formations" to ThemeConfig(primaryColor = "#f00", mode = "dark"),
+                        "formations/ab-partition" to ThemeConfig(primaryColor = "#00f", mode = "light"),
+                    ),
+                default = ThemeConfig(primaryColor = "#abc", mode = "auto"),
+            )
+        val resolver = OutputConfigResolver(tree, themeResolver)
+
+        val article = tree.findByPath("formations/ab-partition")!!
+        val config = resolver.effectiveConfig(article)
+
+        assertEquals("#00f", config.theme?.primaryColor)
+        assertEquals("light", config.theme?.mode)
+    }
+
+    @Test
+    fun `with ThemeResolver sibling inherits section override in OutputConfig`() {
+        val tree = sampleTree()
+        val themeResolver =
+            ThemeResolver(
+                tree,
+                overrides =
+                    mapOf(
+                        "formations" to ThemeConfig(primaryColor = "#f00", mode = "dark"),
+                        "formations/ab-partition" to ThemeConfig(primaryColor = "#00f", mode = "light"),
+                    ),
+                default = ThemeConfig(primaryColor = "#abc", mode = "auto"),
+            )
+        val resolver = OutputConfigResolver(tree, themeResolver)
+
+        val article = tree.findByPath("formations/cd-partition")!!
+        val config = resolver.effectiveConfig(article)
+
+        assertEquals("#f00", config.theme?.primaryColor)
+        assertEquals("dark", config.theme?.mode)
+    }
+
+    @Test
+    fun `with ThemeResolver resolveAll includes theme in every node`() {
+        val tree = sampleTree()
+        val themeResolver =
+            ThemeResolver(
+                tree,
+                overrides = mapOf("formations" to ThemeConfig(primaryColor = "#f00", mode = "dark")),
+                default = ThemeConfig(primaryColor = "#abc", mode = "auto"),
+            )
+        val resolver = OutputConfigResolver(tree, themeResolver)
+
+        val all = resolver.resolveAll()
+
+        assertEquals(6, all.size)
+        assertEquals("#f00", all["formations"]?.theme?.primaryColor)
+        assertEquals("dark", all["formations"]?.theme?.mode)
+        assertEquals("#f00", all["formations/ab-partition"]?.theme?.primaryColor)
+        assertEquals("#abc", all["blog"]?.theme?.primaryColor)
+        assertEquals("auto", all["blog"]?.theme?.mode)
+        assertEquals("#abc", all["blog/hello"]?.theme?.primaryColor)
+    }
+
+    @Test
+    fun `without ThemeResolver theme is null in OutputConfig`() {
+        val tree =
+            SiteTree(
+                Site(
+                    path = "",
+                    sections =
+                        listOf(
+                            Section(
+                                path = "docs",
+                                articles = listOf(Article(path = "docs/guide")),
+                            ),
+                        ),
+                ),
+            )
+        val resolver = OutputConfigResolver(tree)
+
+        val article = tree.findByPath("docs/guide")!!
+        val config = resolver.effectiveConfig(article)
+
+        assertNull(config.theme)
     }
 }

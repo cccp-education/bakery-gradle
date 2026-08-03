@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-07-19 — Session 184. EPIC BKY-I18N-DELTA-WIRE CLOS (12/12 pts). BKY-OUTPUT-5 livré (ThemeResolver → TreeBakeService). Plugin 0.0.4 mavenLocal._
+_Dernière mise à jour : 2026-08-04 — Session 189. EPIC BKY-OUTPUT CLOS (49/49 pts, 100%). Tous les EPICs bakery sont clos. Backlog vide._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 

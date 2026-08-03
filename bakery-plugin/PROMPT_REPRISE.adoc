@@ -1,35 +1,33 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 189
-:date: 2026-08-03
-:etat: EPIC BKY-I18N-CI CLOS (19/19 pts). CI-4 site.yml.example créé, CI-5 workflows existants, CI-6 BDD feature 58 4/4 PASS. buildMaskedSummary étendu ollama.
-:epic_actif: BKY-OUTPUT-5 — Wire ThemeResolver into bake (TreeBakeService → OutputConfigResolver), 5 pts. Dernière US EPIC BKY-OUTPUT.
+:session: 190
+:date: 2026-08-04
+:etat: EPIC BKY-OUTPUT CLOS (49/49 pts, 100%). BKY-OUTPUT-5 livré S189 — ThemeResolver câblé dans OutputConfigResolver. Tous les EPICs bakery sont clos. Backlog vide.
+:epic_actif: Aucun — backlog vide. Prochaine étape : publication Maven Central 0.0.5 ou EPIC BKY-I18N-BATCH (stratégie lot annuel traduction).
 
 == Contexte de fin
 
-Session 188 — EPIC BKY-I18N-CI CLOS :
-- CI-4 : `site.yml.example` créé dans `office/sites/cheroliv.com/` (29 Device Keys template)
-- CI-5 : workflows `translate-cheroliv-com.yml` + `translate-i18n-content.yml` déjà existants
-- CI-6 : BDD feature 58 (4 scénarios, 4/4 PASS)
-- CI-2 gap : `buildMaskedSummary` étendu pour ollama (model, ports, deviceKeys count)
-- Bug BakeryPluginPublicationTest : déjà résolu (0.0.5)
-- `publishToMavenLocal` OK
+Session 189 — BKY-OUTPUT-5 livré (5 pts) :
+- `OutputConfigResolver` accepte `ThemeResolver?` optionnel, résout le thème dans `effectiveConfig`
+- `TreeBakeService` simplifié : `ThemeResolver` passé à `OutputConfigResolver`, `buildConfigMap` sans paramètre `theme`
+- +6 UT OutputConfigResolverTest (thème via ThemeResolver, défaut, override, sibling, resolveAll, backward compat)
+- 12/12 OutputConfigResolverTest PASS, 7/7 TreeBakeServiceTest PASS, 100+ tree PASS
+- Cucumber features 39-48 (tree) tous PASS
+- 2 échecs préexistants non liés (FixtureAlignmentAuditorTest, RealSiteI18nMigrationIntegrationTest)
+- publishToMavenLocal OK
 
 == Reprendre à
 
 . `git status` dans bakery-gradle
-. EPIC BKY-OUTPUT-5 — S189 :
-  * Wire `ThemeResolver` into bake pipeline
-  * `TreeBakeService` passe par `OutputConfigResolver` pour le thème effectif
-  * 5 pts, 1 US, baby steps DDD/TDD/BDD
+. Backlog vide — tous les EPICs sont clos (49/49 pts BKY-OUTPUT, 19/19 BKY-I18N-CI, 35/35 BKY-I18N-DEPLOY)
+. Options prochaine session :
+  * Publication Maven Central 0.0.5 (plugin 0.0.4 en mavenLocal depuis S183)
+  * EPIC BKY-I18N-BATCH — stratégie lot annuel traduction cheroliv.com (cadré S029 document/gradle)
+  * Nouvel EPIC à cadrer selon besoin
 . `publishToMavenLocal` après chaque modification code source
 
-== Fichiers touchés S188
+== Fichiers touchés S189
 
 *bakery-gradle/bakery-plugin* :
-- `src/main/kotlin/bakery/VerifyConfigurationMappingTask.kt` — buildMaskedSummary + ollama
-- `src/test/kotlin/bakery/VerifyConfigurationMappingTaskTest.kt` — +1 UT ollama
-- `src/test/scenarios/bakery/scenarios/OllamaConfigSteps.kt` — +5 steps feature 58
-- `src/test/features/58_i18n_ci_ollama_device_key.feature` — nouveau
-
-*office* :
-- `sites/cheroliv.com/site.yml.example` — nouveau
+- `src/main/kotlin/bakery/tree/OutputConfigResolver.kt` — +themeResolver param
+- `src/main/kotlin/bakery/tree/TreeBakeService.kt` — ThemeResolver via OutputConfigResolver
+- `src/test/kotlin/bakery/tree/OutputConfigResolverTest.kt` — +6 tests

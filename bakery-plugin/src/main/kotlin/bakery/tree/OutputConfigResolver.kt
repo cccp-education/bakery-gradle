@@ -6,6 +6,7 @@ import bakery.tree.SiteNode.Site
 
 class OutputConfigResolver(
     private val tree: SiteTree,
+    private val themeResolver: ThemeResolver? = null,
 ) {
     fun effectiveConfig(node: SiteNode): OutputConfig {
         val chain = ancestorChain(node)
@@ -13,6 +14,10 @@ class OutputConfigResolver(
         for (path in chain.reversed()) {
             val config = findConfig(path)
             if (config != null) resolved = resolved.merge(config)
+        }
+        if (themeResolver != null) {
+            val resolvedTheme = themeResolver.effectiveTheme(node)
+            resolved = resolved.copy(theme = resolvedTheme.theme)
         }
         return resolved
     }

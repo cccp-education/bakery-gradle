@@ -1,0 +1,66 @@
+= Session 189 — BKY-OUTPUT-5 : Wire ThemeResolver into bake (TreeBakeService → OutputConfigResolver)
+:date: 2026-08-04
+:type: DDD + TDD + BDD
+:epic: BKY-OUTPUT-5
+:points: 5
+:score: 9/10
+
+== Contexte
+
+EPIC BKY-OUTPUT — dernière US restante (44/49 pts, 90%).
+`ThemeResolver` (TREE-5, S167) et `OutputConfigResolver` (OUTPUT-2, S172)
+existaient séparément. `TreeBakeService.injectTreeConfig()` appelait les deux
+indépendamment puis mergeait le thème dans `buildConfigMap`. L'objectif :
+faire de `OutputConfigResolver` la source unique de vérité en y injectant
+`ThemeResolver`, pour que le thème soit déjà résolu dans l'`OutputConfig`.
+
+== Baby steps
+
+=== DDD — OutputConfigResolver accepte ThemeResolver
+
+`OutputConfigResolver(tree, themeResolver?)` — paramètre optionnel backward-compat.
+`effectiveConfig()` : après merge de la chaîne d'ancêtres, si `themeResolver`
+est présent, résout le thème via `themeResolver.effectiveTheme(node)` et
+l'injecte dans l'`OutputConfig` retourné via `copy(theme = ...)`.
+
+=== DDD — TreeBakeService simplifié
+
+- `ThemeResolver` créé puis passé à `OutputConfigResolver(siteTree, themeResolver)`
+- Suppression de `themeResolver.resolveAll()` séparé
+- `buildConfigMap(out, meta)` — le paramètre `theme` est retiré, le thème
+  est déjà dans `out.theme`
+
+=== TDD — OutputConfigResolverTest (+6 UT)
+
+- `with ThemeResolver resolves theme via OutputConfig` — section override
+- `with ThemeResolver default theme flows through OutputConfig` — défaut
+- `with ThemeResolver article override wins in OutputConfig` — article > section
+- `with ThemeResolver sibling inherits section override in OutputConfig` — sibling
+- `with ThemeResolver resolveAll includes theme in every node` — resolveAll
+- `without ThemeResolver theme is null in OutputConfig` — backward compat
+
+Fix : `sampleTree()` ajouté `blog/hello` article (manquait), `resolveAll` 5→6.
+
+=== BDD — Cucumber features
+
+Features 39-48 (tree) tous PASS. Feature 55 (i18n deploy end-to-end) a 1 échec
+préexistant non lié (FR→EN translation, fake translator label-aware).
+
+== Fichiers modifiés
+
+[cols="2,3"]
+|===
+| Fichier | Changement
+| `OutputConfigResolver.kt` | +`themeResolver` param, résolution thème dans `effectiveConfig`
+| `TreeBakeService.kt` | `ThemeResolver` passé à `OutputConfigResolver`, `buildConfigMap` simplifié
+| `OutputConfigResolverTest.kt` | +6 tests intégration ThemeResolver, fix `sampleTree`
+|===
+
+== Résultats
+
+- compileKotlin BUILD SUCCESSFUL
+- 12/12 OutputConfigResolverTest PASS
+- 7/7 TreeBakeServiceTest PASS
+- 100+ tests tree package PASS
+- publishToMavenLocal OK
+- 2 échecs préexistants non liés (FixtureAlignmentAuditorTest, RealSiteI18nMigrationIntegrationTest)

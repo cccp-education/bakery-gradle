@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-08-03 — Session 188 EPIC BKY-I18N-CI CLOS (19/19 pts)._
-_Session en cours_ : 188 terminée — EPIC BKY-I18N-CI CLOS ✅._
-_Prochaine session_ : 189 — BKY-OUTPUT-5 : Wire ThemeResolver into bake (TreeBakeService → OutputConfigResolver), 5 pts.
+_Derniere mise a jour : 2026-08-04 — Session 189 EPIC BKY-OUTPUT CLOS (49/49 pts, 100%)._
+_Session en cours_ : 189 terminée — EPIC BKY-OUTPUT CLOS ✅. Tous les EPICs bakery sont clos. Backlog vide._
+_Prochaine session_ : 190 — Publication Maven Central 0.0.5 ou EPIC BKY-I18N-BATCH (stratégie lot annuel traduction).
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 189 | 2026-08-04 | DDD + TDD + BDD | **EPIC BKY-OUTPUT CLOS — OUTPUT-5 ThemeResolver wiring (5 pts)** — `OutputConfigResolver` accepte `ThemeResolver?` optionnel, résout le thème dans `effectiveConfig`. `TreeBakeService` simplifié (ThemeResolver passé à OutputConfigResolver, buildConfigMap sans paramètre theme). +6 UT OutputConfigResolverTest. 12/12 OutputConfigResolverTest + 7/7 TreeBakeServiceTest + 100+ tree PASS. Cucumber features 39-48 tous PASS. publishToMavenLocal OK. 49/49 pts EPIC (100%). Tous les EPICs bakery sont clos. Backlog vide. | 9/10
   | 188 | 2026-08-03 | DDD + TDD + BDD + CI | **EPIC BKY-I18N-CI CLOS (19/19 pts)** — CI-4 site.yml.example 29 Device Keys template créé dans office/. CI-5 workflows déjà existants. CI-6 BDD feature 58 (4 scénarios, 4/4 PASS). CI-2 gap comblé : buildMaskedSummary ollama. 1 UT + 4 BDD ajoutés. | 9/10
   | 183 | 2026-07-19 | DDD + TDD + BDD + CI | **EPIC BKY-I18N-DEPLOY CLOS — DEPLOY-7 Généralisation multi-sites + SiteTranslationPlan + CI réutilisable (7 pts)** — 5 baby steps. (1) DDD : `SiteTranslationPlan` (52 lignes, 4 méthodes `rtlTargets`/`ltrTargets`/`missingLanguages`/`isComplete`, délègue `LanguageCatalog`). (2) TDD FT : câblage `mustRunAfter` dans `BakeryPlugin.wireI18nDeployTaskOrdering` (3 tâches ordonnées sans dépendance dure, 4 FT). (3) BDD : Feature 56 (7 scénarios multi-sites : 3 sites × 9 langues, dry-run, RTL ar/ur, headers JBake, PlantUml ×3 stratégies, SiteTranslationPlan). Runner standalone `I18nDeployMultiSiteCucumberTest` via `LauncherDiscoveryRequestBuilder`. (4) CI : workflow réutilisable `deploy-i18n-site.yml` (paramétré `workflow_call`), `deploy-cheroliv-com.yml` migré (-68 lignes). (5) Fix : bump catalog root + plugin 0.0.3/0.0.2 → 0.0.4, `BakeryPluginPublicationTest` 2/2 PASS. 30 nouveaux tests (19 UT + 4 FT + 7 BDD). `./gradlew test` SUCCESS 2m27s. EPIC CLOS 35/35 pts (100%). | 9/10
   | 182 | 2026-07-19 | DDD + TDD + BDD | **EPIC BKY-I18N-DEPLOY — DEPLOY-6 Fixture 10 langues + BDD end-to-end (5 pts)** — 1 US livrée. Fixture `cheroliv-com-i18n-deploy/` (3 articles FR couvrant 3 stratégies PlantUml : PreserveTechnical class diagram, TranslateLabels use case diagram, BorrowVocabulary REAC/AFNOR) + `i18n/{9 langues}/` vides + `site.yml` 10 langues + `menu.thyme`. Feature `55_i18n_deploy_end_to_end.feature` 7 scénarios BDD GREEN (FR→EN headers préservés, FR→AR RTL, FR→ZH LTR, PlantUml ×3 stratégies, end-to-end 10 langues + lang switcher). Steps `I18nDeployEndToEndSteps.kt` (fake translator label-aware, zéro LLM en CI — Loi Économie d'Encre, dictionnaire FR→EN 17 entrées + remplacement in-texte). Step names préfixés `the deploy pipeline` pour éviter DuplicateStepDefinition. `cucumberTest` GREEN 2m43s. Plugin 0.0.4 mavenLocal. Déploiement cheroliv.com CI étendu 10 langues (workflow `deploy-cheroliv-com.yml` boucle 9 langues swap/bake/inject). Bug préexistant `BakeryPluginPublicationTest` version mismatch (0.0.4 vs catalog 0.0.3) non introduit. | 9/10
@@ -273,13 +274,13 @@ projetés, 4-5 sessions._
 | *BKY-OUTPUT-2* | `OutputConfig` — template/layout/cssFiles/jsFiles/theme overridable par nœud | 8 | *✅ S172 TERMINÉ*
 | *BKY-OUTPUT-3* | `PageAssets` — AssetRef (path, integrity, async/defer) | 5 | *✅ S174 TERMINÉ*
 | *BKY-OUTPUT-4* | Tree consumption in bake pipeline (`TreeBakeService.injectTreeConfig`) | 8 | *✅ S174 TERMINÉ*
-| *BKY-OUTPUT-5* | Wire `ThemeResolver` into bake (TreeBakeService passe par OutputConfigResolver) | 5 | *🔲 RESTANT*
+| *BKY-OUTPUT-5* | Wire `ThemeResolver` into bake (TreeBakeService passe par OutputConfigResolver) | 5 | *✅ S189 TERMINÉ*
 | *BKY-OUTPUT-6* | Per-node template override (déjà dans TreeBakeService) | 5 | *✅ S174 TERMINÉ*
 | *BKY-OUTPUT-7* | Per-node layout + asset injection (déjà dans TreeBakeService) | 8 | *✅ S174 TERMINÉ*
 | *BKY-OUTPUT-8* | Cucumber BDD coverage (features 47+48 + steps + FT) | 5 | *✅ S174 TERMINÉ*
 |===
 
-_44/49 pts livrés (90%). 1 US restante (OUTPUT-5, 5pts). `./gradlew check` non exécuté S174 — tests unitaires + fonctionnels vérifiés OK S175._
+_49/49 pts livrés (100%). EPIC BKY-OUTPUT CLOS. Tous les EPICs bakery sont clos. Backlog vide._
 
 === EPIC BKY-I18N-DEPLOY — Dogfooding i18n sur sites réels (NOUVEAU — Session 179)
 
@@ -338,7 +339,7 @@ _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
 | Projet | Repertoire | Session en cours | Derniere MAJ
   | magic-stick | `~/workspace/foundry/public/magic-stick` | 014 | 2026-05-11
   | plantuml-gradle | `~/workspace/foundry/public/plantuml-gradle/plantuml-plugin` | 148 | 2026-06-11
-  | bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 188 | 2026-08-03
+  | bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 189 | 2026-08-04
   | jhipster-gradle-plugins | `~/workspace/foundry/public/jhipster-gradle-plugins` | 9 | 2026-06-11
   | quizz-benchmark-gradle | `~/workspace/foundry/private/quizz-benchmark-gradle/quizz-benchmark-plugin` | Audit 053 | 2026-04-30
   | runner-gradle | `~/workspace/foundry/public/runner-gradle` | 029 | 2026-05-12

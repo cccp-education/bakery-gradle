@@ -24,12 +24,11 @@ object TreeBakeService {
 
         val siteNode = tree.toDomain()
         val siteTree = SiteTree(siteNode)
-        val outputResolver = OutputConfigResolver(siteTree)
-        val metaResolver = NodeMetadataResolver(siteTree)
         val themeResolver = ThemeResolver(siteTree, themeOverrides, defaultTheme)
+        val outputResolver = OutputConfigResolver(siteTree, themeResolver)
+        val metaResolver = NodeMetadataResolver(siteTree)
         val resolvedOutputs = outputResolver.resolveAll()
         val resolvedMetas = metaResolver.resolveAll()
-        val resolvedThemes = themeResolver.resolveAll()
 
         val leafConfigs: Map<String, Map<String, Any?>> =
             siteTree
@@ -37,8 +36,7 @@ object TreeBakeService {
                 .associate { article ->
                     val out = resolvedOutputs[article.path] ?: OutputConfig()
                     val meta = resolvedMetas[article.path] ?: NodeMetadata()
-                    val theme = resolvedThemes[article.path]?.theme
-                    article.path to buildConfigMap(out, meta, theme)
+                    article.path to buildConfigMap(out, meta)
                 }
 
         val treePayload =
@@ -57,20 +55,19 @@ object TreeBakeService {
     private fun buildConfigMap(
         out: OutputConfig,
         meta: NodeMetadata,
-        theme: ThemeConfig? = null,
     ): Map<String, Any?> {
         val map = mutableMapOf<String, Any?>()
         if (out.template != null) map["template"] = out.template
-        if (out.layout != null) map["layout"] = out.layout!!.name
+        if (out.layout != null) map["layout"] = out.layout.name
         if (out.cssFiles != null) map["cssFiles"] = out.cssFiles
         if (out.jsFiles != null) map["jsFiles"] = out.jsFiles
-        val effectiveTheme = theme ?: out.theme
-        if (effectiveTheme != null) {
+        if (out.theme != null) {
+            val theme = out.theme
             map["theme"] =
                 mapOf(
-                    "mode" to effectiveTheme.mode,
-                    "primaryColor" to effectiveTheme.primaryColor,
-                    "secondaryColor" to effectiveTheme.secondaryColor,
+                    "mode" to theme.mode,
+                    "primaryColor" to theme.primaryColor,
+                    "secondaryColor" to theme.secondaryColor,
                 )
         }
         if (meta.title != null) map["title"] = meta.title

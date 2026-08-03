@@ -1,8 +1,24 @@
 = Analyse de Couverture des Tests — Bakery Gradle Plugin
 
-_Derniere mise a jour : 2026-08-03 (Session 188 — EPIC BKY-I18N-CI CLOS, 1 UT + 4 BDD)_
+_Derniere mise a jour : 2026-08-04 (Session 189 — EPIC BKY-OUTPUT CLOS, +6 UT OutputConfigResolver)_
 
 '''
+
+== Session 189 — EPIC BKY-OUTPUT CLOS (49/49 pts, 100%)
+
+OUTPUT-5 ThemeResolver wiring — `OutputConfigResolver` accepte `ThemeResolver?` optionnel.
+
+|===
+| Classe/Feature | Tests | Statut | Notes
+| OutputConfigResolverTest (+6) | +6 | OK | with ThemeResolver resolves theme, default theme, article override, sibling, resolveAll, without ThemeResolver
+| TreeBakeServiceTest | 7 | OK | 0 régression, thème via OutputConfig
+| ThemeResolverTest | 12 | OK | 0 régression
+| OutputConfigAssetsTest | 6 | OK | 0 régression
+| Features 39-48 (tree) | ~50 | OK | Cucumber tree features tous PASS
+|===
+
+**Total Session 189** : +6 UT. 0 régression. 100+ tree tests PASS.
+publishToMavenLocal OK.
 
 == Session 188 — EPIC BKY-I18N-CI CLOS (19/19 pts)
 

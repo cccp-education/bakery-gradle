@@ -25,3 +25,26 @@ Session 188 a livré CI-4 + CI-6 + gap CI-2 (buildMaskedSummary ollama).
 publishToMavenLocal OK.
 
 **Score** : 9/10
+
+== Session 189 — 2026-08-04 — EPIC BKY-OUTPUT CLOS (49/49 pts, 100%)
+
+**Contexte** : Dernière US de l'EPIC BKY-OUTPUT. `ThemeResolver` (TREE-5, S167)
+et `OutputConfigResolver` (OUTPUT-2, S172) existaient séparément.
+`TreeBakeService.injectTreeConfig()` appelait les deux indépendamment.
+
+**Taches livrees** :
+- OUTPUT-5 : `OutputConfigResolver` accepte `ThemeResolver?` optionnel, résout le thème dans `effectiveConfig`
+- `TreeBakeService` simplifié : `ThemeResolver` passé à `OutputConfigResolver`, `buildConfigMap` sans paramètre `theme`
+- +6 UT `OutputConfigResolverTest` (thème via ThemeResolver, défaut, override article, sibling, resolveAll, backward compat)
+- Fix `sampleTree()` : ajout `blog/hello` article, `resolveAll` 5→6
+
+**Fichiers modifies** :
+- `src/main/kotlin/bakery/tree/OutputConfigResolver.kt` — +themeResolver param, résolution thème
+- `src/main/kotlin/bakery/tree/TreeBakeService.kt` — ThemeResolver via OutputConfigResolver, buildConfigMap simplifié
+- `src/test/kotlin/bakery/tree/OutputConfigResolverTest.kt` — +6 tests, fix sampleTree
+
+**Tests** : +6 UT. 12/12 OutputConfigResolverTest + 7/7 TreeBakeServiceTest + 100+ tree PASS.
+Cucumber features 39-48 tous PASS. 2 échecs préexistants non liés.
+publishToMavenLocal OK.
+
+**Score** : 9/10
