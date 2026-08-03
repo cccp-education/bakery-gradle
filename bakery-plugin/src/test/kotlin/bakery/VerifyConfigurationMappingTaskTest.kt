@@ -196,6 +196,39 @@ class VerifyConfigurationMappingTaskTest {
         }
 
         @Test
+        fun `task logs ollama device key count in masked summary`() {
+            val siteYml = tempDir.resolve("site.yml")
+            writeValidSiteYml(siteYml)
+            val yamlWithOllama =
+                siteYml.readText().trimEnd() +
+                    """
+                    
+                    ollama:
+                      model: gemma4:31b-cloud
+                      portStart: 11437
+                      portEnd: 11465
+                      timeoutSeconds: 300
+                      deviceKeys:
+                        - keyName: ollama-11437
+                          privateKey: ssh-ed25519-fake-key-11437
+                        - keyName: ollama-11438
+                          privateKey: ssh-ed25519-fake-key-11438
+                    """.trimIndent()
+            siteYml.writeText(yamlWithOllama)
+
+            val task = createTask()
+            val summary =
+                task.buildMaskedSummary(
+                    FileSystemManager.yamlMapper.readValue(siteYml),
+                )
+
+            assertThat(summary).contains("ollama.model=gemma4:31b-cloud")
+            assertThat(summary).contains("ollama.ports=11437-11465")
+            assertThat(summary).contains("ollama.deviceKeys=2")
+            assertThat(summary).doesNotContain("fake-key-11437")
+        }
+
+        @Test
         fun `task succeeds with valid configuration`() {
             val siteYml = tempDir.resolve("site.yml")
             writeValidSiteYml(siteYml)

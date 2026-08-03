@@ -1,8 +1,21 @@
 = Analyse de Couverture des Tests — Bakery Gradle Plugin
 
-_Derniere mise a jour : 2026-06-29 (Session 172 — BKY-OUTPUT-1+2, 22 nouveaux UT)_
+_Derniere mise a jour : 2026-08-03 (Session 188 — EPIC BKY-I18N-CI CLOS, 1 UT + 4 BDD)_
 
 '''
+
+== Session 188 — EPIC BKY-I18N-CI CLOS (19/19 pts)
+
+CI-4 site.yml.example + CI-6 BDD feature 58 + CI-2 gap buildMaskedSummary ollama.
+
+|===
+| Classe/Feature | Tests | Statut | Notes
+| VerifyConfigurationMappingTaskTest (+1) | +1 | OK | `task logs ollama device key count in masked summary` — ollama.model, ollama.ports, ollama.deviceKeys
+| Feature 58 (i18n ci ollama device key) | 4 | OK | buildMaskedSummary ollama, buildMaskedSummary sans ollama, validateRequiredFields sans ollama, validateRequiredFields avec ollama
+|===
+
+**Total Session 188** : 1 UT + 4 BDD ajoutés. 0 régression.
+publishToMavenLocal OK.
 
 == Session 169 — Maintenance CI : 3 bugs résolus, 0 nouveau test
 

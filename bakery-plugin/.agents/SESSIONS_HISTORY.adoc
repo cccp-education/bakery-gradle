@@ -1,8 +1,9 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
-  _Derniere mise a jour : 2026-07-31 — Session 187 — Alliance i18n : suppression shadow copies contrats BOM_
+  _Derniere mise a jour : 2026-08-03 — Session 188 — EPIC BKY-I18N-CI CLOS (19/19 pts)_
 
   |===
+  | 188 | 2026-08-03 | DDD + TDD + BDD + CI | **EPIC BKY-I18N-CI CLOS (19/19 pts)** — CI-4 site.yml.example 29 Device Keys template créé dans office/sites/cheroliv.com/. CI-5 workflows translate-cheroliv-com.yml + translate-i18n-content.yml déjà existants. CI-6 BDD feature 58 (4 scénarios, 4/4 PASS). CI-2 gap comblé : buildMaskedSummary étendu ollama (model, ports, deviceKeys count). validateRequiredFields rendu internal. 1 UT + 4 BDD ajoutés. publishToMavenLocal OK. | 9/10
   | 187 | 2026-07-31 | refactoring | **Alliance i18n — Suppression 10 shadow copies contrats BOM** — 5 fichiers main (SupportedLanguage, LanguageCatalog, I18nConfig, MessageBundle, LocaleResolver) + 5 tests identiques au BOM supprimés. Dépendance `i18n-contracts:0.0.2` déjà dans build.gradle.kts. compileKotlin + compileTestKotlin BUILD SUCCESSFUL. Zéro régression. | 9/10
   | 186 | 2026-07-25 | feat + fix | **DocKnowledgeBase JBake câblé dans LlmServiceTranslationAdapter** — DocKnowledgeBase.kt keyword matching in-memory sur doc officielle JBake. resources/docs/jbake-reference.adoc (structure, templates, variables, CLI). LlmServiceTranslationAdapter.buildPrompt() injecte doc avant traduction. 3 articles EN cheroliv.com corrigés (0100, 0105, 0115). | 9/10
   | 185 | 2026-07-24 | DDD + TDD + BDD + CI | **EPIC BKY-I18N-CI CI-1/CI-2/CI-3 livrés** — N0 OllamaConfig (portStart/portEnd Jackson-compatible, 29 deviceKeys) + OllamaDeviceKey (toString masqué). N2 SiteConfiguration.ollama: OllamaConfig? (backward-compat). N2 SecretField.DeviceKey + maskSecret. TDD: OllamaConfigYamlTest 6 UT + SecretFieldTest.DeviceKey 4 UT. BDD: 57_ollama_config.feature 4 scénarios. N2 document: PooledOllamaTranslationAdapter rotation 11437-11465. CI: translate-i18n-content.yml + translate-cheroliv-com.yml. 4 repos commités+pushés. | 9/10

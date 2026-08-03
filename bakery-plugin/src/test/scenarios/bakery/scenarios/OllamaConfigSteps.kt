@@ -2,6 +2,7 @@ package bakery.scenarios
 
 import bakery.FileSystemManager
 import bakery.SecretField
+import bakery.VerifyConfigurationMappingTask
 import bakery.maskSecret
 import com.fasterxml.jackson.module.kotlin.readValue
 import contracts.i18n.OllamaDeviceKey
@@ -9,6 +10,9 @@ import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
 import org.assertj.core.api.Assertions.assertThat
+import org.gradle.api.GradleException
+import org.gradle.testfixtures.ProjectBuilder
+import org.junit.jupiter.api.assertDoesNotThrow
 
 class OllamaConfigSteps {
     private var yamlString: String? = null
@@ -17,6 +21,8 @@ class OllamaConfigSteps {
     private var deviceKey: OllamaDeviceKey? = null
     private var toStringOutput: String? = null
     private var maskedOutput: String? = null
+    private var maskedSummary: String? = null
+    private var validationError: GradleException? = null
 
     @Given("a site.yml without ollama section")
     fun aSiteYmlWithoutOllamaSection() {
@@ -25,6 +31,28 @@ class OllamaConfigSteps {
             |bake:
             |  srcPath: "site"
             |  destDirPath: "build/bake"
+            |pushPage:
+            |  from: "site"
+            |  to: "cvs"
+            |  repo:
+            |    name: "test-site"
+            |    repository: "https://github.com/user/repo.git"
+            |    credentials:
+            |      username: "user"
+            |      password: "secret"
+            |  branch: "main"
+            |  message: "Deploy test"
+            |pushMaquette:
+            |  from: "maquette"
+            |  to: "cvs"
+            |  repo:
+            |    name: "test-maquette"
+            |    repository: "https://github.com/user/maquette.git"
+            |    credentials:
+            |      username: "user"
+            |      password: "secret"
+            |  branch: "main"
+            |  message: "Deploy maquette"
             """.trimMargin()
     }
 
@@ -40,13 +68,35 @@ class OllamaConfigSteps {
             |bake:
             |  srcPath: "site"
             |  destDirPath: "build/bake"
+            |pushPage:
+            |  from: "site"
+            |  to: "cvs"
+            |  repo:
+            |    name: "test-site"
+            |    repository: "https://github.com/user/repo.git"
+            |    credentials:
+            |      username: "user"
+            |      password: "secret"
+            |  branch: "main"
+            |  message: "Deploy test"
+            |pushMaquette:
+            |  from: "maquette"
+            |  to: "cvs"
+            |  repo:
+            |    name: "test-maquette"
+            |    repository: "https://github.com/user/maquette.git"
+            |    credentials:
+            |      username: "user"
+            |      password: "secret"
+            |  branch: "main"
+            |  message: "Deploy maquette"
             |ollama:
             |  model: "gemma4:31b-cloud"
             |  portStart: 11437
             |  portEnd: 11465
             |  timeoutSeconds: 300
             |  deviceKeys:
-$keysYaml
+            $keysYaml
             """.trimMargin()
     }
 
@@ -140,5 +190,56 @@ $keysYaml
     @Then("the masked value does not contain {string}")
     fun maskedValueDoesNotContain(text: String) {
         assertThat(maskedOutput).doesNotContain(text)
+    }
+
+    @When("I build the masked summary")
+    fun iBuildTheMaskedSummary() {
+        val config = FileSystemManager.yamlMapper.readValue<bakery.SiteConfiguration>(yamlString!!)
+        val project =
+            ProjectBuilder
+                .builder()
+                .withName("test-ollama-summary")
+                .build()
+        project.pluginManager.apply("java-base")
+        val task =
+            project.tasks
+                .register("verifyConfigurationMapping", VerifyConfigurationMappingTask::class.java)
+                .get()
+        maskedSummary = task.buildMaskedSummary(config)
+    }
+
+    @Then("the masked summary contains {string}")
+    fun theMaskedSummaryContains(text: String) {
+        assertThat(maskedSummary).contains(text)
+    }
+
+    @Then("the masked summary does not contain {string}")
+    fun theMaskedSummaryDoesNotContain(text: String) {
+        assertThat(maskedSummary).doesNotContain(text)
+    }
+
+    @When("I validate the required fields")
+    fun iValidateTheRequiredFields() {
+        val config = FileSystemManager.yamlMapper.readValue<bakery.SiteConfiguration>(yamlString!!)
+        val project =
+            ProjectBuilder
+                .builder()
+                .withName("test-ollama-validate")
+                .build()
+        project.pluginManager.apply("java-base")
+        val task =
+            project.tasks
+                .register("verifyConfigurationMapping", VerifyConfigurationMappingTask::class.java)
+                .get()
+        try {
+            task.validateRequiredFields(config)
+        } catch (e: GradleException) {
+            validationError = e
+        }
+    }
+
+    @Then("the validation passes without error")
+    fun theValidationPassesWithoutError() {
+        assertThat(validationError).isNull()
     }
 }

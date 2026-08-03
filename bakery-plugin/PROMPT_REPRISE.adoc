@@ -1,33 +1,35 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 188
-:date: 2026-07-31
-:etat: Alliance i18n cross-borough — 10 shadow copies contrats BOM supprimées. Bakery consomme proprement i18n-contracts:0.0.2.
-:epic_actif: BKY-I18N-CI — CI-4 site.yml cheroliv.com avec 29 Device Keys → CI-5 workflow_dispatch → CI-6 BDD end-to-end
+:session: 189
+:date: 2026-08-03
+:etat: EPIC BKY-I18N-CI CLOS (19/19 pts). CI-4 site.yml.example créé, CI-5 workflows existants, CI-6 BDD feature 58 4/4 PASS. buildMaskedSummary étendu ollama.
+:epic_actif: BKY-OUTPUT-5 — Wire ThemeResolver into bake (TreeBakeService → OutputConfigResolver), 5 pts. Dernière US EPIC BKY-OUTPUT.
 
 == Contexte de fin
 
-Session 187 — Alliance i18n : suppression 10 shadow copies contrats BOM :
-- 5 fichiers main (SupportedLanguage, LanguageCatalog, I18nConfig, MessageBundle, LocaleResolver)
-- 5 fichiers test correspondants
-- Dépendance `i18n-contracts:0.0.2` déjà dans build.gradle.kts
-- compileKotlin + compileTestKotlin BUILD SUCCESSFUL
+Session 188 — EPIC BKY-I18N-CI CLOS :
+- CI-4 : `site.yml.example` créé dans `office/sites/cheroliv.com/` (29 Device Keys template)
+- CI-5 : workflows `translate-cheroliv-com.yml` + `translate-i18n-content.yml` déjà existants
+- CI-6 : BDD feature 58 (4 scénarios, 4/4 PASS)
+- CI-2 gap : `buildMaskedSummary` étendu pour ollama (model, ports, deviceKeys count)
+- Bug BakeryPluginPublicationTest : déjà résolu (0.0.5)
+- `publishToMavenLocal` OK
 
 == Reprendre à
 
 . `git status` dans bakery-gradle
-. EPIC BKY-I18N-CI — S188 :
-  * CI-4 : `site.yml` cheroliv.com avec 29 vraies Device Keys (3 pts)
-  * CI-5 : workflow_dispatch translate-cheroliv-com → dogfooding réel FR→EN (5 pts)
-  * CI-6 : BDD Cucumber end-to-end CI translation (3 pts)
-. Bug préexistant : BakeryPluginPublicationTest version mismatch (0.0.4 vs catalog 0.0.3)
+. EPIC BKY-OUTPUT-5 — S189 :
+  * Wire `ThemeResolver` into bake pipeline
+  * `TreeBakeService` passe par `OutputConfigResolver` pour le thème effectif
+  * 5 pts, 1 US, baby steps DDD/TDD/BDD
 . `publishToMavenLocal` après chaque modification code source
 
-== Fichiers touchés S187
+== Fichiers touchés S188
 
-*bakery-gradle* :
-- `src/main/kotlin/contracts/i18n/SupportedLanguage.kt` — supprimé
-- `src/main/kotlin/contracts/i18n/LanguageCatalog.kt` — supprimé
-- `src/main/kotlin/contracts/i18n/I18nConfig.kt` — supprimé
-- `src/main/kotlin/contracts/i18n/MessageBundle.kt` — supprimé
-- `src/main/kotlin/contracts/i18n/LocaleResolver.kt` — supprimé
-- `src/test/kotlin/contracts/i18n/*Test.kt` — 5 fichiers supprimés
+*bakery-gradle/bakery-plugin* :
+- `src/main/kotlin/bakery/VerifyConfigurationMappingTask.kt` — buildMaskedSummary + ollama
+- `src/test/kotlin/bakery/VerifyConfigurationMappingTaskTest.kt` — +1 UT ollama
+- `src/test/scenarios/bakery/scenarios/OllamaConfigSteps.kt` — +5 steps feature 58
+- `src/test/features/58_i18n_ci_ollama_device_key.feature` — nouveau
+
+*office* :
+- `sites/cheroliv.com/site.yml.example` — nouveau

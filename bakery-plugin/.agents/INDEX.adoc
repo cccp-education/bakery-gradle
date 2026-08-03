@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-07-31 — Session 187 Alliance i18n : suppression 10 shadow copies contrats BOM (5 main + 5 test)._
-_Session en cours_ : 187 terminée — Alliance i18n cross-borough ✅._
-_Prochaine session_ : 188 — EPIC BKY-I18N-CI : CI-4 site.yml 29 vraies Device Keys + CI-5 workflow_dispatch dogfooding + CI-6 BDD end-to-end (11 pts, 3 US).
+_Derniere mise a jour : 2026-08-03 — Session 188 EPIC BKY-I18N-CI CLOS (19/19 pts)._
+_Session en cours_ : 188 terminée — EPIC BKY-I18N-CI CLOS ✅._
+_Prochaine session_ : 189 — BKY-OUTPUT-5 : Wire ThemeResolver into bake (TreeBakeService → OutputConfigResolver), 5 pts.
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 188 | 2026-08-03 | DDD + TDD + BDD + CI | **EPIC BKY-I18N-CI CLOS (19/19 pts)** — CI-4 site.yml.example 29 Device Keys template créé dans office/. CI-5 workflows déjà existants. CI-6 BDD feature 58 (4 scénarios, 4/4 PASS). CI-2 gap comblé : buildMaskedSummary ollama. 1 UT + 4 BDD ajoutés. | 9/10
   | 183 | 2026-07-19 | DDD + TDD + BDD + CI | **EPIC BKY-I18N-DEPLOY CLOS — DEPLOY-7 Généralisation multi-sites + SiteTranslationPlan + CI réutilisable (7 pts)** — 5 baby steps. (1) DDD : `SiteTranslationPlan` (52 lignes, 4 méthodes `rtlTargets`/`ltrTargets`/`missingLanguages`/`isComplete`, délègue `LanguageCatalog`). (2) TDD FT : câblage `mustRunAfter` dans `BakeryPlugin.wireI18nDeployTaskOrdering` (3 tâches ordonnées sans dépendance dure, 4 FT). (3) BDD : Feature 56 (7 scénarios multi-sites : 3 sites × 9 langues, dry-run, RTL ar/ur, headers JBake, PlantUml ×3 stratégies, SiteTranslationPlan). Runner standalone `I18nDeployMultiSiteCucumberTest` via `LauncherDiscoveryRequestBuilder`. (4) CI : workflow réutilisable `deploy-i18n-site.yml` (paramétré `workflow_call`), `deploy-cheroliv-com.yml` migré (-68 lignes). (5) Fix : bump catalog root + plugin 0.0.3/0.0.2 → 0.0.4, `BakeryPluginPublicationTest` 2/2 PASS. 30 nouveaux tests (19 UT + 4 FT + 7 BDD). `./gradlew test` SUCCESS 2m27s. EPIC CLOS 35/35 pts (100%). | 9/10
   | 182 | 2026-07-19 | DDD + TDD + BDD | **EPIC BKY-I18N-DEPLOY — DEPLOY-6 Fixture 10 langues + BDD end-to-end (5 pts)** — 1 US livrée. Fixture `cheroliv-com-i18n-deploy/` (3 articles FR couvrant 3 stratégies PlantUml : PreserveTechnical class diagram, TranslateLabels use case diagram, BorrowVocabulary REAC/AFNOR) + `i18n/{9 langues}/` vides + `site.yml` 10 langues + `menu.thyme`. Feature `55_i18n_deploy_end_to_end.feature` 7 scénarios BDD GREEN (FR→EN headers préservés, FR→AR RTL, FR→ZH LTR, PlantUml ×3 stratégies, end-to-end 10 langues + lang switcher). Steps `I18nDeployEndToEndSteps.kt` (fake translator label-aware, zéro LLM en CI — Loi Économie d'Encre, dictionnaire FR→EN 17 entrées + remplacement in-texte). Step names préfixés `the deploy pipeline` pour éviter DuplicateStepDefinition. `cucumberTest` GREEN 2m43s. Plugin 0.0.4 mavenLocal. Déploiement cheroliv.com CI étendu 10 langues (workflow `deploy-cheroliv-com.yml` boucle 9 langues swap/bake/inject). Bug préexistant `BakeryPluginPublicationTest` version mismatch (0.0.4 vs catalog 0.0.3) non introduit. | 9/10
   | 181 | 2026-07-18 | DDD + TDD + BDD | **EPIC BKY-I18N-DEPLOY — DEPLOY-4 RtlDirectionInjectionTask + DEPLOY-5 PlantUml adapter câblage (10 pts)** — 2 US livrées. DEPLOY-4 : `RtlDirectionInjectionTask` (package `bakery.i18n.rtl`) walk `content-i18n/{lang}/**/*.adoc` (persistant, hors `build/` — Loi Économie d'Encre) → parse → inject via `RtlDirectionInjector` → render. Câblage `ContentTaskRegistrar` + `BakeryPlugin`. Bug idempotence résolu : injecteur met `lang` dans `jbakeAttributes` (symétrie parser). 7 FT + 7 UT pipeline + 7 BDD feature 54 GREEN. DEPLOY-5 : câblage `PlantUmlTranslationAdapter` dans `ContentTranslationService.translateBlock` (dispatch `PivotBlock.Source` plantuml). 3 UT + 4 FT dry-run dogfooding cheroliv.com (échantillon 3 articles). Procédure LLM réel documentée (boundary doc). | 9/10
@@ -302,6 +303,24 @@ injection RTL. 7 US, 35 pts, 5 sessions S179→S183. Détail dans `BACKLOG.adoc`
 
 _35/35 pts livrés (100%). EPIC BKY-I18N-DEPLOY CLOS. 7/7 US livrées S179-S183. Plugin 0.0.4 mavenLocal. Bug publication test résolu (bump catalog 0.0.4)._
 
+=== EPIC BKY-I18N-CI — Ollama Device Keys dans site.yml → CI/CD Traduction (NOUVEAU — Session 185)
+
+_Cadré Session 029 document/bakery/office-cheroliv.com (2026-07-21). 6 US, 19 pts.
+OllamaConfig + OllamaDeviceKey POJOs (N0 BOM), SiteConfiguration.ollama (N2 bakery),
+SecretField.DeviceKey, site.yml.example template, workflow_dispatch CI, BDD end-to-end._
+
+|===
+| US | Description | Pts | Statut
+| *BKY-I18N-CI-1* | `OllamaDeviceKey` + `OllamaConfig` POJO pur (N0 BOM) | 3 | *✅ S185 TERMINÉ*
+| *BKY-I18N-CI-2* | `SiteConfiguration.ollama: OllamaConfig?` (N2 bakery) | 3 | *✅ S185 TERMINÉ*
+| *BKY-I18N-CI-3* | `SecretField.DeviceKey` + `maskSecret` | 2 | *✅ S185 TERMINÉ*
+| *BKY-I18N-CI-4* | `site.yml.example` cheroliv.com avec 29 Device Keys template | 3 | *✅ S188 TERMINÉ*
+| *BKY-I18N-CI-5* | workflow_dispatch `translate-cheroliv-com.yml` → dogfooding FR→EN | 5 | *✅ S185 TERMINÉ*
+| *BKY-I18N-CI-6* | BDD Cucumber feature 58 end-to-end CI translation | 3 | *✅ S188 TERMINÉ*
+|===
+
+_19/19 pts livrés (100%). EPIC BKY-I18N-CI CLOS. 6/6 US livrées S185+S188. CI-2 gap buildMaskedSummary ollama comblé S188._
+
 === Code Smells — 24/24 ✅ résolus + 60 nouveaux V5
 
 24/24 smells V2-V4 résolus. 60 nouveaux smells V5 identifiés Session 117.
@@ -319,7 +338,7 @@ _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
 | Projet | Repertoire | Session en cours | Derniere MAJ
   | magic-stick | `~/workspace/foundry/public/magic-stick` | 014 | 2026-05-11
   | plantuml-gradle | `~/workspace/foundry/public/plantuml-gradle/plantuml-plugin` | 148 | 2026-06-11
-  | bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 181 | 2026-07-18
+  | bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 188 | 2026-08-03
   | jhipster-gradle-plugins | `~/workspace/foundry/public/jhipster-gradle-plugins` | 9 | 2026-06-11
   | quizz-benchmark-gradle | `~/workspace/foundry/private/quizz-benchmark-gradle/quizz-benchmark-plugin` | Audit 053 | 2026-04-30
   | runner-gradle | `~/workspace/foundry/public/runner-gradle` | 029 | 2026-05-12

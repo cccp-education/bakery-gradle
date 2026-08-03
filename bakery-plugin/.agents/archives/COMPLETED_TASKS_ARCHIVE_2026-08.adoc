@@ -1,0 +1,27 @@
+= Archive des Taches Terminees — Aout 2026
+
+== Session 188 — 2026-08-03 — EPIC BKY-I18N-CI CLOS (19/19 pts)
+
+**Contexte** : EPIC BKY-I18N-CI cadré Session 029 document/bakery/office-cheroliv.com
+(2026-07-21). CI-1/CI-2/CI-3 déjà livrés S185. CI-5 workflows déjà existants.
+Session 188 a livré CI-4 + CI-6 + gap CI-2 (buildMaskedSummary ollama).
+
+**Taches livrees** :
+- CI-4 : `site.yml.example` créé dans `office/sites/cheroliv.com/` (29 Device Keys template, ports 11437-11465, model gemma4:31b-cloud)
+- CI-6 : BDD feature 58 `58_i18n_ci_ollama_device_key.feature` (4 scénarios, 4/4 PASS)
+- CI-2 gap : `buildMaskedSummary` étendu pour ollama (model, ports, deviceKeys count)
+- `validateRequiredFields` rendu `internal` pour testabilité
+- YAML fixtures `OllamaConfigSteps` étendus (pushPage + pushMaquette requis)
+- Bug BakeryPluginPublicationTest : déjà résolu (0.0.5)
+
+**Fichiers modifies** :
+- `src/main/kotlin/bakery/VerifyConfigurationMappingTask.kt` — buildMaskedSummary + ollama, validateRequiredFields internal
+- `src/test/kotlin/bakery/VerifyConfigurationMappingTaskTest.kt` — +1 UT ollama masked summary
+- `src/test/scenarios/bakery/scenarios/OllamaConfigSteps.kt` — +5 steps feature 58, YAML fixtures étendus
+- `src/test/features/58_i18n_ci_ollama_device_key.feature` — nouveau (4 scénarios)
+- `office/sites/cheroliv.com/site.yml.example` — nouveau
+
+**Tests** : 1 UT + 4 BDD ajoutés. compileKotlin + compileTestKotlin BUILD SUCCESSFUL.
+publishToMavenLocal OK.
+
+**Score** : 9/10

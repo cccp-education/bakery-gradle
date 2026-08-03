@@ -1,0 +1,75 @@
+= Session 188 — EPIC BKY-I18N-CI CLOS (19/19 pts)
+:date: 2026-08-03
+:type: DDD + TDD + BDD + CI
+:score: 9/10
+
+== Résumé
+
+EPIC BKY-I18N-CI clôturé en 1 session (projection 3). CI-1/CI-2/CI-3 déjà
+livrés S185. CI-5 workflows déjà existants. Session 188 a livré CI-4 + CI-6
++ gap CI-2 (buildMaskedSummary ollama).
+
+== US livrées
+
+|===
+| US | Description | Pts | Statut
+| CI-1 | OllamaDeviceKey + OllamaConfig POJO (workspace-bom N0) | 3 | ✅ S185
+| CI-2 | SiteConfiguration.ollama: OllamaConfig? | 3 | ✅ S185
+| CI-3 | SecretField.DeviceKey + maskSecret | 2 | ✅ S185
+| CI-4 | site.yml.example cheroliv.com avec 29 Device Keys template | 3 | ✅ S188
+| CI-5 | workflow_dispatch translate-cheroliv-com → dogfooding FR→EN | 5 | ✅ S185 (déjà existant)
+| CI-6 | BDD Cucumber feature 58 end-to-end CI translation | 3 | ✅ S188
+|===
+
+== Baby steps S188
+
+=== CI-4 — site.yml.example (3 pts)
+- Créé `office/sites/cheroliv.com/site.yml.example` avec section `ollama:`
+  (29 Device Keys placeholders ports 11437-11465, model gemma4:31b-cloud)
+- Structure basée sur SiteConfiguration + OllamaConfig (BOM N0)
+- Le vrai `site.yml` avec clés réelles est injecté comme secret GitHub
+  `CHEROLIV_COM_CONFIG`
+
+=== CI-2 gap — buildMaskedSummary ollama (gap comblé)
+- `VerifyConfigurationMappingTask.buildMaskedSummary()` étendu :
+  `ollama.model`, `ollama.ports`, `ollama.deviceKeys` (count, pas contenu)
+- `validateRequiredFields` rendu `internal` pour testabilité
+- 1 nouveau UT : `task logs ollama device key count in masked summary`
+- `./gradlew test --tests VerifyConfigurationMappingTaskTest` PASS
+
+=== CI-6 — BDD feature 58 (3 pts)
+- Feature `58_i18n_ci_ollama_device_key.feature` créée (4 scénarios)
+- Steps ajoutés dans `OllamaConfigSteps.kt` :
+  `iBuildTheMaskedSummary`, `theMaskedSummaryContains`,
+  `theMaskedSummaryDoesNotContain`, `iValidateTheRequiredFields`,
+  `theValidationPassesWithoutError`
+- YAML fixtures étendus (pushPage + pushMaquette requis pour
+  validateRequiredFields)
+- 4/4 scénarios PASS (CucumberTestRunner)
+- 1 échec préexistant feature 55 (i18n deploy end-to-end, non lié)
+
+=== Bug BakeryPluginPublicationTest
+- Déjà résolu : version 0.0.5 partout (build.gradle.kts + catalog)
+
+== Fichiers modifiés
+
+*bakery-gradle/bakery-plugin* :
+- `src/main/kotlin/bakery/VerifyConfigurationMappingTask.kt` — buildMaskedSummary + ollama, validateRequiredFields internal
+- `src/test/kotlin/bakery/VerifyConfigurationMappingTaskTest.kt` — +1 UT ollama masked summary
+- `src/test/scenarios/bakery/scenarios/OllamaConfigSteps.kt` — +5 steps feature 58, YAML fixtures étendus
+- `src/test/features/58_i18n_ci_ollama_device_key.feature` — nouveau (4 scénarios)
+
+*office* :
+- `sites/cheroliv.com/site.yml.example` — nouveau (template 29 Device Keys)
+
+== Tests
+
+- UT : 1 nouveau (VerifyConfigurationMappingTaskTest)
+- BDD : 4 nouveaux scénarios feature 58 (4/4 PASS)
+- compileKotlin + compileTestKotlin BUILD SUCCESSFUL
+- publishToMavenLocal OK
+
+== Prochaine session
+
+S189 — BKY-OUTPUT-5 : Wire ThemeResolver into bake (TreeBakeService →
+OutputConfigResolver), 5 pts. Dernière US restante EPIC BKY-OUTPUT.

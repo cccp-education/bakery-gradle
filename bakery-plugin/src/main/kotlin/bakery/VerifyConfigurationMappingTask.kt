@@ -61,7 +61,7 @@ abstract class VerifyConfigurationMappingTask : DefaultTask() {
         logger.lifecycle("[verifyConfigurationMapping] ✅ Configuration OK: $maskedSummary")
     }
 
-    private fun validateRequiredFields(site: SiteConfiguration) {
+    internal fun validateRequiredFields(site: SiteConfiguration) {
         val missing = mutableListOf<String>()
 
         if (site.bake.srcPath.isBlank()) missing.add("bake.srcPath")
@@ -98,6 +98,12 @@ abstract class VerifyConfigurationMappingTask : DefaultTask() {
             append(", pushMaquette.password=$pushMaquettePassword")
             if (firebaseApiKey.isNotBlank()) append(", firebase.apiKey=$firebaseApiKey")
             if (firebaseAuthApiKey.isNotBlank()) append(", firebaseAuth.apiKey=$firebaseAuthApiKey")
+            val ollama = site.ollama
+            if (ollama != null) {
+                append(", ollama.model=${ollama.model}")
+                append(", ollama.ports=${ollama.portStart}-${ollama.portEnd}")
+                append(", ollama.deviceKeys=${ollama.deviceKeys.size}")
+            }
         }
     }
 }
