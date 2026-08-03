@@ -1,0 +1,64 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-transitional-thymeleaf-4.dtd">
+<html lang="en">
+<head th:fragment="head(canonOverride)">
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!-- SEO: bakery will inject canonical/hreflang/OG/JSON-LD here -->
+    <title th:text="${!#strings.isEmpty(content.title)} ? ${content.title} + ' — Example' : 'Example Dev'">Example Dev</title>
+
+    <th:block th:with="canonUri=(${canonOverride != null} ? ${canonOverride} : (${content.uri != null and content.uri != 'index.html'} ? ${content.uri} : '')),
+                       pageDesc=${#strings.defaultString(content.summary, #strings.defaultString(content.description, 'Default description'))},
+                       ogImage=${(content.type != null and content.type == 'post' and content.uri != null and content.uri != '')} ? ${'og-images/en/' + #strings.replace(content.uri, '.html', '.png')} : 'og-images/en/example-default.png'">
+        <link rel="canonical" th:href="${config.site_host} + 'en/' + ${canonUri}"/>
+
+        <!-- Hreflang alternates FR <-> EN -->
+        <link rel="alternate" hreflang="fr" th:href="${config.site_host} + ${canonUri}"/>
+        <link rel="alternate" hreflang="en" th:href="${config.site_host} + 'en/' + ${canonUri}"/>
+        <link rel="alternate" hreflang="x-default" th:href="${config.site_host} + ${canonUri}"/>
+
+        <!-- Open Graph -->
+        <meta property="og:site_name" content="Example"/>
+        <meta property="og:title" th:content="${!#strings.isEmpty(content.title)} ? ${content.title} + ' — Example' : 'Example Dev'"/>
+        <meta property="og:description" th:content="${pageDesc}"/>
+        <meta property="og:type" th:content="${content.type != null and content.type == 'post'} ? 'article' : 'website'"/>
+        <meta property="og:url" th:content="${config.site_host} + 'en/' + ${canonUri}"/>
+        <meta property="og:locale" content="en_US"/>
+        <meta property="og:image" th:content="${config.site_host} + 'en/' + ${ogImage}"/>
+
+        <!-- Twitter Card -->
+        <meta name="twitter:card" content="summary"/>
+        <meta name="twitter:title" th:content="${!#strings.isEmpty(content.title)} ? ${content.title} + ' — Example' : 'Example Dev'"/>
+        <meta name="twitter:description" th:content="${pageDesc}"/>
+        <meta name="twitter:image" th:content="${config.site_host} + 'en/' + ${ogImage}"/>
+        <meta name="description" th:content="${pageDesc}"/>
+    </th:block>
+
+    <!-- RSS feed autodiscovery -->
+    <link rel="alternate" type="application/rss+xml" title="Example — RSS Feed" th:href="${config.site_host} + 'feed.xml'"/>
+
+    <!-- Structured data: WebSite + Person -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://example.com/#website",
+          "url": "https://example.com/",
+          "name": "Example Dev",
+          "inLanguage": "en",
+          "publisher": { "@id": "https://example.com/#person" }
+        },
+        {
+          "@type": "Person",
+          "@id": "https://example.com/#person",
+          "name": "Example",
+          "url": "https://example.com/",
+          "jobTitle": "Developer Trainer | Instructional Engineering",
+          "sameAs": [ "https://github.com/example" ]
+        }
+      ]
+    }
+    </script>
+</head>
+</html>

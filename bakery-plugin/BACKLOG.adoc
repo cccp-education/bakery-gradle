@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-08-04 — Session 189. EPIC BKY-OUTPUT CLOS (49/49 pts, 100%). Tous les EPICs bakery sont clos. Backlog vide._
+_Dernière mise à jour : 2026-08-04 — Session 190. EPIC BKY-SEO ouvert (27 pts, 7 US) : généralisation features SEO sur copie anonymisée cheroliv-com-seo. Tous les autres EPICs bakery sont clos._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -1439,11 +1439,189 @@ DDD/TDD/BDD préservée à chaque US.
 
 '''
 
+== EPIC BKY-SEO — Généralisation features SEO (canonical/hreflang/OG/JSON-LD/404/sitemap) sur copie anonymisée de cheroliv.com
+
+_Cadré Session 190 (2026-08-04), retour de Session 034 office/sites/cheroliv.com (SEO overhaul).
+Les features SEO sont actuellement en dur dans les templates cheroliv.com
+(`header.thyme` FR+EN : canonical, hreflang fr/en/x-default, Open Graph, Twitter Card,
+JSON-LD WebSite/Person ; `assets/404.html` ; sitemap hreflang). Aucune n'est généralisée
+dans bakery → magic-stick, cccp.education, edster, talaria ne bénéficient de rien.
+L'EPIC vise à extraire ces patterns dans bakery, testés sur la fixture anonymisée
+`cheroliv-com-seo` (copie minimaliste : 2 langues FR/EN, header.thyme SEO complet,
+1 post de démo, 404, sitemap). La partie **contact form** (Firebase + Apps Script) est
+exclue du périmètre — c'est du runtime site-spécifique, pas un feature de génération._
+
+[CAUTION]
+====
+**Motivation** : cheroliv.com a câblé à la main : `canonical` (+ `canonOverride` pour
+l'archivage), hreflang FR/EN/x-default, `og:image` dérivé de `content.uri`
+(`og-images/{lang}/blog/<annee>/<slug>_post.png`, fallback `cheroliv-default.png`),
+Twitter Card, JSON-LD WebSite/Person, méta description unique, page 404 custom
+noindex, sitemap hreflang `xhtml:link`, robots.txt. Chaque nouveau site bakery doit
+réimplémenter tout ça dans ses templates Thymeleaf. Bakery génère déjà le site
+(Scaffold + bake) — il doit aussi générer les balises SEO.
+
+**Vision** : une config `seo:` dans `site.yml` (siteName, brand, defaultOgImage,
+jsonLd: website/person, twitterHandle) + une tâche Gradle `injectSeo` qui :
+. résout les balises par page (canonical, hreflang, OG, Twitter, description)
+. génère le fragment SEO Thymeleaf injecté dans `header.thyme` (ou remplace le bloc
+  `<!-- SEO: bakery -->`)
+. génère la page 404 custom si absente (noindex + titre paramétrable)
+. étend le sitemap avec hreflang `xhtml:link` (interopérable avec BKY-I18N)
+Backward-compat : sans config `seo:`, aucune injection (no-op).
+
+**Pré-requis respectés** :
+. *Ne pas toucher aux sites privés* — tout sur fixture public
+  `src/test/resources/fixtures/cheroliv-com-seo/` (exemple.com, zéro contenu privé).
+. *Réutilise le précédent lang-switch* — même pattern de fixture minimaliste 2 langues
+  FR/EN (`cheroliv-com-lang-switch` S177-178).
+. *Boundary bakery* — bakery génère le SEO, ne touche pas au runtime (contact form
+  Firebase/Apps Script hors périmètre, voir Session 034).
+. *Méthodo* — baby steps DDD (concept pur, testable sans Gradle) → TDD (UT rouge
+  avant code) → BDD (feature Cucumber bout en bout). Aucune I/O dans les classes
+  de domaine.
+====
+
+=== User Stories — baby steps DDD/TDD/BDD
+
+[cols="1,4,2,2,2"]
+|===
+| US | Description (domaine pur, no I/O) | Tests | Pts | Dépend de
+
+| BKY-SEO-1
+| *`SeoConfig` POJO pur* — data class `SeoConfig(siteName: String, brand: String,
+  defaultOgImage: String, twitterHandle: String?, websiteUrl: String?, person: Person?,
+  inLanguage: String = "fr")`. `Person(name, url, jobTitle, sameAs: List<String>)`.
+  Désérialisable depuis `site.yml` (`seo:` section). `@JsonIgnoreProperties`.
+  Backward-compat : absent = no-op.
+| UT : construction, égalité, immutabilité, parse `seo:` YAML → SeoConfig,
+  parse sans `seo:` → null, Person vide valide
+| 3
+| —
+
+| BKY-SEO-2
+| *`SeoPageMeta` concept pur* — data class représentant les balises SEO d'une
+  page : `uri: String`, `title: String`, `description: String`, `type: SeoPageType`
+  (post/article), `canonOverride: String?`. Méthodes `canonicalUrl(siteHost)`,
+  `hreflangAlternates(siteHost, languages)` → liste `(lang, href)`,
+  `ogImage(siteHost, defaultOgImage)` (dérivé `uri.html → uri.png` si post).
+  Pas de logique I/O.
+| UT : canonical post (uri → url), canonical page home (racine), hreflang FR/EN/
+  x-default, ogImage dérivé post, ogImage default page, canonOverride prioritaire
+| 4
+| SEO-1
+
+| BKY-SEO-3
+| *`SeoThymeleafRenderer`* — transforme `SeoPageMeta` + `SeoConfig` en fragment
+  HTML Thymeleaf (`<link rel="canonical">`, hreflang, OG, Twitter, JSON-LD
+  script). Calqué sur le header.thyme réel de cheroliv.com (session 034) mais
+  paramétré par `SeoConfig`. JSON-LD WebSite+Person en `@graph`. I/O isolée
+  (génération de String).
+| UT : render canonical, render hreflang 3 langues, render og:image post,
+  render JSON-LD @graph WebSite+Person, render sans twitter (optional),
+  output contient th:href correct
+| 5
+| SEO-2
+
+| BKY-SEO-4
+| *Fixture public `cheroliv-com-seo`* — copie minimaliste du site cheroliv.com
+  dans `src/test/resources/fixtures/cheroliv-com-seo/` : `site.yml` avec section
+  `seo:`, `jbake/templates/header.thyme` (avec bloc `<!-- SEO: bakery -->` à
+  remplacer), `jbake/templates/index.thyme`/`post.thyme`, 1 post de démo
+  (`blog/2026/0081_article_seo_demo_post.html`), `jbake/assets/404.html`,
+  `og-images/{fr,en}/blog/2026/`, `i18n/en/` (header/index/content). Zéro
+  contenu privé — uniquement la structure pour tester le SEO.
+| — (production d'artefacts, validé par SEO-5/SEO-6)
+| 3
+| —
+
+| BKY-SEO-5
+| *`InjectSeoTask` + intégration bake* — tâche Gradle qui lit `SeoConfig` +
+  `SiteConfiguration`, résout `SeoPageMeta` par page (walk du site), rend le
+  fragment via `SeoThymeleafRenderer`, injecte dans `header.thyme` (remplace le
+  bloc `<!-- SEO: bakery -->` existant ou ajoute si absent) pour FR + langues
+  i18n. Exécutée avant `bake`. Génère la page 404 si absente. Backward-compat :
+  sans config `seo:`, no-op.
+| FT : inject dans fixture FR, inject dans fixture EN, inject idempotent (re-run
+  = même résultat), inject avec bloc SEO existant (remplace), inject sans bloc
+  (ajoute), génère 404 si absente, no-op sans config seo
+| 5
+| SEO-3, SEO-4
+
+| BKY-SEO-6
+| *Sitemap hreflang `xhtml:link`* — étendre le sitemap généré pour inclure les
+  alternates hreflang entre langues (`<xhtml:link rel="alternate" hreflang="en">`),
+  interopérable avec BKY-I18N (10 langues) et BKY-I18N-DEPLOY. Root URL + alternate
+  par langue. Généré par `InjectSeoTask` si `render.sitemap=true`.
+| FT : sitemap contient root url, sitemap contient alternate hreflang en,
+  sitemap sans seo config = inchangé (backward-compat)
+| 3
+| SEO-5
+
+| BKY-SEO-7
+| *BDD Cucumber bout en bout* — feature `59_seo_injection.feature` : bake fixture
+  `cheroliv-com-seo` → assert `<link rel="canonical">`, hreflang FR/EN/x-default,
+  `og:image` du post dérivé (`og-images/fr/blog/2026/0081_..._post.png`), fallback
+  default sur home, JSON-LD @graph, méta description, page 404 présente, sitemap
+  hreflang. Scénarios : home FR, post FR, home EN, post EN, 404, sitemap.
+| BDD : 6 scénarios (home FR, post FR, home EN, post EN, 404, sitemap hreflang)
+| 4
+| SEO-6
+|===
+
+_Total_ : ~27 pts, 7 US.
+
+=== Dépendances (DAG)
+
+----
+SEO-1 (SeoConfig) ─→ SEO-2 (SeoPageMeta) ─→ SEO-3 (Renderer)
+                                                     ├─→ SEO-5 (InjectSeoTask + bake) ─→ SEO-6 (sitemap)
+SEO-4 (Fixture) ─────────────────────────────────────┘                                        └─→ SEO-7 (BDD)
+----
+
+*SEO-1* est racine (tout dépend de lui).
+*SEO-4* (fixture) est indépendant, peut être créé en parallèle (déjà créé Session 190).
+*SEO-5* est le point de fusion (consume renderer + fixture).
+*SEO-7* clôture l'EPIC (valide bout en bout sur fixture public).
+
+=== Projection sessions
+
+* *S190* — SEO-4 (3 pts, 1 US, fixture public déjà créé) + cadrage EPIC
+* *S191* — SEO-1 + SEO-2 (7 pts, 2 US, socle domaine pur)
+* *S192* — SEO-3 + SEO-5 (10 pts, 2 US, renderer + task + bake)
+* *S193* — SEO-6 + SEO-7 (7 pts, 2 US, sitemap + BDD, clôture EPIC)
+
+Projection conservatrice : 4 sessions, ~27 pts, méthodo baby step
+DDD/TDD/BDD préservée à chaque US.
+
+=== Risques et mitigations
+
+[cols="3,5,4]
+|===
+| Risque | Mitigation
+| Thymeleaf structure varie entre sites | Renderer paramétrable : bloc `<!-- SEO:
+  bakery -->` à remplacer, injection par défaut en tête de `<head>`. Fixture
+  couvre avec et sans bloc existant.
+| Fixture expose du contenu privé | Fixture minimaliste : "Bonjour le monde" /
+  "Hello world", 1 post de démo, zéro contenu éditorial, zéro image, zéro secret.
+  Domaine anonymisé `example.com`.
+| OG image dérivée casse si pas d'image générée | Fallback `defaultOgImage`
+  configurable dans `seo:`. Dérivation `uri.html → uri.png` uniquement si
+  `type == post` (même règle que cheroliv.com session 034).
+| JSON-LD @graph trop spécifique cheroliv.com | Paramétré par `SeoConfig.person`
+  (name, url, jobTitle, sameAs). Sans `person`, seul WebSite est rendu.
+| Contact form (Firebase/Apps Script) revendiqué dans l'EPIC | **Exclu** — le
+  formulaire est du runtime site-spécifique, pas un feature de génération bakery.
+  Documenté dans Session 034 (Apps Script endpoint + Firestore rules).
+|===
+
+'''
+
 [cols="2,3]
 |===
 | Document | `BACKLOG.adoc`
- | Version | 21.0 — Session 029 document/bakery/office-cheroliv.com (EPIC BKY-I18N-CI cadré)
+ | Version | 22.0 — Session 190 (EPIC BKY-SEO cadré, fixture cheroliv-com-seo créée)
  | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
- | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-184 + EPIC I18N-BATCH + EPIC I18N-CI
- | Prochaine màj | Session 185 — CI-1 OllamaDeviceKey POJO
+ | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-184 + EPIC I18N-BATCH + EPIC I18N-CI + EPIC BKY-SEO
+ | Prochaine màj | Session 191 — SEO-1 SeoConfig POJO
 |===
