@@ -179,4 +179,276 @@ class MigrateContentI18nDeltaFunctionalTest {
             return TranslationResult.Success("$sourceText$suffix")
         }
     }
+
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class BlockDeltaMigration {
+        @Test
+        fun `debug direct DocumentTranslator in bakery classpath`() {
+            val fake = FakeTranslationService(" [EN]")
+            val translator = document.translation.DocumentTranslator(fake)
+            val result = translator.translate("""= Intro
+
+== Heading One
+
+First paragraph.
+
+== Heading Two
+
+Second paragraph.
+""", "fr", "en")
+            println("DEBUG direct translator:\n$result")
+            assertTrue(result.contains("Heading One [EN]"), "Heading One should be translated")
+            assertTrue(result.contains("Second paragraph. [EN]"), "Second paragraph should be translated")
+        }
+
+        @Test
+        fun `debug direct ContentTranslationService in bakery`() {
+            val fake = FakeTranslationService(" [EN]")
+            val service = document.translation.ContentTranslationService(fake)
+            val src = testDir.resolve("src.adoc")
+            val tgt = testDir.resolve("tgt.adoc")
+
+            src.writeText("""= Intro
+
+== Heading One
+
+First paragraph.
+
+== Heading Two
+
+Second paragraph.
+""")
+            val first = service.translateSingleFileWithBlockDelta(src, tgt, emptyMap(), "fr", "en")
+            println("DEBUG first checksums: $first")
+            println("DEBUG first target:\n${tgt.readText()}")
+
+            src.writeText("""= Intro
+
+== Heading One
+
+First paragraph modified.
+
+== Heading Two
+
+Second paragraph.
+""")
+            val second = service.translateSingleFileWithBlockDelta(src, tgt, first, "fr", "en")
+            println("DEBUG second checksums: $second")
+            println("DEBUG second target:\n${tgt.readText()}")
+
+            val content = tgt.readText()
+            assertTrue(content.contains("First paragraph modified. [EN]"))
+            assertTrue(content.contains("Second paragraph. [EN]"))
+        }
+
+        @Test
+        fun `debug with plantuml adapter and parsed blocks`() {
+            val fake = FakeTranslationService(" [EN]")
+            val plantUmlAdapter = document.translation.plantuml.PlantUmlTranslationAdapter(fake)
+            val service = document.translation.ContentTranslationService(fake, plantUmlAdapter = plantUmlAdapter)
+            val parser = document.translation.AsciiDocParser()
+            val src = testDir.resolve("src.adoc")
+            val tgt = testDir.resolve("tgt.adoc")
+
+            src.writeText("""= Intro
+
+== Heading One
+
+First paragraph.
+
+== Heading Two
+
+Second paragraph.
+""")
+            val first = service.translateSingleFileWithBlockDelta(src, tgt, emptyMap(), "fr", "en")
+            println("DEBUG first target:\n${tgt.readText()}")
+            val parsedTarget = parser.parse(tgt.readText())
+            println("DEBUG parsed target blocks:")
+            parsedTarget.blocks.forEachIndexed { i, b -> println("  [$i] $b") }
+
+            src.writeText("""= Intro
+
+== Heading One
+
+First paragraph modified.
+
+== Heading Two
+
+Second paragraph.
+""")
+            val second = service.translateSingleFileWithBlockDelta(src, tgt, first, "fr", "en")
+            println("DEBUG second target:\n${tgt.readText()}")
+            assertTrue(tgt.readText().contains("Second paragraph. [EN]"))
+        }
+
+        @Test
+        fun `debug exact task flow with checksum file roundtrip`() {
+            val fake = FakeTranslationService(" [EN]")
+            val sourceDir = testDir.resolve("src/content")
+            createAdocSource(sourceDir, "intro.adoc" to """= Intro
+
+== Heading One
+
+First paragraph.
+
+== Heading Two
+
+Second paragraph.
+""")
+            val outputBase = testDir.resolve("build/i18n")
+            val langDir = outputBase.resolve("en")
+            val relPath = "intro.adoc"
+            val sourceFile = sourceDir.resolve(relPath)
+            val targetFile = langDir.resolve(relPath)
+            targetFile.parentFile.mkdirs()
+
+            val plantUmlAdapter = document.translation.plantuml.PlantUmlTranslationAdapter(fake)
+            val contentService = document.translation.ContentTranslationService(fake, plantUmlAdapter = plantUmlAdapter)
+
+            val first = contentService.translateSingleFileWithBlockDelta(sourceFile, targetFile, emptyMap(), "fr", "en")
+            println("DEBUG first target:\n${targetFile.readText()}")
+
+            val checksumsFile = langDir.resolve(".bakery-block-checksums").resolve("$relPath.checksums")
+            checksumsFile.parentFile.mkdirs()
+            checksumsFile.writeText(first.entries.joinToString("\n") { "${it.key}=${it.value.serialize()}" })
+            println("DEBUG stored checksums:\n${checksumsFile.readText()}")
+
+            sourceDir.resolve("intro.adoc").writeText("""= Intro
+
+== Heading One
+
+First paragraph modified.
+
+== Heading Two
+
+Second paragraph.
+""")
+
+            val loaded = checksumsFile.readLines()
+                .filter { it.contains("=") }
+                .associate { line ->
+                    val (idx, raw) = line.split("=", limit = 2)
+                    idx to document.translation.delta.BlockChecksumEntry.parse(raw)
+                }
+            println("DEBUG loaded checksums: $loaded")
+
+            val second = contentService.translateSingleFileWithBlockDelta(sourceFile, targetFile, loaded, "fr", "en")
+            println("DEBUG second target:\n${targetFile.readText()}")
+
+            assertTrue(targetFile.readText().contains("Second paragraph. [EN]"))
+        }
+
+        @Test
+        fun `fresh block-delta migration translates all blocks`() {
+            val sourceDir = testDir.resolve("src/content")
+            createAdocSource(
+                sourceDir,
+                "intro.adoc" to """= Intro
+
+== Heading One
+
+First paragraph.
+
+== Heading Two
+
+Second paragraph.
+""",
+            )
+            val outputBase = testDir.resolve("build/i18n")
+
+            val task = setupTask("test-block-fresh", sourceDir, outputBase)
+            task.translationService = FakeTranslationService(" [EN]")
+            task.executeContentMigration()
+
+            val enDir = outputBase.resolve("en")
+            val content = enDir.resolve("intro.adoc").readText()
+            assertTrue(content.contains("[EN]"))
+            val blockChecksumsFile = enDir.resolve(".bakery-block-checksums/intro.adoc.checksums")
+            assertTrue(blockChecksumsFile.exists(), "block checksums file should exist after fresh run")
+            assertTrue(blockChecksumsFile.readText().isNotBlank())
+        }
+
+        @Test
+        fun `second run with one modified block preserves other blocks`() {
+            val sourceDir = testDir.resolve("src/content")
+            val outputBase = testDir.resolve("build/i18n")
+            outputBase.deleteRecursively()
+            createAdocSource(
+                sourceDir,
+                "intro.adoc" to """= Intro
+
+== Heading One
+
+First paragraph.
+
+== Heading Two
+
+Second paragraph.
+""",
+            )
+            val task1 = setupTask("test-block-partial-1", sourceDir, outputBase)
+            task1.translationService = FakeTranslationService(" [EN]")
+            task1.executeContentMigration()
+
+            val enDir = outputBase.resolve("en")
+            val afterFirst = enDir.resolve("intro.adoc").readText()
+            println("DEBUG first run target:\n$afterFirst")
+            assertTrue(afterFirst.contains("First paragraph. [EN]"))
+            assertTrue(afterFirst.contains("Second paragraph. [EN]"))
+
+            sourceDir.resolve("intro.adoc").writeText("""= Intro
+
+== Heading One
+
+First paragraph modified.
+
+== Heading Two
+
+Second paragraph.
+""")
+
+            val task2 = setupTask("test-block-partial-2", sourceDir, outputBase)
+            task2.translationService = FakeTranslationService(" [EN]")
+            task2.executeContentMigration()
+
+            val afterSecond = enDir.resolve("intro.adoc").readText()
+            println("DEBUG afterSecond:\n$afterSecond")
+            assertTrue(afterSecond.contains("First paragraph modified. [EN]"))
+            assertTrue(afterSecond.contains("Second paragraph. [EN]"))
+        }
+
+        @Test
+        fun `idempotence block-delta re-run with unchanged source preserves all blocks`() {
+            val sourceDir = testDir.resolve("src/content")
+            createAdocSource(
+                sourceDir,
+                "intro.adoc" to """= Intro
+
+== Heading One
+
+First paragraph.
+
+== Heading Two
+
+Second paragraph.
+""",
+            )
+            val outputBase = testDir.resolve("build/i18n")
+
+            val task1 = setupTask("test-block-idem-1", sourceDir, outputBase)
+            task1.translationService = FakeTranslationService(" [EN]")
+            task1.executeContentMigration()
+
+            val enDir = outputBase.resolve("en")
+            val afterFirst = enDir.resolve("intro.adoc").readText()
+
+            val task2 = setupTask("test-block-idem-2", sourceDir, outputBase)
+            task2.translationService = FakeTranslationService(" [EN]")
+            task2.executeContentMigration()
+
+            val afterSecond = enDir.resolve("intro.adoc").readText()
+            assertEquals(afterFirst, afterSecond)
+        }
+    }
 }

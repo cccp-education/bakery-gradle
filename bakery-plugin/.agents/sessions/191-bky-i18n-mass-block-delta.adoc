@@ -1,0 +1,134 @@
+= Session 191 — EPIC BKY-I18N-MASS — MASS-1 BlockDelta/BlockChecksum + MASS-2 câblage (issue partielle)
+
+**Date** : 2026-08-04
+**Statut** : ⏸️ PARTIELLE — MASS-1 ✅ (vert), MASS-2 🟠 (code livré, 1 FT rouge — issue à corriger S192)
+
+---
+
+== Contexte
+
+Session 191 : exécution de l'EPIC BKY-I18N-MASS-1 (BlockDelta + BlockChecksum,
+DDD pur, 8 pts) puis MASS-2 (câblage dans DocumentTranslator /
+ContentTranslationService + MigrateContentI18nTask, 6 pts). Les changements de
+domaine vivent dans document-gradle (document-plugin), consommé par bakery via
+`document-plugin:0.0.1` mavenLocal. Contrainte utilisateur (Loi Économie d'Encre) :
+statut de traduction *explicite* — clé/valeur indiquant si chaque texte/tableau/
+plantuml est traduit, pas juste un checksum implicite.
+
+---
+
+== Actions Entreprises
+
+=== 1. MASS-1 — `BlockChecksum` + `BlockDelta` (DDD pur) ✅
+
+*document-gradle* — `document/translation/delta/` :
+
+* `BlockChecksum.kt` :
+  * `BlockTranslationStatus` enum (`TRANSLATED`, `PENDING`)
+  * `BlockChecksumEntry(hash, status)` — `parse("hash:STATUS")` +
+    `serialize()`. Legacy `"hash"` seul → statut `PENDING` (rétro-compatible).
+  * `BlockChecksum.sha256(block)` SHA-256 par bloc translatable + `computeForBlocks(blocks)`
+    → `Map<idx, hash>` (heading, paragraph, list, table, admonition, source,
+    descriptionList). `Hr`/`BlockMacro` non-checksummés.
+* `BlockDelta.kt` : `BlockDelta(modifiedBlocks, preservedBlocks)` value object pur.
+  `compute(previous: Map<String,BlockChecksumEntry>, current: Map<String,String>)` :
+  un bloc est *modifié* si absent / hash différent / statut ≠ `TRANSLATED`, sinon *préservé*.
+  Cas critique couvert : un diagramme `[plantuml]` traduit dont le texte environnant
+  change n'est PAS re-traduit (checksum du bloc diagramme inchangé + statut `TRANSLATED`).
+
+* Tests : `BlockDeltaTest.kt` (26 UT verts, dont `parse` round-trip, statut `PENDING`,
+  format legacy), `DocumentTranslatorBlockDeltaTest.kt` (4 UT), `BlockDeltaWireDebugTest.kt` (1).
+
+=== 2. MASS-2 — câblage (document-gradle + bakery) 🟠
+
+*document-gradle* :
+* `DocumentTranslator.translateArticleWithDelta(sourceArticle, previousTranslated, delta, ...)`
+  — internal → rendu public. Préserve les blocs indexés dans `delta.preservedBlocks`
+  (prise depuis `previousTranslated`), re-traduit les blocs modifiés. Dispatch table/plantuml
+  via index original. Si `delta.isEmpty()` → retourne `previousTranslated`.
+* `ContentTranslationService.translateSingleFileWithBlockDelta(sourceFile, targetFile,
+  previousBlockChecksums, srcLang, tgtLang): Map<String,BlockChecksumEntry>` —
+  public. Fresh path si previous vide ou target absent ; delta path sinon
+  (parse target → précédents blocs traduits → `BlockDelta.compute` → re-traduit
+  modifiés, préserve traduits). Écrit `targetFile`.
+
+*bakery* :
+* `MigrateContentI18nTask` : boucle `translateSingleFileWithBlockDelta` par fichier +
+  `load/storeBlockChecksums` (fichier `.bakery-block-checksums/$relPath.checksums`,
+  lignes `idx=hash:STATUS`). Import `BlockChecksumEntry`. *La boucle legacy de copie
+  `sourceFile.copyTo(targetFile, overwrite=true)` (lignes 124-129) est encore présente
+  et cause l'issue 191-1 — voir ci-dessous.*
+
+*Tests FT* `MigrateContentI18nDeltaFunctionalTest` → `@Nested BlockDeltaMigration` :
+fresh ✅, idempotence ✅, + 4 tests debug ✅. **1 FAILED** : « second run with one
+modified block preserves other blocks ».
+
+---
+
+== Issue 191-1 (À FIXER — S192)
+
+*FT rouge* : `second run with one modified block preserves other blocks` échoue sur
+`afterSecond.contains("Second paragraph. [EN]")`.
+
+*Diagnostic établi* : le bloc « Second paragraph » (préservé) est réécrit en texte source
+SANS `[EN]`. *Cause racine confirmée* : **`MigrateContentI18nTask` ligne 124-129** — la
+boucle `for (relPath in filesToTranslate) { ... sourceFile.copyTo(targetFile, overwrite = true) }`
+**copie la source vers la cible AVANT la traduction bloc-delta**, écrasant le fichier
+traduit précédent avec le texte source. Au 2e run, `translateSingleFileWithBlockDelta`
+parse alors le fichier source (sans `[EN]`) comme « précédents blocs traduits » → les blocs
+préservés héritent du texte source.
+
+*Pourquoi les autres tests passent* :
+* fresh : fichier cible inexistant au départ, la copie ne détruit rien de traduit ;
+* idempotence : `filesToTranslate` vide (delta fichier vide) → la boucle ne copie rien ;
+* `debug exact task flow` : appelle `ContentTranslationService` directement, sans la boucle de copie.
+
+*Correctif prévu S192* :
+. Supprimer / conditionner la boucle de copie (lignes 124-129) — ne copier vers la cible
+  que dans le branche `translationService == null` (chemin legacy sans LLM). Le
+  `translateSingleFileWithBlockDelta` écrit lui-même `targetFile`.
+. Vérifier aussi que la boucle de traduction ne repose plus sur la copie préalable.
+. Nettoyer les `println` de debug : `[block-delta]` dans `ContentTranslationService.translateSingleFileWithBlockDelta`,
+  `[task] target exists before:` dans `MigrateContentI18nTask`, `DEBUG`/`println` dans
+  `MigrateContentI18nDeltaFunctionalTest` et `BlockDeltaWireDebugTest`.
+
+---
+== Résultats
+
+| Critère | Statut | Détails |
+| MASS-1 BlockChecksum + BlockDelta | ✅ | DDD pur, 26 UT verts (document-gradle) |
+| MASS-2 DocumentTranslator.translateArticleWithDelta | 🟠 | Livré (internal→public), 4 UT verts |
+| MASS-2 ContentTranslationService.translateSingleFileWithBlockDelta | 🟠 | Livré (public), vert en appel direct |
+| MASS-2 MigrateContentI18nTask câblage + load/store checksums | 🟠 | Livré, compile + publishToMavenLocal OK |
+| MASS-2 FT fresh | ✅ | Passe |
+| MASS-2 FT idempotence | ✅ | Passe |
+| MASS-2 FT « second run modifies one block » | ❌ | Issue 191-1 — copy loop écrase la cible |
+| Debug `[block-delta]` / `[task]` | ⚠️ | À nettoyer S192 |
+
+---
+== Fichiers touchés
+
+*bakery-gradle/bakery-plugin* :
+- `src/main/kotlin/bakery/i18n/MigrateContentI18nTask.kt` — boucle bloc-delta + load/store checksums + copy loop à retirer
+- `src/test/kotlin/bakery/i18n/MigrateContentI18nDeltaFunctionalTest.kt` — @Nested BlockDeltaMigration (fresh/idempotence/debug + 1 rouge)
+- `BACKLOG.adoc` — cadrage EPIC BKY-I18N-MASS (S190 non commité)
+
+*document-gradle/document-plugin* :
+- `src/main/kotlin/document/translation/delta/BlockChecksum.kt` — nouveau (MASS-1)
+- `src/main/kotlin/document/translation/delta/BlockDelta.kt` — nouveau (MASS-1)
+- `src/main/kotlin/document/translation/DocumentTranslator.kt` — translateArticleWithDelta
+- `src/main/kotlin/document/translation/ContentTranslationService.kt` — translateSingleFileWithBlockDelta + debug
+- `src/test/kotlin/document/translation/delta/BlockDeltaTest.kt` — nouveau (26 UT)
+- `src/test/kotlin/document/translation/DocumentTranslatorBlockDeltaTest.kt` — nouveau (4 UT)
+- `src/test/kotlin/document/translation/BlockDeltaWireDebugTest.kt` — nouveau (debug)
+
+---
+== Prochaines Étapes (Session 192)
+
+. **Fix Issue 191-1** — retirer/conditionner la copy loop `MigrateContentI18nTask:124-129`, rendre le FT « second run ... preserves other blocks » vert.
+. Nettoyer les `println`/debug.
+. Clôturer MASS-2 (FT 3 scénarios verts + BDD), puis enchaîner MASS-3.
+
+---
+**Session 191** — ⏸️ PARTIELLE (MASS-1 ✅, MASS-2 à fixer)
+**Session 192** — prête (fix issue 191-1)

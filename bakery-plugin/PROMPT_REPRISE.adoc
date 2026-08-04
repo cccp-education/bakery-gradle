@@ -1,43 +1,56 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 191
+:session: 192
 :date: 2026-08-04
-:etat: Session 190 ✅ — Renfort couverture tests i18n deploy. EPIC BKY-I18N-MASS ouvert (priorité 1, ~32 pts, 6 US) — industrialisation mass-translation N langues + delta bloc diagrammes + validation STRICT production.
-:epic_actif: BKY-I18N-MASS — priorité 1. Bakery n'est PAS mature pour la mass-translation N langues et la préservation des diagrammes traduits entre lots. BKY-SEO et BKY-CONTACT-SEC en attente (priorité 2/3).
+:etat: Session 191 ⏸️ PARTIELLE — MASS-1 ✅ (BlockChecksum + BlockDelta, 26 UT verts). MASS-2 🟠 câblage livré mais 1 FT rouge (Issue 191-1) — à corriger en S192. EPIC BKY-I18N-MASS priorité 1 (~32 pts, 6 US).
+:epic_actif: BKY-I18N-MASS — priorité 1. MASS-2 bloqué par Issue 191-1 (copy loop écrase la traduction précédente).
 
 == Contexte de fin
 
-Session 190 — Renfort couverture tests i18n deploy :
-- Fake translator fixé (fragment-level) : préfixe `[lang]` systématique, dictionnaire labels PlantUML uniquement
-- Feature 55 : 8/8 PASS (7 existants + 1 nouveau mixed strategies)
-- Nouvel article fixture `diagrammes-mixtes.adoc` (2 blocs plantuml stratégies différentes)
-- Standalone runner `I18nDeployEndToEndCucumberTest` créé (pattern feature 56/57)
-- `I18nDeployEndToEndSteps` + `I18nDeployMultiSiteSteps` : dictionnaire aligné (20 entrées labels)
-- publishToMavenLocal OK
+Session 191 — MASS-1 + début MASS-2 :
+- MASS-1 ✅ : `BlockChecksum` (enum `BlockTranslationStatus` TRANSLATED/PENDING,
+  `BlockChecksumEntry` parse/serialize, `sha256`/`computeForBlocks`) + `BlockDelta`
+  (`compute(previous, current)` → modified/preserved, statut explicite Loi Économie d'Encre).
+  DDD pur, `document/translation/delta/`. 26 UT verts (BlockDeltaTest) + 4 UT
+  (DocumentTranslatorBlockDeltaTest) + 1 debug.
+- MASS-2 🟠 : `DocumentTranslator.translateArticleWithDelta` (preserve indexés),
+  `ContentTranslationService.translateSingleFileWithBlockDelta` (fresh/delta path, écrit target).
+  `MigrateContentI18nTask` : boucle bloc-delta + `load/storeBlockChecksums` (`idx=hash:STATUS`).
+  Compile + publishToMavenLocal OK. FT fresh ✅ + idempotence ✅ + 4 debug ✅.
 
-Constat stratégie (fin S190) — bakery mature en FR→EN (DEPLOY-5, 108 articles)
-mais PAS en mass-translation N langues :
-- Dogfooding réel = FR→EN uniquement. 9 autres langues jamais tournées en production (fixtures BDD seulement).
-- Delta checksum = fichier, pas bloc. Un diagramme `[plantuml]` déjà traduit est re-traduit si le texte autour change.
-- Validation STRICT plantuml/table (DOC-PLANTUML-VALIDATE S041, ajoutée hier) jamais testée sur volume production de diagrammes.
+== ⚠️ Issue 191-1 — À FIXER EN PREMIER (S192)
 
-→ EPIC BKY-I18N-MASS cadré (priorité 1, ~32 pts, 6 US). Détail dans `BACKLOG.adoc` section EPIC BKY-I18N-MASS.
+*FT rouge* : `second run with one modified block preserves other blocks`
+(`MigrateContentI18nDeltaFunctionalTest` → `@Nested BlockDeltaMigration`) — échoue sur
+`afterSecond.contains("Second paragraph. [EN]")`.
 
-== Mission Session 191
+*Cause racine CONFIRMÉE* : `MigrateContentI18nTask.kt` **lignes 124-129** — la boucle
+`for (relPath in filesToTranslate) { ... sourceFile.copyTo(targetFile, overwrite = true) }`
+**copie la source vers la cible AVANT la traduction bloc-delta**, écrasant la traduction
+précédente avec le texte source. Au 2e run, le bloc-delta parse le fichier source (sans
+`[EN]`) comme « précédents blocs traduits » → blocs préservés = texte source.
 
-1. **BKY-I18N-MASS-1 — `BlockDelta` + `BlockChecksum` (DDD pur, 8 pts)**
-   - Value object pur, zéro I/O. Checksum SHA-256 par bloc translatable (heading, paragraph, table cell, bloc `[plantuml]`).
-   - `BlockDelta` calcule delta bloc-à-bloc entre source traduite précédemment et source actuelle → ne re-traduit que les blocs modifiés.
-   - Cas critique : diagramme `[plantuml]` traduit dont le texte environnant change n'est PAS re-traduit.
-   - Stockage `.bakery-block-checksums.properties` par fichier cible.
-   - Tests UT : 15-20 (block unchanged, block modified, diagram preserved, table cell delta).
+*Correctif* :
+. Supprimer/conditionner la boucle de copie (lignes 124-129) : ne copier vers la cible que
+  dans la branche `translationService == null` (legacy sans LLM). Le
+  `translateSingleFileWithBlockDelta` écrit lui-même `targetFile`.
+. Vérifier que la boucle de traduction ne dépend plus de la copie préalable.
+. Nettoyer les `println` debug : `[block-delta]` (ContentTranslationService),
+  `[task] target exists before:` (MigrateContentI18nTask), `DEBUG`/`println` dans
+  MigrateContentI18nDeltaFunctionalTest + BlockDeltaWireDebugTest.
 
-2. (si temps restant) **BKY-I18N-MASS-2 — câblage `BlockDelta` dans `DocumentTranslator`/`ContentTranslationService` + `MigrateContentI18nTask`** (6 pts).
+== Mission Session 192
+
+1. **Fix Issue 191-1** — retirer/conditionner la copy loop → FT « second run ... preserves
+   other blocks » vert. Vérifier fresh + idempotence toujours verts.
+2. Nettoyer les debug prints (main + tests).
+3. (si temps) Clôturer MASS-2 (3 FT scénarios verts + BDD) puis enchaîner MASS-3.
 
 == Reprendre à
 
-. `git status` dans bakery-gradle
-. Lire `BACKLOG.adoc` section EPIC BKY-I18N-MASS (priorité 1)
-. `publishToMavenLocal` après chaque modification code source
+. `git status` dans bakery-gradle + document-gradle
+. Lire `BACKLOG.adoc` section EPIC BKY-I18N-MASS (US MASS-2)
+. `git diff` de `MigrateContentI18nTask.kt` lignes 124-129 (copy loop)
+. `publishToMavenLocal` après chaque modification code source (document-gradle puis bakery)
 
 == Ordre des EPICs (priorité)
 
@@ -45,11 +58,15 @@ mais PAS en mass-translation N langues :
 . BKY-SEO (priorité 2, 27 pts) — généralisation features SEO
 . BKY-CONTACT-SEC (priorité 3, 26 pts) — durcissement formulaire contact
 
-== Fichiers touchés S190
+== Fichiers touchés S191
 
 *bakery-gradle/bakery-plugin* :
-- `src/test/scenarios/bakery/scenarios/I18nDeployEndToEndSteps.kt` — fake translator fragment-level
-- `src/test/scenarios/bakery/scenarios/I18nDeployMultiSiteSteps.kt` — idem
-- `src/test/features/55_i18n_deploy_end_to_end.feature` — +1 scénario mixed strategies
-- `src/test/resources/fixtures/cheroliv-com-i18n-deploy/content/blog/diagrammes-mixtes.adoc` — nouveau
-- `src/test/kotlin/bakery/i18n/deploy/I18nDeployEndToEndCucumberTest.kt` — nouveau
+- `src/main/kotlin/bakery/i18n/MigrateContentI18nTask.kt` — boucle bloc-delta + load/store checksums + **copy loop 124-129 à retirer**
+- `src/test/kotlin/bakery/i18n/MigrateContentI18nDeltaFunctionalTest.kt` — @Nested BlockDeltaMigration (1 rouge)
+- `BACKLOG.adoc` — cadrage EPIC BKY-I18N-MASS
+
+*document-gradle/document-plugin* :
+- `src/main/kotlin/document/translation/delta/BlockChecksum.kt` + `BlockDelta.kt` — nouveaux (MASS-1)
+- `src/main/kotlin/document/translation/DocumentTranslator.kt` — translateArticleWithDelta
+- `src/main/kotlin/document/translation/ContentTranslationService.kt` — translateSingleFileWithBlockDelta + debug
+- `src/test/kotlin/document/translation/delta/BlockDeltaTest.kt` (26 UT) + `DocumentTranslatorBlockDeltaTest.kt` (4) + `BlockDeltaWireDebugTest.kt`

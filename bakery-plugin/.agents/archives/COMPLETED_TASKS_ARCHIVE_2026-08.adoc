@@ -72,3 +72,41 @@ publishToMavenLocal OK.
 **Tests** : Feature 55 8/8 PASS. Dictionnaire labels 20 entrées aligné. publishToMavenLocal OK.
 
 **Score** : 9/10
+
+== Session 191 — 2026-08-04 — EPIC BKY-I18N-MASS — MASS-1 ✅ + MASS-2 🟠 (issue 191-1 à fixer)
+
+**Contexte** : Exécution de l'EPIC BKY-I18N-MASS (priorité 1). MASS-1 = domaine delta bloc
+(DDD pur), MASS-2 = câblage dans DocumentTranslator/ContentTranslationService +
+MigrateContentI18nTask. Statut de traduction *explicite* imposé par l'utilisateur
+(Loi Économie d'Encre).
+
+**Fait** :
+* [MASS-1] ✅ — `BlockChecksum.kt` : `BlockTranslationStatus` (TRANSLATED/PENDING),
+  `BlockChecksumEntry(hash,status)` parse/serialize (legacy `"hash"`→PENDING),
+  `sha256`/`computeForBlocks`. `BlockDelta.kt` : `compute(previous,current)` →
+  modified/preserved (statut ≠ TRANSLATED → re-traduit). DDD pur `document/translation/delta/`.
+  Cas critique : diagramme `[plantuml]` traduit préservé si le texte environnant change.
+* [MASS-2] 🟠 — `DocumentTranslator.translateArticleWithDelta` (internal→public, preserve blocs
+  indexés, shift table/plantuml, isEmpty→retourne previous). `ContentTranslationService
+  .translateSingleFileWithBlockDelta` (fresh/delta path, écrit target). `MigrateContentI18nTask` :
+  boucle bloc-delta + `load/storeBlockChecksums` (`.bakery-block-checksums/*.checksums`,
+  `idx=hash:STATUS`).
+* [Tests] — BlockDeltaTest 26 ✅, DocumentTranslatorBlockDeltaTest 4 ✅, BlockDeltaWireDebugTest 1 ✅
+  (document-gradle). FT BlockDeltaMigration : fresh ✅ + idempotence ✅ + 4 debug ✅.
+* [Issue 191-1] ❌ — FT « second run with one modified block preserves other blocks » échoue :
+  copy loop `MigrateContentI18nTask:124-129` (`sourceFile.copyTo(targetFile, overwrite=true)`)
+  écrase la cible avec la source AVANT la traduction bloc-delta → blocs préservés = texte source.
+* [publishToMavenLocal] ✅ — OK (document-gradle puis bakery-plugin).
+
+**Fichiers modifies** :
+- `bakery-plugin/src/main/kotlin/bakery/i18n/MigrateContentI18nTask.kt` — boucle bloc-delta + load/store checksums
+- `bakery-plugin/src/test/kotlin/bakery/i18n/MigrateContentI18nDeltaFunctionalTest.kt` — @Nested BlockDeltaMigration
+- `bakery-plugin/BACKLOG.adoc` — cadrage EPIC BKY-I18N-MASS
+- `document-plugin/src/main/kotlin/document/translation/delta/BlockChecksum.kt` + `BlockDelta.kt` — nouveaux (MASS-1)
+- `document-plugin/src/main/kotlin/document/translation/DocumentTranslator.kt` + `ContentTranslationService.kt` — MASS-2
+- `document-plugin/src/test/kotlin/document/translation/delta/BlockDeltaTest.kt` + `DocumentTranslatorBlockDeltaTest.kt` + `BlockDeltaWireDebugTest.kt` — nouveaux
+
+**Prochaine session (192)** : Fix Issue 191-1 (retirer/conditionner copy loop),
+nettoyer debug prints, clôturer MASS-2, enchaîner MASS-3.
+
+**Score** : 6/10 (issue 191-1 ouverte)

@@ -6,6 +6,7 @@ import bakery.intention.ResolveIntentionError
 import contracts.i18n.TranslationService
 import document.translation.ContentTranslationService
 import document.translation.delta.ArticleModification
+import document.translation.delta.BlockChecksumEntry
 import document.translation.delta.ContentChecksum
 import document.translation.delta.I18nDelta
 import document.translation.delta.I18nDeltaApplier
@@ -130,7 +131,6 @@ abstract class MigrateContentI18nTask : DefaultTask() {
             copyNonAdocFiles(sourceDir, langDir, intention.excludePaths.toSet())
 
             if (translationService != null && filesToTranslate.isNotEmpty()) {
-                val fileList = filesToTranslate.map { langDir.resolve(it) }
                 val plantUmlAdapter = PlantUmlTranslationAdapter(translationService)
                 val contentService =
                     ContentTranslationService(
@@ -138,18 +138,34 @@ abstract class MigrateContentI18nTask : DefaultTask() {
                         parallelism = intention.parallelism,
                         plantUmlAdapter = plantUmlAdapter,
                     )
-                val translationResult =
-                    contentService.translateFiles(
-                        files = fileList,
-                        langDir = langDir,
-                        sourceLanguage = intention.sourceLanguage,
-                        targetLanguage = targetLang,
-                    )
+                var translatedCount = 0
+                var errorCount = 0
+                for (relPath in filesToTranslate) {
+                    val sourceFile = sourceDir.resolve(relPath)
+                    val targetFile = langDir.resolve(relPath)
+                    targetFile.parentFile.mkdirs()
+                    println("[task] target exists before: ${targetFile.exists()}, content start: ${if (targetFile.exists()) targetFile.readText().take(100) else "N/A"}")
+                    try {
+                        val previousBlockChecksums = loadBlockChecksums(langDir, relPath)
+                        val newBlockChecksums = contentService.translateSingleFileWithBlockDelta(
+                            sourceFile = sourceFile,
+                            targetFile = targetFile,
+                            previousBlockChecksums = previousBlockChecksums,
+                            sourceLanguage = intention.sourceLanguage,
+                            targetLanguage = targetLang,
+                        )
+                        storeBlockChecksums(langDir, relPath, newBlockChecksums)
+                        translatedCount++
+                    } catch (e: Exception) {
+                        errorCount++
+                        logger.warn("[migrateContentI18n] [{}] ERREUR bloc {} : {}", targetLang, relPath, e.message)
+                    }
+                }
                 logger.lifecycle(
                     "[migrateContentI18n] [{}] Fichiers traduits : {}, erreurs : {}",
                     targetLang,
-                    translationResult.filesTranslated.size,
-                    translationResult.errors.size,
+                    translatedCount,
+                    errorCount,
                 )
             } else if (translationService == null) {
                 logger.lifecycle(
@@ -202,6 +218,33 @@ abstract class MigrateContentI18nTask : DefaultTask() {
         val checksumFile = langDir.resolve(".bakery-checksums.properties")
         checksumFile.writeText(
             checksums.entries.joinToString("\n") { "${it.key}=${it.value}" },
+        )
+    }
+
+    private fun blockChecksumsFile(langDir: File, relPath: String): File =
+        langDir.resolve(".bakery-block-checksums").resolve("$relPath.checksums")
+
+    private fun loadBlockChecksums(langDir: File, relPath: String): Map<String, BlockChecksumEntry> {
+        val file = blockChecksumsFile(langDir, relPath)
+        if (!file.exists()) return emptyMap()
+        return file
+            .readLines()
+            .filter { it.contains("=") }
+            .associate { line ->
+                val (idx, raw) = line.split("=", limit = 2)
+                idx to BlockChecksumEntry.parse(raw)
+            }
+    }
+
+    private fun storeBlockChecksums(
+        langDir: File,
+        relPath: String,
+        checksums: Map<String, BlockChecksumEntry>,
+    ) {
+        val file = blockChecksumsFile(langDir, relPath)
+        file.parentFile.mkdirs()
+        file.writeText(
+            checksums.entries.joinToString("\n") { "${it.key}=${it.value.serialize()}" },
         )
     }
 

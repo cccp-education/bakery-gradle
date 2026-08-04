@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-08-04 — Session 190. EPIC BKY-SEO ouvert (27 pts, 7 US) + EPIC BKY-CONTACT-SEC ouvert (26 pts, 8 US) : durcissement formulaire contact (Turnstile, rate limit, token anti-rejeu, PoW, heuristiques, firestore.rules) sur fixture cheroliv-com-contact. Tous les autres EPICs bakery sont clos._
+_Dernière mise à jour : 2026-08-04 — Session 191 (EPIC BKY-I18N-MASS : **MASS-1 ✅** BlockChecksum/BlockDelta DDD pur — **MASS-2 🟠** câblage livré, **Issue 191-1 à fixer S192** — copy loop écrase la cible avant traduction). **EPIC BKY-I18N-MASS ouvert (priorité 1, ~32 pts, 6 US)** : industrialisation traduction de masse vers N langues — delta bloc diagrammes (préserver une traduction de diagramme acquise entre lots), validation STRICT plantuml/table en production, montée en charge FR→N langues (pas seulement EN). EPIC BKY-SEO ouvert (27 pts, 7 US) + EPIC BKY-CONTACT-SEC ouvert (26 pts, 8 US) : durcissement formulaire contact (Turnstile, rate limit, token anti-rejeu, PoW, heuristiques, firestore.rules) sur fixture cheroliv-com-contact. Tous les autres EPICs bakery sont clos._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -242,6 +242,19 @@ pour introduire le concept unifiant `SiteTree` (Composite Site→Section→Artic
   renforcées. Fixture publique `cheroliv-com-contact`. Cadrage exhaustif :
   `.agents/CONTACT_SEC_ARCHITECTURE.adoc`. Projection S194-S196.
 | DDD/TDD/BDD
+
+| 10
+| **BKY-I18N-MASS — Industrialisation traduction de masse vers N langues**
+  (priorité 1, ~32 pts, 6 US). Constat de fin S190 : bakery n'est PAS mature
+  pour la mass-translation vers N langues et la préservation des diagrammes
+  traduits entre lots. BKY-I18N-DEPLOY-5 (FR→EN 108 articles) est livré mais
+  unilangue ; les 9 autres langues n'ont jamais tourné en production (fixtures
+  BDD seulement). Le delta checksum est *fichier*, pas *bloc* : un diagramme
+  déjà traduit/corrigé dans un lot est re-traduit si le texte autour change.
+  La validation STRICT plantuml/table (DOC-PLANTUML-VALIDATE, DOC-TABLE-VALIDATE,
+  ajoutée hier S041 document-gradle) n'a jamais tourné sur un volume de
+  production de diagrammes. Détail : section EPIC BKY-I18N-MASS ci-dessous.
+| DDD/TDD/BDD + dogfooding LLM réel
 |===
 
 '''
@@ -1844,11 +1857,224 @@ DDD/TDD/BDD préservée à chaque US.
 
 '''
 
+== EPIC BKY-I18N-MASS — Industrialisation traduction de masse vers N langues (delta bloc diagrammes + validation STRICT production)
+
+_Cadré Session 190 (2026-08-04). EPIC priorité 1 — condition de maturité du
+canal de livraison contenu bakery avant de toucher au slider (génération IA de
+decks). Bakery sait traduire FR→EN sur 108 articles (BKY-I18N-DEPLOY-5, S181)
+mais n'est PAS mature pour la mass-translation vers N langues et la préservation
+des diagrammes traduits entre lots existants._
+
+[CAUTION]
+====
+**Motivation** : trois gaps structurels identifiés fin S190 :
+
+ . *Mass-translation N langues non éprouvée* — le dogfooding réel est FR→EN
+   uniquement (108 articles cheroliv.com). Aucune passe de production n'a tourné
+   vers les 9 autres langues de `LanguageCatalog.supportedCodes()` (zh, hi, es,
+   ar, bn, pt, ru, ur). Les fixtures BDD 10 langues (feature 56, S183) valident
+   le câblage tâches, pas la qualité de traduction sur volume réel. L'EPIC
+   BKY-I18N-BATCH (découpage lot annuel) reste *cadré seulement* — le test
+   pilote 3 articles court/moyen/long n'est pas validé.
+
+ . *Delta fichier, pas bloc* — `ContentChecksum`/`I18nDeltaApplier` préserve un
+   *fichier* déjà traduit (Loi Économie d'Encre, S184). Mais dans un lot
+   existant, si seul le texte autour d'un diagramme `[plantuml]` change, le
+   fichier entier est re-traduit — y compris le diagramme déjà traduit et
+   validé. Il n'y a pas de delta au niveau bloc/diagramme pour préserver une
+   traduction de diagramme acquise dans un lot précédent. C'est exactement le
+   besoin « garantir la traduction des diagrammes dans des lots existants ».
+
+ . *Validation STRICT neuve, jamais testée sur volume* —
+   `PlantUmlTranslationAdapter` + `DOC-PLANTUML-VALIDATE` +
+   `DOC-TABLE-VALIDATE` (document-gradle S041, commit ccab1cb) ajoutés hier.
+   Validation strict/lenient/off en place mais n'a jamais tourné sur un volume
+   de production de diagrammes. Un diagramme traduit peut casser la syntaxe
+   `@startuml`/labels ; une table traduite peut corrompre les délimiteurs
+   (`|`, `|===`) — bug #0124 (S032) l'a prouvé sur le dogfooding.
+
+**Vision** : faire de bakery le canal de livraison contenu mature pour la
+mass-translation i18n — fiabiliser avant d'y propager du contenu généré par IA
+(slider). Sans ça, on propage du contenu non évalué dans un pipeline qu'on vient
+juste de fiabiliser.
+
+**Pré-requis respectés** :
+ . *bakery consomme document* — `ContentTranslationService` + `PlantUmlTranslationAdapter`
+   (document-gradle) consommés par `MigrateContentI18nTask` (bakery). Boundary préservé.
+ . *Loi de l'Économie d'Encre* — tout delta bloc doit respecter lecture-avant-écriture.
+ . *Ports Ollama* : 11437-11465 rotation. Modèles `gpt-oss:120b-cloud`, `gemma4:31b-cloud`.
+ . *Méthodo* — baby steps DDD (concept pur, testable sans Gradle) → TDD (UT rouge
+   avant code) → BDD (feature Cucumber bout en bout). Aucune I/O dans les classes
+   de domaine.
+====
+
+=== User Stories — baby steps DDD/TDD/BDD
+
+[cols="1,4,2,2,2]
+|===
+| US | Description | Tests | Pts | Dépend de
+
+| *BKY-I18N-MASS-1*
+| *`BlockDelta` + `BlockChecksum` — delta au niveau bloc/diagramme (DDD pur).*
+  Checksum SHA-256 par bloc translatable (heading, paragraph, table cell, bloc
+  `[plantuml]`). `BlockDelta` calcule le delta bloc-à-bloc entre une source
+  traduite précédemment et la source actuelle → ne re-traduit que les blocs
+  modifiés, préserve les blocs diagrammes déjà traduits/validés. Stockage
+  `.bakery-block-checksums.properties` par fichier cible. Cas critique : un
+  diagramme `[plantuml]` traduit (stratégie TRANSLATE/BORROW) dont le texte
+  environnant change n'est PAS re-traduit.
+| UT : 15-20 (block unchanged, block modified, diagram preserved, table cell delta)
+| 8
+| —
+
+| *BKY-I18N-MASS-2*
+| *Câblage `BlockDelta` dans `DocumentTranslator`/`ContentTranslationService`
+  (document-gradle) + `MigrateContentI18nTask` (bakery).* Le traducteur lit
+  les checksums blocs existants, ne soumet au LLM que les blocs dont le checksum
+  a changé, réécrit le fichier avec blocs préservés + blocs re-traduits.
+| FT : 3 scénarios (fresh, partiel-bloc, idempotence-bloc) + 0 régression
+| 6
+| MASS-1
+
+| *BKY-I18N-MASS-3*
+| *Validation STRICT plantuml/table en production — câblage mode configurable.*
+  `PlantUmlTranslationAdapter.plantUmlValidationMode` expose STRICT/LENIENT/OFF
+  via DSL bakery (`bakery { i18n { validation = "strict" } }`) + CLI
+  `--contentI18nValidation`. STRICT = throw sur diagramme invalide (échec build),
+  LENIENT = warn + collecte, OFF = skip. Rapport consolidé `validation-report.json`
+  post-passe (article, bloc, stratégie, raison).
+| FT : strict échoue build, lenient warn, off skip + BDD feature 59
+| 5
+| MASS-2
+
+| *BKY-I18N-MASS-4*
+| *Dogfooding FR→N langues sur lot pilote (3 articles × 9 langues cibles).*
+  Passe LLM réel sur les 3 articles pilotes BKY-I18N-BATCH (court 173l, moyen
+  811l, long 1403l) vers zh/hi/es/ar/bn/pt/ru/ur (9 langues). Validation
+  manuelle : headers JBake préservés, ratio FR résiduel < 5%, blocs `[source]`
+  inchangés, blocs `[plantuml]` classés + validés STRICT, RTL injecté (ar/ur).
+  Référence : procédure DEPLOY-5 `I18N_DEPLOY_BOUNDARY.adoc`.
+| Dogfooding opérateur (hors CI) + 1 BDD golden master multi-langue
+| 5
+| MASS-3
+
+| *BKY-I18N-MASS-5*
+| *BKY-I18N-BATCH validation — stratégie lot annuel éprouvée.* Reprise du
+  cadrage BKY-I18N-BATCH (S029 document) : une invocation
+  `migrateContentI18n` par année (`blog/{year}`), delta checksum préserve
+  entre lots. Validation end-to-end sur cheroliv.com 108 articles FR→EN par
+  8 lots annuels. Mesure temps + coût tokens + taux échec par lot.
+| Dogfooding opérateur + rapport métriques
+| 4
+| MASS-4
+
+| *BKY-I18N-MASS-6*
+| *Montée en charge complète — 108 articles × 10 langues.* Passe production
+  complète cheroliv.com FR→{en,zh,hi,es,ar,bn,pt,ru,ur}. Idempotence validée
+  (re-run = delta vide). Rapport final : couverture langues, diagrammes
+  préservés, validations STRICT passées, temps total, coût tokens.
+| Rapport production + BDD feature 60 end-to-end mass-translation
+| 4
+| MASS-5
+|===
+
+_Total_ : ~32 pts, 6 US. _Projection_ : 5-7 sessions (S191-S197).
+
+=== Issue 191-1 — MASS-2 FT rouge : copy loop écrase la cible avant traduction (À FIXER S192)
+
+*Constat (Session 191)* : le FT « second run with one modified block preserves other
+blocks » (`MigrateContentI18nDeltaFunctionalTest` → `@Nested BlockDeltaMigration`) échoue
+sur `afterSecond.contains("Second paragraph. [EN]")`. Le bloc « Second paragraph »
+(qui DOIT être préservé) ressort en texte source SANS `[EN]`.
+
+*Cause racine CONFIRMÉE* : `MigrateContentI18nTask.kt` **lignes 124-129** — la boucle
+```
+for (relPath in filesToTranslate) {
+    val sourceFile = sourceDir.resolve(relPath)
+    val targetFile = langDir.resolve(relPath)
+    targetFile.parentFile.mkdirs()
+    sourceFile.copyTo(targetFile, overwrite = true)
+}
+```
+**copie la source vers la cible AVANT la traduction bloc-delta**, écrasant la traduction
+précédente avec le texte source. Au 2e run, `translateSingleFileWithBlockDelta` parse le
+fichier source (sans `[EN]`) comme « précédents blocs traduits » → les blocs préservés
+héritent du texte source. Ce viol de la Loi Économie d'Encre casse exactement l'objectif
+MASS-1 (préserver un diagramme/bloc traduit entre lots).
+
+*Correctif prévu* :
+. Supprimer/conditionner la boucle de copie (lignes 124-129) : ne copier vers la cible que
+  dans la branche `translationService == null` (chemin legacy sans LLM — le contenu copié
+  reste alors en l'état). Le `translateSingleFileWithBlockDelta` écrit lui-même `targetFile`.
+. S'assurer que la boucle de traduction ne dépend plus de la copie préalable.
+. Nettoyer les `println` de debug : `[block-delta]` (ContentTranslationService),
+  `[task] target exists before:` (MigrateContentI18nTask), `DEBUG`/`println` dans
+  MigrateContentI18nDeltaFunctionalTest + BlockDeltaWireDebugTest.
+
+*Critère de clôture* : FT « second run ... preserves other blocks » vert + fresh/idempotence
+toujours verts + zéro `println` debug résiduel.
+
+=== Dépendances (DAG)
+
+----
+MASS-1 (BlockDelta DDD) ─→ MASS-2 (câblage) ─→ MASS-3 (validation STRICT)
+    ─→ MASS-4 (dogfooding N langues pilote) ─→ MASS-5 (batch annuel)
+    ─→ MASS-6 (montée en charge complète)
+----
+
+ * `MASS-1`/`MASS-2` modifient document-gradle (`ContentTranslationService`,
+   `DocumentTranslator`) + bakery (`MigrateContentI18nTask`) — boundary préservé.
+ * `MASS-3` consomme `DOC-PLANTUML-VALIDATE` + `DOC-TABLE-VALIDATE`
+   (document-gradle S041, déjà publiés) — zéro nouveau code de validation,
+   seulement câblage mode + DSL.
+ * `MASS-4`/`MASS-5`/`MASS-6` = dogfooding opérateur LLM réel (metered,
+   non-déterministe) — jamais en CI. Repose sur ports 11437-11465 rotation.
+
+=== Risques et mitigations
+
+[cols="3,5,4]
+|===
+| Risque | Mitigation
+
+| Coût tokens mass-translation 108 × 10 = ~50 000-100 000 appels LLM | Découpage
+  lot annuel (MASS-5) + delta bloc (MASS-1/2) : seuls les blocs modifiés sont
+  re-traduits. Reprise possible via delta. Idempotence = re-run gratuit.
+
+| Diagramme `[plantuml]` re-traduit casse la syntaxe | Validation STRICT
+  (MASS-3) = build échoue avant publication. Stratégie PRESERVE pour les
+  diagrammes techniques (PlantUmlClassifier DEPLOY-2).
+
+| Delta bloc = complexité supplémentaire vs delta fichier | `BlockDelta` est
+  un value object pur (MASS-1), testable sans I/O. Câblage isolé (MASS-2).
+  Rétro-compatible : sans block-checksums, fallback delta fichier.
+
+| Qualité traduction 9 langues non-EN inconnue | Dogfooding pilote 3 articles
+  (MASS-4) avant montée en charge (MASS-6). Validation manuelle ratio FR
+  résiduel + préservation structure.
+
+| Ollama indisponible sur 9 langues | Ports 11437-11465 rotation. Modèles
+  `gpt-oss:120b-cloud` + `gemma4:31b-cloud` couvrent les 10 langues
+  `LanguageCatalog.supportedCodes()`.
+|===
+
+=== Critère d'arrêt — maturité mass-translation
+
+ * Le site sait servir **une** formation réelle (articles, tableaux, i18n N
+   langues, forms, deploy) — cf. AGENTS.adoc racine MVP0.
+ * La génération de decks (slider) ne démarre QUE quand bakery est mature
+   mass-translation N langues + delta bloc diagrammes + validation STRICT
+   production. Sans ça, on propage du contenu non évalué dans un pipeline
+   non fiabilisé.
+
+'''
+
+'''
+
 [cols="2,3]
 |===
-| Document | `BACKLOG.adoc`
- | Version | 23.0 — Session 190 (EPIC BKY-CONTACT-SEC cadré, cadrage CONTACT_SEC_ARCHITECTURE)
- | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
- | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-184 + EPIC I18N-BATCH + EPIC I18N-CI + EPIC BKY-SEO + EPIC BKY-CONTACT-SEC
- | Prochaine màj | Session 191 — SEO-1 SeoConfig POJO ou SEC-1 ContactSecConfig POJO
-|===
+ | Document | `BACKLOG.adoc`
+| Version | 24.1 — Session 191 (EPIC BKY-I18N-MASS : MASS-1 ✅ + MASS-2 🟠 — Issue 191-1 copy loop à fixer S192)
+  | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
+  | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-184 + EPIC I18N-BATCH + EPIC I18N-CI + EPIC BKY-SEO + EPIC BKY-CONTACT-SEC + EPIC BKY-I18N-MASS
+  | Prochaine màj | Session 192 — Fix Issue 191-1 (copy loop MigrateContentI18nTask) + clôture MASS-2
+ |===

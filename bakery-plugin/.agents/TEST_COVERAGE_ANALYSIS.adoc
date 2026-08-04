@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-08-04 — Session 190 Renfort couverture tests i18n deploy. Fake translator fixé (fragment-level). Feature 55 8/8 PASS (+1 mixed strategies). Fixture diagrammes-mixtes.adoc. Standalone runner I18nDeployEndToEndCucumberTest. Dictionnaire labels 20 entrées. Coverage non revalidée (règle fin de session). Baseline S169 : 93,09% (Kover, seuil 85% PASS)._
+_Dernière mise à jour : 2026-08-04 — Session 191 PARTIELLE — EPIC BKY-I18N-MASS. MASS-1 ✅ : 26 UT `BlockDeltaTest` (document-gradle) + 4 UT `DocumentTranslatorBlockDeltaTest` + 1 debug. MASS-2 🟠 : FT `MigrateContentI18nDeltaFunctionalTest` → `@Nested BlockDeltaMigration` (fresh ✅, idempotence ✅, 4 debug ✅, **1 ❌ Issue 191-1**). Coverage non revalidée (règle fin de session). Baseline S169 : 93,09% (Kover, seuil 85% PASS)._
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -70,6 +70,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 
 [cols="2,2,2,3,3"]
 |===
+| 191 | 2026-08-04 | *non mesuré* | BlockDeltaTest 26 ✅ + DocumentTranslatorBlockDeltaTest 4 ✅ + BlockDeltaWireDebugTest 1 ✅ (document-gradle) ; FT BlockDeltaMigration fresh ✅ + idempotence ✅ ; **1 ❌ Issue 191-1** (FT « second run ... preserves other blocks » — copy loop MigrateContentI18nTask:124-129 écrase la cible) | **BKY-I18N-MASS** MASS-1 ✅ + MASS-2 🟠. BlockChecksum/BlockDelta DDD pur + translateArticleWithDelta + translateSingleFileWithBlockDelta + MigrateContentI18nTask load/store checksums.
 | 166 | 2026-06-25 | *non mesuré* | 57 UT tree GREEN (14+17+13+13) + 4 features (28 scénarios) compile OK | **BKY-TREE-1+2+3+4** SiteNode + SiteTree + Content + SiteTreeYaml. Domaine pur, no I/O. DTO intermédiaire pour Jackson polymorphic (sealed interface Kotlin non supporté). Backward compat préservée (Article.content optional).
 | 162 | 2026-06-24 | *non mesuré* | `./gradlew test` 11 tasks 1m14s ✅ | **BKY-PERF-6** Migration 6 FT→UT @TestInstance(PER_CLASS). 6 UT créées (IaConfigUnitTest, ArticleIntentionUnitTest, ThemeIntentionUnitTest, ScaffoldIntentionUnitTest, CollectSiteContextUnitTest, FirebaseAuthConfigUnitTest). 6 FT supprimées. 1 FT créé (IntegrationRestoredFunctionalTests). Zéro code production modifié.
 | 153 | 2026-06-23 | *non mesuré* | `AutoTranslationI18nMigrationIntegrationTest` 3/3 ✅ (dont 1 nouveau `reuses existing translations`) ; `I18nMigrationServiceTest` full PASS | **BKY-I18N-DELTA** Loi de l'Économie d'Encre. `translateNonFrenchKeys()` delta : `loadExistingTranslations()` + `filterKeys { !existing.containsKey(it) }` + fusion. 1 nouveau UT assert `requestsReceived.size == 1`.
