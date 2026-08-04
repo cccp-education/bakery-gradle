@@ -131,3 +131,44 @@ MigrateContentI18nTask. Statut de traduction *explicite* imposé par l'utilisate
 nettoyer debug prints, clôturer MASS-2, enchaîner MASS-3.
 
 **Score** : 6/10 (issue 191-1 ouverte)
+
+== Session 193 — 2026-08-04 — EPIC BKY-I18N-MASS — MASS-3 CLOS (validation STRICT plantuml/table configurable)
+
+**Contexte** : MASS-1 (BlockDelta DDD) + MASS-2 (câblage) livrés S191-S192.
+MASS-3 = validation STRICT/LENIENT/OFF plantuml/table configurable via DSL + CLI,
+rapport consolidé `validation-report.json` post-passe.
+
+**Baby steps DDD/TDD/BDD** :
+
+. DDD — `ContentMigrationIntention.validation: String` (STRICT/LENIENT/OFF, default LENIENT)
+  + `ContentMigrationIntentionDsl.validation` + init check
+. DDD — `ValidationReport` data class (Jackson JSON consolidé table + plantUml, `toJson()`)
+. TDD — `ContentTranslationService.drainTableValidationResults()` + `drainPlantUmlValidationResults()` (document-gradle)
+. TDD — `MigrateContentI18nTask` : CLI `--contentI18nValidation` + DSL propagation
+  + `PlantUmlTranslationAdapter(plantUmlValidationMode = validationMode)`
+  + `writeValidationReport()` → `validation-report.json`
+. TDD — 15 UT ContentMigrationIntentionTest (+6 validation) + 17 FT MigrateContentI18nDeltaFunctionalTest (+6 ValidationMode)
+. BDD — Feature 59 `59_i18n_mass_validation.feature` (5 scénarios, 5/5 PASS)
+  + `I18nMassValidationSteps.kt`
+
+**Fichiers modifiés** :
+
+*bakery-gradle/bakery-plugin* :
+- `src/main/kotlin/bakery/i18n/ContentMigrationIntention.kt` — +validation field + init check
+- `src/main/kotlin/bakery/i18n/ContentMigrationIntentionDsl.kt` — +validation field
+- `src/main/kotlin/bakery/i18n/MigrateContentI18nTask.kt` — +CLI @Option, +validationMode wiring, +writeValidationReport
+- `src/main/kotlin/bakery/i18n/ValidationReport.kt` — NOUVEAU
+- `src/test/kotlin/bakery/i18n/ContentMigrationIntentionTest.kt` — +6 UT
+- `src/test/kotlin/bakery/i18n/MigrateContentI18nDeltaFunctionalTest.kt` — +6 FT ValidationMode
+- `src/test/features/59_i18n_mass_validation.feature` — NOUVEAU
+- `src/test/scenarios/bakery/scenarios/I18nMassValidationSteps.kt` — NOUVEAU
+
+*document-gradle/document-plugin* :
+- `src/main/kotlin/document/translation/ContentTranslationService.kt` — +drainTableValidationResults, +drainPlantUmlValidationResults
+
+**Tests** : 15 UT + 17 FT + 5 BDD (5/5 PASS). 5 échecs préexistants non introduits.
+publishToMavenLocal document-gradle + bakery-gradle OK.
+
+**Prochaine session (194)** : MASS-4 — Dogfooding FR→N langues lot pilote (3 articles × 9 langues cibles).
+
+**Score** : 9/10

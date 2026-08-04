@@ -1,49 +1,57 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 193
+:session: 194
 :date: 2026-08-04
-:etat: Session 192 ✅ — Issue 191-1 fixée (copy loop déplacée dans branche translationService==null). MASS-2 CLOS. 12/12 FT verts. Debug println nettoyés (4 fichiers, 24 lignes). EPIC BKY-I18N-MASS priorité 1 (~32 pts, 6 US) — MASS-1 ✅, MASS-2 ✅, MASS-3→6 restants.
-:epic_actif: BKY-I18N-MASS — priorité 1. MASS-3 next (validation STRICT plantuml/table configurable).
+:etat: Session 193 ✅ — MASS-3 CLOS. Validation STRICT/LENIENT/OFF plantuml/table configurable (DSL + CLI + rapport validation-report.json). 15 UT + 17 FT + 5 BDD. EPIC BKY-I18N-MASS priorité 1 (~32 pts, 6 US) — MASS-1 ✅, MASS-2 ✅, MASS-3 ✅, MASS-4→6 restants.
+:epic_actif: BKY-I18N-MASS — priorité 1. MASS-4 next (dogfooding FR→N langues lot pilote).
 
 == Contexte de fin
 
-Session 192 — Fix Issue 191-1 + nettoyage debug :
-- Copy loop `MigrateContentI18nTask:124-129` déplacée dans la branche
-  `translationService == null` uniquement. `translateSingleFileWithBlockDelta`
-  écrit lui-même `targetFile` — plus d'écrasement de la cible avant traduction.
-- 12/12 FT `MigrateContentI18nDeltaFunctionalTest` verts (Fresh 1, Delta 3,
-  BlockDelta 8). Dont le FT rouge « second run ... preserves other blocks » → VERT.
-- 1/1 `BlockDeltaWireDebugTest` vert.
-- Debug `println` nettoyés : `ContentTranslationService.kt` (7), `MigrateContentI18nTask.kt` (1),
-  `MigrateContentI18nDeltaFunctionalTest.kt` (12), `BlockDeltaWireDebugTest.kt` (4).
-- publishToMavenLocal : document-gradle ✅ + bakery-gradle ✅.
+Session 193 — MASS-3 livré :
+- `ContentMigrationIntention.validation: String` (STRICT/LENIENT/OFF, default LENIENT)
+- `ContentMigrationIntentionDsl.validation` + init check
+- `MigrateContentI18nTask` : CLI `--contentI18nValidation` + DSL propagation
+- `PlantUmlTranslationAdapter(plantUmlValidationMode = validationMode)`
+- `ValidationReport` data class (Jackson JSON consolidé table + plantUml)
+- `writeValidationReport()` → `validation-report.json` post-passe
+- `ContentTranslationService.drainTableValidationResults()` + `drainPlantUmlValidationResults()` (document-gradle)
+- 15 UT ContentMigrationIntentionTest (+6 validation)
+- 17 FT MigrateContentI18nDeltaFunctionalTest (+6 ValidationMode)
+- 5 BDD feature 59 (5/5 PASS)
+- publishToMavenLocal document-gradle + bakery-gradle OK
 
-== Mission Session 193
+== Mission Session 194
 
-1. **MASS-3** — Validation STRICT plantuml/table configurable :
-   - DSL `bakery { i18n { validation = "strict" } }` + CLI `--contentI18nValidation`
-   - Modes : STRICT (throw), LENIENT (warn+collect), OFF (skip)
-   - Rapport consolidé `validation-report.json` post-passe
-   - Consomme `DOC-PLANTUML-VALIDATE` + `DOC-TABLE-VALIDATE` (document-gradle S041)
-   - Baby steps DDD/TDD/BDD : domaine pur → câblage → FT → BDD
+1. **MASS-4** — Dogfooding FR→N langues lot pilote (3 articles × 9 langues cibles) :
+   - Passe LLM réel sur 3 articles pilotes BKY-I18N-BATCH (court 173l, moyen 811l, long 1403l)
+   - Langues cibles : zh, hi, es, ar, bn, pt, ru, ur (9 langues)
+   - Validation manuelle : headers JBake préservés, ratio FR résiduel < 5%, blocs `[source]` inchangés
+   - Blocs `[plantuml]` classés + validés STRICT, RTL injecté (ar/ur)
+   - Référence : procédure DEPLOY-5 `I18N_DEPLOY_BOUNDARY.adoc`
+   - 1 BDD golden master multi-langue
 
 == Reprendre à
 
 . `git status` dans bakery-gradle + document-gradle
-. Lire `BACKLOG.adoc` section EPIC BKY-I18N-MASS (US MASS-3)
-. `publishToMavenLocal` après chaque modification code source (document-gradle puis bakery)
+. Lire `BACKLOG.adoc` section EPIC BKY-I18N-MASS (US MASS-4)
+. `publishToMavenLocal` après chaque modification code source
 
 == Ordre des EPICs (priorité)
 
-. **BKY-I18N-MASS** (priorité 1, ~32 pts) — MASS-1 ✅, MASS-2 ✅, MASS-3→6 restants
+. **BKY-I18N-MASS** (priorité 1, ~32 pts) — MASS-1 ✅, MASS-2 ✅, MASS-3 ✅, MASS-4→6 restants
 . BKY-SEO (priorité 2, 27 pts) — généralisation features SEO
 . BKY-CONTACT-SEC (priorité 3, 26 pts) — durcissement formulaire contact
 
-== Fichiers touchés S192
+== Fichiers touchés S193
 
 *bakery-gradle/bakery-plugin* :
-- `src/main/kotlin/bakery/i18n/MigrateContentI18nTask.kt` — copy loop déplacée dans branche `translationService==null`
-- `src/test/kotlin/bakery/i18n/MigrateContentI18nDeltaFunctionalTest.kt` — debug println nettoyés
+- `src/main/kotlin/bakery/i18n/ContentMigrationIntention.kt` — +validation field
+- `src/main/kotlin/bakery/i18n/ContentMigrationIntentionDsl.kt` — +validation field
+- `src/main/kotlin/bakery/i18n/MigrateContentI18nTask.kt` — +CLI @Option, +validationMode, +writeValidationReport
+- `src/main/kotlin/bakery/i18n/ValidationReport.kt` — NOUVEAU
+- `src/test/kotlin/bakery/i18n/ContentMigrationIntentionTest.kt` — +6 UT
+- `src/test/kotlin/bakery/i18n/MigrateContentI18nDeltaFunctionalTest.kt` — +6 FT ValidationMode
+- `src/test/features/59_i18n_mass_validation.feature` — NOUVEAU
+- `src/test/scenarios/bakery/scenarios/I18nMassValidationSteps.kt` — NOUVEAU
 
 *document-gradle/document-plugin* :
-- `src/main/kotlin/document/translation/ContentTranslationService.kt` — debug println nettoyés
-- `src/test/kotlin/document/translation/BlockDeltaWireDebugTest.kt` — debug println nettoyés
+- `src/main/kotlin/document/translation/ContentTranslationService.kt` — +drainTableValidationResults, +drainPlantUmlValidationResults

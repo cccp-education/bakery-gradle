@@ -7,9 +7,11 @@ import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class MigrateContentI18nDeltaFunctionalTest {
@@ -432,6 +434,170 @@ Second paragraph.
 
             val afterSecond = enDir.resolve("intro.adoc").readText()
             assertEquals(afterFirst, afterSecond)
+        }
+    }
+
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class ValidationMode {
+        @Test
+        fun `LENIENT mode generates validation report without failing`() {
+            val sourceDir = testDir.resolve("src/content")
+            createAdocSource(
+                sourceDir,
+                "intro.adoc" to """= Intro
+
+== Section
+
+First paragraph.
+""",
+            )
+            val outputBase = testDir.resolve("build/i18n")
+
+            val task = setupTask("test-validation-lenient", sourceDir, outputBase)
+            task.contentI18nValidation.set("LENIENT")
+            task.translationService = FakeTranslationService(" [EN]")
+            task.executeContentMigration()
+
+            val reportFile = outputBase.resolve("validation-report.json")
+            assertTrue(reportFile.exists(), "validation-report.json should exist")
+            val report = reportFile.readText()
+            assertTrue(report.contains("\"table\""))
+            assertTrue(report.contains("\"plantUml\""))
+        }
+
+        @Test
+        fun `OFF mode generates validation report without failing`() {
+            val sourceDir = testDir.resolve("src/content")
+            createAdocSource(
+                sourceDir,
+                "intro.adoc" to """= Intro
+
+== Section
+
+First paragraph.
+""",
+            )
+            val outputBase = testDir.resolve("build/i18n")
+
+            val task = setupTask("test-validation-off", sourceDir, outputBase)
+            task.contentI18nValidation.set("OFF")
+            task.translationService = FakeTranslationService(" [EN]")
+            task.executeContentMigration()
+
+            val reportFile = outputBase.resolve("validation-report.json")
+            assertTrue(reportFile.exists(), "validation-report.json should exist")
+        }
+
+        @Test
+        fun `STRICT mode does not fail on valid content`() {
+            val sourceDir = testDir.resolve("src/content")
+            createAdocSource(
+                sourceDir,
+                "intro.adoc" to """= Intro
+
+== Section
+
+First paragraph.
+""",
+            )
+            val outputBase = testDir.resolve("build/i18n")
+
+            val task = setupTask("test-validation-strict", sourceDir, outputBase)
+            task.contentI18nValidation.set("STRICT")
+            task.translationService = FakeTranslationService(" [EN]")
+            task.executeContentMigration()
+
+            val reportFile = outputBase.resolve("validation-report.json")
+            assertTrue(reportFile.exists(), "validation-report.json should exist")
+        }
+
+        @Test
+        fun `validation report is valid JSON`() {
+            val sourceDir = testDir.resolve("src/content")
+            createAdocSource(
+                sourceDir,
+                "intro.adoc" to """= Intro
+
+== Section
+
+First paragraph.
+""",
+            )
+            val outputBase = testDir.resolve("build/i18n")
+
+            val task = setupTask("test-validation-json", sourceDir, outputBase)
+            task.contentI18nValidation.set("LENIENT")
+            task.translationService = FakeTranslationService(" [EN]")
+            task.executeContentMigration()
+
+            val reportFile = outputBase.resolve("validation-report.json")
+            val report = reportFile.readText()
+            assertTrue(report.contains("\"table\""))
+            assertTrue(report.contains("\"plantUml\""))
+            assertTrue(report.contains("["))
+            assertTrue(report.contains("]"))
+        }
+
+        @Test
+        fun `validation report is empty when no invalid blocks`() {
+            val sourceDir = testDir.resolve("src/content")
+            createAdocSource(
+                sourceDir,
+                "intro.adoc" to """= Intro
+
+== Section
+
+First paragraph.
+""",
+            )
+            val outputBase = testDir.resolve("build/i18n")
+
+            val task = setupTask("test-validation-empty", sourceDir, outputBase)
+            task.contentI18nValidation.set("LENIENT")
+            task.translationService = FakeTranslationService(" [EN]")
+            task.executeContentMigration()
+
+            val reportFile = outputBase.resolve("validation-report.json")
+            val report = reportFile.readText()
+            assertFalse(report.contains("\"INVALID\""))
+        }
+
+        @Test
+        fun `DSL validation STRICT propagates to task`() {
+            val sourceDir = testDir.resolve("src/content")
+            createAdocSource(
+                sourceDir,
+                "intro.adoc" to """= Intro
+
+== Section
+
+First paragraph.
+""",
+            )
+            val outputBase = testDir.resolve("build/i18n")
+
+            val project = ProjectBuilder.builder()
+                .withProjectDir(testDir)
+                .withName("test-dsl-validation")
+                .build()
+            project.pluginManager.apply("java-base")
+
+            val task = project.tasks.register("migrateContentI18n", MigrateContentI18nTask::class.java).get()
+            task.contentI18nSource.set(sourceDir.absolutePath)
+            task.contentI18nOutput.set(outputBase.absolutePath)
+            task.contentI18nTargetLangs.set("en")
+            task.contentI18nDryRun.set("false")
+            task.dslIntention = ContentMigrationIntention(
+                sourceDir = sourceDir.absolutePath,
+                outputDir = outputBase.absolutePath,
+                validation = "STRICT",
+            )
+            task.translationService = FakeTranslationService(" [EN]")
+            task.executeContentMigration()
+
+            val reportFile = outputBase.resolve("validation-report.json")
+            assertTrue(reportFile.exists())
         }
     }
 }

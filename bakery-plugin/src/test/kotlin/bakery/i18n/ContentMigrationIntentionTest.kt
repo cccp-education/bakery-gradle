@@ -101,4 +101,50 @@ class ContentMigrationIntentionTest {
         assertEquals(listOf("en", "zh"), intent.targetLanguages)
         assertEquals(false, intent.dryRun)
     }
+
+    @Test
+    fun `validation defaults to LENIENT`() {
+        val intent = ContentMigrationIntention(sourceDir = "site", outputDir = "out")
+        assertEquals("LENIENT", intent.validation)
+    }
+
+    @Test
+    fun `validation STRICT is accepted`() {
+        val intent = ContentMigrationIntention(sourceDir = "site", outputDir = "out", validation = "STRICT")
+        assertEquals("STRICT", intent.validation)
+    }
+
+    @Test
+    fun `validation OFF is accepted`() {
+        val intent = ContentMigrationIntention(sourceDir = "site", outputDir = "out", validation = "OFF")
+        assertEquals("OFF", intent.validation)
+    }
+
+    @Test
+    fun `invalid validation mode throws`() {
+        assertThrows<IllegalArgumentException> {
+            ContentMigrationIntention(sourceDir = "site", outputDir = "out", validation = "INVALID")
+        }
+    }
+
+    @Test
+    fun `DSL validation field propagates to intention`() {
+        val dsl = ContentMigrationIntentionDsl().apply {
+            sourceDir = "site"
+            outputDir = "out"
+            validation = "STRICT"
+        }
+        val intent = dsl.toIntention()
+        assertEquals("STRICT", intent.validation)
+    }
+
+    @Test
+    fun `DSL validation defaults to LENIENT`() {
+        val dsl = ContentMigrationIntentionDsl().apply {
+            sourceDir = "site"
+            outputDir = "out"
+        }
+        val intent = dsl.toIntention()
+        assertEquals("LENIENT", intent.validation)
+    }
 }

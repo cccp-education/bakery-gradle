@@ -1,8 +1,18 @@
 = Analyse de Couverture des Tests — Bakery Gradle Plugin
 
-_Derniere mise a jour : 2026-08-04 (Session 189 — EPIC BKY-OUTPUT CLOS, +6 UT OutputConfigResolver)_
+_Derniere mise a jour : 2026-08-04 (Session 193 — MASS-3 CLOS, +6 UT +6 FT +5 BDD)_
 
 '''
+
+== Session 193 — EPIC BKY-I18N-MASS — MASS-3 (validation STRICT plantuml/table)
+
+**Tests ajoutés** :
+- `ContentMigrationIntentionTest` : +6 UT (validation defaults, STRICT, OFF, invalid, DSL propagation, DSL default)
+- `MigrateContentI18nDeltaFunctionalTest.ValidationMode` : +6 FT (LENIENT report, OFF report, STRICT no-fail, valid JSON, empty report, DSL STRICT propagation)
+- `59_i18n_mass_validation.feature` : 5 BDD (LENIENT/STRICT/OFF report, valid JSON, zero invalid entries)
+- `I18nMassValidationSteps.kt` : steps Cucumber
+
+**Total** : 15 UT + 17 FT + 5 BDD (5/5 PASS). 5 échecs préexistants non introduits.
 
 == Session 189 — EPIC BKY-OUTPUT CLOS (49/49 pts, 100%)
 

@@ -8,6 +8,7 @@ open class ContentMigrationIntentionDsl {
     var dryRun: Boolean = true
     var excludePaths: List<String> = emptyList()
     var parallelism: Int = 1
+    var validation: String = "LENIENT"
 
     fun toIntention(): ContentMigrationIntention =
         ContentMigrationIntention(
@@ -18,5 +19,6 @@ open class ContentMigrationIntentionDsl {
             dryRun = dryRun,
             excludePaths = excludePaths,
             parallelism = parallelism,
+            validation = validation,
         )
 }

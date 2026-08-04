@@ -11,6 +11,11 @@ import document.translation.delta.ContentChecksum
 import document.translation.delta.I18nDelta
 import document.translation.delta.I18nDeltaApplier
 import document.translation.plantuml.PlantUmlTranslationAdapter
+import document.translation.validation.PlantUmlValidationReport
+import document.translation.validation.PlantUmlValidationResult
+import document.translation.validation.TableValidationReport
+import document.translation.validation.TableValidationResult
+import document.translation.validation.ValidationMode
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -57,6 +62,11 @@ abstract class MigrateContentI18nTask : DefaultTask() {
     @get:Option(option = "contentI18nDryRun", description = "Mode dry-run (true/false) — prévisualise sans écrire")
     abstract val contentI18nDryRun: Property<String>
 
+    @get:Input
+    @get:Optional
+    @get:Option(option = "contentI18nValidation", description = "Mode de validation plantuml/table (STRICT/LENIENT/OFF)")
+    abstract val contentI18nValidation: Property<String>
+
     init {
         group = BakeryConstants.TRANSFORM_GROUP
         description =
@@ -66,6 +76,7 @@ abstract class MigrateContentI18nTask : DefaultTask() {
         contentI18nTargetLangs.convention("")
         contentI18nSourceLang.convention("")
         contentI18nDryRun.convention("")
+        contentI18nValidation.convention("")
     }
 
     @TaskAction
@@ -77,6 +88,14 @@ abstract class MigrateContentI18nTask : DefaultTask() {
         logger.lifecycle("[migrateContentI18n] Langue source : {}", intention.sourceLanguage)
         logger.lifecycle("[migrateContentI18n] Langues cibles : {}", intention.targetLanguages.joinToString(", "))
         logger.lifecycle("[migrateContentI18n] Dry-run : {}", intention.dryRun)
+        logger.lifecycle("[migrateContentI18n] Validation : {}", intention.validation)
+
+        val validationMode = try {
+            ValidationMode.valueOf(intention.validation)
+        } catch (e: IllegalArgumentException) {
+            logger.warn("[migrateContentI18n] Mode de validation '{}' invalide, fallback LENIENT.", intention.validation)
+            ValidationMode.LENIENT
+        }
 
         val sourceDir = resolveSourceDir(intention)
         if (!sourceDir.exists()) {
@@ -93,6 +112,9 @@ abstract class MigrateContentI18nTask : DefaultTask() {
         }
 
         val translationService = this.translationService
+
+        val allTableValidationResults = mutableListOf<TableValidationResult.Invalid>()
+        val allPlantUmlValidationResults = mutableListOf<PlantUmlValidationResult.Invalid>()
 
         for (targetLang in intention.targetLanguages) {
             val langDir = outputBaseDir.resolve(targetLang)
@@ -124,7 +146,7 @@ abstract class MigrateContentI18nTask : DefaultTask() {
             copyNonAdocFiles(sourceDir, langDir, intention.excludePaths.toSet())
 
             if (translationService != null && filesToTranslate.isNotEmpty()) {
-                val plantUmlAdapter = PlantUmlTranslationAdapter(translationService)
+                val plantUmlAdapter = PlantUmlTranslationAdapter(translationService, plantUmlValidationMode = validationMode)
                 val contentService =
                     ContentTranslationService(
                         translationService,
@@ -152,6 +174,8 @@ abstract class MigrateContentI18nTask : DefaultTask() {
                         errorCount++
                         logger.warn("[migrateContentI18n] [{}] ERREUR bloc {} : {}", targetLang, relPath, e.message)
                     }
+                    allTableValidationResults.addAll(contentService.drainTableValidationResults())
+                    allPlantUmlValidationResults.addAll(contentService.drainPlantUmlValidationResults())
                 }
                 logger.lifecycle(
                     "[migrateContentI18n] [{}] Fichiers traduits : {}, erreurs : {}",
@@ -175,6 +199,8 @@ abstract class MigrateContentI18nTask : DefaultTask() {
 
             storeChecksums(langDir, currentChecksums)
         }
+
+        writeValidationReport(outputBaseDir, allTableValidationResults, allPlantUmlValidationResults)
     }
 
     private fun copyNonAdocFiles(
@@ -195,6 +221,27 @@ abstract class MigrateContentI18nTask : DefaultTask() {
             target.parentFile.mkdirs()
             file.copyTo(target, overwrite = true)
         }
+    }
+
+    private fun writeValidationReport(
+        outputBaseDir: File,
+        tableResults: List<TableValidationResult.Invalid>,
+        plantUmlResults: List<PlantUmlValidationResult.Invalid>,
+    ) {
+        val tableReport = TableValidationReport.fromResults(tableResults)
+        val plantUmlReport = PlantUmlValidationReport.fromResults(plantUmlResults)
+        val consolidated = ValidationReport(
+            table = tableReport.entries,
+            plantUml = plantUmlReport.entries,
+        )
+        val reportFile = outputBaseDir.resolve("validation-report.json")
+        reportFile.writeText(consolidated.toJson())
+        logger.lifecycle(
+            "[migrateContentI18n] Rapport de validation : {} (tables: {} invalides, plantuml: {} invalides)",
+            reportFile.absolutePath,
+            tableResults.size,
+            plantUmlResults.size,
+        )
     }
 
     private fun loadStoredChecksums(langDir: File): Map<String, String> {
@@ -312,6 +359,13 @@ abstract class MigrateContentI18nTask : DefaultTask() {
 
         val resolvedExclude = dslIntention?.excludePaths ?: emptyList()
 
+        val resolvedValidation =
+            ResolveIntention.fromCli(
+                contentI18nValidation.orNull,
+                dslIntention?.validation,
+                "LENIENT",
+            )
+
         return ContentMigrationIntention(
             sourceDir = resolvedSource,
             outputDir = resolvedOutput,
@@ -320,6 +374,7 @@ abstract class MigrateContentI18nTask : DefaultTask() {
             dryRun = resolvedDryRun,
             excludePaths = resolvedExclude,
             parallelism = dslIntention?.parallelism ?: 1,
+            validation = resolvedValidation,
         )
     }
 

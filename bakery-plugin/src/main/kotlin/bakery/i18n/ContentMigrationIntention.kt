@@ -10,6 +10,7 @@ data class ContentMigrationIntention(
     val dryRun: Boolean = true,
     val excludePaths: List<String> = emptyList(),
     val parallelism: Int = 1,
+    val validation: String = "LENIENT",
 ) {
     init {
         require(sourceDir.isNotBlank()) { "Le repertoire source (sourceDir) est obligatoire pour la migration de contenu." }
@@ -25,6 +26,9 @@ data class ContentMigrationIntention(
         }
         require(sourceLanguage !in targetLanguages) {
             "La langue source '$sourceLanguage' ne peut pas etre une langue cible."
+        }
+        require(validation in setOf("STRICT", "LENIENT", "OFF")) {
+            "Mode de validation '$validation' invalide. Utilisez : STRICT, LENIENT, OFF."
         }
     }
 }

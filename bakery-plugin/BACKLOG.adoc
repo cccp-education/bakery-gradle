@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-08-04 — Session 192 ✅ (EPIC BKY-I18N-MASS : **MASS-1 ✅** + **MASS-2 ✅ CLOS** — Issue 191-1 fixée, copy loop déplacée dans branche translationService==null, 12/12 FT verts, debug println nettoyés). **EPIC BKY-I18N-MASS ouvert (priorité 1, ~32 pts, 6 US)** : MASS-1 ✅, MASS-2 ✅, MASS-3→6 restants._
+_Dernière mise à jour : 2026-08-04 — Session 193 ✅ (EPIC BKY-I18N-MASS : **MASS-1 ✅** + **MASS-2 ✅** + **MASS-3 ✅ CLOS** — Validation STRICT/LENIENT/OFF plantuml/table configurable, DSL + CLI + rapport validation-report.json, 15 UT + 17 FT + 5 BDD). **EPIC BKY-I18N-MASS ouvert (priorité 1, ~32 pts, 6 US)** : MASS-1 ✅, MASS-2 ✅, MASS-3 ✅, MASS-4→6 restants._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -2073,8 +2073,8 @@ MASS-1 (BlockDelta DDD) ─→ MASS-2 (câblage) ─→ MASS-3 (validation STRIC
 [cols="2,3]
 |===
  | Document | `BACKLOG.adoc`
-| Version | 24.2 — Session 192 ✅ (EPIC BKY-I18N-MASS : MASS-1 ✅ + MASS-2 ✅ CLOS — Issue 191-1 fixée, 12/12 FT verts)
+| Version | 24.3 — Session 193 ✅ (EPIC BKY-I18N-MASS : MASS-1 ✅ + MASS-2 ✅ + MASS-3 ✅ CLOS — Validation STRICT plantuml/table configurable)
   | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
-  | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-192 + EPIC I18N-BATCH + EPIC I18N-CI + EPIC BKY-SEO + EPIC BKY-CONTACT-SEC + EPIC BKY-I18N-MASS
-  | Prochaine màj | Session 193 — MASS-3 (validation STRICT plantuml/table configurable)
+  | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-193 + EPIC I18N-BATCH + EPIC I18N-CI + EPIC BKY-SEO + EPIC BKY-CONTACT-SEC + EPIC BKY-I18N-MASS
+  | Prochaine màj | Session 194 — MASS-4 (dogfooding FR→N langues lot pilote)
  |===
