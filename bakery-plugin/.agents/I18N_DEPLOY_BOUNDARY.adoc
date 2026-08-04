@@ -178,3 +178,34 @@ Idempotent : re-run = même résultat. LTR (en, fr, zh, ...) → drop `:lang: rt
 . `src/main/kotlin/bakery/i18n/ContentTranslationService.kt` — socle traduction
 . `src/main/kotlin/bakery/i18n/MigrateContentI18nTask.kt` — tâche Gradle
 . `src/test/resources/i18n-fixtures/` — golden masters 3 sites (S170)
+
+== Gap mass-translation N langues — EPIC BKY-I18N-MASS (Session 190)
+
+_Constat fin S190_ : BKY-I18N-DEPLOY-5 (FR→EN 108 articles) est livré mais
+unilangue. Bakery n'est PAS mature pour la mass-translation vers N langues et
+la préservation des diagrammes traduits entre lots existants. Trois gaps
+structurels, traités par l'EPIC `BKY-I18N-MASS` (`BACKLOG.adoc` section dédiée) :
+
+[cols="3,5,4]
+|===
+| Gap | Description | US EPIC BKY-I18N-MASS
+
+| Mass-translation N langues non éprouvée | Dogfooding réel = FR→EN uniquement.
+  9 autres langues (`zh/hi/es/ar/bn/pt/ru/ur`) jamais tournées en production
+  (fixtures BDD seulement). | MASS-4 + MASS-6
+
+| Delta fichier, pas bloc | `ContentChecksum`/`I18nDeltaApplier` (S184)
+  préservent un *fichier* déjà traduit. Un diagramme `[plantuml]` déjà
+  traduit/validé est re-traduit si le texte environnant change. Pas de delta
+  bloc pour préserver une traduction de diagramme acquise entre lots. | MASS-1 + MASS-2
+
+| Validation STRICT neuve, jamais testée sur volume | `PlantUmlTranslationAdapter`
+  + `DOC-PLANTUML-VALIDATE` + `DOC-TABLE-VALIDATE` (document-gradle S041) :
+  validation strict/lenient/off en place mais jamais tournée sur un volume
+  production de diagrammes. | MASS-3
+|===
+
+_Critère d'arrêt_ : le site sait servir une formation réelle (articles,
+tableaux, i18n N langues, forms, deploy) ET la génération de decks (slider)
+ne démarre QUE quand bakery est mature mass-translation. Sans ça, on propage
+du contenu non évalué dans un pipeline non fiabilisé.

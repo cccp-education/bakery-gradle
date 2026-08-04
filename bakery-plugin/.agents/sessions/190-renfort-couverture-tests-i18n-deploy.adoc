@@ -1,0 +1,79 @@
+= Session 190 — Renfort couverture tests i18n deploy + cadrage EPIC BKY-I18N-MASS
+
+**Date** : 2026-08-04
+**Statut** : ✅ TERMINEE
+
+---
+
+== Contexte
+
+Session de renfort TDD/BDD sur le pipeline i18n deploy. Le fake translator
+était trop simpliste (remplacement global) — ne couvrait pas les stratégies
+mixtes PlantUML. EPIC BKY-I18N-MASS cadré pour la mass-translation N langues.
+
+---
+
+== Actions Entreprises
+
+=== 1. Fake translator fixé (fragment-level)
+
+* Préfixe `[lang]` systématique sur chaque fragment traduit
+* Dictionnaire labels PlantUML uniquement (20 entrées alignées entre
+  `I18nDeployEndToEndSteps` et `I18nDeployMultiSiteSteps`)
+* Remplacement in-texte conservé pour le contenu non-PlantUML
+
+=== 2. Feature 55 — 8/8 PASS
+
+* 7 scénarios existants + 1 nouveau `mixed strategies`
+* Nouvel article fixture `diagrammes-mixtes.adoc` (2 blocs plantuml
+  stratégies différentes : PreserveTechnical + TranslateLabels)
+
+=== 3. Standalone runner
+
+* `I18nDeployEndToEndCucumberTest` créé (pattern feature 56/57)
+* Via `LauncherDiscoveryRequestBuilder`
+
+=== 4. Cadrage EPIC BKY-I18N-MASS
+
+* Priorité 1, ~32 pts, 6 US
+* 3 gaps identifiés :
+  . Dogfooding réel unilangue FR→EN, 9 autres langues jamais en production
+  . Delta checksum fichier, pas bloc — diagramme traduit re-traduit si texte autour change
+  . Validation STRICT plantuml/table jamais testée sur volume production
+* Détail dans `BACKLOG.adoc`
+
+=== 5. publishToMavenLocal OK
+
+---
+
+== Résultats
+
+| Critère | Statut | Détails |
+| Fake translator fixé | ✅ | Fragment-level, préfixe `[lang]` |
+| Feature 55 | ✅ | 8/8 PASS (+1 mixed strategies) |
+| Fixture diagrammes-mixtes | ✅ | 2 blocs plantuml stratégies différentes |
+| Standalone runner | ✅ | `I18nDeployEndToEndCucumberTest` |
+| Dictionnaire labels | ✅ | 20 entrées alignées |
+| EPIC BKY-I18N-MASS | ✅ | Cadré (priorité 1, ~32 pts, 6 US) |
+
+---
+
+== Fichiers touchés
+
+* `src/test/scenarios/bakery/scenarios/I18nDeployEndToEndSteps.kt` — fake translator fragment-level
+* `src/test/scenarios/bakery/scenarios/I18nDeployMultiSiteSteps.kt` — idem
+* `src/test/features/55_i18n_deploy_end_to_end.feature` — +1 scénario mixed strategies
+* `src/test/resources/fixtures/cheroliv-com-i18n-deploy/content/blog/diagrammes-mixtes.adoc` — nouveau
+* `src/test/kotlin/bakery/i18n/deploy/I18nDeployEndToEndCucumberTest.kt` — nouveau
+
+---
+
+== Prochaines Étapes (Session 191)
+
+. **BKY-I18N-MASS-1** — `BlockDelta` + `BlockChecksum` (DDD pur, 8 pts)
+. (si temps) **BKY-I18N-MASS-2** — câblage dans `DocumentTranslator`/`ContentTranslationService`
+
+---
+
+**Session 190** — ✅ TERMINEE
+**Session 191** — prête

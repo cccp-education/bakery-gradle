@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-08-04 — Session 190 Renfort couverture tests i18n deploy._
-_Session en cours_ : 190 terminée — Renfort couverture tests i18n deploy ✅._
-_Prochaine session_ : 191 — Publication Maven Central 0.0.5 ou EPIC BKY-I18N-BATCH.
+_Derniere mise a jour : 2026-08-04 — Session 190 Renfort couverture tests i18n deploy ✅ + EPIC BKY-I18N-MASS cadré (priorité 1)._
+_Session en cours_ : 190 terminée — Renfort couverture tests i18n deploy ✅ + EPIC BKY-I18N-MASS cadré (priorité 1)._
+_Prochaine session_ : 191 — BKY-I18N-MASS-1 BlockDelta + BlockChecksum (DDD pur).
 
 '''
 
@@ -322,6 +322,38 @@ SecretField.DeviceKey, site.yml.example template, workflow_dispatch CI, BDD end-
 |===
 
 _19/19 pts livrés (100%). EPIC BKY-I18N-CI CLOS. 6/6 US livrées S185+S188. CI-2 gap buildMaskedSummary ollama comblé S188._
+
+=== EPIC BKY-I18N-MASS — Industrialisation traduction de masse vers N langues (NOUVEAU — Session 190, priorité 1)
+
+_Bakery sait traduire FR→EN sur 108 articles (DEPLOY-5, S181) mais n'est PAS
+mature pour la mass-translation vers N langues et la préservation des diagrammes
+traduits entre lots. Trois gaps : (1) dogfooding réel unilangue FR→EN, 9 autres
+langues jamais tournées en production ; (2) delta checksum fichier, pas bloc —
+un diagramme `[plantuml]` déjà traduit est re-traduit si le texte autour change ;
+(3) validation STRICT plantuml/table (DOC-PLANTUML-VALIDATE S041) jamais testée
+sur volume production de diagrammes. Détail dans `BACKLOG.adoc` section EPIC
+BKY-I18N-MASS. ~32 pts, 6 US, projection S191-S197._
+
+|===
+| US | Description | Pts | Statut
+
+| *BKY-I18N-MASS-1* | `BlockDelta` + `BlockChecksum` — delta niveau bloc/diagramme (DDD pur, préserve diagramme traduit entre lots) | 8 | *🔲 S191 À FAIRE*
+| *BKY-I18N-MASS-2* | Câblage `BlockDelta` dans `DocumentTranslator`/`ContentTranslationService` + `MigrateContentI18nTask` | 6 | *🔲 À FAIRE*
+| *BKY-I18N-MASS-3* | Validation STRICT plantuml/table configurable (DSL + CLI `--contentI18nValidation`) + rapport `validation-report.json` | 5 | *🔲 À FAIRE*
+| *BKY-I18N-MASS-4* | Dogfooding FR→N langues sur lot pilote (3 articles × 9 langues cibles) | 5 | *🔲 À FAIRE*
+| *BKY-I18N-MASS-5* | BKY-I18N-BATCH validation — stratégie lot annuel éprouvée (108 articles FR→EN, 8 lots) | 4 | *🔲 À FAIRE*
+| *BKY-I18N-MASS-6* | Montée en charge complète — 108 articles × 10 langues + idempotence + rapport production | 4 | *🔲 À FAIRE*
+|===
+
+_~32 pts, 6 US. EPIC priorité 1 — condition de maturité du canal de livraison contenu bakery avant de toucher au slider (génération IA de decks). Sans ça, on propage du contenu non évalué dans un pipeline non fiabilisé._
+
+=== EPICs en attente (priorité 2/3)
+
+|===
+| EPIC | Axe | Pts | Priorite | Statut
+| *BKY-SEO* | Généralisation features SEO (canonical/hreflang/OG/JSON-LD/404/sitemap) | 27 | *P2* | 🔲 cadré S190
+| *BKY-CONTACT-SEC* | Durcissement formulaire contact (Turnstile, rate limit, token anti-rejeu, PoW) | 26 | *P3* | 🔲 cadré S190
+|===
 
 === Code Smells — 24/24 ✅ résolus + 60 nouveaux V5
 

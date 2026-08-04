@@ -48,3 +48,27 @@ Cucumber features 39-48 tous PASS. 2 échecs préexistants non liés.
 publishToMavenLocal OK.
 
 **Score** : 9/10
+
+== Session 190 — 2026-08-04 — Renfort couverture tests i18n deploy + cadrage EPIC BKY-I18N-MASS
+
+**Contexte** : Renfort TDD/BDD sur le pipeline i18n deploy. Fake translator trop simpliste
+(remplacement global) — ne couvrait pas les stratégies mixtes PlantUML.
+
+**Fait** :
+* [Fake translator] ✅ — Fragment-level, préfixe `[lang]` systématique, dictionnaire labels PlantUML 20 entrées
+* [Feature 55] ✅ — 8/8 PASS (+1 scénario mixed strategies)
+* [Fixture] ✅ — `diagrammes-mixtes.adoc` (2 blocs plantuml stratégies différentes)
+* [Standalone runner] ✅ — `I18nDeployEndToEndCucumberTest` (pattern feature 56/57)
+* [EPIC BKY-I18N-MASS] ✅ — Cadré (priorité 1, ~32 pts, 6 US). 3 gaps : dogfooding unilangue, delta bloc, validation STRICT
+* [publishToMavenLocal] ✅ — OK
+
+**Fichiers modifies** :
+- `src/test/scenarios/bakery/scenarios/I18nDeployEndToEndSteps.kt` — fake translator fragment-level
+- `src/test/scenarios/bakery/scenarios/I18nDeployMultiSiteSteps.kt` — idem
+- `src/test/features/55_i18n_deploy_end_to_end.feature` — +1 scénario mixed strategies
+- `src/test/resources/fixtures/cheroliv-com-i18n-deploy/content/blog/diagrammes-mixtes.adoc` — nouveau
+- `src/test/kotlin/bakery/i18n/deploy/I18nDeployEndToEndCucumberTest.kt` — nouveau
+
+**Tests** : Feature 55 8/8 PASS. Dictionnaire labels 20 entrées aligné. publishToMavenLocal OK.
+
+**Score** : 9/10

@@ -1,8 +1,8 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
 :session: 191
 :date: 2026-08-04
-:etat: Session 190 — Renfort couverture tests i18n deploy (fake translator fix + mixed strategies + standalone runner). Tous les EPICs bakery sont clos. Backlog vide.
-:epic_actif: Aucun — backlog vide. Prochaine étape : publication Maven Central 0.0.5 ou EPIC BKY-I18N-BATCH.
+:etat: Session 190 ✅ — Renfort couverture tests i18n deploy. EPIC BKY-I18N-MASS ouvert (priorité 1, ~32 pts, 6 US) — industrialisation mass-translation N langues + delta bloc diagrammes + validation STRICT production.
+:epic_actif: BKY-I18N-MASS — priorité 1. Bakery n'est PAS mature pour la mass-translation N langues et la préservation des diagrammes traduits entre lots. BKY-SEO et BKY-CONTACT-SEC en attente (priorité 2/3).
 
 == Contexte de fin
 
@@ -14,15 +14,36 @@ Session 190 — Renfort couverture tests i18n deploy :
 - `I18nDeployEndToEndSteps` + `I18nDeployMultiSiteSteps` : dictionnaire aligné (20 entrées labels)
 - publishToMavenLocal OK
 
+Constat stratégie (fin S190) — bakery mature en FR→EN (DEPLOY-5, 108 articles)
+mais PAS en mass-translation N langues :
+- Dogfooding réel = FR→EN uniquement. 9 autres langues jamais tournées en production (fixtures BDD seulement).
+- Delta checksum = fichier, pas bloc. Un diagramme `[plantuml]` déjà traduit est re-traduit si le texte autour change.
+- Validation STRICT plantuml/table (DOC-PLANTUML-VALIDATE S041, ajoutée hier) jamais testée sur volume production de diagrammes.
+
+→ EPIC BKY-I18N-MASS cadré (priorité 1, ~32 pts, 6 US). Détail dans `BACKLOG.adoc` section EPIC BKY-I18N-MASS.
+
+== Mission Session 191
+
+1. **BKY-I18N-MASS-1 — `BlockDelta` + `BlockChecksum` (DDD pur, 8 pts)**
+   - Value object pur, zéro I/O. Checksum SHA-256 par bloc translatable (heading, paragraph, table cell, bloc `[plantuml]`).
+   - `BlockDelta` calcule delta bloc-à-bloc entre source traduite précédemment et source actuelle → ne re-traduit que les blocs modifiés.
+   - Cas critique : diagramme `[plantuml]` traduit dont le texte environnant change n'est PAS re-traduit.
+   - Stockage `.bakery-block-checksums.properties` par fichier cible.
+   - Tests UT : 15-20 (block unchanged, block modified, diagram preserved, table cell delta).
+
+2. (si temps restant) **BKY-I18N-MASS-2 — câblage `BlockDelta` dans `DocumentTranslator`/`ContentTranslationService` + `MigrateContentI18nTask`** (6 pts).
+
 == Reprendre à
 
 . `git status` dans bakery-gradle
-. Backlog vide — tous les EPICs sont clos
-. Options prochaine session :
-  * Publication Maven Central 0.0.5
-  * EPIC BKY-I18N-BATCH — stratégie lot annuel traduction
-  * Nouvel EPIC à cadrer
+. Lire `BACKLOG.adoc` section EPIC BKY-I18N-MASS (priorité 1)
 . `publishToMavenLocal` après chaque modification code source
+
+== Ordre des EPICs (priorité)
+
+. **BKY-I18N-MASS** (priorité 1, ~32 pts) — mass-translation N langues mature
+. BKY-SEO (priorité 2, 27 pts) — généralisation features SEO
+. BKY-CONTACT-SEC (priorité 3, 26 pts) — durcissement formulaire contact
 
 == Fichiers touchés S190
 
