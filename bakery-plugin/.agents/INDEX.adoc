@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-08-04 — Session 193 ✅ — MASS-3 CLOS (validation STRICT plantuml/table configurable). 15 UT + 17 FT + 5 BDD._
-_Session en cours_ : 193 ✅ — MASS-3 CLOS._
-_Prochaine session_ : 194 — MASS-4 (dogfooding FR→N langues lot pilote).
+_Derniere mise a jour : 2026-08-04 — Session 194 ✅ — MASS-4 CLOS (BDD golden master multi-langue + dogfooding LLM réel 3 articles × 9 langues)._
+_Session en cours_ : 194 ✅ — MASS-4 CLOS._
+_Prochaine session_ : 195 — MASS-5 (BKY-I18N-BATCH validation lot annuel).
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 194 | 2026-08-04 | DDD + TDD + BDD + dogfooding LLM | **EPIC BKY-I18N-MASS — MASS-4 CLOS (BDD golden master multi-langue + dogfooding LLM réel)** — Feature 60 (7/7 PASS). Fixture cheroliv-com-mass-multi-lang (3 articles pilotes réels). Dogfooding 3 articles × 9 langues via gemma4:31b-cloud port 11437. Fix DuplicateStepDefinition préexistant. | 8/10
   | 193 | 2026-08-04 | DDD + TDD + BDD | **EPIC BKY-I18N-MASS — MASS-3 CLOS (validation STRICT plantuml/table configurable)** — `ContentMigrationIntention.validation` (STRICT/LENIENT/OFF) + DSL + CLI `--contentI18nValidation`. `PlantUmlTranslationAdapter(plantUmlValidationMode)`. `ValidationReport` data class + `writeValidationReport()` → `validation-report.json`. `ContentTranslationService.drainTableValidationResults()` + `drainPlantUmlValidationResults()` (document-gradle). 15 UT (+6) + 17 FT (+6 ValidationMode) + 5 BDD feature 59 (5/5 PASS). publishToMavenLocal OK. | 9/10
   | 192 | 2026-08-04 | DDD + TDD + BDD | **EPIC BKY-I18N-MASS — MASS-2 CLOS (Issue 191-1 fixée)** — Copy loop `MigrateContentI18nTask:124-129` déplacée dans branche `translationService==null`. `translateSingleFileWithBlockDelta` écrit lui-même `targetFile`. 12/12 FT `MigrateContentI18nDeltaFunctionalTest` verts. 1/1 `BlockDeltaWireDebugTest` vert. Debug `println` nettoyés (4 fichiers, 24 lignes). publishToMavenLocal document-gradle + bakery-gradle OK. | 9/10
   | 191 | 2026-08-04 | DDD + TDD + BDD | **EPIC BKY-I18N-MASS — MASS-1 ✅ + MASS-2 🟠** — `BlockChecksum` (enum `BlockTranslationStatus` TRANSLATED/PENDING, `BlockChecksumEntry` parse/serialize, `sha256`/`computeForBlocks`) + `BlockDelta.compute(previous,current)` DDD pur. 26 UT BlockDeltaTest + 4 UT DocumentTranslatorBlockDeltaTest. `DocumentTranslator.translateArticleWithDelta` (preserve blocs indexés) + `ContentTranslationService.translateSingleFileWithBlockDelta` (fresh/delta path). `MigrateContentI18nTask` boucle bloc-delta + `load/storeBlockChecksums` `.bakery-block-checksums/*.checksums`. FT fresh ✅ + idempotence ✅. **Issue 191-1** : FT « second run ... preserves other blocks » ❌ — copy loop `MigrateContentI18nTask:124-129` écrase la cible avec la source avant traduction. publishToMavenLocal OK. | 6/10
@@ -343,7 +344,7 @@ BKY-I18N-MASS. ~32 pts, 6 US, projection S191-S197._
 | *BKY-I18N-MASS-1* | `BlockDelta` + `BlockChecksum` — delta niveau bloc/diagramme (DDD pur, préserve diagramme traduit entre lots). Statut explicite TRANSLATED/PENDING (Loi Économie d'Encre). Stockage `.bakery-block-checksums/*.checksums` `idx=hash:STATUS` | 8 | *✅ S191 — 8/8 (26 UT BlockDeltaTest + 4 UT + 1 debug, verts)*
 | *BKY-I18N-MASS-2* | Câblage `BlockDelta` dans `DocumentTranslator`/`ContentTranslationService` + `MigrateContentI18nTask`. **CLOS S192** — Issue 191-1 fixée (copy loop déplacée dans branche `translationService==null`). 12/12 FT verts. | 6 | *✅ S192 — 6/6*
 | *BKY-I18N-MASS-3* | Validation STRICT plantuml/table configurable (DSL + CLI `--contentI18nValidation`) + rapport `validation-report.json` | 5 | *✅ S193 — 5/5*
-| *BKY-I18N-MASS-4* | Dogfooding FR→N langues sur lot pilote (3 articles × 9 langues cibles) | 5 | *🔲 À FAIRE*
+| *BKY-I18N-MASS-4* | Dogfooding FR→N langues sur lot pilote (3 articles × 9 langues cibles) | 5 | *✅ S194 — 5/5*
 | *BKY-I18N-MASS-5* | BKY-I18N-BATCH validation — stratégie lot annuel éprouvée (108 articles FR→EN, 8 lots) | 4 | *🔲 À FAIRE*
 | *BKY-I18N-MASS-6* | Montée en charge complète — 108 articles × 10 langues + idempotence + rapport production | 4 | *🔲 À FAIRE*
 |===

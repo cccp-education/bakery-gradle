@@ -27,7 +27,7 @@ class I18nDeltaWireSteps {
     private var lastTranslatedCount: Int = -1
     private var lastPreservedCount: Int = -1
 
-    @Given("a cheroliv-com-i18n-deploy fixture with 3 French articles")
+    @Given("a cheroliv-com-i18n-deploy fixture with 3 French articles for delta wire")
     fun setupFixture() {
         val resourceUrl =
             this::class.java.classLoader.getResource("fixtures/cheroliv-com-i18n-deploy")

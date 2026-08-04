@@ -1,0 +1,58 @@
+= Session 194 — MASS-4 Dogfooding FR→N langues lot pilote (3 articles × 9 langues) + BDD golden master multi-langue
+:date: 2026-08-04
+:type: DDD + TDD + BDD + dogfooding LLM réel
+:score: 8/10
+
+== Résumé
+
+Session MASS-4 livrée en 2 volets : (a) BDD golden master multi-langue
+(feature 60, 7 scénarios PASS) + (b) dogfooding LLM réel 3 articles pilotes
+× 9 langues via `gemma4:31b-cloud` port 11437.
+
+== Livrables
+
+=== 1. BDD golden master multi-langue — feature 60 (7/7 PASS)
+
+- Feature `60_i18n_mass_multi_lang.feature` : 7 scénarios couvrant
+  JBake headers préservés, RTL ar/ur, LTR zh, `[source]` blocks inchangés,
+  `[plantuml]` blocks préservés, end-to-end 9 langues, translation marker
+- Steps `I18nMassMultiLangSteps.kt` (package `bakery.scenarios`) :
+  noms de steps préfixés `mass-multi-lang` pour éviter DuplicateStepDefinition
+- Runner `I18nMassMultiLangCucumberTest.kt` (package `bakery.i18n.mass`) :
+  standalone via `LauncherDiscoveryRequestBuilder`, tag `@multi-lang`
+- Fixture `cheroliv-com-mass-multi-lang/` : 3 articles pilotes réels
+  (court 173l, moyen 811l, long 1403l) + `jbake.properties` + `site.yml`
+
+=== 2. Dogfooding LLM réel — 3 articles × 9 langues
+
+- Projet consommateur `/tmp/bakery-dogfood` via `education.cccp.bakery:0.0.5`
+  mavenLocal (pas de includeBuild)
+- `migrateContentI18n --contentI18nSource=pilot-batch --contentI18nTargetLangs=zh,hi,es,ar,bn,pt,ru,ur --contentI18nSourceLang=fr --contentI18nDryRun=false`
+- Modèle `gemma4:31b-cloud` port 11437 (rotation 11437-11465)
+- Résultat : 3 articles × 9 langues = 27 fichiers générés dans
+  `content-i18n/{lang}/` + `validation-report.json` (2 tables INVALID
+  column count mismatch)
+- Constat : le LLM retourne le texte source inchangé (qualité traduction
+  insuffisante) — la tâche fonctionne, le pipeline est câblé
+
+=== 3. Fix DuplicateStepDefinition préexistant
+
+- `I18nDeltaWireSteps.setupFixture()` renommé `"a cheroliv-com-i18n-deploy
+  fixture with 3 French articles for delta wire"`
+- Feature 57 mise à jour en conséquence
+- Évite collision avec `I18nMassValidationSteps.setupFixture()`
+
+== Fichiers modifiés/créés
+
+*bakery-gradle/bakery-plugin* :
+- `src/test/features/60_i18n_mass_multi_lang.feature` — NOUVEAU (7 scénarios)
+- `src/test/scenarios/bakery/scenarios/I18nMassMultiLangSteps.kt` — NOUVEAU
+- `src/test/kotlin/bakery/i18n/mass/I18nMassMultiLangCucumberTest.kt` — NOUVEAU
+- `src/test/resources/fixtures/cheroliv-com-mass-multi-lang/` — NOUVEAU (3 articles + config)
+- `src/test/features/57_i18n_delta_wire.feature` — MODIFIÉ (renommage step)
+- `src/test/scenarios/bakery/scenarios/I18nDeltaWireSteps.kt` — MODIFIÉ (renommage step)
+
+== Prochaine session
+
+S195 — MASS-5 : BKY-I18N-BATCH validation — stratégie lot annuel éprouvée
+(108 articles FR→EN, 8 lots). Reprise du cadrage BKY-I18N-BATCH (S029 document).

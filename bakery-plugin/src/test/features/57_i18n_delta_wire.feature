@@ -10,7 +10,7 @@ Feature: i18n delta wire — SubtreeI18nPlanner cabled in MigrateContentI18nTask
   the 3 PlantUml strategies.
 
   Background:
-    Given a cheroliv-com-i18n-deploy fixture with 3 French articles
+    Given a cheroliv-com-i18n-deploy fixture with 3 French articles for delta wire
 
   Scenario: Fresh migration translates all articles
     When the delta-wire task migrates content from fr to "en" for the first time

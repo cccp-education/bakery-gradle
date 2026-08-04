@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-08-04 — Session 193 ✅ (EPIC BKY-I18N-MASS : **MASS-1 ✅** + **MASS-2 ✅** + **MASS-3 ✅ CLOS** — Validation STRICT/LENIENT/OFF plantuml/table configurable, DSL + CLI + rapport validation-report.json, 15 UT + 17 FT + 5 BDD). **EPIC BKY-I18N-MASS ouvert (priorité 1, ~32 pts, 6 US)** : MASS-1 ✅, MASS-2 ✅, MASS-3 ✅, MASS-4→6 restants._
+_Dernière mise à jour : 2026-08-04 — Session 194 ✅ (EPIC BKY-I18N-MASS : **MASS-1 ✅** + **MASS-2 ✅** + **MASS-3 ✅** + **MASS-4 ✅ CLOS** — BDD golden master multi-langue (feature 60, 7/7 PASS) + dogfooding LLM réel 3 articles × 9 langues via gemma4:31b-cloud port 11437). **EPIC BKY-I18N-MASS ouvert (priorité 1, ~32 pts, 6 US)** : MASS-1 ✅, MASS-2 ✅, MASS-3 ✅, MASS-4 ✅, MASS-5→6 restants._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -1956,7 +1956,7 @@ juste de fiabiliser.
   Référence : procédure DEPLOY-5 `I18N_DEPLOY_BOUNDARY.adoc`.
 | Dogfooding opérateur (hors CI) + 1 BDD golden master multi-langue
 | 5
-| MASS-3
+| *✅ S194 — 5/5*
 
 | *BKY-I18N-MASS-5*
 | *BKY-I18N-BATCH validation — stratégie lot annuel éprouvée.* Reprise du

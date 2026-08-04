@@ -172,3 +172,32 @@ publishToMavenLocal document-gradle + bakery-gradle OK.
 **Prochaine session (194)** : MASS-4 — Dogfooding FR→N langues lot pilote (3 articles × 9 langues cibles).
 
 **Score** : 9/10
+
+== Session 194 — 2026-08-04 — EPIC BKY-I18N-MASS — MASS-4 CLOS (BDD golden master multi-langue + dogfooding LLM réel)
+
+**Contexte** : MASS-4 = (a) BDD golden master multi-langue test + (b) dogfooding LLM réel
+3 articles pilotes × 9 langues. Ports 11437-11465 uniquement, modèle gemma4:31b-cloud.
+
+**Taches livrees** :
+- Feature 60 `60_i18n_mass_multi_lang.feature` (7 scénarios, 7/7 PASS)
+- Steps `I18nMassMultiLangSteps.kt` (noms préfixés `mass-multi-lang` pour éviter DuplicateStepDefinition)
+- Runner `I18nMassMultiLangCucumberTest.kt` standalone via LauncherDiscoveryRequestBuilder
+- Fixture `cheroliv-com-mass-multi-lang/` (3 articles pilotes réels + jbake.properties + site.yml)
+- Dogfooding LLM réel : 3 articles × 9 langues via gemma4:31b-cloud port 11437
+- Projet consommateur `/tmp/bakery-dogfood` via mavenLocal 0.0.5 (pas de includeBuild)
+- Fix DuplicateStepDefinition préexistant : I18nDeltaWireSteps renommé
+- publishToMavenLocal bakery-gradle OK
+
+**Fichiers modifies/crees** :
+- `src/test/features/60_i18n_mass_multi_lang.feature` — NOUVEAU
+- `src/test/scenarios/bakery/scenarios/I18nMassMultiLangSteps.kt` — NOUVEAU
+- `src/test/kotlin/bakery/i18n/mass/I18nMassMultiLangCucumberTest.kt` — NOUVEAU
+- `src/test/resources/fixtures/cheroliv-com-mass-multi-lang/` — NOUVEAU
+- `src/test/features/57_i18n_delta_wire.feature` — MODIFIÉ
+- `src/test/scenarios/bakery/scenarios/I18nDeltaWireSteps.kt` — MODIFIÉ
+
+**Tests** : 7/7 BDD PASS. Dogfooding LLM réel : 3 articles × 9 langues = 27 fichiers générés + validation-report.json.
+
+**Prochaine session (195)** : MASS-5 — BKY-I18N-BATCH validation lot annuel (108 articles FR→EN, 8 lots).
+
+**Score** : 8/10

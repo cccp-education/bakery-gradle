@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-08-04 — Session 192 ✅ — Issue 191-1 fixée. MASS-2 CLOS. 12/12 FT `MigrateContentI18nDeltaFunctionalTest` verts (Fresh 1, Delta 3, BlockDelta 8). 1/1 `BlockDeltaWireDebugTest` vert. Debug `println` nettoyés (4 fichiers, 24 lignes). Coverage non revalidée (règle fin de session). Baseline S169 : 93,09% (Kover, seuil 85% PASS)._
+_Dernière mise à jour : 2026-08-04 — Session 194 ✅ — MASS-4 CLOS. Feature 60 (7/7 PASS BDD golden master multi-langue). Dogfooding LLM réel 3 articles × 9 langues via gemma4:31b-cloud port 11437. Fix DuplicateStepDefinition préexistant (I18nDeltaWireSteps). Coverage non revalidée (règle fin de session). Baseline S169 : 93,09% (Kover, seuil 85% PASS)._
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
