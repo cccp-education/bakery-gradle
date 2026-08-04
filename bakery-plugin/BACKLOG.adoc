@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-08-04 — Session 191 (EPIC BKY-I18N-MASS : **MASS-1 ✅** BlockChecksum/BlockDelta DDD pur — **MASS-2 🟠** câblage livré, **Issue 191-1 à fixer S192** — copy loop écrase la cible avant traduction). **EPIC BKY-I18N-MASS ouvert (priorité 1, ~32 pts, 6 US)** : industrialisation traduction de masse vers N langues — delta bloc diagrammes (préserver une traduction de diagramme acquise entre lots), validation STRICT plantuml/table en production, montée en charge FR→N langues (pas seulement EN). EPIC BKY-SEO ouvert (27 pts, 7 US) + EPIC BKY-CONTACT-SEC ouvert (26 pts, 8 US) : durcissement formulaire contact (Turnstile, rate limit, token anti-rejeu, PoW, heuristiques, firestore.rules) sur fixture cheroliv-com-contact. Tous les autres EPICs bakery sont clos._
+_Dernière mise à jour : 2026-08-04 — Session 192 ✅ (EPIC BKY-I18N-MASS : **MASS-1 ✅** + **MASS-2 ✅ CLOS** — Issue 191-1 fixée, copy loop déplacée dans branche translationService==null, 12/12 FT verts, debug println nettoyés). **EPIC BKY-I18N-MASS ouvert (priorité 1, ~32 pts, 6 US)** : MASS-1 ✅, MASS-2 ✅, MASS-3→6 restants._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -2073,8 +2073,8 @@ MASS-1 (BlockDelta DDD) ─→ MASS-2 (câblage) ─→ MASS-3 (validation STRIC
 [cols="2,3]
 |===
  | Document | `BACKLOG.adoc`
-| Version | 24.1 — Session 191 (EPIC BKY-I18N-MASS : MASS-1 ✅ + MASS-2 🟠 — Issue 191-1 copy loop à fixer S192)
+| Version | 24.2 — Session 192 ✅ (EPIC BKY-I18N-MASS : MASS-1 ✅ + MASS-2 ✅ CLOS — Issue 191-1 fixée, 12/12 FT verts)
   | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
-  | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-184 + EPIC I18N-BATCH + EPIC I18N-CI + EPIC BKY-SEO + EPIC BKY-CONTACT-SEC + EPIC BKY-I18N-MASS
-  | Prochaine màj | Session 192 — Fix Issue 191-1 (copy loop MigrateContentI18nTask) + clôture MASS-2
+  | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-192 + EPIC I18N-BATCH + EPIC I18N-CI + EPIC BKY-SEO + EPIC BKY-CONTACT-SEC + EPIC BKY-I18N-MASS
+  | Prochaine màj | Session 193 — MASS-3 (validation STRICT plantuml/table configurable)
  |===

@@ -1,0 +1,58 @@
+= Session 192 — Fix Issue 191-1 (copy loop) + nettoyage debug println
+:date: 2026-08-04
+:type: DDD + TDD + BDD
+:score: 9/10
+:epic: BKY-I18N-MASS — MASS-2 CLOS
+
+== Résumé
+
+Fix de l'Issue 191-1 (copy loop `MigrateContentI18nTask:124-129` écrasait la cible
+avant traduction bloc-delta) + nettoyage de tous les `println` debug résiduels
+dans le code main et les tests.
+
+== Modifications
+
+=== bakery-gradle/bakery-plugin
+
+- `src/main/kotlin/bakery/i18n/MigrateContentI18nTask.kt` :
+  * Copy loop (lignes 124-129) déplacée dans la branche `translationService == null`
+    uniquement. Quand le LLM est actif, `translateSingleFileWithBlockDelta` écrit
+    lui-même le `targetFile` — plus d'écrasement de la cible avant traduction.
+  * `println("[task] target exists before:...")` supprimé.
+
+- `src/test/kotlin/bakery/i18n/MigrateContentI18nDeltaFunctionalTest.kt` :
+  * 12 `println` debug supprimés dans 4 tests debug + 1 test production.
+
+=== document-gradle/document-plugin
+
+- `src/main/kotlin/document/translation/ContentTranslationService.kt` :
+  * 7 `println("[block-delta]...")` supprimés dans `translateSingleFileWithBlockDelta`.
+
+- `src/test/kotlin/document/translation/BlockDeltaWireDebugTest.kt` :
+  * 4 `println` debug supprimés.
+
+== Résultats tests
+
+- `MigrateContentI18nDeltaFunctionalTest` : 12/12 PASS
+  * FreshMigration (1), DeltaMigration (3), BlockDeltaMigration (8)
+  * Dont le FT rouge « second run ... preserves other blocks » → VERT
+- `BlockDeltaWireDebugTest` : 1/1 PASS
+- publishToMavenLocal : document-gradle ✅ + bakery-gradle ✅
+
+== Cause racine
+
+La boucle `sourceFile.copyTo(targetFile, overwrite = true)` copiait la source
+vers la cible AVANT la traduction bloc-delta. Au 2e run, `translateSingleFileWithBlockDelta`
+parsait le fichier source (sans `[EN]`) comme « précédents blocs traduits » →
+blocs préservés = texte source. Viol de la Loi Économie d'Encre.
+
+== Correctif
+
+Déplacement de la copy loop dans la branche `translationService == null` (chemin
+legacy sans LLM). Le `translateSingleFileWithBlockDelta` écrit lui-même `targetFile`
+dans la branche LLM.
+
+== Prochaine session
+
+MASS-3 — Validation STRICT plantuml/table configurable (DSL + CLI) + rapport
+`validation-report.json`.

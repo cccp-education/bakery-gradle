@@ -1,12 +1,12 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-08-04 — Session 191 PARTIELLE. EPIC BKY-I18N-MASS : MASS-1 ✅ (BlockChecksum + BlockDelta), MASS-2 🟠 (Issue 191-1 à fixer S192)._
+_Dernière mise à jour : 2026-08-04 — Session 192 ✅. EPIC BKY-I18N-MASS : MASS-1 ✅, MASS-2 ✅ CLOS (Issue 191-1 fixée, 12/12 FT verts). MASS-3→6 restants._
 
 == NOUVEAU — EPIC BKY-I18N-MASS (Session 190-192, priorité 1, ~32 pts, 6 US)
 
 * [x] **MASS-1** : BlockChecksum + BlockDelta (DDD pur, statut TRANSLATED/PENDING) ✅ S191 — 26 UT BlockDeltaTest + 4 UT
-* [~] **MASS-2** : Câblage DocumentTranslator/ContentTranslationService + MigrateContentI18nTask 🟠 S191 — **Issue 191-1 : copy loop `MigrateContentI18nTask:124-129` écrase la cible avant traduction** (FT « second run ... preserves other blocks » ❌). Fix S192.
+* [x] **MASS-2** : Câblage DocumentTranslator/ContentTranslationService + MigrateContentI18nTask ✅ S192 — **Issue 191-1 fixée** (copy loop déplacée dans branche translationService==null, 12/12 FT verts, debug println nettoyés)
 * [ ] **MASS-3** : Validation STRICT plantuml/table configurable (DSL + CLI) + rapport validation-report.json
 * [ ] **MASS-4** : Dogfooding FR→N langues lot pilote (3 articles × 9 langues)
 * [ ] **MASS-5** : BKY-I18N-BATCH validation — stratégie lot annuel (108 articles FR→EN, 8 lots)

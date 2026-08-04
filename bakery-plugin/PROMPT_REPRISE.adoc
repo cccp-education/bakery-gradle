@@ -1,72 +1,49 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 192
+:session: 193
 :date: 2026-08-04
-:etat: Session 191 ⏸️ PARTIELLE — MASS-1 ✅ (BlockChecksum + BlockDelta, 26 UT verts). MASS-2 🟠 câblage livré mais 1 FT rouge (Issue 191-1) — à corriger en S192. EPIC BKY-I18N-MASS priorité 1 (~32 pts, 6 US).
-:epic_actif: BKY-I18N-MASS — priorité 1. MASS-2 bloqué par Issue 191-1 (copy loop écrase la traduction précédente).
+:etat: Session 192 ✅ — Issue 191-1 fixée (copy loop déplacée dans branche translationService==null). MASS-2 CLOS. 12/12 FT verts. Debug println nettoyés (4 fichiers, 24 lignes). EPIC BKY-I18N-MASS priorité 1 (~32 pts, 6 US) — MASS-1 ✅, MASS-2 ✅, MASS-3→6 restants.
+:epic_actif: BKY-I18N-MASS — priorité 1. MASS-3 next (validation STRICT plantuml/table configurable).
 
 == Contexte de fin
 
-Session 191 — MASS-1 + début MASS-2 :
-- MASS-1 ✅ : `BlockChecksum` (enum `BlockTranslationStatus` TRANSLATED/PENDING,
-  `BlockChecksumEntry` parse/serialize, `sha256`/`computeForBlocks`) + `BlockDelta`
-  (`compute(previous, current)` → modified/preserved, statut explicite Loi Économie d'Encre).
-  DDD pur, `document/translation/delta/`. 26 UT verts (BlockDeltaTest) + 4 UT
-  (DocumentTranslatorBlockDeltaTest) + 1 debug.
-- MASS-2 🟠 : `DocumentTranslator.translateArticleWithDelta` (preserve indexés),
-  `ContentTranslationService.translateSingleFileWithBlockDelta` (fresh/delta path, écrit target).
-  `MigrateContentI18nTask` : boucle bloc-delta + `load/storeBlockChecksums` (`idx=hash:STATUS`).
-  Compile + publishToMavenLocal OK. FT fresh ✅ + idempotence ✅ + 4 debug ✅.
+Session 192 — Fix Issue 191-1 + nettoyage debug :
+- Copy loop `MigrateContentI18nTask:124-129` déplacée dans la branche
+  `translationService == null` uniquement. `translateSingleFileWithBlockDelta`
+  écrit lui-même `targetFile` — plus d'écrasement de la cible avant traduction.
+- 12/12 FT `MigrateContentI18nDeltaFunctionalTest` verts (Fresh 1, Delta 3,
+  BlockDelta 8). Dont le FT rouge « second run ... preserves other blocks » → VERT.
+- 1/1 `BlockDeltaWireDebugTest` vert.
+- Debug `println` nettoyés : `ContentTranslationService.kt` (7), `MigrateContentI18nTask.kt` (1),
+  `MigrateContentI18nDeltaFunctionalTest.kt` (12), `BlockDeltaWireDebugTest.kt` (4).
+- publishToMavenLocal : document-gradle ✅ + bakery-gradle ✅.
 
-== ⚠️ Issue 191-1 — À FIXER EN PREMIER (S192)
+== Mission Session 193
 
-*FT rouge* : `second run with one modified block preserves other blocks`
-(`MigrateContentI18nDeltaFunctionalTest` → `@Nested BlockDeltaMigration`) — échoue sur
-`afterSecond.contains("Second paragraph. [EN]")`.
-
-*Cause racine CONFIRMÉE* : `MigrateContentI18nTask.kt` **lignes 124-129** — la boucle
-`for (relPath in filesToTranslate) { ... sourceFile.copyTo(targetFile, overwrite = true) }`
-**copie la source vers la cible AVANT la traduction bloc-delta**, écrasant la traduction
-précédente avec le texte source. Au 2e run, le bloc-delta parse le fichier source (sans
-`[EN]`) comme « précédents blocs traduits » → blocs préservés = texte source.
-
-*Correctif* :
-. Supprimer/conditionner la boucle de copie (lignes 124-129) : ne copier vers la cible que
-  dans la branche `translationService == null` (legacy sans LLM). Le
-  `translateSingleFileWithBlockDelta` écrit lui-même `targetFile`.
-. Vérifier que la boucle de traduction ne dépend plus de la copie préalable.
-. Nettoyer les `println` debug : `[block-delta]` (ContentTranslationService),
-  `[task] target exists before:` (MigrateContentI18nTask), `DEBUG`/`println` dans
-  MigrateContentI18nDeltaFunctionalTest + BlockDeltaWireDebugTest.
-
-== Mission Session 192
-
-1. **Fix Issue 191-1** — retirer/conditionner la copy loop → FT « second run ... preserves
-   other blocks » vert. Vérifier fresh + idempotence toujours verts.
-2. Nettoyer les debug prints (main + tests).
-3. (si temps) Clôturer MASS-2 (3 FT scénarios verts + BDD) puis enchaîner MASS-3.
+1. **MASS-3** — Validation STRICT plantuml/table configurable :
+   - DSL `bakery { i18n { validation = "strict" } }` + CLI `--contentI18nValidation`
+   - Modes : STRICT (throw), LENIENT (warn+collect), OFF (skip)
+   - Rapport consolidé `validation-report.json` post-passe
+   - Consomme `DOC-PLANTUML-VALIDATE` + `DOC-TABLE-VALIDATE` (document-gradle S041)
+   - Baby steps DDD/TDD/BDD : domaine pur → câblage → FT → BDD
 
 == Reprendre à
 
 . `git status` dans bakery-gradle + document-gradle
-. Lire `BACKLOG.adoc` section EPIC BKY-I18N-MASS (US MASS-2)
-. `git diff` de `MigrateContentI18nTask.kt` lignes 124-129 (copy loop)
+. Lire `BACKLOG.adoc` section EPIC BKY-I18N-MASS (US MASS-3)
 . `publishToMavenLocal` après chaque modification code source (document-gradle puis bakery)
 
 == Ordre des EPICs (priorité)
 
-. **BKY-I18N-MASS** (priorité 1, ~32 pts) — mass-translation N langues mature
+. **BKY-I18N-MASS** (priorité 1, ~32 pts) — MASS-1 ✅, MASS-2 ✅, MASS-3→6 restants
 . BKY-SEO (priorité 2, 27 pts) — généralisation features SEO
 . BKY-CONTACT-SEC (priorité 3, 26 pts) — durcissement formulaire contact
 
-== Fichiers touchés S191
+== Fichiers touchés S192
 
 *bakery-gradle/bakery-plugin* :
-- `src/main/kotlin/bakery/i18n/MigrateContentI18nTask.kt` — boucle bloc-delta + load/store checksums + **copy loop 124-129 à retirer**
-- `src/test/kotlin/bakery/i18n/MigrateContentI18nDeltaFunctionalTest.kt` — @Nested BlockDeltaMigration (1 rouge)
-- `BACKLOG.adoc` — cadrage EPIC BKY-I18N-MASS
+- `src/main/kotlin/bakery/i18n/MigrateContentI18nTask.kt` — copy loop déplacée dans branche `translationService==null`
+- `src/test/kotlin/bakery/i18n/MigrateContentI18nDeltaFunctionalTest.kt` — debug println nettoyés
 
 *document-gradle/document-plugin* :
-- `src/main/kotlin/document/translation/delta/BlockChecksum.kt` + `BlockDelta.kt` — nouveaux (MASS-1)
-- `src/main/kotlin/document/translation/DocumentTranslator.kt` — translateArticleWithDelta
-- `src/main/kotlin/document/translation/ContentTranslationService.kt` — translateSingleFileWithBlockDelta + debug
-- `src/test/kotlin/document/translation/delta/BlockDeltaTest.kt` (26 UT) + `DocumentTranslatorBlockDeltaTest.kt` (4) + `BlockDeltaWireDebugTest.kt`
+- `src/main/kotlin/document/translation/ContentTranslationService.kt` — debug println nettoyés
+- `src/test/kotlin/document/translation/BlockDeltaWireDebugTest.kt` — debug println nettoyés

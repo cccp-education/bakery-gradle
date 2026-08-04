@@ -197,7 +197,6 @@ First paragraph.
 
 Second paragraph.
 """, "fr", "en")
-            println("DEBUG direct translator:\n$result")
             assertTrue(result.contains("Heading One [EN]"), "Heading One should be translated")
             assertTrue(result.contains("Second paragraph. [EN]"), "Second paragraph should be translated")
         }
@@ -220,8 +219,6 @@ First paragraph.
 Second paragraph.
 """)
             val first = service.translateSingleFileWithBlockDelta(src, tgt, emptyMap(), "fr", "en")
-            println("DEBUG first checksums: $first")
-            println("DEBUG first target:\n${tgt.readText()}")
 
             src.writeText("""= Intro
 
@@ -233,9 +230,7 @@ First paragraph modified.
 
 Second paragraph.
 """)
-            val second = service.translateSingleFileWithBlockDelta(src, tgt, first, "fr", "en")
-            println("DEBUG second checksums: $second")
-            println("DEBUG second target:\n${tgt.readText()}")
+            service.translateSingleFileWithBlockDelta(src, tgt, first, "fr", "en")
 
             val content = tgt.readText()
             assertTrue(content.contains("First paragraph modified. [EN]"))
@@ -247,7 +242,6 @@ Second paragraph.
             val fake = FakeTranslationService(" [EN]")
             val plantUmlAdapter = document.translation.plantuml.PlantUmlTranslationAdapter(fake)
             val service = document.translation.ContentTranslationService(fake, plantUmlAdapter = plantUmlAdapter)
-            val parser = document.translation.AsciiDocParser()
             val src = testDir.resolve("src.adoc")
             val tgt = testDir.resolve("tgt.adoc")
 
@@ -262,10 +256,6 @@ First paragraph.
 Second paragraph.
 """)
             val first = service.translateSingleFileWithBlockDelta(src, tgt, emptyMap(), "fr", "en")
-            println("DEBUG first target:\n${tgt.readText()}")
-            val parsedTarget = parser.parse(tgt.readText())
-            println("DEBUG parsed target blocks:")
-            parsedTarget.blocks.forEachIndexed { i, b -> println("  [$i] $b") }
 
             src.writeText("""= Intro
 
@@ -277,8 +267,7 @@ First paragraph modified.
 
 Second paragraph.
 """)
-            val second = service.translateSingleFileWithBlockDelta(src, tgt, first, "fr", "en")
-            println("DEBUG second target:\n${tgt.readText()}")
+            service.translateSingleFileWithBlockDelta(src, tgt, first, "fr", "en")
             assertTrue(tgt.readText().contains("Second paragraph. [EN]"))
         }
 
@@ -307,12 +296,10 @@ Second paragraph.
             val contentService = document.translation.ContentTranslationService(fake, plantUmlAdapter = plantUmlAdapter)
 
             val first = contentService.translateSingleFileWithBlockDelta(sourceFile, targetFile, emptyMap(), "fr", "en")
-            println("DEBUG first target:\n${targetFile.readText()}")
 
             val checksumsFile = langDir.resolve(".bakery-block-checksums").resolve("$relPath.checksums")
             checksumsFile.parentFile.mkdirs()
             checksumsFile.writeText(first.entries.joinToString("\n") { "${it.key}=${it.value.serialize()}" })
-            println("DEBUG stored checksums:\n${checksumsFile.readText()}")
 
             sourceDir.resolve("intro.adoc").writeText("""= Intro
 
@@ -331,10 +318,8 @@ Second paragraph.
                     val (idx, raw) = line.split("=", limit = 2)
                     idx to document.translation.delta.BlockChecksumEntry.parse(raw)
                 }
-            println("DEBUG loaded checksums: $loaded")
 
-            val second = contentService.translateSingleFileWithBlockDelta(sourceFile, targetFile, loaded, "fr", "en")
-            println("DEBUG second target:\n${targetFile.readText()}")
+            contentService.translateSingleFileWithBlockDelta(sourceFile, targetFile, loaded, "fr", "en")
 
             assertTrue(targetFile.readText().contains("Second paragraph. [EN]"))
         }
@@ -393,7 +378,6 @@ Second paragraph.
 
             val enDir = outputBase.resolve("en")
             val afterFirst = enDir.resolve("intro.adoc").readText()
-            println("DEBUG first run target:\n$afterFirst")
             assertTrue(afterFirst.contains("First paragraph. [EN]"))
             assertTrue(afterFirst.contains("Second paragraph. [EN]"))
 
@@ -413,7 +397,6 @@ Second paragraph.
             task2.executeContentMigration()
 
             val afterSecond = enDir.resolve("intro.adoc").readText()
-            println("DEBUG afterSecond:\n$afterSecond")
             assertTrue(afterSecond.contains("First paragraph modified. [EN]"))
             assertTrue(afterSecond.contains("Second paragraph. [EN]"))
         }

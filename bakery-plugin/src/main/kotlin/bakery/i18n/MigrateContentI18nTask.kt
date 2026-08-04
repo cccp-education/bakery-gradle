@@ -121,13 +121,6 @@ abstract class MigrateContentI18nTask : DefaultTask() {
                 applicationResult.toPreserve.paths.size,
             )
 
-            for (relPath in filesToTranslate) {
-                val sourceFile = sourceDir.resolve(relPath)
-                val targetFile = langDir.resolve(relPath)
-                targetFile.parentFile.mkdirs()
-                sourceFile.copyTo(targetFile, overwrite = true)
-            }
-
             copyNonAdocFiles(sourceDir, langDir, intention.excludePaths.toSet())
 
             if (translationService != null && filesToTranslate.isNotEmpty()) {
@@ -144,7 +137,6 @@ abstract class MigrateContentI18nTask : DefaultTask() {
                     val sourceFile = sourceDir.resolve(relPath)
                     val targetFile = langDir.resolve(relPath)
                     targetFile.parentFile.mkdirs()
-                    println("[task] target exists before: ${targetFile.exists()}, content start: ${if (targetFile.exists()) targetFile.readText().take(100) else "N/A"}")
                     try {
                         val previousBlockChecksums = loadBlockChecksums(langDir, relPath)
                         val newBlockChecksums = contentService.translateSingleFileWithBlockDelta(
@@ -168,6 +160,12 @@ abstract class MigrateContentI18nTask : DefaultTask() {
                     errorCount,
                 )
             } else if (translationService == null) {
+                for (relPath in filesToTranslate) {
+                    val sourceFile = sourceDir.resolve(relPath)
+                    val targetFile = langDir.resolve(relPath)
+                    targetFile.parentFile.mkdirs()
+                    sourceFile.copyTo(targetFile, overwrite = true)
+                }
                 logger.lifecycle(
                     "[migrateContentI18n] [{}] {} fichiers copiés sans traduction.",
                     targetLang,
