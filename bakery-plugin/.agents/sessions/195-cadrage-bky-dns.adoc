@@ -1,0 +1,80 @@
+= Session 195 — Cadrage EPIC BKY-DNS (provisionnement DNS OVH depuis site.yml)
+:date: 2026-08-12
+:type: cadrage (gouvernance pure, zéro code modifié)
+:score: 8/10
+
+== Résumé
+
+Session de gouvernance pure (pattern S-057) suite à la mise en production de
+`talaria.school` (S-004/005 office). L'opération DNS — faite à la main via un
+script Python jetable (`~/workspace/configuration/scripts/ovh.py`) — doit
+devenir une tâche Kotlin bakery : testable, idempotente, versionnée. Le cadrage
+EPIC BKY-DNS a été écrit dans la BACKLOG, avec notes de revue.
+
+== Contexte
+
+Mise en prod réelle de talaria.school (office, S-004/005) : lien domaine OVH
+↔ GitHub Pages réalisé via l'API OVH (signature HMAC SHA-1, endpoints
+list/get/create/update/delete/refresh), suppression de 3 TXT de redirection
+web OVH, création CNAME www → `pages-content.github.io.` + 4 A apex GitHub
+Pages. Tout à la main, script non testé, hors écosystème Kotlin.
+
+== Livrables (gouvernance)
+
+=== 1. Cadrage EPIC BKY-DNS — BACKLOG.adoc
+
+- Section `== EPIC BKY-DNS` : Motivation (3 constats), Vision
+  (« vision → production » : intention → scaffold → bake → **provisionDns** →
+  publishSite), Pré-requis (patterns `resolve*Provider`, boundary, méthodo,
+  fallback)
+- 7 US (BKY-DNS-0→6, ~33 pts) :
+  - US-0 Cadrage (0 pt)
+  - US-1 `DnsConfig` + mapping Jackson section `dns:` (~6 pts)
+  - US-2 `OvhDnsClient` client HTTP OVH signature HMAC (~8 pts)
+  - US-3 `DnsProvisioner` réconciliation idempotente + port `DnsProvider`/
+    `OvhDnsProvider`/`NoOpDnsProvider` (~8 pts)
+  - US-4 `ProvisionDnsTask` + wiring (~4 pts)
+  - US-5 Cucumber BDD `dns_provision.feature` (~5 pts)
+  - US-6 Dogfooding réel talaria.school (~2 pts)
+- Dépendances DAG, projection sessions (S-N → S-N+3), réutilisations
+  cross-boroughs (capsule/planner/slider/document), risques & mitigations
+  (dry-run par défaut, `--apply` explicite, réconciliation ciblée — jamais
+  NS/MX/SPF/TXT hors périmètre)
+
+=== 2. Notes de revue — avis sur l'idée des tâches DNS (BACKLOG.adoc)
+
+Verdict : idée légitime, cadrage solide, avec 3 nuances durcies + 1 arbitrage :
+
+- **delete protégé** : jamais d'apply sans flag explicite, le delete exige un
+  double flag (`--apply --purge`) — US-3/US-5
+- **portée réduite** : US-1/2/3 = 80% de la valeur, pas de contrat N0 OVH
+  séparé (YAGNI, même logique que MEMPHIS)
+- **credentials** : lecture via gradle.properties/env (jamais commitées),
+  fake provider en tests, zéro appel OVH réel en CI
+- **priorité** : P2 correct, à déprioriser derrière BKY-I18N-MASS (MASS-5/6)
+  si le canal contenu reste la contrainte de livraison
+
+=== 3. Dashboard & historique
+
+- INDEX.adoc : entrée session 195 (8/10) + EPIC BKY-DNS listé P2
+- SESSIONS_HISTORY.adoc : entrée session 195
+- PROMPT_REPRISE.adoc : session 196 → mission BKY-DNS-1 (`DnsConfig` + mapping
+  Jackson)
+
+== Fichiers modifiés/créés
+
+*bakery-gradle/bakery-plugin* (gouvernance uniquement) :
+- `BACKLOG.adoc` — EPIC BKY-DNS (US-0→6) + notes de revue + version 24.4
+- `.agents/INDEX.adoc` — entrée session 195 + EPIC BKY-DNS P2
+- `.agents/SESSIONS_HISTORY.adoc` — entrée session 195
+- `PROMPT_REPRISE.adoc` — session 196, mission BKY-DNS-1
+- `.agents/sessions/195-cadrage-bky-dns.adoc` — NOUVEAU (ce rapport)
+- `.agents/archives/COMPLETED_TASKS_ARCHIVE_2026-08.adoc` — ajout session 195
+
+Zéro fichier source modifié — aucun impact tests (TEST_COVERAGE_ANALYSIS N/A).
+
+== Prochaine session
+
+S196 — BKY-DNS-1 : DDD pur `DnsConfig` (domaine `bakery.dns`) + mapping Jackson
+section `dns:` dans `SiteConfiguration` + merger 4 sources (pattern
+`mergeOutputConfig`). TDD strict RED → GREEN → REFACTOR (~8 unit).

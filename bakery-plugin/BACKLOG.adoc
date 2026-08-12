@@ -2070,11 +2070,173 @@ MASS-1 (BlockDelta DDD) ─→ MASS-2 (câblage) ─→ MASS-3 (validation STRIC
 
 '''
 
+== EPIC BKY-DNS — Provisionnement DNS de site (OVH) depuis site.yml (vision → production)
+
+_Cadré le 2026-08-12 suite à la mise en production de `talaria.school`
+(S-004/005 office). Opération DNS faite à la main via un script Python jetable
+(`~/workspace/configuration/scripts/ovh.py`). Réflexion architecture : ce
+script doit devenir une tâche Kotlin bakery pour être testable, idempotent et
+versionné — pas un script isolé non testé._
+
+### Motivation
+
+Trois constats sur la mise en prod réelle de talaria.school :
+
+ . *Script Python isolé, zéro test* — `ovh.py` (signature HMAC OVH + list/
+    get/create/update/delete/refresh + création CNAME/CNAME apex) a résolu le
+    blocage DNS mais n'a aucun test, n'est pas idempotent, et est hors
+    écosystème Kotlin du workspace. Anti-pattern MVP0 (plugins Gradle > scripts).
+
+ . *`site.yml` est déjà le contrat de déploiement* — `pushPage`, `cname`,
+    `firebase` y vivent et sont mappés par `SiteConfiguration` (Jackson).
+    Le provisionnement DNS (`dns:` section) est l'extension naturelle du même
+    contrat : la cible « GitHub Pages sert talaria.school » doit être déclarée
+    et provisionnée par bakery, pas par un humain dans le manager OVH.
+
+ . *Idempotence Gradle native* — le provisionnement DNS est reconciliant
+    (create-if-missing, update-if-different, never-duplicate). Une tâche Gradle
+    le rend déclaratif, up-to-date-checkable et chaînée (`provisionDns` →
+    `deploySite`).
+
+**Vision** : compléter la chaîne « vision → production » de bakery : intention →
+scaffold → bake → **provisionDns** → publishSite. Le DNS devient un livrable du
+même pipeline que le contenu, déclaratif dans site.yml.
+
+**Pré-requis respectés** :
+ . *Patterns existants* — `resolve*Provider` (capsule : `AudioPostProcessor`/
+    `NoOpAudioPostProcessor` + factory), `verifyConfigurationMapping` (masquage
+    secrets), `RepositoryCredentials` (creds gitignorées dans site.yml).
+ . *Boundary* — le provisioning workspace/Docker (workspace-gradle N4,
+    container-provision-gradle N0) est HORS SCOPE. Bakery provisionne le DNS
+    du site qu'il déploie.
+ . *Méthodo* — baby steps DDD (concept pur, testable sans Gradle) → TDD (UT
+    rouge avant code) → BDD (feature Cucumber bout en bout). Aucune I/O dans
+    les classes de domaine.
+ . *Fallback* — `~/workspace/configuration/scripts/ovh.py` reste opérationnel
+    tant que la tâche Kotlin n'a pas prouvé son dogfooding.
+
+=== User Stories — baby steps DDD/TDD/BDD
+
+[cols="1,4,2,2,2]
+|===
+| US | Description | Tests | Pts | Dépend de
+
+| *BKY-DNS-0*
+| *Cadrage (cette section).* Zéro code. | — | 0 | *✅ S195*
+
+| *BKY-DNS-1*
+| *`DnsConfig` + mapping Jackson site.yml — section `dns:`.* Zone, provider
+  (`ovh`), records désirés (apex A x4 IP GitHub Pages, www CNAME
+  `pages-content.github.io.`), creds OVH (application-key/secret/consumer-key,
+  gitignorées comme `pushPage`). Defaults backward compat (section absente =
+  pas de provisionnement). Merger 4 sources (pattern capsule
+  `mergeAudioPostConfig`). | unit (`DnsConfigTest`, `mergeDnsConfigTest`) | ~6 | —
+
+| *BKY-DNS-2*
+| *`OvhDnsClient` — client HTTP OVH API.* Signature HMAC SHA-1 OVH
+  (`$1$` + AS+CK+method+url+body+ts), endpoints list/get/create/update/delete/
+  refresh, http client injectable (fake en test). Zéro I/O réseau dans le
+  domaine pur. | unit (signature, payload, mapping) + functional (mock HTTP) | ~8 | BKY-DNS-1
+
+| *BKY-DNS-3*
+| *`DnsProvisioner` — réconciliation idempotente.* Compare records désirés
+  (DnsConfig) vs records actuels (OvhDnsClient) → create/update/delete diffs.
+  `DnsProvider` port + `OvhDnsProvider` adapter + `NoOpDnsProvider` (pattern
+  capsule). Aucune duplication (never-duplicate), aucun drift (update-if-
+  different). | unit (diff, idempotence, noop) | ~8 | BKY-DNS-2
+
+| *BKY-DNS-4*
+| *`ProvisionDnsTask` + wiring.* Tâche `provisionDns` groupe deployment,
+  chaînée `mustRunAfter`/`dependsOn` avant `deploySite` (si section dns
+  présente). Enregistrée dans `BakeryPlugin`/registrar dédié. | functional (task)
+ | ~4 | BKY-DNS-3
+
+| *BKY-DNS-5*
+| *Cucumber BDD `dns_provision.feature`.* Scénarios : noop si section absente,
+  create CNAME www manquant, create 4 A apex manquants, update cible changée,
+  delete record orphelin, idempotence (2nd run = no-op), verify mapping.
+  Runner dédié (pattern `CucumberTestRunner`). | cucumber | ~5 | BKY-DNS-4
+
+| *BKY-DNS-6*
+| *Dogfooding réel talaria.school.* `provisionDns` sur site.yml talaria →
+  réconciliation = no-op/verify (zone déjà correcte : 4 A + 1 CNAME www).
+  Preuve de l'idempotence sur prod réelle. | vérif réelle (reconcile report) | ~2 | BKY-DNS-5
+|===
+
+=== Dépendances (DAG)
+
+ * *BKY-DNS-1* → mapping Jackson `SiteConfiguration` (modif site.yml).
+ * *BKY-DNS-2* → API OVH (endpoint `eu.api.ovh.com/1.0`, signature HMAC).
+ * *BKY-DNS-3* → port `DnsProvider` (pattern capsule).
+ * *BKY-DNS-4* → `BakeryPlugin` wiring.
+ * *BKY-DNS-6* → site.yml réel talaria (dogfooding).
+
+=== Projection sessions (à affiner)
+
+ * S-N : DNS-1 (mapping + merger, ~6 pts)
+ * S-N+1 : DNS-2 (client HTTP + signature, ~8 pts)
+ * S-N+2 : DNS-3 (réconciliation, ~8 pts) + DNS-4 (task + wiring, ~4 pts)
+ * S-N+3 : DNS-5 (BDD, ~5 pts) + DNS-6 (dogfooding, ~2 pts)
+
+=== Réutilisations cross-boroughs
+
+ * *capsule* — pattern `resolve*Provider` + factory + NoOp (S102-S106).
+ * *planner* — pattern port/adapter testable sans Gradle (SLD-8).
+ * *slider* — `DeckContextValidator` validation pure (SLD-8.3a).
+ * *document* — adapter providers (i18n-contracts, S015).
+
+=== Risques et mitigations
+
+| Risque | Mitigation
+| API OVH non testable en CI (creds) | `NoOpDnsProvider` en CI + fake HTTP en functional test. Creds gitignorées, jamais en CI.
+| Zone DNS hors bakery (ex. Cloudflare/Netlify) | Port `DnsProvider` extensible — provider par implémentation.
+| Réconciliation destructive par erreur | Dry-run par défaut (`--dry-run`), `--apply` explicite (pattern DeployProfileTask).
+| Record A apex écrasé (MX/SPF coexistants) | Réconciliation ciblée par sous-domaine + type ; jamais toucher NS/MX/SPF/TXT hors périmètre.
+| Script Python jetable obsolète | Conservé comme fallback jusqu'à DNS-6 dogfooding, puis documenté comme décommissionné.
+
+=== Notes de revue — avis sur l'idée des tâches DNS (2026-08-12)
+
+_Verdict global : idée légitime et cadrage solide, à livrer avec deux clauses
+durcies et une arbitrage de priorité._
+
+**Pourquoi c'est une bonne idée**
+
+ 1. *DOGFOOD FIRST* — le job a été fait à la main une fois (talaria.school).
+    Le transposer en tâche bakery versionne le savoir-faire OVH (signature HMAC,
+    endpoints) au lieu de le laisser dans un script jetable non testé.
+ 2. *Patterns déjà éprouvés* — port/adapter avec `NoOp` par défaut (capsule
+    `resolve*Provider`), dry-run + flag explicite, réconciliation idempotente.
+    Rien de conceptuellement nouveau.
+ 3. *Le bon argument n'est pas DNS en soi* (rare : un domaine par site) mais
+    **l'unité du « mettre un site en ligne »** : DNS + TLS + bake + deploy +
+    i18n dans une seule commande. C'est une vraie histoire produit pour un
+    vendeur de sites.
+
+**Nuances à corriger avant implémentation**
+
+ 1. *Le reconcilier qui DELETE est le point dangereux* — un bug pourrait
+    supprimer des records DNS de production. Le dry-run par défaut est *non
+    négociable* : jamais d'apply sans flag explicite, et le **delete doit exiger
+    un double flag** (`--apply --purge`). À écrire explicitement dans US
+    BKY-DNS-3/BKY-DNS-5 (scénario « delete orphelin »).
+ 2. *Réduire la portée* — US-1 (DnsConfig) + US-2 (OvhDnsClient) + US-3
+    (DnsProvisioner) = 80% de la valeur. Pas de contrat N0 OVH séparé : YAGNI
+    tant qu'un second consommateur n'apparaît pas (même logique que MEMPHIS).
+    OVH reste interne à bakery.
+ 3. *Credentials* — clés OVH dans e3p0.yaml gitignoré. La tâche lit les creds
+    via gradle.properties/env (jamais commitées) ; tests cucumber/functional sur
+    fake provider, zéro appel OVH réel en CI.
+ 4. *Priorité* — P2 correct, mais à déprioriser derrière la clôture de
+    BKY-I18N-MASS (MASS-5/6) si le canal contenu reste la contrainte de
+    livraison : DNS = one-shot à la création du site, i18n = coût récurrent.
+
+'''
+
 [cols="2,3]
 |===
  | Document | `BACKLOG.adoc`
-| Version | 24.3 — Session 193 ✅ (EPIC BKY-I18N-MASS : MASS-1 ✅ + MASS-2 ✅ + MASS-3 ✅ CLOS — Validation STRICT plantuml/table configurable)
+ | Version | 24.4 — Session 195 ✅ (Cadrage EPIC BKY-DNS + notes de revue : clauses delete protégé, portée réduite, credentials, priorité)
   | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
-  | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-193 + EPIC I18N-BATCH + EPIC I18N-CI + EPIC BKY-SEO + EPIC BKY-CONTACT-SEC + EPIC BKY-I18N-MASS
-  | Prochaine màj | Session 194 — MASS-4 (dogfooding FR→N langues lot pilote)
+  | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-195 + EPIC BKY-DNS
+  | Prochaine màj | Session 196 — BKY-DNS-1 (DnsConfig + mapping Jackson site.yml)
  |===

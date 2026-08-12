@@ -1,48 +1,43 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 195
-:date: 2026-08-04
-:etat: Session 194 ✅ — MASS-4 CLOS. BDD golden master multi-langue (feature 60, 7/7 PASS) + dogfooding LLM réel 3 articles × 9 langues via gemma4:31b-cloud port 11437. Fix DuplicateStepDefinition préexistant (I18nDeltaWireSteps vs I18nMassValidationSteps).
-:epic_actif: BKY-I18N-MASS — priorité 1. MASS-1 ✅, MASS-2 ✅, MASS-3 ✅, MASS-4 ✅, MASS-5 next (BKY-I18N-BATCH validation lot annuel).
+:session: 196
+:date: 2026-08-12
+:etat: Session 195 ✅ — Cadrage EPIC BKY-DNS (provisionnement DNS OVH depuis site.yml). Suite mise en prod talaria.school (S-004/005 office) : DNS fait à la main via script Python jetable `~/workspace/configuration/scripts/ovh.py`. Zéro code modifié — gouvernance pure.
+:epic_actif: BKY-DNS — cadré. US BKY-DNS-0→6 (~33 pts). BKY-DNS-1 next (DnsConfig + mapping Jackson site.yml). BKY-I18N-MASS en pause (MASS-5→6 restants).
 
 == Contexte de fin
 
-Session 194 — MASS-4 livré :
-- Feature 60 `60_i18n_mass_multi_lang.feature` (7 scénarios, 7/7 PASS)
-- Steps `I18nMassMultiLangSteps.kt` (noms préfixés `mass-multi-lang`)
-- Runner `I18nMassMultiLangCucumberTest.kt` (standalone LauncherDiscoveryRequestBuilder)
-- Fixture `cheroliv-com-mass-multi-lang/` (3 articles pilotes réels)
-- Dogfooding LLM réel : 3 articles × 9 langues via gemma4:31b-cloud port 11437
-- Fix DuplicateStepDefinition : I18nDeltaWireSteps renommé
-- Projet consommateur `/tmp/bakery-dogfood` via mavenLocal 0.0.5
+Session 195 — Cadrage EPIC BKY-DNS :
+- Problème : `provisionDns` fait à la main via script Python jetable (`configuration/scripts/ovh.py`) non testable, non idempotent, non versionné
+- Section `dns:` dans site.yml (mapping Jackson `SiteConfiguration`)
+- Port `DnsProvider` / `OvhDnsProvider` / `NoOpDnsProvider` (pattern capsule `resolve*Provider`)
+- Réconciliation create/update/delete des diffs (idempotent), dry-run par défaut
+- Wiring `provisionDns` → `deploySite`
+- BACKLOG.adoc + INDEX.adoc + SESSIONS_HISTORY.adoc mis à jour
+- Pattern : S-057 gouvernance pure, zéro code modifié
 
-== Mission Session 195
+== Mission Session 196
 
-1. **MASS-5** — BKY-I18N-BATCH validation — stratégie lot annuel éprouvée :
-   - Reprise du cadrage BKY-I18N-BATCH (S029 document)
-   - Une invocation `migrateContentI18n` par année (`blog/{year}`)
-   - Delta checksum préserve entre lots
-   - Validation end-to-end sur cheroliv.com 108 articles FR→EN par 8 lots annuels
-   - Mesure temps + coût tokens + taux échec par lot
-   - 1 BDD feature 61 batch annuel
+1. **BKY-DNS-1** — DDD pur : `DnsConfig` (domaine `bakery.dns`) + mapping Jackson section `dns:` dans `SiteConfiguration` :
+   - Section dns dans site.yml : `provider`, `domain`, `records` (type/name/value/ttl), dry-run
+   - Merger 4 sources (pattern `mergeOutputConfig`)
+   - TDD strict RED → GREEN → REFACTOR (~8 unit)
 
 == Reprendre à
 
 . `git status` dans bakery-gradle
-. Lire `BACKLOG.adoc` section EPIC BKY-I18N-MASS (US MASS-5)
+. Lire `BACKLOG.adoc` section EPIC BKY-DNS (US BKY-DNS-1)
 . `publishToMavenLocal` après chaque modification code source
 
 == Ordre des EPICs (priorité)
 
-. **BKY-I18N-MASS** (priorité 1, ~32 pts) — MASS-1 ✅, MASS-2 ✅, MASS-3 ✅, MASS-4 ✅, MASS-5→6 restants
+. **BKY-DNS** (priorité 2, ~33 pts) — BKY-DNS-0 ✅ cadré, BKY-DNS-1→6 restants
+. BKY-I18N-MASS (priorité 1, ~32 pts) — MASS-1→4 ✅, MASS-5→6 restants (en pause)
 . BKY-SEO (priorité 2, 27 pts) — généralisation features SEO
 . BKY-CONTACT-SEC (priorité 3, 26 pts) — durcissement formulaire contact
 
-== Fichiers touchés S194
+== Fichiers touchés S195
 
 *bakery-gradle/bakery-plugin* :
-- `src/test/features/60_i18n_mass_multi_lang.feature` — NOUVEAU
-- `src/test/scenarios/bakery/scenarios/I18nMassMultiLangSteps.kt` — NOUVEAU
-- `src/test/kotlin/bakery/i18n/mass/I18nMassMultiLangCucumberTest.kt` — NOUVEAU
-- `src/test/resources/fixtures/cheroliv-com-mass-multi-lang/` — NOUVEAU
-- `src/test/features/57_i18n_delta_wire.feature` — MODIFIÉ
-- `src/test/scenarios/bakery/scenarios/I18nDeltaWireSteps.kt` — MODIFIÉ
+- `BACKLOG.adoc` — EPIC BKY-DNS ajouté (US-0→6, ~33 pts)
+- `.agents/INDEX.adoc` — entrée session 195 + EPIC BKY-DNS en attente
+- `.agents/SESSIONS_HISTORY.adoc` — entrée session 195

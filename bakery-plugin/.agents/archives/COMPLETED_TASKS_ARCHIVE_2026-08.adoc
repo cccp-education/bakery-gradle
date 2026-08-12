@@ -1,5 +1,44 @@
 = Archive des Taches Terminees — Aout 2026
 
+== Session 195 — 2026-08-12 — Cadrage EPIC BKY-DNS (provisionnement DNS OVH depuis site.yml)
+
+**Contexte** : Suite à la mise en production de `talaria.school` (S-004/005
+office), l'opération DNS (lien domaine OVH ↔ GitHub Pages : 4 A apex + 1 CNAME
+www, suppression 3 TXT de redirection OVH) a été faite à la main via un script
+Python jetable (`~/workspace/configuration/scripts/ovh.py`) — non testé, non
+idempotent, hors écosystème Kotlin. Session de gouvernance pure (pattern
+S-057, zéro code modifié) pour cadrer la transposition en tâche Kotlin bakery.
+
+**Taches livrees** :
+- EPIC BKY-DNS cadré dans BACKLOG.adoc : 7 US (US-0 cadrage → US-6 dogfooding
+  talaria.school), ~33 pts, section `dns:` dans site.yml (mapping Jackson
+  SiteConfiguration), port `DnsProvider`/`OvhDnsProvider`/`NoOpDnsProvider`
+  (pattern capsule `resolve*Provider`), réconciliation idempotente
+  create/update/delete, dry-run par défaut + `--apply` explicite, wiring
+  `provisionDns` → `deploySite`
+- Notes de revue (avis sur l'idée des tâches DNS) : delete protégé
+  (`--apply --purge`), portée réduite US-1/2/3 = 80% (pas de contrat N0 OVH,
+  YAGNI), credentials via gradle.properties/env (jamais commitées) + fake
+  provider en tests (zéro OVH réel CI), priorité P2 derrière BKY-I18N-MASS
+- Dashboard/historique : INDEX.adoc (session 195 + EPIC BKY-DNS P2),
+  SESSIONS_HISTORY.adoc, PROMPT_REPRISE.adoc (session 196 → mission
+  BKY-DNS-1 `DnsConfig` + mapping Jackson)
+
+**Fichiers modifies/crees** :
+- `BACKLOG.adoc` — EPIC BKY-DNS (US-0→6) + notes de revue + version 24.4
+- `.agents/INDEX.adoc` — entrée session 195 + EPIC BKY-DNS P2
+- `.agents/SESSIONS_HISTORY.adoc` — entrée session 195
+- `PROMPT_REPRISE.adoc` — session 196, mission BKY-DNS-1
+- `.agents/sessions/195-cadrage-bky-dns.adoc` — NOUVEAU (rapport session)
+
+**Tests** : N/A — zéro code source modifié, aucune régression possible.
+
+**Prochaine session (196)** : BKY-DNS-1 — DDD pur `DnsConfig` (domaine
+`bakery.dns`) + mapping Jackson section `dns:` + merger 4 sources (pattern
+`mergeOutputConfig`). TDD strict RED → GREEN → REFACTOR (~8 unit).
+
+**Score** : 8/10
+
 == Session 192 — 2026-08-04 — EPIC BKY-I18N-MASS — MASS-2 CLOS (Issue 191-1 fixée)
 
 **Contexte** : Session 191 avait livré MASS-1 (BlockChecksum + BlockDelta DDD pur)
