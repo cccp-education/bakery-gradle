@@ -1,5 +1,40 @@
 = Archive des Taches Terminees — Aout 2026
 
+== Session 199 — 2026-08-15 — Audit version + EPIC PUB (bump 0.0.5, gouvernance pure)
+
+**Contexte** : Audit des deltas versions Maven Central vs code local sur les
+boroughs publics. Bakery : code 0.0.5 (bakery-plugin build.gradle.kts) vs
+Central 0.0.4 → delta à publier. Décision : ajouter le bump au backlog
+uniquement (pas de publication dans cette tâche). Zéro code modifié.
+
+**Taches livrees** :
+- Audit versions (source vérité : repo1.maven.org maven-metadata.xml) :
+  bakery 0.0.5 vs 0.0.4 Central → delta
+- EPIC PUB « Publication Maven Central bakery-plugin 0.0.5 » ajouté au
+  BACKLOG (version 24.8, Session 199) — 3 US :
+  PUB-0.0.5-1 (POM/signing vérifiés), PUB-0.0.5-2
+  (`publishAggregationToCentralPortal`), PUB-0.0.5-3 (tags cleanup)
+- TODO.adoc — section NOUVEAU EPIC PUB (3 items)
+
+**Fichiers crees** :
+- `.agents/sessions/199-version-bump-0.0.5.adoc` — rapport de session
+
+**Fichiers modifies** :
+- `BACKLOG.adoc` — section EPIC PUB + version 24.8 Session 199
+- `TODO.adoc` — section NOUVEAU EPIC PUB
+- `.agents/INDEX.adoc` — entrée session 199 (prochaine 200)
+- `.agents/SESSIONS_HISTORY.adoc` — entrée session 199
+- `.agents/TEST_COVERAGE_ANALYSIS.adoc` — mention session 199
+- `PROMPT_REPRISE.adoc` — session 200, mission BKY-DNS-4
+
+**Tests** : aucun test modifié (gouvernance pure) — baseline inchangée.
+
+**Prochaine session (200)** : BKY-DNS-4 — `ProvisionDnsTask` + wiring : tâche
+`provisionDns` groupe deployment, chaînée avant `deploySite`, enregistrée dans
+`BakeryPlugin`/registrar dédié (functional, ~4 pts).
+
+**Score** : 8/10
+
 == Session 198 — 2026-08-15 — BKY-DNS-3 TERMINÉ (DnsProvisioner : réconciliation idempotente)
 
 **Contexte** : Troisième US d'implémentation de l'EPIC BKY-DNS. Suite à

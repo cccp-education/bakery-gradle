@@ -1,0 +1,35 @@
+= Session 199 — Audit version Central + bump 0.0.5 backlog (gouvernance pure)
+
+== Contexte
+
+Session de gouvernance pure (pattern S-057/S-063) — zéro code source modifié.
+Audit cross-borough des versions déclarées vs versions publiées Maven Central
+(commande : audit des 4 boroughs publics à delta bakery/codebase/slider/plantuml).
+
+## Constat bakery
+
+- Version déclarée dans `bakery-plugin/build.gradle.kts`: `0.0.5`
+- Maven Central `education.cccp:bakery-plugin`: **0.0.4** (0.0.3 = bundle 49be80ef,
+  0.0.4 = dernière publiée)
+- Les commits S192→S198 (BKY-I18N-MASS 1-4, BKY-TREE, BKY-OUTPUT, BKY-DNS 0-3)
+  sont postérieurs à la publication 0.0.4 → delta version.
+- Tags locaux `v0.0.7/v0.0.8/v0.0.9` présents en local mais absents de l'origin
+  (`git ls-remote --tags origin` vide) — tags à ne pas pousser tels quels.
+
+## Décision
+
+Ajouter la publication **bakery-plugin 0.0.5** au backlog (EPIC PUB), priorité P1,
+à réaliser en prochaine session de bump. La publication suit la méthode nmcp
+(`./gradlew publishAggregationToCentralPortal --no-daemon`) après vérification
+POM/signing et bump des tags si nécessaire.
+
+## Fichiers modifiés
+
+- `BACKLOG.adoc` — EPIC PUB ajouté (bump 0.0.5), version backlog → 24.8
+- `TODO.adoc` — item bump 0.0.5 ajouté
+- `.agents/INDEX.adoc` — session 199 + EPIC PUB dans roadmap
+- `.agents/SESSIONS_HISTORY.adoc` — entrée session 199
+- `.agents/sessions/199-version-bump-0.0.5.adoc` — ce rapport
+- `.agents/archives/COMPLETED_TASKS_ARCHIVE_2026-08.adoc` — entrée session 199
+
+Zéro test modifié — session de gouvernance pure.

@@ -3,6 +3,12 @@
 
 _Dernière mise à jour : 2026-08-04 — Session 194 ✅. EPIC BKY-I18N-MASS : MASS-1 ✅, MASS-2 ✅, MASS-3 ✅, MASS-4 ✅ CLOS. MASS-5→6 restants._
 
+== NOUVEAU — EPIC PUB — Publication Maven Central bakery-plugin 0.0.5 (Session 199)
+
+* [ ] **PUB-0.0.5-1** : Vérifier POM (withType<MavenPublication>) + signing GPG + release deps
+* [ ] **PUB-0.0.5-2** : `./gradlew publishAggregationToCentralPortal --no-daemon` (méthode nmcp)
+* [ ] **PUB-0.0.5-3** : Aligner les tags locaux v0.0.7/8/9 sur l'origin (cleanup)
+
 == NOUVEAU — EPIC BKY-I18N-MASS (Session 190-192, priorité 1, ~32 pts, 6 US)
 
 * [x] **MASS-1** : BlockChecksum + BlockDelta (DDD pur, statut TRANSLATED/PENDING) ✅ S191 — 26 UT BlockDeltaTest + 4 UT
