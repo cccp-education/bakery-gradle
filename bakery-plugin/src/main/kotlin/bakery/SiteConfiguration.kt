@@ -1,5 +1,6 @@
 package bakery
 
+import bakery.dns.DnsConfig
 import bakery.tree.SiteNodeDto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import contracts.i18n.OllamaConfig
@@ -53,6 +54,8 @@ data class SiteConfiguration(
     val supportedLanguages: List<String> = listOf("fr"),
     val tree: SiteNodeDto? = null,
     val ollama: OllamaConfig? = null,
+    /** DNS provisioning — null means no provisioning at all (BKY-DNS). */
+    val dns: DnsConfig? = null,
 )
 
 data class BakeConfiguration(

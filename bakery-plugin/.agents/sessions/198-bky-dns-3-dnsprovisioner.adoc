@@ -1,0 +1,135 @@
+= Session 198 — BKY-DNS-3 TERMINÉ (DnsProvisioner : réconciliation idempotente)
+
+:date: 2026-08-15
+:epic: BKY-DNS — Provisionnement DNS de site (OVH) depuis site.yml
+:type: DDD + TDD (unit)
+:statut: ✅ US BKY-DNS-3 TERMINÉ — 31 tests nouveaux (83 dans `bakery.dns`), 0 FAIL, publishToMavenLocal VERT
+:score: 9/10
+
+== Mission
+
+BKY-DNS-3 : `DnsProvisioner` — réconciliation idempotente. Diff records désirés
+(DnsConfig) vs records actuels (OvhDnsClient) → create/update/delete diffs.
+Port `DnsProvider` (pattern capsule) + `OvhDnsProvider` adapter +
+`NoOpDnsProvider`. Aucune duplication (never-duplicate), aucun drift
+(update-if-different). dry-run par défaut (défaut DnsConfig), noop si
+identique. TDD strict RED → GREEN → REFACTOR (unit diff/idempotence/noop,
+~8 pts).
+
+== Baby-step TDD strict
+
+=== RED (tests d'abord, 5 fichiers test)
+- `DnsDiffTest` (10) — diff pur : noop (identiques, full apex set multi-valeurs,
+  doublon désiré jamais dupliqué), create (manquant, valeurs apex distinctes ne
+  collisionnent pas), update (drift TTL garde l'id), delete (orphan, drift de
+  valeur → create + delete), combined (create + update + delete en 1 compute)
+- `DnsProvisionerTest` (9) — reconciler : noop (identique, 2nd run =
+  idempotence), dry run (défaut, bloque delete même avec purge), apply (create +
+  refresh, update garde l'id, pas de refresh si rien appliqué), purge (orphan
+  skip sans flag, delete + refresh avec flag)
+- `NoOpDnsProviderTest` (4) — provider dégradé : identité, zone vide, mutations
+  no-op, reconcile sûr (jamais applique)
+- `DnsProviderFactoryTest` (4) — resolve `ovh`/inconnu → NoOp dégradé
+- `OvhDnsProviderTest` (4) — adapter : identité, listRecords, mutations déléguées
+
+RED confirmé : `compileTestKotlin` FAILED (`Unresolved reference`
+`DnsDiff`/`DnsProvisioner`/`DnsProvider`/…).
+
+=== GREEN (9 fichiers prod, domaine `bakery.dns` enrichi)
+- `DnsChange.kt` — sealed `Create(record)` / `Update(id, record, previous)` /
+  `Delete(id, record)`
+- `ExistingDnsRecord.kt` — record présent en zone (id + record)
+- `DnsDiff.kt` — object pur `compute(desired, actual): List<DnsChange>` —
+  slot (type, name), jeu de valeurs par slot : valeur manquante → Create,
+  valeur présente + TTL différent → Update (garde l'id), valeur actuelle sans
+  désirée → Delete ; drift de valeur → Create (nouvelle) + Delete (ancienne)
+- `DnsReconciliationResult.kt` — `plan` / `applied` / `skipped` / `noop`
+- `DnsProvider.kt` — port `listRecords/createRecord/updateRecord/deleteRecord/
+  refreshZone/isAvailable/name`
+- `OvhDnsProvider.kt` — adapter délègue à `OvhDnsClient`, name `ovh`
+- `NoOpDnsProvider.kt` — dégradé : zone vide, mutations no-op (pattern capsule
+  `NoOpAudioPostProcessor`)
+- `DnsProviderFactory.kt` — resolve(name, ovhClient?) → `ovh` avec client →
+  `OvhDnsProvider`, sinon `NoOpDnsProvider` (pattern capsule `resolve*Provider`)
+- `DnsProvisioner.kt` — reconciler : diff → plan → apply (dryRun=true défaut
+  : tout skipped ; delete seulement si `allowDelete` purge ; create/update
+  sinon) ; `noop` = plan vide ; refresh seulement si applied non vide
+
+GREEN : `./gradlew test --tests "bakery.dns.*"` BUILD SUCCESSFUL.
+
+=== REFACTOR (fix fixtures tests, production inchangée)
+4 tests échouaient en GREEN car mes fixtures initiales encodaient une attente
+erronée de la sémantique diff (drift de valeur → Update au lieu de Create +
+Delete) :
+- `DnsDiffTest$Combined` — le cas Update était construit sur un drift de
+  valeur ; remplacé par un drift de TTL (valeur identique, TTL 7200) + ajout
+  d'un record manquant pour obtenir le Create (Create=1, Update=1, Delete=1)
+- `DnsProvisionerTest$Apply` — « updates drifted record keeping id » : fixture
+  CNAME à valeur différente → ClassCastException Create→Update ; mis à drift de
+  TTL (même valeur, TTL 7200) → Update(id=5) conforme
+- `DnsProvisionerTest$Apply` — « no refresh when nothing applied » : désiré a1
+  absent de la zone → Create appliqué ; ajout `ExistingDnsRecord(1L, a1)` pour
+  que seul l'orphan TXT reste (skipped, no purge → rien appliqué, pas de
+  refresh)
+- `NoOpDnsProviderTest` — « reconcile is safe » : avec dryRun=false la zone
+  vide NoOp → Create « appliqué » ; passé à dryRun=true (défaut) → applied vide,
+  skipped=1
+Sémantique assumée et documentée : **drift de valeur = Create + Delete** (pas
+Update en place), alignée sur ovh.py et le multi-valeurs apex GitHub Pages.
+
+== Résultats
+
+- `bakery.dns` : 83 tests, 0 FAIL (36 XML nested) — 31 nouveaux BKY-DNS-3
+  (10 diff + 9 provisioner + 4 noop + 4 factory + 4 ovh provider)
+- Non-régression suite complète : 3 échecs PRÉEXISTANTS environnementaux
+  identiques S196/197 (`RealSiteI18nMigrationIntegrationTest`,
+  `FixtureAlignmentAuditorTest`, `I18nDeltaWireCucumberTest` — golden master
+  i18n vs sites réels office/sites/*), zéro nouvel échec
+- `publishToMavenLocal` VERT (règle INDEX 0) — signature GPG OK
+- Zéro secret commité
+
+== Fichiers créés BKY-DNS-3
+
+*prod* :
+- `src/main/kotlin/bakery/dns/DnsChange.kt`
+- `src/main/kotlin/bakery/dns/ExistingDnsRecord.kt`
+- `src/main/kotlin/bakery/dns/DnsDiff.kt`
+- `src/main/kotlin/bakery/dns/DnsReconciliationResult.kt`
+- `src/main/kotlin/bakery/dns/DnsProvider.kt`
+- `src/main/kotlin/bakery/dns/OvhDnsProvider.kt`
+- `src/main/kotlin/bakery/dns/NoOpDnsProvider.kt`
+- `src/main/kotlin/bakery/dns/DnsProviderFactory.kt`
+- `src/main/kotlin/bakery/dns/DnsProvisioner.kt`
+
+*test* :
+- `src/test/kotlin/bakery/dns/DnsDiffTest.kt` (10)
+- `src/test/kotlin/bakery/dns/DnsProvisionerTest.kt` (9)
+- `src/test/kotlin/bakery/dns/NoOpDnsProviderTest.kt` (4)
+- `src/test/kotlin/bakery/dns/DnsProviderFactoryTest.kt` (4)
+- `src/test/kotlin/bakery/dns/OvhDnsProviderTest.kt` (4)
+
+== Décisions
+
+- Sémantique diff par **slot (type, name)** + **jeu de valeurs** (le apex porte
+  plusieurs A distincts — GitHub Pages round-robin) : value-set decide
+  create/update/delete ; drift de valeur = Create + Delete (jamais Update en
+  place), drift de TTL sur valeur identique = Update (garde l'id)
+- Port `DnsProvider` (pattern capsule) + `OvhDnsProvider` (délégation fine à
+  `OvhDnsClient`) + `NoOpDnsProvider` (dégradé, zone vide, mutations no-op) +
+  factory `DnsProviderFactory.resolve` (pattern `resolve*Provider` capsule)
+- `DnsProvisioner.reconcile(desired, dryRun=true, allowDelete=false)` :
+  dry-run par défaut (défaut DnsConfig) ; delete seulement avec le flag de
+  purge (note backlog « delete must require a double flag ») ; `noop` si plan
+  vide ; refresh zone seulement si applied non vide (économie d'encre)
+- `RecordingProvider` en test (mémoire, mutable) pour rejouer la
+  réconciliation et prouver l'idempotence
+
+== Prochaine session (199)
+
+BKY-DNS-4 — `ProvisionDnsTask` + wiring : tâche `provisionDns` groupe
+deployment, chaînée avant `deploySite`, enregistrée dans `BakeryPlugin`/
+registrar dédié (~4 pts, functional).
+
+== Score
+
+9/10

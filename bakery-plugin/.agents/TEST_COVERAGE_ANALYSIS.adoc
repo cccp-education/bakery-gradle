@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-08-12 — Session 195 ✅ — Cadrage EPIC BKY-DNS (gouvernance pure, zéro code modifié). Coverage inchangée — non revalidée (règle fin de session, aucun impact tests). Baseline S169 : 93,09% (Kover, seuil 85% PASS). Précédent : Session 194 ✅ MASS-4 CLOS (feature 60 7/7 PASS BDD golden master multi-langue)._
+_Dernière mise à jour : 2026-08-15 — Session 198 ✅ BKY-DNS-3 TERMINÉ (+31 tests domaine `bakery.dns` → 83 total, 0 FAIL : DnsDiff/DnsChange/DnsProvider/OvhDnsProvider/NoOpDnsProvider/DnsProviderFactory/DnsProvisioner). Coverage non revalidée Kover (règle fin de session — gate ciblé `--tests "bakery.dns.*"` seul ; suite complète avec 3 échecs environnementaux préexistants). Baseline S169 : 93,09% (Kover, seuil 85% PASS). Précédent : Session 197 ✅ BKY-DNS-2 (+32 unit)._
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''

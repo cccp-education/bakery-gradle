@@ -2130,20 +2130,20 @@ même pipeline que le contenu, déclaratif dans site.yml.
   `pages-content.github.io.`), creds OVH (application-key/secret/consumer-key,
   gitignorées comme `pushPage`). Defaults backward compat (section absente =
   pas de provisionnement). Merger 4 sources (pattern capsule
-  `mergeAudioPostConfig`). | unit (`DnsConfigTest`, `mergeDnsConfigTest`) | ~6 | —
+  `mergeAudioPostConfig`). | unit (`DnsConfigTest` 7, `DnsConfigMergerTest` 9 = 16) | ~6 ✅ S196 | —
 
 | *BKY-DNS-2*
 | *`OvhDnsClient` — client HTTP OVH API.* Signature HMAC SHA-1 OVH
   (`$1$` + AS+CK+method+url+body+ts), endpoints list/get/create/update/delete/
   refresh, http client injectable (fake en test). Zéro I/O réseau dans le
-  domaine pur. | unit (signature, payload, mapping) + functional (mock HTTP) | ~8 | BKY-DNS-1
+  domaine pur. | unit (signature, payload, mapping) + functional (mock HTTP) | ~8 ✅ S197 | BKY-DNS-1
 
 | *BKY-DNS-3*
 | *`DnsProvisioner` — réconciliation idempotente.* Compare records désirés
   (DnsConfig) vs records actuels (OvhDnsClient) → create/update/delete diffs.
   `DnsProvider` port + `OvhDnsProvider` adapter + `NoOpDnsProvider` (pattern
   capsule). Aucune duplication (never-duplicate), aucun drift (update-if-
-  different). | unit (diff, idempotence, noop) | ~8 | BKY-DNS-2
+  different). | unit (diff, idempotence, noop) | ~8 ✅ S198 | BKY-DNS-2
 
 | *BKY-DNS-4*
 | *`ProvisionDnsTask` + wiring.* Tâche `provisionDns` groupe deployment,
@@ -2173,10 +2173,10 @@ même pipeline que le contenu, déclaratif dans site.yml.
 
 === Projection sessions (à affiner)
 
- * S-N : DNS-1 (mapping + merger, ~6 pts)
  * S-N+1 : DNS-2 (client HTTP + signature, ~8 pts)
  * S-N+2 : DNS-3 (réconciliation, ~8 pts) + DNS-4 (task + wiring, ~4 pts)
  * S-N+3 : DNS-5 (BDD, ~5 pts) + DNS-6 (dogfooding, ~2 pts)
+ * *S196 ✅* : DNS-1 (mapping + merger, ~6 pts) — domaine `bakery.dns` ouvert (DnsConfig/DnsRecord/OvhCredentials/DnsConfigMerger)
 
 === Réutilisations cross-boroughs
 
@@ -2234,9 +2234,9 @@ durcies et une arbitrage de priorité._
 
 [cols="2,3]
 |===
- | Document | `BACKLOG.adoc`
- | Version | 24.4 — Session 195 ✅ (Cadrage EPIC BKY-DNS + notes de revue : clauses delete protégé, portée réduite, credentials, priorité)
+| Document | `BACKLOG.adoc`
+  | Version | 24.7 — Session 198 ✅ (BKY-DNS-3 TERMINÉ : DnsProvisioner réconciliation idempotente, 83 tests `bakery.dns`, 0 FAIL, publishToMavenLocal VERT)
   | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
-  | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-195 + EPIC BKY-DNS
-  | Prochaine màj | Session 196 — BKY-DNS-1 (DnsConfig + mapping Jackson site.yml)
+  | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-198 + EPIC BKY-DNS
+  | Prochaine màj | Session 199 — BKY-DNS-4 (ProvisionDnsTask + wiring)
  |===

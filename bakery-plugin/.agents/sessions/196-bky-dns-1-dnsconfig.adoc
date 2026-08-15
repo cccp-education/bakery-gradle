@@ -1,0 +1,82 @@
+= Session 196 — BKY-DNS-1 TERMINÉ (DnsConfig + mapping Jackson site.yml)
+
+:date: 2026-08-15
+:epic: BKY-DNS — Provisionnement DNS de site (OVH) depuis site.yml
+:session: 196
+:statut: ✅ US BKY-DNS-1 TERMINÉ — domaine `bakery.dns` ouvert, 16/16 unit GREEN, publishToMavenLocal VERT
+
+## Récapitulatif
+
+BKY-DNS-1 : DDD pur `DnsConfig` (domaine `bakery.dns`) + mapping Jackson section
+`dns:` dans `SiteConfiguration`. TDD strict RED → GREEN → REFACTOR.
+
+## Baby-steps
+
+### 1. RED — tests écrits d'abord (2 fichiers, 16 tests)
+
+- `src/test/kotlin/bakery/dns/DnsConfigTest.kt` (7 tests) : defaults DnsConfig
+  (provider ovh, dry-run true), defaults DnsRecord (ttl 3600), masquage
+  OvhCredentials.toString (aucun secret fuité), mapping Jackson `dns:` section
+  (records, credentials, absent → null, unknown fields ignorés).
+- `src/test/kotlin/bakery/dns/DnsConfigMergerTest.kt` (9 tests) : précédence
+  CLI > YAML > Props > ENV, boolean precedence, records yaml > props, creds
+  mergées indépendamment, cli blank ne surcharge jamais.
+
+Vérification : `./gradlew test --tests "bakery.dns.*"` → compileTestKotlin FAILED
+(`Unresolved reference 'DnsConfig'/'DnsRecord'/'OvhCredentials'/'DnsConfigMerger'`
++ `SiteConfiguration.dns` manquant). RED confirmé.
+
+### 2. GREEN — 4 fichiers prod + mapping Jackson
+
+- `src/main/kotlin/bakery/dns/DnsConfig.kt` — data class immuable (provider
+  défaut `ovh`, domain, records, dryRun défaut true, credentials),
+  `@JsonIgnoreProperties(ignoreUnknown = true)`.
+- `src/main/kotlin/bakery/dns/DnsRecord.kt` — type/name/value/ttl (défaut 3600),
+  apex = `@`.
+- `src/main/kotlin/bakery/dns/OvhCredentials.kt` — applicationKey/
+  applicationSecret/consumerKey + toString masqué (pattern
+  `RepositoryCredentials` + `maskSecret`).
+- `src/main/kotlin/bakery/dns/DnsConfigMerger.kt` — object pur, 4 sources
+  CLI > YAML > Props > ENV (pattern capsule `mergeAudioPostConfig` : mergeStr
+  isNotBlank heuristic, mergeBoolean, records = liste native YAML, creds
+  mergées champ à champ).
+- `src/main/kotlin/bakery/SiteConfiguration.kt` — champ `val dns: DnsConfig? =
+  null` (section absente = pas de provisionnement, backward compat).
+
+Vérification : `./gradlew test --tests "bakery.dns.*"` → 16/16 PASSED, BUILD
+SUCCESSFUL 29s.
+
+### 3. REFACTOR / non-régression
+
+`./gradlew test` complet → 1506 tests, 3 failed, 3 skipped. Les 3 échecs sont
+environnementaux et PRÉEXISTANTS (prouvé par `git stash -u` + rerun ciblé :
+mêmes échecs sans mes modifs) : `bakery.i18n.audit.FixtureAlignmentAuditorTest`
++ `I18nDeltaWireCucumberTest` + `RealSiteI18nMigrationIntegrationTest` —
+comparaison fixtures vs sites réels `office/sites/*` (dérive de contenu des
+sites réels, hors périmètre BKY-DNS-1).
+
+`./gradlew -q publishToMavenLocal` → VERT (règle bakery INDEX 0).
+
+## Fichiers
+
+Créés :
+- `src/main/kotlin/bakery/dns/DnsConfig.kt`
+- `src/main/kotlin/bakery/dns/DnsRecord.kt`
+- `src/main/kotlin/bakery/dns/OvhCredentials.kt`
+- `src/main/kotlin/bakery/dns/DnsConfigMerger.kt`
+- `src/test/kotlin/bakery/dns/DnsConfigTest.kt` (7 unit)
+- `src/test/kotlin/bakery/dns/DnsConfigMergerTest.kt` (9 unit)
+
+Modifié :
+- `src/main/kotlin/bakery/SiteConfiguration.kt` (+1 champ `dns` + import)
+
+## Zéro secret
+
+Vérifié : les creds OVH ne sont ni commitées ni loggées (toString masqué,
+test dédié).
+
+## Prochaine session (197)
+
+BKY-DNS-2 — `OvhDnsClient` : signature HMAC SHA-1 OVH (`$1$` + AS+CK+method+
+url+body+ts), endpoints list/get/create/update/delete/refresh, http client
+injectable (fake en test). Zéro I/O réseau dans le domaine pur.

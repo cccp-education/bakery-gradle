@@ -1,0 +1,106 @@
+= Session 197 — BKY-DNS-2 TERMINÉ (OvhDnsClient : signature HMAC + endpoints + fake HTTP)
+
+:date: 2026-08-15
+:epic: BKY-DNS — Provisionnement DNS de site (OVH) depuis site.yml
+:type: DDD + TDD (unit + functional)
+:statut: ✅ US BKY-DNS-2 TERMINÉ — 32 tests nouveaux (52 dans `bakery.dns`), 0 FAIL, publishToMavenLocal VERT
+:score: 9/10
+
+== Mission
+
+BKY-DNS-2 : `OvhDnsClient` — client HTTP OVH API. Signature HMAC SHA-1 OVH
+(`$1$` + AS+CK+method+url+body+ts), endpoints list/get/create/update/delete/
+refresh (`eu.api.ovh.com/1.0`), http client injectable (fake en test), zéro
+I/O réseau dans le domaine pur. TDD strict RED → GREEN → REFACTOR (unit
+signature/payload/mapping + functional mock HTTP, ~8 pts).
+
+== Baby-step TDD strict
+
+=== RED (tests d'abord, 5 fichiers test)
+- `OvhSignatureTest` (5) — vecteurs connus figés (mirroir `ovh.py`) : GET empty
+  body ts=1456398605 → `$1$e1d15d3d0492d8e4c16b45a6321b4fad1186b0ae` ; POST
+  body `{"fieldType":"A","subDomain":"","target":"185.199.108.153","ttl":3600}`
+  ts=1456398700 → `$1$ed9e882837c24b7b7db7dc1777e80b60f133c187`
+- `OvhEndpointTest` (4) — path builders (list/get/create/update/delete/refresh)
+- `OvhRecordMapperTest` (6) — mapping wire ↔ domaine (3 + 3)
+- `OvhDnsClientTest` (9) — API client sur port `OvhHttp` fake
+- `OvhDnsClientFunctionalTest` (8) — HTTP réel local `com.sun.net.httpserver`
+
+RED confirmé : `compileTestKotlin` FAILED (`Unresolved reference`
+`OvhSignature`/`OvhEndpoint`/`OvhDnsClient`/…). Fix AssertJ :
+`matches(Regex(...))` → `matches { hex -> hex.matches(Regex(...)) }`.
+
+=== GREEN (7 fichiers prod, domaine `bakery.dns` enrichi)
+- `OvhSignature.kt` — object pur `sign(applicationSecret, consumerKey, method,
+  url, body, timestamp)` → `$1$` + sha1 minuscule
+- `OvhEndpoint.kt` — `BASE_URL = https://eu.api.ovh.com/1.0` + path builders
+- `OvhRecord.kt` — wire `OvhRecord(fieldType, subDomain, target, ttl=3600,
+  id?)`, `@JsonIgnoreProperties`, `@JsonInclude(NON_NULL)` sur id (jamais
+  envoyé en body) ; mapping ↔ `DnsRecord` (apex `@` ↔ `subDomain=""`)
+- `OvhHttp.kt` — port `call(method, url, body): OvhHttpResponse(status, body)`
+- `OvhDnsException.kt` — `message/status/body`
+- `OvhDnsClient.kt` — `listRecordIds(domain, fieldType?)`,
+  `getRecord(domain, id): DnsRecord`, `createRecord(domain, record): Long`,
+  `updateRecord(domain, id, record)`, `deleteRecord(domain, id)`,
+  `refreshZone(domain)` ; non-2xx → `OvhDnsException`
+- `JavaOvhHttp.kt` — transport prod `java.net.http.HttpClient` injectable
+  (timeout 10s) + headers `X-Ovh-*` + signature
+
+GREEN : `./gradlew test --tests "bakery.dns.*"` BUILD SUCCESSFUL.
+
+=== Functional test (mock HTTP réel)
+- D'abord écrit dans `src/functionalTest` (TestKit) → FAILED compile : le source
+  set functionalTest n'a PAS le classpath main. Déplacé dans `src/test`
+  (`OvhDnsClientFunctionalTest`).
+- Échec « Expecting actual not to be null » : `java.net.http.HttpClient`
+  minuscule les noms d'en-têtes sur le wire → capture/lookup en lowercase
+  (`x-ovh-*`). Fix.
+- Re-run : `./gradlew test --tests "bakery.dns.*" --rerun-tasks` BUILD
+  SUCCESSFUL (22s).
+
+== Résultats
+
+- `bakery.dns` : 52 tests, 0 FAIL (21 XML nested) — 32 nouveaux BKY-DNS-2
+  (5 signature + 4 endpoint + 6 mapper + 9 client + 8 functional)
+- Non-régression suite complète : 1538 tests, 3 échecs PRÉEXISTANTS
+  environnementaux identiques S196 (`RealSiteI18nMigrationIntegrationTest`,
+  `FixtureAlignmentAuditorTest`, `I18nDeltaWireCucumberTest`), 3 skipped
+- `publishToMavenLocal` VERT (règle INDEX 0) — signature GPG OK
+- Zéro secret commité
+
+== Fichiers créés BKY-DNS-2
+
+*prod* :
+- `src/main/kotlin/bakery/dns/OvhSignature.kt`
+- `src/main/kotlin/bakery/dns/OvhEndpoint.kt`
+- `src/main/kotlin/bakery/dns/OvhRecord.kt`
+- `src/main/kotlin/bakery/dns/OvhHttp.kt`
+- `src/main/kotlin/bakery/dns/OvhDnsException.kt`
+- `src/main/kotlin/bakery/dns/OvhDnsClient.kt`
+- `src/main/kotlin/bakery/dns/JavaOvhHttp.kt`
+
+*test* :
+- `src/test/kotlin/bakery/dns/OvhSignatureTest.kt` (5)
+- `src/test/kotlin/bakery/dns/OvhEndpointTest.kt` (4)
+- `src/test/kotlin/bakery/dns/OvhRecordMapperTest.kt` (6)
+- `src/test/kotlin/bakery/dns/OvhDnsClientTest.kt` (9)
+- `src/test/kotlin/bakery/dns/OvhDnsClientFunctionalTest.kt` (8)
+
+== Décisions
+
+- Port `OvhHttp` (domaine pur, zéro I/O) + adapter `JavaOvhHttp` (transport prod)
+- Fake `OvhHttp` en unit ; HTTP réel local en functional (port éphémère, FIFO)
+- functional test dans `src/test` (pas `src/functionalTest` — pas de main au
+  classpath TestKit)
+- Headers OVH lowercase au wire (contrainte `java.net.http.HttpClient`)
+- `credentials` porté par `OvhDnsClient` (le client sait qui il est) ; la
+  signature réelle vit dans `JavaOvhHttp`
+
+== Prochaine session (198)
+
+BKY-DNS-3 — `DnsProvisioner` (réconciliation idempotente : diff records désirés
+vs actuels, create/update/delete, dry-run par défaut, noop si identique, ~8 pts).
+
+== Score
+
+9/10
