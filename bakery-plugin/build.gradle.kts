@@ -16,7 +16,7 @@ plugins {
 }
 
 group = "education.cccp"
-version = "0.0.5"
+version = "0.0.6"
 
 repositories {
     mavenLocal()
@@ -26,7 +26,7 @@ repositories {
 
 dependencies {
     // BOM — workspace version alignment (workspace-bom, MEMPHIS)
-    implementation(platform("education.cccp:workspace-bom:0.0.9"))
+    implementation(platform("education.cccp:workspace-bom:0.0.18"))
 
     implementation(kotlin("stdlib-jdk8"))
 
@@ -111,7 +111,7 @@ val functionalTest: SourceSet by sourceSets.creating {
 
 // 2. Ajouter GradleTestKit à functionalTest (SANS hériter de testImplementation)
 dependencies {
-    add(functionalTest.implementationConfigurationName, platform("education.cccp:workspace-bom:0.1.0"))
+    add(functionalTest.implementationConfigurationName, platform("education.cccp:workspace-bom:0.0.18"))
 
     add(functionalTest.implementationConfigurationName, gradleTestKit())
     add(functionalTest.implementationConfigurationName, kotlin("stdlib-jdk8"))
@@ -174,7 +174,7 @@ val e2eTest: SourceSet by sourceSets.creating {
 
 // 2. Dépendances e2eTest : Playwright + JUnit5 + AssertJ + full test runtime
 dependencies {
-    add(e2eTest.implementationConfigurationName, platform("education.cccp:workspace-bom:0.1.0"))
+    add(e2eTest.implementationConfigurationName, platform("education.cccp:workspace-bom:0.0.18"))
 
     add(e2eTest.implementationConfigurationName, sourceSets.main.get().output)
     add(e2eTest.implementationConfigurationName, sourceSets.test.get().output)
