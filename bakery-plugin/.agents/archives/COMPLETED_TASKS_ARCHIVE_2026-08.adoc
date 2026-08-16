@@ -1,5 +1,27 @@
 = Archive des Taches Terminees — Aout 2026
 
+== Session 201 — 2026-08-16 — BKY-DNS-5 (Cucumber BDD dns_provision.feature)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| `dns_provision.feature` — 8 scénarios @dns : noop section absente (aucune réconciliation), create CNAME www manquant, create 4 A apex, update TTL drift (id préservé), replace valeur changée (1 create + 1 delete), delete orphelin (skipped dry-run → appliqué purge flag), idempotence (2nd run no-op), verify mapping (zone = desired)
+| ✅ TERMINÉ
+
+| `DnsCucumberTestRunner.kt` — runner dédié filtre `@dns and not @pipeline-contracts` (pattern TreeCucumberTestRunner)
+| ✅ TERMINÉ
+
+| `DnsProvisionSteps.kt` — 24 step defs + FakeDnsProvider in-memory (id auto, zone mutable), DnsProvisioner(provider, "talaria.school")
+| ✅ TERMINÉ
+
+| Gate cucumberTest @dns — 8/8 PASSED ×2 runners, 3 FAILED préexistants I18nDeltaWire (hors BKY-DNS)
+| ✅ VERT
+
+| Prochaine session (202) : BKY-DNS-6 — dogfooding réel talaria.school (reconcile = no-op/verify, idempotence prod, dry-run d'abord)
+| ⏳ PLANIFIÉ
+|===
+
 == Session 200 — 2026-08-16 — BKY-DNS-4 (ProvisionDnsTask + wiring)
 
 [cols="2,3"]

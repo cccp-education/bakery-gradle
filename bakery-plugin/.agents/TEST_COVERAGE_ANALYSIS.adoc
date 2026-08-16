@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-08-16 — Session 200 ✅ BKY-DNS-4 TERMINÉ (+3 functional `ProvisionDnsFunctionalTest` — TestKit, tâche `provisionDns` + wiring). Domaine `bakery.dns.*` revalidé `--rerun-tasks` BUILD SUCCESSFUL 0 FAIL (baseline S198 83 tests préservée). Coverage non revalidée Kover (règle fin de session — gate ciblé seul ; suite complète avec 3 échecs environnementaux préexistants). Baseline S169 : 93,09% (Kover, seuil 85% PASS)._
+_Dernière mise à jour : 2026-08-16 — Session 201 ✅ BKY-DNS-5 TERMINÉ (+8 scénarios Cucumber @dns `dns_provision.feature` — 16 exécutions vertes ×2 runners : CucumberTestRunner global + DnsCucumberTestRunner dédié). Domaine `bakery.dns.*` : 83 unit (S198) + 3 functional (S200) + 8 cucumber (S201) = 94 tests, 0 FAIL hors préexistants environnementaux. Gate cucumberTest : 1180 tests, 3 FAILED préexistants I18nDeltaWire (identiques S196/197/198). Coverage non revalidée Kover (règle fin de session — gate ciblé seul). Baseline S169 : 93,09% (Kover, seuil 85% PASS)._
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''

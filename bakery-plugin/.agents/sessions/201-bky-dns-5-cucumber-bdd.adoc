@@ -1,0 +1,55 @@
+= Session 201 — BKY-DNS-5 TERMINÉ (Cucumber BDD dns_provision.feature)
+:date: 2026-08-16
+:type: BDD (Cucumber)
+:epic: BKY-DNS
+:score: 9/10
+
+== Contexte
+
+Mission S201 (PROMPT_REPRISE) : Cucumber BDD `dns_provision.feature` —
+8 scénarios sur la réconciliation DNS (DnsProvisioner + DnsDiff + port
+DnsProvider, livrés S196-S200). Runner dédié pattern `CucumberTestRunner`.
+
+== Actions
+
+. Feature `src/test/features/dns_provision.feature` (8 scénarios @dns) :
+  noop section absente (aucune réconciliation — la tâche n'est pas enregistrée),
+  create CNAME www manquant, create 4 A apex manquants, update TTL drift (id
+  préservé), replace valeur changée (1 create + 1 delete, sémantique S198),
+  delete orphelin (skipped dry-run → appliqué avec purge flag), idempotence
+  (2nd run = no-op), verify mapping (zone = desired exactement).
+. Runner dédié `DnsCucumberTestRunner` (pattern TreeCucumberTestRunner,
+  filtre `@dns and not @pipeline-contracts`).
+. Steps `DnsProvisionSteps` (24 step defs, état par instance pattern
+  SiteTreeSteps) + `FakeDnsProvider` in-memory (id auto, zone mutable).
+  DnsProvisioner(provider, "talaria.school").
+
+== Commandes
+
+----
+./gradlew cucumberTest -Dcucumber.filter.tags="@dns"
+----
+
+== Résultats
+
+. RED : UndefinedStepException sur 8 scénarios (×2 runners).
+. GREEN : 8/8 PASSED ×2 runners (CucumberTestRunner global + DnsCucumberTestRunner
+  dédié) = 16 exécutions vertes, 3m37s.
+. 1180 tests : 3 FAILED = préexistants environnementaux I18nDeltaWire
+  (identiques S196/197/198, hors BKY-DNS).
+. Bug expression Cucumber : `{string} {string}` ne matche pas `CNAME "www"`
+  (CNAME sans guillemets) → corrigé en `{word} {string}`.
+
+== Leçons
+
+. Cucumber Expressions : `{string}` exige des guillemets — un token nu
+  (type de record) doit être `{word}`.
+. Le filtre `--tests` de Gradle ne s'applique pas aux runners cucumber →
+  gate via `-Dcucumber.filter.tags="@dns"` (pratique du borough).
+. Scénario « section absente » : en domaine pur, exprimer le contrat
+  « aucune réconciliation » (result null), pas un noop de réconciliation.
+
+== Fichiers
+
+- créés : `dns_provision.feature`, `DnsCucumberTestRunner.kt`, `DnsProvisionSteps.kt`
+- gouvernance : BACKLOG (BKY-DNS-5 ✅), PROMPT_REPRISE (S202), INDEX, SESSIONS_HISTORY, TEST_COVERAGE_ANALYSIS, archive

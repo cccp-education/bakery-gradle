@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-08-15 — Session 199 ✅ (Audit version : delta **0.0.5 déclaré vs 0.0.4 Central** → EPIC PUB ajouté, zéro code modifié). Session 198 ✅ (BKY-DNS-3 DnsProvisioner). **EPIC BKY-I18N-MASS (priorité 1)** : MASS-1→4 ✅, MASS-5→6 restants._
+_Dernière mise à jour : 2026-08-16 — Session 201 ✅ (BKY-DNS-5 Cucumber BDD). Session 199 ✅ (Audit version : delta **0.0.5 déclaré vs 0.0.4 Central** → EPIC PUB ajouté, zéro code modifié). Session 198 ✅ (BKY-DNS-3 DnsProvisioner). **EPIC BKY-I18N-MASS (priorité 1)** : MASS-1→4 ✅, MASS-5→6 restants._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -2155,7 +2155,7 @@ même pipeline que le contenu, déclaratif dans site.yml.
 | *Cucumber BDD `dns_provision.feature`.* Scénarios : noop si section absente,
   create CNAME www manquant, create 4 A apex manquants, update cible changée,
   delete record orphelin, idempotence (2nd run = no-op), verify mapping.
-  Runner dédié (pattern `CucumberTestRunner`). | cucumber | ~5 | BKY-DNS-4
+  Runner dédié (pattern `CucumberTestRunner`). | cucumber | ~5 ✅ S201 | BKY-DNS-4
 
 | *BKY-DNS-6*
 | *Dogfooding réel talaria.school.* `provisionDns` sur site.yml talaria →
