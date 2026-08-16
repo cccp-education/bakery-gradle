@@ -2149,7 +2149,7 @@ même pipeline que le contenu, déclaratif dans site.yml.
 | *`ProvisionDnsTask` + wiring.* Tâche `provisionDns` groupe deployment,
   chaînée `mustRunAfter`/`dependsOn` avant `deploySite` (si section dns
   présente). Enregistrée dans `BakeryPlugin`/registrar dédié. | functional (task)
- | ~4 | BKY-DNS-3
+ | ~4 ✅ S200 | BKY-DNS-3
 
 | *BKY-DNS-5*
 | *Cucumber BDD `dns_provision.feature`.* Scénarios : noop si section absente,
@@ -2263,5 +2263,5 @@ Zéro code modifié — gouvernance pure. Voir rapport
   | Version | 24.8 — Session 199 ✅ (Audit version : delta 0.0.5 vs Central 0.0.4, EPIC PUB ajouté, zéro code modifié)
   | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
   | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-199 + EPIC BKY-DNS + EPIC PUB
-  | Prochaine màj | Session 200 — BKY-DNS-4 (ProvisionDnsTask + wiring)
+  | Prochaine màj | Session 201 — BKY-DNS-5 (Cucumber BDD dns_provision.feature)
  |===

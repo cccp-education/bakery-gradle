@@ -1,0 +1,38 @@
+= Session 200 — BKY-DNS-4 ProvisionDnsTask + wiring
+:date: 2026-08-16
+:session: 200
+:borough: Bushwick — bakery-gradle (N2)
+:epic: BKY-DNS
+
+== Résumé
+
+BKY-DNS-4 TERMINÉ — tâche `provisionDns` (groupe deploy) + registrar dédié + wiring avant `deploySite`. 3 functional tests, domaine `bakery.dns.*` VERT, publishToMavenLocal VERT.
+
+== RED → GREEN → REFACTOR
+
+=== RED
+
+- `ProvisionDnsFunctionalTest.kt` créé (pattern `VerifyConfigurationMappingFunctionalTest`, TestKit) : 3 tests — `provisionDns` success + report dry-run avec section dns, tâche absente sans section dns, dépendance avant `deploySite`.
+- RED confirmé : 2 FAILED (`Task 'provisionDns' not found` + assertion), 1 PASSED (absence sans section).
+
+=== GREEN
+
+- `ProvisionDnsTask.kt` (domaine `bakery.dns`, `@DisableCachingByDefault`) : inputs non-secrets (`providerName`/`domain`/`records`/`dryRun`/`allowDelete` @Input), `credentials` @Internal (jamais hashées, jamais loggées). `@TaskAction` : skip si domain blank → `OvhDnsClient` seulement si credentials complètes (`isComplete` privé) → `DnsProviderFactory.resolve` (NoOp fallback CI) → `DnsProvisioner.reconcile(desired, dryRun, allowDelete)` → report console `[dns] provider/domain/dryRun/noop/plan/applied/skipped` + ligne par change (create/update/delete type name value ttl).
+- `DnsTaskRegistrar.kt` : `registerProvisionDnsTask(site)` — return si `site.dns == null` (backward compat), enregistre `provisionDns` groupe deploy, `tasks.named("deploySite") { dependsOn("provisionDns") }`.
+- `BakeryPlugin.kt` : import + appel `project.registerProvisionDnsTask(resolvedSite)` dans `registerFullPipelineTasks` après `registerDeploySiteTask` (resolvedSite préserve dns via `copy`).
+
+=== REFACTOR
+
+- Fix test 3 : `help --task deploySite` n'affiche pas les dépendances → remplacé par `deploySite --dry-run` (le graphe résolu liste `:provisionDns` uniquement si la dépendance est câblée, sans side-effect git push).
+- Gate : `functionalTest --tests ProvisionDnsFunctionalTest` 3/3 PASSED (20s) ; `test --tests "bakery.dns.*" --rerun-tasks` BUILD SUCCESSFUL 0 FAIL ; `publishToMavenLocal` VERT.
+
+== Décisions / Notes
+
+- Secrets policy : credentials OvhCredentials en `@Internal` — jamais dans le fingerprint Gradle (up-to-date/build cache), jamais dans les logs.
+- `allowDelete` forcé à `false` dans le registrar (dry-run + pas de purge sans flag explicite — backlog « delete must require a double flag »).
+- Working tree pré-session : bump `build.gradle.kts` 0.0.6→0.0.7 + BOM 0.0.18→0.0.19 (diff S199, hors scope mission, laissé intact — EPIC PUB 0.0.5 au backlog).
+- Fallback `~/workspace/configuration/scripts/ovh.py` conservé jusqu'au dogfooding DNS-6.
+
+== Commit
+
+- Commit + push après clôture gouvernance (permission utilisateur accordée).

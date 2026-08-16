@@ -1,5 +1,27 @@
 = Archive des Taches Terminees — Aout 2026
 
+== Session 200 — 2026-08-16 — BKY-DNS-4 (ProvisionDnsTask + wiring)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| `ProvisionDnsTask.kt` — tâche `provisionDns` groupe deploy, inputs non-secrets @Input, credentials @Internal, skip domain blank, OvhDnsClient si creds complètes, DnsProviderFactory resolve (NoOp CI), DnsProvisioner.reconcile, report console [dns]
+| ✅ TERMINÉ
+
+| `DnsTaskRegistrar.kt` — enregistre provisionDns si `site.dns != null`, chaîne `deploySite dependsOn provisionDns` (lazy)
+| ✅ TERMINÉ
+
+| `BakeryPlugin.kt` — wiring `registerProvisionDnsTask(resolvedSite)` dans registerFullPipelineTasks
+| ✅ TERMINÉ
+
+| `ProvisionDnsFunctionalTest.kt` — 3 functional TestKit : report dry-run avec section dns, tâche absente sans section, dépendance deploySite (via --dry-run)
+| ✅ TERMINÉ
+
+| Gate `test --tests "bakery.dns.*" --rerun-tasks` BUILD SUCCESSFUL 0 FAIL + `publishToMavenLocal` VERT
+| ✅ TERMINÉ
+|===
+
 == Session 199 — 2026-08-15 — Audit version + EPIC PUB (bump 0.0.5, gouvernance pure)
 
 **Contexte** : Audit des deltas versions Maven Central vs code local sur les

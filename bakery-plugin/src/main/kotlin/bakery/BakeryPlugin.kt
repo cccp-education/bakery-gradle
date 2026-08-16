@@ -14,6 +14,7 @@ import bakery.DeployTaskRegistrar.registerDeployMaquetteTask
 import bakery.DeployTaskRegistrar.registerDeployProfileTask
 import bakery.DeployTaskRegistrar.registerDeploySiteTask
 import bakery.DeployTaskRegistrar.registerPublishSiteTask
+import bakery.DnsTaskRegistrar.registerProvisionDnsTask
 import bakery.FileSystemManager.yamlMapper
 import bakery.LensTaskRegistrar.registerCollectAugmentedContextTask
 import bakery.LensTaskRegistrar.registerCollectSiteContextTask
@@ -195,6 +196,9 @@ class BakeryPlugin : Plugin<Project> {
         project.registerDeploySiteTask(resolvedSite)
         project.registerPublishSiteTask()
         project.registerDeployMaquetteTask(resolvedSite)
+        // BKY-DNS-4 — provisionDns seulement si section dns présente, chaînée
+        // avant deploySite (registrar enregistre la dépendance lazy).
+        project.registerProvisionDnsTask(resolvedSite)
         project.registerPagefindTask(resolvedSite)
         // BKY-FIX-1 : deployProfile est enregistrée sans condition ; la tâche
         // valide elle-même la présence de pushProfile au runtime.

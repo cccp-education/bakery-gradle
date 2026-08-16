@@ -1,51 +1,46 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 200
-:date: 2026-08-15
-:etat: Session 199 ✅ — Audit version + EPIC PUB (gouvernance pure, zéro code) : delta 0.0.5 déclaré vs 0.0.4 Central, EPIC PUB ajouté au BACKLOG (3 US PUB-0.0.5-1/2/3) + TODO, INDEX/SESSIONS_HISTORY/BACKLOG/TODO synchronisés.
-:epic_actif: BKY-DNS — BKY-DNS-0 ✅, BKY-DNS-1 ✅ S196, BKY-DNS-2 ✅ S197, BKY-DNS-3 ✅ S198. BKY-DNS-4 next (ProvisionDnsTask + wiring). BKY-I18N-MASS en pause (MASS-5→6 restants). EPIC PUB (bump 0.0.5) au backlog — à exécuter avant publication Central.
+:session: 201
+:date: 2026-08-16
+:etat: Session 200 ✅ — BKY-DNS-4 TERMINÉ (ProvisionDnsTask + wiring) : tâche `provisionDns` groupe deploy + DnsTaskRegistrar (registrée si section dns présente, chaînée `deploySite dependsOn provisionDns`) + BakeryPlugin wiring + 3 functional TestKit PASSED + gate `bakery.dns.*` 0 FAIL + publishToMavenLocal VERT.
+:epic_actif: BKY-DNS — BKY-DNS-0 ✅, BKY-DNS-1 ✅ S196, BKY-DNS-2 ✅ S197, BKY-DNS-3 ✅ S198, BKY-DNS-4 ✅ S200. BKY-DNS-5 next (Cucumber BDD dns_provision.feature). BKY-I18N-MASS en pause (MASS-5→6 restants). EPIC PUB (bump 0.0.5) au backlog — à exécuter avant publication Central.
 
 == Contexte de fin
 
-Session 199 — Audit version + EPIC PUB (gouvernance pure) :
-- Audit deltas versions Maven Central vs code local (15 boroughs publics audités)
-- bakery : code 0.0.5 (bakery-plugin build.gradle.kts) vs Central 0.0.4 → delta
-- EPIC PUB « Publication Maven Central bakery-plugin 0.0.5 » ajouté au BACKLOG
-  (version 24.8) + TODO.adoc (3 US : PUB-0.0.5-1 POM/signing vérifiés,
-  PUB-0.0.5-2 `publishAggregationToCentralPortal`, PUB-0.0.5-3 tags cleanup)
-- Zéro code modifié — gouvernance pure
-- `git status` propre
+Session 200 — BKY-DNS-4 TERMINÉ :
+- `ProvisionDnsTask.kt` : inputs non-secrets @Input (`providerName`/`domain`/`records`/`dryRun`/`allowDelete`), `credentials` @Internal (jamais hashées, jamais loggées), skip si domain blank, `OvhDnsClient` seulement si credentials complètes, `DnsProviderFactory.resolve` (NoOp fallback CI), `DnsProvisioner.reconcile(desired, dryRun, allowDelete)`, report console `[dns]` + ligne par change
+- `DnsTaskRegistrar.kt` : `registerProvisionDnsTask(site)` — return si `site.dns == null`, enregistre `provisionDns` groupe deploy, `tasks.named("deploySite") { dependsOn("provisionDns") }`
+- `BakeryPlugin.kt` : `project.registerProvisionDnsTask(resolvedSite)` dans `registerFullPipelineTasks` après `registerDeploySiteTask`
+- 3 functional `ProvisionDnsFunctionalTest` PASSED (report dry-run, absence sans section, dépendance via `deploySite --dry-run`)
+- `allowDelete` forcé `false` (pas de purge sans double flag)
 
-== Mission Session 200
+## Mission Session 201
 
-1. **BKY-DNS-4** — `ProvisionDnsTask` + wiring :
-   - Tâche `provisionDns` groupe deployment, chaînée `mustRunAfter`/`dependsOn`
-     avant `deploySite` (si section dns présente)
-   - Enregistrée dans `BakeryPlugin`/registrar dédié
-   - Lit DnsConfig (site.yml) → DnsProvisioner.reconcile → report console
-   - functional (task), ~4 pts
+1. **BKY-DNS-5** — Cucumber BDD `dns_provision.feature` :
+   - Scénarios : noop si section absente, create CNAME www manquant, create 4 A apex manquants, update cible changée, delete record orphelin, idempotence (2nd run = no-op), verify mapping
+   - Runner dédié (pattern `CucumberTestRunner`)
+   - ~5 pts
 
-== Reprendre à
+## Reprendre à
 
 . `git status` dans bakery-gradle
-. Lire `BACKLOG.adoc` section EPIC BKY-DNS (US BKY-DNS-4)
+. Lire `BACKLOG.adoc` section EPIC BKY-DNS (US BKY-DNS-5)
 . `publishToMavenLocal` après chaque modification code source
 . Fallback opérationnel : `~/workspace/configuration/scripts/ovh.py` (jusqu'au dogfooding DNS-6)
 
-== Ordre des EPICs (priorité)
+## Ordre des EPICs (priorité)
 
-. **BKY-DNS** (priorité 2, ~33 pts) — BKY-DNS-0 ✅, BKY-DNS-1 ✅ S196, BKY-DNS-2 ✅ S197, BKY-DNS-3 ✅ S198, BKY-DNS-4→6 restants
+. **BKY-DNS** (priorité 2, ~33 pts) — BKY-DNS-0 ✅, BKY-DNS-1 ✅ S196, BKY-DNS-2 ✅ S197, BKY-DNS-3 ✅ S198, BKY-DNS-4 ✅ S200, BKY-DNS-5→6 restants
 . BKY-I18N-MASS (priorité 1, ~32 pts) — MASS-1→4 ✅, MASS-5→6 restants (en pause)
 . BKY-SEO (priorité 2, 27 pts) — généralisation features SEO
 . BKY-CONTACT-SEC (priorité 3, 26 pts) — durcissement formulaire contact
 . EPIC PUB (bump 0.0.5) — 3 US, à exécuter avant publication Maven Central
 
-== Fichiers touchés S199
+## Fichiers touchés S200
 
 *bakery-gradle/bakery-plugin* :
-- `BACKLOG.adoc` — section « == EPIC PUB — Publication Maven Central bakery-plugin 0.0.5 » (3 US) + version 24.8 Session 199
-- `TODO.adoc` — section NOUVEAU EPIC PUB (3 items)
-- `.agents/INDEX.adoc` — entrée session 199 (prochaine 200)
-- `.agents/SESSIONS_HISTORY.adoc` — entrée session 199
-- `.agents/TEST_COVERAGE_ANALYSIS.adoc` — mention session 199 (gouvernance pure, aucun test modifié)
-- `.agents/archives/COMPLETED_TASKS_ARCHIVE_2026-08.adoc` — entrée session 199
-- `.agents/sessions/199-version-bump-0.0.5.adoc` — rapport de session
+- `src/main/kotlin/bakery/dns/ProvisionDnsTask.kt` — créé (BKY-DNS-4)
+- `src/main/kotlin/bakery/DnsTaskRegistrar.kt` — créé (BKY-DNS-4)
+- `src/main/kotlin/bakery/BakeryPlugin.kt` — wiring registerProvisionDnsTask
+- `src/functionalTest/kotlin/bakery/ProvisionDnsFunctionalTest.kt` — créé (3 tests)
+- `BACKLOG.adoc` — BKY-DNS-4 ✅ S200 + Prochaine màj S201
+- `.agents/INDEX.adoc`, `.agents/SESSIONS_HISTORY.adoc`, `.agents/TEST_COVERAGE_ANALYSIS.adoc`, `.agents/archives/COMPLETED_TASKS_ARCHIVE_2026-08.adoc`, `.agents/sessions/200-bky-dns-4-provision-dns-task.adoc` — clôture session
