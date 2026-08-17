@@ -1,0 +1,156 @@
+= Session 202 — BKY-DNS-6 Dogfooding réel talaria.school
+
+:session: 202
+:date: 2026-08-17
+:epic: BKY-DNS
+:statut: ✅ BKY-DNS-6 TERMINÉ — dogfooding réel talaria.school + 2 bugs de conception DnsDiff corrigés
+:gate: bakery.dns.* VERT, publishToMavenLocal VERT
+
+== Mission
+
+BKY-DNS-6 — Dogfooding réel talaria.school : prouver que `provisionDns` en
+dry-run sur la zone live talaria.school est un no-op (zone déjà correcte :
+4 A GitHub Pages + 1 CNAME www → pages-content.github.io.).
+
+== Approche
+
+Baby-step TDD strict — un test d'intégration dogfood contre la vraie API
+OVH, qui skip proprement (assumeTrue) quand le site.yml réel ou les
+credentials sont absents (CI/fresh checkout).
+
+1. **RED** — `DnsDogfoodTalariaIntegrationTest` écrit : lit `site.yml`
+   réel talaria, parse en `SiteConfiguration`, construit un vrai
+   `OvhDnsClient` + `OvhDnsProvider`, exécute `DnsProvisioner.reconcile`
+   dry-run, assert `noop=true`.
+2. **GREEN (drift découvert)** — le test a échoué en révélant **2 bugs de
+   conception** dans `DnsDiff` :
+   - **Scoped orphan cleanup** : le diff marquait `Delete` pour tous les
+     records de la zone non présents dans le desired — y compris NS, MX,
+     SPF, CNAME ftp. Un provisioner scoped GitHub Pages ne doit pas purger
+     les records mail/nameserver.
+   - **TTL drift false positive** : les 4 records A live avaient `ttl=0`
+     (convention OVH = "zone default"), traités à tort comme un drift vs
+     `desired.ttl=3600`.
+3. **FIX DnsDiff** — 2 correctifs + tests unitaires :
+   - `DnsDiff.compute` : le delete ne concerne que les slots `(type, name)`
+     présents dans le desired. Les records hors-scope sont laissés intacts.
+   - `DnsDiff.compute` : `actual.ttl == 0` n'est pas un drift (zone default
+     OVH). Update seulement si `actual.ttl != desired.ttl && actual.ttl != 0`.
+4. **Re-run dogfood** — `noop=true`, `plan=0`, `applied=0`, `skipped=0`.
+   Idempotence prouvée (2nd run = même résultat). BUILD SUCCESSFUL.
+
+== Bugs corrigés (découverts par le dogfooding)
+
+=== Bug 1 — Scoped orphan cleanup
+
+*Avant* : `DnsDiff` parcourait tous les slots de `actualBySlot` et marquait
+`Delete` pour tout record dont la valeur n'était pas dans le desired — y
+compris les slots jamais déclarés dans le desired (NS, MX, SPF, CNAME ftp).
+
+*Après* : `DnsDiff` ne marque `Delete` que pour les slots présents dans
+`desiredBySlot` (`if (slot !in desiredBySlot) continue`). Les records
+hors-scope sont laissés intacts — le provisioner ne gère que les slots
+qu'il déclare.
+
+*Test* : `out-of-scope records (NS, MX, SPF, ftp CNAME) are never deleted`.
+
+=== Bug 2 — TTL=0 zone default
+
+*Avant* : `actual.ttl != d.ttl` marquait un `Update` dès que les TTL
+différaient, y compris quand `actual.ttl == 0` (convention OVH "zone
+default").
+
+*Après* : `actual.ttl != d.ttl && actual.ttl != 0` — le TTL `0` est
+considéré comme "hérite de la zone" et n'est pas un drift.
+
+*Test* : `a live ttl of 0 (zone default) is not a drift`.
+
+== Dogfood report (zone live talaria.school)
+
+----
+[dogfood] live zone records (12):
+  NS @ -> dns109.ovh.net. (ttl 0)
+  NS @ -> ns109.ovh.net. (ttl 0)
+  CNAME ftp -> talaria.school. (ttl 0)
+  SPF @ -> v=spf1 include:mx.ovh.com -all (ttl 0)
+  MX @ -> 1 mx1.mail.ovh.net. (ttl 0)
+  MX @ -> 5 mx2.mail.ovh.net. (ttl 0)
+  MX @ -> 100 mx3.mail.ovh.net. (ttl 0)
+  A @ -> 185.199.108.153 (ttl 0)
+  A @ -> 185.199.109.153 (ttl 0)
+  A @ -> 185.199.110.153 (ttl 0)
+  A @ -> 185.199.111.153 (ttl 0)
+  CNAME www -> pages-content.github.io. (ttl 60)
+[dogfood] desired records (5):
+  A @ -> 185.199.108.153 (ttl 3600)
+  A @ -> 185.199.109.153 (ttl 3600)
+  A @ -> 185.199.110.153 (ttl 3600)
+  A @ -> 185.199.111.153 (ttl 3600)
+  CNAME www -> pages-content.github.io. (ttl 60)
+[dogfood] reconcile plan (0):
+[dogfood] noop=true applied=0 skipped=0
+----
+
+La zone talaria.school **correspond déjà** au desired state. Le
+provisioner est idempotent sur la production réelle.
+
+== Fichiers modifiés
+
+*bakery-plugin* :
+- `src/main/kotlin/bakery/dns/DnsDiff.kt` — scoped orphan cleanup + TTL=0
+  zone default (2 correctifs + doc KDoc)
+- `src/test/kotlin/bakery/dns/DnsDiffTest.kt` — 2 nouveaux tests unitaires
+  (out-of-scope ignored, ttl=0 not a drift) + test `orphan yields delete`
+  supprimé (sémantique changée) + test `combined` ajusté (orphan dans slot
+  desired)
+- `src/test/kotlin/bakery/dns/DnsProvisionerTest.kt` — 4 tests ajustés
+  (orphans maintenant dans des slots desired, pas hors-scope)
+- `src/test/kotlin/bakery/dns/DnsDogfoodTalariaIntegrationTest.kt` — créé
+  (test d'intégration dogfood contre vraie API OVH, skip si
+  site.yml/creds absents)
+
+*office/sites/talaria* (hors git, gitignoré) :
+- `site.yml` — section `dns:` ajoutée (provider ovh, domain
+  talaria.school, dryRun true, 4 A + 1 CNAME www, credentials OVH depuis
+  e3p0.yaml). Sauvegarde `site.yml.bak.bky-dns-6` créée avant modification.
+- `site.yml.bak.bky-dns-6` — sauvegarde pré-modification
+
+== Sécurité
+
+- Dry-run uniquement (jamais `dryRun=false` sans double flag)
+- Credentials via `site.yml` (gitignoré), jamais loggées
+  (`OvhCredentials.toString()` masque tout)
+- `JavaOvhHttp` signe chaque requête mais n'affiche jamais les secrets
+- `e3p0.yaml` jamais lu directement par l'agent (script Python inject,
+  credentials non affichés)
+- Aucune purge (`allowDelete=false` par défaut)
+- `assumeTrue` skip propre en CI (site.yml/creds absents)
+
+== Gate
+
+- `test --tests "bakery.dns.*"` BUILD SUCCESSFUL (85 tests, 0 FAIL)
+- `publishToMavenLocal` BUILD SUCCESSFUL
+- Zéro régression (tests DnsProvisioner/DnsConfig/OvhDnsClient/OvhDnsProvider
+  adaptés à la nouvelle sémantique, tous VERTS)
+
+== EPIC BKY-DNS — TERMINÉ 7/7 US
+
+- BKY-DNS-0 ✅ cadrage S195
+- BKY-DNS-1 ✅ S196 (DnsConfig + mapping Jackson)
+- BKY-DNS-2 ✅ S197 (OvhDnsClient + signature HMAC)
+- BKY-DNS-3 ✅ S198 (DnsProvisioner réconciliation idempotente)
+- BKY-DNS-4 ✅ S200 (ProvisionDnsTask + wiring)
+- BKY-DNS-5 ✅ S201 (Cucumber BDD 8 scénarios @dns)
+- BKY-DNS-6 ✅ S202 (dogfooding réel talaria.school + 2 bugs DnsDiff corrigés)
+
+Le borough Bushwick (bakery) provisionne désormais le DNS de
+talaria.school depuis `site.yml` — testable, idempotent, versionné, et
+prouvé sur la production réelle.
+
+== Prochaine session (203)
+
+Backlog bakery :
+- BKY-I18N-MASS (priorité 1) — MASS-5→6 restants (en pause)
+- BKY-SEO (priorité 2, 27 pts)
+- BKY-CONTACT-SEC (priorité 3, 26 pts)
+- EPIC PUB (bump 0.0.5→0.0.7, 3 US) — à exécuter avant publication Central

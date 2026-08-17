@@ -1,44 +1,47 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 202
-:date: 2026-08-16
-:etat: Session 201 ✅ — BKY-DNS-5 TERMINÉ (Cucumber BDD dns_provision.feature) : feature 8 scénarios @dns (noop section absente, create CNAME www, create 4 A apex, update TTL drift, replace valeur changée, delete orphelin + purge, idempotence 2nd run no-op, verify mapping zone=desired) + DnsCucumberTestRunner dédié (pattern TreeCucumberTestRunner) + DnsProvisionSteps + FakeDnsProvider in-memory. 8/8 PASSED ×2 runners (16 exécutions), 3 FAILED préexistants I18nDeltaWire (environnementaux connus S196/197/198). Gate cucumberTest BUILD FAILED 3m37s (seuls préexistants).
-:epic_actif: BKY-DNS — BKY-DNS-0 ✅, BKY-DNS-1 ✅ S196, BKY-DNS-2 ✅ S197, BKY-DNS-3 ✅ S198, BKY-DNS-4 ✅ S200, BKY-DNS-5 ✅ S201. BKY-DNS-6 next (dogfooding réel talaria.school). BKY-I18N-MASS en pause (MASS-5→6 restants). EPIC PUB (bump 0.0.5) au backlog — à exécuter avant publication Central.
+:session: 203
+:date: 2026-08-17
+:etat: Session 202 ✅ — BKY-DNS-6 TERMINÉ (dogfooding réel talaria.school + 2 bugs DnsDiff corrigés) : `DnsDogfoodTalariaIntegrationTest` contre vraie API OVH `eu.api.ovh.com/1.0` (credentials depuis `e3p0.yaml`, jamais affichées). Dogfood a révélé 2 bugs : (1) scoped orphan cleanup — DnsDiff marquait Delete pour NS/MX/SPF/CNAME ftp hors-scope → fix delete seulement si slot ∈ desired ; (2) TTL=0 zone default OVH traité à tort comme drift → fix `actual.ttl != d.ttl && actual.ttl != 0`. Report : `noop=true, plan=0, applied=0, skipped=0` (zone 12 records live correspond desired 4 A + 1 CNAME www). Gate `bakery.dns.*` 85 tests 0 FAIL, publishToMavenLocal VERT. EPIC BKY-DNS TERMINÉ 7/7 US.
+:epic_actif: BKY-DNS ✅ TERMINÉ 7/7 US (S195-S202). BKY-I18N-MASS en pause (MASS-5→6 restants). EPIC PUB (bump 0.0.5→0.0.7) au backlog — à exécuter avant publication Central. BKY-SEO/BKY-CONTACT-SEC cadrés S190.
 
 == Contexte de fin
 
-Session 201 — BKY-DNS-5 TERMINÉ :
-- `src/test/features/dns_provision.feature` — 8 scénarios @dns (7 du backlog + drift de valeur Create+Delete sémantique S198)
-- `DnsCucumberTestRunner.kt` — runner dédié filtre `@dns and not @pipeline-contracts` (pattern TreeCucumberTestRunner)
-- `DnsProvisionSteps.kt` — 24 step defs + FakeDnsProvider in-memory (id auto), état par instance (pattern SiteTreeSteps), DnsProvisioner(provider, "talaria.school")
-- Bug expression Cucumber : `{string} {string}` ne matche pas `CNAME "www"` (CNAME sans guillemets) → `{word} {string}`
-- Gate : cucumberTest @dns 8/8 PASSED ×2 runners, 3 FAILED préexistants I18nDeltaWire (hors BKY-DNS)
+Session 202 — BKY-DNS-6 TERMINÉ :
+- `src/test/kotlin/bakery/dns/DnsDogfoodTalariaIntegrationTest.kt` — créé (test intégration dogfood, assumeTrue skip CI)
+- `src/main/kotlin/bakery/dns/DnsDiff.kt` — 2 fixes (scoped orphan cleanup + TTL=0 zone default)
+- `src/test/kotlin/bakery/dns/DnsDiffTest.kt` — +2 tests unitaires, test orphan supprimé, test combined ajusté
+- `src/test/kotlin/bakery/dns/DnsProvisionerTest.kt` — 4 tests ajustés (orphans dans slots desired)
+- `office/sites/talaria/site.yml` (gitignoré) — section `dns:` ajoutée + sauvegarde `.bak.bky-dns-6`
 
-## Mission Session 202
+## Mission Session 203
 
-1. **BKY-DNS-6** — Dogfooding réel talaria.school : `provisionDns` sur site.yml talaria → réconciliation = no-op/verify (zone déjà correcte : 4 A + 1 CNAME www). Preuve idempotence sur prod réelle. ~2 pts
-   - Fallback opérationnel : `~/workspace/configuration/scripts/ovh.py`
-   - ATTENTION : credentials réelles OVH — dry-run d'abord, jamais de purge sans double flag
+1. **EPIC PUB** (bump 0.0.5→0.0.7) — 3 US au BACKLOG : POM + signing + `publishAggregationToCentralPortal`. Version code déjà 0.0.7 (pre-session diff S199). À exécuter avant publication Maven Central. ~3 pts
+2. **OU BKY-I18N-MASS** (priorité 1) — MASS-5→6 restants (en pause)
+3. **OU BKY-SEO** (priorité 2, 27 pts) / **BKY-CONTACT-SEC** (priorité 3, 26 pts)
 
 ## Reprendre à
 
 . `git status` dans bakery-gradle
-. Lire `BACKLOG.adoc` section EPIC BKY-DNS (US BKY-DNS-6)
+. Lire `BACKLOG.adoc` section EPIC PUB / BKY-I18N-MASS
 . `publishToMavenLocal` après chaque modification code source
-. Fallback opérationnel : `~/workspace/configuration/scripts/ovh.py` (jusqu'au dogfooding DNS-6)
 
 ## Ordre des EPICs (priorité)
 
-. **BKY-DNS** (priorité 2, ~33 pts) — BKY-DNS-0→5 ✅, BKY-DNS-6 restant
+. EPIC PUB (bump 0.0.7) — 3 US, priorité pré-publication Central
 . BKY-I18N-MASS (priorité 1, ~32 pts) — MASS-1→4 ✅, MASS-5→6 restants (en pause)
 . BKY-SEO (priorité 2, 27 pts) — généralisation features SEO
 . BKY-CONTACT-SEC (priorité 3, 26 pts) — durcissement formulaire contact
-. EPIC PUB (bump 0.0.5) — 3 US, à exécuter avant publication Maven Central
 
-## Fichiers touchés S201
+## Fichiers touchés S202
 
 *bakery-gradle/bakery-plugin* :
-- `src/test/features/dns_provision.feature` — créé (BKY-DNS-5, 8 scénarios @dns)
-- `src/test/scenarios/bakery/scenarios/DnsCucumberTestRunner.kt` — créé (BKY-DNS-5)
-- `src/test/scenarios/bakery/scenarios/DnsProvisionSteps.kt` — créé (BKY-DNS-5, 24 step defs + FakeDnsProvider)
-- `BACKLOG.adoc` — BKY-DNS-5 ✅ S201 + Prochaine màj S202
-- `.agents/INDEX.adoc`, `.agents/SESSIONS_HISTORY.adoc`, `.agents/TEST_COVERAGE_ANALYSIS.adoc`, `.agents/archives/COMPLETED_TASKS_ARCHIVE_2026-08.adoc`, `.agents/sessions/201-bky-dns-5-cucumber-bdd.adoc` — clôture session
+- `src/test/kotlin/bakery/dns/DnsDogfoodTalariaIntegrationTest.kt` — créé (BKY-DNS-6)
+- `src/main/kotlin/bakery/dns/DnsDiff.kt` — 2 fixes (scoped orphan cleanup + TTL=0 zone default)
+- `src/test/kotlin/bakery/dns/DnsDiffTest.kt` — +2 tests, 1 supprimé, 1 ajusté
+- `src/test/kotlin/bakery/dns/DnsProvisionerTest.kt` — 4 tests ajustés
+- `BACKLOG.adoc` — BKY-DNS-6 ✅ S202 + EPIC BKY-DNS TERMINÉ
+- `.agents/INDEX.adoc`, `.agents/SESSIONS_HISTORY.adoc`, `.agents/TEST_COVERAGE_ANALYSIS.adoc`, `.agents/archives/COMPLETED_TASKS_ARCHIVE_2026-08.adoc`, `.agents/sessions/202-bky-dns-6-dogfood-talaria.adoc` — clôture session
+
+*office/sites/talaria* (hors git, gitignoré) :
+- `site.yml` — section `dns:` ajoutée (credentials OVH, jamais commités)
+- `site.yml.bak.bky-dns-6` — sauvegarde pré-modification

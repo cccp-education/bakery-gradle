@@ -70,7 +70,13 @@ class DnsProvisionerTest {
         @Test
         @DisplayName("dry run reports would-be deletes as skipped even with the purge flag")
         fun `dry run blocks deletes even with purge`() {
-            val provider = RecordingProvider(listOf(ExistingDnsRecord(2L, DnsRecord("TXT", "www", "v=spf1 -all", 3600))))
+            val provider =
+                RecordingProvider(
+                    listOf(
+                        ExistingDnsRecord(1L, a1),
+                        ExistingDnsRecord(2L, DnsRecord("A", "@", "203.0.113.9", 3600)),
+                    ),
+                )
             val result = provisioner(provider).reconcile(listOf(a1), dryRun = true, allowDelete = true)
             assertThat(result.applied).isEmpty()
             assertThat(result.skipped.filterIsInstance<DnsChange.Delete>()).hasSize(1)
@@ -107,7 +113,10 @@ class DnsProvisionerTest {
         @DisplayName("apply never refreshes when nothing was applied")
         fun `no refresh when nothing applied`() {
             val provider = RecordingProvider(
-                listOf(ExistingDnsRecord(1L, a1), ExistingDnsRecord(2L, DnsRecord("TXT", "www", "v=spf1 -all", 3600))),
+                listOf(
+                    ExistingDnsRecord(1L, a1),
+                    ExistingDnsRecord(2L, DnsRecord("A", "@", "203.0.113.9", 3600)),
+                ),
             )
             val result = provisioner(provider).reconcile(listOf(a1), dryRun = false, allowDelete = false)
             assertThat(result.applied).isEmpty()
@@ -120,10 +129,13 @@ class DnsProvisionerTest {
     @DisplayName("purge")
     inner class Purge {
         @Test
-        @DisplayName("an orphan is skipped without the purge flag")
+        @DisplayName("an orphan in a desired slot is skipped without the purge flag")
         fun `orphan skipped without purge`() {
             val provider = RecordingProvider(
-                listOf(ExistingDnsRecord(1L, a1), ExistingDnsRecord(2L, DnsRecord("TXT", "www", "v=spf1 -all", 3600))),
+                listOf(
+                    ExistingDnsRecord(1L, a1),
+                    ExistingDnsRecord(2L, DnsRecord("A", "@", "203.0.113.9", 3600)),
+                ),
             )
             val result = provisioner(provider).reconcile(listOf(a1), dryRun = false, allowDelete = false)
             assertThat(result.applied).isEmpty()
@@ -132,10 +144,13 @@ class DnsProvisionerTest {
         }
 
         @Test
-        @DisplayName("an orphan is deleted and the zone refreshed with the purge flag")
+        @DisplayName("an orphan in a desired slot is deleted and the zone refreshed with the purge flag")
         fun `orphan deleted with purge`() {
             val provider = RecordingProvider(
-                listOf(ExistingDnsRecord(1L, a1), ExistingDnsRecord(2L, DnsRecord("TXT", "www", "v=spf1 -all", 3600))),
+                listOf(
+                    ExistingDnsRecord(1L, a1),
+                    ExistingDnsRecord(2L, DnsRecord("A", "@", "203.0.113.9", 3600)),
+                ),
             )
             val result = provisioner(provider).reconcile(listOf(a1), dryRun = false, allowDelete = true)
             assertThat(result.applied.filterIsInstance<DnsChange.Delete>()).hasSize(1)

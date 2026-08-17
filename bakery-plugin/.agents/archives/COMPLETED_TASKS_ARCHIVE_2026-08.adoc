@@ -1,5 +1,45 @@
 = Archive des Taches Terminees — Aout 2026
 
+== Session 202 — 2026-08-17 — BKY-DNS-6 (dogfooding réel talaria.school + 2 bugs DnsDiff corrigés)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| `DnsDogfoodTalariaIntegrationTest.kt` — test intégration dogfood contre vraie API OVH talaria.school, assumeTrue skip si site.yml/creds absents (CI/fresh checkout)
+| ✅ TERMINÉ
+
+| Bug 1 — scoped orphan cleanup : DnsDiff marquait Delete pour NS/MX/SPF/CNAME ftp hors-scope → fix delete seulement si slot `(type,name)` ∈ desired
+| ✅ CORRIGÉ
+
+| Bug 2 — TTL=0 zone default OVH traité à tort comme drift → fix `actual.ttl != d.ttl && actual.ttl != 0`
+| ✅ CORRIGÉ
+
+| `DnsDiffTest.kt` — +2 tests unitaires (out-of-scope ignored, ttl=0 not a drift), test orphan supprimé (sémantique changée), test combined ajusté
+| ✅ TERMINÉ
+
+| `DnsProvisionerTest.kt` — 4 tests ajustés (orphans dans slots desired, pas hors-scope)
+| ✅ TERMINÉ
+
+| Dogfood report — `noop=true, plan=0, applied=0, skipped=0` (zone 12 records live : 2 NS + 1 CNAME ftp + 1 SPF + 3 MX + 4 A + 1 CNAME www correspond desired 4 A + 1 CNAME www), idempotence prouvée (2nd run = même résultat)
+| ✅ PREUVE PROD
+
+| Gate `test --tests "bakery.dns.*"` — 85 tests, 0 FAIL
+| ✅ VERT
+
+| publishToMavenLocal — BUILD SUCCESSFUL
+| ✅ VERT
+
+| `office/sites/talaria/site.yml` (gitignoré) — section `dns:` ajoutée (4 A + 1 CNAME www, credentials OVH depuis e3p0.yaml), sauvegarde `.bak.bky-dns-6`
+| ✅ TERMINÉ
+
+| EPIC BKY-DNS — TERMINÉ 7/7 US (S195-S202)
+| ✅ TERMINÉ
+
+| Prochaine session (203) : EPIC PUB (bump 0.0.5→0.0.7) ou BKY-I18N-MASS (MASS-5→6) ou BKY-SEO/BKY-CONTACT-SEC
+| ⏳ PLANIFIÉ
+|===
+
 == Session 201 — 2026-08-16 — BKY-DNS-5 (Cucumber BDD dns_provision.feature)
 
 [cols="2,3"]

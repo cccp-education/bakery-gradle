@@ -93,29 +93,63 @@ class DnsDiffTest {
             assertThat(change.record).isEqualTo(cname)
             assertThat(change.previous.ttl).isEqualTo(7200)
         }
+
+        @Test
+        @DisplayName("a live ttl of 0 (zone default) is not a drift — BKY-DNS-6 dogfooding")
+        fun `live ttl zero is zone default not a drift`() {
+            val actual =
+                listOf(
+                    ExistingDnsRecord(1L, DnsRecord("A", "@", "185.199.108.153", 0)),
+                    ExistingDnsRecord(2L, DnsRecord("A", "@", "185.199.109.153", 0)),
+                    ExistingDnsRecord(3L, DnsRecord("A", "@", "185.199.110.153", 0)),
+                    ExistingDnsRecord(4L, DnsRecord("A", "@", "185.199.111.153", 0)),
+                    ExistingDnsRecord(5L, DnsRecord("CNAME", "www", "pages-content.github.io.", 60)),
+                )
+            val desired =
+                listOf(
+                    DnsRecord("A", "@", "185.199.108.153", 3600),
+                    DnsRecord("A", "@", "185.199.109.153", 3600),
+                    DnsRecord("A", "@", "185.199.110.153", 3600),
+                    DnsRecord("A", "@", "185.199.111.153", 3600),
+                    DnsRecord("CNAME", "www", "pages-content.github.io.", 60),
+                )
+            val changes = DnsDiff.compute(desired, actual)
+            assertThat(changes).isEmpty()
+        }
     }
 
     @Nested
     @DisplayName("delete")
     inner class Delete {
         @Test
-        @DisplayName("an orphan actual record yields a delete")
-        fun `orphan yields delete`() {
-            val orphan = DnsRecord("TXT", "www", "v=spf1 -all", 3600)
-            val changes = DnsDiff.compute(listOf(a1), listOf(ExistingDnsRecord(1L, a1), ExistingDnsRecord(2L, orphan)))
-            assertThat(changes).hasSize(1)
-            val change = changes[0] as DnsChange.Delete
-            assertThat(change.id).isEqualTo(2L)
-            assertThat(change.record).isEqualTo(orphan)
-        }
-
-        @Test
-        @DisplayName("a value drift yields a create for the new value and a delete for the old")
+        @DisplayName("a value drift in a desired slot yields a create for the new value and a delete for the old")
         fun `value drift yields create and delete`() {
             val actual = listOf(ExistingDnsRecord(1L, DnsRecord("A", "@", "203.0.113.1", 3600)))
             val changes = DnsDiff.compute(listOf(a1), actual)
             assertThat(changes.filterIsInstance<DnsChange.Create>()).hasSize(1)
             assertThat(changes.filterIsInstance<DnsChange.Delete>()).hasSize(1)
+        }
+
+        @Test
+        @DisplayName("out-of-scope records (NS, MX, SPF, ftp CNAME) are never deleted — BKY-DNS-6 dogfooding")
+        fun `out of scope records are ignored`() {
+            val ns = ExistingDnsRecord(10L, DnsRecord("NS", "@", "dns109.ovh.net.", 0))
+            val mx = ExistingDnsRecord(11L, DnsRecord("MX", "@", "1 mx1.mail.ovh.net.", 0))
+            val spf = ExistingDnsRecord(12L, DnsRecord("SPF", "@", "v=spf1 include:mx.ovh.com -all", 0))
+            val ftp = ExistingDnsRecord(13L, DnsRecord("CNAME", "ftp", "talaria.school.", 0))
+            val desired = listOf(a1, a2, cname)
+            val actual =
+                listOf(
+                    ExistingDnsRecord(1L, a1),
+                    ExistingDnsRecord(2L, a2),
+                    ExistingDnsRecord(3L, cname),
+                    ns,
+                    mx,
+                    spf,
+                    ftp,
+                )
+            val changes = DnsDiff.compute(desired, actual)
+            assertThat(changes).isEmpty()
         }
     }
 
@@ -129,7 +163,7 @@ class DnsDiffTest {
             val actual = listOf(
                 ExistingDnsRecord(1L, a1),
                 ExistingDnsRecord(2L, DnsRecord("CNAME", "www", "pages-content.github.io.", 7200)),
-                ExistingDnsRecord(3L, DnsRecord("TXT", "www", "v=spf1 -all", 3600)),
+                ExistingDnsRecord(3L, DnsRecord("A", "@", "203.0.113.9", 3600)),
             )
             val changes = DnsDiff.compute(desired, actual)
             assertThat(changes.filterIsInstance<DnsChange.Create>()).hasSize(1)

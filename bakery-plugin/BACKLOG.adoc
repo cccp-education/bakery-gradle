@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-08-16 — Session 201 ✅ (BKY-DNS-5 Cucumber BDD). Session 199 ✅ (Audit version : delta **0.0.5 déclaré vs 0.0.4 Central** → EPIC PUB ajouté, zéro code modifié). Session 198 ✅ (BKY-DNS-3 DnsProvisioner). **EPIC BKY-I18N-MASS (priorité 1)** : MASS-1→4 ✅, MASS-5→6 restants._
+_Dernière mise à jour : 2026-08-17 — Session 202 ✅ (BKY-DNS-6 dogfooding réel talaria.school + 2 bugs DnsDiff corrigés). **EPIC BKY-DNS TERMINÉ 7/7 US**. Session 201 ✅ (BKY-DNS-5 Cucumber BDD). Session 199 ✅ (Audit version : delta **0.0.5 déclaré vs 0.0.4 Central** → EPIC PUB ajouté, zéro code modifié). Session 198 ✅ (BKY-DNS-3 DnsProvisioner). **EPIC BKY-I18N-MASS (priorité 1)** : MASS-1→4 ✅, MASS-5→6 restants._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -2160,7 +2160,7 @@ même pipeline que le contenu, déclaratif dans site.yml.
 | *BKY-DNS-6*
 | *Dogfooding réel talaria.school.* `provisionDns` sur site.yml talaria →
   réconciliation = no-op/verify (zone déjà correcte : 4 A + 1 CNAME www).
-  Preuve de l'idempotence sur prod réelle. | vérif réelle (reconcile report) | ~2 | BKY-DNS-5
+  Preuve de l'idempotence sur prod réelle. | vérif réelle (reconcile report) | ~2 ✅ S202 | BKY-DNS-5
 |===
 
 === Dépendances (DAG)
