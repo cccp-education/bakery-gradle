@@ -1,0 +1,29 @@
+= Article 2025 B
+@CherOliv
+2025-06-20
+:jbake-title: Article 2025 B
+:jbake-type: post
+:jbake-status: published
+:jbake-date: 2025-06-20
+:jbake-tags: batch, 2025
+:summary: Deuxieme article du lot 2025.
+
+== Introduction
+
+Ceci est le deuxieme article du lot annuel 2025. Il contient egalement
+du texte en francais a traduire.
+
+== Section technique
+
+Un bloc source doit etre preserve tel quel.
+
+[source,kotlin]
+----
+fun main() {
+    println("Hello")
+}
+----
+
+== Conclusion
+
+La traduction par lot annuel est la strategie retenue pour la masse.

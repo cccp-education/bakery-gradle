@@ -586,3 +586,77 @@ Triple EPIC session.
 **BKY-I18N-MASS MASS-5→6** : reporté (dogfooding LLM réel, accord pilote requis).
 
 **Score** : 9/10
+
+== Session 205 — 2026-08-18 — MASS-5 dogfooding lot annuel FR→EN (7/8 lots, 80/108 articles) + BDD feature 62 batch annual
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| Dogfooding LLM réel lot annuel FR→EN sur cheroliv.com via `/tmp/bakery-dogfood` (buildscript classpath `education.ccp.bakery:0.0.7` mavenLocal + symlink content), `gemma4:31b-cloud` port 11437
+| ✅ TERMINÉ (7/8 lots)
+
+| Lot 2021 (1 article, 2m10s) — traduit, idempotence validée
+| ✅ TERMINÉ
+
+| Lot 2024 (6 articles, 7m22s) — traduit, idempotence validée
+| ✅ TERMINÉ
+
+| Lot 2022 (7 articles, 11m33s) — traduit, idempotence validée
+| ✅ TERMINÉ
+
+| Lot 2023 (14 articles, 11m31s) — traduit, idempotence validée
+| ✅ TERMINÉ
+
+| Lot 2019 (13 articles, 5m28s) — traduit, idempotence validée
+| ✅ TERMINÉ
+
+| Lot 2020 (15 articles, 3m58s) — traduit, idempotence validée
+| ✅ TERMINÉ
+
+| Lot 2025 (24 articles, ~9m30s 2e run) — traduit, idempotence validée (1er run timeout >1h)
+| ✅ TERMINÉ
+
+| Lot 2026 (28 articles, ~15000 lignes) — en cours au-delà timeout 1h, 12/28 articles traduits avant timeout
+| 🟠 EN COURS (16 articles restants, ~3h LLM)
+
+| Delta inter-lots validé — checksums globaux `.bakery-checksums.properties` préservent articles des lots précédents
+| ✅ VALIDÉ
+
+| Idempotence validée — 2e run chaque lot = 0 à traduire, delta vide (Loi Économie d'Encre)
+| ✅ VALIDÉ
+
+| Validation LENIENT — 0 table invalide, 0 plantuml invalide, 0 erreur traduction
+| ✅ VALIDÉ
+
+| Feature `62_i18n_mass_batch_annual.feature` `@batch-annual` (6 scénarios : fresh lot 2025, lot 2026 après 2025 delta inter-lots, idempotence intra-lot, idempotence inter-lots, marqueur `[en]`, headers JBake préservés)
+| ✅ TERMINÉ (6/6 PASS)
+
+| Steps `I18nMassBatchSteps.kt` (package `bakery.scenarios`, préfixés `mass-batch` anti-DuplicateStepDefinition)
+| ✅ TERMINÉ
+
+| Runner `I18nMassBatchCucumberTest.kt` (standalone `LauncherDiscoveryRequestBuilder`, tag `@batch-annual`)
+| ✅ TERMINÉ
+
+| Fixture `cheroliv-com-mass-batch/` (2 lots annuels 2025+2026, 2 articles FR courts par lot, `site.yml` + `jbake.properties`)
+| ✅ TERMINÉ
+
+| Non-régression `bakery.i18n.mass.*` PASS (features 60 + 62)
+| ✅ VALIDÉ
+
+| `publishToMavenLocal` VERT
+| ✅ VALIDÉ
+
+| Constat : plugin ID réel = `education.cccp.bakery` (3 "c"), pas `education.ccp.bakery` (incohérence gouvernance AGENTS.adoc/BACKLOG)
+| 🟡 À CORRIGER
+
+| Constat : `:summary:` non traduit (fix Session 029 `translateFrontmatter` non appliqué dans `MigrateContentI18nTask`)
+| 🟡 À CORRIGER
+
+| MASS-6 montée en charge 108 × 10 langues — reporté (coût LLM ~675h, session dédiée pilote)
+| 🟡 REPORTÉ
+|===
+
+**BKY-I18N-MASS MASS-5** : 7/8 lots ✅, lot 2026 🟠 (16 articles restants). Idempotence + delta inter-lots validés. BDD feature 62 (6/6 PASS). `publishToMavenLocal` VERT. Zéro régression, zéro secret.
+
+**Score** : 8/10

@@ -1,0 +1,85 @@
+= Session 205 — MASS-5 Dogfooding lot annuel FR→EN (7/8 lots, 80/108 articles) + BDD feature 62 batch annual
+:date: 2026-08-18
+:type: DDD + TDD + BDD + dogfooding LLM réel
+:score: 8/10
+
+== Résumé
+
+Session MASS-5 livrée en 2 volets : (a) dogfooding LLM réel stratégie
+lot annuel FR→EN sur cheroliv.com (7/8 lots complétés, 80/108 articles,
+idempotence validée) + (b) BDD feature 62 batch annual (6 scénarios PASS,
+delta inter-lots + idempotence).
+
+== Livrables
+
+=== 1. Dogfooding LLM réel — 7/8 lots FR→EN (80/108 articles)
+
+- Projet consommateur `/tmp/bakery-dogfood` via buildscript classpath
+  `education.cccp:bakery-plugin:0.0.7` mavenLocal + symlink content
+  vers `office/sites/cheroliv.com/jbake/content`
+- Modèle `gemma4:31b-cloud` port 11437 (rotation 11437-11465)
+- 8 lots annuels (2021→2026), invocation `migrateContentI18n` par lot
+- 7 lots complétés : 2021 (1 art, 2m10s), 2024 (6 art, 7m22s),
+  2022 (7 art, 11m33s), 2023 (14 art, 11m31s), 2019 (13 art, 5m28s),
+  2020 (15 art, 3m58s), 2025 (24 art, ~9m30s)
+- Lot 2026 (28 art, ~15000 lignes) en cours au-delà du timeout 1h —
+  limite pratique identifiée (~3h estimé pour le lot le plus volumineux)
+- Idempotence validée sur chaque lot (2e run = 0 à traduire, delta vide)
+- Delta inter-lots validé : articles des lots précédents préservés
+  (checksums globaux `.bakery-checksums.properties`)
+- Validation LENIENT : 0 table invalide, 0 plantuml invalide, 0 erreur
+- Checksums bloc (`.bakery-block-checksums/`) stockés par article
+
+=== 2. BDD feature 62 batch annual — 6/6 scénarios PASS
+
+- Feature `62_i18n_mass_batch_annual.feature` : 6 scénarios couvrant
+  fresh lot 2025 (2 traduits, 0 préservés), lot 2026 après 2025
+  (2 traduits, 2 préservés — delta inter-lots), idempotence intra-lot
+  (0 traduits, 4 préservés), idempotence inter-lots (0 traduits, 4
+  préservés), marqueur `[en]` présent, headers JBake préservés
+- Steps `I18nMassBatchSteps.kt` (package `bakery.scenarios`) :
+  noms de steps préfixés `mass-batch` pour éviter DuplicateStepDefinition
+- Runner `I18nMassBatchCucumberTest.kt` (package `bakery.i18n.mass`) :
+  standalone via `LauncherDiscoveryRequestBuilder`, tag `@batch-annual`
+- Fixture `cheroliv-com-mass-batch/` : 2 lots annuels (2025 + 2026),
+  2 articles FR courts par lot, `site.yml` + `jbake.properties`
+- Baby-step TDD/BDD strict : RED (steps manquants) → GREEN (6/6 PASS
+  en 1.1s) → REFACTOR. Fake translator label-aware (zéro LLM en CI — Loi
+  Économie d'Encre)
+
+=== 3. Constats de dogfooding
+
+- **Plugin ID réel = `education.cccp.bakery`** (3 "c" dans `cccp`),
+  pas `education.ccp.bakery` (2 "c") documenté dans AGENTS.adoc/BACKLOG.
+  Incohérence à corriger dans la gouvernance.
+- **Timeout LLM cloud sur lots volumineux** : lot 2026 (28 art, ~15000
+  lignes) dépasse 1h. Rotation ports 11437-11465 avec retries réussis
+  (ClosedChannelException non-fatale). Limite pratique : ~20-25 articles
+  par lot pour rester sous 1h.
+- **Qualité traduction** : headers JBake partiellement préservés
+  (`:jbake-title:` traduit ✅, `:summary:` reste en FR ❌ — le fix
+  Session 029 `translateFrontmatter` summary/description n'est pas
+  appliqué dans `MigrateContentI18nTask`). Constat déjà noté S194.
+- **MASS-6 reporté** : montée en charge 108 × 10 langues nécessite
+  ~675h de LLM cloud (108 × 9 langues × ~50 segments × 5s). Session
+  dédiée avec accord pilote explicite requise.
+
+== Fichiers modifiés/créés
+
+*bakery-gradle/bakery-plugin* :
+- `src/test/features/62_i18n_mass_batch_annual.feature` — NOUVEAU (6 scénarios)
+- `src/test/scenarios/bakery/scenarios/I18nMassBatchSteps.kt` — NOUVEAU
+- `src/test/kotlin/bakery/i18n/mass/I18nMassBatchCucumberTest.kt` — NOUVEAU
+- `src/test/resources/fixtures/cheroliv-com-mass-batch/` — NOUVEAU (4 articles + site.yml + jbake.properties)
+
+*Dogfooding (hors repo, /tmp/bakery-dogfood)* :
+- 80 articles FR→EN traduits dans `content-i18n/en/`
+- Checksums fichier + bloc stockés
+
+== Prochaine session
+
+S206 — (1) Clôture MASS-5 : terminer lot 2026 (16 articles restants,
+~3h LLM). (2) MASS-6 : montée en charge 108 × 10 langues (session dédiée,
+accord pilote). (3) EPIC PUB 0.0.8 : bump version + publication Central
+(nouvelles tâches/fichiers feature 62). Alternative : fix qualité
+traduction (`:summary:` non traduit) avant MASS-6.

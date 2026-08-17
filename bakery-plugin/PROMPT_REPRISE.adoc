@@ -1,39 +1,44 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 205
-:date: 2026-08-17
-:etat: Session 204 ✅ — BKY-SEO CLOS 27/27 pts + BKY-CONTACT-SEC CLOS 26/26 pts. Domaines bakery.seo (6 fichiers) + bakery.contact (7 fichiers) clos. 29 UT + 9 FT + 10 BDD nouveaux, 0 FAIL.
-:epic_actif: BKY-I18N-MASS MASS-5→6 (dogfooding LLM réel, accord pilote requis). EPIC PUB 0.0.7 déjà publié Central (S203).
+:session: 206
+:date: 2026-08-18
+:etat: Session 205 ✅ — MASS-5 dogfooding lot annuel 7/8 lots (80/108 articles FR→EN, idempotence validée) + BDD feature 62 batch annual (6/6 scénarios PASS). MASS-6 reporté (coût LLM ~675h).
+:epic_actif: MASS-5 clôture (lot 2026, 16 articles restants) + MASS-6 (108 × 10 langues, accord pilote). EPIC PUB 0.0.8 après MASS-5/6.
 
 == Contexte de fin
 
-Session 204 — double clôture EPIC :
-- BKY-SEO CLOS 27/27 US (US-6 SitemapHreflangBuilder + sitemap.xml + US-7 BDD 6 scénarios)
-- BKY-CONTACT-SEC CLOS 26/26 US (US-6 ContactSecRenderer + ScaffoldContactSecTask + 7 FT, US-7 fixture cheroliv-com-contact, US-8 BDD 4 scénarios)
+Session 205 — dogfooding LLM réel + BDD :
+- MASS-5 : 7/8 lots FR→EN complétés (2021, 2024, 2022, 2023, 2019, 2020, 2025) = 80/108 articles
+- Lot 2026 (28 art, ~15000 lignes) en cours au-delà timeout 1h — limite pratique ~20-25 art/lot
+- Idempotence validée (2e run = 0 à traduire, delta vide)
+- Delta inter-lots validé (checksums globaux préservent lots précédents)
+- BDD feature 62 `62_i18n_mass_batch_annual.feature` (6 scénarios PASS, delta inter-lots + idempotence)
+- Fixture `cheroliv-com-mass-batch` (2 lots × 2 articles FR)
+- Constat : plugin ID réel = `education.cccp.bakery` (3 "c"), pas `education.ccp.bakery` (incohérence gouvernance)
 
-## Mission Session 205
+## Mission Session 206
 
-1. **BKY-I18N-MASS MASS-5→6** — dogfooding LLM réel (~3-50h metered, accord pilote requis). MASS-5 (batch annuel 108 articles × 8 lots) + MASS-6 (montée en charge 108 × 10 langues, idempotence).
-2. **EPIC PUB 0.0.8** — bakery-plugin 0.0.7 publié Central (S203). Bump 0.0.8 après MASS-5→6 (nouvelles tâches/fichiers).
+1. **MASS-5 clôture** : terminer lot 2026 (16 articles restants, ~3h LLM `gemma4:31b-cloud` port 11437)
+2. **MASS-6** : montée en charge 108 × 10 langues (zh/hi/es/ar/bn/pt/ru/ur) — session dédiée, accord pilote explicite
+3. **EPIC PUB 0.0.8** : bump version + publication Central (feature 62 nouvelle)
 
 ## Reprendre à
 
 . `git status` dans bakery-gradle
 . Lire `BACKLOG.adoc` section BKY-I18N-MASS MASS-5/6
-. Vérifier Ollama ports 11437-11465 + modèle `gemma4:31b-cloud` (accord pilote)
+. Vérifier Ollama ports 11437-11465 + modèle `gemma4:31b-cloud`
+. `/tmp/bakery-dogfood` projet consommateur (buildscript classpath 0.0.7)
 . `publishToMavenLocal` après chaque modification code source
 
 ## Ordre des EPICs (priorité)
 
-. BKY-I18N-MASS MASS-5→6 (dogfooding LLM, accord pilote)
+. MASS-5 clôture lot 2026 (16 articles restants)
+. MASS-6 montée en charge 108 × 10 langues (accord pilote)
 . EPIC PUB 0.0.8 (bump version + publication Central)
 
-## Fichiers touchés S204
+## Fichiers touchés S205
 
 *bakery-gradle/bakery-plugin* :
-- `src/main/kotlin/bakery/seo/SitemapHreflangBuilder.kt` — créé (US-6)
-- `src/main/kotlin/bakery/contact/ContactSecRenderer.kt` — créé (US-6)
-- `src/main/kotlin/bakery/contact/ScaffoldContactSecTask.kt` — créé (US-6)
-- `src/main/kotlin/bakery/seo/InjectSeoTask.kt` — +sitemap generation (US-6)
-- `src/main/kotlin/bakery/ContentTaskRegistrar.kt` — +registerScaffoldContactSecTask (US-6)
-- `src/main/kotlin/bakery/BakeryPlugin.kt` — +appel registerScaffoldContactSecTask (US-6)
-- `src/test/` — 29 UT + 9 FT + 10 BDD + fixture cheroliv-com-contact
+- `src/test/features/62_i18n_mass_batch_annual.feature` — créé (BDD)
+- `src/test/scenarios/bakery/scenarios/I18nMassBatchSteps.kt` — créé (BDD)
+- `src/test/kotlin/bakery/i18n/mass/I18nMassBatchCucumberTest.kt` — créé (runner)
+- `src/test/resources/fixtures/cheroliv-com-mass-batch/` — créé (4 articles + config)

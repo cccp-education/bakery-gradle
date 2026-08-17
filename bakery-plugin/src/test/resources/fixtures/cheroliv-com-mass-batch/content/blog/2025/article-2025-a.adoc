@@ -1,0 +1,18 @@
+= Article 2025 A
+@CherOliv
+2025-03-15
+:jbake-title: Article 2025 A
+:jbake-type: post
+:jbake-status: published
+:jbake-date: 2025-03-15
+:jbake-tags: batch, 2025
+:summary: Premier article du lot 2025.
+
+== Introduction
+
+Ceci est le premier article du lot annuel 2025. Il contient du texte
+en francais destine a etre traduit vers l'anglais.
+
+== Conclusion
+
+La strategie de lot annuel permet de decouper la charge de traduction.

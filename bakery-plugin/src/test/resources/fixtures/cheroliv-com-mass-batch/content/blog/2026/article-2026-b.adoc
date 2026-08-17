@@ -1,0 +1,18 @@
+= Article 2026 B
+@CherOliv
+2026-02-15
+:jbake-title: Article 2026 B
+:jbake-type: post
+:jbake-status: published
+:jbake-date: 2026-02-15
+:jbake-tags: batch, 2026
+:summary: Deuxieme article du lot 2026.
+
+== Introduction
+
+Ceci est le deuxieme article du lot annuel 2026. Il contient du texte
+en francais a traduire vers l'anglais.
+
+== Conclusion
+
+Le decoupage par lot annuel valide l'idempotence entre lots independants.
