@@ -522,3 +522,42 @@ publishToMavenLocal document-gradle + bakery-gradle OK.
 **Prochaine session (195)** : MASS-5 — BKY-I18N-BATCH validation lot annuel (108 articles FR→EN, 8 lots).
 
 **Score** : 8/10
+
+== Session 203 — 2026-08-17 — EPIC PUB TERMINÉ 3/3 US + BKY-SEO US-1→5 + BKY-CONTACT-SEC US-1→5
+
+Triple EPIC session.
+
+**EPIC PUB TERMINÉ 3/3 US** :
+- PUB-0.0.5-1 ✅ — POM (withType<MavenPublication>) + signing GPG + release deps vérifiés
+- PUB-0.0.5-2 ✅ — `publishAggregationToCentralPortal` (nmcp, bundle `dedd92b5` AUTOMATIC)
+- PUB-0.0.5-3 ✅ — Tags locaux v0.0.8/v0.0.9 supprimés, tag v0.0.7 poussé sur origin
+
+**Cross-borough fix** : plantuml-plugin 0.0.4 publié sur Central (bundle `87b3614e`) après fix kotlin-stdlib strictly 2.3.21 dans buildscript (force() ajouté). BOM 0.0.19 exigeait plantuml 0.0.4 inexistant — blocage résolu.
+
+**BKY-SEO US-1→5 (19/27 pts)** :
+- US-1 `SeoConfig` + `Person` POJO pur (8 UT)
+- US-2 `SeoPageMeta` + `SeoPageType` + `HreflangAlternate` (11 UT)
+- US-3 `SeoThymeleafRenderer` (9 UT)
+- US-4 Fixture `cheroliv-com-seo` (déjà créée S190) ✅
+- US-5 `SeoInjector` (3 UT) + `InjectSeoTask` (5 FT) + câblage
+- 24 UT + 5 FT PASSED, 0 FAIL
+- Reste : US-6 sitemap hreflang + US-7 BDD Cucumber (8 pts)
+
+**BKY-CONTACT-SEC US-1→5 (13/26 pts)** :
+- US-1 `ContactSecConfig` + `TurnstileConfig` + `RateLimitConfig` (5 UT)
+- US-2 `TurnstileVerifyRequest` + `VerifyResult` sealed + `TurnstileVerifier` stub (6 UT)
+- US-3 `RateLimiter` (6 UT, perHour/perDay/globalCap/reset/expiry)
+- US-4 `SessionToken` + `SessionTokenManager` (6 UT, issue/validate/consume single-use TTL 10min)
+- US-5 `PowVerifier` + `ContentHeuristics` (5 UT, sha256 PoW/countUrls/isDisposableDomain/isGibberish)
+- 28 UT PASSED, 0 FAIL
+- Reste : US-6 renderer+task + US-7 fixture + US-8 BDD (13 pts)
+
+**Fichiers créés** : 10 fichiers prod (bakery.seo 5 + bakery.contact 5) + 9 fichiers test + 1 functional test
+
+**Fichiers modifiés** : SiteConfiguration.kt (+seo +contact), ContentTaskRegistrar.kt (+registerInjectSeoTask), BakeryPlugin.kt (+appel)
+
+**Publications** : bakery-plugin 0.0.7 Central (bundle dedd92b5) + plantuml-plugin 0.0.4 Central (bundle 87b3614e)
+
+**Prochaine session (204)** : BKY-SEO US-6→7 (sitemap + BDD, 8 pts) + BKY-CONTACT-SEC US-6→8 (13 pts) + BKY-I18N-MASS MASS-5→6
+
+**Score** : 9/10

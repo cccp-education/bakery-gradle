@@ -1,6 +1,8 @@
 package bakery
 
 import bakery.dns.DnsConfig
+import bakery.contact.ContactSecConfig
+import bakery.seo.SeoConfig
 import bakery.tree.SiteNodeDto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import contracts.i18n.OllamaConfig
@@ -56,6 +58,10 @@ data class SiteConfiguration(
     val ollama: OllamaConfig? = null,
     /** DNS provisioning — null means no provisioning at all (BKY-DNS). */
     val dns: DnsConfig? = null,
+    /** SEO injection — null means no SEO injection at all (BKY-SEO). */
+    val seo: SeoConfig? = null,
+    /** Contact form security scaffold — null means no scaffold (BKY-CONTACT-SEC). */
+    val contact: ContactSecConfig? = null,
 )
 
 data class BakeConfiguration(

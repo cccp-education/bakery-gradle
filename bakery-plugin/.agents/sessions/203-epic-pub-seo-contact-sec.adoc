@@ -1,0 +1,98 @@
+= Session 203 — 2026-08-17 — EPIC PUB + BKY-SEO (US-1→5) + BKY-CONTACT-SEC (US-1→5)
+:session: 203
+:date: 2026-08-17
+:epic: EPIC PUB TERMINÉ 3/3 US + BKY-SEO US-1→5 + BKY-CONTACT-SEC US-1→5
+
+== Résumé
+
+Session triple EPIC :
+
+1. **EPIC PUB TERMINÉ 3/3 US** — Publication bakery-plugin 0.0.7 sur Maven Central
+   (bundle `dedd92b5`, statut `publishing` AUTOMATIC). POM + signing GPG via
+   convention plugin `education.cccp.build.publishing` v0.0.3. nmcp configuré dans
+   `bakery-plugin/settings.gradle.kts` (com.gradleup.nmcp 1.5.0). Toutes deps
+   `education.cccp:*` déjà sur Central. Tags locaux v0.0.8/v0.0.9 supprimés, tag
+   v0.0.7 poussé sur origin. Cross-borough fix : plantuml-plugin 0.0.4 publié sur
+   Central (bundle `87b3614e`) après fix kotlin-stdlib strictly 2.3.21 dans le
+   buildscript (force() ajouté au bloc existant). BOM 0.0.19 exigeait plantuml 0.0.4
+   qui n'existait nulle part — blocage résolu.
+
+2. **BKY-SEO US-1→5 (19/27 pts)** — Domaine `bakery.seo` créé (5 fichiers prod +
+   4 fichiers test). Baby-step TDD strict RED → GREEN → REFACTOR à chaque US.
+   - US-1 `SeoConfig` + `Person` POJO pur (8 UT) — Jackson mapping `seo:` section
+   - US-2 `SeoPageMeta` + `SeoPageType` + `HreflangAlternate` (11 UT) — canonical,
+     hreflang, OG image derivation
+   - US-3 `SeoThymeleafRenderer` (9 UT) — canonical, hreflang, OG, Twitter, JSON-LD
+   - US-4 Fixture `cheroliv-com-seo` (déjà créée S190) ✅
+   - US-5 `SeoInjector` (3 UT) + `InjectSeoTask` (5 FT) + câblage
+     `ContentTaskRegistrar.registerInjectSeoTask` + `BakeryPlugin` — idempotent,
+     no-op sans config seo, marker block `<!-- SEO: bakery -->` remplacé
+   - 24 UT + 5 FT PASSED, 0 FAIL
+   - Reste : US-6 sitemap hreflang + US-7 BDD Cucumber (8 pts)
+
+3. **BKY-CONTACT-SEC US-1→5 (13/26 pts)** — Domaine `bakery.contact` créé (5
+   fichiers prod + 5 fichiers test). Baby-step TDD strict.
+   - US-1 `ContactSecConfig` + `TurnstileConfig` + `RateLimitConfig` (5 UT) —
+     Jackson mapping `contact:` section
+   - US-2 `TurnstileVerifyRequest` + `VerifyResult` sealed + `TurnstileVerifier`
+     stub (6 UT) — siteverify URL, empty secret/response → Failure
+   - US-3 `RateLimiter` (6 UT) — perHour/perDay/globalCap, reset, expiry TTL
+   - US-4 `SessionToken` + `SessionTokenManager` (6 UT) — issue/validate/consume
+     single-use, TTL 10min, double consume refusé
+   - US-5 `PowVerifier` + `ContentHeuristics` (5 UT) — sha256 PoW, countUrls,
+     isDisposableDomain, isGibberish
+   - 28 UT PASSED, 0 FAIL
+   - Reste : US-6 renderer+task, US-7 fixture, US-8 BDD (13 pts)
+
+== Fichiers créés
+
+*bakery-gradle/bakery-plugin* :
+- `src/main/kotlin/bakery/seo/SeoConfig.kt` — POJO + Person
+- `src/main/kotlin/bakery/seo/SeoPageMeta.kt` — canonical/hreflang/ogImage
+- `src/main/kotlin/bakery/seo/SeoThymeleafRenderer.kt` — fragment HTML
+- `src/main/kotlin/bakery/seo/SeoInjector.kt` — marker block injection
+- `src/main/kotlin/bakery/seo/InjectSeoTask.kt` — tâche Gradle
+- `src/test/kotlin/bakery/seo/SeoConfigTest.kt` — 8 UT
+- `src/test/kotlin/bakery/seo/SeoPageMetaTest.kt` — 11 UT
+- `src/test/kotlin/bakery/seo/SeoThymeleafRendererTest.kt` — 9 UT
+- `src/test/kotlin/bakery/seo/SeoInjectorTest.kt` — 3 UT
+- `src/functionalTest/kotlin/bakery/InjectSeoFunctionalTest.kt` — 5 FT
+- `src/main/kotlin/bakery/contact/ContactSecConfig.kt` — POJO + Turnstile/RateLimit
+- `src/main/kotlin/bakery/contact/TurnstileClient.kt` — siteverify port
+- `src/main/kotlin/bakery/contact/RateLimiter.kt` — rate limiting
+- `src/main/kotlin/bakery/contact/SessionTokenManager.kt` — anti-replay
+- `src/main/kotlin/bakery/contact/PowVerifier.kt` — PoW + heuristics
+- `src/test/kotlin/bakery/contact/ContactSecConfigTest.kt` — 5 UT
+- `src/test/kotlin/bakery/contact/TurnstileClientTest.kt` — 6 UT
+- `src/test/kotlin/bakery/contact/RateLimiterTest.kt` — 6 UT
+- `src/test/kotlin/bakery/contact/SessionTokenManagerTest.kt` — 6 UT
+- `src/test/kotlin/bakery/contact/PowVerifierTest.kt` — 5 UT
+
+== Fichiers modifiés
+
+- `src/main/kotlin/bakery/SiteConfiguration.kt` — +`seo: SeoConfig?` +
+  `contact: ContactSecConfig?` + imports
+- `src/main/kotlin/bakery/ContentTaskRegistrar.kt` — +
+  `registerInjectSeoTask(site)` + imports
+- `src/main/kotlin/bakery/BakeryPlugin.kt` — + appel `registerInjectSeoTask` +
+  import
+
+*plantuml-gradle (cross-borough)* :
+- `plantuml-plugin/build.gradle.kts` — fix kotlin-stdlib strictly 2.3.21 + BOM
+  0.0.19 + version 0.0.4 hardcodée
+
+== Publications
+
+- bakery-plugin 0.0.7 → Maven Central (bundle `dedd92b5`, AUTOMATIC)
+- plantuml-plugin 0.0.4 → Maven Central (bundle `87b3614e`, AUTOMATIC)
+- bakery-plugin 0.0.7 → mavenLocal
+- plantuml-plugin 0.0.4 → mavenLocal
+
+== Commits + push
+
+- plantuml-gradle : `89ce610` + tag `v0.0.4` poussés
+- bakery-gradle : à committer (clôture session)
+
+== Score
+
+9/10 — triple EPIC, cross-borough fix, zéro régression, zéro secret.

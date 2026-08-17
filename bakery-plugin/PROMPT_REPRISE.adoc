@@ -1,47 +1,46 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 203
+:session: 204
 :date: 2026-08-17
-:etat: Session 202 ✅ — BKY-DNS-6 TERMINÉ (dogfooding réel talaria.school + 2 bugs DnsDiff corrigés) : `DnsDogfoodTalariaIntegrationTest` contre vraie API OVH `eu.api.ovh.com/1.0` (credentials depuis `e3p0.yaml`, jamais affichées). Dogfood a révélé 2 bugs : (1) scoped orphan cleanup — DnsDiff marquait Delete pour NS/MX/SPF/CNAME ftp hors-scope → fix delete seulement si slot ∈ desired ; (2) TTL=0 zone default OVH traité à tort comme drift → fix `actual.ttl != d.ttl && actual.ttl != 0`. Report : `noop=true, plan=0, applied=0, skipped=0` (zone 12 records live correspond desired 4 A + 1 CNAME www). Gate `bakery.dns.*` 85 tests 0 FAIL, publishToMavenLocal VERT. EPIC BKY-DNS TERMINÉ 7/7 US.
-:epic_actif: BKY-DNS ✅ TERMINÉ 7/7 US (S195-S202). BKY-I18N-MASS en pause (MASS-5→6 restants). EPIC PUB (bump 0.0.5→0.0.7) au backlog — à exécuter avant publication Central. BKY-SEO/BKY-CONTACT-SEC cadrés S190.
+:etat: Session 203 ✅ — EPIC PUB TERMINÉ 3/3 US (bakery-plugin 0.0.7 Central bundle dedd92b5) + plantuml-plugin 0.0.4 Central cross-borough fix (bundle 87b3614e, kotlin-stdlib strictly 2.3.21 fix). BKY-SEO US-1→5 (19/27 pts) + BKY-CONTACT-SEC US-1→5 (13/26 pts) — 52 UT + 5 FT PASSED, 0 FAIL. Domaines bakery.seo (5 fichiers prod) + bakery.contact (5 fichiers prod) créés.
+:epic_actif: BKY-SEO US-6→7 (sitemap + BDD, 8 pts restants). BKY-CONTACT-SEC US-6→8 (renderer+task + fixture + BDD, 13 pts restants). BKY-I18N-MASS MASS-5→6 en pause (dogfooding LLM réel).
 
 == Contexte de fin
 
-Session 202 — BKY-DNS-6 TERMINÉ :
-- `src/test/kotlin/bakery/dns/DnsDogfoodTalariaIntegrationTest.kt` — créé (test intégration dogfood, assumeTrue skip CI)
-- `src/main/kotlin/bakery/dns/DnsDiff.kt` — 2 fixes (scoped orphan cleanup + TTL=0 zone default)
-- `src/test/kotlin/bakery/dns/DnsDiffTest.kt` — +2 tests unitaires, test orphan supprimé, test combined ajusté
-- `src/test/kotlin/bakery/dns/DnsProvisionerTest.kt` — 4 tests ajustés (orphans dans slots desired)
-- `office/sites/talaria/site.yml` (gitignoré) — section `dns:` ajoutée + sauvegarde `.bak.bky-dns-6`
+Session 203 — triple EPIC :
+- EPIC PUB TERMINÉ 3/3 US — bakery-plugin 0.0.7 sur Central (bundle dedd92b5)
+- Cross-borough : plantuml-plugin 0.0.4 sur Central (bundle 87b3614e, fix kotlin-stdlib)
+- BKY-SEO US-1→5 — domaine bakery.seo (SeoConfig, SeoPageMeta, SeoThymeleafRenderer, SeoInjector, InjectSeoTask)
+- BKY-CONTACT-SEC US-1→5 — domaine bakery.contact (ContactSecConfig, TurnstileClient, RateLimiter, SessionTokenManager, PowVerifier+ContentHeuristics)
 
-## Mission Session 203
+## Mission Session 204
 
-1. **EPIC PUB** (bump 0.0.5→0.0.7) — 3 US au BACKLOG : POM + signing + `publishAggregationToCentralPortal`. Version code déjà 0.0.7 (pre-session diff S199). À exécuter avant publication Maven Central. ~3 pts
-2. **OU BKY-I18N-MASS** (priorité 1) — MASS-5→6 restants (en pause)
-3. **OU BKY-SEO** (priorité 2, 27 pts) / **BKY-CONTACT-SEC** (priorité 3, 26 pts)
+1. **BKY-SEO US-6** (sitemap hreflang xhtml:link, 3 pts) + **US-7** (BDD Cucumber, 4 pts) — clôture EPIC BKY-SEO (8 pts)
+2. **BKY-CONTACT-SEC US-6** (ContactSecRenderer + scaffoldContactSec task, 6 pts) + **US-7** (fixture, 4 pts) + **US-8** (BDD, 3 pts) — clôture EPIC (13 pts)
+3. **BKY-I18N-MASS MASS-5→6** — dogfooding LLM réel (~3-50h metered, accord pilote requis)
 
 ## Reprendre à
 
 . `git status` dans bakery-gradle
-. Lire `BACKLOG.adoc` section EPIC PUB / BKY-I18N-MASS
+. Lire `BACKLOG.adoc` sections BKY-SEO US-6/7 + BKY-CONTACT-SEC US-6/7/8
 . `publishToMavenLocal` après chaque modification code source
 
 ## Ordre des EPICs (priorité)
 
-. EPIC PUB (bump 0.0.7) — 3 US, priorité pré-publication Central
-. BKY-I18N-MASS (priorité 1, ~32 pts) — MASS-1→4 ✅, MASS-5→6 restants (en pause)
-. BKY-SEO (priorité 2, 27 pts) — généralisation features SEO
-. BKY-CONTACT-SEC (priorité 3, 26 pts) — durcissement formulaire contact
+. BKY-SEO US-6→7 (8 pts, clôture EPIC)
+. BKY-CONTACT-SEC US-6→8 (13 pts, clôture EPIC)
+. BKY-I18N-MASS MASS-5→6 (dogfooding LLM, accord pilote)
 
-## Fichiers touchés S202
+## Fichiers touchés S203
 
 *bakery-gradle/bakery-plugin* :
-- `src/test/kotlin/bakery/dns/DnsDogfoodTalariaIntegrationTest.kt` — créé (BKY-DNS-6)
-- `src/main/kotlin/bakery/dns/DnsDiff.kt` — 2 fixes (scoped orphan cleanup + TTL=0 zone default)
-- `src/test/kotlin/bakery/dns/DnsDiffTest.kt` — +2 tests, 1 supprimé, 1 ajusté
-- `src/test/kotlin/bakery/dns/DnsProvisionerTest.kt` — 4 tests ajustés
-- `BACKLOG.adoc` — BKY-DNS-6 ✅ S202 + EPIC BKY-DNS TERMINÉ
-- `.agents/INDEX.adoc`, `.agents/SESSIONS_HISTORY.adoc`, `.agents/TEST_COVERAGE_ANALYSIS.adoc`, `.agents/archives/COMPLETED_TASKS_ARCHIVE_2026-08.adoc`, `.agents/sessions/202-bky-dns-6-dogfood-talaria.adoc` — clôture session
+- `src/main/kotlin/bakery/seo/` — 5 fichiers créés (SeoConfig, SeoPageMeta, SeoThymeleafRenderer, SeoInjector, InjectSeoTask)
+- `src/test/kotlin/bakery/seo/` — 4 fichiers créés (24 UT)
+- `src/functionalTest/kotlin/bakery/InjectSeoFunctionalTest.kt` — 5 FT
+- `src/main/kotlin/bakery/contact/` — 5 fichiers créés (ContactSecConfig, TurnstileClient, RateLimiter, SessionTokenManager, PowVerifier)
+- `src/test/kotlin/bakery/contact/` — 5 fichiers créés (28 UT)
+- `src/main/kotlin/bakery/SiteConfiguration.kt` — +seo +contact
+- `src/main/kotlin/bakery/ContentTaskRegistrar.kt` — +registerInjectSeoTask
+- `src/main/kotlin/bakery/BakeryPlugin.kt` — +appel registerInjectSeoTask
 
-*office/sites/talaria* (hors git, gitignoré) :
-- `site.yml` — section `dns:` ajoutée (credentials OVH, jamais commités)
-- `site.yml.bak.bky-dns-6` — sauvegarde pré-modification
+*plantuml-gradle (cross-borough)* :
+- `plantuml-plugin/build.gradle.kts` — fix kotlin-stdlib + BOM 0.0.19 + version 0.0.4 (commit 89ce610, tag v0.0.4)

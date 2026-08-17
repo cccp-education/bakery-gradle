@@ -9,6 +9,8 @@ import bakery.i18n.MigrateContentI18nTask
 import bakery.i18n.MigrateToI18nTask
 import bakery.i18n.rtl.RtlDirectionInjectionTask
 import bakery.langswitch.InjectLangSwitchTask
+import bakery.seo.InjectSeoTask
+import bakery.seo.SeoConfig
 import bakery.llm.IaConfig
 import bakery.llm.LlmService
 import bakery.llm.OllamaLlmService
@@ -254,6 +256,24 @@ object ContentTaskRegistrar {
             task.siteDir = contentRoot
             task.supportedLanguages = site.supportedLanguages
             task.defaultLanguage = site.language
+        }
+    }
+
+    /**
+     * Enregistre la tâche `injectSeo` pour injecter les balises SEO
+     * (canonical, hreflang, OG, Twitter, JSON-LD) dans header.thyme
+     * pour chaque langue supportée. No-op si `site.seo` est null.
+     */
+    internal fun Project.registerInjectSeoTask(site: SiteConfiguration) {
+        val contentRoot = project.projectDir.resolve(site.bake.srcPath)
+        tasks.register("injectSeo", InjectSeoTask::class.java) { task ->
+            task.group = BakeryConstants.TRANSFORM_GROUP
+            task.description = "Injects SEO tags (canonical, hreflang, OG, Twitter, JSON-LD) into header.thyme"
+            task.siteDir = contentRoot
+            task.seoConfig = site.seo
+            task.defaultLanguage = site.language
+            task.supportedLanguages = site.supportedLanguages
+            task.languages = site.supportedLanguages
         }
     }
 

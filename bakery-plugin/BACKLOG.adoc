@@ -2252,9 +2252,9 @@ Zéro code modifié — gouvernance pure. Voir rapport
 [cols="2,3,2,2"]
 |===
 | US | Description | Priorité | Statut
-| PUB-0.0.5-1 | Vérifier POM (withType<MavenPublication>) + signing GPG + release deps | P1 | 🟡 À FAIRE
-| PUB-0.0.5-2 | `./gradlew publishAggregationToCentralPortal --no-daemon` (méthode nmcp) | P1 | 🟡 À FAIRE
-| PUB-0.0.5-3 | Aligner les tags locaux v0.0.7/8/9 sur l'origin (cleanup) | P3 | 🟡 À FAIRE
+| PUB-0.0.5-1 | Vérifier POM (withType<MavenPublication>) + signing GPG + release deps | P1 | ✅ TERMINÉ S203
+| PUB-0.0.5-2 | `./gradlew publishAggregationToCentralPortal --no-daemon` (méthode nmcp) | P1 | ✅ TERMINÉ S203 (bundle dedd92b5)
+| PUB-0.0.5-3 | Aligner les tags locaux v0.0.7/8/9 sur l'origin (cleanup) | P3 | ✅ TERMINÉ S203 (v0.0.7 poussé, v0.0.8/9 supprimés)
 |===
 
 [cols="2,3]
