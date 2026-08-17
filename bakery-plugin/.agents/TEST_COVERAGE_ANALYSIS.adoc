@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-08-17 — Session 202 ✅ BKY-DNS-6 TERMINÉ (+1 test intégration dogfood `DnsDogfoodTalariaIntegrationTest` contre vraie API OVH talaria.school, skip si site.yml/creds absents ; +2 tests unitaires `DnsDiffTest` out-of-scope ignored + ttl=0 not a drift ; 4 tests `DnsProvisionerTest` ajustés nouvelle sémantique orphan). Domaine `bakery.dns.*` : 85 unit + 3 functional + 8 cucumber + 1 integration = 97 tests, 0 FAIL. Dogfood : `noop=true, plan=0` contre zone live (12 records). 2 bugs DnsDiff corrigés (scoped orphan cleanup + TTL=0 zone default). Coverage non revalidée Kover (règle fin de session — gate ciblé seul). Baseline S169 : 93,09% (Kover, seuil 85% PASS)._
+_Dernière mise à jour : 2026-08-17 — Session 204 ✅ BKY-SEO CLOS 27/27 + BKY-CONTACT-SEC CLOS 26/26. Domaine `bakery.seo` : +9 UT (`SitemapHreflangBuilderTest`) + 2 FT (sitemap `InjectSeoFunctionalTest`) + 6 BDD (`59_seo_injection.feature` `@seo`). Domaine `bakery.contact` : +20 UT (`ContactSecRendererTest`) + 7 FT (`ScaffoldContactSecFunctionalTest`) + 2 FT fixture (`ContactSecFixtureFunctionalTest`) + 4 BDD (`61_contact_sec.feature` `@contact`). Total nouveaux : 29 UT + 9 FT + 10 BDD = 48 tests, 0 FAIL. `publishToMavenLocal` VERT. Coverage non revalidée Kover (règle fin de session — gate ciblé seul). Baseline S169 : 93,09% (Kover, seuil 85% PASS)._
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''

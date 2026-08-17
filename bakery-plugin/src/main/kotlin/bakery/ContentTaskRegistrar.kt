@@ -11,6 +11,7 @@ import bakery.i18n.rtl.RtlDirectionInjectionTask
 import bakery.langswitch.InjectLangSwitchTask
 import bakery.seo.InjectSeoTask
 import bakery.seo.SeoConfig
+import bakery.contact.ScaffoldContactSecTask
 import bakery.llm.IaConfig
 import bakery.llm.LlmService
 import bakery.llm.OllamaLlmService
@@ -273,6 +274,24 @@ object ContentTaskRegistrar {
             task.seoConfig = site.seo
             task.defaultLanguage = site.language
             task.supportedLanguages = site.supportedLanguages
+            task.languages = site.supportedLanguages
+        }
+    }
+
+    /**
+     * Enregistre la tâche `scaffoldContactSec` pour générer un formulaire
+     * de contact sécurisé (Turnstile, PoW, honeypot, rate limit) dans
+     * footer.thyme + contact.js + firestore.rules pour chaque langue.
+     * No-op si `site.contact` est null ou `enabled = false`.
+     */
+    internal fun Project.registerScaffoldContactSecTask(site: SiteConfiguration) {
+        val contentRoot = project.projectDir.resolve(site.bake.srcPath)
+        tasks.register("scaffoldContactSec", ScaffoldContactSecTask::class.java) { task ->
+            task.group = BakeryConstants.TRANSFORM_GROUP
+            task.description = "Scaffolds a hardened contact form into footer.thyme + contact.js + firestore.rules"
+            task.siteDir = contentRoot
+            task.contactConfig = site.contact
+            task.defaultLanguage = site.language
             task.languages = site.supportedLanguages
         }
     }

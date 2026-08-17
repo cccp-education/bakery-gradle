@@ -48,6 +48,7 @@ abstract class InjectSeoTask : DefaultTask() {
 
         val renderer = SeoThymeleafRenderer()
         val injector = SeoInjector()
+        val sitemapBuilder = SitemapHreflangBuilder()
         var injectedCount = 0
 
         for (lang in languages) {
@@ -64,6 +65,15 @@ abstract class InjectSeoTask : DefaultTask() {
             } else {
                 logger.lifecycle("[injectSeo] No change for '$lang' (already injected)")
             }
+        }
+
+        val sitemapFile = site.resolve("sitemap.xml")
+        val siteHost = (config.websiteUrl ?: "").trimEnd('/')
+        if (siteHost.isNotEmpty()) {
+            val pageUris = collectPageUris(site)
+            val sitemapXml = sitemapBuilder.build(siteHost, defaultLanguage, supportedLanguages, pageUris)
+            sitemapFile.writeText(sitemapXml)
+            logger.lifecycle("[injectSeo] Generated sitemap.xml with ${pageUris.size} url(s), ${supportedLanguages.size} language(s)")
         }
 
         logger.lifecycle("[injectSeo] Processed ${languages.size} language(s), injected into $injectedCount file(s)")
@@ -87,4 +97,22 @@ abstract class InjectSeoTask : DefaultTask() {
         site: File,
         lang: String,
     ): String = "index.html"
+
+    private fun collectPageUris(site: File): List<String> {
+        val uris = mutableListOf<String>()
+        uris.add("")
+        val contentDir = site.resolve("content")
+        if (contentDir.exists()) {
+            contentDir
+                .walkTopDown()
+                .filter { it.isFile && it.extension.equals("html", ignoreCase = true) }
+                .forEach { file ->
+                    val rel = file.relativeTo(contentDir).path.replace('\\', '/')
+                    if (rel != "index.html") {
+                        uris.add(rel)
+                    }
+                }
+        }
+        return uris
+    }
 }

@@ -1,0 +1,8 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Example — Home</title></head>
+<body>
+<header>Example</header>
+<main><h1>Hello World</h1></main>
+<footer>Old footer</footer>
+</body>
+</html>

@@ -10,6 +10,7 @@ import bakery.ContentTaskRegistrar.registerInjectSeoTask
 import bakery.ContentTaskRegistrar.registerMigrateContentI18nTask
 import bakery.ContentTaskRegistrar.registerMigrateToI18nTask
 import bakery.ContentTaskRegistrar.registerRtlDirectionInjectionTask
+import bakery.ContentTaskRegistrar.registerScaffoldContactSecTask
 import bakery.ContentTaskRegistrar.registerValidateFirebaseConfigTask
 import bakery.DeployTaskRegistrar.registerDeployMaquetteTask
 import bakery.DeployTaskRegistrar.registerDeployProfileTask
@@ -217,6 +218,7 @@ class BakeryPlugin : Plugin<Project> {
         project.registerAccessibilityAuditTask(bakeryExtension, resolvedSite)
         project.registerInjectLangSwitchTask(resolvedSite)
         project.registerInjectSeoTask(resolvedSite)
+        project.registerScaffoldContactSecTask(resolvedSite)
         wireI18nDeployTaskOrdering(project)
     }
 

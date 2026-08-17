@@ -1,0 +1,11 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Example — Contact</title></head>
+<body>
+<header>Example — Contact</header>
+<main>
+<h1>Contact</h1>
+<p>Send us a message.</p>
+</main>
+<footer>Old footer</footer>
+</body>
+</html>

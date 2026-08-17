@@ -561,3 +561,28 @@ Triple EPIC session.
 **Prochaine session (204)** : BKY-SEO US-6→7 (sitemap + BDD, 8 pts) + BKY-CONTACT-SEC US-6→8 (13 pts) + BKY-I18N-MASS MASS-5→6
 
 **Score** : 9/10
+
+== Session 204 (2026-08-17) — BKY-SEO CLOS 27/27 + BKY-CONTACT-SEC CLOS 26/26
+
+**EPIC BKY-SEO CLOS 27/27 pts (7/7 US)** :
+
+- US-6 `SitemapHreflangBuilder` (domaine `bakery.seo`, object pur, 9 UT) — génère XML sitemap avec `<xhtml:link rel="alternate" hreflang>` fr/en/x-default. Câblage `InjectSeoTask` + `collectPageUris` (walk content HTML). 2 FT (sitemap généré, no-op sans config).
+- US-7 BDD `59_seo_injection.feature` `@bakery @seo` (6 scénarios) + runner dédié `SeoCucumberTestRunner` + `SeoInjectionSteps` (18 step defs). 6/6 PASSED en 41s.
+
+**EPIC BKY-CONTACT-SEC CLOS 26/26 pts (8/8 US)** :
+
+- US-6 `ContactSecRenderer` (domaine `bakery.contact`, 3 méthodes : `renderFooterFragment` form+honeypot+token+pow+turnstile, `renderContactJs` fingerprint+PoW SHA-256+turnstile.getResponse+fetch, `renderFirestoreRules` create-only+whitelist+caps) + `ScaffoldContactSecTask` + câblage `ContentTaskRegistrar` + `BakeryPlugin`. 20 UT + 7 FT.
+- US-7 fixture `cheroliv-com-contact` (mocks : endpoint `script.example.com`, siteKey `0xTESTKEY`, `turnstile.placeholder.js` stub CI, FR+EN). 2 FT.
+- US-8 BDD `61_contact_sec.feature` `@bakery @contact` (4 scénarios) + runner dédié `ContactSecCucumberTestRunner` + `ContactSecSteps` (16 step defs). 4/4 PASSED en 54s.
+
+**Fichiers créés** : 3 prod (`SitemapHreflangBuilder.kt`, `ContactSecRenderer.kt`, `ScaffoldContactSecTask.kt`) + 2 UT + 2 FT + 2 BDD runner + 2 BDD steps + 2 features + 9 fixture
+
+**Fichiers modifiés** : InjectSeoTask.kt (+sitemap), ContentTaskRegistrar.kt (+registerScaffoldContactSecTask), BakeryPlugin.kt (+appel), InjectSeoFunctionalTest.kt (+2 FT sitemap)
+
+**Métriques** : 29 UT + 9 FT + 10 BDD = 48 tests nouveaux, 0 FAIL. `publishToMavenLocal` VERT.
+
+**Bug Cucumber YAML** : `trimIndent`/`trimMargin` produit indentation incohérente → `StringBuilder` ligne par ligne. Bug step `.` dans pattern → `{string}` + guillemets.
+
+**BKY-I18N-MASS MASS-5→6** : reporté (dogfooding LLM réel, accord pilote requis).
+
+**Score** : 9/10

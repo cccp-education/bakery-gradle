@@ -1,46 +1,39 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 204
+:session: 205
 :date: 2026-08-17
-:etat: Session 203 ✅ — EPIC PUB TERMINÉ 3/3 US (bakery-plugin 0.0.7 Central bundle dedd92b5) + plantuml-plugin 0.0.4 Central cross-borough fix (bundle 87b3614e, kotlin-stdlib strictly 2.3.21 fix). BKY-SEO US-1→5 (19/27 pts) + BKY-CONTACT-SEC US-1→5 (13/26 pts) — 52 UT + 5 FT PASSED, 0 FAIL. Domaines bakery.seo (5 fichiers prod) + bakery.contact (5 fichiers prod) créés.
-:epic_actif: BKY-SEO US-6→7 (sitemap + BDD, 8 pts restants). BKY-CONTACT-SEC US-6→8 (renderer+task + fixture + BDD, 13 pts restants). BKY-I18N-MASS MASS-5→6 en pause (dogfooding LLM réel).
+:etat: Session 204 ✅ — BKY-SEO CLOS 27/27 pts + BKY-CONTACT-SEC CLOS 26/26 pts. Domaines bakery.seo (6 fichiers) + bakery.contact (7 fichiers) clos. 29 UT + 9 FT + 10 BDD nouveaux, 0 FAIL.
+:epic_actif: BKY-I18N-MASS MASS-5→6 (dogfooding LLM réel, accord pilote requis). EPIC PUB 0.0.7 déjà publié Central (S203).
 
 == Contexte de fin
 
-Session 203 — triple EPIC :
-- EPIC PUB TERMINÉ 3/3 US — bakery-plugin 0.0.7 sur Central (bundle dedd92b5)
-- Cross-borough : plantuml-plugin 0.0.4 sur Central (bundle 87b3614e, fix kotlin-stdlib)
-- BKY-SEO US-1→5 — domaine bakery.seo (SeoConfig, SeoPageMeta, SeoThymeleafRenderer, SeoInjector, InjectSeoTask)
-- BKY-CONTACT-SEC US-1→5 — domaine bakery.contact (ContactSecConfig, TurnstileClient, RateLimiter, SessionTokenManager, PowVerifier+ContentHeuristics)
+Session 204 — double clôture EPIC :
+- BKY-SEO CLOS 27/27 US (US-6 SitemapHreflangBuilder + sitemap.xml + US-7 BDD 6 scénarios)
+- BKY-CONTACT-SEC CLOS 26/26 US (US-6 ContactSecRenderer + ScaffoldContactSecTask + 7 FT, US-7 fixture cheroliv-com-contact, US-8 BDD 4 scénarios)
 
-## Mission Session 204
+## Mission Session 205
 
-1. **BKY-SEO US-6** (sitemap hreflang xhtml:link, 3 pts) + **US-7** (BDD Cucumber, 4 pts) — clôture EPIC BKY-SEO (8 pts)
-2. **BKY-CONTACT-SEC US-6** (ContactSecRenderer + scaffoldContactSec task, 6 pts) + **US-7** (fixture, 4 pts) + **US-8** (BDD, 3 pts) — clôture EPIC (13 pts)
-3. **BKY-I18N-MASS MASS-5→6** — dogfooding LLM réel (~3-50h metered, accord pilote requis)
+1. **BKY-I18N-MASS MASS-5→6** — dogfooding LLM réel (~3-50h metered, accord pilote requis). MASS-5 (batch annuel 108 articles × 8 lots) + MASS-6 (montée en charge 108 × 10 langues, idempotence).
+2. **EPIC PUB 0.0.8** — bakery-plugin 0.0.7 publié Central (S203). Bump 0.0.8 après MASS-5→6 (nouvelles tâches/fichiers).
 
 ## Reprendre à
 
 . `git status` dans bakery-gradle
-. Lire `BACKLOG.adoc` sections BKY-SEO US-6/7 + BKY-CONTACT-SEC US-6/7/8
+. Lire `BACKLOG.adoc` section BKY-I18N-MASS MASS-5/6
+. Vérifier Ollama ports 11437-11465 + modèle `gemma4:31b-cloud` (accord pilote)
 . `publishToMavenLocal` après chaque modification code source
 
 ## Ordre des EPICs (priorité)
 
-. BKY-SEO US-6→7 (8 pts, clôture EPIC)
-. BKY-CONTACT-SEC US-6→8 (13 pts, clôture EPIC)
 . BKY-I18N-MASS MASS-5→6 (dogfooding LLM, accord pilote)
+. EPIC PUB 0.0.8 (bump version + publication Central)
 
-## Fichiers touchés S203
+## Fichiers touchés S204
 
 *bakery-gradle/bakery-plugin* :
-- `src/main/kotlin/bakery/seo/` — 5 fichiers créés (SeoConfig, SeoPageMeta, SeoThymeleafRenderer, SeoInjector, InjectSeoTask)
-- `src/test/kotlin/bakery/seo/` — 4 fichiers créés (24 UT)
-- `src/functionalTest/kotlin/bakery/InjectSeoFunctionalTest.kt` — 5 FT
-- `src/main/kotlin/bakery/contact/` — 5 fichiers créés (ContactSecConfig, TurnstileClient, RateLimiter, SessionTokenManager, PowVerifier)
-- `src/test/kotlin/bakery/contact/` — 5 fichiers créés (28 UT)
-- `src/main/kotlin/bakery/SiteConfiguration.kt` — +seo +contact
-- `src/main/kotlin/bakery/ContentTaskRegistrar.kt` — +registerInjectSeoTask
-- `src/main/kotlin/bakery/BakeryPlugin.kt` — +appel registerInjectSeoTask
-
-*plantuml-gradle (cross-borough)* :
-- `plantuml-plugin/build.gradle.kts` — fix kotlin-stdlib + BOM 0.0.19 + version 0.0.4 (commit 89ce610, tag v0.0.4)
+- `src/main/kotlin/bakery/seo/SitemapHreflangBuilder.kt` — créé (US-6)
+- `src/main/kotlin/bakery/contact/ContactSecRenderer.kt` — créé (US-6)
+- `src/main/kotlin/bakery/contact/ScaffoldContactSecTask.kt` — créé (US-6)
+- `src/main/kotlin/bakery/seo/InjectSeoTask.kt` — +sitemap generation (US-6)
+- `src/main/kotlin/bakery/ContentTaskRegistrar.kt` — +registerScaffoldContactSecTask (US-6)
+- `src/main/kotlin/bakery/BakeryPlugin.kt` — +appel registerScaffoldContactSecTask (US-6)
+- `src/test/` — 29 UT + 9 FT + 10 BDD + fixture cheroliv-com-contact

@@ -6,92 +6,131 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
-/**
- * EPIC BKY-SEO-5 — Functional tests for the injectSeo task (Gradle TestKit).
- */
-class InjectSeoFunctionalTest {
+class ScaffoldContactSecFunctionalTest {
     @TempDir
     lateinit var projectDir: File
 
     @Test
-    fun `injectSeo injects canonical and hreflang into header thyme for FR`() {
+    fun `scaffoldContactSec injects form into FR footer thyme`() {
         createProjectWithFixture()
         GradleRunner
             .create()
             .withProjectDir(projectDir)
             .withPluginClasspath()
-            .withArguments("injectSeo")
+            .withArguments("scaffoldContactSec")
             .build()
             .let { result ->
                 assertThat(result.output).contains("BUILD SUCCESSFUL")
-                val frHeader = projectDir.resolve("site/templates/header.thyme")
-                assertThat(frHeader.exists()).isTrue()
-                val content = frHeader.readText()
-                assertThat(content).contains("canonical")
-                assertThat(content).contains("hreflang=\"fr\"")
+                val frFooter = projectDir.resolve("site/templates/footer.thyme")
+                assertThat(frFooter.exists()).isTrue()
+                val content = frFooter.readText()
+                assertThat(content).contains("contact-form")
+                assertThat(content).contains("hp_name")
+                assertThat(content).contains("session_token")
+                assertThat(content).contains("cf-turnstile")
+                assertThat(content).contains("data-sitekey=\"0xTESTKEY\"")
             }
     }
 
     @Test
-    fun `injectSeo injects into EN header thyme`() {
+    fun `scaffoldContactSec injects into EN footer thyme`() {
         createProjectWithFixture()
         GradleRunner
             .create()
             .withProjectDir(projectDir)
             .withPluginClasspath()
-            .withArguments("injectSeo")
+            .withArguments("scaffoldContactSec")
             .build()
 
-        val enHeader = projectDir.resolve("site/en/templates/header.thyme")
-        assertThat(enHeader.exists()).isTrue()
-        val content = enHeader.readText()
-        assertThat(content).contains("canonical")
-        assertThat(content).contains("hreflang=\"en\"")
+        val enFooter = projectDir.resolve("site/en/templates/footer.thyme")
+        assertThat(enFooter.exists()).isTrue()
+        val content = enFooter.readText()
+        assertThat(content).contains("contact-form")
+        assertThat(content).contains("hp_name")
     }
 
     @Test
-    fun `injectSeo is idempotent`() {
+    fun `scaffoldContactSec generates contact js for each language`() {
         createProjectWithFixture()
         GradleRunner
             .create()
             .withProjectDir(projectDir)
             .withPluginClasspath()
-            .withArguments("injectSeo")
+            .withArguments("scaffoldContactSec")
             .build()
 
-        val frHeader = projectDir.resolve("site/templates/header.thyme")
-        val firstContent = frHeader.readText()
+        val frJs = projectDir.resolve("site/assets/js/contact.js")
+        assertThat(frJs.exists()).isTrue()
+        assertThat(frJs.readText()).contains("fingerprint")
+        assertThat(frJs.readText()).contains("solvePow")
+        assertThat(frJs.readText()).contains("turnstile.getResponse")
+
+        val enJs = projectDir.resolve("site/en/assets/js/contact.js")
+        assertThat(enJs.exists()).isTrue()
+    }
+
+    @Test
+    fun `scaffoldContactSec generates firestore rules`() {
+        createProjectWithFixture()
+        GradleRunner
+            .create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments("scaffoldContactSec")
+            .build()
+
+        val rules = projectDir.resolve("site/firestore.rules")
+        assertThat(rules.exists()).isTrue()
+        val content = rules.readText()
+        assertThat(content).contains("match /contacts/{docId}")
+        assertThat(content).contains("allow create:")
+        assertThat(content).contains("hp_name == ''")
+        assertThat(content).contains("created_at == request.time")
+    }
+
+    @Test
+    fun `scaffoldContactSec is idempotent`() {
+        createProjectWithFixture()
+        GradleRunner
+            .create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments("scaffoldContactSec")
+            .build()
+
+        val frFooter = projectDir.resolve("site/templates/footer.thyme")
+        val firstContent = frFooter.readText()
 
         GradleRunner
             .create()
             .withProjectDir(projectDir)
             .withPluginClasspath()
-            .withArguments("injectSeo")
+            .withArguments("scaffoldContactSec")
             .build()
-            .let { result2 ->
-                assertThat(result2.output).contains("BUILD SUCCESSFUL")
-                val secondContent = frHeader.readText()
+            .let { result ->
+                assertThat(result.output).contains("BUILD SUCCESSFUL")
+                val secondContent = frFooter.readText()
                 assertThat(secondContent).isEqualTo(firstContent)
             }
     }
 
     @Test
-    fun `injectSeo is no-op without seo config`() {
-        createProjectWithoutSeoConfig()
+    fun `scaffoldContactSec is no-op without contact config`() {
+        createProjectWithoutContactConfig()
         GradleRunner
             .create()
             .withProjectDir(projectDir)
             .withPluginClasspath()
-            .withArguments("injectSeo")
+            .withArguments("scaffoldContactSec")
             .build()
             .let { result ->
                 assertThat(result.output).contains("BUILD SUCCESSFUL")
-                assertThat(result.output).contains("No seo config")
+                assertThat(result.output).contains("No contact config")
             }
     }
 
     @Test
-    fun `injectSeo is registered in transform group`() {
+    fun `scaffoldContactSec is registered in transform group`() {
         createProjectWithFixture()
         GradleRunner
             .create()
@@ -100,45 +139,7 @@ class InjectSeoFunctionalTest {
             .withArguments("tasks", "--group", "transform")
             .build()
             .let { result ->
-                assertThat(result.output).contains("injectSeo")
-            }
-    }
-
-    @Test
-    fun `injectSeo generates sitemap with root url and hreflang alternates`() {
-        createProjectWithFixture()
-        GradleRunner
-            .create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("injectSeo")
-            .build()
-            .let { result ->
-                assertThat(result.output).contains("BUILD SUCCESSFUL")
-                val sitemap = projectDir.resolve("site/sitemap.xml")
-                assertThat(sitemap.exists()).isTrue()
-                val content = sitemap.readText()
-                assertThat(content).contains("<loc>https://example.com/</loc>")
-                assertThat(content).contains("hreflang=\"fr\"")
-                assertThat(content).contains("hreflang=\"en\"")
-                assertThat(content).contains("hreflang=\"x-default\"")
-                assertThat(content).contains("https://example.com/en/")
-            }
-    }
-
-    @Test
-    fun `injectSeo does not generate sitemap without seo config`() {
-        createProjectWithoutSeoConfig()
-        GradleRunner
-            .create()
-            .withProjectDir(projectDir)
-            .withPluginClasspath()
-            .withArguments("injectSeo")
-            .build()
-            .let { result ->
-                assertThat(result.output).contains("BUILD SUCCESSFUL")
-                val sitemap = projectDir.resolve("site/sitemap.xml")
-                assertThat(sitemap.exists()).isFalse()
+                assertThat(result.output).contains("scaffoldContactSec")
             }
     }
 
@@ -146,7 +147,7 @@ class InjectSeoFunctionalTest {
         projectDir.resolve("settings.gradle.kts").writeText(
             """
             pluginManagement { repositories { gradlePluginPortal(); mavenLocal() } }
-            rootProject.name = "inject-seo-test"
+            rootProject.name = "scaffold-contact-sec-test"
             """.trimIndent(),
         )
 
@@ -161,26 +162,22 @@ class InjectSeoFunctionalTest {
         siteDir.resolve("templates").mkdirs()
         siteDir.resolve("content").mkdirs()
 
-        val headerThyme =
+        val footerThyme =
             """
             <html xmlns:th="http://www.thymeleaf.org">
-            <head>
-            <!-- SEO: bakery -->
-            <old-seo />
-            <!-- /SEO: bakery -->
-            <title>Test</title>
-            </head>
-            <body></body>
+            <body>
+            <footer>Old footer</footer>
+            </body>
             </html>
             """.trimIndent()
 
-        siteDir.resolve("templates/header.thyme").writeText(headerThyme)
+        siteDir.resolve("templates/footer.thyme").writeText(footerThyme)
         siteDir.resolve("content/index.html").writeText("<h1>Hello FR</h1>")
 
         val enDir = siteDir.resolve("en")
         enDir.resolve("templates").mkdirs()
         enDir.resolve("content").mkdirs()
-        enDir.resolve("templates/header.thyme").writeText(headerThyme)
+        enDir.resolve("templates/footer.thyme").writeText(footerThyme)
         enDir.resolve("content/index.html").writeText("<h1>Hello EN</h1>")
 
         projectDir.resolve("site.yml").writeText(
@@ -190,21 +187,23 @@ class InjectSeoFunctionalTest {
               destDirPath: build/output
             language: fr
             supportedLanguages: [fr, en]
-            seo:
-              siteName: Example
-              brand: Example
-              defaultOgImage: example-default.png
-              websiteUrl: "https://example.com"
-              inLanguage: fr
+            contact:
+              enabled: true
+              endpointUrl: "https://script.example.com/exec"
+              firestoreCollection: contacts
+              turnstile:
+                siteKey: "0xTESTKEY"
+              minRenderTimeMs: 2500
+              dailyGlobalCap: 50
             """.trimIndent(),
         )
     }
 
-    private fun createProjectWithoutSeoConfig() {
+    private fun createProjectWithoutContactConfig() {
         projectDir.resolve("settings.gradle.kts").writeText(
             """
             pluginManagement { repositories { gradlePluginPortal(); mavenLocal() } }
-            rootProject.name = "inject-seo-noconfig-test"
+            rootProject.name = "scaffold-contact-sec-noconfig-test"
             """.trimIndent(),
         )
 
@@ -217,11 +216,11 @@ class InjectSeoFunctionalTest {
 
         val siteDir = projectDir.resolve("site")
         siteDir.resolve("templates").mkdirs()
-        siteDir.resolve("templates/header.thyme").writeText(
+        siteDir.resolve("templates/footer.thyme").writeText(
             """
-            <head>
-            <title>No SEO</title>
-            </head>
+            <body>
+            <footer>No contact</footer>
+            </body>
             """.trimIndent(),
         )
 

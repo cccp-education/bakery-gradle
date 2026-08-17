@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-08-17 — Session 202 ✅ (BKY-DNS-6 dogfooding réel talaria.school + 2 bugs DnsDiff corrigés). **EPIC BKY-DNS TERMINÉ 7/7 US**. Session 201 ✅ (BKY-DNS-5 Cucumber BDD). Session 199 ✅ (Audit version : delta **0.0.5 déclaré vs 0.0.4 Central** → EPIC PUB ajouté, zéro code modifié). Session 198 ✅ (BKY-DNS-3 DnsProvisioner). **EPIC BKY-I18N-MASS (priorité 1)** : MASS-1→4 ✅, MASS-5→6 restants._
+_Dernière mise à jour : 2026-08-17 — Session 204 ✅ (**BKY-SEO CLOS 27/27 pts** US-6 SitemapHreflangBuilder + US-7 BDD 6 scénarios + **BKY-CONTACT-SEC CLOS 26/26 pts** US-6 ContactSecRenderer+ScaffoldContactSecTask, US-7 fixture, US-8 BDD 4 scénarios). Domaines `bakery.seo` (6 fichiers) + `bakery.contact` (7 fichiers) clos. 29 UT + 9 FT + 10 BDD nouveaux, 0 FAIL. Session 203 ✅ (EPIC PUB 0.0.7 Central + BKY-SEO US-1→5 + BKY-CONTACT-SEC US-1→5). **EPIC BKY-I18N-MASS (priorité 1)** : MASS-1→4 ✅, MASS-5→6 restants (dogfooding LLM réel, accord pilote)._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -1461,7 +1461,7 @@ DDD/TDD/BDD préservée à chaque US.
 
 '''
 
-== EPIC BKY-SEO — Généralisation features SEO (canonical/hreflang/OG/JSON-LD/404/sitemap) sur copie anonymisée de cheroliv.com
+== EPIC BKY-SEO — Généralisation features SEO (canonical/hreflang/OG/JSON-LD/404/sitemap) sur copie anonymisée de cheroliv.com ✅ TERMINÉ (S204 CLOS 27/27 pts)
 
 _Cadré Session 190 (2026-08-04), retour de Session 034 office/sites/cheroliv.com (SEO overhaul).
 Les features SEO sont actuellement en dur dans les templates cheroliv.com
@@ -1591,13 +1591,13 @@ Backward-compat : sans config `seo:`, aucune injection (no-op).
 | SEO-6
 |===
 
-_Total_ : ~27 pts, 7 US.
+_Total_ : ~27 pts, 7 US. _✅ EPIC BKY-SEO CLOS (S204). 27/27 pts livrés (100%). 7/7 US — US-1→5 S203, US-6→7 S204._
 
 === Dépendances (DAG)
 
 ----
 SEO-1 (SeoConfig) ─→ SEO-2 (SeoPageMeta) ─→ SEO-3 (Renderer)
-                                                     ├─→ SEO-5 (InjectSeoTask + bake) ─→ SEO-6 (sitemap)
+                                                      ├─→ SEO-5 (InjectSeoTask + bake) ─→ SEO-6 (sitemap)
 SEO-4 (Fixture) ─────────────────────────────────────┘                                        └─→ SEO-7 (BDD)
 ----
 
@@ -1639,7 +1639,7 @@ DDD/TDD/BDD préservée à chaque US.
 
 '''
 
-== EPIC BKY-CONTACT-SEC — Durcissement formulaire contact (Turnstile, rate limit, token anti-rejeu, PoW, heuristiques) — scaffold bakery + fixture publique
+== EPIC BKY-CONTACT-SEC — Durcissement formulaire contact (Turnstile, rate limit, token anti-rejeu, PoW, heuristiques) — scaffold bakery + fixture publique ✅ TERMINÉ (S204 CLOS 26/26 pts)
 
 _Cadré Session 190 (2026-08-04). Constat Session 034 : le formulaire contact
 cheroliv.com envoie à Firestore + Apps Script Gmail. 4 défenses existent déjà
@@ -1808,7 +1808,7 @@ GitHub Action manuel `workflow_dispatch` sur le repo privé du site
 | SEC-7
 |===
 
-_Total_ : ~26 pts, 8 US.
+_Total_ : ~26 pts, 8 US. _✅ EPIC BKY-CONTACT-SEC CLOS (S204). 26/26 pts livrés (100%). 8/8 US — US-1→5 S203, US-6→8 S204._
 
 === Dépendances (DAG)
 
