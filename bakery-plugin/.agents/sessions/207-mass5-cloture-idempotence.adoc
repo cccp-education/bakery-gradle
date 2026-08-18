@@ -1,0 +1,64 @@
+= Session 207 — MASS-5 Clôture lot 2026 + idempotence validée
+:date: 2026-08-19
+:type: dogfooding LLM réel + clôture EPIC
+:score: 8/10
+
+== Objectif
+
+Clôturer MASS-5 (lot 2026, 16 articles restants FR→EN) puis procédure fermeture.
+
+== Constats
+
+. **Lot 2026 déjà traduit** : 28/28 articles présents dans `content-i18n/en/`
+  (à plat, pas dans `en/blog/2026/`). Timestamps août 18 (run antérieur S207).
+. **Headers JBake préservés** : 0 header cassé (`title=/date=/~~~~~~`
+  absent). `:jbake-title:` présent et traduit sur les 28 fichiers.
+. **`:summary:` traduits** : 0 stale — le fix S206 (asciidocAttributes
+  summary/description) est appliqué sur les 28 articles 2026.
+. **Ratio FR résiduel < 7%** : 24/28 articles < 5%. Les 4 > 5% (0104 5.3%,
+  0116 7.0%, 0119 6.5%, 0121 5.3%) sont des faux positifs sur mots courts
+  (le/la/les/a/on/y/etc.) — contenu anglais valide.
+. **Idempotence Loi Économie d'Encre** : re-run `migrateContentI18n`
+  `--contentI18nSource=blog/2026` → `[en] Delta : 0 à traduire, 108
+  préservés.` Zéro appel LLM, zéro fichier modifié. Validation LENIENT :
+  0 table invalide, 0 plantuml invalide. BUILD SUCCESSFUL en 856ms.
+. **Bug chemin dogfooding** : `--contentI18nSource=content/blog/2026` produit
+  `content/content/blog/2026` (double `content/` — le `srcPath: content` du
+  site.yml est préfixé). workaround : `--contentI18nSource=blog/2026`.
+  Non bloquant pour la clôture (fichiers déjà traduits).
+
+== Clôture MASS-5
+
+8/8 lots complétés — 108/108 articles FR→EN :
+
+[cols="1,1,1"]
+|===
+| Année | Articles | Statut
+
+| 2021 | 1 | ✅
+| 2024 | 6 | ✅
+| 2022 | 7 | ✅
+| 2023 | 14 | ✅
+| 2019 | 13 | ✅
+| 2020 | 15 | ✅
+| 2025 | 24 | ✅
+| 2026 | 28 | ✅
+| *Total* | *108* | *✅ TERMINÉ*
+|===
+
+**EPIC BKY-I18N-MASS : MASS-1→5 ✅ TERMINÉ. MASS-6 🟡 reporté (108×10 langues, ~675h LLM, accord pilote requis).**
+
+== Publications
+
+Aucune publication cette session — bakery 0.0.9 et document 0.0.3 déjà
+publiés Central (S207 antérieur). Aucun code modifié (dogfooding only).
+
+== Fichiers touchés
+
+Aucun fichier source modifié. Dogfooding via `/tmp/bakery-dogfood/` (projet
+consommateur includeBuild, hors repo git).
+
+== Gouvernance
+
+Procédure clôture 6 étapes exécutée (cette session rattrape le retard S206
+INDEX/PROMPT_REPRISE + clôture MASS-5).

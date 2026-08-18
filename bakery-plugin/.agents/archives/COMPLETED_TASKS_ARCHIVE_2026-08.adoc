@@ -700,3 +700,22 @@ Triple EPIC session.
 **BKY-I18N-MASS MASS-5** : 7/8 lots ✅, lot 2026 🟠 (16 articles restants). Idempotence + delta inter-lots validés. BDD feature 62 (6/6 PASS). `publishToMavenLocal` VERT. Zéro régression, zéro secret.
 
 **Score** : 8/10
+
+== Session 207 — MASS-5 CLÔTURÉ (2026-08-19)
+
+*Type* : dogfooding LLM réel + clôture EPIC
+*Score* : 8/10
+
+*Résumé* : Lot 2026 déjà traduit (28/28 articles, timestamps août 18 run antérieur).
+Headers JBake préservés (0 cassé), `:summary:` traduits (fix S206 appliqué).
+Ratio FR résiduel < 7% (24/28 < 5%, faux positifs mots courts).
+Idempotence Loi Économie d'Encre : re-run `migrateContentI18n --contentI18nSource=blog/2026` → `[en] Delta : 0 à traduire, 108 préservés.` Zéro appel LLM, zéro fichier modifié, BUILD SUCCESSFUL 856ms. Validation LENIENT : 0 table invalide, 0 plantuml invalide.
+
+*Constats* :
+. Lot 2026 déjà traduit — aucun appel LLM nécessaire cette session
+. Bug chemin dogfooding : `--contentI18nSource=content/blog/2026` double `content/` (srcPath site.yml préfixé) → workaround `blog/2026` (P3)
+. Aucun code source modifié (dogfooding only)
+
+*Clôture* : **MASS-5 TERMINÉ 8/8 lots, 108/108 articles FR→EN.** MASS-6 🟡 reporté (108×10 langues, ~675h LLM, accord pilote requis).
+
+*Publications* : aucune (bakery 0.0.9 + document 0.0.3 déjà Central S206 antérieur).

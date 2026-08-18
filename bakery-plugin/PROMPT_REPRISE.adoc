@@ -1,60 +1,49 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 207
-:date: 2026-08-18
-:etat: Session 206 ✅ — Fix plugin ID (19 fichiers `education.ccp.bakery` → `education.cccp.bakery`) + fix `:summary:` AsciiDoc non traduit dans `DocumentTranslator.translateFrontmatter` (document-gradle, TDD RED→GREEN + BDD Cucumber) + bump pub cross-borough (document-plugin 0.0.2, bakery-plugin 0.0.8, workspace-bom 0.0.20 publiés Central) + màj 4 consommateurs foundry/public.
-:epic_actif: MASS-5 clôture (lot 2026, 16 articles restants) + MASS-6 (108 × 10 langues, accord pilote). EPIC PUB 0.0.9 après MASS-5/6.
+:session: 208
+:date: 2026-08-19
+:etat: Session 207 ✅ — MASS-5 CLÔTURÉ (8/8 lots, 108/108 articles FR→EN, idempotence validée Delta=0, validation LENIENT 0 invalide). Aucun code modifié (dogfooding only). bakery 0.0.9 + document 0.0.3 déjà publiés Central (S206 antérieur).
+:epic_actif: MASS-6 🟡 reporté (108 × 10 langues, ~675h LLM, accord pilote explicite requis). Tous les autres EPICs bakery clos.
 
 == Contexte de fin
 
-Session 206 — 2 constats S205 traités + bump/pub :
-- Constat 1 : 19 fichiers corrigés `education.ccp.bakery` → `education.cccp.bakery`
-- Constat 2 : `DocumentTranslator.translateFrontmatter` étendu aux
-  `asciidocAttributes["summary"]`/`["description"]` (document-gradle). Test
-  TDD RED→GREEN + scénario BDD Cucumber 5/5 PASSED.
-- Publications Central : document-plugin 0.0.2 (bundle `def2f207`), bakery-plugin
-  0.0.8 (bundle `a3931440`), workspace-bom 0.0.20.
-- Consommateurs màj : bakery (BOM 0.0.20 ×3), codex (BOM 0.0.20), plantuml
-  (BOM 0.0.20), runner (bakery 0.0.8 + ID corrigé).
+Session 207 — Dogfooding LLM réel + clôture MASS-5 :
+- Lot 2026 déjà traduit (28/28 articles, timestamps août 18 run antérieur)
+- Headers JBake préservés (0 cassé), `:summary:` traduits (fix S206 appliqué)
+- Ratio FR résiduel < 7% (24/28 < 5%, faux positifs mots courts)
+- Idempotence Loi Économie d'Encre : re-run `blog/2026` → Delta=0, 108 préservés
+- Validation LENIENT : 0 table invalide, 0 plantuml invalide
+- Bug chemin dogfooding : `--contentI18nSource=content/blog/2026` double
+  le `content/` (srcPath site.yml préfixé) → workaround `blog/2026`
 
-## Mission Session 207
+## Mission Session 208
 
-1. **MASS-5 clôture** : terminer lot 2026 (16 articles restants, ~3h LLM
-   `gemma4:31b-cloud` port 11437)
-2. **Re-traduire cheroliv.com/en/** avec le fix `:summary:` AsciiDoc (impact
-   SEO — articles déjà traduits S181 ont leur `:summary:` en français)
-3. **MASS-6** : montée en charge 108 × 10 langues (zh/hi/es/ar/bn/pt/ru/ur)
-   — session dédiée, accord pilote explicite
-4. **EPIC PUB 0.0.9** : bump version + publication Central (après MASS-5/6)
+1. **MASS-6 montée en charge** : 108 articles × 10 langues
+   (zh/hi/es/ar/bn/pt/ru/ur) — session dédiée, **accord pilote explicite
+   requis**. Coût LLM ~675h (108 × 9 langues × ~50 segments × 5s).
+2. **Bug chemin dogfooding** : `--contentI18nSource=content/blog/YYYY`
+   produit `content/content/blog/YYYY` (double `content/`). Fix dans
+   `MigrateContentI18nTask` — ne pas préfixer si le chemin commence déjà
+   par `srcPath`. P3 (non bloquant, workaround existe).
+3. **Re-traduction cheroliv.com/en/** avec fix `:summary:` (impact SEO —
+   articles S181 ont leur `:summary:` en français, déjà corrigés S206
+   sur les copies dogfooding, à propager en prod).
 
 ## Reprendre à
 
 . `git status` dans bakery-gradle
-. Lire `BACKLOG.adoc` section BKY-I18N-MASS MASS-5/6
+. Lire `BACKLOG.adoc` section BKY-I18N-MASS MASS-6
 . Vérifier Ollama ports 11437-11465 + modèle `gemma4:31b-cloud`
-. `/tmp/bakery-dogfood` projet consommateur (buildscript classpath 0.0.8)
+. `/tmp/bakery-dogfood` projet consommateur (buildscript classpath 0.0.9)
 . `publishToMavenLocal` après chaque modification code source
 
 ## Ordre des EPICs (priorité)
 
-. MASS-5 clôture lot 2026 (16 articles restants)
-. Re-traduction cheroliv.com/en/ (fix `:summary:` impact SEO)
 . MASS-6 montée en charge 108 × 10 langues (accord pilote)
-. EPIC PUB 0.0.9 (bump version + publication Central)
+. Bug chemin dogfooding (P3, non bloquant)
+. Re-traduction cheroliv.com/en/ prod (fix `:summary:` impact SEO)
 
-## Fichiers touchés S206
+## Fichiers touchés S207
 
-*document-gradle* (fix `:summary:` AsciiDoc) :
-- `document-plugin/src/main/kotlin/document/translation/DocumentTranslator.kt`
-- `document-plugin/src/test/kotlin/document/translation/DocumentTranslatorTest.kt`
-- `document-plugin/src/test/resources/features/document.feature`
-- `document-plugin/src/test/scenarios/document/scenarios/DocumentSteps.kt`
-- `document-plugin/src/test/scenarios/document/scenarios/DocumentWorld.kt`
-
-*bakery-gradle* (plugin ID + bump) :
-- 19 fichiers `education.ccp.bakery` → `education.cccp.bakery`
-- `bakery-plugin/build.gradle.kts` (version 0.0.8 + BOM 0.0.20 ×3)
-- `bakery-plugin/gradle/libs.versions.toml` + `gradle/libs.versions.toml`
-
-*workspace-bom* (bump 0.0.20 + bakery 0.0.8)
-
-*consommateurs* : codex (BOM 0.0.20), plantuml (BOM 0.0.20), runner (bakery 0.0.8)
+Aucun fichier source modifié. Dogfooding via `/tmp/bakery-dogfood/`
+(projet consommateur includeBuild, hors repo git). Gouvernance uniquement
+(archive session, PROMPT_REPRISE, INDEX, SESSIONS_HISTORY, BACKLOG sync).

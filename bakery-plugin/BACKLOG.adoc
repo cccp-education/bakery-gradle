@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-08-18 — Session 206 ✅ (**Fix plugin ID** 19 fichiers `education.ccp.bakery` → `education.cccp.bakery` + **fix `:summary:` AsciiDoc** dans `DocumentTranslator.translateFrontmatter` document-gradle TDD RED→GREEN + BDD Cucumber 5/5 PASSED + **bump/pub cross-borough** document-plugin 0.0.2, bakery-plugin 0.0.8, workspace-bom 0.0.20 publiés Central + màj 4 consommateurs foundry/public). Session 205 ✅ (MASS-5 dogfooding lot annuel FR→EN 7/8 lots = 80/108 articles, idempotence + delta inter-lots validés, BDD feature 62). Session 204 ✅ (BKY-SEO CLOS 27/27 + BKY-CONTACT-SEC CLOS 26/26). **EPIC BKY-I18N-MASS (priorité 1)** : MASS-1→4 ✅, MASS-5 🟠 (7/8 lots, lot 2026 restant), MASS-6 🟡 reporté._
+_Dernière mise à jour : 2026-08-19 — Session 207 ✅ (**MASS-5 CLÔTURÉ** 8/8 lots, 108/108 articles FR→EN, idempotence validée Delta=0, validation LENIENT 0 invalide, dogfooding only zéro code modifié). Session 206 ✅ (Fix plugin ID + fix `:summary:` AsciiDoc + bump/pub cross-borough document 0.0.2/bakery 0.0.8/BOM 0.0.20 Central). Session 205 ✅ (MASS-5 dogfooding lot annuel FR→EN 7/8 lots + BDD feature 62). Session 204 ✅ (BKY-SEO CLOS 27/27 + BKY-CONTACT-SEC CLOS 26/26). **EPIC BKY-I18N-MASS (priorité 1)** : MASS-1→5 ✅ TERMINÉ, MASS-6 🟡 reporté._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 
@@ -1967,7 +1967,7 @@ juste de fiabiliser.
 | Dogfooding opérateur + rapport métriques
 | 4
 | MASS-4
-| *🟠 S205 — 7/8 lots complétés (80/108 articles FR→EN), lot 2026 en cours (12/28 articles, ~3h LLM restant). Idempotence + delta inter-lots validés. BDD feature 62 batch-annual (6/6 PASS). Rapport métriques : 2021 (1 art, 2m10s), 2024 (6 art, 7m22s), 2022 (7 art, 11m33s), 2023 (14 art, 11m31s), 2019 (13 art, 5m28s), 2020 (15 art, 3m58s), 2025 (24 art, ~9m30s). Limite pratique : ~20-25 art/lot pour rester sous 1h. Validation LENIENT 0 invalide.*
+| *✅ S207 — 8/8 lots complétés (108/108 articles FR→EN). Lot 2026 traduit (28/28 articles). Idempotence validée (re-run Delta=0, 108 préservés). Validation LENIENT 0 table/plantuml invalide. Headers JBake préservés, `:summary:` traduits (fix S206). Ratio FR résiduel < 7% (24/28 < 5%, faux positifs mots courts). Bug chemin dogfooding `content/blog/2026` double `content/` → workaround `blog/2026` (P3).*
 
 | *BKY-I18N-MASS-6*
 | *Montée en charge complète — 108 articles × 10 langues.* Passe production
@@ -1977,7 +1977,7 @@ juste de fiabiliser.
 | Rapport production + BDD feature 60 end-to-end mass-translation
 | 4
 | MASS-5
-| *🟡 REPORTÉ — coût LLM ~675h (108 × 9 langues × ~50 segments × 5s). Session dédiée avec accord pilote explicite requis. Pré-requis : clôture MASS-5 lot 2026 (16 articles restants) + fix qualité `:summary:` non traduit.*
+| *🟡 REPORTÉ — coût LLM ~675h (108 × 9 langues × ~50 segments × 5s). Session dédiée avec accord pilote explicite requis. Pré-requis : ✅ clôture MASS-5 lot 2026 (S207 — 108/108 articles FR→EN) + ✅ fix qualité `:summary:` non traduit (S206). Prêt à lancer.*
 |===
 
 _Total_ : ~32 pts, 6 US. _Projection_ : 5-7 sessions (S191-S197).
