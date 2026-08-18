@@ -1,5 +1,5 @@
 [versions]
-bakery = "0.0.5"
+bakery = "0.0.8"
 readme = "0.0.1"
 
 [libraries]

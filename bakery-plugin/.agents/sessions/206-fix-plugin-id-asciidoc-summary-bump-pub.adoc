@@ -1,0 +1,232 @@
+= Session 206 — Fix plugin ID + asciidoc :summary: + bump/pub cross-borough
+:session: 206
+:date: 2026-08-18
+:etat: Clôturée
+:projets: bakery-gradle (pivot) + document-gradle (fix) + workspace-bom (bump)
+:score: 9/10
+
+== Contexte initial
+
+Session S205 a laissé 2 constats au PROMPT_REPRISE bakery :
+
+. **Plugin ID incohérent** — Descriptor réel `education.cccp.bakery` (3 "c")
+  dans `gradle/libs.versions.toml:71`, mais 18 README + AGENTS.adoc/BACKLOG
+  documentaient `education.ccp.bakery` (2 "c"). Incohérence gouvernance pure
+  (pas d'impact runtime, le plugin marche).
+. **`:summary:` non traduit** — Fix Session 029 document-gradle
+  (`translateFrontmatter` traduisait `jbakeAttributes["summary"]` et
+  `["description"]`) mais les articles cheroliv.com utilisent `:summary:`
+  (attribut AsciiDoc sans préfixe `:jbake-`) qui finit dans
+  `asciidocAttributes` (parser ligne 89), pas `jbakeAttributes`. Le fix
+  rate sa cible. SEO i18n incomplet.
+
+Autorisation commit + push en fin de session.
+
+== Constat 1 — Plugin ID (gouvernance pure)
+
+Remplacement de toutes les occurrences `education.ccp.bakery` (2 "c") par
+`education.cccp.bakery` (3 "c"). 19 fichiers corrigés via `sed -i` :
+
+- `bakery-plugin/.agents/INDEX.adoc`
+- `bakery-plugin/.agents/SESSIONS_HISTORY.adoc`
+- `bakery-plugin/.agents/archives/COMPLETED_TASKS_ARCHIVE_2026-08.adoc`
+- `bakery-plugin/.agents/sessions/205-MASS-5-batch-annual-dogfooding.adoc`
+- `bakery-plugin/PROMPT_REPRISE.adoc`
+- `bakery-plugin/README.plugin/README.{ar,bn,es,hi,pt,ru,ur}.md` (7)
+- `README.consommateurs/README.{ar,bn,es,hi,pt,ru,ur}.md` (7)
+
+Vérification post-fix : `grep -rln "education\.ccp\.bakery"` retourne 0
+match.
+
+== Constat 2 — `:summary:` AsciiDoc non traduit (DDD/TDD/BDD)
+
+Découverte clé : `TreeTranslationAdapter` (mode whole-article, lignes
+89-90 et 174-177) gérait déjà `asciidocAttributes["summary"]`/`["description"]`.
+Mais `DocumentTranslator.translateFrontmatter` (mode bloc-par-bloc, celui
+utilisé par `MigrateContentI18nTask`) ne gérait que `jbakeAttributes`. C'est
+le bug — la traduction réelle de bakery passe par `DocumentTranslator`.
+
+=== Baby-step 1 — TDD RED
+
+Nouveau test `translate translates asciidoc summary and description attributes`
+dans `DocumentTranslatorTest.kt` : article JBake-native avec
+`:summary: Un resume court en francais sans prefixe jbake` et
+`:description: Une description longue en francais sans prefixe jbake`
+(sans préfixe `:jbake-`). Assert traduction `[EN]`.
+
+Résultat : `AssertionFailedError` à la ligne 427 — `:summary:` reste en
+français. RED confirmé.
+
+=== Baby-step 2 — GREEN
+
+Fix `DocumentTranslator.translateFrontmatter` (document-gradle) :
+extension de la traduction aux `asciidocAttributes`. Pattern identique à
+`jbakeAttributes` : `toMutableMap()` + `["summary"]?.let { doTranslate }` +
+`["description"]?.let { doTranslate }` + `fm.copy(..., asciidocAttributes =
+translatedAsciidocAttrs)`. Backward compat préservée (map vide = no-op).
+
+Résultat : test PASSED. GREEN.
+
+=== Baby-step 3 — REFACTOR (non-régression)
+
+Gate `document.translation.*` (10 classes de test) : BUILD SUCCESSFUL en
+37s, 0 FAIL. Non-régression prouvée sur :
+- `DocumentTranslatorTest` (incluant nouveau scénario)
+- `TreeTranslationAdapterTest`
+- `AsciiDocParserTest`
+- `JbakeNativeRendererTest`
+- `TranslateDocumentTaskTest`
+- `AsciiDocRendererTest`
+- `ContentTranslationServiceTest`
+- `DocumentTranslatorBlockDeltaTest`
+- `BlockDeltaTest`
+- `BlockDeltaWireDebugTest`
+
+=== Baby-step 4 — BDD Cucumber
+
+Nouveau scénario dans `document.feature` (tag `@doc-translate @translation
+@jbake-native`) :
+`translateDocument translates asciidoc summary and description attributes
+without jbake prefix`. 5 steps :
+
+- Given a new document project with translation DSL and asciidoc attributes
+- When I am executing the task 'translateDocument'
+- Then the build should succeed
+- And the translated document should contain ':summary: Un resume court en
+  francais sans prefixe jbake [EN]'
+- And the translated document should contain ':description: Une description
+  longue en francais sans prefixe jbake [EN]'
+
+Nouveau step `Given a new document project with translation DSL and
+asciidoc attributes` dans `DocumentSteps.kt` + méthode
+`createGradleProjectWithTranslationDslAndAsciidocAttributes` dans
+`DocumentWorld.kt` (fixture : article JBake-native avec `:summary:` et
+`:description:` sans préfixe).
+
+Résultat : scénario 5/5 steps PASSED (cucumber.json confirmé). Les échecs
+préexistants (`bookPipeline`, `applyDocumentTemplate`, `batchConvertDocuments`)
+sont indépendants de notre modification (AsciidoctorJ/env, préexistants).
+
+=== Fichiers modifiés (document-gradle)
+
+- `document-plugin/src/main/kotlin/document/translation/DocumentTranslator.kt`
+  (+10 lignes : traduction asciidocAttributes)
+- `document-plugin/src/test/kotlin/document/translation/DocumentTranslatorTest.kt`
+  (+25 lignes : 1 UT nouveau)
+- `document-plugin/src/test/resources/features/document.feature`
+  (+8 lignes : 1 scénario BDD)
+- `document-plugin/src/test/scenarios/document/scenarios/DocumentSteps.kt`
+  (+5 lignes : 1 step Given)
+- `document-plugin/src/test/scenarios/document/scenarios/DocumentWorld.kt`
+  (+35 lignes : 1 méthode fixture)
+
+== Bump + publish cross-borough
+
+=== document-plugin 0.0.1 → 0.0.2
+
+- `gradle/libs.versions.toml` : `document = "0.0.1"` → `"0.0.2"`
+- `publishToMavenLocal` VERT (jar 0.0.2 + asc + javadoc + sources + module + pom)
+- `publishAggregationToCentralPortal` — bundle `def2f207` uploaded, AUTOMATIC
+  publishing, validation publishing OK
+
+=== bakery-plugin 0.0.5 → 0.0.8
+
+Découverte : catalog bakery à 0.0.5, mais Central a déjà 0.0.7 (S203 a
+publié 0.0.7, S205 a oublié de bumper le catalog). On aligne sur 0.0.8
+(prochaine version après 0.0.7 publié).
+
+- `bakery-plugin/build.gradle.kts` : `version = "0.0.7"` → `"0.0.8"`
+- `bakery-plugin/gradle/libs.versions.toml` : `bakery = "0.0.5"` → `"0.0.8"`
+- `bakery-gradle/gradle/libs.versions.toml` (root catalog) :
+  `bakery = "0.0.5"` → `"0.0.8"`
+- `bakery-plugin/build.gradle.kts` : `document-plugin:0.0.1` → `:0.0.2`
+- `bakery-plugin/build.gradle.kts` : BOM 0.0.19 → 0.0.20 (×3 : main +
+  functionalTest + e2eTest)
+- `BakeryPluginPublicationTest` 2/2 PASS (version match root + plugin catalog)
+- `publishToMavenLocal` VERT
+- `publishAggregationToCentralPortal` — bundle `a3931440` uploaded, AUTOMATIC
+
+=== workspace-bom 0.0.19 → 0.0.20
+
+- `workspace-bom/build.gradle.kts` : `version = "0.0.19"` → `"0.0.20"`
+- `workspace-bom/gradle/libs.versions.toml` : `workspace-bom = "0.0.19"`
+  → `"0.0.20"`, `bakery-plugin = "0.0.6"` → `"0.0.8"`
+- `publishToMavenLocal` VERT
+- `publishAggregationToCentralPortal` — AUTOMATIC publishing OK
+
+=== Consommateurs màj foundry/public
+
+Audit `grep workspace-bom:0.0.19|education.ccp.bakery.*0.0.[0-7]` :
+4 consommateurs mis à jour.
+
+- `bakery-gradle/bakery-plugin/build.gradle.kts` : BOM 0.0.19 → 0.0.20 (×3)
+- `codex-gradle/codex-plugin/build.gradle.kts` : BOM 0.0.19 → 0.0.20
+- `plantuml-gradle/plantuml-plugin/build.gradle.kts` : BOM 0.0.19 → 0.0.20
+- `runner-gradle/build.gradle.kts` : `education.ccp.bakery` version `0.0.4`
+  → `education.cccp.bakery` version `0.0.8` (double fix : ID + version)
+
+Vérification post-fix : `grep workspace-bom:0.0.19|bakery.*0.0.[0-7]`
+retourne 0 match dans foundry/public.
+
+Compilation bakery avec BOM 0.0.20 + document-plugin 0.0.2 :
+`compileKotlin --rerun-tasks` BUILD SUCCESSFUL.
+
+== Secrets
+
+`grep -r "TOKEN|SECRET|PASSWORD|API_KEY|gho_|ghp_"` dans les diffs : 0
+match. Credentials nmcp lues depuis `~/.gradle/gradle.properties` via
+settings, jamais loggées.
+
+== Publications Central récapitulatif
+
+[cols="2,2,3"]
+|===
+| Artefact | Version | Bundle Central
+
+| document-plugin | 0.0.2 | `def2f207-2dba-4bea-8e0d-0d0bbd166aef`
+| bakery-plugin   | 0.0.8 | `a3931440-c5e5-45ac-890d-d09442cd5ae3`
+| workspace-bom  | 0.0.20 | (publié, bundle non capturé)
+|===
+
+== Méthode
+
+Baby-step DDD/TDD/BDD strict :
+- DDD : pas de nouveau domaine (fix dans `DocumentTranslator` existant)
+- TDD : RED (test échoue) → GREEN (fix code) → REFACTOR (non-régression
+  10 classes de test)
+- BDD : scénario Cucumber end-to-end via `translateDocument` task
+  (GradleRunner)
+
+== Prochaine session (207)
+
+. MASS-5 clôture lot 2026 (16 articles restants, ~3h LLM)
+. MASS-6 montée en charge 108 × 10 langues (accord pilote)
+. Vérifier le déploiement cheroliv.com/en/ — re-traduire avec le fix
+  `:summary:` AsciiDoc (impact SEO)
+. EPIC PUB 0.0.9 après MASS-5/6
+
+== Fichiers modifiés — récapitulatif total
+
+*document-gradle* (5 fichiers) :
+- `document-plugin/src/main/kotlin/document/translation/DocumentTranslator.kt`
+- `document-plugin/src/test/kotlin/document/translation/DocumentTranslatorTest.kt`
+- `document-plugin/src/test/resources/features/document.feature`
+- `document-plugin/src/test/scenarios/document/scenarios/DocumentSteps.kt`
+- `document-plugin/src/test/scenarios/document/scenarios/DocumentWorld.kt`
+- `document-plugin/gradle/libs.versions.toml` (bump)
+
+*bakery-gradle* (22 fichiers) :
+- 19 fichiers `education.ccp.bakery` → `education.cccp.bakery`
+- `bakery-plugin/build.gradle.kts` (version 0.0.8 + BOM 0.0.20 ×3 +
+  document-plugin 0.0.2)
+- `bakery-plugin/gradle/libs.versions.toml` (bakery 0.0.8)
+- `gradle/libs.versions.toml` (root catalog bakery 0.0.8)
+
+*workspace-bom* (2 fichiers) :
+- `build.gradle.kts` (version 0.0.20)
+- `gradle/libs.versions.toml` (workspace-bom 0.0.20 + bakery 0.0.8)
+
+*consommateurs* (3 fichiers) :
+- `codex-gradle/codex-plugin/build.gradle.kts` (BOM 0.0.20)
+- `plantuml-gradle/plantuml-plugin/build.gradle.kts` (BOM 0.0.20)
+- `runner-gradle/build.gradle.kts` (bakery 0.0.8 + ID corrigé)

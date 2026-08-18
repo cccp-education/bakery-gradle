@@ -9,7 +9,7 @@
 [![Coverage](https://img.shields.io/static/v1?label=coverage&message=%E2%89%A585%25&color=green)]()
 [![License](https://img.shields.io/github/license/cheroliv/bakery-gradle?label=License)](../LICENSE)
 
-- **ورژن**: `0.0.2` · **گروپ**: `education.ccp` · **پلگ ان ID**: `education.ccp.bakery`
+- **ورژن**: `0.0.2` · **گروپ**: `education.ccp` · **پلگ ان ID**: `education.cccp.bakery`
 - **ٹول چین**: Java 24 · Kotlin 2.3.20 · Gradle 9.5.1
 - **بلڈ**: `./gradlew build` · **ٹیسٹ**: `./gradlew check` · **کوریج گیٹ**: `./gradlew koverThresholdCheck` (≥85 %)
 
@@ -149,7 +149,7 @@ POM (`withType<MavenPublication>` پر) اعلام کرتا ہے:
 - `github.com/cccp-education/bakery-gradle` کی طرف اشارہ کرتا SCM
 - groupId مائیگریشن کے لیے اختیاری `relocationGroup` انجیکشن
 
-`gradlePlugin` بلاک: `id = education.ccp.bakery`, `implementationClass = bakery.BakeryPlugin`,
+`gradlePlugin` بلاک: `id = education.cccp.bakery`, `implementationClass = bakery.BakeryPlugin`,
 displayName "Bakery Plugin", ٹیگز `[jbake, static-site-generator, blog, jgit, asciidoc, markdown, thymeleaf]`,
 `website = https://cccp-education.github.io/`, `vcsUrl = https://github.com/cccp-education/bakery-gradle.git`۔
 

@@ -50,7 +50,7 @@ delta inter-lots + idempotence).
 === 3. Constats de dogfooding
 
 - **Plugin ID réel = `education.cccp.bakery`** (3 "c" dans `cccp`),
-  pas `education.ccp.bakery` (2 "c") documenté dans AGENTS.adoc/BACKLOG.
+  pas `education.cccp.bakery` (2 "c") documenté dans AGENTS.adoc/BACKLOG.
   Incohérence à corriger dans la gouvernance.
 - **Timeout LLM cloud sur lots volumineux** : lot 2026 (28 art, ~15000
   lignes) dépasse 1h. Rotation ports 11437-11465 avec retries réussis

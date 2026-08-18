@@ -1,5 +1,45 @@
 = Archive des Taches Terminees — Aout 2026
 
+== Session 206 — 2026-08-18 — Fix plugin ID + asciidoc :summary: + bump/pub cross-borough
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| Constat 1 — 19 fichiers corrigés `education.ccp.bakery` (2 "c") → `education.cccp.bakery` (3 "c") via `sed -i` (18 README plugin/consommateurs + INDEX/SESSIONS_HISTORY/archives/session 205/PROMPT_REPRISE). Vérif post-fix : `grep -rln "education\.ccp\.bakery"` retourne 0 match.
+| ✅ TERMINÉ
+
+| Constat 2 — Fix `DocumentTranslator.translateFrontmatter` (document-gradle) : extension traduction aux `asciidocAttributes["summary"]`/`["description"]` (pattern identique à `jbakeAttributes`, +10 lignes, backward compat préservée). Articles cheroliv.com utilisent `:summary:` sans préfixe `:jbake-` → `asciidocAttributes`. Le fix S029 traduisait `jbakeAttributes` seulement — rate sa cible.
+| ✅ TERMINÉ
+
+| TDD RED — Nouveau test `translate translates asciidoc summary and description attributes` dans `DocumentTranslatorTest.kt` : article JBake-native avec `:summary:` et `:description:` sans préfixe. `AssertionFailedError` ligne 427 — `:summary:` reste en français. RED confirmé.
+| ✅ TERMINÉ
+
+| TDD GREEN — Fix `DocumentTranslator.translateFrontmatter` : `toMutableMap()` + `["summary"]?.let { doTranslate }` + `["description"]?.let { doTranslate }` + `fm.copy(..., asciidocAttributes = translatedAsciidocAttrs)`. Test PASSED. GREEN.
+| ✅ TERMINÉ
+
+| TDD REFACTOR (non-régression) — Gate `document.translation.*` 10 classes (DocumentTranslatorTest, TreeTranslationAdapterTest, AsciiDocParserTest, JbakeNativeRendererTest, TranslateDocumentTaskTest, AsciiDocRendererTest, ContentTranslationServiceTest, DocumentTranslatorBlockDeltaTest, BlockDeltaTest, BlockDeltaWireDebugTest) BUILD SUCCESSFUL 37s, 0 FAIL.
+| ✅ TERMINÉ
+
+| BDD Cucumber — Nouveau scénario `translateDocument translates asciidoc summary and description attributes without jbake prefix` (tag `@doc-translate @translation @jbake-native`, 5/5 steps PASSED). Nouveau step `Given a new document project with translation DSL and asciidoc attributes` + méthode `createGradleProjectWithTranslationDslAndAsciidocAttributes` (fixture article avec `:summary:`/`:description:` sans préfixe). Échecs préexistants `bookPipeline`/`applyDocumentTemplate`/`batchConvertDocuments` indépendants (AsciidoctorJ/env).
+| ✅ TERMINÉ
+
+| Bump document-plugin 0.0.1 → 0.0.2 (`gradle/libs.versions.toml` `document = "0.0.2"`). `publishToMavenLocal` VERT (jar 0.0.2 + asc + javadoc + sources + module + pom). `publishAggregationToCentralPortal` — bundle `def2f207` uploaded, AUTOMATIC publishing.
+| ✅ TERMINÉ
+
+| Bump bakery-plugin 0.0.5 → 0.0.8 (catalog plugin + root catalog + build.gradle.kts version). Découverte : catalog à 0.0.5, Central a déjà 0.0.7 (S203 publié, S205 oublié bumper). Aligne sur 0.0.8 (prochaine version après 0.0.7). `document-plugin:0.0.1` → `:0.0.2` dans build.gradle.kts. BOM 0.0.19 → 0.0.20 (×3 : main + functionalTest + e2eTest). `BakeryPluginPublicationTest` 2/2 PASS. `publishToMavenLocal` VERT. `publishAggregationToCentralPortal` — bundle `a3931440` uploaded, AUTOMATIC.
+| ✅ TERMINÉ
+
+| Bump workspace-bom 0.0.19 → 0.0.20 (`build.gradle.kts` version + `gradle/libs.versions.toml` `workspace-bom = "0.0.20"` + `bakery-plugin = "0.0.8"`). `publishToMavenLocal` VERT. `publishAggregationToCentralPortal` — AUTOMATIC publishing OK.
+| ✅ TERMINÉ
+
+| Màj consommateurs foundry/public — bakery (BOM 0.0.20 ×3 dans build.gradle.kts), codex (BOM 0.0.20), plantuml (BOM 0.0.20), runner (bakery 0.0.4→0.0.8 + ID corrigé `education.ccp.bakery`→`education.cccp.bakery`). Vérif post-fix : `grep workspace-bom:0.0.19|bakery.*0.0.[0-7]` retourne 0 match dans foundry/public.
+| ✅ TERMINÉ
+
+| Compilation bakery avec BOM 0.0.20 + document-plugin 0.0.2 : `compileKotlin --rerun-tasks` BUILD SUCCESSFUL.
+| ✅ TERMINÉ
+|===
+
 == Session 202 — 2026-08-17 — BKY-DNS-6 (dogfooding réel talaria.school + 2 bugs DnsDiff corrigés)
 
 [cols="2,3"]
@@ -593,7 +633,7 @@ Triple EPIC session.
 |===
 | Tâche | Statut
 
-| Dogfooding LLM réel lot annuel FR→EN sur cheroliv.com via `/tmp/bakery-dogfood` (buildscript classpath `education.ccp.bakery:0.0.7` mavenLocal + symlink content), `gemma4:31b-cloud` port 11437
+| Dogfooding LLM réel lot annuel FR→EN sur cheroliv.com via `/tmp/bakery-dogfood` (buildscript classpath `education.cccp.bakery:0.0.7` mavenLocal + symlink content), `gemma4:31b-cloud` port 11437
 | ✅ TERMINÉ (7/8 lots)
 
 | Lot 2021 (1 article, 2m10s) — traduit, idempotence validée
@@ -647,7 +687,7 @@ Triple EPIC session.
 | `publishToMavenLocal` VERT
 | ✅ VALIDÉ
 
-| Constat : plugin ID réel = `education.cccp.bakery` (3 "c"), pas `education.ccp.bakery` (incohérence gouvernance AGENTS.adoc/BACKLOG)
+| Constat : plugin ID réel = `education.cccp.bakery` (3 "c"), pas `education.cccp.bakery` (incohérence gouvernance AGENTS.adoc/BACKLOG)
 | 🟡 À CORRIGER
 
 | Constat : `:summary:` non traduit (fix Session 029 `translateFrontmatter` non appliqué dans `MigrateContentI18nTask`)

@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-08-18 — Session 205 ✅ (**MASS-5 dogfooding lot annuel FR→EN** 7/8 lots complétés = 80/108 articles, idempotence + delta inter-lots validés. Lot 2026 🟠 en cours 12/28 articles. BDD feature 62 `batch-annual` 6/6 scénarios PASS, fixture `cheroliv-com-mass-batch`). MASS-6 🟡 reporté (coût LLM ~675h, session dédiée pilote). Session 204 ✅ (BKY-SEO CLOS 27/27 + BKY-CONTACT-SEC CLOS 26/26). Session 203 ✅ (EPIC PUB 0.0.7 Central + BKY-SEO US-1→5 + BKY-CONTACT-SEC US-1→5). **EPIC BKY-I18N-MASS (priorité 1)** : MASS-1→4 ✅, MASS-5 🟠 (7/8 lots, lot 2026 restant), MASS-6 🟡 reporté._
+_Dernière mise à jour : 2026-08-18 — Session 206 ✅ (**Fix plugin ID** 19 fichiers `education.ccp.bakery` → `education.cccp.bakery` + **fix `:summary:` AsciiDoc** dans `DocumentTranslator.translateFrontmatter` document-gradle TDD RED→GREEN + BDD Cucumber 5/5 PASSED + **bump/pub cross-borough** document-plugin 0.0.2, bakery-plugin 0.0.8, workspace-bom 0.0.20 publiés Central + màj 4 consommateurs foundry/public). Session 205 ✅ (MASS-5 dogfooding lot annuel FR→EN 7/8 lots = 80/108 articles, idempotence + delta inter-lots validés, BDD feature 62). Session 204 ✅ (BKY-SEO CLOS 27/27 + BKY-CONTACT-SEC CLOS 26/26). **EPIC BKY-I18N-MASS (priorité 1)** : MASS-1→4 ✅, MASS-5 🟠 (7/8 lots, lot 2026 restant), MASS-6 🟡 reporté._
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 

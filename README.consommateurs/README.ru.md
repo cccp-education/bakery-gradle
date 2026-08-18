@@ -8,7 +8,7 @@
 [![CI](https://img.shields.io/github/actions/workflow/status/cheroliv/bakery-gradle/test.yml?branch=main&label=tests)](https://github.com/cheroliv/bakery-gradle/actions/workflows/test.yml)
 [![License](https://img.shields.io/github/license/cheroliv/bakery-gradle?label=License)](../LICENSE)
 
-- **Версия**: `0.0.2` · **Группа**: `education.ccp` · **ID плагина**: `education.ccp.bakery`
+- **Версия**: `0.0.2` · **Группа**: `education.ccp` · **ID плагина**: `education.cccp.bakery`
 - **Сборка**: `./gradlew build` · **Тесты**: `./gradlew check` (JUnit5 + functionalTest + Cucumber + E2E Playwright)
 - **Покрытие**: ≥ 85 % (Kover `koverThresholdCheck`, подключён к `check`) · **Cucumber**: 129/129 PASS
 

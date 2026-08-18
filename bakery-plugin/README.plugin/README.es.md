@@ -9,7 +9,7 @@
 [![Coverage](https://img.shields.io/static/v1?label=coverage&message=%E2%89%A585%25&color=green)]()
 [![License](https://img.shields.io/github/license/cheroliv/bakery-gradle?label=License)](../LICENSE)
 
-- **Versión**: `0.0.2` · **Group**: `education.ccp` · **ID del plugin**: `education.ccp.bakery`
+- **Versión**: `0.0.2` · **Group**: `education.ccp` · **ID del plugin**: `education.cccp.bakery`
 - **Toolchain**: Java 24 · Kotlin 2.3.20 · Gradle 9.5.1
 - **Build**: `./gradlew build` · **Tests**: `./gradlew check` · **Puerta de cobertura**: `./gradlew koverThresholdCheck` (≥85 %)
 

@@ -1,44 +1,60 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 206
+:session: 207
 :date: 2026-08-18
-:etat: Session 205 ✅ — MASS-5 dogfooding lot annuel 7/8 lots (80/108 articles FR→EN, idempotence validée) + BDD feature 62 batch annual (6/6 scénarios PASS). MASS-6 reporté (coût LLM ~675h).
-:epic_actif: MASS-5 clôture (lot 2026, 16 articles restants) + MASS-6 (108 × 10 langues, accord pilote). EPIC PUB 0.0.8 après MASS-5/6.
+:etat: Session 206 ✅ — Fix plugin ID (19 fichiers `education.ccp.bakery` → `education.cccp.bakery`) + fix `:summary:` AsciiDoc non traduit dans `DocumentTranslator.translateFrontmatter` (document-gradle, TDD RED→GREEN + BDD Cucumber) + bump pub cross-borough (document-plugin 0.0.2, bakery-plugin 0.0.8, workspace-bom 0.0.20 publiés Central) + màj 4 consommateurs foundry/public.
+:epic_actif: MASS-5 clôture (lot 2026, 16 articles restants) + MASS-6 (108 × 10 langues, accord pilote). EPIC PUB 0.0.9 après MASS-5/6.
 
 == Contexte de fin
 
-Session 205 — dogfooding LLM réel + BDD :
-- MASS-5 : 7/8 lots FR→EN complétés (2021, 2024, 2022, 2023, 2019, 2020, 2025) = 80/108 articles
-- Lot 2026 (28 art, ~15000 lignes) en cours au-delà timeout 1h — limite pratique ~20-25 art/lot
-- Idempotence validée (2e run = 0 à traduire, delta vide)
-- Delta inter-lots validé (checksums globaux préservent lots précédents)
-- BDD feature 62 `62_i18n_mass_batch_annual.feature` (6 scénarios PASS, delta inter-lots + idempotence)
-- Fixture `cheroliv-com-mass-batch` (2 lots × 2 articles FR)
-- Constat : plugin ID réel = `education.cccp.bakery` (3 "c"), pas `education.ccp.bakery` (incohérence gouvernance)
+Session 206 — 2 constats S205 traités + bump/pub :
+- Constat 1 : 19 fichiers corrigés `education.ccp.bakery` → `education.cccp.bakery`
+- Constat 2 : `DocumentTranslator.translateFrontmatter` étendu aux
+  `asciidocAttributes["summary"]`/`["description"]` (document-gradle). Test
+  TDD RED→GREEN + scénario BDD Cucumber 5/5 PASSED.
+- Publications Central : document-plugin 0.0.2 (bundle `def2f207`), bakery-plugin
+  0.0.8 (bundle `a3931440`), workspace-bom 0.0.20.
+- Consommateurs màj : bakery (BOM 0.0.20 ×3), codex (BOM 0.0.20), plantuml
+  (BOM 0.0.20), runner (bakery 0.0.8 + ID corrigé).
 
-## Mission Session 206
+## Mission Session 207
 
-1. **MASS-5 clôture** : terminer lot 2026 (16 articles restants, ~3h LLM `gemma4:31b-cloud` port 11437)
-2. **MASS-6** : montée en charge 108 × 10 langues (zh/hi/es/ar/bn/pt/ru/ur) — session dédiée, accord pilote explicite
-3. **EPIC PUB 0.0.8** : bump version + publication Central (feature 62 nouvelle)
+1. **MASS-5 clôture** : terminer lot 2026 (16 articles restants, ~3h LLM
+   `gemma4:31b-cloud` port 11437)
+2. **Re-traduire cheroliv.com/en/** avec le fix `:summary:` AsciiDoc (impact
+   SEO — articles déjà traduits S181 ont leur `:summary:` en français)
+3. **MASS-6** : montée en charge 108 × 10 langues (zh/hi/es/ar/bn/pt/ru/ur)
+   — session dédiée, accord pilote explicite
+4. **EPIC PUB 0.0.9** : bump version + publication Central (après MASS-5/6)
 
 ## Reprendre à
 
 . `git status` dans bakery-gradle
 . Lire `BACKLOG.adoc` section BKY-I18N-MASS MASS-5/6
 . Vérifier Ollama ports 11437-11465 + modèle `gemma4:31b-cloud`
-. `/tmp/bakery-dogfood` projet consommateur (buildscript classpath 0.0.7)
+. `/tmp/bakery-dogfood` projet consommateur (buildscript classpath 0.0.8)
 . `publishToMavenLocal` après chaque modification code source
 
 ## Ordre des EPICs (priorité)
 
 . MASS-5 clôture lot 2026 (16 articles restants)
+. Re-traduction cheroliv.com/en/ (fix `:summary:` impact SEO)
 . MASS-6 montée en charge 108 × 10 langues (accord pilote)
-. EPIC PUB 0.0.8 (bump version + publication Central)
+. EPIC PUB 0.0.9 (bump version + publication Central)
 
-## Fichiers touchés S205
+## Fichiers touchés S206
 
-*bakery-gradle/bakery-plugin* :
-- `src/test/features/62_i18n_mass_batch_annual.feature` — créé (BDD)
-- `src/test/scenarios/bakery/scenarios/I18nMassBatchSteps.kt` — créé (BDD)
-- `src/test/kotlin/bakery/i18n/mass/I18nMassBatchCucumberTest.kt` — créé (runner)
-- `src/test/resources/fixtures/cheroliv-com-mass-batch/` — créé (4 articles + config)
+*document-gradle* (fix `:summary:` AsciiDoc) :
+- `document-plugin/src/main/kotlin/document/translation/DocumentTranslator.kt`
+- `document-plugin/src/test/kotlin/document/translation/DocumentTranslatorTest.kt`
+- `document-plugin/src/test/resources/features/document.feature`
+- `document-plugin/src/test/scenarios/document/scenarios/DocumentSteps.kt`
+- `document-plugin/src/test/scenarios/document/scenarios/DocumentWorld.kt`
+
+*bakery-gradle* (plugin ID + bump) :
+- 19 fichiers `education.ccp.bakery` → `education.cccp.bakery`
+- `bakery-plugin/build.gradle.kts` (version 0.0.8 + BOM 0.0.20 ×3)
+- `bakery-plugin/gradle/libs.versions.toml` + `gradle/libs.versions.toml`
+
+*workspace-bom* (bump 0.0.20 + bakery 0.0.8)
+
+*consommateurs* : codex (BOM 0.0.20), plantuml (BOM 0.0.20), runner (bakery 0.0.8)
