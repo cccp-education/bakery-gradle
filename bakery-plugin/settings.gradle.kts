@@ -30,6 +30,7 @@ nmcpSettings {
 
 dependencyResolutionManagement {
     repositories {
+        mavenLocal()
         mavenCentral()
         google()
     }
