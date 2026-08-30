@@ -9,10 +9,10 @@ plugins {
     alias(libs.plugins.publish)
     alias(libs.plugins.kover)
     alias(libs.plugins.node.gradle)
-    id("education.cccp.build.gradle-plugin") version "0.0.3"
-    id("education.cccp.build.publishing") version "0.0.3"
-    id("education.cccp.build.lint") version "0.0.3"
-    id("education.cccp.build.kover") version "0.0.3"
+    id("education.cccp.build.gradle-plugin") version "0.0.4"
+    id("education.cccp.build.publishing") version "0.0.4"
+    id("education.cccp.build.lint") version "0.0.4"
+    id("education.cccp.build.kover") version "0.0.4"
 }
 
 group = "education.cccp"
