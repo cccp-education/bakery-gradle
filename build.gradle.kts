@@ -1,3 +1,15 @@
+// Fix conflit classpath : Gradle 9.6.1 épingle le Kotlin embarqué (strictly 2.3.21)
+// en conflit avec les constraints platform workspace-bom (2.4.10) tirées transitivement
+// via bakery-plugin → document-plugin → plantuml-plugin → workspace-bom.
+buildscript {
+    configurations.all {
+        resolutionStrategy {
+            force("org.jetbrains.kotlin:kotlin-stdlib:2.4.10")
+            force("org.jetbrains:annotations:26.0.2-1")
+        }
+    }
+}
+
 plugins {
     alias(libs.plugins.bakery)
     alias(libs.plugins.readme)

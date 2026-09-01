@@ -1,0 +1,55 @@
+= Session 208 — MEM-CAT-3 : pilote workspace-catalog (cross-borough MEMPHIS S-026)
+
+_Date : 2026-09-01. Priorité pilote : centralisation des versions. bakery = borough
+pilote de la consommation du catalogue de versions publié par MEMPHIS._
+
+== Ce qui a été fait
+
+=== Fix-0 — Déblocage baseline
+
+Le build racine bakery était ROUGE : Gradle 9.6.1 épingle le Kotlin embarqué
+(`kotlin-stdlib {strictly 2.3.21}`, `annotations {strictly 13.0}`) sur le
+classpath buildscript, en conflit avec les constraints platform workspace-bom
+(2.4.10 / 26.0.2-1) tirées transitivement via `bakery-plugin → document-plugin
+→ plantuml-plugin → workspace-bom`.
+
+Fix : block `buildscript { configurations.all { resolutionStrategy.force(...) } }`
+dans `build.gradle.kts` racine (pattern readme-plugin / CNV-12.2 conventions).
+Runner-gradle (2e consommateur bakery) fixé identiquement côté MEMPHIS.
+
+=== MEM-CAT-3 — Pilote catalogue versions publié
+
+. `bakery-plugin/settings.gradle.kts` : pin unique
+  `create("ws") { from("education.cccp:workspace-catalog:0.0.29") }` (D4).
+. `build.gradle.kts` : `version = ws.versions.bakery.plugin.get()` (0.0.9
+  dérivé du catalogue — plus de double déclaration build/toml, D3).
+. `document-plugin` consommé SANS version : contraint par platform
+  `workspace-bom:0.0.29` (constraint document-plugin 0.0.15). Le hardcode
+  0.0.15 est supprimé (D5).
+. Platforms implementation/functionalTest/e2eTest : 0.0.20 → 0.0.29.
+. `BakeryPluginPublicationTest` migré (D3) : vérifie la dérivation
+  `ws.versions.bakery.plugin.get()` + cohérence version self toml local ↔
+  catalogue ws. 2/2 PASSED.
+
+=== Gates non-régression
+
+|===
+| Gate | Résultat
+| `test` | 1665 PASS / 3 FAIL — identique baseline (stash vérifié : fixtures i18n + golden master préexistants, hors scope)
+| `functionalTest` | BUILD SUCCESSFUL
+| `cucumberTest` | 7 failures = 7 failures baseline (mêmes scénarios i18n/DNS préexistants)
+| `publishToMavenLocal` | VERT — bakery-plugin 0.0.9 re-publié
+| `help` racine | VERT
+|===
+
+== Fichiers touchés
+
+- `build.gradle.kts` (racine) — buildscript forces
+- `bakery-plugin/settings.gradle.kts` — pin ws 0.0.29
+- `bakery-plugin/build.gradle.kts` — version dérivée + platform 0.0.29 + document-plugin sans version
+- `bakery-plugin/src/test/kotlin/bakery/BakeryPluginPublicationTest.kt` — migré D3
+
+== Prochaine session (209)
+
+MASS-6 (accord pilote) / bug chemin dogfooding P3 / re-traduction prod :summary:.
+MEM-CAT-4/5 côté MEMPHIS (voir PROMPT_REPRISE workspace-bom).

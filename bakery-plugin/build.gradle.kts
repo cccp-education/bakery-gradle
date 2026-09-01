@@ -16,7 +16,9 @@ plugins {
 }
 
 group = "education.cccp"
-version = "0.0.9"
+// MEM-CAT-3 (D3) — version propre dérivée du catalog workspace publié (pin unique settings).
+// Remplace le toml local dupliqué — fixe durablement BakeryPluginPublicationTest.
+version = ws.versions.bakery.plugin.get()
 
 repositories {
     mavenLocal()
@@ -26,7 +28,8 @@ repositories {
 
 dependencies {
     // BOM — workspace version alignment (workspace-bom, MEMPHIS)
-    implementation(platform("education.cccp:workspace-bom:0.0.20"))
+    // MEM-CAT-3 (D5) — platform 0.0.29 : contraint document-plugin/i18n-contracts sans hardcode.
+    implementation(platform("education.cccp:workspace-bom:0.0.29"))
 
     implementation(kotlin("stdlib-jdk8"))
 
@@ -40,7 +43,9 @@ dependencies {
     implementation(libs.codebase.plugin)
     implementation("education.cccp:api-key-pool:0.0.1")
     implementation("education.cccp:i18n-contracts:0.0.2")
-    implementation("education.cccp:document-plugin:0.0.15")
+    // MEM-CAT-3 (D5) — document-plugin sans version : la version vient du platform
+    // workspace-bom (constraint document-plugin), plus de hardcode local.
+    implementation("education.cccp:document-plugin")
 
     // LLM — LangChain4j + Ollama (BKY-IA-0)
     implementation(libs.langchain4j.ollama)
@@ -111,7 +116,7 @@ val functionalTest: SourceSet by sourceSets.creating {
 
 // 2. Ajouter GradleTestKit à functionalTest (SANS hériter de testImplementation)
 dependencies {
-    add(functionalTest.implementationConfigurationName, platform("education.cccp:workspace-bom:0.0.20"))
+    add(functionalTest.implementationConfigurationName, platform("education.cccp:workspace-bom:0.0.29"))
 
     add(functionalTest.implementationConfigurationName, gradleTestKit())
     add(functionalTest.implementationConfigurationName, kotlin("stdlib-jdk8"))
@@ -174,7 +179,7 @@ val e2eTest: SourceSet by sourceSets.creating {
 
 // 2. Dépendances e2eTest : Playwright + JUnit5 + AssertJ + full test runtime
 dependencies {
-    add(e2eTest.implementationConfigurationName, platform("education.cccp:workspace-bom:0.0.20"))
+    add(e2eTest.implementationConfigurationName, platform("education.cccp:workspace-bom:0.0.29"))
 
     add(e2eTest.implementationConfigurationName, sourceSets.main.get().output)
     add(e2eTest.implementationConfigurationName, sourceSets.test.get().output)

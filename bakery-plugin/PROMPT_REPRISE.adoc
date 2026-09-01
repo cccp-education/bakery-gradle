@@ -1,32 +1,31 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 208
-:date: 2026-08-19
-:etat: Session 207 ✅ — MASS-5 CLÔTURÉ (8/8 lots, 108/108 articles FR→EN, idempotence validée Delta=0, validation LENIENT 0 invalide). Aucun code modifié (dogfooding only). bakery 0.0.9 + document 0.0.3 déjà publiés Central (S206 antérieur).
-:epic_actif: MASS-6 🟡 reporté (108 × 10 langues, ~675h LLM, accord pilote explicite requis). Tous les autres EPICs bakery clos.
+:session: 209
+:date: 2026-09-01
+:etat: Session 208 ✅ — MEM-CAT-3 pilote workspace-catalog (cross-borough MEMPHIS S-026) : pin `ws` 0.0.29, version dérivée du catalogue, document-plugin sans version via platform 0.0.29, PublicationTest migré. Gates non-régression VERT (test 1665 PASS/3 FAIL baseline, functionalTest, cucumberTest 7 FAIL baseline). Fix-0 buildscript force kotlin-stdlib (conflit Gradle 9.6.1).
+:epic_actif: MASS-6 🟡 reporté (108 × 10 langues, ~675h LLM, accord pilote explicite requis).
 
 == Contexte de fin
 
-Session 207 — Dogfooding LLM réel + clôture MASS-5 :
-- Lot 2026 déjà traduit (28/28 articles, timestamps août 18 run antérieur)
-- Headers JBake préservés (0 cassé), `:summary:` traduits (fix S206 appliqué)
-- Ratio FR résiduel < 7% (24/28 < 5%, faux positifs mots courts)
-- Idempotence Loi Économie d'Encre : re-run `blog/2026` → Delta=0, 108 préservés
-- Validation LENIENT : 0 table invalide, 0 plantuml invalide
-- Bug chemin dogfooding : `--contentI18nSource=content/blog/2026` double
-  le `content/` (srcPath site.yml préfixé) → workaround `blog/2026`
+Session 208 — MEM-CAT-3 (priorité pilote : centralisation versions cross-borough) :
+- settings bakery-plugin : `create("ws") { from("education.cccp:workspace-catalog:0.0.29") }` (pin unique)
+- build : `version = ws.versions.bakery.plugin.get()` (0.0.9 dérivé du catalogue MEMPHIS)
+- `document-plugin` SANS version — contraint par platform workspace-bom 0.0.29
+- platforms implementation/functionalTest/e2eTest : 0.0.20 → 0.0.29
+- `BakeryPluginPublicationTest` migré : dérivation ws + cohérence toml local ↔ catalogue ws (2/2 PASSED)
+- Fix-0 : buildscript force `kotlin-stdlib:2.4.10` + `annotations:26.0.2-1`
+  (Gradle 9.6.1 épingle strictly 2.3.21/13.0 en conflit avec platform transitive
+  bakery → document → plantuml → workspace-bom)
 
-## Mission Session 208
+## Mission Session 209
 
-1. **MASS-6 montée en charge** : 108 articles × 10 langues
-   (zh/hi/es/ar/bn/pt/ru/ur) — session dédiée, **accord pilote explicite
-   requis**. Coût LLM ~675h (108 × 9 langues × ~50 segments × 5s).
-2. **Bug chemin dogfooding** : `--contentI18nSource=content/blog/YYYY`
-   produit `content/content/blog/YYYY` (double `content/`). Fix dans
-   `MigrateContentI18nTask` — ne pas préfixer si le chemin commence déjà
-   par `srcPath`. P3 (non bloquant, workaround existe).
-3. **Re-traduction cheroliv.com/en/** avec fix `:summary:` (impact SEO —
-   articles S181 ont leur `:summary:` en français, déjà corrigés S206
-   sur les copies dogfooding, à propager en prod).
+1. **MASS-6 montée en charge** : 108 articles × 10 langues (zh/hi/es/ar/bn/pt/ru/ur)
+   — session dédiée, **accord pilote explicite requis**. Coût LLM ~675h.
+2. **Bug chemin dogfooding** : `--contentI18nSource=content/blog/YYYY` produit
+   `content/content/blog/YYYY` (double `content/`). Fix dans `MigrateContentI18nTask`
+   — ne pas préfixer si le chemin commence déjà par `srcPath`. P3.
+3. **Re-traduction cheroliv.com/en/** avec fix `:summary:` (impact SEO).
+4. **MEM-CAT-4/5 côté MEMPHIS** : propagation + BDD — coordination avec la
+   session MEMPHIS (workspace-bom PROMPT_REPRISE).
 
 ## Reprendre à
 
@@ -42,8 +41,10 @@ Session 207 — Dogfooding LLM réel + clôture MASS-5 :
 . Bug chemin dogfooding (P3, non bloquant)
 . Re-traduction cheroliv.com/en/ prod (fix `:summary:` impact SEO)
 
-## Fichiers touchés S207
+## Fichiers touchés S208
 
-Aucun fichier source modifié. Dogfooding via `/tmp/bakery-dogfood/`
-(projet consommateur includeBuild, hors repo git). Gouvernance uniquement
-(archive session, PROMPT_REPRISE, INDEX, SESSIONS_HISTORY, BACKLOG sync).
+- `build.gradle.kts` (racine) — buildscript force kotlin-stdlib/annotations
+- `bakery-plugin/settings.gradle.kts` — pin ws catalog 0.0.29
+- `bakery-plugin/build.gradle.kts` — version dérivée ws + platform 0.0.29 + document-plugin sans version
+- `bakery-plugin/src/test/kotlin/bakery/BakeryPluginPublicationTest.kt` — migré D3
+- `bakery-plugin/gradle/libs.versions.toml` — WIP 0.0.9 (absorbé, inchangé)

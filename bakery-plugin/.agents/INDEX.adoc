@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-08-19 — Session 207 ✅ — MASS-5 CLÔTURÉ (8/8 lots, 108/108 articles FR→EN, idempotence validée Delta=0, validation LENIENT 0 invalide). Aucun code modifié (dogfooding only). bakery 0.0.9 + document 0.0.3 déjà publiés Central (S206 antérieur). MASS-6 🟡 reporté (108×10 langues, ~675h LLM, accord pilote requis)._
-_Session en cours_ : 207 ✅ — MASS-5 clôture lot 2026 + idempotence Loi Économie d'Encre._
-_Prochaine session_ : 208 — MASS-6 montée en charge 108 × 10 langues (accord pilote) + bug chemin dogfooding (P3) + re-traduction cheroliv.com/en/ prod (fix `:summary:` impact SEO).
+_Derniere mise a jour : 2026-09-01 — Session 208 ✅ — **MEM-CAT-3 pilote workspace-catalog** (cross-borough MEMPHIS S-026) : pin `ws` catalog 0.0.29 dans settings, `version = ws.versions.bakery.plugin.get()` (version dérivée du catalogue publié MEMPHIS), document-plugin consommé SANS version via platform workspace-bom 0.0.29 (plus de hardcode 0.0.15), BakeryPluginPublicationTest migré (dérivation ws + cohérence toml↔ws). Gates : test 1665 PASS/3 FAIL (= baseline préexistants i18n), functionalTest VERT, cucumberTest 7 FAIL (= baseline), publishToMavenLocal 0.0.9 VERT. Fix-0 : buildscript force kotlin-stdlib 2.4.10 (conflit Gradle 9.6.1 strictly 2.3.21 vs platform transitif). MASS-6 🟡 toujours reporté (accord pilote requis).
+_Session en cours_ : 208 ✅ — MEM-CAT-3 pilote version catalog (gouvernance versions, cross-borough MEMPHIS).
+_Prochaine session_ : 209 — MEM-CAT-4/5 côté MEMPHIS + MASS-6 montée en charge 108 × 10 langues (accord pilote) + bug chemin dogfooding (P3) + re-traduction cheroliv.com/en/ prod (fix `:summary:` impact SEO).
 
 '''
 
