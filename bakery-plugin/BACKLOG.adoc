@@ -2267,3 +2267,25 @@ Zéro code modifié — gouvernance pure. Voir rapport
   | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-199 + EPIC BKY-DNS + EPIC PUB
   | Prochaine màj | Session 201 — BKY-DNS-5 (Cucumber BDD dns_provision.feature)
  |===
+'''
+== 🟡 EPIC BKY-TEST-FLAKY — Stabilisation des 3 FAIL i18n récurrents (S-028, cross-borough MEMPHIS)
+
+_Origine : S-026/S-027/S-028 (gates MEMPHIS) — les mêmes 3 FAIL reviennent à
+chaque gate cross-borough et masquent les régressions réelles (comparaison
+baseline avant=après obligatoire à chaque session). Diagnostic debt documenté
+PROMPT_REPRISE S-027 bakery : "cucumber flaky (i18n-delta/dns/jbake-native)"._
+
+=== US
+
+[cols="2,3,2,2"]
+|===
+| US | Description | Priorité | Statut
+| FLAKY-1 | `RealSiteI18nMigrationIntegrationTest` — idempotence + golden master sitemap.thyme : golden master périmé vs templates réels (diff hreflang/xhtml:link présent dans le rendu, absent du golden) → régénérer golden master OU isoler fixture | P1 | 🟡 À FAIRE
+| FLAKY-2 | `FixtureAlignmentAuditorTest` — 1/7 FAIL : alignement fixtures i18n vs site réel désynchronisé → régénérer fixtures (audit idempotent) | P1 | 🟡 À FAIRE
+| FLAKY-3 | `I18nDeltaWireCucumberTest` (feature 57 i18n delta wire) — scénario fil rouge cassé → diagnostic RED d'abord, fix ou re-tag | P1 | 🟡 À FAIRE
+|===
+
+*Gate de clôture EPIC* : `./gradlew test` (bakery-plugin/) 0 FAIL — les gates
+cross-borough MEMPHIS n'auront plus besoin de la mention "baseline exacte
+3 FAIL". Baby-step BDD strict : diagnostic RED → fix → GREEN → REFACTOR.
+_Ordre suggéré : FLAKY-2 (audit auto-réparateur) → FLAKY-1 → FLAKY-3._
