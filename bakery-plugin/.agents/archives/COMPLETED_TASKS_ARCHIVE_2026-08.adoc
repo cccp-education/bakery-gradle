@@ -719,3 +719,10 @@ Idempotence Loi Économie d'Encre : re-run `migrateContentI18n --contentI18nSour
 *Clôture* : **MASS-5 TERMINÉ 8/8 lots, 108/108 articles FR→EN.** MASS-6 🟡 reporté (108×10 langues, ~675h LLM, accord pilote requis).
 
 *Publications* : aucune (bakery 0.0.9 + document 0.0.3 déjà Central S206 antérieur).
+
+== Session 209 — 2026-09-07 — Synchronisation gouvernance post-S-208
+
+Gouvernance pure (zéro code) :
+* TODO.adoc dégelé (S-194 → S-209) : EPIC PUB ✅ S-203, MASS-5 ✅ S-207,
+  EPIC BKY-I18N-DEPLOY ✅ CLOS 35/35 S-183, doublon BKY-TREE-7 supprimé.
+* Restants : FLAKY-1/2/3 (EPIC BKY-TEST-FLAKY, priorité 1) + MASS-6 reporté.

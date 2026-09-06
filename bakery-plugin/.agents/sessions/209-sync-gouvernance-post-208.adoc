@@ -1,0 +1,61 @@
+= Session 209 — Synchronisation gouvernance post-S-208 (zéro code)
+:date: 2026-09-07
+:source: Session 209 (gouvernance pure)
+:type: governance
+:borough: Bushwick — bakery-gradle (N2, site statique JBake)
+:status: TERMINÉE
+
+== Contexte hérité
+
+Session 208 (2026-09-01) — MEM-CAT-3 pilote workspace-catalog (cross-borough
+MEMPHIS S-026) : pin `ws` 0.0.29 dans settings, version dérivée du catalogue,
+platform BOM 0.0.29, fix buildscript kotlin-stdlib 2.4.10. Gates VERT
+(test 1665 PASS / 3 FAIL baseline).
+
+== Mission Session 209
+
+Synchroniser la gouvernance documentaire avec l'état réel (demande pilote,
+suite à code review écosystème foundry/public). Constat : TODO.adoc
+(bakery-plugin) gelé à S-194 avec 7 items décochés alors que clôturés :
+
+* EPIC PUB (PUB-0.0.5-1/2/3) — ✅ TERMINÉ S-203 (bakery 0.0.7 Central,
+  puis 0.0.8 S-206, 0.0.9 S-207).
+* MASS-5 — ✅ CLÔTURÉ S-207 (8/8 lots, 108/108 articles, idempotence).
+* DEPLOY-4→7 — ✅ EPIC BKY-I18N-DEPLOY CLOS 35/35 S-179→S-183.
+* BKY-TREE-7 — doublon (coché + décoché dans la même liste).
+
+== Déroulement
+
+1. Vérification statuts réels dans INDEX/BACKLOG (S-203, S-207, S-183
+   confirmés).
+2. TODO.adoc corrigé : header 2026-09-07, EPIC PUB marqué ✅ S-203,
+   MASS-5 ✅ S-207, MASS-6 annoté REPORTÉ, doublon BKY-TREE-7 supprimé,
+   EPIC BKY-I18N-DEPLOY renommé CLOS 35/35 avec DEPLOY-4→7 cochés.
+3. Vérification post-sync : seuls items décochés restants = FLAKY-1/2/3
+   (EPIC BKY-TEST-FLAKY réellement ouvert) + MASS-6 (reporté assumé).
+
+== Résultats
+
+- ✅ TODO.adoc aligné sur l'état réel — 4 unchecked légitimes restants.
+- ✅ Zéro code production modifié — gouvernance pure.
+- ✅ Baseline S-208 préservée (test 1665 PASS / 3 FAIL baseline i18n).
+
+== Prochaine session — 210
+
+Borough DORMANT (feature-complete). Travaux sur besoin réel :
+
+* EPIC BKY-TEST-FLAKY (priorité 1 cross-borough MEMPHIS) : FLAKY-1/2/3
+  stabilisation des 3 FAIL i18n récurrents (~5 pts) — gate clôture :
+  `./gradlew test` 0 FAIL.
+* MASS-6 reporté (accord pilote requis, ~675h LLM).
+* Bug chemin dogfooding double `content/` (P3).
+
+== Méthodologie
+
+Gouvernance pure — zéro code, zéro test modifié.
+
+== Références
+
+- `bakery-plugin/.agents/INDEX.adoc` (S-208)
+- `bakery-plugin/.agents/sessions/208-mem-cat-3-pilote-workspace-catalog.adoc`
+- `bakery-plugin/TODO.adoc` (resynchronisé)
