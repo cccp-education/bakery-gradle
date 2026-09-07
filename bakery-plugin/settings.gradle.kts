@@ -37,12 +37,12 @@ dependencyResolutionManagement {
 }
 
 // ── MEM-CAT-3 — Catalog workspace publié (MEMPHIS) : pin unique par borough (D4) ──
-// education.cccp:workspace-catalog:0.0.30 — source de vérité des versions cross-borough.
+// education.cccp:workspace-catalog:0.0.32 — source de vérité des versions cross-borough.
 // Le borough ne bump que ce pin ; les versions plugins éducatives viennent de ws.*.
 dependencyResolutionManagement {
     versionCatalogs {
         create("ws") {
-            from("education.cccp:workspace-catalog:0.0.30")
+            from("education.cccp:workspace-catalog:0.0.32")
         }
     }
 }

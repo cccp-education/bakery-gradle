@@ -28,8 +28,8 @@ repositories {
 
 dependencies {
     // BOM — workspace version alignment (workspace-bom, MEMPHIS)
-    // MEM-CAT-3 (D5) — platform 0.0.29 : contraint document-plugin/i18n-contracts sans hardcode.
-    implementation(platform("education.cccp:workspace-bom:0.0.30"))
+    // MEM-CAT-3 (D5) — platform 0.0.32 : contraint document-plugin/i18n-contracts sans hardcode.
+    implementation(platform("education.cccp:workspace-bom:0.0.32"))
 
     implementation(kotlin("stdlib-jdk8"))
 
