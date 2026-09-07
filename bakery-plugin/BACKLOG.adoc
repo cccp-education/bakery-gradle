@@ -5,7 +5,27 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-08-19 — Session 207 ✅ (**MASS-5 CLÔTURÉ** 8/8 lots, 108/108 articles FR→EN, idempotence validée Delta=0, validation LENIENT 0 invalide, dogfooding only zéro code modifié). Session 206 ✅ (Fix plugin ID + fix `:summary:` AsciiDoc + bump/pub cross-borough document 0.0.2/bakery 0.0.8/BOM 0.0.20 Central). Session 205 ✅ (MASS-5 dogfooding lot annuel FR→EN 7/8 lots + BDD feature 62). Session 204 ✅ (BKY-SEO CLOS 27/27 + BKY-CONTACT-SEC CLOS 26/26). **EPIC BKY-I18N-MASS (priorité 1)** : MASS-1→5 ✅ TERMINÉ, MASS-6 🟡 reporté._
+_Dernière mise à jour : 2026-09-07 — Session 209 ✅ (globale, cadrage EPIC BKY-FPA-SITE (GBL-003.5 critical path MVP0) : site navigable corpus FPA en STANDBY — arbitrage licence public requiert décision pilote. 2 US ~2 pts, zéro code. Session 207 ✅ MASS-5 CLÔTURÉ 8/8 lots.)_
+
+'''
+== EPIC BKY-FPA-SITE — Site navigable du corpus FPA (GBL-003.5) 🟡 STANDBY
+
+_Origine : BACKLOG.adoc racine § GBL-003 (critical path MVP0, arbitrage pilote 2026-09-07)._
+_Cadrage : `.agents/CADRAGE_EPIC_BKY_FPA_SITE.adoc`._
+
+|===
+| US | Description | Pts | Statut
+| BKY-FPA-SITE-0 | Arbitrage pilote publication publique corpus FPA (licence) — gouvernance pure | 1 | 🟡 STANDBY (décision pilote)
+| BKY-FPA-SITE-1 | Run scaffolding JBake sur livre.adoc (si arbitrage = GO) | 1 | 🟡 STANDBY
+|===
+
+*Constat* : le livre FPA navigable est déjà produit (document S-082 :
+livre.html/pdf/epub). Bakery n'ajoute de la valeur que si site JBake
+multi-pages/recherche/SEO. EPIC en STANDBY jusqu'à GBL-003.3/003.4 +
+arbitrage licence. *Frontière licence* : le corpus FPA est une œuvre
+dérivée (scans) — publication publique = décision pilote.
+
+'''
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
 _Code review source_ : `.agents/CODE_REVIEW.adoc` (V5, Session 117) + `.agents/CODE_REVIEW_V4.adoc` (Session 096)
 

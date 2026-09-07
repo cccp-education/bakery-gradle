@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-09-01 — Session 208 ✅ — **MEM-CAT-3 pilote workspace-catalog** (cross-borough MEMPHIS S-026) : pin `ws` catalog 0.0.29 dans settings, `version = ws.versions.bakery.plugin.get()` (version dérivée du catalogue publié MEMPHIS), document-plugin consommé SANS version via platform workspace-bom 0.0.29 (plus de hardcode 0.0.15), BakeryPluginPublicationTest migré (dérivation ws + cohérence toml↔ws). Gates : test 1665 PASS/3 FAIL (= baseline préexistants i18n), functionalTest VERT, cucumberTest 7 FAIL (= baseline), publishToMavenLocal 0.0.9 VERT. Fix-0 : buildscript force kotlin-stdlib 2.4.10 (conflit Gradle 9.6.1 strictly 2.3.21 vs platform transitif). MASS-6 🟡 toujours reporté (accord pilote requis).
-_Session en cours_ : 208 ✅ — MEM-CAT-3 pilote version catalog (gouvernance versions, cross-borough MEMPHIS).
-_Prochaine session_ : 209 — MEM-CAT-4/5 côté MEMPHIS + MASS-6 montée en charge 108 × 10 langues (accord pilote) + bug chemin dogfooding (P3) + re-traduction cheroliv.com/en/ prod (fix `:summary:` impact SEO).
+_Derniere mise a jour : 2026-09-07 — Session 209 ✅ (globale) — **cadrage EPIC BKY-FPA-SITE (GBL-003.5, critical path MVP0)** — site navigable du corpus FPA. Arbitrage pilote 2026-09-07 : priorité aux boroughs qui rapprochent de la génération de formation. EPIC en STANDBY : le livre FPA navigable est déjà produit (document S-082), bakery n'ajoute de valeur qu'avec arbitrage licence public (décision pilote, pas technique). 2 US ~2 pts, zéro code modifié. Doc `.agents/CADRAGE_EPIC_BKY_FPA_SITE.adoc`._
+_Session en cours_ : 209 ✅ — Cadrage EPIC BKY-FPA-SITE (gouvernance pure).
+_Prochaine session_ : à la demande — GBL-003 (chaîne contexte augmenté) si codex/codebase ont livré, OU portail formation A4 quand les SPDs existeront, OU MASS-6 (accord pilote).
 
 '''
 

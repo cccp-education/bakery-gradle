@@ -1,0 +1,54 @@
+= Cadrage EPIC BKY-FPA-SITE — Site navigable du corpus FPA (GBL-003.5)
+:date: 2026-09-07
+:epic: BKY-FPA-SITE
+:origine: BACKLOG.adoc racine § GBL-003 + AGENTS.adoc § MVP0 Critical Path
+:methode: Cadrage (gouvernance pure, zéro code) — pattern S-057/S-063
+
+== Contexte
+
+Arbitrage pilote (2026-09-07) : priorité critical path MVP0. Bakery est
+le maillon site statique de la chaîne GBL-003 : rendre le corpus FPA
+navigable publiquement (dogfood) pour réputation + adoption, une fois le
+corpus exploitable en aval (graphify/codex/codebase).
+
+== Constats
+
+1. Le livre FPA navigable est DÉJÀ produit côté document-gradle (S-082 :
+   livre.html/pdf/epub + TOC 116 sections). Bakery n'ajoute de la valeur
+   QUE si le site JBake apporte navigation multi-pages, recherche ou
+   indexation SEO — sinon Économie d'Encre = CADUQUE.
+2. La chaîne GBL-003 vise d'abord le contexte augmenté des agents (RAG),
+   pas le site public. Le site est un livrable secondaire (1 pt, optionnel).
+3. Boundary bakery : génère/déploie un site à partir d'un corpus — le
+   corpus FPA reste dans office/ (œuvre dérivée). Un site FPA public
+   serait un dérivé CC BY-NC à arbitrer par le pilote (le livre est
+   scanné, œuvre dérivée — la publication publique requiert un arbitrage
+   licence explicite, PAS une décision technique).
+4. La machinerie i18n bakery (BKY-I18N TERMINÉ, 10 langues) serait
+   applicable si le pilote décide la publication publique — hors scope
+   technique de cet EPIC.
+
+== Décisions
+
+- D1 : EPIC en STANDBY jusqu'à GBL-003.3/003.4 faits (chunks + RAG) —
+  le site n'a de valeur qu'avec du contenu consolidé.
+- D2 : arbitrage licence obligatoire AVANT tout run : le livre FPA est
+  une œuvre dérivée (scans) — publication publique = décision pilote,
+  pas technique.
+- D3 : si activé, dogfood JBake standard (articles par section) — zéro
+  feature nouvelle attendue.
+- D4 : zéro bump BOM, zéro publication — dogfooding only.
+
+== User Stories (~1 pt)
+
+|===
+| US | Description | Pts
+| BKY-FPA-SITE-0 | Arbitrage pilote publication publique corpus FPA (licence) — gouvernance pure | 1
+| BKY-FPA-SITE-1 | Run scaffolding JBake sur livre.adoc (si arbitrage = GO) | 1
+|===
+
+== Débloque
+
+Rien de critique — GBL-003.5 est optionnel dans la chaîne (le cœur est
+graphify/codex/codebase). Bakery reste disponible pour le portail
+formation (anneau A4) quand les SPDs existeront.

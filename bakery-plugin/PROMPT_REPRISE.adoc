@@ -1,43 +1,43 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 209
-:date: 2026-09-01
-:etat: Session 208 ✅ — MEM-CAT-3 pilote workspace-catalog (cross-borough MEMPHIS S-026) : pin `ws` 0.0.29, version dérivée du catalogue, document-plugin sans version via platform 0.0.29, PublicationTest migré. Gates non-régression VERT (test 1665 PASS/3 FAIL baseline, functionalTest, cucumberTest 7 FAIL baseline). Fix-0 buildscript force kotlin-stdlib (conflit Gradle 9.6.1).
-:epic_actif: MASS-6 🟡 reporté (108 × 10 langues, ~675h LLM, accord pilote explicite requis).
+:session: 210
+:date: 2026-09-07
+:etat: Session 209 (globale S-215) ✅ — Cadrage EPIC BKY-FPA-SITE (GBL-003.5 critical path MVP0) : site navigable du corpus FPA en STANDBY — arbitrage licence public = décision pilote (œuvre dérivée scannée). 2 US ~2 pts, zéro code modifié. Doc `.agents/CADRAGE_EPIC_BKY_FPA_SITE.adoc`.
+:etat: Session 209 (globale S-215) ✅ — Cadrage EPIC BKY-FPA-SITE (GBL-003.5 critical path MVP0) : site navigable du corpus FPA en STANDBY — arbitrage licence public = décision pilote (œuvre dérivée scannée). 2 US ~2 pts, zéro code modifié. Doc `.agents/CADRAGE_EPIC_BKY_FPA_SITE.adoc`.
+:epic_actif: BKY-FPA-SITE 🟡 STANDBY (arbitrage pilote) + MASS-6 🟡 reporté (108 × 10 langues, ~675h LLM, accord pilote explicite requis).
 
 == Contexte de fin
 
-Session 208 — MEM-CAT-3 (priorité pilote : centralisation versions cross-borough) :
-- settings bakery-plugin : `create("ws") { from("education.cccp:workspace-catalog:0.0.29") }` (pin unique)
-- build : `version = ws.versions.bakery.plugin.get()` (0.0.9 dérivé du catalogue MEMPHIS)
-- `document-plugin` SANS version — contraint par platform workspace-bom 0.0.29
-- platforms implementation/functionalTest/e2eTest : 0.0.20 → 0.0.29
-- `BakeryPluginPublicationTest` migré : dérivation ws + cohérence toml local ↔ catalogue ws (2/2 PASSED)
-- Fix-0 : buildscript force `kotlin-stdlib:2.4.10` + `annotations:26.0.2-1`
-  (Gradle 9.6.1 épingle strictly 2.3.21/13.0 en conflit avec platform transitive
-  bakery → document → plantuml → workspace-bom)
+Session 209 (globale S-215) — Cadrage EPIC BKY-FPA-SITE (gouvernance pure) :
+- Arbitrage pilote 2026-09-07 : priorité critical path MVP0 (génération
+  de formation), pas les boroughs peu développés.
+- EPIC transverse GBL-003 créé racine (corpus FPA → contexte augmenté).
+- Bakery = maillon GBL-003.5 (site navigable public) : en STANDBY car le
+  livre FPA navigable est déjà produit (document S-082) et la publication
+  publique du corpus requiert un arbitrage licence du pilote (le livre
+  est une œuvre dérivée de scans).
 
-## Mission Session 209
+## Mission Session 210 — à la demande
 
-1. **MASS-6 montée en charge** : 108 articles × 10 langues (zh/hi/es/ar/bn/pt/ru/ur)
-   — session dédiée, **accord pilote explicite requis**. Coût LLM ~675h.
-2. **Bug chemin dogfooding** : `--contentI18nSource=content/blog/YYYY` produit
-   `content/content/blog/YYYY` (double `content/`). Fix dans `MigrateContentI18nTask`
-   — ne pas préfixer si le chemin commence déjà par `srcPath`. P3.
-3. **Re-traduction cheroliv.com/en/** avec fix `:summary:` (impact SEO).
-4. **MEM-CAT-4/5 côté MEMPHIS** : propagation + BDD — coordination avec la
-   session MEMPHIS (workspace-bom PROMPT_REPRISE).
+1. **BKY-FPA-SITE-0** : arbitrage licence publication publique corpus FPA
+   (décision pilote — après GBL-003.3/003.4 codex/codebase livrés).
+2. **Portail formation (anneau A4)** : quand les SPDs existeront (Newark
+   TRN-1→6), dogfood le portail via assembleTrainingSite.
+3. **MASS-6 montée en charge** : 108 articles × 10 langues — accord
+   pilote explicite requis. Coût LLM ~675h.
+4. **FLAKY-1/2/3** : dette cucumber i18n (priorité P1 backlog).
 
 ## Reprendre à
 
 . `git status` dans bakery-gradle
-. Lire `BACKLOG.adoc` section BKY-I18N-MASS MASS-6
+. Lire `BACKLOG.adoc` section EPIC BKY-FPA-SITE (STANDBY)
 . Vérifier Ollama ports 11437-11465 + modèle `gemma4:31b-cloud`
 . `/tmp/bakery-dogfood` projet consommateur (buildscript classpath 0.0.9)
 . `publishToMavenLocal` après chaque modification code source
 
 ## Ordre des EPICs (priorité)
 
-. MASS-6 montée en charge 108 × 10 langues (accord pilote)
+. BKY-FPA-SITE (standby — arbitrage pilote, post GBL-003.3/003.4)
+. FLAKY-1/2/3 (dette cucumber i18n, P1)
 . Bug chemin dogfooding (P3, non bloquant)
 . Re-traduction cheroliv.com/en/ prod (fix `:summary:` impact SEO)
 
