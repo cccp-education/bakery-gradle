@@ -5,7 +5,17 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-09-07 — Session 209 ✅ (globale, cadrage EPIC BKY-FPA-SITE (GBL-003.5 critical path MVP0) : site navigable corpus FPA en STANDBY — arbitrage licence public requiert décision pilote. 2 US ~2 pts, zéro code. Session 207 ✅ MASS-5 CLÔTURÉ 8/8 lots.)_
+_Dernière mise à jour : 2026-09-07 — Session 209 ✅ (globale, cadrages BKY-FPA-SITE (GBL-003.5) + RENAME (US-3 bakery) : site navigable corpus FPA en STANDBY — arbitrage licence public = décision pilote. RENAME : FPA→content/CDA→coding — US-3 bakery = entrées "FPA" dans I18nMigrationService + fixtures tests, exécution session dédiée. Session 207 ✅ MASS-5 CLÔTURÉ 8/8 lots.)_
+
+'''
+== EPIC RENAME — Neutralisation nommage métier privé (FPA→content, CDA→coding) 🟡 CADRÉ (P0, transverse)
+
+_Origine : demande pilote 2026-09-07 (FPA = fond de commerce privé, jamais dans le nommage public OSS). Cadrage transverse : `.agents/CADRAGE_EPIC_RENAME.adoc` (7 boroughs)._
+
+|===
+| US | Description | Pts | Statut
+| RENAME-3 | I18nMigrationService : 2 entrées `"FPA"` sortent des listes métier + fixtures tests "Formation FPA" → génériques + check baseline exacte | 1 | 🟡 À FAIRE (bakery, 3e baby-step)
+|===
 
 '''
 == EPIC BKY-FPA-SITE — Site navigable du corpus FPA (GBL-003.5) 🟡 STANDBY
