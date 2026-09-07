@@ -7,10 +7,10 @@ import bakery.lens.LensScope
 import bakery.lens.ScoredNode
 import bakery.lens.SiteSubgraph
 import bakery.lens.SubgraphExtractor
-import com.cheroliv.graphify.model.GraphCommunity
-import com.cheroliv.graphify.model.GraphEdge
-import com.cheroliv.graphify.model.GraphModel
-import com.cheroliv.graphify.model.GraphNode
+import graphify.model.GraphCommunity
+import graphify.model.GraphEdge
+import graphify.model.GraphModel
+import graphify.model.GraphNode
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When

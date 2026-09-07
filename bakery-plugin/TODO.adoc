@@ -1,7 +1,7 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-09-07 — Sync gouvernance post-S-208. EPIC PUB ✅ TERMINÉ S-203 (bakery 0.0.7 Central, puis 0.0.8/0.0.9). MASS-5 ✅ CLÔTURÉ S-207. EPIC BKY-I18N-DEPLOY ✅ CLOS 35/35 S-183. Restants : FLAKY-1/2/3 + MASS-6 (reporté, accord pilote)._
+_Dernière mise à jour : 2026-09-07 — Sync gouvernance post-S-208. EPIC PUB ✅ TERMINÉ S-203 (bakery 0.0.7 Central, puis 0.0.8/0.0.9). MASS-5 ✅ CLÔTURÉ S-207. EPIC BKY-I18N-DEPLOY ✅ CLOS 35/35 S-183. S-214 : bump consommateur graphify 0.0.3 (MEM-CAT-ROLLOUT, piloté Brooklyn) — imports `com.cheroliv.graphify.model` → `graphify.model` canonique (workaround relocation 0.0.2 retiré). Restants : FLAKY-1/2/3 + MASS-6 (reporté, accord pilote)._
 
 == NOUVEAU — EPIC BKY-TEST-FLAKY (S-028, priorité 1, 3 US ~5 pts)
 
