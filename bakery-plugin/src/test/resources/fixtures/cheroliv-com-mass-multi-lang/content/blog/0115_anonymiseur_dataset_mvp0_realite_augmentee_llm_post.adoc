@@ -26,7 +26,7 @@
 .temps de lecture : {jbake-reading-time}
 
 [.lead]
-Je n'embauche pas un LLM. J'embauche un anonymiseur. Avant de faire du RAG pgvector, avant de fine-tuner des experts CDA/FPA, avant de provisionner des workspaces clients — quelqu'un doit nettoyer les toilettes de la data. Cet employé, c'est l'expert anonymisation (MVP0, EPIC 2 de codebase-gradle). Et c'est lui qui rend le produit marketable.
+Je n'embauche pas un LLM. J'embauche un anonymiseur. Avant de faire du RAG pgvector, avant de fine-tuner des experts métier, avant de provisionner des workspaces clients — quelqu'un doit nettoyer les toilettes de la data. Cet employé, c'est l'expert anonymisation (MVP0, EPIC 2 de codebase-gradle). Et c'est lui qui rend le produit marketable.
 
 toc::[]
 
@@ -98,7 +98,7 @@ Le RAG ne cherche pas dans des données sales — il cherche dans un espace **pr
 ----
 MVP0 → datasets propres accumulés (session après session)
     ↓
-Fine-tuning expert métier (CDA, FPA) sur données zéro PII
+Fine-tuning expert métier sur données zéro PII
     ↓
 Modèle fine-tuné exposé via Ollama (sans fuite de données)
 ----

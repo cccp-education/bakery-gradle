@@ -21,7 +21,7 @@ class ScaffoldGeneratorTreeTest {
         {
           "siteType": "formation",
           "projectName": "ma-formation",
-          "description": "Formation FPA",
+          "description": "Formation métier",
           "tree": {
             "type": "site",
             "path": "",
@@ -45,8 +45,8 @@ class ScaffoldGeneratorTreeTest {
           },
           "metadata": {
             "title": "Ma Formation",
-            "description": "Formation FPA",
-            "tags": ["fpa", "formation"],
+            "description": "Formation métier",
+            "tags": ["formation", "pédagogie"],
             "layout": "page",
             "language": "fr"
           }
@@ -59,7 +59,7 @@ class ScaffoldGeneratorTreeTest {
             val fakeLlm = FakeLlmService(sampleTreeJson)
             val generator = ScaffoldGenerator()
 
-            val intention = ScaffoldIntention(description = "Formation FPA", siteType = ScaffoldSiteType.FORMATION)
+            val intention = ScaffoldIntention(description = "Formation métier", siteType = ScaffoldSiteType.FORMATION)
             val output = generator.generate(intention, fakeLlm)
 
             assertNotNull(output.tree)
@@ -75,7 +75,7 @@ class ScaffoldGeneratorTreeTest {
             val fakeLlm = FakeLlmService(sampleTreeJson)
             val generator = ScaffoldGenerator()
 
-            val intention = ScaffoldIntention(description = "Formation FPA", siteType = ScaffoldSiteType.FORMATION)
+            val intention = ScaffoldIntention(description = "Formation métier", siteType = ScaffoldSiteType.FORMATION)
             val output = generator.generate(intention, fakeLlm)
 
             assertTrue(output.templates.contains("formations/ab-partition.thyme"))

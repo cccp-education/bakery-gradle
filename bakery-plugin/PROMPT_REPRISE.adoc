@@ -1,22 +1,23 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 210
-:date: 2026-09-07
-:etat: Session 209 (globale S-215) ✅ — Cadrage EPIC BKY-FPA-SITE (GBL-003.5 critical path MVP0) : site navigable du corpus FPA en STANDBY — arbitrage licence public = décision pilote (œuvre dérivée scannée). 2 US ~2 pts, zéro code modifié. Doc `.agents/CADRAGE_EPIC_BKY_FPA_SITE.adoc`.
-:etat: Session 209 (globale S-215) ✅ — Cadrage EPIC BKY-FPA-SITE (GBL-003.5 critical path MVP0) : site navigable du corpus FPA en STANDBY — arbitrage licence public = décision pilote (œuvre dérivée scannée). 2 US ~2 pts, zéro code modifié. Doc `.agents/CADRAGE_EPIC_BKY_FPA_SITE.adoc`.
-:epic_actif: BKY-FPA-SITE 🟡 STANDBY (arbitrage pilote) + MASS-6 🟡 reporté (108 × 10 langues, ~675h LLM, accord pilote explicite requis).
+:session: 212
+:date: 2026-09-08
+:etat: Session 211 ✅ — RENAME-3 TERMINÉ (EPIC transverse RENAME, baby-step 3/6 bakery) : 2 entrées "FPA" sorties des listes I18nMigrationService + fixtures neutralisées. Gate grep src/ = 0, baselines test (1670/3 FAIL préexistants) + cucumberTest (1866/6 FAIL préexistants) exactes. 7 fichiers, 1 pt. `publishToMavenLocal` VERT.
+:epic_actif: RENAME ✅ bakery TERMINÉ (reste capsule + plantuml + graphify/codex, autres boroughs) + BKY-FPA-SITE 🟡 STANDBY (arbitrage pilote) + MASS-6 🟡 reporté (accord pilote, ~675h LLM).
 
 == Contexte de fin
 
-Session 209 (globale S-215) — Cadrage EPIC BKY-FPA-SITE (gouvernance pure) :
-- Arbitrage pilote 2026-09-07 : priorité critical path MVP0 (génération
-  de formation), pas les boroughs peu développés.
-- EPIC transverse GBL-003 créé racine (corpus FPA → contexte augmenté).
-- Bakery = maillon GBL-003.5 (site navigable public) : en STANDBY car le
-  livre FPA navigable est déjà produit (document S-082) et la publication
-  publique du corpus requiert un arbitrage licence du pilote (le livre
-  est une œuvre dérivée de scans).
+Session 211 — RENAME-3 (baby-step TDD, 1 pt) :
+- 2 UT verrou whitelist/blacklist ajoutées (terme conservé SPG — la gate
+  grep interdit littéralement "FPA" dans src/, pattern codebase RENAME-1).
+- `I18nMigrationService.kt` : "FPA" retiré de `extractionWhitelist` +
+  `substringBlacklist` — le terme redevient traductible (nommage public
+  neutre, cadrage RENAME D6/D7).
+- Fixtures scaffold "Formation FPA" → "Formation métier" (4 fichiers) +
+  tag "fpa" → "pédagogie" + fixture blog 0115 (2 mentions CDA/FPA → "métier").
+- Zéro régression : échecs test (3) et cucumberTest (6) identiques sur
+  baseline stashed — préexistants environnementaux (S196 + FLAKY-1/2/3).
 
-## Mission Session 210 — à la demande
+== Mission Session 212 — à la demande
 
 1. **BKY-FPA-SITE-0** : arbitrage licence publication publique corpus FPA
    (décision pilote — après GBL-003.3/003.4 codex/codebase livrés).
@@ -24,27 +25,25 @@ Session 209 (globale S-215) — Cadrage EPIC BKY-FPA-SITE (gouvernance pure) :
    TRN-1→6), dogfood le portail via assembleTrainingSite.
 3. **MASS-6 montée en charge** : 108 articles × 10 langues — accord
    pilote explicite requis. Coût LLM ~675h.
-4. **FLAKY-1/2/3** : dette cucumber i18n (priorité P1 backlog).
+4. **FLAKY-1/2/3** : dette cucumber i18n (P1 — 6 FAIL préexistants
+   cucumberTest, documentés S196/S201).
 
 ## Reprendre à
 
 . `git status` dans bakery-gradle
-. Lire `BACKLOG.adoc` section EPIC BKY-FPA-SITE (STANDBY)
+. Lire `BACKLOG.adoc` section EPIC RENAME (bakery ✅) + BKY-FPA-SITE (STANDBY)
 . Vérifier Ollama ports 11437-11465 + modèle `gemma4:31b-cloud`
 . `/tmp/bakery-dogfood` projet consommateur (buildscript classpath 0.0.9)
 . `publishToMavenLocal` après chaque modification code source
 
 ## Ordre des EPICs (priorité)
 
-. BKY-FPA-SITE (standby — arbitrage pilote, post GBL-003.3/003.4)
+. RENAME boroughs restants (capsule fixtures, plantuml registre — autres repos)
 . FLAKY-1/2/3 (dette cucumber i18n, P1)
 . Bug chemin dogfooding (P3, non bloquant)
 . Re-traduction cheroliv.com/en/ prod (fix `:summary:` impact SEO)
 
-## Fichiers touchés S208
+## Rappel S211
 
-- `build.gradle.kts` (racine) — buildscript force kotlin-stdlib/annotations
-- `bakery-plugin/settings.gradle.kts` — pin ws catalog 0.0.29
-- `bakery-plugin/build.gradle.kts` — version dérivée ws + platform 0.0.29 + document-plugin sans version
-- `bakery-plugin/src/test/kotlin/bakery/BakeryPluginPublicationTest.kt` — migré D3
-- `bakery-plugin/gradle/libs.versions.toml` — WIP 0.0.9 (absorbé, inchangé)
+- `I18nMigrationServiceTest` 42 UT (dont 2 verrou whitelist SPG)
+- Gate permanente : `grep -ri "fpa" src/` doit rester = 0

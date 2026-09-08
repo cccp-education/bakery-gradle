@@ -261,7 +261,7 @@ class ScaffoldGeneratorTest {
         val generator = ScaffoldGenerator()
         val intention =
             ScaffoldIntention(
-                description = "Formation FPA",
+                description = "Formation métier",
                 siteType = ScaffoldSiteType.FORMATION,
             )
         val prompt = generator.buildPrompt(intention)
@@ -398,7 +398,7 @@ class ScaffoldGeneratorTest {
                 {
                   "siteType": "formation",
                   "projectName": "ma-formation",
-                  "description": "Formation FPA",
+                  "description": "Formation métier",
                   "tree": {
                     "type": "site",
                     "path": "",

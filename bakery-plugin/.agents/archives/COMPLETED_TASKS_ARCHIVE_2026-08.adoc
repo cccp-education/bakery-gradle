@@ -726,3 +726,25 @@ Gouvernance pure (zéro code) :
 * TODO.adoc dégelé (S-194 → S-209) : EPIC PUB ✅ S-203, MASS-5 ✅ S-207,
   EPIC BKY-I18N-DEPLOY ✅ CLOS 35/35 S-183, doublon BKY-TREE-7 supprimé.
 * Restants : FLAKY-1/2/3 (EPIC BKY-TEST-FLAKY, priorité 1) + MASS-6 reporté.
+
+== Session 211 — 2026-09-08 — RENAME-3 : Neutralisation FPA dans bakery
+
+EPIC transverse RENAME (P0, cadrage `.agents/CADRAGE_EPIC_RENAME.adoc`), 3e baby-step bakery (1 pt, baby-step TDD) :
+
+* [x] +2 UT verrou whitelist/blacklist dans `I18nMigrationServiceTest`
+  (terme conservé "SPG" — la gate `grep -ri "fpa" src/` = 0 interdit
+  littéralement FPA dans src/, pattern codebase RENAME-1)
+* [x] `I18nMigrationService.kt` : "FPA" retiré de `extractionWhitelist`
+  + `substringBlacklist` — le terme redevient traductible (D6/D7,
+  breaking change assumé)
+* [x] Fixtures scaffold "Formation FPA" → "Formation métier" (4 fichiers)
+  + tag "fpa" → "pédagogie" + fixture blog 0115 (2 mentions CDA/FPA → "métier")
+
+*Gate baseline exacte* :
+. `grep -ri "fpa" src/` = 0 match
+. `test` 1670 tests / 3 FAIL préexistants (identiques baseline stashed, S196)
+. `cucumberTest` 1866 tests / 6 FAIL préexistants (FLAKY-1/2/3)
+. `publishToMavenLocal` VERT (règle INDEX-0)
+
+*Clôture* : **RENAME-3 TERMINÉ.** EPIC RENAME bakery ✅ (reste capsule +
+plantuml + graphify/codex, autres repos). 7 fichiers modifiés.

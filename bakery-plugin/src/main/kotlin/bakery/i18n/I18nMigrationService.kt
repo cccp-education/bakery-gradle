@@ -57,7 +57,6 @@ class I18nMigrationService(
             "Apache 2.0",
             "Apache License 2.0",
             "SPG",
-            "FPA",
             "Knowledge Work",
             "workspace agent",
         )
@@ -81,7 +80,6 @@ class I18nMigrationService(
             "workspace-gradle",
             "Common Content Creator Proletarian",
             "SPG",
-            "FPA",
             "Knowledge Work",
             "workspace agent",
         )

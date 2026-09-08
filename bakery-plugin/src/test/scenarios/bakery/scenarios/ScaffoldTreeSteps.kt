@@ -14,7 +14,7 @@ import org.assertj.core.api.Assertions.assertThat
 class ScaffoldTreeSteps {
     private var llmResponse: String = ""
     private var intention: ScaffoldIntention =
-        ScaffoldIntention(description = "Formation FPA", siteType = ScaffoldSiteType.FORMATION)
+        ScaffoldIntention(description = "Formation métier", siteType = ScaffoldSiteType.FORMATION)
     private var generator: ScaffoldGenerator = ScaffoldGenerator()
     private var prompt: String = ""
 
@@ -25,7 +25,7 @@ class ScaffoldTreeSteps {
             {
               "siteType": "formation",
               "projectName": "ma-formation",
-              "description": "Formation FPA",
+              "description": "Formation métier",
               "tree": {
                 "type": "site",
                 "path": "",
@@ -121,7 +121,7 @@ class ScaffoldTreeSteps {
     fun aScaffoldIntentionForFormationSite() {
         intention =
             ScaffoldIntention(
-                description = "Formation FPA complete",
+                description = "Formation complète",
                 siteType = ScaffoldSiteType.FORMATION,
                 lang = "fr",
                 projectName = "ma-formation",

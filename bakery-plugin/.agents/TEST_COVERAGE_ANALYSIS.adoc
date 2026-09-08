@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-08-18 — Session 205 ✅ MASS-5 dogfooding lot annuel + BDD feature 62 batch annual. Domaine `bakery.i18n.mass` : +6 BDD (`62_i18n_mass_batch_annual.feature` `@batch-annual` — 6 scénarios : fresh lot, delta inter-lots, idempotence intra/inter-lots, marqueur, headers JBake). Runner `I18nMassBatchCucumberTest` standalone. Fixture `cheroliv-com-mass-batch` (2 lots × 2 articles FR). Total nouveaux : 6 BDD, 0 FAIL. Non-régression `bakery.i18n.mass.*` PASS (features 60 + 62). `publishToMavenLocal` VERT. Baseline S169 : 93,09% (Kover, seuil 85% PASS)._
+_Dernière mise à jour : 2026-09-08 — Session 211 ✅ RENAME-3. +2 UT verrou whitelist/blacklist dans `I18nMigrationServiceTest` (nested `ExtractHardcodedText` — terme conservé "SPG" : `skips whitelisted acronym from extraction`, `skips text containing blacklisted substring from extraction`). Total 42 UT dans la classe, 0 FAIL. Baseline `test` : 1670 tests / 3 FAIL préexistants environnementaux (S196). Baseline `cucumberTest` : 1866 tests / 6 FAIL préexistants (FLAKY-1/2/3). `publishToMavenLocal` VERT. Baseline Kover inchangée (S169 : 93,09%, seuil 85% PASS)._
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''

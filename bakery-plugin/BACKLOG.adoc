@@ -5,17 +5,27 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-09-07 — Session 209 ✅ (globale, cadrages BKY-FPA-SITE (GBL-003.5) + RENAME (US-3 bakery) : site navigable corpus FPA en STANDBY — arbitrage licence public = décision pilote. RENAME : FPA→content/CDA→coding — US-3 bakery = entrées "FPA" dans I18nMigrationService + fixtures tests, exécution session dédiée. Session 207 ✅ MASS-5 CLÔTURÉ 8/8 lots.)_
+_Dernière mise à jour : 2026-09-08 — Session 211 ✅ RENAME-3 TERMINÉ (EPIC transverse RENAME, baby-step 3/6 bakery) : 2 entrées "FPA" sorties des listes I18nMigrationService + fixtures neutralisées. Gate grep src/ = 0, baselines exactes. 7 fichiers, 1 pt. Session 210 ✅ cadrage BKY-FPA-SITE (STANDBY). Session 207 ✅ MASS-5 CLÔTURÉ 8/8 lots.)_
 
 '''
-== EPIC RENAME — Neutralisation nommage métier privé (FPA→content, CDA→coding) 🟡 CADRÉ (P0, transverse)
+== EPIC RENAME — Neutralisation nommage métier privé (FPA→content, CDA→coding) ✅ TERMINÉ (bakery)
 
 _Origine : demande pilote 2026-09-07 (FPA = fond de commerce privé, jamais dans le nommage public OSS). Cadrage transverse : `.agents/CADRAGE_EPIC_RENAME.adoc` (7 boroughs)._
 
 |===
 | US | Description | Pts | Statut
-| RENAME-3 | I18nMigrationService : 2 entrées `"FPA"` sortent des listes métier + fixtures tests "Formation FPA" → génériques + check baseline exacte | 1 | 🟡 À FAIRE (bakery, 3e baby-step)
+| RENAME-3 | I18nMigrationService : 2 entrées `"FPA"` sortent des listes métier + fixtures tests "Formation FPA" → génériques + check baseline exacte | 1 | ✅ TERMINÉ (S-211)
 |===
+
+*Exécution S-211* : +2 UT verrou whitelist/blacklist (terme conservé "SPG" — la gate
+grep interdit FPA littéral dans src/, pattern codebase RENAME-1). `I18nMigrationService.kt` :
+"FPA" retiré de `extractionWhitelist` + `substringBlacklist`. Fixtures scaffold
+"Formation FPA" → "Formation métier" (4 fichiers) + tag "fpa" → "pédagogie" + fixture
+blog 0115 (2 mentions CDA/FPA → "métier"). Gate baseline exacte : `test` 1670/3 FAIL
+préexistants + `cucumberTest` 1866/6 FAIL préexistants (identiques baseline stashed),
+`grep -ri "fpa" src/` = 0, `publishToMavenLocal` VERT. 7 fichiers, 1 pt.
+*Reste EPIC RENAME (autres repos)* : capsule fixtures (baby-step 4), plantuml registre
+(baby-step 5), graphify/codex gouvernance (baby-step 6).
 
 '''
 == EPIC BKY-FPA-SITE — Site navigable du corpus FPA (GBL-003.5) 🟡 STANDBY

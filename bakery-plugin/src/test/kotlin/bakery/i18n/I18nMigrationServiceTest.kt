@@ -138,6 +138,26 @@ class I18nMigrationServiceTest {
         }
 
         @Test
+        fun `skips whitelisted acronym from extraction`() {
+            val file = tempDir.resolve("test.thyme")
+            file.writeText("<span>SPG</span>")
+
+            val result = service.extractHardcodedText(file)
+
+            assertTrue(result.isEmpty())
+        }
+
+        @Test
+        fun `skips text containing blacklisted substring from extraction`() {
+            val file = tempDir.resolve("test.thyme")
+            file.writeText("<p>SPG guide de référence</p>")
+
+            val result = service.extractHardcodedText(file)
+
+            assertTrue(result.isEmpty())
+        }
+
+        @Test
         fun `skips already i18n th text attributes`() {
             val file = tempDir.resolve("test.thyme")
             file.writeText("""<span th:text="#{nav.home}">Accueil</span>""")

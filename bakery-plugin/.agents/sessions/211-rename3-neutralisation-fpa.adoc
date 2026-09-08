@@ -1,0 +1,95 @@
+= Session 211 — RENAME-3 : Neutralisation FPA dans bakery (baby-step TDD)
+
+_Date : 2026-09-08_
+_EPIC transverse RENAME (P0) — 3e baby-step bakery (cadrage `.agents/CADRAGE_EPIC_RENAME.adoc`)_
+_Mission PROMPT_REPRISE 211 : RENAME-3 (seul item P0 actionable sans décision pilote)._
+
+== Objet
+
+Neutralisation du nommage métier privé "FPA" (Formateur Professionnel d'Adulte,
+fond de commerce pilote) dans le borough bakery, conformément au cadrage transverse
+RENAME (S-209, 7 boroughs). Le terme public devient `content` — le plugin public ne
+connaît que des catégories de contenu génériques.
+
+== Baby-steps exécutés (méthodo TDD strict)
+
+=== 1. Test de caractérisation whitelist (verrou non-régression)
+
+2 UT ajoutées à `I18nMigrationServiceTest` (nested `ExtractHardcodedText`) :
+- `skips whitelisted acronym from extraction` — "SPG" en `<span>` → non extrait
+- `skips text containing blacklisted substring from extraction` — "SPG guide de
+  référence" en `<p>` → non extrait
+
+Particularité : le cadrage impose la gate `grep -ri "fpa" src/` = 0 — un test
+contenant littéralement "FPA" violerait la gate (pattern codebase RENAME-1 :
+modification data-only verrouillée par baseline + grep gate). Les verrous portent
+donc sur un terme conservé (`SPG`), prouvant que le retrait de FPA ne casse pas
+la mécanique whitelist/blacklist.
+
+TDD vert : 42/42 PASSED (40 existants + 2 nouveaux).
+
+=== 2. Retrait production — 2 entrées "FPA" sortent des listes
+
+`src/main/kotlin/bakery/i18n/I18nMigrationService.kt` :
+- `extractionWhitelist` (ex-ligne 60) : `"FPA"` retiré
+- `substringBlacklist` (ex-ligne 84) : `"FPA"` retiré
+
+Effet sémantique : "FPA" et tout texte contenant "FPA" (insensible à la casse)
+deviennent éligibles à l'extraction i18n — le terme n'est plus traité comme
+non-traductible. C'est le comportement voulu : FPA disparaît du nommage public
+d'un plugin Apache 2.0.
+
+compileKotlin VERT. publishToMavenLocal VERT (règle INDEX-0).
+
+=== 3. Neutralisation fixtures tests
+
+- `ScaffoldTreeSteps.kt`, `ScaffoldGeneratorTest.kt`, `GenerateSiteFromIntentionTaskTest.kt`,
+  `ScaffoldGeneratorTreeTest.kt` : "Formation FPA" → "Formation métier" (JSON fake LLM +
+  ScaffoldIntention), tag `"fpa"` → `"pédagogie"` (ScaffoldGeneratorTreeTest:49).
+- Fixture blog `cheroliv-com-mass-multi-lang/content/blog/0115_anonymiseur_*.adoc`
+  (2 mentions éditoriales CDA/FPA) :
+  - "avant de fine-tuner des experts CDA/FPA" → "avant de fine-tuner des experts métier"
+  - "Fine-tuning expert métier (CDA, FPA) sur données zéro PII" → "Fine-tuning expert métier sur données zéro PII"
+
+Aucune assertion de test ne ciblait ces strings (vérifié avant modification :
+les steps BDD mass-multi-lang assertent headers/RTL/blocs, pas le texte métier).
+
+=== 4. Gate baseline exacte (zéro changement sémantique hors renommage)
+
+- Gate grep : `grep -ri "fpa" src/` = **0 match** ✅
+- `./gradlew test` : 1670 tests, 3 failed — **baseline exacte** (3 échecs
+  préexistants environnementaux, identiques sur baseline stashed : RealSiteI18nMigrationIntegrationTest,
+  FixtureAlignmentAuditorTest, I18nDeltaWireCucumberTest — documentés S196/S197/S198).
+- `./gradlew cucumberTest` : 1866 tests, 6 failed — **baseline exacte** (FLAKY-1/2/3
+  backlog, identiques sur baseline stashed).
+- `publishToMavenLocal` : VERT (règle INDEX-0).
+
+== Fichiers modifiés
+
+|===
+| Fichier | Changement
+| src/main/kotlin/bakery/i18n/I18nMigrationService.kt | 2 entrées "FPA" retirées (whitelist + blacklist)
+| src/test/kotlin/bakery/i18n/I18nMigrationServiceTest.kt | +2 UT verrou whitelist/blacklist (SPG)
+| src/test/scenarios/bakery/scenarios/ScaffoldTreeSteps.kt | "Formation FPA" → "Formation métier" (3 sites)
+| src/test/kotlin/bakery/scaffold/ScaffoldGeneratorTest.kt | idem (2 sites)
+| src/test/kotlin/bakery/scaffold/GenerateSiteFromIntentionTaskTest.kt | idem (2 sites)
+| src/test/kotlin/bakery/scaffold/ScaffoldGeneratorTreeTest.kt | idem (5 sites) + tag "fpa" → "pédagogie"
+| src/test/resources/fixtures/cheroliv-com-mass-multi-lang/content/blog/0115_anonymiseur_*.adoc | 2 mentions CDA/FPA → "experts métier"
+|===
+
+7 fichiers, 1 pt RENAME-3. EPIC RENAME : bakery ✅ (3e baby-step de 6, reste capsule
++ plantuml + graphify/codex gouvernance).
+
+== Non-objectifs (respect cadrage)
+
+- Backward compat NON préservée (D7 — breaking change assumé, boroughs jeunes).
+- Le terme `content` ne remplace rien dans bakery : bakery n'a pas d'enum Domain
+  (contraire de codebase RENAME-1). Seules les listes + fixtures étaient visées.
+- Les cadrages gouvernance (BKY-FPA-SITE, GBL-003) citent FPA en tant que métier
+  privé — inchangés (D8).
+
+== Vérification post-session
+
+- grep gate FPA : 0 match dans src/
+- Baselines test/cucumberTest exactes (prouvées par stash/diff)
+- Zéro secret, zéro bump BOM, zéro dépendance

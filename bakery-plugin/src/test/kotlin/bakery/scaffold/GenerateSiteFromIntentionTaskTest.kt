@@ -203,7 +203,7 @@ class GenerateSiteFromIntentionTaskTest {
 
         @Test
         fun `task creates site yml with tree section when LLM returns tree`() {
-            val fakeResponse = """{"siteType":"formation","projectName":"ma-formation","description":"Formation FPA","tree":{"type":"site","path":"","sections":[{"type":"section","path":"modules","articles":[{"type":"article","path":"modules/intro"},{"type":"article","path":"modules/avance"}]}]},"metadata":{"title":"Ma Formation","description":"Formation FPA","tags":["formation"],"layout":"page","language":"fr"}}"""
+            val fakeResponse = """{"siteType":"formation","projectName":"ma-formation","description":"Formation métier","tree":{"type":"site","path":"","sections":[{"type":"section","path":"modules","articles":[{"type":"article","path":"modules/intro"},{"type":"article","path":"modules/avance"}]}]},"metadata":{"title":"Ma Formation","description":"Formation métier","tags":["formation"],"layout":"page","language":"fr"}}"""
             val fakeLlm = FakeLlmService(fakeResponse)
 
             val project = ProjectBuilder.builder().withProjectDir(tempDir).build()
@@ -218,7 +218,7 @@ class GenerateSiteFromIntentionTaskTest {
             task.targetDir = tempDir.resolve("tree-site")
             task.dslIntention =
                 ScaffoldIntention(
-                    description = "Formation FPA",
+                    description = "Formation métier",
                     siteType = ScaffoldSiteType.FORMATION,
                     projectName = "ma-formation",
                 )
