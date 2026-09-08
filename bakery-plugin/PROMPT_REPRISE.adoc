@@ -1,7 +1,7 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
 :session: 212
 :date: 2026-09-08
-:etat: Session 211 ✅ — RENAME-3 TERMINÉ (EPIC transverse RENAME, baby-step 3/6 bakery) : 2 entrées "FPA" sorties des listes I18nMigrationService + fixtures neutralisées. Gate grep src/ = 0, baselines test (1670/3 FAIL préexistants) + cucumberTest (1866/6 FAIL préexistants) exactes. 7 fichiers, 1 pt. `publishToMavenLocal` VERT.
+:etat: Session 211 ✅ — RENAME-3 TERMINÉ (EPIC transverse RENAME, baby-step 3/6 bakery) : 2 entrées "FPA" sorties des listes I18nMigrationService + fixtures neutralisées. Gate grep src/ = 0, baselines exactes. **Cycle release complet** : bakery-plugin 0.0.10 Central (`9e02b0ad`), document 0.0.17 (`d07c4444`), BOM/catalog 0.0.36 (`2b4da514`), consommateurs runner + magic-stick propagés.
 :epic_actif: RENAME ✅ bakery TERMINÉ (reste capsule + plantuml + graphify/codex, autres boroughs) + BKY-FPA-SITE 🟡 STANDBY (arbitrage pilote) + MASS-6 🟡 reporté (accord pilote, ~675h LLM).
 
 == Contexte de fin
