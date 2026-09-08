@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-09-08 — Session 211 ✅ RENAME-3 TERMINÉ (EPIC transverse RENAME, baby-step 3/6 bakery) : 2 entrées "FPA" sorties des listes I18nMigrationService + fixtures neutralisées. Gate grep src/ = 0, baselines exactes. 7 fichiers, 1 pt. Session 210 ✅ cadrage BKY-FPA-SITE (STANDBY). Session 207 ✅ MASS-5 CLÔTURÉ 8/8 lots.)_
+_Dernière mise à jour : 2026-09-08 — Session 211 ✅ RENAME-3 TERMINÉ (2 entrées "FPA" sorties des listes I18nMigrationService + fixtures neutralisées, 1 pt). + S-215 : cadrage RENAME Vague 3 (RENAME-9 : "SPG" reste dans I18nMigrationService → générique, fixtures 53/55/56 + vocabulaire-metier.adoc). Session 210 ✅ cadrage BKY-FPA-SITE (STANDBY). Session 207 ✅ MASS-5 CLÔTURÉ 8/8 lots.)_
 
 '''
 == EPIC RENAME — Neutralisation nommage métier privé (FPA→content, CDA→coding) ✅ TERMINÉ (bakery)
@@ -26,6 +26,16 @@ préexistants + `cucumberTest` 1866/6 FAIL préexistants (identiques baseline st
 `grep -ri "fpa" src/` = 0, `publishToMavenLocal` VERT. 7 fichiers, 1 pt.
 *Reste EPIC RENAME (autres repos)* : capsule fixtures (baby-step 4), plantuml registre
 (baby-step 5), graphify/codex gouvernance (baby-step 6).
+
+'''
+== EPIC RENAME Vague 3 — Confiner REAC/AFNOR/SPG/SPD 🟡 CADRÉ (S-215, bakery)
+
+_Origine : demande pilote — REAC/AFNOR/SPG/SPD = vocabulaire métier privé (SPG = artefact du pipeline de formation du pilote). Cadrage : `.agents/CADRAGE_EPIC_RENAME_V3.adoc`._
+
+|===
+| US | Description | Pts | Statut
+| RENAME-9 | I18nMigrationService : `"SPG"` (2 entrées whitelist + substringBlacklist) → générique ("content plan") + fixtures/features 53/55/56 + fixture vocabulaire-metier.adoc ("REAC/AFNOR" → "referential") + docs courantes (AGENT/BACKLOG/PROMPT_REPRISE) + check baseline | 2 | 🟡 À FAIRE (S-211 a purgé FPA, reste SPG)
+|===
 
 '''
 == EPIC BKY-FPA-SITE — Site navigable du corpus FPA (GBL-003.5) 🟡 STANDBY
