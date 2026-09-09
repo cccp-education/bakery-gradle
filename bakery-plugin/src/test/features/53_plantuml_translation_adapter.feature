@@ -6,7 +6,7 @@ Feature: PlantUML translation adapter applies strategy to plantuml blocks
   translation. TranslateLabels translates quoted labels through the
   TranslationService port. PreserveTechnical leaves the block untouched.
   BorrowVocabulary translates labels while preserving borrowed business
-  vocabulary (REAC, AFNOR, DC, TS) verbatim so the LLM never rewrites the
+  vocabulary (QUALIOPI, ISO) verbatim so the LLM never rewrites the
   term.
 
   Background:
@@ -34,16 +34,16 @@ Feature: PlantUML translation adapter applies strategy to plantuml blocks
     Then the returned block content should contain "@startuml"
     And the returned block content should contain "@enduml"
 
-  Scenario: BorrowVocabulary preserves REAC and AFNOR verbatim
-    Given a plantuml source block with borrowed vocabulary REAC and AFNOR and a translatable label "Référentiel"
+  Scenario: BorrowVocabulary preserves QUALIOPI and ISO verbatim
+    Given a plantuml source block with borrowed vocabulary QUALIOPI and ISO and a translatable label "Référentiel"
     When the plantuml adapter translates the block from fr to en
-    Then the returned block content should contain "REAC"
-    And the returned block content should contain "AFNOR"
+    Then the returned block content should contain "QUALIOPI"
+    And the returned block content should contain "ISO"
 
   Scenario: BorrowVocabulary still translates the non-vocabulary labels
-    Given a plantuml source block with borrowed vocabulary REAC and a translatable label "Utilisateur"
+    Given a plantuml source block with borrowed vocabulary QUALIOPI and a translatable label "Utilisateur"
     When the plantuml adapter translates the block from fr to en
-    Then the returned block content should contain "REAC"
+    Then the returned block content should contain "QUALIOPI"
     And the returned block content should contain "User"
     And the returned block content should not contain "Utilisateur"
 

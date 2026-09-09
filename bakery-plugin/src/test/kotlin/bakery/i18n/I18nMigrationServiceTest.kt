@@ -140,7 +140,7 @@ class I18nMigrationServiceTest {
         @Test
         fun `skips whitelisted acronym from extraction`() {
             val file = tempDir.resolve("test.thyme")
-            file.writeText("<span>SPG</span>")
+            file.writeText("<span>USB</span>")
 
             val result = service.extractHardcodedText(file)
 
@@ -150,7 +150,7 @@ class I18nMigrationServiceTest {
         @Test
         fun `skips text containing blacklisted substring from extraction`() {
             val file = tempDir.resolve("test.thyme")
-            file.writeText("<p>SPG guide de référence</p>")
+            file.writeText("<p>Magic Stick guide de référence</p>")
 
             val result = service.extractHardcodedText(file)
 

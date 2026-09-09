@@ -48,11 +48,11 @@ Feature: i18n deploy multi-site — 8 sites generalization
     And each site "en" article "introduction-pivot.adoc" should contain "class UserService"
     And each site "en" article "introduction-pivot.adoc" should not contain "[en] class UserService"
 
-  Scenario: PlantUml BorrowVocabulary preserves REAC and AFNOR on every site
+  Scenario: PlantUml BorrowVocabulary preserves QUALIOPI and ISO on every site
     When the multi-site pipeline translates all 3 sites from fr to "en"
-    Then each site "en" article "vocabulaire-metier.adoc" should contain "REAC"
-    And each site "en" article "vocabulaire-metier.adoc" should contain "AFNOR"
-    And each site "en" article "vocabulaire-metier.adoc" should contain "RNCP"
+    Then each site "en" article "vocabulaire-metier.adoc" should contain "QUALIOPI"
+    And each site "en" article "vocabulaire-metier.adoc" should contain "ISO"
+    And each site "en" article "vocabulaire-metier.adoc" should contain "PDCA"
 
   Scenario: SiteTranslationPlan computes missing languages per site
     Given a SiteTranslationPlan for site "cheroliv.com" with source "fr" and targets "en,ar,zh,es"

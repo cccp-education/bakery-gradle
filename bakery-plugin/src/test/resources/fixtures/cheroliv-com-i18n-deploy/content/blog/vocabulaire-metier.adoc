@@ -5,25 +5,25 @@
 :jbake-type: post
 :jbake-status: published
 :jbake-date: 2026-07-18
-:jbake-tags: plantuml, borrow, reac
-:summary: Un article avec du vocabulaire métier REAC/AFNOR à préserver.
+:jbake-tags: plantuml, borrow, referential
+:summary: Un article avec du vocabulaire métier (QUALIOPI/referential) à préserver.
 
-== Référentiel REAC
+== Referential QUALIOPI
 
 Le diagramme suivant mélange des labels traduisibles et du vocabulaire
-métier REAC/AFNOR qui doit être emprunté tel quel (stratégie BorrowVocabulary).
+métier QUALIOPI/ISO 9001 qui doit être emprunté tel quel (stratégie BorrowVocabulary).
 
 [source,plantuml]
 ----
 @startuml
-"Formateur" --> (Valider les "REAC")
-"Stagiaire" --> (Compléter le "DC")
-"AFNOR" --> (Publier le "RNCP")
+"Formateur" --> (Valider les "QUALIOPI")
+"Stagiaire" --> (Compléter le "ISO 9001")
+"ISO" --> (Publier le "ISO")
 @enduml
 ----
 
 == Texte métier
 
-Le référentiel REAC et la certification AFNOR définissent le cadre
-d'évaluation. Les acronymes DC, TS, RNCP, CP et ECF sont empruntés
+Le référentiel QUALIOPI et la certification ISO 9001 définissent le cadre
+d'évaluation. Les acronymes ISO, NFP et PDCA sont empruntés
 sans modification lors de la traduction.

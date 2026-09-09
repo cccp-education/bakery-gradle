@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-09-08 — Session 211 ✅ RENAME-3 TERMINÉ (2 entrées "FPA" sorties des listes I18nMigrationService + fixtures neutralisées, 1 pt). + S-215 : cadrage RENAME Vague 3 (RENAME-9 : "SPG" reste dans I18nMigrationService → générique, fixtures 53/55/56 + vocabulaire-metier.adoc). Session 210 ✅ cadrage BKY-FPA-SITE (STANDBY). Session 207 ✅ MASS-5 CLÔTURÉ 8/8 lots.)_
+_Dernière mise à jour : 2026-09-09 — Session 212 ✅ RENAME-9 TERMINÉ (Vague 3 bakery : "SPG" sorti des listes I18nMigrationService + fixtures/features 53/55/56 + fixture vocabulaire-metier.adoc + fixture 0115 neutralisés — registres publics QUALIOPI/ISO/PDCA/NFP). Session 211 ✅ RENAME-3 TERMINÉ (2 entrées "FPA" sorties des listes I18nMigrationService + fixtures neutralisées, 1 pt) + S-215 cadrage RENAME Vague 3. Session 210 ✅ cadrage BKY-FPA-SITE (STANDBY). Session 207 ✅ MASS-5 CLÔTURÉ 8/8 lots.)_
 
 '''
 == EPIC RENAME — Neutralisation nommage métier privé (FPA→content, CDA→coding) ✅ TERMINÉ (bakery)
@@ -28,14 +28,23 @@ préexistants + `cucumberTest` 1866/6 FAIL préexistants (identiques baseline st
 (baby-step 5), graphify/codex gouvernance (baby-step 6).
 
 '''
-== EPIC RENAME Vague 3 — Confiner REAC/AFNOR/SPG/SPD 🟡 CADRÉ (S-215, bakery)
+== EPIC RENAME Vague 3 — Confiner REAC/AFNOR/SPG/SPD ✅ TERMINÉ (bakery)
 
 _Origine : demande pilote — REAC/AFNOR/SPG/SPD = vocabulaire métier privé (SPG = artefact du pipeline de formation du pilote). Cadrage : `.agents/CADRAGE_EPIC_RENAME_V3.adoc`._
 
 |===
 | US | Description | Pts | Statut
-| RENAME-9 | I18nMigrationService : `"SPG"` (2 entrées whitelist + substringBlacklist) → générique ("content plan") + fixtures/features 53/55/56 + fixture vocabulaire-metier.adoc ("REAC/AFNOR" → "referential") + docs courantes (AGENT/BACKLOG/PROMPT_REPRISE) + check baseline | 2 | 🟡 À FAIRE (S-211 a purgé FPA, reste SPG)
+| RENAME-9 | I18nMigrationService : `"SPG"` (2 entrées whitelist + substringBlacklist) → générique + fixtures/features 53/55/56 + fixture vocabulaire-metier.adoc ("REAC/AFNOR" → registres publics QUALIOPI/ISO/PDCA/NFP) + fixture 0115 (SPG/RNCP) + docs courantes (AGENT/BACKLOG/PROMPT_REPRISE) + check baseline | 2 | ✅ TERMINÉ (S-212)
 |===
+
+*Exécution S-212* : `"SPG"` retiré des 2 listes (`I18nMigrationService.kt`).
+2 UT verrou migrées (SPG → USB / Magic Stick, toujours verrou whitelist/blacklist).
+Fixture `vocabulaire-metier.adoc` : REAC/AFNOR/RNCP/DC/TS/CP/ECF → QUALIOPI/ISO/
+ISO 9001/PDCA/NFP (registres publics neutres, D11). Features 53/55/56 alignées.
+Fixture 0115 : SPG→plans de formation, SPG_A2SP→plan_formation, RNCP→CERTIF.
+AGENT.adoc portée transverse "training (SPG/SPD)" → "training (plans pédagogiques)".
+Gate : `grep -rwn "REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA" src/` = 0, UT 42/42 GREEN,
+features 55/56 GREEN via runners dédiés. 8 fichiers, 2 pts.
 
 '''
 == EPIC BKY-FPA-SITE — Site navigable du corpus FPA (GBL-003.5) 🟡 STANDBY
@@ -1126,7 +1135,7 @@ content-i18n/{lang}/  ─→ injectLangSwitch (BKY-LANG-SWITCH) ─→ bake JBak
   `|`, labels d'acteurs). Pas de logique I/O, pas d'appel LLM.
   Réutilise l'ontologie de HTOWN EPIC PLT-BOUNDARY (S163-166).
 | UT : classify labels purs → TranslateLabels, classify technical terms (class
-  diagram, sequence, ER) → PreserveTechnical, classify REAC/AFNOR vocabulary →
+  diagram, sequence, ER) → PreserveTechnical, classify borrowed public vocabulary →
   BorrowVocabulary, extract labels from class diagram, extract from sequence,
   extract from usecase, no labels → PreserveTechnical, mixed → TranslateLabels
 | 5
@@ -1136,12 +1145,12 @@ content-i18n/{lang}/  ─→ injectLangSwitch (BKY-LANG-SWITCH) ─→ bake JBak
 | *`PlantUmlTranslationAdapter`* — applique `PlantUmlStrategy` à un bloc
   `[plantuml]` pendant la traduction. `TranslateLabels` → traduit les labels
   via `TranslationService`, `PreserveTechnical` → retourne le bloc inchangé,
-  `BorrowVocabulary` → traduit + préserve le vocabulaire métier (REAC/AFNOR)
-  dans une registry. Intégré dans `ContentTranslationService.translateBlock`
+  `BorrowVocabulary` → traduit + préserve le vocabulaire métier emprunté
+  (configuration fournie par l'appelant). Intégré dans `ContentTranslationService.translateBlock`
   via dispatch sur `PivotBlock.Source` quand `language == "plantuml"`. I/O
   isolée dans l'adapter (appel LLM), pas dans le domaine.
 | UT : TranslateLabels traduit labels uniquement, PreserveTechnical no-op,
-  BorrowVocabulary préserve "REAC" / "AFNOR" / "DC" / "TS", round-trip
+  BorrowVocabulary préserve les termes empruntés verbatim, round-trip
   block inchangé quand PreserveTechnical, labels contenant du code skippés
 | 5
 | DEPLOY-1
@@ -1197,7 +1206,7 @@ content-i18n/{lang}/  ─→ injectLangSwitch (BKY-LANG-SWITCH) ─→ bake JBak
   langues + `injectRtlDirection` + `injectLangSwitch` → assert 10 variantes
   localisées conformes : headers préservés, PlantUML classés (TRANSLATE/
   PRESERVE/BORROW), RTL pour ar/ur, lang switcher présent, zéro FR résiduel
-  (sauf BorrowVocabulary REAC/AFNOR). Scénarios à la `US-BND-7` HTOWN S166.
+  (sauf BorrowVocabulary termes empruntés). Scénarios à la `US-BND-7` HTOWN S166.
 | BDD : 5-7 scénarios (FR→EN, FR→AR RTL, FR→ZH, PlantUML TRANSLATE, PlantUML
   PRESERVE, PlantUml BORROW, end-to-end 10 langues)
 | 5

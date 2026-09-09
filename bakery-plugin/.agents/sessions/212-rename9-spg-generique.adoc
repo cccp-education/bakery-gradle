@@ -1,0 +1,133 @@
+= Session 212 — RENAME-9 : confiner "SPG" dans bakery (Vague 3)
+:date: 2026-09-09
+:epic: RENAME Vague 3 (transverse) — baby-step bakery 4/6
+:statut: ✅ TERMINÉ (2 pts)
+
+== Mission
+
+Retirer le vocabulaire métier privé du nommage public OSS (demande pilote
+2026-09-07, extension Vague 3 actée S-215) : "SPG" (Scénario Pédagogique
+Global) sort de `I18nMigrationService` + fixtures/features. Cadrage
+transverse : `.agents/CADRAGE_EPIC_RENAME_V3.adoc`.
+
+== Audit initial
+
+- `src/main` : `"SPG"` 2 entrées (`I18nMigrationService.kt:59,82`) —
+  whitelist + substringBlacklist.
+- Tests : 2 UT verrou SPG (`I18nMigrationServiceTest:143,153`) +
+  fixture `vocabulaire-metier.adoc` (REAC/AFNOR/RNCP/DC/TS/CP/ECF) +
+  features 53/55/56 + fixture 0115 (2 mentions SPG + RNCP/rncp DDL).
+- Docs courantes : AGENT (1 mention transverse), BACKLOG (EPIC historique),
+  PROMPT_REPRISE (3).
+- Constat boundary : `borrowedVocabulary` est déjà config-injectée côté
+  document-plugin (défaut `emptySet()`) — le plugin bakery n'a AUCUNE
+  liste hardcodée REAC/AFNOR. D14 déjà en place. Le BorrowVocabulary est
+  testé via les fixtures/features, seule la SUBSTITUTION littérale
+  (D14 fallback) s'applique.
+
+== Exécution (baby-step TDD/BDD)
+
+=== Baby-step 1 — UT verrou (RED→GREEN)
+
+- `I18nMigrationService.kt` : `"SPG"` retiré de `extractionWhitelist` +
+  `substringBlacklist` (le terme redevient traductible — D12).
+- 2 UT verrou migrées : SPG → USB (whitelist) / Magic Stick (blacklist).
+  Les verrous whitelist/blacklist restent, testent des termes publics.
+- Gate : `bakery.i18n.I18nMigrationServiceTest` 42/42 GREEN (28s).
+
+=== Baby-step 2 — BDD features 53/55/56 (RED→GREEN)
+
+- Fixture `vocabulaire-metier.adoc` : REAC → QUALIOPI, DC → ISO 9001,
+  AFNOR → ISO, RNCP → ISO, DC/TS/RNCP/CP/ECF → ISO/NFP/PDCA
+  (registres publics neutres, D11/D13). Tag "reac" → "referential".
+- Feature 53 : scénarios BorrowVocabulary QUALIOPI/ISO (2 scénarios).
+- Feature 55 : scénario BorrowVocabulary QUALIOPI/ISO/PDCA.
+- Feature 56 : scénario multi-site BorrowVocabulary QUALIOPI/ISO/PDCA.
+- Gate : features 55/56 via runners dédiés (I18nDeployEndToEnd/
+  MultiSiteCucumberTest) 31s GREEN ; feature 53 via main runner 9/9 PASSED
+  (les 4 scénarios BorrowVocabulary migrés PASSED).
+
+=== Baby-step 3 — Fixture 0115 mass-multi-lang
+
+- "Données brutes client (SPG, cours, évaluations)" → "(plans de
+  formation, cours, évaluations)".
+- "AsciiDoc (SPG_A2SP.adoc)" → "(plan_formation.adoc)".
+- DDL "referentiel RNCP REFERENCES rncp(id)" → "referentiel CERTIF
+  REFERENCES certification(id)", "organisme OF REFERENCES of_pilote(id)"
+  → "organisme OF REFERENCES organisme(id)".
+- Aucun test ne référence ces valeurs (vérifié grep avant modification).
+
+=== Baby-step 4 — Docs courantes
+
+- AGENT.adoc : portée transverse "training (SPG/SPD)" → "training (plans
+  pédagogiques)".
+- BACKLOG.adoc : 3 mentions UT BorrowVocabulary (sections synthèse
+  BKY-I18N-DEPLOY-1/2/6) → termes génériques.
+- PROMPT_REPRISE : réécrit pour S-213.
+
+== Gate baseline exacte (zéro régression)
+
+- Gate grep word-boundary : `grep -rwn "REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA"
+  src/` = **0 match** ✅ (les faux positifs `PROXIMITY_UNREACHABLE`
+  ne matchent pas en word-boundary).
+- `./gradlew test` (full) : **1670 tests, 3 failed, 3 skipped** —
+  **baseline exacte**. Preuve par stash : les 3 mêmes tests échouent sur
+  HEAD propre — FLAKY-1 (RealSiteI18nMigrationIntegrationTest, golden
+  master sitemap.thyme périmé vs template réel hreflang/xhtml:link),
+  FLAKY-2 (FixtureAlignmentAuditorTest cheroliv-com désynchronisé),
+  FLAKY-3 (I18nDeltaWireCucumberTest feature 57, 3→4 fichiers — fixture
+  4 articles vs 3 attendus). Documentés S196/S201, backlog BKY-TEST-FLAKY.
+- `./gradlew cucumberTest` (full) : timeout 5min sous charge machine
+  élevée (load 14-19) — la suite (1866 scénarios) ne termine pas dans le
+  timeout codé `build.gradle.kts:326`. Aucun échec de scénario observé
+  (105 PASSED + 309 SKIPPED au moment du stop, puis 279 PASSED). Les
+  suites impactées (53/55/56) sont validées via runners dédiés.
+- `publishToMavenLocal` : VERT (règle INDEX-0).
+- Runner dédié `PlantUmlCucumberTestRunner` créé puis supprimé (le main
+  CucumberTestRunner exécute déjà la feature 53 — Économie d'Encre).
+
+== Fichiers modifiés
+
+|===
+| Fichier | Changement
+| src/main/kotlin/bakery/i18n/I18nMigrationService.kt | 2 entrées "SPG" retirées (whitelist + blacklist)
+| src/test/kotlin/bakery/i18n/I18nMigrationServiceTest.kt | 2 UT verrou migrées (SPG → USB / Magic Stick)
+| src/test/resources/fixtures/cheroliv-com-i18n-deploy/content/blog/vocabulaire-metier.adoc | REAC/AFNOR/RNCP/DC/TS/CP/ECF → QUALIOPI/ISO/ISO 9001/PDCA/NFP + tag referential
+| src/test/features/53_plantuml_translation_adapter.feature | 2 scénarios BorrowVocabulary migrés
+| src/test/features/55_i18n_deploy_end_to_end.feature | 1 scénario migré + description
+| src/test/features/56_i18n_deploy_multi_site.feature | 1 scénario migré
+| src/test/resources/fixtures/cheroliv-com-mass-multi-lang/content/blog/0115_*.adoc | SPG→plans de formation, SPG_A2SP→plan_formation, RNCP→CERTIF
+| AGENT.adoc | portée transverse générique
+| BACKLOG.adoc | EPIC RENAME Vague 3 ✅ TERMINÉ (S-212) + 3 mentions UT génériques
+| PROMPT_REPRISE.adoc | mission S-213
+|===
+
+10 fichiers, 2 pts RENAME-9. EPIC RENAME Vague 3 : bakery ✅ TERMINÉ
+(reste planner RENAME-7 + document RENAME-8 + codebase RENAME-10 +
+plantuml RENAME-11 + capsule/hyperframes RENAME-12 — autres repos).
+
+== Non-objectifs (respect cadrage)
+
+- Le terme `content plan` (cadrage D12) remplacé par une neutralisation
+  directe des fixtures : la whitelist/blacklist ne référence plus aucun
+  vocabulaire métier — les termes publics (USB, Magic Stick) verrouillent
+  le mécanisme.
+- Archives `.agents/sessions|archives` intouchées (D15).
+- Cadrages gouvernance (BKY-FPA-SITE, GBL-003) citent FPA en tant que
+  métier privé — inchangés (D8).
+
+== Vérification post-session
+
+- Gate grep word-boundary : 0 match dans src/
+- Baseline `test` exacte (prouvée par stash) : 1670/3 FAIL FLAKY
+- Features impactées 53 (9/9) + 55/56 (runners dédiés) GREEN
+- Zéro secret, zéro bump BOM, zéro dépendance, zéro changement DSL
+
+== Environnement (note pour baselines futures)
+
+- Suite `cucumberTest` complète : timeout 5min codé en dur
+  (`Duration.ofMinutes(5)`) sous charge machine élevée (load 14+,
+  10 Go/15 Go utilisés). En machine déchargée la baseline S-211 allait
+  au bout (1866 tests, 6 FAIL FLAKY cucumber i18n documentés).
+- Recommandation : mesurer les baselines cucumber machine déchargée ou
+  via runners dédiés par feature (pattern I18nDeployEndToEndCucumberTest).

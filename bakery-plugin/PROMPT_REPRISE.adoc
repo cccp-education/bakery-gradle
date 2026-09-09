@@ -1,49 +1,64 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 212
-:date: 2026-09-08
-:etat: Session 211 ✅ — RENAME-3 TERMINÉ (EPIC transverse RENAME, baby-step 3/6 bakery) : 2 entrées "FPA" sorties des listes I18nMigrationService + fixtures neutralisées. Gate grep src/ = 0, baselines exactes. **Cycle release complet** : bakery-plugin 0.0.10 Central (`9e02b0ad`), document 0.0.17 (`d07c4444`), BOM/catalog 0.0.36 (`2b4da514`), consommateurs runner + magic-stick propagés.
-:epic_actif: RENAME ✅ bakery TERMINÉ (reste capsule + plantuml + graphify/codex, autres boroughs) + BKY-FPA-SITE 🟡 STANDBY (arbitrage pilote) + MASS-6 🟡 reporté (accord pilote, ~675h LLM).
+:session: 213
+:date: 2026-09-09
+:etat: Session 212 ✅ — RENAME-9 TERMINÉ (EPIC RENAME Vague 3, bakery ✅ TERMINÉ) : "SPG" sorti des listes I18nMigrationService (whitelist + substringBlacklist) + 2 UT verrou migrées (SPG→USB/Magic Stick) + fixture vocabulaire-metier.adoc neutralisée (REAC/AFNOR/RNCP/DC/TS/CP/ECF → QUALIOPI/ISO/PDCA/NFP registres publics) + features 53/55/56 alignées + fixture 0115 (SPG→plans de formation, RNCP→CERTIF) + AGENT.adoc portée transverse. Gate grep word-boundary src/ = 0, UT 42/42 GREEN, features 55/56 GREEN.
+:epic_actif: RENAME Vague 3 ✅ bakery TERMINÉ (reste planner RENAME-7 + document RENAME-8 + codebase RENAME-10 + plantuml RENAME-11 + capsule/hyperframes RENAME-12 — autres repos) + BKY-FPA-SITE 🟡 STANDBY (arbitrage pilote) + MASS-6 🟡 reporté (accord pilote, ~675h LLM).
 
 == Contexte de fin
 
-Session 211 — RENAME-3 (baby-step TDD, 1 pt) :
-- 2 UT verrou whitelist/blacklist ajoutées (terme conservé SPG — la gate
-  grep interdit littéralement "FPA" dans src/, pattern codebase RENAME-1).
-- `I18nMigrationService.kt` : "FPA" retiré de `extractionWhitelist` +
-  `substringBlacklist` — le terme redevient traductible (nommage public
-  neutre, cadrage RENAME D6/D7).
-- Fixtures scaffold "Formation FPA" → "Formation métier" (4 fichiers) +
-  tag "fpa" → "pédagogie" + fixture blog 0115 (2 mentions CDA/FPA → "métier").
-- Zéro régression : échecs test (3) et cucumberTest (6) identiques sur
-  baseline stashed — préexistants environnementaux (S196 + FLAKY-1/2/3).
+Session 212 — RENAME-9 (baby-step TDD/BDD, 2 pts) :
+- `I18nMigrationService.kt` : "SPG" retiré de `extractionWhitelist` +
+  `substringBlacklist` — le terme redevient traductible (cadrage RENAME V3
+  D12 : SPG/SPD = artefacts du pipeline privé → sortent intégralement).
+- 2 UT verrou whitelist/blacklist migrées (SPG → USB / Magic Stick — les
+  verrous whitelist/blacklist restent, testent des termes publics).
+- Fixture `vocabulaire-metier.adoc` : REAC/AFNOR/RNCP/DC/TS/CP/ECF →
+  QUALIOPI/ISO/ISO 9001/PDCA/NFP (registres publics neutres, D11).
+- Features 53/55/56 : scénarios BorrowVocabulary alignés sur les nouveaux
+  termes. Gate : `grep -rwn "REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA" src/` = 0.
+- Fixture 0115 mass-multi-lang : SPG→plans de formation, SPG_A2SP→
+  plan_formation, RNCP/rncp→CERTIF/certification.
+- AGENT.adoc : portée transverse "training (SPG/SPD)" → "training (plans
+  pédagogiques)".
+- Features 55/56 validées via runners dédiés (I18nDeployEndToEnd/
+  MultiSiteCucumberTest) — 31s GREEN. UT I18nMigrationServiceTest 42/42.
 
-== Mission Session 212 — à la demande
+== Mission Session 213 — à la demande
 
-1. **BKY-FPA-SITE-0** : arbitrage licence publication publique corpus FPA
+1. **RENAME Vague 3 autres repos** : planner RENAME-7 (prompts LLM,
+   prioritaire), document RENAME-8, codebase RENAME-10, plantuml
+   RENAME-11, capsule/hyperframes RENAME-12 (cadrage
+   `.agents/CADRAGE_EPIC_RENAME_V3.adoc` transverse).
+2. **BKY-FPA-SITE-0** : arbitrage licence publication publique corpus FPA
    (décision pilote — après GBL-003.3/003.4 codex/codebase livrés).
-2. **Portail formation (anneau A4)** : quand les SPDs existeront (Newark
-   TRN-1→6), dogfood le portail via assembleTrainingSite.
-3. **MASS-6 montée en charge** : 108 articles × 10 langues — accord
+3. **Portail formation (anneau A4)** : quand les plans de formation
+   existeront (Newark TRN-1→6), dogfood le portail via assembleTrainingSite.
+4. **MASS-6 montée en charge** : 108 articles × 10 langues — accord
    pilote explicite requis. Coût LLM ~675h.
-4. **FLAKY-1/2/3** : dette cucumber i18n (P1 — 6 FAIL préexistants
+5. **FLAKY-1/2/3** : dette cucumber i18n (P1 — 6 FAIL préexistants
    cucumberTest, documentés S196/S201).
 
 ## Reprendre à
 
 . `git status` dans bakery-gradle
-. Lire `BACKLOG.adoc` section EPIC RENAME (bakery ✅) + BKY-FPA-SITE (STANDBY)
+. Lire `BACKLOG.adoc` section EPIC RENAME Vague 3 (bakery ✅) + BKY-FPA-SITE (STANDBY)
 . Vérifier Ollama ports 11437-11465 + modèle `gemma4:31b-cloud`
 . `/tmp/bakery-dogfood` projet consommateur (buildscript classpath 0.0.9)
 . `publishToMavenLocal` après chaque modification code source
 
 ## Ordre des EPICs (priorité)
 
-. RENAME boroughs restants (capsule fixtures, plantuml registre — autres repos)
+. RENAME Vague 3 autres repos (planner prompts LLM = le plus exposé)
 . FLAKY-1/2/3 (dette cucumber i18n, P1)
 . Bug chemin dogfooding (P3, non bloquant)
 . Re-traduction cheroliv.com/en/ prod (fix `:summary:` impact SEO)
 
-## Rappel S211
+## Rappel S212
 
-- `I18nMigrationServiceTest` 42 UT (dont 2 verrou whitelist SPG)
-- Gate permanente : `grep -ri "fpa" src/` doit rester = 0
+- `I18nMigrationServiceTest` 42 UT (verrous whitelist/blacklist sur
+  USB / Magic Stick — plus aucun terme métier)
+- Gate permanente : `grep -rwn "REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA" src/`
+  doit rester = 0
+- Note environnement : suite `cucumberTest` complète (1866 scénarios)
+  timeout à 5min sous charge machine élevée (load 14+) — baselines
+  futures à mesurer machine déchargée ou via runners dédiés.

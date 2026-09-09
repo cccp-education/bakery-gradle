@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-09-08 — Session 211 ✅ RENAME-3. +2 UT verrou whitelist/blacklist dans `I18nMigrationServiceTest` (nested `ExtractHardcodedText` — terme conservé "SPG" : `skips whitelisted acronym from extraction`, `skips text containing blacklisted substring from extraction`). Total 42 UT dans la classe, 0 FAIL. Baseline `test` : 1670 tests / 3 FAIL préexistants environnementaux (S196). Baseline `cucumberTest` : 1866 tests / 6 FAIL préexistants (FLAKY-1/2/3). `publishToMavenLocal` VERT. Baseline Kover inchangée (S169 : 93,09%, seuil 85% PASS)._
+_Dernière mise à jour : 2026-09-09 — Session 212 ✅ RENAME-9 (Vague 3). 2 UT verrou whitelist/blacklist migrées dans `I18nMigrationServiceTest` (nested `ExtractHardcodedText` — termes publics : `skips whitelisted acronym from extraction` sur USB, `skips text containing blacklisted substring from extraction` sur Magic Stick — plus aucun terme métier). Total 42 UT dans la classe, 0 FAIL. Gate grep word-boundary `REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA` src/ = 0. Baseline `test` : 1670 tests / 3 FAIL préexistants environnementaux exacte (prouvée par stash — FLAKY-1/2/3 identiques sur HEAD propre). Baseline `cucumberTest` : suite complète timeout 5min sous charge machine élevée (load 14+, aucune échec de scénario ; suites impactées 53/55/56 validées GREEN via runners dédiés). `publishToMavenLocal` VERT. Baseline Kover inchangée (S169 : 93,09%, seuil 85% PASS)._
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''

@@ -35,7 +35,7 @@ toc::[]
 Toute startup IA qui manipule des données de formation se heurte au même mur :
 
 ```
-Données brutes client (SPG, cours, évaluations)
+Données brutes client (plans de formation, cours, évaluations)
   ├→ Noms de stagiaires en clair dans les PDF
   ├→ Emails dans les métadonnées JSON
   ├→ IP de connexion dans les logs pgvector
@@ -56,7 +56,7 @@ Ce qu'il fait :
 [source]
 ----
 ENTRÉE : Données brutes multi-sources
-  ├→ AsciiDoc (SPG_A2SP.adoc) → noms, dates, OF pilote
+  ├→ AsciiDoc (plan_formation.adoc) → noms, dates, OF pilote
   ├→ JSON (catalogue formations) → emails, téléphones
   ├→ YAML (config workspace) → tokens OAuth2
   ├→ SQL (schémas DDL) → IP, adresses
@@ -124,8 +124,8 @@ L'import de données structurées n'est pas qu'un format d'échange. Le schéma 
 CREATE TABLE formation (
   id UUID PRIMARY KEY,
   titre VARCHAR NOT NULL,
-  referentiel RNCP REFERENCES rncp(id),
-  organisme OF REFERENCES of_pilote(id)  -- ← va être anonymisé
+  referentiel CERTIF REFERENCES certification(id),
+  organisme OF REFERENCES organisme(id)  -- ← va être anonymisé
 );
 ----
 

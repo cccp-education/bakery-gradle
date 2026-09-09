@@ -11,7 +11,7 @@ Feature: i18n deploy end-to-end — 10 languages pipeline
   The fixture `cheroliv-com-i18n-deploy` contains 3 French articles covering
   the 3 PlantUml strategies: PreserveTechnical (class diagram, no labels),
   TranslateLabels (use case diagram with human labels) and BorrowVocabulary
-  (REAC/AFNOR/DC/RNCP borrowed terms).
+  (QUALIOPI/ISO borrowed terms).
 
   Background:
     Given a cheroliv-com-i18n-deploy fixture with 3 French articles and 10 supported languages
@@ -51,11 +51,11 @@ Feature: i18n deploy end-to-end — 10 languages pipeline
     And the translated "en" article "diagramme-labels.adoc" should not contain "Utilisateur"
     And the translated "en" article "diagramme-labels.adoc" should not contain "Administrateur"
 
-  Scenario: PlantUml BorrowVocabulary preserves REAC and AFNOR verbatim
+  Scenario: PlantUml BorrowVocabulary preserves QUALIOPI and ISO verbatim
     When the deploy pipeline translates the fixture from fr to "en"
-    Then the translated "en" article "vocabulaire-metier.adoc" should contain "REAC"
-    And the translated "en" article "vocabulaire-metier.adoc" should contain "AFNOR"
-    And the translated "en" article "vocabulaire-metier.adoc" should contain "RNCP"
+    Then the translated "en" article "vocabulaire-metier.adoc" should contain "QUALIOPI"
+    And the translated "en" article "vocabulaire-metier.adoc" should contain "ISO"
+    And the translated "en" article "vocabulaire-metier.adoc" should contain "PDCA"
 
   Scenario: End-to-end 10 languages pipeline produces 10 localized variants
     When the deploy pipeline translates the fixture from fr to all supported languages

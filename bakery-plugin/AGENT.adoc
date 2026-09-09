@@ -69,7 +69,7 @@ L'agent NE DOIT JAMAIS lancer de tests (`./gradlew test`, etc.) lors de la proce
 
 **LEÇON (Session 153, bakery i18n)** : `I18nMigrationService.translateNonFrenchKeys()` re-traduisait l'intégralité des clés FR→EN via le LLM à chaque `migrateToI18n`, écrasant les traductions validées de `messages_en.properties`. Sur 45 clés × 10 langues × ré-exécutions, la facture LLM croissait linéairement sans valeur ajoutée. Correctif : chargement des traductions existantes + traduction delta des clés manquantes uniquement.
 
-**PORTÉE TRANSVERSE** : Ce principe s'applique à tous les boroughs consommant un service LLM/cloud metered — bakery (i18n), codex (RAG), training (SPG/SPD), capsule (TTS), plantuml (diagrammes), readme (génération), document (AsciiDoc IA), agile (ateliers IA), ticket (création IA), review (analyse IA). Toute nouvelle tâche Gradle qui appelle un LLM DOIT implémenter la lecture-avant-écriture et le calcul delta.
+**PORTÉE TRANSVERSE** : Ce principe s'applique à tous les boroughs consommant un service LLM/cloud metered — bakery (i18n), codex (RAG), training (plans pédagogiques), capsule (TTS), plantuml (diagrammes), readme (génération), document (AsciiDoc IA), agile (ateliers IA), ticket (création IA), review (analyse IA). Toute nouvelle tâche Gradle qui appelle un LLM DOIT implémenter la lecture-avant-écriture et le calcul delta.
 
 === Securite
 * Jamais de secrets en dur dans le code
