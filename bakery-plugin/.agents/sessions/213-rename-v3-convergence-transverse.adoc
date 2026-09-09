@@ -1,0 +1,97 @@
+= Session 213 — RENAME Vague 3 : convergence transverse + purge résidus drift
+:date: 2026-09-09
+:epic: RENAME Vague 3 (transverse) — clôture finale
+:statut: ✅ TERMINÉ
+
+== Mission (PROMPT_REPRISE S-213)
+
+Exécuter RENAME Vague 3 sur les autres repos (planner RENAME-7 prioritaire,
+document RENAME-8, codebase RENAME-10, plantuml RENAME-11,
+capsule/hyperframes RENAME-12) selon le cadrage transverse
+`.agents/CADRAGE_EPIC_RENAME_V3.adoc`.
+
+== Constats d'ouverture (convergence des sessions concurrentes)
+
+. *RENAME-7 planner* ✅ déjà livré S-254 (commit `e4b8f2d` — prompts LLM
+  génériques + 6 fixtures). Aucun résidu src/ ni docs.
+. *RENAME-8 document* ✅ prod déjà livré S-253 (commit `de477e2` —
+  `borrowedVocabulary` sorti de l'API publique via config injectée D14).
+  *Résidu détecté* : assertion littérale `REAC` dans
+  `AssembleBookTaskContentRichTocTest.kt:100` (viol la gate D16 src/).
+. *RENAME-10 codebase* ✅ prod déjà livré S-254 (commit `9cf9441`).
+  *Résidu détecté* : le commit CB-FPA-RAG S-214 (`ea2e5db`, postérieur)
+  a réintroduit 4 mentions SPG d'*usage* dans BACKLOG (×3) +
+  PROMPT_REPRISE (×1) — drift de gouvernance.
+. *RENAME-11 plantuml* ✅ déjà livré S-216 (KDoc loader → QUALIOPI +
+  5 fixtures). Gate docs = zéro usage.
+. *RENAME-12 capsule/hyperframes* ✅ déjà livré S-135/S-254. Capsule src/
+  = 0, docs courantes = documentation des EPICs RENAME eux-mêmes +
+  historique CAP-SPD (légitime, precedent S-212).
+
+== Exécution (baby-step TDD, 2 résidus)
+
+=== Résidu 1 — document : fixture test REAC → corps OCR neutre
+
+- `AssembleBookTaskContentRichTocTest.kt:100` : assertion
+  `content.contains("REAC")` → `content.contains("enquête terrain")`
+- Motivation : (1) la gate D16 interdit le terme littéral dans src/ ;
+  (2) l'ancienne assertion était faible — "REAC" apparaissait aussi dans
+  les titres TOC ("Évolution des REAC v1 à v7"), elle ne prouvait pas
+  la récupération du *corps* OCR. La nouvelle chaîne vit uniquement
+  dans le corps de la page 22 (`scans/022.adoc`, absent du TOC) —
+  assertion plus discriminante.
+- *Gate* : functionalTest `AssembleBookTaskContentRichTocTest` 1/1 GREEN
+  (21s, skipped=0). Aucune republish (functionalTest hors JAR distribué).
+
+=== Résidu 2 — codebase : docs courantes SPG → plans de formation
+
+- `BACKLOG.adoc` : tableau canaux ("SPG" → "plans de formation"),
+  exemple pipeline ("GenerateSPGTask" → "GenerateContentPlanTask"),
+  sous-tâche W-0 (idem), référence V16 (`--intention="Générer SPG"` →
+  `"Générer un plan de formation"`, `"generateSPG"` →
+  `"generateContentPlan"`).
+- `PROMPT_REPRISE.adoc:25` : "pour la génération SPG" → "pour la
+  génération des plans de formation".
+- Alignement grille D12 (artefacts pipeline privé → génériques).
+
+== Gate transverse finale (D16)
+
+[cols="2,3"]
+|===
+| Borough | Verdict
+| planner | ✅ CLEAN (src + docs)
+| document | ✅ CLEAN (src + docs — chemins office/ légitimes piège #18)
+| codebase | ✅ CLEAN (src + docs ; keyword détection AFNOR D11 légitime ;
+  identifiants EPIC CB-FPA-RAG hors périmètre)
+| plantuml | ✅ CLEAN (src + docs)
+| capsule | ✅ CLEAN (src ; docs = doc des EPICs RENAME + historique CAP-SPD)
+| hyperframes | ✅ CLEAN (src + docs)
+| bakery | ✅ CLEAN (src = 0 ; docs = doc EPICs RENAME, precedent S-212)
+|===
+
+*Convergence* : les matches résiduels dans les docs courantes sont les
+documentations des EPICs RENAME eux-mêmes (tables de statut, rapports)
+— un EPIC de neutralisation cite légitimement les termes qu'il a purgés
+(precedent S-212/S-254, D15 archives + tableaux de suivi).
+
+== Clôture EPIC RENAME Vague 3 — CONFIRMÉE
+
+- RENAME-7 ✅ S-254 | RENAME-8 ✅ S-253 + fix résidu S-213(bakery)
+- RENAME-9 ✅ S-212 | RENAME-10 ✅ S-254 + fix résidu S-213(bakery)
+- RENAME-11 ✅ S-216 | RENAME-12 ✅ S-135/S-254
+- **EPIC TERMINÉ 6/6 US + purge drift post-sessions concurrentes.**
+- Le vocabulaire métier privé (FPA, REAC, AFNOR usage privatif, SPG, SPD,
+  DC, TS, CP, ECF) est hors du nommage public OSS. AFNOR/RNCP restent en
+  keywords de détection (références publiques, D11).
+
+== Zéro publication
+
+Aucune version publiée : (1) le changement document est un fichier
+functionalTest (hors JAR distribué) ; (2) les changements codebase sont
+des docs de gouvernance. Aucun bump BOM.
+
+== Commits
+
+- bakery-gradle : gouvernance session 213 (rapport + sync INDEX/PROMPT_REPRISE/BACKLOG/archive)
+- document-gradle : `test(rename): RENAME-8 fixture OCR body REAC→enquête terrain (S-213 résidu)`
+- codebase-gradle : `docs(rename): purge drift SPG docs courantes (S-213 résidu post S-214)`

@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-09-09 — Session 212 ✅ RENAME-9 TERMINÉ (Vague 3 bakery : "SPG" sorti des listes I18nMigrationService + fixtures/features 53/55/56 + fixture vocabulaire-metier.adoc + fixture 0115 neutralisés — registres publics QUALIOPI/ISO/PDCA/NFP). Session 211 ✅ RENAME-3 TERMINÉ (2 entrées "FPA" sorties des listes I18nMigrationService + fixtures neutralisées, 1 pt) + S-215 cadrage RENAME Vague 3. Session 210 ✅ cadrage BKY-FPA-SITE (STANDBY). Session 207 ✅ MASS-5 CLÔTURÉ 8/8 lots.)_
+_Dernière mise à jour : 2026-09-09 — Session 213 ✅ RENAME Vague 3 CLÔTURÉ transverse (convergence sessions concurrentes : planner S-254, document S-253 + fix résidu fixture REAC, codebase S-254 + purge drift SPG docs, plantuml S-216, hyperframes S-254). Session 212 ✅ RENAME-9 TERMINÉ (Vague 3 bakery). Session 211 ✅ RENAME-3 TERMINÉ. Session 210 ✅ cadrage BKY-FPA-SITE (STANDBY). Session 207 ✅ MASS-5 CLÔTURÉ 8/8 lots.)_
 
 '''
 == EPIC RENAME — Neutralisation nommage métier privé (FPA→content, CDA→coding) ✅ TERMINÉ (bakery)
@@ -28,23 +28,30 @@ préexistants + `cucumberTest` 1866/6 FAIL préexistants (identiques baseline st
 (baby-step 5), graphify/codex gouvernance (baby-step 6).
 
 '''
-== EPIC RENAME Vague 3 — Confiner REAC/AFNOR/SPG/SPD ✅ TERMINÉ (bakery)
+== EPIC RENAME Vague 3 — Confiner REAC/AFNOR/SPG/SPD ✅ TERMINÉ (tous boroughs — clôture transverse S-213)
 
 _Origine : demande pilote — REAC/AFNOR/SPG/SPD = vocabulaire métier privé (SPG = artefact du pipeline de formation du pilote). Cadrage : `.agents/CADRAGE_EPIC_RENAME_V3.adoc`._
 
 |===
 | US | Description | Pts | Statut
+| RENAME-7 | planner : IntentionPlanner prompts (:149,:208) → génériques + 5 fichiers tests/features + check | 2 | ✅ TERMINÉ (S-254)
+| RENAME-8 | document : borrowedVocabulary 2 fichiers (→ config injectée D14 ou `referential`) + 12 fixtures tests + check | 2 | ✅ TERMINÉ (S-253 + fix résidu S-213)
 | RENAME-9 | I18nMigrationService : `"SPG"` (2 entrées whitelist + substringBlacklist) → générique + fixtures/features 53/55/56 + fixture vocabulaire-metier.adoc ("REAC/AFNOR" → registres publics QUALIOPI/ISO/PDCA/NFP) + fixture 0115 (SPG/RNCP) + docs courantes (AGENT/BACKLOG/PROMPT_REPRISE) + check baseline | 2 | ✅ TERMINÉ (S-212)
+| RENAME-10 | codebase : CodebasePlugin.kt:176 description → générique + check | 0.5 | ✅ TERMINÉ (S-254 + fix résidu docs S-213)
+| RENAME-11 | plantuml : KDoc loader exemple YAML → QUALIOPI (déjà registre) + check | 0.5 | ✅ TERMINÉ (S-216)
+| RENAME-12 | capsule/hyperframes : docs courantes → génériques | 1 | ✅ TERMINÉ (S-135/S-254)
 |===
 
-*Exécution S-212* : `"SPG"` retiré des 2 listes (`I18nMigrationService.kt`).
-2 UT verrou migrées (SPG → USB / Magic Stick, toujours verrou whitelist/blacklist).
-Fixture `vocabulaire-metier.adoc` : REAC/AFNOR/RNCP/DC/TS/CP/ECF → QUALIOPI/ISO/
-ISO 9001/PDCA/NFP (registres publics neutres, D11). Features 53/55/56 alignées.
-Fixture 0115 : SPG→plans de formation, SPG_A2SP→plan_formation, RNCP→CERTIF.
-AGENT.adoc portée transverse "training (SPG/SPD)" → "training (plans pédagogiques)".
-Gate : `grep -rwn "REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA" src/` = 0, UT 42/42 GREEN,
-features 55/56 GREEN via runners dédiés. 8 fichiers, 2 pts.
+*Exécution S-213 (clôture transverse)* : convergence des sessions
+concurrentes S-253/S-254/S-216 — 4/6 US déjà livrées. 2 résidus réels
+corrigés : (1) document assertion fixture test REAC → "enquête terrain"
+(corps OCR page 22, absent du TOC — plus discriminant ; functionalTest
+1/1 GREEN) ; (2) codebase docs courantes — commit CB-FPA-RAG S-214
+postérieur avait réintroduit 4 mentions SPG d'usage (BACKLOG ×3 +
+PROMPT_REPRISE ×1) → "plans de formation"/"GenerateContentPlanTask"
+(grille D12). Gate D16 finale : 0 usage métier sur les 7 repos.
+**EPIC TERMINÉ 6/6 US.** Reste en backlog bakery : FLAKY-1/2/3 +
+BKY-FPA-SITE (STANDBY) + MASS-6 (reporté).
 
 '''
 == EPIC BKY-FPA-SITE — Site navigable du corpus FPA (GBL-003.5) 🟡 STANDBY

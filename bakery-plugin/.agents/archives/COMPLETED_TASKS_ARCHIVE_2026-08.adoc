@@ -779,3 +779,34 @@ Gates :
 (reste planner RENAME-7 + document RENAME-8 + codebase RENAME-10 +
 plantuml RENAME-11 + capsule/hyperframes RENAME-12, autres repos).
 10 fichiers modifiés.
+
+== Session 213 — 2026-09-09 — RENAME Vague 3 : convergence transverse + purge résidus drift
+
+Mission PROMPT_REPRISE S-213 : exécuter RENAME Vague 3 sur les autres repos.
+Constat d'ouverture : **4/6 US déjà livrées par sessions concurrentes**
+(planner RENAME-7 S-254, document RENAME-8 prod S-253, codebase RENAME-10
+prod S-254, plantuml RENAME-11 S-216, hyperframes RENAME-12 S-254).
+
+2 résidus réels corrigés (baby-step TDD) :
+
+* [x] document `AssembleBookTaskContentRichTocTest.kt:100` : assertion
+  `content.contains("REAC")` → `"enquête terrain"` — la gate D16 interdit
+  le terme littéral dans src/ ; l'ancienne assertion était faible (REAC
+  apparaissait aussi dans les titres TOC) ; la nouvelle chaîne vit
+  uniquement dans le corps OCR page 22 (scans/022.adoc, absent du TOC) —
+  assertion plus discriminante. Gate : functionalTest 1/1 GREEN 21s.
+* [x] codebase docs courantes : commit CB-FPA-RAG S-214 (`ea2e5db`,
+  postérieur au RENAME-10) avait réintroduit 4 mentions SPG d'usage —
+  BACKLOG ×3 (tableau canaux, GenerateSPGTask, W-0, référence V16) +
+  PROMPT_REPRISE ×1 → "plans de formation" / "GenerateContentPlanTask" /
+  "generateContentPlan" (grille D12).
+
+Gate transverse finale (D16) : 0 usage métier sur planner / document /
+codebase / plantuml / capsule / hyperframes / bakery. Matches résiduels
+légitimes = documentation des EPICs RENAME eux-mêmes + historique CAP-SPD
+(precedent S-212/S-254).
+
+*Clôture* : **EPIC RENAME Vague 3 TERMINÉ 6/6 US** (tous boroughs).
+Le vocabulaire métier privé est hors du nommage public OSS. AFNOR/RNCP
+restent en keywords de détection (références publiques, D11). Zéro
+publication (functionalTest hors JAR + docs gouvernance), zéro bump BOM.

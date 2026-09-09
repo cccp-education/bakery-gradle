@@ -1,7 +1,7 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-09-09 — Session 212. RENAME-9 ✅ TERMINÉ (Vague 3 : SPG confiné — 2 entrées sorties des listes + UT verrou migrées + fixtures/features neutralisés). RENOMMÉ : EPIC RENAME Vague 1 bakery ✅ S-211 (FPA), Vague 3 bakery ✅ S-212 (SPG). Restants : FLAKY-1/2/3 + MASS-6 (reporté, accord pilote) + RENAME autres repos (planner RENAME-7 prioritaire)._
+_Dernière mise à jour : 2026-09-09 — Session 213. RENAME Vague 3 ✅✅ CLÔTURÉ tous boroughs (convergence : planner S-254, document S-253 + fix résidu, codebase S-254 + purge drift docs, plantuml S-216, hyperframes S-254). Gate D16 = 0 usage 7 repos. Restants : FLAKY-1/2/3 + MASS-6 (reporté, accord pilote)._
 
 == NOUVEAU — EPIC BKY-TEST-FLAKY (S-028, priorité 1, 3 US ~5 pts)
 

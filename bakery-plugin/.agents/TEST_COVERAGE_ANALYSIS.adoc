@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-09-09 — Session 212 ✅ RENAME-9 (Vague 3). 2 UT verrou whitelist/blacklist migrées dans `I18nMigrationServiceTest` (nested `ExtractHardcodedText` — termes publics : `skips whitelisted acronym from extraction` sur USB, `skips text containing blacklisted substring from extraction` sur Magic Stick — plus aucun terme métier). Total 42 UT dans la classe, 0 FAIL. Gate grep word-boundary `REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA` src/ = 0. Baseline `test` : 1670 tests / 3 FAIL préexistants environnementaux exacte (prouvée par stash — FLAKY-1/2/3 identiques sur HEAD propre). Baseline `cucumberTest` : suite complète timeout 5min sous charge machine élevée (load 14+, aucune échec de scénario ; suites impactées 53/55/56 validées GREEN via runners dédiés). `publishToMavenLocal` VERT. Baseline Kover inchangée (S169 : 93,09%, seuil 85% PASS)._
+_Dernière mise à jour : 2026-09-09 — Session 213 ✅ RENAME Vague 3 clôture transverse. Zéro test bakery modifié cette session (convergence RENAME, 2 résidus dans repos tiers). Test document modifié : `AssembleBookTaskContentRichTocTest` assertion corps OCR REAC→"enquête terrain" — functionalTest 1/1 GREEN (21s, skipped=0), assertion plus discriminante (chaîne absente du TOC, vit uniquement dans le corps page 22). Gate grep word-boundary `REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA` src/ = 0 (7 repos transverse). Baseline bakery inchangée : `test` 1670/3 FAIL préexistants environnementaux (FLAKY-1/2/3, S196), Kover S169 : 93,09% seuil 85% PASS._
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
