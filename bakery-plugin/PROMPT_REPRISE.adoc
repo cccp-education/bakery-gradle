@@ -1,61 +1,59 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 214
+:session: 215
 :date: 2026-09-09
-:etat: Session 213 ✅ — RENAME Vague 3 CLÔTURÉ transverse (convergence sessions concurrentes) : RENAME-7 planner ✅ S-254, RENAME-8 document ✅ S-253 + fix résidu fixture REAC→"enquête terrain" (assertion plus discriminante, test 1/1 GREEN), RENAME-9 bakery ✅ S-212, RENAME-10 codebase ✅ S-254 + purge drift SPG docs courantes (4 mentions réintroduites par commit CB-FPA-RAG S-214), RENAME-11 plantuml ✅ S-216, RENAME-12 ✅ S-135/S-254. Gate D16 = 0 usage sur 7 repos.
-:epic_actif: RENAME Vague 3 ✅✅ TERMINÉ 6/6 US (tous boroughs) + BKY-FPA-SITE 🟡 STANDBY (arbitrage pilote) + MASS-6 🟡 reporté (accord pilote, ~675h LLM) + FLAKY-1/2/3 🟡 dette cucumber i18n (P1).
+:etat: Session 214 ✅ — EPIC BKY-TEST-FLAKY CLÔTURÉ 3/3 US (FLAKY-1/2/3 dette cucumber i18n P1) : fixtures cheroliv-com resyncées (11 templates vs site réel), golden master cheroliv-com régénéré (header.5/6, -footer.15-18), feature 57 3→4 articles, secrets Firebase neutralisés (placeholders + auditor neutralizeSecrets). Gate finale : test 1671/0 FAIL. Les gates cross-borough MEMPHIS n'ont plus besoin de la mention "baseline exacte 3 FAIL".
+:epic_actif: BKY-FPA-SITE 🟡 STANDBY (arbitrage pilote) + MASS-6 🟡 reporté (accord pilote, ~675h LLM). Aucun EPIC ouvert — backlog bakery propre.
 
 == Contexte de fin
 
-Session 213 — convergence RENAME Vague 3 (2 résidus corrigés) :
-- document : `AssembleBookTaskContentRichTocTest.kt:100` assertion
-  `REAC` → `"enquête terrain"` (corps OCR page 22, absent du TOC —
-  prouve mieux la récupération du corps ; gate D16 src/ satisfaite).
-  functionalTest 1/1 GREEN.
-- codebase : BACKLOG (tableau canaux, exemple GenerateSPGTask→
-  GenerateContentPlanTask, W-0, référence V16) + PROMPT_REPRISE :25
-  — 4 mentions SPG d'usage → "plans de formation" (grille D12).
-- Convergence documentée : les sessions concurrentes S-253/S-254/S-216
-  avaient déjà livré 4/6 US. Gate transverse finale = 0 usage métier
-  sur planner/document/codebase/plantuml/capsule/hyperframes/bakery.
-- Rapport : `.agents/sessions/213-rename-v3-convergence-transverse.adoc`.
+Session 214 — stabilisation des 3 FAIL i18n récurrents (baby-step BDD) :
+- Baseline RED 1670/3 FAIL (XML JUnit) : FLAKY-2 (11 templates fixture
+  désynchronisés du site réel — SRI, JSON-LD, lang, head(null)),
+  FLAKY-1 (golden master sitemap.thyme périmé, cascade FLAKY-2),
+  FLAKY-3 (feature 57 attendait 3 articles, fixture en a 4 depuis S-190).
+- Fixtures resyncées depuis `office/sites/cheroliv.com/jbake/templates/`
+  (la vérité est le site réel), golden master régénéré via
+  `PostMigrationSnapshotGenerator` one-shot (re-`@Disabled` S-214),
+  `translations_en.properties` étendu (header.1-6, -footer.15-18),
+  feature 57 + `I18nDeltaWireSteps` mis à jour 3→4.
+- Découverte sécurité : la resync a introduit la vraie clé API Firebase
+  du site réel dans les fixtures → neutralisée (placeholders + `neutralizeSecrets()`
+  auditor + comparaison neutralisée RealSite test). Grep secrets = 0.
+- Rapport : `.agents/sessions/214-flaky-123-stabilisation-i18n.adoc`.
 
-== Mission Session 214 — à la demande
+== Mission Session 215 — à la demande
 
-1. **FLAKY-1/2/3** : dette cucumber i18n (P1 — 6 FAIL préexistants
-   cucumberTest, documentés S196/S201) :
-   - FLAKY-1 : RealSiteI18nMigrationIntegrationTest — régénérer golden
-     master sitemap.thyme (hreflang/xhtml:link)
-   - FLAKY-2 : FixtureAlignmentAuditorTest — régénérer fixtures (audit
-     auto-réparateur)
-   - FLAKY-3 : I18nDeltaWireCucumberTest — diagnostic RED fil rouge
-     feature 57
-2. **BKY-FPA-SITE-0** : arbitrage licence publication publique corpus FPA
+1. **BKY-FPA-SITE-0** : arbitrage licence publication publique corpus FPA
    (décision pilote — après GBL-003.3/003.4 codex/codebase livrés ✅).
-3. **Portail formation (anneau A4)** : quand les plans de formation
+2. **Portail formation (anneau A4)** : quand les plans de formation
    existeront (Newark TRN-1→6), dogfood le portail via assembleTrainingSite.
-4. **MASS-6 montée en charge** : 108 articles × 10 langues — accord
+3. **MASS-6 montée en charge** : 108 articles × 10 langues — accord
    pilote explicite requis. Coût LLM ~675h.
-5. **Re-traduction cheroliv.com/en/ prod** (fix `:summary:` impact SEO).
+4. **Re-traduction cheroliv.com/en/ prod** (fix `:summary:` impact SEO).
+5. **Bug chemin dogfooding** (P3, non bloquant) : `--contentI18nSource=
+   content/blog/2026` double `content/` (srcPath site.yml préfixé).
 
 ## Reprendre à
 
 . `git status` dans bakery-gradle
-. Lire `BACKLOG.adoc` (RENAME Vague 3 ✅ clôturé + BKY-FPA-SITE STANDBY)
+. Lire `BACKLOG.adoc` (BKY-TEST-FLAKY ✅ clôturé — backlog propre)
 . Vérifier Ollama ports 11437-11465 + modèle `gemma4:31b-cloud`
 . `/tmp/bakery-dogfood` projet consommateur (buildscript classpath 0.0.9)
 . `publishToMavenLocal` après chaque modification code source
 
 ## Ordre des EPICs (priorité)
 
-. FLAKY-1/2/3 (dette cucumber i18n, P1 — ordre suggéré FLAKY-2 → 1 → 3)
-. Bug chemin dogfooding (P3, non bloquant)
 . BKY-FPA-SITE-0 (arbitrage pilote)
 . Re-traduction cheroliv.com/en/ prod (fix `:summary:` impact SEO)
+. Bug chemin dogfooding (P3, non bloquant)
 
-## Rappel S212/S213
+## Rappel S212-S214
 
 - Gate permanente : `grep -rwn "REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA" src/`
   doit rester = 0 (bakery + tous boroughs transverse)
+- Golden masters = artefacts gelés : `PostMigrationSnapshotGenerator`
+  reste `@Disabled`, régénérer UNIQUEMENT si les fixtures changent
+  (pattern REAL-4 : retirer @Disabled, run, re-valider, re-@Disabled).
 - Note environnement : suite `cucumberTest` complète (1866 scénarios)
   timeout à 5min sous charge machine élevée (load 14+) — baselines
   futures à mesurer machine déchargée ou via runners dédiés.

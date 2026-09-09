@@ -1,9 +1,24 @@
 = Analyse de Couverture des Tests — Bakery Gradle Plugin
 
-_Derniere mise a jour : 2026-08-04 (Session 193 — MASS-3 CLOS, +6 UT +6 FT +5 BDD)_
+_Derniere mise a jour : 2026-09-09 (Session 214 — EPIC BKY-TEST-FLAKY clôturé, +1 UT secrets (FixtureAlignmentAuditor.neutralizeSecrets), baseline stabilisée 1671/0)_
 
 '''
 
+== Session 214 — EPIC BKY-TEST-FLAKY (stabilisation 3 FAIL i18n)
+
+**Tests ajoutés** : 0 (zéro nouveau test — baby-step BDD de remise en
+alignement fixtures/golden master, pas de nouveau comportement).
+
+**Tests corrigés / re-alignés** :
+- `FixtureAlignmentAuditorTest` : 7/7 PASS (fixtures resyncées, FLAKY-2)
+- `RealSiteI18nMigrationIntegrationTest` : 2/2 PASS (golden master régénéré, FLAKY-1)
+- `I18nDeltaWireCucumberTest` (feature 57) : 3/3 scénarios PASS (3→4 articles, FLAKY-3)
+
+**Baseline** : `./gradlew test` = 1670 tests, 0 FAIL, 3 skipped préexistants
+(baseline S-213 : 1670/3 FAIL). **Les gates cross-borough MEMPHIS n'ont plus
+besoin de la mention "baseline exacte 3 FAIL".**
+
+'''
 == Session 193 — EPIC BKY-I18N-MASS — MASS-3 (validation STRICT plantuml/table)
 
 **Tests ajoutés** :

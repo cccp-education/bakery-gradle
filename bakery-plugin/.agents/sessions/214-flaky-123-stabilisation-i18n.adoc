@@ -1,0 +1,137 @@
+= Session 214 — FLAKY-1/2/3 : stabilisation des 3 FAIL i18n récurrents (EPIC BKY-TEST-FLAKY clôturé)
+
+:session: 214
+:date: 2026-09-09
+:mission: EPIC BKY-TEST-FLAKY (3 US, dette cucumber i18n P1 documentée S-028 cross-borough MEMPHIS)
+:methode: Baby-step BDD strict — diagnostic RED (baseline + XML JUnit) → fix fixtures/golden master → GREEN (1670/0) → REFACTOR (générateur re-disabled)
+
+== Mission
+
+La mission S-214 (PROMPT_REPRISE) ciblait les 3 FAIL `cucumberTest`/`test`
+préexistants documentés depuis S-196/S-201, qui masquaient les régressions
+réelles à chaque gate cross-borough MEMPHIS (mention « baseline exacte 3 FAIL »
+obligatoire). Ordre acté : FLAKY-2 → FLAKY-1 → FLAKY-3.
+
+== Diagnostic RED (baseline ./gradlew test)
+
+Baseline HEAD propre : **1670 tests, 3 FAIL** — exactement les 3 FLAKY :
+
+1. *FLAKY-2* `FixtureAlignmentAuditorTest` — « cheroliv-com fixture is aligned
+   with real cheroliv-com site » : 11 templates fixture désynchronisés du site
+   réel (`archive, blog, contact, feed, footer, header, index, page, post,
+   sitemap, tags`). Cause racine : le site réel a évolué post-S150 (SRI
+   integrity hashes sur bootstrap/firebase, JSON-LD @graph Article/Breadcrumb,
+   `lang="fr"` sur html, `head(null)` paramétré, footer-bottom-links supprimé,
+   magic-stick URL cheroliv.com → cccp.education) ; les fixtures n'avaient
+   jamais été resynchronisées.
+2. *FLAKY-1* `RealSiteI18nMigrationIntegrationTest` — « migration ... matches
+   golden master » : `[cheroliv-com] Template 'sitemap.thyme' diffère du golden
+   master` (hreflang/xhtml:link présent dans le rendu, absent du golden). La
+   fixture pré-migration périmée (FLAKY-2) invalide en cascade le golden
+   master post-migration dérivé.
+3. *FLAKY-3* `I18nDeltaWireCucumberTest` (feature 57) : 3 scénarios FAIL —
+   `Expected 3 files translated ... expected: 3 but was: 4`. La fixture
+   `cheroliv-com-i18n-deploy` a 4 articles depuis S-190 (ajout
+   `diagrammes-mixtes.adoc` pour feature 55 — scénario Mixed PlantUml
+   strategies) ; feature 57 attendait encore 3 articles.
+
+== Corrections (baby-step BDD)
+
+=== FLAKY-2 — resync fixtures cheroliv-com
+
+Copie des 11 templates du site réel
+(`office/sites/cheroliv.com/jbake/templates/`) vers
+`src/test/resources/i18n-fixtures/cheroliv-com/jbake/templates/` (fichiers
+trackés git, rollback possible, backup /tmp préalable). Gate : auditor 7/7 PASS
+(magic-stick + cccp-education déjà alignés).
+
+=== FLAKY-1 — régénération golden master cheroliv-com
+
+- `PostMigrationSnapshotGenerator` (one-shot, pattern REAL-4 S170) :
+  `@Disabled` retiré → run (3/3 PASS) → re-`@Disabled` avec mention S-214.
+- Nouvelles clés : `header.5` (og:site_name/author meta) + `header.6`
+  (robots noindex, follow — duplicate content mitigation pilot-batch).
+  Clés disparues : `footer.15-18` (Privacy policy/Terms/Legal/Site map
+  retirés du site réel).
+- `translations_en.properties` étendu : header.1-6 réalignés sur les nouvelles
+  clés, footer.15-18 supprimés. Après re-run générateur : **0 clé EN vide**.
+
+=== FLAKY-3 — feature 57 reflète les 4 articles
+
+- `57_i18n_delta_wire.feature` : 3 → 4 articles (fresh 4/0, idempotence 0/4,
+  delta 1/3). Le scénario delta modifie `introduction-pivot.adoc` (inchangé).
+- `I18nDeltaWireSteps.kt` : step Given renommé (« 4 French articles »).
+
+== Gates
+
+|===
+| Gate | Résultat
+| `./gradlew test` | **1671 tests, 0 FAIL** (1670 + 1 nouveau test secrets, 3 skipped préexistants)
+| Auditor | 8/8 PASS (inclut le nouveau test secrets-neutralisés)
+| RealSiteI18nMigration (idempotence + golden master) | 2/2 PASS
+| Runners dédiés (features 55/56/60/62/57) | 5/5 PASS
+| `PostMigrationGoldenMasterTest` | 3/3 PASS
+| `publishToMavenLocal` | VERT
+| `compileKotlin` | VERT
+| Gate D16 `grep -rwn "REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA" src/` | 0 usage
+|===
+
+== Découverte sécurité — secrets Firebase dans les fixtures (neutralisés)
+
+La resync des fixtures depuis le site réel a introduit la **vraie clé API
+Firebase** Firebase + appId Firebase du site cheroliv.com dans les
+fixtures trackées git. L'ancienne fixture avait des placeholders
+(`REMPLACER_PAR_VOTRE_API_KEY`). Règle workspace : zéro API key committée.
+
+Baby-step TDD :
+1. *Neutralisation fixtures* — `apiKey` + `appId` remplacés par placeholders
+   dans `i18n-fixtures/cheroliv-com/jbake/templates/footer.thyme` +
+   `post-migration/templates/footer.thyme` (grep API key = 0).
+2. *TDD RED* — nouveau test auditor `template differing only by injected
+   secrets is aligned` : échec attendu (placeholders ≠ vraie clé).
+3. *Implémentation* — `FixtureAlignmentAuditor.neutralizeSecrets()` :
+   regex `apiKey:\s*"..."` + `appId:\s*"..."` → placeholder canonique avant
+   hash. Seule la divergence secrets-only est ignorée, toute autre divergence
+   reste rapportée. Auditor 8/8 PASS.
+4. *Conséquence* — `RealSiteI18nMigrationIntegrationTest` : la copie du site
+   réel (vraie clé) vs golden master (placeholders) → comparaison
+   secrets-neutralisée ajoutée dans `assertSnapshotsMatch` (2/2 PASS).
+
+Le site réel garde ses vraies valeurs (production). Les fixtures test et
+golden masters portent des placeholders. L'auditor les considère alignées
+car seule la valeur injectée diffère.
+
+== Artefacts modifiés (36 fichiers, zéro code production métier)
+
+- 11 templates fixture cheroliv-com (resync site réel + placeholders secrets)
+- 12 templates + jbake.properties golden master cheroliv-com (régénérés,
+  placeholders secrets)
+- messages_fr/en golden master cccp-education + magic-stick (seul le
+  timestamp de header `Properties.store()` change — contenu des clés
+  strictement identique, régénération partielle du générateur)
+- `translations_en.properties` (header.1-6, -footer.15-18)
+- feature 57 + `I18nDeltaWireSteps.kt` (3 → 4 articles)
+- `PostMigrationSnapshotGenerator.kt` (mention régénération S-214)
+- `FixtureAlignmentAuditor.kt` (1 fichier production : `neutralizeSecrets()`
+  — neutralisation secrets, pas de logique métier)
+- `FixtureAlignmentAuditorTest.kt` (+1 test secrets)
+- `RealSiteI18nMigrationIntegrationTest.kt` (comparaison secrets-neutralisée)
+
+== Décisions
+
+1. *Resync fixtures = la vérité est le site réel* — les templates production
+   sont la référence, les fixtures de test sont des copies de travail
+   (pré-requis BKY-I18N-REAL).
+2. *Couplage FLAKY-2 → FLAKY-1 assumé* — régénérer les fixtures invalide
+   mécaniquement les golden masters ; les deux US sont traitées ensemble.
+3. *Feature 57 mise à jour (pas la fixture)* — la fixture 4 articles est
+   partagée par features 55/56/59 (déjà adaptées) ; seul feature 57 était
+   périmé. `I18nMassValidationSteps` et autres Given « 3 French articles »
+   non-modifiés (pas d'assertion de compte chez eux).
+
+== Reste du backlog bakery
+
+- BKY-FPA-SITE 🟡 STANDBY (arbitrage pilote)
+- MASS-6 🟡 reporté (accord pilote, ~675h LLM)
+- Bug chemin dogfooding (P3, non bloquant) — `--contentI18nSource=content/blog/2026` double `content/`
+- Re-traduction cheroliv.com/en/ prod (fix `:summary:` impact SEO)

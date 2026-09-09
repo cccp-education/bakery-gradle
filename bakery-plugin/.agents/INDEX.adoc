@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-09-09 — Session 213 ✅ — **RENAME Vague 3 CLÔTURÉ transverse** (convergence sessions concurrentes, baby-step TDD) — 4/6 US déjà livrées par S-253/S-254/S-216 (planner/document prod/codebase prod/plantuml/hyperframes). 2 résidus réels corrigés : fixture test document assertion REAC→"enquête terrain" (corps OCR page 22, test 1/1 GREEN) + 4 mentions SPG docs courantes codebase (drift commit CB-FPA-RAG S-214 → "plans de formation"). Gate D16 = 0 usage sur 7 repos. Zéro publication, zéro bump BOM. EPICs restants : BKY-FPA-SITE (STANDBY arbitrage pilote) + MASS-6 (reporté accord pilote) + FLAKY-1/2/3 (dette cucumber i18n P1)._
-_Session en cours_ : 213 ✅ — RENAME Vague 3 clôture transverse (2 résidus drift).
-_Prochaine session_ : à la demande — FLAKY-1/2/3 (dette cucumber i18n P1, ordre FLAKY-2→1→3) OU BKY-FPA-SITE-0 (arbitrage licence, décision pilote) OU portail formation A4 OU MASS-6 (accord pilote).
+_Derniere mise a jour : 2026-09-09 — Session 214 ✅ — **EPIC BKY-TEST-FLAKY CLÔTURÉ 3/3 US** (dette cucumber i18n P1, baby-step BDD) : FLAKY-2 fixtures cheroliv-com resyncées (11 templates vs site réel — SRI/JSON-LD/lang/head(null)), FLAKY-1 golden master cheroliv-com régénéré (`PostMigrationSnapshotGenerator` one-shot, header.5/6 nouvelles clés, -footer.15-18), FLAKY-3 feature 57 3→4 articles (fixture a 4 articles depuis S-190). + Découverte sécurité : vraie clé API Firebase du site réel introduite par la resync → neutralisée (placeholders fixtures/golden master + `FixtureAlignmentAuditor.neutralizeSecrets()` + comparaison neutralisée RealSite test, grep secrets = 0). Gate finale : `test` **1671/0 FAIL** (1670 + 1 UT secrets). 1 fichier production métier (auditor). Les gates MEMPHIS n'ont plus besoin de la mention "baseline exacte 3 FAIL". EPICs restants : BKY-FPA-SITE (STANDBY arbitrage pilote) + MASS-6 (reporté accord pilote)._
+_Session en cours_ : 214 ✅ — EPIC BKY-TEST-FLAKY clôture (3/3 US).
+_Prochaine session_ : à la demande — BKY-FPA-SITE-0 (arbitrage licence, décision pilote) OU re-traduction cheroliv.com/en/ prod (fix `:summary:`) OU portail formation A4 OU MASS-6 (accord pilote).
 
 '''
 
@@ -393,7 +393,7 @@ _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
 | Projet | Repertoire | Session en cours | Derniere MAJ
   | magic-stick | `~/workspace/foundry/public/magic-stick` | 014 | 2026-05-11
   | plantuml-gradle | `~/workspace/foundry/public/plantuml-gradle/plantuml-plugin` | 148 | 2026-06-11
-  | bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 189 | 2026-08-04
+  | bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 215 | 2026-09-09
   | jhipster-gradle-plugins | `~/workspace/foundry/public/jhipster-gradle-plugins` | 9 | 2026-06-11
   | quizz-benchmark-gradle | `~/workspace/foundry/private/quizz-benchmark-gradle/quizz-benchmark-plugin` | Audit 053 | 2026-04-30
   | runner-gradle | `~/workspace/foundry/public/runner-gradle` | 029 | 2026-05-12

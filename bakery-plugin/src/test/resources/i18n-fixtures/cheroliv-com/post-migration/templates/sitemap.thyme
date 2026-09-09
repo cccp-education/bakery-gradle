@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:th="http://www.thymeleaf.org" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-    <url th:each="content: ${published_content}">
-        <loc th:text="${config.site_host+'/'+content.uri}">loc</loc>
-        <lastmod th:text='${#dates.format(content.date,"yyyy-MM-dd")}'>lastmod</lastmod>
-    </url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:th="http://www.thymeleaf.org" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+    <th:block th:each="content: ${published_content}">
+        <url th:if="${!content.uri.contains('/pilot-batch/')}">
+            <loc th:text="${config.site_host} + ${content.uri}">loc</loc>
+            <lastmod th:text='${#dates.format(content.date,"yyyy-MM-dd")}'>lastmod</lastmod>
+            <xhtml:link rel="alternate" hreflang="fr" th:href="${config.site_host} + ${content.uri}"/>
+            <xhtml:link rel="alternate" hreflang="en" th:href="${config.site_host} + 'en/' + ${content.uri}"/>
+            <xhtml:link rel="alternate" hreflang="x-default" th:href="${config.site_host} + ${content.uri}"/>
+        </url>
+    </th:block>
 </urlset>

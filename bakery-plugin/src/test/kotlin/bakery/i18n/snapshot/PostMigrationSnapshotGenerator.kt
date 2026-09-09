@@ -14,13 +14,13 @@ import java.util.Properties
  * EN translations, and persists the result into
  * `src/test/resources/i18n-fixtures/{site}/post-migration/`.
  *
- * Snapshots were produced (S170). This test is now @Disabled.
+ * Snapshots regenerated S214 (fixtures resynced). This test is now @Disabled.
  * To regenerate: remove @Disabled, run, re-validate with
  * [PostMigrationGoldenMasterTest].
  *
  * DO NOT MODIFY — snapshots freeze the expected result.
  */
-@Disabled("Golden masters generated S170. Regenerate only if migration changes.")
+@Disabled("Golden masters regenerated S214 (fixtures resynced to real sites). Regenerate only if migration changes.")
 class PostMigrationSnapshotGenerator {
     private val service = I18nMigrationService()
 

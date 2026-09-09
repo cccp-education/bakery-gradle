@@ -58,6 +58,13 @@
                                       placeholder="Votre message"
                                       required></textarea>
                         </div>
+                        <!-- CONTACT-SEC: bakery — Turnstile (remplacer 0x4AAAAAAENqGzKsCZzMmQmX par la Site Key réelle au déploiement) -->
+                        <div class="cf-turnstile mb-3"
+                             data-sitekey="0x4AAAAAAENqGzKsCZzMmQmX"
+                             data-theme="light"
+                             data-callback="onTurnstileToken"
+                             data-error-callback="onTurnstileError"></div>
+                        <input type="hidden" name="cf_turnstile_token" value="" />
                         <div class="text-center">
                             <button type="submit" class="btn btn-primary">
                                 <i class="bi bi-send me-2"></i>

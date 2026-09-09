@@ -52,8 +52,8 @@ class FixtureAlignmentAuditor {
             commonNames.mapNotNull { relativeName ->
                 val fixtureFile = fixtureTemplatesDir.resolve(relativeName)
                 val realSiteFile = realSiteTemplatesDir.resolve(relativeName)
-                val fixtureHash = sha256(fixtureFile.readText().normalizeEol())
-                val realSiteHash = sha256(realSiteFile.readText().normalizeEol())
+                val fixtureHash = sha256(fixtureFile.readText().normalizeEol().neutralizeSecrets())
+                val realSiteHash = sha256(realSiteFile.readText().normalizeEol().neutralizeSecrets())
                 if (fixtureHash != realSiteHash) {
                     TemplateMismatch(relativeName, fixtureHash, realSiteHash)
                 } else {
@@ -78,6 +78,21 @@ class FixtureAlignmentAuditor {
             .toList()
 
     private fun String.normalizeEol(): String = this.replace("\r\n", "\n")
+
+    /**
+     * Replaces injected secrets (Firebase API keys, app IDs) with canonical
+     * placeholders so that a fixture carrying placeholders aligns with the
+     * real site carrying production values. Only the placeholder divergence
+     * is ignored — any other divergence is still reported.
+     */
+    private fun String.neutralizeSecrets(): String =
+        this
+            .replace(Regex("apiKey:\\s*\"[^\"]+\""), "apiKey: \"$SECRET_PLACEHOLDER\"")
+            .replace(Regex("appId:\\s*\"[^\"]+\""), "appId: \"$SECRET_PLACEHOLDER\"")
+
+    private companion object {
+        const val SECRET_PLACEHOLDER = "REMPLACER_PAR_VOTRE_PLACEHOLDER"
+    }
 
     private fun sha256(input: String): String {
         val digest = java.security.MessageDigest.getInstance("SHA-256")

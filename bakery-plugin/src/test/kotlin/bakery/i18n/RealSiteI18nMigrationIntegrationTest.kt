@@ -105,8 +105,8 @@ class RealSiteI18nMigrationIntegrationTest {
         )
         for (templateName in expected.templatesMigrated.keys) {
             assertEquals(
-                expected.templatesMigrated[templateName],
-                actual.templatesMigrated[templateName],
+                expected.templatesMigrated[templateName]?.let { neutralizeSecrets(it) },
+                actual.templatesMigrated[templateName]?.let { neutralizeSecrets(it) },
                 "[$siteId] Template '$templateName' diffère du golden master",
             )
         }
@@ -114,6 +114,11 @@ class RealSiteI18nMigrationIntegrationTest {
         assertEquals(expected.messagesEn, actual.messagesEn, "[$siteId] messages_en diffère du golden master")
         assertTrue(actual.isComplete(), "[$siteId] Le snapshot réel doit être complet")
     }
+
+    private fun neutralizeSecrets(content: String): String =
+        content
+            .replace(Regex("apiKey:\\s*\"[^\"]+\""), "apiKey: \"PLACEHOLDER\"")
+            .replace(Regex("appId:\\s*\"[^\"]+\""), "appId: \"PLACEHOLDER\"")
 
     private fun copyRealSite(
         site: SiteMapping,

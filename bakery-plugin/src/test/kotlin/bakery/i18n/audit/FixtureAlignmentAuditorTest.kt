@@ -101,6 +101,23 @@ class FixtureAlignmentAuditorTest {
         assertEquals("index.thyme", report.mismatchedContent.single().templateName)
     }
 
+    @Test
+    fun `template differing only by injected secrets is aligned`(
+        @org.junit.jupiter.api.io.TempDir tempDir: File,
+    ) {
+        val fixtureDir = tempDir.resolve("fixture/templates").apply { mkdirs() }
+        val realDir = tempDir.resolve("real/templates").apply { mkdirs() }
+
+        fixtureDir.resolve("footer.thyme")
+            .writeText("apiKey: \"REMPLACER_PAR_VOTRE_API_KEY\"\nappId: \"REMPLACER_PAR_VOTRE_APP_ID\"")
+        realDir.resolve("footer.thyme")
+            .writeText("apiKey: \"AIzaSyDa6zTpcWtA3qZarwK7Z7oMXxjxD33np3c\"\nappId: \"1:165984851604:web:6f99abe1747c81fa718681\"")
+
+        val report = auditor.audit(fixtureDir, realDir)
+
+        assertTrue(report.isAligned, "Secrets-only divergence should be aligned: ${report.mismatchedContent}")
+    }
+
     private fun audit(
         fixtureResourcePath: String,
         siteDirName: String,

@@ -50,8 +50,8 @@ corrigés : (1) document assertion fixture test REAC → "enquête terrain"
 postérieur avait réintroduit 4 mentions SPG d'usage (BACKLOG ×3 +
 PROMPT_REPRISE ×1) → "plans de formation"/"GenerateContentPlanTask"
 (grille D12). Gate D16 finale : 0 usage métier sur les 7 repos.
-**EPIC TERMINÉ 6/6 US.** Reste en backlog bakery : FLAKY-1/2/3 +
-BKY-FPA-SITE (STANDBY) + MASS-6 (reporté).
+**EPIC TERMINÉ 6/6 US.** Reste en backlog bakery : BKY-FPA-SITE (STANDBY)
++ MASS-6 (reporté). FLAKY-1/2/3 ✅ clôturés S-214.
 
 '''
 == EPIC BKY-FPA-SITE — Site navigable du corpus FPA (GBL-003.5) 🟡 STANDBY
@@ -2328,13 +2328,13 @@ Zéro code modifié — gouvernance pure. Voir rapport
 [cols="2,3]
 |===
 | Document | `BACKLOG.adoc`
-  | Version | 24.8 — Session 199 ✅ (Audit version : delta 0.0.5 vs Central 0.0.4, EPIC PUB ajouté, zéro code modifié)
+  | Version | 24.9 — Session 214 ✅ (EPIC BKY-TEST-FLAKY clôturé 3/3 US : fixtures resyncées + golden master régénéré + feature 57 3→4 articles + secrets Firebase neutralisés, test 1671/0)
   | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
   | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-199 + EPIC BKY-DNS + EPIC PUB
-  | Prochaine màj | Session 201 — BKY-DNS-5 (Cucumber BDD dns_provision.feature)
- |===
-'''
-== 🟡 EPIC BKY-TEST-FLAKY — Stabilisation des 3 FAIL i18n récurrents (S-028, cross-borough MEMPHIS)
+  | Prochaine màj | Session 215 — BKY-FPA-SITE-0 (arbitrage pilote)
+  |===
+  '''
+  == ✅ EPIC BKY-TEST-FLAKY — Stabilisation des 3 FAIL i18n récurrents (S-028, cross-borough MEMPHIS) — ✅ TERMINÉ S-214
 
 _Origine : S-026/S-027/S-028 (gates MEMPHIS) — les mêmes 3 FAIL reviennent à
 chaque gate cross-borough et masquent les régressions réelles (comparaison
@@ -2346,12 +2346,26 @@ PROMPT_REPRISE S-027 bakery : "cucumber flaky (i18n-delta/dns/jbake-native)"._
 [cols="2,3,2,2"]
 |===
 | US | Description | Priorité | Statut
-| FLAKY-1 | `RealSiteI18nMigrationIntegrationTest` — idempotence + golden master sitemap.thyme : golden master périmé vs templates réels (diff hreflang/xhtml:link présent dans le rendu, absent du golden) → régénérer golden master OU isoler fixture | P1 | 🟡 À FAIRE
-| FLAKY-2 | `FixtureAlignmentAuditorTest` — 1/7 FAIL : alignement fixtures i18n vs site réel désynchronisé → régénérer fixtures (audit idempotent) | P1 | 🟡 À FAIRE
-| FLAKY-3 | `I18nDeltaWireCucumberTest` (feature 57 i18n delta wire) — scénario fil rouge cassé → diagnostic RED d'abord, fix ou re-tag | P1 | 🟡 À FAIRE
+| FLAKY-1 | `RealSiteI18nMigrationIntegrationTest` — idempotence + golden master sitemap.thyme : golden master périmé vs templates réels (diff hreflang/xhtml:link présent dans le rendu, absent du golden) → régénérer golden master OU isoler fixture | P1 | ✅ TERMINÉ (S-214)
+| FLAKY-2 | `FixtureAlignmentAuditorTest` — 1/7 FAIL : alignement fixtures i18n vs site réel désynchronisé → régénérer fixtures (audit idempotent) | P1 | ✅ TERMINÉ (S-214)
+| FLAKY-3 | `I18nDeltaWireCucumberTest` (feature 57 i18n delta wire) — scénario fil rouge cassé → diagnostic RED d'abord, fix ou re-tag | P1 | ✅ TERMINÉ (S-214)
 |===
 
-*Gate de clôture EPIC* : `./gradlew test` (bakery-plugin/) 0 FAIL — les gates
-cross-borough MEMPHIS n'auront plus besoin de la mention "baseline exacte
-3 FAIL". Baby-step BDD strict : diagnostic RED → fix → GREEN → REFACTOR.
-_Ordre suggéré : FLAKY-2 (audit auto-réparateur) → FLAKY-1 → FLAKY-3._
+**Exécution S-214** : baseline RED 1670/3 FAIL (XML JUnit). FLAKY-2 :
+11 templates fixture cheroliv-com resyncés depuis
+`office/sites/cheroliv.com/jbake/templates/` (site réel évolué post-S150 :
+SRI integrity, JSON-LD @graph, lang="fr", head(null), footer-bottom-links
+supprimé, magic-stick URL cccp.education) — auditor 7/7 PASS. FLAKY-1 :
+`PostMigrationSnapshotGenerator` one-shot (re-`@Disabled` S-214) +
+`translations_en.properties` étendu (header.1-6, -footer.15-18) — 2/2 PASS.
+FLAKY-3 : feature 57 + `I18nDeltaWireSteps` mis à jour 3→4 articles
+(fresh 4/0, idempotence 0/4, delta 1/3) — 3/3 scénarios PASS. Découverte
+sécurité : la resync a introduit la vraie clé API Firebase du site réel
+dans les fixtures trackées → neutralisée (placeholders fixtures/golden
+master + `FixtureAlignmentAuditor.neutralizeSecrets()` + comparaison
+neutralisée RealSite test, grep secrets = 0). Gate finale :
+`test` **1671 tests 0 FAIL** (1670 + 1 UT secrets).
+
+*Gate de clôture EPIC* : ✅ `./gradlew test` (bakery-plugin/) 1671/0 FAIL —
+les gates cross-borough MEMPHIS n'ont plus besoin de la mention "baseline
+exacte 3 FAIL". Baby-step BDD strict : diagnostic RED → fix → GREEN.

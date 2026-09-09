@@ -4,7 +4,7 @@
       xmlns:th="http://www.thymeleaf.org"
       lang="fr" data-bs-theme="light">
 
-<head th:replace="header.thyme::head"/>
+<head th:replace="header.thyme::head('')"/>
 
 <body>
 <div th:replace="menu.thyme::menu"/>

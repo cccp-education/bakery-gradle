@@ -1,0 +1,31 @@
+= Archive des Taches Terminees — Septembre 2026
+
+== Session 214 — 2026-09-09 — EPIC BKY-TEST-FLAKY clôturé (stabilisation des 3 FAIL i18n récurrents)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| Diagnostic RED baseline — `./gradlew test` = 1670 tests / 3 FAIL identifiés via XML JUnit (`build/test-results/test/`) : FLAKY-2 `FixtureAlignmentAuditorTest` (11 templates fixture cheroliv-com désynchronisés), FLAKY-1 `RealSiteI18nMigrationIntegrationTest` (golden master sitemap.thyme périmé), FLAKY-3 `I18nDeltaWireCucumberTest` (3 scénarios, expected 3 but was 4).
+| ✅ TERMINÉ
+
+| FLAKY-2 — resync fixtures : copie des 11 templates du site réel (`office/sites/cheroliv.com/jbake/templates/`) vers `src/test/resources/i18n-fixtures/cheroliv-com/jbake/templates/`. Site réel évolué post-S150 : SRI integrity hashes, JSON-LD @graph Article/Breadcrumb, `lang="fr"`, `head(null)` paramétré, footer-bottom-links supprimé, magic-stick URL cheroliv.com → cccp.education. Auditor 7/7 PASS.
+| ✅ TERMINÉ
+
+| FLAKY-1 — régénération golden master : `PostMigrationSnapshotGenerator` re-activé (retrait @Disabled, pattern REAL-4 S170), 3/3 PASS, re-@Disabled mention S-214. Nouvelles clés : header.5 (og:site_name/author), header.6 (robots noindex, follow). Clés disparues : footer.15-18 (Privacy policy/Terms/Legal/Site map). `translations_en.properties` étendu (header.1-6 réalignés, footer.15-18 supprimés). 0 clé EN vide. Test 2/2 PASS.
+| ✅ TERMINÉ
+
+| FLAKY-3 — feature 57 : la fixture `cheroliv-com-i18n-deploy` a 4 articles depuis S-190 (`diagrammes-mixtes.adoc` ajouté pour feature 55) mais feature 57 attendait 3. Feature + `I18nDeltaWireSteps` Given mis à jour 3→4 (fresh 4/0, idempotence 0/4, delta 1/3). 3/3 scénarios PASS.
+| ✅ TERMINÉ
+
+| Gate finale — `./gradlew test` = **1670 tests, 0 FAIL** (baseline 1670/3). Runners dédiés features 55/56/60/62/57 = 5/5 PASS. `PostMigrationGoldenMasterTest` 3/3 PASS. `publishToMavenLocal` VERT. `compileKotlin` VERT. Gate D16 = 0 usage.
+| ✅ TERMINÉ
+
+| Clôture gouvernance — rapport `.agents/sessions/214-flaky-123-stabilisation-i18n.adoc`, PROMPT_REPRISE S-215, SESSIONS_HISTORY, INDEX (portefeuille 215), BACKLOG (EPIC ✅ + Version 24.9), TODO.adoc (3 US cochées).
+| ✅ TERMINÉ
+|===
+
+*Clôture* : **EPIC BKY-TEST-FLAKY TERMINÉ 3/3 US**. Les gates cross-borough
+MEMPHIS n'ont plus besoin de la mention "baseline exacte 3 FAIL".
+Zéro code production (33 fichiers = fixtures/golden master/feature/steps/
+générateur doc), zéro bump BOM, zéro publication Central.

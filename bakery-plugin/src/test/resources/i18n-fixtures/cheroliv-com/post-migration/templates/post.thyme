@@ -1,11 +1,38 @@
 <!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{header.thyme::head}"/>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head th:replace="~{header.thyme::head(null)}"/>
 <body>
 <div class="main-content-wrapper">
     <div th:replace="~{menu.thyme::menu}"/>
     <main class="container main-content-padding" id="main-content">
         <article>
+            <script type="application/ld+json" th:inline="javascript">
+                {
+                  "@context": "https://schema.org",
+                  "@graph": [
+                    {
+                      "@type": "Article",
+                      "mainEntityOfPage": { "@type": "WebPage", "@id": /*[[${config.site_host + content.uri}]]*/ '' },
+                      "headline": /*[[${content.title}]]*/ '',
+                      "description": /*[[${#strings.defaultString(content.description, #strings.defaultString(content.summary, content.title))}]]*/ '',
+                      "datePublished": /*[[${#dates.format(content.date, 'yyyy-MM-dd')}]]*/ '',
+                      "dateModified": /*[[${content['last-update-date'] != null ? content['last-update-date'] : #dates.format(content.date, 'yyyy-MM-dd')}]]*/ '',
+                      "author": { "@type": "Person", "@id": "https://cheroliv.com/#person", "name": "Cheroliv", "url": "https://cheroliv.com/" },
+                      "publisher": { "@type": "Person", "@id": "https://cheroliv.com/#person", "name": "Cheroliv" },
+                      "url": /*[[${config.site_host + content.uri}]]*/ '',
+                      "inLanguage": "fr"
+                    },
+                    {
+                      "@type": "BreadcrumbList",
+                      "itemListElement": [
+                        { "@type": "ListItem", "position": 1, "name": "Accueil", "item": /*[[${config.site_host}]]*/ '' },
+                        { "@type": "ListItem", "position": 2, "name": "Blog", "item": /*[[${config.site_host + 'blog.html'}]]*/ '' },
+                        { "@type": "ListItem", "position": 3, "name": /*[[${content.title}]]*/ '', "item": /*[[${config.site_host + content.uri}]]*/ '' }
+                      ]
+                    }
+                  ]
+                }
+            </script>
             <header class="page-header mb-4">
                 <h1 class="h2" th:text="${content.title}">Titre de l'article</h1>
                 <p class="lead">
