@@ -1,27 +1,30 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 215
+:session: 216
 :date: 2026-09-09
-:etat: Session 214 ✅ — EPIC BKY-TEST-FLAKY CLÔTURÉ 3/3 US (FLAKY-1/2/3 dette cucumber i18n P1) : fixtures cheroliv-com resyncées (11 templates vs site réel), golden master cheroliv-com régénéré (header.5/6, -footer.15-18), feature 57 3→4 articles, secrets Firebase neutralisés (placeholders + auditor neutralizeSecrets). Gate finale : test 1671/0 FAIL. Les gates cross-borough MEMPHIS n'ont plus besoin de la mention "baseline exacte 3 FAIL".
+:etat: Session 215 ✅ — Bug chemin dogfooding CLÔTURÉ (P3, DDD/TDD/BDD) : `ContentSourcePathResolver` (3 règles segment-aware) + wiring `contentSrcPath` relatif au projectDir → `--contentI18nSource=content/blog` et forme préfixée `jbake/content/blog` résolues sans doublement. Gates : test 1682/0 FAIL, functionalTest 119/0, cucumberTest 2 FAIL préexistants (0 nouveau), feature 63 5/5 runner dédié. Rapport `.agents/sessions/215-contenti18nsource-double-chemin-resolu.adoc`.
 :epic_actif: BKY-FPA-SITE 🟡 STANDBY (arbitrage pilote) + MASS-6 🟡 reporté (accord pilote, ~675h LLM). Aucun EPIC ouvert — backlog bakery propre.
 
 == Contexte de fin
 
-Session 214 — stabilisation des 3 FAIL i18n récurrents (baby-step BDD) :
-- Baseline RED 1670/3 FAIL (XML JUnit) : FLAKY-2 (11 templates fixture
-  désynchronisés du site réel — SRI, JSON-LD, lang, head(null)),
-  FLAKY-1 (golden master sitemap.thyme périmé, cascade FLAKY-2),
-  FLAKY-3 (feature 57 attendait 3 articles, fixture en a 4 depuis S-190).
-- Fixtures resyncées depuis `office/sites/cheroliv.com/jbake/templates/`
-  (la vérité est le site réel), golden master régénéré via
-  `PostMigrationSnapshotGenerator` one-shot (re-`@Disabled` S-214),
-  `translations_en.properties` étendu (header.1-6, -footer.15-18),
-  feature 57 + `I18nDeltaWireSteps` mis à jour 3→4.
-- Découverte sécurité : la resync a introduit la vraie clé API Firebase
-  du site réel dans les fixtures → neutralisée (placeholders + `neutralizeSecrets()`
-  auditor + comparaison neutralisée RealSite test). Grep secrets = 0.
-- Rapport : `.agents/sessions/214-flaky-123-stabilisation-i18n.adoc`.
+Session 215 — résolution du bug chemin dogfooding (P3, item S-215) :
+- Cause racine : `SiteConfiguration.resolvePaths` rend `contentRoot` absolu
+  (projectDir + srcPath) ; `--contentI18nSource` déjà préfixé par `srcPath`
+  doublait (`jbake/content/blog/2026` → « répertoire source n'existe pas »).
+- Nouveau domaine `bakery.i18n.path` : `ContentSourcePathResolver` objet pur
+  segment-aware (3 règles : absolu tel quel / préfixé → projectDir.resolve /
+  sinon projectDir.resolve(srcPath).resolve). Rétro-compatibilité totale :
+  forme non-préfixée `content/blog` inchangée, forme préfixée `jbake/content/blog`
+  corrigée. Workaround S-207 (`blog/2026`) devenu inutile.
+- Wiring : `contentSrcPath` relatif dérivé par le registrar (le registrar connaît
+  la vérité issue de `resolvePaths`), tâche `resolveSourceDir()` câblée au resolver.
+- Tests : 8 UT resolver + 2 UT wiring (9 `ExecuteContentMigration`) + 2 FT TestKit
+  (9/9) + feature 63 BDD 5 scénarios (runner dédié, 5/5). Gates : test 1682/0 FAIL,
+  functionalTest 119/0, cucumberTest 2 FAIL préexistants environnementaux (0 nouveau).
+- Découverte runner : le `CucumberTestRunner` standard filtre
+  `@pipeline-contracts and not @wip` — la feature 63 (`@source-path`) a son
+  runner dédié `I18nSourcePathCucumberTest`.
 
-== Mission Session 215 — à la demande
+== Mission Session 216 — à la demande
 
 1. **BKY-FPA-SITE-0** : arbitrage licence publication publique corpus FPA
    (décision pilote — après GBL-003.3/003.4 codex/codebase livrés ✅).
@@ -30,13 +33,11 @@ Session 214 — stabilisation des 3 FAIL i18n récurrents (baby-step BDD) :
 3. **MASS-6 montée en charge** : 108 articles × 10 langues — accord
    pilote explicite requis. Coût LLM ~675h.
 4. **Re-traduction cheroliv.com/en/ prod** (fix `:summary:` impact SEO).
-5. **Bug chemin dogfooding** (P3, non bloquant) : `--contentI18nSource=
-   content/blog/2026` double `content/` (srcPath site.yml préfixé).
 
 ## Reprendre à
 
 . `git status` dans bakery-gradle
-. Lire `BACKLOG.adoc` (BKY-TEST-FLAKY ✅ clôturé — backlog propre)
+. Lire `BACKLOG.adoc` (S-215 ✅ — item P3 clôturé, backlog propre)
 . Vérifier Ollama ports 11437-11465 + modèle `gemma4:31b-cloud`
 . `/tmp/bakery-dogfood` projet consommateur (buildscript classpath 0.0.9)
 . `publishToMavenLocal` après chaque modification code source
@@ -45,7 +46,7 @@ Session 214 — stabilisation des 3 FAIL i18n récurrents (baby-step BDD) :
 
 . BKY-FPA-SITE-0 (arbitrage pilote)
 . Re-traduction cheroliv.com/en/ prod (fix `:summary:` impact SEO)
-. Bug chemin dogfooding (P3, non bloquant)
+. Portail formation anneau A4 (quand les SPDs existeront)
 
 ## Rappel S212-S214
 

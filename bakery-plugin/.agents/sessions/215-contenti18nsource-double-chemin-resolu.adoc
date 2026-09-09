@@ -1,0 +1,122 @@
+= Session 215 — Bug chemin dogfooding : doublement `content/` (P3) résolu par résolution de chemin `srcPath`-aware
+
+:session: 215
+:date: 2026-09-09
+:mission: Clôturer l'item S-215 « Bug chemin dogfooding (P3, non bloquant) » — `--contentI18nSource=content/blog/2026` doublait `content/` (srcPath site.yml préfixé) → workaround `blog/2026` depuis S-207
+:methode: Baby-step DDD/TDD/BDD strict — analyse cause racine → resolver pur segment-aware → wiring tâche relativisé → UT + FT TestKit → Cucumber BDD runner dédié
+
+== Mission
+
+Le bug P3 (documenté S-207 : workaround `blog/2026`, observe pendant le
+dogfooding MASS-5) : passer `--contentI18nSource=content/blog/2026` quand
+`site.yml` définit `srcPath: jbake` produisait un chemin source
+`jbake/content/blog/2026` (résolution naïve `resolvePath(base, path)`), soit
+un « répertoire source n'existe pas » — le dossier réel est `jbake/blog/2026`.
+L'utilisateur a demandé la clôture de cet item S-215.
+
+== Diagnostic RED (cause racine)
+
+- `SiteConfiguration.resolvePaths` (`BakeryPlugin.kt:245-251`) rend `srcPath`
+  **absolu** : `contentRoot = projectDir.resolve(srcPath).resolve.resolvePath(base, path)`.
+- `MigrateContentI18nTask` prenait ce `contentRoot` absolu comme dossier
+  source de la copie → `--contentI18nSource` déjà préfixé par `srcPath`
+  (`content/blog`) doublait avec le `srcPath` (`jbake/content/blog`).
+- Forme non-préfixée (`content/blog` + `srcPath: jbake`) restait correcte car
+  la résolution tombait sur `jbake/content/blog` — le comportement documenté
+  dans la feature 59 et le DSL `i18n { contentI18nSource }`.
+
+== Implémentation
+
+=== US-1 — `ContentSourcePathResolver` (domaine `bakery.i18n.path`)
+
+Objet pur `internal`, 3 règles segment-aware (match par segments, jamais par
+préfixe de chaîne — `jb` ≠ `jbake`) :
+
+1. Chemin absolu → utilisé tel quel.
+2. Chemin préfixé par les segments `srcPath` → `projectDir.resolve(sourceDir)`
+   (sans doublement).
+3. Sinon → `projectDir.resolve(srcPath).resolve(sourceDir)` (comportement
+   historique préservé).
+
+Rétro-compatibilité totale : `--contentI18nSource=content/blog` avec
+`srcPath: jbake` marche toujours (règle 3) ; la nouvelle forme préfixée
+`jbake/content/blog` est résolue sans doublement (règle 2). Le workaround
+S-207 (`blog/2026`) devient inutile.
+
+=== US-2 — wiring tâche + registrar
+
+- `MigrateContentI18nTask` : nouvelle propriété `contentSrcPath: String?`
+  + `resolveSourceDir()` câblé au resolver.
+- `ContentTaskRegistrar` : dérive `contentSrcPath` **relatif au projectDir**
+  (`contentRoot.relativeTo(project.projectDir).path` si `contentRoot`
+  démarre par `project.projectDir`, sinon `null`) — le registrar connaît la
+  vérité (le `contentRoot` résolu par `resolvePaths`), la tâche consomme le
+  chemin source relatif.
+
+=== Note sémantique copie
+
+L'arbre copié est préservé **relatif au dossier source** : un dossier source
+`content/blog` (relatif projectDir) aboutit à
+`build/i18n-en/en/2020/0016_simple_post.adoc` (assertions FT).
+
+== Tests
+
+|===
+| Niveau | Contenu | Résultat
+| DDD UT | 8 `ContentSourcePathResolverTest` (absolu, préfixé segment-exact, préfixe partiel `jb`≠`jbake`, résolution nommée, null-safety, triples règles) | 8/8
+| Wiring UT | +2 `MigrateContentI18nTaskTest` (9 tests `ExecuteContentMigration` : source préfixée + non-préfixée résolues) | 9/9
+| FT TestKit | +2 `MigrateContentI18nDeploySmokeFunctionalTest` (formes préfixée `jbake/content/blog` et relative `content/blog`, assertion chemin `i18n-en/en/.../0016_simple_post.adoc` + `doesNotContain("répertoire source n'existe pas")`) | 9/9
+| BDD | Feature `63_i18n_source_path_resolution.feature` (5 scénarios, tags `@cucumber @bakery @i18n @i18n-mass @source-path`) + `I18nSourcePathSteps.kt` (glue `io.cucumber.java.en.*`) + runner dédié `I18nSourcePathCucumberTest` | 5/5
+|===
+
+== Gates
+
+|===
+| Gate | Résultat
+| `./gradlew test` | **1682 tests, 0 FAIL** (baseline S-214 1671 → +11 : 8 resolver + 2 wiring + 1 runner dédié ; 3 skipped préexistants)
+| Runner dédié feature 63 | 5/5 PASSED
+| `functionalTest` complet | BUILD SUCCESSFUL 5m9s — 119 tests, 0 failures
+| `cucumberTest` complet | 581 completed, **2 failed = préexistants environnementaux** (BKY-I18N-PROD-GEN « dry run cheroliv-com » + « JBake native roundtrip »), 324 skipped — **0 échec nouveau**, feature 63 hors runner standard
+| `publishToMavenLocal` | VERT (après chaque modif main — règle INDEX 0)
+| Secret grep | 0 secret (artefacts `rg -r n` = affichage manglé, fichiers intacts via `git status`)
+|===
+
+Découverte runner : le `CucumberTestRunner` standard filtre
+`@pipeline-contracts and not @wip` — il ne découvre pas les features
+`@source-path` ; la feature 63 passe par son runner dédié (5/5 dans `test`).
+Les 2 FAIL cucumberTest sont les préexistants `@pipeline-contracts`
+documentés S-196 (baseline historique 1866/6, S-211 CLOS flaky).
+
+== Artefacts
+
+- +`src/main/kotlin/bakery/i18n/path/ContentSourcePathResolver.kt` (noyau du correctif)
+- +`src/test/kotlin/bakery/i18n/path/ContentSourcePathResolverTest.kt` (8 UT)
+- +`src/test/kotlin/bakery/i18n/path/I18nSourcePathCucumberTest.kt` (runner dédié)
+- +`src/test/features/63_i18n_source_path_resolution.feature` (5 scénarios)
+- +`src/test/scenarios/bakery/scenarios/I18nSourcePathSteps.kt` (steps BDD)
+- M`src/main/kotlin/bakery/i18n/MigrateContentI18nTask.kt` (`contentSrcPath` + `resolveSourceDir`)
+- M`src/main/kotlin/bakery/ContentTaskRegistrar.kt` (dérivation `contentSrcPath` relatif)
+- M`src/test/kotlin/bakery/i18n/MigrateContentI18nTaskTest.kt` (+2 wiring)
+- M`src/functionalTest/kotlin/bakery/MigrateContentI18nDeploySmokeFunctionalTest.kt` (+2 FT)
+
+== Décisions
+
+1. *Le registrar est la source de vérité du chemin relatif* — `resolvePaths`
+   produit un `contentRoot` absolu (nécessaire par ailleurs), le registrar
+   re-derive le `contentSrcPath` relatif au projectDir pour la tâche.
+2. *Resolver pur segment-aware* (et non `startsWith` naive) — évite les
+   faux positifs de préfixe partiel ; conforme au pattern DDD object pur
+   (`bakery.i18n.path`, 23e domaine).
+3. *Rétro-compatibilité non-brisée* — forme non-préfixée historique inchangée
+   (règle 3), forme préfixée désormais correcte (règle 2), absolu tel quel
+   (règle 1). Aucune suppression du workaround documenté nécessaire en CI.
+4. *Runner dédié pour feature 63* — pattern S-082 (runner standalone +
+   `CucumberTaskSpec`), cohérent avec features 55/60/62 ; le runner standard
+   reste `@pipeline-contracts`.
+
+== Reste du backlog bakery
+
+- BKY-FPA-SITE 🟡 STANDBY (arbitrage pilote)
+- MASS-6 🟡 reporté (accord pilote, ~675h LLM)
+- Re-traduction cheroliv.com/en/ prod (fix `:summary:` impact SEO)
+- *Bug chemin dogfooding : ✅ CLÔTURÉ S-215* — item P3 supprimé

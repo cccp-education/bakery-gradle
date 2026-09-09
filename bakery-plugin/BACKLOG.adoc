@@ -2033,7 +2033,7 @@ juste de fiabiliser.
 | Dogfooding opérateur + rapport métriques
 | 4
 | MASS-4
-| *✅ S207 — 8/8 lots complétés (108/108 articles FR→EN). Lot 2026 traduit (28/28 articles). Idempotence validée (re-run Delta=0, 108 préservés). Validation LENIENT 0 table/plantuml invalide. Headers JBake préservés, `:summary:` traduits (fix S206). Ratio FR résiduel < 7% (24/28 < 5%, faux positifs mots courts). Bug chemin dogfooding `content/blog/2026` double `content/` → workaround `blog/2026` (P3).*
+| *✅ S207 — 8/8 lots complétés (108/108 articles FR→EN). Lot 2026 traduit (28/28 articles). Idempotence validée (re-run Delta=0, 108 préservés). Validation LENIENT 0 table/plantuml invalide. Headers JBake préservés, `:summary:` traduits (fix S206). Ratio FR résiduel < 7% (24/28 < 5%, faux positifs mots courts). Bug chemin dogfooding `content/blog/2026` double `content/` → workaround `blog/2026` (P3, corrigé S-215).*
 
 | *BKY-I18N-MASS-6*
 | *Montée en charge complète — 108 articles × 10 langues.* Passe production

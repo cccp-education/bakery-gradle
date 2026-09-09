@@ -491,6 +491,66 @@ class MigrateContentI18nTaskTest {
 
             assertTrue(outputBase.resolve("en/article.adoc").exists())
         }
+
+        @Test
+        fun `sourceDir prefixed with contentSrcPath does not double the prefix`() {
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(testDir)
+                    .withName("test-prefixed-source")
+                    .build()
+            project.pluginManager.apply("java-base")
+
+            val contentRoot = testDir.resolve("content-root")
+            val sourceDir = contentRoot.resolve("my-content")
+            sourceDir.mkdirs()
+            sourceDir.resolve("article.adoc").writeText("= Article\n\nBody.")
+
+            val outputBase = testDir.resolve("build/i18n")
+
+            val task = project.tasks.register("migrateContentI18n", MigrateContentI18nTask::class.java).get()
+            task.contentRootDir = contentRoot
+            task.contentSrcPath = "content-root"
+            task.contentI18nSource.set("content-root/my-content")
+            task.contentI18nOutput.set(outputBase.absolutePath)
+            task.contentI18nTargetLangs.set("en")
+            task.contentI18nDryRun.set("false")
+
+            task.executeContentMigration()
+
+            assertTrue(outputBase.resolve("en/article.adoc").exists())
+        }
+
+        @Test
+        fun `sourceDir relative to the content root still resolves when contentSrcPath is set`() {
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(testDir)
+                    .withName("test-relative-source-with-srcpath")
+                    .build()
+            project.pluginManager.apply("java-base")
+
+            val contentRoot = testDir.resolve("content-root")
+            val sourceDir = contentRoot.resolve("my-content")
+            sourceDir.mkdirs()
+            sourceDir.resolve("article.adoc").writeText("= Article\n\nBody.")
+
+            val outputBase = testDir.resolve("build/i18n")
+
+            val task = project.tasks.register("migrateContentI18n", MigrateContentI18nTask::class.java).get()
+            task.contentRootDir = contentRoot
+            task.contentSrcPath = "content-root"
+            task.contentI18nSource.set("my-content")
+            task.contentI18nOutput.set(outputBase.absolutePath)
+            task.contentI18nTargetLangs.set("en")
+            task.contentI18nDryRun.set("false")
+
+            task.executeContentMigration()
+
+            assertTrue(outputBase.resolve("en/article.adoc").exists())
+        }
     }
 
     private class FakeTranslationService(

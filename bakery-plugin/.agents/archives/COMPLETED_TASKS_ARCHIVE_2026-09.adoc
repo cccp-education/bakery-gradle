@@ -29,3 +29,35 @@
 MEMPHIS n'ont plus besoin de la mention "baseline exacte 3 FAIL".
 Zéro code production (33 fichiers = fixtures/golden master/feature/steps/
 générateur doc), zéro bump BOM, zéro publication Central.
+
+== Session 215 — 2026-09-09 — Bug chemin dogfooding clôturé (P3, item S-215)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| Diagnostic cause racine : `SiteConfiguration.resolvePaths` (BakeryPlugin.kt:245-251) rend `contentRoot` absolu (projectDir + srcPath) → `--contentI18nSource=content/blog/2026` déjà préfixé par `srcPath: jbake` doublait `content/` (« répertoire source n'existe pas »). Workaround S-207 (`blog/2026`).
+| ✅ TERMINÉ
+
+| DDD : nouveau domaine `bakery.i18n.path` — `ContentSourcePathResolver` objet pur `internal` segment-aware (match par segments, `jb`≠`jbake`), 3 règles (absolu tel quel / préfixé `srcPath` → `projectDir.resolve(sourceDir)` sans doublement / sinon `projectDir.resolve(srcPath).resolve(sourceDir)` — comportement historique). 8 UT.
+| ✅ TERMINÉ
+
+| Wiring TDD : `MigrateContentI18nTask.contentSrcPath: String?` + `resolveSourceDir()` câblé au resolver ; `ContentTaskRegistrar` dérive `contentSrcPath` relatif au projectDir (le registrar connaît la vérité issue de `resolvePaths`). +2 UT (9 `ExecuteContentMigration`).
+| ✅ TERMINÉ
+
+| FT TestKit : +2 `MigrateContentI18nDeploySmokeFunctionalTest` (formes préfixée `jbake/content/blog` et relative `content/blog`, assertion chemin `i18n-en/en/2020/0016_simple_post.adoc` + `doesNotContain("répertoire source n'existe pas")`) — 9/9.
+| ✅ TERMINÉ
+
+| BDD : feature `63_i18n_source_path_resolution.feature` (5 scénarios `@source-path`) + `I18nSourcePathSteps.kt` + runner dédié `I18nSourcePathCucumberTest` — 5/5. Découverte : `CucumberTestRunner` standard filtre `@pipeline-contracts and not @wip` → feature 63 par runner dédié.
+| ✅ TERMINÉ
+
+| Gate finale — `test` **1682/0 FAIL** (+11 vs 1671), `functionalTest` BUILD SUCCESSFUL 5m9s 119/0, `cucumberTest` 581 completed 2 FAIL préexistants environnementaux (0 nouveau), `publishToMavenLocal` VERT. Rétro-compatibilité totale (workaround S-207 inutile).
+| ✅ TERMINÉ
+
+| Clôture gouvernance — rapport `.agents/sessions/215-contenti18nsource-double-chemin-resolu.adoc`, PROMPT_REPRISE S-216, SESSIONS_HISTORY, INDEX (session 215), BACKLOG (note S-207 corrigée), TEST_COVERAGE_ANALYSIS (baseline 1682).
+| ✅ TERMINÉ
+|===
+
+*Clôture* : **item S-215 « Bug chemin dogfooding (P3) » TERMINÉ**. 9 artefacts
+(2 fichiers domaine + resolver + 5 fichiers test + 1 feature + 1 steps),
+zéro bump BOM, zéro publication Central, zéro secret.

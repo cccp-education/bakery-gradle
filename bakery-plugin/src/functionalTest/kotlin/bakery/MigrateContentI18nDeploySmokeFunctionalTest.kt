@@ -164,6 +164,55 @@ class MigrateContentI18nDeploySmokeFunctionalTest {
     }
 
     @Test
+    fun `contentI18nSource prefixed with srcPath does not double the prefix`() {
+        createMiniCherolivSite()
+
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "migrateContentI18n",
+                    "--contentI18nSource=jbake/content/blog",
+                    "--contentI18nOutput=build/i18n-en",
+                    "--contentI18nSourceLang=fr",
+                    "--contentI18nTargetLangs=en",
+                    "--contentI18nDryRun=false",
+                ).build()
+
+        assertThat(result.output).contains("BUILD SUCCESSFUL")
+        assertThat(result.output).doesNotContain("répertoire source n'existe pas")
+        assertThat(
+            projectDir.resolve("build/i18n-en/en/2020/0016_simple_post.adoc"),
+        ).exists()
+    }
+
+    @Test
+    fun `contentI18nSource relative to the content root still migrates when srcPath is set`() {
+        createMiniCherolivSite()
+
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "migrateContentI18n",
+                    "--contentI18nSource=content/blog",
+                    "--contentI18nOutput=build/i18n-en",
+                    "--contentI18nSourceLang=fr",
+                    "--contentI18nTargetLangs=en",
+                    "--contentI18nDryRun=false",
+                ).build()
+
+        assertThat(result.output).contains("BUILD SUCCESSFUL")
+        assertThat(
+            projectDir.resolve("build/i18n-en/en/2020/0016_simple_post.adoc"),
+        ).exists()
+    }
+
+    @Test
     fun `dry-run migrateContentI18n fails when source dir does not exist`() {
         createMiniCherolivSite()
 

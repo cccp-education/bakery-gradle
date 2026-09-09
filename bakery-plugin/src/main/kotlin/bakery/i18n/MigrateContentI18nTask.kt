@@ -1,6 +1,7 @@
 package bakery.i18n
 
 import bakery.BakeryConstants
+import bakery.i18n.path.ContentSourcePathResolver
 import bakery.intention.ResolveIntention
 import bakery.intention.ResolveIntentionError
 import contracts.i18n.TranslationService
@@ -33,6 +34,15 @@ abstract class MigrateContentI18nTask : DefaultTask() {
 
     @get:Internal
     var contentRootDir: File? = null
+
+    /**
+     * Segments du content root (`bake.srcPath`) relatifs au project dir, tels que
+     * `jbake` ou `site/content`. Nécessaires au
+     * [bakery.i18n.path.ContentSourcePathResolver] pour éviter de doubler le
+     * préfixe quand l'utilisateur passe un `contentI18nSource` déjà préfixé.
+     */
+    @get:Internal
+    var contentSrcPath: String? = null
 
     @get:Internal
     var dslIntention: ContentMigrationIntention? = null
@@ -380,8 +390,18 @@ abstract class MigrateContentI18nTask : DefaultTask() {
 
     private fun resolveSourceDir(intention: ContentMigrationIntention): File {
         val root = contentRootDir ?: return File(intention.sourceDir)
-        val candidate = File(intention.sourceDir)
-        return if (candidate.isAbsolute) candidate else root.resolve(intention.sourceDir)
+        val srcPath = contentSrcPath
+        // Backward-compat : contentRootDir configuré seul (sans contentSrcPath),
+        // la résolution relative s'appuie sur le content root comme avant.
+        if (srcPath.isNullOrBlank()) {
+            val candidate = File(intention.sourceDir)
+            return if (candidate.isAbsolute) candidate else root.resolve(intention.sourceDir)
+        }
+        return ContentSourcePathResolver.resolve(
+            projectDir = project.projectDir,
+            srcPath = srcPath,
+            sourceDir = intention.sourceDir,
+        )
     }
 
     private fun resolveOutputDir(intention: ContentMigrationIntention): File {

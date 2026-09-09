@@ -223,6 +223,12 @@ object ContentTaskRegistrar {
             task.description =
                 "Migre le contenu AsciiDoc d'un site bakery vers l'i18n — copie le contenu source, traduit les fichiers .adoc, preserve les fichiers non-adoc"
             task.contentRootDir = contentRoot
+            task.contentSrcPath =
+                if (contentRoot.startsWith(project.projectDir)) {
+                    contentRoot.relativeTo(project.projectDir).path
+                } else {
+                    null
+                }
             task.contentI18nSource.set(project.providers.gradleProperty("contentI18nSource").orElse(""))
             task.contentI18nOutput.set(project.providers.gradleProperty("contentI18nOutput").orElse(""))
             task.contentI18nTargetLangs.set(project.providers.gradleProperty("contentI18nTargetLangs").orElse(""))

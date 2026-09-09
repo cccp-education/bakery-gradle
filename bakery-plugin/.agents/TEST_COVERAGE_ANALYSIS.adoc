@@ -1,7 +1,7 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-09-09 — Session 213 ✅ RENAME Vague 3 clôture transverse. Zéro test bakery modifié cette session (convergence RENAME, 2 résidus dans repos tiers). Test document modifié : `AssembleBookTaskContentRichTocTest` assertion corps OCR REAC→"enquête terrain" — functionalTest 1/1 GREEN (21s, skipped=0), assertion plus discriminante (chaîne absente du TOC, vit uniquement dans le corps page 22). Gate grep word-boundary `REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA` src/ = 0 (7 repos transverse). Baseline bakery inchangée : `test` 1670/3 FAIL préexistants environnementaux (FLAKY-1/2/3, S196), Kover S169 : 93,09% seuil 85% PASS._
+_Dernière mise à jour : 2026-09-09 — Session 215 ✅ Bug chemin dogfooding CLÔTURÉ (P3, item S-215). Tests modifiés : +8 UT `ContentSourcePathResolverTest` (nouveau domaine `bakery.i18n.path`, objet pur segment-aware 3 règles), +2 UT `MigrateContentI18nTaskTest` (wiring `contentSrcPath` — 9 tests `ExecuteContentMigration`), +2 FT `MigrateContentI18nDeploySmokeFunctionalTest` (formes préfixée/relative, 9/9), +1 feature `63_i18n_source_path_resolution.feature` (5 scénarios `@source-path`) + `I18nSourcePathSteps.kt` + runner dédié `I18nSourcePathCucumberTest` (5/5). Gate : `test` **1682/0 FAIL** (baseline S-214 1671 → +11), `functionalTest` 119/0, `cucumberTest` 581 completed 2 FAIL préexistants environnementaux (0 nouveau — baseline historique 1866/6 S-196, S-211 CLOS flaky). Découverte runner : `CucumberTestRunner` standard filtre `@pipeline-contracts and not @wip` — feature 63 (`@source-path`) par runner dédié. Baseline FLAKY-1/2/3 (S-214) neutralisée._
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -13,9 +13,9 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 | Couverture Kover | *92,90%* — mesuré Session 165 via `koverThresholdCheck` (150915/162455 instructions couvertes, missed=11540). BUILD SUCCESSFUL 6m28s. Seuil configuré respecté largement.
 | Seuil configuré | 70% (dans `build.gradle.kts` → `koverThresholdCheck`)
 | **Nouvelle cible** | **90%** — EPIC BKY-KOV-1 (16 pts, US-1 ✅, US-KOV-2 ✅, US-KOV-3 ✅, US-KOV-4 ✅, US-KOV-5→7 restantes)
-| Tests unitaires JUnit5 | 148+ fichiers, ~1216+ tests — ✅ PASS. Session 166 : +57 UT tree package (SiteNode 14 + SiteTree 17 + Content 13 + SiteTreeYaml 13). BKY-A11Y-1 : 17 UT a11y. `FixtureAlignmentAuditorTest` 7/7 GREEN.
-| Tests fonctionnels (TestKit) | 10 fichiers, 80/80 FT PASS (dont 6 generatePivotYaml — idempotence incluse)
-| Tests Cucumber BDD | 41 features, 129+28 scénarios bakery — Session 166 : +4 features tree (39 node, 40 traversal, 41 content, 42 yaml, 28 scénarios). Steps compile OK, cucumberTest complet à valider (timeout 5min).
+| Tests unitaires JUnit5 | 148+ fichiers, **1682 tests — ✅ PASS (0 FAIL, 3 skipped)** — Session 215 : +8 UT resolver + 2 UT wiring + 1 runner dédié (feature 63). `FixtureAlignmentAuditorTest` 8/8 GREEN.
+| Tests fonctionnels (TestKit) | 10 fichiers, **119/119 PASS** (session 215 : +2 FT `MigrateContentI18nDeploySmokeFunctionalTest`)
+| Tests Cucumber BDD | **42 features, ~5+ scénarios bakery dont feature 63** `@source-path` (5 scénarios, runner dédié `I18nSourcePathCucumberTest` 5/5) — Sessions 166-215
 | Tests E2E Playwright | 6 fichiers, 19/19 PASS — PlaywrightPool singleton + installPlaywright cache
 | Compilation | ✅ BUILD SUCCESSFUL — Gradle 9.5.1, Kotlin 2.3.20, zéro warning
 |===
