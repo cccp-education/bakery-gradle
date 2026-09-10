@@ -3,6 +3,18 @@
 :epic: BKY-FPA-SITE
 :origine: BACKLOG.adoc racine § GBL-003 + AGENTS.adoc § MVP0 Critical Path
 :methode: Cadrage (gouvernance pure, zéro code) — pattern S-057/S-063
+:statut: ✅ TRANSFÉRÉ (S-216 → TRN-11 training-gradle, pattern TRN-9)
+
+== Statut final (2026-09-10, S-216)
+
+**EPIC TRANSFÉRÉ** vers training-gradle comme `TRN-11 FPA Site Navigable`.
+Raison (décision pilote) : le site navigable du corpus FPA est un
+livrable formation (GBL-003.5, voie MVP0 A4), pas du domaine technique
+JBake — même pattern que TRN-9 (ex BKY-TRN-9) et TRN-TEMP (ex BKY-JB-1).
+Arbitrage licence tranché : document personnel du pilote → zéro droit
+de tiers. Site = produits formation dérivés (Apache 2.0) ; corpus brut
+privé dans `office/` (jamais publié). US BKY-FPA-SITE-0/-1 → TRN-11.0/TRN-11.1.
+Bakery reste moteur site statique (dépendance technique de TRN-11).
 
 == Contexte
 

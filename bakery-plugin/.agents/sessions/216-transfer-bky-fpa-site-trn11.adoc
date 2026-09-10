@@ -1,0 +1,73 @@
+= Session 216 — Transfert BKY-FPA-SITE → TRN-11 (training) + arbitrage licence FPA
+
+:session: 216
+:date: 2026-09-10
+:mission: Formaliser le transfert de l'EPIC BKY-FPA-SITE (bakery) vers TRN-11 (training-gradle) suite à la décision pilote GBL-003.5 (anneau A4, critical path MVP0) + trancher l'arbitrage licence FPA
+:methode: Gouvernance pure (pattern S-057/S-063) — arbitrage pilote licence → formalisation cross-borough bakery/training → synchronisation backlogs (Étape 7) → refcounting numérotation locale
+:cross-borough: training-gradle (TRN-11 ajouté), racine workspace (BACKLOG.adoc GBL-003.5 + AGENTS.adoc table Bushwick/A4)
+
+== Mission
+
+Suite à la question pilote « reste quoi en backlog bakery ? », arbitrage 2026-09-09/10 :
+BKY-FPA-SITE (Site navigable du corpus FPA, GBL-003.5) doit quitter bakery pour
+training-gradle — le portail formation est un *livrable métier formation* (anneau A4),
+bakery ne fournit que le mécanisme technique (JBake, publishSite). Même pattern que
+TRN-9 (ex BKY-TRN-9) et TRN-TEMP (ex BKY-JB-1).
+
+== Arbitrage licence FPA (décision pilote)
+
+- **Le corpus FPA (scan → transcription AsciiDoc) est un document personnel du pilote** :
+  zéro droit de tiers, zéro bloquage de publication.
+- **Frontière** : corpus brut (scan → AsciiDoc) = œuvre privée → reste dans
+  `office/metiers/FPA/`, jamais publié (ni site, ni Maven Central). Les produits
+  formation dérivés (SPG, SPDs, slides, PDFs, quiz, site formation) = travaux
+  originaux → Apache 2.0 → publiables.
+- **Le site navigable héberge uniquement les produits formation** (extraits,
+  résumés, structures, livrables) — pas le texte intégral brut du corpus.
+- Le cadrage existant (`CADRAGE_EPIC_BKY_FPA_SITE.adoc`) validait cette frontière ;
+  le transfert lui donne AVAL pilote définitif.
+
+== Implémentation (modifications documentaires uniquement)
+
+=== bakery-gradle (backlog net)
+- `BACKLOG.adoc` : EPIC BKY-FPA-SITE marqué ✅ TRANSFÉRÉ (S-216 → TRN-11 training) ;
+  en-tête « Dernière mise à jour » → Session 216 ; ligne "Reste en backlog" purgée
+  (BKY-FPA-SITE retiré) ; table statut final cohérente.
+- `.agents/CADRAGE_EPIC_BKY_FPA_SITE.adoc` : section « Statut final (2026-09-10, S-216) »
+  (TRANSFÉRÉ vers training-gradle comme TRN-11).
+- `.agents/INDEX.adoc` : `:last_update:` → 2026-09-10 Session 216.
+- `PROMPT_REPRISE.adoc` : mission S-217 (à la demande) — BKY-FPA-SITE retiré,
+  portail formation évoqué via TRN-9/TRN-11.
+- Numérotation : session locale bakery (S-216, dernière 215) — absent du jackpot
+  global 261.
+
+=== training-gradle (réception)
+- `BACKLOG.adoc` : EPIC **TRN-11 « FPA Site Navigable »** ajouté (2 pts, ex
+  BKY-FPA-SITE, GBL-003.5) — pattern TRN-9, dépend GBL-003.3/003.4 ✅ + document
+  S-082 (livre FPA navigable) + bakery (publishSite). Frontière licence documentée.
+- `.agents/INDEX.adoc` : TRN-11 🟡 CADRÉ (statut EPICs + roadmap ligne 62).
+
+=== racine workspace
+- `BACKLOG.adoc` : GBL-003.5 redirigé → training TRN-11 ; GBL-003.1 (anneau A4)
+  mis à jour.
+- `AGENTS.adoc` : table Bushwick ligne S-261 → S-216 ; anneau A4 (ligne 467) +
+  entrée historique 2026-09-10 ajoutée.
+
+== Vérifications
+
+- `grep -rn "BKY-FPA-SITE"` racine + bakery : références restantes uniquement
+  historiques/légitimes (cadrage, backlog passé, ce rapport). Zéro marqueur
+  `STANDBY` périmé.
+- Étape 7 : `grep -n "🟡\|⏳\|À FAIRE\|À PLANIFIER\|EN PAUSE" BACKLOG.adoc` — seuls
+  MASS-6 (reporté) et BKY-I18N-CI (cadré, jamais démarré) subsistent, légitimes.
+- Zéro code source modifié, zéro test lancé, zéro bump BOM, zéro secret.
+
+== Gates
+
+- Documentation gouvernance pure — aucun gate build requis. Les changements
+  training/bakery sont du AsciiDoc + gouvernance (aucun impact compile).
+
+== Score
+
+8/10 — gouvernance pure réalisée en intégralité (arbitrage + formalisation
+cross-borough + Étape 7 + clôture).

@@ -1,10 +1,22 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 216
-:date: 2026-09-09
-:etat: Session 215 ✅ — Bug chemin dogfooding CLÔTURÉ (P3, DDD/TDD/BDD) : `ContentSourcePathResolver` (3 règles segment-aware) + wiring `contentSrcPath` relatif au projectDir → `--contentI18nSource=content/blog` et forme préfixée `jbake/content/blog` résolues sans doublement. Gates : test 1682/0 FAIL, functionalTest 119/0, cucumberTest 2 FAIL préexistants (0 nouveau), feature 63 5/5 runner dédié. Rapport `.agents/sessions/215-contenti18nsource-double-chemin-resolu.adoc`.
-:epic_actif: BKY-FPA-SITE 🟡 STANDBY (arbitrage pilote) + MASS-6 🟡 reporté (accord pilote, ~675h LLM). Aucun EPIC ouvert — backlog bakery propre.
+:session: 217
+:date: 2026-09-10
+:etat: Session 216 ✅ — **transfert BKY-FPA-SITE → TRN-11 (training) + arbitrage licence FPA tranché** : corpus FPA = document personnel (zéro droit de tiers), corpus brut privé office/, produits formation dérivés Apache 2.0. Étape 7 backlog synchro (BKY-FPA-SITE ✅ TRANSFÉRÉ, en-tête 216). Rapport `.agents/sessions/216-transfer-bky-fpa-site-trn11.adoc`.
+:epic_actif: MASS-6 🟡 reporté (accord pilote, ~675h LLM) + re-traduction cheroliv.com/en/ prod (fix `:summary:`). Backlog bakery propre — BKY-FPA-SITE ✅ transféré S-216 → TRN-11 training (arbitrage licence FPA tranché).
 
 == Contexte de fin
+
+Session 216 — **transfert BKY-FPA-SITE → TRN-11 training** (gouvernance pure, zéro code) :
+- Arbitrage licence FPA tranché par le pilote (2026-09-10) : le corpus FPA est
+  un *document personnel* (zéro droit de tiers) → corpus brut (scan → AsciiDoc)
+  reste privé dans `office/metiers/FPA/`. Les produits formation (SPG, SPDs,
+  slides, PDFs, quiz) sont des travaux originaux dérivés = Apache 2.0 → publiables.
+- Le site navigable héberge uniquement les produits formation, jamais le texte
+  intégral brut → livrable formation (GBL-003.5, anneau A4), pas un livrable bakery.
+- Pattern de transfert : TRN-9 (ex BKY-TRN-9) / TRN-TEMP (ex BKY-JB-1). Bakery =
+  mécanisme JBake (publishSite), training = propriétaire du portail formation.
+- Étape 7 backlog synchro : BKY-FPA-SITE ✅ TRANSFÉRÉ (S-216), en-tête mise à jour.
+- Backlog bakery : reste MASS-6 (reporté polarité) + re-traduction cheroliv.com/en/.
 
 Session 215 — résolution du bug chemin dogfooding (P3, item S-215) :
 - Cause racine : `SiteConfiguration.resolvePaths` rend `contentRoot` absolu
@@ -24,15 +36,14 @@ Session 215 — résolution du bug chemin dogfooding (P3, item S-215) :
   `@pipeline-contracts and not @wip` — la feature 63 (`@source-path`) a son
   runner dédié `I18nSourcePathCucumberTest`.
 
-== Mission Session 216 — à la demande
+== Mission Session 217 — à la demande
 
-1. **BKY-FPA-SITE-0** : arbitrage licence publication publique corpus FPA
-   (décision pilote — après GBL-003.3/003.4 codex/codebase livrés ✅).
-2. **Portail formation (anneau A4)** : quand les plans de formation
-   existeront (Newark TRN-1→6), dogfood le portail via assembleTrainingSite.
-3. **MASS-6 montée en charge** : 108 articles × 10 langues — accord
+1. **MASS-6 montée en charge** : 108 articles × 10 langues — accord
    pilote explicite requis. Coût LLM ~675h.
-4. **Re-traduction cheroliv.com/en/ prod** (fix `:summary:` impact SEO).
+2. **Re-traduction cheroliv.com/en/ prod** (fix `:summary:` impact SEO).
+3. **Portail formation (anneau A4)** : quand les plans de formation
+   existeront (Newark TRN-1→6), dogfood le portail via assembleTrainingSite
+   (TRN-9/TRN-11 — BKY-FPA-SITE ✅ transféré S-216).
 
 ## Reprendre à
 
@@ -44,7 +55,7 @@ Session 215 — résolution du bug chemin dogfooding (P3, item S-215) :
 
 ## Ordre des EPICs (priorité)
 
-. BKY-FPA-SITE-0 (arbitrage pilote)
+. MASS-6 (accord pilote requis)
 . Re-traduction cheroliv.com/en/ prod (fix `:summary:` impact SEO)
 . Portail formation anneau A4 (quand les SPDs existeront)
 

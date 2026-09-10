@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-09-09 — Session 213 ✅ RENAME Vague 3 CLÔTURÉ transverse (convergence sessions concurrentes : planner S-254, document S-253 + fix résidu fixture REAC, codebase S-254 + purge drift SPG docs, plantuml S-216, hyperframes S-254). Session 212 ✅ RENAME-9 TERMINÉ (Vague 3 bakery). Session 211 ✅ RENAME-3 TERMINÉ. Session 210 ✅ cadrage BKY-FPA-SITE (STANDBY). Session 207 ✅ MASS-5 CLÔTURÉ 8/8 lots.)_
+_Dernière mise à jour : 2026-09-10 — Session 216 ✅ transfert BKY-FPA-SITE → TRN-11 (training, pattern TRN-9) + arbitrage licence FPA tranché (document personnel, produits formation dérivés Apache 2.0, corpus brut privé). Session 213 ✅ RENAME Vague 3 CLÔTURÉ transverse (convergence sessions concurrentes : planner S-254, document S-253 + fix résidu fixture REAC, codebase S-254 + purge drift SPG docs, plantuml S-216, hyperframes S-254). Session 212 ✅ RENAME-9 TERMINÉ (Vague 3 bakery). Session 211 ✅ RENAME-3 TERMINÉ. Session 210 ✅ cadrage BKY-FPA-SITE (STANDBY). Session 207 ✅ MASS-5 CLÔTURÉ 8/8 lots.)_
 
 '''
 == EPIC RENAME — Neutralisation nommage métier privé (FPA→content, CDA→coding) ✅ TERMINÉ (bakery)
@@ -50,26 +50,30 @@ corrigés : (1) document assertion fixture test REAC → "enquête terrain"
 postérieur avait réintroduit 4 mentions SPG d'usage (BACKLOG ×3 +
 PROMPT_REPRISE ×1) → "plans de formation"/"GenerateContentPlanTask"
 (grille D12). Gate D16 finale : 0 usage métier sur les 7 repos.
-**EPIC TERMINÉ 6/6 US.** Reste en backlog bakery : BKY-FPA-SITE (STANDBY)
-+ MASS-6 (reporté). FLAKY-1/2/3 ✅ clôturés S-214.
+**EPIC TERMINÉ 6/6 US.** Reste en backlog bakery : MASS-6 (reporté accord
+pilote). BKY-FPA-SITE ✅ TRANSFÉRÉ (S-216 → TRN-11 training). FLAKY-1/2/3 ✅ clôturés S-214.
 
 '''
-== EPIC BKY-FPA-SITE — Site navigable du corpus FPA (GBL-003.5) 🟡 STANDBY
+== EPIC BKY-FPA-SITE — Site navigable du corpus FPA (GBL-003.5) ✅ TRANSFÉRÉ (S-216 → TRN-11 training)
 
 _Origine : BACKLOG.adoc racine § GBL-003 (critical path MVP0, arbitrage pilote 2026-09-07)._
 _Cadrage : `.agents/CADRAGE_EPIC_BKY_FPA_SITE.adoc`._
 
-|===
-| US | Description | Pts | Statut
-| BKY-FPA-SITE-0 | Arbitrage pilote publication publique corpus FPA (licence) — gouvernance pure | 1 | 🟡 STANDBY (décision pilote)
-| BKY-FPA-SITE-1 | Run scaffolding JBake sur livre.adoc (si arbitrage = GO) | 1 | 🟡 STANDBY
-|===
+*Statut 2026-09-10 (S-216)* : **TRANSFÉRÉ** vers training-gradle comme
+`TRN-11 FPA Site Navigable` (pattern TRN-9 ex BKY-TRN-9). Raison : le
+site navigable du corpus FPA est un livrable formation (GBL-003.5, voie
+MVP0 A4), pas du domaine technique JBake. Arbitrage licence pilote ✅
+(document personnel — site = produits formation dérivés Apache 2.0,
+corpus brut privé dans office/). Bakery reste le moteur site statique
+(dépendance technique de TRN-11), mais n'est plus le propriétaire de
+l'EPIC. US BKY-FPA-SITE-0/-1 → TRN-11.0/TRN-11.1.
 
-*Constat* : le livre FPA navigable est déjà produit (document S-082 :
-livre.html/pdf/epub). Bakery n'ajoute de la valeur que si site JBake
-multi-pages/recherche/SEO. EPIC en STANDBY jusqu'à GBL-003.3/003.4 +
-arbitrage licence. *Frontière licence* : le corpus FPA est une œuvre
-dérivée (scans) — publication publique = décision pilote.
+*Constat historique* : le livre FPA navigable a été produit par
+document-gradle (S-082 : livre.html/pdf/epub). Bakery n'ajoute de la
+valeur que si site JBake multi-pages/recherche/SEO. *Frontière licence* :
+le corpus FPA brut est une œuvre dérivée → privé dans office/ (jamais
+publié). Seuls les produits formation dérivés (Apache 2.0) alimentent
+le site.
 
 '''
 _Backlog précédent archivé dans_ : `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
@@ -2331,7 +2335,7 @@ Zéro code modifié — gouvernance pure. Voir rapport
   | Version | 24.9 — Session 214 ✅ (EPIC BKY-TEST-FLAKY clôturé 3/3 US : fixtures resyncées + golden master régénéré + feature 57 3→4 articles + secrets Firebase neutralisés, test 1671/0)
   | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
   | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-199 + EPIC BKY-DNS + EPIC PUB
-  | Prochaine màj | Session 215 — BKY-FPA-SITE-0 (arbitrage pilote)
+  | Prochaine màj | Session 262 — à la demande (MASS-6 reporté accord pilote — backlog bakery propre)
   |===
   '''
   == ✅ EPIC BKY-TEST-FLAKY — Stabilisation des 3 FAIL i18n récurrents (S-028, cross-borough MEMPHIS) — ✅ TERMINÉ S-214

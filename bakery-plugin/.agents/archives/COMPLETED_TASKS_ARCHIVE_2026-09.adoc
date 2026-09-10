@@ -30,6 +30,37 @@ MEMPHIS n'ont plus besoin de la mention "baseline exacte 3 FAIL".
 Zéro code production (33 fichiers = fixtures/golden master/feature/steps/
 générateur doc), zéro bump BOM, zéro publication Central.
 
+== Session 216 — 2026-09-10 — Transfert BKY-FPA-SITE → TRN-11 (training) + arbitrage licence FPA
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| Arbitrage pilote licence FPA (2026-09-10) : corpus FPA = *document personnel* (zéro droit de tiers) → corpus brut (scan → AsciiDoc) privé dans `office/metiers/FPA/`, jamais publié. Produits formation dérivés (SPG, SPDs, slides, PDFs, quiz, site) = travaux originaux = Apache 2.0 = publiables. Le site navigable héberge les produits, pas le texte intégral brut.
+| ✅ TERMINÉ
+
+| BKY-FPA-SITE ✅ TRANSFÉRÉ (S-216 → TRN-11 training, ex GBL-003.5). Pattern TRN-9 (ex BKY-TRN-9) / TRN-TEMP (ex BKY-JB-1) : le portail formation est un livrable métier training (anneau A4), bakery = mécanisme JBake uniquement.
+| ✅ TERMINÉ
+
+| bakery BACKLOG.adoc : EPIC BKY-FPA-SITE marqué ✅ TRANSFÉRÉ, en-tête « Dernière mise à jour » → Session 216, table statut final cohérente, ligne "Reste en backlog" purgée.
+| ✅ TERMINÉ
+
+| bakery `.agents/CADRAGE_EPIC_BKY_FPA_SITE.adoc` : section « Statut final (2026-09-10, S-216) » ajoutée (TRANSFÉRÉ → TRN-11).
+| ✅ TERMINÉ
+
+| bakery `.agents/INDEX.adoc` + `PROMPT_REPRISE.adoc` : `:last_update:` → S-216 ; mission S-217 (à la demande) avec BKY-FPA-SITE retiré, portail évoqué via TRN-9/TRN-11.
+| ✅ TERMINÉ
+
+| training BACKLOG.adoc : EPIC TRN-11 ajouté (2 pts, ex BKY-FPA-SITE, GBL-003.5, dépend GBL-003.3/003.4 + document S-082 + bakery). training INDEX.adoc : TRN-11 🟡 CADRÉ (statut + roadmap l.62).
+| ✅ TERMINÉ
+
+| racine `BACKLOG.adoc` (GBL-003.5 → training TRN-11, GBL-003.1) + `AGENTS.adoc` (table Bushwick S-216, anneau A4, historique 2026-09-10).
+| ✅ TERMINÉ
+
+| Vérité Étape 7 : `grep` marqueurs périmés — seuls MASS-6 (reporté) + BKY-I18N-CI (cadré) légitimes. Zéro code source, zéro test lancé, zéro secret.
+| ✅ TERMINÉ
+|===
+
 == Session 215 — 2026-09-09 — Bug chemin dogfooding clôturé (P3, item S-215)
 
 [cols="2,3"]
