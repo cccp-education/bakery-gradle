@@ -7,6 +7,7 @@ import bakery.tree.SiteNodeDto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import contracts.i18n.OllamaConfig
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class GitPushConfiguration(
     val from: String = "",
     val to: String = "",
