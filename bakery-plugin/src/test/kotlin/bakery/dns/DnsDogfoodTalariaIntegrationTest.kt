@@ -25,7 +25,7 @@ import java.io.File
  */
 class DnsDogfoodTalariaIntegrationTest {
     private val talariaSiteYml =
-        File("/home/cheroliv/workspace/office/sites/talaria/site.yml")
+        File("/home/cheroliv/workspace/office/sites/talaria.school/site.yml")
 
     @Test
     fun `reconcile talaria_school zone is a dry-run no-op`() {
