@@ -40,7 +40,7 @@ class AccessibilityAuditSteps(
         contrastSpec: String,
     ) {
         val (fg, bg) = contrastSpec.split(" on ").map { it.trim() }
-        val bakedDir = world.projectDir!!.resolve("build/bake").apply { mkdirs() }
+        val bakedDir = bakedDir().apply { mkdirs() }
         bakedDir.resolve(fileName).writeText(
             """
             <p style="color: $fg; background-color: $bg;">Sample text</p>
@@ -51,7 +51,7 @@ class AccessibilityAuditSteps(
 
     @Given("the baked directory contains {string} with img without alt")
     fun createBakedHtmlWithImgWithoutAlt(fileName: String) {
-        val bakedDir = world.projectDir!!.resolve("build/bake").apply { mkdirs() }
+        val bakedDir = bakedDir().apply { mkdirs() }
         bakedDir.resolve(fileName).writeText(
             """<img src="logo.png">""".trimIndent(),
             UTF_8,
@@ -60,7 +60,7 @@ class AccessibilityAuditSteps(
 
     @Given("the baked directory contains {string} with heading skip from h1 to h3")
     fun createBakedHtmlWithHeadingSkip(fileName: String) {
-        val bakedDir = world.projectDir!!.resolve("build/bake").apply { mkdirs() }
+        val bakedDir = bakedDir().apply { mkdirs() }
         bakedDir.resolve(fileName).writeText(
             """<h1>Titre</h1><h3>Sous-titre</h3>""".trimIndent(),
             UTF_8,
@@ -69,7 +69,29 @@ class AccessibilityAuditSteps(
 
     @Given("the baked directory is empty")
     fun createEmptyBakedDir() {
-        world.projectDir!!.resolve("build/bake").apply { mkdirs() }
+        bakedDir().apply { mkdirs() }
+    }
+
+    /**
+     * BKY-A11Y-2 — Le répertoire baké est la sortie de `bake`, soit
+     * `buildDirectory/<destDirPath>`. La fixture `createGradleProjectWithSiteConfigured`
+     * déclare `destDirPath: build/bake` (convention non-canonique, le scaffold bakery
+     * officiel utilise `destDirPath: bake`), donc la sortie réelle est `build/build/bake`.
+     * On résout dynamiquement pour ne pas coder en dur un chemin dépendant de la fixture.
+     */
+    private fun bakedDir(): java.io.File {
+        val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
+        val destDirPath =
+            projectDir
+                .resolve("site.yml")
+                .readText(UTF_8)
+                .lineSequence()
+                .firstOrNull { it.trimStart().startsWith("destDirPath:") }
+                ?.substringAfter("destDirPath:")
+                ?.trim()
+                ?.trim('"')
+                ?: "bake"
+        return projectDir.resolve("build").resolve(destDirPath)
     }
 
     @When("I am executing the a11y task {string}")

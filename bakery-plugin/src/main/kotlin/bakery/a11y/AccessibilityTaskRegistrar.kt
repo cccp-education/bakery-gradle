@@ -13,14 +13,21 @@ object AccessibilityTaskRegistrar {
             task.description = "Audit d'accessibilité WCAG/RGAA du site baké — rapport JSON/ASCII"
 
             val dsl = extension.a11y
-            val configuredDir =
-                dsl.auditDir.orNull?.takeIf { it.isNotBlank() }
-                    ?: site.bake.destDirPath.takeIf { it.isNotBlank() }
-                    ?: "bake"
+            val configuredDir = dsl.auditDir.orNull?.takeIf { it.isNotBlank() }
 
-            task.auditDir.set(
-                layout.projectDirectory.dir(configuredDir),
-            )
+            // Deux résolutions distinctes (BKY-A11Y-2) :
+            // - `auditDir` explicite au DSL → relatif au répertoire projet (convention
+            //   documentée, ex: auditDir = "build/bake").
+            // - défaut → le répertoire où `bake` écrit réellement, soit
+            //   `layout.buildDirectory/<destDirPath>` (cf. `configureBakeTask`).
+            //   Pointer `projectDirectory` ici cassait `publishSite` en validation
+            //   Gradle (`Input file does not exist : <engine>/bake`).
+            if (configuredDir != null) {
+                task.auditDir.set(layout.projectDirectory.dir(configuredDir))
+            } else {
+                val destDir = site.bake.destDirPath.takeIf { it.isNotBlank() } ?: "bake"
+                task.auditDir.set(layout.buildDirectory.dir(destDir))
+            }
 
             val configuredReport =
                 dsl.reportPath.orNull?.takeIf { it.isNotBlank() }
