@@ -92,3 +92,51 @@ générateur doc), zéro bump BOM, zéro publication Central.
 *Clôture* : **item S-215 « Bug chemin dogfooding (P3) » TERMINÉ**. 9 artefacts
 (2 fichiers domaine + resolver + 5 fichiers test + 1 feature + 1 steps),
 zéro bump BOM, zéro publication Central, zéro secret.
+== Session 217 — 2026-09-15 — EPIC BKY-LANG-22 (parité talaria.school) — 7/10 US
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| **LANG-22-1** — N0 `contracts.i18n.LanguageCatalog` 10 → 22 langues (12 ajoutées : `it nl de el tr vi th id ko ja sr` + `fa` RTL). DDD/TDD baby-step strict RED → GREEN. `LanguageCatalogTest` : 22 langues, 3 RTL (`ar ur fa`), parité exacte set talaria, Persian/Italian/Japanese/Korean by code. 52 tests 0 FAIL.
+| ✅ TERMINÉ
+
+| **LANG-22-2** — Publication Central `education.cccp:i18n-contracts:0.0.4` — bundle `c1a9de57` (AUTOMATIC), repo1 HTTP 200 confirmé.
+| ✅ TERMINÉ
+
+| **LANG-22-3** — MEMPHIS `workspace-bom`/`workspace-catalog:0.0.43` publiés Central (constraint `i18n-contracts:0.0.4`) — bundle `eb310d04`, repo1 200.
+| ✅ TERMINÉ
+
+| **LANG-22-4** — bakery : `BakeryConstants.SUPPORTED_LANGS = LanguageCatalog.supportedCodes()` (dérivation du contrat N0 — split-brain tué). Bump dep 0.0.4 + platform/catalog 0.0.43. Tests intention/scaffold/i18n alignés. `test` 1686/2 FAIL préexistants (drift `contact.thyme`, stash-prouvé).
+| ✅ TERMINÉ
+
+| **LANG-22-5** — capsule : `VoiceMapping` +12 modèles Piper validés rhasspy/piper-voices `voices.json` + 12 espeak codes (espeak-ng couvre 22). BDD `multi_language_capsule.feature` catalog-driven + runner dédié `CapsuleMultiLangCucumberRunner` + task `cucumberTestMultiLang`. **22/22 languages rendered** (11m18s).
+| ✅ TERMINÉ
+
+| **LANG-22-6** — slider : `RevealUiMessageCatalog` +12 libellés natifs (nav + controls), `fa` RTL. Features 5/6/13 + steps catalog-driven. `TranslatedDemoDeckTest` pinné sur corpus S-030 (27 fichiers gelés). `test` 947/3 FAIL Playwright préexistants (stash-prouvé).
+| ✅ TERMINÉ
+
+| **LANG-22-7** — document : dep `i18n-contracts:0.0.4` + BOM/catalog 0.0.43. `SiteTranslationPlan` déjà N0-driven. compileKotlin/compileTestKotlin VERT.
+| ✅ TERMINÉ
+
+| **LANG-22-8** — Dogfooding slider corpus 22 langues (régénérer 3 decks → 12 nouvelles langues, 27 → 63 fichiers, LLM metered — Loi Économie d'Encre). Reporté S-218 (accord pilote donné).
+| 🟡 EN COURS
+
+| **LANG-22-9** — Dogfooding capsule vidéo 22 langues (Piper/espeak réels). Reporté S-218.
+| 🟡 EN COURS
+
+| **LANG-22-10** — Publication Central consommateurs (bakery/capsule/slider sur N0 0.0.4 + BOM 0.0.43). Reporté S-218.
+| 🟡 EN COURS
+
+| Gate finale — N0 test 52/0, bakery test 1686/2 préexistants, capsule cucumberTestMultiLang 22/22, slider test 947/3 Playwright préexistants, document compile VERT. Zéro secret commité, zéro publication plugin.
+| ✅ TERMINÉ
+
+| Clôture gouvernance — rapport `.agents/sessions/217-BKY-LANG-22-languagecatalog-22.adoc`, PROMPT_REPRISE S-218, SESSIONS_HISTORY, INDEX (session 217), BACKLOG (EPIC BKY-LANG-22 🟡 EN COURS), TEST_COVERAGE_ANALYSIS, AGENTS racine (table capsule/slider/document/bakery/MEMPHIS).
+| ✅ TERMINÉ
+|===
+
+*Clôture* : **EPIC BKY-LANG-22 🟡 EN COURS — 7/10 US TERMINÉES**. Cycle release
+cross-borough complet (N0 → BOM → 4 consommateurs → Central). Reste dogfooding
+LLM (slider/capsule) + publication Central consommateurs. 5 repos modifiés.
+*Incident sécurité* : `office/sites/talaria.school/site.yml` (gitignoré,
+credentials réels) lu en ouverture — tokens à révoquer par le pilote.

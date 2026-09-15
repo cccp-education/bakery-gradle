@@ -5,9 +5,102 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-09-10 — Session 216 ✅ transfert BKY-FPA-SITE → TRN-11 (training, pattern TRN-9) + arbitrage licence FPA tranché (document personnel, produits formation dérivés Apache 2.0, corpus brut privé). Session 213 ✅ RENAME Vague 3 CLÔTURÉ transverse (convergence sessions concurrentes : planner S-254, document S-253 + fix résidu fixture REAC, codebase S-254 + purge drift SPG docs, plantuml S-216, hyperframes S-254). Session 212 ✅ RENAME-9 TERMINÉ (Vague 3 bakery). Session 211 ✅ RENAME-3 TERMINÉ. Session 210 ✅ cadrage BKY-FPA-SITE (STANDBY). Session 207 ✅ MASS-5 CLÔTURÉ 8/8 lots.)_
+_Dernière mise à jour : 2026-09-15 — Session 217 🟡 **EPIC BKY-LANG-22 EN COURS** — extension du contrat N0 `contracts.i18n.LanguageCatalog` de 10 → 22 langues (parité talaria.school : +it nl de el tr vi th id ko ja sr **fa RTL**). Livré et publié Central : `i18n-contracts:0.0.4` (bundle `c1a9de57`) + BOM/catalog `0.0.43` (bundle `eb310d04`) + propagation bakery/capsule/slider/document. **Reste en cours** : régénération du corpus dogfooding slider (27 fichiers gelés, 12 langues × 3 decks à produire via LLM metered — Loi Économie d'Encre), dogfooding capsule 22 langues, publication Central des consommateurs (bakery/capsule/slider). Session 216 ✅ transfert BKY-FPA-SITE → TRN-11 (training, pattern TRN-9) + arbitrage licence FPA tranché. Session 213 ✅ RENAME Vague 3 CLÔTURÉ transverse. Session 212 ✅ RENAME-9 TERMINÉ (Vague 3 bakery). Session 211 ✅ RENAME-3 TERMINÉ. Session 210 ✅ cadrage BKY-FPA-SITE (STANDBY). Session 207 ✅ MASS-5 CLÔTURÉ 8/8 lots.)_
 
 '''
+
+== EPIC BKY-LANG-22 — Extension LanguageCatalog 10 → 22 langues (parité talaria.school) 🟡 EN COURS (S-217)
+
+_Origine : demande pilote 2026-09-15 — aligner les langues supportées par bakery (et
+l'écosystème N0) sur celles réellement servies par `talaria.school` (i18n client JS
+`i18n.js` + `i18n-extra-langs.js` + `i18n-content.js` : 22 langues)._
+
+_Constat_ : `BakeryConstants.SUPPORTED_LANGS` et le contrat partagé N0
+`contracts.i18n.LanguageCatalog` (i18n-contracts) exposaient 10 langues
+(`fr en zh hi es ar bn pt ru ur`), tandis que talaria.school en sert 22
+(+`it nl de el tr vi th id ko ja sr fa`). Split-brain bakery ↔ N0 documenté :
+bakery dupliquait la liste au lieu de dériver le contrat.
+
+_Périmètre retenu (Option A, accord pilote)_ : étendre le **contrat N0 partagé**
+(shared kernel) et propager à tous les consommateurs (bakery, capsule, slider,
+document) + BOM MEMPHIS + publication Central.
+
+[cols="1,4,1,2"]
+|===
+| US | Description | Pts | Statut
+
+| BKY-LANG-22-1
+| **N0 `LanguageCatalog` 10 → 22** (DDD/TDD baby-step). 12 entrées ajoutées
+  (`it nl de el tr vi th id ko ja sr fa`), `fa` = RTL. Tests : 22 langues, 3 RTL
+  (`ar ur fa`), parité exacte set talaria. Contrat partagé — pas de liste locale.
+| 2
+| ✅ TERMINÉ (S-217)
+
+| BKY-LANG-22-2
+| **Publication Central `i18n-contracts:0.0.4`** (débloque la propagation DAG N0).
+| 1
+| ✅ TERMINÉ (S-217 — bundle `c1a9de57`)
+
+| BKY-LANG-22-3
+| **BOM/catalog MEMPHIS `0.0.43`** (constraint i18n-contracts 0.0.4) + Central.
+| 1
+| ✅ TERMINÉ (S-217 — bundle `eb310d04`)
+
+| BKY-LANG-22-4
+| **bakery : `SUPPORTED_LANGS` dérivé de N0** (kill split-brain). `BakeryConstants`
+  délègue à `LanguageCatalog.supportedCodes()` ; tests intention/scaffold/i18n
+  alignés (22, code invalide `xx`).
+| 2
+| ✅ TERMINÉ (S-217)
+
+| BKY-LANG-22-5
+| **capsule : `VoiceMapping` +12 langues** (Piper + espeak, modèles validés
+  rhasspy/piper-voices `voices.json`). BDD `multi_language_capsule.feature`
+  catalog-driven + runner dédié `cucumberTestMultiLang`. 22/22 WebM rendus.
+| 3
+| ✅ TERMINÉ (S-217)
+
+| BKY-LANG-22-6
+| **slider : `RevealUiMessageCatalog` +12 libellés natifs** (prev/next/up/help +
+  overview/speakerNotes/fullscreen). Features 5/6/13 catalog-driven.
+| 3
+| ✅ TERMINÉ (S-217)
+
+| BKY-LANG-22-7
+| **document : alignement consommateur** (i18n-contracts 0.0.4 + BOM 0.0.43).
+  `SiteTranslationPlan` déjà N0-driven. compileKotlin/compileTestKotlin VERT.
+| 1
+| ✅ TERMINÉ (S-217)
+
+| BKY-LANG-22-8
+| **Dogfooding slider corpus 22 langues** — régénérer les 3 decks démo (fr/en/ar)
+  vers les 12 nouvelles langues (27 → 63 fichiers `.adoc` + `.yml`). **LLM metered**
+  (Loi Économie d'Encre) — `TranslatedDemoDeckTest` pinné sur le corpus gelé S-030
+  en attendant. Feature 14 (dogfood) à étendre.
+| 3
+| 🟡 EN COURS (S-218+)
+
+| BKY-LANG-22-9
+| **Dogfooding capsule vidéo 22 langues** — passe LLM+TTS réel (Piper/espeak 22
+  voix) ; valider fallback dégradé pour voix sans binaire local.
+| 2
+| 🟡 EN COURS (S-218+)
+
+| BKY-LANG-22-10
+| **Publication Central consommateurs** — bakery-plugin / capsule-plugin (jamais
+  publié) / slider-plugin bumpés sur N0 0.0.4 + BOM 0.0.43.
+| 2
+| 🟡 EN COURS (S-218+)
+|===
+
+_Dépendances (DAG)_ : LANG-22-1 → 2 → 3 → {4,5,6,7}. LANG-22-8/9 (dogfooding LLM)
+dépendent de 5/6. LANG-22-10 (publication) dépend de 4/5/6/7.
+
+_Projection restante_ : 2 sessions (S-218 dogfooding LLM, S-219 publication Central).
+
+'''
+
+
 == EPIC RENAME — Neutralisation nommage métier privé (FPA→content, CDA→coding) ✅ TERMINÉ (bakery)
 
 _Origine : demande pilote 2026-09-07 (FPA = fond de commerce privé, jamais dans le nommage public OSS). Cadrage transverse : `.agents/CADRAGE_EPIC_RENAME.adoc` (7 boroughs)._

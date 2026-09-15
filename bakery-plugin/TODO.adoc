@@ -1,7 +1,20 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-09-09 — Session 214. EPIC BKY-TEST-FLAKY ✅ CLÔTURÉ 3/3 US (fixtures resyncées + golden master régénéré + feature 57 3→4 articles, test 1671/0 FAIL + secrets Firebase neutralisés). Session 213 : RENAME Vague 3 ✅✅ CLÔTURÉ tous boroughs. Gate D16 = 0 usage 7 repos. Restants : MASS-6 (reporté, accord pilote)._
+_Dernière mise à jour : 2026-09-15 — Session 217. EPIC BKY-LANG-22 (parité talaria.school) 7/10 US : N0 `LanguageCatalog` 10 → 22 langues + `i18n-contracts:0.0.4` + BOM/catalog `0.0.43` Central + propagation bakery/capsule/slider/document. Reste 🟡 LANG-22-8/9 (dogfooding LLM 22 langues) + LANG-22-10 (publication Central consommateurs). Antérieur S-214 : EPIC BKY-TEST-FLAKY ✅ CLÔTURÉ 3/3 US._
+
+== EPIC BKY-LANG-22 (S-217) — Extension LanguageCatalog 10 → 22 langues 🟡 7/10 US
+
+* [x] **LANG-22-1** : N0 `LanguageCatalog` 10 → 22 (12 ajoutées, `fa` RTL) ✅ S-217 (52 tests 0 FAIL)
+* [x] **LANG-22-2** : `i18n-contracts:0.0.4` Central ✅ S-217 (bundle `c1a9de57`)
+* [x] **LANG-22-3** : BOM/catalog `0.0.43` Central ✅ S-217 (bundle `eb310d04`)
+* [x] **LANG-22-4** : bakery `SUPPORTED_LANGS` dérivé de N0 ✅ S-217
+* [x] **LANG-22-5** : capsule `VoiceMapping` +12 langues ✅ S-217 (BDD 22/22 rendered)
+* [x] **LANG-22-6** : slider `RevealUiMessageCatalog` +12 libellés ✅ S-217
+* [x] **LANG-22-7** : document aligné ✅ S-217
+* [ ] **LANG-22-8** : Dogfooding slider corpus 22 langues (27 → 63 fichiers, LLM metered) 🟡 EN COURS S-218
+* [ ] **LANG-22-9** : Dogfooding capsule vidéo 22 langues (Piper/espeak réels) 🟡 EN COURS S-218
+* [ ] **LANG-22-10** : Publication Central consommateurs (bakery/capsule/slider) 🟡 EN COURS S-218
 
 == EPIC BKY-TEST-FLAKY (S-028) — ✅ TERMINÉ (S-214)
 

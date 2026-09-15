@@ -1,5 +1,6 @@
 package bakery.i18n
 
+import bakery.BakeryConstants
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
@@ -56,27 +57,27 @@ class I18nMigrationIntentionTest {
     @Test
     fun `intention rejects unsupported language in languages list`() {
         assertThrows<IllegalArgumentException> {
-            I18nMigrationIntention(siteDir = "/path", languages = listOf("en", "de"))
+            I18nMigrationIntention(siteDir = "/path", languages = listOf("en", "xx"))
         }
     }
 
     @Test
     fun `intention rejects unsupported defaultLanguage`() {
         assertThrows<IllegalArgumentException> {
-            I18nMigrationIntention(siteDir = "/path", defaultLanguage = "de")
+            I18nMigrationIntention(siteDir = "/path", defaultLanguage = "xx")
         }
     }
 
     @Test
-    fun `intention accepts all 10 supported languages`() {
-        val codes = setOf("fr", "en", "zh", "hi", "es", "ar", "bn", "pt", "ru", "ur")
+    fun `intention accepts all supported languages`() {
+        val codes = BakeryConstants.SUPPORTED_LANGS
         val intention =
             I18nMigrationIntention(
                 siteDir = "/path",
                 languages = codes.toList(),
                 defaultLanguage = "fr",
             )
-        assertEquals(codes.toList(), intention.languages)
+        assertEquals(codes, intention.languages.toSet())
     }
 
     @Test

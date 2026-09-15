@@ -65,7 +65,7 @@ class I18nMigrationIntentionDslTest {
         val dsl =
             I18nMigrationIntentionDsl().apply {
                 siteDir = "/path"
-                languages = listOf("de")
+                languages = listOf("xx")
             }
 
         assertThrows<IllegalArgumentException> {

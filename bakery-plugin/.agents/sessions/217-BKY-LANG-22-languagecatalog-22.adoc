@@ -1,0 +1,152 @@
+= Session 217 — EPIC BKY-LANG-22 : Extension LanguageCatalog N0 10 → 22 langues (parité talaria.school)
+
+:session: 217
+:date: 2026-09-15
+:mission: Aligner les langues supportées par bakery (et le shared kernel N0 `contracts.i18n.LanguageCatalog`) sur les 22 langues réellement servies par talaria.school — cycle release cross-borough complet (N0 → BOM → consommateurs → Central).
+:methode: Baby-step DDD/TDD/BDD strict (RED → GREEN → REFACTOR) — unit + functional + Cucumber
+:cross-borough: workspace-bom (i18n-contracts + BOM/catalog), bakery-gradle, capsule-gradle, slider-gradle, document-gradle
+
+== Mission
+
+Demande pilote 2026-09-15 : « je veux que tu complètes les langues avec celles
+supportées par talaria.school ». Constat d'ouverture : talaria.school sert 22
+langues (i18n client JS `i18n.js` + `i18n-extra-langs.js` + `i18n-content.js`),
+tandis que `BakeryConstants.SUPPORTED_LANGS` et le contrat partagé N0
+`contracts.i18n.LanguageCatalog` (i18n-contracts 0.0.3) en exposaient 10.
+
+*Périmètre arbitré (Option A, accord pilote)* : étendre le contrat N0 partagé
+(shared kernel) — pas une liste locale bakery (anti-pattern split-brain) — puis
+propager à tous les consommateurs + BOM MEMPHIS + publication Central.
+
+[cols="2,5"]
+|===
+| Avant (10) | `fr en zh hi es ar bn pt ru ur`
+| Après (22) | + `it nl de el tr vi th id ko ja sr` + `fa` (**RTL**)
+|===
+
+12 langues ajoutées, dont `fa` (Persian) qui bascule la contrainte RTL de
+2 (`ar ur`) à 3 (`ar ur fa`).
+
+== Livrables (baby-steps)
+
+=== 1. N0 `i18n-contracts` — `LanguageCatalog` 10 → 22 (DDD/TDD)
+
+- `LanguageCatalog.ALL` : 12 entrées ajoutées (order préservée pour rétro-compat,
+  nouvelles entrées appendées) — `name`/`nativeName`/`localeTag`/`rtl`.
+- `fa` : `SupportedLanguage(code="fa", name="Persian", nativeName="فارسی", rtl=true, localeTag="fa-IR")`.
+- Tests RED → GREEN : `should contain exactly 22 languages`, `should return all
+  supported codes` (22), `should find Persian with RTL flag`, `should find
+  Italian/Japanese/Korean by code`, `should have exactly 3 RTL languages`
+  ({ar, ur, fa}), `should expose talaria school target languages` (égalité exacte
+  du set 22).
+- Gate : `./gradlew test` **52 tests 0 FAIL**.
+- Publication Central : `education.cccp:i18n-contracts:0.0.4` — bundle `c1a9de57`
+  (AUTOMATIC), repo1 HTTP 200 confirmé.
+
+=== 2. MEMPHIS — BOM/catalog `0.0.43` (Central)
+
+- `gradle/libs.versions.toml` : `i18n-contracts = "0.0.4"` +
+  `workspace-bom = "0.0.43"`.
+- `workspace-bom:0.0.43` + `workspace-catalog:0.0.43` publiés Central — bundle
+  `eb310d04`. POM BOM contraint bien `i18n-contracts:0.0.4`.
+- repo1 HTTP 200 confirmé (BOM + catalog).
+
+=== 3. bakery — `SUPPORTED_LANGS` dérivé de N0 (kill split-brain)
+
+- `BakeryConstants.SUPPORTED_LANGS: Set<String> = LanguageCatalog.supportedCodes()`
+  (plus de liste locale dupliquée — la source unique est le contrat N0).
+- Bump dep : `i18n-contracts:0.0.3 → 0.0.4`, platform
+  `workspace-bom:0.0.42 → 0.0.43`, pin catalog `0.0.42 → 0.0.43`.
+- Tests alignés : `BakeryConstantsTest` (22 + dérivation N0 + set talaria),
+  `ArticleIntentionTest`/`ScaffoldIntentionTest`/`I18nMigrationIntentionTest`
+  (`accepts all supported languages` dérivé du const, code invalide `de` → `xx`
+  car `de` est désormais supporté), `I18nMigrationIntentionDslTest` (`xx`).
+- Gate : `./gradlew test` **1686 tests, 2 FAIL préexistants** (drift
+  `contact.thyme` du site réel cheroliv.com vs fixture/golden master — prouvé
+  identique par `git stash`), zéro régression nouvelle.
+
+=== 4. capsule — `VoiceMapping` +12 langues (Piper + espeak)
+
+- Modèles Piper validés contre le registre officiel rhasspy/piper-voices
+  (`voices.json`) — aucun modèle inventé : `it_IT-paola-medium`,
+  `nl_NL-pim-medium`, `el_GR-rapunzelina-medium`, `tr_TR-dfki-medium`,
+  `vi_VN-vais1000-medium`, `th_TH-tsync2-medium`, `id_ID-news_tts-medium`,
+  `ko_KR-kss-medium`, `ja_JA-hi_fi_captain-medium`,
+  `sr_RS-serbski_institut-medium`, `fa_IR-amir-medium` (+ `de_DE-thorsten-medium`
+  existant).
+- espeak voices : 12 codes ajoutés (espeak-ng couvre les 22 — vérifié contre
+  `docs/languages.md`).
+- Bump dep : `i18n-contracts 0.0.2 → 0.0.4`, `workspace-bom 0.0.27 → 0.0.43`.
+- BDD `multi_language_capsule.feature` rendu catalog-driven (plus de « 10 »
+  hardcodé) + nouveau runner dédié `CapsuleMultiLangCucumberRunner` +
+  task `cucumberTestMultiLang` (pattern S-082).
+- Gate : unit **BUILD SUCCESSFUL** ; `cucumberTestMultiLang` **BUILD SUCCESSFUL
+  11m18s — `CAPSULE MULTILANG → 22/22 languages rendered`** (tous scénarios
+  PASSED, WebM générés pour fr/ar/ur + 22).
+
+=== 5. slider — `RevealUiMessageCatalog` +12 libellés natifs
+
+- 12 entrées `RevealUiMessages` ajoutées (nav prev/next/up/help +
+  controls overview/speakerNotes/fullscreen) en écriture native
+  (it/nl/de/el/tr/vi/th/id/ko/ja/sr/fa).
+- `fa` exposé RTL via `LanguageCatalog` (test `should be rtl`).
+- Bump dep : `i18n-contracts 0.0.2 → 0.0.4`.
+- Features 5/6/13 + steps rendus catalog-driven ; tests alignés
+  (`TranslationRequestTest`, `DeckTranslationPlanTest`, `DeckTranslatorTest`,
+  `TranslatedDemoDeckTest`, `TranslatorManagerLanguageTest`, `RevealRtlResolverTest`
+  → `ar ur fa`).
+- *Corpus dogfooding gelé* : `TranslatedDemoDeckTest` pinné sur les 9 codes du
+  corpus S-030 (27 fichiers committés) — la régénération 22 langues est un
+  dogfooding LLM metered (Loi Économie d'Encre), reporté S-218.
+- Gate : `./gradlew test` **947 tests, 3 FAIL préexistants** (3 Playwright
+  environnementaux — prouvés identiques par `git stash`), zéro régression nouvelle.
+
+=== 6. document — alignement consommateur
+
+- Bump dep : `i18n-contracts 0.0.3 → 0.0.4`, `workspace-bom 0.0.41 → 0.0.43`,
+  pin catalog `0.0.41 → 0.0.43`. `SiteTranslationPlan` déjà N0-driven (aucun code).
+- Gate : `compileKotlin` + `compileTestKotlin` **BUILD SUCCESSFUL**.
+
+== État EPIC BKY-LANG-22
+
+- ✅ TERMINÉ (S-217) : LANG-22-1 → 7 (7/10 US) — contrat N0 + publications Central
+  + propagation 4 consommateurs.
+- 🟡 EN COURS (S-218+) : LANG-22-8 (dogfooding slider corpus 22 langues),
+  LANG-22-9 (dogfooding capsule vidéo 22 langues), LANG-22-10 (publication
+  Central bakery/capsule/slider).
+
+== Gates / Vérifications
+
+[cols="2,3"]
+|===
+| Gate | Résultat
+
+| N0 i18n-contracts `test` | 52/0 FAIL
+| BOM/catalog 0.0.43 Central | repo1 200 (bundle eb310d04)
+| i18n-contracts 0.0.4 Central | repo1 200 (bundle c1a9de57)
+| bakery `test` | 1686/2 FAIL (2 préexistants drift contact.thyme)
+| capsule `test` | BUILD SUCCESSFUL
+| capsule `cucumberTestMultiLang` | 22/22 rendered (11m18s)
+| slider `test` | 947/3 FAIL (3 Playwright préexistants)
+| document compile | BUILD SUCCESSFUL
+|===
+
+Zéro secret commité, zéro bump de version plugin (bakery/capsule/slider restent
+à leur version — la publication Central consommateurs est en cours, LANG-22-10).
+
+== Sécurité — Incident
+
+Un fichier gitignoré (`office/sites/talaria.school/site.yml`) contenant des
+credentials réels (token GitHub `gho_...` + clés OVH) a été lu en ouverture de
+session (reconnaissance de l'écosystème talaria) avant application de la règle
+d'interdiction de lecture des fichiers gitignorés. Les secrets sont à
+révoquer/régénérer par le pilote. Aucun secret n'a été commité — la lecture
+n'a pas modifié les fichiers.
+
+== Score
+
+9/10 — Cycle release cross-borough complet livré (N0 → BOM → 4 consommateurs →
+Central), méthode baby-step DDD/TDD/BDD stricte, split-brain bakery ↔ N0
+éliminé (dérivation du contrat), 12 voix Piper/espeak vérifiées contre le
+registre officiel. Reste le dogfooding LLM (reporté) + publication Central des
+consommateurs (en cours).

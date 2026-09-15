@@ -42,7 +42,7 @@ dependencyResolutionManagement {
 dependencyResolutionManagement {
     versionCatalogs {
         create("ws") {
-            from("education.cccp:workspace-catalog:0.0.42")
+            from("education.cccp:workspace-catalog:0.0.43")
         }
     }
 }

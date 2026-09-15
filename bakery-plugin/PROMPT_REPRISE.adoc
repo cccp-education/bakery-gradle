@@ -1,73 +1,57 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 217
-:date: 2026-09-10
-:etat: Session 216 ✅ — **transfert BKY-FPA-SITE → TRN-11 (training) + arbitrage licence FPA tranché** : corpus FPA = document personnel (zéro droit de tiers), corpus brut privé office/, produits formation dérivés Apache 2.0. Étape 7 backlog synchro (BKY-FPA-SITE ✅ TRANSFÉRÉ, en-tête 216). Rapport `.agents/sessions/216-transfer-bky-fpa-site-trn11.adoc`.
-:epic_actif: MASS-6 🟡 reporté (accord pilote, ~675h LLM) + re-traduction cheroliv.com/en/ prod (fix `:summary:`). Backlog bakery propre — BKY-FPA-SITE ✅ transféré S-216 → TRN-11 training (arbitrage licence FPA tranché).
+:session: 218
+:date: 2026-09-15
+:etat: Session 217 ✅ — **EPIC BKY-LANG-22 (parité talaria.school) 7/10 US TERMINÉ** : contrat N0 `LanguageCatalog` 10 → 22 langues + `i18n-contracts:0.0.4` Central (bundle `c1a9de57`) + BOM/catalog `0.0.43` Central (bundle `eb310d04`) + propagation bakery/capsule/slider/document. Rapports `.agents/sessions/217-BKY-LANG-22-languagecatalog-22.adoc`.
+:epic_actif: BKY-LANG-22 🟡 EN COURS — reste LANG-22-8 (dogfooding slider corpus 22 langues), LANG-22-9 (dogfooding capsule vidéo 22 langues), LANG-22-10 (publication Central consommateurs).
 
 == Contexte de fin
 
-Session 216 — **transfert BKY-FPA-SITE → TRN-11 training** (gouvernance pure, zéro code) :
-- Arbitrage licence FPA tranché par le pilote (2026-09-10) : le corpus FPA est
-  un *document personnel* (zéro droit de tiers) → corpus brut (scan → AsciiDoc)
-  reste privé dans `office/metiers/FPA/`. Les produits formation (SPG, SPDs,
-  slides, PDFs, quiz) sont des travaux originaux dérivés = Apache 2.0 → publiables.
-- Le site navigable héberge uniquement les produits formation, jamais le texte
-  intégral brut → livrable formation (GBL-003.5, anneau A4), pas un livrable bakery.
-- Pattern de transfert : TRN-9 (ex BKY-TRN-9) / TRN-TEMP (ex BKY-JB-1). Bakery =
-  mécanisme JBake (publishSite), training = propriétaire du portail formation.
-- Étape 7 backlog synchro : BKY-FPA-SITE ✅ TRANSFÉRÉ (S-216), en-tête mise à jour.
-- Backlog bakery : reste MASS-6 (reporté polarité) + re-traduction cheroliv.com/en/.
+Session 217 — **Extension LanguageCatalog 10 → 22 (parité talaria.school)** :
+- Demande pilote : aligner bakery/N0 sur les 22 langues servies par talaria.school
+  (`i18n.js` + `i18n-extra-langs.js` + `i18n-content.js`).
+- 12 langues ajoutées : `it nl de el tr vi th id ko ja sr` + `fa` (**RTL**).
+  RTL passe de 2 (`ar ur`) à 3 (`ar ur fa`).
+- Option A (accord pilote) : étendre le **contrat N0 partagé**
+  `contracts.i18n.LanguageCatalog` — pas de liste locale (anti split-brain).
 
-Session 215 — résolution du bug chemin dogfooding (P3, item S-215) :
-- Cause racine : `SiteConfiguration.resolvePaths` rend `contentRoot` absolu
-  (projectDir + srcPath) ; `--contentI18nSource` déjà préfixé par `srcPath`
-  doublait (`jbake/content/blog/2026` → « répertoire source n'existe pas »).
-- Nouveau domaine `bakery.i18n.path` : `ContentSourcePathResolver` objet pur
-  segment-aware (3 règles : absolu tel quel / préfixé → projectDir.resolve /
-  sinon projectDir.resolve(srcPath).resolve). Rétro-compatibilité totale :
-  forme non-préfixée `content/blog` inchangée, forme préfixée `jbake/content/blog`
-  corrigée. Workaround S-207 (`blog/2026`) devenu inutile.
-- Wiring : `contentSrcPath` relatif dérivé par le registrar (le registrar connaît
-  la vérité issue de `resolvePaths`), tâche `resolveSourceDir()` câblée au resolver.
-- Tests : 8 UT resolver + 2 UT wiring (9 `ExecuteContentMigration`) + 2 FT TestKit
-  (9/9) + feature 63 BDD 5 scénarios (runner dédié, 5/5). Gates : test 1682/0 FAIL,
-  functionalTest 119/0, cucumberTest 2 FAIL préexistants environnementaux (0 nouveau).
-- Découverte runner : le `CucumberTestRunner` standard filtre
-  `@pipeline-contracts and not @wip` — la feature 63 (`@source-path`) a son
-  runner dédié `I18nSourcePathCucumberTest`.
+Livré (baby-step DDD/TDD/BDD strict) :
+- **N0** `i18n-contracts:0.0.4` (bundle Central `c1a9de57`) — 52 tests 0 FAIL.
+- **MEMPHIS** `workspace-bom`/`workspace-catalog:0.0.43` (bundle `eb310d04`).
+- **bakery** : `SUPPORTED_LANGS` dérivé de `LanguageCatalog.supportedCodes()`
+  (split-brain tué) + tests alignés. `test` 1686/2 FAIL préexistants.
+- **capsule** : `VoiceMapping` +12 voix Piper (validées rhasspy) + espeak ;
+  BDD `cucumberTestMultiLang` **22/22 languages rendered**.
+- **slider** : `RevealUiMessageCatalog` +12 libellés natifs ; `test` 947/3 FAIL
+  Playwright préexistants.
+- **document** : dep alignée 0.0.4 + BOM 0.0.43 ; compile VERT.
 
-== Mission Session 217 — à la demande
+== Mission Session 218 — à la demande
 
-1. **MASS-6 montée en charge** : 108 articles × 10 langues — accord
-   pilote explicite requis. Coût LLM ~675h.
-2. **Re-traduction cheroliv.com/en/ prod** (fix `:summary:` impact SEO).
-3. **Portail formation (anneau A4)** : quand les plans de formation
-   existeront (Newark TRN-1→6), dogfood le portail via assembleTrainingSite
-   (TRN-9/TRN-11 — BKY-FPA-SITE ✅ transféré S-216).
+1. **LANG-22-8** : dogfooding slider corpus 22 langues — régénérer les 3 decks
+   démo (fr/en/ar) vers les 12 nouvelles langues (27 → 63 fichiers). **LLM metered**
+   (`gemma4:31b-cloud` ports 11437-11465) — accord pilote déjà donné (Option A).
+   `TranslatedDemoDeckTest` pinné sur le corpus S-030 en attendant ; lever le pin
+   après régénération + étendre feature 14.
+2. **LANG-22-9** : dogfooding capsule vidéo 22 langues (PipeTTS/espeak réels).
+3. **LANG-22-10** : publication Central consommateurs (bakery/capsule/slider
+   bumpés sur N0 0.0.4 + BOM 0.0.43).
+4. *(hors EPIC)* MASS-6 (accord pilote) OU re-traduction cheroliv.com/en/ prod.
 
 ## Reprendre à
 
 . `git status` dans bakery-gradle
-. Lire `BACKLOG.adoc` (S-215 ✅ — item P3 clôturé, backlog propre)
+. Lire `BACKLOG.adoc` (EPIC BKY-LANG-22 en tête)
 . Vérifier Ollama ports 11437-11465 + modèle `gemma4:31b-cloud`
-. `/tmp/bakery-dogfood` projet consommateur (buildscript classpath 0.0.9)
+. `/tmp/bakery-dogfood` projet consommateur
 . `publishToMavenLocal` après chaque modification code source
 
-## Ordre des EPICs (priorité)
-
-. MASS-6 (accord pilote requis)
-. Re-traduction cheroliv.com/en/ prod (fix `:summary:` impact SEO)
-. Portail formation anneau A4 (quand les SPDs existeront)
-
-## Rappel S212-S214
+## Rappel
 
 - Gate permanente : `grep -rwn "REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA" src/`
-  doit rester = 0 (bakery + tous boroughs transverse)
-- Golden masters = artefacts gelés : `PostMigrationSnapshotGenerator`
-  reste `@Disabled`, régénérer UNIQUEMENT si les fixtures changent
-  (pattern REAL-4 : retirer @Disabled, run, re-valider, re-@Disabled).
-- Note environnement : suite `cucumberTest` complète (1866 scénarios)
-  timeout à 5min sous charge machine élevée (load 14+) — baselines
-  futures à mesurer machine déchargée ou via runners dédiés.
+  doit rester = 0
+- Golden masters = artefacts gelés — régénérer UNIQUEMENT si les fixtures changent
+- **Sécurité (S-217)** : NE JAMAIS lire `office/sites/talaria.school/site.yml`
+  (gitignoré — credentials réels). Incident S-217 : tokens à révoquer par le pilote.
+- Note environnement : suites cucumber complètes timeout sous charge (load 14+).
 
-(End of file - total 63 lines)
+(End of file — 62 lines)

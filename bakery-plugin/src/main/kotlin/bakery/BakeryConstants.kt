@@ -1,5 +1,7 @@
 package bakery
 
+import contracts.i18n.LanguageCatalog
+
 object BakeryConstants {
     const val BAKERY_GROUP = "bakery"
     const val GENERATE_GROUP = "generate"
@@ -19,5 +21,7 @@ object BakeryConstants {
     const val BAKERY_CONFIG_PATH_KEY = "bakery.config.path"
     const val CNAME = "CNAME"
 
-    val SUPPORTED_LANGS = setOf("fr", "en", "zh", "hi", "es", "ar", "bn", "pt", "ru", "ur")
+    // Single source of truth: the N0 shared contract `contracts.i18n.LanguageCatalog`
+    // (i18n-contracts). No local list — kills the split-brain with the catalog.
+    val SUPPORTED_LANGS: Set<String> = LanguageCatalog.supportedCodes()
 }

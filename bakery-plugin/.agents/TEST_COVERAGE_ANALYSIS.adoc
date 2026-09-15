@@ -1,7 +1,8 @@
 = TEST_COVERAGE_ANALYSIS — Bakery Gradle Plugin
 :description: Suivi de la couverture de tests (Kover, JUnit5, Cucumber, fonctionnels)
 
-_Dernière mise à jour : 2026-09-09 — Session 215 ✅ Bug chemin dogfooding CLÔTURÉ (P3, item S-215). Tests modifiés : +8 UT `ContentSourcePathResolverTest` (nouveau domaine `bakery.i18n.path`, objet pur segment-aware 3 règles), +2 UT `MigrateContentI18nTaskTest` (wiring `contentSrcPath` — 9 tests `ExecuteContentMigration`), +2 FT `MigrateContentI18nDeploySmokeFunctionalTest` (formes préfixée/relative, 9/9), +1 feature `63_i18n_source_path_resolution.feature` (5 scénarios `@source-path`) + `I18nSourcePathSteps.kt` + runner dédié `I18nSourcePathCucumberTest` (5/5). Gate : `test` **1682/0 FAIL** (baseline S-214 1671 → +11), `functionalTest` 119/0, `cucumberTest` 581 completed 2 FAIL préexistants environnementaux (0 nouveau — baseline historique 1866/6 S-196, S-211 CLOS flaky). Découverte runner : `CucumberTestRunner` standard filtre `@pipeline-contracts and not @wip` — feature 63 (`@source-path`) par runner dédié. Baseline FLAKY-1/2/3 (S-214) neutralisée._
+_Dernière mise à jour : 2026-09-15 — Session 217 ✅ EPIC BKY-LANG-22 — Extension LanguageCatalog N0 10 → 22 langues. Tests modifiés (bakery) : `BakeryConstantsTest` (22 langues + dérivation N0 + set talaria), `ArticleIntentionTest`/`ScaffoldIntentionTest`/`I18nMigrationIntentionTest` (`accepts all supported languages` dérivé du const, code invalide `de`→`xx`), `I18nMigrationIntentionDslTest` (`xx`). Gate : `test` **1686 tests, 2 FAIL préexistants** (drift `contact.thyme` site réel cheroliv.com vs fixture/golden master — prouvé identique par `git stash` ; 0 régression nouvelle). Tests cross-borough alignés : N0 `i18n-contracts` 52/0, capsule `cucumberTestMultiLang` 22/22 rendered, slider 947/3 FAIL Playwright préexistants, document compile VERT._
+_Dernière mise à jour (antérieure) : 2026-09-09 — Session 215 ✅ Bug chemin dogfooding CLÔTURÉ. Tests modifiés : +8 UT `ContentSourcePathResolverTest` + 2 UT `MigrateContentI18nTaskTest` + 2 FT + feature 63 (5 scénarios). Gate `test` 1682/0._
 _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli par la procédure_
 
 '''
@@ -13,7 +14,7 @@ _Créé le : 2026-05-29 — fichier absent depuis plusieurs sessions, rétabli p
 | Couverture Kover | *92,90%* — mesuré Session 165 via `koverThresholdCheck` (150915/162455 instructions couvertes, missed=11540). BUILD SUCCESSFUL 6m28s. Seuil configuré respecté largement.
 | Seuil configuré | 70% (dans `build.gradle.kts` → `koverThresholdCheck`)
 | **Nouvelle cible** | **90%** — EPIC BKY-KOV-1 (16 pts, US-1 ✅, US-KOV-2 ✅, US-KOV-3 ✅, US-KOV-4 ✅, US-KOV-5→7 restantes)
-| Tests unitaires JUnit5 | 148+ fichiers, **1682 tests — ✅ PASS (0 FAIL, 3 skipped)** — Session 215 : +8 UT resolver + 2 UT wiring + 1 runner dédié (feature 63). `FixtureAlignmentAuditorTest` 8/8 GREEN.
+| Tests unitaires JUnit5 | 148+ fichiers, **1686 tests — 2 FAIL préexistants (drift contact.thyme), 3 skipped** — Session 217 : `BakeryConstantsTest` 5 tests (22 langues + dérivation N0), tests intention alignés 22 langues.
 | Tests fonctionnels (TestKit) | 10 fichiers, **119/119 PASS** (session 215 : +2 FT `MigrateContentI18nDeploySmokeFunctionalTest`)
 | Tests Cucumber BDD | **42 features, ~5+ scénarios bakery dont feature 63** `@source-path` (5 scénarios, runner dédié `I18nSourcePathCucumberTest` 5/5) — Sessions 166-215
 | Tests E2E Playwright | 6 fichiers, 19/19 PASS — PlaywrightPool singleton + installPlaywright cache

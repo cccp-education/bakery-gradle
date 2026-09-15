@@ -29,7 +29,7 @@ repositories {
 dependencies {
     // BOM — workspace version alignment (workspace-bom, MEMPHIS)
     // MEM-CAT-3 (D5) — platform 0.0.42 : contraint document-plugin/i18n-contracts sans hardcode.
-    implementation(platform("education.cccp:workspace-bom:0.0.42"))
+    implementation(platform("education.cccp:workspace-bom:0.0.43"))
 
     implementation(kotlin("stdlib-jdk8"))
 
@@ -42,7 +42,7 @@ dependencies {
     implementation(libs.codebase.contracts)
     implementation(libs.codebase.plugin)
     implementation("education.cccp:api-key-pool:0.0.1")
-    implementation("education.cccp:i18n-contracts:0.0.3")
+    implementation("education.cccp:i18n-contracts:0.0.4")
     // MEM-CAT-3 (D5) — document-plugin sans version : la version vient du platform
     // workspace-bom (constraint document-plugin), plus de hardcode local.
     implementation("education.cccp:document-plugin")

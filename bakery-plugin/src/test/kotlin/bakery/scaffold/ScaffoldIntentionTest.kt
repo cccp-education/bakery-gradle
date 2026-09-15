@@ -1,5 +1,6 @@
 package bakery.scaffold
 
+import bakery.BakeryConstants
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
@@ -110,8 +111,8 @@ class ScaffoldIntentionTest {
     }
 
     @Test
-    fun `lang accepts all 10 supported languages`() {
-        val codes = setOf("fr", "en", "zh", "hi", "es", "ar", "bn", "pt", "ru", "ur")
+    fun `lang accepts all supported languages`() {
+        val codes = BakeryConstants.SUPPORTED_LANGS
         codes.forEach { code ->
             val intention = ScaffoldIntention(description = "Test", lang = code)
             assertEquals(code, intention.lang)
@@ -121,7 +122,7 @@ class ScaffoldIntentionTest {
     @Test
     fun `lang rejects unsupported language`() {
         assertThrows<IllegalArgumentException> {
-            ScaffoldIntention(description = "Test", lang = "de")
+            ScaffoldIntention(description = "Test", lang = "xx")
         }
     }
 
