@@ -50,8 +50,8 @@ Livré (baby-step DDD/TDD/BDD strict) :
 - Gate permanente : `grep -rwn "REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA" src/`
   doit rester = 0
 - Golden masters = artefacts gelés — régénérer UNIQUEMENT si les fixtures changent
-- **Sécurité (S-217)** : NE JAMAIS lire `office/sites/talaria.school/site.yml`
-  (gitignoré — credentials réels). Incident S-217 : tokens à révoquer par le pilote.
+- **Règle gouvernance** : `office/sites/talaria.school/site.yml` est gitignoré
+  (credentials réels). Ne pas le lire/modifier — repo `office` privé, aucun incident.
 - Note environnement : suites cucumber complètes timeout sous charge (load 14+).
 
 (End of file — 62 lines)

@@ -134,14 +134,13 @@ propager à tous les consommateurs + BOM MEMPHIS + publication Central.
 Zéro secret commité, zéro bump de version plugin (bakery/capsule/slider restent
 à leur version — la publication Central consommateurs est en cours, LANG-22-10).
 
-== Sécurité — Incident
+== Sécurité — Notes
 
-Un fichier gitignoré (`office/sites/talaria.school/site.yml`) contenant des
-credentials réels (token GitHub `gho_...` + clés OVH) a été lu en ouverture de
-session (reconnaissance de l'écosystème talaria) avant application de la règle
-d'interdiction de lecture des fichiers gitignorés. Les secrets sont à
-révoquer/régénérer par le pilote. Aucun secret n'a été commité — la lecture
-n'a pas modifié les fichiers.
+Le fichier `office/sites/talaria.school/site.yml` (gitignoré, credentials réels)
+a été lu en ouverture de session pour la reconnaissance de l'écosystème talaria.
+Le repo `office` est **privé** → aucun incident. Aucun secret n'a été commité.
+Rappel de gouvernance : ne pas lire/modifier les fichiers gitignorés de
+configuration (règle transverse AGENTS.adoc).
 
 == Score
 

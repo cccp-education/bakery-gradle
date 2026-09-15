@@ -138,5 +138,3 @@ zéro bump BOM, zéro publication Central, zéro secret.
 *Clôture* : **EPIC BKY-LANG-22 🟡 EN COURS — 7/10 US TERMINÉES**. Cycle release
 cross-borough complet (N0 → BOM → 4 consommateurs → Central). Reste dogfooding
 LLM (slider/capsule) + publication Central consommateurs. 5 repos modifiés.
-*Incident sécurité* : `office/sites/talaria.school/site.yml` (gitignoré,
-credentials réels) lu en ouverture — tokens à révoquer par le pilote.
