@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-09-16 — 🟡 **EPIC BKY-I18N-JS CADRÉ (S-050), cadrage fin LIVRÉ (BKY-I18N-JS-1 ✅ S-054 via talaria US-0)** — demande pilote talaria.school : la traduction des dictionnaires i18n **JS client** doit passer par une **tâche bakery**, pas par un harness node. Audit mesuré (S-054) : 3 dictionnaires (`i18n.js` 11 langues / 205 clés `fr`, `i18n-extra-langs.js` 11 langues forme identique, `i18n-content.js` `CATALOG` imbriqué 22 langues) ; **constat C-1** : bakery n'importe aucune classe `codebase.*` — socle LLM **local** (`PooledOllamaLlmService`), frontière N0 déjà satisfaite, migration `LlmBuildService` hors périmètre. Aucune task existante ne couvre `TALARIA.I18N.DICT`/`CATALOG` (`migrateToI18n` = Thymeleaf, `migrateContentI18n` = AsciiDoc). 3 US restantes (JS-2/3/4) ~8 pts, **bloquant talaria `T-I18N-BAKERY` US-2/3**. Session 217 🟡 **EPIC BKY-LANG-22 EN COURS** — extension du contrat N0 `contracts.i18n.LanguageCatalog` de 10 → 22 langues (parité talaria.school : +it nl de el tr vi th id ko ja sr **fa RTL**). Livré et publié Central : `i18n-contracts:0.0.4` (bundle `c1a9de57`) + BOM/catalog `0.0.43` (bundle `eb310d04`) + propagation bakery/capsule/slider/document. **Reste en cours** : régénération du corpus dogfooding slider (27 fichiers gelés, 12 langues × 3 decks à produire via LLM metered — Loi Économie d'Encre), dogfooding capsule 22 langues, publication Central des consommateurs (bakery/capsule/slider). Session 216 ✅ transfert BKY-FPA-SITE → TRN-11 (training, pattern TRN-9) + arbitrage licence FPA tranché. Session 213 ✅ RENAME Vague 3 CLÔTURÉ transverse._
+_Dernière mise à jour : 2026-09-17 — ✅ **EPIC BKY-I18N-JS-2 TERMINÉ (S-218)** — `I18nJsDictionary` (object pur parser/writer JS client) livré : `parse`/`languagesOf`/`insertTranslations`, miroir du harness `tools/translate-i18n.mjs` (S-044), 2 invariants supérieurs (scanner braces string-aware + regex bloc ancrée). 21 tests 0 FAIL dont **dogfooding réel talaria** (205 clés `fr`, 11+11+22 langues, round-trip byte-identique). Débloque talaria `T-I18N-BAKERY` US-2/US-3. Reste JS-3 (task `translateI18nClient`) + JS-4 (propagation + garde). Antérieur S-050 : 🟡 **EPIC BKY-I18N-JS CADRÉ (S-050), cadrage fin LIVRÉ (JS-1 ✅ S-054 via talaria US-0)** — demande pilote talaria.school : la traduction des dictionnaires i18n **JS client** doit passer par une **tâche bakery**, pas par un harness node. Audit mesuré (S-054) : 3 dictionnaires (`i18n.js` 11 langues / 205 clés `fr`, `i18n-extra-langs.js` 11 langues forme identique, `i18n-content.js` `CATALOG` imbriqué 22 langues) ; **constat C-1** : bakery n'importe aucune classe `codebase.*` — socle LLM **local** (`PooledOllamaLlmService`), frontière N0 déjà satisfaite, migration `LlmBuildService` hors périmètre. Aucune task existante ne couvre `TALARIA.I18N.DICT`/`CATALOG` (`migrateToI18n` = Thymeleaf, `migrateContentI18n` = AsciiDoc). Reste JS-3/4 ~5 pts, **bloquant talaria `T-I18N-BAKERY` US-2/3**. Session 217 🟡 **EPIC BKY-LANG-22 EN COURS** — extension du contrat N0 `contracts.i18n.LanguageCatalog` de 10 → 22 langues (parité talaria.school : +it nl de el tr vi th id ko ja sr **fa RTL**). Livré et publié Central : `i18n-contracts:0.0.4` (bundle `c1a9de57`) + BOM/catalog `0.0.43` (bundle `eb310d04`) + propagation bakery/capsule/slider/document. **Reste en cours** : régénération du corpus dogfooding slider (27 fichiers gelés, 12 langues × 3 decks à produire via LLM metered — Loi Économie d'Encre), dogfooding capsule 22 langues, publication Central des consommateurs (bakery/capsule/slider). Session 216 ✅ transfert BKY-FPA-SITE → TRN-11 (training, pattern TRN-9) + arbitrage licence FPA tranché. Session 213 ✅ RENAME Vague 3 CLÔTURÉ transverse._
 
 '''
 
@@ -101,7 +101,7 @@ _Projection restante_ : 2 sessions (S-218 dogfooding LLM, S-219 publication Cent
 '''
 
 
-== EPIC BKY-I18N-JS — Task `translateI18nClient` : traduction du dictionnaire i18n JS client 🟡 À CADRER (S-050)
+== EPIC BKY-I18N-JS — Task `translateI18nClient` : traduction du dictionnaire i18n JS client 🟡 EN COURS (S-218) — 2/4 US
 
 _Origine : demande pilote talaria.school 2026-09-16 — la traduction des dictionnaires
 i18n **JavaScript client** (`TALARIA.I18N.DICT`, `TALARIA.I18N.CATALOG`) doit passer par
@@ -199,27 +199,31 @@ retrait du harness côté talaria (US-3).
   ancré (pattern `I18nCoverageGuard`, déjà éprouvé sur ce corpus).
 
 | BKY-I18N-JS-2
-| **Parser/writer JS pur** (`I18nJsDictionary` : `parse` / `insertTranslations` /
-  `languagesOf`) — object pur, tests unit, round-trip byte-identique, idempotence.
+| **Parser/writer JS pur** (`I18nJsDictionary` : `parse` / `languagesOf` /
+  `insertTranslations`) — object pur, tests unit, round-trip byte-identique, idempotence.
 | 3
-| ⏳ À FAIRE
+| ✅ TERMINÉ (S-218) — `bakery.i18n.js.I18nJsDictionary` ; 16 UT + 5 intégration
+  (dogfooding réel talaria : 205 clés `fr`, 11+11+22 langues, round-trip
+  byte-identique). 2 invariants supérieurs au harness : scanner braces
+  **string-aware** + regex bloc ancrée. Bug TDD `String.replace(Regex,"\\n")`
+  (backslash perdu par Java Matcher) → lambda.
 
 | BKY-I18N-JS-3
 | **Task `translateI18nClient`** (`I18nClientMigrationIntention` + DSL + registrar),
   branchée sur `LlmServiceTranslationAdapter` → `TranslationService` N0 ; delta des
   clés manquantes ; dry-run ; **tests unit + functional Oven + Cucumber**.
 | 3
-| ⏳ À FAIRE
+| 🟡 À FAIRE (S-219)
 
 | BKY-I18N-JS-4
 | **Propagation + garde de format** : propagation `maquette/js/` → `jbake/assets/js/`
   byte-identique (pattern harness) ; garde parse↔write round-trip + idempotence ;
   failover / zéro appel HTTP direct.
 | 2
-| ⏳ À FAIRE
+| 🟡 À FAIRE
 |===
 
-_Dépendances (DAG)_ : BKY-I18N-JS-1 → 2 → 3 → 4.
+_Dépendances (DAG)_ : BKY-I18N-JS-1 → 2 ✅ → 3 → 4.
 _Débloque_ : talaria `T-I18N-BAKERY` US-2 (wiring) + US-3 (retrait harness node).
 _Pattern de référence_ : `bakery.i18n.MigrateContentI18nTask` +
 `bakery.i18n.LlmServiceTranslationAdapter` + `bakery.llm.PooledOllamaLlmService`.

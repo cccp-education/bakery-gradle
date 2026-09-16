@@ -1,0 +1,119 @@
+= Session 218 — BKY-I18N-JS-2 : I18nJsDictionary (parser/writer JS pur)
+
+[cols="2,5"]
+|===
+| Session | 218
+| Date | 2026-09-17
+| Type | DDD + TDD (object pur) + dogfooding réel
+| EPIC | BKY-I18N-JS (cross-borough talaria `T-I18N-BAKERY`) — US BKY-I18N-JS-2
+| Score | 9/10
+|===
+
+== Mission
+
+US **BKY-I18N-JS-2** du BACKLOG : `I18nJsDictionary` — object pur
+(`parse` / `languagesOf` / `insertTranslations`), round-trip byte-identique,
+idempotence. **Bloquant talaria `T-I18N-BAKERY` US-2/US-3** (retrait du harness node).
+
+Mission issue du cadrage S-054 (talaria US-0) : les dictionnaires i18n **JS client**
+(`var DICT`, `TALARIA.I18N.extend`, `TALARIA.I18N.CATALOG`) doivent être traduits par une
+tâche bakery, pas par `tools/translate-i18n.mjs` (appel HTTP direct au LLM).
+
+== Constat d'ouverture
+
+Le `PROMPT_REPRISE` bakery était **périmé** (rédigé S-217, avant le cadrage BKY-I18N-JS
+des 2 commits suivants `9016055`/`16b1d2e`). Le vrai sommet de pile = `BKY-I18N-JS`
+(bloquant talaria), devant `BKY-LANG-22-8/9/10` (dogfooding/publication). Arbitrage
+pilote : démarrer par la brique non-LLM, non-métrée, qui débloque la suite.
+
+== Livrable (baby-step DDD/TDD strict)
+
+=== Domaine pur
+
+`src/main/kotlin/bakery/i18n/js/I18nJsDictionary.kt` — object pur, zéro I/O, zéro Gradle,
+zéro LLM. Miroir exact du harness `tools/translate-i18n.mjs` (S-044) :
+
+* `parse(vararg sources)` — fusionne plusieurs sources (chrome + patch), ordre
+  d'insertion préservé (LinkedHashMap, déterministe).
+* `languagesOf(source)` — codes de langue en ordre de document.
+* `insertTranslations(source, language, translations)` — n'ajoute que les clés
+  **manquantes** (Loi Économie d'Encre), préserve le document alentour
+  byte-identique, idempotent.
+
+*Deux invariants de parsing supérieurs au harness node* :
+
+. **Scanner de braces string-aware** : `{` / `}` dans un littéral double-quote
+  (échappé ou non) sont ignorés → une valeur `"{0}"` ne tronque jamais un bloc.
+  Le harness naïf `matchingBody` comptait tous les braces.
+. **Regex de bloc ancrée `^\s{4}[a-z]{2}: \{`** (miroir harness) : les entrées
+  quotées hors bloc (ex. `var OUTSIDE = { "nav.home": ... }`) sont ignorées.
+
+=== Bugs attrapés par le TDD
+
+* **Escape `\n` perdu** : `String.replace(Regex, "\\n")` en Kotlin passe par
+  `Matcher.replaceAll` — `\n` y est un échappement de groupe et perdait le
+  backslash, écrivant `nligne2` au lieu de `\nligne2`. Fix : lambda de remplacement
+  `{ "\\n" }`. Attrapé par `inserted values escape quotes and newlines`.
+
+== Tests (21 nouveaux, 0 FAIL)
+
+=== Unit — `I18nJsDictionaryTest` (16 tests)
+
+* Parse : extraction blocs+clés, fusion multi-sources, unescape
+  (`\"`/`\n`/`\\`), source vide, entrées hors bloc ignorées, catalogue imbriqué.
+* LanguagesOf : ordre document, 3 cas.
+* Insert : no-op byte-identique (complète), append clé manquante (golden exact),
+  ordre de map pour plusieurs clés, idempotence 2e run, escape quotes/newlines,
+  préservation du document, langue inconnue rejetée.
+
+=== Intégration/dogfooding réel — `I18nJsDictionaryTalariaIntegrationTest` (5 tests)
+
+Contrat épinglé sur le **corpus talaria réel** (`office/sites/talaria.school/maquette/js/`,
+lecture seule, skip `assumeTrue` si absent CI) :
+
+* `i18n.js` : 11 langues + plancher `fr` = **205 clés** (hors `.html`) — identique
+  au harness.
+* `i18n-extra-langs.js` : 11 langues supplémentaires (`it nl de el tr vi th id ko ja sr`),
+  plancher identique.
+* `i18n-content.js` : **22 langues** (catalogue imbriqué).
+* Round-trip **byte-identique** : ré-insérer un dictionnaire complet = no-op strict
+  (chrome + patch, toutes langues).
+
+== Gate
+
+* `./gradlew test` : **1707 tests, 2 FAIL préexistants, 3 skipped** —
+  baseline S-217 = 1686/2 → **+21 net** (exactement les nouveaux).
+  Les 2 FAIL (`FixtureAlignmentAuditorTest` + `RealSiteI18nMigrationIntegrationTest`,
+  drift `contact.thyme` site réel cheroliv.com) sont **reproduits isolément** —
+  indépendants du code i18n JS.
+* `./gradlew -q publishToMavenLocal` : VERT (règle INDEX 0).
+* Gate grep métier (`FPA|CDA|SPG|SPD|REAC|AFNOR|RNCP`) : 0 dans `src/`.
+
+== Décisions actées
+
+. **Pas de LLM** dans US-2 (object pur) — la tâche `translateI18nClient` (US-3) sera
+   branchée sur `LlmServiceTranslationAdapter` → port N0 `contracts.i18n.TranslationService`.
+. **Un seul parser** couvre `i18n.js` et `i18n-extra-langs.js` (formes identiques) ;
+   le catalogue imbriqué n'est lu que pour l'inventaire de langues
+   (`languagesOf`), pas pour les valeurs scalaires (US-3 décidera du delta catalogue).
+. **Idempotence = contrat de classe** : ré-insérer un corpus complet ne modifie
+   pas un octet (prouvé sur les données réelles talaria).
+
+== Reste EPIC BKY-I18N-JS
+
+* **BKY-I18N-JS-3** : task `translateI18nClient` + `I18nClientMigrationIntention` + DSL
+  + registrar + functional Oven + Cucumber.
+* **BKY-I18N-JS-4** : propagation `maquette/js/` → `jbake/assets/js/` byte-identique
+  + garde parse↔write + failover zéro HTTP direct.
+
+== Fichiers
+
+[cols="2,4"]
+|===
+| Fichier | Statut
+| `src/main/kotlin/bakery/i18n/js/I18nJsDictionary.kt` | créé
+| `src/test/kotlin/bakery/i18n/js/I18nJsDictionaryTest.kt` | créé
+| `src/test/kotlin/bakery/i18n/js/I18nJsDictionaryTalariaIntegrationTest.kt` | créé
+|===
+
+*Zéro fichier existant modifié.* Zéro secret. Zéro bump BOM. Zéro publication Central.

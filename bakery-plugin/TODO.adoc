@@ -1,7 +1,14 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-09-15 — Session 217. EPIC BKY-LANG-22 (parité talaria.school) 7/10 US : N0 `LanguageCatalog` 10 → 22 langues + `i18n-contracts:0.0.4` + BOM/catalog `0.0.43` Central + propagation bakery/capsule/slider/document. Reste 🟡 LANG-22-8/9 (dogfooding LLM 22 langues) + LANG-22-10 (publication Central consommateurs). Antérieur S-214 : EPIC BKY-TEST-FLAKY ✅ CLÔTURÉ 3/3 US._
+_Dernière mise à jour : 2026-09-17 — Session 218. EPIC BKY-I18N-JS 2/4 US : `I18nJsDictionary` (object pur parser/writer JS client) ✅ S-218, 21 tests 0 FAIL dont dogfooding réel talaria (205 clés `fr`, round-trip byte-identique). Reste 🟡 JS-3 (task `translateI18nClient`), JS-4 (propagation + garde). Antérieur S-217 : EPIC BKY-LANG-22 7/10 US (reste dogfooding LLM 22 langues + publication Central consommateurs)._
+
+== EPIC BKY-I18N-JS (S-050) — Task `translateI18nClient` (dictionnaire i18n JS client) 🟡 2/4 US
+
+* [x] **BKY-I18N-JS-1** : Cadrage fin + cartographie 3 dictionnaires ✅ S-054 (talaria US-0)
+* [x] **BKY-I18N-JS-2** : `I18nJsDictionary` object pur (`parse`/`languagesOf`/`insertTranslations`) ✅ S-218 (16 UT + 5 intégration dogfooding réel ; round-trip byte-identique ; 2 invariants supérieurs au harness)
+* [ ] **BKY-I18N-JS-3** : Task `translateI18nClient` + intention + DSL + registrar + tests (unit/functional/Cucumber) 🟡 S-219
+* [ ] **BKY-I18N-JS-4** : Propagation `maquette/js/` → `jbake/assets/js/` byte-identique + garde parse↔write 🟡
 
 == EPIC BKY-LANG-22 (S-217) — Extension LanguageCatalog 10 → 22 langues 🟡 7/10 US
 
