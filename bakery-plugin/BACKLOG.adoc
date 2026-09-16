@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-09-16 — 🟡 **EPIC BKY-I18N-JS CADRÉ (S-050)** — demande pilote talaria.school : la traduction des dictionnaires i18n **JS client** doit passer par une **tâche bakery** (LLM via codebase N1), pas par un harness node. Aucune task existante ne couvre `TALARIA.I18N.DICT`/`CATALOG` (`migrateToI18n` = Thymeleaf, `migrateContentI18n` = AsciiDoc). 4 US ~9 pts, **bloquant talaria `T-I18N-BAKERY` US-2/3**. Session 217 🟡 **EPIC BKY-LANG-22 EN COURS** — extension du contrat N0 `contracts.i18n.LanguageCatalog` de 10 → 22 langues (parité talaria.school : +it nl de el tr vi th id ko ja sr **fa RTL**). Livré et publié Central : `i18n-contracts:0.0.4` (bundle `c1a9de57`) + BOM/catalog `0.0.43` (bundle `eb310d04`) + propagation bakery/capsule/slider/document. **Reste en cours** : régénération du corpus dogfooding slider (27 fichiers gelés, 12 langues × 3 decks à produire via LLM metered — Loi Économie d'Encre), dogfooding capsule 22 langues, publication Central des consommateurs (bakery/capsule/slider). Session 216 ✅ transfert BKY-FPA-SITE → TRN-11 (training, pattern TRN-9) + arbitrage licence FPA tranché. Session 213 ✅ RENAME Vague 3 CLÔTURÉ transverse._
+_Dernière mise à jour : 2026-09-16 — 🟡 **EPIC BKY-I18N-JS CADRÉ (S-050), cadrage fin LIVRÉ (BKY-I18N-JS-1 ✅ S-054 via talaria US-0)** — demande pilote talaria.school : la traduction des dictionnaires i18n **JS client** doit passer par une **tâche bakery**, pas par un harness node. Audit mesuré (S-054) : 3 dictionnaires (`i18n.js` 11 langues / 205 clés `fr`, `i18n-extra-langs.js` 11 langues forme identique, `i18n-content.js` `CATALOG` imbriqué 22 langues) ; **constat C-1** : bakery n'importe aucune classe `codebase.*` — socle LLM **local** (`PooledOllamaLlmService`), frontière N0 déjà satisfaite, migration `LlmBuildService` hors périmètre. Aucune task existante ne couvre `TALARIA.I18N.DICT`/`CATALOG` (`migrateToI18n` = Thymeleaf, `migrateContentI18n` = AsciiDoc). 3 US restantes (JS-2/3/4) ~8 pts, **bloquant talaria `T-I18N-BAKERY` US-2/3**. Session 217 🟡 **EPIC BKY-LANG-22 EN COURS** — extension du contrat N0 `contracts.i18n.LanguageCatalog` de 10 → 22 langues (parité talaria.school : +it nl de el tr vi th id ko ja sr **fa RTL**). Livré et publié Central : `i18n-contracts:0.0.4` (bundle `c1a9de57`) + BOM/catalog `0.0.43` (bundle `eb310d04`) + propagation bakery/capsule/slider/document. **Reste en cours** : régénération du corpus dogfooding slider (27 fichiers gelés, 12 langues × 3 decks à produire via LLM metered — Loi Économie d'Encre), dogfooding capsule 22 langues, publication Central des consommateurs (bakery/capsule/slider). Session 216 ✅ transfert BKY-FPA-SITE → TRN-11 (training, pattern TRN-9) + arbitrage licence FPA tranché. Session 213 ✅ RENAME Vague 3 CLÔTURÉ transverse._
 
 '''
 
@@ -125,26 +125,65 @@ catalogue imbriqué `TALARIA.I18N.CATALOG = { <lang>: { <formation>: { title, ..
 modules: [...] } } }` (`i18n-content.js`). Ce n'est **ni du Thymeleaf ni de l'AsciiDoc**.
 
 **Conséquence** : talaria a dû écrire un harness node (`tools/translate-i18n.mjs`,
-S-044) qui contourne bakery et le socle N1 — dette d'architecture (rotation de pool et
-tracking de quota perdus).
+S-044) qui contourne bakery — dette d'architecture (rotation de pool et tracking de
+quota perdus).
 
-=== Décisions (S-050)
+=== Audit mesuré (S-054, cadrage fin talaria `T-I18N-BAKERY` US-0)
 
-. **Nouvelle tâche `translateI18nClient`** (groupe `bakery`) : delta idempotent
+Cartographie des 3 dictionnaires à couvrir (source de dev `maquette/js/`, propagés
+byte-identiquement vers `jbake/assets/js/`) :
+
+[cols="3,2,2,4"]
+|===
+| Fichier | Forme | Langues | Format
+| `i18n.js` | `var DICT = { <lang>: {...} }` | 11 | Plat — plancher `fr` = **205 clés** (hors `.html`)
+| `i18n-extra-langs.js` | `TALARIA.I18N.extend({...})` | 11 | Plat **identique** (même indentation 4 espaces — **un seul parser suffit**)
+| `i18n-content.js` | `TALARIA.I18N.CATALOG` | 22 | **Imbriqué** : langue → formation (`fpa`/`cda`) → scalaires `title`/`tagline`/`level`/`duration`/`audience`/`outco` + listes `objectives[]`/`modules[]` (`{title, desc}`)
+|===
+
+Couverture actuelle : `--dry-run` talaria → **0 clé manquante**, **0 langue catalogue
+manquante** — le corpus est complet. L'enjeu de l'EPIC est de rétablir l'**étage**
+(tâche Gradle) pour les prochaines clés, pas de combler un trou de contenu.
+
+**Constat C-1 (S-054) — écart décision/réalité sur le socle LLM** : la décision D3
+(S-050) « pool via `LlmBuildService` / `LlmProviderResolver` / `OllamaInstanceScanner`
+(codebase N1) » est **infirmée par la mesure** — bakery n'importe **aucune** classe
+`codebase.*` (`grep -rn "import codebase\." src/main/kotlin/` = 0). Le socle LLM de
+bakery est **local** : `bakery.llm.LlmService` + `PooledOllamaLlmService` (rotation
+`graphify.apikey.ApiKeyPool` + langchain4j) + `LlmServiceTranslationAdapter` (déjà
+branché sur le port N0 `contracts.i18n.TranslationService`, câblé par
+`createLlmServiceIfEnabled`). La frontière vérifiable (tâche Gradle, zéro node, LLM
+derrière le port N0) est donc **déjà satisfaite**. La migration vers `LlmBuildService`
+est un **chantier transverse distinct** (elle impacterait les 5 tâches LLM de bakery :
+`generateArticle`, `generateTheme`, `validateFirebaseConfig`, `migrateToI18n`,
+`migrateContentI18n`) — **hors périmètre** `BKY-I18N-JS`.
+
+**Constat C-2 (S-054) — harness talaria** : le bug de rotation du harness node
+(rapport S-050 « corrigé ») **n'est pas committé** (dernier commit S-046,
+`ports[i % ports.length]` local à la langue). Hors périmètre bakery ; résolu par le
+retrait du harness côté talaria (US-3).
+
+=== Décisions (S-050, précisées S-054)
+
+. **Nouvelle tâche `translateI18nClient`** (groupe `bakery`/`transform`) : delta idempotent
    (économie d'encre — seules les clés manquantes partent au modèle), réutilise
    `bakery.i18n.LlmServiceTranslationAdapter` (déjà branché sur
    `contracts.i18n.TranslationService`).
 . **Port N0 réutilisé** : `contracts.i18n.TranslationService` (chaîne→chaîne) — **pas**
-   de nouvelle interface ; le parsing/écriture JS vit côté bakery (adapter de format).
-. **Pool via codebase N1** : `LlmBuildService` / `LlmProviderResolver` /
-   `OllamaInstanceScanner` — ports 11437-11465, modèle `nemotron-3-super:cloud` ;
-   **jamais** d'appel HTTP direct dans bakery.
-. **DSL** : `bakery { i18nClient { sourceDir, targetLanguages, referenceLanguage } }`,
-   pattern `migrateContentI18n` (intention + dry-run).
+   de nouvelle interface ; le parsing/écriture JS vit côté bakery (adapter de format
+   `I18nJsDictionary`, object pur, round-trip byte-identique).
+. **Frontière LLM = socle bakery existant** (`bakery.llm.LlmService` +
+   `PooledOllamaLlmService`, constat C-1). Migration `LlmBuildService` (codebase N1)
+   **hors périmètre** — EPIC transverse distinct si le pilote le demande.
+. **DSL** : `bakery { i18nClient { sourceDirs, targetLanguages, referenceLanguage, dryRun } }`,
+   pattern `migrateContentI18n` (intention + dry-run + CLI `ResolveIntention`).
 . **Préservation** : les variantes `.html` (balisage léger locale à la langue) ne sont
    jamais traduites automatiquement (non-transfert de balisage entre langues).
-. **Garde** : la coverage reste vérifiée côté consommateur (talaria `I18nCoverageGuard`) ;
-   bakery ajoute sa garde de non-régression de format (parse↔write round-trip).
+. **Garde** : la coverage reste vérifiée côté consommateur (talaria `I18nCoverageGuard` +
+   `I18nCatalogCoverageGuard`) ; bakery ajoute sa garde de non-régression de format
+   (parse↔write round-trip, idempotence).
+. **Pool 11437-11465, modèle `nemotron-3-super:cloud`** — défauts côté appelant (talaria
+   US-2), pas figés dans la tâche.
 
 === US (découpage)
 
@@ -155,7 +194,9 @@ tracking de quota perdus).
   (`DICT` chrome + patch, `CATALOG` imbriqué), décision de parsing (regex ancré vs
   AST), périmètre delta idempotent.
 | 1
-| ⏳ À FAIRE
+| ✅ LIVRÉ (S-054, talaria `T-I18N-BAKERY` US-0) — cf. audit mesuré + constat C-1
+  ci-dessus et `.agents/CADRAGE_EPIC_T_I18N_BAKERY.adoc` (talaria). Parsing : regex
+  ancré (pattern `I18nCoverageGuard`, déjà éprouvé sur ce corpus).
 
 | BKY-I18N-JS-2
 | **Parser/writer JS pur** (`I18nJsDictionary` : `parse` / `insertTranslations` /
@@ -171,8 +212,9 @@ tracking de quota perdus).
 | ⏳ À FAIRE
 
 | BKY-I18N-JS-4
-| **Wiring pool codebase N1** : résolution du pool (11437-11465,
-  `nemotron-3-super:cloud`) via `LlmBuildService` ; failover ; zéro appel direct.
+| **Propagation + garde de format** : propagation `maquette/js/` → `jbake/assets/js/`
+  byte-identique (pattern harness) ; garde parse↔write round-trip + idempotence ;
+  failover / zéro appel HTTP direct.
 | 2
 | ⏳ À FAIRE
 |===
