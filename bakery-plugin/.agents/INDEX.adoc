@@ -21,7 +21,7 @@ _Toute modification du code source du plugin DOIT etre suivie de `./gradlew -q p
 
 === 1. COMMITS/GIT
 
-_L'agent NE DOIT JAMAIS_ executer de commit, push, merge, ou toute commande git modifiant l'historique _SANS permission explicite de l'utilisateur_.
+* Commit/push/merge autorisés (décision pilote 2026-09-17). Ne JAMAIS commiter de secret.
 
 * Autorise : `git status`, `git diff`, `git log`, `git show` (lecture seule)
 * Interdit : `git add`, `git commit`, `git push`, `git merge`, `git rebase` (sauf ordre explicite)
