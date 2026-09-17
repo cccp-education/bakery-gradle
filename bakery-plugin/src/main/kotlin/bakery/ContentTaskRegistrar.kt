@@ -9,6 +9,7 @@ import bakery.i18n.MigrateContentI18nTask
 import bakery.i18n.MigrateToI18nTask
 import bakery.i18n.js.I18nClientMigrationIntentionDsl
 import bakery.i18n.js.TranslateI18nClientTask
+import bakery.i18n.TranslateTemplatesTask
 import bakery.i18n.rtl.RtlDirectionInjectionTask
 import bakery.langswitch.InjectLangSwitchTask
 import bakery.seo.InjectSeoTask
@@ -258,6 +259,39 @@ object ContentTaskRegistrar {
 
             createLlmServiceIfEnabled(resolvedIaConfig) { task.translationService = it.let(::LlmServiceTranslationAdapter) }
             project.logger.info("[BakeryPlugin] migrateContentI18n IA ${if (resolvedIaConfig.enabled) "activé" else "désactivé (ia.enabled = false)"}")
+        }
+    }
+
+    /**
+     * Enregistre la tâche `translateTemplates` (CHE-I18N-22 US-7).
+     *
+     * Traduit les templates Thymeleaf du site pour chaque langue cible par la
+     * stratégie **swap de copies complètes** : `jbake-core:2.7.0` n'installe pas
+     * de MessageResolver, donc les `messages_{lang}.properties` de `migrateToI18n`
+     * ne seraient jamais résolus au bake. Chaque langue reçoit une copie
+     * intégralement traduite sous `i18n/{lang}/templates/`.
+     *
+     * Le pool LLM est résolu comme pour les autres tâches de traduction
+     * (`IaConfigResolver.resolve(iaConfig, site.ollama)`).
+     */
+    internal fun Project.registerTranslateTemplatesTask(
+        site: SiteConfiguration,
+        iaConfig: IaConfig = IaConfig(),
+    ) {
+        val resolvedIaConfig = IaConfigResolver.resolve(iaConfig, site.ollama)
+        // `bake.srcPath` is already resolved to the `jbake/` directory (absolute)
+        // by `resolvePaths(configDir)`. `i18n/{lang}/` lives next to `jbake/`.
+        val bakeRoot = project.file(site.bake.srcPath)
+        tasks.register("translateTemplates", TranslateTemplatesTask::class.java) { task ->
+            task.group = BakeryConstants.TRANSFORM_GROUP
+            task.description =
+                "Traduit les templates Thymeleaf dans chaque langue cible (swap de copies complètes, JBake sans MessageResolver)"
+            task.siteDir = bakeRoot
+            task.templateTargetLangs.set(project.providers.gradleProperty("templateTargetLangs").orElse(""))
+            task.templateSourceLang.set(project.providers.gradleProperty("templateSourceLang").orElse(""))
+            task.templateDryRun.set(project.providers.gradleProperty("templateDryRun").orElse(""))
+            createLlmServiceIfEnabled(resolvedIaConfig) { task.translationService = it.let(::LlmServiceTranslationAdapter) }
+            project.logger.info("[BakeryPlugin] translateTemplates IA ${if (resolvedIaConfig.enabled) "activé" else "désactivé (ia.enabled = false)"}")
         }
     }
 
