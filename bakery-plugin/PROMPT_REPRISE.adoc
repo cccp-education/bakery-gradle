@@ -1,7 +1,7 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 227
+:session: 228
 :date: 2026-09-17
-:etat: Session 226 ✅ — **EPIC BKY-LANG-22 TERMINÉ 10/10 US** : dogfooding slider 22 langues (36 paires LLM, pin levé), dogfooding capsule 22 langues (bug P0 chaîne `-deck-script` corrigé TDD + 22/22 vidéos réelles), publication Central (capsule 0.0.1 + MEMPHIS 0.0.48 + bakery 0.0.13 + slider 0.0.19).
+:etat: Session 227 ✅ — dette `asciidoctorRevealJs` SOLDÉE cross-borough (slider S-072) : cause racine double JRuby, correctif `AsciidoctorJPin` + bump slider 0.0.20. Zéro code bakery modifié. Antérieur S-226 : **EPIC BKY-LANG-22 TERMINÉ 10/10 US**.
 :epic_actif: Aucun EPIC bakery actif. Reste : MASS-6 (~675h LLM) + EPIC transverse GBL-006 COPY MULTI-MARCHÉ — **accord pilote requis**.
 
 == Contexte de fin (S-226)
@@ -35,11 +35,17 @@ Dette locale actionnable (zéro coût externe) : *rendu `asciidoctorRevealJs`
 Gradle cassé* (gems JRuby `jar-dependencies 0.5.4 vs 0.4.1`, préexistant
 S-023/S-034) — bloque tout dogfooding HTML automatisé.
 
+*MISE À JOUR S-227* : dette **SOLDÉE** (slider S-072). Ce n'était pas une
+dette bakery mais une dette **slider** (le task `asciidoctorRevealJs` vit
+dans slider-gradle). Cause racine : double JRuby sur le worker OUT_OF_PROCESS.
+Correctif `slider.extension.AsciidoctorJPin` + `pinAsciidoctorJ` (bump slider
+0.0.20). Le dogfooding HTML est désormais automatisable (plus de Ruby système).
+
 == Reprendre à
 
 . `git status` dans bakery-gradle — vérifier qu'aucune session concurrente n'écrit
    (session S-225 a déjà committé `ArticleGenerator` `f6cc35b`).
-. `.agents/sessions/226-bky-lang-22-8-9-10-cloture-epic.adoc` (rapport)
+. `.agents/sessions/227-asciidoctorj-pin-cross-borough.adoc` (rapport S-227)
 . `./gradlew test` — non-régression (baseline 1845/0 attendue)
 . `publishToMavenLocal` après chaque modification code source (règle INDEX 0)
 
