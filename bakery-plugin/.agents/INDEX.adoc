@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-09-17 — Session 224 ✅ — **BKY-I18N-JS-6 TERMINÉ** : le contenu du catalogue imbriqué (`TALARIA.I18N.CATALOG`) est **traduit** (writer nested in-place + complétion par clone de la référence + garde structurelle), pas seulement mesuré en couverture. Gate `test` **1842/0 FAIL** (baseline 1804/0 → +38 net). BKY-I18N-JS désormais réellement 6/6 US._
-_Session en cours_ : 224 ✅ — BKY-I18N-JS-6 traduction du contenu catalogue imbriqué.
-_Prochaine session_ : 225 — BKY-LANG-22-8/9/10 (dogfooding LLM 22 langues + publication Central) OU MASS-6 OU dogfooding dry catalogue complet — **accord pilote requis** (coût LLM / publication).
+_Derniere mise a jour : 2026-09-17 — Session 225 ✅ — **Fix `ArticleGenerator` 22 langues** (`f6cc35b`) : le prompt de génération avait 2 branches pour 22 langues validées → **20 langues produisaient du français**. `languageInstruction(code)` via `LanguageCatalog` N0. Gate `test` **1845/0 FAIL**. Fix isolé issu de la revue globale S-217 (GBL-006 § 7)._
+_Session en cours_ : 225 ✅ — Fix `ArticleGenerator` (langue native 22 langues).
+_Prochaine session_ : 226 — GBL-006 US-1→3 (`ContentSeed`/`PlatformFormat`/`CopyPiece` + `MarketProfile[22]`) OU BKY-LANG-22-8/9/10 OU MASS-6 — **accord pilote requis**.
 
 '''
 

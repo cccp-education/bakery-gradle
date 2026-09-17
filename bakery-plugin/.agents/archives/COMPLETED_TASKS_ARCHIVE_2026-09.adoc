@@ -357,3 +357,12 @@ LLM (slider/capsule) + publication Central consommateurs. 5 repos modifiés.
 * BKY-LANG-22-8/9 (dogfooding LLM 22 langues) OU 10 (publication Central) OU MASS-6 —
   **accord pilote requis**. Option locale sans coût : dogfooding dry catalogue complet
   avec `TranslationService` factice.
+
+== Session 225 — Fix `ArticleGenerator` 22 langues (2026-09-17)
+
+- Bug : `buildPrompt(intention)` avait 2 branches (`en` / else→français) pour
+  22 langues validées N0 → 20 langues produisaient du français.
+- Fix TDD strict : `languageInstruction(code)` via `LanguageCatalog` (nom +
+  nom natif + code ISO), RED 3 tests → GREEN → REFACTOR.
+- Suite complète 1 845 tests / 0 échec / 0 erreur. `publishToMavenLocal` VERT.
+- Commit `f6cc35b`. Issu de la revue globale S-217 (GBL-006 § 7).

@@ -1,0 +1,120 @@
+= Session 225 — Fix `ArticleGenerator` 22 langues (GBL-006 § 7)
+:session: 225
+:date: 2026-09-17
+:type: fix + TDD
+:borough: Bushwick (bakery-gradle)
+:score: 9/10
+
+== Contexte
+
+Session globale ouverte sur la revue du pipeline formation (S-217, workspace
+racine). En auditant le moteur de copy pour la stratégie « tous les marchés en
+même temps » (22 langues × 3 plateformes), un bug silencieux a été découvert
+dans `bakery.article.ArticleGenerator`.
+
+== Le bug
+
+`ArticleIntention.lang` est validé contre les **22 langues** du contrat N0 :
+
+[source,kotlin]
+----
+// BakeryConstants.kt
+val SUPPORTED_LANGS: Set<String> = LanguageCatalog.supportedCodes()  // 22
+----
+
+Mais le prompt de génération n'avait que **2 branches** :
+
+[source,kotlin]
+----
+// AVANT
+val langInstruction =
+    when (intention.lang) {
+        "en" -> "Write the article in English."
+        else -> "Rédige l'article en français (langue : fr)."
+    }
+----
+
+*Conséquence* : l'article était demandé **en français** pour `hi`, `bn`,
+`zh`, `ar`, `ur`, `es`, `pt`, `ru`, `it`, `nl`, `de`, `el`, `tr`, `vi`,
+`th`, `id`, `ko`, `ja`, `sr`, `fa` — soit **20 langues sur 22**. La
+validation promettait 22, l'exécution en faisait 2.
+
+== Le fix (baby-step TDD strict)
+
+=== RED
+
+3 tests ajoutés à `ArticleGeneratorTest` :
+
+. `buildPrompt from intention names the Hindi language for lang hi`
+. `buildPrompt from intention does not claim French for a non French language` (bn)
+. `buildPrompt from intention names each of the 22 catalog languages` (itération sur `LanguageCatalog.ALL`)
+
+Résultat : **3 failed** (`org.opentest4j.AssertionFailedError`).
+
+=== GREEN
+
+Nouvelle méthode interne `languageInstruction(code)`, source unique N0 :
+
+[source,kotlin]
+----
+internal fun languageInstruction(code: String): String {
+    val language = contracts.i18n.LanguageCatalog.findByCode(code)
+    val name = language?.name ?: code
+    val nativeName = language?.nativeName
+    val nativeHint = if (nativeName != null && nativeName != name) " ($nativeName)" else ""
+    return "Write the article in $name$nativeHint. The article language code is '$code'."
+}
+----
+
+`buildPrompt(intention)` délègue désormais :
+
+[source,kotlin]
+----
+val langInstruction = languageInstruction(intention.lang)
+----
+
+*Caractéristiques* : nom anglais + nom natif (`Hindi (हिन्दी)`) + code ISO.
+Défensif sur code inconnu (porte le code). Zéro dépendance nouvelle
+(`LanguageCatalog` était déjà consommé par `BakeryConstants`).
+
+=== REFACTOR
+
+Suite complète : **1 845 tests, 0 échec, 0 erreur** (443 fichiers de résultats).
+`publishToMavenLocal` VERT (règle 0 de `AGENT.adoc`).
+
+== Périmètre
+
+- 1 fichier prod modifié : `ArticleGenerator.kt` (+25/-5).
+- 1 fichier test modifié : `ArticleGeneratorTest.kt` (+48).
+- Commit : `f6cc35b`.
+- Zéro bump BOM, zéro secret, zéro publication Central.
+
+== Ce que ce fix NE fait PAS
+
+Il rend la langue **correcte** (elle était le seul défaut bloquant la
+génération). Il ne rend pas la copy **native** : demander un article « en
+hindi » ≠ écrire « pour le marché hindi ». C'est le sujet de l'EPIC
+transverse **GBL-006 COPY MULTI-MARCHÉ** (cadré au workspace racine,
+`CADRAGE_EPIC_GBL_006_COPY_MULTIMARKET.adoc`) :
+
+- `ContentSeed` → `MarketProfile[22]` → `PlatformFormat[3]` → `CopyPiece`
+- distinction **traduire ≠ écrire** (hook, SEO, références culturelles)
+- 8 US, ~31 pts, boundary recommandée `bakery.copy`
+
+== Gate
+
+[cols="2,3", options="header"]
+|===
+| Vérification | Résultat
+| `ArticleGeneratorTest` | 19/19 PASSED
+| Suite complète `test` | **1 845 tests / 0 FAIL / 0 erreur**
+| `publishToMavenLocal` | BUILD SUCCESSFUL (21s)
+| Git | `f6cc35b` committé
+|===
+
+== Prochaine session bakery
+
+Aucun EPIC bakery actif sans accord pilote. Pistes : GBL-006 US-1→3
+(`ContentSeed`/`PlatformFormat`/`CopyPiece` + `MarketProfile[22]`) si le
+pilote débloque le chantier copy multi-marché · BKY-LANG-22-8/9/10
+(dogfooding LLM + publication Central) · MASS-6 · dogfooding dry catalogue.
