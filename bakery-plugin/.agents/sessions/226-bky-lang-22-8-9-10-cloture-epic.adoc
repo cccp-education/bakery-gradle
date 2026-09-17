@@ -1,0 +1,270 @@
+= Session 226 — BKY-LANG-22-8/9/10 : clôture EPIC (dogfooding 22 langues + publication Central)
+:session: 226
+:date: 2026-09-17
+:type: dogfooding LLM réel + fix cross-borough + publication Central + clôture EPIC
+:borough: Bushwick (bakery-gradle) — pilotage cross-borough slider/capsule/MEMPHIS
+:score: 9/10
+
+== Contexte
+
+Reprise bakery à la demande pilote (accord LLM + publication accordés) : les
+trois dernières US de l'EPIC **BKY-LANG-22** (extension `LanguageCatalog` 10 →
+22 langues, parité talaria.school, S-217) étaient bloquées :
+
+- **BKY-LANG-22-8** : dogfooding slider corpus 22 langues (LLM metered).
+- **BKY-LANG-22-9** : dogfooding capsule vidéo 22 langues (TTS réel).
+- **BKY-LANG-22-10** : publication Central consommateurs.
+
+Cette session les clôt toutes les trois et ferme l'EPIC **10/10 US**.
+
+== Méthode
+
+Baby-step DDD/TDD/BDD strict (unit + functional + cucumber), agile software
+craftmanship, English only code/Gherkin. Économie d'Encre appliquée partout
+(réutilisation du corpus traduit, delta-only, skip des artefacts valides).
+
+== BKY-LANG-22-8 — Dogfooding slider corpus 22 langues
+
+=== Environnement LLM (contrainte découverte)
+
+`gpt-oss:120b-cloud` (modèle par défaut du pool codebase N1) a atteint sa
+**limite mensuelle** du compte Ollama sur les ports 11437/11438. Le second
+modèle autorisé `gemma4:31b-cloud` reste pleinement fonctionnel sur les ports
+**11439-11444**. `OLLAMA_POOL_PORTS=11439,11440,11441,11442` utilisé pour tout
+le dogfooding.
+
+=== Génération (LLM metered, Économie d'Encre)
+
+3 decks sources (fr/en/ar) × 12 nouvelles langues = **36 paires** générées
+(`translateDeck` réel via le consumer racine slider, plugin republié mavenLocal
+avec i18n-contracts 0.0.4 / 22 langues) :
+
+- fr : it nl de el tr vi th id ko ja sr fa (12)
+- en : it nl de el tr vi th id ko ja sr fa (12)
+- ar : it nl de el tr vi th id ko ja sr fa (12)
+
+Temps : 19 s (1 langue, validation) + 1m08s + 1m08s + 1m11s. Corpus final :
+**63 `-deck.adoc` + 63 `-deck-context.yml` = 126 fichiers** (21 langues
+cibles/source). RTL correct : `fa`/`ar`/`ur` portent
+`:revealjs_direction: rtl` ; les cibles LTR depuis source RTL ne le portent pas.
+
+=== Levée du pin (DDD/TDD)
+
+`TranslatedDemoDeckTest` (courtesy S-030) épinglait le corpus à 9 cibles en dur.
+RED naturel prouvé : 8 assertions de comptage échouent sur le corpus 22 langues.
+
+- `dogfoodTargetCodes` **dérivé de `LanguageCatalog.supportedCodes().sorted()`**
+  au lieu d'une liste pinnée (le pin est levé).
+- Comptages dérivés : `dogfoodTargetCodes.count { it != source }` par source,
+  somme pour le total.
+- RTL : `LanguageCatalog.ALL.filter { it.rtl }` + assertion `contains("ar","ur","fa")`.
+
+Résultat : **261 tests, 0 FAIL** pour `TranslatedDemoDeckTest`.
+
+=== Correctif de drift préexistant découvert
+
+`7_rtl_layout.feature` échouait à HEAD (S-217 a ajouté `fa` au catalogue sans
+mettre à jour l'assertion « RTL languages are exactly Arabic and Urdu » —
+stash-confirmé préexistant, 1 FAIL cucumber). Corrigé catalog-driven :
+
+- Feature étendue (scénario « Persian language code resolves to RTL layout »).
+- Step `they should be exactly the catalog RTL languages` (dérivé de
+  `LanguageCatalog.ALL`) au lieu des 2 codes en dur.
+
+=== BDD feature 14 étendue
+
+`14_deck_translation_dogfood.feature` : 9 → 21 adoc/source, totaux 27 → 63,
+exemples RTL étendus (`fa`), exemples structure étendus (`fr→de`, `ar→fa`).
+
+=== Gates slider
+
+- `TranslatedDemoDeckTest` 261/0 ; `cucumberTest` **270/0** (1 skipped).
+- `test` **1099 tests, 3 FAIL Playwright préexistants** (fixtures HTML non
+  générées — `./gradlew generatePlaywrightFixtures` requis, documentés S-217).
+- `functionalTest` 45/0.
+
+== BKY-LANG-22-9 — Dogfooding capsule vidéo 22 langues
+
+=== Bug P0 découvert par le dogfooding réel (chaîne slider→capsule cassée)
+
+Le dogfooding **réel** (pas les tests NoOp) a exposé une cassure de bout en
+bout : la chaîne réelle slider `translateDeck` produit
+`<slug>_<lang>-deck.adoc` ; `extractSpeakerNotes` dérive le script du nom de
+fichier `.adoc` sans extension → il écrit `<slug>_<lang>-deck-script.txt` (le
+suffixe `-deck` survit). Or `CapsuleVideoPlanner` cherchait exactement
+`<deckName>_<lang>-script.txt` → **aucune paire trouvée**, fail-fast
+`no matching deck + script pair`. La S-082 contournait par un `mv` manuel
+documenté, jamais corrigé dans le code.
+
+=== Fix baby-step DDD/TDD/BDD
+
+- **DOMAINE** `CapsuleVideoPlanner.resolveScript(scriptDir, deckName, code)` :
+  préfère `<deckName>_<code>-script.txt` (exact), tolère
+  `<deckName>_<code>-deck-script.txt` (chaîne réelle), `null` si aucun.
+  Miroir, côté entrée, du fix S-082 qui alignait déjà le WebM de sortie.
+- **TDD** `CapsuleVideoPlannerTest` : 2 UT ajoutés. RED prouvé
+  (`plan discovers real slider-generated scripts carrying the -deck suffix`
+  FAILED avant le fix) → GREEN.
+- **BDD** `multi_language_capsule.feature` : scénario
+  « The real slider-to-capsule chain script carries a -deck suffix and is still
+  resolved » + step `the plan entry for {string} resolves the script file {string}`.
+  **14/14 PASSED**.
+
+=== Dogfooding réel 22 langues (preuve)
+
+Consumer composite `/tmp/opencode/dogfood-multilang22` (slider 0.0.19 + capsule
+0.0.1 mavenLocal). Contournement environnemental documenté : le rendu
+`asciidoctorRevealJs` Gradle est cassé par un conflit de gems JRuby
+(`jar-dependencies 0.5.4 vs 0.4.1`, préexistant S-023/S-034) → HTML généré via
+le Ruby système (`gem install asciidoctor asciidoctor-revealjs`), ce qui est
+orthogonal au périmètre testé (TTS + capture).
+
+Pipeline réel exécuté :
+
+. `translateDeck` (corpus LANG-22-8 réutilisé, Économie d'Encre) → 63 adoc.
+. `asciidoctor` (Ruby système) → 22 decks HTML (21 depuis source fr + 1 en→fr).
+. `extractSpeakerNotes` → 67 scripts (dont les `-deck-script.txt` réels).
+. `generateCapsuleVideoAllLanguages --rerun-tasks` → **21/22 rendered + 1
+   skipped** (Économie d'Encre, WebM en→fr déjà valide) = **22 vidéos WebM**.
+
+Résultat : **22/22 vidéos réelles** (espeak TTS + Playwright Chromium), durées
+26 s → 81 s. Dégradation propre validée sur 3 voix espeak absentes en local
+(`th`, `ja`, `ar` — `Failed to read voice`) : vidéo silencieuse produite
+(26 s), pipeline continue (0 stream audio), zéro crash. Le fix planner est la
+condition sine qua non : sans lui, `no matching deck + script pair found`.
+
+Le répertoire `capsules/` étant gitignoré, seuls le fix + les tests sont
+versionnés (les artefacts vidéo du dogfooding ne le sont pas — correct).
+
+=== Gates capsule
+
+- `CapsuleVideoPlannerTest` 10/0 ; `cucumberTestMultiLang` **14/0**.
+- `test` **1168 tests, 0 FAIL** ; `functionalTest` 75/1 échec **infra**
+  (timeout Playwright sous charge, passe en isolation 55 s — stash-confirmé
+  non lié au fix).
+
+== BKY-LANG-22-10 — Publication Central consommateurs (ordre DAG)
+
+=== Ordre DAG réel révélé par les gardes MEMPHIS (règle D8 anti-ghost)
+
+`WorkspaceCatalogStructureTest` interdit toute entrée fantôme « jamais publiée
+Central ». Le catch-22 : ajouter `capsule-plugin` au catalogue exige de l'avoir
+déjà publié. Ordre correct : **capsule d'abord**, puis MEMPHIS, puis
+bakery/slider.
+
+=== capsule-plugin : infra nmcp créée + publication 0.0.1
+
+Capsule n'avait **aucune** infra nmcp. Ajouté (pattern slider/plantuml) :
+
+- `settings.gradle.kts` : plugin `com.gradleup.nmcp.settings:1.5.0` +
+  `nmcpSettings { centralPortal { … AUTOMATIC } }`.
+- `build.gradle.kts` : `repositories { mavenCentral() }` dans le bloc publishing ;
+  version `0.0.1-SNAPSHOT` → **`0.0.1`** (release).
+- Bug de validation attrapé : le POM n'était configuré que pour `pluginMaven` ;
+  la publication **marker** (`capsulePluginMarkerMaven`) manquait `name` +
+  `description` → « Project name is missing ». Corrigé en appliquant le POM à
+  `withType<MavenPublication>` (toutes les publications).
+- Central : bundle `54a58526-dc66-4ce4-95f3-99abaf1c3ea3` (AUTOMATIC).
+
+=== MEMPHIS 0.0.48 (BOM + catalog)
+
+- Toml : `workspace-bom` 0.0.47 → **0.0.48** ; `bakery-plugin` 0.0.12 → **0.0.13** ;
+  `slider-plugin` 0.0.18 → **0.0.19** ; **`capsule-plugin = 0.0.1` ajouté**
+  (entrée `[versions]` + `[libraries]` + constraint `api(libs.capsule.plugin)`).
+- Gardes réalignées (baby-step TDD) : `PlatformCatalogAlignmentTest`
+  (0.0.48 + capsule dans la liste semver), `WorkspaceCatalogStructureTest`
+  (capsule désormais légitime — plus un ghost), `VersionCatalogSteps`
+  (12 → 13 plugins ; ghost = jhipster/training seulement), feature
+  `ac_6_version_catalog.feature`.
+- `agent-contracts` : **111 tests, 0 FAIL** (39 skipped intégration).
+- Central : bundle `9d43c5b7-5910-4edf-84ac-7fc46a4429a5` (AUTOMATIC).
+
+=== bakery-plugin 0.0.13
+
+- Toml local `bakery` 0.0.12 → 0.0.13 ; pin catalog ws 0.0.43 → **0.0.48**.
+- Pins BOM (impl + functionalTest + e2eTest) 0.0.43/0.0.42 → **0.0.48**
+  (drift résiduel 0.0.42 purgé).
+- Garde `BakeryPluginPublicationTest` VERTE (version dérivée `ws`).
+- Central : bundle `3d53b77e-e828-4738-89e0-4414995ba1f1` (AUTOMATIC).
+
+=== slider-plugin 0.0.19
+
+- Version littérale 0.0.18 → **0.0.19** (+ toml consumer racine).
+- Central : bundle `03289d70-443d-4ee2-9f02-1a06b850522c` (AUTOMATIC).
+
+=== Propagation repo1 (vérifiée HTTP 200)
+
+- `capsule-plugin:0.0.1`, `workspace-bom/catalog:0.0.48`, `bakery-plugin:0.0.13`,
+  `slider-plugin:0.0.19` — toutes propagées (~6-13 min après upload).
+- POM publiés vérifiés : bakery 0.0.13 importe workspace-bom 0.0.48 ;
+  slider 0.0.19 importe i18n-contracts 0.0.4 + codebase-plugin 0.0.14.
+
+=== Piège nmcp rencontré
+
+Re-invocation de `publishAggregationToCentralPortal` pendant qu'un deployment
+est encore en validation → « Component … is currently being published in
+another deployment ». Attendre la propagation repo1 (~7-13 min) avant tout
+re-run (piège #14/#6 MEMPHIS).
+
+== EPIC BKY-LANG-22 — TERMINÉ 10/10 US
+
+|===
+| US | Statut
+
+| BKY-LANG-22-1 → 7 | ✅ S-217 (N0 22 langues + publication + propagation 4 boroughs)
+| BKY-LANG-22-8 | ✅ S-226 (dogfooding slider 63 paires, pin levé, feature 14 étendue)
+| BKY-LANG-22-9 | ✅ S-226 (fix planner `-deck` + dogfooding capsule 22/22 vidéos réelles)
+| BKY-LANG-22-10 | ✅ S-226 (capsule 0.0.1 + MEMPHIS 0.0.48 + bakery 0.0.13 + slider 0.0.19)
+|===
+
+== Décisions
+
+. *Pin levé, pas déplacé* — `TranslatedDemoDeckTest` dérive désormais les cibles
+   du catalogue N0 vivant ; le prochain ajout de langue ne re-cassera pas le test.
+. *Tolérance de nommage côté planner, pas côté extracteur* — le suffixe `-deck`
+   est un fait de la chaîne réelle slider ; le planner (consommateur) doit
+   l'accepter, sans modifier slider (boundary respectée). Miroir exact du fix
+   S-082 sur le WebM de sortie.
+. *capsule d'abord dans l'ordre DAG* — les gardes MEMPHIS D8 (anti-ghost)
+   encodent la réalité : on publie, puis on catalogue. Capsule n'était pas prêt
+   (infra nmcp absente) ; la session l'a doté du socle de publication.
+. *POM sur toutes les publications* — Central valide chaque publication, y
+   compris les markers de plugin ; un POM limité à `pluginMaven` échoue.
+. *Rendu HTML hors pipeline Gradle (Ruby système)* — le conflit de gems JRuby
+   est un bug environnemental préexistant, orthogonal au périmètre dogfoodé
+   (TTS + capture). Contourné, pas masqué ; à traiter dans un EPIC dédié.
+
+== Dettes constatées (hors périmètre)
+
+- *Rendu `asciidoctorRevealJs` Gradle cassé* (gems JRuby `jar-dependencies`
+  0.5.4 vs 0.4.1) — préexistant S-023/S-034, bloque tout dogfooding HTML
+   automatisé. EPIC candidat.
+- *`gpt-oss:120b-cloud` limite mensuelle* — le pool retombe sur `gemma4:31b-cloud`
+  (ports 11439+), mais le défaut `DEFAULT_MODEL`/`OLLAMA_POOL_PORTS` n'est pas
+  auto-adaptatif.
+- *Gouvernance capsule en retard* — `INDEX`/`SESSIONS_HISTORY` capsule
+  s'arrêtent à S-136 alors que S-217 (VoiceMapping 22 langues) n'a pas eu de
+  rapport. À resynchroniser.
+
+== Gates globales
+
+|===
+| Gate | Résultat
+
+| bakery `test` (baseline S-225) | 1845/0 (inchangé, seuls toml/build bumpés)
+| slider `TranslatedDemoDeckTest` | 261/0
+| slider `cucumberTest` | 270/0
+| capsule `test` | 1168/0
+| capsule `cucumberTestMultiLang` | 14/0
+| MEMPHIS `agent-contracts` `test` | 111/0
+| Central | capsule 0.0.1 + MEMPHIS 0.0.48 + bakery 0.0.13 + slider 0.0.19
+|===
+
+== Reste du backlog bakery
+
+- **MASS-6** : montée en charge 108 articles × 10 langues (~675h LLM) — *accord pilote*.
+- **GBL-006 COPY MULTI-MARCHÉ** : `ContentSeed` → `MarketProfile[22]` →
+  `PlatformFormat[3]` → `CopyPiece` (traduire ≠ écrire) — cadré workspace racine.
+
+*EPIC BKY-LANG-22 clos. Le backlog bakery est propre : seule la dette MASS-6
+(accord pilote) et l'EPIC transverse GBL-006 subsistent.*

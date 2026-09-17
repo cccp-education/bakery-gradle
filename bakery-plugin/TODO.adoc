@@ -12,7 +12,7 @@ _Dernière mise à jour : 2026-09-17 — Session 224. **BKY-I18N-JS-6 TERMINÉ**
 * [x] **BKY-I18N-JS-5** : Catalogue structurel (`TALARIA.I18N.CATALOG`) — classification `I18nJsFormat` + couverture `I18nCatalog` (langue/formation/champ) + ownership plat corrigé (le catalogue ne capte plus les clés chrome) + partition/report tâche + REFACTOR `I18nJsBlockScanner` ✅ S-223 (6 + 11 + 2 + 4 UT + 4 UT dogfooding réel + feature 64 10→14 ; `test` 1804/0)
 * [x] **BKY-I18N-JS-6** : **Traduction** du contenu catalogue imbriqué (writer imbriqué + validation de structure) ✅ S-224 (`I18nJsObjectParser` + `I18nCatalogDocument` + `I18nCatalogWriter` + `I18nCatalogDelta` + `I18nCatalogFormatGuard` + REFACTOR `I18nJsStringCodec` + câblage tâche ; dogfooding réel 22 langues ; feature 64 14→17 ; `test` 1842/0)
 
-== EPIC BKY-LANG-22 (S-217) — Extension LanguageCatalog 10 → 22 langues 🟡 7/10 US
+== EPIC BKY-LANG-22 (S-217) — Extension LanguageCatalog 10 → 22 langues ✅ TERMINÉ 10/10 US
 
 * [x] **LANG-22-1** : N0 `LanguageCatalog` 10 → 22 (12 ajoutées, `fa` RTL) ✅ S-217 (52 tests 0 FAIL)
 * [x] **LANG-22-2** : `i18n-contracts:0.0.4` Central ✅ S-217 (bundle `c1a9de57`)
@@ -21,9 +21,9 @@ _Dernière mise à jour : 2026-09-17 — Session 224. **BKY-I18N-JS-6 TERMINÉ**
 * [x] **LANG-22-5** : capsule `VoiceMapping` +12 langues ✅ S-217 (BDD 22/22 rendered)
 * [x] **LANG-22-6** : slider `RevealUiMessageCatalog` +12 libellés ✅ S-217
 * [x] **LANG-22-7** : document aligné ✅ S-217
-* [ ] **LANG-22-8** : Dogfooding slider corpus 22 langues (27 → 63 fichiers, LLM metered) 🟡 EN COURS S-218
-* [ ] **LANG-22-9** : Dogfooding capsule vidéo 22 langues (Piper/espeak réels) 🟡 EN COURS S-218
-* [ ] **LANG-22-10** : Publication Central consommateurs (bakery/capsule/slider) 🟡 EN COURS S-218
+* [x] **LANG-22-8** : Dogfooding slider corpus 22 langues (27 → 63 fichiers, LLM metered) ✅ S-226 (36 paires `gemma4:31b-cloud`, pin levé, feature 14 27→63)
+* [x] **LANG-22-9** : Dogfooding capsule vidéo 22 langues (Piper/espeak réels) ✅ S-226 (bug P0 chaîne `-deck-script` corrigé + 22/22 vidéos réelles, dégradation th/ja/ar)
+* [x] **LANG-22-10** : Publication Central consommateurs (bakery/capsule/slider) ✅ S-226 (capsule 0.0.1 `54a58526` + MEMPHIS 0.0.48 `9d43c5b7` + bakery 0.0.13 `3d53b77e` + slider 0.0.19 `03289d70`)
 
 == EPIC BKY-TEST-FLAKY (S-028) — ✅ TERMINÉ (S-214 + FLAKY-4 ✅ S-222)
 

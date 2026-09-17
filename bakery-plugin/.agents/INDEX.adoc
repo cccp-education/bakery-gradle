@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-09-17 — Session 225 ✅ — **Fix `ArticleGenerator` 22 langues** (`f6cc35b`) : le prompt de génération avait 2 branches pour 22 langues validées → **20 langues produisaient du français**. `languageInstruction(code)` via `LanguageCatalog` N0. Gate `test` **1845/0 FAIL**. Fix isolé issu de la revue globale S-217 (GBL-006 § 7)._
-_Session en cours_ : 225 ✅ — Fix `ArticleGenerator` (langue native 22 langues).
-_Prochaine session_ : 226 — GBL-006 US-1→3 (`ContentSeed`/`PlatformFormat`/`CopyPiece` + `MarketProfile[22]`) OU BKY-LANG-22-8/9/10 OU MASS-6 — **accord pilote requis**.
+_Derniere mise a jour : 2026-09-17 — Session 226 ✅ — **EPIC BKY-LANG-22 TERMINÉ 10/10 US** : les 3 dernières US clôturées cross-borough. **8** dogfooding slider corpus 22 langues (36 paires LLM `gemma4:31b-cloud`, pin `TranslatedDemoDeckTest` levé catalog-driven, feature 14 étendue 27→63, drift `7_rtl_layout` `fa` corrigé ; 261 UT + 270 cucumber). **9** dogfooding capsule 22 langues — **bug P0 découvert** (chaîne réelle `extractSpeakerNotes` produit `<slug>_<lang>-deck-script.txt`, planner exigeait `<deckName>_<lang>-script.txt` → fail-fast) corrigé TDD (`resolveScript` tolère le suffixe `-deck`, miroir S-082 sortie) + dogfooding réel **22/22 vidéos** espeak+Playwright (dégradation propre th/ja/ar). **10** publication Central consommateurs : capsule 0.0.1 (infra nmcp créée) + MEMPHIS 0.0.48 + bakery 0.0.13 + slider 0.0.19 (propagation repo1 HTTP 200). Gate bakery `test` 1845/0, slider 261/270, capsule 1168/14, MEMPHIS 111/0._
+_Session en cours_ : 226 ✅ — BKY-LANG-22-8/9/10 (dogfooding 22 langues + publication) + clôture EPIC.
+_Prochaine session_ : 227 — GBL-006 US-1→3 (`ContentSeed`/`PlatformFormat`/`CopyPiece` + `MarketProfile[22]`) OU MASS-6 (~675h LLM) — **accord pilote requis**. Dette : rendu `asciidoctorRevealJs` Gradle cassé (gems JRuby, préexistant S-023/S-034).
 
 '''
 

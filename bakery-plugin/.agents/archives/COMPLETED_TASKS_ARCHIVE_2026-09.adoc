@@ -358,6 +358,33 @@ LLM (slider/capsule) + publication Central consommateurs. 5 repos modifiés.
   **accord pilote requis**. Option locale sans coût : dogfooding dry catalogue complet
   avec `TranslationService` factice.
 
+== Session 226 — EPIC BKY-LANG-22 TERMINÉ 10/10 US (2026-09-17)
+
+Cross-borough slider (LANG-22-8) + capsule (LANG-22-9) + MEMPHIS (LANG-22-10).
+
+- **8 — dogfooding slider 22 langues** : 3 sources × 12 nouvelles langues = 36
+  paires via `translateDeck` (`gemma4:31b-cloud` — `gpt-oss:120b-cloud` à sa
+  limite mensuelle, ports 11439-11444). Corpus 63 adoc + 63 context. Pin
+  `TranslatedDemoDeckTest` levé (dérivé de `LanguageCatalog.supportedCodes()`).
+  Drift préexistant `7_rtl_layout` (`fa`, S-217) corrigé catalog-driven.
+  Feature 14 : 9→21 adoc/source, totaux 27→63. Gates : 261 UT + 270 cucumber.
+- **9 — dogfooding capsule 22 langues** : **bug P0 réel** — la chaîne réelle
+  `extractSpeakerNotes` produit `<slug>_<lang>-deck-script.txt` (suffixe `-deck`
+  survit) mais `CapsuleVideoPlanner` exigeait `<deckName>_<lang>-script.txt` →
+  fail-fast `no matching deck + script pair` (S-082 contournait par `mv` manuel).
+  Fix baby-step DDD/TDD/BDD : `CapsuleVideoPlanner.resolveScript` tolère le
+  suffixe `-deck` (miroir S-082 côté sortie WebM). RED prouvé. BDD 14/14.
+  Dogfooding réel consumer composite (rendu HTML via Ruby système — blocage gems
+  JRuby Gradle préexistant) → **21/22 rendered + 1 skipped = 22/22 vidéos**
+  espeak+Playwright, 26-81s. Dégradation propre th/ja/ar. Gate capsule 1168/0.
+- **10 — publication Central** : ordre DAG réel = capsule-first (gardes MEMPHIS
+  D8 anti-ghost). capsule 0.0.1 (infra nmcp créée + fix POM marker
+  name/description) `54a58526` → MEMPHIS 0.0.48 `9d43c5b7` → bakery 0.0.13
+  `3d53b77e` → slider 0.0.19 `03289d70`. Propagation repo1 HTTP 200 vérifiée.
+- **EPIC BKY-LANG-22 clos 10/10 US.** Rapport
+  `.agents/sessions/226-bky-lang-22-8-9-10-cloture-epic.adoc`.
+- Dette notée : rendu `asciidoctorRevealJs` Gradle cassé (gems JRuby, S-023/S-034).
+
 == Session 225 — Fix `ArticleGenerator` 22 langues (2026-09-17)
 
 - Bug : `buildPrompt(intention)` avait 2 branches (`en` / else→français) pour

@@ -5,7 +5,9 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-09-17 — ✅ **Fix `ArticleGenerator` (S-225)** — le prompt de génération d'article avait **2 branches** (`en` / else→français) alors que `SUPPORTED_LANGS` valide les **22 langues** N0 : **20 langues produisaient du français** silencieusement. Corrigé par `languageInstruction(code)` (nom + nom natif + code ISO via `LanguageCatalog`), TDD strict RED (3 tests) → GREEN → REFACTOR, suite **1 845 tests / 0 échec**, commit `f6cc35b`. Issu de la revue globale S-217 (workspace racine, GBL-006 § 7). Le vrai sujet multi-marché est cadré **GBL-006** (`CADRAGE_EPIC_GBL_006_COPY_MULTIMARKET.adoc`) : **traduire ≠ écrire**, `MarketProfile[22]`.
+_Dernière mise à jour : 2026-09-17 — ✅ **EPIC BKY-LANG-22 TERMINÉ 10/10 US (S-226)** — les 3 dernières US clôturées cross-borough : **8** dogfooding slider 22 langues (36 paires LLM `gemma4:31b-cloud`, pin `TranslatedDemoDeckTest` levé, feature 14 27→63, drift `7_rtl_layout` `fa` corrigé), **9** dogfooding capsule 22 langues (**bug P0 réel corrigé** : `extractSpeakerNotes` produit `<slug>_<lang>-deck-script.txt` mais le planner exigeait `<slug>_<lang>-script.txt` → fail-fast ; fix `resolveScript` tolère le suffixe `-deck` + 22/22 vidéos réelles), **10** publication Central (ordre DAG réel capsule-first dicté par les gardes D8 anti-ghost : capsule 0.0.1 + MEMPHIS 0.0.48 + bakery 0.0.13 + slider 0.0.19). Rapport `.agents/sessions/226-bky-lang-22-8-9-10-cloture-epic.adoc`._
+
+_Dernière mise à jour (antérieure) : 2026-09-17 — ✅ **Fix `ArticleGenerator` (S-225)** — le prompt de génération d'article avait **2 branches** (`en` / else→français) alors que `SUPPORTED_LANGS` valide les **22 langues** N0 : **20 langues produisaient du français** silencieusement. Corrigé par `languageInstruction(code)` (nom + nom natif + code ISO via `LanguageCatalog`), TDD strict RED (3 tests) → GREEN → REFACTOR, suite **1 845 tests / 0 échec**, commit `f6cc35b`. Issu de la revue globale S-217 (workspace racine, GBL-006 § 7). Le vrai sujet multi-marché est cadré **GBL-006** (`CADRAGE_EPIC_GBL_006_COPY_MULTIMARKET.adoc`) : **traduire ≠ écrire**, `MarketProfile[22]`.
 
 _Dernière mise à jour (antérieure) : 2026-09-17 — ✅ **BKY-I18N-JS-6 TERMINÉ (S-224)** — la **traduction** du contenu catalogue imbriqué (`TALARIA.I18N.CATALOG`) est livrée : writer nested in-place (`I18nCatalogWriter.translate`, byte-ranges), complétion par clone de la référence (contrat S-054), garde structurelle (`I18nCatalogFormatGuard`), delta imbriqué (`I18nCatalogDelta`). Le chantier distinct acté S-223 décision §1 (« la couverture n'est pas l'écriture ») est clos. Gate `test` **1842/0 FAIL** (baseline 1804/0 → +38). **BKY-I18N-JS réellement 6/6 US.**_
 
@@ -13,7 +15,7 @@ _Dernière mise à jour (antérieure) : 2026-09-17 — ✅ **BKY-I18N-JS-5 TERMI
 
 '''
 
-== EPIC BKY-LANG-22 — Extension LanguageCatalog 10 → 22 langues (parité talaria.school) 🟡 EN COURS (S-217)
+== EPIC BKY-LANG-22 — Extension LanguageCatalog 10 → 22 langues (parité talaria.school) ✅ TERMINÉ 10/10 US (S-217 + S-226)
 
 _Origine : demande pilote 2026-09-15 — aligner les langues supportées par bakery (et
 l'écosystème N0) sur celles réellement servies par `talaria.school` (i18n client JS
@@ -82,25 +84,25 @@ document) + BOM MEMPHIS + publication Central.
   (Loi Économie d'Encre) — `TranslatedDemoDeckTest` pinné sur le corpus gelé S-030
   en attendant. Feature 14 (dogfood) à étendre.
 | 3
-| 🟡 À FAIRE (S-221+)
+| ✅ TERMINÉ (S-226)
 
 | BKY-LANG-22-9
 | **Dogfooding capsule vidéo 22 langues** — passe LLM+TTS réel (Piper/espeak 22
   voix) ; valider fallback dégradé pour voix sans binaire local.
 | 2
-| 🟡 À FAIRE (S-221+)
+| ✅ TERMINÉ (S-226)
 
 | BKY-LANG-22-10
 | **Publication Central consommateurs** — bakery-plugin / capsule-plugin (jamais
   publié) / slider-plugin bumpés sur N0 0.0.4 + BOM 0.0.43.
 | 2
-| 🟡 À FAIRE (S-221+)
+| ✅ TERMINÉ (S-226)
 |===
 
 _Dépendances (DAG)_ : LANG-22-1 → 2 → 3 → {4,5,6,7}. LANG-22-8/9 (dogfooding LLM)
 dépendent de 5/6. LANG-22-10 (publication) dépend de 4/5/6/7.
 
-_Projection restante_ : 2 sessions (S-218 dogfooding LLM, S-219 publication Central).
+_Projection_ : **EPIC BKY-LANG-22 TERMINÉ 10/10 US (S-217 + S-226)**.
 
 '''
 
