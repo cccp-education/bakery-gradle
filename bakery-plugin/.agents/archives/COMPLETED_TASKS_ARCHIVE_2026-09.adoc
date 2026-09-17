@@ -318,3 +318,42 @@ LLM (slider/capsule) + publication Central consommateurs. 5 repos modifiés.
 === Prochaine session
 * BKY-LANG-22-8/9 (dogfooding LLM 22 langues) OU 10 (publication Central) OU MASS-6
   OU traduction du contenu catalogue imbriqué — **accord pilote requis**.
+
+'''
+
+== Session 224 — BKY-I18N-JS-6 : traduction du contenu catalogue imbriqué
+
+=== Fait
+* **Diagnostic** — le catalogue imbriqué (`i18n-content.js`, 98881 octets, 22 langues →
+  formations → scalaires + listes `objectives[]` + objets inline `modules[]`) n'était
+  **jamais traduit** : le parser plat y voit 0 clé, `I18nCatalog` ne faisait que compter
+  les lacunes. Le writer plat (`insertTranslations`) corromprait l'objet à clés non quotées.
+* **Fix (6 créés prod, 3 créés test)** — baby-step DDD/TDD/BDD strict.
+  * `I18nJsObjectParser` (internal) : parseur récursif descendant objet/tableau/chaîne JS,
+    chaîne-aware, skippe commentaires `//`/`/* */`, conserve les byte-ranges des littéraux.
+  * `I18nCatalogDocument` : aplatissement pathé (`fpa.title`, `fpa.objectives[0]`,
+    `fpa.modules[0].desc`) + `missingLiterals`. 7 UT.
+  * `I18nCatalogWriter` : `translate` substitution in-place par byte-ranges ;
+    `complete` contrat S-054 (langue absente → clone de la structure de référence,
+    langue incomplète → complétée, valeur existante > traduction > référence). 11 UT.
+  * `I18nCatalogDelta` (`I18nCatalogFilePlan`) : plan de delta imbriqué. 5 UT.
+  * `I18nCatalogFormatGuard` : `unbalanced-catalogue-block`, `language-structure-drift`,
+    `round-trip-drift`, rewriter injectable. 5 UT.
+  * REFACTOR `I18nJsStringCodec` (escape/unescape partagé plat+imbriqué).
+  * `TranslateI18nClientTask` : partition plat/catalogue étendue au **delta**, complétion,
+    création de langue, garde en production, échec total = zéro écriture. +5 UT task.
+  * Dogfooding réel talaria (5 UT `NestedCatalogueDogfood` : 22 langues, no-op strict,
+    garde verte, translation par ses propres valeurs = no-op).
+  * FT Oven 9 → 11 ; BDD feature 64 **14 → 17 scénarios** + 2 steps.
+* **Bugs attrapés par TDD** — (1) raw string Kotlin ≠ saut de ligne (test d'échappement) ;
+  (2) le writer initial ne faisait que substituer — le contrat S-054 exige la complétion.
+
+=== Gate
+* `test` **1842 tests, 0 FAIL, 0 erreur, 3 skipped** (baseline 1804/0 → **+38 net**).
+* Feature 64 **17/17** ; `functionalTest --rerun-tasks` **132/132**.
+* `publishToMavenLocal` VERT, grep métier src/ = 0, zéro secret, zéro BOM.
+
+=== Prochaine session
+* BKY-LANG-22-8/9 (dogfooding LLM 22 langues) OU 10 (publication Central) OU MASS-6 —
+  **accord pilote requis**. Option locale sans coût : dogfooding dry catalogue complet
+  avec `TranslationService` factice.

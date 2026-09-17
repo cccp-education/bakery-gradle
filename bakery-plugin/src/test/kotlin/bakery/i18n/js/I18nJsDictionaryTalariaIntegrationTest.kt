@@ -145,4 +145,72 @@ class I18nJsDictionaryTalariaIntegrationTest {
             }
         }
     }
+
+    @Nested
+    inner class NestedCatalogueDogfood {
+        @Test
+        fun `the real catalogue flattens every language into pathable literals`() {
+            val source = read(catalogueFile)
+            val reference = I18nCatalogDocument.literals(source, "fr")
+
+            assertThat(reference.map { it.path })
+                .contains("fpa.title", "fpa.tagline", "fpa.objectives[0]", "fpa.modules[0].title", "cda.title")
+            assertThat(reference).noneMatch { it.path.isEmpty() }
+        }
+
+        @Test
+        fun `every real language owns every reference literal`() {
+            val source = read(catalogueFile)
+            val referencePaths = I18nCatalogDocument.literals(source, "fr").map { it.path }
+
+            I18nCatalog.languagesOf(source).forEach { language ->
+                assertThat(I18nCatalogDocument.missingLiterals(source, "fr", language))
+                    .describedAs("catalogue %s", language)
+                    .isEmpty()
+                assertThat(I18nCatalogDocument.literals(source, language).map { it.path })
+                    .describedAs("catalogue %s paths", language)
+                    .containsAll(referencePaths)
+            }
+        }
+
+        @Test
+        fun `completing a complete real language is a strict no-op`() {
+            val source = read(catalogueFile)
+
+            val completed =
+                I18nCatalogWriter.complete(
+                    source = source,
+                    referenceSource = source,
+                    referenceLanguage = "fr",
+                    language = "en",
+                    translations = emptyMap(),
+                )
+
+            assertThat(completed).isEqualTo(source)
+        }
+
+        @Test
+        fun `translating the real catalogue with its own values is a strict no-op`() {
+            val source = read(catalogueFile)
+            val values = I18nCatalogDocument.literals(source, "en").associate { it.path to it.value }
+
+            assertThat(I18nCatalogWriter.translate(source, "en", values)).isEqualTo(source)
+        }
+
+        @Test
+        fun `the real catalogue passes its own structural guard`() {
+            val source = read(catalogueFile)
+
+            val report =
+                I18nCatalogFormatGuard.verify(
+                    source = source,
+                    referenceSource = source,
+                    referenceLanguage = "fr",
+                    language = "en",
+                    translations = emptyMap(),
+                )
+
+            assertThat(report.isValid).isTrue()
+        }
+    }
 }

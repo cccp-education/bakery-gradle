@@ -425,10 +425,36 @@ class TranslateI18nClientTaskTest {
         }
 
         @Test
-        fun `catalogue is never sent to the flat writer`() {
+        fun `catalogue is translated through the nested writer, never the flat writer`() {
             val catalogue = catalogueWithGapEn()
             val file = writeDictionary("maquette/js/i18n-content.js", catalogue)
-            val task = setupTask("test-i18n-client-catalogue-untouched")
+            val task = setupTask("test-i18n-client-catalogue-translated")
+
+            task.i18nClientSource.set("maquette/js")
+            task.i18nClientTargetLangs.set("en")
+            task.i18nClientDryRun.set("false")
+            val service = RecordingTranslationService()
+            task.translationService = service
+
+            task.executeI18nClientTranslation()
+
+            val updated = file.readText()
+            val paths = I18nCatalogDocument.literals(updated, "en").map { it.path }
+            assertEquals(
+                I18nCatalogDocument.literals(catalogue, "fr").map { it.path },
+                paths,
+            )
+            assertTrue(
+                I18nCatalogDocument.literals(updated, "en").first { it.path == "cda.title" }.value
+                    .startsWith("["),
+            )
+        }
+
+        @Test
+        fun `a complete nested catalogue is a strict no-op without LLM call`() {
+            val complete = catalogueComplete()
+            val file = writeDictionary("maquette/js/i18n-content.js", complete)
+            val task = setupTask("test-i18n-client-catalogue-noop")
 
             task.i18nClientSource.set("maquette/js")
             task.i18nClientTargetLangs.set("en")
@@ -439,7 +465,55 @@ class TranslateI18nClientTaskTest {
             task.executeI18nClientTranslation()
 
             assertEquals(0, service.requests.size)
-            assertEquals(catalogue, file.readText())
+            assertEquals(complete, file.readText())
+        }
+
+        @Test
+        fun `the nested catalogue translation is idempotent`() {
+            val file = writeDictionary("maquette/js/i18n-content.js", catalogueWithGapEn())
+            val task = setupTask("test-i18n-client-catalogue-idempotent")
+
+            task.i18nClientSource.set("maquette/js")
+            task.i18nClientTargetLangs.set("en")
+            task.i18nClientDryRun.set("false")
+            val service = RecordingTranslationService()
+            task.translationService = service
+
+            task.executeI18nClientTranslation()
+            val afterFirst = file.readText()
+            task.executeI18nClientTranslation()
+
+            assertEquals(afterFirst, file.readText())
+        }
+
+        @Test
+        fun `a dry-run catalogue reports the delta without writing`() {
+            val file = writeDictionary("maquette/js/i18n-content.js", catalogueWithGapEn())
+            val task = setupTask("test-i18n-client-catalogue-dryrun")
+
+            task.i18nClientSource.set("maquette/js")
+            task.i18nClientTargetLangs.set("en")
+            task.i18nClientDryRun.set("true")
+            task.translationService = RecordingTranslationService()
+
+            task.executeI18nClientTranslation()
+
+            assertEquals(catalogueWithGapEn(), file.readText())
+        }
+
+        @Test
+        fun `a failed catalogue translation leaves the document untouched`() {
+            val file = writeDictionary("maquette/js/i18n-content.js", catalogueWithGapEn())
+            val task = setupTask("test-i18n-client-catalogue-failure")
+
+            task.i18nClientSource.set("maquette/js")
+            task.i18nClientTargetLangs.set("en")
+            task.i18nClientDryRun.set("false")
+            task.translationService = FailingTranslationService()
+
+            task.executeI18nClientTranslation()
+
+            assertEquals(catalogueWithGapEn(), file.readText())
         }
 
         @Test

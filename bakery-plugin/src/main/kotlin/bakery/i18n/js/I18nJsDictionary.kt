@@ -116,17 +116,7 @@ object I18nJsDictionary {
         matchStart: Int,
     ): String? = I18nJsBlockScanner.bodyFrom(source, matchStart)
 
-    private fun unescapeJsString(value: String): String =
-        value
-            .replace("\\n", "\n")
-            .replace("\\\"", "\"")
-            .replace("\\\\", "\\")
+    private fun unescapeJsString(value: String): String = I18nJsStringCodec.unescape(value)
 
-    private fun escapeJsString(value: String): String =
-        value
-            .replace("\\", "\\\\")
-            .replace("\"", "\\\"")
-            // Lambda replacement : Java Matcher interprete `\n` comme escape et
-            // perdrait le backslash (bug attrape par I18nJsDictionaryTest S-054).
-            .replace(Regex("\r?\n")) { "\\n" }
+    private fun escapeJsString(value: String): String = I18nJsStringCodec.escape(value)
 }

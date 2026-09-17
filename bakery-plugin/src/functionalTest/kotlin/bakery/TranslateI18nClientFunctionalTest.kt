@@ -208,7 +208,55 @@ class TranslateI18nClientFunctionalTest {
         assertThat(publicationFile().readText()).isEqualTo("var DICT = { stale };")
     }
 
+    @Test
+    fun `the nested catalogue is reported and propagated byte-identically`() {
+        createClientSite(complete = true)
+        writeCatalogue()
+
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "translateI18nClient",
+                    "--i18nClientSource=maquette/js",
+                    "--i18nClientTargetLangs=en",
+                    "--i18nClientSourceLang=fr",
+                    "--i18nClientDryRun=false",
+                ).build()
+
+        assertThat(result.output).contains("BUILD SUCCESSFUL")
+        assertThat(result.output).contains("Propagation")
+        assertThat(cataloguePublicationFile().readText()).isEqualTo(catalogueFile().readText())
+    }
+
+    @Test
+    fun `a complete catalogue is reported as a no-op`() {
+        createClientSite(complete = true)
+        writeCatalogue(complete = true)
+
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "translateI18nClient",
+                    "--i18nClientSource=maquette/js",
+                    "--i18nClientTargetLangs=en",
+                    "--i18nClientSourceLang=fr",
+                    "--i18nClientDryRun=true",
+                ).build()
+
+        assertThat(result.output).contains("Rien a traduire")
+    }
+
     private fun dictionaryFile(): File = projectDir.resolve("maquette/js/i18n.js")
+
+    private fun catalogueFile(): File = projectDir.resolve("maquette/js/i18n-content.js")
+
+    private fun cataloguePublicationFile(): File = projectDir.resolve("jbake/assets/js/i18n-content.js")
 
     private fun publicationFile(): File = projectDir.resolve("jbake/assets/js/i18n.js")
 
@@ -216,6 +264,58 @@ class TranslateI18nClientFunctionalTest {
         publicationFile().also {
             it.parentFile.mkdirs()
             it.writeText(content)
+        }
+    }
+
+    /**
+     * A nested catalogue with `fr` (2 formations) and `en` (either partial or
+     * complete). The LLM is disabled (`ia.enabled` absent), so the flat delta is
+     * computed but the metered call is never made — only the structural report
+     * and the byte-identical propagation are asserted.
+     */
+    private fun writeCatalogue(complete: Boolean = false) {
+        val enBlock =
+            if (complete) {
+                """
+                    fpa: {
+                      title: "Trainer",
+                      modules: [
+                        { title: "M1", desc: "D1" }
+                      ]
+                    },
+                    cda: {
+                      title: "Designer"
+                    }
+                """.trimIndent()
+            } else {
+                """
+                    fpa: {
+                      title: "Trainer"
+                    }
+                """.trimIndent()
+            }
+        catalogueFile().also {
+            it.parentFile.mkdirs()
+            it.writeText(
+                buildString {
+                    appendLine("TALARIA.I18N.CATALOG = {")
+                    appendLine("    fr: {")
+                    appendLine("      fpa: {")
+                    appendLine("        title: \"Formateur\",")
+                    appendLine("        modules: [")
+                    appendLine("          { title: \"M1\", desc: \"D1\" }")
+                    appendLine("        ]")
+                    appendLine("      },")
+                    appendLine("      cda: {")
+                    appendLine("        title: \"Concepteur\"")
+                    appendLine("      }")
+                    appendLine("    },")
+                    appendLine("    en: {")
+                    appendLine(enBlock)
+                    appendLine("    }")
+                    appendLine("  };")
+                },
+            )
         }
     }
 

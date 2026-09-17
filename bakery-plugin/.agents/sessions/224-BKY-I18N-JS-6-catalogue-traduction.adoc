@@ -1,0 +1,193 @@
+= Session 224 — BKY-I18N-JS-6 : traduction du contenu catalogue imbriqué
+
+:session: 224
+:date: 2026-09-17
+:mission: Livrer BKY-I18N-JS-6 — la traduction du contenu du catalogue imbriqué (`TALARIA.I18N.CATALOG`), chantier distinct acté S-223 décision §1 (la couverture n'est pas l'écriture). Rendre la tâche `translateI18nClient` capable de traduire le 3e dictionnaire (writer imbriqué + validation de structure), pas seulement de reporter sa couverture.
+:methode: Baby-step DDD/TDD/BDD strict — DDD (lecteur structurel, writer, garde, delta) → TDD (UT RED → GREEN → REFACTOR) → Functional Oven (TestKit) → BDD (feature 64 étendue) → dogfooding réel talaria → gates complètes → clôture 6 étapes
+:epic: BKY-I18N-JS — US-6
+
+== Mission
+
+Reprise bakery à la demande pilote : livrer **BKY-I18N-JS-6**, la seule dette
+actionnable sans accord pilote restante au backlog (les 3 autres pistes —
+LANG-22-8/9 dogfooding LLM, LANG-22-10 publication Central, MASS-6 ~675h LLM —
+exigent toutes un accord pilote).
+
+**Objet** : la S-223 avait traité le catalogue structurel en **couverture**
+(`I18nCatalog` : langue/formation/champ manquants → report `warn`) et corrigé le
+bug latent d'ownership. La décision §1 était explicite :
+
+____
+« Le catalogue est une couverture, pas une écriture plate — la traduction du
+contenu imbriqué est un chantier distinct (elle exigerait un writer imbriqué +
+validation de structure, hors périmètre). »
+____
+
+Cette session livre ce chantier : le writer imbriqué et la validation de
+structure, câblés dans la tâche.
+
+== Diagnostic (faits mesurés)
+
+. *Le catalogue n'est jamais traduit* — `I18nJsDictionary` est plat (clés
+  quotées) ; `I18nCatalog` ne fait que compter des lacunes. Une clé de contenu
+  catalogue manquante n'était **jamais** comblée : le delta s'arrêtait au
+  report.
+. *Le writer plat corromprait le catalogue* — `I18nDictionary.insertTranslations`
+  insère des paires `"key": "value"` entre accolades ; dans un objet imbriqué à
+  clés non quotées (`title:`, `fpa:`) cela produit une structure invalide. Le
+  catalogue doit donc avoir **son propre writer**, qui remplace des littéraux en
+  place.
+. *Le contrat S-054 est structurel* — « bloc absent = langue entière manquante ;
+  si le bloc existe, les champs manquants ». Créer une langue exige de cloner la
+  structure de référence (formations, listes, objets inline), pas d'appendre des
+  clés plates.
+. *Le format réel est arbitraire en profondeur* — `i18n-content.js` (98881
+  octets, 22 langues) : langue → formation (`fpa`/`cda`) → scalaires
+  (`title`/`tagline`/`level`/`duration`/`audience`/`outco`) + listes de chaînes
+  (`objectives[]`) + listes d'objets inline (`modules[]` : `{ title, desc }`).
+  Aucune regex plate ne peut le lire.
+
+== Implémentation
+
+=== US-6a — lecteur structurel (DDD/TDD)
+
+- `I18nJsObjectParser` (internal) : parseur récursif descendant des littéraux
+  objet/tableau/chaîne JavaScript. Chaîne-aware (guillemets échappés), skippe
+  commentaires `//` et `/* */`, conserve les **ranges d'octets** de chaque
+  littéral de chaîne. Retourne `null` sur une structure invalide (jamais
+  d'exception).
+- `I18nCatalogDocument` : aplatit le bloc d'une langue en littéraux pathés
+  (`fpa.title`, `fpa.objectives[0]`, `fpa.modules[0].desc`), dans l'ordre du
+  document. `missingLiterals(source, ref, lang)` = littéraux de référence non
+  possédés par la cible (unité de travail du delta).
+- `I18nJsStringCodec` (REFACTOR) : escape/unescape JS extraits de
+  `I18nJsDictionary` pour qu'un seul codec serve le plat **et** l'imbriqué.
+
+=== US-6b — writer imbriqué + garde (DDD/TDD)
+
+- `I18nCatalogWriter.translate` : substitue en place les littéraux d'une langue
+  qui existe déjà (ranges d'octets), tout le reste du document reste
+  byte-identique.
+- `I18nCatalogWriter.complete` : contract S-054 — langue absente → clone de la
+  structure de référence avec les traductions appliquées ; langue existante
+  incomplète → complétée des formations/champs manquants. Une valeur existante
+  gagne toujours sur une traduction, qui gagne sur la valeur de référence.
+- `I18nCatalogFormatGuard` : garde structurelle (contrepartie imbriquée de
+  `I18nClientFormatGuard`, qui exclut explicitement le catalogue) —
+  `unbalanced-catalogue-block`, `language-structure-drift`, `round-trip-drift`.
+  Câblée en production : un résultat invalide n'est jamais écrit.
+
+=== US-6c — delta + câblage tâche (TDD)
+
+- `I18nCatalogDelta` (`I18nCatalogFilePlan`) : plan de delta par fichier/language
+  sur les littéraux manquants. Un fichier plat, une référence sans catalogue ou
+  une langue complète ne produit **aucune** entrée.
+- `TranslateI18nClientTask` : partition plat/catalogue étendue au **delta** (pas
+  seulement au report). Le total loggé, le dry-run, la dégradation `Failure`
+  couvrent les deux formes. Aucune traduction réussie → catalogue non écrit
+  (Économie d'Encre) ; traduction partielle → complétion depuis la référence.
+
+=== US-6d — Functional Oven
+
+3 FT TestKit ajoutés (11 au total pour `TranslateI18nClientFunctionalTest`) :
+catalogue reporté + propagé byte-identique, catalogue complet = no-op, dry-run
+catalogue sans écriture.
+
+=== US-6e — BDD
+
+Feature 64 étendue de 14 → **17 scénarios** : complétion des formations/champs
+manquants, création d'une langue absente par clone de la référence, idempotence
+du catalogue. Steps `I18nCatalogDocument` ajoutés.
+
+=== Dogfooding réel talaria (read-only)
+
+`I18nJsDictionaryTalariaIntegrationTest` + une classe imbriquée
+`NestedCatalogueDogfood` (5 UT) sur le catalogue réel (98881 octets) :
+aplatissement pathé, les 22 langues possèdent tous les littéraux de référence,
+complétion d'une langue complète = no-op strict, translation par ses propres
+valeurs = no-op strict, garde structurelle verte. Les fichiers réels ne sont
+jamais écrits.
+
+== Tests
+
+|===
+| Niveau | Contenu | Résultat
+
+| DDD UT | `I18nCatalogDocumentTest` (7), `I18nCatalogWriterTest` (11), `I18nCatalogDeltaTest` (5), `I18nCatalogFormatGuardTest` (5) | 28/28
+| TDD UT | `TranslateI18nClientTaskTest` (5 nouveaux : traduction nested writer, no-op, idempotence, dry-run, échec) | PASS
+| Intégration | `I18nJsDictionaryTalariaIntegrationTest` +5 dogfooding réel catalogue | PASS
+| Functional | `TranslateI18nClientFunctionalTest` +3 Oven TestKit | 11/11
+| BDD | Feature 64 14 → **17 scénarios** `@i18n-client` | 17/17
+|===
+
+*Signature TDD* : chaque objet pur a d'abord été écrit en test (RED
+`AssertionFailedError`/`Unresolved reference`), puis implémenté (GREEN), puis
+nettoyé (REFACTOR `I18nJsStringCodec`). 2 bugs attrapés par les tests : le
+test d'échappement (raw string Kotlin ≠ saut de ligne) et la complétion d'une
+langue existante (le writer initial ne faisait que substituer, pas compléter —
+le contrat S-054 exige la complétion).
+
+== Gates
+
+|===
+| Gate | Résultat
+
+| `./gradlew test --rerun-tasks` (global) | **1842 tests, 0 FAIL, 3 skipped** (baseline S-223 1804/0 → **+38 net**)
+| `./gradlew functionalTest --rerun-tasks` | **132/132, 0 FAIL** (baseline 130 → +2 nets)
+| Runner dédié feature 64 | **17/17 scénarios PASSED**
+| `./gradlew -q publishToMavenLocal` | VERT (règle INDEX 0)
+| Gate métier `grep -rwnE "REAC\|AFNOR\|SPG\|SPD\|FPA\|RNCP\|CDA" src/` | 0 (vide)
+|===
+
+== Artefacts
+
+- `+src/main/kotlin/bakery/i18n/js/I18nJsObjectParser.kt` (parseur structurel)
+- `+src/main/kotlin/bakery/i18n/js/I18nCatalogDocument.kt` (aplatissement pathé)
+- `+src/main/kotlin/bakery/i18n/js/I18nCatalogWriter.kt` (writer imbriqué)
+- `+src/main/kotlin/bakery/i18n/js/I18nCatalogDelta.kt` (plan de delta imbriqué)
+- `+src/main/kotlin/bakery/i18n/js/I18nCatalogFormatGuard.kt` (garde structurelle)
+- `+src/main/kotlin/bakery/i18n/js/I18nJsStringCodec.kt` (REFACTOR escape/unescape)
+- `+src/test/kotlin/bakery/i18n/js/I18nCatalogDocumentTest.kt` (7 UT)
+- `+src/test/kotlin/bakery/i18n/js/I18nCatalogWriterTest.kt` (11 UT)
+- `+src/test/kotlin/bakery/i18n/js/I18nCatalogDeltaTest.kt` (5 UT)
+- `+src/test/kotlin/bakery/i18n/js/I18nCatalogFormatGuardTest.kt` (5 UT)
+- `M src/main/kotlin/bakery/i18n/js/I18nCatalog.kt` (ranges réutilisables `catalogueBodyRange`/`languageBrace`/`languageEnd`)
+- `M src/main/kotlin/bakery/i18n/js/I18nJsDictionary.kt` (délègue le codec)
+- `M src/main/kotlin/bakery/i18n/js/TranslateI18nClientTask.kt` (delta + complétion catalogue + garde)
+- `M src/test/features/64_i18n_client_dictionary.feature` (+3 scénarios)
+- `M src/test/scenarios/bakery/scenarios/I18nClientDictionarySteps.kt` (+2 steps, -1 obsolète)
+- `M src/test/kotlin/bakery/i18n/js/TranslateI18nClientTaskTest.kt` (+5 UT task)
+- `M src/test/kotlin/bakery/i18n/js/I18nJsDictionaryTalariaIntegrationTest.kt` (+5 UT dogfood)
+- `M src/functionalTest/kotlin/bakery/TranslateI18nClientFunctionalTest.kt` (+3 FT)
+
+== Décisions
+
+. *Le catalogue ne passe jamais par le writer plat* — partition par
+   `I18nJsFormat` maintenue à tous les étages (garde, delta, écriture). Le writer
+   imbriqué remplace des littéraux en place ; le writer plat (append de paires)
+   corromprait la structure.
+. *Substitution in-place, pas de re-sérialisation* — le writer modifie les
+   ranges d'octets des seuls littéraux traduits. Commentaires, indentation,
+   ordre des clés et valeurs des autres langues sont préservés verbatim
+   (Économie d'Encre : un catalogue inchangé est un no-op strict).
+. *Complétion depuis la référence (contrat S-054)* — une langue absente est
+   créée par clone de la structure de référence ; une langue incomplète est
+   complétée. La valeur de référence sert alors de **dernière** ressource
+   (valeur existante > traduction > référence).
+. *Garde en défense en profondeur* — la garde structurelle est câblée en
+   production (un résultat invalide n'est jamais écrit) **et** testée avec des
+   rewriters injectés (drift de structure, non-idempotence).
+. *Zéro traduction réussie = zéro écriture* — la dégradation `Failure` (modèle
+   indisponible) laisse le document intact, y compris le catalogue.
+. *Codec partagé (REFACTOR)* — le bug historique du backslash
+   (`String.replace(Regex, "\\n")`) ne devait pas être dupliqué ; un seul
+   `I18nJsStringCodec` porte la règle.
+
+== Reste du backlog bakery
+
+- BKY-LANG-22-8/9 dogfooding LLM 22 langues — *accord pilote (coût LLM)*
+- BKY-LANG-22-10 publication Central consommateurs — *accord pilote (publication)*
+- MASS-6 ~675h LLM — *accord pilote (coût LLM)*
+
+*BKY-I18N-JS est désormais réellement complet : 6/6 US (la couverture S-223 +
+l'écriture S-224).*

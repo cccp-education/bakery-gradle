@@ -65,6 +65,37 @@ object I18nCatalog {
         return I18nJsBlockScanner.bodyFrom(source, marker.range.first)
     }
 
+    /** Byte range of the `TALARIA.I18N.CATALOG = { ... }` body, or null. */
+    internal fun catalogueBodyRange(source: String): Pair<Int, Int>? {
+        val marker = MARKER.find(source) ?: return null
+        val openBrace = source.indexOf('{', marker.range.first)
+        if (openBrace < 0) return null
+        val closeBrace = I18nJsBlockScanner.matchingBrace(source, openBrace) ?: return null
+        return (openBrace + 1) to closeBrace
+    }
+
+    /** Index of the `{` opening the [language] block, or null. */
+    internal fun languageBrace(
+        source: String,
+        language: String,
+    ): Int? {
+        val range = catalogueBodyRange(source) ?: return null
+        val body = source.substring(range.first, range.second)
+        val regex = Regex("^\\s{$LANGUAGE_INDENT}${Regex.escape(language)}:\\s*\\{", RegexOption.MULTILINE)
+        val match = regex.find(body) ?: return null
+        val brace = body.indexOf('{', match.range.first)
+        return if (brace < 0) null else range.first + brace
+    }
+
+    /** Index just after the `}` closing the [language] block, or null. */
+    internal fun languageEnd(
+        source: String,
+        language: String,
+    ): Int? {
+        val brace = languageBrace(source, language) ?: return null
+        return I18nJsBlockScanner.matchingBrace(source, brace)?.plus(1)
+    }
+
     /** Language codes owned by the catalogue, in document order. */
     fun languagesOf(source: String): List<String> {
         val body = catalogueBody(source) ?: return emptyList()

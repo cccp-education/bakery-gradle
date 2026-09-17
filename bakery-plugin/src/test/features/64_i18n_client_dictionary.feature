@@ -85,7 +85,7 @@ Feature: i18n client dictionary translation — delta idempotent et economie d'e
     Given a structured catalogue owning the same languages as the chrome dictionary
     When the i18n client task translates the dictionaries from fr to "fa"
     Then the flat key "nav.cart" should be written to the chrome dictionary
-    And the structured catalogue should be byte-identical to the fixture
+    And the structured catalogue should not own the flat key "nav.cart"
 
   Scenario: The catalogue coverage reports a missing language
     Given a structured catalogue owning a complete en block
@@ -102,3 +102,22 @@ Feature: i18n client dictionary translation — delta idempotent et economie d'e
     Given a structured catalogue owning a complete en block
     When the i18n client task translates the dictionaries from fr to "en"
     Then the catalogue coverage should have no gap
+
+  Scenario: The structured catalogue is completed with its missing formation and fields
+    Given a structured catalogue owning a partial en block
+    When the i18n client task translates the dictionaries from fr to "en"
+    Then the catalogue "en" should cover every reference literal
+    And the catalogue literal "cda.title" of "en" should be "«en» Concepteur"
+    And the catalogue literal "fpa.title" of "en" should be "Trainer"
+
+  Scenario: An absent catalogue language is created by cloning the reference
+    Given a structured catalogue owning a partial en block
+    When the i18n client task translates the dictionaries from fr to "es"
+    Then the catalogue "es" should cover every reference literal
+    And the catalogue literal "fpa.title" of "es" should be "«es» Formateur"
+
+  Scenario: The structured catalogue translation is idempotent
+    Given a structured catalogue owning a partial en block
+    And the i18n client task has already translated the dictionaries from fr to "en"
+    When the i18n client task translates the dictionaries from fr to "en" again
+    Then the catalogue "en" should cover every reference literal

@@ -1,5 +1,6 @@
 package bakery.scenarios
 
+import bakery.i18n.js.I18nCatalogDocument
 import bakery.i18n.js.I18nCatalogPlan
 import bakery.i18n.js.I18nClientDelta
 import bakery.i18n.js.I18nClientMigrationIntention
@@ -206,9 +207,11 @@ class I18nClientDictionarySteps {
         assertThat(I18nJsDictionary.parse(chromeFile.readText())["fa"]!![key]).isEqualTo("«fa» Panier")
     }
 
-    @Then("the structured catalogue should be byte-identical to the fixture")
-    fun assertCatalogueUntouched() {
-        assertThat(catalogueFile().readText()).isEqualTo(catalogueOriginal)
+    @Then("the structured catalogue should not own the flat key {string}")
+    fun assertCatalogueDoesNotOwnFlatKey(key: String) {
+        assertThat(I18nCatalogDocument.literals(catalogueFile().readText(), "fa").map { it.path })
+            .describedAs("the catalogue must not steal the flat key")
+            .doesNotContain(key)
     }
 
     @Then("the catalogue coverage should report the missing language {string}")
@@ -236,6 +239,25 @@ class I18nClientDictionarySteps {
     @Then("the catalogue coverage should have no gap")
     fun assertNoCatalogueGap() {
         assertThat(lastCoverage.hasGap).isFalse()
+    }
+
+    @Then("the catalogue literal {string} of {string} should be {string}")
+    fun assertCatalogueLiteral(
+        path: String,
+        language: String,
+        expected: String,
+    ) {
+        assertThat(I18nCatalogDocument.literals(catalogueFile().readText(), language).first { it.path == path }.value)
+            .describedAs("catalogue %s %s", language, path)
+            .isEqualTo(expected)
+    }
+
+    @Then("the catalogue {string} should cover every reference literal")
+    fun assertCatalogueCoversReference(language: String) {
+        val source = catalogueFile().readText()
+        val referencePaths = I18nCatalogDocument.literals(source, "fr").map { it.path }
+        val languagePaths = I18nCatalogDocument.literals(source, language).map { it.path }
+        assertThat(languagePaths).containsAll(referencePaths)
     }
 
     private fun publicationFile(): File = projectDir.resolve("jbake/assets/js/i18n.js")

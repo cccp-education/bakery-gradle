@@ -110,12 +110,18 @@ abstract class TranslateI18nClientTask : DefaultTask() {
         val validFiles = flatFiles.filterKeys { it !in invalidFiles }
 
         val plan = I18nClientDelta.plan(validFiles, intention.referenceLanguage, intention.targetLanguages)
+        val catalogueDeltaPlan =
+            I18nCatalogDelta.plan(
+                catalogueFiles.filterKeys { it !in invalidFiles },
+                intention.referenceLanguage,
+                intention.targetLanguages,
+            )
 
-        val total = plan.sumOf { it.keys.size }
+        val total = plan.sumOf { it.keys.size } + catalogueDeltaPlan.sumOf { it.paths.size }
         logger.lifecycle(
             "[translateI18nClient] Delta : {} cles manquantes sur {} fichier(s).",
             total,
-            plan.map { it.file }.distinct().size,
+            (plan.map { it.file } + catalogueDeltaPlan.map { it.file }).distinct().size,
         )
 
         if (total == 0) {
@@ -127,6 +133,9 @@ abstract class TranslateI18nClientTask : DefaultTask() {
         if (intention.dryRun) {
             plan.forEach { entry ->
                 logger.lifecycle("  [{}] {} -> {} cle(s)", entry.language, entry.file, entry.keys.size)
+            }
+            catalogueDeltaPlan.forEach { entry ->
+                logger.lifecycle("  [{}] {} -> {} literal(aux) catalogue", entry.language, entry.file, entry.paths.size)
             }
             logger.lifecycle("[translateI18nClient] DRY-RUN — aucun fichier modifie.")
             return
@@ -145,6 +154,7 @@ abstract class TranslateI18nClientTask : DefaultTask() {
 
         var translatedCount = 0
         var failureCount = 0
+        var catalogueWritten = 0
         for (entry in plan) {
             val updatedSource = updated.getValue(entry.file)
             val referenceTexts = dictionaries[intention.referenceLanguage].orEmpty()
@@ -179,6 +189,41 @@ abstract class TranslateI18nClientTask : DefaultTask() {
             updated[entry.file] = I18nJsDictionary.insertTranslations(updatedSource, entry.language, translations)
         }
 
+        for (entry in catalogueDeltaPlan) {
+            val current = catalogueFiles.getValue(entry.file)
+            val referenceSource = current
+            val translations = LinkedHashMap<String, String>()
+            for (path in entry.paths) {
+                val sourceText = referenceLiteralValue(referenceSource, intention.referenceLanguage, path) ?: continue
+                when (
+                    val result =
+                        translationService.translate(
+                            TranslationRequest(
+                                sourceText = sourceText,
+                                sourceLanguage = intention.referenceLanguage,
+                                targetLanguage = entry.language,
+                            ),
+                        )
+                ) {
+                    is TranslationResult.Success -> {
+                        translations[path] = result.translatedText
+                        translatedCount++
+                    }
+                    is TranslationResult.Failure -> {
+                        failureCount++
+                        logger.warn(
+                            "[translateI18nClient] [{}] {} ECHEC ({}) — literal catalogue conserve",
+                            entry.language,
+                            path,
+                            result.reason,
+                        )
+                    }
+                }
+            }
+            completeCatalogue(intention, entry, current, referenceSource, translations, sourceByFile)
+                .also { catalogueWritten += it }
+        }
+
         for ((file, content) in updated) {
             if (content != validFiles.getValue(file)) {
                 val report = I18nClientFormatGuard.verify(content)
@@ -194,15 +239,71 @@ abstract class TranslateI18nClientTask : DefaultTask() {
             }
         }
 
+        val writtenFiles =
+            updated.count { (file, content) -> content != validFiles[file] } + catalogueWritten
         logger.lifecycle(
             "[translateI18nClient] Fichiers ecrits : {}, cles traduites : {}, echecs : {}",
-            updated.count { (file, content) -> content != validFiles[file] },
+            writtenFiles,
             translatedCount,
             failureCount,
         )
 
         if (intention.propagate) propagateToPublication(intention)
     }
+
+    /**
+     * Completes the nested catalogue [entry] then writes it, after the structural
+     * guard validates the result (cadrage S-054 completeness + idempotence). A
+     * language absent from the catalogue is created by cloning the reference
+     * block; an existing block is completed with its missing formations/fields.
+     */
+    private fun completeCatalogue(
+        intention: I18nClientMigrationIntention,
+        entry: I18nCatalogFilePlan,
+        current: String,
+        referenceSource: String,
+        translations: Map<String, String>,
+        sourceByFile: Map<String, File>,
+    ): Int {
+        if (translations.isEmpty()) return 0
+        val completed =
+            I18nCatalogWriter.complete(
+                source = current,
+                referenceSource = referenceSource,
+                referenceLanguage = intention.referenceLanguage,
+                language = entry.language,
+                translations = translations,
+            )
+        if (completed == current) return 0
+
+        val report =
+            I18nCatalogFormatGuard.verify(
+                source = current,
+                referenceSource = referenceSource,
+                referenceLanguage = intention.referenceLanguage,
+                language = entry.language,
+                translations = translations,
+            )
+        if (!report.isValid) {
+            logger.warn(
+                "[translateI18nClient] {} non ecrit — structure catalogue invalide : {}",
+                entry.file,
+                report.violations.joinToString { "${it.kind}:${it.detail}" },
+            )
+            return 0
+        }
+
+        sourceByFile[entry.file]?.writeText(completed)
+        logger.lifecycle("[translateI18nClient] Catalogue {} [{}] mis a jour.", entry.file, entry.language)
+        return 1
+    }
+
+    /** Value of the [path] literal of [language] in [source], or null. */
+    private fun referenceLiteralValue(
+        source: String,
+        language: String,
+        path: String,
+    ): String? = I18nCatalogDocument.literals(source, language).firstOrNull { it.path == path }?.value
 
     /**
      * Structured-catalogue coverage of [intention]: the languages, formations
