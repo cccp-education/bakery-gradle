@@ -62,6 +62,64 @@ class I18nJsDictionaryTalariaIntegrationTest {
     }
 
     @Nested
+    inner class CatalogueCoverage {
+        @Test
+        fun `the real catalogue exposes 22 languages and 2 formations each`() {
+            val source = read(catalogueFile)
+
+            assertThat(I18nCatalog.languagesOf(source)).hasSize(22)
+            I18nCatalog.languagesOf(source).forEach { language ->
+                assertThat(I18nCatalog.formationsOf(source, language))
+                    .describedAs("formations of %s", language)
+                    .containsExactly("fpa", "cda")
+            }
+        }
+
+        @Test
+        fun `every real language owns the same reference fields`() {
+            val source = read(catalogueFile)
+            val referenceFormations = I18nCatalog.formationsOf(source, "fr")
+            val referenceFields = referenceFormations.associateWith { I18nCatalog.fieldsOf(source, "fr", it) }
+
+            val plan = I18nCatalog.plan(source, "fr", I18nCatalog.languagesOf(source))
+
+            assertThat(plan.missingLanguages).isEmpty()
+            assertThat(plan.missingFormations).isEmpty()
+            assertThat(plan.missingFields).isEmpty()
+            assertThat(plan.hasGap).isFalse()
+            assertThat(referenceFields["fpa"]).contains("title", "tagline", "objectives", "modules")
+        }
+
+        @Test
+        fun `the real catalogue is classified as a catalogue, never as a flat dictionary`() {
+            val source = read(catalogueFile)
+
+            assertThat(I18nJsFormat.of(source).isCatalogue).isTrue()
+            assertThat(I18nJsFormat.of(read(chromeFile)).isFlat).isTrue()
+            assertThat(I18nJsFormat.of(read(patchFile)).isFlat).isTrue()
+        }
+
+        @Test
+        fun `the catalogue is not the owner of the flat chrome languages`() {
+            val owners =
+                I18nClientDelta.languageOwners(
+                    files =
+                        linkedMapOf(
+                            "i18n-content.js" to read(catalogueFile),
+                            "i18n-extra-langs.js" to read(patchFile),
+                            "i18n.js" to read(chromeFile),
+                        ),
+                    languages = listOf("fr", "en", "it"),
+                )
+
+            assertThat(owners)
+                .containsExactlyInAnyOrderEntriesOf(
+                    mapOf("fr" to "i18n.js", "en" to "i18n.js", "it" to "i18n-extra-langs.js"),
+                )
+        }
+    }
+
+    @Nested
     inner class RoundTrip {
         @Test
         fun `re-inserting an already complete chrome dictionary is a strict no-op`() {

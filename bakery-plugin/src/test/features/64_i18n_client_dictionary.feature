@@ -17,6 +17,12 @@ Feature: i18n client dictionary translation — delta idempotent et economie d'e
   label-aware fake translator marks translated content with `[lang]` — no real
   LLM is called.
 
+  The tree may also ship the structured catalogue (`TALARIA.I18N.CATALOG`,
+  `i18n-content.js`), whose values are nested and unquoted. It reuses the flat
+  4-space block indentation, so it must never be mistaken for a flat dictionary
+  owner nor rewritten by the flat writer. Its coverage (missing languages,
+  formations, fields) is reported, not translated.
+
   Background:
     Given a talaria i18n client fixture with chrome and patch dictionaries
 
@@ -74,3 +80,25 @@ Feature: i18n client dictionary translation — delta idempotent et economie d'e
     And the i18n client task runs in dry-run mode
     When the i18n client task translates the dictionaries from fr to "fa"
     Then the jbake publication copy should still hold the stale content
+
+  Scenario: The structured catalogue never captures the flat keys
+    Given a structured catalogue owning the same languages as the chrome dictionary
+    When the i18n client task translates the dictionaries from fr to "fa"
+    Then the flat key "nav.cart" should be written to the chrome dictionary
+    And the structured catalogue should be byte-identical to the fixture
+
+  Scenario: The catalogue coverage reports a missing language
+    Given a structured catalogue owning a complete en block
+    When the i18n client task translates the dictionaries from fr to "es"
+    Then the catalogue coverage should report the missing language "es"
+
+  Scenario: The catalogue coverage reports a formation and its fields
+    Given a structured catalogue owning a partial en block
+    When the i18n client task translates the dictionaries from fr to "en"
+    Then the catalogue coverage should report the missing formation "en" "cda"
+    And the catalogue coverage should report the missing field "en" "fpa" "modules"
+
+  Scenario: A complete catalogue coverage is a no-op
+    Given a structured catalogue owning a complete en block
+    When the i18n client task translates the dictionaries from fr to "en"
+    Then the catalogue coverage should have no gap

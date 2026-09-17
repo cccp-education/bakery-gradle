@@ -379,6 +379,70 @@ class TranslateI18nClientTaskTest {
         }
 
         @Test
+        fun `catalogue coverage reports missing language and fields`() {
+            writeDictionary("maquette/js/i18n.js", chromeWithMissingEn())
+            writeDictionary("maquette/js/i18n-content.js", catalogueWithGapEn())
+            val task = setupTask("test-i18n-client-catalogue-coverage")
+
+            task.i18nClientSource.set("maquette/js")
+            task.i18nClientTargetLangs.set("en,es")
+            task.i18nClientDryRun.set("true")
+
+            val coverage = task.catalogueCoverage(task.resolveIntention())
+
+            assertEquals(listOf("es"), coverage.missingLanguages)
+            assertEquals(listOf("cda"), coverage.missingFormations["en"])
+            assertEquals(listOf("modules"), coverage.missingFields["en"]!!["fpa"])
+        }
+
+        @Test
+        fun `a complete catalogue has no coverage gap`() {
+            writeDictionary("maquette/js/i18n.js", chromeWithMissingEn())
+            writeDictionary("maquette/js/i18n-content.js", catalogueComplete())
+            val task = setupTask("test-i18n-client-catalogue-complete")
+
+            task.i18nClientSource.set("maquette/js")
+            task.i18nClientTargetLangs.set("en")
+            task.i18nClientDryRun.set("true")
+
+            val coverage = task.catalogueCoverage(task.resolveIntention())
+
+            assertEquals(false, coverage.hasGap)
+        }
+
+        @Test
+        fun `a flat-only tree yields an empty catalogue coverage`() {
+            writeDictionary("maquette/js/i18n.js", chromeWithMissingEn())
+            val task = setupTask("test-i18n-client-no-catalogue")
+
+            task.i18nClientSource.set("maquette/js")
+            task.i18nClientTargetLangs.set("en")
+            task.i18nClientDryRun.set("true")
+
+            val coverage = task.catalogueCoverage(task.resolveIntention())
+
+            assertEquals(I18nCatalogPlan.EMPTY, coverage)
+        }
+
+        @Test
+        fun `catalogue is never sent to the flat writer`() {
+            val catalogue = catalogueWithGapEn()
+            val file = writeDictionary("maquette/js/i18n-content.js", catalogue)
+            val task = setupTask("test-i18n-client-catalogue-untouched")
+
+            task.i18nClientSource.set("maquette/js")
+            task.i18nClientTargetLangs.set("en")
+            task.i18nClientDryRun.set("false")
+            val service = RecordingTranslationService()
+            task.translationService = service
+
+            task.executeI18nClientTranslation()
+
+            assertEquals(0, service.requests.size)
+            assertEquals(catalogue, file.readText())
+        }
+
+        @Test
         fun `a translated but now unbalanced dictionary is not written`() {
             val unbalanced =
                 """
@@ -424,6 +488,50 @@ class TranslateI18nClientTaskTest {
             it.parentFile.mkdirs()
             it.writeText(content)
         }
+
+    private fun catalogueWithGapEn(): String =
+        """
+        |TALARIA.I18N.CATALOG = {
+        |    fr: {
+        |      fpa: {
+        |        title: "Formateur",
+        |        modules: [
+        |          { title: "M1", desc: "D1" }
+        |        ]
+        |      },
+        |      cda: {
+        |        title: "Concepteur"
+        |      }
+        |    },
+        |    en: {
+        |      fpa: {
+        |        title: "Trainer"
+        |      }
+        |    }
+        |  };
+        """.trimMargin()
+
+    private fun catalogueComplete(): String =
+        """
+        |TALARIA.I18N.CATALOG = {
+        |    fr: {
+        |      fpa: {
+        |        title: "Formateur",
+        |        modules: [
+        |          { title: "M1", desc: "D1" }
+        |        ]
+        |      }
+        |    },
+        |    en: {
+        |      fpa: {
+        |        title: "Trainer",
+        |        modules: [
+        |          { title: "M1", desc: "D1" }
+        |        ]
+        |      }
+        |    }
+        |  };
+        """.trimMargin()
 
     private fun chromeWithMissingEn(): String =
         """

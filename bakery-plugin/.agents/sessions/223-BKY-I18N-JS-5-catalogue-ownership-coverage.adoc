@@ -1,0 +1,167 @@
+= Session 223 — BKY-I18N-JS-5 : le catalogue structurel (ownership + couverture)
+
+:session: 223
+:date: 2026-09-17
+:mission: Clore la non-conformité découverte dans l'EPIC BKY-I18N-JS pourtant marqué TERMINÉ — le 3e dictionnaire (`i18n-content.js`, `TALARIA.I18N.CATALOG`) déclaré au cadrage talaria S-054 n'était jamais traité, et sa ressemblance de blocs 4 espaces le faisait capter les clés plates
+:methode: Baby-step DDD/TDD/BDD strict — audit mesuré → RED (Unresolved reference) → GREEN → REFACTOR (extraction scanner) → dogfooding réel talaria → gate complète → clôture 6 étapes
+:epic: BKY-I18N-JS — US-5 (nouvelle US ajoutée à l'EPIC, qui n'était donc pas 4/4)
+
+== Mission
+
+Les 3 pistes du PROMPT_REPRISE S-222 (LANG-22-8/9 dogfooding LLM, LANG-22-10
+publication Central, MASS-6 ~675h LLM) étaient **toutes bloquées par accord
+pilote**. Mission retenue (accord pilote explicite) : la dette locale actionnable
+sans coût externe, exactement le profil de FLAKY-4 (S-222).
+
+**Objet** : le cadrage talaria verrouillé S-054
+(`office/sites/talaria.school/.agents/CADRAGE_EPIC_T_I18N_BAKERY.adoc`) déclare
+**3** dictionnaires i18n JS. Les 2 premiers (chrome `var DICT`, patch
+`TALARIA.I18N.extend`) sont **plats**. Le 3e, `maquette/js/i18n-content.js`
+(`TALARIA.I18N.CATALOG`), est **imbriqué** : langues → formations (`fpa`/`cda`)
+→ scalaires (`title`/`tagline`/…) + listes (`objectives[]`, `modules[]`). Son
+contrat de delta est explicite :
+
+____
+« Par langue : bloc absent = langue entière manquante ; le delta de tâche porte
+sur la **présence de langue** et, si le bloc existe, les **champs manquants**. »
+____
+
+== Diagnostic RED (faits mesurés)
+
+. *Le catalogue n'est jamais traduit* — `I18nJsDictionary.parse` est plat
+  (regex clés **quotées** `"key": "value"`, `I18nJsDictionary.kt:20-23`). Dans
+  `i18n-content.js` les clés sont **non quotées** (`title:`, `fpa:`) → `parse()`
+  voit les blocs langue mais **0 clé**. Le delta du catalogue est donc
+  structurellement toujours vide.
+. *Bug latent de propriété* — `I18nClientDelta.languageOwners` retient « le
+  premier fichier qui possède le bloc langue ». Or le tri réel de la tâche
+  (`walkTopDown().sortedBy { relativePath }`) est alphabétique :
+  `i18n-content.js` < `i18n-extra-langs.js` < `i18n.js`. Le **catalogue devient
+  donc propriétaire des 22 langues**. KDoc annonçait pourtant « the chrome
+  dictionary wins over the patch » — l'intention était inversée. Dormant tant
+  que le corpus est complet (plan vide), mais dès qu'une clé chrome `fr` est
+  ajoutée elle serait insérée **dans le catalogue imbriqué** (corruption).
+. *La tâche ne partitionne pas* — `--i18nClientSource=…/maquette/js` (dossier
+  entier, `talaria.school/build.gradle.kts:146`) inclut le catalogue dans le
+  flux plat ; il est ignoré pour les clés mais reste éligible à l'ownership et
+  au writer.
+. *Les tests ne l'attrapent pas* — la fixture `talaria-i18n-client` ne contient
+  que chrome + patch ; le catalogue n'apparaît nulle part dans les tests.
+
+== Implémentation
+
+=== US-5a — `I18nJsFormat` + ownership restreint (DDD/TDD)
+
+`bakery.i18n.js.I18nJsFormat` (enum pur `FLAT`/`CATALOG`, `of(source)` sur le
+marqueur `TALARIA\.I18N\.CATALOG\s*=`, prédicats `isFlat`/`isCatalogue`). Le
+marqueur est **autoritaire** : le catalogue réutilise l'indentation flat et ne
+doit jamais être confondu.
+
+`I18nClientDelta.languageOwners` saute désormais les sources `CATALOG` — le
+catalogue ne peut plus capter de clé plate.
+
+=== US-5b — `I18nCatalog` (DDD/TDD)
+
+`bakery.i18n.js.I18nCatalog` (object pur) : `languagesOf`, `formationsOf`,
+`fieldsOf` (parser imbriqué à indentation paramétrée 4/6/8, scanner
+string-aware) et `plan(source, reference, targets): I18nCatalogPlan`.
+
+`I18nCatalogPlan` (data class) : `languages`, `missingLanguages`,
+`missingFormations` (langue → formations), `missingFields` (langue → formation
+→ champs) + compteurs + `hasGap` + `EMPTY`. Le plan est vide quand la référence
+ne possède aucun bloc catalogue (un dictionnaire plat n'a pas de catalogue).
+
+=== US-5c — Câblage tâche (partition + report + garde)
+
+`TranslateI18nClientTask` :
+. partitionne les sources `catalogueFiles` / `flatFiles` **avant** la garde de
+  format et le delta plat — le catalogue ne passe **jamais** dans le writer plat
+  ni dans `I18nClientFormatGuard.verify` ;
+. reporte la couverture catalogue (`logCatalogueCoverage`) : lacune → `warn`
+  détaillé (langues, formations, champs), complète → `lifecycle` « aucune
+  lacune », arbre sans catalogue → silence (Économie d'Encre) ;
+. seam `internal fun catalogueCoverage(intention): I18nCatalogPlan` testable
+  sans Gradle (pattern S-220 `execute()`).
+
+=== REFACTOR — `I18nJsBlockScanner`
+
+Le scanner balanced-brace string-aware était dupliqué (flat + catalogue).
+Extrait en objet `internal` unique consommé par les deux (`matchingBrace`,
+`bodyFrom`) — `I18nJsDictionary` et `I18nCatalog` délèguent.
+
+== Tests
+
+|===
+| Niveau | Contenu | Résultat
+
+| DDD UT | `I18nJsFormatTest` (6 : classification chrome/patch/catalogue/sans marqueur/marqueur prioritaire + prédicats) | 6/6
+| DDD UT | `I18nCatalogTest` (11 : parsing languages/formations/fields, delta langue/formation/champ, référence, arbre plat, compteurs) | 11/11
+| TDD UT | `I18nClientDeltaTest` +2 (`a nested catalogue never owns a flat language block`, `sorted real tree keeps the flat chrome as the owner`) | 2/2
+| TDD UT | `TranslateI18nClientTaskTest` +4 (coverage langue+formation+champ, catalogue complet, arbre plat = EMPTY, catalogue jamais envoyé au writer) | 4/4
+| Intégration | `I18nJsDictionaryTalariaIntegrationTest` +4 (dogfooding réel : 22 langues × 2 formations, 0 lacune, classification, ownership réel) | 4/4
+| BDD | Feature 64 étendue 10 → **14 scénarios** (`@i18n-client`) : capture, langue manquante, formation+champs, no-op | 14/14
+|===
+
+*Preuve du RED* : garde `I18nJsFormat.of(...) == CATALOG` retirée temporairement
+→ les 2 UT `LanguageOwners` échouent (le catalogue capte `fr`/`en`/`it`),
+restauration → GREEN. Signature TDD respectée.
+
+== Gates
+
+|===
+| Gate | Résultat
+| `./gradlew test` | **1804 tests, 0 FAIL, 0 erreur, 3 skipped** (baseline S-222 1777/0 → **+27 net**)
+| Runner dédié feature 64 | 14/14 scénarios PASSED
+| `./gradlew functionalTest --rerun-tasks` | **BUILD SUCCESSFUL 4m28s — 130/130, 0 FAIL**
+| `./gradlew -q publishToMavenLocal` | VERT (règle INDEX 0)
+| Gate métier `grep -rwE "REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA" src/` | 0 (vide)
+|===
+
+*Incident infra* : 2 exécutions `:test` interrompues par `java.io.EOFException`
+(worker mort) — cause mesurée : charge 21-27, swap plein (15 Gi, sessions
+opencode concurrentes). Non lié au code ; relance ciblée puis complète vertes.
+Le `functionalTest` intermédiaire a lui aussi échoué par infra, `--rerun-tasks`
+a confirmé 130/130.
+
+== Artefacts
+
+- `+src/main/kotlin/bakery/i18n/js/I18nJsFormat.kt` (enum pur)
+- `+src/main/kotlin/bakery/i18n/js/I18nCatalog.kt` (plan + object pur)
+- `+src/main/kotlin/bakery/i18n/js/I18nJsBlockScanner.kt` (scanner partagé, REFACTOR)
+- `+src/test/kotlin/bakery/i18n/js/I18nJsFormatTest.kt` (6 UT)
+- `+src/test/kotlin/bakery/i18n/js/I18nCatalogTest.kt` (11 UT)
+- `M src/main/kotlin/bakery/i18n/js/I18nClientDelta.kt` (ownership : saute le catalogue)
+- `M src/main/kotlin/bakery/i18n/js/I18nJsDictionary.kt` (délègue le scanner, -37 lignes)
+- `M src/main/kotlin/bakery/i18n/js/TranslateI18nClientTask.kt` (partition + report + seam)
+- `M src/test/kotlin/bakery/i18n/js/I18nClientDeltaTest.kt` (+2 UT, fixture catalogue)
+- `M src/test/kotlin/bakery/i18n/js/I18nClientCucumberTest*.kt` (inchangé) / `+` feature 64 (+4 scénarios)
+- `M src/test/kotlin/bakery/i18n/js/I18nJsDictionaryTalariaIntegrationTest.kt` (+4 UT dogfooding)
+- `M src/test/kotlin/bakery/i18n/js/TranslateI18nClientTaskTest.kt` (+4 UT, 2 fixtures catalogue)
+- `M src/test/scenarios/bakery/scenarios/I18nClientDictionarySteps.kt` (+4 steps + générateurs)
+
+== Décisions
+
+. *Le catalogue est une couverture, pas une écriture plate* — le contrat S-054
+   est « présence de langue / champs manquants ». La tâche **reporte** la
+   lacune ; la traduction du contenu imbriqué est un chantier distinct
+   (elle exigerait un writer imbriqué + validation de structure, hors périmètre).
+. *`I18nJsFormat` = source unique de vérité du format* — la classification par
+   marqueur explicite remplace toute heuristique d'indentation (le catalogue
+   partage l'indentation flat).
+. *Défense en profondeur* — la tâche partitionne (`flatFiles`/`catalogueFiles`)
+   **et** `languageOwners` saute le catalogue : deux gardes indépendantes. Le
+   scénario BDD de capture passe par la partition ; le UT le prouve par
+   l'ownership (RED restauré).
+. *Report warn, pas silencieux* — une lacune catalogue est un signal de
+   couverture, pas une erreur de build : `warn` détaillé sans faire échouer la
+   tâche (le verrou de couverture reste côté talaria `I18nCatalogCoverageGuard`).
+. *Scanner extrait* — la règle balanced-brace string-aware (valeur `"{0}"`) est
+   trop subtile pour être dupliquée ; un seul objet `internal` la porte.
+
+== Reste du backlog bakery
+
+- BKY-LANG-22-8/9 dogfooding LLM 22 langues — *accord pilote (coût LLM)*
+- BKY-LANG-22-10 publication Central consommateurs — *accord pilote (publication)*
+- MASS-6 ~675h LLM — *accord pilote (coût LLM)*
+
+*Aucun EPIC bakery bloqué par de la dette locale restante.*

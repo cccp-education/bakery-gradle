@@ -1,52 +1,63 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 223
+:session: 224
 :date: 2026-09-17
-:etat: Session 222 ✅ — **FLAKY-4 résolu** : drift fixture `contact.thyme` (site réel cheroliv.com S-031 retrait champ `subject`) resynchronisé + golden master régénéré. Gate `test` **1777/0 FAIL** (baseline S-221 1775/2 → les 2 FAIL historiques disparaissent).
-:epic_actif: Aucun EPIC bakery actif. BKY-TEST-FLAKY étendu FLAKY-4 ✅.
+:etat: Session 223 ✅ — **BKY-I18N-JS-5 TERMINÉ** : le catalogue structurel (`i18n-content.js`, `TALARIA.I18N.CATALOG`) est enfin traité — classification de format (`I18nJsFormat`), couverture (`I18nCatalog`), ownership corrigé (le catalogue ne capte plus les clés plates), report de lacune. Gate `test` **1804/0 FAIL** (baseline 1777/0 → +27).
+:epic_actif: Aucun EPIC bakery actif. BKY-I18N-JS complété à 5 US (l'EPIC était marqué 4/4 à tort).
 
 == Contexte de fin
 
-Session 222 — nettoyage de dette locale actionnable (zéro coût LLM/publication) :
+Session 223 — clôture d'une non-conformité découverte dans l'EPIC
+`BKY-I18N-JS` pourtant marqué TERMINÉ (S-220) :
 
-- **Diagnostic** : les 2 FAIL « préexistants » (S-218→S-221) n'étaient **pas un flake**
-  mais un drift réel. Le site `office/sites/cheroliv.com` a retiré le champ `subject`
-  du formulaire contact (commit `d96dcec`, 2026-09-14, US-35) ; la fixture bakery
-  n'avait pas été resynchronisée.
-- **Fix** : resync `i18n-fixtures/cheroliv-com/jbake/templates/contact.thyme` + recâblage
-  `contact.6`/`contact.7` → `contact.6` + régénération golden master (procédure
-  one-shot `PostMigrationSnapshotGenerator`, churn timestamp réverté).
-- **Résultat** : `FixtureAlignmentAuditorTest` 8/0, `RealSiteI18nMigrationIntegrationTest`
-  2/2. Diff chirurgical (5 fichiers, +6/-23).
+- Le cadrage talaria S-054 déclare **3** dictionnaires i18n JS. Le 3e
+  (`maquette/js/i18n-content.js`, `TALARIA.I18N.CATALOG`) est **imbriqué**
+  (langues → formations → scalaires + listes) et n'était **jamais traité** :
+  le parser plat n'y voit aucune clé.
+- Bug latent plus grave : le catalogue réutilise l'indentation flat, donc
+  `languageOwners` le désignait **propriétaire des 22 langues** (tri alphabétique
+  `i18n-content.js` en tête) — une clé chrome `fr` ajoutée aurait été insérée
+  dans le catalogue.
+- Fix : `I18nJsFormat` (classification `FLAT`/`CATALOG` par marqueur),
+  `I18nCatalog` (plan de couverture langue/formation/champ), partition
+  plat/catalogue dans la tâche, report `warn` des lacunes, ownership restreint.
+- REFACTOR : `I18nJsBlockScanner` (scanner balanced-brace string-aware partagé).
+- Dogfooding réel : catalogue talaria 22 langues × 2 formations, 0 lacune.
 
-Gate : `test` **1777/0 FAIL**, `publishToMavenLocal` VERT, grep métier src/ = 0.
-**Les gates cross-borough MEMPHIS n'ont plus besoin de la mention « baseline 2 FAIL ».**
+Gate : `test` **1804/0 FAIL**, `functionalTest --rerun-tasks` 130/0,
+feature 64 **14/14**, `publishToMavenLocal` VERT, grep métier = 0.
 
-== Mission Session 223 — à la demande
+== Mission Session 224 — à la demande
 
 Les 3 pistes restantes exigent toutes un **accord pilote** :
 
-1. **BKY-LANG-22-8/9** : dogfooding LLM réel 22 langues (slider corpus + capsule vidéo)
-   — coût LLM metered.
+1. **BKY-LANG-22-8/9** : dogfooding LLM réel 22 langues (slider corpus + capsule
+   vidéo) — coût LLM metered.
 2. **BKY-LANG-22-10** : publication Central consommateurs (BOM/catalog 0.0.43) —
    `bakery-plugin` ≥ 0.0.13 débloque le wiring talaria en CI.
 3. **MASS-6** : montée en charge 108 articles × 10 langues — coût LLM ~675h.
 
+Option ouverte (si accord pilote) : **traduction du contenu catalogue imbriqué**
+(`I18nCatalog` ne fait aujourd'hui que la couverture ; un writer imbriqué +
+validation de structure serait le chantier suivant, cf. décision S-223 §1).
+
 ## Reprendre à
 
 . `git status` dans bakery-gradle — vérifier qu'aucune session concurrente n'écrit.
-. `.agents/sessions/222-flaky-4-contact-thyme-drift-resolu.adoc` (rapport)
-. `./gradlew test` — non-régression (baseline 1777/0 attendue)
+. `.agents/sessions/223-BKY-I18N-JS-5-catalogue-ownership-coverage.adoc` (rapport)
+. `./gradlew test` — non-régression (baseline 1804/0 attendue)
 . `publishToMavenLocal` après chaque modification code source (règle INDEX 0)
 
 ## Rappel
 
-- Gate permanente : `grep -rwn "REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA" src/` = 0
+- Gate permanente : `grep -rwnE "REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA" src/` = 0
 - **Décision pilote (S-054)** : pas de migration `LlmBuildService` (codebase N1) —
   socle LLM bakery **local** (`bakery.llm.PooledOllamaLlmService`), hors périmètre.
 - **Config pool LLM consommateur** : `site.yml → ollama:` résolue par `IaConfigResolver`
   (S-221), prioritaire sauf DSL explicitement activé.
 - **Collision de sessions** : vérifier `git status` — d'autres boroughs écrivent parfois
   dans le même arbre (graphify S-221/S-028).
-- Note environnement : suites cucumber complètes timeout sous charge (load 14+).
+- Note environnement : `:test` peut mourir en `EOFException` sous charge (load 20+,
+  swap plein) — incident infra, relancer ; `functionalTest --rerun-tasks` si un
+  FAILED sans échec de test.
 
-(PROMPT_REPRISE — ~50 lines)
+(PROMPT_REPRISE — ~55 lines)

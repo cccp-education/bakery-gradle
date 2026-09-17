@@ -1,5 +1,6 @@
 package bakery.scenarios
 
+import bakery.i18n.js.I18nCatalogPlan
 import bakery.i18n.js.I18nClientDelta
 import bakery.i18n.js.I18nClientMigrationIntention
 import bakery.i18n.js.I18nJsDictionary
@@ -36,6 +37,8 @@ class I18nClientDictionarySteps {
     private var dryRun = false
     private var originalChrome: String = ""
     private var originalPatch: String = ""
+    private var catalogueOriginal: String = ""
+    private var lastCoverage: I18nCatalogPlan = I18nCatalogPlan.EMPTY
 
     @Given("a talaria i18n client fixture with chrome and patch dictionaries")
     fun setupFixture() {
@@ -71,6 +74,21 @@ class I18nClientDictionarySteps {
     @Given("the i18n client task runs in dry-run mode")
     fun runsInDryRun() {
         dryRun = true
+    }
+
+    @Given("a structured catalogue owning the same languages as the chrome dictionary")
+    fun catalogueOwningSameLanguages() {
+        writeCatalogue(catalogueOwning(complete = true))
+    }
+
+    @Given("a structured catalogue owning a complete en block")
+    fun catalogueCompleteEn() {
+        writeCatalogue(catalogueOwning(complete = true))
+    }
+
+    @Given("a structured catalogue owning a partial en block")
+    fun cataloguePartialEn() {
+        writeCatalogue(catalogueOwning(complete = false))
     }
 
     @Given("a stale jbake publication copy of the chrome dictionary")
@@ -180,7 +198,98 @@ class I18nClientDictionarySteps {
         assertThat(publicationFile().readText()).isEqualTo("var DICT = { stale };")
     }
 
+    @Then("the flat key {string} should be written to the chrome dictionary")
+    fun assertFlatKeyWrittenToChrome(key: String) {
+        assertThat(I18nJsDictionary.parse(chromeFile.readText())["fa"])
+            .describedAs("the catalogue must not steal the flat language block")
+            .containsKey(key)
+        assertThat(I18nJsDictionary.parse(chromeFile.readText())["fa"]!![key]).isEqualTo("«fa» Panier")
+    }
+
+    @Then("the structured catalogue should be byte-identical to the fixture")
+    fun assertCatalogueUntouched() {
+        assertThat(catalogueFile().readText()).isEqualTo(catalogueOriginal)
+    }
+
+    @Then("the catalogue coverage should report the missing language {string}")
+    fun assertMissingLanguage(language: String) {
+        assertThat(lastCoverage.missingLanguages).contains(language)
+    }
+
+    @Then("the catalogue coverage should report the missing formation {string} {string}")
+    fun assertMissingFormation(
+        language: String,
+        formation: String,
+    ) {
+        assertThat(lastCoverage.missingFormations[language]).contains(formation)
+    }
+
+    @Then("the catalogue coverage should report the missing field {string} {string} {string}")
+    fun assertMissingField(
+        language: String,
+        formation: String,
+        field: String,
+    ) {
+        assertThat(lastCoverage.missingFields[language]?.get(formation)).contains(field)
+    }
+
+    @Then("the catalogue coverage should have no gap")
+    fun assertNoCatalogueGap() {
+        assertThat(lastCoverage.hasGap).isFalse()
+    }
+
     private fun publicationFile(): File = projectDir.resolve("jbake/assets/js/i18n.js")
+
+    private fun catalogueFile(): File = projectDir.resolve("maquette/js/i18n-content.js")
+
+    private fun writeCatalogue(content: String) {
+        catalogueFile().also {
+            it.parentFile.mkdirs()
+            it.writeText(content)
+        }
+        catalogueOriginal = content
+    }
+
+    /**
+     * A structured catalogue whose `fr` reference owns `fpa` (title + modules)
+     * and `cda` (title), and which owns the same `fr`/`en`/`fa` blocks as the
+     * chrome dictionary — the capture case. The `en` block is either complete
+     * (same formations and fields) or partial (missing `cda` and `modules`).
+     */
+    private fun catalogueOwning(complete: Boolean): String {
+        val enCda = if (complete) "      cda: {\n        title: \"Designer\"\n      },\n" else ""
+        val enTitle = if (complete) "        title: \"Trainer\",\n" else "        title: \"Trainer\"\n"
+        val enModules =
+            if (complete) {
+                "        modules: [\n          { title: \"M1\", desc: \"D1\" }\n        ]\n"
+            } else {
+                ""
+            }
+        return """
+        |TALARIA.I18N.CATALOG = {
+        |    fr: {
+        |      fpa: {
+        |        title: "Formateur",
+        |        modules: [
+        |          { title: "M1", desc: "D1" }
+        |        ]
+        |      },
+        |      cda: {
+        |        title: "Concepteur"
+        |      }
+        |    },
+        |    en: {
+        |      fpa: {
+        |$enTitle$enModules      },
+        |$enCda    },
+        |    fa: {
+        |      fpa: {
+        |        title: "مربی"
+        |      }
+        |    }
+        |  };
+        """.trimMargin()
+    }
 
     private fun translate(targetLang: String) {
         lastMissing = plan(targetLang).sumOf { it.keys.size }
@@ -192,6 +301,7 @@ class I18nClientDictionarySteps {
                 dryRun = dryRun,
             )
         task.translationService = recording
+        lastCoverage = task.catalogueCoverage(task.dslIntention!!)
         task.executeI18nClientTranslation()
     }
 

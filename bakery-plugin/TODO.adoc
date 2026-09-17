@@ -1,14 +1,16 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-09-17 — Session 222. **FLAKY-4 résolu** : drift fixture `contact.thyme` (site réel cheroliv.com S-031 retrait champ `subject`) → resync + recâblage `contact.6` + golden master régénéré. Gate `test` **1777/0 FAIL** (fin des « 2 FAIL préexistants »). Antérieur S-221 : cross-borough T-I18N-BAKERY US-2/US-3 (`IaConfigResolver`). Antérieur S-220 : **EPIC BKY-I18N-JS TERMINÉ 4/4 US** (propagation byte-identique + garde de format). Antérieur S-217 : EPIC BKY-LANG-22 7/10 US (reste dogfooding LLM 22 langues + publication Central consommateurs)._
+_Dernière mise à jour : 2026-09-17 — Session 223. **BKY-I18N-JS-5 TERMINÉ** : le catalogue structurel (`i18n-content.js`, `TALARIA.I18N.CATALOG`), déclaré au cadrage talaria S-054 mais jamais traité (parser plat = 0 clé) et qui captait les clés plates par tri alphabétique, est classifié (`I18nJsFormat`), planifié en couverture (`I18nCatalog`) et son ownership corrigé. Gate `test` **1804/0 FAIL** (baseline 1777/0 → +27). Antérieur S-222 : **FLAKY-4 résolu** (drift fixture `contact.thyme`). Antérieur S-221 : cross-borough T-I18N-BAKERY US-2/US-3 (`IaConfigResolver`). Antérieur S-220 : **EPIC BKY-I18N-JS 4/4 US** (propagation byte-identique + garde de format). Antérieur S-217 : EPIC BKY-LANG-22 7/10 US (reste dogfooding LLM 22 langues + publication Central consommateurs)._
 
-== EPIC BKY-I18N-JS (S-050) — Task `translateI18nClient` (dictionnaire i18n JS client) ✅ 4/4 US
+== EPIC BKY-I18N-JS (S-050) — Task `translateI18nClient` (dictionnaire i18n JS client) ✅ 5/5 US
 
 * [x] **BKY-I18N-JS-1** : Cadrage fin + cartographie 3 dictionnaires ✅ S-054 (talaria US-0)
 * [x] **BKY-I18N-JS-2** : `I18nJsDictionary` object pur (`parse`/`languagesOf`/`insertTranslations`) ✅ S-218 (16 UT + 5 intégration dogfooding réel ; round-trip byte-identique ; 2 invariants supérieurs au harness)
 * [x] **BKY-I18N-JS-3** : Task `translateI18nClient` + intention + DSL + registrar + tests (unit/functional/Cucumber) ✅ S-219 (14 UT domaine + 18 UT task + 5 FT + feature 64 7 scénarios + runner dédié)
 * [x] **BKY-I18N-JS-4** : Propagation `maquette/js/` → `jbake/assets/js/` byte-identique + garde parse↔write + frontière zéro HTTP ✅ S-220 (9 UT propagation + 6 UT garde + 3 UT frontière + 1 UT task garde + 4 FT + feature 64 10/10)
+* [x] **BKY-I18N-JS-5** : Catalogue structurel (`TALARIA.I18N.CATALOG`) — classification `I18nJsFormat` + couverture `I18nCatalog` (langue/formation/champ) + ownership plat corrigé (le catalogue ne capte plus les clés chrome) + partition/report tâche + REFACTOR `I18nJsBlockScanner` ✅ S-223 (6 + 11 + 2 + 4 UT + 4 UT dogfooding réel + feature 64 10→14 ; `test` 1804/0)
+* [ ] **BKY-I18N-JS-6 (candidat)** : **Traduction** du contenu catalogue imbriqué (writer imbriqué + validation de structure) — 🟡 chantier distinct, accord pilote requis (S-223 décision §1 : la couverture n'est pas l'écriture)
 
 == EPIC BKY-LANG-22 (S-217) — Extension LanguageCatalog 10 → 22 langues 🟡 7/10 US
 

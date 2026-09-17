@@ -90,11 +90,16 @@ abstract class TranslateI18nClientTask : DefaultTask() {
         logger.lifecycle("[translateI18nClient] Propagation : {}", intention.propagate)
 
         val files = resolveSourceFiles(intention)
+        val catalogueFiles = files.filterValues { I18nJsFormat.of(it) == I18nJsFormat.CATALOG }
+        val flatFiles = files.filterKeys { it !in catalogueFiles.keys }
+
+        logCatalogueCoverage(cataloguePlan(catalogueFiles.values, intention))
+
         val invalidFiles =
-            files.filterValues { source -> !I18nClientFormatGuard.verify(source).isValid }.keys
+            flatFiles.filterValues { source -> !I18nClientFormatGuard.verify(source).isValid }.keys
         if (invalidFiles.isNotEmpty()) {
             invalidFiles.forEach { file ->
-                val report = I18nClientFormatGuard.verify(files.getValue(file))
+                val report = I18nClientFormatGuard.verify(flatFiles.getValue(file))
                 logger.warn(
                     "[translateI18nClient] {} ignore — format invalide : {}",
                     file,
@@ -102,7 +107,7 @@ abstract class TranslateI18nClientTask : DefaultTask() {
                 )
             }
         }
-        val validFiles = files.filterKeys { it !in invalidFiles }
+        val validFiles = flatFiles.filterKeys { it !in invalidFiles }
 
         val plan = I18nClientDelta.plan(validFiles, intention.referenceLanguage, intention.targetLanguages)
 
@@ -197,6 +202,97 @@ abstract class TranslateI18nClientTask : DefaultTask() {
         )
 
         if (intention.propagate) propagateToPublication(intention)
+    }
+
+    /**
+     * Structured-catalogue coverage of [intention]: the languages, formations
+     * and fields of the reference language the target languages are missing.
+     *
+     * The catalogue (`TALARIA.I18N.CATALOG`) is nested and unquoted, so it can
+     * never go through the flat writer ([I18nJsDictionary]). This report is the
+     * visibility the flat delta cannot give — the contract is coverage, not a
+     * flat rewrite (cadrage talaria S-054). A tree without catalogue yields
+     * [I18nCatalogPlan.EMPTY].
+     */
+    internal fun catalogueCoverage(intention: I18nClientMigrationIntention): I18nCatalogPlan =
+        cataloguePlan(
+            catalogueSources = resolveSourceFiles(intention).values.filter { I18nJsFormat.of(it).isCatalogue },
+            intention = intention,
+        )
+
+    private fun cataloguePlan(
+        catalogueSources: Collection<String>,
+        intention: I18nClientMigrationIntention,
+    ): I18nCatalogPlan {
+        if (catalogueSources.isEmpty()) return I18nCatalogPlan.EMPTY
+
+        val plans =
+            catalogueSources.map {
+                I18nCatalog.plan(it, intention.referenceLanguage, intention.targetLanguages)
+            }
+        return I18nCatalogPlan(
+            languages = plans.flatMap { it.languages }.distinct(),
+            missingLanguages = plans.flatMap { it.missingLanguages }.distinct(),
+            missingFormations = mergeNested(plans.map { it.missingFormations }),
+            missingFields = mergeDoubleNested(plans.map { it.missingFields }),
+        )
+    }
+
+    private fun mergeNested(
+        maps: List<Map<String, List<String>>>,
+    ): Map<String, List<String>> {
+        val merged = LinkedHashMap<String, List<String>>()
+        for (map in maps) {
+            for ((language, values) in map) {
+                merged[language] = (merged[language].orEmpty() + values).distinct()
+            }
+        }
+        return merged
+    }
+
+    private fun mergeDoubleNested(
+        maps: List<Map<String, Map<String, List<String>>>>,
+    ): Map<String, Map<String, List<String>>> {
+        val merged = LinkedHashMap<String, MutableMap<String, List<String>>>()
+        for (map in maps) {
+            for ((language, formations) in map) {
+                val target = merged.getOrPut(language) { LinkedHashMap() }
+                for ((formation, fields) in formations) {
+                    target[formation] = (target[formation].orEmpty() + fields).distinct()
+                }
+            }
+        }
+        return merged
+    }
+
+    private fun logCatalogueCoverage(plan: I18nCatalogPlan) {
+        if (plan == I18nCatalogPlan.EMPTY) return
+        if (!plan.hasGap) {
+            logger.lifecycle("[translateI18nClient] Catalogue structurel : aucune lacune de couverture.")
+            return
+        }
+        logger.warn(
+            "[translateI18nClient] Catalogue structurel : {} langue(s), {} formation(s), {} champ(s) manquants.",
+            plan.missingLanguageCount,
+            plan.missingFormationCount,
+            plan.missingFieldCount,
+        )
+        plan.missingLanguages.forEach { language ->
+            logger.warn("[translateI18nClient]   catalogue [{}] langue entiere manquante", language)
+        }
+        plan.missingFormations.forEach { (language, formations) ->
+            logger.warn("[translateI18nClient]   catalogue [{}] formations manquantes : {}", language, formations)
+        }
+        plan.missingFields.forEach { (language, formations) ->
+            formations.forEach { (formation, fields) ->
+                logger.warn(
+                    "[translateI18nClient]   catalogue [{}] {} champs manquants : {}",
+                    language,
+                    formation,
+                    fields,
+                )
+            }
+        }
     }
 
     /**

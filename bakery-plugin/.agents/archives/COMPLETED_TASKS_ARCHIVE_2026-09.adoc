@@ -285,3 +285,36 @@ LLM (slider/capsule) + publication Central consommateurs. 5 repos modifiés.
 === Prochaine session
 * BKY-LANG-22-8/9 (dogfooding LLM 22 langues) OU 10 (publication Central) OU MASS-6
   — **accord pilote requis** (coût LLM metered / publication).
+
+---
+
+== Session 223 — BKY-I18N-JS-5 : catalogue structurel (ownership + couverture)
+
+=== Fait
+* **Diagnostic** — le cadrage talaria S-054 déclare **3** dictionnaires i18n JS.
+  * Le 3e, `maquette/js/i18n-content.js` (`TALARIA.I18N.CATALOG`), est **imbriqué**
+    (langues → formations `fpa`/`cda` → scalaires + listes) et n'était **jamais traité** :
+    `I18nJsDictionary` est plat (clés quotées) → **0 clé** extraite.
+  * **Bug latent** : le catalogue réutilise l'indentation flat → `languageOwners` le
+    désignait **propriétaire des 22 langues** (tri alphabétique `i18n-content.js` en tête).
+    Une clé chrome `fr` ajoutée aurait été insérée dans le catalogue (corruption).
+  * La tâche ne partitionnait pas ; les tests ne voyaient pas le catalogue (fixture chrome+patch).
+* **Fix (5 créés, 8 modifiés)** — baby-step DDD/TDD/BDD strict.
+  * `I18nJsFormat` (enum pur `FLAT`/`CATALOG` par marqueur, 6 UT).
+  * `I18nCatalog` + `I18nCatalogPlan` (couverture langue/formation/champ, 11 UT).
+  * `I18nClientDelta.languageOwners` saute les sources CATALOG (RED prouvé, +2 UT).
+  * `TranslateI18nClientTask` : partition plat/catalogue + report `warn` + seam
+    `catalogueCoverage` (4 UT).
+  * REFACTOR `I18nJsBlockScanner` (scanner balanced-brace string-aware partagé, -37 lignes).
+  * Dogfooding réel talaria (4 UT : 22 langues × 2 formations, 0 lacune).
+  * BDD feature 64 **10 → 14 scénarios** + 4 steps + générateur de catalogue.
+
+=== Gate
+* `test` **1804 tests, 0 FAIL, 0 erreur, 3 skipped** (baseline 1777/0 → **+27 net**).
+* Feature 64 **14/14** ; `functionalTest --rerun-tasks` **130/130** (4m28s).
+* `publishToMavenLocal` VERT, grep métier src/ = 0, zéro secret, zéro BOM.
+* Incident infra : 2× `:test` `EOFException` (load 21-27 + swap plein) — relance verte.
+
+=== Prochaine session
+* BKY-LANG-22-8/9 (dogfooding LLM 22 langues) OU 10 (publication Central) OU MASS-6
+  OU traduction du contenu catalogue imbriqué — **accord pilote requis**.

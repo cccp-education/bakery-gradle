@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-09-17 — ✅ **FLAKY-4 résolu (S-222)** — drift fixture `contact.thyme` : le site réel cheroliv.com a retiré le champ `subject` du contact (US-35, `d96dcec` 2026-09-14), fixture + golden master non resynchronisés → resync fixture + recâblage `contact.6` + régénération golden master one-shot. Gate `test` **1777/0 FAIL** (fin des « 2 FAIL préexistants » mentionnés depuis S-218 dans toutes les gates cross-borough MEMPHIS). Antérieur S-221 : ✅ **Cross-borough T-I18N-BAKERY US-2/US-3** — `bakery.llm.IaConfigResolver` (pool LLM résolu depuis `site.yml → ollama:`) + câblage `translateI18nClient` + harness talaria réduit à un audit read-only. Antérieur S-220 : ✅ **EPIC BKY-I18N-JS TERMINÉ 4/4 US** — US-4 livrée : propagation `maquette/js/` → `jbake/assets/js/` byte-identique (`I18nClientPropagation` object pur, delta-only) + garde de format parse↔write (`I18nClientFormatGuard`) + test d'architecture frontière zéro HTTP direct. Domaine `bakery.i18n.js` clos (6 fichiers prod). Session 217 🟡 **EPIC BKY-LANG-22 EN COURS** — extension du contrat N0 `contracts.i18n.LanguageCatalog` de 10 → 22 langues (parité talaria.school : +it nl de el tr vi th id ko ja sr **fa RTL**). Livré et publié Central : `i18n-contracts:0.0.4` (bundle `c1a9de57`) + BOM/catalog `0.0.43` (bundle `eb310d04`) + propagation bakery/capsule/slider/document. **Reste en cours** : régénération du corpus dogfooding slider (27 fichiers gelés, 12 langues × 3 decks à produire via LLM metered — Loi Économie d'Encre), dogfooding capsule 22 langues, publication Central des consommateurs (bakery/capsule/slider). Session 216 ✅ transfert BKY-FPA-SITE → TRN-11 (training, pattern TRN-9) + arbitrage licence FPA tranché. Session 213 ✅ RENAME Vague 3 CLÔTURÉ transverse._
+_Dernière mise à jour : 2026-09-17 — ✅ **BKY-I18N-JS-5 TERMINÉ (S-223)** — le catalogue structurel (`i18n-content.js`, `TALARIA.I18N.CATALOG`), déclaré au cadrage talaria S-054 mais jamais traité, est désormais **classifié** (`I18nJsFormat` `FLAT`/`CATALOG`), **planifié en couverture** (`I18nCatalog` : langue/formation/champ) et son **ownership plat corrigé** (le catalogue ne capte plus les clés chrome — bug latent de corruption). Le 3e dictionnaire avait été oublié par l'EPIC que l'on croyait 4/4. REFACTOR `I18nJsBlockScanner` (scanner partagé). Dogfooding réel talaria (22 langues × 2 formations, 0 lacune). Gate `test` **1804/0 FAIL** (baseline 1777/0 → +27). Antérieur S-222 : ✅ **FLAKY-4 résolu** — drift fixture `contact.thyme` : le site réel cheroliv.com a retiré le champ `subject` du contact (US-35, `d96dcec` 2026-09-14), fixture + golden master non resynchronisés → resync fixture + recâblage `contact.6` + régénération golden master one-shot. Gate `test` **1777/0 FAIL** (fin des « 2 FAIL préexistants » mentionnés depuis S-218 dans toutes les gates cross-borough MEMPHIS). Antérieur S-221 : ✅ **Cross-borough T-I18N-BAKERY US-2/US-3** — `bakery.llm.IaConfigResolver` (pool LLM résolu depuis `site.yml → ollama:`) + câblage `translateI18nClient` + harness talaria réduit à un audit read-only. Antérieur S-220 : ✅ **EPIC BKY-I18N-JS TERMINÉ 4/4 US** — US-4 livrée : propagation `maquette/js/` → `jbake/assets/js/` byte-identique (`I18nClientPropagation` object pur, delta-only) + garde de format parse↔write (`I18nClientFormatGuard`) + test d'architecture frontière zéro HTTP direct. Domaine `bakery.i18n.js` clos (6 fichiers prod). Session 217 🟡 **EPIC BKY-LANG-22 EN COURS** — extension du contrat N0 `contracts.i18n.LanguageCatalog` de 10 → 22 langues (parité talaria.school : +it nl de el tr vi th id ko ja sr **fa RTL**). Livré et publié Central : `i18n-contracts:0.0.4` (bundle `c1a9de57`) + BOM/catalog `0.0.43` (bundle `eb310d04`) + propagation bakery/capsule/slider/document. **Reste en cours** : régénération du corpus dogfooding slider (27 fichiers gelés, 12 langues × 3 decks à produire via LLM metered — Loi Économie d'Encre), dogfooding capsule 22 langues, publication Central des consommateurs (bakery/capsule/slider). Session 216 ✅ transfert BKY-FPA-SITE → TRN-11 (training, pattern TRN-9) + arbitrage licence FPA tranché. Session 213 ✅ RENAME Vague 3 CLÔTURÉ transverse._
 
 '''
 
@@ -101,7 +101,7 @@ _Projection restante_ : 2 sessions (S-218 dogfooding LLM, S-219 publication Cent
 '''
 
 
-== EPIC BKY-I18N-JS — Task `translateI18nClient` : traduction du dictionnaire i18n JS client ✅ TERMINÉ (S-220) — 4/4 US
+== EPIC BKY-I18N-JS — Task `translateI18nClient` : traduction du dictionnaire i18n JS client ✅ TERMINÉ (S-220 + US-5 S-223) — 5/5 US
 
 _Origine : demande pilote talaria.school 2026-09-16 — la traduction des dictionnaires
 i18n **JavaScript client** (`TALARIA.I18N.DICT`, `TALARIA.I18N.CATALOG`) doit passer par
@@ -237,13 +237,33 @@ retrait du harness côté talaria (US-3).
   strict no-op), 3 chemins non-dry-run, garde de format câblée en production
   (fichier invalide écarté, résultat invalide jamais écrit). 9 UT propagation +
   6 UT garde + 3 UT frontière HTTP + 1 UT task garde. Oven 5→9. Feature 64 7→10
-  scénarios. Test d'architecture frontière HTTP (domaine sans réseau, port N0
-  uniquement). Gate `test` 1768/2 préexistants (baseline 1743/2 → +25),
-  functionalTest 9/9, Cucumber 64 10/10, `publishToMavenLocal` VERT.
+   scénarios. Test d'architecture frontière HTTP (domaine sans réseau, port N0
+   uniquement). Gate `test` 1768/2 préexistants (baseline 1743/2 → +25),
+   functionalTest 9/9, Cucumber 64 10/10, `publishToMavenLocal` VERT.
+
+| BKY-I18N-JS-5
+| **Catalogue structurel** (non-conformité découverte S-223) : le 3e dictionnaire
+  `i18n-content.js` (`TALARIA.I18N.CATALOG`, **imbriqué**) déclaré au cadrage
+  talaria S-054 n'était jamais traité (parser plat = 0 clé) et son indentation
+  flat le faisait **capter les clés plates** (`languageOwners` propriétaire des
+  22 langues par tri alphabétique). Classification `I18nJsFormat`, couverture
+  `I18nCatalog` (langue/formation/champ), ownership restreint au flat, partition
+  plat/catalogue + report dans la tâche.
+| 3
+| ✅ TERMINÉ (S-223) — `I18nJsFormat` (6 UT) + `I18nCatalog`/`I18nCatalogPlan`
+  (11 UT) + `languageOwners` skip catalogue (RED prouvé, +2 UT) + partition/report
+  tâche (4 UT) + REFACTOR `I18nJsBlockScanner` (scanner partagé, -37 lignes) +
+  dogfooding réel talaria (4 UT, 22 langues × 2 formations, 0 lacune) + feature 64
+  10 → 14 scénarios. Gate `test` 1804/0 (baseline 1777/0 → +27), `functionalTest`
+  130/130, feature 64 14/14, `publishToMavenLocal` VERT.
 |===
 
-_Dépendances (DAG)_ : BKY-I18N-JS-1 → 2 ✅ → 3 ✅ → 4 ✅.
-_**EPIC TERMINÉ 4/4 US (S-220)**._
+_Dépendances (DAG)_ : BKY-I18N-JS-1 → 2 ✅ → 3 ✅ → 4 ✅ → 5 ✅ (ownership + catalogue)._
+_**EPIC TERMINÉ 5/5 US (S-220 + US-5 S-223)** — le 3e dictionnaire (catalogue
+imbriqué) avait été oublié du découpage initial ; US-5 le couvre en ownership
+(bug latent) et en couverture (contrat S-054). La **traduction** du contenu
+catalogue imbriqué (writer + validation de structure) reste un chantier distinct
+(EPIC futur, si accord pilote)._
 _Débloque_ : talaria `T-I18N-BAKERY` US-2 (wiring build) + US-3 (retrait du harness node).
 _Pattern de référence_ : `bakery.i18n.MigrateContentI18nTask` +
 `bakery.i18n.LlmServiceTranslationAdapter` + `bakery.llm.PooledOllamaLlmService`.
@@ -2575,10 +2595,10 @@ Zéro code modifié — gouvernance pure. Voir rapport
 [cols="2,3]
 |===
 | Document | `BACKLOG.adoc`
-  | Version | 24.10 — Session 222 ✅ (FLAKY-4 : drift fixture `contact.thyme` résolu — resync + golden master régénéré, `test` 1777/0)
+  | Version | 24.11 — Session 223 ✅ (BKY-I18N-JS-5 : catalogue structurel — ownership + couverture, `test` 1804/0)
   | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
   | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-199 + EPIC BKY-DNS + EPIC PUB
-  | Prochaine màj | Session 223 — à la demande (MASS-6 / LANG-22-8/9/10 reportés accord pilote — backlog bakery propre)
+  | Prochaine màj | Session 224 — à la demande (MASS-6 / LANG-22-8/9/10 / traduction catalogue imbriqué reportés accord pilote — backlog bakery propre)
   |===
   '''
   == ✅ EPIC BKY-TEST-FLAKY — Stabilisation des 3 FAIL i18n récurrents (S-028, cross-borough MEMPHIS) — ✅ TERMINÉ S-214 (+ FLAKY-4 ✅ S-222)

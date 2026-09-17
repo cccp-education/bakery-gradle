@@ -60,7 +60,11 @@ object I18nJsDictionary {
             .findAll(source)
             .mapNotNull { match ->
                 val openBrace = source.indexOf('{', match.range.first)
-                if (openBrace < 0 || matchingBrace(source, openBrace) == null) match.groupValues[1] else null
+                if (openBrace < 0 || I18nJsBlockScanner.matchingBrace(source, openBrace) == null) {
+                    match.groupValues[1]
+                } else {
+                    null
+                }
             }.toList()
 
     /**
@@ -88,7 +92,7 @@ object I18nJsDictionary {
 
         val openBrace = source.indexOf('{', match.range.first)
         val closeBrace =
-            matchingBrace(source, openBrace)
+            I18nJsBlockScanner.matchingBrace(source, openBrace)
                 ?: throw IllegalArgumentException("unbalanced block for '$language'")
 
         val lines =
@@ -110,46 +114,7 @@ object I18nJsDictionary {
     private fun matchBody(
         source: String,
         matchStart: Int,
-    ): String? {
-        val openBrace = source.indexOf('{', matchStart)
-        if (openBrace < 0) return null
-        val closeBrace = matchingBrace(source, openBrace) ?: return null
-        return source.substring(openBrace + 1, closeBrace)
-    }
-
-    /**
-     * String-aware balanced-brace scanner: `{` / `}` inside a double-quoted
-     * literal (escaped or not) are ignored, so a value like `"{0}"` never
-     * truncates a block.
-     */
-    private fun matchingBrace(
-        source: String,
-        openBrace: Int,
-    ): Int? {
-        var depth = 0
-        var inString = false
-        var escaped = false
-        for (index in openBrace until source.length) {
-            val char = source[index]
-            if (inString) {
-                when {
-                    escaped -> escaped = false
-                    char == '\\' -> escaped = true
-                    char == '"' -> inString = false
-                }
-            } else {
-                when (char) {
-                    '"' -> inString = true
-                    '{' -> depth++
-                    '}' -> {
-                        depth--
-                        if (depth == 0) return index
-                    }
-                }
-            }
-        }
-        return null
-    }
+    ): String? = I18nJsBlockScanner.bodyFrom(source, matchStart)
 
     private fun unescapeJsString(value: String): String =
         value

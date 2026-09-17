@@ -56,9 +56,17 @@ object I18nClientDelta {
     }
 
     /**
-     * Maps each language to the first file that owns its block, in iteration
-     * order (the chrome dictionary wins over the patch when both declare a
-     * language).
+     * Maps each language to the first **flat** file that owns its block, in
+     * iteration order (the chrome dictionary wins over the patch when both
+     * declare a language).
+     *
+     * The structured catalogue (`TALARIA.I18N.CATALOG`) reuses the flat 4-space
+     * `code: {` block indentation, so [I18nJsDictionary.languagesOf] sees its
+     * languages too. It must never own a flat key: its nested, unquoted
+     * structure would be corrupted by a flat insertion. Catalogue sources are
+     * skipped ([I18nJsFormat.of]) — with the real alphabetical tree order
+     * (`i18n-content.js` first) this is the difference between writing into the
+     * chrome dictionary and writing into the catalogue.
      */
     fun languageOwners(
         files: Map<String, String>,
@@ -67,6 +75,7 @@ object I18nClientDelta {
         val owners = LinkedHashMap<String, String>()
         for (language in languages) {
             for ((file, source) in files) {
+                if (I18nJsFormat.of(source) == I18nJsFormat.CATALOG) continue
                 if (language in I18nJsDictionary.languagesOf(source)) {
                     owners[language] = file
                     break

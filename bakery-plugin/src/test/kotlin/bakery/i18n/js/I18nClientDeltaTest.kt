@@ -43,6 +43,22 @@ class I18nClientDeltaTest {
         |})();
         """.trimMargin()
 
+    private val catalogue =
+        """
+        |TALARIA.I18N.CATALOG = {
+        |    fr: {
+        |      fpa: {
+        |        title: "Formateur Professionnel d'Adultes"
+        |      }
+        |    },
+        |    en: {
+        |      fpa: {
+        |        title: "Professional Adult Trainer"
+        |      }
+        |    }
+        |  };
+        """.trimMargin()
+
     private fun files(vararg entries: Pair<String, String>): Map<String, String> =
         linkedMapOf(*entries)
 
@@ -146,6 +162,42 @@ class I18nClientDeltaTest {
             assertThat(owners).containsExactlyInAnyOrderEntriesOf(
                 mapOf("en" to "chrome", "it" to "patch", "de" to "patch"),
             )
+        }
+
+        @Test
+        fun `a nested catalogue never owns a flat language block`() {
+            val owners =
+                I18nClientDelta.languageOwners(
+                    files =
+                        files(
+                            "i18n-content.js" to catalogue,
+                            "i18n.js" to chrome,
+                            "i18n-extra-langs.js" to patch,
+                        ),
+                    languages = listOf("fr", "en", "it"),
+                )
+
+            assertThat(owners).containsExactlyInAnyOrderEntriesOf(
+                mapOf("fr" to "i18n.js", "en" to "i18n.js", "it" to "i18n-extra-langs.js"),
+            )
+        }
+
+        @Test
+        fun `sorted real tree keeps the flat chrome as the owner, not the catalogue`() {
+            val owners =
+                I18nClientDelta.languageOwners(
+                    files =
+                        linkedMapOf(
+                            "i18n-content.js" to catalogue,
+                            "i18n-extra-langs.js" to patch,
+                            "i18n.js" to chrome,
+                        ),
+                    languages = listOf("en", "it"),
+                )
+
+            assertThat(owners)
+                .describedAs("the alphabetical tree order puts the catalogue first — it must not win")
+                .containsExactlyInAnyOrderEntriesOf(mapOf("en" to "i18n.js", "it" to "i18n-extra-langs.js"))
         }
     }
 
