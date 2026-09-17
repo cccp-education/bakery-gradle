@@ -8,6 +8,10 @@ Feature: i18n client dictionary translation — delta idempotent et economie d'e
   Law). A failed translation keeps the key missing and leaves the document
   byte-identical.
 
+  After the translation, the development source (`maquette/js/`) is propagated
+  byte-identically to the site publication copy (`jbake/assets/js/`, decision
+  S-039). The publication copy is never written in dry-run.
+
   The fixture `talaria-i18n-client` owns a chrome dictionary (fr floor,
   complete en, incomplete fa) and an additive patch (empty de block). A
   label-aware fake translator marks translated content with `[lang]` — no real
@@ -54,3 +58,19 @@ Feature: i18n client dictionary translation — delta idempotent et economie d'e
     Then the i18n client task should report "1" missing keys
     And no translation request should have been sent
     And the source dictionary should be byte-identical to the fixture
+
+  Scenario: The development dictionary is propagated to the publication copy
+    Given a stale jbake publication copy of the chrome dictionary
+    When the i18n client task translates the dictionaries from fr to "fa"
+    Then the jbake publication copy should be byte-identical to the maquette source
+
+  Scenario: The propagation is a no-op on an already aligned publication copy
+    Given an aligned jbake publication copy of the chrome dictionary
+    When the i18n client task translates the dictionaries from fr to "fa"
+    Then the jbake publication copy should be byte-identical to the maquette source
+
+  Scenario: The dry-run never writes the publication copy
+    Given a stale jbake publication copy of the chrome dictionary
+    And the i18n client task runs in dry-run mode
+    When the i18n client task translates the dictionaries from fr to "fa"
+    Then the jbake publication copy should still hold the stale content

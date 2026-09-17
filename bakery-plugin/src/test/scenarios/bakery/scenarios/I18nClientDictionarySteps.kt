@@ -73,6 +73,22 @@ class I18nClientDictionarySteps {
         dryRun = true
     }
 
+    @Given("a stale jbake publication copy of the chrome dictionary")
+    fun stalePublicationCopy() {
+        publicationFile().also {
+            it.parentFile.mkdirs()
+            it.writeText("var DICT = { stale };")
+        }
+    }
+
+    @Given("an aligned jbake publication copy of the chrome dictionary")
+    fun alignedPublicationCopy() {
+        publicationFile().also {
+            it.parentFile.mkdirs()
+            it.writeText(chromeFile.readText())
+        }
+    }
+
     @Given("the i18n client task has already translated the dictionaries from fr to {string}")
     fun alreadyTranslated(targetLang: String) {
         translate(targetLang)
@@ -153,6 +169,18 @@ class I18nClientDictionarySteps {
         assertThat(chromeFile.readText()).isEqualTo(originalChrome)
         assertThat(patchFile.readText()).isEqualTo(originalPatch)
     }
+
+    @Then("the jbake publication copy should be byte-identical to the maquette source")
+    fun assertPublicationAligned() {
+        assertThat(publicationFile().readText()).isEqualTo(chromeFile.readText())
+    }
+
+    @Then("the jbake publication copy should still hold the stale content")
+    fun assertPublicationUntouched() {
+        assertThat(publicationFile().readText()).isEqualTo("var DICT = { stale };")
+    }
+
+    private fun publicationFile(): File = projectDir.resolve("jbake/assets/js/i18n.js")
 
     private fun translate(targetLang: String) {
         lastMissing = plan(targetLang).sumOf { it.keys.size }

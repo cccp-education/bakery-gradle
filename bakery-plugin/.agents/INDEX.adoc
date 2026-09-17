@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-09-17 — Session 219 ✅ — **EPIC BKY-I18N-JS-3 TERMINÉ** : task `translateI18nClient` (domaine `bakery.i18n.js` — intention/DSL/CLI/registrar + delta idempotent + dégradation échec LLM), 5 functional Oven + feature Cucumber 64 (7 scénarios). Gate `test` 1743/2 préexistants (+36 nets). Débloque talaria `T-I18N-BAKERY` US-2/US-3. Reste JS-4 (propagation + garde + failover)._
-_Session en cours_ : 219 ✅ — BKY-I18N-JS-3 (task `translateI18nClient`).
-_Prochaine session_ : 220 — BKY-I18N-JS-4 (propagation byte-identique + garde + failover, clôture EPIC) OU LANG-22-8/10 (dogfooding/publication).
+_Derniere mise a jour : 2026-09-17 — Session 220 ✅ — **EPIC BKY-I18N-JS TERMINÉ 4/4 US** : US-4 livrée (propagation `maquette/js/` → `jbake/assets/js/` byte-identique + garde de format parse↔write + garde frontière zéro HTTP). `test` 1768/2 préexistants (+25 nets). Débloque talaria `T-I18N-BAKERY` US-2/US-3._
+_Session en cours_ : 220 ✅ — BKY-I18N-JS-4 (propagation + gardes, clôture EPIC).
+_Prochaine session_ : 221 — BKY-LANG-22-8/9/10 (dogfooding LLM 22 langues + publication Central) OU transfert talaria `T-I18N-BAKERY` US-2/US-3.
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 220 | 2026-09-17 | DDD + TDD + functional Oven + BDD | **BKY-I18N-JS-4 TERMINÉ — propagation byte-identique + gardes (clôture EPIC BKY-I18N-JS 4/4 US)** — US-4 (dernière) EPIC BKY-I18N-JS (bloquant talaria `T-I18N-BAKERY`). Baby-step DDD/TDD/BDD strict. (1) Domaine pur `bakery.i18n.js` : `I18nClientPropagation` (`targetFor` mappe `maquette/js/…` → `jbake/assets/js/…` en ne remplaçant que le premier segment, `pairs`, `drift` — miroir `propagate()` du harnais) + `I18nClientFormatGuard` (`unbalanced-language-block`, `round-trip-drift`, rewriter injectable) + `I18nJsDictionary.unbalancedLanguageBlocks` (scanner string-aware). (2) Task : CLI `--i18nClientPropagate` + DSL/intention `propagate` (défaut `true`), `propagateToPublication()` delta-only (arbre aligné = strict no-op), 3 chemins non-dry-run, garde de format câblée en production (fichier invalide écarté, résultat invalide jamais écrit). (3) Functional Oven 5→9. (4) Feature 64 7→10 scénarios. (5) Test d'architecture frontière HTTP (3 UT, scanne le domaine, port N0 uniquement). Bugs TDD : `targetFor` rejetait le chemin racine, `Map<String,String?>`, garde appliquée trop tard. Gate `test` 1768/2 préexistants (baseline 1743/2 → +25), functionalTest 9/9, Cucumber 64 10/10, `publishToMavenLocal` VERT, grep métier = 0. 3 créés, 8 modifiés. | 9/10
   | 219 | 2026-09-17 | DDD + TDD + functional Oven + BDD | **BKY-I18N-JS-3 TERMINÉ — task `translateI18nClient` (traduction dictionnaires i18n JS client)** — US-3 EPIC BKY-I18N-JS (bloquant talaria `T-I18N-BAKERY`, contrat figé S-054). Baby-step DDD/TDD/BDD strict. (1) Domaine pur `bakery.i18n.js` : `I18nClientMigrationIntention` (invariants sourceDirs non vide, référence ∈ N0, cibles non vide ∈ N0, référence ∉ cibles) + DSL (dryRun défaut true) + `I18nClientDelta` object pur (`referenceFloor` plancher `fr` hors `.html`, `missingKeys`, `languageOwners` découvert par parsing, `plan`). (2) `TranslateI18nClientTask` (`@DisableCachingByDefault`) : CLI `--i18nClientSource/-TargetLangs/-SourceLang/-DryRun`, no-op strict si delta vide (jamais d'appel LLM), dry-run, écriture des seuls fichiers modifiés, `Failure` → clé absente + document intact. (3) Wiring registrar + `BakeryExtension.i18nClient` + `BakeryPlugin`. (4) 5 functional Oven TestKit. (5) Feature 64 `@i18n-client` 7 scénarios + steps + runner dédié + fixture `talaria-i18n-client`. Bugs TDD : 2 assertions erronées (en du fixture incomplet), `trimMargin` cassant le bloc `en`, `nav.cart` présent dans `fr`, regex step `requests?`. Gate `test` 1743/2 préexistants (baseline 1707/2 → +36), functionalTest 5/5, Cucumber 64 7/7, `publishToMavenLocal` VERT, grep métier = 0. 3 fichiers modifiés (wiring), 12 créés. | 9/10
   | 218 | 2026-09-17 | DDD + TDD + dogfooding réel | **BKY-I18N-JS-2 TERMINÉ — `I18nJsDictionary` (parser/writer JS pur)** — US-2 EPIC BKY-I18N-JS (bloquant talaria `T-I18N-BAKERY`, cadré S-054). Object pur `bakery.i18n.js.I18nJsDictionary` miroir du harness `tools/translate-i18n.mjs` (S-044) : `parse(vararg sources)` fusion chrome+patch déterministe, `languagesOf`, `insertTranslations` delta clés manquantes (Loi Économie d'Encre, no-op byte-identique, idempotent). 2 invariants supérieurs au harness : scanner braces **string-aware** (valeur `"{0}"` ne tronque plus un bloc) + regex bloc ancrée. Bug TDD attrapé : `String.replace(Regex, "\\n")` perdait le backslash (Java Matcher) → lambda. 16 UT + 5 intégration (dogfooding réel talaria lecture seule : 205 clés `fr`, 11+11+22 langues, round-trip byte-identique). `test` 1707/2 préexistants (baseline 1686/2, +21), `publishToMavenLocal` VERT. 3 nouveaux fichiers, zéro existant modifié. | 9/10
   | 217 | 2026-09-15 | DDD + TDD + BDD + publication Central | **EPIC BKY-LANG-22 — Extension LanguageCatalog N0 10 → 22 langues (parité talaria.school) 7/10 US** — Demande pilote : aligner bakery/N0 sur les 22 langues servies par talaria.school. Option A (contrat N0 partagé) : 12 langues ajoutées (`it nl de el tr vi th id ko ja sr` + `fa` RTL — RTL 2→3). N0 `i18n-contracts:0.0.4` Central (bundle `c1a9de57`, 52 tests 0 FAIL) + BOM/catalog `0.0.43` Central (bundle `eb310d04`). bakery `SUPPORTED_LANGS` dérivé de N0 (split-brain tué), capsule `VoiceMapping` 22 voix Piper validées rhasspy/espeak (BDD 22/22 rendered), slider `RevealUiMessageCatalog` 22 libellés natifs, document aligné. Échecs préexistants prouvés par stash : bakery 1686/2, slider 947/3 (Playwright). Reste LANG-22-8/9 (dogfooding LLM) + LANG-22-10 (publication Central consommateurs). 5 repos. | 9/10
@@ -370,7 +371,7 @@ BKY-I18N-MASS. ~32 pts, 6 US, projection S191-S197._
 
 _~32 pts, 6 US. EPIC priorité 1 — condition de maturité du canal de livraison contenu bakery avant de toucher au slider (génération IA de decks). Sans ça, on propage du contenu non évalué dans un pipeline non fiabilisé._
 
-=== EPIC BKY-I18N-JS — Task `translateI18nClient` : dictionnaire i18n JS client (NOUVEAU — Session 218, priorité 1, bloquant talaria)
+=== EPIC BKY-I18N-JS — Task `translateI18nClient` : dictionnaire i18n JS client (✅ TERMINÉ 4/4 US — S-220)
 
 _Origine : demande pilote talaria.school 2026-09-16 — les dictionnaires i18n
 **JavaScript client** (`TALARIA.I18N.DICT`, `TALARIA.I18N.CATALOG`) doivent être
@@ -385,11 +386,11 @@ format (`migrateToI18n` = Thymeleaf, `migrateContentI18n` = AsciiDoc). Cadrage :
 | *BKY-I18N-JS-1* | Cadrage fin : contrat tâche↔fichiers i18n JS + cartographie 3 dictionnaires | 1 | *✅ S-054 (talaria US-0)*
 | *BKY-I18N-JS-2* | `I18nJsDictionary` parser/writer JS pur (`parse`/`languagesOf`/`insertTranslations`) — round-trip byte-identique + idempotence | 3 | *✅ S-218 TERMINÉ (16 UT + 5 intégration dogfooding réel, 205 clés `fr`, 11+11+22 langues)*
 | *BKY-I18N-JS-3* | Task `translateI18nClient` (`I18nClientMigrationIntention` + DSL + registrar) → `LlmServiceTranslationAdapter` → N0 `contracts.i18n.TranslationService` ; delta clés manquantes ; dry-run ; unit + functional Oven + Cucumber | 3 | *✅ S-219 TERMINÉ (36 tests nets : 14 UT domaine + 18 UT task + 5 FT + 7 BDD + runner)*
-| *BKY-I18N-JS-4* | Propagation `maquette/js/` → `jbake/assets/js/` byte-identique + garde parse↔write + failover zéro HTTP direct | 2 | *🟡 À FAIRE (S-220 — clôture EPIC)*
+| *BKY-I18N-JS-4* | Propagation `maquette/js/` → `jbake/assets/js/` byte-identique + garde parse↔write + failover zéro HTTP direct | 2 | *✅ S-220 TERMINÉ (9 UT propagation + 6 UT garde format + 3 UT frontière HTTP + 1 UT task garde + 4 FT + feature 64 10/10)*
 |===
 
-_~9 pts, 4 US. DAG : JS-1 → 2 → 3 → 4. **JS-2 ✅ S-218 + JS-3 ✅ S-219**.
-Débloque talaria `T-I18N-BAKERY` US-2 (wiring) + US-3 (retrait harness node)._
+_~9 pts, 4 US. DAG : JS-1 → 2 → 3 → 4. **EPIC ✅ TERMINÉ 4/4 US (S-220)**.
+Débloque talaria `T-I18N-BAKERY` US-2 (wiring build) + US-3 (retrait du harness node)._
 
 === EPICs en attente (priorité 2/3)
 
@@ -417,7 +418,7 @@ _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
 | Projet | Repertoire | Session en cours | Derniere MAJ
   | magic-stick | `~/workspace/foundry/public/magic-stick` | 014 | 2026-05-11
   | plantuml-gradle | `~/workspace/foundry/public/plantuml-gradle/plantuml-plugin` | 148 | 2026-06-11
-  | bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 218 | 2026-09-17
+  | bakery-gradle | `~/workspace/foundry/public/bakery-gradle/bakery-plugin` | 220 | 2026-09-17
   | jhipster-gradle-plugins | `~/workspace/foundry/public/jhipster-gradle-plugins` | 9 | 2026-06-11
   | quizz-benchmark-gradle | `~/workspace/foundry/private/quizz-benchmark-gradle/quizz-benchmark-plugin` | Audit 053 | 2026-04-30
   | runner-gradle | `~/workspace/foundry/public/runner-gradle` | 029 | 2026-05-12

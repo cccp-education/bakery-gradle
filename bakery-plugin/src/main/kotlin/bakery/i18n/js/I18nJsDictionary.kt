@@ -51,6 +51,19 @@ object I18nJsDictionary {
     fun languagesOf(source: String): List<String> = parse(source).keys.toList()
 
     /**
+     * Returns the language codes whose `code: { ... }` block is not balanced
+     * (no matching closing brace), in document order. The parser skips such a
+     * block silently — the format guard surfaces it as a violation instead.
+     */
+    internal fun unbalancedLanguageBlocks(source: String): List<String> =
+        LANGUAGE_BLOCK
+            .findAll(source)
+            .mapNotNull { match ->
+                val openBrace = source.indexOf('{', match.range.first)
+                if (openBrace < 0 || matchingBrace(source, openBrace) == null) match.groupValues[1] else null
+            }.toList()
+
+    /**
      * Appends the missing [translations] to the [language] block of [source].
      *
      * Keys already present are left untouched (ink economy) and the surrounding

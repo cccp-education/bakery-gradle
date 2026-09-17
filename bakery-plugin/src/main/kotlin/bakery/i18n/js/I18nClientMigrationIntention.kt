@@ -3,7 +3,7 @@ package bakery.i18n.js
 import bakery.BakeryConstants
 
 /**
- * EPIC BKY-I18N-JS — US BKY-I18N-JS-3.
+ * EPIC BKY-I18N-JS — US BKY-I18N-JS-3 (propagate — US-4).
  *
  * Domain object describing a client-side i18n dictionary translation run.
  *
@@ -11,12 +11,16 @@ import bakery.BakeryConstants
  * variants) must exist in every target language. Targets must be supported by
  * the N0 [BakeryConstants.SUPPORTED_LANGS] contract and differ from the
  * reference.
+ *
+ * [propagate] mirrors the development source (`maquette/js/`) to the site
+ * publication copy (`jbake/assets/js/`) byte-identically — decision S-039.
  */
 data class I18nClientMigrationIntention(
     val sourceDirs: List<String>,
     val referenceLanguage: String = "fr",
     val targetLanguages: List<String> = listOf("en"),
     val dryRun: Boolean = true,
+    val propagate: Boolean = true,
 ) {
     init {
         require(sourceDirs.isNotEmpty()) {

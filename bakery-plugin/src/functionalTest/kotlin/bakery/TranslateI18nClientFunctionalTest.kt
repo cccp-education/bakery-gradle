@@ -119,7 +119,105 @@ class TranslateI18nClientFunctionalTest {
         assertThat(result.output).contains("n'existe pas")
     }
 
+    @Test
+    fun `a complete dictionary still propagates the publication copy byte-identically`() {
+        createClientSite(complete = true)
+        writePublication("var DICT = { stale };")
+
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "translateI18nClient",
+                    "--i18nClientSource=maquette/js",
+                    "--i18nClientTargetLangs=en",
+                    "--i18nClientSourceLang=fr",
+                    "--i18nClientDryRun=false",
+                ).build()
+
+        assertThat(result.output).contains("BUILD SUCCESSFUL")
+        assertThat(result.output).contains("Propagation")
+        assertThat(publicationFile().readText()).isEqualTo(dictionaryFile().readText())
+    }
+
+    @Test
+    fun `the propagation is a no-op on an aligned publication copy`() {
+        createClientSite(complete = true)
+        writePublication(dictionaryFile().readText())
+
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "translateI18nClient",
+                    "--i18nClientSource=maquette/js",
+                    "--i18nClientTargetLangs=en",
+                    "--i18nClientSourceLang=fr",
+                    "--i18nClientDryRun=false",
+                ).build()
+
+        assertThat(result.output).contains("BUILD SUCCESSFUL")
+        assertThat(result.output).contains("0 fichier(s) aligne(s)")
+        assertThat(publicationFile().readText()).isEqualTo(dictionaryFile().readText())
+    }
+
+    @Test
+    fun `the dry-run never writes the publication copy`() {
+        createClientSite(complete = true)
+        writePublication("var DICT = { stale };")
+
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "translateI18nClient",
+                    "--i18nClientSource=maquette/js",
+                    "--i18nClientTargetLangs=en",
+                    "--i18nClientDryRun=true",
+                ).build()
+
+        assertThat(result.output).contains("BUILD SUCCESSFUL")
+        assertThat(publicationFile().readText()).isEqualTo("var DICT = { stale };")
+    }
+
+    @Test
+    fun `the propagate flag disables the publication copy`() {
+        createClientSite(complete = true)
+        writePublication("var DICT = { stale };")
+
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "translateI18nClient",
+                    "--i18nClientSource=maquette/js",
+                    "--i18nClientTargetLangs=en",
+                    "--i18nClientDryRun=false",
+                    "--i18nClientPropagate=false",
+                ).build()
+
+        assertThat(result.output).contains("BUILD SUCCESSFUL")
+        assertThat(publicationFile().readText()).isEqualTo("var DICT = { stale };")
+    }
+
     private fun dictionaryFile(): File = projectDir.resolve("maquette/js/i18n.js")
+
+    private fun publicationFile(): File = projectDir.resolve("jbake/assets/js/i18n.js")
+
+    private fun writePublication(content: String) {
+        publicationFile().also {
+            it.parentFile.mkdirs()
+            it.writeText(content)
+        }
+    }
 
     /** Returns the `en: { ... }` block of the fixture dictionary. */
     private fun englishBlock(): String =

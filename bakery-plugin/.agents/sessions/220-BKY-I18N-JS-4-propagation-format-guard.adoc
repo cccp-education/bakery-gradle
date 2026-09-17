@@ -1,0 +1,159 @@
+= Session 220 — BKY-I18N-JS-4 : propagation byte-identique + garde de format + frontière HTTP (clôture EPIC)
+
+[cols="2,5"]
+|===
+| Session | 220
+| Date | 2026-09-17
+| Type | DDD + TDD + functional Oven + BDD Cucumber (baby-step strict)
+| EPIC | BKY-I18N-JS (cross-borough talaria `T-I18N-BAKERY`) — US BKY-I18N-JS-4 (clôture)
+| Score | 9/10
+|===
+
+== Mission
+
+US **BKY-I18N-JS-4** du BACKLOG, dernière US de l'EPIC : propagation
+`maquette/js/` → `jbake/assets/js/` **byte-identique** (pattern `propagate()` du
+harness talaria, décision S-039), **garde de format** parse↔write round-trip +
+idempotence, et **failover zéro appel HTTP direct** (frontière N0). Puis clôture
+EPIC BKY-I18N-JS. Débloque talaria `T-I18N-BAKERY` US-2 (wiring) + US-3 (retrait
+harnais node).
+
+== Livrable (baby-step DDD/TDD/BDD strict)
+
+=== BS-1 — Domaine pur (DDD)
+
+`I18nClientPropagation` object pur (domaine `bakery.i18n.js`) :
+* `targetFor(sourcePath)` — mappe `maquette/js/…` → `jbake/assets/js/…` en ne
+  remplaçant que le **premier** segment `maquette` (profondeur préservée), `null`
+  hors arbre maquette.
+* `pairs(sourcePaths)` — mapping source→cible en ordre d'entrée, skippe les
+  non-propageables.
+* `drift(sources, targets)` — sources dont la copie de publication est absente
+  ou non byte-identique. Un arbre aligné = strict no-op (Loi Économie d'Encre).
+
+9 UT `I18nClientPropagationTest` (3 targetFor + 2 pairs + 4 drift).
+
+=== BS-2 — Task (TDD)
+
+`TranslateI18nClientTask` étendu :
+* CLI `--i18nClientPropagate` (pattern `ResolveIntention` CLI > DSL > défaut
+  `true`) ; `I18nClientMigrationIntention.propagate` + DSL `propagate`.
+* `propagateToPublication(intention)` — mirroir de chaque dictionnaire de dev
+  vers sa copie `jbake/assets/js/`, **écrit uniquement les copies drift/missing**,
+  log par fichier + récap `N aligne(s), M deja byte-identique(s)`.
+* Appelé dans les **3 chemins** non-dry-run : delta traduit, delta vide (no-op),
+  et sans `TranslationService`. Jamais en dry-run (safety).
+* Wiring : `ContentTaskRegistrar` + `BakeryExtension` (inchangés côté DSL, la
+  propriété `propagate` est déjà portée par l'intention).
+
+18 UT `TranslateI18nClientTaskTest` (dont 5 nouveaux : propagation après
+traduction, propagation no-op sur corpus complet + copie driftée, flag
+`propagate=false`, dry-run ne touche pas la copie, résolution `propagate`).
+
+=== BS-3 — Garde de format (TDD)
+
+`I18nClientFormatGuard` object pur (invariant S-054 §6) :
+* `unbalanced-language-block` — un bloc `code: { … }` sans accolade fermante est
+  **signalé** (le parser le skipait silencieusement — angle mort du delta).
+  `I18nJsDictionary.unbalancedLanguageBlocks(source)` (scanner string-aware).
+* `round-trip-drift` — réinsérer les clés déjà possédées doit rendre la source
+  byte-identique ; un writer non préservant est détecté (rewriter injectable).
+* **Câblage production** : les fichiers au format invalide sont écartés du plan
+  (warn) et le résultat traduit est re-vérifié avant écriture (jamais de fichier
+  corrompu sur disque).
+
+6 UT `I18nClientFormatGuardTest` + 1 UT task (`a translated but now unbalanced
+dictionary is not written`).
+
+=== BS-4 — Frontière zéro HTTP direct (TDD, architecture guard)
+
+`I18nClientNoDirectHttpBoundaryTest` (test-only) : scanne `src/main/kotlin/bakery/i18n/js`
+et échoue sur toute surface HTTP directe (`api/generate`, `java.net.http`,
+`java.net.URL`, `HttpURLConnection`, `HttpClient`, `okhttp3`, `fetch(`,
+`localhost:114`). Vérifie que la traduction ne passe que par le port N0
+`contracts.i18n.TranslationService` (`translationService.translate(`).
+
+3 UT. Le domaine `bakery.i18n.js` n'a **aucune** dépendance réseau — l'appel
+LLM vit derrière `LlmServiceTranslationAdapter`.
+
+=== BS-5 — Functional Oven + BDD Cucumber
+
+* `TranslateI18nClientFunctionalTest` 5 FT → **9 FT** : propagation après no-op,
+  no-op sur copie alignée (`0 fichier(s) aligne(s)`), dry-run ne touche pas la
+  copie, flag `--i18nClientPropagate=false`.
+* Feature `64_i18n_client_dictionary.feature` 7 → **10 scénarios** : propagation
+  de la source de dev vers la copie de publication, no-op sur copie alignée,
+  dry-run ne touche pas la copie. Steps étendus (3 Given/Then nouveaux).
+
+== Bugs attrapés par le TDD
+
+1. **`targetFor` sur chemin racine** : la garde `index <= 0` rejetait à tort
+   `maquette/js/i18n.js` (segment en position 0 légitime) → `index < 0`. Attrapé
+   par les 9 UT BS-1 (5 échecs).
+2. **Type `Map<String, String?>`** : le `toMap()` de paires conditionnelles
+   inférait des valeurs nullables → restructuration du `mapNotNull` pour ne
+   produire que des paires non-null.
+3. **Garde appliquée trop tard** : un bloc non balancé faisait lever
+   `I18nJsDictionary.insertTranslations` avant la garde post-écriture →
+   déplacée **avant** le planning (fichiers invalides écartés du plan).
+
+== Gate
+
+* `./gradlew test` : **1768 tests, 2 FAIL préexistants, 3 skipped** —
+  baseline S-219 = 1743/2 → **+25 net** (9 UT propagation + 5 UT task + 6 UT
+  garde + 3 UT frontière + 1 UT task garde + 1 runner/classes). Les 2 FAIL
+  (`FixtureAlignmentAuditorTest` + `RealSiteI18nMigrationIntegrationTest`, drift
+  `contact.thyme` cheroliv.com) sont **identiques** S-218/S-219, indépendants du
+  code i18n JS.
+* `./gradlew functionalTest --tests "bakery.TranslateI18nClientFunctionalTest"` :
+  **9/9 PASSED**.
+* `./gradlew test --tests "bakery.i18n.js.I18nClientCucumberTest"` : **10/10
+  scénarios PASSED** (0 échec).
+* `./gradlew -q publishToMavenLocal` : VERT (règle INDEX 0).
+* Gate grep métier (`FPA|CDA|SPG|SPD|REAC|AFNOR|RNCP`) : **0** dans `src/`.
+* Zéro secret, zéro Python, zéro bump BOM, zéro publication Central.
+
+== Décisions actées
+
+. **Propagation = étape de la tâche de traduction** (pas une tâche séparée) —
+   la tâche écrit la source de dev puis aligne la copie de publication, dans le
+   même run. Le flag `propagate` (défaut `true`) permet un run traduction-only.
+. **Écriture delta sur la copie de publication** : seules les copies driftées
+   sont réécrites (Loi Économie d'Encre) — un arbre aligné est un no-op.
+. **Dry-run = zéro écriture** sur les deux arbres (source + publication).
+. **Garde de format câblée en production** (pas seulement en test) : un fichier
+   invalide est écarté du plan et un résultat invalide n'est jamais écrit.
+. **Frontière HTTP vérifiée par test d'architecture** : le domaine ne connaît
+   aucune API réseau, cohérent avec le constat C-1 (socle LLM bakery local
+   derrière le port N0).
+
+== Clôture EPIC BKY-I18N-JS
+
+**EPIC TERMINÉ 4/4 US** (JS-1 cadrage S-054 talaria · JS-2 `I18nJsDictionary`
+S-218 · JS-3 `translateI18nClient` S-219 · JS-4 propagation + gardes S-220).
+Débloque talaria `T-I18N-BAKERY` US-2 (wiring build) + US-3 (retrait du harness
+node `tools/translate-i18n.mjs`).
+
+== Fichiers
+
+[cols="2,4"]
+|===
+| Fichier | Statut
+
+| `src/main/kotlin/bakery/i18n/js/I18nClientPropagation.kt` | créé
+| `src/main/kotlin/bakery/i18n/js/I18nClientFormatGuard.kt` | créé
+| `src/main/kotlin/bakery/i18n/js/I18nClientMigrationIntention.kt` | modifié (+propagate)
+| `src/main/kotlin/bakery/i18n/js/I18nClientMigrationIntentionDsl.kt` | modifié (+propagate)
+| `src/main/kotlin/bakery/i18n/js/I18nJsDictionary.kt` | modifié (`unbalancedLanguageBlocks`)
+| `src/main/kotlin/bakery/i18n/js/TranslateI18nClientTask.kt` | modifié (CLI + propagation + garde)
+| `src/main/kotlin/bakery/ContentTaskRegistrar.kt` | modifié (wiring `i18nClientPropagate`)
+| `src/test/kotlin/bakery/i18n/js/I18nClientPropagationTest.kt` | créé
+| `src/test/kotlin/bakery/i18n/js/I18nClientFormatGuardTest.kt` | créé
+| `src/test/kotlin/bakery/i18n/js/I18nClientNoDirectHttpBoundaryTest.kt` | créé
+| `src/test/kotlin/bakery/i18n/js/TranslateI18nClientTaskTest.kt` | modifié (+6 UT)
+| `src/test/scenarios/bakery/scenarios/I18nClientDictionarySteps.kt` | modifié (+3 steps)
+| `src/test/features/64_i18n_client_dictionary.feature` | modifié (+3 scénarios)
+| `src/functionalTest/kotlin/bakery/TranslateI18nClientFunctionalTest.kt` | modifié (+4 FT)
+|===
+
+3 fichiers créés, 8 modifiés (domaine + wiring additif + tests). Clôture EPIC.

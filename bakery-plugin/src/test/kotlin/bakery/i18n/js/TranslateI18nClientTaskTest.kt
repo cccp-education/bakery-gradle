@@ -116,6 +116,16 @@ class TranslateI18nClientTaskTest {
 
             assertThrows<IllegalArgumentException> { task.resolveIntention() }
         }
+
+        @Test
+        fun `propagation defaults to true and honours the CLI override`() {
+            val task = setupTask("test-i18n-client-propagate-cli")
+            task.i18nClientSource.set("maquette/js")
+            assertEquals(true, task.resolveIntention().propagate)
+
+            task.i18nClientPropagate.set("false")
+            assertEquals(false, task.resolveIntention().propagate)
+        }
     }
 
     @Nested
@@ -271,7 +281,6 @@ class TranslateI18nClientTaskTest {
 
             assertEquals(chromeWithMissingEn(), source.readText())
         }
-
         @Test
         fun `multiple source directories are merged`() {
             writeDictionary("maquette/js/i18n.js", chromeWithMissingEn())
@@ -298,7 +307,114 @@ class TranslateI18nClientTaskTest {
             val patch = tempDir.resolve("maquette/js/i18n-extra-langs.js").readText()
             assertEquals("Startseite", I18nJsDictionary.parse(patch)["de"]!!["nav.home"])
         }
+
+        @Test
+        fun `translating a maquette dictionary propagates the byte-identical copy to jbake`() {
+            val source = writeDictionary("maquette/js/i18n.js", chromeWithMissingEn())
+            writeDictionary("jbake/assets/js/i18n.js", chromeWithMissingEn())
+            val task = setupTask("test-i18n-client-propagate")
+
+            task.i18nClientSource.set("maquette/js")
+            task.i18nClientTargetLangs.set("en")
+            task.i18nClientDryRun.set("false")
+            task.translationService = RecordingTranslationService()
+
+            task.executeI18nClientTranslation()
+
+            val published = tempDir.resolve("jbake/assets/js/i18n.js").readText()
+            assertEquals(source.readText(), published)
+            assertEquals("Cart", I18nJsDictionary.parse(published)["en"]!!["nav.cart"])
+        }
+
+        @Test
+        fun `a complete dictionary still propagates a drifted publication copy`() {
+            val source = writeDictionary("maquette/js/i18n.js", completeDictionary())
+            writeDictionary("jbake/assets/js/i18n.js", "var DICT = { stale };")
+            val task = setupTask("test-i18n-client-propagate-noop")
+
+            task.i18nClientSource.set("maquette/js")
+            task.i18nClientTargetLangs.set("en")
+            task.i18nClientDryRun.set("false")
+            task.translationService = RecordingTranslationService()
+
+            task.executeI18nClientTranslation()
+
+            assertEquals(
+                source.readText(),
+                tempDir.resolve("jbake/assets/js/i18n.js").readText(),
+            )
+        }
+
+        @Test
+        fun `the propagate flag disables the publication copy`() {
+            writeDictionary("maquette/js/i18n.js", chromeWithMissingEn())
+            val published = writeDictionary("jbake/assets/js/i18n.js", chromeWithMissingEn())
+            val task = setupTask("test-i18n-client-no-propagate")
+
+            task.i18nClientSource.set("maquette/js")
+            task.i18nClientTargetLangs.set("en")
+            task.i18nClientDryRun.set("false")
+            task.i18nClientPropagate.set("false")
+            task.translationService = RecordingTranslationService()
+
+            task.executeI18nClientTranslation()
+
+            assertEquals(chromeWithMissingEn(), published.readText())
+        }
+
+        @Test
+        fun `dry-run never writes the publication copy`() {
+            writeDictionary("maquette/js/i18n.js", chromeWithMissingEn())
+            val published = writeDictionary("jbake/assets/js/i18n.js", "var DICT = { stale };")
+            val task = setupTask("test-i18n-client-propagate-dryrun")
+
+            task.i18nClientSource.set("maquette/js")
+            task.i18nClientTargetLangs.set("en")
+            task.i18nClientDryRun.set("true")
+            task.translationService = RecordingTranslationService()
+
+            task.executeI18nClientTranslation()
+
+            assertEquals("var DICT = { stale };", published.readText())
+        }
+
+        @Test
+        fun `a translated but now unbalanced dictionary is not written`() {
+            val unbalanced =
+                """
+                |  var DICT = {
+                |    fr: {
+                |      "nav.home": "Accueil",
+                |      "nav.cart": "Panier"
+                |    },
+                |    en: {
+                |      "nav.home": "Home"
+                """.trimMargin()
+            val source = writeDictionary("maquette/js/i18n.js", unbalanced)
+            val task = setupTask("test-i18n-client-guarded-write")
+
+            task.i18nClientSource.set("maquette/js")
+            task.i18nClientTargetLangs.set("en")
+            task.i18nClientDryRun.set("false")
+            task.translationService = RecordingTranslationService()
+
+            task.executeI18nClientTranslation()
+
+            assertEquals(unbalanced, source.readText())
+        }
     }
+
+    private fun completeDictionary(): String =
+        """
+        |  var DICT = {
+        |    fr: {
+        |      "nav.home": "Accueil"
+        |    },
+        |    en: {
+        |      "nav.home": "Home"
+        |    }
+        |  };
+        """.trimMargin()
 
     private fun writeDictionary(
         relative: String,

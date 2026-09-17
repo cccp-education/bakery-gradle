@@ -276,6 +276,7 @@ object ContentTaskRegistrar {
             task.i18nClientTargetLangs.set(project.providers.gradleProperty("i18nClientTargetLangs").orElse(""))
             task.i18nClientSourceLang.set(project.providers.gradleProperty("i18nClientSourceLang").orElse(""))
             task.i18nClientDryRun.set(project.providers.gradleProperty("i18nClientDryRun").orElse(""))
+            task.i18nClientPropagate.set(project.providers.gradleProperty("i18nClientPropagate").orElse(""))
 
             resolveIntention(
                 dsl = i18nClientDsl,

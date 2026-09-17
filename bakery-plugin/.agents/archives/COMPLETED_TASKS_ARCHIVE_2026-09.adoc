@@ -1,5 +1,38 @@
 = Archive des Taches Terminees — Septembre 2026
 
+== Session 220 — 2026-09-17 — BKY-I18N-JS-4 : propagation byte-identique + gardes (clôture EPIC BKY-I18N-JS 4/4 US)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| BS-1 (DDD) — `I18nClientPropagation` object pur : `targetFor` (mappe `maquette/js/…` → `jbake/assets/js/…`, premier segment uniquement, profondeur préservée, `null` hors arbre), `pairs`, `drift` (copie absente/non byte-identique — miroir `propagate()` du harnais). 9 UT.
+| ✅ TERMINÉ
+
+| BS-2 (TDD) — `TranslateI18nClientTask` : CLI `--i18nClientPropagate` + DSL/intention `propagate` (défaut `true`), `propagateToPublication()` delta-only (arbre aligné = strict no-op), 3 chemins non-dry-run, jamais en dry-run. Wiring `ContentTaskRegistrar`. +5 UT task.
+| ✅ TERMINÉ
+
+| BS-3 (garde format) — `I18nClientFormatGuard` object pur : `unbalanced-language-block` (bloc sans accolade fermante signalé — angle mort du parser), `round-trip-drift` (writer non préservant, rewriter injectable) + `I18nJsDictionary.unbalancedLanguageBlocks` (scanner string-aware). Câblé en production : fichier invalide écarté du plan, résultat invalide jamais écrit. 6 UT + 1 UT task.
+| ✅ TERMINÉ
+
+| BS-4 (frontière HTTP) — `I18nClientNoDirectHttpBoundaryTest` (test d'architecture) : scanne `src/main/kotlin/bakery/i18n/js`, échoue sur toute surface HTTP directe (`api/generate`, `java.net.http`, `HttpClient`, `fetch(`, `localhost:114`…), vérifie la voie unique port N0 `contracts.i18n.TranslationService`. 3 UT.
+| ✅ TERMINÉ
+
+| BS-5 (functional Oven + BDD) — `TranslateI18nClientFunctionalTest` 5 → 9 FT (propagation après no-op, no-op copie alignée `0 fichier(s) aligne(s)`, dry-run ne touche pas la copie, flag `--i18nClientPropagate=false`). Feature `64_i18n_client_dictionary.feature` 7 → 10 scénarios + 3 steps (propagation source→copie, no-op copie alignée, dry-run préserve la copie).
+| ✅ TERMINÉ
+
+| Bugs attrapés par le TDD — (1) `targetFor` rejetait à tort `maquette/js/i18n.js` (chemin racine, garde `index <= 0` → `index < 0`) ; (2) type `Map<String,String?>` sur les paires conditionnelles → restructuration `mapNotNull` ; (3) garde appliquée trop tard (bloc non balancé faisait lever le writer) → déplacée avant le planning.
+| ✅ TERMINÉ
+
+| Gate finale — `./gradlew test` = **1768 tests, 2 FAIL préexistants** (baseline S-219 1743/2 → +25 net ; drift `contact.thyme` cheroliv.com reproduit isolément). `functionalTest` 9/9. Cucumber 64 10/10. `publishToMavenLocal` VERT. Gate grep métier src/ = 0. Zéro secret, zéro bump BOM, zéro publication Central.
+| ✅ TERMINÉ
+
+| **Clôture EPIC BKY-I18N-JS 4/4 US** — JS-1 cadrage S-054 · JS-2 `I18nJsDictionary` S-218 · JS-3 `translateI18nClient` S-219 · JS-4 propagation + gardes S-220. Débloque talaria `T-I18N-BAKERY` US-2 (wiring build) + US-3 (retrait du harness node `tools/translate-i18n.mjs`).
+| ✅ TERMINÉ
+
+| Clôture gouvernance — rapport `.agents/sessions/220-BKY-I18N-JS-4-propagation-format-guard.adoc`, PROMPT_REPRISE S-221, SESSIONS_HISTORY, INDEX (portefeuille 220 + EPIC ✅ 4/4 US), TEST_COVERAGE_ANALYSIS, BACKLOG (JS-4 ✅ + EPIC ✅), TODO, AGENTS racine.
+| ✅ TERMINÉ
+
 == Session 219 — 2026-09-17 — BKY-I18N-JS-3 : task `translateI18nClient` (dictionnaires i18n JS client)
 
 [cols="2,3"]

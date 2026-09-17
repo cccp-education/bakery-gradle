@@ -17,7 +17,7 @@ import org.gradle.work.DisableCachingByDefault
 import java.io.File
 
 /**
- * EPIC BKY-I18N-JS — US BKY-I18N-JS-3.
+ * EPIC BKY-I18N-JS — US BKY-I18N-JS-3 (propagation — US-4).
  *
  * Translates the client-side i18n dictionaries of a JBake site
  * (`var DICT` chrome + `TALARIA.I18N.extend` patch) through the N0
@@ -26,6 +26,11 @@ import java.io.File
  * Ink Economy Law: only the keys missing from a target language are sent to the
  * model; a complete dictionary is a strict no-op and never reaches the LLM. The
  * rewrite itself is delegated to the pure [I18nJsDictionary] writer.
+ *
+ * After the translation, the development source (`maquette/js/`) is propagated
+ * byte-identically to the publication copy (`jbake/assets/js/`) — decision
+ * S-039, pattern `propagate()` of the talaria harness. Only drifted copies are
+ * rewritten, and the dry-run never writes.
  */
 @DisableCachingByDefault(because = "Traduction i18n client — résultat non-déterministe (LLM), non-cacheable")
 abstract class TranslateI18nClientTask : DefaultTask() {
@@ -55,6 +60,14 @@ abstract class TranslateI18nClientTask : DefaultTask() {
     @get:Option(option = "i18nClientDryRun", description = "Mode dry-run (true/false) — previsualise sans ecrire")
     abstract val i18nClientDryRun: Property<String>
 
+    @get:Input
+    @get:Optional
+    @get:Option(
+        option = "i18nClientPropagate",
+        description = "Propage maquette/js -> jbake/assets/js byte-identique (true/false)",
+    )
+    abstract val i18nClientPropagate: Property<String>
+
     init {
         group = BakeryConstants.TRANSFORM_GROUP
         description =
@@ -63,6 +76,7 @@ abstract class TranslateI18nClientTask : DefaultTask() {
         i18nClientTargetLangs.convention("")
         i18nClientSourceLang.convention("")
         i18nClientDryRun.convention("")
+        i18nClientPropagate.convention("")
     }
 
     @TaskAction
@@ -73,9 +87,24 @@ abstract class TranslateI18nClientTask : DefaultTask() {
         logger.lifecycle("[translateI18nClient] Langue de reference : {}", intention.referenceLanguage)
         logger.lifecycle("[translateI18nClient] Langues cibles : {}", intention.targetLanguages.joinToString(", "))
         logger.lifecycle("[translateI18nClient] Dry-run : {}", intention.dryRun)
+        logger.lifecycle("[translateI18nClient] Propagation : {}", intention.propagate)
 
         val files = resolveSourceFiles(intention)
-        val plan = I18nClientDelta.plan(files, intention.referenceLanguage, intention.targetLanguages)
+        val invalidFiles =
+            files.filterValues { source -> !I18nClientFormatGuard.verify(source).isValid }.keys
+        if (invalidFiles.isNotEmpty()) {
+            invalidFiles.forEach { file ->
+                val report = I18nClientFormatGuard.verify(files.getValue(file))
+                logger.warn(
+                    "[translateI18nClient] {} ignore — format invalide : {}",
+                    file,
+                    report.violations.joinToString { "${it.kind}:${it.detail}" },
+                )
+            }
+        }
+        val validFiles = files.filterKeys { it !in invalidFiles }
+
+        val plan = I18nClientDelta.plan(validFiles, intention.referenceLanguage, intention.targetLanguages)
 
         val total = plan.sumOf { it.keys.size }
         logger.lifecycle(
@@ -86,6 +115,7 @@ abstract class TranslateI18nClientTask : DefaultTask() {
 
         if (total == 0) {
             logger.lifecycle("[translateI18nClient] Rien a traduire — economie d'encre, aucun appel LLM.")
+            if (!intention.dryRun && intention.propagate) propagateToPublication(intention)
             return
         }
 
@@ -100,12 +130,13 @@ abstract class TranslateI18nClientTask : DefaultTask() {
         val translationService = this.translationService
         if (translationService == null) {
             logger.warn("[translateI18nClient] Aucun TranslationService — les dictionnaires sources sont inchanges.")
+            if (intention.propagate) propagateToPublication(intention)
             return
         }
 
         val sourceByFile = resolveFileMap(intention)
-        val dictionaries = I18nJsDictionary.parse(*files.values.toTypedArray())
-        val updated = LinkedHashMap(files)
+        val dictionaries = I18nJsDictionary.parse(*validFiles.values.toTypedArray())
+        val updated = LinkedHashMap(validFiles)
 
         var translatedCount = 0
         var failureCount = 0
@@ -144,17 +175,74 @@ abstract class TranslateI18nClientTask : DefaultTask() {
         }
 
         for ((file, content) in updated) {
-            if (content != files.getValue(file)) {
-                sourceByFile.getValue(file).writeText(content)
+            if (content != validFiles.getValue(file)) {
+                val report = I18nClientFormatGuard.verify(content)
+                if (report.isValid) {
+                    sourceByFile.getValue(file).writeText(content)
+                } else {
+                    logger.warn(
+                        "[translateI18nClient] {} non ecrit — format invalide : {}",
+                        file,
+                        report.violations.joinToString { "${it.kind}:${it.detail}" },
+                    )
+                }
             }
         }
 
         logger.lifecycle(
             "[translateI18nClient] Fichiers ecrits : {}, cles traduites : {}, echecs : {}",
-            updated.count { (file, content) -> content != files[file] },
+            updated.count { (file, content) -> content != validFiles[file] },
             translatedCount,
             failureCount,
         )
+
+        if (intention.propagate) propagateToPublication(intention)
+    }
+
+    /**
+     * Mirrors every development dictionary of [intention] to its
+     * `jbake/assets/js/` publication copy, byte-identically. Only drifted or
+     * missing copies are rewritten (Ink Economy Law) — a fully aligned
+     * publication tree is a strict no-op.
+     */
+    private fun propagateToPublication(intention: I18nClientMigrationIntention): Int {
+        val sources = LinkedHashMap<String, String>()
+        for (sourceDir in intention.sourceDirs) {
+            val dir = resolveDir(sourceDir)
+            if (!dir.exists()) continue
+            dir.walkTopDown()
+                .filter { it.isFile && it.extension == "js" }
+                .sortedBy { it.relativeTo(dir).path }
+                .forEach { file ->
+                    val sourcePath = "$sourceDir/${file.relativeTo(dir).path}"
+                    sources.putIfAbsent(sourcePath, file.readText())
+                }
+        }
+        if (sources.isEmpty()) return 0
+
+        val targets =
+            sources.keys
+                .mapNotNull { sourcePath ->
+                    val targetPath = I18nClientPropagation.targetFor(sourcePath) ?: return@mapNotNull null
+                    val targetFile = project.projectDir.resolve(targetPath)
+                    if (targetFile.isFile) targetPath to targetFile.readText() else null
+                }.toMap()
+
+        val drift = I18nClientPropagation.drift(sources, targets)
+        for (sourcePath in drift) {
+            val targetPath = I18nClientPropagation.targetFor(sourcePath) ?: continue
+            val targetFile = project.projectDir.resolve(targetPath)
+            targetFile.parentFile?.mkdirs()
+            targetFile.writeText(sources.getValue(sourcePath))
+            logger.lifecycle("[translateI18nClient] Propaged {} -> {}", sourcePath, targetPath)
+        }
+
+        logger.lifecycle(
+            "[translateI18nClient] Propagation : {} fichier(s) aligne(s), {} deja byte-identique(s).",
+            drift.size,
+            sources.size - drift.size,
+        )
+        return drift.size
     }
 
     private fun resolveFileMap(intention: I18nClientMigrationIntention): Map<String, File> {
@@ -220,11 +308,19 @@ abstract class TranslateI18nClientTask : DefaultTask() {
                 true,
             )
 
+        val resolvedPropagate =
+            ResolveIntention.fromCliBoolean(
+                i18nClientPropagate.orNull,
+                dslIntention?.propagate,
+                true,
+            )
+
         return I18nClientMigrationIntention(
             sourceDirs = resolvedSources,
             referenceLanguage = resolvedReferenceLang,
             targetLanguages = resolvedTargetLangs,
             dryRun = resolvedDryRun,
+            propagate = resolvedPropagate,
         )
     }
 }
