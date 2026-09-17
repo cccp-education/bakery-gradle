@@ -182,6 +182,12 @@ object ContentTaskRegistrar {
         i18nMigrationDsl: I18nMigrationIntentionDsl? = null,
     ) {
         val contentRoot = project.projectDir.resolve(site.bake.srcPath)
+        // CHE-I18N-22 US-1 — a `site.yml` `ollama:` section activates the pool for
+        // every translation task, not only `translateI18nClient`. Without this the
+        // rotating pool (11437-11465) stays unreachable for the very tasks that
+        // translate a site (Ink Economy Law applies to *what* is sent, not *who*
+        // may call).
+        val resolvedIaConfig = IaConfigResolver.resolve(iaConfig, site.ollama)
         tasks.register("migrateToI18n", MigrateToI18nTask::class.java) { task ->
             task.group = BakeryConstants.TRANSFORM_GROUP
             task.description = "Migre un site bakery existant vers l'i18n — scanne les templates, extrait le texte hardcodé, génère messages_{lang}.properties"
@@ -199,9 +205,9 @@ object ContentTaskRegistrar {
                 setIntention = { task.dslIntention = it },
             )
 
-            createLlmServiceIfEnabled(iaConfig) { task.llmService = it }
+            createLlmServiceIfEnabled(resolvedIaConfig) { task.llmService = it }
             task.translationService = task.llmService?.let(::LlmServiceTranslationAdapter)
-            project.logger.info("[BakeryPlugin] migrateToI18n IA ${if (iaConfig.enabled) "activé" else "désactivé (ia.enabled = false)"}")
+            project.logger.info("[BakeryPlugin] migrateToI18n IA ${if (resolvedIaConfig.enabled) "activé" else "désactivé (ia.enabled = false)"}")
         }
     }
 
@@ -221,6 +227,10 @@ object ContentTaskRegistrar {
         contentMigrationDsl: ContentMigrationIntentionDsl? = null,
     ) {
         val contentRoot = project.projectDir.resolve(site.bake.srcPath)
+        // CHE-I18N-22 US-1 — same pool resolution as `translateI18nClient`: the
+        // `ollama:` section of `site.yml` makes the rotating codebase N1 socle
+        // reachable for the AsciiDoc article translation.
+        val resolvedIaConfig = IaConfigResolver.resolve(iaConfig, site.ollama)
         tasks.register("migrateContentI18n", MigrateContentI18nTask::class.java) { task ->
             task.group = BakeryConstants.TRANSFORM_GROUP
             task.description =
@@ -246,8 +256,8 @@ object ContentTaskRegistrar {
                 setIntention = { task.dslIntention = it },
             )
 
-            createLlmServiceIfEnabled(iaConfig) { task.translationService = it.let(::LlmServiceTranslationAdapter) }
-            project.logger.info("[BakeryPlugin] migrateContentI18n IA ${if (iaConfig.enabled) "activé" else "désactivé (ia.enabled = false)"}")
+            createLlmServiceIfEnabled(resolvedIaConfig) { task.translationService = it.let(::LlmServiceTranslationAdapter) }
+            project.logger.info("[BakeryPlugin] migrateContentI18n IA ${if (resolvedIaConfig.enabled) "activé" else "désactivé (ia.enabled = false)"}")
         }
     }
 

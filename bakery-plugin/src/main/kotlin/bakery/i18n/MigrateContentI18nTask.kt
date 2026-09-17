@@ -77,6 +77,16 @@ abstract class MigrateContentI18nTask : DefaultTask() {
     @get:Option(option = "contentI18nValidation", description = "Mode de validation plantuml/table (STRICT/LENIENT/OFF)")
     abstract val contentI18nValidation: Property<String>
 
+    @get:Input
+    @get:Optional
+    @get:Option(option = "contentI18nParallelism", description = "Traductions parallèles (1 ou 2 providers Ollama, max 2)")
+    abstract val contentI18nParallelism: Property<String>
+
+    @get:Input
+    @get:Optional
+    @get:Option(option = "contentI18nExcludePaths", description = "Chemins relatifs à exclure de la traduction (ex: draft,.well-known)")
+    abstract val contentI18nExcludePaths: Property<String>
+
     init {
         group = BakeryConstants.TRANSFORM_GROUP
         description =
@@ -87,6 +97,8 @@ abstract class MigrateContentI18nTask : DefaultTask() {
         contentI18nSourceLang.convention("")
         contentI18nDryRun.convention("")
         contentI18nValidation.convention("")
+        contentI18nParallelism.convention("")
+        contentI18nExcludePaths.convention("")
     }
 
     @TaskAction
@@ -114,7 +126,11 @@ abstract class MigrateContentI18nTask : DefaultTask() {
         }
 
         val outputBaseDir = resolveOutputDir(intention)
-        val currentChecksums = ContentChecksum.computeChecksums(sourceDir)
+        // CHE-I18N-22 US-4 (defect 1) — `excludePaths` must narrow the *delta*,
+        // not only the non-adoc copy loop: the 72 cheroliv.com drafts (39% of the
+        // metered budget) were still scheduled for translation.
+        val currentChecksums =
+            ContentMigrationPlanner.checksumOf(sourceDir, intention.excludePaths.toSet())
 
         if (intention.dryRun) {
             logger.lifecycle("[migrateContentI18n] DRY-RUN — aucun fichier modifié.")
@@ -163,35 +179,60 @@ abstract class MigrateContentI18nTask : DefaultTask() {
                         parallelism = intention.parallelism,
                         plantUmlAdapter = plantUmlAdapter,
                     )
-                var translatedCount = 0
-                var errorCount = 0
-                for (relPath in filesToTranslate) {
-                    val sourceFile = sourceDir.resolve(relPath)
-                    val targetFile = langDir.resolve(relPath)
-                    targetFile.parentFile.mkdirs()
-                    try {
-                        val previousBlockChecksums = loadBlockChecksums(langDir, relPath)
-                        val newBlockChecksums = contentService.translateSingleFileWithBlockDelta(
-                            sourceFile = sourceFile,
-                            targetFile = targetFile,
-                            previousBlockChecksums = previousBlockChecksums,
-                            sourceLanguage = intention.sourceLanguage,
-                            targetLanguage = targetLang,
-                        )
-                        storeBlockChecksums(langDir, relPath, newBlockChecksums)
-                        translatedCount++
-                    } catch (e: Exception) {
-                        errorCount++
-                        logger.warn("[migrateContentI18n] [{}] ERREUR bloc {} : {}", targetLang, relPath, e.message)
+                // CHE-I18N-22 US-4 (defect 2) — the previous file-by-file loop was
+                // sequential: `parallelism` reached the service but nothing drove it
+                // concurrently. The file loop now runs on a bounded pool (the pilot
+                // decision: two providers, never three articles at once). Each worker
+                // owns its ContentTranslationService so the translator's mutable
+                // validation lists are never shared across threads.
+                val workers = intention.parallelism.coerceAtLeast(1)
+                val executor = java.util.concurrent.Executors.newFixedThreadPool(workers)
+                val tableResults = java.util.concurrent.ConcurrentLinkedQueue<TableValidationResult.Invalid>()
+                val plantUmlResults = java.util.concurrent.ConcurrentLinkedQueue<PlantUmlValidationResult.Invalid>()
+                var translatedCount = java.util.concurrent.atomic.AtomicInteger(0)
+                var errorCount = java.util.concurrent.atomic.AtomicInteger(0)
+
+                val futures =
+                    filesToTranslate.map { relPath ->
+                        executor.submit {
+                            val sourceFile = sourceDir.resolve(relPath)
+                            val targetFile = langDir.resolve(relPath)
+                            targetFile.parentFile.mkdirs()
+                            val workerService =
+                                ContentTranslationService(
+                                    translationService,
+                                    parallelism = 1,
+                                    plantUmlAdapter = PlantUmlTranslationAdapter(translationService, plantUmlValidationMode = validationMode),
+                                )
+                            try {
+                                val previousBlockChecksums = loadBlockChecksums(langDir, relPath)
+                                val newBlockChecksums = workerService.translateSingleFileWithBlockDelta(
+                                    sourceFile = sourceFile,
+                                    targetFile = targetFile,
+                                    previousBlockChecksums = previousBlockChecksums,
+                                    sourceLanguage = intention.sourceLanguage,
+                                    targetLanguage = targetLang,
+                                )
+                                storeBlockChecksums(langDir, relPath, newBlockChecksums)
+                                translatedCount.incrementAndGet()
+                            } catch (e: Exception) {
+                                errorCount.incrementAndGet()
+                                logger.warn("[migrateContentI18n] [{}] ERREUR bloc {} : {}", targetLang, relPath, e.message)
+                            }
+                            tableResults.addAll(workerService.drainTableValidationResults())
+                            plantUmlResults.addAll(workerService.drainPlantUmlValidationResults())
+                        }
                     }
-                    allTableValidationResults.addAll(contentService.drainTableValidationResults())
-                    allPlantUmlValidationResults.addAll(contentService.drainPlantUmlValidationResults())
-                }
+                futures.forEach { it.get() }
+                executor.shutdown()
+                allTableValidationResults.addAll(tableResults)
+                allPlantUmlValidationResults.addAll(plantUmlResults)
                 logger.lifecycle(
-                    "[migrateContentI18n] [{}] Fichiers traduits : {}, erreurs : {}",
+                    "[migrateContentI18n] [{}] Fichiers traduits : {}, erreurs : {} (parallelism={})",
                     targetLang,
-                    translatedCount,
-                    errorCount,
+                    translatedCount.get(),
+                    errorCount.get(),
+                    workers,
                 )
             } else if (translationService == null) {
                 for (relPath in filesToTranslate) {
@@ -367,7 +408,12 @@ abstract class MigrateContentI18nTask : DefaultTask() {
                 true,
             )
 
-        val resolvedExclude = dslIntention?.excludePaths ?: emptyList()
+        val resolvedExclude =
+            ResolveIntention.fromCliList(
+                contentI18nExcludePaths.orNull,
+                dslIntention?.excludePaths,
+                emptyList(),
+            )
 
         val resolvedValidation =
             ResolveIntention.fromCli(
@@ -376,6 +422,12 @@ abstract class MigrateContentI18nTask : DefaultTask() {
                 "LENIENT",
             )
 
+        val resolvedParallelism =
+            ResolveIntention
+                .fromCli(contentI18nParallelism.orNull, dslIntention?.parallelism?.toString(), "1")
+                .toIntOrNull()
+                ?: 1
+
         return ContentMigrationIntention(
             sourceDir = resolvedSource,
             outputDir = resolvedOutput,
@@ -383,7 +435,7 @@ abstract class MigrateContentI18nTask : DefaultTask() {
             targetLanguages = resolvedTargetLangs,
             dryRun = resolvedDryRun,
             excludePaths = resolvedExclude,
-            parallelism = dslIntention?.parallelism ?: 1,
+            parallelism = resolvedParallelism,
             validation = resolvedValidation,
         )
     }

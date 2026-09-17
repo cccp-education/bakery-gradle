@@ -30,5 +30,18 @@ data class ContentMigrationIntention(
         require(validation in setOf("STRICT", "LENIENT", "OFF")) {
             "Mode de validation '$validation' invalide. Utilisez : STRICT, LENIENT, OFF."
         }
+        require(parallelism in 1..MAX_PARALLELISM) {
+            "Parallélisme '$parallelism' invalide. Utilisez une valeur entre 1 et $MAX_PARALLELISM (deux providers Ollama au plus)."
+        }
+    }
+
+    companion object {
+        /**
+         * CHE-I18N-22 US-4 — pilot decision: translation runs on at most two
+         * Ollama providers at once (the two parallel device keys), never three
+         * concurrent articles. Keeps the metered LLM pool under control while
+         * doubling throughput.
+         */
+        const val MAX_PARALLELISM = 2
     }
 }
