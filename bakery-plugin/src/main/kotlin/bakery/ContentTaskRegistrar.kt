@@ -15,6 +15,7 @@ import bakery.seo.InjectSeoTask
 import bakery.seo.SeoConfig
 import bakery.contact.ScaffoldContactSecTask
 import bakery.llm.IaConfig
+import bakery.llm.IaConfigResolver
 import bakery.llm.LlmService
 import bakery.llm.OllamaLlmService
 import bakery.llm.PooledOllamaLlmService
@@ -259,6 +260,12 @@ object ContentTaskRegistrar {
      * partent au modèle. Réutilise le socle LLM bakery via
      * [LlmServiceTranslationAdapter] (port N0 `contracts.i18n.TranslationService`).
      *
+     * Le pool LLM effectif est résolu par [IaConfigResolver] : une section
+     * `ollama:` de `site.yml` active la rotation 11437-11465 avec son modèle et
+     * son timeout — le consommateur n'a donc pas à modifier le build du runner
+     * partagé (T-I18N-BAKERY US-2). Un `ia.enabled = true` explicite reste
+     * prioritaire (backward compat).
+     *
      * @param site Configuration du site (utilise bake.srcPath pour le content root)
      * @param iaConfig Configuration IA
      * @param i18nClientDsl Configuration intention depuis `bakery { i18nClient { ... } }`
@@ -268,6 +275,7 @@ object ContentTaskRegistrar {
         iaConfig: IaConfig = IaConfig(),
         i18nClientDsl: I18nClientMigrationIntentionDsl? = null,
     ) {
+        val resolvedIaConfig = IaConfigResolver.resolve(iaConfig, site.ollama)
         tasks.register("translateI18nClient", TranslateI18nClientTask::class.java) { task ->
             task.group = BakeryConstants.TRANSFORM_GROUP
             task.description =
@@ -286,8 +294,8 @@ object ContentTaskRegistrar {
                 setIntention = { task.dslIntention = it },
             )
 
-            createLlmServiceIfEnabled(iaConfig) { task.translationService = it.let(::LlmServiceTranslationAdapter) }
-            project.logger.info("[BakeryPlugin] translateI18nClient IA ${if (iaConfig.enabled) "activé" else "désactivé (ia.enabled = false)"}")
+            createLlmServiceIfEnabled(resolvedIaConfig) { task.translationService = it.let(::LlmServiceTranslationAdapter) }
+            project.logger.info("[BakeryPlugin] translateI18nClient IA ${if (resolvedIaConfig.enabled) "activé" else "désactivé (ia.enabled = false)"}")
         }
     }
 

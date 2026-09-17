@@ -1,0 +1,126 @@
+= Session 221 — Cross-borough T-I18N-BAKERY US-2/US-3 : IaConfigResolver + harness audit-only
+
+[cols="2,5"]
+|===
+| Session | 221
+| Date | 2026-09-17
+| Type | DDD + TDD + functional Oven + BDD (baby-step strict) — cross-borough (bakery + talaria)
+| EPIC | T-I18N-BAKERY (talaria) US-2 wiring + US-3 harness — côté bakery : `IaConfigResolver`
+| Score | 9/10
+|===
+
+== Mission
+
+Mission pilote : « T-I18N-BAKERY » — les US-2 (wiring build talaria) et US-3 (retrait du
+harness node) restaient bloquées par l'EPIC bakery `BKY-I18N-JS`, clos S-220. Demande
+complémentaire : aligner le templating JBake talaria sur les dernières réalisations de
+la maquette (→ T-JBAKE-DS US-5).
+
+== Audit d'ouverture — où vit la config du pool LLM (US-2)
+
+`translateI18nClient` n'appelle le LLM que si `bakery { ia { enabled = true } }` est posé
+là où le plugin est appliqué. Or talaria n'applique pas bakery : c'est le **runner-gradle
+(N3) partagé** qui l'applique. Mesure des 3 chemins de configuration :
+
+. `-Pia.enabled=true` — **documenté** (`ValidateFirebaseConfigTask.kt:34`) mais **jamais
+  lu** (`grep '"ia\.' src/main` = 0) : documentation morte.
+. `site.yml → ollama:` (`contracts.i18n.OllamaConfig`) — **parsé** (`SiteConfiguration.kt:59`,
+  affiché par `verifyConfigurationMapping`) mais **ignoré** par `iaConfig`.
+. DSL `bakery { ia { … } }` — seul chemin réel, inaccessible depuis talaria.
+
+**Décision (recommandation agent, validation pilote)** : option C — dériver `iaConfig` de
+`site.yml → ollama:`. Résolution **locale** dans `registerTranslateI18nClientTask` (périmètre
+US-2 strict, zéro impact cross-borough sur `BakeryPlugin`), portée par un **domaine pur**.
+
+== Livrable (baby-step DDD/TDD/BDD strict)
+
+=== BS-1 — Domaine pur (DDD)
+
+`bakery.llm.IaConfigResolver` object pur — `resolve(dsl: IaConfig, ollama: OllamaConfig?): IaConfig`.
+Précédence : DSL explicitement activé > section `ollama:` présente (active la rotation,
+modèle + ports + timeout) > inactif (backward compat).
+
+=== BS-2 — TDD RED → GREEN
+
+`IaConfigResolverTest` 7 UT : section absente (DSL inchangé), section présente (activé +
+ports), modèle/ports depuis YAML, timeout depuis YAML, DSL activé prioritaire ×2, section
+sans device keys (pool local activé). RED mesuré (`Unresolved reference 'IaConfigResolver'`)
+→ GREEN 7/7.
+
+=== BS-3 — Câblage (TDD)
+
+`ContentTaskRegistrar.registerTranslateI18nClientTask` : `val resolvedIaConfig =
+IaConfigResolver.resolve(iaConfig, site.ollama)` + import + KDoc. Le log `IA activé/désactivé`
+reflète la config résolue.
+
+=== BS-4 — Functional Oven (RED prouvé par stash)
+
+`TranslateI18nClientOllamaConfigFunctionalTest` 2 FT : `site.yml` avec `ollama:` →
+`translateI18nClient IA activé` ; sans section → `IA désactivé`. **RED honnête** : le
+câblage retiré par `git stash`, le test 1 FAILED / test 2 PASSED, puis restauration → 2/2.
+
+=== BS-5 — Wiring talaria (US-2)
+
+`build.gradle.kts` : task `Exec` `translateI18nClient` déléguée au runner N3 (pattern
+`serve`), `--i18nClientSource=<projectDir>/maquette/js`, 22 langues par défaut, dry-run
+par défaut (Économie d'Encre). `site.yml.example` : section `ollama:` documentée (surface
+consommateur, secrets jamais committés). Vérification réelle : 22 langues ciblées, delta 0
+(corpus complet), `BUILD SUCCESSFUL` — zéro node, zéro LLM.
+
+=== BS-6 — Harness audit-only (US-3)
+
+`tools/translate-i18n.mjs` réduit à un **audit couverture read-only** : retrait de
+`--apply`, `--model`, `fetch`/`/api/generate`, `insertTranslations`, `propagate`,
+`parsePoolPorts`, `escapeJsString`. Nouvelle garde d'architecture
+`i18n-harness-audit-only.test.mjs` (4 tests : zéro réseau, zéro écriture, zéro CLI apply,
+exports d'audit présents) — RED 3/4 → GREEN 4/4. `translate-i18n.test.mjs` réduit au
+périmètre audit (11 → 7 tests).
+
+== Bugs attrapés par le TDD / l'audit
+
+. **Fixture YAML `trimIndent` avec interpolation multi-ligne** : le `site.yml` du FT
+   produisait `ollama:` mal indenté (collé à `cname:`) → construire le YAML ligne par ligne.
+. **Collision de session concurrente graphify** (`GF-SCHEMA-VERSION`) : bump
+   `graphify 0.0.3→0.0.5` dans le toml bakery (propagation cross-borough) + `GraphModel`
+   gagnant `schemaVersion` en 1er paramètre → compilation de `LensSteps.kt` cassée. Fix
+   compatible (arguments nommés `GraphModel(nodes=…, edges=…, communities=…)`). Les fichiers
+   graphify (toml + `SubgraphExtractorTest.kt`) **restent non committés** par cette session.
+
+== Gate
+
+* `./gradlew test` : **1775 tests, 2 FAIL préexistants, 3 skipped** — baseline S-220
+  (1768/2) → **+7 net** (les 7 UT `IaConfigResolverTest`). Les 2 FAIL
+  (`FixtureAlignmentAuditorTest` + `RealSiteI18nMigrationIntegrationTest`, drift
+  `contact.thyme` cheroliv.com) sont identiques S-218→S-220.
+* `./gradlew functionalTest --tests "…TranslateI18nClientOllamaConfigFunctionalTest"` : 2/2.
+* `./gradlew test --tests "bakery.i18n.js.I18nClientCucumberTest"` : 10/10.
+* `./gradlew -q publishToMavenLocal` : VERT (règle INDEX 0).
+* Zéro secret, zéro Python, zéro bump BOM, zéro publication Central.
+
+== Décisions actées
+
+. **La config du pool LLM vit dans `site.yml → ollama:`** (option C) — le consommateur
+   n'a pas à muter le build du runner partagé. Précédence explicite : DSL activé > YAML.
+. **Résolution locale à la tâche** (périmètre US-2 strict) — pas de modification de
+   `BakeryPlugin` (impact cross-borough évité).
+. **Le harness node est un audit, plus une voie de traduction** — gardé par un test
+   d'architecture (zéro réseau/écriture) pour empêcher la régression.
+. **Publication Central requise avant usage CI** : Central `bakery-plugin:0.0.12` est
+   antérieur à `BKY-I18N-JS` ; le repo local `0.0.12` (mavenLocal, republié) contient le
+   code. Bump `0.0.13` = action pilote.
+
+== Fichiers
+
+[cols="2,4"]
+|===
+| Fichier | Statut
+
+| `bakery-plugin/src/main/kotlin/bakery/llm/IaConfigResolver.kt` | créé
+| `bakery-plugin/src/test/kotlin/bakery/llm/IaConfigResolverTest.kt` | créé (7 UT)
+| `bakery-plugin/src/functionalTest/kotlin/bakery/TranslateI18nClientOllamaConfigFunctionalTest.kt` | créé (2 FT)
+| `bakery-plugin/src/main/kotlin/bakery/ContentTaskRegistrar.kt` | modifié (câblage)
+| `bakery-plugin/src/test/scenarios/bakery/scenarios/LensSteps.kt` | modifié (compat `GraphModel`)
+|===
+
+5 fichiers bakery (3 créés, 2 modifiés). Session cross-borough : le livrable talaria est
+documenté dans `office/sites/talaria.school/.agents/sessions/057-*.adoc`.

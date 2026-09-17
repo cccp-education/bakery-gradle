@@ -327,7 +327,7 @@ class LensSteps(
                     com.fasterxml.jackson.module.kotlin
                         .kotlinModule(),
                 )
-        val graphModel = GraphModel(nodes, edges, communitiesList)
+        val graphModel = GraphModel(nodes = nodes, edges = edges, communities = communitiesList)
         val graphFile = projectDir.resolve("office/graph.json")
         graphFile.parentFile.mkdirs()
         graphFile.writeText(objectMapper.writeValueAsString(graphModel), Charsets.UTF_8)
@@ -352,7 +352,7 @@ class LensSteps(
                 GraphNode("custom-node-$it.adoc", "Custom Node $it", "file", "custom-community")
             }
         val communitiesList = listOf(GraphCommunity("custom-community", "Custom Community", nodeCount))
-        val graphModel = GraphModel(nodes, emptyList(), communitiesList)
+        val graphModel = GraphModel(nodes = nodes, edges = emptyList(), communities = communitiesList)
         val graphFile = projectDir.resolve(customPath)
         graphFile.parentFile.mkdirs()
         graphFile.writeText(objectMapper.writeValueAsString(graphModel), Charsets.UTF_8)

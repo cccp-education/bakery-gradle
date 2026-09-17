@@ -233,3 +233,25 @@ zéro bump BOM, zéro publication Central, zéro secret.
 cross-borough complet (N0 → BOM → 4 consommateurs → Central). Reste dogfooding
 LLM (slider/capsule) + publication Central consommateurs. 5 repos modifiés.
 
+
+---
+
+== Session 221 — Cross-borough T-I18N-BAKERY US-2/US-3 (`IaConfigResolver` + harness audit-only)
+
+=== Fait
+* **US-2 (wiring)** — le pool LLM d'un consommateur est résolu depuis `site.yml → ollama:`.
+  * Audit : `-Pia.enabled` documenté mais jamais lu, `site.yml → ollama:` parsé mais ignoré,
+    seul le DSL `bakery { ia {} }` marchait — or talaria n'applique pas bakery (runner N3).
+  * Nouveau domaine pur `bakery.llm.IaConfigResolver` (précédence DSL activé > YAML > inactif).
+  * Câblage local `ContentTaskRegistrar.registerTranslateI18nClientTask` (périmètre strict).
+  * 7 UT `IaConfigResolverTest` + 2 FT `TranslateI18nClientOllamaConfigFunctionalTest`
+    (RED prouvé par stash).
+* **US-3 (harness)** — côté talaria : `tools/translate-i18n.mjs` réduit à un audit read-only,
+  garde d'architecture `i18n-harness-audit-only.test.mjs` (4 tests).
+* **Bugs** — fixture YAML `trimIndent` multi-ligne ; collision de session concurrente
+  graphify (`LensSteps.kt` compat `GraphModel(nodes=…)`, fichiers graphify non committés).
+
+=== Prochaine session
+* BKY-LANG-22-8/9 (dogfooding LLM 22 langues) OU 10 (publication Central) OU MASS-6
+  — **accord pilote requis** (coût LLM metered / publication).
+* Publishing `bakery-plugin` ≥ 0.0.13 Central débloque le wiring talaria en CI.
