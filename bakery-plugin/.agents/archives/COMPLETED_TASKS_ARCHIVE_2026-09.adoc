@@ -255,3 +255,33 @@ LLM (slider/capsule) + publication Central consommateurs. 5 repos modifiés.
 * BKY-LANG-22-8/9 (dogfooding LLM 22 langues) OU 10 (publication Central) OU MASS-6
   — **accord pilote requis** (coût LLM metered / publication).
 * Publishing `bakery-plugin` ≥ 0.0.13 Central débloque le wiring talaria en CI.
+
+---
+
+== Session 222 — FLAKY-4 : drift fixture `contact.thyme` résolu (baseline 1777/0)
+
+=== Fait
+* **Diagnostic** — les « 2 FAIL préexistants » (S-218→S-221) sont un **drift réel**, pas un flake.
+  * Site réel `office/sites/cheroliv.com` : champ `subject` du contact retiré
+    (commit `d96dcec`, 2026-09-14, US-35). Fixture bakery non resynchronisée.
+  * `FixtureAlignmentAuditorTest` (fixture ↔ réel) + `RealSiteI18nMigrationIntegrationTest`
+    (copie fraîche du réel vs golden master figé avec `subject`) tombent.
+* **Fix (5 fichiers, +6/-23)** — chirurgical.
+  * Resync `i18n-fixtures/cheroliv-com/jbake/templates/contact.thyme` (bloc `subject` retiré).
+  * Recâblage clés messages : `contact.6=Subject` disparaît, `Votre message` `contact.7`→`contact.6`
+    (`translations_en.properties` + golden master `messages_fr`/`messages_en`).
+  * Golden master cheroliv-com régénéré via la procédure one-shot `PostMigrationSnapshotGenerator`
+    (retrait `@Disabled` → run → re-`@Disabled` mention S-222). Churn timestamp réverté
+    (magic-stick/cccp ne différaient que par la ligne de date `Properties.store`).
+* **Périmètre** — seul `contact.thyme` drift réellement ; `footer.thyme` = secrets seuls
+  (déjà neutralisés) ; aucun drift magic-stick/cccp-education.
+
+=== Gate
+* `test` **1777 tests, 0 FAIL, 3 skipped** (baseline S-221 1775/2 → les 2 FAIL disparaissent).
+* `FixtureAlignmentAuditorTest` 8/0, `RealSiteI18nMigrationIntegrationTest` 2/2.
+* `publishToMavenLocal` VERT, grep métier src/ = 0, zéro secret, zéro BOM, zéro LLM.
+* Les gates cross-borough MEMPHIS n'ont plus besoin de la mention « baseline 2 FAIL ».
+
+=== Prochaine session
+* BKY-LANG-22-8/9 (dogfooding LLM 22 langues) OU 10 (publication Central) OU MASS-6
+  — **accord pilote requis** (coût LLM metered / publication).

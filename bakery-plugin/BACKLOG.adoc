@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-09-17 — ✅ **EPIC BKY-I18N-JS TERMINÉ 4/4 US (S-220)** — US-4 livrée : propagation `maquette/js/` → `jbake/assets/js/` byte-identique (`I18nClientPropagation` object pur, delta-only) + garde de format parse↔write (`I18nClientFormatGuard`) + test d'architecture frontière zéro HTTP direct. Domaine `bakery.i18n.js` clos (6 fichiers prod). 9 UT propagation + 6 UT garde + 3 UT frontière + 1 UT task garde + 4 FT Oven + feature 64 10/10. Gate `test` **1768/2 préexistants** (baseline 1743/2 → +25 nets). Débloque talaria `T-I18N-BAKERY` US-2/US-3 (le harness node devient remplaçable). Antérieur S-219 : ✅ **BKY-I18N-JS-3 TERMINÉ** — task `translateI18nClient` (intention/DSL/CLI/registrar + delta idempotent + dégradation échec LLM), 5 functional Oven + feature Cucumber 64 (7 scénarios). Antérieur S-218 : ✅ **BKY-I18N-JS-2 TERMINÉ** — `I18nJsDictionary` (object pur parser/writer JS client). Antérieur S-050 : 🟡 **EPIC BKY-I18N-JS CADRÉ (S-050), cadrage fin LIVRÉ (JS-1 ✅ S-054 via talaria US-0)** — demande pilote talaria.school : la traduction des dictionnaires i18n **JS client** doit passer par une **tâche bakery**, pas par un harness node. Audit mesuré (S-054) : 3 dictionnaires (`i18n.js` 11 langues / 205 clés `fr`, `i18n-extra-langs.js` 11 langues forme identique, `i18n-content.js` `CATALOG` imbriqué 22 langues) ; **constat C-1** : bakery n'importe aucune classe `codebase.*` — socle LLM **local** (`PooledOllamaLlmService`), frontière N0 déjà satisfaite, migration `LlmBuildService` hors périmètre. Aucune task existante ne couvre `TALARIA.I18N.DICT`/`CATALOG` (`migrateToI18n` = Thymeleaf, `migrateContentI18n` = AsciiDoc). Session 217 🟡 **EPIC BKY-LANG-22 EN COURS** — extension du contrat N0 `contracts.i18n.LanguageCatalog` de 10 → 22 langues (parité talaria.school : +it nl de el tr vi th id ko ja sr **fa RTL**). Livré et publié Central : `i18n-contracts:0.0.4` (bundle `c1a9de57`) + BOM/catalog `0.0.43` (bundle `eb310d04`) + propagation bakery/capsule/slider/document. **Reste en cours** : régénération du corpus dogfooding slider (27 fichiers gelés, 12 langues × 3 decks à produire via LLM metered — Loi Économie d'Encre), dogfooding capsule 22 langues, publication Central des consommateurs (bakery/capsule/slider). Session 216 ✅ transfert BKY-FPA-SITE → TRN-11 (training, pattern TRN-9) + arbitrage licence FPA tranché. Session 213 ✅ RENAME Vague 3 CLÔTURÉ transverse._
+_Dernière mise à jour : 2026-09-17 — ✅ **FLAKY-4 résolu (S-222)** — drift fixture `contact.thyme` : le site réel cheroliv.com a retiré le champ `subject` du contact (US-35, `d96dcec` 2026-09-14), fixture + golden master non resynchronisés → resync fixture + recâblage `contact.6` + régénération golden master one-shot. Gate `test` **1777/0 FAIL** (fin des « 2 FAIL préexistants » mentionnés depuis S-218 dans toutes les gates cross-borough MEMPHIS). Antérieur S-221 : ✅ **Cross-borough T-I18N-BAKERY US-2/US-3** — `bakery.llm.IaConfigResolver` (pool LLM résolu depuis `site.yml → ollama:`) + câblage `translateI18nClient` + harness talaria réduit à un audit read-only. Antérieur S-220 : ✅ **EPIC BKY-I18N-JS TERMINÉ 4/4 US** — US-4 livrée : propagation `maquette/js/` → `jbake/assets/js/` byte-identique (`I18nClientPropagation` object pur, delta-only) + garde de format parse↔write (`I18nClientFormatGuard`) + test d'architecture frontière zéro HTTP direct. Domaine `bakery.i18n.js` clos (6 fichiers prod). Session 217 🟡 **EPIC BKY-LANG-22 EN COURS** — extension du contrat N0 `contracts.i18n.LanguageCatalog` de 10 → 22 langues (parité talaria.school : +it nl de el tr vi th id ko ja sr **fa RTL**). Livré et publié Central : `i18n-contracts:0.0.4` (bundle `c1a9de57`) + BOM/catalog `0.0.43` (bundle `eb310d04`) + propagation bakery/capsule/slider/document. **Reste en cours** : régénération du corpus dogfooding slider (27 fichiers gelés, 12 langues × 3 decks à produire via LLM metered — Loi Économie d'Encre), dogfooding capsule 22 langues, publication Central des consommateurs (bakery/capsule/slider). Session 216 ✅ transfert BKY-FPA-SITE → TRN-11 (training, pattern TRN-9) + arbitrage licence FPA tranché. Session 213 ✅ RENAME Vague 3 CLÔTURÉ transverse._
 
 '''
 
@@ -2575,13 +2575,13 @@ Zéro code modifié — gouvernance pure. Voir rapport
 [cols="2,3]
 |===
 | Document | `BACKLOG.adoc`
-  | Version | 24.9 — Session 214 ✅ (EPIC BKY-TEST-FLAKY clôturé 3/3 US : fixtures resyncées + golden master régénéré + feature 57 3→4 articles + secrets Firebase neutralisés, test 1671/0)
+  | Version | 24.10 — Session 222 ✅ (FLAKY-4 : drift fixture `contact.thyme` résolu — resync + golden master régénéré, `test` 1777/0)
   | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
   | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-199 + EPIC BKY-DNS + EPIC PUB
-  | Prochaine màj | Session 262 — à la demande (MASS-6 reporté accord pilote — backlog bakery propre)
+  | Prochaine màj | Session 223 — à la demande (MASS-6 / LANG-22-8/9/10 reportés accord pilote — backlog bakery propre)
   |===
   '''
-  == ✅ EPIC BKY-TEST-FLAKY — Stabilisation des 3 FAIL i18n récurrents (S-028, cross-borough MEMPHIS) — ✅ TERMINÉ S-214
+  == ✅ EPIC BKY-TEST-FLAKY — Stabilisation des 3 FAIL i18n récurrents (S-028, cross-borough MEMPHIS) — ✅ TERMINÉ S-214 (+ FLAKY-4 ✅ S-222)
 
 _Origine : S-026/S-027/S-028 (gates MEMPHIS) — les mêmes 3 FAIL reviennent à
 chaque gate cross-borough et masquent les régressions réelles (comparaison
@@ -2596,6 +2596,7 @@ PROMPT_REPRISE S-027 bakery : "cucumber flaky (i18n-delta/dns/jbake-native)"._
 | FLAKY-1 | `RealSiteI18nMigrationIntegrationTest` — idempotence + golden master sitemap.thyme : golden master périmé vs templates réels (diff hreflang/xhtml:link présent dans le rendu, absent du golden) → régénérer golden master OU isoler fixture | P1 | ✅ TERMINÉ (S-214)
 | FLAKY-2 | `FixtureAlignmentAuditorTest` — 1/7 FAIL : alignement fixtures i18n vs site réel désynchronisé → régénérer fixtures (audit idempotent) | P1 | ✅ TERMINÉ (S-214)
 | FLAKY-3 | `I18nDeltaWireCucumberTest` (feature 57 i18n delta wire) — scénario fil rouge cassé → diagnostic RED d'abord, fix ou re-tag | P1 | ✅ TERMINÉ (S-214)
+| FLAKY-4 | Drift `contact.thyme` récurrent (2 FAIL S-218→S-221) : site réel cheroliv.com a retiré le champ `subject` du contact (US-35, `d96dcec`), fixture + golden master non resynchronisés → resync fixture + recâblage `contact.6` + régénération golden master one-shot | P1 | ✅ TERMINÉ (S-222)
 |===
 
 **Exécution S-214** : baseline RED 1670/3 FAIL (XML JUnit). FLAKY-2 :

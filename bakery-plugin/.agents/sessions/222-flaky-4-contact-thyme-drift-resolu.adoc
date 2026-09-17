@@ -1,0 +1,151 @@
+= Session 222 — FLAKY-4 : drift fixture `contact.thyme` résolu (baseline 1777/0)
+
+[cols="2,5"]
+|===
+| Session | 222
+| Date | 2026-09-17
+| Type | Diagnostic + resync fixture + régénération golden master (baby-step strict)
+| EPIC | BKY-TEST-FLAKY (suite) — extension FLAKY-4
+| Score | 9/10
+|===
+
+== Mission
+
+Reprise bakery à la demande pilote, avec la méthodologie baby-step DDD/TDD/BDD
+(unit/functional/cucumber) en agile software craftmanship.
+
+Le PROMPT_REPRISE S-222 listait 3 pistes bloquées par **accord pilote requis**
+(BKY-LANG-22-8/9 dogfooding LLM metered, LANG-22-10 publication Central, MASS-6
+montée en charge ~675h LLM). Aucune n'était exécutable sans arbitrage.
+
+**Mission retenue** : traiter la seule dette réellement actionnable du borough sans
+coût externe — les **2 FAIL « préexistants »** traînant depuis S-218 et mentionnés
+dans toutes les gates cross-borough MEMPHIS depuis S-196.
+
+== Diagnostic — les 2 FAIL ne sont pas un flake, c'est un drift réel
+
+Constat d'ouverture (`./gradlew test` ciblé) :
+
+----
+FixtureAlignmentAuditorTest > cheroliv-com fixture is aligned ... FAILED
+  Templates avec contenu différent : [contact.thyme]
+RealSiteI18nMigrationIntegrationTest > migration ... matches golden master FAILED
+  [cheroliv-com] Template 'contact.thyme' diffère du golden master
+----
+
+**Cause racine trouvée** — le site réel `office/sites/cheroliv.com` a **retiré le champ
+`subject`** du formulaire contact :
+
+----
+commit d96dcec (2026-09-14, cheroliv.com S-031)
+feat(talaria): rebrand training seller + drop subject field from Firebase
+  "... cheroliv.com US-35: remove the subject field from the contact form
+   (template + 9 i18n variants, contact.js + 9 variants, onContactMessage,
+   Firestore rules) ..."
+----
+
+La fixture bakery `i18n-fixtures/cheroliv-com/jbake/templates/contact.thyme` (mtn
+2026-09-09) n'a **pas** été resynchronisée → les deux tests tombent :
+
+. `FixtureAlignmentAuditorTest` compare template par template fixture ↔ site réel.
+. `RealSiteI18nMigrationIntegrationTest` migre une **copie fraîche du site réel** et
+   compare au golden master `post-migration/` — figé sur l'ancienne forme (avec `subject`).
+
+C'est la **même famille** que l'EPIC `BKY-TEST-FLAKY` (S-214) : le site réel évolue,
+les fixtures et golden masters restent gelés. Sauf qu'ici la resync S-214 n'avait pas
+anticipé la modification cheroliv.com du 2026-09-14 (postérieure de 5 jours).
+
+**Vérification du périmètre** : seuls `contact.thyme` et `footer.thyme` différaient
+en brut. `footer.thyme` ne diverge que par les **valeurs de secrets** (apiKey/appId réels
+vs placeholders) — déjà neutralisées par `FixtureAlignmentAuditor.neutralizeSecrets()`,
+donc aligné côté test. Aucun drift sur magic-stick ni cccp-education.
+
+== Livrable (baby-step strict)
+
+=== BS-1 — Resync fixture (`contact.thyme`)
+
+Copie de la forme réelle (retrait du bloc `<input name="subject">`, 7 lignes) dans
+`i18n-fixtures/cheroliv-com/jbake/templates/contact.thyme` → `diff` = 0 avec le réel.
+
+=== BS-2 — Décallage des clés de message
+
+Le retrait du champ `subject` **recompose la numérotation** des clés : `Votre message`
+passe de `contact.7` à `contact.6`, et `contact.6=Subject` disparaît.
+
+* `translations_en.properties` : suppression de `contact.6=Subject`, retrait de
+  `contact.7` (la traduction `Your message` s'aligne sur la clé `contact.6` restante).
+* Golden master `messages_en.properties` / `messages_fr.properties` : `contact.6=Your message`
+  / `contact.6=Votre message` (via régénération, cf. BS-3).
+
+=== BS-3 — Régénération du golden master (procédure documentée)
+
+`PostMigrationSnapshotGenerator` est le one-shot officiel (documenté dans son KDoc :
+« remove @Disabled, run, re-validate »). Procédure respectée :
+
+. `@Disabled` retiré → `./gradlew test --tests "...PostMigrationSnapshotGenerator" --rerun-tasks`
+   → 3 snapshots régénérés (magic-stick 12, cccp 11, cheroliv-com 24 templates).
+. **Churn minimal** : les snapshots magic-stick/cccp ne diffèrent que par le **timestamp**
+   de première ligne (`Properties.store`) → `git checkout` réverté pour ces 4 fichiers.
+   Ligne de date du golden cheroliv-com réécrite à l'identique de la S-214.
+3. `@Disabled` restauré avec mention S-222 (le fichier reste la référence one-shot).
+
+Diff final : **5 fichiers, +6/-23** — chirurgical, zéro bruit.
+
+=== BS-4 — Vérification
+
+----
+FixtureAlignmentAuditorTest            : 8 tests, 0 FAIL (7/7 alignement + 1 UT neutralisation)
+RealSiteI18nMigrationIntegrationTest   : 2/2 PASS (golden master + idempotence)
+----
+
+== Gate
+
+* `./gradlew test` : **1777 tests, 0 FAIL, 3 skipped** — baseline S-221 (1775 tests,
+  2 FAIL) → les 2 FAIL historiques **disparaissent**, +2 tests comptés (les 2 tests
+  de tolérance graphify déjà présents non committés dans l'arbre, cf. infra).
+* `./gradlew -q publishToMavenLocal` : VERT (règle INDEX 0).
+* Gate grep métier `REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA` src/ = **0**.
+* Zéro secret (les clés Firebase réelles ne vivent que dans le site réel, jamais dans
+  les fixtures — placeholders préservés).
+* Zéro bump BOM, zéro publication Central, zéro coût LLM.
+
+== Décisions actées
+
+. **Les 2 FAIL « préexistants » étaient une dette réelle, pas un flake** — le mot
+   « préexistant » dans les gates masquait un drift fixture de 5 jours (site réel
+   modifié S-031, fixture non resynchronisée). Le nettoyage rend la gate bakery
+   **explicite** (0 FAIL, plus de mention « baseline exacte 2 FAIL »).
+. **Procédure de régénération golden master confirmée** : one-shot `@Disabled` →
+   run → re-validate → ré-`@Disabled`. Le churn de timestamp doit être réverté
+   (Économie d'Encre appliquée au diff, pas seulement aux appels LLM).
+. **Résolu sans accord pilote** : contrairement aux 3 pistes LLM/publication, ce
+   fix est un nettoyage de dette local, testable, déterministe, zéro coût externe.
+
+== Note — fichiers graphify non committés
+
+L'arbre portait 2 fichiers de la session concurrente graphify S-028 (déjà committée
+côté graphify, `9486663`) : `gradle/libs.versions.toml` (bump `graphify 0.0.3→0.0.5`,
+requis pour `GraphModel.schemaVersion`) + `SubgraphExtractorTest.kt` (2 UT tolérance
+N0). Ils forment un **couple atomique** avec la résolution compile de `LensSteps.kt`
+S-221 et **sans eux le toml bakery référence une API absente** (0.0.3 n'a pas
+`schemaVersion`). Ils sont **inclus dans le commit S-222** (graphify 0.0.5 est publié
+Central, bundle `895d2e53`) — ils font partie du même état de build sain.
+
+== Fichiers
+
+[cols="2,2,4"]
+|===
+| Fichier | Statut | Note
+
+| `src/test/resources/i18n-fixtures/cheroliv-com/jbake/templates/contact.thyme` | modifié | resync réel (subject retiré)
+| `src/test/resources/i18n-fixtures/cheroliv-com/translations_en.properties` | modifié | `contact.6` recâblé
+| `src/test/resources/i18n-fixtures/cheroliv-com/post-migration/templates/contact.thyme` | modifié | golden master régénéré
+| `src/test/resources/i18n-fixtures/cheroliv-com/post-migration/templates/messages_en.properties` | modifié | golden master régénéré
+| `src/test/resources/i18n-fixtures/cheroliv-com/post-migration/templates/messages_fr.properties` | modifié | golden master régénéré
+| `src/test/kotlin/bakery/i18n/snapshot/PostMigrationSnapshotGenerator.kt` | modifié | mention S-222 (toujours `@Disabled`)
+| `gradle/libs.versions.toml` | modifié (pré-session graphify) | bump graphify 0.0.5
+| `src/test/kotlin/bakery/lens/SubgraphExtractorTest.kt` | modifié (pré-session graphify) | 2 UT tolérance N0
+|===
+
+8 fichiers (6 du fix FLAKY-4 + 2 du couple atomique graphify). Zéro fichier production
+métier modifié, zéro nouveau fichier.

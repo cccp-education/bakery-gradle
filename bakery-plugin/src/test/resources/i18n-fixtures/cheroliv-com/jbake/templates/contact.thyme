@@ -45,13 +45,6 @@
                                    placeholder="Téléphone (Optionnel)" />
                         </div>
                         <div class="mb-3">
-                            <input type="text"
-                                   name="subject"
-                                   class="form-control"
-                                   placeholder="Sujet"
-                                   required />
-                        </div>
-                        <div class="mb-3">
                             <textarea class="form-control"
                                       name="message"
                                       rows="5"

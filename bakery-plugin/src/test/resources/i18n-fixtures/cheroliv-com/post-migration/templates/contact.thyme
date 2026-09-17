@@ -45,17 +45,10 @@
                                    th:placeholder="#{contact.5}" placeholder="Téléphone (Optionnel)" />
                         </div>
                         <div class="mb-3">
-                            <input type="text"
-                                   name="subject"
-                                   class="form-control"
-                                   th:placeholder="#{contact.6}" placeholder="Sujet"
-                                   required />
-                        </div>
-                        <div class="mb-3">
                             <textarea class="form-control"
                                       name="message"
                                       rows="5"
-                                      th:placeholder="#{contact.7}" placeholder="Votre message"
+                                      th:placeholder="#{contact.6}" placeholder="Votre message"
                                       required></textarea>
                         </div>
                         <!-- CONTACT-SEC: bakery — Turnstile (remplacer 0x4AAAAAAENqGzKsCZzMmQmX par la Site Key réelle au déploiement) -->

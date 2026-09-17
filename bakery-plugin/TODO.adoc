@@ -1,7 +1,7 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-09-17 — Session 220. **EPIC BKY-I18N-JS TERMINÉ 4/4 US** : `I18nJsDictionary` ✅ S-218 + task `translateI18nClient` ✅ S-219 + propagation byte-identique + garde de format ✅ S-220 (9 UT propagation + 6 UT garde + 3 UT frontière + 4 FT Oven + feature 64 10/10), gate `test` 1768/2 préexistants. Débloque talaria `T-I18N-BAKERY` US-2/US-3. Antérieur S-217 : EPIC BKY-LANG-22 7/10 US (reste dogfooding LLM 22 langues + publication Central consommateurs)._
+_Dernière mise à jour : 2026-09-17 — Session 222. **FLAKY-4 résolu** : drift fixture `contact.thyme` (site réel cheroliv.com S-031 retrait champ `subject`) → resync + recâblage `contact.6` + golden master régénéré. Gate `test` **1777/0 FAIL** (fin des « 2 FAIL préexistants »). Antérieur S-221 : cross-borough T-I18N-BAKERY US-2/US-3 (`IaConfigResolver`). Antérieur S-220 : **EPIC BKY-I18N-JS TERMINÉ 4/4 US** (propagation byte-identique + garde de format). Antérieur S-217 : EPIC BKY-LANG-22 7/10 US (reste dogfooding LLM 22 langues + publication Central consommateurs)._
 
 == EPIC BKY-I18N-JS (S-050) — Task `translateI18nClient` (dictionnaire i18n JS client) ✅ 4/4 US
 
@@ -23,12 +23,13 @@ _Dernière mise à jour : 2026-09-17 — Session 220. **EPIC BKY-I18N-JS TERMIN�
 * [ ] **LANG-22-9** : Dogfooding capsule vidéo 22 langues (Piper/espeak réels) 🟡 EN COURS S-218
 * [ ] **LANG-22-10** : Publication Central consommateurs (bakery/capsule/slider) 🟡 EN COURS S-218
 
-== EPIC BKY-TEST-FLAKY (S-028) — ✅ TERMINÉ (S-214)
+== EPIC BKY-TEST-FLAKY (S-028) — ✅ TERMINÉ (S-214 + FLAKY-4 ✅ S-222)
 
 * [x] **FLAKY-2** : FixtureAlignmentAuditorTest — fixtures i18n cheroliv-com resyncées (11 templates vs site réel) ✅ S-214
 * [x] **FLAKY-1** : RealSiteI18nMigrationIntegrationTest — golden master cheroliv-com régénéré (header.5/6, -footer.15-18) ✅ S-214
 * [x] **FLAKY-3** : I18nDeltaWireCucumberTest — feature 57 3→4 articles (fixture a 4 articles depuis S-190) ✅ S-214
-* Gate clôture : `./gradlew test` 1671/0 FAIL ✅ (fin de la mention "baseline 3 FAIL" dans les gates MEMPHIS)
+* [x] **FLAKY-4** : drift `contact.thyme` (site réel S-031 retrait `subject`) — resync fixture + recâblage `contact.6` + golden master régénéré ✅ S-222
+* Gate clôture : `./gradlew test` 1777/0 FAIL ✅ (fin de la mention "baseline 2 FAIL" dans les gates MEMPHIS)
 
 == EPIC PUB — Publication Maven Central bakery-plugin ✅ TERMINÉ (S-203)
 

@@ -1,44 +1,41 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 222
+:session: 223
 :date: 2026-09-17
-:etat: Session 221 ✅ — Cross-borough **T-I18N-BAKERY US-2/US-3** : nouveau domaine pur `bakery.llm.IaConfigResolver` (pool LLM résolu depuis `site.yml → ollama:`) + câblage `translateI18nClient` + harness talaria réduit à un audit read-only. `test` 1775/2 préexistants (+7).
-:epic_actif: Aucun EPIC bakery actif. T-I18N-BAKERY (talaria) ✅ TERMINÉ 4/4 US.
+:etat: Session 222 ✅ — **FLAKY-4 résolu** : drift fixture `contact.thyme` (site réel cheroliv.com S-031 retrait champ `subject`) resynchronisé + golden master régénéré. Gate `test` **1777/0 FAIL** (baseline S-221 1775/2 → les 2 FAIL historiques disparaissent).
+:epic_actif: Aucun EPIC bakery actif. BKY-TEST-FLAKY étendu FLAKY-4 ✅.
 
 == Contexte de fin
 
-Session 221 — **cross-borough** (bakery + talaria), mission « T-I18N-BAKERY » :
+Session 222 — nettoyage de dette locale actionnable (zéro coût LLM/publication) :
 
-- **`bakery.llm.IaConfigResolver`** (object pur) : `resolve(dsl, ollama)` — précédence
-  DSL activé > section `ollama:` (rotation 11437-11465, modèle, timeout) > inactif.
-- **Câblage local** dans `ContentTaskRegistrar.registerTranslateI18nClientTask`
-  (`resolvedIaConfig`) — périmètre US-2 strict, zéro impact `BakeryPlugin`.
-- **7 UT** `IaConfigResolverTest` + **2 FT** `TranslateI18nClientOllamaConfigFunctionalTest`
-  (RED prouvé par stash).
-- **Fix compat** `LensSteps.kt` : `GraphModel(nodes=, edges=, communities=)` (arguments
-  nommés) pour la session concurrente graphify (`schemaVersion`).
+- **Diagnostic** : les 2 FAIL « préexistants » (S-218→S-221) n'étaient **pas un flake**
+  mais un drift réel. Le site `office/sites/cheroliv.com` a retiré le champ `subject`
+  du formulaire contact (commit `d96dcec`, 2026-09-14, US-35) ; la fixture bakery
+  n'avait pas été resynchronisée.
+- **Fix** : resync `i18n-fixtures/cheroliv-com/jbake/templates/contact.thyme` + recâblage
+  `contact.6`/`contact.7` → `contact.6` + régénération golden master (procédure
+  one-shot `PostMigrationSnapshotGenerator`, churn timestamp réverté).
+- **Résultat** : `FixtureAlignmentAuditorTest` 8/0, `RealSiteI18nMigrationIntegrationTest`
+  2/2. Diff chirurgical (5 fichiers, +6/-23).
 
-Gate : `test` **1775/2 préexistants** (baseline 1768/2 → +7 exactement),
-`I18nClientCucumberTest` 10/10, FT 2/2, `publishToMavenLocal` VERT.
+Gate : `test` **1777/0 FAIL**, `publishToMavenLocal` VERT, grep métier src/ = 0.
+**Les gates cross-borough MEMPHIS n'ont plus besoin de la mention « baseline 2 FAIL ».**
 
-Livrable talaria (US-2 wiring `Exec` + US-3 harness audit-only + T-JBAKE-DS US-5) :
-`office/sites/talaria.school/.agents/sessions/057-*.adoc`.
+== Mission Session 223 — à la demande
 
-== Mission Session 222 — à la demande
+Les 3 pistes restantes exigent toutes un **accord pilote** :
 
 1. **BKY-LANG-22-8/9** : dogfooding LLM réel 22 langues (slider corpus + capsule vidéo)
-   — coût LLM metered, **accord pilote requis**.
+   — coût LLM metered.
 2. **BKY-LANG-22-10** : publication Central consommateurs (BOM/catalog 0.0.43) —
-   **accord pilote requis** (`bakery-plugin` ≥ 0.0.13 débloque le wiring talaria en CI).
-3. **MASS-6** : montée en charge 108 articles × 10 langues — **accord pilote requis**.
+   `bakery-plugin` ≥ 0.0.13 débloque le wiring talaria en CI.
+3. **MASS-6** : montée en charge 108 articles × 10 langues — coût LLM ~675h.
 
 ## Reprendre à
 
-. `git status` dans bakery-gradle — **attendre** : `gradle/libs.versions.toml` (bump
-   graphify 0.0.5) et `src/test/kotlin/bakery/lens/SubgraphExtractorTest.kt` appartiennent
-   à la **session concurrente graphify** (GF-SCHEMA-VERSION), pas à cette session.
-. `src/main/kotlin/bakery/llm/IaConfigResolver.kt` (nouveau domaine)
-. `src/main/kotlin/bakery/ContentTaskRegistrar.kt` (`registerTranslateI18nClientTask`)
-. `./gradlew test --tests "bakery.llm.*"` — non-régression resolver
+. `git status` dans bakery-gradle — vérifier qu'aucune session concurrente n'écrit.
+. `.agents/sessions/222-flaky-4-contact-thyme-drift-resolu.adoc` (rapport)
+. `./gradlew test` — non-régression (baseline 1777/0 attendue)
 . `publishToMavenLocal` après chaque modification code source (règle INDEX 0)
 
 ## Rappel
@@ -46,11 +43,10 @@ Livrable talaria (US-2 wiring `Exec` + US-3 harness audit-only + T-JBAKE-DS US-5
 - Gate permanente : `grep -rwn "REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA" src/` = 0
 - **Décision pilote (S-054)** : pas de migration `LlmBuildService` (codebase N1) —
   socle LLM bakery **local** (`bakery.llm.PooledOllamaLlmService`), hors périmètre.
-- **Nouveau (S-221)** : la config du pool LLM d'un consommateur vit dans
-  `site.yml → ollama:` — résolue par `IaConfigResolver`, prioritaire sur rien sauf un
-  DSL explicitement activé.
-- **Collision de sessions** : vérifier `git status` — d'autres boroughs peuvent écrire
-  dans le même arbre (graphify S-221).
+- **Config pool LLM consommateur** : `site.yml → ollama:` résolue par `IaConfigResolver`
+  (S-221), prioritaire sauf DSL explicitement activé.
+- **Collision de sessions** : vérifier `git status` — d'autres boroughs écrivent parfois
+  dans le même arbre (graphify S-221/S-028).
 - Note environnement : suites cucumber complètes timeout sous charge (load 14+).
 
-(PROMPT_REPRISE — ~55 lines)
+(PROMPT_REPRISE — ~50 lines)
