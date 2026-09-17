@@ -42,6 +42,12 @@ class PooledOllamaLlmService(
                         .baseUrl(baseUrl)
                         .modelName(modelName)
                         .timeout(timeout)
+                        // CHE-I18N-22 — the pool already fails over across the whole
+                        // port range; langchain4j's internal retry (3 attempts per
+                        // endpoint) multiplies the latency on a dead or saturated
+                        // port. One attempt per endpoint: the pool owns the retry
+                        // policy (Ink Economy Law applied to wall-clock).
+                        .maxRetries(0)
                         .build()
                 val response = model.chat(messages)
                 return response.aiMessage().text()
