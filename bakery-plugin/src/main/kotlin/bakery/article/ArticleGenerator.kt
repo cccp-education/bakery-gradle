@@ -89,11 +89,7 @@ class ArticleGenerator {
      * le LLM vers un contenu plus ciblé et pertinent.
      */
     internal fun buildPrompt(intention: ArticleIntention): String {
-        val langInstruction =
-            when (intention.lang) {
-                "en" -> "Write the article in English."
-                else -> "Rédige l'article en français (langue : fr)."
-            }
+        val langInstruction = languageInstruction(intention.lang)
 
         val toneGuidance =
             when (intention.ton) {
@@ -148,6 +144,25 @@ class ArticleGenerator {
             - 3 à 5 sections de contenu
             - Date au format YYYY-MM-DD (aujourd'hui si non précisée)
             """.trimIndent()
+    }
+
+    /**
+     * Builds the language instruction for the given language code.
+     *
+     * Single source of truth: the N0 contract [contracts.i18n.LanguageCatalog].
+     * The instruction names the language (English name) and carries the ISO
+     * code, so the LLM is explicitly told which of the 22 supported languages
+     * to write in — no silent fallback to French.
+     *
+     * Unknown codes are defensive: the instruction still carries the code
+     * (e.g. a future catalog entry not yet in the local classpath).
+     */
+    internal fun languageInstruction(code: String): String {
+        val language = contracts.i18n.LanguageCatalog.findByCode(code)
+        val name = language?.name ?: code
+        val nativeName = language?.nativeName
+        val nativeHint = if (nativeName != null && nativeName != name) " ($nativeName)" else ""
+        return "Write the article in $name$nativeHint. The article language code is '$code'."
     }
 
     /**

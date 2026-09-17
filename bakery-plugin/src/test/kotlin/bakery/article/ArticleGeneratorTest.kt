@@ -284,4 +284,52 @@ class ArticleGeneratorTest {
             assertTrue(prompt.contains("en"), "Must contain language")
             assertTrue(prompt.contains("AsciiDoc"), "Must contain format instruction")
         }
+
+    // ── GBL-006 § 7 — langue de l'article : 22 langues, pas 2 ──────────────
+
+    @Test
+    fun `buildPrompt from intention names the Hindi language for lang hi`() {
+        val generator = ArticleGenerator()
+
+        val intention = ArticleIntention(topic = "Devenir formateur", lang = "hi")
+        val prompt = generator.buildPrompt(intention)
+
+        assertTrue(
+            prompt.contains("Hindi"),
+            "Le prompt doit nommer la langue 'Hindi' pour lang='hi' — obtenu : ${prompt.lineSequence().first { it.contains("language", ignoreCase = true) || it.contains("langue", ignoreCase = true) }}",
+        )
+        assertTrue(prompt.contains("hi"), "Le prompt doit contenir le code 'hi'")
+    }
+
+    @Test
+    fun `buildPrompt from intention does not claim French for a non French language`() {
+        val generator = ArticleGenerator()
+
+        val intention = ArticleIntention(topic = "Devenir formateur", lang = "bn")
+        val prompt = generator.buildPrompt(intention)
+
+        assertTrue(prompt.contains("Bengali"), "Le prompt doit nommer 'Bengali' pour lang='bn'")
+        assertFalse(
+            prompt.contains("en français"),
+            "Le prompt ne doit pas demander le français pour lang='bn'",
+        )
+    }
+
+    @Test
+    fun `buildPrompt from intention names each of the 22 catalog languages`() {
+        val generator = ArticleGenerator()
+
+        contracts.i18n.LanguageCatalog.ALL.forEach { language ->
+            val intention = ArticleIntention(topic = "Sujet", lang = language.code)
+            val prompt = generator.buildPrompt(intention)
+            assertTrue(
+                prompt.contains(language.name),
+                "Le prompt doit nommer '${language.name}' pour lang='${language.code}'",
+            )
+            assertTrue(
+                prompt.contains(language.code),
+                "Le prompt doit contenir le code '${language.code}'",
+            )
+        }
+    }
 }
