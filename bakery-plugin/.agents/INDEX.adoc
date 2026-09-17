@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-09-17 — Session 218 ✅ — **EPIC BKY-I18N-JS-2 TERMINÉ** : `I18nJsDictionary` (object pur parser/writer JS client — `parse`/`languagesOf`/`insertTranslations`), miroir du harness `tools/translate-i18n.mjs` (S-044). 21 tests 0 FAIL dont dogfooding réel talaria (205 clés `fr`, 11+11+22 langues, round-trip byte-identique). Débloque talaria `T-I18N-BAKERY` US-2/US-3. EPIC BKY-LANG-22 🟡 7/10 US (dogfooding LLM 22 langues + publication Central consommateurs restants)._
-_Session en cours_ : 218 ✅ — BKY-I18N-JS-2 (parser/writer JS pur).
-_Prochaine session_ : 219 — BKY-I18N-JS-3 (task `translateI18nClient` + DSL + Cucumber) OU LANG-22-8/10 (dogfooding/publication).
+_Derniere mise a jour : 2026-09-17 — Session 219 ✅ — **EPIC BKY-I18N-JS-3 TERMINÉ** : task `translateI18nClient` (domaine `bakery.i18n.js` — intention/DSL/CLI/registrar + delta idempotent + dégradation échec LLM), 5 functional Oven + feature Cucumber 64 (7 scénarios). Gate `test` 1743/2 préexistants (+36 nets). Débloque talaria `T-I18N-BAKERY` US-2/US-3. Reste JS-4 (propagation + garde + failover)._
+_Session en cours_ : 219 ✅ — BKY-I18N-JS-3 (task `translateI18nClient`).
+_Prochaine session_ : 220 — BKY-I18N-JS-4 (propagation byte-identique + garde + failover, clôture EPIC) OU LANG-22-8/10 (dogfooding/publication).
 
 '''
 
@@ -69,6 +69,7 @@ _Les 6 etapes OBLIGATOIRES_ (dans l'ordre) :
 
   |===
   | # | Date | Type | Sujet | Score
+  | 219 | 2026-09-17 | DDD + TDD + functional Oven + BDD | **BKY-I18N-JS-3 TERMINÉ — task `translateI18nClient` (traduction dictionnaires i18n JS client)** — US-3 EPIC BKY-I18N-JS (bloquant talaria `T-I18N-BAKERY`, contrat figé S-054). Baby-step DDD/TDD/BDD strict. (1) Domaine pur `bakery.i18n.js` : `I18nClientMigrationIntention` (invariants sourceDirs non vide, référence ∈ N0, cibles non vide ∈ N0, référence ∉ cibles) + DSL (dryRun défaut true) + `I18nClientDelta` object pur (`referenceFloor` plancher `fr` hors `.html`, `missingKeys`, `languageOwners` découvert par parsing, `plan`). (2) `TranslateI18nClientTask` (`@DisableCachingByDefault`) : CLI `--i18nClientSource/-TargetLangs/-SourceLang/-DryRun`, no-op strict si delta vide (jamais d'appel LLM), dry-run, écriture des seuls fichiers modifiés, `Failure` → clé absente + document intact. (3) Wiring registrar + `BakeryExtension.i18nClient` + `BakeryPlugin`. (4) 5 functional Oven TestKit. (5) Feature 64 `@i18n-client` 7 scénarios + steps + runner dédié + fixture `talaria-i18n-client`. Bugs TDD : 2 assertions erronées (en du fixture incomplet), `trimMargin` cassant le bloc `en`, `nav.cart` présent dans `fr`, regex step `requests?`. Gate `test` 1743/2 préexistants (baseline 1707/2 → +36), functionalTest 5/5, Cucumber 64 7/7, `publishToMavenLocal` VERT, grep métier = 0. 3 fichiers modifiés (wiring), 12 créés. | 9/10
   | 218 | 2026-09-17 | DDD + TDD + dogfooding réel | **BKY-I18N-JS-2 TERMINÉ — `I18nJsDictionary` (parser/writer JS pur)** — US-2 EPIC BKY-I18N-JS (bloquant talaria `T-I18N-BAKERY`, cadré S-054). Object pur `bakery.i18n.js.I18nJsDictionary` miroir du harness `tools/translate-i18n.mjs` (S-044) : `parse(vararg sources)` fusion chrome+patch déterministe, `languagesOf`, `insertTranslations` delta clés manquantes (Loi Économie d'Encre, no-op byte-identique, idempotent). 2 invariants supérieurs au harness : scanner braces **string-aware** (valeur `"{0}"` ne tronque plus un bloc) + regex bloc ancrée. Bug TDD attrapé : `String.replace(Regex, "\\n")` perdait le backslash (Java Matcher) → lambda. 16 UT + 5 intégration (dogfooding réel talaria lecture seule : 205 clés `fr`, 11+11+22 langues, round-trip byte-identique). `test` 1707/2 préexistants (baseline 1686/2, +21), `publishToMavenLocal` VERT. 3 nouveaux fichiers, zéro existant modifié. | 9/10
   | 217 | 2026-09-15 | DDD + TDD + BDD + publication Central | **EPIC BKY-LANG-22 — Extension LanguageCatalog N0 10 → 22 langues (parité talaria.school) 7/10 US** — Demande pilote : aligner bakery/N0 sur les 22 langues servies par talaria.school. Option A (contrat N0 partagé) : 12 langues ajoutées (`it nl de el tr vi th id ko ja sr` + `fa` RTL — RTL 2→3). N0 `i18n-contracts:0.0.4` Central (bundle `c1a9de57`, 52 tests 0 FAIL) + BOM/catalog `0.0.43` Central (bundle `eb310d04`). bakery `SUPPORTED_LANGS` dérivé de N0 (split-brain tué), capsule `VoiceMapping` 22 voix Piper validées rhasspy/espeak (BDD 22/22 rendered), slider `RevealUiMessageCatalog` 22 libellés natifs, document aligné. Échecs préexistants prouvés par stash : bakery 1686/2, slider 947/3 (Playwright). Reste LANG-22-8/9 (dogfooding LLM) + LANG-22-10 (publication Central consommateurs). 5 repos. | 9/10
   | 213 | 2026-09-09 | DDD + gouvernance transverse | **RENAME Vague 3 CLÔTURÉ — convergence + purge résidus drift** — 4/6 US déjà livrées sessions concurrentes (planner S-254, document S-253, codebase S-254, plantuml S-216, hyperframes S-254). 2 résidus corrigés : document assertion test REAC→"enquête terrain" (functionalTest 1/1 GREEN) + codebase docs courantes 4 mentions SPG (drift S-214 → "plans de formation"). Gate D16 = 0 usage 7 repos. Zéro publication. | 9/10
@@ -383,11 +384,11 @@ format (`migrateToI18n` = Thymeleaf, `migrateContentI18n` = AsciiDoc). Cadrage :
 
 | *BKY-I18N-JS-1* | Cadrage fin : contrat tâche↔fichiers i18n JS + cartographie 3 dictionnaires | 1 | *✅ S-054 (talaria US-0)*
 | *BKY-I18N-JS-2* | `I18nJsDictionary` parser/writer JS pur (`parse`/`languagesOf`/`insertTranslations`) — round-trip byte-identique + idempotence | 3 | *✅ S-218 TERMINÉ (16 UT + 5 intégration dogfooding réel, 205 clés `fr`, 11+11+22 langues)*
-| *BKY-I18N-JS-3* | Task `translateI18nClient` (`I18nClientMigrationIntention` + DSL + registrar) → `LlmServiceTranslationAdapter` → N0 `contracts.i18n.TranslationService` ; delta clés manquantes ; dry-run ; unit + functional Oven + Cucumber | 3 | *🟡 À FAIRE (S-219)*
-| *BKY-I18N-JS-4* | Propagation `maquette/js/` → `jbake/assets/js/` byte-identique + garde parse↔write + failover zéro HTTP direct | 2 | *🟡 À FAIRE*
+| *BKY-I18N-JS-3* | Task `translateI18nClient` (`I18nClientMigrationIntention` + DSL + registrar) → `LlmServiceTranslationAdapter` → N0 `contracts.i18n.TranslationService` ; delta clés manquantes ; dry-run ; unit + functional Oven + Cucumber | 3 | *✅ S-219 TERMINÉ (36 tests nets : 14 UT domaine + 18 UT task + 5 FT + 7 BDD + runner)*
+| *BKY-I18N-JS-4* | Propagation `maquette/js/` → `jbake/assets/js/` byte-identique + garde parse↔write + failover zéro HTTP direct | 2 | *🟡 À FAIRE (S-220 — clôture EPIC)*
 |===
 
-_~9 pts, 4 US. DAG : JS-1 → 2 → 3 → 4. **JS-2 ✅ S-218** (brique non-LLM, non-métrée).
+_~9 pts, 4 US. DAG : JS-1 → 2 → 3 → 4. **JS-2 ✅ S-218 + JS-3 ✅ S-219**.
 Débloque talaria `T-I18N-BAKERY` US-2 (wiring) + US-3 (retrait harness node)._
 
 === EPICs en attente (priorité 2/3)

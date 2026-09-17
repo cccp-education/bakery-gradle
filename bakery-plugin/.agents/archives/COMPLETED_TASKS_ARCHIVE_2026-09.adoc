@@ -1,5 +1,66 @@
 = Archive des Taches Terminees — Septembre 2026
 
+== Session 219 — 2026-09-17 — BKY-I18N-JS-3 : task `translateI18nClient` (dictionnaires i18n JS client)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| BS-1 (DDD) — domaine pur `bakery.i18n.js` : `I18nClientMigrationIntention` (invariants `sourceDirs` non vide/éléments non blank, `referenceLanguage` ∈ N0 `LanguageCatalog`, cibles non vide ∈ N0, référence ∉ cibles), `I18nClientMigrationIntentionDsl` (dryRun défaut `true`), `I18nClientDelta` object pur (`referenceFloor` plancher `fr` hors `.html`, `missingKeys`, `languageOwners` découvert par parsing, `plan` → `List<I18nClientFilePlan>`). 21 UT (7 intention + 14 delta).
+| ✅ TERMINÉ
+
+| BS-2 (TDD) — `TranslateI18nClientTask` (`@DisableCachingByDefault`) : CLI `@Option` (`--i18nClientSource/-TargetLangs/-SourceLang/-DryRun`), pattern `ResolveIntention` CLI > DSL > défauts, fusion sources, no-op strict si delta vide (jamais d'appel LLM), dry-run sans écriture, écriture des seuls fichiers modifiés, `TranslationResult.Failure` → clé conservée absente + document intact. 18 UT.
+| ✅ TERMINÉ
+
+| BS-3 (wiring) — `ContentTaskRegistrar.registerTranslateI18nClientTask` (pattern `registerMigrateContentI18nTask`) + `BakeryExtension.i18nClient` + `BakeryPlugin.registerFullPipelineTasks`. 3 fichiers existants modifiés (additif).
+| ✅ TERMINÉ
+
+| BS-4 (functional Oven) — `TranslateI18nClientFunctionalTest` 5/5 (TestKit réel : dry-run delta 1 rien écrit, tâche groupe `transform`, sans IA source intacte, dictionnaire complet no-op, source absente non bloquante).
+| ✅ TERMINÉ
+
+| BS-5 (BDD) — feature `64_i18n_client_dictionary.feature` `@i18n-client` 7 scénarios + `I18nClientDictionarySteps` + runner dédié `I18nClientCucumberTest` (pattern S-082) + fixture `talaria-i18n-client`. Fake translator label-aware zéro LLM. 7/7 PASSED.
+| ✅ TERMINÉ
+
+| Bugs attrapés par le TDD — (1) 2 assertions de test erronées (le bloc `en` du fixture n'était pas complet) ; (2) interpolation `trimMargin` cassant l'indentation du bloc `en` (delta 0) → `buildString` ; (3) assertion fonctionnelle sur `nav.cart` présent dans `fr` → affinée sur le bloc `en` ; (4) regex step Cucumber `requests?` invalide (`{string}` littéral) → 2 steps singulier/pluriel explicites.
+| ✅ TERMINÉ
+
+| Gate finale — `./gradlew test` = **1743 tests, 2 FAIL préexistants** (baseline S-218 1707/2 → +36 net ; drift `contact.thyme` cheroliv.com reproduit isolément). `functionalTest` 5/5. Cucumber 64 7/7. `publishToMavenLocal` VERT. Gate grep métier src/ = 0. Zéro secret, zéro bump BOM, zéro publication Central.
+| ✅ TERMINÉ
+
+| Clôture gouvernance — rapport `.agents/sessions/219-BKY-I18N-JS-3-translate-i18n-client.adoc`, PROMPT_REPRISE S-220, SESSIONS_HISTORY, INDEX (portefeuille 219 + EPIC 3/4 US), TEST_COVERAGE_ANALYSIS, BACKLOG (JS-3 ✅ TERMINÉ), AGENTS racine.
+| ✅ TERMINÉ
+|===
+
+*Clôture* : **EPIC BKY-I18N-JS 3/4 US** — reste JS-4 (propagation
+`maquette/js/` → `jbake/assets/js/` byte-identique + garde parse↔write +
+failover zéro HTTP direct), clôture EPIC. Débloque talaria `T-I18N-BAKERY`
+US-2 (wiring) + US-3 (retrait harness node).
+
+== Session 218 — 2026-09-17 — BKY-I18N-JS-2 : `I18nJsDictionary` (parser/writer JS pur)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| **BKY-I18N-JS-2** — `bakery.i18n.js.I18nJsDictionary`, object pur (`parse(vararg sources)` fusion chrome+patch déterministe, `languagesOf`, `insertTranslations` delta clés manquantes). Miroir du harness `tools/translate-i18n.mjs` (S-044). Loi Économie d'Encre : no-op **byte-identique** si corpus complet, idempotent. 2 invariants supérieurs au harness : scanner de braces **string-aware** (`{`/`}` dans un littéral double-quote ignorés — valeur `"{0}"` ne tronque plus un bloc) + regex de bloc ancrée `^\s{4}[a-z]{2}: \{` (entrées hors bloc ignorées). Domaine pur, zéro I/O, zéro Gradle, zéro LLM.
+| ✅ TERMINÉ
+
+| **Bug TDD attrapé** — `String.replace(Regex, "\\n")` en Kotlin passe par `Matcher.replaceAll` où `\n` est un échappement de groupe : le backslash était perdu (`nligne2` au lieu de `\nligne2`). Fix : lambda de remplacement `{ "\\n" }`. Attrapé par `inserted values escape quotes and newlines`.
+| ✅ TERMINÉ
+
+| **Tests** — 16 UT `I18nJsDictionaryTest` + 5 intégration `I18nJsDictionaryTalariaIntegrationTest` (dogfooding réel lecture seule, skip `assumeTrue` CI : `i18n.js` 11 langues + plancher `fr` 205 clés hors `.html`, `i18n-extra-langs.js` 11 langues + plancher identique, `i18n-content.js` 22 langues, round-trip byte-identique chrome + patch toutes langues). Baby-step TDD strict RED (compileTestKotlin FAILED `Unresolved reference 'I18nJsDictionary'` ×13) → GREEN → REFACTOR.
+| ✅ TERMINÉ
+
+| **Gate** — `./gradlew test` **1707 tests, 2 FAIL préexistants, 3 skipped** (baseline S-217 1686/2 → +21 net exactement ; FAIL `FixtureAlignmentAuditorTest` + `RealSiteI18nMigrationIntegrationTest` = drift `contact.thyme` cheroliv.com, reproduits isolément). `publishToMavenLocal` VERT (règle INDEX 0). Gate grep métier src/ = 0. 3 nouveaux fichiers, zéro existant modifié. Zéro secret, zéro bump BOM, zéro publication Central.
+| ✅ TERMINÉ
+
+| Clôture gouvernance — rapport `.agents/sessions/218-BKY-I18N-JS-2-js-dictionary.adoc`, PROMPT_REPRISE S-219, SESSIONS_HISTORY, INDEX (session 218 + EPIC BKY-I18N-JS), BACKLOG (BKY-I18N-JS-2 ✅), TODO.adoc, TEST_COVERAGE_ANALYSIS.
+| ✅ TERMINÉ
+|===
+
+*Clôture* : **BKY-I18N-JS-2 TERMINÉ** — brique non-LLM de l'EPIC BKY-I18N-JS,
+bloquant talaria `T-I18N-BAKERY` US-2/US-3.
+
 == Session 214 — 2026-09-09 — EPIC BKY-TEST-FLAKY clôturé (stabilisation des 3 FAIL i18n récurrents)
 
 [cols="2,3"]
@@ -139,31 +200,3 @@ zéro bump BOM, zéro publication Central, zéro secret.
 cross-borough complet (N0 → BOM → 4 consommateurs → Central). Reste dogfooding
 LLM (slider/capsule) + publication Central consommateurs. 5 repos modifiés.
 
-== Session 218 — 2026-09-17 — BKY-I18N-JS-2 : `I18nJsDictionary` (parser/writer JS pur)
-
-[cols="2,3"]
-|===
-| Tâche | Statut
-
-| **BKY-I18N-JS-2** — `bakery.i18n.js.I18nJsDictionary`, object pur (`parse(vararg sources)` fusion chrome+patch déterministe, `languagesOf`, `insertTranslations` delta clés manquantes). Miroir du harness `tools/translate-i18n.mjs` (S-044). Loi Économie d'Encre : no-op **byte-identique** si corpus complet, idempotent. 2 invariants supérieurs au harness : scanner de braces **string-aware** (`{`/`}` dans un littéral double-quote ignorés — valeur `"{0}"` ne tronque plus un bloc) + regex de bloc ancrée `^\s{4}[a-z]{2}: \{` (entrées hors bloc ignorées). Domaine pur, zéro I/O, zéro Gradle, zéro LLM.
-| ✅ TERMINÉ
-
-| **Bug TDD attrapé** — `String.replace(Regex, "\\n")` en Kotlin passe par `Matcher.replaceAll` où `\n` est un échappement de groupe : le backslash était perdu (`nligne2` au lieu de `\nligne2`). Fix : lambda de remplacement `{ "\\n" }`. Attrapé par `inserted values escape quotes and newlines`.
-| ✅ TERMINÉ
-
-| **Tests** — 16 UT `I18nJsDictionaryTest` (parse 6 : extraction, fusion, unescape, source vide, hors bloc, catalogue imbriqué ; languagesOf 3 ; insert 7 : no-op, append, ordre map, idempotence, escape, préservation document, langue inconnue). Baby-step TDD strict RED (compileTestKotlin FAILED `Unresolved reference 'I18nJsDictionary'` ×13) → GREEN → REFACTOR.
-| ✅ TERMINÉ
-
-| **Dogfooding réel talaria** — `I18nJsDictionaryTalariaIntegrationTest` 5 tests (lecture seule `office/sites/talaria.school/maquette/js/`, skip `assumeTrue` CI) : `i18n.js` 11 langues + plancher `fr` = **205 clés** hors `.html`, `i18n-extra-langs.js` 11 langues + plancher identique, `i18n-content.js` **22 langues**, round-trip byte-identique chrome + patch toutes langues.
-| ✅ TERMINÉ
-
-| **Gate** — `./gradlew test` **1707 tests, 2 FAIL préexistants, 3 skipped** (baseline S-217 1686/2 → +21 net exactement ; FAIL `FixtureAlignmentAuditorTest` + `RealSiteI18nMigrationIntegrationTest` = drift `contact.thyme` cheroliv.com, reproduits isolément). `publishToMavenLocal` VERT (règle INDEX 0). Gate grep métier src/ = 0. Zéro secret, zéro bump BOM, zéro publication Central.
-| ✅ TERMINÉ
-
-| Clôture gouvernance — rapport `.agents/sessions/218-BKY-I18N-JS-2-js-dictionary.adoc`, PROMPT_REPRISE S-219, SESSIONS_HISTORY, INDEX (session 218 + EPIC BKY-I18N-JS), BACKLOG (BKY-I18N-JS-2 ✅), TODO.adoc, TEST_COVERAGE_ANALYSIS.
-| ✅ TERMINÉ
-|===
-
-*Clôture* : **BKY-I18N-JS-2 TERMINÉ** — brique non-LLM de l'EPIC BKY-I18N-JS,
-bloquant talaria `T-I18N-BAKERY` US-2/US-3. 3 nouveaux fichiers (1 prod + 2 test),
-zéro fichier existant modifié.

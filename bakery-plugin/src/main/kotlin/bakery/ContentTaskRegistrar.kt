@@ -7,6 +7,8 @@ import bakery.i18n.I18nMigrationIntentionDsl
 import bakery.i18n.LlmServiceTranslationAdapter
 import bakery.i18n.MigrateContentI18nTask
 import bakery.i18n.MigrateToI18nTask
+import bakery.i18n.js.I18nClientMigrationIntentionDsl
+import bakery.i18n.js.TranslateI18nClientTask
 import bakery.i18n.rtl.RtlDirectionInjectionTask
 import bakery.langswitch.InjectLangSwitchTask
 import bakery.seo.InjectSeoTask
@@ -245,6 +247,46 @@ object ContentTaskRegistrar {
 
             createLlmServiceIfEnabled(iaConfig) { task.translationService = it.let(::LlmServiceTranslationAdapter) }
             project.logger.info("[BakeryPlugin] migrateContentI18n IA ${if (iaConfig.enabled) "activé" else "désactivé (ia.enabled = false)"}")
+        }
+    }
+
+    /**
+     * Enregistre la tâche `translateI18nClient` pour la traduction des
+     * dictionnaires i18n JS client (`var DICT` chrome + patch
+     * `TALARIA.I18N.extend`).
+     *
+     * Delta idempotent (Loi de l'Économie d'Encre) : seules les clés manquantes
+     * partent au modèle. Réutilise le socle LLM bakery via
+     * [LlmServiceTranslationAdapter] (port N0 `contracts.i18n.TranslationService`).
+     *
+     * @param site Configuration du site (utilise bake.srcPath pour le content root)
+     * @param iaConfig Configuration IA
+     * @param i18nClientDsl Configuration intention depuis `bakery { i18nClient { ... } }`
+     */
+    internal fun Project.registerTranslateI18nClientTask(
+        site: SiteConfiguration,
+        iaConfig: IaConfig = IaConfig(),
+        i18nClientDsl: I18nClientMigrationIntentionDsl? = null,
+    ) {
+        tasks.register("translateI18nClient", TranslateI18nClientTask::class.java) { task ->
+            task.group = BakeryConstants.TRANSFORM_GROUP
+            task.description =
+                "Traduit les dictionnaires i18n JS client (DICT chrome + patch) — delta des clés manquantes, economie d'encre"
+            task.i18nClientSource.set(project.providers.gradleProperty("i18nClientSource").orElse(""))
+            task.i18nClientTargetLangs.set(project.providers.gradleProperty("i18nClientTargetLangs").orElse(""))
+            task.i18nClientSourceLang.set(project.providers.gradleProperty("i18nClientSourceLang").orElse(""))
+            task.i18nClientDryRun.set(project.providers.gradleProperty("i18nClientDryRun").orElse(""))
+
+            resolveIntention(
+                dsl = i18nClientDsl,
+                isConfigured = { it.sourceDirs.isNotEmpty() },
+                toIntention = { it.toIntention() },
+                taskLabel = "i18nClient",
+                setIntention = { task.dslIntention = it },
+            )
+
+            createLlmServiceIfEnabled(iaConfig) { task.translationService = it.let(::LlmServiceTranslationAdapter) }
+            project.logger.info("[BakeryPlugin] translateI18nClient IA ${if (iaConfig.enabled) "activé" else "désactivé (ia.enabled = false)"}")
         }
     }
 

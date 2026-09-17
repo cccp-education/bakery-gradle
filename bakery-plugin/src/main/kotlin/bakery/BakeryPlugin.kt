@@ -11,6 +11,7 @@ import bakery.ContentTaskRegistrar.registerMigrateContentI18nTask
 import bakery.ContentTaskRegistrar.registerMigrateToI18nTask
 import bakery.ContentTaskRegistrar.registerRtlDirectionInjectionTask
 import bakery.ContentTaskRegistrar.registerScaffoldContactSecTask
+import bakery.ContentTaskRegistrar.registerTranslateI18nClientTask
 import bakery.ContentTaskRegistrar.registerValidateFirebaseConfigTask
 import bakery.DeployTaskRegistrar.registerDeployMaquetteTask
 import bakery.DeployTaskRegistrar.registerDeployProfileTask
@@ -214,6 +215,7 @@ class BakeryPlugin : Plugin<Project> {
         project.registerValidateFirebaseConfigTask(resolvedSite, bakeryExtension.ia, bakeryExtension.firebaseAuth)
         project.registerMigrateToI18nTask(resolvedSite, bakeryExtension.ia, bakeryExtension.i18nMigration)
         project.registerMigrateContentI18nTask(resolvedSite, bakeryExtension.ia, bakeryExtension.contentI18nMigration)
+        project.registerTranslateI18nClientTask(resolvedSite, bakeryExtension.ia, bakeryExtension.i18nClient)
         project.registerRtlDirectionInjectionTask(resolvedSite)
         project.registerAccessibilityAuditTask(bakeryExtension, resolvedSite)
         project.registerInjectLangSwitchTask(resolvedSite)

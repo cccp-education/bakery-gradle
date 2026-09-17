@@ -1,55 +1,62 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 219
+:session: 220
 :date: 2026-09-17
-:etat: Session 218 ✅ — **BKY-I18N-JS-2 TERMINÉ** : `I18nJsDictionary` (object pur parser/writer JS client) livré, 21 tests 0 FAIL dont dogfooding réel talaria (205 clés `fr`, 11+11+22 langues, round-trip byte-identique).
-:epic_actif: BKY-I18N-JS 🟢 EN COURS 2/5 US — reste JS-3 (task `translateI18nClient`), JS-4 (propagation + garde). Débloque talaria `T-I18N-BAKERY` US-2/US-3.
+:etat: Session 219 ✅ — **BKY-I18N-JS-3 TERMINÉ** : task `translateI18nClient` (domaine `bakery.i18n.js`) livrée — intention + DSL + CLI + registrar + delta idempotent + dégradation échec LLM. 36 tests nets, gate 1743/2 préexistants.
+:epic_actif: BKY-I18N-JS 🟢 EN COURS 3/4 US — reste JS-4 (propagation byte-identique + garde round-trip + failover zéro HTTP direct). Débloque talaria `T-I18N-BAKERY` US-2/US-3.
+:lang22: BKY-LANG-22 🟡 7/10 US — reste LANG-22-8/9 (dogfooding LLM 22 langues) + LANG-22-10 (publication Central consommateurs).
 
 == Contexte de fin
 
-Session 218 — **BKY-I18N-JS-2** (bloquant talaria `T-I18N-BAKERY`, cadré S-054) :
-- `I18nJsDictionary` object pur (`parse` / `languagesOf` / `insertTranslations`),
-  miroir du harness `tools/translate-i18n.mjs` (S-044).
-- 2 invariants supérieurs au harness : scanner braces **string-aware** (une valeur
-  `"{0}"` ne tronque plus un bloc) + regex bloc ancrée (entrées hors bloc ignorées).
-- Loi Économie d'Encre : seules les clés manquantes sont insérées ; corpus complet
-  = **no-op byte-identique** (prouvé sur les 3 dictionnaires talaria réels).
-- Bug attrapé par TDD : `String.replace(Regex, "\\n")` perdait le backslash
-  (Java Matcher) → lambda de remplacement.
+Session 219 — **BKY-I18N-JS-3** (US bloquante talaria `T-I18N-BAKERY`) :
+- domaine pur `bakery.i18n.js` : `I18nClientMigrationIntention` (+ DSL),
+  `I18nClientDelta` (plancher `fr` hors `.html`, delta par langue,
+  propriété de bloc découverte par parsing).
+- `TranslateI18nClientTask` : CLI `--i18nClient*`, fusion sources,
+  no-op strict si delta vide (jamais d'appel LLM), dry-run, écriture des
+  seuls fichiers modifiés, `TranslationResult.Failure` → clé conservée
+  absente + document intact.
+- wiring : `ContentTaskRegistrar.registerTranslateI18nClientTask` +
+  `BakeryExtension.i18nClient` + `BakeryPlugin.registerFullPipelineTasks`.
+- 5 functional Oven + feature Cucumber 64 (`@i18n-client`, 7 scénarios) +
+  runner dédié `I18nClientCucumberTest` (pattern S-082).
 
-Gate : `test` **1707/2 préexistants** (baseline 1686/2, +21 exactement),
-`publishToMavenLocal` VERT. Zéro fichier existant modifié.
+Gate : `test` **1743/2 préexistants** (baseline 1707/2 → +36 exactement),
+`functionalTest` 5/5, Cucumber 64 7/7, `publishToMavenLocal` VERT,
+grep métier = 0. 3 fichiers modifiés (wiring), 12 créés.
 
-== Mission Session 219 — à la demande
+== Mission Session 220 — à la demande
 
-1. **BKY-I18N-JS-3** : task `translateI18nClient` (domaine `bakery.i18n.js`) —
-   `I18nClientMigrationIntention` + DSL `bakery { i18nClient { ... } }` + CLI +
-   `ContentTaskRegistrar.registerTranslateI18nClientTask` ; brancher
-   `LlmServiceTranslationAdapter` → port N0 `contracts.i18n.TranslationService` ;
-   delta des clés manquantes ; dry-run ; **tests unit + functional Oven + Cucumber**.
-2. **BKY-I18N-JS-4** : propagation `maquette/js/` → `jbake/assets/js/`
-   byte-identique + garde parse↔write round-trip + failover zéro appel HTTP direct.
-3. *(hors EPIC)* BKY-LANG-22-8/9/10 (dogfooding LLM 22 langues, publication Central
-   consommateurs) OU MASS-6 (accord pilote).
+1. **BKY-I18N-JS-4** (clôture EPIC, ~2 pts) : propagation `maquette/js/` →
+   `jbake/assets/js/` **byte-identique** (pattern `propagate()` du harness) ;
+   garde de format (parse↔write round-trip + idempotence) ; failover zéro
+   appel HTTP direct (la voie node disparaît). **Étendre** feature 64 ou
+   créer feature 65 + runner. Puis **clôturer EPIC BKY-I18N-JS**.
+2. **BKY-LANG-22-8/9/10** : dogfooding slider corpus 22 langues + capsule
+   vidéo 22 langues + publication Central consommateurs (BOM 0.0.43).
+3. *(hors EPIC)* MASS-6 (accord pilote requis — coût LLM ~675h).
 
 ## Reprendre à
 
 . `git status` dans bakery-gradle
 . Lire `BACKLOG.adoc` (EPIC BKY-I18N-JS en tête)
-. `src/main/kotlin/bakery/i18n/js/I18nJsDictionary.kt` (API parser/writer US-2)
-. `src/main/kotlin/bakery/i18n/MigrateContentI18nTask.kt` (pattern intention/DSL/CLI)
-. `/tmp/bakery-dogfood` projet consommateur + corpus talaria
-   `office/sites/talaria.school/maquette/js/` (lecture seule)
+. `src/main/kotlin/bakery/i18n/js/` (4 fichiers prod US-3)
+. `src/test/scenarios/bakery/scenarios/I18nClientDictionarySteps.kt` +
+   `src/test/features/64_i18n_client_dictionary.feature` (pattern BDD)
+. Harness de référence (lecture seule) :
+   `office/sites/talaria.school/tools/translate-i18n.mjs` (`propagate()` L177)
 . `publishToMavenLocal` après chaque modification code source (règle INDEX 0)
 
 ## Rappel
 
-- Gate permanente : `grep -rwn "REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA" src/` doit rester = 0
+- Gate permanente : `grep -rwn "REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA" src/` = 0
 - **Décision pilote (S-054)** : pas de migration `LlmBuildService` (codebase N1) —
   socle LLM bakery **local** (`bakery.llm.PooledOllamaLlmService`), hors périmètre.
 - **Ordre maquette** : `maquette/js/` = source de dev, `jbake/assets/js/` = copie de
   publication byte-identique (`MaquetteParityGuard`).
+- **Source dirs** de `translateI18nClient` sont relatifs au `projectDir`
+  (pas au content root) — layout talaria `maquette/js` ∥ `jbake/assets/js`.
 - **Règle gouvernance** : `office/sites/talaria.school/site.yml` est gitignoré
   (credentials réels). Ne pas le lire/modifier — repo `office` privé.
 - Note environnement : suites cucumber complètes timeout sous charge (load 14+).
 
-(End of PROMPT_REPRISE — 60 lines)
+(End of PROMPT_REPRISE — 57 lines)

@@ -1,0 +1,158 @@
+= Session 219 — BKY-I18N-JS-3 : task `translateI18nClient` (traduction dictionnaires i18n JS client)
+
+[cols="2,5"]
+|===
+| Session | 219
+| Date | 2026-09-17
+| Type | DDD + TDD + functional Oven + BDD Cucumber (baby-step strict)
+| EPIC | BKY-I18N-JS (cross-borough talaria `T-I18N-BAKERY`) — US BKY-I18N-JS-3
+| Score | 9/10
+|===
+
+== Mission
+
+US **BKY-I18N-JS-3** du BACKLOG : task `translateI18nClient` (domaine `bakery.i18n.js`) —
+`I18nClientMigrationIntention` + DSL `bakery { i18nClient { ... } }` + CLI +
+`ContentTaskRegistrar.registerTranslateI18nClientTask`, branchée sur
+`LlmServiceTranslationAdapter` → port N0 `contracts.i18n.TranslationService`.
+Delta des clés manquantes + dry-run + tests unit + functional Oven + Cucumber.
+
+Contrat figé par le cadrage talaria S-054 (`CADRAGE_EPIC_T_I18N_BAKERY.adoc`) :
+la traduction des dictionnaires JS client (`var DICT` chrome + `TALARIA.I18N.extend`
+patch) doit passer par une **tâche Gradle bakery**, pas par le harness node
+`tools/translate-i18n.mjs` (appel HTTP direct au LLM, dette d'architecture).
+
+== Livrable (baby-step DDD/TDD/BDD strict)
+
+=== BS-1 — Domaine pur (DDD)
+
+* `I18nClientMigrationIntention` — invariants : `sourceDirs` non vide, éléments
+  non blank, `referenceLanguage` ∈ N0 `LanguageCatalog`, cibles non vide, cibles
+  ∈ N0, référence ∉ cibles.
+* `I18nClientMigrationIntentionDsl` — `sourceDirs` / `referenceLanguage` /
+  `targetLanguages` / `dryRun` (défaut `true`, économie d'encre).
+* `I18nClientDelta` — object pur planificateur : `referenceFloor` (plancher `fr`
+  moins les variantes `.html`), `missingKeys` (par langue cible), `languageOwners`
+  (premier fichier propriétaire du bloc), `plan` (fusion chrome+patch →
+  `List<I18nClientFilePlan>`). Miroir du harness `missingKeys` + dispatch
+  `CHROME_LANGUAGES`/`PATCH_LANGUAGES` — mais **découvert par parsing** au lieu
+  d'être hardcodé.
+
+=== BS-2 — Task (TDD)
+
+`TranslateI18nClientTask` (`@DisableCachingByDefault`) :
+* CLI `@Option` : `--i18nClientSource`, `--i18nClientTargetLangs`,
+  `--i18nClientSourceLang`, `--i18nClientDryRun` (pattern `ResolveIntention`
+  CLI > DSL > défauts).
+* Fusion des sources, calcul du delta, **no-op strict** si delta vide
+  (jamais d'appel LLM), dry-run sans écriture, écriture des seuls fichiers
+  modifiés.
+* **Dégradation** : un `TranslationResult.Failure` laisse la clé manquante et le
+  document intact (texte original préservé), log warn.
+* `.html` jamais envoyées au modèle (non-transfert de balisage).
+
+=== BS-3 — Wiring
+
+* `ContentTaskRegistrar.registerTranslateI18nClientTask` (pattern
+  `registerMigrateContentI18nTask`) — résolution `bake.srcPath` pour les chemins
+  relatifs, `createLlmServiceIfEnabled` → `LlmServiceTranslationAdapter`.
+* `BakeryExtension` : `val i18nClient` + `fun i18nClient(action)`.
+* `BakeryPlugin` : appel dans `registerFullPipelineTasks`.
+
+=== BS-4 — Functional Oven (5 tests)
+
+`TranslateI18nClientFunctionalTest` — build Gradle réel (TestKit) : dry-run
+(delta 1, rien écrit), tâche enregistrée groupe `transform`, sans service IA
+source intacte, dictionnaire complet = no-op, répertoire source absent non
+bloquant.
+
+=== BS-5 — BDD Cucumber (feature 64, 7 scénarios)
+
+`64_i18n_client_dictionary.feature` `@i18n-client` + `I18nClientDictionarySteps`
++ runner dédié `I18nClientCucumberTest` (pattern S-082). Fixture
+`talaria-i18n-client` (chrome : `fr` plancher, `en` complet, `fa` incomplet ;
+patch : `de` bloc vide). Fake translator label-aware, **zéro LLM**.
+
+Scénarios : langue complète = no-op (0 requête), seules les clés manquantes
+envoyées, bloc vide rempli entièrement, valeurs traduites présentes, échec =
+clé absente + document byte-identique, re-run idempotent, dry-run sans écriture.
+
+== Bugs attrapés par le TDD
+
+1. **Faux positifs de test (BS-1)** : le `en` du fixture n'était pas « complet »
+   (1 clé manquante) — 2 assertions revues, code correct. Le domaine testé
+   distingue « complète » et « en du sample ».
+2. **Fixtures functional (BS-4)** : interpolation `trimMargin` (`$enBlock`)
+   collait le bloc `en` sans indentation attendue → delta 0. Remplacé par
+   `buildString` explicite.
+3. **Assertion fonctionnelle erronée** : `nav.cart` existe légitimement dans le
+   bloc `fr` — assertion affinée sur le bloc `en` (`englishBlock()`).
+4. **Step Cucumber regex** : `{string} requests?` n'est pas une expression
+   valide (Cucumber compile `{string}` littéralement) → 2 steps explicites
+   singulier/pluriel.
+
+== Gate
+
+* `./gradlew test` : **1743 tests, 2 FAIL préexistants, 3 skipped** —
+  baseline S-218 = 1707/2 → **+36 net** (14 UT domaine + 18 UT task + 5 FT +
+  7 scénarios BDD + 1 runner + tests de classe). Les 2 FAIL
+  (`FixtureAlignmentAuditorTest` + `RealSiteI18nMigrationIntegrationTest`,
+  drift `contact.thyme` cheroliv.com) sont **reproduits isolément** — identiques
+  S-218, indépendants du code i18n JS.
+* `./gradlew functionalTest --tests "bakery.TranslateI18nClientFunctionalTest"` :
+  **5/5 PASSED**.
+* `./gradlew test --tests "bakery.i18n.js.I18nClientCucumberTest"` : **7/7
+  scénarios PASSED** (0 échec).
+* `./gradlew -q publishToMavenLocal` : VERT (règle INDEX 0).
+* Gate grep métier (`FPA|CDA|SPG|SPD|REAC|AFNOR|RNCP`) : **0** dans `src/`.
+* Zéro secret, zéro Python, zéro bump BOM, zéro publication Central.
+
+== Décisions actées
+
+. **Frontière LLM = socle bakery local** (constat C-1 S-054) : réutilise
+   `LlmServiceTranslationAdapter` + port N0 `contracts.i18n.TranslationService`.
+   Pas de nouvelle interface. Migration `LlmBuildService` (codebase N1) hors
+   périmètre.
+. **Propriété des blocs découverte par parsing** (`languageOwners`) au lieu des
+   listes hardcodées `CHROME_LANGUAGES`/`PATCH_LANGUAGES` du harness — moins de
+   couplage, plus résilient à un nouveau fichier de dictionnaire.
+. **Source dirs relatifs au `projectDir`** (layout talaria : `maquette/js` et
+   `jbake/assets/js` sont frères, pas sous `bake.srcPath`).
+. **Échec LLM = clé conservée absente** : le document reste un JS valide, la
+   re-run retentera le delta (économie d'encre préservée).
+. **Le catalogue imbriqué** (`i18n-content.js`) n'est pas traité par cette US
+   (presence de langue seule, cf. cadrage) — `I18nJsDictionary` ne lit que les
+   formes plates.
+
+== Reste EPIC BKY-I18N-JS
+
+* **BKY-I18N-JS-4** : propagation `maquette/js/` → `jbake/assets/js/`
+  byte-identique (pattern harness `propagate()`) + garde parse↔write round-trip
+  + failover zéro appel HTTP direct. **Clôture EPIC**.
+* Débloque ensuite talaria `T-I18N-BAKERY` US-2 (wiring build) + US-3 (retrait
+  harness node).
+
+== Fichiers
+
+[cols="2,4"]
+|===
+| Fichier | Statut
+
+| `src/main/kotlin/bakery/i18n/js/I18nClientMigrationIntention.kt` | créé
+| `src/main/kotlin/bakery/i18n/js/I18nClientMigrationIntentionDsl.kt` | créé
+| `src/main/kotlin/bakery/i18n/js/I18nClientDelta.kt` | créé
+| `src/main/kotlin/bakery/i18n/js/TranslateI18nClientTask.kt` | créé
+| `src/test/kotlin/bakery/i18n/js/I18nClientMigrationIntentionTest.kt` | créé
+| `src/test/kotlin/bakery/i18n/js/I18nClientDeltaTest.kt` | créé
+| `src/test/kotlin/bakery/i18n/js/TranslateI18nClientTaskTest.kt` | créé
+| `src/test/kotlin/bakery/i18n/js/I18nClientCucumberTest.kt` | créé
+| `src/test/scenarios/bakery/scenarios/I18nClientDictionarySteps.kt` | créé
+| `src/test/features/64_i18n_client_dictionary.feature` | créé
+| `src/test/resources/fixtures/talaria-i18n-client/` | créé (chrome + patch)
+| `src/functionalTest/kotlin/bakery/TranslateI18nClientFunctionalTest.kt` | créé
+| `src/main/kotlin/bakery/ContentTaskRegistrar.kt` | modifié (registrar)
+| `src/main/kotlin/bakery/BakeryExtension.kt` | modifié (DSL)
+| `src/main/kotlin/bakery/BakeryPlugin.kt` | modifié (wiring)
+|===
+
+3 fichiers existants modifiés (wiring additif), 12 créés.

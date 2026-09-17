@@ -4,6 +4,7 @@ import bakery.a11y.AccessibilityDsl
 import bakery.article.ArticleIntentionDsl
 import bakery.i18n.ContentMigrationIntentionDsl
 import bakery.i18n.I18nMigrationIntentionDsl
+import bakery.i18n.js.I18nClientMigrationIntentionDsl
 import bakery.lens.AugmentedContextDsl
 import bakery.llm.IaConfig
 import bakery.scaffold.ScaffoldIntentionDsl
@@ -89,6 +90,9 @@ open class BakeryExtension
         /** Configuration Content I18n Migration Intention (sourceDir, outputDir, targetLanguages, sourceLanguage, dryRun) — BKY-I18N-REAL */
         val contentI18nMigration: ContentMigrationIntentionDsl = ContentMigrationIntentionDsl()
 
+        /** Configuration I18n Client Intention (sourceDirs, referenceLanguage, targetLanguages, dryRun) — BKY-I18N-JS */
+        val i18nClient: I18nClientMigrationIntentionDsl = I18nClientMigrationIntentionDsl()
+
         /** Configuration Accessibilité (auditDir, reportPath, conformanceLevel) — BKY-A11Y-1 */
         val a11y: AccessibilityDsl = AccessibilityDsl(objects)
 
@@ -166,6 +170,11 @@ open class BakeryExtension
         /** DSL : bakery { contentI18nMigration { ... } } — BKY-I18N-REAL */
         fun contentI18nMigration(action: Action<ContentMigrationIntentionDsl>) {
             action.execute(contentI18nMigration)
+        }
+
+        /** DSL : bakery { i18nClient { ... } } — BKY-I18N-JS */
+        fun i18nClient(action: Action<I18nClientMigrationIntentionDsl>) {
+            action.execute(i18nClient)
         }
 
         /** DSL : bakery { a11y { ... } } — BKY-A11Y-1 */
