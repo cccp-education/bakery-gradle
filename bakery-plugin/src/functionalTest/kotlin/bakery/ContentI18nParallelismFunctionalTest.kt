@@ -9,13 +9,35 @@ import java.io.File
 /**
  * CHE-I18N-22 US-4/US-8 — the CLI can drive the content-migration parallelism.
  *
- * The pilot decision S-044 raises the ceiling to five Ollama providers (the pool
- * spans 11437-11465), replacing the earlier two-provider bound. Concurrency is
- * across articles; one article is still translated block-by-block, sequentially.
+ * Pilot decision S-044: the ceiling is the number of ports the pool can serve at
+ * once — **twenty-five** healthy instances on 11437-11465. Concurrency is across
+ * articles; one article is still translated block-by-block, sequentially.
  */
 class ContentI18nParallelismFunctionalTest {
     @TempDir
     lateinit var projectDir: File
+
+    @Test
+    fun `the CLI accepts the full-pool ceiling`() {
+        createSite()
+
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "migrateContentI18n",
+                    "--contentI18nSource=content/blog",
+                    "--contentI18nOutput=content-i18n",
+                    "--contentI18nSourceLang=fr",
+                    "--contentI18nTargetLangs=en",
+                    "--contentI18nParallelism=25",
+                    "--contentI18nDryRun=true",
+                ).build()
+
+        assertThat(result.output).contains("BUILD SUCCESSFUL")
+    }
 
     @Test
     fun `the CLI accepts the five-provider ceiling`() {
@@ -62,7 +84,7 @@ class ContentI18nParallelismFunctionalTest {
     }
 
     @Test
-    fun `the CLI rejects a parallelism above five`() {
+    fun `the CLI rejects a parallelism above the full pool`() {
         createSite()
 
         val result =
@@ -76,7 +98,7 @@ class ContentI18nParallelismFunctionalTest {
                     "--contentI18nOutput=content-i18n",
                     "--contentI18nSourceLang=fr",
                     "--contentI18nTargetLangs=en",
-                    "--contentI18nParallelism=6",
+                    "--contentI18nParallelism=26",
                     "--contentI18nDryRun=true",
                 ).buildAndFail()
 

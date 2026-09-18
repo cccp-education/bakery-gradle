@@ -79,7 +79,7 @@ abstract class MigrateContentI18nTask : DefaultTask() {
 
     @get:Input
     @get:Optional
-    @get:Option(option = "contentI18nParallelism", description = "Traductions parallèles (1 à 5 providers Ollama, max 5)")
+    @get:Option(option = "contentI18nParallelism", description = "Traductions parallèles (1 à 25 providers Ollama, max = ports sains du pool)")
     abstract val contentI18nParallelism: Property<String>
 
     @get:Input
@@ -182,10 +182,10 @@ abstract class MigrateContentI18nTask : DefaultTask() {
                 // CHE-I18N-22 US-4 (defect 2) — the previous file-by-file loop was
                 // sequential: `parallelism` reached the service but nothing drove it
                 // concurrently. The file loop now runs on a bounded pool (pilot
-                // decision S-044: up to five providers, spread across the
-                // 11437-11465 pool). Each worker owns its ContentTranslationService
-                // so the translator's mutable validation lists are never shared
-                // across threads.
+                // decision S-044: up to one worker per healthy port of the
+                // 11437-11465 pool, 25 today). Each worker owns its
+                // ContentTranslationService so the translator's mutable validation
+                // lists are never shared across threads.
                 val workers = intention.parallelism.coerceAtLeast(1)
                 val executor = java.util.concurrent.Executors.newFixedThreadPool(workers)
                 val tableResults = java.util.concurrent.ConcurrentLinkedQueue<TableValidationResult.Invalid>()

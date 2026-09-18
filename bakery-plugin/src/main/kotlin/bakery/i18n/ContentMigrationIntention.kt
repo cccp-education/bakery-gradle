@@ -38,15 +38,15 @@ data class ContentMigrationIntention(
     companion object {
         /**
          * CHE-I18N-22 US-8 — pilot decision S-044: the translation may run on up
-         * to **five** Ollama providers at once. The pool spans 11437-11465
-         * (twenty-five healthy instances), so five concurrent providers use a
-         * fifth of the plage without saturating any instance, while the earlier
-         * two-provider bound left most of the pool idle on a 20-language batch.
+         * to **twenty-five** Ollama providers at once, the number of ports the
+         * pool (11437-11465) can actually serve at once: 29 ports minus three
+         * without a container (11438, 11449, 11450) and one whose account hit
+         * its monthly quota (11437) at S-044.
          *
-         * A single article is never translated by three providers at once
+         * A single article is never translated by several providers at once
          * (per-article work stays sequential); the concurrency is across
          * articles. Default remains 1 for an unconfigured consumer.
          */
-        const val MAX_PARALLELISM = 5
+        const val MAX_PARALLELISM = 25
     }
 }

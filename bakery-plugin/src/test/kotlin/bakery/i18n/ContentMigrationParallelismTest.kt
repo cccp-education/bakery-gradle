@@ -9,10 +9,11 @@ import kotlin.test.assertEquals
  * the CLI (`--contentI18nParallelism`), so a consumer can run the translation on
  * several Ollama providers at once.
  *
- * Pilot decision S-044: raise the ceiling to **five** concurrent providers (the
- * pool spans 11437-11465, twenty-five healthy instances), replacing the earlier
- * two-provider bound. The default stays 1, so an unconfigured consumer keeps the
- * historical sequential behaviour.
+ * Pilot decision S-044: the ceiling is the number of ports the pool can serve at
+ * once — **twenty-five** healthy instances on 11437-11465 (29 ports, minus three
+ * without a container and one whose account hit its monthly quota). This
+ * replaces the earlier two-provider bound. The default stays 1, so an
+ * unconfigured consumer keeps the historical sequential behaviour.
  *
  * The parallelism lives on [ContentMigrationIntention], wired into
  * [ContentTranslationService]. Before US-4 the CLI could not reach it: the
@@ -21,7 +22,14 @@ import kotlin.test.assertEquals
 class ContentMigrationParallelismTest {
 
     @Test
-    fun `an intention accepts the five-provider ceiling`() {
+    fun `an intention accepts the full-pool ceiling`() {
+        val intention = intention(parallelism = 25)
+
+        assertEquals(25, intention.parallelism)
+    }
+
+    @Test
+    fun `an intention accepts a parallelism of five`() {
         val intention = intention(parallelism = 5)
 
         assertEquals(5, intention.parallelism)
@@ -47,13 +55,13 @@ class ContentMigrationParallelismTest {
     }
 
     @Test
-    fun `a parallelism above five is rejected`() {
-        assertThrows<IllegalArgumentException> { intention(parallelism = 6) }
+    fun `a parallelism above the full pool is rejected`() {
+        assertThrows<IllegalArgumentException> { intention(parallelism = 26) }
     }
 
     @Test
-    fun `the ceiling is five`() {
-        assertEquals(5, ContentMigrationIntention.MAX_PARALLELISM)
+    fun `the ceiling is the number of healthy pool ports`() {
+        assertEquals(25, ContentMigrationIntention.MAX_PARALLELISM)
     }
 
     private fun intention(parallelism: Int = 1) =
