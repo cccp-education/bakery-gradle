@@ -29,6 +29,45 @@ class TemplateTextTranslatorTest {
     }
 
     @Test
+    fun `a bare text node mixed with an inline span is translated`() {
+        val template =
+            """
+            <h1 class="display-5 fw-bold mb-5">
+                Développeur
+                <span class="text-primary">spécialisé en Ingénierie Pédagogique</span>
+            </h1>
+            """.trimIndent()
+        val translator = TemplateTextTranslator(PrefixTranslationService("EN"))
+
+        val result = translator.translate(template, "fr", "en")
+
+        assertTrue(result.content.contains("EN:Développeur"), "Bare text must be translated: ${result.content}")
+        assertTrue(
+            result.content.contains("EN:spécialisé en Ingénierie Pédagogique"),
+            "Span text must be translated: ${result.content}",
+        )
+        assertTrue(result.content.contains("""class="display-5 fw-bold mb-5""""), "Attributes preserved")
+        assertTrue(result.content.contains("""class="text-primary""""), "Span attributes preserved")
+    }
+
+    @Test
+    fun `script and style bodies are never translated`() {
+        val template =
+            """
+            <script>var label = "Développeur";</script>
+            <style>.hero::after { content: "Innovation"; }</style>
+            <h1>Développeur</h1>
+            """.trimIndent()
+        val translator = TemplateTextTranslator(PrefixTranslationService("EN"))
+
+        val result = translator.translate(template, "fr", "en")
+
+        assertTrue(result.content.contains("""var label = "Développeur";"""), "Script body must be untouched")
+        assertTrue(result.content.contains("""content: "Innovation";"""), "Style body must be untouched")
+        assertTrue(result.content.contains("<h1>EN:Développeur</h1>"), "Visible text must be translated")
+    }
+
+    @Test
     fun `attribute values are never substituted`() {
         val template = """<a th:href="${'$'}{root}index.html" data-lang="fr">Français</a>"""
         val translator = TemplateTextTranslator(PrefixTranslationService("EN"))

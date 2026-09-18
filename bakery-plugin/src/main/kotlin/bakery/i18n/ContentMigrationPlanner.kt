@@ -38,10 +38,11 @@ object ContentMigrationPlanner {
         excludePaths: Set<String>,
     ): Map<String, String> {
         if (!sourceDir.exists()) return emptyMap()
-        return sourceDir
-            .walkTopDown()
+        // CHE-I18N-UNIFY — prune excluded subtrees so the output tree, when it
+        // lives inside the source root, is never re-scanned as input.
+        return SourceTree
+            .walk(sourceDir, excludePaths)
             .filter { it.isFile && it.extension == "adoc" }
-            .filterNot { file -> isExcluded(file.relativeTo(sourceDir).path, excludePaths) }
             .associate { it.relativeTo(sourceDir).path to sha256(it) }
     }
 

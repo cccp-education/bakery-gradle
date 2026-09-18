@@ -260,10 +260,12 @@ abstract class MigrateContentI18nTask : DefaultTask() {
         langDir: File,
         excludeRelativePaths: Set<String>,
     ) {
-        sourceDir.walkTopDown().forEach { file ->
+        // CHE-I18N-UNIFY — `SourceTree` prunes excluded subtrees instead of
+        // walking through them: with the output inside the source tree
+        // (`source=jbake`, `output=jbake/i18n`), `walkTopDown` would recopy the
+        // whole `i18n` tree into every variant (the S-045 7.3 GB recursion).
+        SourceTree.walk(sourceDir, excludeRelativePaths).forEach { file ->
             val relPath = file.relativeTo(sourceDir).path
-            if (relPath in excludeRelativePaths) return@forEach
-            if (excludeRelativePaths.any { relPath.startsWith("$it/") }) return@forEach
             if (file.isDirectory) {
                 langDir.resolve(relPath).mkdirs()
                 return@forEach

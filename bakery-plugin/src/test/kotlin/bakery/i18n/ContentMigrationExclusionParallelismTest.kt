@@ -59,6 +59,32 @@ class ContentMigrationExclusionParallelismTest {
         assertEquals(3, plan.filesToTranslate.size)
     }
 
+    @Test
+    fun `the output tree inside the source root is never re-scanned`(
+        @TempDir tempDir: File,
+    ) {
+        // S-045 regression: source `jbake/`, output `jbake/i18n`. `walkTopDown`
+        // walked into the excluded `i18n` subtree and recopied it recursively.
+        val jbake = tempDir.resolve("jbake")
+        jbake.resolve("content/blog").mkdirs()
+        jbake.resolve("content/blog/a.adoc").writeText("= A")
+        jbake.resolve("i18n/ar/content").mkdirs()
+        jbake.resolve("i18n/ar/content/x.adoc").writeText("= X")
+
+        val plan =
+            ContentMigrationPlanner.plan(
+                sourceDir = jbake,
+                storedChecksums = emptyMap(),
+                excludePaths = setOf("i18n", "assets", "templates"),
+            )
+
+        assertEquals(listOf("content/blog/a.adoc"), plan.filesToTranslate)
+        assertTrue(
+            plan.filesToTranslate.none { it.startsWith("i18n/") },
+            "The output tree must never be re-scanned: ${plan.filesToTranslate}",
+        )
+    }
+
     private fun createSource(root: File): File {
         val source = root.resolve("content")
         source.resolve("blog/2026").mkdirs()

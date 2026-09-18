@@ -290,6 +290,8 @@ object ContentTaskRegistrar {
             task.templateTargetLangs.set(project.providers.gradleProperty("templateTargetLangs").orElse(""))
             task.templateSourceLang.set(project.providers.gradleProperty("templateSourceLang").orElse(""))
             task.templateDryRun.set(project.providers.gradleProperty("templateDryRun").orElse(""))
+            task.templateForceLangs.set(project.providers.gradleProperty("templateForceLangs").orElse(""))
+            task.templateParallelism.set(project.providers.gradleProperty("templateParallelism").orElse(""))
             createLlmServiceIfEnabled(resolvedIaConfig) { task.translationService = it.let(::LlmServiceTranslationAdapter) }
             project.logger.info("[BakeryPlugin] translateTemplates IA ${if (resolvedIaConfig.enabled) "activé" else "désactivé (ia.enabled = false)"}")
         }

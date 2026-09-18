@@ -72,6 +72,104 @@ class TranslateTemplatesFunctionalTest {
         assertThat(result.output).contains("translateTemplates IA désactivé")
     }
 
+    @Test
+    fun `a partial variant schedules only its french copies`() {
+        createSite(ollamaSection = true)
+        // A variant that already carries a translated hero but a French blog.
+        projectDir.resolve("jbake/i18n/de/templates").mkdirs()
+        projectDir.resolve("jbake/i18n/de/templates/hero.thyme").writeText("""<h1 class="hero">Entwickler</h1>""")
+        projectDir.resolve("jbake/i18n/de/templates/blog.thyme").writeText("""<p>Derniers articles</p>""")
+        projectDir.resolve("jbake/templates/blog.thyme").writeText("""<p>Derniers articles</p>""")
+
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "translateTemplates",
+                    "--templateTargetLangs=de",
+                    "--templateSourceLang=fr",
+                    "--templateDryRun=true",
+                    "--info",
+                ).build()
+
+        // hero is translated (preserved), blog is a French copy (scheduled).
+        assertThat(result.output).contains("[de] DRY-RUN blog.thyme")
+        assertThat(result.output).doesNotContain("[de] DRY-RUN hero.thyme")
+    }
+
+    @Test
+    fun `a forced language schedules every template`() {
+        createSite(ollamaSection = true)
+        projectDir.resolve("jbake/i18n/es/templates").mkdirs()
+        projectDir.resolve("jbake/i18n/es/templates/hero.thyme").writeText("""<h1 class="hero">Desarrollador</h1>""")
+
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "translateTemplates",
+                    "--templateTargetLangs=es",
+                    "--templateSourceLang=fr",
+                    "--templateForceLangs=es",
+                    "--templateDryRun=true",
+                    "--info",
+                ).build()
+
+        assertThat(result.output).contains("[translateTemplates] Langues forcées : es")
+        assertThat(result.output).contains("[es] DRY-RUN hero.thyme")
+    }
+
+    @Test
+    fun `a preserved template has its html lang aligned without any translation`() {
+        createSite(ollamaSection = true)
+        // A template already translated keeps its copy (preserved), but declares
+        // the French source language — a WCAG 3.1.1 violation to repair for free.
+        projectDir.resolve("jbake/i18n/de/templates").mkdirs()
+        projectDir.resolve("jbake/i18n/de/templates/hero.thyme")
+            .writeText("""<html lang="fr"><body><h1 class="hero">Entwickler</h1></body></html>""")
+
+        GradleRunner
+            .create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments(
+                "translateTemplates",
+                "--templateTargetLangs=de",
+                "--templateSourceLang=fr",
+                "--templateDryRun=false",
+                "--info",
+            ).build()
+
+        val fixed = projectDir.resolve("jbake/i18n/de/templates/hero.thyme").readText()
+        assertThat(fixed).contains("""<html lang="de">""")
+        assertThat(fixed).contains("Entwickler")
+    }
+
+    @Test
+    fun `the variant templates are written next to the reference under jbake`() {
+        createSite(ollamaSection = true)
+
+        GradleRunner
+            .create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments(
+                "translateTemplates",
+                "--templateTargetLangs=de",
+                "--templateSourceLang=fr",
+                "--templateDryRun=false",
+                "--info",
+            ).build()
+
+        // The i18n base is co-located under the bake root, never at the project root.
+        assertThat(projectDir.resolve("jbake/i18n/de/templates/hero.thyme")).exists()
+        assertThat(projectDir.resolve("i18n")).doesNotExist()
+    }
+
     private fun createSite(ollamaSection: Boolean = false) {
         projectDir.resolve("settings.gradle.kts").writeText(
             """

@@ -22,7 +22,6 @@ import contracts.i18n.TranslationService
  */
 class TemplateTextTranslator(
     private val translationService: TranslationService,
-    private val extractor: I18nMigrationService = I18nMigrationService(),
 ) {
 
     data class Result(
@@ -40,70 +39,27 @@ class TemplateTextTranslator(
             return Result(templateContent, translatedSegments = 0, failedSegments = 0)
         }
 
-        // The extractor works on a file; wrap the content in a temp-free adapter.
-        val segments = extractSegments(templateContent)
+        val segments = VisibleTextExtractor.extract(templateContent)
         if (segments.isEmpty()) {
             return Result(templateContent, translatedSegments = 0, failedSegments = 0)
         }
 
         var translated = 0
         var failed = 0
-        var output = templateContent
-        // Longest first: a segment that contains another must be replaced first,
-        // otherwise the shorter substitution would corrupt the longer one.
-        segments
-            .sortedByDescending { it.length }
-            .forEach { segment ->
-                when (val outcome = translateSegment(segment, sourceLanguage, targetLanguage)) {
-                    is TranslationResult.Success -> {
-                        if (outcome.translatedText != segment) {
-                            output = replaceOutsideTags(output, segment, outcome.translatedText)
-                            translated++
-                        }
+        val replacements = linkedMapOf<String, String>()
+        segments.forEach { segment ->
+            when (val outcome = translateSegment(segment, sourceLanguage, targetLanguage)) {
+                is TranslationResult.Success -> {
+                    if (outcome.translatedText != segment) {
+                        replacements[segment] = outcome.translatedText
+                        translated++
                     }
-                    is TranslationResult.Failure -> failed++
                 }
+                is TranslationResult.Failure -> failed++
             }
+        }
+        val output = VisibleTextExtractor.replaceVisibleText(templateContent, replacements)
         return Result(output, translated, failed)
-    }
-
-    internal fun extractSegments(content: String): List<String> {
-        val temp = java.io.File.createTempFile("cheroliv-template", ".thyme")
-        return try {
-            temp.writeText(content)
-            extractor.extractHardcodedText(temp).values.toList()
-        } finally {
-            temp.delete()
-        }
-    }
-
-    /**
-     * Substitutes [source] wherever it appears as visible text, never inside a
-     * tag (`<…>`). A naive `String.replace` would rewrite attribute values too.
-     */
-    internal fun replaceOutsideTags(
-        content: String,
-        source: String,
-        target: String,
-    ): String {
-        val result = StringBuilder()
-        var i = 0
-        while (i < content.length) {
-            val tagStart = content.indexOf('<', i)
-            if (tagStart < 0) {
-                result.append(content.substring(i).replace(source, target))
-                break
-            }
-            result.append(content.substring(i, tagStart).replace(source, target))
-            val tagEnd = content.indexOf('>', tagStart)
-            if (tagEnd < 0) {
-                result.append(content.substring(tagStart))
-                break
-            }
-            result.append(content.substring(tagStart, tagEnd + 1))
-            i = tagEnd + 1
-        }
-        return result.toString()
     }
 
     private fun translateSegment(
