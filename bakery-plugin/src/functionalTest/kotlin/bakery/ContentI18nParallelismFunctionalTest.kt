@@ -7,15 +7,37 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
 /**
- * CHE-I18N-22 US-4 — the CLI can drive the content-migration parallelism.
+ * CHE-I18N-22 US-4/US-8 — the CLI can drive the content-migration parallelism.
  *
- * The pilot decision bounds the concurrency to two Ollama providers (two
- * parallel device keys), never three articles at once. Before this US the
- * option was absent: the CLI could not reach the `parallelism` field.
+ * The pilot decision S-044 raises the ceiling to five Ollama providers (the pool
+ * spans 11437-11465), replacing the earlier two-provider bound. Concurrency is
+ * across articles; one article is still translated block-by-block, sequentially.
  */
 class ContentI18nParallelismFunctionalTest {
     @TempDir
     lateinit var projectDir: File
+
+    @Test
+    fun `the CLI accepts the five-provider ceiling`() {
+        createSite()
+
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "migrateContentI18n",
+                    "--contentI18nSource=content/blog",
+                    "--contentI18nOutput=content-i18n",
+                    "--contentI18nSourceLang=fr",
+                    "--contentI18nTargetLangs=en",
+                    "--contentI18nParallelism=5",
+                    "--contentI18nDryRun=true",
+                ).build()
+
+        assertThat(result.output).contains("BUILD SUCCESSFUL")
+    }
 
     @Test
     fun `the CLI accepts a parallelism of two`() {
@@ -40,7 +62,7 @@ class ContentI18nParallelismFunctionalTest {
     }
 
     @Test
-    fun `the CLI rejects a parallelism above two`() {
+    fun `the CLI rejects a parallelism above five`() {
         createSite()
 
         val result =
@@ -54,7 +76,7 @@ class ContentI18nParallelismFunctionalTest {
                     "--contentI18nOutput=content-i18n",
                     "--contentI18nSourceLang=fr",
                     "--contentI18nTargetLangs=en",
-                    "--contentI18nParallelism=3",
+                    "--contentI18nParallelism=6",
                     "--contentI18nDryRun=true",
                 ).buildAndFail()
 

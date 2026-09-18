@@ -15,13 +15,15 @@ import java.util.Properties
  * `src/test/resources/i18n-fixtures/{site}/post-migration/`.
  *
  * Snapshots regenerated S222 (cheroliv.com contact.thyme drift — subject field
- * removed real-side S-031). This test is now @Disabled.
+ * removed real-side S-031). Regenerated again S-044 (cheroliv.com 22-language
+ * switcher refactor — menu.thyme now carries the 22 data-lang entries).
+ * This test is now @Disabled.
  * To regenerate: remove @Disabled, run, re-validate with
  * [RealSiteI18nMigrationIntegrationTest].
  *
  * DO NOT MODIFY — snapshots freeze the expected result.
  */
-@Disabled("Golden masters regenerated S222 (cheroliv.com contact.thyme resynced). Regenerate only if migration changes.")
+@Disabled("Golden masters regenerated S044 (cheroliv.com menu.thyme 22-language switcher). Regenerate only if migration changes.")
 class PostMigrationSnapshotGenerator {
     private val service = I18nMigrationService()
 

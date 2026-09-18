@@ -31,17 +31,22 @@ data class ContentMigrationIntention(
             "Mode de validation '$validation' invalide. Utilisez : STRICT, LENIENT, OFF."
         }
         require(parallelism in 1..MAX_PARALLELISM) {
-            "Parallélisme '$parallelism' invalide. Utilisez une valeur entre 1 et $MAX_PARALLELISM (deux providers Ollama au plus)."
+            "Parallélisme '$parallelism' invalide. Utilisez une valeur entre 1 et $MAX_PARALLELISM (provider Ollama au plus)."
         }
     }
 
     companion object {
         /**
-         * CHE-I18N-22 US-4 — pilot decision: translation runs on at most two
-         * Ollama providers at once (the two parallel device keys), never three
-         * concurrent articles. Keeps the metered LLM pool under control while
-         * doubling throughput.
+         * CHE-I18N-22 US-8 — pilot decision S-044: the translation may run on up
+         * to **five** Ollama providers at once. The pool spans 11437-11465
+         * (twenty-five healthy instances), so five concurrent providers use a
+         * fifth of the plage without saturating any instance, while the earlier
+         * two-provider bound left most of the pool idle on a 20-language batch.
+         *
+         * A single article is never translated by three providers at once
+         * (per-article work stays sequential); the concurrency is across
+         * articles. Default remains 1 for an unconfigured consumer.
          */
-        const val MAX_PARALLELISM = 2
+        const val MAX_PARALLELISM = 5
     }
 }

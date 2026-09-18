@@ -5,16 +5,27 @@ import org.junit.jupiter.api.assertThrows
 import kotlin.test.assertEquals
 
 /**
- * CHE-I18N-22 US-4 — the content migration parallelism must be drivable from the
- * CLI (`--contentI18nParallelism`), so a consumer can run the translation on two
- * Ollama providers at once — never three articles in parallel (pilot decision:
- * two providers, bounded concurrency).
+ * CHE-I18N-22 US-4/US-8 — the content migration parallelism must be drivable from
+ * the CLI (`--contentI18nParallelism`), so a consumer can run the translation on
+ * several Ollama providers at once.
+ *
+ * Pilot decision S-044: raise the ceiling to **five** concurrent providers (the
+ * pool spans 11437-11465, twenty-five healthy instances), replacing the earlier
+ * two-provider bound. The default stays 1, so an unconfigured consumer keeps the
+ * historical sequential behaviour.
  *
  * The parallelism lives on [ContentMigrationIntention], wired into
- * [ContentTranslationService]. Before this US the CLI could not reach it: the
+ * [ContentTranslationService]. Before US-4 the CLI could not reach it: the
  * option was absent and the value always fell back to 1.
  */
 class ContentMigrationParallelismTest {
+
+    @Test
+    fun `an intention accepts the five-provider ceiling`() {
+        val intention = intention(parallelism = 5)
+
+        assertEquals(5, intention.parallelism)
+    }
 
     @Test
     fun `an intention accepts a parallelism of two`() {
@@ -36,8 +47,13 @@ class ContentMigrationParallelismTest {
     }
 
     @Test
-    fun `a parallelism above two is rejected`() {
-        assertThrows<IllegalArgumentException> { intention(parallelism = 3) }
+    fun `a parallelism above five is rejected`() {
+        assertThrows<IllegalArgumentException> { intention(parallelism = 6) }
+    }
+
+    @Test
+    fun `the ceiling is five`() {
+        assertEquals(5, ContentMigrationIntention.MAX_PARALLELISM)
     }
 
     private fun intention(parallelism: Int = 1) =

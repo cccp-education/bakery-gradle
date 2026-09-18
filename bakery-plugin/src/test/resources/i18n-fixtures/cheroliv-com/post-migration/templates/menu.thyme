@@ -103,6 +103,7 @@
                         </button></li>
                     </ul>
                 </div>
+<!-- che-i18n:lang-switcher:start -->
                 <div class="nav-item dropdown lang-switcher-container ms-lg-2">
                     <button class="btn btn-outline-secondary dropdown-toggle lang-dropdown-btn"
                             type="button"
@@ -114,14 +115,75 @@
                         <span class="ms-1" th:text="#{menu.13}">FR</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
-                        <li><a class="dropdown-item lang-option active" th:href="${content.rootpath + 'index.html'}" data-lang="fr">
-                            <span class="me-2" th:text="#{menu.12}">🇫🇷</span>Français
-                        </a></li>
                         <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'en/index.html'}" data-lang="en">
-                            <span class="me-2" th:text="#{menu.15}">🇬🇧</span>English
+                            <i class="bi bi-flag me-2"></i>English
+                        </a></li>
+                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'zh/index.html'}" data-lang="zh">
+                            <i class="bi bi-flag me-2"></i>中文
+                        </a></li>
+                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'hi/index.html'}" data-lang="hi">
+                            <i class="bi bi-flag me-2"></i>हिन्दी
+                        </a></li>
+                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'es/index.html'}" data-lang="es">
+                            <i class="bi bi-flag me-2"></i>Español
+                        </a></li>
+                        <li><a class="dropdown-item lang-option active" th:href="${content.rootpath + 'index.html'}" data-lang="fr">
+                            <i class="bi bi-flag-fill me-2"></i>Français
+                        </a></li>
+                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'ar/index.html'}" data-lang="ar">
+                            <i class="bi bi-flag me-2"></i>العربية
+                        </a></li>
+                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'bn/index.html'}" data-lang="bn">
+                            <i class="bi bi-flag me-2"></i>বাংলা
+                        </a></li>
+                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'pt/index.html'}" data-lang="pt">
+                            <i class="bi bi-flag me-2"></i>Português
+                        </a></li>
+                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'ru/index.html'}" data-lang="ru">
+                            <i class="bi bi-flag me-2"></i>Русский
+                        </a></li>
+                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'ur/index.html'}" data-lang="ur">
+                            <i class="bi bi-flag me-2"></i>اردو
+                        </a></li>
+                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'it/index.html'}" data-lang="it">
+                            <i class="bi bi-flag me-2"></i>Italiano
+                        </a></li>
+                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'nl/index.html'}" data-lang="nl">
+                            <i class="bi bi-flag me-2"></i>Nederlands
+                        </a></li>
+                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'de/index.html'}" data-lang="de">
+                            <i class="bi bi-flag me-2"></i>Deutsch
+                        </a></li>
+                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'el/index.html'}" data-lang="el">
+                            <i class="bi bi-flag me-2"></i>Ελληνικά
+                        </a></li>
+                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'tr/index.html'}" data-lang="tr">
+                            <i class="bi bi-flag me-2"></i>Türkçe
+                        </a></li>
+                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'vi/index.html'}" data-lang="vi">
+                            <i class="bi bi-flag me-2"></i>Tiếng Việt
+                        </a></li>
+                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'th/index.html'}" data-lang="th">
+                            <i class="bi bi-flag me-2"></i>ไทย
+                        </a></li>
+                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'id/index.html'}" data-lang="id">
+                            <i class="bi bi-flag me-2"></i>Bahasa Indonesia
+                        </a></li>
+                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'ko/index.html'}" data-lang="ko">
+                            <i class="bi bi-flag me-2"></i>한국어
+                        </a></li>
+                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'ja/index.html'}" data-lang="ja">
+                            <i class="bi bi-flag me-2"></i>日本語
+                        </a></li>
+                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'sr/index.html'}" data-lang="sr">
+                            <i class="bi bi-flag me-2"></i>Srpski
+                        </a></li>
+                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'fa/index.html'}" data-lang="fa">
+                            <i class="bi bi-flag me-2"></i>فارسی
                         </a></li>
                     </ul>
                 </div>
+<!-- che-i18n:lang-switcher:end -->
             </div>
         </div>
     </nav>
