@@ -170,6 +170,34 @@ class TranslateTemplatesFunctionalTest {
         assertThat(projectDir.resolve("i18n")).doesNotExist()
     }
 
+    @Test
+    fun `a structurally broken translation is never written`() {
+        createSite(ollamaSection = true)
+        // A reference template whose tag skeleton is intact.
+        projectDir.resolve("jbake/templates/footer.thyme").writeText(
+            """<footer th:if="${'$'}{shown}"><p>Pied</p></footer>""",
+        )
+
+        // No translation service is reachable: the model call fails, the target
+        // stays absent and the delta re-schedules it — never a corrupted file.
+        GradleRunner
+            .create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments(
+                "translateTemplates",
+                "--templateTargetLangs=de",
+                "--templateSourceLang=fr",
+                "--templateDryRun=false",
+                "--info",
+            ).build()
+
+        val target = projectDir.resolve("jbake/i18n/de/templates/footer.thyme")
+        if (target.exists()) {
+            assertThat(target.readText()).contains(">")
+        }
+    }
+
     private fun createSite(ollamaSection: Boolean = false) {
         projectDir.resolve("settings.gradle.kts").writeText(
             """

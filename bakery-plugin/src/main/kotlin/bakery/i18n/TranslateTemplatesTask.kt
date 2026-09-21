@@ -164,6 +164,7 @@ abstract class TranslateTemplatesTask : DefaultTask() {
                 val executor = java.util.concurrent.Executors.newFixedThreadPool(parallelism)
                 val translated = java.util.concurrent.atomic.AtomicInteger(0)
                 val failed = java.util.concurrent.atomic.AtomicInteger(0)
+                val rejected = java.util.concurrent.atomic.AtomicInteger(0)
                 val futures =
                     reference.keys
                         .filter { it in toTranslate }
@@ -176,6 +177,19 @@ abstract class TranslateTemplatesTask : DefaultTask() {
                                 try {
                                     val result =
                                         workerTranslator.translate(referenceFile.readText(), sourceLang, language)
+                                    // A translation that breaks the tag skeleton is
+                                    // never written (the model can eat a closing
+                                    // `">`): the target file stays missing and the
+                                    // delta schedules it again on the next run.
+                                    if (!TemplateStructureGuard.isWellFormed(result.content)) {
+                                        rejected.incrementAndGet()
+                                        logger.warn(
+                                            "[translateTemplates] [{}] RÉSultat structurellement invalide {} — non écrit (sera repris au prochain run)",
+                                            language,
+                                            relativePath,
+                                        )
+                                        return@submit
+                                    }
                                     targetFile.writeText(result.content)
                                     translated.incrementAndGet()
                                     failed.addAndGet(result.failedSegments)
@@ -194,6 +208,13 @@ abstract class TranslateTemplatesTask : DefaultTask() {
                 translatedFiles = translated.get()
                 failedSegments = failed.get()
                 preservedFiles = reference.size - toTranslate.size
+                if (rejected.get() > 0) {
+                    logger.warn(
+                        "[translateTemplates] [{}] {} templates rejetés (structure cassée) — repris au prochain run",
+                        language,
+                        rejected.get(),
+                    )
+                }
             }
             if (!dryRun) {
                 // US-7d — realign `<html lang>` on *every* target template,
