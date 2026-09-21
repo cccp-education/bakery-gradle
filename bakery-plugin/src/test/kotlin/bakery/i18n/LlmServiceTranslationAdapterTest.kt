@@ -59,6 +59,38 @@ class LlmServiceTranslationAdapterTest {
     }
 
     @Test
+    fun `the translation prompt never injects the JBake reference document`() {
+        // CHE-I18N-QUALITY D1 — the S-186 DocKnowledgeBase injection corrupted
+        // real cheroliv.com translations: the model pasted reference sections
+        // (`### Gradle Integration …`) inside translated paragraphs. A pure
+        // translation prompt must carry only the instruction and the source text.
+        val captured = CapturingLlmService()
+        val adapter = LlmServiceTranslationAdapter(captured)
+
+        adapter.translate(
+            TranslationRequest(
+                "Installer Gradle et configurer les templates JBake du site.",
+                "fr",
+                "de",
+            ),
+        )
+
+        val prompt = captured.lastPrompt
+        assertTrue(
+            !prompt.contains("JBake reference"),
+            "Prompt must not inject the JBake reference, got '$prompt'",
+        )
+        assertTrue(
+            !prompt.contains("Gradle Integration"),
+            "Prompt must not inject reference sections, got '$prompt'",
+        )
+        assertTrue(
+            !prompt.contains("th:replace"),
+            "Prompt must not inject Thymeleaf examples, got '$prompt'",
+        )
+    }
+
+    @Test
     fun `translate returns cleaned LLM output on success`() {
         val llm = StubLlmService("  \"Hello world\"  ")
         val adapter = LlmServiceTranslationAdapter(llm)

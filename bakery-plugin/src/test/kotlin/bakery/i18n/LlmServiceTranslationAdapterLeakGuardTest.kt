@@ -139,6 +139,50 @@ class LlmServiceTranslationAdapterLeakGuardTest {
         assertTrue(result is TranslationResult.Success, "A genuine mention must pass: $result")
     }
 
+    @Test
+    fun `a translation embedding a reference fragment is rejected`() {
+        // CHE-I18N-QUALITY D2 — measured on the real cheroliv.com corpus: the
+        // model accepted a fragment translation then pasted a reference section
+        // in the middle of a paragraph. The guard only tested response-level
+        // leaks, so the hybrid was written and frozen by block checksums.
+        val source = "._Public cible :_\nDéveloppeurs Kotlin de niveau intermédiaire à avancé."
+        val leaked =
+            "._Zielgruppe :_ ### Gradle Integration JBake can be integrated into Gradle builds " +
+                "using the JBake Gradle plugin or by calling the JBake CLI directly:"
+
+        val adapter = LlmServiceTranslationAdapter(StubLlmService(leaked))
+
+        val result = adapter.translate(TranslationRequest(source, "fr", "de"))
+
+        assertTrue(result is TranslationResult.Failure, "An embedded reference leak must be rejected, got: $result")
+    }
+
+    @Test
+    fun `a translation embedding an LLM sentinel is rejected`() {
+        // Measured: the model answered `(No output)` in place of a fragment and
+        // the sentinel was written verbatim into 36 German articles.
+        val source = "(https://fr.wikipedia.org/wiki/Interface_en_ligne_de_commande[CLI]) postgresql,"
+        val leaked = "(No output)https://fr.wikipedia.org/wiki/Interface_en_ligne_de_commande[postgresql,"
+
+        val adapter = LlmServiceTranslationAdapter(StubLlmService(leaked))
+
+        val result = adapter.translate(TranslationRequest(source, "fr", "de"))
+
+        assertTrue(result is TranslationResult.Failure, "An LLM sentinel must be rejected, got: $result")
+    }
+
+    @Test
+    fun `a genuine translation containing a url is not flagged`() {
+        val source = "Voir https://example.org/page pour la documentation."
+        val translation = "See https://example.org/page for the documentation."
+
+        val adapter = LlmServiceTranslationAdapter(StubLlmService(translation))
+
+        val result = adapter.translate(TranslationRequest(source, "fr", "en"))
+
+        assertTrue(result is TranslationResult.Success, "A genuine sentence must not be flagged: $result")
+    }
+
     private class StubLlmService(
         private val response: String,
     ) : bakery.llm.LlmService {
