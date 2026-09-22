@@ -56,6 +56,16 @@ Feature: i18n template translation — swap de copies completes et convergence
     When I repair the variant attributes into "en"
     Then the repaired variant reports nothing pending
 
+  Scenario: The language switcher block is never sent to the model
+    Given a template carrying the generated language switcher block
+    When I translate the template fixture into "en"
+    Then the translated template preserves the language name "English"
+    And the translated template preserves the language name "Français"
+
+  Scenario: A template without a switcher block is translated normally
+    When I translate the template fixture into "en"
+    Then the translated template contains "EN:Développeur"
+
   Scenario: A missing template is scheduled for a new language
     Given a template variant with only the translated hero
     When I plan the templates for "de"

@@ -1,5 +1,6 @@
 package bakery.scenarios
 
+import bakery.i18n.SwitcherBlockMask
 import bakery.i18n.TemplateAttributeRepair
 import bakery.i18n.TemplateLanguageAttribute
 import bakery.i18n.TemplateTextTranslator
@@ -52,6 +53,7 @@ class I18nTemplateTranslationSteps {
         target = emptyMap()
         output = ""
         plan = emptyList()
+        withSwitcherBlock = false
     }
 
     @Given("a template translating service that prefixes the target language")
@@ -62,7 +64,18 @@ class I18nTemplateTranslationSteps {
     @When("I translate the template fixture into {string}")
     fun translate(language: String) {
         val translator = TemplateTextTranslator(PrefixService())
-        output = translator.translate(reference.getValue("hero.thyme"), "fr", language).content
+        val source =
+            if (withSwitcherBlock) {
+                reference.getValue("hero.thyme") +
+                    "\n" +
+                    SwitcherBlockMask.START_MARKER +
+                    "\n<div class=\"lang-switcher-container\"><a data-lang=\"en\">English</a>" +
+                    "<a data-lang=\"fr\">Français</a></div>\n" +
+                    SwitcherBlockMask.END_MARKER
+            } else {
+                reference.getValue("hero.thyme")
+            }
+        output = translator.translate(source, "fr", language).content
     }
 
     @Then("the translated template contains {string}")
@@ -206,7 +219,19 @@ class I18nTemplateTranslationSteps {
         assertThat(pending).isEmpty()
     }
 
+    @Given("a template carrying the generated language switcher block")
+    fun templateWithSwitcherBlock() {
+        output = ""
+        withSwitcherBlock = true
+    }
+
+    @Then("the translated template preserves the language name {string}")
+    fun preservesLanguageName(name: String) {
+        assertThat(output).contains(name)
+    }
+
     private var variant: String = ""
+    private var withSwitcherBlock: Boolean = false
     private var variantAfterFirstRepair: String = ""
     private var pending: List<String> = emptyList()
 

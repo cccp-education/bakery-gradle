@@ -39,16 +39,21 @@ class TemplateTextTranslator(
             return Result(templateContent, translatedSegments = 0, failedSegments = 0)
         }
 
-        val segments = VisibleTextExtractor.extract(templateContent)
-        val attributes = VisibleAttributeExtractor.extract(templateContent)
+        // The language-switcher block is generated markup, re-injected after
+        // every translation: never sent to the model (Ink Economy Law — 81 lines
+        // × 22 languages, and the model corrupts the big menu.thyme skeleton).
+        val masked = SwitcherBlockMask.mask(templateContent)
+
+        val segments = VisibleTextExtractor.extract(masked.text)
+        val attributes = VisibleAttributeExtractor.extract(masked.text)
         if (segments.isEmpty() && attributes.isEmpty()) {
             return Result(templateContent, translatedSegments = 0, failedSegments = 0)
         }
 
         val values = translateValues((segments + attributes).distinct(), sourceLanguage, targetLanguage)
-        val visibleText = VisibleTextExtractor.replaceVisibleText(templateContent, values.replacements)
+        val visibleText = VisibleTextExtractor.replaceVisibleText(masked.text, values.replacements)
         val output = VisibleAttributeExtractor.replace(visibleText, values.replacements)
-        return Result(output, values.translated, values.failed)
+        return Result(SwitcherBlockMask.unmask(output, masked.blocks), values.translated, values.failed)
     }
 
     /**
