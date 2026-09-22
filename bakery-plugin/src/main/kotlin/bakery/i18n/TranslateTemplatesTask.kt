@@ -217,20 +217,72 @@ abstract class TranslateTemplatesTask : DefaultTask() {
                 }
             }
             if (!dryRun) {
+                // CHE-I18N-QUALITY — the preserved templates are not necessarily
+                // healthy: a variant translated *before* attributes were
+                // translated at all (the S-049 cheroliv.com corpus) differs from
+                // the reference, so the planner preserves it forever while its
+                // `placeholder="Nom"` stays French. Repair only the reference
+                // values still verbatim in the target — scope-exact, no
+                // re-translation of already-translated prose (Économie d'Encre).
+                val repairedAttributes =
+                    repairPreservedAttributes(
+                        language,
+                        referenceDir,
+                        targetDir,
+                        reference.keys - toTranslate.toSet(),
+                        service,
+                        sourceLang,
+                    )
+
                 // US-7d — realign `<html lang>` on *every* target template,
                 // including the preserved ones: a free WCAG 3.1.1 repair that
                 // needs no model call (Ink Economy Law).
                 val aligned = alignHtmlLanguage(language, referenceDir, targetDir)
                 logger.lifecycle(
-                    "[translateTemplates] [{}] {} templates traduits, {} préservés, {} segments en échec, {} alignés lang",
+                    "[translateTemplates] [{}] {} templates traduits, {} préservés, {} attributs réparés, {} segments en échec, {} alignés lang",
                     language,
                     translatedFiles,
                     preservedFiles,
+                    repairedAttributes,
                     failedSegments,
                     aligned,
                 )
             }
         }
+    }
+
+    /**
+     * CHE-I18N-QUALITY — repairs the attributes still French in a variant the
+     * planner preserved, and returns how many files changed.
+     *
+     * The scope is the value, never the file or the segment: a translated prose
+     * is invisible here, so a converged variant is a strict no-op and a second
+     * run changes nothing.
+     */
+    private fun repairPreservedAttributes(
+        language: String,
+        referenceDir: File,
+        targetDir: File,
+        preservedPaths: Set<String>,
+        service: TranslationService,
+        sourceLang: String,
+    ): Int {
+        var repaired = 0
+        preservedPaths.forEach { relativePath ->
+            val referenceFile = referenceDir.resolve(relativePath)
+            val targetFile = targetDir.resolve(relativePath)
+            if (!referenceFile.exists() || !targetFile.exists()) return@forEach
+            val pending = TemplateAttributeRepair.pending(referenceFile.readText(), targetFile.readText())
+            if (pending.isEmpty()) return@forEach
+            val values = TemplateTextTranslator(service).translateValues(pending, sourceLang, language)
+            if (values.replacements.isEmpty()) return@forEach
+            val repairedContent = TemplateAttributeRepair.repair(targetFile.readText(), values.replacements)
+            if (repairedContent != targetFile.readText()) {
+                targetFile.writeText(repairedContent)
+                repaired++
+            }
+        }
+        return repaired
     }
 
     /**

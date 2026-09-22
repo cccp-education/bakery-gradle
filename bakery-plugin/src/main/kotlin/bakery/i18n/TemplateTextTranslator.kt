@@ -40,27 +40,54 @@ class TemplateTextTranslator(
         }
 
         val segments = VisibleTextExtractor.extract(templateContent)
-        if (segments.isEmpty()) {
+        val attributes = VisibleAttributeExtractor.extract(templateContent)
+        if (segments.isEmpty() && attributes.isEmpty()) {
             return Result(templateContent, translatedSegments = 0, failedSegments = 0)
         }
 
+        val values = translateValues((segments + attributes).distinct(), sourceLanguage, targetLanguage)
+        val visibleText = VisibleTextExtractor.replaceVisibleText(templateContent, values.replacements)
+        val output = VisibleAttributeExtractor.replace(visibleText, values.replacements)
+        return Result(output, values.translated, values.failed)
+    }
+
+    /**
+     * CHE-I18N-QUALITY — translates a *closed set of reference values* and returns
+     * the successful substitutions only.
+     *
+     * The whole-file [translate] sends every visible segment of the reference;
+     * the attribute repair of a preserved variant ([TemplateAttributeRepair])
+     * must instead send only the values still verbatim French. Both share this
+     * single translation loop — one concurrency-free unit of work, one failure
+     * policy (a failed value keeps its source text and is counted).
+     */
+    fun translateValues(
+        values: List<String>,
+        sourceLanguage: String,
+        targetLanguage: String,
+    ): ValueTranslations {
         var translated = 0
         var failed = 0
         val replacements = linkedMapOf<String, String>()
-        segments.forEach { segment ->
-            when (val outcome = translateSegment(segment, sourceLanguage, targetLanguage)) {
+        values.forEach { value ->
+            when (val outcome = translateSegment(value, sourceLanguage, targetLanguage)) {
                 is TranslationResult.Success -> {
-                    if (outcome.translatedText != segment) {
-                        replacements[segment] = outcome.translatedText
+                    if (outcome.translatedText != value) {
+                        replacements[value] = outcome.translatedText
                         translated++
                     }
                 }
                 is TranslationResult.Failure -> failed++
             }
         }
-        val output = VisibleTextExtractor.replaceVisibleText(templateContent, replacements)
-        return Result(output, translated, failed)
+        return ValueTranslations(replacements, translated, failed)
     }
+
+    data class ValueTranslations(
+        val replacements: Map<String, String>,
+        val translated: Int,
+        val failed: Int,
+    )
 
     private fun translateSegment(
         segment: String,

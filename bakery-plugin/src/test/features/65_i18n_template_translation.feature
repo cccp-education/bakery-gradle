@@ -26,6 +26,36 @@ Feature: i18n template translation — swap de copies completes et convergence
     Then the translated template preserves the attribute "data-lang="
     And the translated template preserves the script body
 
+  Scenario: The contact form placeholder is translated
+    Given a contact form fixture with a French placeholder
+    When I translate the contact form into "en"
+    Then the translated contact form contains "EN:Nom"
+    And the translated contact form contains "EN:Votre message"
+    And the translated contact form preserves the attribute "name="
+
+  Scenario: Structural attributes are never translated
+    Given a contact form fixture with a French placeholder
+    When I translate the contact form into "en"
+    Then the translated contact form preserves the attribute "data-lang="
+    And the translated contact form preserves the attribute "class="
+
+  Scenario: A preserved variant repairs only its still-French attributes
+    Given a translated variant whose placeholder is still French
+    When I repair the variant attributes into "en"
+    Then the repaired variant contains "EN:Nom"
+    And the repaired variant preserves the already translated "Your message"
+
+  Scenario: A converged variant is a strict no-op on the second repair
+    Given a translated variant whose placeholder is still French
+    When I repair the variant attributes into "en"
+    And I repair the variant attributes into "en" again
+    Then the repaired variant is unchanged by the second repair
+
+  Scenario: An already translated variant has nothing to repair
+    Given a translated variant whose placeholder is already translated
+    When I repair the variant attributes into "en"
+    Then the repaired variant reports nothing pending
+
   Scenario: A missing template is scheduled for a new language
     Given a template variant with only the translated hero
     When I plan the templates for "de"

@@ -23,7 +23,7 @@ object VisibleTextExtractor {
         if (content.isEmpty()) return emptyList()
 
         val segments = LinkedHashSet<String>()
-        forEachRun(content, onMarkup = {}, onText = { text ->
+        TemplateScanner.forEachRun(content, onMarkup = {}, onText = { text ->
             val candidate = text.trim()
             if (candidate.length >= MIN_SEGMENT_LENGTH) segments.add(candidate)
         })
@@ -43,7 +43,7 @@ object VisibleTextExtractor {
         if (content.isEmpty() || replacements.isEmpty()) return content
         val ordered = replacements.entries.sortedByDescending { it.key.length }
         val builder = StringBuilder(content.length)
-        forEachRun(
+        TemplateScanner.forEachRun(
             content,
             onMarkup = builder::append,
             onText = { text ->
@@ -55,73 +55,5 @@ object VisibleTextExtractor {
             },
         )
         return builder.toString()
-    }
-
-    /**
-     * Walks [content] and reports every run in document order: markup runs
-     * (tags, whole `<script>`/`<style>` bodies, comments) to [onMarkup], text
-     * runs to [onText]. Concatenating both callbacks in call order reproduces
-     * [content] byte-for-byte.
-     */
-    private fun forEachRun(
-        content: String,
-        onMarkup: (String) -> Unit,
-        onText: (String) -> Unit,
-    ) {
-        val lower = content.lowercase()
-        var index = 0
-        var textStart = -1
-
-        while (index < content.length) {
-            if (content[index] == '<') {
-                if (textStart in 0 until index) onText(content.substring(textStart, index))
-                textStart = -1
-                val markupEnd = skipMarkup(content, lower, index)
-                onMarkup(content.substring(index, markupEnd))
-                index = markupEnd
-                continue
-            }
-            if (textStart < 0) textStart = index
-            index++
-        }
-        if (textStart in 0 until content.length) onText(content.substring(textStart))
-    }
-
-    /** Returns the index just after the markup opening at [index]. */
-    private fun skipMarkup(
-        content: String,
-        lower: String,
-        index: Int,
-    ): Int {
-        if (content.startsWith("<!--", index)) {
-            val commentEnd = content.indexOf("-->", index + 4)
-            return if (commentEnd < 0) content.length else commentEnd + 3
-        }
-
-        val tagEnd = content.indexOf('>', index)
-        if (tagEnd < 0) return content.length
-
-        val name = tagName(lower, index, tagEnd)
-        val afterTag = tagEnd + 1
-        if (name != "script" && name != "style") return afterTag
-
-        val closeStart = lower.indexOf("</$name", afterTag)
-        if (closeStart < 0) return content.length
-        val closeEnd = content.indexOf('>', closeStart)
-        return if (closeEnd < 0) content.length else closeEnd + 1
-    }
-
-    private fun tagName(
-        lower: String,
-        tagStart: Int,
-        tagEnd: Int,
-    ): String {
-        var cursor = tagStart + 1
-        if (cursor < tagEnd && (lower[cursor] == '/' || lower[cursor] == '!' || lower[cursor] == '?')) {
-            return ""
-        }
-        val nameStart = cursor
-        while (cursor < tagEnd && (lower[cursor].isLetterOrDigit() || lower[cursor] == '-')) cursor++
-        return lower.substring(nameStart, cursor)
     }
 }

@@ -1,5 +1,6 @@
 package bakery.scenarios
 
+import bakery.i18n.TemplateAttributeRepair
 import bakery.i18n.TemplateLanguageAttribute
 import bakery.i18n.TemplateTextTranslator
 import bakery.i18n.TemplateTranslationPlanner
@@ -132,5 +133,107 @@ class I18nTemplateTranslationSteps {
     @Then("the aligned template preserves the attribute {string}")
     fun alignedPreserves(value: String) {
         assertThat(aligned).contains(value)
+    }
+
+    @Given("a contact form fixture with a French placeholder")
+    fun contactForm() {
+        output = ""
+    }
+
+    @When("I translate the contact form into {string}")
+    fun translateContact(language: String) {
+        val translator = TemplateTextTranslator(PrefixService())
+        output = translator.translate(CONTACT_FORM, "fr", language).content
+    }
+
+    @Then("the translated contact form contains {string}")
+    fun contactContains(fragment: String) {
+        assertThat(output).contains(fragment)
+    }
+
+    @Then("the translated contact form preserves the attribute {string}")
+    fun contactPreserves(value: String) {
+        assertThat(output).contains(value)
+    }
+
+    @Given("a translated variant whose placeholder is still French")
+    fun preservedVariantFrenchPlaceholder() {
+        variant = PRESERVED_VARIANT
+        pending = emptyList()
+    }
+
+    @Given("a translated variant whose placeholder is already translated")
+    fun preservedVariantTranslatedPlaceholder() {
+        variant = REPAIRED_VARIANT
+        pending = emptyList()
+    }
+
+    @When("I repair the variant attributes into {string}")
+    fun repairVariant(language: String) {
+        val reference = CONTACT_FORM
+        pending = TemplateAttributeRepair.pending(reference, variant)
+        if (pending.isEmpty()) return
+        val values = TemplateTextTranslator(PrefixService()).translateValues(pending, "fr", language)
+        variant = TemplateAttributeRepair.repair(variant, values.replacements)
+    }
+
+    @When("I repair the variant attributes into {string} again")
+    fun repairVariantAgain(language: String) {
+        val reference = CONTACT_FORM
+        val second = TemplateAttributeRepair.pending(reference, variant)
+        val values = TemplateTextTranslator(PrefixService()).translateValues(second, "fr", language)
+        variantAfterFirstRepair = variant
+        variant = TemplateAttributeRepair.repair(variant, values.replacements)
+    }
+
+    @Then("the repaired variant contains {string}")
+    fun repairedContains(fragment: String) {
+        assertThat(variant).contains(fragment)
+    }
+
+    @Then("the repaired variant preserves the already translated {string}")
+    fun repairedPreserves(fragment: String) {
+        assertThat(variant).contains(fragment)
+    }
+
+    @Then("the repaired variant is unchanged by the second repair")
+    fun repairedIdempotent() {
+        assertThat(variant).isEqualTo(variantAfterFirstRepair)
+    }
+
+    @Then("the repaired variant reports nothing pending")
+    fun repairedNothingPending() {
+        assertThat(pending).isEmpty()
+    }
+
+    private var variant: String = ""
+    private var variantAfterFirstRepair: String = ""
+    private var pending: List<String> = emptyList()
+
+    private companion object {
+        val CONTACT_FORM =
+            """
+            <form id="contact-form" data-lang="fr">
+                <input type="text" name="name" class="form-control" placeholder="Nom" required />
+                <textarea name="message" rows="5" placeholder="Votre message" required></textarea>
+                <a aria-label="Retour en haut de page" href="#"><i class="bi"></i></a>
+            </form>
+            """.trimIndent()
+
+        val PRESERVED_VARIANT =
+            """
+            <form id="contact-form" data-lang="fr">
+                <input type="text" name="name" class="form-control" placeholder="Nom" required />
+                <textarea name="message" rows="5" placeholder="Your message" required></textarea>
+            </form>
+            """.trimIndent()
+
+        val REPAIRED_VARIANT =
+            """
+            <form id="contact-form" data-lang="fr">
+                <input type="text" name="name" class="form-control" placeholder="Name" required />
+                <textarea name="message" rows="5" placeholder="Your message" required></textarea>
+            </form>
+            """.trimIndent()
     }
 }
