@@ -56,6 +56,28 @@ Feature: i18n template translation — swap de copies completes et convergence
     When I repair the variant attributes into "en"
     Then the repaired variant reports nothing pending
 
+  Scenario: A preserved variant repairs only its still-French visible text
+    Given a translated variant whose visible text is still French
+    When I repair the variant text into "en"
+    Then the repaired variant contains "EN:Envoyer le Message"
+    And the repaired variant preserves the already translated "Send the Message"
+
+  Scenario: A converged variant is a strict no-op on the second text repair
+    Given a translated variant whose visible text is still French
+    When I repair the variant text into "en"
+    And I repair the variant text into "en" again
+    Then the repaired variant is unchanged by the second repair
+
+  Scenario: A variant with neutral visible text reports nothing to repair
+    Given a translated variant whose visible text is neutral
+    When I repair the variant text into "en"
+    Then the repaired variant reports nothing pending
+
+  Scenario: A variant with fully translated text reports nothing to repair
+    Given a translated variant whose visible text is already translated
+    When I repair the variant text into "en"
+    Then the repaired variant reports nothing pending
+
   Scenario: The language switcher block is never sent to the model
     Given a template carrying the generated language switcher block
     When I translate the template fixture into "en"

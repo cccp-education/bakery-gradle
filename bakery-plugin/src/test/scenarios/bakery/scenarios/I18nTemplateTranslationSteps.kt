@@ -3,6 +3,7 @@ package bakery.scenarios
 import bakery.i18n.SwitcherBlockMask
 import bakery.i18n.TemplateAttributeRepair
 import bakery.i18n.TemplateLanguageAttribute
+import bakery.i18n.TemplateTextRepair
 import bakery.i18n.TemplateTextTranslator
 import bakery.i18n.TemplateTranslationPlanner
 import contracts.i18n.TranslationRequest
@@ -219,6 +220,40 @@ class I18nTemplateTranslationSteps {
         assertThat(pending).isEmpty()
     }
 
+    @Given("a translated variant whose visible text is still French")
+    fun preservedVariantFrenchText() {
+        variant = PRESERVED_TEXT_VARIANT
+        pending = emptyList()
+    }
+
+    @Given("a translated variant whose visible text is neutral")
+    fun preservedVariantNeutralText() {
+        variant = NEUTRAL_TEXT_VARIANT
+        pending = emptyList()
+    }
+
+    @Given("a translated variant whose visible text is already translated")
+    fun preservedVariantTranslatedText() {
+        variant = TRANSLATED_TEXT_VARIANT
+        pending = emptyList()
+    }
+
+    @When("I repair the variant text into {string}")
+    fun repairVariantText(language: String) {
+        pending = TemplateTextRepair.pending(TEXT_REFERENCE, variant)
+        if (pending.isEmpty()) return
+        val values = TemplateTextTranslator(PrefixService()).translateValues(pending, "fr", language)
+        variant = TemplateTextRepair.repair(variant, values.replacements)
+    }
+
+    @When("I repair the variant text into {string} again")
+    fun repairVariantTextAgain(language: String) {
+        val second = TemplateTextRepair.pending(TEXT_REFERENCE, variant)
+        val values = TemplateTextTranslator(PrefixService()).translateValues(second, "fr", language)
+        variantAfterFirstRepair = variant
+        variant = TemplateTextRepair.repair(variant, values.replacements)
+    }
+
     @Given("a template carrying the generated language switcher block")
     fun templateWithSwitcherBlock() {
         output = ""
@@ -252,13 +287,49 @@ class I18nTemplateTranslationSteps {
                 <textarea name="message" rows="5" placeholder="Your message" required></textarea>
             </form>
             """.trimIndent()
-
         val REPAIRED_VARIANT =
             """
             <form id="contact-form" data-lang="fr">
                 <input type="text" name="name" class="form-control" placeholder="Name" required />
                 <textarea name="message" rows="5" placeholder="Your message" required></textarea>
             </form>
+            """.trimIndent()
+
+        val TEXT_REFERENCE =
+            """
+            <section>
+                <h2>Contact</h2>
+                <p>Prêt à démarrer votre projet ? Contactez-moi !</p>
+                <button>Envoyer le Message</button>
+                <a>Android, SpringBoot, React</a>
+            </section>
+            """.trimIndent()
+
+        val PRESERVED_TEXT_VARIANT =
+            """
+            <section>
+                <h2>Contact</h2>
+                <p>Send the Message</p>
+                <button>Envoyer le Message</button>
+                <a>Android, SpringBoot, React</a>
+            </section>
+            """.trimIndent()
+
+        val NEUTRAL_TEXT_VARIANT =
+            """
+            <section>
+                <h2>Contact</h2>
+                <a>Android, SpringBoot, React</a>
+            </section>
+            """.trimIndent()
+
+        val TRANSLATED_TEXT_VARIANT =
+            """
+            <section>
+                <h2>Contact</h2>
+                <p>Send the Message</p>
+                <a>Android, SpringBoot, React</a>
+            </section>
             """.trimIndent()
     }
 }

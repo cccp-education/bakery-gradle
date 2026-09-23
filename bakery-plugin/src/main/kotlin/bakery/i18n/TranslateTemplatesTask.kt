@@ -234,16 +234,28 @@ abstract class TranslateTemplatesTask : DefaultTask() {
                         sourceLang,
                     )
 
+                // CHE-I18N-QUALITY US-19 — the same repair, for visible text.
+                val repairedText =
+                    repairPreservedText(
+                        language,
+                        referenceDir,
+                        targetDir,
+                        reference.keys - toTranslate.toSet(),
+                        service,
+                        sourceLang,
+                    )
+
                 // US-7d — realign `<html lang>` on *every* target template,
                 // including the preserved ones: a free WCAG 3.1.1 repair that
                 // needs no model call (Ink Economy Law).
                 val aligned = alignHtmlLanguage(language, referenceDir, targetDir)
                 logger.lifecycle(
-                    "[translateTemplates] [{}] {} templates traduits, {} préservés, {} attributs réparés, {} segments en échec, {} alignés lang",
+                    "[translateTemplates] [{}] {} templates traduits, {} préservés, {} attributs réparés, {} textes réparés, {} segments en échec, {} alignés lang",
                     language,
                     translatedFiles,
                     preservedFiles,
                     repairedAttributes,
+                    repairedText,
                     failedSegments,
                     aligned,
                 )
@@ -266,17 +278,71 @@ abstract class TranslateTemplatesTask : DefaultTask() {
         preservedPaths: Set<String>,
         service: TranslationService,
         sourceLang: String,
+    ): Int =
+        repairPreserved(
+            referenceDir,
+            targetDir,
+            preservedPaths,
+            service,
+            sourceLang,
+            language,
+            pendingOf = { reference, target -> TemplateAttributeRepair.pending(reference, target) },
+            repairOf = { target, replacements -> TemplateAttributeRepair.repair(target, replacements) },
+        )
+
+    /**
+     * CHE-I18N-QUALITY US-19 — the visible-text half of the same repair.
+     *
+     * S-050 fixed the attributes but the body of a variant translated before the
+     * text was handled stayed French (`Contact`, `Envoyer le Message`,
+     * `Prêt à démarrer…` in the `es`/`ar`/`pt`/`ru`/`ur` contact form): the
+     * planner preserves the whole file because it differs from the reference.
+     */
+    private fun repairPreservedText(
+        language: String,
+        referenceDir: File,
+        targetDir: File,
+        preservedPaths: Set<String>,
+        service: TranslationService,
+        sourceLang: String,
+    ): Int =
+        repairPreserved(
+            referenceDir,
+            targetDir,
+            preservedPaths,
+            service,
+            sourceLang,
+            language,
+            pendingOf = { reference, target -> TemplateTextRepair.pending(reference, target) },
+            repairOf = { target, replacements -> TemplateTextRepair.repair(target, replacements) },
+        )
+
+    /**
+     * Shared scope-exact repair loop: for every preserved template, schedule only
+     * the reference values still verbatim in the target ([pendingOf]), translate
+     * them, and substitute only those ([repairOf]). One file is written only when
+     * its content actually changed.
+     */
+    private fun repairPreserved(
+        referenceDir: File,
+        targetDir: File,
+        preservedPaths: Set<String>,
+        service: TranslationService,
+        sourceLang: String,
+        targetLang: String,
+        pendingOf: (reference: String, target: String) -> List<String>,
+        repairOf: (target: String, replacements: Map<String, String>) -> String,
     ): Int {
         var repaired = 0
         preservedPaths.forEach { relativePath ->
             val referenceFile = referenceDir.resolve(relativePath)
             val targetFile = targetDir.resolve(relativePath)
             if (!referenceFile.exists() || !targetFile.exists()) return@forEach
-            val pending = TemplateAttributeRepair.pending(referenceFile.readText(), targetFile.readText())
+            val pending = pendingOf(referenceFile.readText(), targetFile.readText())
             if (pending.isEmpty()) return@forEach
-            val values = TemplateTextTranslator(service).translateValues(pending, sourceLang, language)
+            val values = TemplateTextTranslator(service).translateValues(pending, sourceLang, targetLang)
             if (values.replacements.isEmpty()) return@forEach
-            val repairedContent = TemplateAttributeRepair.repair(targetFile.readText(), values.replacements)
+            val repairedContent = repairOf(targetFile.readText(), values.replacements)
             if (repairedContent != targetFile.readText()) {
                 targetFile.writeText(repairedContent)
                 repaired++

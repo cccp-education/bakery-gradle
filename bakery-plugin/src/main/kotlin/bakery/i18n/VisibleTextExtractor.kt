@@ -19,6 +19,38 @@ object VisibleTextExtractor {
 
     private const val MIN_SEGMENT_LENGTH = 2
 
+    /**
+     * CHE-I18N-QUALITY US-19 — French function words, used by the repair to tell
+     * a French run from a language-neutral one. A run that carries none of them
+     * (`Contact`, `Blog`, `React`, `Android, SpringBoot`) must never be scheduled
+     * for repair: a false positive on every language would drown the real signal.
+     */
+    private val FRENCH_MARKERS =
+        setOf(
+            "le", "la", "les", "des", "une", "dans", "pour", "avec", "sur", "est", "sont",
+            "cette", "ces", "qui", "que", "aux", "par", "plus", "mais", "comme", "tout",
+            "tous", "sans", "entre", "leur", "leurs", "nous", "vous", "votre", "vos",
+            "notre", "nos", "au", "du", "ce", "et", "ou", "de", "un", "en", "il", "elle",
+            "je", "tu", "mon", "ma", "mes", "son", "sa", "ses",
+        )
+
+    private val WORD = Regex("[\\p{L}]{2,}")
+
+    /**
+     * A run is French prose when it is a real phrase (three whitespace-separated
+     * tokens at least) carrying a French function word. The token floor keeps
+     * language codes (`en-gb`), place names and hyphenated technology names out.
+     */
+    fun isFrenchProse(text: String): Boolean {
+        val tokens = text.trim().split(Regex("\\s+")).filter { it.isNotBlank() }
+        if (tokens.size < MIN_TOKENS) return false
+        return tokens.any { token ->
+            WORD.findAll(token).any { it.value.lowercase() in FRENCH_MARKERS }
+        }
+    }
+
+    private const val MIN_TOKENS = 3
+
     fun extract(content: String): List<String> {
         if (content.isEmpty()) return emptyList()
 
