@@ -1,7 +1,7 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-09-25 — Session 231. **BKY-LANG-NAV-3 TERMINÉ** : hôte JS `lang-switch.js` (`resolveLangPath` frère JS de `resolveSamePage`, rejoue les mêmes 14 vecteurs partagés ; adaptateur DOM `attachLangSwitch` mode `tree`/`dictionary`) + garde de parité `LangSwitchClientParity` (présence 2 arbres + byte-identité + surface de contrat — D6). Node 7 tests (double DOM-free), UT 7, FT Oven 1 (site scaffoldé conforme D7). Tâche `nodeTest` câblée à `check` + CI `actions/setup-node@v4`. **NAV-4 débloqué**. Antérieur S-230 : **BKY-LANG-NAV-2 TERMINÉ** (hôte Thymeleaf page-aware). Antérieur S-229 : **BKY-LANG-NAV-1 TERMINÉ** (règle pure + 14 vecteurs). Antérieur S-228 : **EPIC BKY-LANG-NAV CADRÉ**._
+_Dernière mise à jour : 2026-09-25 — Session 233. **Re-pin catalogue ws 0.0.57 + réalignement drift MEM-CAT-3** : `settings.gradle.kts` (`0.0.56 → 0.0.57`) + 3 platform pins `workspace-bom:0.0.48 → 0.0.57` + toml réaligné (`codebase-plugin 0.0.16`, `i18n-contracts 0.0.4`). Nouvelle garde `BakeryPluginPublicationTest` `every workspace bom platform pin matches ws catalog bom version`. Preuve `document-plugin → 0.0.18`. Version plugin inchangée, zéro publication. Antérieur S-232 : **BKY-LANG-NAV-4 TERMINÉ** (modèle ex-nihilo conforme). Antérieur S-231 : NAV-3. S-230 : NAV-2. S-229 : NAV-1. S-228 : cadrage._
 
 == EPIC BKY-LANG-NAV (S-228) — Changement de langue sans retour à l'accueil (same-page switching) 🟡 EN COURS
 

@@ -38,9 +38,9 @@ class BakeryPluginPublicationTest {
     }
 
     /**
-     * Lit le toml du catalog `ws` résolu par Gradle (cache modules) et extrait
-     * la version `bakery-plugin`. Fallback : parse du toml du repo MEMPHIS local
-     * (workspace-bom) — même fichier source du catalogue.
+     * Reads the `ws` catalog toml resolved by Gradle (module cache) and extracts
+     * the `bakery-plugin` version. Fallback: parse the toml of the local MEMPHIS
+     * repo (workspace-bom) — same source file as the published catalog.
      */
     private fun wsCatalogToml(): String {
         val wsRepoToml = rootDir.parentFile
@@ -56,6 +56,42 @@ class BakeryPluginPublicationTest {
             .first { it.startsWith("bakery-plugin =") || it.startsWith("bakery =") }
             .substringAfter("\"")
             .substringBefore("\"")
+
+    private fun bomVersionFrom(content: String): String =
+        content
+            .lineSequence()
+            .map { it.substringBefore('#').trim() }
+            .first { it.startsWith("workspace-bom =") }
+            .substringAfter("\"")
+            .substringBefore("\"")
+
+    /**
+     * MEM-CAT-3 (D4/D5) — every local `workspace-bom` platform pin must follow the
+     * published catalog BOM version. A stale pin (0.0.48) is silently neutralised
+     * by transitive resolution, so document-plugin resolution drifts without any
+     * guard turning red. This guard makes the drift explicit at build time: all
+     * platform pins are extracted and must equal the ws catalog version.
+     */
+    @Test
+    fun `every workspace bom platform pin matches ws catalog bom version`() {
+        val buildScript = pluginDir.resolve("build.gradle.kts").readText(UTF_8)
+        val wsBomVersion = bomVersionFrom(wsCatalogToml())
+        val pinnedVersions = workspaceBomPlatformPinsFrom(buildScript)
+
+        assertThat(pinnedVersions)
+            .withFailMessage("no workspace-bom platform pin found in build.gradle.kts")
+            .isNotEmpty()
+
+        assertThat(pinnedVersions)
+            .withFailMessage("every workspace-bom platform pin must use the ws catalog BOM version ($wsBomVersion), found: $pinnedVersions")
+            .containsOnly(wsBomVersion)
+    }
+
+    private fun workspaceBomPlatformPinsFrom(buildScript: String): List<String> =
+        Regex("""platform\("education\.cccp:workspace-bom:([^"]+)"\)""")
+            .findAll(buildScript)
+            .map { it.groupValues[1] }
+            .toList()
 
     @Test
     fun `plugin group and id are stable for publication`() {

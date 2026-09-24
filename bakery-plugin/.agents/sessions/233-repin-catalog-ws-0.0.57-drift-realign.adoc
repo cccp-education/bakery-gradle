@@ -1,0 +1,80 @@
+= Session 233 — Re-pin catalogue ws 0.0.57 + réalignement drift MEM-CAT-3
+
+_Date_ : 2026-09-25
+_Boroughs_ : Bushwick 🟤 (bakery-gradle)
+_Type_ : maintenance build (re-pin cross-borough, baby-step TDD strict)
+_Score_ : 9/10
+
+== Mission
+
+Demande pilote : *re-pin bakery ws 0.0.57* + *réalignement drift catalogue si
+MEMPHIS bump*. Le borough pinnait encore le catalogue `0.0.56` et le BOM
+`0.0.48` (neutralisé par résolution transitive), donc résolvait
+`document-plugin 0.0.17` alors que MEMPHIS a publié `0.0.18` au catalogue
+`0.0.57` (S-264/MEMPHIS S-265).
+
+== Contexte d'ouverture
+
+- Working tree occupé par une **session bakery concurrente** (WIP BKY-LANG-NAV-4)
+  → arrêt et pause de la mission (commit sélectif piège #25), reprise après
+  clôture de la session concurrente (`4320987`).
+- Drift mesuré (`dependencyInsight`) : bakery → `workspace-catalog:0.0.56` +
+  platform `workspace-bom:0.0.48` neutralisée → **`document-plugin 0.0.17`**.
+- Delta catalogue `0.0.56 → 0.0.57` (diff MEMPHIS) :
+  `document-plugin 0.0.17 → 0.0.18` (seule entrée modifiée). Aucun autre bump
+  affectant bakery.
+
+== Réalignement réalisé
+
+. *`settings.gradle.kts`* — pin catalogue `workspace-catalog:0.0.56 → 0.0.57`.
+. *`build.gradle.kts`* — 3 platform pins `workspace-bom:0.0.48 → 0.0.57`
+   (dépendances principales + `functionalTest` + `e2eTest`).
+. *`gradle/libs.versions.toml`* — réalignement des 2 entrées `education.cccp`
+   stale référencées et silencieusement neutralisées par le BOM :
+   `codebase-plugin 0.0.12 → 0.0.16`, `i18n-contracts 0.0.3 → 0.0.4`
+   (résolution inchangée, mais toml désormais *truthful*).
+. *`BakeryPluginPublicationTest`* — nouvelle garde `every workspace bom platform
+   pin matches ws catalog bom version` (extrait **tous** les pins platform par
+   regex et exige qu'ils égalent le catalogue ws) + helper `bomVersionFrom`.
+
+== Baby-step TDD strict (RED → GREEN → REFACTOR)
+
+. *RED* — garde ajoutée : `BakeryPluginPublicationTest` `1 FAILED`
+  (`workspace bom platform pin ... found: [0.0.48, 0.0.48, 0.0.48]`) — le pin
+  stale `0.0.48` était invisible car neutralisé par résolution transitive.
+. *GREEN* — re-pin catalogue + 3 platform pins vers `0.0.57` → **3/3 PASSED**.
+. *REFACTOR* — garde renforcée : de `doesNotContain("0.0.48")` (fragile, ne
+   détecte qu'une seule mauvaise valeur connue) à l'extraction de **tous** les
+   pins + `containsOnly(wsBomVersion)` — détecte tout drift futur, pas seulement
+   la valeur connue aujourd'hui.
+
+== Preuves de non-régression
+
+- `dependencyInsight` : **`document-plugin → 0.0.18`** (par contrainte BOM
+  0.0.57) — cible du re-pin.
+- Résolution inchangée sur les entrées toml réalignées :
+  `codebase-plugin → 0.0.16` (0.0.12 neutralisée), `i18n-contracts → 0.0.4`.
+- `BakeryPluginPublicationTest` 3/3 GREEN.
+- `compileKotlin` + `compileTestKotlin` + `compileFunctionalTestKotlin` +
+  `compileE2eTestKotlin` VERT.
+- `test` : **2007 tests, 2 FAIL = FLAKY-5 préexistants** (drift fixture
+  cheroliv.com — `FixtureAlignmentAuditorTest` + `RealSiteI18nMigrationIntegrationTest`,
+  golden master `blog_section.thyme` « Close » vs « Fermer », sans rapport avec
+  le bump document 0.0.18) — baseline S-232 2006 +1 net (la nouvelle garde).
+- `functionalTest` BUILD SUCCESSFUL 2m45s (périmètre dont le platform pin a été
+  modifié).
+- `publishToMavenLocal` VERT (Règle 0).
+
+== Note
+
+Le bump ne change pas la version du plugin bakery (`ws.versions.bakery.plugin`
+reste `0.0.19`) — c'est un re-pin de consommation, pas une release. Aucune
+publication Central requise. Le fichier `build.gradle.kts` racine (force
+`kotlin-stdlib:2.4.10`) est inchangé et reste cohérent avec le BOM 0.0.57.
+
+== Dette (FLAKY-5, préexistante)
+
+`FixtureAlignmentAuditorTest` + `RealSiteI18nMigrationIntegrationTest` :
+2 FAIL préexistants, stash-confirmés depuis S-229. Drift fixture ↔ site réel
+cheroliv.com (chrome nativement FR, 5 templates). Session dédiée : resync
+fixture + régénération golden master (`PostMigrationSnapshotGenerator`).

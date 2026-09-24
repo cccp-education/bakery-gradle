@@ -1,5 +1,33 @@
 = Archive des Taches Terminees — Septembre 2026
 
+== Session 233 — 2026-09-25 — Re-pin catalogue ws 0.0.57 + réalignement drift MEM-CAT-3
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| Re-pin `settings.gradle.kts` — catalogue `workspace-catalog:0.0.56 → 0.0.57`
+| ✅ TERMINÉ
+
+| Re-pin `build.gradle.kts` — **3 platform pins** `workspace-bom:0.0.48 → 0.0.57` (dépendances principales + `functionalTest` + `e2eTest`)
+| ✅ TERMINÉ
+
+| Réalignement toml — `codebase-plugin 0.0.12 → 0.0.16` + `i18n-contracts 0.0.3 → 0.0.4` (stale référencées, neutralisées par le BOM)
+| ✅ TERMINÉ
+
+| Garde `BakeryPluginPublicationTest` — `every workspace bom platform pin matches ws catalog bom version` (regex extrait **tous** les pins + `containsOnly(wsBomVersion)`)
+| ✅ TERMINÉ
+
+| Preuve : `dependencyInsight` `document-plugin → 0.0.18` ; résolution codebase-plugin 0.0.16 / i18n-contracts 0.0.4
+| ✅ TERMINÉ
+
+| Gates : `test` 2007 (+1 net, 2 FAIL = FLAKY-5 préexistant), `functionalTest` VERT, 4 source sets compilent, `publishToMavenLocal` VERT
+| ✅ TERMINÉ
+
+| Version plugin bakery inchangée (`0.0.19`) — re-pin de consommation, zéro publication Central
+| ✅ ASSUMÉ
+|===
+
 == Session 232 — 2026-09-25 — BKY-LANG-NAV-4 : modèle ex-nihilo conforme (sélecteur page-aware)
 
 [cols="2,3"]
