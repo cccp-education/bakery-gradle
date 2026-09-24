@@ -1,0 +1,127 @@
+{
+  "description": "BKY-LANG-NAV — shared same-page language-switch vectors. Single source of truth resolved by LangSwitchPath (Kotlin, Thymeleaf host) and consumed by the JS host (lang-switch.js). Both hosts MUST produce these exact expectations. Do not fork.",
+  "version": 1,
+  "defaultLanguage": "fr",
+  "vectors": [
+    {
+      "name": "self link on default root stays on the same page",
+      "currentPageUri": "index.html",
+      "currentLang": "fr",
+      "targetLang": "fr",
+      "defaultLang": "fr",
+      "expected": "index.html"
+    },
+    {
+      "name": "default root to non-default root goes down into the language dir",
+      "currentPageUri": "index.html",
+      "currentLang": "fr",
+      "targetLang": "en",
+      "defaultLang": "fr",
+      "expected": "en/index.html"
+    },
+    {
+      "name": "non-default root back to default root goes up",
+      "currentPageUri": "en/index.html",
+      "currentLang": "en",
+      "targetLang": "fr",
+      "defaultLang": "fr",
+      "expected": "../index.html"
+    },
+    {
+      "name": "nested default page to non-default keeps the page",
+      "currentPageUri": "blog/foo.html",
+      "currentLang": "fr",
+      "targetLang": "en",
+      "defaultLang": "fr",
+      "expected": "../en/blog/foo.html"
+    },
+    {
+      "name": "nested non-default page back to default keeps the page",
+      "currentPageUri": "en/blog/foo.html",
+      "currentLang": "en",
+      "targetLang": "fr",
+      "defaultLang": "fr",
+      "expected": "../../blog/foo.html"
+    },
+    {
+      "name": "nested non-default page to another language keeps the page",
+      "currentPageUri": "en/blog/foo.html",
+      "currentLang": "en",
+      "targetLang": "ar",
+      "defaultLang": "fr",
+      "expected": "../../ar/blog/foo.html"
+    },
+    {
+      "name": "deeply nested page to default keeps the whole path",
+      "currentPageUri": "en/a/b/c.html",
+      "currentLang": "en",
+      "targetLang": "fr",
+      "defaultLang": "fr",
+      "expected": "../../../a/b/c.html"
+    },
+    {
+      "name": "self link on non-default nested page points to itself",
+      "currentPageUri": "en/blog/foo.html",
+      "currentLang": "en",
+      "targetLang": "en",
+      "defaultLang": "fr",
+      "expected": "foo.html"
+    },
+    {
+      "name": "self link on default nested page points to itself",
+      "currentPageUri": "blog/foo.html",
+      "currentLang": "fr",
+      "targetLang": "fr",
+      "defaultLang": "fr",
+      "expected": "foo.html"
+    },
+    {
+      "name": "non-default root to another non-default language",
+      "currentPageUri": "en/index.html",
+      "currentLang": "en",
+      "targetLang": "ar",
+      "defaultLang": "fr",
+      "expected": "../ar/index.html"
+    },
+    {
+      "name": "leading slash is normalised",
+      "currentPageUri": "/blog/foo.html",
+      "currentLang": "fr",
+      "targetLang": "en",
+      "defaultLang": "fr",
+      "expected": "../en/blog/foo.html"
+    },
+    {
+      "name": "missing target page degrades to the language index",
+      "currentPageUri": "blog/foo.html",
+      "currentLang": "fr",
+      "targetLang": "en",
+      "defaultLang": "fr",
+      "existingPages": [
+        "index.html",
+        "en/index.html"
+      ],
+      "expected": "../en/index.html"
+    },
+    {
+      "name": "existing target page is kept",
+      "currentPageUri": "blog/foo.html",
+      "currentLang": "fr",
+      "targetLang": "en",
+      "defaultLang": "fr",
+      "existingPages": [
+        "en/blog/foo.html"
+      ],
+      "expected": "../en/blog/foo.html"
+    },
+    {
+      "name": "missing nested target degrades preserving the current depth",
+      "currentPageUri": "en/blog/foo.html",
+      "currentLang": "en",
+      "targetLang": "ar",
+      "defaultLang": "fr",
+      "existingPages": [],
+      "expected": "../../ar/index.html"
+    }
+  ]
+}

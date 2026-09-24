@@ -1,12 +1,12 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-09-24 — Session 228. **EPIC BKY-LANG-NAV CADRÉ** (gouvernance pure, zéro code) : changement de langue sans retour à l'accueil (same-page switching). Décision pilote actée **S2 + hybride, Thymeleaf conservé** — JS propriétaire du clic/persistance/dict, Thymeleaf propriétaire de la résolution exacte sur arbre ; une règle pure, deux hôtes, vecteurs de test partagés. Bug structurel : `LangSwitchUrl.resolve()` (`index.html` en dur) + split-brain copié sur cheroliv.com. 9 US ~32 pts (cœur NAV-1→5 + rollout sites NAV-6→8). Doc `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc`. Antérieur S-224 : **BKY-I18N-JS-6 TERMINÉ** : la **traduction** du contenu catalogue imbriqué (`TALARIA.I18N.CATALOG`) est livrée — writer nested in-place, complétion par clone de la référence (contrat S-054), garde structurelle, delta imbriqué câblé dans la tâche. Le chantier distinct acté S-223 décision §1 (« la couverture n'est pas l'écriture ») est clos. **BKY-I18N-JS réellement 6/6 US.** Gate `test` **1842/0 FAIL** (baseline 1804/0 → +38). Antérieur S-223 : **BKY-I18N-JS-5 TERMINÉ** : le catalogue structurel (`i18n-content.js`, `TALARIA.I18N.CATALOG`), déclaré au cadrage talaria S-054 mais jamais traité (parser plat = 0 clé) et qui captait les clés plates par tri alphabétique, est classifié (`I18nJsFormat`), planifié en couverture (`I18nCatalog`) et son ownership corrigé. Gate `test` **1804/0 FAIL** (baseline 1777/0 → +27). Antérieur S-222 : **FLAKY-4 résolu** (drift fixture `contact.thyme`). Antérieur S-221 : cross-borough T-I18N-BAKERY US-2/US-3 (`IaConfigResolver`). Antérieur S-220 : **EPIC BKY-I18N-JS 4/4 US** (propagation byte-identique + garde de format). Antérieur S-217 : EPIC BKY-LANG-22 7/10 US (reste dogfooding LLM 22 langues + publication Central consommateurs)._
+_Dernière mise à jour : 2026-09-24 — Session 229. **BKY-LANG-NAV-1 TERMINÉ** : règle pure `bakery.langswitch.LangSwitchPath.resolveSamePage(...)` (objet pur no-I/O) + **14 vecteurs partagés JSON** (`lang-switch-path-vectors.json`, `version: 1`) = contrat anti-split-brain rejoué par les deux hôtes (D3). 17 UT + 2 UT fixture-driven (RED prouvé → GREEN), gate `bakery.langswitch.*` + `InjectLangSwitchFunctionalTest` VERTS, `publishToMavenLocal` VERT. 4 fichiers créés, 0 suivi modifié. **Dette découverte FLAKY-5** (drift fixture cheroliv.com chrome FR, stash-prouvé préexistant). Antérieur S-228 : **EPIC BKY-LANG-NAV CADRÉ** (S2 + hybride, Thymeleaf conservé). Antérieur S-224 : **BKY-I18N-JS-6 TERMINÉ** (traduction catalogue imbriqué). Antérieur S-222 : **FLAKY-4 résolu**. Antérieur S-217 : EPIC BKY-LANG-22 (clos S-226)._
 
-== EPIC BKY-LANG-NAV (S-228) — Changement de langue sans retour à l'accueil (same-page switching) 🟡 CADRÉ
+== EPIC BKY-LANG-NAV (S-228) — Changement de langue sans retour à l'accueil (same-page switching) 🟡 EN COURS
 
 * [x] **BKY-LANG-NAV-0** : Cadrage EPIC (S2 + hybride, Thymeleaf conservé, spec unique + 2 hôtes + vecteurs partagés) ✅ S-228 (gouvernance pure)
-* [ ] **BKY-LANG-NAV-1** : `LangSwitchPath` — spec pure `resolveSamePage(...)` + vecteurs partagés JSON (🟡 À FAIRE)
+* [x] **BKY-LANG-NAV-1** : `LangSwitchPath` — spec pure `resolveSamePage(...)` + vecteurs partagés JSON ✅ S-229 (17 UT + 2 UT fixture-driven, 4 fichiers créés)
 * [ ] **BKY-LANG-NAV-2** : Hôte Thymeleaf — `th:href` page-aware + FT fixture multi-pages (🟡 À FAIRE)
 * [ ] **BKY-LANG-NAV-3** : Hôte JS `lang-switch.js` + garde parité maquette↔jbake (présence + comportement) (🟡 À FAIRE)
 * [ ] **BKY-LANG-NAV-4** : Modèle ex-nihilo conforme (`site-basic` + `maquette/js`) (🟡 À FAIRE)
@@ -37,13 +37,14 @@ _Dernière mise à jour : 2026-09-24 — Session 228. **EPIC BKY-LANG-NAV CADRÉ
 * [x] **LANG-22-9** : Dogfooding capsule vidéo 22 langues (Piper/espeak réels) ✅ S-226 (bug P0 chaîne `-deck-script` corrigé + 22/22 vidéos réelles, dégradation th/ja/ar)
 * [x] **LANG-22-10** : Publication Central consommateurs (bakery/capsule/slider) ✅ S-226 (capsule 0.0.1 `54a58526` + MEMPHIS 0.0.48 `9d43c5b7` + bakery 0.0.13 `3d53b77e` + slider 0.0.19 `03289d70`)
 
-== EPIC BKY-TEST-FLAKY (S-028) — ✅ TERMINÉ (S-214 + FLAKY-4 ✅ S-222)
+== EPIC BKY-TEST-FLAKY (S-028) — ✅ TERMINÉ (S-214 + FLAKY-4 ✅ S-222) / FLAKY-5 🟡 ouvert S-229
 
 * [x] **FLAKY-2** : FixtureAlignmentAuditorTest — fixtures i18n cheroliv-com resyncées (11 templates vs site réel) ✅ S-214
 * [x] **FLAKY-1** : RealSiteI18nMigrationIntegrationTest — golden master cheroliv-com régénéré (header.5/6, -footer.15-18) ✅ S-214
 * [x] **FLAKY-3** : I18nDeltaWireCucumberTest — feature 57 3→4 articles (fixture a 4 articles depuis S-190) ✅ S-214
 * [x] **FLAKY-4** : drift `contact.thyme` (site réel S-031 retrait `subject`) — resync fixture + recâblage `contact.6` + golden master régénéré ✅ S-222
-* Gate clôture : `./gradlew test` 1777/0 FAIL ✅ (fin de la mention "baseline 2 FAIL" dans les gates MEMPHIS)
+* [ ] **FLAKY-5** : drift fixture cheroliv.com chrome nativement FR (S-053/055, 5 templates : blog/blog_section/footer/header/menu) — découvert S-229 (stash-prouvé), resync fixture + golden master à régénérer (procédure S-222) 🟡 À FAIRE
+* Gate clôture : `./gradlew test` 1777/0 FAIL ✅ (S-222) — ré-ouvert FLAKY-5 S-229 (drift cheroliv.com chrome FR, 2 FAIL stash-prouvés préexistants)
 
 == EPIC PUB — Publication Maven Central bakery-plugin ✅ TERMINÉ (S-203)
 

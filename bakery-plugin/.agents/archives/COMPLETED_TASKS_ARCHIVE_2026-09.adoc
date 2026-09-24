@@ -1,5 +1,24 @@
 = Archive des Taches Terminees — Septembre 2026
 
+== Session 229 — 2026-09-24 — BKY-LANG-NAV-1 : LangSwitchPath (règle pure + vecteurs partagés)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| NAV-1 (DDD) — `bakery.langswitch.LangSwitchPath.resolveSamePage(currentPageUri, currentLang, targetLang, defaultLang, pageExists)` objet pur (no I/O) : normalise, retire le préfixe de langue courante, rejoue la page sous la langue cible, relativise depuis le répertoire courant. Self-link → nom de fichier seul. Dégradation `<lang>/index.html` si cible absente (D8). 17 UT.
+| ✅ TERMINÉ
+
+| NAV-1 (vecteurs partagés) — `src/main/resources/bakery/langswitch/lang-switch-path-vectors.json` (`version: 1`, 14 vecteurs) = contrat anti-split-brain D3 rejoué par l'hôte JS (NAV-3). `LangSwitchPathTest` 17 UT + `LangSwitchPathVectorsTest` 2 UT fixture-driven.
+| ✅ TERMINÉ
+
+| Gate — `bakery.langswitch.*` 17 UT GREEN (12 `LangSwitchUrlTest` non régressés), `InjectLangSwitchFunctionalTest` 7/7 + idempotence, ktlint 0 sur les 4 fichiers NAV-1, `publishToMavenLocal` VERT. RED prouvé (4× `Unresolved reference`) → GREEN 19/19. `test` complet 2 FAIL préexistants (FLAKY-5, drift fixture cheroliv.com) stash-prouvés ; `cucumberTest` `2464/5 failed/2011 skipped` idem arbre propre. 4 fichiers créés, 0 suivi modifié, zéro bump, zéro secret.
+| ✅ TERMINÉ
+
+| Dette découverte — **FLAKY-5** : drift fixture cheroliv.com (chrome nativement FR S-053/055, 5 templates : blog/blog_section/footer/header/menu). Session dédiée : resync fixture + régénération golden master (`PostMigrationSnapshotGenerator`).
+| 🟡 RAPPORTÉ
+|===
+
 == Session 228 — 2026-09-24 — BKY-LANG-NAV : cadrage EPIC (gouvernance pure, zéro code)
 
 [cols="2,3"]

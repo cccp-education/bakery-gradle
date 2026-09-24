@@ -1,0 +1,115 @@
+= Session 229 — BKY-LANG-NAV-1 : LangSwitchPath (spécification pure + vecteurs partagés)
+:session: 229
+:date: 2026-09-24
+:type: DDD + TDD strict (objet pur + fixture partagée anti split-brain)
+:borough: Bushwick (bakery-gradle)
+:score: 9/10
+
+== Contexte
+
+Reprise bakery à la demande pilote (hook d'ouverture standard), avec la
+méthodologie baby-step DDD/TDD/BDD (unit → fonctionnel → cucumber) et
+autorisation explicite de commit/push en clôture.
+
+Mission = première US du cœur `BKY-LANG-NAV` (cadré S-228) : livrer la
+**règle pure** de résolution same-page, socle des deux hôtes (Thymeleaf et JS).
+
+== Livré — BKY-LANG-NAV-1
+
+=== 1. `LangSwitchPath` — objet pur (no I/O)
+
+`src/main/kotlin/bakery/langswitch/LangSwitchPath.kt` : l'**unique** source de
+vérité de la règle. Signature :
+
+[source,kotlin]
+----
+fun resolveSamePage(
+    currentPageUri: String,
+    currentLang: String,
+    targetLang: String,
+    defaultLang: String,
+    pageExists: (String) -> Boolean = { true },
+): String
+----
+
+Modèle d'arbre : la langue défaut vit à la racine (`blog/foo.html`), les autres
+sous leur répertoire (`en/blog/foo.html`). Le retour est une URL **relative
+exprimée depuis le répertoire de la page courante** — elle fonctionne telle
+quelle dans le document rendu.
+
+Algorithme :
+. normalisation (trim + `trimStart('/')`) ;
+. self-link → nom de fichier seul (`foo.html`) ; un self-link ne relance jamais
+   la navigation ;
+. retrait du préfixe de langue courante (si non-défaut) ;
+. chemin absolu de la cible sous la langue cible, avec **dégradation** vers
+   `<lang>/index.html` si `pageExists` retourne `false` (D8) ;
+. relativisation depuis le répertoire courant (`../../blog/foo.html`).
+
+=== 2. Vecteurs partagés (parade anti split-brain D3)
+
+`src/main/resources/bakery/langswitch/lang-switch-path-vectors.json` : **14
+vecteurs** versionnés (self, racine, imbriqué, langue défaut, profondeur,
+langue non-défaut, normalisation slash, dégradation `existingPages`). C'est le
+contrat que rejouera l'hôte JS (NAV-3) — une divergence entre hôtes fait
+rougir la fixture d'un côté.
+
+=== 3. Tests
+
+* `LangSwitchPathTest` — 17 UT (vecteurs explicites + invariants de validation).
+* `LangSwitchPathVectorsTest` — fixture-driven (2 UT) : rejoue **chaque** vecteur
+  JSON contre la règle Kotlin. Le message d'échec cite le nom du vecteur.
+
+Baby-step strict : RED prouvé (4× `Unresolved reference 'LangSwitchPath'` au
+`compileTestKotlin`) → GREEN (19/19 PASSED) → REFACTOR (fix indentation ktlint).
+
+== Gate et vérifications
+
+[cols="2,4"]
+|===
+| Vérification | Résultat
+
+| `LangSwitchPathTest` + `LangSwitchPathVectorsTest` | 19/19 GREEN
+| `bakery.langswitch.*` (non-régression) | 17 UT GREEN (dont 12 `LangSwitchUrlTest` historiques)
+| `InjectLangSwitchFunctionalTest` | 7/7 GREEN, idempotence OK
+| `ktlintMain/TestSourceSetCheck` sur les fichiers NAV-1 | 0 violation
+| `publishToMavenLocal` (Règle 0) | VERT, jar 0.0.19 signé
+| `grep -rwE "REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA" src/` | 0
+|===
+
+=== Découverte — drift fixture cheroliv.com (non introduit)
+
+Le `test` complet affiche **2 FAIL préexistants** : `FixtureAlignmentAuditorTest`
+et `RealSiteI18nMigrationIntegrationTest` (cheroliv-com). Le site réel
+`office/sites/cheroliv.com` a été refactoré côté chrome (S-053/S-055,
+22-23 sept : `aria-label`/`title` nativement français, bloc highlight.js déplacé
+dans `header.thyme`, libellés de thème FR) — **5 templates** divergent
+(`blog`, `blog_section`, `footer`, `header`, `menu`). Même famille FLAKY que
+S-222 (le site évolue, la fixture gelée ne suit pas).
+
+*Preuve de pré-existence* : stash des 4 fichiers NAV-1 → mêmes 2 FAIL, mêmes
+`2464 tests, 5 failed, 2011 skipped` en `cucumberTest`. La modification est
+purement additive (4 fichiers, 0 fichier suivi modifié) → **zéro régression**.
+Rapporté au backlog (FLAKY-5) — session dédiée (resync fixture + régénération
+golden master).
+
+== Fichiers
+
+[cols="1,1,4"]
+|===
+| Fichier | État | Rôle
+
+| `src/main/kotlin/bakery/langswitch/LangSwitchPath.kt` | créé | règle pure
+| `src/main/resources/bakery/langswitch/lang-switch-path-vectors.json` | créé | vecteurs partagés
+| `src/test/kotlin/bakery/langswitch/LangSwitchPathTest.kt` | créé | 17 UT
+| `src/test/kotlin/bakery/langswitch/LangSwitchPathVectorsTest.kt` | créé | fixture-driven (2 UT)
+|===
+
+Zéro fichier suivi modifié. Zéro secret. Zéro bump de version.
+
+== Décision / suite
+
+Le socle NAV-1 est posé. Ordre ensuite (cadrage S-228) :
+* *S-230* — NAV-2 (hôte Thymeleaf) + NAV-4 (modèle ex-nihilo), DDD/TDD/FT
+* *S-231* — NAV-3 (hôte JS + garde de parité), node/jsdom
+* *S-232* — NAV-5 (BDD Cucumber fixture multi-pages), clôture cœur

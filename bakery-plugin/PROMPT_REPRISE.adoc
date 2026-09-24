@@ -1,74 +1,58 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 229
+:session: 230
 :date: 2026-09-24
-:etat: Session 228 🟡 — **EPIC BKY-LANG-NAV CADRÉ** (changement de langue same-page, gouvernance pure, zéro code). Décision pilote actée **S2 + hybride, Thymeleaf conservé**. Antérieur S-227 : dette `asciidoctorRevealJs` SOLDÉE cross-borough (slider S-072).
-:epic_actif: **BKY-LANG-NAV** (🟡 NAV-0 ✅, NAV-1→8 À FAIRE) — P1, cœur NAV-1→5 (~19 pts) puis rollout sites NAV-6→8 (~13 pts).
+:etat: Session 229 ✅ — **BKY-LANG-NAV-1 TERMINÉ** (règle pure `LangSwitchPath` + 14 vecteurs partagés JSON). Antérieur S-228 : EPIC BKY-LANG-NAV cadré.
+:epic_actif: **BKY-LANG-NAV** (🟡 NAV-0 ✅, NAV-1 ✅, NAV-2→8 À FAIRE) — P1, cœur NAV-2→5 (~16 pts restants) puis rollout sites NAV-6→8 (~13 pts).
 
-== Contexte de la demande (S-228)
+== État S-229
 
-Pilote : « lorsque je change de langue lors de la navigation sur le site, une
-fois arrivé dans la langue demandée je dois être sur la traduction de la page
-où j'étais, et non pas un retour à la page d'accueil dans la langue demandée. »
-4 sites cibles : cheroliv.com, talaria.school, cccp.education, magic-stick.
+`LangSwitchPath.resolveSamePage(currentPageUri, currentLang, targetLang, defaultLang,
+pageExists)` — objet pur, unique source de vérité. Retourne une URL relative
+**depuis le répertoire de la page courante** (`../../ar/blog/foo.html`). Self-link
+→ nom de fichier seul. Dégradation vers `<lang>/index.html` si `pageExists=false`.
 
-== Constat (audité S-228)
+Vecteurs partagés : `src/main/resources/bakery/langswitch/lang-switch-path-vectors.json`
+(14 vecteurs, `version: 1`) — **le contrat que l'hôte JS rejouera** (parade D3).
 
-Le défaut est **structurel** (résolution d'URL, pas JS) :
-`src/main/kotlin/bakery/langswitch/LangSwitchUrl.kt:23-31` — `resolve()` jette la
-page (`index.html` en dur) ; `currentPath` = répertoire de langue, pas la page.
-Le même bug est **copié** sur cheroliv.com (`com.cheroliv.i18n.LangSwitchLink`
-+ renderer/applier/injector + `InjectLangSwitchMain`) → **split-brain**.
-Le mapping page→page existe déjà côté **SEO** sur cheroliv
-(`jbake/templates/header.thyme:8-16`, `hreflang` via `content.uri`).
+Tests : `LangSwitchPathTest` (17 UT) + `LangSwitchPathVectorsTest` (fixture-driven).
+RED prouvé → GREEN 19/19. Gate langswitch + functional injection VERTS.
+`publishToMavenLocal` OK.
 
-Sites : cheroliv = bug réel (arbres `jbake/i18n/{lang}/`) ; talaria = marche
-déjà (dict client `TALARIA.I18N.setLang`, ne navigue pas) ; cccp + magic-stick =
-**aucun i18n** (chantier à créer). Modèle ex-nihilo (`site-basic`/`maquette`)
-sans sélecteur → un site neuf naît buggé.
+== Mission Session 230 — BKY-LANG-NAV-2 (+ NAV-4 si le temps)
 
-== Décision architecturale actée (P1, ne pas rouvrir)
+*NAV-2 — Hôte Thymeleaf : lien par défaut exact.* Consommer `LangSwitchPath`
+dans `LangSwitchUrl`/`LangSwitchMenu`/`LangSwitchThymeleafRenderer` : émettre un
+`th:href` **page-aware** au lieu d'`index.html` en dur. Backward compat : sans
+config i18n, no-op. `data-lang` conservé (D4). Le `th:href` reste la cible par
+défaut exacte et crawlable ; le JS (NAV-3) ne le réécrit pas.
 
-**S2 + hybride, Thymeleaf conservé.** Une règle pure, deux hôtes, vecteurs de
-test partagés :
-. **Arbre de pages** → Thymeleaf résout au build (`${content.rootpath + 'en/' + content.uri}`)
-   — exact, crawlable, no-JS, sans FOUC ; JS surenchérit (persistance/active),
-   ne réécrit pas le lien exact.
-. **Dictionnaire client** → JS résout (Thymeleaf n'a rien à résoudre).
-. **Parade anti-split-brain** : spec unique + vecteurs partagés. **Supprimer la
-   copie cheroliv** (D5).
-Détail complet : `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc`.
+*NAV-4 — Modèle ex-nihilo.* `site-basic/templates/menu.thyme` (sélecteur
+`data-lang` page-aware) + `maquette/js/lang-switch.js` embarqué → un site
+scaffoldé naît conforme (garde D6/D7).
 
-== Mission Session 229 — BKY-LANG-NAV-1
-
-*`LangSwitchPath` — spécification pure + vecteurs partagés.* Objet pur (no I/O) :
-`resolveSamePage(currentPageUri, currentLang, targetLang, defaultLang): String`.
-Normalise le préfixe de langue courante, rejoue la page sous la langue cible.
-Prédicat d'existence injectable (`pageExists`) pour la dégradation (D8).
-Vecteurs exposés comme **fixture partagée (JSON)** consommable par l'hôte JS
-(NAV-3) — c'est la garantie anti-split-brain.
-
-Tests (baby-step DDD/TDD strict) : self, racine FR→EN, page imbriquée EN→FR,
-`en/blog/foo`→`ar/blog/foo`, langue défaut sans préfixe, page racine (index),
-cible absente → dégradation. ~3 pts.
-
-Ordre ensuite : NAV-2 (hôte Thymeleaf) + NAV-4 (modèle ex-nihilo) → NAV-3 (hôte
-JS + garde de parité) → NAV-5 (BDD Cucumber fixture multi-pages, clôture cœur)
-→ NAV-6 (cheroliv fix + kill split-brain) → NAV-7 (talaria) → NAV-8 (cccp/magic-stick).
+Tests : UT render page-aware racine/imbriquée, no self-loop, langue défaut ;
+FT injection fixture FR+EN multi-pages + idempotence.
 
 == Reprendre à
 
 . `git status` dans bakery-gradle — vérifier qu'aucune session concurrente n'écrit.
-. `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc` (cadrage complet).
-. `.agents/sessions/228-bky-lang-nav-cadrage.adoc` (rapport S-228).
-. `./gradlew test` — non-régression (baseline 1845/0 attendue, règle Economie
-   d'Encre : ne relancer que si le code source change).
-. `publishToMavenLocal` après chaque modification code source (règle INDEX 0).
+. `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc` (cadrage complet, D1→D10).
+. `src/main/kotlin/bakery/langswitch/LangSwitchPath.kt` + vecteurs JSON (socle).
+. `.agents/sessions/229-bky-lang-nav-1-spec-pure.adoc` (rapport S-229).
+. Gate règle Économie d'Encre : ne relancer `test` que si le code source change.
+
+== Dette découverte (FLAKY-5)
+
+`FixtureAlignmentAuditorTest` + `RealSiteI18nMigrationIntegrationTest` (cheroliv-com)
+= **2 FAIL préexistants** : drift fixture ↔ site réel (chrome nativement FR,
+S-053/055, 5 templates). Stash-prouvé non introduit par NAV-1. Session dédiée :
+resync fixture + régénération golden master (procédure `PostMigrationSnapshotGenerator`).
 
 == Rappel
 
 * Gate métier : `grep -rwE "REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA" src/` = 0.
-* *Modèle LLM* : `gpt-oss:120b-cloud` épuisé (limite mensuelle) → `gemma4:31b-cloud`
-   + `OLLAMA_POOL_PORTS=11439,11440,11441,11442`.
+* *Modèle LLM* : `gpt-oss:120b-cloud` épuisé → `gemma4:31b-cloud` +
+   `OLLAMA_POOL_PORTS=11439,11440,11441,11442`.
 * *Publication Central* : ordre DAG réel (publier le consommateur absent AVANT
    de l'ajouter au catalogue MEMPHIS — garde D8 anti-ghost).
 * *Règle 0* : `./gradlew -q publishToMavenLocal` OBLIGATOIRE après toute

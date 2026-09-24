@@ -5,7 +5,9 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-09-24 — 🟡 **EPIC BKY-LANG-NAV CADRÉ (S-228)** — changement de langue sans retour à l'accueil (same-page switching). Décision pilote actée : **S2 + hybride, Thymeleaf conservé** — JS propriétaire du clic/persistance/dict, Thymeleaf propriétaire de la résolution exacte sur arbre de pages ; **une règle pure, deux hôtes, vecteurs de test partagés**. Bug structurel identifié : `LangSwitchUrl.resolve()` (`index.html` en dur) + **split-brain** copié sur cheroliv.com. 4 sites cibles (cheroliv bug réel / talaria marche déjà / cccp+magic-stick sans i18n). 9 US ~32 pts. Doc `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc` — gouvernance pure, zéro code._
+_Dernière mise à jour : 2026-09-24 — 🟡 **EPIC BKY-LANG-NAV EN COURS — NAV-1 ✅ TERMINÉ (S-229)** — règle pure `bakery.langswitch.LangSwitchPath.resolveSamePage(...)` (objet pur no-I/O) + **14 vecteurs partagés JSON** (`lang-switch-path-vectors.json`) = contrat anti-split-brain rejoué par les deux hôtes (D3). 17 UT + 2 UT fixture-driven, gate `bakery.langswitch.*` GREEN, `InjectLangSwitchFunctionalTest` 7/7, `publishToMavenLocal` VERT. 4 fichiers créés, 0 suivi modifié. **Dette découverte FLAKY-5** (drift fixture cheroliv.com, stash-prouvé préexistant). Prochaine : NAV-2 (hôte Thymeleaf) + NAV-4 (modèle)._
+
+_Dernière mise à jour (antérieure) : 2026-09-24 — 🟡 **EPIC BKY-LANG-NAV CADRÉ (S-228)** — changement de langue sans retour à l'accueil (same-page switching). Décision pilote actée : **S2 + hybride, Thymeleaf conservé** — JS propriétaire du clic/persistance/dict, Thymeleaf propriétaire de la résolution exacte sur arbre de pages ; **une règle pure, deux hôtes, vecteurs de test partagés**. Bug structurel identifié : `LangSwitchUrl.resolve()` (`index.html` en dur) + **split-brain** copié sur cheroliv.com. 4 sites cibles (cheroliv bug réel / talaria marche déjà / cccp+magic-stick sans i18n). 9 US ~32 pts. Doc `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc` — gouvernance pure, zéro code._
 
 _Dernière mise à jour : 2026-09-17 — ✅ **EPIC BKY-LANG-22 TERMINÉ 10/10 US (S-226)** — les 3 dernières US clôturées cross-borough : **8** dogfooding slider 22 langues (36 paires LLM `gemma4:31b-cloud`, pin `TranslatedDemoDeckTest` levé, feature 14 27→63, drift `7_rtl_layout` `fa` corrigé), **9** dogfooding capsule 22 langues (**bug P0 réel corrigé** : `extractSpeakerNotes` produit `<slug>_<lang>-deck-script.txt` mais le planner exigeait `<slug>_<lang>-script.txt` → fail-fast ; fix `resolveScript` tolère le suffixe `-deck` + 22/22 vidéos réelles), **10** publication Central (ordre DAG réel capsule-first dicté par les gardes D8 anti-ghost : capsule 0.0.1 + MEMPHIS 0.0.48 + bakery 0.0.13 + slider 0.0.19). Rapport `.agents/sessions/226-bky-lang-22-8-9-10-cloture-epic.adoc`._
 
@@ -17,7 +19,7 @@ _Dernière mise à jour (antérieure) : 2026-09-17 — ✅ **BKY-I18N-JS-5 TERMI
 
 '''
 
-== EPIC BKY-LANG-NAV — Changement de langue sans retour à l'accueil (same-page switching) — 🟡 CADRÉ S-228
+== EPIC BKY-LANG-NAV — Changement de langue sans retour à l'accueil (same-page switching) — 🟡 EN COURS (NAV-1 ✅ S-229, NAV-2→8 À FAIRE)
 
 _Origine : demande pilote 2026-09-24 — « lorsque je change de langue lors de la navigation sur le site, une fois arrivé dans la langue demandée je dois être sur la traduction de la page où j'étais, et non pas un retour à la page d'accueil dans la langue demandée ». Cadré S-228 (gouvernance pure, zéro code) — doc `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc`._
 
@@ -97,7 +99,7 @@ Sur arbre → serveur émet le lien exact (crawlable, no-JS, sans FOUC) ; le JS 
 | `LangSwitchPath` — spécification pure `resolveSamePage(...)` + vecteurs partagés
   (JSON) consommables par les deux hôtes
 | 3
-| 🟡 À FAIRE
+| ✅ TERMINÉ (S-229)
 
 | BKY-LANG-NAV-2
 | Hôte Thymeleaf — `th:href` page-aware (`${content.rootpath + 'en/' + content.uri}`),
@@ -468,9 +470,38 @@ postérieur avait réintroduit 4 mentions SPG d'usage (BACKLOG ×3 +
 PROMPT_REPRISE ×1) → "plans de formation"/"GenerateContentPlanTask"
 (grille D12). Gate D16 finale : 0 usage métier sur les 7 repos.
 **EPIC TERMINÉ 6/6 US.** Reste en backlog bakery : MASS-6 (reporté accord
-pilote). BKY-FPA-SITE ✅ TRANSFÉRÉ (S-216 → TRN-11 training). FLAKY-1/2/3 ✅ clôturés S-214.
+pilote). BKY-FPA-SITE ✅ TRANSFÉRÉ (S-216 → TRN-11 training). FLAKY-1/2/3 ✅ clôturés S-214. FLAKY-4 ✅ résolu S-222 (drift `contact.thyme`).
 
 '''
+
+== FLAKY-5 — Drift fixture cheroliv.com (chrome nativement FR) — 🟡 À FAIRE (découvert S-229)
+
+_Source : session 229 (BKY-LANG-NAV-1), stash-prouvé préexistant et non introduit._
+
+Le site réel `office/sites/cheroliv.com` a été refactoré côté chrome
+(`CHE-I18N-CHROME` S-053 `dbae83de` + S-055 `f9f8419e`, 22-23 sept 2026) : les
+libellés d'interface sont désormais **nativement français par construction**
+(`aria-label="Fermer"`, `aria-label="Flux RSS"`, `Sélectionner la langue`,
+menu de thème `Clair`/`Sombre`/`Contraste élevé`, `Basculer la navigation`),
+et le bloc `highlight.js` a migré dans `header.thyme`. La fixture bakery
+`i18n-fixtures/cheroliv-com/jbake/templates/` (gelée S-222) n'a pas suivi.
+
+*Impact* : 2 tests `test` rouges (préexistants) —
+`FixtureAlignmentAuditorTest > cheroliv-com fixture is aligned` et
+`RealSiteI18nMigrationIntegrationTest > migration from real site copy matches
+golden master`. **5 templates** divergent : `blog.thyme`, `blog_section.thyme`,
+`footer.thyme`, `header.thyme`, `menu.thyme`.
+
+*Preuve* : stash des 4 fichiers NAV-1 → mêmes 2 FAIL ; `cucumberTest`
+`2464 tests, 5 failed, 2011 skipped` identique sur arbre propre.
+
+*Correctif attendu* (procédure S-222, session dédiée) : resync des 5 templates
+depuis le site réel (secrets neutralisés) + recâblage des clés messages si la
+numérotation a bougé + régénération du golden master via
+`PostMigrationSnapshotGenerator` (retrait `@Disabled` → run → re-`@Disabled`).
+
+'''
+
 == EPIC BKY-FPA-SITE — Site navigable du corpus FPA (GBL-003.5) ✅ TRANSFÉRÉ (S-216 → TRN-11 training)
 
 _Origine : BACKLOG.adoc racine § GBL-003 (critical path MVP0, arbitrage pilote 2026-09-07)._
@@ -2749,13 +2780,13 @@ Zéro code modifié — gouvernance pure. Voir rapport
 [cols="2,3]
 |===
 | Document | `BACKLOG.adoc`
-  | Version | 24.13 — Session 228 🟡 (BKY-LANG-NAV : changement de langue same-page — cadrage S2+hybride, 9 US ~32 pts, zéro code)
+  | Version | 24.14 — Session 229 ✅ (BKY-LANG-NAV-1 : LangSwitchPath règle pure + 14 vecteurs partagés, 4 fichiers créés)
   | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
   | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-199 + EPIC BKY-DNS + EPIC PUB
-  | Prochaine màj | Session 229 — BKY-LANG-NAV-1 (`LangSwitchPath` spec pure + vecteurs partagés)
+  | Prochaine màj | Session 230 — BKY-LANG-NAV-2 (hôte Thymeleaf) + NAV-4 (modèle ex-nihilo)
   |===
   '''
-  == ✅ EPIC BKY-TEST-FLAKY — Stabilisation des 3 FAIL i18n récurrents (S-028, cross-borough MEMPHIS) — ✅ TERMINÉ S-214 (+ FLAKY-4 ✅ S-222)
+  == ✅ EPIC BKY-TEST-FLAKY — Stabilisation des 3 FAIL i18n récurrents (S-028, cross-borough MEMPHIS) — ✅ TERMINÉ S-214 (+ FLAKY-4 ✅ S-222, FLAKY-5 🟡 S-229)
 
 _Origine : S-026/S-027/S-028 (gates MEMPHIS) — les mêmes 3 FAIL reviennent à
 chaque gate cross-borough et masquent les régressions réelles (comparaison
