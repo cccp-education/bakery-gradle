@@ -29,4 +29,13 @@ data class LangSwitchUrl(
             "${root}$targetLanguage/index.html"
         }
     }
+
+    /**
+     * BKY-LANG-NAV-2 — the page-aware Thymeleaf expression for this link.
+     *
+     * Delegates to the single rule [LangSwitchPath.thymeleafHref] (D3) so the
+     * injected `th:href` points at the *translation of the current page*, not at
+     * the language root. [resolve] stays the page-blind degradation target.
+     */
+    fun thymeleafHref(): String = LangSwitchPath.thymeleafHref(currentLanguage, targetLanguage, defaultLanguage)
 }

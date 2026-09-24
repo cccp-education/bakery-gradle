@@ -1,0 +1,141 @@
+= Session 230 — BKY-LANG-NAV-2 : hôte Thymeleaf page-aware (lien par défaut exact)
+:session: 230
+:date: 2026-09-24
+:type: DDD + TDD strict (règle symbolique + évaluation Thymeleaf) + FT + BDD
+:borough: Bushwick (bakery-gradle)
+:score: 9/10
+
+== Contexte
+
+Reprise bakery à la demande pilote (hook d'ouverture standard), méthodologie
+baby-step DDD/TDD/BDD (unit → fonctionnel → cucumber) en agile software
+craftmanship, commit/push autorisés en clôture.
+
+Mission = deuxième US du cœur `BKY-LANG-NAV` (cadré S-228) : livrer l'**hôte
+Thymeleaf** de la règle pure posée en NAV-1 — le `th:href` du sélecteur doit
+cibler la **traduction de la page courante**, plus la page d'accueil.
+
+== Livré — BKY-LANG-NAV-2
+
+=== 1. `LangSwitchPath.thymeleafHref` — règle symbolique (DDD)
+
+`LangSwitchPath` enrichi de son **frère symbolique** : `resolveSamePage` est la
+règle *concrète* (prend une URI de page), `thymeleafHref` en est la projection
+*symbolique* — un `th:href` exprimé en `${content.rootpath}` / `${content.uri}`,
+évalué **par page au bake**.
+
+Contrainte de conception : `injectLangSwitch` injecte dans `menu.thyme`, un
+template **partagé par toutes les pages** d'une langue. Aucune « page courante »
+n'existe à l'injection — le lien doit donc être une *expression* évaluée au
+rendu. D'où le choix symbolique plutôt que la valeur concrète.
+
+[source,kotlin]
+----
+fun thymeleafHref(currentLang, targetLang, defaultLang): String
+----
+
+Quatre cas :
+. self-link → `${content.uri.substring(content.uri.lastIndexOf('/') + 1)}`
+   (nom de fichier seul, pas de relance de navigation) ;
+. défaut → langue non-défaut → `${content.rootpath + 'en/' + content.uri}` ;
+. non-défaut → défaut → `|../${content.rootpath}${content.uri}|` (sort de l'arbre
+   de langue puis rejoue la page) ;
+. non-défaut → non-défaut → `|../${content.rootpath}ar/${content.uri}|`.
+
+Note technique : Thymeleaf 3.0.14 **ne dispose pas** de `#strings.substringAfterLast`
+(sources vérifiées) → expression OGNL `content.uri.substring(...)` retenue et
+**prouvée par évaluation réelle** dans le TemplateEngine.
+
+=== 2. Hôtes consommateurs
+
+* `LangSwitchUrl.thymeleafHref()` — délègue à la règle unique (D3). `resolve()`
+  reste la cible de dégradation page-blind (arbre incomplet, D8).
+* `LangSwitchThymeleafRenderer` — émet `link.thymeleafHref()` au lieu de
+  `link.resolve()` ; le `data-lang` est conservé (D4).
+
+=== 3. Preuve anti split-brain (D3) — évaluation Thymeleaf vs vecteurs
+
+* `LangSwitchPathThymeleafHrefTest` (9 UT) : les 4 expressions + invariants ;
+  `the emitted expression evaluates through thymeleaf to the shared vector
+  expectation` rejoue **11 des 14 vecteurs partagés** via le TemplateEngine réel
+  (les 3 vecteurs `existingPages` sont hors de portée d'une expression statique —
+  dégradation au build, D8, documenté).
+* `LangSwitchRendererEvaluationTest` (4 UT) : prend la **sortie réelle** du
+  renderer, l'évalue par page, et asserte l'égalité avec `resolveSamePage`.
+  C'est la preuve D3 au niveau de l'hôte réellement câblé.
+
+=== 4. Tests
+
+* UN : `LangSwitchPathThymeleafHrefTest` 9 + `LangSwitchUrlThymeleafHrefTest` 5 +
+  `LangSwitchRendererEvaluationTest` 4 ; `LangSwitchThymeleafRendererTest`
+  réécrit page-aware (13 UT).
+* FT : `InjectLangSwitchFunctionalTest` réécrit (8/8) — la sortie injectée porte
+  l'expression page-aware, ne hardcode plus `'index.html'`, reste idempotente.
+* BDD : feature `51` réécrite (5 scénarios page-aware, 5/5 PASSED) ; feature `55`
+  scénario end-to-end aligné + step `FR menu page-aware` (runner dédié 0 échec).
+
+Baby-step strict : RED unit prouvé (2× `Unresolved reference 'thymeleafHref'`,
+puis 4× pour `LangSwitchUrl`) → GREEN → REFACTOR.
+
+== Gate et vérifications
+
+[cols="2,4"]
+|===
+| Vérification | Résultat
+
+| `bakery.langswitch.*` | 63 UT GREEN (dont 19 NAV-1 non régressés)
+| `InjectLangSwitchFunctionalTest` | 8/8 GREEN, idempotence OK
+| `functionalTest` (suite complète) | BUILD SUCCESSFUL 3m35s
+| BDD feature 51 | 5/5 PASSED
+| BDD feature 55 (runner dédié) | 0 failure
+| `test` (suite complète) | 1986 tests, 2 FAIL = FLAKY-5 préexistants (stash-prouvé)
+| `cucumberTest` | 2464 tests, 5 FAIL = préexistants (identiques S-229)
+| ktlint sur les fichiers du delta | 0 violation
+| `publishToMavenLocal` (Règle 0) | VERT
+| `grep -rwE "REAC\|AFNOR\|SPG\|SPD\|FPA\|RNCP\|CDA" src/` | 0
+|===
+
+=== Échecs préexistants (aucune régression)
+
+* `test` : `FixtureAlignmentAuditorTest` + `RealSiteI18nMigrationIntegrationTest`
+  = **FLAKY-5** (drift fixture cheroliv.com, chrome nativement FR S-053/055).
+  **Stash-prouvé** : les deux tombent aussi sur l'arbre propre sans NAV-2.
+* `cucumberTest` : `2464 tests, 5 failed, 2011 skipped` — **exactement** la
+  baseline S-229 (aucun des 5 n'est dans Language Switcher).
+* `cucumberTest` timeout 5 min : durée de tâche préexistante (`build.gradle.kts:326`),
+  non modifiée.
+
+== Fichiers
+
+[cols="1,1,4"]
+|===
+| Fichier | État | Rôle
+
+| `src/main/kotlin/bakery/langswitch/LangSwitchPath.kt` | modifié | + `thymeleafHref` (règle symbolique)
+| `src/main/kotlin/bakery/langswitch/LangSwitchUrl.kt` | modifié | + `thymeleafHref()` (délégation)
+| `src/main/kotlin/bakery/langswitch/LangSwitchThymeleafRenderer.kt` | modifié | émet le href page-aware
+| `src/test/kotlin/.../LangSwitchPathThymeleafHrefTest.kt` | créé | 9 UT + évaluation vecteurs
+| `src/test/kotlin/.../LangSwitchUrlThymeleafHrefTest.kt` | créé | 5 UT
+| `src/test/kotlin/.../LangSwitchRendererEvaluationTest.kt` | créé | 4 UT (preuve D3 renderer)
+| `src/test/kotlin/.../LangSwitchThymeleafRendererTest.kt` | modifié | réécrit page-aware (13 UT)
+| `src/functionalTest/.../InjectLangSwitchFunctionalTest.kt` | modifié | 8 FT page-aware
+| `src/test/features/51_lang_switch_url_resolver.feature` | modifié | scénarios page-aware
+| `src/test/features/55_i18n_deploy_end_to_end.feature` | modifié | end-to-end aligné
+| `src/test/scenarios/.../LangSwitchSteps.kt` | modifié | + steps page-aware
+| `src/test/scenarios/.../I18nDeployEndToEndSteps.kt` | modifié | + step page-aware
+|===
+
+3 créés, 9 modifiés. Zéro secret. Zéro bump de version. Zéro publication Central.
+
+== Décision / suite
+
+*NAV-4 reporté* : le cadrage S-228 pose `NAV-3 → NAV-4` (le modèle ex-nihilo
+embarque le module JS). NAV-4 ne peut précéder NAV-3. Le `site-basic/templates/
+menu.thyme` utilise en outre un `th:each` dynamique sur `${supportedLanguages}`
+(design symbolique distinct) — chantier propre une fois l'hôte JS posé.
+
+Ordre ensuite (cadrage S-228) :
+* *S-231* — NAV-3 (hôte JS `lang-switch.js` + garde de parité `maquette/js` ↔
+  `jbake/assets/js`) — node/jsdom, rejoue les vecteurs partagés.
+* *S-232* — NAV-4 (modèle ex-nihilo `site-basic` + `maquette`) — dépend de NAV-3.
+* *S-233* — NAV-5 (BDD Cucumber fixture multi-pages) — clôture cœur.

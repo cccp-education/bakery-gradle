@@ -85,6 +85,36 @@ class LangSwitchSteps(
             .contains(expectedHref)
     }
 
+    @Then("the menu in {string} should contain a page-aware link to language {string}")
+    fun menuShouldContainPageAwareLink(
+        menuPath: String,
+        lang: String,
+    ) {
+        val menuFile = world.projectDir!!.resolve(menuPath)
+        assertThat(menuFile).exists()
+        val content = menuFile.readText()
+        val anchor = content.substringBefore("data-lang=\"$lang\"").substringAfterLast("<a ")
+        assertThat(anchor)
+            .describedAs("menu $menuPath should carry a page-aware link for lang $lang")
+            .contains("content.uri")
+        assertThat(anchor)
+            .describedAs("menu $menuPath link for lang $lang must not be the page-blind index.html")
+            .doesNotContain("'index.html'")
+        assertThat(anchor)
+            .describedAs("menu $menuPath link for lang $lang must not be a language tree index")
+            .doesNotContain("/index.html")
+    }
+
+    @Then("the lang-option for language {string} should point at the current page")
+    fun langOptionShouldPointAtCurrentPage(lang: String) {
+        val menuFile = world.projectDir!!.resolve("site/en/templates/menu.thyme")
+        val content = menuFile.readText()
+        val anchor = content.substringBefore("data-lang=\"$lang\"").substringAfterLast("<a ")
+        assertThat(anchor)
+            .describedAs("lang $lang self-option should resolve to the current page")
+            .contains("content.uri.lastIndexOf")
+    }
+
     @Then("the menu in {string} should not contain a self-loop for language {string}")
     fun menuShouldNotContainSelfLoop(
         menuPath: String,

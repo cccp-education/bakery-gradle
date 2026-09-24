@@ -1,5 +1,27 @@
 = Archive des Taches Terminees — Septembre 2026
 
+== Session 230 — 2026-09-24 — BKY-LANG-NAV-2 : hôte Thymeleaf page-aware (lien par défaut exact)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| NAV-2 (DDD) — `bakery.langswitch.LangSwitchPath.thymeleafHref(currentLang, targetLang, defaultLang)` : frère **symbolique** de `resolveSamePage`, émet un `th:href` en `${content.rootpath}`/`${content.uri}` évalué par page au bake (menu.thyme partagé → pas de page courante à l'injection). Thymeleaf 3.0.14 sans `#strings.substringAfterLast` → OGNL `content.uri.substring(...)` prouvé par évaluation. `LangSwitchUrl.thymeleafHref()` délègue (D3) ; `resolve()` = dégradation page-blind (D8). `LangSwitchThymeleafRenderer` émet le href page-aware (fin de `index.html` en dur), `data-lang` conservé (D4). 9 UT + 5 UT + 4 UT.
+| ✅ TERMINÉ
+
+| NAV-2 (preuve D3) — `LangSwitchPathThymeleafHrefTest` rejoue **11/14 vecteurs partagés via le TemplateEngine réel** (les 3 `existingPages` hors expression statique, D8) + `LangSwitchRendererEvaluationTest` évalue la **sortie réelle du renderer** et l'égale à `resolveSamePage`. `LangSwitchThymeleafRendererTest` réécrit page-aware (13 UT).
+| ✅ TERMINÉ
+
+| NAV-2 (FT + BDD) — `InjectLangSwitchFunctionalTest` réécrit 8/8 (sortie page-aware, plus de `'index.html'` hardcodé, idempotence) ; feature 51 réécrite 5/5 page-aware ; feature 55 end-to-end alignée + step `FR menu page-aware` (runner dédié 0 échec).
+| ✅ TERMINÉ
+
+| Gate — `bakery.langswitch.*` 63 UT GREEN, `functionalTest` suite complète BUILD SUCCESSFUL 3m35s, `test` 1986/2 FAIL FLAKY-5 préexistants (stash-prouvé), `cucumberTest` 2464/5 = baseline S-229 exacte, ktlint 0 sur le delta, `publishToMavenLocal` VERT, grep métier = 0. RED prouvé (2× puis 4× `Unresolved reference`) → GREEN. 3 créés, 9 modifiés, zéro bump, zéro secret.
+| ✅ TERMINÉ
+
+| NAV-4 (modèle ex-nihilo) — **reporté** : cadrage DAG `NAV-3 → NAV-4` + `site-basic/templates/menu.thyme` (`th:each` dynamique `${supportedLanguages}`) = design symbolique distinct, chantier propre une fois l'hôte JS posé.
+| 🟡 REPORTÉ
+|===
+
 == Session 229 — 2026-09-24 — BKY-LANG-NAV-1 : LangSwitchPath (règle pure + vecteurs partagés)
 
 [cols="2,3"]

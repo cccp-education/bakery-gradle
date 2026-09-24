@@ -262,6 +262,20 @@ class I18nDeployEndToEndSteps {
             .contains(href)
     }
 
+    @Then("the FR menu should contain a page-aware link to language {string}")
+    fun frMenuShouldContainPageAwareLink(lang: String) {
+        val menu = fixtureDir.resolve("templates/menu.thyme")
+        assertThat(menu).exists()
+        val content = menu.readText()
+        val anchor = content.substringBefore("data-lang=\"$lang\"").substringAfterLast("<a ")
+        assertThat(anchor)
+            .describedAs("FR menu link for language $lang should be page-aware")
+            .contains("content.uri")
+        assertThat(anchor)
+            .describedAs("FR menu link for language $lang must not be a page-blind index")
+            .doesNotContain("/index.html")
+    }
+
     private fun translateFixtureTo(targetLangs: List<String>) {
         val sourceBlog = fixtureDir.resolve("content/blog")
         assertThat(sourceBlog).exists()

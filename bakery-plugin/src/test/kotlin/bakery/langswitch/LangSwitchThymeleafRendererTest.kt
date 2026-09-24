@@ -66,8 +66,8 @@ class LangSwitchThymeleafRendererTest {
         val renderer = LangSwitchThymeleafRenderer(labels)
         val rendered = renderer.render(links(listOf("fr", "en"), "fr", "fr", ""))
         assertTrue(
-            rendered.contains("th:href=\"'en/index.html'\""),
-            "EN link from FR root should be en/index.html, got: $rendered",
+            rendered.contains("th:href=\"\${content.rootpath + 'en/' + content.uri}\""),
+            "EN link from FR root should be page-aware, got: $rendered",
         )
     }
 
@@ -76,18 +76,18 @@ class LangSwitchThymeleafRendererTest {
         val renderer = LangSwitchThymeleafRenderer(labels)
         val rendered = renderer.render(links(listOf("fr", "en"), "fr", "en", "en/"))
         assertTrue(
-            rendered.contains("th:href=\"'../index.html'\""),
-            "FR link from EN subdir should be ../index.html, got: $rendered",
+            rendered.contains("th:href=\"|../\${content.rootpath}\${content.uri}|\""),
+            "FR link from EN subdir should be page-aware, got: $rendered",
         )
     }
 
     @Test
-    fun `th href for self-link is index html`() {
+    fun `th href for self-link points at the current page`() {
         val renderer = LangSwitchThymeleafRenderer(labels)
         val rendered = renderer.render(links(listOf("fr", "en"), "fr", "en", "en/"))
         assertTrue(
-            rendered.contains("th:href=\"'index.html'\""),
-            "EN self-link from EN subdir should be index.html, got: $rendered",
+            rendered.contains("th:href=\"\${content.uri.substring(content.uri.lastIndexOf('/') + 1)}\""),
+            "EN self-link from EN subdir should point at the current page, got: $rendered",
         )
     }
 
@@ -96,8 +96,18 @@ class LangSwitchThymeleafRendererTest {
         val renderer = LangSwitchThymeleafRenderer(labels)
         val rendered = renderer.render(links(listOf("fr", "en", "ar"), "fr", "en", "en/"))
         assertTrue(
-            rendered.contains("th:href=\"'../ar/index.html'\""),
-            "AR link from EN subdir should be ../ar/index.html, got: $rendered",
+            rendered.contains("th:href=\"|../\${content.rootpath}ar/\${content.uri}|\""),
+            "AR link from EN subdir should be page-aware, got: $rendered",
+        )
+    }
+
+    @Test
+    fun `rendered th href never hardcodes the page-blind index html`() {
+        val renderer = LangSwitchThymeleafRenderer(labels)
+        val rendered = renderer.render(links(listOf("fr", "en"), "fr", "fr", ""))
+        assertFalse(
+            rendered.contains("'index.html'"),
+            "page-aware render must not emit a page-blind index.html href, got: $rendered",
         )
     }
 

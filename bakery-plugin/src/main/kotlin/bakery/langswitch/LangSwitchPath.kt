@@ -17,6 +17,41 @@ package bakery.langswitch
  * no I/O, no Gradle, no template engine.
  */
 object LangSwitchPath {
+    /**
+     * The *symbolic* sibling of [resolveSamePage] — the Thymeleaf host of the
+     * same rule (BKY-LANG-NAV-2, D4).
+     *
+     * `injectLangSwitch` injects a fragment into `menu.thyme`, a template shared
+     * by every page of a language: no single "current page" exists at injection
+     * time. The link must therefore be a Thymeleaf expression evaluated *per
+     * page* at bake time, in terms of `${content.rootpath}` (ascends to the
+     * language tree root) and `${content.uri}` (the page path within that tree).
+     *
+     * The output equals [resolveSamePage] once the engine substitutes a page —
+     * the anti split-brain proof is `LangSwitchPathThymeleafHrefTest`.
+     */
+    fun thymeleafHref(
+        currentLang: String,
+        targetLang: String,
+        defaultLang: String,
+    ): String {
+        require(currentLang.isNotBlank()) { "currentLang must not be blank" }
+        require(targetLang.isNotBlank()) { "targetLang must not be blank" }
+        require(defaultLang.isNotBlank()) { "defaultLang must not be blank" }
+
+        if (targetLang == currentLang) {
+            return "\${content.uri.substring(content.uri.lastIndexOf('/') + 1)}"
+        }
+
+        if (currentLang == defaultLang) {
+            val target = if (targetLang == defaultLang) "" else "$targetLang/"
+            return "\${content.rootpath + '$target' + content.uri}"
+        }
+
+        val target = if (targetLang == defaultLang) "" else "$targetLang/"
+        return "|../\${content.rootpath}${target}\${content.uri}|"
+    }
+
     fun resolveSamePage(
         currentPageUri: String,
         currentLang: String,

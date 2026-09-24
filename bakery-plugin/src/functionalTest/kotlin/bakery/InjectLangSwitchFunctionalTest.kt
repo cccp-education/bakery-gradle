@@ -6,12 +6,19 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 
+/**
+ * BKY-LANG-NAV-2 — the injected `th:href` is page-aware (D4).
+ *
+ * Because `injectLangSwitch` injects into `menu.thyme`, a template shared by
+ * every page of a language, the emitted link is a Thymeleaf expression in
+ * `${content.rootpath}` / `${content.uri}` — never a page-blind `index.html`.
+ */
 class InjectLangSwitchFunctionalTest {
     @TempDir
     lateinit var projectDir: File
 
     @Test
-    fun `injectLangSwitch injects fragment into menu dot thyme for 2 languages`() {
+    fun `injectLangSwitch injects page-aware fragment into menu dot thyme for 2 languages`() {
         createProjectWithFixture(2)
         val result =
             GradleRunner
@@ -28,6 +35,7 @@ class InjectLangSwitchFunctionalTest {
         assertThat(frContent).contains("data-lang=\"fr\"")
         assertThat(frContent).contains("data-lang=\"en\"")
         assertThat(frContent).contains("dropdown-menu")
+        assertThat(frContent).contains("\${content.rootpath + 'en/' + content.uri}")
 
         val enMenu = projectDir.resolve("site/en/templates/menu.thyme")
         assertThat(enMenu.exists()).isTrue()
@@ -37,7 +45,7 @@ class InjectLangSwitchFunctionalTest {
     }
 
     @Test
-    fun `injectLangSwitch from EN subdir links to FR root correctly`() {
+    fun `injectLangSwitch from EN subdir preserves the page when linking to FR root`() {
         createProjectWithFixture(2)
         GradleRunner
             .create()
@@ -48,11 +56,11 @@ class InjectLangSwitchFunctionalTest {
 
         val enMenu = projectDir.resolve("site/en/templates/menu.thyme")
         val enContent = enMenu.readText()
-        assertThat(enContent).contains("../index.html")
+        assertThat(enContent).contains("|../\${content.rootpath}\${content.uri}|")
     }
 
     @Test
-    fun `injectLangSwitch from FR root links to EN subdir correctly`() {
+    fun `injectLangSwitch from FR root preserves the page when linking to EN subdir`() {
         createProjectWithFixture(2)
         GradleRunner
             .create()
@@ -63,7 +71,24 @@ class InjectLangSwitchFunctionalTest {
 
         val frMenu = projectDir.resolve("site/templates/menu.thyme")
         val frContent = frMenu.readText()
-        assertThat(frContent).contains("en/index.html")
+        assertThat(frContent).contains("\${content.rootpath + 'en/' + content.uri}")
+    }
+
+    @Test
+    fun `injectLangSwitch does not hardcode a page-blind index html link`() {
+        createProjectWithFixture(2)
+        GradleRunner
+            .create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments("injectLangSwitch")
+            .build()
+
+        val frMenu = projectDir.resolve("site/templates/menu.thyme")
+        val frContent = frMenu.readText()
+        val switcherBlock = frContent.substringAfter("lang-switcher-container").substringAfter("<ul")
+        assertThat(switcherBlock).doesNotContain("'index.html'")
+        assertThat(switcherBlock).doesNotContain("en/index.html")
     }
 
     @Test
@@ -80,6 +105,7 @@ class InjectLangSwitchFunctionalTest {
         val enContent = enMenu.readText()
         val enAnchor = enContent.substringBefore("data-lang=\"en\"").substringAfterLast("<a ")
         assertThat(enAnchor).doesNotContain("en/index.html")
+        assertThat(enAnchor).contains("content.uri.lastIndexOf")
     }
 
     @Test
@@ -119,12 +145,11 @@ class InjectLangSwitchFunctionalTest {
                 .withArguments("tasks", "--group", "transform")
                 .build()
 
-        println("DEBUG OUTPUT:\n${result.output}")
         assertThat(result.output).contains("injectLangSwitch")
     }
 
     @Test
-    fun `injectLangSwitch with 3 languages links EN subdir to AR subdir`() {
+    fun `injectLangSwitch with 3 languages links EN subdir to AR subdir page-aware`() {
         createProjectWithFixture(3)
         GradleRunner
             .create()
@@ -135,7 +160,7 @@ class InjectLangSwitchFunctionalTest {
 
         val enMenu = projectDir.resolve("site/en/templates/menu.thyme")
         val enContent = enMenu.readText()
-        assertThat(enContent).contains("../ar/index.html")
+        assertThat(enContent).contains("|../\${content.rootpath}ar/\${content.uri}|")
     }
 
     private fun createProjectWithFixture(langCount: Int) {

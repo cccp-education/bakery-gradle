@@ -1,51 +1,52 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 230
+:session: 231
 :date: 2026-09-24
-:etat: Session 229 ✅ — **BKY-LANG-NAV-1 TERMINÉ** (règle pure `LangSwitchPath` + 14 vecteurs partagés JSON). Antérieur S-228 : EPIC BKY-LANG-NAV cadré.
-:epic_actif: **BKY-LANG-NAV** (🟡 NAV-0 ✅, NAV-1 ✅, NAV-2→8 À FAIRE) — P1, cœur NAV-2→5 (~16 pts restants) puis rollout sites NAV-6→8 (~13 pts).
+:etat: Session 230 ✅ — **BKY-LANG-NAV-2 TERMINÉ** (hôte Thymeleaf page-aware). Antérieur S-229 : NAV-1 (`LangSwitchPath` règle pure + vecteurs).
+:epic_actif: **BKY-LANG-NAV** (🟡 NAV-0 ✅, NAV-1 ✅, NAV-2 ✅, NAV-3→8 À FAIRE) — P1, cœur NAV-3→5 (~11 pts) puis rollout sites NAV-6→8 (~13 pts).
 
-== État S-229
+== État S-230
 
-`LangSwitchPath.resolveSamePage(currentPageUri, currentLang, targetLang, defaultLang,
-pageExists)` — objet pur, unique source de vérité. Retourne une URL relative
-**depuis le répertoire de la page courante** (`../../ar/blog/foo.html`). Self-link
-→ nom de fichier seul. Dégradation vers `<lang>/index.html` si `pageExists=false`.
+`LangSwitchPath.thymeleafHref(currentLang, targetLang, defaultLang)` — le frère
+**symbolique** de `resolveSamePage` : émet un `th:href` en `${content.rootpath}` /
+`${content.uri}`, évalué **par page au bake**. `LangSwitchUrl.thymeleafHref()` et
+`LangSwitchThymeleafRenderer` le consomment (fin de l'`index.html` en dur, D4).
+`resolve()` reste la cible de dégradation page-blind (D8).
 
-Vecteurs partagés : `src/main/resources/bakery/langswitch/lang-switch-path-vectors.json`
-(14 vecteurs, `version: 1`) — **le contrat que l'hôte JS rejouera** (parade D3).
+Preuve anti split-brain D3 : `LangSwitchPathThymeleafHrefTest` rejoue **11/14
+vecteurs partagés via le TemplateEngine réel** ; `LangSwitchRendererEvaluationTest`
+évalue la **sortie réelle du renderer** et l'égale à `resolveSamePage`.
 
-Tests : `LangSwitchPathTest` (17 UT) + `LangSwitchPathVectorsTest` (fixture-driven).
-RED prouvé → GREEN 19/19. Gate langswitch + functional injection VERTS.
-`publishToMavenLocal` OK.
+Tests : 9+5+4 UT nouveaux + renderer réécrit page-aware (13) ; FT 8/8 ;
+feature 51 5/5, feature 55 (runner dédié) 0 échec. RED prouvé → GREEN.
 
-== Mission Session 230 — BKY-LANG-NAV-2 (+ NAV-4 si le temps)
+== Mission Session 231 — BKY-LANG-NAV-3 (hôte JS + garde de parité)
 
-*NAV-2 — Hôte Thymeleaf : lien par défaut exact.* Consommer `LangSwitchPath`
-dans `LangSwitchUrl`/`LangSwitchMenu`/`LangSwitchThymeleafRenderer` : émettre un
-`th:href` **page-aware** au lieu d'`index.html` en dur. Backward compat : sans
-config i18n, no-op. `data-lang` conservé (D4). Le `th:href` reste la cible par
-défaut exacte et crawlable ; le JS (NAV-3) ne le réécrit pas.
+*NAV-3 — Hôte JS.* Module `lang-switch.js` : résolveur pur `resolveLangPath(...)`
+rejouant **les mêmes vecteurs** que NAV-1 (`bakery/langswitch/lang-switch-path-vectors.json`)
++ adaptateur DOM (lit `data-lang`, réécrit `href` au load sur arbre ; relocalise
+sur dict client). Testé en **node/jsdom**.
 
-*NAV-4 — Modèle ex-nihilo.* `site-basic/templates/menu.thyme` (sélecteur
-`data-lang` page-aware) + `maquette/js/lang-switch.js` embarqué → un site
-scaffoldé naît conforme (garde D6/D7).
+*Garde de parité* (D6 : présence **et** comportement) : le module existe **des
+deux côtés** (`maquette/js/` et `jbake/assets/js/`) **et** résout correctement
+(`setLang` présent ≠ page préservée).
 
-Tests : UT render page-aware racine/imbriquée, no self-loop, langue défaut ;
-FT injection fixture FR+EN multi-pages + idempotence.
+Tests : node (vecteurs partagés), adaptateur (jsdom), self/no-op ; garde
+présence + comportement.
 
 == Reprendre à
 
 . `git status` dans bakery-gradle — vérifier qu'aucune session concurrente n'écrit.
 . `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc` (cadrage complet, D1→D10).
-. `src/main/kotlin/bakery/langswitch/LangSwitchPath.kt` + vecteurs JSON (socle).
-. `.agents/sessions/229-bky-lang-nav-1-spec-pure.adoc` (rapport S-229).
-. Gate règle Économie d'Encre : ne relancer `test` que si le code source change.
+. `src/main/kotlin/bakery/langswitch/LangSwitchPath.kt` (+ `thymeleafHref`) et
+   `src/main/resources/bakery/langswitch/lang-switch-path-vectors.json` (socle).
+. `.agents/sessions/230-bky-lang-nav-2-thymeleaf-host.adoc` (rapport S-230).
+. Gate Économie d'Encre : ne relancer `test` que si le code source change.
 
 == Dette découverte (FLAKY-5)
 
 `FixtureAlignmentAuditorTest` + `RealSiteI18nMigrationIntegrationTest` (cheroliv-com)
 = **2 FAIL préexistants** : drift fixture ↔ site réel (chrome nativement FR,
-S-053/055, 5 templates). Stash-prouvé non introduit par NAV-1. Session dédiée :
+S-053/055, 5 templates). Stash-prouvé non introduit par NAV-2. Session dédiée :
 resync fixture + régénération golden master (procédure `PostMigrationSnapshotGenerator`).
 
 == Rappel
