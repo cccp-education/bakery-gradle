@@ -1,5 +1,24 @@
 = Archive des Taches Terminees — Septembre 2026
 
+== Session 228 — 2026-09-24 — BKY-LANG-NAV : cadrage EPIC (gouvernance pure, zéro code)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| NAV-0 (cadrage) — Audit du bug (résolution d'URL structurelle : `LangSwitchUrl.resolve()` `index.html` en dur) + split-brain cheroliv.com + cartographie 4 sites (cheroliv bug réel / talaria marche déjà / cccp+magic-stick sans i18n) + constat modèle ex-nihilo buggé. Arbitrage pilote 3 tours → **S2 + hybride, Thymeleaf conservé**. Doc `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc` (10 décisions, 9 US ~32 pts).
+| ✅ TERMINÉ
+
+| Synchronisation backlog — BACKLOG.adoc (section détaillée EPIC + status final + version 24.13), TODO.adoc (EPIC BKY-LANG-NAV NAV-0 ✅ / NAV-1→8 🟡), `.agents/INDEX.adoc` (en-tête + EPIC en attente + prochaine session 229).
+| ✅ TERMINÉ
+
+| Session archive — `.agents/sessions/228-bky-lang-nav-cadrage.adoc` + SESSIONS_HISTORY (entrée 228).
+| ✅ TERMINÉ
+
+| Gate — **aucun build/test** (Economie d'Encre : sources bakery inchangées depuis la gate S-226 1845/0). Zéro code modifié, zéro secret.
+| ✅ TERMINÉ
+|===
+
 == Session 220 — 2026-09-17 — BKY-I18N-JS-4 : propagation byte-identique + gardes (clôture EPIC BKY-I18N-JS 4/4 US)
 
 [cols="2,3"]

@@ -5,6 +5,8 @@
 :icons: font
 :sectnums:
 
+_Dernière mise à jour : 2026-09-24 — 🟡 **EPIC BKY-LANG-NAV CADRÉ (S-228)** — changement de langue sans retour à l'accueil (same-page switching). Décision pilote actée : **S2 + hybride, Thymeleaf conservé** — JS propriétaire du clic/persistance/dict, Thymeleaf propriétaire de la résolution exacte sur arbre de pages ; **une règle pure, deux hôtes, vecteurs de test partagés**. Bug structurel identifié : `LangSwitchUrl.resolve()` (`index.html` en dur) + **split-brain** copié sur cheroliv.com. 4 sites cibles (cheroliv bug réel / talaria marche déjà / cccp+magic-stick sans i18n). 9 US ~32 pts. Doc `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc` — gouvernance pure, zéro code._
+
 _Dernière mise à jour : 2026-09-17 — ✅ **EPIC BKY-LANG-22 TERMINÉ 10/10 US (S-226)** — les 3 dernières US clôturées cross-borough : **8** dogfooding slider 22 langues (36 paires LLM `gemma4:31b-cloud`, pin `TranslatedDemoDeckTest` levé, feature 14 27→63, drift `7_rtl_layout` `fa` corrigé), **9** dogfooding capsule 22 langues (**bug P0 réel corrigé** : `extractSpeakerNotes` produit `<slug>_<lang>-deck-script.txt` mais le planner exigeait `<slug>_<lang>-script.txt` → fail-fast ; fix `resolveScript` tolère le suffixe `-deck` + 22/22 vidéos réelles), **10** publication Central (ordre DAG réel capsule-first dicté par les gardes D8 anti-ghost : capsule 0.0.1 + MEMPHIS 0.0.48 + bakery 0.0.13 + slider 0.0.19). Rapport `.agents/sessions/226-bky-lang-22-8-9-10-cloture-epic.adoc`._
 
 _Dernière mise à jour (antérieure) : 2026-09-17 — ✅ **Fix `ArticleGenerator` (S-225)** — le prompt de génération d'article avait **2 branches** (`en` / else→français) alors que `SUPPORTED_LANGS` valide les **22 langues** N0 : **20 langues produisaient du français** silencieusement. Corrigé par `languageInstruction(code)` (nom + nom natif + code ISO via `LanguageCatalog`), TDD strict RED (3 tests) → GREEN → REFACTOR, suite **1 845 tests / 0 échec**, commit `f6cc35b`. Issu de la revue globale S-217 (workspace racine, GBL-006 § 7). Le vrai sujet multi-marché est cadré **GBL-006** (`CADRAGE_EPIC_GBL_006_COPY_MULTIMARKET.adoc`) : **traduire ≠ écrire**, `MarketProfile[22]`.
@@ -12,6 +14,138 @@ _Dernière mise à jour (antérieure) : 2026-09-17 — ✅ **Fix `ArticleGenerat
 _Dernière mise à jour (antérieure) : 2026-09-17 — ✅ **BKY-I18N-JS-6 TERMINÉ (S-224)** — la **traduction** du contenu catalogue imbriqué (`TALARIA.I18N.CATALOG`) est livrée : writer nested in-place (`I18nCatalogWriter.translate`, byte-ranges), complétion par clone de la référence (contrat S-054), garde structurelle (`I18nCatalogFormatGuard`), delta imbriqué (`I18nCatalogDelta`). Le chantier distinct acté S-223 décision §1 (« la couverture n'est pas l'écriture ») est clos. Gate `test` **1842/0 FAIL** (baseline 1804/0 → +38). **BKY-I18N-JS réellement 6/6 US.**_
 
 _Dernière mise à jour (antérieure) : 2026-09-17 — ✅ **BKY-I18N-JS-5 TERMINÉ (S-223)** — le catalogue structurel (`i18n-content.js`, `TALARIA.I18N.CATALOG`), déclaré au cadrage talaria S-054 mais jamais traité, est désormais **classifié** (`I18nJsFormat` `FLAT`/`CATALOG`), **planifié en couverture** (`I18nCatalog` : langue/formation/champ) et son **ownership plat corrigé** (le catalogue ne capte plus les clés chrome — bug latent de corruption). Le 3e dictionnaire avait été oublié par l'EPIC que l'on croyait 4/4. REFACTOR `I18nJsBlockScanner` (scanner partagé). Dogfooding réel talaria (22 langues × 2 formations, 0 lacune). Gate `test` **1804/0 FAIL** (baseline 1777/0 → +27). Antérieur S-222 : ✅ **FLAKY-4 résolu** — drift fixture `contact.thyme` : le site réel cheroliv.com a retiré le champ `subject` du contact (US-35, `d96dcec` 2026-09-14), fixture + golden master non resynchronisés → resync fixture + recâblage `contact.6` + régénération golden master one-shot. Gate `test` **1777/0 FAIL** (fin des « 2 FAIL préexistants » mentionnés depuis S-218 dans toutes les gates cross-borough MEMPHIS). Antérieur S-221 : ✅ **Cross-borough T-I18N-BAKERY US-2/US-3** — `bakery.llm.IaConfigResolver` (pool LLM résolu depuis `site.yml → ollama:`) + câblage `translateI18nClient` + harness talaria réduit à un audit read-only. Antérieur S-220 : ✅ **EPIC BKY-I18N-JS TERMINÉ 4/4 US** — US-4 livrée : propagation `maquette/js/` → `jbake/assets/js/` byte-identique (`I18nClientPropagation` object pur, delta-only) + garde de format parse↔write (`I18nClientFormatGuard`) + test d'architecture frontière zéro HTTP direct. Domaine `bakery.i18n.js` clos (6 fichiers prod). Session 217 🟡 **EPIC BKY-LANG-22 EN COURS** — extension du contrat N0 `contracts.i18n.LanguageCatalog` de 10 → 22 langues (parité talaria.school : +it nl de el tr vi th id ko ja sr **fa RTL**). Livré et publié Central : `i18n-contracts:0.0.4` (bundle `c1a9de57`) + BOM/catalog `0.0.43` (bundle `eb310d04`) + propagation bakery/capsule/slider/document. **Reste en cours** : régénération du corpus dogfooding slider (27 fichiers gelés, 12 langues × 3 decks à produire via LLM metered — Loi Économie d'Encre), dogfooding capsule 22 langues, publication Central des consommateurs (bakery/capsule/slider). Session 216 ✅ transfert BKY-FPA-SITE → TRN-11 (training, pattern TRN-9) + arbitrage licence FPA tranché. Session 213 ✅ RENAME Vague 3 CLÔTURÉ transverse._
+
+'''
+
+== EPIC BKY-LANG-NAV — Changement de langue sans retour à l'accueil (same-page switching) — 🟡 CADRÉ S-228
+
+_Origine : demande pilote 2026-09-24 — « lorsque je change de langue lors de la navigation sur le site, une fois arrivé dans la langue demandée je dois être sur la traduction de la page où j'étais, et non pas un retour à la page d'accueil dans la langue demandée ». Cadré S-228 (gouvernance pure, zéro code) — doc `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc`._
+
+=== Constat — le résolveur ignore la page
+
+Le défaut est **structurel** : le résolveur ne connaît que la *langue*, jamais la *page*.
+
+`bakery-plugin/src/main/kotlin/bakery/langswitch/LangSwitchUrl.kt:23-31` :
+
+[source,kotlin]
+----
+fun resolve(): String {
+    if (isSelfLink()) return "index.html"
+    val root = rootpath()
+    return if (targetLanguage == defaultLanguage) "${root}index.html"
+           else "${root}$targetLanguage/index.html"   // index.html en dur
+}
+----
+
+`currentPath` désigne le **répertoire de langue** (`""` FR, `"en/"` EN), pas la page.
+Le même bug est **copié** sur cheroliv.com (`com.cheroliv.i18n.LangSwitchLink.thymeleafHref()`
++ `LangSwitchMenuRenderer`/`LangSwitchSiteApplier`/`LangSwitchBlockInjector`/`InjectLangSwitchMain`)
+→ **split-brain**. Le mapping page→page existe déjà côté **SEO** sur cheroliv
+(`jbake/templates/header.thyme:8-16`, `hreflang` via `content.uri`) — patron à réutiliser.
+
+=== Cartographie des 4 sites cibles
+
+[cols="1,2,3,2"]
+|===
+| Site | Modèle i18n | Switch aujourd'hui | Verdict
+
+| cheroliv.com
+| Arbres de pages par langue (`jbake/i18n/{lang}/…`) + maquette JS legacy sans i18n
+| Navigation native vers `{lang}/index.html` (bloc injecté, markers `che-i18n:lang-switcher`)
+| *Bug réel* — cible l'accueil
+
+| talaria.school
+| Dictionnaire client (`TALARIA.I18N.setLang`, localStorage `talaria.lang`)
+| Aucune navigation — relocalise en place
+| *Marche déjà* — page préservée
+
+| cccp.education
+| **Aucun i18n** (menu.thyme n'a que le theme switcher)
+| N'existe pas
+| Feature à créer (phase 2)
+
+| magic-stick
+| **Aucun i18n** (idem cccp)
+| N'existe pas
+| Feature à créer (phase 2)
+|===
+
+_Autre constat_ : le modèle ex-nihilo (`src/main/resources/site-basic/` + `maquette/`)
+**n'embarque aucun** sélecteur/i18n JS ; `site-basic/templates/menu.thyme:31-39` émet un
+href absolu non page-aware → un site scaffoldé naît déjà buggé.
+
+=== Décision pilote actée (S-228)
+
+*S2 + hybride, Thymeleaf conservé* — JS propriétaire du **clic/persistance/dict**,
+Thymeleaf propriétaire de la **résolution exacte** quand un arbre de pages existe.
+**Une seule règle pure, deux hôtes, vecteurs de test partagés** (parade anti-split-brain).
+Sur arbre → serveur émet le lien exact (crawlable, no-JS, sans FOUC) ; le JS surenchérit
+(persistance/active). Sur dict client → JS résout (Thymeleaf n'a rien à résoudre).
+
+=== User Stories — baby steps DDD/TDD/BDD
+
+[cols="1,4,1,2"]
+|===
+| US | Description | Pts | Statut
+
+| BKY-LANG-NAV-0
+| Cadrage EPIC (gouvernance pure, zéro code)
+| 0
+| ✅ TERMINÉ (S-228)
+
+| BKY-LANG-NAV-1
+| `LangSwitchPath` — spécification pure `resolveSamePage(...)` + vecteurs partagés
+  (JSON) consommables par les deux hôtes
+| 3
+| 🟡 À FAIRE
+
+| BKY-LANG-NAV-2
+| Hôte Thymeleaf — `th:href` page-aware (`${content.rootpath + 'en/' + content.uri}`),
+  backward compat no-op, `data-lang` conservé ; FT fixture multi-pages
+| 5
+| 🟡 À FAIRE
+
+| BKY-LANG-NAV-3
+| Hôte JS — `lang-switch.js` (résolveur pur + adaptateur DOM) + garde de parité
+  `maquette/js` ↔ `jbake/assets/js` (présence **et** comportement) ; node/jsdom
+| 5
+| 🟡 À FAIRE
+
+| BKY-LANG-NAV-4
+| Modèle ex-nihilo conforme — `site-basic/templates/menu.thyme` + `maquette/js/lang-switch.js`
+| 3
+| 🟡 À FAIRE
+
+| BKY-LANG-NAV-5
+| BDD Cucumber bout en bout — fixture FR+EN multi-pages, page préservée, no self-loop
+| 3
+| 🟡 À FAIRE
+
+| BKY-LANG-NAV-6
+| Phase site — cheroliv.com (fix bug + kill split-brain + `hreflang` conservé)
+| 3
+| 🟡 À FAIRE
+
+| BKY-LANG-NAV-7
+| Phase site — talaria.school (harden : spec commune + garde + test comportement)
+| 2
+| 🟡 À FAIRE
+
+| BKY-LANG-NAV-8
+| Phase site — cccp.education / magic-stick (i18n à **créer** : inventaire + sélecteur + dict)
+| 8
+| 🟡 À FAIRE
+|===
+
+_Total_ : ~32 pts, 9 US (dont US-0 à 0 pt). Cœur NAV-1→5 (~19 pts), rollout sites NAV-6→8 (~13 pts).
+
+_DAG_ : NAV-1 → {NAV-2, NAV-3} → NAV-5 ; NAV-3 → NAV-4 → NAV-5 ; NAV-5 → {NAV-6, NAV-7, NAV-8}.
+
+_Projection_ : S-229 NAV-1, S-230 NAV-2+NAV-4, S-231 NAV-3, S-232 NAV-5 (clôture cœur),
+S-233 NAV-6, S-234 NAV-7, S-235+ NAV-8.
+
+_Risque principal_ : split-brain Thymeleaf ↔ JS (mode de défaillance propre à l'hybride)
+→ D3 (spec unique + vecteurs partagés) + D5 (suppression de la copie cheroliv).
 
 '''
 
@@ -2615,10 +2749,10 @@ Zéro code modifié — gouvernance pure. Voir rapport
 [cols="2,3]
 |===
 | Document | `BACKLOG.adoc`
-  | Version | 24.12 — Session 224 ✅ (BKY-I18N-JS-6 : traduction du contenu catalogue imbriqué — writer nested + garde de structure, `test` 1842/0)
+  | Version | 24.13 — Session 228 🟡 (BKY-LANG-NAV : changement de langue same-page — cadrage S2+hybride, 9 US ~32 pts, zéro code)
   | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
   | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-199 + EPIC BKY-DNS + EPIC PUB
-  | Prochaine màj | Session 224 — à la demande (MASS-6 / LANG-22-8/9/10 / traduction catalogue imbriqué reportés accord pilote — backlog bakery propre)
+  | Prochaine màj | Session 229 — BKY-LANG-NAV-1 (`LangSwitchPath` spec pure + vecteurs partagés)
   |===
   '''
   == ✅ EPIC BKY-TEST-FLAKY — Stabilisation des 3 FAIL i18n récurrents (S-028, cross-borough MEMPHIS) — ✅ TERMINÉ S-214 (+ FLAKY-4 ✅ S-222)

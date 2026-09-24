@@ -1,0 +1,115 @@
+= Session 228 — EPIC BKY-LANG-NAV cadré : changement de langue same-page (S2 + hybride)
+:session: 228
+:date: 2026-09-24
+:type: cadrage EPIC (gouvernance pure, zéro code) + audit cross-site
+:borough: Bushwick (bakery-gradle) — pilotage sites cheroliv.com / talaria.school / cccp.education / magic-stick
+:score: 9/10
+
+== Contexte
+
+Reprise bakery à la demande pilote (hook d'ouverture standard). Demande
+explicite : ajouter un EPIC pour que, lorsqu'on change de langue en naviguant
+sur le site, on arrive sur **la traduction de la page où l'on était**, et non
+sur la page d'accueil de la langue demandée. Les 4 sites cibles sont
+cheroliv.com, talaria.school, cccp.education et magic-stick.
+
+Session de **cadrage (gouvernance pure)** : audit du bug, arbitrage
+architectural avec le pilote, rédaction du doc de cadrage, synchronisation
+backlog. Zéro code modifié.
+
+== Audit — le bug est structurel (résolution d'URL, pas JS)
+
+Le résolveur ne connaît que la *langue*, jamais la *page*.
+
+`src/main/kotlin/bakery/langswitch/LangSwitchUrl.kt:23-31` :
+
+[source,kotlin]
+----
+fun resolve(): String {
+    if (isSelfLink()) return "index.html"
+    val root = rootpath()
+    return if (targetLanguage == defaultLanguage) "${root}index.html"
+           else "${root}$targetLanguage/index.html"   // index.html en dur
+}
+----
+
+`currentPath` désigne le répertoire de langue, pas la page. Le mapping
+page→page **existe déjà** sur cheroliv.com mais uniquement côté SEO
+(`jbake/templates/header.thyme:8-16`, `hreflang` via `content.uri`) — le patron
+à réutiliser.
+
+=== Split-brain
+
+cheroliv.com **copie** la logique (`com.cheroliv.i18n.LangSwitchLink.thymeleafHref()`
++ `LangSwitchMenuRenderer`/`LangSwitchSiteApplier`/`LangSwitchBlockInjector`/
+`InjectLangSwitchMain`), avec le même `index.html` en dur → deux sources de
+vérité pour la même règle.
+
+=== Cartographie des 4 sites
+
+[cols="1,2,3,2"]
+|===
+| Site | Modèle i18n | Switch aujourd'hui | Verdict
+
+| cheroliv.com | arbres de pages (`jbake/i18n/{lang}/…`) + maquette JS legacy sans i18n | navigation vers `{lang}/index.html` | *bug réel*
+| talaria.school | dictionnaire client (`TALARIA.I18N.setLang`, localStorage) | relocalise en place, **ne navigue pas** | *marche déjà*
+| cccp.education | **aucun i18n** | n'existe pas | feature à créer (phase 2)
+| magic-stick | **aucun i18n** | n'existe pas | feature à créer (phase 2)
+|===
+
+Constat complémentaire : le modèle ex-nihilo (`src/main/resources/site-basic/` +
+`maquette/`) n'embarque **aucun** sélecteur/i18n JS ; `site-basic/templates/menu.thyme:31-39`
+émet un href absolu non page-aware → un site scaffoldé naît buggé.
+
+== Décision pilote actée
+
+*S2 + hybride, Thymeleaf conservé.* Discussion d'arbitrage (3 tours) :
+
+- Le pilote préfère **S2** (responsabilité de résolution au JS) — refus de
+  confier la décision de navigation à Thymeleaf.
+- Correction de prémisse : Thymeleaf sur un générateur statique **ne demande pas
+  de serveur** (tâche `bake` déterministe, testée sans serveur aujourd'hui).
+  Le bon motif de S2 est l'**uniformité maquette ∪ JBake ∪ cross-site**, pas la
+  testabilité.
+- Le pilote valide l'**hybride** pour SEO + FOUC et confirme **garder Thymeleaf**
+  comme moteur de template.
+
+Division actée :
+- **Arbre de pages** → Thymeleaf résout au build (exact, crawlable, no-JS, sans
+  FOUC) ; le JS surenchérit (persistance/active), ne réécrit pas le lien exact.
+- **Dictionnaire client** → JS résout (Thymeleaf n'a rien à résoudre).
+- **Parade anti-split-brain** : **une règle pure, deux hôtes, vecteurs de test
+  partagés**.
+
+== Livrable
+
+- Doc `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc` (10 décisions, 9 US ~32 pts,
+  DAG, projection, risques).
+- BACKLOG.adoc : section détaillée EPIC + marqueur de statut final + version 24.13.
+- TODO.adoc : EPIC BKY-LANG-NAV (NAV-0 ✅, NAV-1→8 🟡).
+- `.agents/INDEX.adoc` : en-tête + entrée EPIC en attente + prochaine session.
+- Session archive (ce fichier).
+
+== Méthode (pour l'exécution)
+
+Baby-step DDD/TDD/BDD strict (unit → functional → cucumber) + node/jsdom pour la
+couche JS, agile software craftmanship, English only code/Gherkin. Zéro code
+cette session (règle Economie d'Encre : aucun build/test lancé, sources
+inchangées depuis la gate S-226 1845/0).
+
+== Projection
+
+* S-229 — NAV-1 (`LangSwitchPath` spec pure + vecteurs partagés)
+* S-230 — NAV-2 (hôte Thymeleaf) + NAV-4 (modèle ex-nihilo)
+* S-231 — NAV-3 (hôte JS + garde de parité)
+* S-232 — NAV-5 (BDD Cucumber fixture multi-pages) — clôture cœur
+* S-233 — NAV-6 (cheroliv fix + kill split-brain)
+* S-234 — NAV-7 (talaria harden)
+* S-235+ — NAV-8 (cccp/magic-stick i18n à créer)
+
+== Dette / notes
+
+- cheroliv.com est hors périmètre de cette session (copie de travail
+  `office/sites/cheroliv.com`, split-brain à supprimer en NAV-6).
+- cccp/magic-stick n'ont aucun i18n : NAV-8 = chantier entier (inventaire +
+  sélecteur + dictionnaire), isolé à 8 pts.

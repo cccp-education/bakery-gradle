@@ -1,0 +1,312 @@
+= Cadrage EPIC BKY-LANG-NAV — Changement de langue sans retour à l'accueil (same-page switching)
+:date: 2026-09-24
+:session: 228
+:epic: BKY-LANG-NAV
+:origine: Demande pilote — « lorsque je change de langue lors de la navigation sur le site, une fois arrivé dans la langue demandée je dois être sur la traduction de la page où j'étais, et non pas un retour à la page d'accueil dans la langue demandée »
+:decision: S2 + hybride, Thymeleaf conservé — JS propriétaire du clic/persistance/dict, Thymeleaf propriétaire de la résolution exacte quand un arbre de pages existe. Une seule règle pure, deux hôtes, vecteurs de test partagés.
+:etat: 🟡 Cadré S-228 — zéro code modifié
+
+== Contexte
+
+Le sélecteur de langue ramène l'utilisateur à la page d'accueil de la langue
+demandée au lieu de la traduction de la page courante. Le défaut est
+**structurel** : le résolveur ne connaît que la *langue*, jamais la *page*.
+
+CAUTION: Le bug n'est pas un bug JS — c'est un défaut de **résolution d'URL**.
+Le mapping « même page dans l'autre langue » existe déjà sur cheroliv.com mais
+**uniquement pour le SEO** (`jbake/templates/header.thyme:8-16`, `hreflang` via
+`content.uri`). C'est le patron à réutiliser pour le sélecteur.
+
+=== Le bug dans le code générique (split-brain)
+
+`bakery-plugin/src/main/kotlin/bakery/langswitch/LangSwitchUrl.kt:23-31` :
+
+[source,kotlin]
+----
+fun resolve(): String {
+    if (isSelfLink()) return "index.html"
+    val root = rootpath()
+    return if (targetLanguage == defaultLanguage) "${root}index.html"
+           else "${root}$targetLanguage/index.html"   // index.html en dur
+}
+----
+
+`currentPath` y désigne le **répertoire de langue** (`""` pour FR, `"en/"` pour EN),
+pas la page. `resolve()` jette donc l'information « page courante ».
+
+=== Le même bug, copié (split-brain cross-site)
+
+`office/sites/cheroliv.com/src/main/kotlin/com/cheroliv/i18n/LangSwitchLink.kt:35-45`
+duplique la logique avec le même `index.html` en dur (`thymeleafHref()`), et
+`LangSwitchMenuRenderer`/`LangSwitchSiteApplier`/`LangSwitchBlockInjector` +
+`InjectLangSwitchMain` reproduisent la chaîne bakery. **Deux sources de vérité**
+pour la même règle — la divergence est garantie.
+
+== Cartographie des 4 sites cibles
+
+[cols="1,2,3,2"]
+|===
+| Site | Modèle i18n | Switch aujourd'hui | Verdict
+
+| cheroliv.com
+| Arbres de pages par langue (`jbake/i18n/{lang}/content/…`) + maquette JS legacy sans i18n
+| Navigation native vers `{lang}/index.html` (bloc injecté statique, markers `che-i18n:lang-switcher`)
+| *Bug réel* — cible toujours l'accueil
+
+| talaria.school
+| Dictionnaire client (`maquette/js/i18n.js` → `TALARIA.I18N.setLang`, localStorage `talaria.lang`) + contenu catalogue `i18n-content.js`
+| Aucune navigation — `setLang()` relocalise en place (`preventDefault`, `apply()`)
+| *Marche déjà* — la page est préservée (pas de retour accueil)
+
+| cccp.education
+| **Aucun i18n** (menu.thyme n'a que le theme switcher)
+| N'existe pas
+| Feature à créer (phase 2)
+
+| magic-stick
+| **Aucun i18n** (idem cccp)
+| N'existe pas
+| Feature à créer (phase 2)
+|===
+
+=== Constats audités
+
+. Le résolveur générique bakery ignore la page (`LangSwitchUrl.resolve()`).
+. cheroliv.com duplique ce résolveur (split-brain) avec le même défaut.
+. Le mapping page→page existe déjà sur cheroliv **côté SEO** (`hreflang`/`canonical`,
+  `content.uri` + préfixe `'en/'`) — patron réutilisable.
+. talaria est **client-side pur** : un seul arbre HTML, dictionnaire JS, `setLang`
+  ne navigue pas → hors du bug, mais à couvrir par la garde.
+. cccp/magic-stick n'ont **aucun** i18n → pré-requis entier (i18n + sélecteur).
+. Modèle ex-nihilo (`src/main/resources/site-basic/` + `site/` + `maquette/`)
+  **n'embarque aucun** i18n/sélecteur JS ; `site-basic/templates/menu.thyme:31-39`
+  émet même un href absolu `'/' + ${lang.code} + '/'` (non page-aware) → un site
+  neuf naît déjà buggé.
+. Aucune garde n'existe pour la parité `maquette/js` ↔ `jbake/assets/js` côté
+  bakery (le pattern existe côté talaria : `MaquetteParityGuard`).
+. Aucun test n'asserte la préservation de page : `LangSwitchUrlTest` et
+  `51_lang_switch_url_resolver.feature` **verrouillent** l'accueil ;
+  `LangSwitchLinkTest` (cheroliv) idem.
+
+== Décisions
+
+[cols="1,6"]
+|===
+| # | Décision
+
+| D1
+| *S2 + hybride, Thymeleaf conservé.* Le moteur de template ne change pas. Thymeleaf
+  est le seul hôte qui connaît l'arbre au **build** → résolution **exacte**,
+  crawlable, sans FOUC, no-JS. JS reste propriétaire du clic, de la persistance et
+  de la langue active. Sur un site à dictionnaire client (talaria), JS résout —
+  Thymeleaf n'a rien à résoudre.
+
+| D2
+| *Division du travail par modèle i18n, jamais par idéologie.*
+  Arbre → résolution Thymeleaf (le JS surenchérit : persistance/active, pas de
+  réécriture du lien exact). Dict client → résolution JS. Sans i18n → création.
+
+| D3
+| *Une seule règle pure, deux hôtes, vecteurs de test partagés.* La règle
+  `resolveSamePage(currentPageUri, currentLang, targetLang, defaultLang)` est
+  définie une fois comme spécification + vecteurs (self, racine, page imbriquée,
+  langue défaut, rootpath, cible absente). Les deux hôtes (renderer Thymeleaf /
+  module JS) sont testés **contre les mêmes vecteurs**. C'est la parade
+  anti-split-brain — sans elle, l'hybride devient la pire option.
+
+| D4
+| *Thymeleaf émet l'inventaire, pas la destination seule.* Le fragment émet un
+  `<a class="lang-option" data-lang="{code}" th:href="{résolu}">` : le `data-lang`
+  reste la source contractuelle pour le JS ; le `th:href` porte le lien par défaut
+  exact. Le JS lit `data-lang`, jamais un `href` recalculé en dur.
+
+| D5
+| *Supprimer le split-brain cheroliv.* `LangSwitchLink`/`LangSwitchMenuRenderer`/
+  `LangSwitchSiteApplier`/`LangSwitchBlockInjector`/`InjectLangSwitchMain`
+  consomment la règle commune (ou sont retirés au profit du task bakery) — une
+  seule source de vérité. Décision à confirmer au cadrage de la phase site.
+
+| D6
+| *Garde de parité maquette ∪ jbake, présence ET comportement.* Vérifier que le
+  module de switch existe **dans les deux** arbres (`maquette/js/` et
+  `jbake/assets/js/`) **et** qu'il résout correctement (test de comportement,
+  pas seulement d'existence : `setLang` présent ≠ page préservée).
+
+| D7
+| *Modèle ex-nihilo conforme.* `site-basic/templates/menu.thyme` + `maquette/`
+  embarquent le module de switch page-aware et le sélecteur `data-lang`, afin
+  qu'un site scaffoldé naisse conforme. La garde D6 s'applique aussi au modèle.
+
+| D8
+| *Existence de la cible (arbre).* Sur un site à arbre, le serveur peut vérifier
+  au build que la page traduite existe ; à défaut, dégrader vers une cible sûre
+  (index de la langue) plutôt qu'émettre un 404. Le JS ne peut pas le faire.
+
+| D9
+| *SEO préservé.* `hreflang`/`canonical` (via `content.uri`) restent la référence
+  crawlable ; ne lister idéalement que les langues où la page existe (bug connexe,
+  à arbitrer en phase site).
+
+| D10
+| *YAGNI sur le contrat N0.* La règle reste **bakery-local** dans un premier temps
+  (pattern RENAME D14 / MEMPHIS : pas de contrat N0 tant qu'un second consommateur
+  non-bakery n'apparaît pas). Extraction N0 ultérieure si besoin.
+|===
+
+== User Stories — baby steps DDD/TDD/BDD
+
+[cols="1,5,2,1,2"]
+|===
+| US | Description | Tests | Pts | Dépend de
+
+| BKY-LANG-NAV-0
+| *Cadrage EPIC* (gouvernance pure, zéro code — ce document)
+| —
+| 0
+| —
+
+| BKY-LANG-NAV-1
+| *`LangSwitchPath` — spécification pure + vecteurs partagés.* Objet pur (no I/O) :
+  `resolveSamePage(currentPageUri, currentLang, targetLang, defaultLang): String`.
+  Normalise le préfixe de langue courante, rejoue la page sous la langue cible.
+  Le paramètre d'existence (`pageExists`) est un prédicat injectable. Vecteurs
+  exposés comme fixture partagée (JSON) consommable par l'hôte JS.
+| UT : self, racine FR→EN, page imbriquée EN→FR, `en/blog/foo`→`ar/blog/foo`,
+  langue défaut sans préfixe, page racine (index), cible absente → dégradation
+| 3
+| —
+
+| BKY-LANG-NAV-2
+| *Hôte Thymeleaf — lien par défaut exact.* `LangSwitchUrl`/`LangSwitchMenu`/
+  `LangSwitchThymeleafRenderer` émettent un `th:href` **page-aware**
+  (`${content.rootpath + 'en/' + content.uri}`) au lieu d'`index.html` en dur.
+  Backward compat : sans config i18n, no-op. `data-lang` conservé.
+| UT : render page-aware racine/imbriquée, no self-loop, langue défaut ;
+  FT : injection fixture FR+EN multi-pages, idempotence
+| 5
+| LANG-NAV-1
+
+| BKY-LANG-NAV-3
+| *Hôte JS — résolveur pur + adaptateur DOM + garde de parité.* Module JS
+  `lang-switch.js` : résolveur pur `resolveLangPath(...)` (mêmes vecteurs que
+  LANG-NAV-1) + adaptateur DOM (lit `data-lang`, réécrit `href` au load, ne
+  navigue pas sur arbre ; relocalise sur dict client). Testé en node/jsdom.
+  Garde de parité `maquette/js` ↔ `jbake/assets/js` (D6 : présence + comportement).
+| node : résolveur (vecteurs partagés), adaptateur (jsdom), self/no-op ;
+  garde : module présent des deux côtés + comportement correct
+| 5
+| LANG-NAV-1
+
+| BKY-LANG-NAV-4
+| *Modèle ex-nihilo conforme.* `site-basic/templates/menu.thyme` (sélecteur
+  `data-lang` + href page-aware) + `maquette/js/lang-switch.js` embarqué. Un site
+  scaffoldé naît conforme (garde D6/D7 appliquée au modèle).
+| FT : scaffold → menu contient le sélecteur page-aware ; maquette embarque
+  le module ; garde de parité sur le modèle
+| 3
+| LANG-NAV-3
+
+| BKY-LANG-NAV-5
+| *BDD Cucumber bout en bout.* Fixture FR+EN multi-pages → bake → assert :
+  `en/blog/foo.html` garde `data-lang`, lien FR = `../blog/foo.html` (page
+  préservée), pas d'accueil, pas de self-loop, langue active.
+| BDD : FR→EN page, EN→FR page, page imbriquée, no self-loop, active class
+| 3
+| LANG-NAV-2, LANG-NAV-4
+
+| BKY-LANG-NAV-6
+| *Phase site — cheroliv.com (fix bug + kill split-brain).* Migrer le site vers
+  la règle commune ; le sélecteur préserve la page. Couverture : préservation
+  de page + `hreflang` conservé.
+| FT site + garde de couverture
+| 3
+| LANG-NAV-5
+
+| BKY-LANG-NAV-7
+| *Phase site — talaria.school (harden).* Déjà client-side ; aligner le module
+  sur la spec commune + garde de parité + test de comportement (page préservée).
+| node + garde parité
+| 2
+| LANG-NAV-3
+
+| BKY-LANG-NAV-8
+| *Phase site — cccp.education / magic-stick (i18n à créer).* Ces sites n'ont
+  **aucun** i18n : créer l'i18n (inventaire langues + sélecteur JS + dictionnaire)
+  puis le switch page-aware, pour que la garde passe.
+| FT + garde de couverture
+| 8
+| LANG-NAV-5
+|===
+
+_Total_ : ~32 pts, 9 US (dont US-0 cadrage à 0 pt). Phases : **cœur**
+(NAV-1→5, ~19 pts) puis **rollout sites** (NAV-6→8, ~13 pts).
+
+== Dépendances (DAG)
+
+----
+NAV-1 (spec pure + vecteurs)
+  ├─→ NAV-2 (hôte Thymeleaf) ──┐
+  ├─→ NAV-3 (hôte JS + garde) ─┼─→ NAV-5 (BDD fixture multi-pages)
+  │                            │        │
+  └────────────────────────────┘        ├─→ NAV-6 (cheroliv — fix bug)
+                                        ├─→ NAV-7 (talaria — harden)
+                                        └─→ NAV-8 (cccp/magic-stick — i18n à créer)
+NAV-3 ──→ NAV-4 (modèle ex-nihilo) ──→ NAV-5
+----
+
+*NAV-1* est racine (la spec et ses vecteurs commandent les deux hôtes).
+*NAV-2* et *NAV-3* parallélisables (hôtes distincts, même spec).
+*NAV-4* dépend de l'hôte JS (le modèle embarque le module).
+*NAV-5* clôt le cœur. *NAV-6→8* = rollout sites (post-cœur).
+
+== Projection sessions
+
+* *S-228* — NAV-0 cadrage (cette session, gouvernance pure) ✅
+* *S-229* — NAV-1 (spec pure + vecteurs) — socle DDD/TDD
+* *S-230* — NAV-2 (hôte Thymeleaf) + NAV-4 (modèle) — DDD/TDD/FT
+* *S-231* — NAV-3 (hôte JS + garde de parité) — node/jsdom
+* *S-232* — NAV-5 (BDD Cucumber fixture multi-pages) — clôture cœur
+* *S-233* — NAV-6 (cheroliv) — fix bug + kill split-brain
+* *S-234* — NAV-7 (talaria) — harden + garde
+* *S-235+* — NAV-8 (cccp/magic-stick) — création i18n (chantier propre)
+
+Projection conservatrice : ~5 sessions cœur + 3 sessions rollout.
+
+== Risques et mitigations
+
+[cols="4,6"]
+|===
+| Risque | Mitigation
+
+| Split-brain Thymeleaf ↔ JS (le mode de défaillance propre à l'hybride)
+| D3 : une spec, vecteurs de test partagés, les deux hôtes testés contre les mêmes vecteurs. D5 : suppression de la copie cheroliv.
+
+| 404 sur arbre incomplet (page non traduite)
+| D8 : vérification d'existence au build → dégradation vers index de langue. Le JS ne décide pas seul sur arbre.
+
+| Régression SEO (href JS non crawlable)
+| D9 : `hreflang`/`canonical` conservés (`content.uri`). Le `th:href` par défaut reste exact et crawlable.
+
+| FOUC
+| D1 : sur arbre, le serveur émet le bon lien → rien à réécrire au runtime → pas de FOUC par construction.
+
+| Sites sans i18n (cccp/magic-stick) sous-estimés
+| NAV-8 isolé à 8 pts — pré-requis entier (i18n + dictionnaire + sélecteur), à ne pas noyer dans le cœur.
+
+| Garde de parité réduite à « le fichier existe »
+| D6 : garde **de comportement**, pas seulement d'inventaire (leçon : `setLang` présent ≠ page préservée).
+
+| cheroliv : le split-brain survit
+| D5 explicite — consommer la règle commune ou retirer la copie ; sinon deux vérités divergent.
+|===
+
+== Boundary et pré-requis
+
+. *Backward compat* : sans config i18n, aucune injection (no-op).
+. *Ne pas toucher aux sites privés hors copie de travail* : tout sur fixtures
+  publiques ou copies (`office/sites/*`), dry-run par défaut.
+. *Méthodo* : baby-step DDD (spec pure) → TDD (UT rouge avant code) → BDD
+  (Cucumber bout en bout) + functional + node/jsdom. Aucune I/O dans le domaine.
+. *English only* code/Gherkin ; gouvernance en français.
+. *Modèle ex-nihilo* : `site-basic`/`maquette` mis à jour AVANT rollout sites,
+  sinon chaque site neuf renaît buggé.

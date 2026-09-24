@@ -2,9 +2,9 @@
 
 _Regles absolues_ : voir `AGENT.adoc` section "Regles Absolues"
 
-_Derniere mise a jour : 2026-09-17 — Session 226 ✅ — **EPIC BKY-LANG-22 TERMINÉ 10/10 US** : les 3 dernières US clôturées cross-borough. **8** dogfooding slider corpus 22 langues (36 paires LLM `gemma4:31b-cloud`, pin `TranslatedDemoDeckTest` levé catalog-driven, feature 14 étendue 27→63, drift `7_rtl_layout` `fa` corrigé ; 261 UT + 270 cucumber). **9** dogfooding capsule 22 langues — **bug P0 découvert** (chaîne réelle `extractSpeakerNotes` produit `<slug>_<lang>-deck-script.txt`, planner exigeait `<deckName>_<lang>-script.txt` → fail-fast) corrigé TDD (`resolveScript` tolère le suffixe `-deck`, miroir S-082 sortie) + dogfooding réel **22/22 vidéos** espeak+Playwright (dégradation propre th/ja/ar). **10** publication Central consommateurs : capsule 0.0.1 (infra nmcp créée) + MEMPHIS 0.0.48 + bakery 0.0.13 + slider 0.0.19 (propagation repo1 HTTP 200). Gate bakery `test` 1845/0, slider 261/270, capsule 1168/14, MEMPHIS 111/0._
-_Session en cours_ : 227 ✅ — dette `asciidoctorRevealJs` soldée cross-borough (slider S-072) : `AsciidoctorJPin` + bump slider 0.0.20.
-_Prochaine session_ : 228 — GBL-006 US-1→3 (`ContentSeed`/`PlatformFormat`/`CopyPiece` + `MarketProfile[22]`) OU MASS-6 (~675h LLM) — **accord pilote requis**. Dette `asciidoctorRevealJs` soldée S-227 (slider 0.0.20).
+_Derniere mise a jour : 2026-09-24 — Session 228 🟡 — **EPIC BKY-LANG-NAV CADRÉ** (gouvernance pure, zéro code) : changement de langue **same-page** (l'utilisateur reste sur la traduction de la page courante, pas de retour à l'accueil). Décision pilote actée **S2 + hybride, Thymeleaf conservé** — JS propriétaire du clic/persistance/dict, Thymeleaf propriétaire de la résolution exacte sur arbre de pages ; **une règle pure, deux hôtes, vecteurs de test partagés**. Bug structurel audité : `LangSwitchUrl.resolve()` (`index.html` en dur) + **split-brain** copié sur cheroliv.com ; le mapping page→page existe déjà côté SEO (`hreflang`/`content.uri`). 4 sites cibles (cheroliv bug réel / talaria marche déjà / cccp+magic-stick **sans i18n**). Modèle ex-nihilo (`site-basic`/`maquette`) sans sélecteur → un site neuf naît buggé. 9 US ~32 pts (cœur NAV-1→5 + rollout NAV-6→8). Doc `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc`._
+_Session en cours_ : 228 🟡 — cadrage BKY-LANG-NAV (zéro code).
+_Prochaine session_ : 229 — **BKY-LANG-NAV-1** (`LangSwitchPath` spec pure + vecteurs partagés JSON).
 
 '''
 
@@ -404,6 +404,7 @@ Débloque talaria `T-I18N-BAKERY` US-2 (wiring build) + US-3 (retrait du harness
 | *BKY-DNS* | Provisionnement DNS de site (OVH) depuis site.yml — `provisionDns` reconciliant + `DnsProvider` port/OVH/NoOp + Cucumber | 33 | *P2* | ✅ **BKY-DNS TERMINÉ 7/7 US** — BKY-DNS-0 ✅ cadré S195, **BKY-DNS-1 ✅ S196**, **BKY-DNS-2 ✅ S197** (OvhDnsClient, 52 tests `bakery.dns`), **BKY-DNS-3 ✅ S198** (DnsProvisioner, 83 tests `bakery.dns`), **BKY-DNS-4 ✅ S200** (ProvisionDnsTask + wiring, 3 functional), **BKY-DNS-5 ✅ S201** (Cucumber BDD 8 scénarios @dns), **BKY-DNS-6 ✅ S202** (dogfooding réel talaria.school + 2 bugs DnsDiff corrigés : scoped orphan cleanup + TTL=0 zone default)
 | *BKY-SEO* | Généralisation features SEO (canonical/hreflang/OG/JSON-LD/404/sitemap) | 27 | *P2 ✅ TERMINÉ — S204 CLOS* | 🔲 cadré S190
 | *BKY-CONTACT-SEC* | Durcissement formulaire contact (Turnstile, rate limit, token anti-rejeu, PoW) | 26 | *P3 ✅ TERMINÉ — S204 CLOS* | 🔲 cadré S190
+| *BKY-LANG-NAV* | Changement de langue **same-page** (pas de retour accueil) — S2 + hybride (Thymeleaf résolution sur arbre + JS clic/persistance/dict), spec unique + vecteurs partagés, garde parité maquette∪jbake, modèle ex-nihilo, rollout 4 sites | 32 | *P1* | 🟡 **Cadré S-228** — NAV-0 ✅ (gouvernance pure), NAV-1→8 🟡 À FAIRE. Doc `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc`
 |===
 
 === Code Smells — 24/24 ✅ résolus + 60 nouveaux V5
