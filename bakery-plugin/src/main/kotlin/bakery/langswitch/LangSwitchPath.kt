@@ -52,6 +52,36 @@ object LangSwitchPath {
         return "|../\${content.rootpath}${target}\${content.uri}|"
     }
 
+    /**
+     * BKY-LANG-NAV-4 — the *dynamic* (`th:each`) projection of the same rule.
+     *
+     * The ex-nihilo model menus (`site-basic/templates/menu.thyme`,
+     * `site/templates/menu.thyme`) build the selector with a **single `th:each`
+     * over `${supportedLanguages}`**, shared by every page of every language
+     * tree. There is no per-link injection like [thymeleafHref] (NAV-2): one
+     * expression is evaluated once per iteration, so the target language must be
+     * read from the loop variable (`lang.code`) and the current language from
+     * `config.site_language` at bake time.
+     *
+     * The evaluation equals [resolveSamePage] for every shared vector once the
+     * engine substitutes a page (per-page branch on `lang.code` /
+     * `config.site_language`) — the anti split-brain proof is
+     * `LangSwitchPathEachHrefTest`, replaying the same fixture as the Kotlin pure
+     * rule (NAV-1) and the JS host (NAV-3).
+     */
+    fun thymeleafEachHref(defaultLang: String): String {
+        require(defaultLang.isNotBlank()) { "defaultLang must not be blank" }
+
+        val self = "content.uri.substring(content.uri.lastIndexOf('/') + 1)"
+        val downToNonDefault = "content.rootpath + lang.code + '/' + content.uri"
+        val upToDefault = "'../' + content.rootpath + content.uri"
+        val upToNonDefault = "'../' + content.rootpath + lang.code + '/' + content.uri"
+
+        return "\${lang.code == config.site_language ? $self : " +
+            "(config.site_language == '$defaultLang' ? $downToNonDefault : " +
+            "(lang.code == '$defaultLang' ? $upToDefault : $upToNonDefault))}"
+    }
+
     fun resolveSamePage(
         currentPageUri: String,
         currentLang: String,

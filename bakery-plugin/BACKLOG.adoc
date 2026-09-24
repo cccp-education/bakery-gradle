@@ -5,7 +5,8 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-09-25 — 🟡 **EPIC BKY-LANG-NAV EN COURS — NAV-3 ✅ TERMINÉ (S-231)** — hôte JS `lang-switch.js` (`resolveLangPath` frère JS de `resolveSamePage`, rejoue les **mêmes 14 vecteurs partagés** ; adaptateur DOM `attachLangSwitch` mode `tree`/`dictionary`) + **garde de parité** `LangSwitchClientParity` (présence 2 arbres + byte-identité + surface de contrat — D6 « présence ET comportement »). Node `lang-switch.test.mjs` 7 tests (double DOM-free), UT 7, FT Oven 1 (site scaffoldé conforme D7). Tâche `nodeTest` câblée à `check` + CI `actions/setup-node@v4`. **NAV-4 débloqué** (DAG `NAV-3 → NAV-4`). Prochaine : NAV-4 (modèle ex-nihilo)._
+_Dernière mise à jour : 2026-09-25 — 🟡 **EPIC BKY-LANG-NAV EN COURS — NAV-4 ✅ TERMINÉ (S-232)** — le **modèle ex-nihilo est conforme** : `site-basic/templates/menu.thyme` et `site/templates/menu.thyme` (copiés *verbatim* par `generateSite`) portent un sélecteur **page-aware** — fin du href page-blind `'/' + ${lang.code} + '/'` (constat S-228). Nouveau frère symbolique dynamique `LangSwitchPath.thymeleafEachHref(defaultLang)` (projection de la règle sur un `th:each`, expression lisant `lang.code`/`config.site_language` au bake) + garde `LangSwitchModelGuard` (présence **ET** page-awareness). Preuve D3 au 3e hôte : `LangSwitchPathEachHrefTest` rejoue 11/14 vecteurs via le `TemplateEngine`. FT 1 → 3 (BLOG + BASIC conformes). **NAV-5 débloqué** (DAG `NAV-2, NAV-4 → NAV-5`). Prochaine : NAV-5 (BDD de clôture du cœur)._
+_Dernière mise à jour (antérieure) : 2026-09-25 — 🟡 **EPIC BKY-LANG-NAV EN COURS — NAV-3 ✅ TERMINÉ (S-231)** — hôte JS `lang-switch.js` (`resolveLangPath` frère JS de `resolveSamePage`, rejoue les **mêmes 14 vecteurs partagés** ; adaptateur DOM `attachLangSwitch` mode `tree`/`dictionary`) + **garde de parité** `LangSwitchClientParity` (présence 2 arbres + byte-identité + surface de contrat — D6 « présence ET comportement »). Node `lang-switch.test.mjs` 7 tests (double DOM-free), UT 7, FT Oven 1 (site scaffoldé conforme D7). Tâche `nodeTest` câblée à `check` + CI `actions/setup-node@v4`. **NAV-4 débloqué** (DAG `NAV-3 → NAV-4`). Prochaine : NAV-4 (modèle ex-nihilo)._
 _Dernière mise à jour (antérieure) : 2026-09-24 — 🟡 **EPIC BKY-LANG-NAV EN COURS — NAV-2 ✅ TERMINÉ (S-230)** — hôte Thymeleaf page-aware. `bakery.langswitch.LangSwitchPath.thymeleafHref(currentLang, targetLang, defaultLang)` = frère **symbolique** de `resolveSamePage` (expression `${content.rootpath}`/`${content.uri}` évaluée par page au bake ; menu.thyme partagé → pas de page courante à l'injection). `LangSwitchUrl.thymeleafHref()` délègue (D3) ; `LangSwitchThymeleafRenderer` émet le href page-aware (fin de l'`index.html` en dur, D4). **Preuve anti split-brain D3** : 11/14 vecteurs partagés rejoués via le TemplateEngine réel + sortie réelle du renderer évaluée == `resolveSamePage`. 9+5+4 UT + renderer réécrit (13), FT 8/8, feature 51 5/5, feature 55 runner dédié 0 échec. RED prouvé → GREEN. **NAV-4 reporté** (DAG `NAV-3 → NAV-4`). Antérieur S-229 : NAV-1 (règle pure + vecteurs). Prochaine : NAV-3 (hôte JS + garde de parité)._
 
 _Dernière mise à jour (antérieure) : 2026-09-24 — 🟡 **EPIC BKY-LANG-NAV EN COURS — NAV-1 ✅ TERMINÉ (S-229)** — règle pure `bakery.langswitch.LangSwitchPath.resolveSamePage(...)` (objet pur no-I/O) + **14 vecteurs partagés JSON** (`lang-switch-path-vectors.json`) = contrat anti-split-brain rejoué par les deux hôtes (D3). 17 UT + 2 UT fixture-driven, gate `bakery.langswitch.*` GREEN, `InjectLangSwitchFunctionalTest` 7/7, `publishToMavenLocal` VERT. 4 fichiers créés, 0 suivi modifié. **Dette découverte FLAKY-5** (drift fixture cheroliv.com, stash-prouvé préexistant). Prochaine : NAV-2 (hôte Thymeleaf) + NAV-4 (modèle)._
@@ -22,7 +23,7 @@ _Dernière mise à jour (antérieure) : 2026-09-17 — ✅ **BKY-I18N-JS-5 TERMI
 
 '''
 
-== EPIC BKY-LANG-NAV — Changement de langue sans retour à l'accueil (same-page switching) — 🟡 EN COURS (NAV-1 ✅ S-229, NAV-2 ✅ S-230, NAV-3 ✅ S-231, NAV-4→8 À FAIRE)
+== EPIC BKY-LANG-NAV — Changement de langue sans retour à l'accueil (same-page switching) — 🟡 EN COURS (NAV-1 ✅ S-229, NAV-2 ✅ S-230, NAV-3 ✅ S-231, NAV-4 ✅ S-232, NAV-5→8 À FAIRE)
 
 _Origine : demande pilote 2026-09-24 — « lorsque je change de langue lors de la navigation sur le site, une fois arrivé dans la langue demandée je dois être sur la traduction de la page où j'étais, et non pas un retour à la page d'accueil dans la langue demandée ». Cadré S-228 (gouvernance pure, zéro code) — doc `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc`._
 
@@ -117,14 +118,16 @@ Sur arbre → serveur émet le lien exact (crawlable, no-JS, sans FOUC) ; le JS 
 | ✅ TERMINÉ (S-231)
 
 | BKY-LANG-NAV-4
-| Modèle ex-nihilo conforme — `site-basic/templates/menu.thyme` + `maquette/js/lang-switch.js`
+| Modèle ex-nihilo conforme — `site-basic/templates/menu.thyme` +
+  `site/templates/menu.thyme` page-aware (`lang-option` + expression règle) +
+  `LangSwitchPath.thymeleafEachHref` + garde `LangSwitchModelGuard`
 | 3
-| 🟡 À FAIRE (débloqué par NAV-3)
+| ✅ TERMINÉ (S-232)
 
 | BKY-LANG-NAV-5
 | BDD Cucumber bout en bout — fixture FR+EN multi-pages, page préservée, no self-loop
 | 3
-| 🟡 À FAIRE
+| 🟡 À FAIRE (débloqué par NAV-2 + NAV-4)
 
 | BKY-LANG-NAV-6
 | Phase site — cheroliv.com (fix bug + kill split-brain + `hreflang` conservé)
@@ -146,8 +149,8 @@ _Total_ : ~32 pts, 9 US (dont US-0 à 0 pt). Cœur NAV-1→5 (~19 pts), rollout 
 
 _DAG_ : NAV-1 → {NAV-2, NAV-3} → NAV-5 ; NAV-3 → NAV-4 → NAV-5 ; NAV-5 → {NAV-6, NAV-7, NAV-8}.
 
-_Projection_ : S-229 NAV-1, S-230 NAV-2+NAV-4, S-231 NAV-3, S-232 NAV-5 (clôture cœur),
-S-233 NAV-6, S-234 NAV-7, S-235+ NAV-8.
+_Projection_ : S-229 NAV-1, S-230 NAV-2, S-231 NAV-3, S-232 NAV-4,
+S-233 NAV-5 (clôture cœur), S-234 NAV-6, S-235 NAV-7, S-236+ NAV-8.
 
 _Risque principal_ : split-brain Thymeleaf ↔ JS (mode de défaillance propre à l'hybride)
 → D3 (spec unique + vecteurs partagés) + D5 (suppression de la copie cheroliv).

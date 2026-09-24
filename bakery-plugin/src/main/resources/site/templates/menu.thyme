@@ -75,10 +75,9 @@
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
                                 <li th:each="lang : ${supportedLanguages}">
-                                    <a class="dropdown-item"
+                                    <a class="dropdown-item lang-option"
                                        th:classappend="${lang.code == config.site_language ? 'active' : ''}"
-                                       th:href="'/' + ${lang.code} + '/'"
-                                       data-lang
+                                       th:href="${lang.code == config.site_language ? content.uri.substring(content.uri.lastIndexOf('/') + 1) : (config.site_language == 'fr' ? content.rootpath + lang.code + '/' + content.uri : (lang.code == 'fr' ? '../' + content.rootpath + content.uri : '../' + content.rootpath + lang.code + '/' + content.uri))}"
                                        th:attr="data-lang=${lang.code}">
                                         <span th:text="${lang.nativeName}">Français</span>
                                         <span th:if="${lang.rtl}" class="rtl-badge badge bg-info ms-2" th:text="#{lang.rtl.badge}">RTL</span>

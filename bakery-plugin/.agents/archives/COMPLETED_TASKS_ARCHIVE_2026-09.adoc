@@ -1,5 +1,27 @@
 = Archive des Taches Terminees — Septembre 2026
 
+== Session 232 — 2026-09-25 — BKY-LANG-NAV-4 : modèle ex-nihilo conforme (sélecteur page-aware)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| BKY-LANG-NAV-4 — `LangSwitchPath.thymeleafEachHref(defaultLang)` (frère symbolique dynamique)
+| ✅ TERMINÉ
+
+| BKY-LANG-NAV-4 — `LangSwitchModelGuard` (garde D7 présence ET page-awareness)
+| ✅ TERMINÉ
+
+| BKY-LANG-NAV-4 — Menus modèle `site-basic` + `site` page-aware (fin du `'/' + lang.code + '/'`)
+| ✅ TERMINÉ
+
+| BKY-LANG-NAV-4 — Tests `LangSwitchPathEachHrefTest` (4) + `LangSwitchModelGuardTest` (9) + FT 1 → 3
+| ✅ TERMINÉ
+
+| Dette notée — `config.default_language` injectable dans le modèle (`'fr'` embarqué)
+| 🟡 À FAIRE (NAV-5+)
+|===
+
 == Session 231 — 2026-09-25 — BKY-LANG-NAV-3 : hôte JS + garde de parité (maquette ∪ jbake)
 
 [cols="2,3"]

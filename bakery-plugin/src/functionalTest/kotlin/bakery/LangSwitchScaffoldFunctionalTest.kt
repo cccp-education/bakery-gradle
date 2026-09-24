@@ -46,9 +46,54 @@ class LangSwitchScaffoldFunctionalTest {
         assertThat(module).contains("attachLangSwitch")
     }
 
+    @Test
+    fun `a scaffolded blog site is born with a page-aware model menu (D7)`() {
+        createMinimalBakeryProject(projectDir, siteName = "lang-nav")
+
+        create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments("generateSite")
+            .build()
+
+        val menu = projectDir.resolve("lang-nav/site/templates/menu.thyme")
+        assertThat(menu).exists().isFile
+
+        val content = menu.readText(UTF_8)
+        assertThat(content).contains("lang-option")
+        assertThat(content).contains("data-lang")
+        assertThat(content).contains("content.uri")
+
+        // D3 anti split-brain: the model carries the single-rule expression, not
+        // a page-blind absolute `'/' + lang.code + '/'` (the S-228 constat bug).
+        assertThat(content).contains("content.uri.lastIndexOf")
+        assertThat(content).contains("config.site_language")
+        assertThat(content).doesNotContain("'/' + ${'$'}{lang.code} + '/'")
+    }
+
+    @Test
+    fun `a scaffolded basic site is born with a page-aware model menu (D7)`() {
+        createMinimalBakeryProject(projectDir, siteName = "lang-nav", siteType = "basic")
+
+        create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments("generateSite")
+            .build()
+
+        val menu = projectDir.resolve("lang-nav/site-basic/templates/menu.thyme")
+        assertThat(menu).exists().isFile
+
+        val content = menu.readText(UTF_8)
+        assertThat(content).contains("lang-option")
+        assertThat(content).contains("content.uri.lastIndexOf")
+        assertThat(content).doesNotContain("'/' + ${'$'}{lang.code} + '/'")
+    }
+
     private fun createMinimalBakeryProject(
         projectDir: File,
         siteName: String,
+        siteType: String? = null,
     ) {
         projectDir.resolve("settings.gradle.kts").writeText(
             """
@@ -57,13 +102,14 @@ class LangSwitchScaffoldFunctionalTest {
             """.trimIndent(),
             UTF_8,
         )
+        val siteTypeLine = siteType?.let { "    siteType = \"$it\"\n" } ?: ""
         projectDir.resolve("build.gradle.kts").writeText(
             """
             plugins { id("education.cccp.bakery") }
             bakery {
                 configPath = file("site.yml").absolutePath
                 siteName = "$siteName"
-            }
+            $siteTypeLine}
             """.trimIndent() + "\n",
             UTF_8,
         )

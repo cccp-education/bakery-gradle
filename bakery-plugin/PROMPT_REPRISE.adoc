@@ -1,58 +1,58 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 232
+:session: 233
 :date: 2026-09-25
-:etat: Session 231 ✅ — **BKY-LANG-NAV-3 TERMINÉ** (hôte JS + garde de parité). Antérieur S-230 : NAV-2 (hôte Thymeleaf page-aware). S-229 : NAV-1 (`LangSwitchPath` règle pure + vecteurs). S-228 : cadrage.
-:epic_actif: **BKY-LANG-NAV** (🟡 NAV-0 ✅, NAV-1 ✅, NAV-2 ✅, NAV-3 ✅, NAV-4→8 À FAIRE) — P1, cœur NAV-4→5 (~6 pts, NAV-4 ✅ débloqué par NAV-3), puis rollout sites NAV-6→8 (~13 pts).
+:etat: Session 232 ✅ — **BKY-LANG-NAV-4 TERMINÉ** (modèle ex-nihilo conforme). Antérieur S-231 : NAV-3 (hôte JS + garde de parité). S-230 : NAV-2 (hôte Thymeleaf page-aware). S-229 : NAV-1 (`LangSwitchPath` règle pure + vecteurs). S-228 : cadrage.
+:epic_actif: **BKY-LANG-NAV** (🟡 NAV-0 ✅, NAV-1 ✅, NAV-2 ✅, NAV-3 ✅, NAV-4 ✅, NAV-5→8 À FAIRE) — P1, clôture du cœur NAV-5 (~3 pts), puis rollout sites NAV-6→8 (~13 pts).
+:epic_suivant: **NAV-5** (BDD Cucumber bout en bout, fixture FR+EN multi-pages) — clôture du cœur. Dépend de NAV-2 ✅ et NAV-4 ✅.
 
-== État S-231
+== État S-232
 
-`lang-switch.js` est l'**hôte JS** de la règle pure : `resolveLangPath(...)`
-frère JS de `LangSwitchPath.resolveSamePage`, rejouant les **mêmes vecteurs
-partagés** (`bakery/langswitch/lang-switch-path-vectors.json`). Adaptateur DOM
-`attachLangSwitch` : mode `tree` (réécrit `data-lang` page-aware + active,
-pas de navigation) / mode `dictionary` (relocalise en place). Module copié
-**byte-identique** dans `maquette/js/` et `site/assets/js/`.
+Le **modèle ex-nihilo** est conforme : `site-basic/templates/menu.thyme` et
+`site/templates/menu.thyme` portent le sélecteur page-aware (`lang-option` +
+l'expression exacte de la règle). Un site scaffoldé ne naît plus buggé (D7).
 
-`LangSwitchClientParity` (objet pur) garde présence + byte-identité + surface
-de contrat (`resolveLangPath` **et** `attachLangSwitch`) — D6 « présence ET
-comportement ». Testé côté node (`lang-switch.test.mjs`, 7 tests) **et** Kotlin
-(`LangSwitchClientParityTest`, 7 UT). Tâche `nodeTest` câblée à `check` + CI
-`actions/setup-node@v4`.
+Nouveau frère symbolique dynamique `LangSwitchPath.thymeleafEachHref(defaultLang)`
+(projection de la règle sur un `th:each`) + `LangSwitchModelGuard` (garde pure :
+présence **ET** page-awareness, pas seulement `lang-option`).
 
-Tests : node 7/7, UT 7, FT Oven 1/1 (site scaffoldé conforme D7). `test` 1993
-(+7 nets, 2 FAIL = FLAKY-5 préexistants) ; cucumber baseline exacte ; FT BUILD
-SUCCESSFUL.
+Preuves : `LangSwitchPathEachHrefTest` (4 UT, rejeu **11/14 vecteurs partagés**
+via le `TemplateEngine`) ; `LangSwitchModelGuardTest` (9 UT, dont **rendu réel**
+des deux menus embarqués) ; `LangSwitchScaffoldFunctionalTest` 1 → 3 FT (BLOG +
+BASIC conformes). `test` 2006 (+13 nets, 2 FAIL = FLAKY-5 préexistants) ;
+cucumber baseline exacte ; FT BUILD SUCCESSFUL.
 
-== Mission Session 232 — BKY-LANG-NAV-4 (modèle ex-nihilo conforme)
+*Limitation notée* : l'expression du modèle embarque `'fr'` (défaut de
+`SiteConfiguration`) — pas de `config.default_language` injecté. Suite possible
+en NAV-5 ou US dédiée.
 
-*NAV-4 — Modèle ex-nihilo.* `src/main/resources/site-basic/templates/menu.thyme`
-(sélecteur `data-lang` + href page-aware) + `maquette/js/lang-switch.js` embarqué
-(et `site/assets/js/lang-switch.js`) pour qu'un site scaffoldé naisse conforme
-(D7). Garde de parité D6/D7 appliquée au **modèle**.
+== Mission Session 233 — BKY-LANG-NAV-5 (BDD de clôture du cœur)
 
-Attention design (note S-230) : `site-basic/menu.thyme` utilise un `th:each`
-dynamique sur `${supportedLanguages}` — design symbolique **distinct** du
-`LangSwitchThymeleafRenderer` (menu partagé). Concilier les deux.
+*NAV-5 — Cucumber bout en bout.* Fixture FR+EN multi-pages → assert :
+`en/blog/foo.html` garde `data-lang`, le lien FR = `../blog/foo.html` (page
+préservée), pas d'accueil, pas de self-loop, langue active. Couvre les deux
+hôtes (Thymeleaf NAV-2, modèle/JS NAV-4).
 
-*Tests* : FT scaffold → le menu contient le sélecteur page-aware (`data-lang`) ;
-la maquette embarque le module ; garde de parité sur le modèle (présence +
-comportement).
+*Tests* : feature BDD (page FR→EN, EN→FR, page imbriquée, no self-loop, active
+class) + runner dédié si nécessaire (pattern S-082).
 
 == Reprendre à
 
-. `git status` dans bakery-gradle — vérifier qu'aucune session concurrente n'écrit.
+. `git status` dans bakery-gradle — **vérifier qu'aucune session concurrente
+   n'écrit** (un drift MEM-CAT-3 non committé a été observé en S-232 :
+   `build.gradle.kts`, `libs.versions.toml`, `settings.gradle.kts`,
+   `BakeryPluginPublicationTest.kt` — hors périmètre NAV-4, non committés par
+   cette session).
 . `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc` (cadrage complet, D1→D10).
-. `src/main/resources/site-basic/templates/menu.thyme` (modèle à rendre page-aware).
-. `src/main/kotlin/bakery/langswitch/LangSwitchPath.kt` + `LangSwitchClientParity.kt`
-   + `src/main/resources/maquette/js/lang-switch.js` (socle livré).
-. `.agents/sessions/231-bky-lang-nav-3-js-host-parity.adoc` (rapport S-231).
+. `src/test/features/51_lang_switch_url_resolver.feature` (BDD existante à
+   étendre ou compléter par une feature multi-pages).
+. `.agents/sessions/232-bky-lang-nav-4-modele-ex-nihilo.adoc` (rapport S-232).
 . Gate Économie d'Encre : ne relancer `test` que si le code source change.
 
 == Dette découverte (FLAKY-5)
 
 `FixtureAlignmentAuditorTest` + `RealSiteI18nMigrationIntegrationTest` (cheroliv-com)
 = **2 FAIL préexistants** : drift fixture ↔ site réel (chrome nativement FR,
-S-053/055, 5 templates). Stash-prouvé non introduit par NAV-2/NAV-3. Session
+S-053/055, 5 templates). Stash-prouvé non introduit par NAV-2/3/4. Session
 dédiée : resync fixture + régénération golden master
 (`PostMigrationSnapshotGenerator`). `koverThresholdCheck` + `ktlintKotlinScriptCheck`
 rouges à HEAD (baseline dépôt).
