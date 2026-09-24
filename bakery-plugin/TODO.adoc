@@ -1,15 +1,15 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-09-24 — Session 230. **BKY-LANG-NAV-2 TERMINÉ** : hôte Thymeleaf page-aware `bakery.langswitch.LangSwitchPath.thymeleafHref(...)` (frère symbolique de `resolveSamePage`, expression `${content.rootpath}`/`${content.uri}` évaluée par page au bake). `LangSwitchUrl.thymeleafHref()` délègue (D3), renderer émet le href page-aware (fin de l'`index.html` en dur). **Preuve D3** : 11/14 vecteurs rejoués via le TemplateEngine réel + sortie réelle du renderer == `resolveSamePage`. 9+5+4 UT + renderer réécrit (13), FT 8/8, feature 51 5/5, feature 55 runner dédié 0 échec. RED prouvé → GREEN. Antérieur S-229 : **BKY-LANG-NAV-1 TERMINÉ** (règle pure + 14 vecteurs). Antérieur S-228 : **EPIC BKY-LANG-NAV CADRÉ**. Antérieur S-224 : **BKY-I18N-JS-6 TERMINÉ**. Antérieur S-222 : **FLAKY-4 résolu**._
+_Dernière mise à jour : 2026-09-25 — Session 231. **BKY-LANG-NAV-3 TERMINÉ** : hôte JS `lang-switch.js` (`resolveLangPath` frère JS de `resolveSamePage`, rejoue les mêmes 14 vecteurs partagés ; adaptateur DOM `attachLangSwitch` mode `tree`/`dictionary`) + garde de parité `LangSwitchClientParity` (présence 2 arbres + byte-identité + surface de contrat — D6). Node 7 tests (double DOM-free), UT 7, FT Oven 1 (site scaffoldé conforme D7). Tâche `nodeTest` câblée à `check` + CI `actions/setup-node@v4`. **NAV-4 débloqué**. Antérieur S-230 : **BKY-LANG-NAV-2 TERMINÉ** (hôte Thymeleaf page-aware). Antérieur S-229 : **BKY-LANG-NAV-1 TERMINÉ** (règle pure + 14 vecteurs). Antérieur S-228 : **EPIC BKY-LANG-NAV CADRÉ**._
 
 == EPIC BKY-LANG-NAV (S-228) — Changement de langue sans retour à l'accueil (same-page switching) 🟡 EN COURS
 
 * [x] **BKY-LANG-NAV-0** : Cadrage EPIC (S2 + hybride, Thymeleaf conservé, spec unique + 2 hôtes + vecteurs partagés) ✅ S-228 (gouvernance pure)
 * [x] **BKY-LANG-NAV-1** : `LangSwitchPath` — spec pure `resolveSamePage(...)` + vecteurs partagés JSON ✅ S-229 (17 UT + 2 UT fixture-driven, 4 fichiers créés)
 * [x] **BKY-LANG-NAV-2** : Hôte Thymeleaf — `th:href` page-aware + FT fixture multi-pages ✅ S-230 (9+5+4 UT + renderer réécrit, FT 8/8, BDD 51 5/5)
-* [ ] **BKY-LANG-NAV-3** : Hôte JS `lang-switch.js` + garde parité maquette↔jbake (présence + comportement) (🟡 À FAIRE — prochaine S-231)
-* [ ] **BKY-LANG-NAV-4** : Modèle ex-nihilo conforme (`site-basic` + `maquette/js`) (🟡 À FAIRE — dépend NAV-3)
+* [x] **BKY-LANG-NAV-3** : Hôte JS `lang-switch.js` + garde parité maquette↔jbake (présence + comportement) ✅ S-231 (node 7 + UT 7 + FT Oven 1, `nodeTest` câblé à `check` + CI)
+* [ ] **BKY-LANG-NAV-4** : Modèle ex-nihilo conforme (`site-basic` + `maquette/js`) (🟡 À FAIRE — débloqué par NAV-3, prochaine S-232)
 * [ ] **BKY-LANG-NAV-5** : BDD Cucumber fixture FR+EN multi-pages — clôture cœur (🟡 À FAIRE)
 * [ ] **BKY-LANG-NAV-6** : Phase site cheroliv.com — fix bug + kill split-brain (🟡 À FAIRE)
 * [ ] **BKY-LANG-NAV-7** : Phase site talaria.school — harden (🟡 À FAIRE)

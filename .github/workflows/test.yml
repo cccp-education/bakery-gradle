@@ -24,7 +24,12 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Build and Test (UT + Cucumber)
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Build and Test (UT + Cucumber + Node)
         run: ./gradlew build
         working-directory: bakery-plugin
 

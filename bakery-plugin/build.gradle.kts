@@ -86,6 +86,36 @@ tasks.withType<Test> {
     outputs.cacheIf { true }
 }
 
+// ────────────────────────────────────────────────────────────
+// BKY-LANG-NAV-3 — Node.js host tests for the client-side switcher
+// ────────────────────────────────────────────────────────────
+// `lang-switch.js` is plain browser JS (no build step). Its pure resolver must
+// replay the SAME shared vectors as the Kotlin host (decision D3), which only a
+// JS runtime can prove. `node --test` runs the `.test.mjs` suite against both
+// shipped copies of the module (maquette + publication), byte-identical.
+node {
+    download = false
+}
+
+val nodeTest =
+    tasks.register<Exec>("nodeTest") {
+        description = "Runs Node.js tests for the client-side language switcher."
+        group = "verification"
+
+        inputs.dir("src/test/node")
+        inputs.dir("src/main/resources/maquette/js")
+        inputs.dir("src/main/resources/site/assets/js")
+        inputs.file("src/main/resources/bakery/langswitch/lang-switch-path-vectors.json")
+        outputs.dir(layout.buildDirectory.dir("node-test-results"))
+
+        commandLine("node", "--test", "src/test/node/*.test.mjs")
+        doLast {
+            val resultsDir = layout.buildDirectory.dir("node-test-results").get().asFile
+            resultsDir.mkdirs()
+            resultsDir.resolve("ok").writeText("ok")
+        }
+    }
+
 // Specific configuration for plugin tests
 // EPIC 11 — CucumberTestRunner excluded from unit tests: only cucumberTest task runs Cucumber
 // This prevents double execution (~5min wasted). Cucumber tests are in bakery.scenarios package.
@@ -346,6 +376,7 @@ val cucumberTest =
 tasks.check {
     dependsOn(functionalTestTask)
     dependsOn(cucumberTest)
+    dependsOn(nodeTest)
 }
 
 koverConventions {

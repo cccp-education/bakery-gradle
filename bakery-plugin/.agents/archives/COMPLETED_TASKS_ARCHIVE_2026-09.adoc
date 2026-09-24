@@ -1,5 +1,36 @@
 = Archive des Taches Terminees — Septembre 2026
 
+== Session 231 — 2026-09-25 — BKY-LANG-NAV-3 : hôte JS + garde de parité (maquette ∪ jbake)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| NAV-3 (DDD) — `bakery.langswitch.LangSwitchClientParity` objet pur : garde la **présence** du module dans les 2 arbres (`maquette/js/` + `assets/js/`), le **byte-identité** (pattern `I18nClientPropagation`) et la **surface de contrat** (`resolveLangPath` **et** `attachLangSwitch`). D6 « présence ET comportement » — `setLang` seul = faux vert. 7 UT (dont `ShippedResources` sur classpath réel).
+| ✅ TERMINÉ
+
+| NAV-3 (hôte JS) — `lang-switch.js` : `resolveLangPath(...)` frère JS de `resolveSamePage`, rejouant **les mêmes 14 vecteurs partagés** ; adaptateur DOM `attachLangSwitch` mode `tree` (réécrit `data-lang` page-aware + active, ne navigue pas) / `dictionary` (relocalise en place, `preventDefault`, `TALARIA.I18N.setLang`) ; `bootstrap()` sur `DOMContentLoaded`. Copié **byte-identique** dans les 2 trees.
+| ✅ TERMINÉ
+
+| NAV-3 (preuve D3 node) — `lang-switch.test.mjs` 7 tests, double DOM-free (`fakeElement`/`fakeDocument`, **pas de jsdom**) : rejeu de chaque vecteur partagé + adaptateur tree/dictionary + no-op. La même fixture que `LangSwitchPathVectorsTest` côté Kotlin (`lang-switch-path-vectors.json`).
+| ✅ TERMINÉ
+
+| NAV-3 (FT Oven D7) — `LangSwitchScaffoldFunctionalTest` 1/1 : `generateSite` copie les 2 arbres verbatim → module présent des deux côtés, byte-identique, surface de contrat présente. Un site scaffoldé naît conforme.
+| ✅ TERMINÉ
+
+| NAV-3 (infra) — tâche `nodeTest` (`node --test`, groupe `verification`, `download=false` pattern talaria) + `check.dependsOn(nodeTest)` + CI `actions/setup-node@v4` (node 22). `build.gradle.kts` + `.github/workflows/test.yml`.
+| ✅ TERMINÉ
+
+| Gate — `bakery.langswitch.*` 10 classes GREEN (NAV-1/2 non régressés), `nodeTest` 7/7, `functionalTest` BUILD SUCCESSFUL 2m32s, `test` 1993/2 FAIL FLAKY-5 préexistants (baseline 1986 → +7 nets), `cucumberTest` 2464/5 = baseline exacte, ktlint 0 sur le delta, `publishToMavenLocal` VERT, grep métier = 0. RED prouvé (`Unresolved reference` + node) → GREEN → REFACTOR. 5 créés, 2 modifiés, zéro bump, zéro secret.
+| ✅ TERMINÉ
+
+| Incident méthodologique — `ktlintFormat` global a reformaté **126 fichiers hors périmètre** (baseline de style rouge sur tout le dépôt) → tous revertés (`git checkout`), seuls les fichiers du delta conservés. Leçon : ne jamais lancer `ktlintFormat` global sur une baseline de style rouge.
+| ⚠️ DOCUMENTÉ
+
+| NAV-4 (modèle ex-nihilo) — **débloqué** par NAV-3 (DAG `NAV-3 → NAV-4`). Prochaine session 232.
+| 🟡 À FAIRE
+|===
+
 == Session 230 — 2026-09-24 — BKY-LANG-NAV-2 : hôte Thymeleaf page-aware (lien par défaut exact)
 
 [cols="2,3"]

@@ -1,0 +1,150 @@
+= Session 231 — BKY-LANG-NAV-3 : hôte JS + garde de parité (maquette ∪ jbake)
+:session: 231
+:date: 2026-09-25
+:type: DDD + TDD (Kotlin) + node/jsdom + functional Oven + garde de parité
+:borough: Bushwick (bakery-gradle)
+:score: 9/10
+
+== Contexte
+
+Reprise bakery à la demande pilote (hook d'ouverture standard), méthodologie
+baby-step DDD/TDD/BDD (unit → fonctionnel → node/cucumber) en agile software
+craftmanship, commit/push autorisés en clôture.
+
+Mission = troisième US du cœur `BKY-LANG-NAV` (cadré S-228) : livrer l'**hôte
+JS** de la règle pure — le module `lang-switch.js` qui, au runtime, résout la
+même page dans la langue cible et réécrit les liens `data-lang`. La décision D6
+exige une **garde de parité de comportement**, pas seulement de présence : un
+module qui garde `setLang` mais perd le résolveur serait un faux vert.
+
+== Livré — BKY-LANG-NAV-3
+
+=== 1. `LangSwitchClientParity` — garde pure (DDD)
+
+Domaine pur (chaînes → verdict, zéro I/O). Trois vérifications sur le **même
+contenu byte** :
+
+. le module existe dans les **deux** arbres (`maquette/js/` et `assets/js/`) ;
+. les deux copies sont **byte-identiques** (pas de drift — pattern
+   `bakery.i18n.js.I18nClientPropagation`, décision S-039) ;
+. la **surface de contrat** est exposée : le résolveur pur `resolveLangPath`
+   **et** l'adaptateur DOM `attachLangSwitch`. La présence seule ne suffit pas.
+
+[source,kotlin]
+----
+data class Violation(kind, detail)   // missing-module | drifted-module
+data class Report(violations)        //  | missing-resolver | missing-adapter
+fun verify(maquetteModule: String?, publicationModule: String?): Report
+----
+
+=== 2. `lang-switch.js` — l'hôte JS (port fidèle de la règle)
+
+Module navigateur JS plain (zéro build step, UMD-style) : `resolveLangPath(...)`
+est le frère JS de `LangSwitchPath.resolveSamePage` (NAV-1) et rejoue **les
+mêmes 14 vecteurs partagés**. Division du travail (D2) :
+
+* **mode `tree`** — le serveur a déjà émis le `th:href` exact (NAV-2) ; l'adaptateur
+  réécrit les liens `data-lang` page-aware au load et marque la langue active
+  (persistance/active). Pas de FOUC, no-JS dégradé propre.
+* **mode `dictionary`** — pas d'arbre par langue (talaria) ; l'adaptateur relocalise
+  **en place** (`preventDefault`), ne navigue jamais.
+* `bootstrap()` auto-câble sur `DOMContentLoaded` (mode/langue déclarés par la page
+  via `<html data-lang-switch lang>`), délègue à `TALARIA.I18N.setLang` si présent.
+
+Module copié **byte-identique** dans `maquette/js/` et `site/assets/js/`.
+
+=== 3. Preuve anti split-brain D3 (mêmes vecteurs, deux hôtes)
+
+* **node** (`lang-switch.test.mjs`, 7 tests) : rejoue **chaque** vecteur du
+  JSON partagé contre le résolveur JS — la même fixture que
+  `LangSwitchPathVectorsTest` côté Kotlin. Une divergence fait rougir un côté.
+  Double DOM-free (pas de jsdom) : `fakeElement`/`fakeDocument` + bus de clic.
+  Couvre : self/no-op, dégradation cible absente, réécriture page-aware de
+  chaque `data-lang`, jamais `en/index.html` en dur, relocalisation dictionnaire.
+
+=== 4. Garde de parité sur les ressources réellement embarquées
+
+`LangSwitchClientParityTest$ShippedResources` : lit le module depuis les **deux**
+trees du classpath (`maquette/js/` + `site/assets/js/`) et vérifie présence +
+byte-identité + surface de contrat. Le vrai risque D6 est une divergence entre
+la ressource de dev et la copie publiée.
+
+=== 5. Functional Oven — un site scaffoldé naît conforme (D7)
+
+`LangSwitchScaffoldFunctionalTest` (TestKit réel) : `generateSite` copie les deux
+arbres verbatim → le module existe des deux côtés, byte-identique, avec sa surface
+de contrat. Un site neuf n'est plus « né buggé » (constat S-228).
+
+=== 6. Infrastructure — test node dans Gradle + CI
+
+* `nodeTest` (tâche `Exec`, groupe `verification`) : `node --test` sur
+  `src/test/node/*.test.mjs`, inputs sur les deux trees + la fixture partagée,
+  `download = false` (binaire système, pattern talaria).
+* `check.dependsOn(nodeTest)` — le JS est testé par la gate standard.
+* CI `test.yml` : `actions/setup-node@v4` (node 22) avant `./gradlew build`.
+
+== Gate et vérifications
+
+[cols="2,4"]
+|===
+| Vérification | Résultat
+
+| `bakery.langswitch.*` | 10 classes GREEN (dont NAV-1/NAV-2 non régressés)
+| `nodeTest` | 7/7 PASSED (vecteurs partagés + adaptateur)
+| `LangSwitchScaffoldFunctionalTest` | 1/1 PASSED
+| `functionalTest` (suite complète) | BUILD SUCCESSFUL 2m32s
+| `test` (suite complète) | 1993 tests, 2 FAIL = FLAKY-5 préexistants (+7 nets)
+| `cucumberTest` | 2464 tests, 5 FAIL = baseline S-229/S-230 exacte
+| ktlint sur les fichiers du delta | 0 violation
+| `publishToMavenLocal` (Règle 0) | VERT
+| `grep -rwE "REAC\|AFNOR\|SPG\|SPD\|FPA\|RNCP\|CDA" src/` | 0
+|===
+
+=== Échecs préexistants (aucune régression)
+
+* `test` : `FixtureAlignmentAuditorTest` + `RealSiteI18nMigrationIntegrationTest`
+  = **FLAKY-5** (drift fixture cheroliv.com, chrome nativement FR S-053/055).
+  `koverThresholdCheck` + `ktlintKotlinScriptCheck` rouges à HEAD (stash-prouvé).
+* `cucumberTest` : `2464 tests, 5 failed, 2011 skipped` — **exactement** la
+  baseline S-229/S-230.
+
+== Incident méthodologique
+
+`ktlintFormat` a reformaté **126 fichiers hors périmètre** (violations de style
+préexistantes sur tout le dépôt, pas seulement le delta). Tous les changements
+collatéraux ont été **revertés** (`git checkout`) ; seuls les fichiers du delta
+ont été conservés, et la ligne `version =` préexistante reformatée par l'outil a
+été restaurée à la main. Leçon : ne jamais lancer `ktlintFormat` global sur un
+dépôt dont la baseline de style est rouge — vérifier d'abord le périmètre.
+
+== Fichiers
+
+[cols="1,1,4"]
+|===
+| Fichier | État | Rôle
+
+| `src/main/kotlin/bakery/langswitch/LangSwitchClientParity.kt` | créé | garde de parité pure (présence + drift + contrat)
+| `src/main/resources/site/assets/js/lang-switch.js` | créé | hôte JS (résolveur + adaptateur DOM)
+| `src/main/resources/maquette/js/lang-switch.js` | créé | copie byte-identique (dev source)
+| `src/test/kotlin/bakery/langswitch/LangSwitchClientParityTest.kt` | créé | 7 UT (pure + ressources embarquées)
+| `src/test/node/lang-switch.test.mjs` | créé | 7 tests node (vecteurs partagés + adaptateur)
+| `src/functionalTest/kotlin/bakery/LangSwitchScaffoldFunctionalTest.kt` | créé | 1 FT Oven (site scaffoldé conforme)
+| `build.gradle.kts` | modifié | tâche `nodeTest` + `check.dependsOn`
+| `.github/workflows/test.yml` | modifié | `actions/setup-node@v4` (node 22)
+|===
+
+5 créés (3 Kotlin/JS + 1 node + 1 FT) + 2 modifiés (build, CI). Zéro secret.
+Zéro bump de version. Zéro publication Central.
+
+== Décision / suite
+
+Ordre ensuite (cadrage S-228, DAG `NAV-3 → NAV-4 → NAV-5`) :
+
+* *S-232* — **NAV-4** (modèle ex-nihilo conforme) : `site-basic/templates/menu.thyme`
+  (sélecteur `data-lang` + href page-aware) + `maquette/js/lang-switch.js`
+  embarqué ; garde D6/D7 appliquée au modèle. *Note* : `site-basic/menu.thyme`
+  utilise un `th:each` dynamique `${supportedLanguages}` — design symbolique
+  distinct à concilier avec le sélecteur.
+* *S-233* — **NAV-5** (BDD Cucumber fixture FR+EN multi-pages, clôture cœur).
+* *S-234+* — **NAV-6→8** (rollout sites : cheroliv fix + kill split-brain,
+  talaria harden, cccp/magic-stick i18n à créer).
