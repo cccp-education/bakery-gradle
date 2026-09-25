@@ -1,62 +1,63 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 235
+:session: 236
 :date: 2026-09-25
-:etat: Session 234 ✅ — **BKY-LANG-NAV-5 TERMINÉ — BDD de clôture du cœur** (fixture deux hôtes, 6/6 scénarios, accord injecté ∪ modèle ∪ règle). Antérieur S-233 : re-pin catalogue ws 0.0.57. S-232 : NAV-4. S-231 : NAV-3. S-230 : NAV-2. S-229 : NAV-1. S-228 : cadrage.
-:epic_actif: **BKY-LANG-NAV** (🟡 NAV-0 ✅, NAV-1 ✅, NAV-2 ✅, NAV-3 ✅, NAV-4 ✅, NAV-5 ✅, NAV-6→8 À FAIRE) — cœur CLOS, reste rollout sites (NAV-6→8, ~13 pts).
-:epic_suivant: **NAV-6** (phase site — cheroliv.com : fix bug + kill split-brain + `hreflang` conservé). Dépend de NAV-5 ✅.
+:etat: Session 235 ✅ — **BKY-LANG-NAV-6 TERMINÉ — rollout cheroliv.com** (sélecteur same-page, premier rollout site). Le sélecteur préserve la page, split-brain tué (D5), vecteurs partagés (D3), régression bake corrigée. Antérieur S-234 : NAV-5 (cœur clos). S-233 : re-pin catalogue ws 0.0.57.
+:epic_actif: **BKY-LANG-NAV** (🟡 NAV-0 ✅, NAV-1 ✅, NAV-2 ✅, NAV-3 ✅, NAV-4 ✅, NAV-5 ✅, NAV-6 ✅, NAV-7→8 À FAIRE) — rollout sites en cours.
+:epic_suivant: **NAV-7** (phase site — talaria.school : harden). Dépend de NAV-3 ✅.
+:dette: null-safety `bakery.langswitch.LangSwitchPath` (bug latent, session dédiée si un site scaffoldé le rencontre) + FLAKY-5 (drift fixture cheroliv.com).
 
-== État S-234
+== État S-235
 
-**Le cœur `BKY-LANG-NAV` est clos.** NAV-5 (BDD bout en bout) livre la preuve
-exécutable de la décision D3 « une règle, deux hôtes, vecteurs partagés » :
-feature `66_same_page_language_switch.feature` (`@same-page`, 6 scénarios) +
-`SamePageLanguageSwitchSteps` + runner dédié `SamePageCucumberTestRunner`
-(pattern S-082). Une page imbriquée (`blog/foo.html` FR ↔ `en/blog/foo.html` EN)
-est injectée par la chaîne de production `injectLangSwitch` **et** rendue par
-l'hôte modèle ex-nihilo, les deux étant évalués au `TemplateEngine` réel et
-comparés à `LangSwitchPath.resolveSamePage`. Baby-step BDD strict RED (6×
-`UndefinedStepException`) → GREEN (6/6 PASSED). **Zéro production modifiée**
-(3 fichiers de test créés).
+**BKY-LANG-NAV-6 livré** — premier rollout site. Travail **cross-borough** (repo
+`office/sites/cheroliv.com`, build autonome), **zéro source bakery modifiée**.
+Le site dupliquait la règle page-blind (`com.cheroliv.i18n`) ; D5 a tué le
+split-brain : `LangSwitchLink` **délègue** à `com.cheroliv.i18n.LangSwitchPath`
+(frère du `bakery.langswitch.LangSwitchPath`), prouvé contre les **mêmes vecteurs
+partagés** (D3). Une **régression de rollout** (NPE `lastIndexOf` sur pages
+synthétiques `content.uri` null) a été découverte et corrigée (règle null-safe,
+dégradation index D8). **17 menus régénérés**, idempotence prouvée, dogfooding
+bake réel (page imbriquée FR↔EN préservée, `hreflang` conservé D9).
 
-Baseline : `test` 2007 (+0, 2 FAIL = FLAKY-5 préexistants), `cucumberTest`
-2864/5 = baseline exacte (stash-prouvé 2464/5), `functionalTest` VERT,
-`nodeTest` 7/7, `publishToMavenLocal` VERT.
+Gates **site** : `test` 185/0, `functionalTest` 29/0 (1 skipped), `nodeTest` 10/0,
+`cucumberTest` 5 échecs = baseline S-052 (prose, pool `ok=0`). Détail complet
+`.agents/sessions/056-bky-lang-nav-6-same-page.adoc` du site.
 
-== Mission Session 235 — BKY-LANG-NAV-6 (phase site cheroliv.com)
+== Mission Session 236 — BKY-LANG-NAV-7 (phase site talaria.school)
 
-*NAV-6 — premier rollout site.* Migrer `office/sites/cheroliv.com` vers la règle
-commune : le sélecteur préserve la page (fin du retour à l'accueil) et le
-**split-brain est tué** — `com.cheroliv.i18n.LangSwitchLink.thymeleafHref()` +
-`LangSwitchMenuRenderer`/`LangSwitchSiteApplier`/`LangSwitchBlockInjector`/
-`InjectLangSwitchMain` consomment la règle commune (ou sont retirés au profit du
-task bakery `injectLangSwitch`). Décision D5 du cadrage à confirmer au cadrage
-de la phase site.
+*NAV-7 — harden talaria.school.* Déjà client-side (pas de bug page) : aligner le
+module JS sur la spec commune + garde de parité + test de comportement (page
+préservée). Dépend de NAV-3 ✅ (hôte JS `lang-switch.js` + `LangSwitchClientParity`).
 
-*Couverture* : préservation de page (page imbriquée réelle) + `hreflang`/SEO
-conservés (D9, les deux mécanismes ne doivent pas diverger).
+*Couverture* : test node du résolveur contre les vecteurs partagés + garde de
+parité `maquette/js` ↔ `jbake/assets/js` + vérification que `TALARIA.I18N.setLang`
+conserve la page (mode `dictionary`).
 
-*Attention boundary* : `office/sites/*` sont des sites hors `foundry/`. Le
-cadrage D-pré-requis impose de travailler sur fixture/copie (`dry-run` par
-défaut), jamais de modification destructive du site réel sans accord pilote.
+*Attention boundary* : `office/sites/talaria.school` est hors `foundry/`. Travail
+sur fixture/copie, jamais de modification destructive du site réel sans accord
+pilote.
 
 == Reprendre à
 
-. `git status` dans bakery-gradle — vérifier qu'aucune session concurrente n'écrit.
-. `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc` (cadrage complet, D1→D10 + NAV-6).
-. `.agents/sessions/234-bky-lang-nav-5-bdd-same-page.adoc` (rapport S-234).
-. `office/sites/cheroliv.com/src/main/kotlin/com/cheroliv/i18n/LangSwitchLink.kt`
-   (le split-brain à tuer) + `InjectLangSwitchMain` (la chaîne à replier sur bakery).
+. `git status` dans bakery-gradle ET office/sites/cheroliv.com — sessions concurrentes ?
+. `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc` (§ NAV-7) + `.agents/sessions/235-bky-lang-nav-6-rollout-cheroliv.adoc`.
+. `.agents/sessions/056-bky-lang-nav-6-same-page.adoc` (site — le livré NAV-6).
+. `office/sites/talaria.school/maquette/js/i18n.js` (`TALARIA.I18N`) + le module bakery `lang-switch.js`.
 . Gate Économie d'Encre : ne relancer `test` que si le code source change.
 
-== Dette découverte (FLAKY-5)
+== Dette découverte (S-235)
 
-`FixtureAlignmentAuditorTest` + `RealSiteI18nMigrationIntegrationTest` (cheroliv-com)
-= **2 FAIL préexistants** : drift fixture ↔ site réel (chrome nativement FR,
-S-053/055, 5 templates — `blog_section.thyme` golden master « Close » vs
-« Fermer »). Stash-prouvé non introduit par NAV-2/3/4/5 ni par le re-pin S-233.
-Session dédiée : resync fixture + régénération golden master
-(`PostMigrationSnapshotGenerator`). `koverThresholdCheck` + `ktlintKotlinScriptCheck`
-rouges à HEAD (baseline dépôt).
+* **Null-safety `bakery.langswitch.LangSwitchPath.thymeleafHref()`** — l'expression
+  self-link `${content.uri.substring(content.uri.lastIndexOf('/') + 1)}` n'est pas
+  null-safe ; `content.uri` est null sur les pages synthétiques (`archive`,
+  `tags`, masterindex). Le modèle bakery `site/templates/archive.thyme` rend
+  `menu.thyme` → un site scaffoldé qui bake son archive échouerait au NPE. Aligner
+  sur la forme null-safe du site + FT qui bake l'archive. **Hors périmètre** tant
+  qu'aucun site scaffoldé ne le rencontre.
+* **FLAKY-5** — `FixtureAlignmentAuditorTest` + `RealSiteI18nMigrationIntegrationTest`
+  (2 FAIL préexistants, drift fixture cheroliv.com `blog_section.thyme`, chrome FR
+  S-053/055) — stash-prouvés indépendants de NAV-6. Session dédiée : resync
+  fixture + régénération golden master (`PostMigrationSnapshotGenerator`).
+* `koverThresholdCheck` + `ktlintKotlinScriptCheck` rouges à HEAD (baseline dépôt).
 
 == Rappel
 

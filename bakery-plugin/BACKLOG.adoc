@@ -25,7 +25,7 @@ _Dernière mise à jour (antérieure) : 2026-09-17 — ✅ **BKY-I18N-JS-5 TERMI
 
 '''
 
-== EPIC BKY-LANG-NAV — Changement de langue sans retour à l'accueil (same-page switching) — 🟡 EN COURS, CŒUR CLOS (NAV-0 ✅ S-228, NAV-1 ✅ S-229, NAV-2 ✅ S-230, NAV-3 ✅ S-231, NAV-4 ✅ S-232, NAV-5 ✅ S-234, NAV-6→8 À FAIRE rollout sites)
+== EPIC BKY-LANG-NAV — Changement de langue sans retour à l'accueil (same-page switching) — 🟡 EN COURS, ROLLOUT EN COURS (NAV-0 ✅ S-228, NAV-1 ✅ S-229, NAV-2 ✅ S-230, NAV-3 ✅ S-231, NAV-4 ✅ S-232, NAV-5 ✅ S-234, NAV-6 ✅ S-235, NAV-7→8 À FAIRE rollout sites)
 
 _Origine : demande pilote 2026-09-24 — « lorsque je change de langue lors de la navigation sur le site, une fois arrivé dans la langue demandée je dois être sur la traduction de la page où j'étais, et non pas un retour à la page d'accueil dans la langue demandée ». Cadré S-228 (gouvernance pure, zéro code) — doc `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc`._
 
@@ -134,7 +134,7 @@ Sur arbre → serveur émet le lien exact (crawlable, no-JS, sans FOUC) ; le JS 
 | BKY-LANG-NAV-6
 | Phase site — cheroliv.com (fix bug + kill split-brain + `hreflang` conservé)
 | 3
-| 🟡 À FAIRE
+| ✅ TERMINÉ (S-235)
 
 | BKY-LANG-NAV-7
 | Phase site — talaria.school (harden : spec commune + garde + test comportement)
@@ -152,11 +152,22 @@ _Total_ : ~32 pts, 9 US (dont US-0 à 0 pt). Cœur NAV-1→5 (~19 pts), rollout 
 _DAG_ : NAV-1 → {NAV-2, NAV-3} → NAV-5 ; NAV-3 → NAV-4 → NAV-5 ; NAV-5 → {NAV-6, NAV-7, NAV-8}.
 
 _Projection_ : S-229 NAV-1, S-230 NAV-2, S-231 NAV-3, S-232 NAV-4,
-S-234 NAV-5 (clôture cœur ✅), S-235 NAV-6, S-236 NAV-7, S-237+ NAV-8.
+S-234 NAV-5 (clôture cœur ✅), S-235 NAV-6 ✅ (rollout cheroliv.com),
+S-236 NAV-7, S-237+ NAV-8.
 _(S-233 a été consommée par la maintenance re-pin catalogue ws 0.0.57 ; NAV-5 livré S-234.)_
 
 _Risque principal_ : split-brain Thymeleaf ↔ JS (mode de défaillance propre à l'hybride)
 → D3 (spec unique + vecteurs partagés) + D5 (suppression de la copie cheroliv).
+
+_Dette découverte S-235 (NAV-6)_ : `bakery.langswitch.LangSwitchPath.thymeleafHref()`
+porte un **bug null-safety latent** — l'expression self-link
+`${content.uri.substring(content.uri.lastIndexOf('/') + 1)}` n'est pas null-safe,
+or `content.uri` est null sur les pages synthétiques (`archive.thyme`,
+`tags.thyme`, masterindex). Le modèle bakery `site/templates/archive.thyme` rend
+`menu.thyme` → un site scaffoldé qui bake son archive échouerait au NPE
+« target is null for lastIndexOf ». Reproduit et corrigé **côté site** (S-235,
+détail `.agents/sessions/056-…` du site) ; **non corrigé côté bakery** (cœur clos
+S-234, aucun FT ne bake l'archive avec switcher). À aligner en session dédiée.
 
 '''
 

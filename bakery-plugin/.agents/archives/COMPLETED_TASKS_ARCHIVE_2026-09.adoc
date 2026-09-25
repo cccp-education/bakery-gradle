@@ -1,5 +1,32 @@
 = Archive des Taches Terminees — Septembre 2026
 
+== Session 235 — 2026-09-25 — BKY-LANG-NAV-6 : rollout cheroliv.com (sélecteur same-page)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| BKY-LANG-NAV-6 — phase site cheroliv.com (fix bug + kill split-brain + `hreflang` conservé)
+| ✅ TERMINÉ S-235 (cross-borough, repo `office/sites/cheroliv.com`)
+|===
+
+* Premier **rollout site** de l'EPIC `BKY-LANG-NAV` (cœur clos S-234). Travail
+  cross-borough (build autonome, zéro source bakery modifiée).
+* **D5** — split-brain tué : `com.cheroliv.i18n.LangSwitchLink.thymeleafHref()`
+  **délègue** à la règle commune `com.cheroliv.i18n.LangSwitchPath` (frère du
+  `bakery.langswitch.LangSwitchPath`).
+* **D3** — vecteurs partagés épinglés + `LangSwitchPathDriftGuardTest` + replay
+  ≥ 11 vecteurs via `TemplateEngine` réel.
+* **Régression de rollout corrigée** : NPE `target is null for lastIndexOf` sur
+  pages synthétiques (`archive`/`tags`/masterindex, `content.uri` null) → règle
+  null-safe, dégradation index (D8).
+* **17 menus régénérés** page-aware, idempotence prouvée ; dogfooding bake réel
+  (page imbriquée FR↔EN préservée, `hreflang` conservé D9).
+* **Dette découverte** : `bakery.langswitch.LangSwitchPath` a le même bug
+  null-safety latent (modèle `site/templates/archive.thyme` rend `menu.thyme`).
+* Gates site : `test` 185/0, `functionalTest` 29/0 (1 skipped), `nodeTest` 10/0,
+  `cucumberTest` 5 échecs = baseline S-052 (prose, pool `ok=0`).
+
 == Session 234 — 2026-09-25 — BKY-LANG-NAV-5 : BDD de clôture du cœur (same-page, deux hôtes)
 
 [cols="2,3"]

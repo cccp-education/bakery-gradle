@@ -1,0 +1,92 @@
+= Session 235 — BKY-LANG-NAV-6 : rollout cheroliv.com (sélecteur same-page)
+
+_Date_ : 2026-09-25
+_Borough_ : Bushwick 🟤 (bakery-gradle) — pilotage EPIC `BKY-LANG-NAV`
+_Type_ : cross-borough DDD/TDD/BDD strict — premier rollout site
+_Score_ : 9/10
+
+== Contexte
+
+Reprise bakery à la demande pilote (hook d'ouverture standard), méthodologie
+baby-step DDD/TDD/BDD (unit → functional → cucumber/node) en agile software
+craftmanship, commit/push autorisés en clôture.
+
+Mission = **BKY-LANG-NAV-6** (PROMPT_REPRISE S-235) : premier **rollout site** de
+l'EPIC `BKY-LANG-NAV` — migrer `office/sites/cheroliv.com` vers la règle commune,
+tuer le split-brain, préserver la page courante.
+
+CAUTION: Le travail de code est **cross-borough** et vit dans le repo
+`office/sites/cheroliv.com` (build autonome, hors `foundry/`). Le détail complet
+du livré est dans `.agents/sessions/056-bky-lang-nav-6-same-page.adoc` du site.
+Cette session bakery enregistre la gouvernance EPIC + la dette découverte.
+
+== Constats d'audit
+
+. Le site est un **build Gradle autonome** (aucune dépendance bakery) — le
+  rollout ne peut pas « consommer la tâche `injectLangSwitch` de bakery »
+  directement (layout différent : `jbake/i18n/{lang}/templates` vs le
+  `{site}/{lang}/templates` attendu par `InjectLangSwitchTask` de bakery).
+. La chaîne `com.cheroliv.i18n` (`LangSwitchLink` → `LangSwitchMenuRenderer` →
+  `LangSwitchSiteApplier` → `InjectLangSwitchMain`) **dupliquait** la règle —
+  **split-brain** exactement comme décrit par D5 du cadrage S-228.
+. **Décision D5 confirmée** : consommer la règle commune plutôt que retirer la
+  copie (le site garde sa chaîne d'injection, mais la *résolution* passe par une
+  règle unique alignée sur la spec bakery).
+
+== Livré (résumé — détail site S-056)
+
+* **DDD** — `com.cheroliv.i18n.LangSwitchPath` (hôte Thymeleaf du site, frère de
+  `bakery.langswitch.LangSwitchPath`), expression `th:href` évaluée par page.
+* **D5** — `LangSwitchLink.thymeleafHref()` délègue ; split-brain mort.
+* **D3** — vecteurs partagés (`bakery/langswitch/lang-switch-path-vectors.json`)
+  épinglés côté site + `LangSwitchPathDriftGuardTest` (garde anti-fork) + replay
+  ≥ 11 vecteurs via le `TemplateEngine` réel.
+* **Régression de rollout corrigée** — le bake échouait sur les pages
+  synthétiques (`archive`/`tags`/masterindex, `content.uri` null) →
+  `NullPointerException: target is null for lastIndexOf` ; règle rendue null-safe,
+  dégradation vers l'index de langue (D8). Thymeleaf 3.0.14 OGNL n'accepte pas
+  l'opérateur Elvis `?:`.
+* **17 menus régénérés** page-aware + idempotence (`changed: 0`).
+* **Dogfooding bake réel** — page imbriquée FR↔EN préservée, `hreflang`/
+  `canonical` conservés (D9).
+
+== Dette découverte — null-safety de la règle de référence bakery
+
+CAUTION: `bakery.langswitch.LangSwitchPath.thymeleafHref()` porte le **même bug
+latent** que celui corrigé côté site : l'expression self-link
+`${content.uri.substring(content.uri.lastIndexOf('/') + 1)}` n'est **pas
+null-safe**, or `content.uri` est null sur les pages synthétiques. Le modèle
+bakery `src/main/resources/site/templates/archive.thyme` rend `menu.thyme` —
+un site scaffoldé par `generateSite` qui bake sa page `archive` **échouerait**
+avec le même NPE.
+
+*Preuve* : le bug a été reproduit côté site (test RED `a synthetic page with no
+content uri degrades to the language index` → `NullPointerException: target is
+null for method lastIndexOf`). La règle site a été corrigée ; la règle bakery ne
+l'est pas.
+*Impact* : latent pour les sites scaffoldés (aucun FT bakery ne bake l'archive
+avec un switcher injecté — d'où le silence).
+*Correctif attendu* : aligner `bakery.langswitch.LangSwitchPath.thymeleafHref`
+(+ `thymeleafEachHref` du modèle) sur la forme null-safe du site, redémarrer les
+vecteurs, et couvrir par un FT qui bake l'archive. **Hors périmètre NAV-6** (le
+cœur bakery est clos S-234) — à traiter en session dédiée si un site scaffoldé
+rencontre le défaut.
+
+== Gates
+
+Aucune source bakery modifiée (working tree propre). Gates du **site** (repo
+cheroliv.com) : `test` 185/0, `functionalTest` 29/0 (1 skipped), `nodeTest` 10/0,
+`cucumberTest` 5 échecs = **baseline S-052** (prose non convergée, pool LLM
+`ok=0`), bake PASSED. `check` ROUGE piloté par le corpus non convergé.
+
+Côté bakery (non régression du delta NAV-6) : `FixtureAlignmentAuditorTest` +
+`RealSiteI18nMigrationIntegrationTest` = **FLAKY-5 préexistants** (drift
+`blog_section.thyme`, chrome FR S-053/055), **stash-prouvés indépendants de
+NAV-6** (menu du site restauré à HEAD → mêmes 2 échecs).
+
+== Décision / suite
+
+* **BKY-LANG-NAV-6 TERMINÉ** — premier rollout site livré (cheroliv.com).
+* *Reste* : **NAV-7** (talaria.school — harden client-side, dépend NAV-3 ✅) puis
+  **NAV-8** (cccp.education / magic-stick — i18n à créer, ~8 pts).
+* *Dette* : null-safety règle bakery (ci-dessus) ; FLAKY-5 (maintenance).

@@ -11,9 +11,13 @@ _Dernière mise à jour : 2026-09-25 — Session 234. **BKY-LANG-NAV-5 TERMINÉ*
 * [x] **BKY-LANG-NAV-3** : Hôte JS `lang-switch.js` + garde parité maquette↔jbake (présence + comportement) ✅ S-231 (node 7 + UT 7 + FT Oven 1, `nodeTest` câblé à `check` + CI)
 * [x] **BKY-LANG-NAV-4** : Modèle ex-nihilo conforme (`site-basic` + `site/templates`) ✅ S-232 (`thymeleafEachHref` + `LangSwitchModelGuard`, 4+9 UT + FT 1→3)
 * [x] **BKY-LANG-NAV-5** : BDD Cucumber fixture FR+EN multi-pages — clôture cœur ✅ S-234 (feature 66 `@same-page` 6 scénarios + steps + runner dédié ; deux hôtes + règle pure, RED 6× UndefinedStep → GREEN 6/6)
-* [ ] **BKY-LANG-NAV-6** : Phase site cheroliv.com — fix bug + kill split-brain (🟡 À FAIRE — premier rollout, dépend NAV-5 ✅)
+* [x] **BKY-LANG-NAV-6** : Phase site cheroliv.com — fix bug + kill split-brain ✅ S-235 (règle `com.cheroliv.i18n.LangSwitchPath` + délégation `LangSwitchLink` D5 + vecteurs partagés épinglés D3 + null-safety corrigée + 17 menus régénérés + dogfooding bake réel ; détail `.agents/sessions/056-…` du site)
 * [ ] **BKY-LANG-NAV-7** : Phase site talaria.school — harden (🟡 À FAIRE)
 * [ ] **BKY-LANG-NAV-8** : Phase site cccp.education / magic-stick — i18n à créer (🟡 À FAIRE)
+
+=== Dette découverte S-235 — null-safety règle bakery
+
+* [ ] **`bakery.langswitch.LangSwitchPath.thymeleafHref`** (+ `thymeleafEachHref` du modèle) : expression self-link non null-safe → NPE « target is null for lastIndexOf » sur pages synthétiques (`archive`/`tags`/masterindex). `site/templates/archive.thyme` rend `menu.thyme`. Reproduit + corrigé côté site S-235 ; **à aligner côté bakery** (cœur clos S-234) + FT qui bake l'archive. 🟡 À FAIRE (session dédiée si un site scaffoldé rencontre le défaut)
 
 == EPIC BKY-I18N-JS (S-050) — Task `translateI18nClient` (dictionnaire i18n JS client) ✅ 5/5 US
 
