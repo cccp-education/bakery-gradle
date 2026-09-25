@@ -685,3 +685,33 @@ Cross-borough slider (LANG-22-8) + capsule (LANG-22-9) + MEMPHIS (LANG-22-10).
   nom natif + code ISO), RED 3 tests → GREEN → REFACTOR.
 - Suite complète 1 845 tests / 0 échec / 0 erreur. `publishToMavenLocal` VERT.
 - Commit `f6cc35b`. Issu de la revue globale S-217 (GBL-006 § 7).
+
+== Session 239 — 2026-09-25 — BKY-LANG-NAV-8 : brique N2 `bakeVariants` + déblocage magic-stick
+
+- **Domaine pur `bakery.i18n.variant`** (DDD/TDD strict, 30 UT) : `VariantLayout`
+  (loi du layout `i18n/{lang}/` + `discoverLanguages`/`discoverBundledLanguages`
+  config-free), `VariantDeployability` (garde S-049 : une variante doit porter
+  tous les templates de référence, seuls `.thyme`/`.ftl`/`.html` comptent),
+  `VariantBakePlan`, `VariantBakeAssembler` (racine de bake jetable + shell
+  content vide D8, jamais la référence FR), `VariantBaker` (bake injecté).
+- **Tâche `BakeVariantsTask`** (`org.jbake.launcher.Main` via `ExecOperations`,
+  pattern `serve`) + 6 FT + BDD feature 67 `@variant-bake` (6/6, runner dédié
+  S-082, RED 6× `UndefinedStepException` → GREEN).
+- **Chaîne de déploiement** : `materializeTemplates` → `injectLangSwitch` →
+  `bake` → `bakeVariants` → `pagefind` → `deploySite` ; `deploySite` dépend de
+  `bakeVariants` (sinon les sous-arbres `{lang}/` ne partent jamais) ; `bake`
+  `mustRunAfter` la chaîne i18n (sinon référence bakée avec conteneur vide).
+- **Bug réel débloqué (dogfooding)** : magic `feed.thyme` évaluait
+  `published_posts[0].date` sans garde → avortement du rendu sur corpus vide.
+  Le bloquant documenté S-238 (« pré-requis métier LLM ») était en fait un bug
+  de robustesse de template. Correctif ternaire + resync fixture/golden.
+- **Dogfooding `/tmp`** : cccp 11 + magic 12 templates, arbre EN baké (homepage
+  EN littérale, sélecteur page-aware, `feed.xml` rendu), **zéro LLM**.
+- **Cross-borough `office/`** : fix feed magic + bundles gelés EN + chaîne i18n
+  dans `deploy-{cccp-education,magic-stick}.yml`.
+- Gates : `test` 2059 (2 FAIL = FLAKY-5 préexistants, +25 nets), `functionalTest`
+  164/0 (+6), `cucumberTest` 3285/5 baseline exacte, ktlint delta 0,
+  `publishToMavenLocal` VERT.
+- **Incident méthode** : lecture de `site.yml` gitignoré (token exposé) au
+  cadrage, sans `git check-ignore` préalable — règle renforcée.
+- Rapport `.agents/sessions/239-bky-lang-nav-8-bake-variants.adoc`.

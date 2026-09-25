@@ -1,57 +1,56 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 239
+:session: 240
 :date: 2026-09-25
-:etat: Session 238 ✅ — **BKY-LANG-NAV-8 rollout partiel** : chaîne `materializeTemplates` → `injectLangSwitch` câblée (delta layout `i18n/{lang}`) + bug d'idempotence corrigé (`LangSwitcherContainerMask`) + conteneur marqueur posé sur cccp/magic.
-:epic_actif: **BKY-LANG-NAV** (🟡 NAV-0→7 ✅, NAV-8 🟡 enabler + rollout partiel).
-:epic_suivant: **NAV-8 rollout site complet** (tree EN déployable cccp/magic + CI `deploy-i18n-site` cross-borough + bake variantes). Bloquant magic : `feed.thyme` exige du content (météoré).
+:etat: Session 239 ✅ — **BKY-LANG-NAV-8 : brique N2 `bakeVariants` livrée** + bloquant magic-stick débloqué (bug template `feed.thyme`).
+:epic_actif: **BKY-LANG-NAV** (🟡 NAV-0→7 ✅, NAV-8 🟡 enabler + chaîne de bake complète livrée ; reste la CI réelle + rollout sites restants).
+:epic_suivant: **NAV-8 déclenchement CI réel** cccp/magic (accord pilote — publication production) OU absorption du duplicat cheroliv (`VariantBakeAssembler`/`VariantServePlan`/`VariantDeployability`) dans `bakery.i18n.variant` (kill split-brain D5).
 :dette: FLAKY-5 (drift fixture cheroliv.com) + ktlint baseline dépôt (rouges à HEAD, préexistants).
 
-== État S-238
+== État S-239
 
-Trois blocs livrés (baby-step DDD/TDD/BDD strict) :
+La **brique N2 manquante** du rollout i18n est livrée : `bakeVariants` bake
+chaque variante `i18n/{lang}` déployable dans `{destDirPath}/{lang}/` avec le
+même moteur JBake que la référence.
 
-. **Delta layout** `bakery.langswitch.LangSwitchMenuLayout` (pur) : l'i18n
-   matérialisé `i18n/{lang}/templates/` prime, fallback `{lang}/templates/`,
-   défaut au root. `InjectLangSwitchTask` délègue (RED FT/BDD prouvés).
-. **Bug idempotence** (dogfooding) : `LangSwitcherContainerMask.strip` (pur)
-   retire le fragment généré avant keyage → `materializeTemplates` reste
-   idempotent après `injectLangSwitch` (plus de `menu.9`/`menu.10` orphelins).
-. **Rollout partiel** : conteneur vide `lang-switcher-container` posé dans les
-   `menu.thyme` réels cccp.education + magic-stick (inerte en FR, rempli au bake) ;
-   fixtures + golden masters resynchronisés.
+. **Domaine pur** `bakery.i18n.variant` (`VariantLayout`, `VariantDeployability`,
+   `VariantBakePlan`, `VariantBakeAssembler`, `VariantBaker`) — DDD/TDD strict,
+   30 UT. Garde S-049 (variante incomplète ignorée), shell content vide pour
+   corpus partiel (D8), config-free (découverte corpus/bundles, ne lit jamais
+   `site.yml` gitignoré).
+. **Tâche** `BakeVariantsTask` + 6 FT + BDD feature 67 `@variant-bake` (6/6).
+. **Chaîne de déploiement** câblée : `materializeTemplates` → `injectLangSwitch`
+   → `bake` → `bakeVariants` → `pagefind` → `deploySite` (`deploySite` dépend de
+   `bakeVariants`, sinon les sous-arbres `{lang}/` ne partent pas).
+. **magic-stick débloqué** : `feed.thyme` évaluait `published_posts[0].date` sans
+   garde → avortement du rendu sur corpus vide. Correctif ternaire (cccp garde
+   déjà) + resync fixture/golden.
 
-Dogfooding `/tmp` : cccp 11 templates + magic 12, 0 clé non résolue, variant EN
-**baké** (sélecteur page-aware, UTF-8 correct), **zéro LLM**.
+Dogfooding `/tmp` : cccp 11 + magic 12 templates, 0 clé non résolue, arbre EN
+**baké** (homepage EN littérale, sélecteur page-aware, feed.xml rendu), **zéro LLM**.
 
-== Mission Session 239 — NAV-8 rollout site complet
+== Mission Session 240
 
-*Câbler la chaîne de bake des variantes EN pour cccp.education / magic-stick + CI.*
+*Déclencher la CI réelle* `deploy-cccp-education` / `deploy-magic-stick` — les
+workflows appellent désormais `materializeTemplates ... injectLangSwitch
+publishSite` ; le tree EN doit être publié en production. **Accord pilote requis**
+(publication réelle sur gh-pages).
 
-Constats de périmètre (S-238) :
-. cccp/magic = consommateurs `site.yml` purs (pas de build), via runner-gradle N3 ;
-   le wiring `materializeTemplates` + `injectLangSwitch` + bake variantes + CI
-   (`deploy-i18n-site.yml`) est un chantier cross-borough.
-. **cccp** : variant EN **déployable** (chrome gelé + content partagé).
-. **magic** : variant EN **non déployable** tel quel — `feed.thyme` rend
-   `published_posts[0]` → `IndexOutOfBounds` sur content vide. Le content EN
-   métier exige la traduction LLM metered (**accord pilote requis**).
-. Le rollout n'écrit jamais le contenu métier sans accord : conteneur marqueur
-   seulement en S-238.
-
-*Attention boundary* : `office/sites/*` hors `foundry/`. Travail sur copie/fixture
-d'abord, jamais de modification destructive du site réel sans accord pilote.
+Alternative : *absorber le split-brain cheroliv* D5 — `office/sites/cheroliv.com`
+duplique `VariantBakeAssembler`/`VariantServePlan`/`VariantDeployability` ; la
+nouvelle brique bakery est générique et devrait devenir la source unique.
 
 == Reprendre à
 
 . `git status` dans bakery-gradle ET office.
-. `.agents/sessions/238-…` (ce rapport) + `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc` (§ NAV-8).
-. `.agents/237-…` (enabler bundles gelés) + `.agents/236-…` (NAV-7 talaria, patron client).
-. Golden masters : `src/test/resources/i18n-fixtures/{cccp-education,magic-stick}/`.
-. Gate Économie d'Encre : ne relancer `test`/cucumber que si le code source change.
+. `.agents/sessions/239-…` (ce rapport) + `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc` (§ NAV-8).
+. `.agents/sessions/238-…` (rollout partiel) + `.agents/237-…` (enabler bundles gelés).
+. `src/main/kotlin/bakery/i18n/variant/` (la brique) + `src/test/features/67_variant_bake.feature`.
+. Gate Économie d'Encre : ne relancer `test`/`cucumber` que si le code source change.
 
 == Rappel
 
 * Gate métier : `grep -rwE "REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA" src/` = 0.
+* **JAMAIS lire un `site.yml`** (gitignoré, contient un token) — `git check-ignore -v` d'abord.
 * *Modèle LLM* : `gemma4:31b-cloud` + `OLLAMA_POOL_PORTS=11439,11440,11441,11442`.
 * *Règle 0* : `./gradlew -q publishToMavenLocal` OBLIGATOIRE après toute modif source.
 * *Pattern BDD runner dédié* : tout tag non couvert doit avoir son runner (S-082).

@@ -13,6 +13,7 @@ import bakery.ContentTaskRegistrar.registerRtlDirectionInjectionTask
 import bakery.ContentTaskRegistrar.registerScaffoldContactSecTask
 import bakery.ContentTaskRegistrar.registerTranslateI18nClientTask
 import bakery.ContentTaskRegistrar.registerMaterializeTemplatesTask
+import bakery.ContentTaskRegistrar.registerBakeVariantsTask
 import bakery.ContentTaskRegistrar.registerTranslateTemplatesTask
 import bakery.ContentTaskRegistrar.registerValidateFirebaseConfigTask
 import bakery.DeployTaskRegistrar.registerDeployMaquetteTask
@@ -220,6 +221,7 @@ class BakeryPlugin : Plugin<Project> {
         project.registerTranslateI18nClientTask(resolvedSite, bakeryExtension.ia, bakeryExtension.i18nClient)
         project.registerTranslateTemplatesTask(resolvedSite, bakeryExtension.ia)
         project.registerMaterializeTemplatesTask(resolvedSite)
+        project.registerBakeVariantsTask(resolvedSite, jbakeRuntime)
         project.registerRtlDirectionInjectionTask(resolvedSite)
         project.registerAccessibilityAuditTask(bakeryExtension, resolvedSite)
         project.registerInjectLangSwitchTask(resolvedSite)
@@ -229,10 +231,13 @@ class BakeryPlugin : Plugin<Project> {
     }
 
     /**
-     * Câble l'ordre d'exécution des 3 tâches i18n-deploy (DEPLOY-7).
+     * Câble l'ordre d'exécution des tâches i18n-deploy (DEPLOY-7, BKY-LANG-NAV-8).
      *
      * - `injectRtlDirection` doit tourner après `migrateContentI18n` (lit ses outputs)
      * - `injectLangSwitch` doit tourner après `migrateContentI18n` (lit les variantes localisées)
+     * - `bakeVariants` bake les variantes déployables ; il doit tourner après `bake`
+     *   (qui purge son répertoire de sortie) et avant `pagefind`/`deploySite` qui
+     *   indexent et publient l'arbre complet `{lang}/`.
      *
      * `mustRunAfter` (doux) : n'inclut pas la tâche amont dans le graph si elle
      * n'est pas explicitement demandée. L'utilisateur peut toujours lancer une
@@ -248,6 +253,26 @@ class BakeryPlugin : Plugin<Project> {
             // `i18n/{lang}/templates/`; the selector is injected into that
             // materialised menu, so materialisation must run first.
             task.mustRunAfter("materializeTemplates")
+        }
+        // BKY-LANG-NAV-8 — the deployable `{lang}/` tree must be baked into the
+        // published output, after `bake` (which purges it) and before the index
+        // and the push.
+        project.tasks.named("bakeVariants").configure { task ->
+            task.mustRunAfter(BakeryConstants.BAKE_TASK)
+        }
+        // `bake` renders the reference tree: it must run after the i18n chain so
+        // the injected selector is part of the baked HTML (never an empty
+        // container). Soft ordering — a site that does not request the chain is
+        // unaffected.
+        project.tasks.named(BakeryConstants.BAKE_TASK).configure { task ->
+            task.mustRunAfter("materializeTemplates")
+            task.mustRunAfter("injectLangSwitch")
+        }
+        project.tasks.named("pagefind").configure { task ->
+            task.mustRunAfter("bakeVariants")
+        }
+        project.tasks.named("deploySite").configure { task ->
+            task.dependsOn("bakeVariants")
         }
     }
 }

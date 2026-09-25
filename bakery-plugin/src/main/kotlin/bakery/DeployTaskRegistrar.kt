@@ -42,6 +42,9 @@ object DeployTaskRegistrar {
             taskName = "deploySite",
             taskDescription = "Deploy site online.",
             dependsOnTask = "pagefind",
+            // BKY-LANG-NAV-8 — the deployable variant tree is produced by
+            // `bakeVariants` (after `bake`). Without this dependency, the `{lang}/`
+            // sub-trees would never be published (the reference alone would ship).
             doFirstAction = { site.createCnameFile(project) },
             fromPath = { "$buildDir$separator$destDirPath" },
             toPath = { "$buildDir$separator${pushPage.to}" },

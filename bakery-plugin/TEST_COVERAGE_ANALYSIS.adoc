@@ -1,10 +1,39 @@
 = Analyse de Couverture des Tests — Bakery Gradle Plugin
 
-_Derniere mise a jour : 2026-09-25 (Session 238 — BKY-LANG-NAV-8 rollout partiel : +6 UT LangSwitchMenuLayout + 6 UT LangSwitcherContainerMask + 1 FT + 1 scénario BDD = +14 nets, baseline 2034/2 FAIL FLAKY-5)_
+_Derniere mise a jour : 2026-09-25 (Session 239 — BKY-LANG-NAV-8 : brique N2 `bakeVariants` : +30 UT `bakery.i18n.variant` + 6 FT + 6 scénarios BDD feature 67 = +42 nets, baseline 2059/2 FAIL FLAKY-5)_
 
 '''
 
-== Session 238 — BKY-LANG-NAV-8 rollout partiel (chaîne gelée → sélecteur)
+== Session 239 — BKY-LANG-NAV-8 : brique N2 `bakeVariants` (bake de l'arbre i18n)
+
+**Tests ajoutés** :
+- `VariantDeployabilityTest` : 7 UT (variante complète déployable, template
+  manquant détecté, tri déterministe, bundles non comptés comme templates,
+  variantes incomplètes rapportées, absence de variante non rapportée).
+- `VariantLayout` : 4 UT (via `VariantBakePlanTest.DiscoverLanguages` /
+  `DiscoverBundledLanguages`) — découverte du corpus i18n + des bundles gelés.
+- `VariantBakePlanTest` : 7 UT (défaut jamais schedulé, variante absente non
+  schedulée, non déployable ignorée, ordre préservé, config-free corpus/bundles).
+- `VariantBakeAssemblerTest` : 6 UT (overlay content+templates, assets+props
+  partagés, shell content vide pour corpus partiel, variante absente = erreur,
+  wipe d'une assemblée précédente).
+- `VariantBakerTest` : 5 UT (sous-répertoire par langue, racine assemblée
+  reçue, roots jetables supprimés, sortie périmée wipée, liste vide no-op).
+- `BakeVariantsFunctionalTest` : 6 FT (enregistrement groupe transform, variante
+  déployable bakée, variante non déployable ignorée, défaut jamais baké,
+  `deploySite` tire `bakeVariants`, `bake` attend la chaîne i18n).
+- Feature `67_variant_bake.feature` : 6 scénarios `@variant-bake` + `VariantBakeSteps`
+  + runner dédié `VariantBakeCucumberTestRunner` (pattern S-082). RED prouvé
+  (6× `UndefinedStepException`) → GREEN 6/6.
+
+**Tests corrigés / ré-alignés** : fixture + golden master magic-stick
+`feed.thyme` resynchronisés (garde `published_posts[0]`).
+
+**Baseline** : `./gradlew test` = 2059 tests, 2 FAIL = FLAKY-5 préexistants
+(drift fixture cheroliv.com), 3 skipped. `functionalTest` 164/0 (+6).
+`cucumberTest` 3285/5 baseline exacte (features 30/34/50/dns ; feature 67 6/6).
+
+'''
 
 **Tests ajoutés** :
 - `LangSwitchMenuLayoutTest` : 6 UT (candidats relatifs défaut/non-défaut, résolution

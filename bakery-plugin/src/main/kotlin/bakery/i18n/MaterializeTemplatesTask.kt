@@ -1,6 +1,7 @@
 package bakery.i18n
 
 import bakery.BakeryConstants
+import bakery.i18n.variant.VariantLayout
 import bakery.intention.ResolveIntention
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
@@ -73,16 +74,43 @@ abstract class MaterializeTemplatesTask : DefaultTask() {
             logger.warn("[materializeTemplates] Aucun répertoire templates dans {}", site.absolutePath)
             return
         }
-        val i18nRoot = site.resolve("i18n")
 
         val targetLangs = ResolveIntention.fromCliList(materializeTargetLangs.orNull, null, emptyList())
         val sourceLang = ResolveIntention.fromCli(materializeSourceLang.orNull, null, "fr")
         val dryRun = ResolveIntention.fromCliBoolean(materializeDryRun.orNull, null, true)
 
         if (targetLangs.isEmpty()) {
-            logger.warn("[materializeTemplates] Aucune langue cible fournie.")
+            val discovered = VariantLayout(site).discoverBundledLanguages(sourceLang)
+            if (discovered.isEmpty()) {
+                logger.lifecycle(
+                    "[materializeTemplates] Aucune langue cible fournie et aucun bundle gelé — ignoré.",
+                )
+                return
+            }
+            logger.lifecycle(
+                "[materializeTemplates] Langues cibles découvertes depuis les bundles gelés : {}",
+                discovered.joinToString(", "),
+            )
+            materializeFor(discovered, sourceLang, dryRun)
             return
         }
+        if (dryRun) {
+            logger.lifecycle("[materializeTemplates] DRY-RUN — aucune écriture. Langues : {}", targetLangs.joinToString(", "))
+            return
+        }
+
+        materializeFor(targetLangs, sourceLang, dryRun)
+    }
+
+    private fun materializeFor(
+        targetLangs: List<String>,
+        sourceLang: String,
+        dryRun: Boolean,
+    ) {
+        val site = siteDir ?: return
+        val referenceDir = site.resolve("templates")
+        val i18nRoot = site.resolve("i18n")
+
         if (dryRun) {
             logger.lifecycle("[materializeTemplates] DRY-RUN — aucune écriture. Langues : {}", targetLangs.joinToString(", "))
             return

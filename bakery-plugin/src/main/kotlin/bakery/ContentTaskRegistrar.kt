@@ -433,6 +433,40 @@ object ContentTaskRegistrar {
         }
     }
 
+    /**
+     * Enregistre la tâche `bakeVariants` (BKY-LANG-NAV-8) qui bake chaque
+     * variante `i18n/{lang}` déployable dans `{destDirPath}/{lang}/`, avec le
+     * même moteur JBake que la référence. Une variante non déployable (template
+     * de référence manquant) est ignorée, jamais bakée (leçon S-049).
+     *
+     * @param site Configuration du site (bake.srcPath = racine jbake, language,
+     *             supportedLanguages)
+     * @param jbakeRuntime Classpath JBake (pattern `serve`)
+     */
+    internal fun Project.registerBakeVariantsTask(
+        site: SiteConfiguration,
+        jbakeRuntime: org.gradle.api.artifacts.Configuration,
+    ) {
+        val contentRoot = project.projectDir.resolve(site.bake.srcPath)
+        tasks.register("bakeVariants", bakery.i18n.variant.BakeVariantsTask::class.java) { task ->
+            task.group = BakeryConstants.TRANSFORM_GROUP
+            task.description =
+                "Bake chaque variante i18n/{lang} déployable dans {dest}/{lang}/ (JBake, garde de déployabilité S-049)"
+            task.siteDir = contentRoot
+            task.languages.set(site.supportedLanguages)
+            task.referenceLanguage.set(site.language)
+            val destDir = site.bake.destDirPath.takeIf { it.isNotBlank() } ?: "bake"
+            task.destDir.set(layout.buildDirectory.dir(destDir))
+            task.jbakeRuntime = jbakeRuntime
+            // BKY-LANG-NAV-8 — `bake` wipes its output tree, and the variant tree
+            // is produced by `materializeTemplates` + `injectLangSwitch`. Soft
+            // ordering only (the task stays independently runnable).
+            task.mustRunAfter(BakeryConstants.BAKE_TASK)
+            task.mustRunAfter("materializeTemplates")
+            task.mustRunAfter("injectLangSwitch")
+        }
+    }
+
     /** Construit un [LlmService] si l'IA est activée et l'injecte via [applyService]. */
     private fun createLlmServiceIfEnabled(
         iaConfig: IaConfig,
