@@ -1,0 +1,139 @@
+= Session 238 — BKY-LANG-NAV-8 : rollout site cccp.education / magic-stick (chaîne gelée → sélecteur)
+
+_Date_ : 2026-09-25
+_Borough_ : Bushwick 🟤 (bakery-gradle) — pilotage EPIC `BKY-LANG-NAV`
+_Type_ : DDD/TDD/BDD strict — livraison d'US + rollout site cross-borough
+_Score_ : 9/10
+
+== Contexte
+
+Reprise bakery à la demande pilote (hook d'ouverture standard), méthodologie
+baby-step DDD/TDD/BDD (unit → functional → cucumber), commit/push autorisés en
+clôture. Mission = **BKY-LANG-NAV-8** phase site cccp.education / magic-stick :
+intégrer le sélecteur same-page + câbler la chaîne `materializeTemplates` →
+`injectLangSwitch` (enabler livré S-237).
+
+Constat de périmètre S-237 : les deux sites et leurs golden masters n'ont **pas**
+de `lang-switcher-container` ; `InjectLangSwitchTask.resolveMenuThyme` résout
+`{lang}/templates` alors que l'i18n vit sous `i18n/{lang}/templates` — delta de
+layout à traiter.
+
+== Livré (1) — delta de layout `i18n/{lang}` du sélecteur (DDD/TDD/FT/BDD)
+
+**Domaine pur** `bakery.langswitch.LangSwitchMenuLayout` : résout le `menu.thyme`
+d'une langue dans les deux layouts coexistants — l'i18n matérialisé
+`i18n/{lang}/templates/` (prioritaire) puis le variant direct `{lang}/templates/`
+(cheroliv/talaria, backward compat), le défaut au root `templates/`. Ordre pur +
+sonde disque ; `null` si aucune.
+
+* `LangSwitchMenuLayoutTest` : 6 UT (candidats relatifs, résolution disque,
+  i18n prioritaire, fallback direct, aucun menu → null). RED prouvé
+  (`Unresolved reference 'LangSwitchMenuLayout'`) → GREEN.
+* `InjectLangSwitchTask.resolveMenuThyme` délègue à la règle unique.
+* FT `InjectLangSwitchFunctionalTest` : +1 test « reaches a materialized i18n
+  variant tree » — **RED prouvé** (revert de la délégation → 1 FAILED, 8 baseline
+  PASS) → GREEN 9/9.
+* BDD feature 51 : +1 scénario « A materialized i18n variant receives the
+  page-aware switcher » — **RED prouvé** (revert → 1 FAILED + 4 baseline) →
+  GREEN 6/6.
+
+== Livré (2) — bug d'idempotence découvert par dogfooding : `LangSwitcherContainerMask`
+
+Le dogfooding (chaîne `materializeTemplates` → `injectLangSwitch` → re-materialize)
+a révélé un **défaut réel** : après injection, le `menu.thyme` de référence porte
+le fragment généré ; une seconde materialisation le **keye** (labels de langues →
+`menu.9`, `menu.10` absents du bundle gelé) → toutes clés non résolues, la tâche
+n'écrit **rien** (variant périmé, Loi de l'Économie d'Encre violée).
+
+* `LangSwitcherContainerMask.strip` (objet pur) : retire le corps généré du
+  `lang-switcher-container` (garde la div vide, que `injectLangSwitch` re-remplit).
+  No-op strict si conteneur absent/vide, idempotent.
+* `I18nMigrationService.extractHardcodedText(content, baseName)` : surcharge
+  string pour keyer un template déjà strippé (key space inchangé).
+* `MaterializeTemplatesTask.keyTemplate` : strip avant keyage.
+* `LangSwitcherContainerMaskTest` : 6 UT (strip, conteneur vide/absent no-op,
+  idempotence, intégration keyer — les labels générés ne deviennent jamais clés).
+* **Preuve dogfooding** : la séquence qui échouait passe → 0 clé non résolue,
+  3e run strict no-op (`0 templates matérialisés`).
+
+== Livré (3) — rollout site : conteneur marqueur (cccp + magic)
+
+Les menus de référence des deux sites (`office/sites/cccp.education`,
+`office/sites/magic-stick`) reçoivent le **conteneur vide** `lang-switcher-container`
+(marqueur requis par `injectLangSwitch`, rempli par la chaîne au bake).
+Modification additive, réversible, zéro secret ; le bake FR reste vert
+(vérifié : page rendue, conteneur inerte).
+
+Fixtures + golden masters resynchronisés (le conteneur vide n'ajoute aucune clé) :
+`i18n-fixtures/{cccp-education,magic-stick}/jbake|post-migration/templates/menu.thyme`.
+
+== Dogfooding réel (Règle 2, non destructif)
+
+Sur copies `/tmp` (jamais les sites réels pour le bake ; le rollout n'écrit que
+le conteneur marqueur) :
+
+* **cccp.education** : `materializeTemplates` → **11 templates**, 0 clé non
+  résolue ; `injectLangSwitch` → FR + EN ; re-run idempotent ; variant EN **baké**
+  (`bake` BUILD SUCCESSFUL), sélecteur rendu `href="../index.html"` (FR) /
+  `index.html` (EN, active), arrow UTF-8 `AsciiDoc→HTML` correct.
+* **magic-stick** : `materializeTemplates` → **12 templates**, 0 clé non résolue ;
+  `injectLangSwitch` → FR + EN.
+* **Zéro appel LLM** sur les deux sites.
+
+== Frontière / non livré (session dédiée)
+
+Le **rollout site complet** (i18n EN + wiring CI + bake variantes) reste un
+chantier cross-borough : les sites sont des consommateurs `site.yml` purs
+(runner-gradle N3). Pour **cccp.education, le variant EN est deployable** (chrome
+gelé + content partagé). Pour **magic-stick, le variant EN n'est PAS deployable
+tel quel** : `feed.thyme` génère `published_posts[0]` → `IndexOutOfBounds` sur un
+content vide. Le content EN complet exige la traduction métier metered (accord
+pilote). Décision : le rollout du **tree EN déployable** + CI est reporté.
+
+== Fichiers
+
+[cols="1,1,4"]
+|===
+| Fichier | État | Rôle
+
+| `src/main/kotlin/bakery/langswitch/LangSwitchMenuLayout.kt` | créé | règle pure des 2 layouts
+| `src/main/kotlin/bakery/i18n/LangSwitcherContainerMask.kt` | créé | strip du fragment généré (pur)
+| `src/main/kotlin/bakery/langswitch/InjectLangSwitchTask.kt` | modifié | délègue à la règle
+| `src/main/kotlin/bakery/i18n/MaterializeTemplatesTask.kt` | modifié | strip avant keyage
+| `src/main/kotlin/bakery/i18n/I18nMigrationService.kt` | modifié | surcharge string extract
+| `src/main/kotlin/bakery/BakeryPlugin.kt` | modifié | ordre `injectLangSwitch` après `materializeTemplates`
+| `src/test/kotlin/bakery/langswitch/LangSwitchMenuLayoutTest.kt` | créé | 6 UT
+| `src/test/kotlin/bakery/i18n/LangSwitcherContainerMaskTest.kt` | créé | 6 UT
+| `src/functionalTest/kotlin/bakery/InjectLangSwitchFunctionalTest.kt` | modifié | +1 FT
+| `src/test/scenarios/bakery/scenarios/LangSwitchSteps.kt` | modifié | +1 step i18n
+| `src/test/features/51_lang_switch_url_resolver.feature` | modifié | +1 scénario
+| `i18n-fixtures/{cccp-education,magic-stick}/…/menu.thyme` | modifié | 4 fichiers conteneur
+| `src/test/kotlin/bakery/i18n/snapshot/PostMigrationSnapshotGenerator.kt` | modifié | mention S-238
+| office `sites/{cccp.education,magic-stick}/jbake/templates/menu.thyme` | modifié | conteneur marqueur
+|===
+
+== Gates
+
+[cols="2,3"]
+|===
+| Gate | Résultat
+
+| `test` | **2034 tests, 2 FAIL = FLAKY-5 préexistants** (baseline 2022 → +12 nets)
+| `functionalTest` | BUILD SUCCESSFUL — 158/0
+| `cucumberTest` | **2872 tests, 5 failed = baseline exacte** (features 30/34/50/dns)
+| `nodeTest` | VERT
+| `publishToMavenLocal` | VERT (Règle 0)
+| gate métier `grep REAC\|AFNOR\|SPG\|SPD\|FPA\|RNCP\|CDA` | 0
+| grep secrets delta | 0
+|===
+
+== Décision / suite
+
+* **NAV-8 enabler complété + durci** : le sélecteur atteint le variant matérialisé
+  `i18n/{lang}`, et `materializeTemplates` reste idempotent après injection.
+* **Rollout site partiel** : conteneur marqueur posé sur cccp/magic (committable,
+  inerte en FR). Le tree EN déployable + CI reste à câbler (session dédiée).
+* *Découverte* : magic-stick `feed.thyme` non déployable sur content vide —
+  pré-requis de contenu métier pour le rollout complet.
+* *Dette* : FLAKY-5 (drift fixture cheroliv.com) + ktlint baseline dépôt —
+  préexistants, non déclenchés.

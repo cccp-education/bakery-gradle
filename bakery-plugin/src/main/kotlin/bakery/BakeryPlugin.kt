@@ -244,6 +244,10 @@ class BakeryPlugin : Plugin<Project> {
         }
         project.tasks.named("injectLangSwitch").configure { task ->
             task.mustRunAfter("migrateContentI18n")
+            // BKY-LANG-NAV-8 — a frozen-bundle variant is materialised under
+            // `i18n/{lang}/templates/`; the selector is injected into that
+            // materialised menu, so materialisation must run first.
+            task.mustRunAfter("materializeTemplates")
         }
     }
 }

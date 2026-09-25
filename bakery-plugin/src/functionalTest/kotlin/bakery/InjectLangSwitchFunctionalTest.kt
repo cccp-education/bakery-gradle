@@ -151,6 +151,29 @@ class InjectLangSwitchFunctionalTest {
     }
 
     @Test
+    fun `injectLangSwitch reaches a materialized i18n variant tree (NAV-8)`() {
+        createProjectWithFixture(2, materializeEnUnderI18n = true)
+
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments("injectLangSwitch")
+                .build()
+
+        assertThat(result.output).contains("BUILD SUCCESSFUL")
+        val enMenu = projectDir.resolve("site/i18n/en/templates/menu.thyme")
+        assertThat(enMenu).exists()
+        val enContent = enMenu.readText()
+        assertThat(enContent).contains("data-lang=\"fr\"")
+        assertThat(enContent).contains("data-lang=\"en\"")
+        assertThat(enContent)
+            .describedAs("the materialized EN variant must receive the page-aware selector")
+            .contains("\${content.uri != null ? '../' + content.rootpath + '' + content.uri : '../' + content.rootpath + 'index.html'}")
+    }
+
+    @Test
     fun `injectLangSwitch with 3 languages links EN subdir to AR subdir page-aware`() {
         createProjectWithFixture(3)
         GradleRunner
@@ -165,7 +188,10 @@ class InjectLangSwitchFunctionalTest {
         assertThat(enContent).contains("\${content.uri != null ? '../' + content.rootpath + 'ar/' + content.uri : '../' + content.rootpath + 'ar/index.html'}")
     }
 
-    private fun createProjectWithFixture(langCount: Int) {
+    private fun createProjectWithFixture(
+        langCount: Int,
+        materializeEnUnderI18n: Boolean = false,
+    ) {
         projectDir.resolve("settings.gradle.kts").writeText(
             """
             pluginManagement { repositories { gradlePluginPortal(); mavenLocal() } }
@@ -206,6 +232,16 @@ class InjectLangSwitchFunctionalTest {
 
         for (lang in langs) {
             if (lang == "fr") continue
+            if (materializeEnUnderI18n && lang == "en") {
+                // BKY-LANG-NAV-8 — the frozen-bundle layout: a materialised
+                // variant lives under `i18n/{lang}/templates`, not `{lang}/`.
+                val i18nDir = siteDir.resolve("i18n").resolve(lang)
+                i18nDir.resolve("templates").mkdirs()
+                i18nDir.resolve("content").mkdirs()
+                i18nDir.resolve("templates/menu.thyme").writeText(menuThyme)
+                i18nDir.resolve("content/index.html").writeText("<h1>Hello $lang</h1>")
+                continue
+            }
             val langDir = siteDir.resolve(lang)
             langDir.resolve("templates").mkdirs()
             langDir.resolve("content").mkdirs()

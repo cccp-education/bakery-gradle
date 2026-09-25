@@ -81,14 +81,5 @@ abstract class InjectLangSwitchTask : DefaultTask() {
     private fun resolveMenuThyme(
         site: File,
         lang: String,
-    ): File? {
-        val templatesDir =
-            if (lang == defaultLanguage) {
-                site.resolve("templates")
-            } else {
-                site.resolve(lang).resolve("templates")
-            }
-        val menuThyme = templatesDir.resolve("menu.thyme")
-        return if (menuThyme.exists()) menuThyme else null
-    }
+    ): File? = LangSwitchMenuLayout.resolve(site, lang, defaultLanguage)
 }

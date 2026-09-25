@@ -33,3 +33,10 @@ Feature: Language Switcher URL Resolver
     When I inject the language switcher into the FR site
     Then the lang-option for language "fr" should have class "active"
     And the lang-option for language "en" should not have class "active"
+
+  Scenario: A materialized i18n variant receives the page-aware switcher
+    Given a lang-switch fixture site with 2 languages "fr" and "en" materialized under i18n
+    And the default language is "fr"
+    When I inject the language switcher into the EN site
+    Then the menu in "site/i18n/en/templates/menu.thyme" should contain a page-aware link to language "fr"
+    And the menu in "site/i18n/en/templates/menu.thyme" should not contain "en/index.html" anywhere in lang-switcher links

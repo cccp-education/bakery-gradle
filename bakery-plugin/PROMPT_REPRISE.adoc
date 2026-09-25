@@ -1,50 +1,51 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 238
+:session: 239
 :date: 2026-09-25
-:etat: Session 237 ✅ — **BKY-LANG-NAV-8 débloqué** (null-safety cœur bakery soldé S-235 + `materializeTemplates` : bundles gelés cccp/magic-stick réutilisables **sans LLM**). Antérieur S-236 : NAV-7 (rollout talaria).
-:epic_actif: **BKY-LANG-NAV** (🟡 NAV-0→7 ✅, NAV-8 🟡 enabler livré — rollout site restant).
-:epic_suivant: **NAV-8 rollout site** (intégrer sélecteur dans `menu.thyme` cccp/magic + wiring `materializeTemplates`/`injectLangSwitch` + bake variantes + CI, cross-borough). Dépend S-237 ✅.
+:etat: Session 238 ✅ — **BKY-LANG-NAV-8 rollout partiel** : chaîne `materializeTemplates` → `injectLangSwitch` câblée (delta layout `i18n/{lang}`) + bug d'idempotence corrigé (`LangSwitcherContainerMask`) + conteneur marqueur posé sur cccp/magic.
+:epic_actif: **BKY-LANG-NAV** (🟡 NAV-0→7 ✅, NAV-8 🟡 enabler + rollout partiel).
+:epic_suivant: **NAV-8 rollout site complet** (tree EN déployable cccp/magic + CI `deploy-i18n-site` cross-borough + bake variantes). Bloquant magic : `feed.thyme` exige du content (météoré).
 :dette: FLAKY-5 (drift fixture cheroliv.com) + ktlint baseline dépôt (rouges à HEAD, préexistants).
 
-== État S-237
+== État S-238
 
-**NAV-8 enabler livré, zéro LLM.** Deux blocs :
+Trois blocs livrés (baby-step DDD/TDD/BDD strict) :
 
-. **Null-safety cœur** (dette S-235 soldée) : `bakery.langswitch.LangSwitchPath`
-   `thymeleafHref()` + `thymeleafEachHref()` gardent `content.uri != null`
-   (Thymeleaf 3.0.14 OGNL sans Elvis) → dégradation index de langue (D8). Un site
-   scaffoldé ne casse plus son archive au bake. Byte-identique au correctif
-   cheroliv S-235 (D3). Modèle ex-nihilo màj.
-. **`materializeTemplates`** : `MessageBundleResolver` (pur) + tâche Gradle qui
-   matérialise `i18n/{lang}/templates/` **déployable** depuis un bundle gelé.
-   Preuve réelle sur copie `/tmp` : cccp 11 + magic 12 templates, **0 clé non
-   résolue**, UTF-8 OK, **zéro appel LLM**.
+. **Delta layout** `bakery.langswitch.LangSwitchMenuLayout` (pur) : l'i18n
+   matérialisé `i18n/{lang}/templates/` prime, fallback `{lang}/templates/`,
+   défaut au root. `InjectLangSwitchTask` délègue (RED FT/BDD prouvés).
+. **Bug idempotence** (dogfooding) : `LangSwitcherContainerMask.strip` (pur)
+   retire le fragment généré avant keyage → `materializeTemplates` reste
+   idempotent après `injectLangSwitch` (plus de `menu.9`/`menu.10` orphelins).
+. **Rollout partiel** : conteneur vide `lang-switcher-container` posé dans les
+   `menu.thyme` réels cccp.education + magic-stick (inerte en FR, rempli au bake) ;
+   fixtures + golden masters resynchronisés.
 
-Le gisement (challenge pilote) : golden masters `i18n-fixtures/{cccp-education,
-magic-stick}/post-migration/templates/*` **byte-identiques** aux templates réels
-(11/11, 12/12), leurs `#{key}` couverts 100 % par `translations_en.properties`
-gelés, homepage EN incluse dans le chrome.
+Dogfooding `/tmp` : cccp 11 templates + magic 12, 0 clé non résolue, variant EN
+**baké** (sélecteur page-aware, UTF-8 correct), **zéro LLM**.
 
-== Mission Session 238 — NAV-8 rollout site
+== Mission Session 239 — NAV-8 rollout site complet
 
-*Intégrer le sélecteur same-page dans `office/sites/cccp.education` et
-`office/sites/magic-stick`, puis câbler le pipeline de bake des variantes EN.*
+*Câbler la chaîne de bake des variantes EN pour cccp.education / magic-stick + CI.*
 
-Constats de périmètre (S-237) :
-. Les deux sites (et leurs golden masters) **n'ont pas de `lang-switcher-container`**
-   → à intégrer dans `menu.thyme` (marqueur requis par `injectLangSwitch`).
-. `InjectLangSwitchTask.resolveMenuThyme` résout `site/{lang}/templates` alors que
-   l'i18n vit sous `i18n/{lang}/templates` → delta de layout à traiter.
-. cccp/magic = consommateurs `site.yml` purs (pas de build), via runner-gradle N3.
+Constats de périmètre (S-238) :
+. cccp/magic = consommateurs `site.yml` purs (pas de build), via runner-gradle N3 ;
+   le wiring `materializeTemplates` + `injectLangSwitch` + bake variantes + CI
+   (`deploy-i18n-site.yml`) est un chantier cross-borough.
+. **cccp** : variant EN **déployable** (chrome gelé + content partagé).
+. **magic** : variant EN **non déployable** tel quel — `feed.thyme` rend
+   `published_posts[0]` → `IndexOutOfBounds` sur content vide. Le content EN
+   métier exige la traduction LLM metered (**accord pilote requis**).
+. Le rollout n'écrit jamais le contenu métier sans accord : conteneur marqueur
+   seulement en S-238.
 
 *Attention boundary* : `office/sites/*` hors `foundry/`. Travail sur copie/fixture
 d'abord, jamais de modification destructive du site réel sans accord pilote.
 
 == Reprendre à
 
-. `git status` dans bakery-gradle ET office/sites/*.
-. `.agents/sessions/237-…` (ce rapport) + `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc` (§ NAV-8).
-. `.agents/236-…` (NAV-7 talaria, patron client) + `.agents/235-…` (NAV-6 cheroliv, patron tree).
+. `git status` dans bakery-gradle ET office.
+. `.agents/sessions/238-…` (ce rapport) + `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc` (§ NAV-8).
+. `.agents/237-…` (enabler bundles gelés) + `.agents/236-…` (NAV-7 talaria, patron client).
 . Golden masters : `src/test/resources/i18n-fixtures/{cccp-education,magic-stick}/`.
 . Gate Économie d'Encre : ne relancer `test`/cucumber que si le code source change.
 

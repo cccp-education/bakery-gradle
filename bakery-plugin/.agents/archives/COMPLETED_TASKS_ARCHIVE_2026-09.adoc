@@ -1,5 +1,41 @@
 = Archive des Taches Terminees — Septembre 2026
 
+== Session 238 — 2026-09-25 — BKY-LANG-NAV-8 rollout partiel cccp/magic (chaîne gelée → sélecteur)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| `LangSwitchMenuLayout` (objet pur) — résolution `i18n/{lang}/templates` > `{lang}/templates` > root
+| ✅ TERMINÉ (6 UT)
+
+| `InjectLangSwitchTask.resolveMenuThyme` délègue à la règle unique
+| ✅ TERMINÉ (+1 FT, +1 BDD, RED prouvés par revert)
+
+| `LangSwitcherContainerMask.strip` (pur) — idempotence `materializeTemplates` après `injectLangSwitch`
+| ✅ TERMINÉ (6 UT, bug dogfooding)
+
+| `I18nMigrationService.extractHardcodedText(content, baseName)` surcharge string + wiring `keyTemplate`
+| ✅ TERMINÉ
+
+| Ordre `injectLangSwitch.mustRunAfter(materializeTemplates)` (`BakeryPlugin`)
+| ✅ TERMINÉ
+
+| Rollout partiel : conteneur `lang-switcher-container` dans `menu.thyme` réels cccp/magic + fixtures/golden masters
+| ✅ TERMINÉ
+
+| Dogfooding `/tmp` cccp 11 + magic 12 templates, 0 clé non résolue, zéro LLM, variant EN baké
+| ✅ PROUVÉ
+
+| Rollout complet (tree EN déployable + CI cross-borough) — bloqué magic `feed.thyme` content vide
+| 🟡 REPORTÉ (S-239, pré-requis métier LLM)
+
+|===
+
+Gates : `test` 2034 (2 FAIL = FLAKY-5, +12 nets), `functionalTest` 158/0,
+`cucumberTest` 2872/5 baseline exacte, `nodeTest` VERT, `publishToMavenLocal` VERT,
+gate métier = 0, zéro secret. Rapport `.agents/sessions/238-bky-lang-nav-8-rollout-cccp-magic.adoc`.
+
 == Session 237 — 2026-09-25 — BKY-LANG-NAV-8 débloqué : null-safety cœur + réutilisation bundles gelés
 
 [cols="2,3"]

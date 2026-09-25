@@ -142,8 +142,14 @@ abstract class MaterializeTemplatesTask : DefaultTask() {
         template: File,
         extractor: I18nMigrationService,
     ): String {
-        val content = template.readText()
-        val extractions = extractor.extractHardcodedText(template)
+        // BKY-LANG-NAV-8 — the reference `menu.thyme` may already carry the
+        // generated switcher (injected in place by `injectLangSwitch`, which
+        // runs in this same pipeline). Its labels are generated names, not
+        // author prose: keying them would create `menu.N` keys absent from the
+        // frozen bundle and write nothing (stale variant). Strip the container
+        // body first — it is re-injected afterwards.
+        val content = LangSwitcherContainerMask.strip(template.readText())
+        val extractions = extractor.extractHardcodedText(content, template.nameWithoutExtension)
         if (extractions.isEmpty()) return content
 
         var keyed = content

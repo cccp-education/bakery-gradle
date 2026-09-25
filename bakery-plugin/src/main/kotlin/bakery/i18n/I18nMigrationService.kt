@@ -148,10 +148,19 @@ class I18nMigrationService(
             .toList()
     }
 
-    fun extractHardcodedText(templateFile: File): MutableMap<String, String> {
-        val content = templateFile.readText()
+    fun extractHardcodedText(templateFile: File): MutableMap<String, String> =
+        extractHardcodedText(templateFile.readText(), templateFile.nameWithoutExtension)
+
+    /**
+     * BKY-LANG-NAV-8 — string overload so a caller can key a template whose
+     * generated switcher block was stripped first (frozen-bundle
+     * materialisation). The key space is unchanged: `{baseName}.{N}`.
+     */
+    fun extractHardcodedText(
+        content: String,
+        baseName: String,
+    ): MutableMap<String, String> {
         val extractions = linkedMapOf<String, String>()
-        val baseName = templateFile.nameWithoutExtension
         var counter = 1
 
         val alreadyI18n = Regex("""th:(text|utext|placeholder|content|alt|title)\s*=\s*"#\{[^}]+}"""")

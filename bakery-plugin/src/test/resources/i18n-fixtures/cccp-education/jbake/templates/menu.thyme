@@ -41,6 +41,8 @@
                                 </ul>
                             </li>
                         </ul>
+                        <div class="nav-item dropdown lang-switcher-container ms-lg-2">
+                        </div>
                         <div class="nav-item dropdown theme-switcher-container ms-lg-3">
                             <button class="btn btn-outline-secondary dropdown-toggle theme-dropdown-btn"
                                     type="button"

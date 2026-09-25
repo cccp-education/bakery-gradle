@@ -1,6 +1,30 @@
 = Analyse de Couverture des Tests — Bakery Gradle Plugin
 
-_Derniere mise a jour : 2026-09-25 (Session 237 — BKY-LANG-NAV-8 débloqué : +6 UT null-safety cœur + 7 UT MessageBundleResolver + 2 tests intégration bundles gelés + 5 FT materializeTemplates = +20 nets, baseline 2022/2 FAIL FLAKY-5)_
+_Derniere mise a jour : 2026-09-25 (Session 238 — BKY-LANG-NAV-8 rollout partiel : +6 UT LangSwitchMenuLayout + 6 UT LangSwitcherContainerMask + 1 FT + 1 scénario BDD = +14 nets, baseline 2034/2 FAIL FLAKY-5)_
+
+'''
+
+== Session 238 — BKY-LANG-NAV-8 rollout partiel (chaîne gelée → sélecteur)
+
+**Tests ajoutés** :
+- `LangSwitchMenuLayoutTest` : 6 UT (candidats relatifs défaut/non-défaut, résolution
+  disque root/i18n/direct, i18n prioritaire, fallback direct, aucun menu → null).
+- `LangSwitcherContainerMaskTest` : 6 UT (strip du fragment généré, conteneur vide
+  no-op, conteneur absent no-op, idempotence, intégration keyer — les labels
+  générés ne deviennent jamais des clés).
+- `InjectLangSwitchFunctionalTest` : +1 FT (le sélecteur atteint le tree matérialisé
+  `i18n/{lang}/templates`) — RED prouvé par revert de la délégation (1 FAILED).
+- Feature 51 : +1 scénario « A materialized i18n variant receives the page-aware
+  switcher » — RED prouvé par revert (1 FAILED + 4 baseline).
+
+**Tests corrigés / ré-alignés** : fixtures + golden masters cccp/magic resynchronisés
+(conteneur vide, zéro clé nouvelle). `RealSiteI18nMigrationIntegrationTest` +
+`FixtureAlignmentAuditorTest` : cccp/magic PASS (reste 2 FAIL = FLAKY-5 cheroliv.com
+préexistants).
+
+**Baseline** : `./gradlew test` = 2034 tests, 2 FAIL = FLAKY-5 préexistants
+(drift fixture cheroliv.com), 3 skipped. `functionalTest` 158/0.
+`cucumberTest` 2872/5 baseline exacte stash-prouvée.
 
 '''
 

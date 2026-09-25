@@ -12,6 +12,7 @@ class LangSwitchSteps(
 ) {
     private val supportedLangs = mutableListOf<String>()
     private var defaultLang = "fr"
+    private var materializeUnderI18n = false
 
     private val menuThymeTemplate =
         """
@@ -35,6 +36,22 @@ class LangSwitchSteps(
     ) {
         supportedLangs.clear()
         supportedLangs.addAll(listOf(lang1, lang2))
+        materializeUnderI18n = false
+        createFixtureSite()
+    }
+
+    /**
+     * BKY-LANG-NAV-8 — the non-default variant is materialised under
+     * `i18n/{lang}/templates/` (the frozen-bundle layout), not `{lang}/`.
+     */
+    @Given("a lang-switch fixture site with 2 languages {string} and {string} materialized under i18n")
+    fun createLangSwitchFixture2Materialized(
+        lang1: String,
+        lang2: String,
+    ) {
+        supportedLangs.clear()
+        supportedLangs.addAll(listOf(lang1, lang2))
+        materializeUnderI18n = true
         createFixtureSite()
     }
 
@@ -261,6 +278,14 @@ class LangSwitchSteps(
                 siteDir.resolve("content/index.html").writeText("<h1>Hello FR</h1>")
                 for (lang in supportedLangs) {
                     if (lang == "fr") continue
+                    if (materializeUnderI18n) {
+                        val i18nDir = siteDir.resolve("i18n").resolve(lang)
+                        i18nDir.resolve("templates").mkdirs()
+                        i18nDir.resolve("content").mkdirs()
+                        i18nDir.resolve("templates/menu.thyme").writeText(menuThymeTemplate)
+                        i18nDir.resolve("content/index.html").writeText("<h1>Hello $lang</h1>")
+                        continue
+                    }
                     val langDir = siteDir.resolve(lang)
                     langDir.resolve("templates").mkdirs()
                     langDir.resolve("content").mkdirs()
