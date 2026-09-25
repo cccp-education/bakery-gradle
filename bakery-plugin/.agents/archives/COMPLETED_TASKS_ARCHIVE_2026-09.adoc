@@ -1,5 +1,44 @@
 = Archive des Taches Terminees — Septembre 2026
 
+== Session 240 — 2026-09-25 — Release bakery 0.0.20 (BKY-LANG-NAV) + CI réelle + Gradle 9.8.0
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| Chaîne release DAG MEMPHIS → bakery → runner (débloque la CI)
+| ✅ TERMINÉ
+
+| MEMPHIS BOM/catalog 0.0.58 + `bakery-plugin 0.0.20` (bundle `1bef33da`)
+| ✅ PUBLIÉ CENTRAL
+
+| Gardes `PlatformCatalogAlignmentTest` réalignées (RED 2 failed → GREEN)
+| ✅ TERMINÉ
+
+| bakery repin ws `0.0.58` + 3 platform pins + toml local `0.0.20` (bundle `409aa5fc`)
+| ✅ PUBLIÉ CENTRAL
+
+| `BakeryPluginPublicationTest` 3/3 GREEN (version dérivée 0.0.20)
+| ✅ TERMINÉ
+
+| runner pin catalogue `0.0.56 → 0.0.58` → `ws.plugins.bakery 0.0.20`
+| ✅ TERMINÉ
+
+| CI réelle `deploy-cccp-education` (run 36158522284) + `deploy-magic-stick` (36158531602)
+| ✅ SUCCESS (3m18s / 3m1s)
+
+| Tree EN en production gh-pages (cccp.education/en + magic-stick/en, HTTP 200)
+| ✅ VÉRIFIÉ
+
+| Bump cross-borough Gradle 9.7.1 → 9.8.0 (97 wrappers, 34 repos)
+| ✅ TERMINÉ (méthode S-095, properties only)
+
+| Validations 9.8.0 (bakery, slider, conventions, agent-contracts, runner)
+| ✅ VERT
+|===
+
+== Session 239 — 2026-09-25 — BKY-LANG-NAV-8 : brique N2 `bakeVariants` + déblocage magic-stick
+
 == Session 238 — 2026-09-25 — BKY-LANG-NAV-8 rollout partiel cccp/magic (chaîne gelée → sélecteur)
 
 [cols="2,3"]

@@ -1,0 +1,170 @@
+= Session 240 — Release bakery 0.0.20 (déblocage CI réelle) + bump cross-borough Gradle 9.8.0
+
+_Date_ : 2026-09-25
+_Borough_ : Bushwick 🟤 (bakery-gradle) — pilotage release cross-borough + mission transverse
+_Type_ : Release DAG N0→N2 + bump wrapper cross-borough (méthode S-095)
+_Score_ : 9/10
+
+== Contexte
+
+Reprise bakery (hook d'ouverture standard, méthodologie baby-step DDD/TDD/BDD,
+commit/push autorisés en clôture). Mission S-240 du PROMPT_REPRISE : **déclencher
+la CI réelle** `deploy-cccp-education` / `deploy-magic-stick` (publication
+production gh-pages — accord pilote requis). Le pilote a confirmé et a ajouté une
+**seconde mission transverse** : bump cross-borough Gradle 9.7.1 → 9.8.0.
+
+== Blocage découvert — Central 0.0.19 périmé (piège HTOWN S-218)
+
+La CI checkout `cccp-education/runner-gradle` (ref `main`) et résout bakery via
+le catalogue publié `workspace-catalog` → **`bakery-plugin:0.0.19` depuis Maven
+Central** (le runner GitHub n'a pas de mavenLocal).
+
+Or Central `0.0.19` (publié S-233, 2026-09-17) **ne contient pas la feature NAV** :
+
+[cols="3,2"]
+|===
+| Classe attendue par la CI | Présente Central 0.0.19
+
+| `MaterializeTemplatesTask` | ❌ 0
+| `BakeVariantsTask` / `i18n/variant/**` | ❌ 0
+| `MessageBundleResolver`, `LangSwitcherContainerMask` | ❌ 0
+| `InjectLangSwitchTask` | ✅ (ancienne version)
+|===
+
+Tout le travail NAV (S-228→S-239) était en local sous le **même numéro `0.0.19`**
+(version dérivée du catalog, jamais re-publiée). **La CI échouait sur
+`materializeTemplates` (task not found)** — confirmé a posteriori : les runs
+automatiques du push S-239 (`775a662c`) sont `failure` (1m57s/2m45s).
+
+== Mission A — chaîne de release DAG (3 repos)
+
+=== A.1 — MEMPHIS : BOM/catalog 0.0.57 → 0.0.58 + bakery-plugin 0.0.20
+
+* `gradle/libs.versions.toml` : `workspace-bom 0.0.57→0.0.58`,
+  `bakery-plugin 0.0.19→0.0.20`.
+* TDD strict : gardes `PlatformCatalogAlignmentTest` (workspace-bom + bakery
+  plugin) **RED prouvé** (2 failed) → réalignées → **GREEN**.
+* `RELEASE_PROTOCOL.adoc` : entrée release 0.0.58 ajoutée.
+* `publishToMavenLocal` VERT (2 artefacts signés).
+* **Central** : `publishAggregationToCentralPortal` → bundle
+  `1bef33da-929b-4115-afd9-bdb9e12c2829` (AUTOMATIC). Propagation repo1
+  ~4m30.
+
+=== A.2 — bakery : repin ws 0.0.58 + toml local 0.0.20 → publish 0.0.20
+
+* `settings.gradle.kts` : pin catalogue `0.0.57→0.0.58`.
+* `build.gradle.kts` : 3 platform pins `workspace-bom:0.0.57→0.0.58`
+  (principal + functionalTest + e2eTest).
+* `gradle/libs.versions.toml` : `bakery 0.0.19→0.0.20` (garde hygiène D5).
+* `BakeryPluginPublicationTest` **GREEN** (3/3) — version dérivée `0.0.20`.
+* **Central** : bundle `409aa5fc-c1e0-4ccb-9271-bdf0a6c4e41e` (AUTOMATIC).
+  POM importe `workspace-bom:0.0.58`, JAR porte les 4 classes NAV
+  (vérifié sur l'artefact repo1). Propagation ~18 min (plus lente que
+  MEMPHIS — polling).
+
+=== A.3 — runner-gradle : repin catalogue 0.0.56 → 0.0.58
+
+* `settings.gradle.kts` : pin `0.0.56→0.0.58` → `ws.plugins.bakery` = `0.0.20`.
+* Preuve locale : `./gradlew tasks -PsiteName=cccp.education` expose
+  `materializeTemplates`, `bakeVariants`, `injectLangSwitch`, `publishSite`,
+  `deploySite`.
+
+=== A.4 — CI réelle déclenchée et vérifiée en production
+
+[cols="2,2,3"]
+|===
+| Workflow | Run | Résultat
+
+| `deploy-cccp-education.yml` | 36158522284 | ✅ success (3m18s)
+| `deploy-magic-stick.yml` | 36158531602 | ✅ success (3m1s)
+|===
+
+Logs CI (preuve de la chaîne) :
+
+* **cccp** : `materializeTemplates [en] 11 templates matérialisés, 0 clés non
+  résolues` → `bakeVariants 1 variante(s) bakée(s) : en` → `deploySite`.
+* **magic** : `materializeTemplates [en] 12 templates matérialisés, 0 clés non
+  résolues` → `bakeVariants 1 variante(s) bakée(s) : en` → `feed.xml` rendu
+  (`Rendering feed [.../build/bake/en/feed.xml]... done!`) → `deploySite`.
+
+**Production gh-pages vérifiée** :
+
+[cols="3,2,3"]
+|===
+| URL | Code | Contenu
+
+| `https://cccp.education/` | 200 | FR + sélecteur `data-lang`/`lang-option`
+| `https://cccp.education/en/index.html` | 200 | « Common Content Creator Proletarian »
+| `https://cccp.education/magic-stick/` | 200 | FR
+| `https://cccp.education/magic-stick/en/index.html` | 200 | « Standardized portable environment »
+|===
+
+== Mission B — bump cross-borough Gradle 9.7.1 → 9.8.0
+
+Gradle **9.8.0** confirmé version courante (`services.gradle.org/versions/current`,
+buildTime 2026-09-24, checksum `bafd5ce9…`).
+
+**Méthode S-095** (précédent documenté) : bump des `gradle-wrapper.properties`
+**uniquement** — le `gradle-wrapper.jar` n'est pas version-agnostique mais n'a
+pas été touché lors du bump 9.6.1→9.7.1 (vérifié : commit `b671a9a` = 2 lignes
+properties). Le jar wrapper est identique entre 9.7.1 et 9.8.0.
+
+* **97 wrappers** passés en `gradle-9.8.0-bin.zip` (zéro 9.7.1 restant).
+* Validations de build sur 9.8.0 : bakery, slider, conventions, agent-contracts,
+  runner — **tous VERT** (compileKotlin / tasks).
+* **34 repos git** commités + poussés (staging strict `gradle-wrapper.properties`
+  uniquement — les fichiers sales préexistants, notamment les ~133+ d'`office`,
+  restent intacts).
+* `foundry/private/edster` exclu : wrapper **untracked** (projet JHipster généré,
+  hors périmètre gouverné).
+* `node_modules/generator-jhipster` contient un `gradle-8.14` — ignoré (template
+  tiers).
+* Anomalie préexistante conservée telle quelle :
+  `workspace-bom/ocr-contracts/gradle/wrapper/wrapper/` (chemin imbriqué tracké)
+  — bumpé cohéremment, non corrigé (hors périmètre).
+
+== Fichiers
+
+[cols="2,1,3"]
+|===
+| Repo | État | Rôle
+
+| `workspace-bom/gradle/libs.versions.toml` | modifié | BOM 0.0.58 + bakery 0.0.20
+| `workspace-bom/…/PlatformCatalogAlignmentTest.kt` | modifié | gardes réalignées
+| `workspace-bom/.agents/RELEASE_PROTOCOL.adoc` | modifié | entrée release 0.0.58
+| `bakery-plugin/settings.gradle.kts` | modifié | pin ws 0.0.58
+| `bakery-plugin/build.gradle.kts` | modifié | 3 platform pins 0.0.58
+| `bakery-plugin/gradle/libs.versions.toml` | modifié | bakery 0.0.20
+| `runner-gradle/settings.gradle.kts` | modifié | pin catalogue 0.0.58
+| 97 × `gradle-wrapper.properties` | modifié | 9.7.1 → 9.8.0
+|===
+
+== Gates
+
+[cols="2,3"]
+|===
+| Gate | Résultat
+
+| MEMPHIS `contracts.catalog.*` | RED (2 failed) → GREEN
+| bakery `BakeryPluginPublicationTest` | 3/3 GREEN
+| builds 9.8.0 (5 boroughs) | compileKotlin/tasks VERT
+| `publishToMavenLocal` (MEMPHIS + bakery) | VERT (2 × artefacts signés)
+| Central propagation | MEMPHIS 0.0.58 (4m30), bakery 0.0.20 (18m)
+| CI réelle cccp + magic | ✅ success, tree EN en production (4 URLs 200)
+| wrappers 9.7.1 restants | 0
+|===
+
+== Décision / suite
+
+* **NAV-8 est déployé en production** : le tree EN cccp.education + magic-stick
+  est publié sur gh-pages (homepage EN littérale + sélecteur page-aware).
+* **Gradle 9.8.0** adopté sur les 34 repos gouvernés.
+* *Reste NAV-8* : absorber le split-brain cheroliv (D5) —
+  `office/sites/cheroliv.com` duplique `VariantBakeAssembler`/`VariantServePlan`/
+  `VariantDeployability` ; `bakery.i18n.variant` est désormais générique et
+  devrait devenir la source unique.
+* *Dette* : FLAKY-5 (drift fixture cheroliv.com chrome FR, 2 FAIL préexistants).
+* *Leçon clé* : **une version dérivée du catalog n'est pas une version
+  publiée** — bumper le toml local (0.0.19→0.0.20) est obligatoire pour qu'une
+  release porte réellement les changements. La CI « verte » d'un borough ne
+  prouve rien si le consommateur résout un artefact Central périmé.

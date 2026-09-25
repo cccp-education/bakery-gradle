@@ -1,23 +1,34 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-09-25 — Session 234. **BKY-LANG-NAV-5 TERMINÉ** (BDD de clôture du cœur, same-page deux hôtes) — **cœur EPIC BKY-LANG-NAV clos**. Antérieur S-233 : re-pin catalogue ws 0.0.57. S-232 : NAV-4 (modèle ex-nihilo conforme). S-231 : NAV-3. S-230 : NAV-2. S-229 : NAV-1. S-228 : cadrage._
+_Dernière mise à jour : 2026-09-25 — Session 240. **Release bakery 0.0.20 (BKY-LANG-NAV) + CI réelle cccp.education/magic-stick VERTE (tree EN en production)** + **bump cross-borough Gradle 9.7.1 → 9.8.0**. NAV-8 ✅ terminé. Antérieur S-239 : brique N2 `bakeVariants`. S-234 : NAV-5 (cœur clos)._
 
-== EPIC BKY-LANG-NAV (S-228) — Changement de langue sans retour à l'accueil (same-page switching) 🟡 EN COURS — CŒUR CLOS
+== EPIC BKY-LANG-NAV (S-228) — Changement de langue sans retour à l'accueil (same-page switching) ✅ TERMINÉ 9/9 US
 
 * [x] **BKY-LANG-NAV-0** : Cadrage EPIC (S2 + hybride, Thymeleaf conservé, spec unique + 2 hôtes + vecteurs partagés) ✅ S-228 (gouvernance pure)
 * [x] **BKY-LANG-NAV-1** : `LangSwitchPath` — spec pure `resolveSamePage(...)` + vecteurs partagés JSON ✅ S-229 (17 UT + 2 UT fixture-driven, 4 fichiers créés)
 * [x] **BKY-LANG-NAV-2** : Hôte Thymeleaf — `th:href` page-aware + FT fixture multi-pages ✅ S-230 (9+5+4 UT + renderer réécrit, FT 8/8, BDD 51 5/5)
 * [x] **BKY-LANG-NAV-3** : Hôte JS `lang-switch.js` + garde parité maquette↔jbake (présence + comportement) ✅ S-231 (node 7 + UT 7 + FT Oven 1, `nodeTest` câblé à `check` + CI)
 * [x] **BKY-LANG-NAV-4** : Modèle ex-nihilo conforme (`site-basic` + `site/templates`) ✅ S-232 (`thymeleafEachHref` + `LangSwitchModelGuard`, 4+9 UT + FT 1→3)
-* [x] **BKY-LANG-NAV-5** : BDD Cucumber fixture FR+EN multi-pages — clôture cœur ✅ S-234 (feature 66 `@same-page` 6 scénarios + steps + runner dédié ; deux hôtes + règle pure, RED 6× UndefinedStep → GREEN 6/6)
-* [x] **BKY-LANG-NAV-6** : Phase site cheroliv.com — fix bug + kill split-brain ✅ S-235 (règle `com.cheroliv.i18n.LangSwitchPath` + délégation `LangSwitchLink` D5 + vecteurs partagés épinglés D3 + null-safety corrigée + 17 menus régénérés + dogfooding bake réel ; détail `.agents/sessions/056-…` du site)
-* [ ] **BKY-LANG-NAV-7** : Phase site talaria.school — harden (🟡 À FAIRE)
-* [ ] **BKY-LANG-NAV-8** : Phase site cccp.education / magic-stick — i18n à créer (🟡 À FAIRE)
+* [x] **BKY-LANG-NAV-5** : BDD Cucumber fixture FR+EN multi-pages — clôture cœur ✅ S-234 (feature 66 `@same-page` 6 scénarios + steps + runner dédié)
+* [x] **BKY-LANG-NAV-6** : Phase site cheroliv.com — fix bug + kill split-brain ✅ S-235 (règle `com.cheroliv.i18n.LangSwitchPath` + délégation `LangSwitchLink` D5 + vecteurs partagés épinglés)
+* [x] **BKY-LANG-NAV-7** : Phase site talaria.school — harden ✅ S-236 (module commun byte-identique + délégation `setLang` + garde parité)
+* [x] **BKY-LANG-NAV-8** : Phase site cccp.education / magic-stick — i18n à créer ✅ S-239/S-240 (**brique N2 `bakeVariants` + release bakery 0.0.20 Central + CI réelle VERTE + tree EN en production**)
 
 === Dette découverte S-235 — null-safety règle bakery
 
-* [ ] **`bakery.langswitch.LangSwitchPath.thymeleafHref`** (+ `thymeleafEachHref` du modèle) : expression self-link non null-safe → NPE « target is null for lastIndexOf » sur pages synthétiques (`archive`/`tags`/masterindex). `site/templates/archive.thyme` rend `menu.thyme`. Reproduit + corrigé côté site S-235 ; **à aligner côté bakery** (cœur clos S-234) + FT qui bake l'archive. 🟡 À FAIRE (session dédiée si un site scaffoldé rencontre le défaut)
+* [x] **`bakery.langswitch.LangSwitchPath.thymeleafHref`** (+ `thymeleafEachHref` du modèle) : expression self-link non null-safe → NPE « target is null for lastIndexOf » sur pages synthétiques (`archive`/`tags`/masterindex). ✅ **SOLDÉE S-237** (ternaire explicite OGNL, dégradation index D8, `LangSwitchPathNullSafetyTest` 6 UT RED → GREEN).
+
+=== Suite NAV-8 (split-brain cheroliv)
+
+* [ ] **Absorber le split-brain cheroliv (D5)** : `office/sites/cheroliv.com` duplique `VariantBakeAssembler`/`VariantServePlan`/`VariantDeployability` ; `bakery.i18n.variant` (S-239) est générique → à faire converger (session dédiée, cadrer le périmètre d'abord). 🟡 À FAIRE
+
+== NOUVEAU — Bump cross-borough Gradle 9.7.1 → 9.8.0 (S-240) ✅ TERMINÉ
+
+* [x] **97 wrappers** passés en `gradle-9.8.0-bin.zip` (méthode S-095, properties only, jar inchangé)
+* [x] **34 repos git** commités + poussés (staging strict `gradle-wrapper.properties` ; fichiers sales préexistants intacts)
+* [x] Validations 9.8.0 : bakery, slider, conventions, agent-contracts, runner — VERT
+* [x] Exclus : `edster` (wrapper untracked), `node_modules` (template tiers 8.14)
 
 == EPIC BKY-I18N-JS (S-050) — Task `translateI18nClient` (dictionnaire i18n JS client) ✅ 5/5 US
 
