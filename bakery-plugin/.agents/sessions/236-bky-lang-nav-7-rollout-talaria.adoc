@@ -1,0 +1,78 @@
+= Session 236 — BKY-LANG-NAV-7 : rollout talaria.school (harden same-page, client-side)
+
+_Date_ : 2026-09-25
+_Borough_ : Bushwick 🟤 (bakery-gradle) — pilotage EPIC `BKY-LANG-NAV`
+_Type_ : cross-borough DDD/TDD/BDD strict — deuxième rollout site
+_Score_ : 9/10
+
+== Contexte
+
+Reprise bakery à la demande pilote (hook d'ouverture standard), méthodologie
+baby-step DDD/TDD/BDD (unit → functional → cucumber/node) en agile software
+craftmanship, commit/push autorisés en clôture.
+
+Mission = **BKY-LANG-NAV-7** (PROMPT_REPRISE S-236) : deuxième **rollout site** de
+l'EPIC `BKY-LANG-NAV` — durcir le sélecteur de langue de `office/sites/talaria.school`,
+qui est **déjà client-side** (dictionnaire JS, relocalisation en place) : pas de bug
+de page, mais un **split-brain** (handler bespoke dans `header.js`) et aucune preuve
+anti-fork (vecteurs partagés non rejoués, parité non gardée).
+
+CAUTION: Le travail de code est **cross-borough** et vit dans le repo
+`office/sites/talaria.school` (build autonome, hors `foundry/`). Le détail complet
+du livré est dans `.agents/sessions/060-bky-lang-nav-7-same-page-harden.adoc` du site.
+Cette session bakery enregistre la gouvernance EPIC + la décision de mode.
+
+== Décision — mode `dictionary` conservé
+
+talaria n'a **pas** d'arbre de pages par langue (un seul arbre HTML + dictionnaire
+`TALARIA.I18N.setLang`). Le cadrage NAV-7 dit « déjà client-side, harden » et **D2**
+(« division du travail par modèle i18n, jamais par idéologie ») commande de **ne pas**
+basculer en `tree` : ce serait NAV-8 (créer les arbres), pas NAV-7. La valeur de
+NAV-7 est la **fin du split-brain** (D5) et la **preuve anti-fork** (D3/D6), pas le mode.
+
+== Livré (résumé — détail site S-060)
+
+* **D3** — 14 vecteurs partagés épinglés côté site
+  (`src/test/resources/bakery/langswitch/lang-switch-path-vectors.json`, byte-identique
+  au fixture bakery) + loader `LangSwitchVectors` + garde anti-fork
+  `LangSwitchVectorsDriftGuardTest` (2 UT, skip en CI isolé — jamais un faux vert).
+* **D5** — le module commun `lang-switch.js` (bakery NAV-3) est copié **byte-identique**
+  dans `maquette/js/` (source de dev) et `jbake/assets/js/` (publication), enregistré
+  `MaquetteParityGuard.SHARED_MODULES`. Le handler bespoke de `header.js` est supprimé :
+  `initLangSwitcher()` **délègue** à `LANG_SWITCH.attachLangSwitch({mode:'dictionary'})`.
+* **D6** — garde `talaria.deploy.LangSwitchClientParityGuard` (miroir site du
+  `bakery.langswitch.LangSwitchClientParity`) : module présent 2 arbres + byte-identité
+  + surface `resolveLangPath` **et** `attachLangSwitch`. 6 UT TDD strict RED → GREEN.
+* **Comportement prouvé** — node `lang-switch.test.mjs` rejoue **les 14 vecteurs
+  partagés** et prouve le mode `dictionary` : `preventDefault` + `onSwitch` (`setLang`)
+  appelé + **href jamais réécrit** (page préservée par construction) + no-op sans document.
+* **Annexe** — la tâche `nodeTest` ne déclarait que `contact.js` en input : tout autre
+  module modifié laissait la suite **UP-TO-DATE en silence** (faux vert par omission) ;
+  inputs élargis (`maquette/js` + `jbake/assets/js` + fixture vecteurs).
+
+== Fichiers bakery
+
+[cols="1,1,4"]
+|===
+| Fichier | État | Rôle
+
+| `.agents/sessions/236-bky-lang-nav-7-rollout-talaria.adoc` | créé | ce rapport
+| `PROMPT_REPRISE.adoc` | modifié | mission S-237 (NAV-8)
+| `.agents/INDEX.adoc` | modifié | session en cours + résumé S-236
+| `.agents/SESSIONS_HISTORY.adoc` | modifié | entrée S-236
+| `BACKLOG.adoc` | modifié | NAV-7 ✅ TERMINÉ
+| `.agents/archives/COMPLETED_TASKS_ARCHIVE_09.adoc` | modifié | archive S-236
+|===
+
+_Zéro source bakery modifiée_ (le module `lang-switch.js` est produit par la session
+bakery S-231 ; NAV-7 ne fait que le **consommer** côté site). Aucune gate bakery
+relancée : le delta est cross-borough et couvert par les gates du site (`check` VERT
+— 337 `test` + 108 `cucumberTest` + 32 functional + 132 node, 0 FAIL).
+
+== Décision / suite
+
+* **BKY-LANG-NAV-7 TERMINÉ** — deuxième rollout site livré (talaria.school).
+* *Reste* : **NAV-8** (cccp.education / magic-stick — i18n à **créer**, ~8 pts).
+* *Dette* : null-safety de `bakery.langswitch.LangSwitchPath.thymeleafHref()` (bug
+  latent, modèle `archive.thyme`) + FLAKY-5 (drift fixture cheroliv.com). **Non
+  déclenchées cette session** (côté talaria, aucun site scaffoldé ne bake l'archive).

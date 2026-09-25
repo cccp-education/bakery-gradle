@@ -1,5 +1,34 @@
 = Archive des Taches Terminees — Septembre 2026
 
+== Session 236 — 2026-09-25 — BKY-LANG-NAV-7 : rollout talaria.school (harden same-page client-side)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| BKY-LANG-NAV-7 — phase site talaria.school (harden : spec commune + garde + test comportement)
+| ✅ TERMINÉ S-236 (cross-borough, repo `office/sites/talaria.school`)
+|===
+
+* Deuxième **rollout site** de l'EPIC `BKY-LANG-NAV` (cœur clos S-234 ; NAV-6 S-235).
+  Travail cross-borough (build autonome, **zéro source bakery modifiée**).
+* **Décision** — mode `dictionary` conservé (cadrage NAV-7 + D2 « division par
+  modèle i18n » ; `tree` serait NAV-8). talaria relocalise en place : page préservée
+  par construction.
+* **D5** — le module commun `lang-switch.js` (bakery NAV-3) est copié
+  **byte-identique** `maquette/js/` + `jbake/assets/js/` ; `header.js` **délègue**
+  à `LANG_SWITCH.attachLangSwitch({mode:'dictionary'})` (fin du handler bespoke).
+* **D3** — 14 vecteurs partagés épinglés (`src/test/resources/bakery/langswitch/`,
+  byte-identique bakery `2b782f2b`) + `LangSwitchVectorsDriftGuardTest` (skip CI isolé).
+* **D6** — garde `talaria.deploy.LangSwitchClientParityGuard` (2 arbres +
+  byte-identité + surface `resolveLangPath`/`attachLangSwitch`) + 6 UT TDD strict.
+* **Comportement prouvé** — node `lang-switch.test.mjs` rejoue les 14 vecteurs +
+  `preventDefault`/`setLang`/href jamais réécrit ; scénario BDD `@deployment`.
+* **Annexe** — inputs `nodeTest` élargis (`maquette/js` + `jbake/assets/js` +
+  fixture) : un faux UP-TO-DATE masquait toute modif hors `contact.js`.
+* Gates site : `test` 337/0 (283 unit + 54 scénarios), `functionalTest` 32/0,
+  `cucumberTest` 108/0, `nodeTest` 132/0, `check` VERT.
+
 == Session 235 — 2026-09-25 — BKY-LANG-NAV-6 : rollout cheroliv.com (sélecteur same-page)
 
 [cols="2,3"]

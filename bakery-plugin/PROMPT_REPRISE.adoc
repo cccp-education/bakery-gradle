@@ -1,73 +1,70 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 236
+:session: 237
 :date: 2026-09-25
-:etat: Session 235 ✅ — **BKY-LANG-NAV-6 TERMINÉ — rollout cheroliv.com** (sélecteur same-page, premier rollout site). Le sélecteur préserve la page, split-brain tué (D5), vecteurs partagés (D3), régression bake corrigée. Antérieur S-234 : NAV-5 (cœur clos). S-233 : re-pin catalogue ws 0.0.57.
-:epic_actif: **BKY-LANG-NAV** (🟡 NAV-0 ✅, NAV-1 ✅, NAV-2 ✅, NAV-3 ✅, NAV-4 ✅, NAV-5 ✅, NAV-6 ✅, NAV-7→8 À FAIRE) — rollout sites en cours.
-:epic_suivant: **NAV-7** (phase site — talaria.school : harden). Dépend de NAV-3 ✅.
+:etat: Session 236 ✅ — **BKY-LANG-NAV-7 TERMINÉ — rollout talaria.school** (durcissement same-page client-side : module commun consommé, split-brain mort, vecteurs partagés + garde de parité + comportement dictionary prouvés). Antérieur S-235 : NAV-6 (rollout cheroliv.com).
+:epic_actif: **BKY-LANG-NAV** (🟡 NAV-0 ✅, NAV-1 ✅, NAV-2 ✅, NAV-3 ✅, NAV-4 ✅, NAV-5 ✅, NAV-6 ✅, NAV-7 ✅, NAV-8 À FAIRE) — dernier rollout site restant.
+:epic_suivant: **NAV-8** (phase site — cccp.education / magic-stick : i18n à **créer** — inventaire + sélecteur JS + dictionnaire, ~8 pts). Dépend de NAV-5 ✅.
 :dette: null-safety `bakery.langswitch.LangSwitchPath` (bug latent, session dédiée si un site scaffoldé le rencontre) + FLAKY-5 (drift fixture cheroliv.com).
 
-== État S-235
+== État S-236
 
-**BKY-LANG-NAV-6 livré** — premier rollout site. Travail **cross-borough** (repo
-`office/sites/cheroliv.com`, build autonome), **zéro source bakery modifiée**.
-Le site dupliquait la règle page-blind (`com.cheroliv.i18n`) ; D5 a tué le
-split-brain : `LangSwitchLink` **délègue** à `com.cheroliv.i18n.LangSwitchPath`
-(frère du `bakery.langswitch.LangSwitchPath`), prouvé contre les **mêmes vecteurs
-partagés** (D3). Une **régression de rollout** (NPE `lastIndexOf` sur pages
-synthétiques `content.uri` null) a été découverte et corrigée (règle null-safe,
-dégradation index D8). **17 menus régénérés**, idempotence prouvée, dogfooding
-bake réel (page imbriquée FR↔EN préservée, `hreflang` conservé D9).
+**BKY-LANG-NAV-7 livré** — deuxième rollout site. Travail **cross-borough** (repo
+`office/sites/talaria.school`, build autonome), **zéro source bakery modifiée**.
+talaria est **déjà client-side** (dictionnaire `TALARIA.I18N.setLang`, relocalisation
+en place — pas de bug de page) : la mission était un **durcissement**. Le split-brain
+a été tué (D5) : `header.js` **délègue** à `LANG_SWITCH.attachLangSwitch({mode:'dictionary'})`
+(handler bespoke supprimé). Le module commun `lang-switch.js` est **byte-identique**
+dans les 2 arbres ; **14 vecteurs partagés** épinglés + **garde anti-fork** + garde de
+parité `LangSwitchClientParityGuard` + node prouvant le comportement dictionary.
 
-Gates **site** : `test` 185/0, `functionalTest` 29/0 (1 skipped), `nodeTest` 10/0,
-`cucumberTest` 5 échecs = baseline S-052 (prose, pool `ok=0`). Détail complet
-`.agents/sessions/056-bky-lang-nav-6-same-page.adoc` du site.
+Gates **site** : `test` 337/0 (283 unit + 54 scénarios), `functionalTest` 32/0,
+`cucumberTest` 108/0, `nodeTest` 132/0, `check` VERT (1m43s). Détail complet
+`.agents/sessions/060-bky-lang-nav-7-same-page-harden.adoc` du site.
 
-== Mission Session 236 — BKY-LANG-NAV-7 (phase site talaria.school)
+== Mission Session 237 — BKY-LANG-NAV-8 (phase site cccp.education / magic-stick)
 
-*NAV-7 — harden talaria.school.* Déjà client-side (pas de bug page) : aligner le
-module JS sur la spec commune + garde de parité + test de comportement (page
-préservée). Dépend de NAV-3 ✅ (hôte JS `lang-switch.js` + `LangSwitchClientParity`).
+*NAV-8 — i18n à créer.* Ces deux sites n'ont **aucun** i18n (`menu.thyme` n'a que le
+theme switcher). Pré-requis entier : inventaire des langues + sélecteur JS + dictionnaire
+(`TALARIA.I18N`-like), **puis** le switch page-aware, pour que la garde passe.
 
-*Couverture* : test node du résolveur contre les vecteurs partagés + garde de
-parité `maquette/js` ↔ `jbake/assets/js` + vérification que `TALARIA.I18N.setLang`
-conserve la page (mode `dictionary`).
+*Attention périmètre* : ~8 pts, chantier propre (≠ cœur), à ne pas noyer. Décider site
+par site (cccp.education et magic-stick partagent le pipeline JBake + bakery). Vérifier
+le modèle i18n réel avant de choisir `tree` vs `dictionary`.
 
-*Attention boundary* : `office/sites/talaria.school` est hors `foundry/`. Travail
-sur fixture/copie, jamais de modification destructive du site réel sans accord
-pilote.
+*Attention boundary* : `office/sites/cccp.education` et `office/sites/magic-stick` sont
+hors `foundry/`. Travail sur fixture/copie, jamais de modification destructive du site
+réel sans accord pilote.
 
 == Reprendre à
 
-. `git status` dans bakery-gradle ET office/sites/cheroliv.com — sessions concurrentes ?
-. `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc` (§ NAV-7) + `.agents/sessions/235-bky-lang-nav-6-rollout-cheroliv.adoc`.
-. `.agents/sessions/056-bky-lang-nav-6-same-page.adoc` (site — le livré NAV-6).
-. `office/sites/talaria.school/maquette/js/i18n.js` (`TALARIA.I18N`) + le module bakery `lang-switch.js`.
+. `git status` dans bakery-gradle ET office/sites/cccp.education + office/sites/magic-stick.
+. `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc` (§ NAV-8) + `.agents/sessions/236-bky-lang-nav-7-rollout-talaria.adoc`.
+. `.agents/sessions/235-bky-lang-nav-6-rollout-cheroliv.adoc` (site S-056) + S-236 site (S-060) — 2 rollouts de référence.
+. `office/sites/talaria.school/maquette/js/lang-switch.js` + `header.js` (patron dictionary) ;
+   `office/sites/cheroliv.com/src/main/kotlin/com/cheroliv/i18n/LangSwitchPath.kt` (patron tree).
 . Gate Économie d'Encre : ne relancer `test` que si le code source change.
 
-== Dette découverte (S-235)
+== Dette découverte (S-235, rappel)
 
 * **Null-safety `bakery.langswitch.LangSwitchPath.thymeleafHref()`** — l'expression
   self-link `${content.uri.substring(content.uri.lastIndexOf('/') + 1)}` n'est pas
-  null-safe ; `content.uri` est null sur les pages synthétiques (`archive`,
-  `tags`, masterindex). Le modèle bakery `site/templates/archive.thyme` rend
-  `menu.thyme` → un site scaffoldé qui bake son archive échouerait au NPE. Aligner
-  sur la forme null-safe du site + FT qui bake l'archive. **Hors périmètre** tant
+  null-safe ; `content.uri` est null sur les pages synthétiques (`archive`, `tags`,
+  masterindex). Le modèle bakery `site/templates/archive.thyme` rend `menu.thyme` → un
+  site scaffoldé qui bake son archive échouerait au NPE. **Hors périmètre** tant
   qu'aucun site scaffoldé ne le rencontre.
 * **FLAKY-5** — `FixtureAlignmentAuditorTest` + `RealSiteI18nMigrationIntegrationTest`
-  (2 FAIL préexistants, drift fixture cheroliv.com `blog_section.thyme`, chrome FR
-  S-053/055) — stash-prouvés indépendants de NAV-6. Session dédiée : resync
-  fixture + régénération golden master (`PostMigrationSnapshotGenerator`).
+  (2 FAIL préexistants, drift fixture cheroliv.com `blog_section.thyme`, chrome FR S-053/055).
 * `koverThresholdCheck` + `ktlintKotlinScriptCheck` rouges à HEAD (baseline dépôt).
 
 == Rappel
 
 * Gate métier : `grep -rwE "REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA" src/` = 0.
 * *Modèle LLM* : `gemma4:31b-cloud` + `OLLAMA_POOL_PORTS=11439,11440,11441,11442`.
-* *Publication Central* : ordre DAG réel (publier le consommateur absent AVANT
-   de l'ajouter au catalogue MEMPHIS — garde D8 anti-ghost).
-* *Règle 0* : `./gradlew -q publishToMavenLocal` OBLIGATOIRE après toute
-   modification du code source.
-* *Pattern BDD runner dédié* : tout tag de feature non couvert par le runner
-   principal doit avoir son runner dédié (S-082) — sinon il est skippé en silence.
+* *Publication Central* : ordre DAG réel (publier le consommateur absent AVANT de
+   l'ajouter au catalogue MEMPHIS — garde D8 anti-ghost).
+* *Règle 0* : `./gradlew -q publishToMavenLocal` OBLIGATOIRE après toute modification
+   du code source.
+* *Pattern BDD runner dédié* : tout tag de feature non couvert par le runner principal
+   doit avoir son runner dédié (S-082) — sinon il est skippé en silence.
 * Commit/push autorisés (décision pilote 2026-09-17). Zéro secret.
 * Baby-step DDD/TDD/BDD strict — 1 fichier à la fois, gate `test` complète.
