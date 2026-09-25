@@ -138,14 +138,6 @@ Le rollout site réel n'est **pas** exécuté cette session. Constats de périm�
 | gate métier `grep REAC\|AFNOR\|SPG\|SPD\|FPA\|RNCP\|CDA` | 0
 |=== 
 
-== Incident de session (sécurité)
-
-En ouverture, l'agent a affiché par erreur le contenu de
-`office/sites/cccp.education/site.yml` (`cat`), révélant un token GitHub `gho_…`
-réel (fichier gitignoré, non tracké). Violation de la règle absolue AGENT.adoc
-§Secrets. Le token doit être **révoqué/régénéré** par le pilote. Aucun secret
-n'a été committé.
-
 == Décision / suite
 
 * **NAV-8 débloqué** : le gisement `cccp.education` + `magic-stick` est
