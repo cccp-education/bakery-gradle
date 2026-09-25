@@ -18,32 +18,32 @@
                     data-bs-target="#navbarNav"
                     aria-controls="navbarNav"
                     aria-expanded="false"
-                    aria-label="Toggle navigation">
+                                        th:attr="aria-label=#{menu.1}" aria-label="Basculer la navigation">>
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-start">
                     <li class="nav-item">
-                        <a class="nav-link" th:href="${isIndexPage ? '#home' : content.rootpath + 'index.html#home'}" th:text="#{menu.1}">Accueil</a>
+                        <a class="nav-link" th:href="${isIndexPage ? '#home' : content.rootpath + 'index.html#home'}" th:text="#{menu.2}">Accueil</a>
                     </li>
 <!--                    <li class="nav-item">-->
-<!--                        <a class="nav-link" th:href="${isIndexPage ? '#about' : content.rootpath + 'index.html#about'}" th:text="#{menu.2}">À propos</a>-->
+<!--                        <a class="nav-link" th:href="${isIndexPage ? '#about' : content.rootpath + 'index.html#about'}" th:text="#{menu.3}">À propos</a>-->
 <!--                    </li>-->
 <!--                    <li class="nav-item">-->
-<!--                        <a class="nav-link" th:href="${isIndexPage ? '#services' : content.rootpath + 'index.html#services'}" th:text="#{menu.3}">Services</a>-->
+<!--                        <a class="nav-link" th:href="${isIndexPage ? '#services' : content.rootpath + 'index.html#services'}" th:text="#{menu.4}">Services</a>-->
 <!--                    </li>-->
                     <li class="nav-item">
-                        <a class="nav-link" th:href="${isIndexPage ? '#expertises' : content.rootpath + 'index.html#expertise'}" th:text="#{menu.4}">Expertises</a>
+                        <a class="nav-link" th:href="${isIndexPage ? '#expertises' : content.rootpath + 'index.html#expertise'}" th:text="#{menu.5}">Expertises</a>
                     </li>
 <!--                    <li class="nav-item"> -->
-<!--                        <a class="nav-link" th:href="${isIndexPage ? '#formations' : content.rootpath + 'index.html#formations'}" th:text="#{menu.5}">Formations</a>-->
+<!--                        <a class="nav-link" th:href="${isIndexPage ? '#formations' : content.rootpath + 'index.html#formations'}" th:text="#{menu.6}">Formations</a>-->
 <!--                    </li>-->
 <!--                    <li class="nav-item">-->
-<!--                        <a class="nav-link" th:href="${isIndexPage ? '#portfolio' : content.rootpath + 'index.html#portfolio'}" th:text="#{menu.6}">Portfolio</a>-->
+<!--                        <a class="nav-link" th:href="${isIndexPage ? '#portfolio' : content.rootpath + 'index.html#portfolio'}" th:text="#{menu.7}">Portfolio</a>-->
 <!--                    </li>-->
                     <li class="nav-item">
-                        <a class="nav-link" th:href="${isIndexPage ? '#blog' : content.rootpath + 'blog.html'}" th:text="#{menu.7}">Blog</a>
+                        <a class="nav-link" th:href="${isIndexPage ? '#blog' : content.rootpath + 'blog.html'}" th:text="#{menu.8}">Blog</a>
                     </li>
 <!--                    <li class="nav-item dropdown">-->
 <!--                        <a class="nav-link dropdown-toggle"-->
@@ -71,11 +71,11 @@
 <!--                        </ul>-->
 <!--                    </li>-->
 <!--                    <li class="nav-item">-->
-<!--                        <a class="nav-link" th:href="${isIndexPage ? '#contact' : content.rootpath + 'index.html#contact'}" th:text="#{menu.8}">Contact</a>-->
+<!--                        <a class="nav-link" th:href="${isIndexPage ? '#contact' : content.rootpath + 'index.html#contact'}" th:text="#{menu.9}">Contact</a>-->
 <!--                    </li>-->
 
                     <li class="nav-item">
-                        <a class="nav-link" th:href="${isIndexPage ? '#contact' : content.rootpath + 'index.html#contact'}" th:text="#{menu.8}">Contact</a>
+                        <a class="nav-link" th:href="${isIndexPage ? '#contact' : content.rootpath + 'index.html#contact'}" th:text="#{menu.9}">Contact</a>
                     </li>
                 </ul>
                 <!-- Theme Switcher moved outside the ul for simpler flexbox calculation -->
@@ -85,21 +85,21 @@
                             id="themeDropdown"
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
-                                                        th:attr="aria-label=#{menu.10}" aria-label="Sélectionner le thème de l'interface">>
+                                                        th:attr="aria-label=#{menu.11}" aria-label="Sélectionner le thème de l'interface">>
                         <i class="bi bi-sun"></i>
-                        <span id="current-theme" class="visually-hidden">Light</span>
+                        <span id="current-theme" class="visually-hidden" th:text="#{menu.12}">Clair</span>
                     </button>
                     <ul class="dropdown-menu" aria-labelledby="themeDropdown">
                         <li><button class="dropdown-item theme-option"
                                     type="button"
                                     data-theme="light">
-                            <i class="bi bi-sun me-2"></i>Light
+                            <i class="bi bi-sun me-2"></i>Clair
                         </button></li>
                         <li><button class="dropdown-item theme-option" type="button" data-theme="dark">
-                            <i class="bi bi-moon me-2"></i>Dark
+                            <i class="bi bi-moon me-2"></i>Sombre
                         </button></li>
                         <li><button class="dropdown-item theme-option" type="button" data-theme="high-contrast">
-                            <i class="bi bi-circle-half me-2"></i>High Contrast
+                            <i class="bi bi-circle-half me-2"></i>Contraste élevé
                         </button></li>
                     </ul>
                 </div>
@@ -110,76 +110,61 @@
                             id="langDropdown"
                             data-bs-toggle="dropdown"
                             aria-expanded="false"
-                                                        th:attr="aria-label=#{menu.11}" aria-label="Select language">>
-                        <span class="me-1" th:text="#{menu.12}">🇫🇷</span>
-                        <span class="ms-1" th:text="#{menu.13}">FR</span>
+                                                        th:attr="aria-label=#{menu.13}" aria-label="Sélectionner la langue">>
+                        <span class="me-1" th:text="#{menu.14}">🇫🇷</span>
+                        <span class="ms-1" th:text="#{menu.15}">FR</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'en/index.html'}" data-lang="en">
-                            <i class="bi bi-flag me-2"></i>English
+                        <li><a class="dropdown-item lang-option" th:href="${content.uri != null ? content.rootpath + 'en/' + content.uri : content.rootpath + 'en/index.html'}" data-lang="en">
+                            <span class="lang-flag me-2" aria-hidden="true" th:text="#{menu.16}">🇬🇧</span>English
                         </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'zh/index.html'}" data-lang="zh">
-                            <i class="bi bi-flag me-2"></i>中文
+                        <li><a class="dropdown-item lang-option" th:href="${content.uri != null ? content.rootpath + 'zh/' + content.uri : content.rootpath + 'zh/index.html'}" data-lang="zh">
+                            <span class="lang-flag me-2" aria-hidden="true" th:text="#{menu.17}">🇨🇳</span>中文
                         </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'hi/index.html'}" data-lang="hi">
-                            <i class="bi bi-flag me-2"></i>हिन्दी
+                        <li><a class="dropdown-item lang-option" th:href="${content.uri != null ? content.rootpath + 'hi/' + content.uri : content.rootpath + 'hi/index.html'}" data-lang="hi">
+                            <span class="lang-flag me-2" aria-hidden="true" th:text="#{menu.18}">🇮🇳</span>हिन्दी
                         </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'es/index.html'}" data-lang="es">
-                            <i class="bi bi-flag me-2"></i>Español
+                        <li><a class="dropdown-item lang-option" th:href="${content.uri != null ? content.rootpath + 'es/' + content.uri : content.rootpath + 'es/index.html'}" data-lang="es">
+                            <span class="lang-flag me-2" aria-hidden="true" th:text="#{menu.19}">🇪🇸</span>Español
                         </a></li>
-                        <li><a class="dropdown-item lang-option active" th:href="${content.rootpath + 'index.html'}" data-lang="fr">
-                            <i class="bi bi-flag-fill me-2"></i>Français
+                        <li><a class="dropdown-item lang-option active" th:href="${content.uri != null ? content.uri.substring(content.uri.lastIndexOf('/') + 1) : content.rootpath + 'index.html'}" data-lang="fr">
+                            <span class="lang-flag me-2" aria-hidden="true" th:text="#{menu.14}">🇫🇷</span>Français
                         </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'ar/index.html'}" data-lang="ar">
-                            <i class="bi bi-flag me-2"></i>العربية
+                        <li><a class="dropdown-item lang-option" th:href="${content.uri != null ? content.rootpath + 'ar/' + content.uri : content.rootpath + 'ar/index.html'}" data-lang="ar">
+                            <span class="lang-flag me-2" aria-hidden="true" th:text="#{menu.21}">🇸🇦</span>العربية
                         </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'bn/index.html'}" data-lang="bn">
-                            <i class="bi bi-flag me-2"></i>বাংলা
+                        <li><a class="dropdown-item lang-option" th:href="${content.uri != null ? content.rootpath + 'bn/' + content.uri : content.rootpath + 'bn/index.html'}" data-lang="bn">
+                            <span class="lang-flag me-2" aria-hidden="true" th:text="#{menu.22}">🇧🇩</span>বাংলা
                         </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'pt/index.html'}" data-lang="pt">
-                            <i class="bi bi-flag me-2"></i>Português
+                        <li><a class="dropdown-item lang-option" th:href="${content.uri != null ? content.rootpath + 'pt/' + content.uri : content.rootpath + 'pt/index.html'}" data-lang="pt">
+                            <span class="lang-flag me-2" aria-hidden="true" th:text="#{menu.23}">🇵🇹</span>Português
                         </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'ru/index.html'}" data-lang="ru">
-                            <i class="bi bi-flag me-2"></i>Русский
+                        <li><a class="dropdown-item lang-option" th:href="${content.uri != null ? content.rootpath + 'ru/' + content.uri : content.rootpath + 'ru/index.html'}" data-lang="ru">
+                            <span class="lang-flag me-2" aria-hidden="true" th:text="#{menu.24}">🇷🇺</span>Русский
                         </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'ur/index.html'}" data-lang="ur">
-                            <i class="bi bi-flag me-2"></i>اردو
+                        <li><a class="dropdown-item lang-option" th:href="${content.uri != null ? content.rootpath + 'ur/' + content.uri : content.rootpath + 'ur/index.html'}" data-lang="ur">
+                            <span class="lang-flag me-2" aria-hidden="true" th:text="#{menu.25}">🇵🇰</span>اردو
                         </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'it/index.html'}" data-lang="it">
-                            <i class="bi bi-flag me-2"></i>Italiano
+                        <li><a class="dropdown-item lang-option" th:href="${content.uri != null ? content.rootpath + 'it/' + content.uri : content.rootpath + 'it/index.html'}" data-lang="it">
+                            <span class="lang-flag me-2" aria-hidden="true" th:text="#{menu.26}">🇮🇹</span>Italiano
                         </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'nl/index.html'}" data-lang="nl">
-                            <i class="bi bi-flag me-2"></i>Nederlands
+                        <li><a class="dropdown-item lang-option" th:href="${content.uri != null ? content.rootpath + 'nl/' + content.uri : content.rootpath + 'nl/index.html'}" data-lang="nl">
+                            <span class="lang-flag me-2" aria-hidden="true" th:text="#{menu.27}">🇳🇱</span>Nederlands
                         </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'de/index.html'}" data-lang="de">
-                            <i class="bi bi-flag me-2"></i>Deutsch
+                        <li><a class="dropdown-item lang-option" th:href="${content.uri != null ? content.rootpath + 'de/' + content.uri : content.rootpath + 'de/index.html'}" data-lang="de">
+                            <span class="lang-flag me-2" aria-hidden="true" th:text="#{menu.28}">🇩🇪</span>Deutsch
                         </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'el/index.html'}" data-lang="el">
-                            <i class="bi bi-flag me-2"></i>Ελληνικά
+                        <li><a class="dropdown-item lang-option" th:href="${content.uri != null ? content.rootpath + 'el/' + content.uri : content.rootpath + 'el/index.html'}" data-lang="el">
+                            <span class="lang-flag me-2" aria-hidden="true" th:text="#{menu.29}">🇬🇷</span>Ελληνικά
                         </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'tr/index.html'}" data-lang="tr">
-                            <i class="bi bi-flag me-2"></i>Türkçe
+                        <li><a class="dropdown-item lang-option" th:href="${content.uri != null ? content.rootpath + 'tr/' + content.uri : content.rootpath + 'tr/index.html'}" data-lang="tr">
+                            <span class="lang-flag me-2" aria-hidden="true" th:text="#{menu.30}">🇹🇷</span>Türkçe
                         </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'vi/index.html'}" data-lang="vi">
-                            <i class="bi bi-flag me-2"></i>Tiếng Việt
+                        <li><a class="dropdown-item lang-option" th:href="${content.uri != null ? content.rootpath + 'vi/' + content.uri : content.rootpath + 'vi/index.html'}" data-lang="vi">
+                            <span class="lang-flag me-2" aria-hidden="true" th:text="#{menu.31}">🇻🇳</span>Tiếng Việt
                         </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'th/index.html'}" data-lang="th">
-                            <i class="bi bi-flag me-2"></i>ไทย
-                        </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'id/index.html'}" data-lang="id">
-                            <i class="bi bi-flag me-2"></i>Bahasa Indonesia
-                        </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'ko/index.html'}" data-lang="ko">
-                            <i class="bi bi-flag me-2"></i>한국어
-                        </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'ja/index.html'}" data-lang="ja">
-                            <i class="bi bi-flag me-2"></i>日本語
-                        </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'sr/index.html'}" data-lang="sr">
-                            <i class="bi bi-flag me-2"></i>Srpski
-                        </a></li>
-                        <li><a class="dropdown-item lang-option" th:href="${content.rootpath + 'fa/index.html'}" data-lang="fa">
-                            <i class="bi bi-flag me-2"></i>فارسی
+                        <li><a class="dropdown-item lang-option" th:href="${content.uri != null ? content.rootpath + 'th/' + content.uri : content.rootpath + 'th/index.html'}" data-lang="th">
+                            <span class="lang-flag me-2" aria-hidden="true" th:text="#{menu.32}">🇹🇭</span>ไทย
                         </a></li>
                     </ul>
                 </div>

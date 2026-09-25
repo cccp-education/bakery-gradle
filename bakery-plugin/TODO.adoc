@@ -1,7 +1,7 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-09-25 — Session 240. **Release bakery 0.0.20 (BKY-LANG-NAV) + CI réelle cccp.education/magic-stick VERTE (tree EN en production)** + **bump cross-borough Gradle 9.7.1 → 9.8.0**. NAV-8 ✅ terminé. Antérieur S-239 : brique N2 `bakeVariants`. S-234 : NAV-5 (cœur clos)._
+_Dernière mise à jour : 2026-09-25 — Session 241. **FLAKY-5 SOLDÉ** (drift fixture cheroliv.com, `test` 2059/0). Antérieur S-240 : release bakery 0.0.20 + CI réelle VERTE + Gradle 9.8.0. S-239 : brique N2 `bakeVariants`._
 
 == EPIC BKY-LANG-NAV (S-228) — Changement de langue sans retour à l'accueil (same-page switching) ✅ TERMINÉ 9/9 US
 
@@ -52,14 +52,14 @@ _Dernière mise à jour : 2026-09-25 — Session 240. **Release bakery 0.0.20 (B
 * [x] **LANG-22-9** : Dogfooding capsule vidéo 22 langues (Piper/espeak réels) ✅ S-226 (bug P0 chaîne `-deck-script` corrigé + 22/22 vidéos réelles, dégradation th/ja/ar)
 * [x] **LANG-22-10** : Publication Central consommateurs (bakery/capsule/slider) ✅ S-226 (capsule 0.0.1 `54a58526` + MEMPHIS 0.0.48 `9d43c5b7` + bakery 0.0.13 `3d53b77e` + slider 0.0.19 `03289d70`)
 
-== EPIC BKY-TEST-FLAKY (S-028) — ✅ TERMINÉ (S-214 + FLAKY-4 ✅ S-222) / FLAKY-5 🟡 ouvert S-229
+== EPIC BKY-TEST-FLAKY (S-028) — ✅ TERMINÉ COMPLET (FLAKY-1→5, S-214 + S-222 + S-241)
 
 * [x] **FLAKY-2** : FixtureAlignmentAuditorTest — fixtures i18n cheroliv-com resyncées (11 templates vs site réel) ✅ S-214
 * [x] **FLAKY-1** : RealSiteI18nMigrationIntegrationTest — golden master cheroliv-com régénéré (header.5/6, -footer.15-18) ✅ S-214
 * [x] **FLAKY-3** : I18nDeltaWireCucumberTest — feature 57 3→4 articles (fixture a 4 articles depuis S-190) ✅ S-214
 * [x] **FLAKY-4** : drift `contact.thyme` (site réel S-031 retrait `subject`) — resync fixture + recâblage `contact.6` + golden master régénéré ✅ S-222
-* [ ] **FLAKY-5** : drift fixture cheroliv.com chrome nativement FR (S-053/055, 5 templates : blog/blog_section/footer/header/menu) — découvert S-229 (stash-prouvé), resync fixture + golden master à régénérer (procédure S-222) 🟡 À FAIRE
-* Gate clôture : `./gradlew test` 1777/0 FAIL ✅ (S-222) — ré-ouvert FLAKY-5 S-229 (drift cheroliv.com chrome FR, 2 FAIL stash-prouvés préexistants)
+* [x] **FLAKY-5** : drift fixture cheroliv.com chrome nativement FR (S-053/055, 5 templates) — resync fixture (secrets neutralisés) + re-keying `translations_en.properties` (121→137, `menu.*` renuméroté) + golden master régénéré (delta-only, timestamp réverté) ✅ S-241
+* Gate clôture : `./gradlew test` **2059/0 FAIL** ✅ (S-241) — **les 2 FAIL préexistants depuis S-229 sont résolus**
 
 == EPIC PUB — Publication Maven Central bakery-plugin ✅ TERMINÉ (S-203)
 

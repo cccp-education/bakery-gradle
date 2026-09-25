@@ -1,5 +1,24 @@
 = Archive des Taches Terminees — Septembre 2026
 
+== Session 241 — 2026-09-25 — FLAKY-5 : drift fixture cheroliv.com aligné (baseline 2059/0)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| Resync 5 templates `cheroliv-com` (`blog`, `blog_section`, `footer`, `header`, `menu`) — secrets neutralisés
+| ✅ TERMINÉ (`FixtureAlignmentAuditorTest` 8/8)
+
+| Re-keying `translations_en.properties` (121 → 137 clés, chrome S-053/S-055 renuméroté)
+| ✅ TERMINÉ (0 EN blanche)
+
+| Golden master cheroliv régénéré (delta-only, `PostMigrationSnapshotGenerator`)
+| ✅ TERMINÉ (timestamp réverté, cccp/magic restaurés)
+
+| Gate `test` 2059/0 FAIL — les 2 FAIL préexistants depuis S-229 résolus
+| ✅ VÉRIFIÉ
+|===
+
 == Session 240 — 2026-09-25 — Release bakery 0.0.20 (BKY-LANG-NAV) + CI réelle + Gradle 9.8.0
 
 [cols="2,3"]

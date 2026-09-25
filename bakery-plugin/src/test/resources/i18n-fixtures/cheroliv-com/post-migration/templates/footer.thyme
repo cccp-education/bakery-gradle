@@ -30,10 +30,10 @@
                         <!--                        <a href="#"                         <!--                        <a href="#" th:attr="aria-label=#{footer.2}" aria-label="Twitter">-->>-->
                         <!--                            <i class="fab fa-twitter"></i>-->
                         <!--                        </a>-->
-                        <a href="feed.xml"                         <a href="feed.xml" th:attr="aria-label=#{footer.3}" aria-label="RSS Feed">>
+                        <a href="feed.xml" aria-label="Flux RSS">
                             <i class="fas fa-rss"></i>
                         </a>
-                        <a th:href="${content.rootpath} + 'index.html#contact'"                         <a th:href="${content.rootpath} + 'index.html#contact'" th:attr="aria-label=#{footer.4}" aria-label="Contact">>
+                        <a th:href="${content.rootpath} + 'index.html#contact'"                         <a th:href="${content.rootpath} + 'index.html#contact'" th:attr="aria-label=#{footer.3}" aria-label="Contact">>
                             <i class="fas fa-paper-plane"></i>
                         </a>
                     </div>
@@ -41,7 +41,7 @@
 
                 <!-- Quick Links -->
                 <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
-                    <h6 class="fw-bold" th:text="#{footer.5}">Navigation</h6>
+                    <h6 class="fw-bold" th:text="#{footer.4}">Navigation</h6>
                     <ul class="footer-links">
                         <li><a th:href="${content.rootpath} + 'index.html'"><i class="bi bi-chevron-right"></i>Accueil</a></li>
                         <!--                        <li><a th:href="${content.rootpath} + 'index.html#about'"><i class="bi bi-chevron-right"></i>À propos</a></li>-->
@@ -53,7 +53,7 @@
 
                 <!-- Resources -->
                 <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
-                    <h6 class="fw-bold" th:text="#{footer.6}">Ressources</h6>
+                    <h6 class="fw-bold" th:text="#{footer.5}">Ressources</h6>
                     <ul class="footer-links">
                         <!--                        <li><a th:href="${content.rootpath} + 'index.html#formations'"><i class="bi bi-book"></i>Formations</a></li>-->
 <!--                        <li><a th:href="${content.rootpath} + 'blog.html'"><i class="bi bi-journal-text"></i>Articles</a></li>-->
@@ -69,8 +69,8 @@
 
                 <!-- Contact Section -->
 <!--                <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">-->
-<!--                    <h6 class="fw-bold" th:text="#{footer.7}">Me contacter</h6>-->
-<!--                    <p class="mb-3" th:text="#{footer.8}">Une question ? Un projet ? N'hésitez pas à me contacter.</p>-->
+<!--                    <h6 class="fw-bold" th:text="#{footer.6}">Me contacter</h6>-->
+<!--                    <p class="mb-3" th:text="#{footer.7}">Une question ? Un projet ? N'hésitez pas à me contacter.</p>-->
 <!--                    <ul class="contact-info">-->
 <!--                        <li>-->
 <!--                            <i class="bi bi-envelope-fill"></i>-->
@@ -80,27 +80,27 @@
 <!--                        </li>-->
 <!--                        <li>-->
 <!--                            <i class="bi bi-clock-fill"></i>-->
-<!--                            <span th:text="#{footer.9}">Réponse sous 24-48h</span>-->
+<!--                            <span th:text="#{footer.8}">Réponse sous 24-48h</span>-->
 <!--                        </li>-->
 <!--                    </ul>-->
 <!--                </div>-->
 
                 <!-- Location Section -->
                 <div class="col-lg-3 col-md-6">
-                    <h6 class="fw-bold" th:text="#{footer.10}">Localisation</h6>
-                    <p class="mb-3" th:text="#{footer.11}">Basé en région parisienne, interventions possibles en France et à distance.</p>
+                    <h6 class="fw-bold" th:text="#{footer.9}">Localisation</h6>
+                    <p class="mb-3" th:text="#{footer.10}">Basé en région parisienne, interventions possibles en France et à distance.</p>
                     <ul class="contact-info">
                         <li>
                             <i class="bi bi-geo-alt-fill"></i>
-                            <span th:text="#{footer.12}">Île-de-France, France</span>
+                            <span th:text="#{footer.11}">Île-de-France, France</span>
                         </li>
                         <li>
                             <i class="bi bi-globe"></i>
-                            <span th:text="#{footer.13}">Télétravail disponible</span>
+                            <span th:text="#{footer.12}">Télétravail disponible</span>
                         </li>
                         <li>
                             <i class="bi bi-pin-map-fill"></i>
-                            <span th:text="#{footer.14}">Déplacements en France</span>
+                            <span th:text="#{footer.13}">Déplacements en France</span>
                         </li>
                     </ul>
                 </div>

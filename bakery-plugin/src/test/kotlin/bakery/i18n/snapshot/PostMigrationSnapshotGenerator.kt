@@ -20,13 +20,15 @@ import java.util.Properties
  * Regenerated S-238 (BKY-LANG-NAV-8 — cccp.education / magic-stick menu.thyme
  * now carries the empty `lang-switcher-container` so `injectLangSwitch` can
  * fill it; the empty container adds no key).
+ * Regenerated S-241 (FLAKY-5 — cheroliv.com chrome natively FR S-053/S-055,
+ * menu.thyme re-keyed: 17 flag keys menu.16-32 added, footer renumbered).
  * This test is now @Disabled.
  * To regenerate: remove @Disabled, run, re-validate with
  * [RealSiteI18nMigrationIntegrationTest].
  *
  * DO NOT MODIFY — snapshots freeze the expected result.
  */
-@Disabled("Golden masters regenerated S238 (BKY-LANG-NAV-8 cccp/magic switcher container). Regenerate only if migration changes.")
+@Disabled("Golden masters regenerated S241 (FLAKY-5 — cheroliv.com chrome FR drift). Regenerate only if migration changes.")
 class PostMigrationSnapshotGenerator {
     private val service = I18nMigrationService()
 

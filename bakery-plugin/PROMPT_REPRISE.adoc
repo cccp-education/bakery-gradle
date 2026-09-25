@@ -1,53 +1,53 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 241
+:session: 242
 :date: 2026-09-25
-:etat: Session 240 ✅ — **release bakery 0.0.20 (BKY-LANG-NAV) publiée Central + CI réelle cccp.education/magic-stick VERTE (tree EN en production)** + **bump cross-borough Gradle 9.7.1 → 9.8.0**.
-:epic_actif: **BKY-LANG-NAV** (🟡 NAV-0→8 ✅, **déployé en production** ; reste absorption split-brain cheroliv D5).
-:epic_suivant: **Absorber le split-brain cheroliv** — `office/sites/cheroliv.com` duplique `VariantBakeAssembler`/`VariantServePlan`/`VariantDeployability` ; `bakery.i18n.variant` (S-239) est générique et devrait devenir la source unique.
-:dette: FLAKY-5 (drift fixture cheroliv.com chrome FR, 2 FAIL préexistants) + ktlint baseline dépôt.
+:etat: Session 241 ✅ — **FLAKY-5 SOLDÉ : drift fixture cheroliv.com aligné** — `test` **2059/0 FAIL** (les « 2 FAIL préexistants » depuis S-229 sont résolus).
+:epic_actif: **BKY-TEST-FLAKY** ✅ TERMINÉ (FLAKY-1→5 tous clos). **BKY-LANG-NAV** ✅ TERMINÉ et déployé en production.
+:epic_suivant: **Absorber le split-brain cheroliv (D5)** — `office/sites/cheroliv.com` duplique `VariantBakeAssembler`/`VariantServePlan`/`VariantDeployability` ; `bakery.i18n.variant` (S-239) doit devenir la source unique. Baseline désormais verte.
+:dette: ktlint baseline dépôt (rouge préexistant, main + functionalTest) — non déclenché.
 
-== État S-240
+== État S-241
 
-Le **blocage release** est levé : la CI résolvait un `bakery-plugin:0.0.19`
-**périmé** (Central S-233 sans la feature NAV) → échec `materializeTemplates`
-(task not found). Chaîne DAG exécutée :
+FLAKY-5 (découvert S-229) résolu, méthode S-222 :
 
-. **MEMPHIS 0.0.58** (bundle `1bef33da`) : BOM/catalog + `bakery-plugin 0.0.20`.
-. **bakery 0.0.20** (bundle `409aa5fc`) : repin ws 0.0.58 + BOM 0.0.58, JAR
-   porte `MaterializeTemplatesTask`/`BakeVariantsTask`/`MessageBundleResolver`/
-   `LangSwitcherContainerMask`.
-. **runner** : pin catalogue 0.0.58 → `ws.plugins.bakery 0.0.20`.
+. **Resync 5 templates** (`blog`, `blog_section`, `footer`, `header`, `menu`)
+   depuis le site réel, **secrets Firebase neutralisés** → `FixtureAlignmentAuditorTest` 8/8.
+. **Re-keying `translations_en.properties`** (121 → 137 clés) : la refonte
+   chrome S-053/S-055 a renuméroté `menu.*` (+17 drapeaux `menu.16-32`) et
+   décalé `footer.*`. Dictionnaire FR→EN extrait de l'ancien golden aligné
+   (HEAD) + chrome ground-truth du site EN réel ; drapeaux = identité. 0 EN blanche.
+. **Golden master régénéré** (delta-only cheroliv) via
+   `PostMigrationSnapshotGenerator` (`@Disabled` retiré → run → restauré),
+   churn `Properties.store` timestamp réverté (canonique S-222), cccp/magic
+   restaurés (timestamp seul).
 
-**CI réelle VERTE** : cccp (run 36158522284, 3m18s) + magic (36158531602, 3m1s),
-`bakeVariants 1 variante(s) bakée(s) : en`. Production vérifiée 200 :
-`cccp.education/en/index.html` (« Common Content Creator Proletarian ») +
-`cccp.education/magic-stick/en/index.html` (« Standardized portable environment »).
+Gates : `test` **2059/0**, `FixtureAlignmentAuditorTest` 8/8,
+`RealSiteI18nMigrationIntegrationTest` 2/2, `functionalTest`+`nodeTest` VERT,
+`cucumberTest` 3285/5 = baseline exacte, ktlint delta 0, `publishToMavenLocal` VERT.
 
-**Gradle 9.8.0** : 97 wrappers bumpés (properties only, méthode S-095), zéro
-9.7.1, 34 repos commités/poussés. Validations : bakery, slider, conventions,
-agent-contracts, runner VERT.
+== Mission Session 242
 
-== Mission Session 241
+*Absorber le split-brain cheroliv (D5)* — cadrer d'abord le périmètre. Trois
+voies :
+. **A (recommandée)** : extraire la règle `i18n.variant` en artefact partagé
+   (N0/N1) consommé par bakery ET cheroliv — D10 du cadrage NAV était conditionné
+   à un second consommateur non-bakery : cheroliv **est** ce consommateur, donc
+   D10 est déclenché. Coût : publication Central + bump BOM.
+. **B** : cheroliv consomme `bakery-plugin` comme lib (`implementation`) —
+   contredit l'architecture (site minimaliste + POM lourd).
+. **C** : statu quo + garde anti-dérive épinglée (comme `LangSwitchPathDriftGuardTest`).
 
-*Absorber le split-brain cheroliv (D5)* — `office/sites/cheroliv.com` possède sa
-copie de `VariantBakeAssembler`/`VariantServePlan`/`VariantDeployability` (et
-`BakeLocalSite`/`LangSwitchOfferedLanguages`). La nouvelle brique
-`bakery.i18n.variant` est générique. Faire converger : soit le site consomme
-`bakery-plugin` (includeBuild ou Central), soit la copie est retirée. **Attention** :
-cheroliv est un build auto-contenu (pas d'`includeBuild` bakery) et son arbre de
-travail a de nombreux fichiers sales préexistants — périmètre à cadrer d'abord.
+**Attention** : cheroliv a de nombreux fichiers sales préexistants dans le repo
+`office` — NE PAS les committer. Périmètre à cadrer avant tout code.
 
-Alternative : *FLAKY-5* — resync fixture cheroliv.com chrome FR (5 templates
-`blog/blog_section/footer/header/menu`) + régénération golden master
-(procédure S-222), purement bakery-local.
+Alternative : EPIC « fixture lifecycle » (la garde `FixtureAlignmentAuditor` lit
+le site réel en dur ; fragile en CI isolée).
 
 == Reprendre à
 
-. `git status` dans bakery-gradle ET office (attention : 133+ fichiers sales
-   préexistants dans office, NE PAS les committer).
-. `.agents/sessions/240-…` (ce rapport) + `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc`.
-. `.agents/sessions/239-…` (brique `bakeVariants`) et 240 pour la chaîne release.
-. `src/main/kotlin/bakery/i18n/variant/` (la brique) + `office/sites/cheroliv.com/src/main/kotlin/com/cheroliv/i18n/`.
+. `git status` dans bakery-gradle ET office (fichiers sales préexistants).
+. `.agents/sessions/241-…` (ce rapport) + 240 (release + Gradle 9.8.0).
+. `src/main/kotlin/bakery/i18n/variant/` (la brique) + `office/sites/cheroliv.com/src/main/kotlin/com/cheroliv/{i18n,deploy}/`.
 . Gate Économie d'Encre : ne relancer `test`/`cucumber` que si le code source change.
 
 == Rappel
@@ -56,9 +56,7 @@ Alternative : *FLAKY-5* — resync fixture cheroliv.com chrome FR (5 templates
 * **JAMAIS lire un `site.yml`** (gitignoré, contient un token) — `git check-ignore -v` d'abord.
 * *Modèle LLM* : `gemma4:31b-cloud` + `OLLAMA_POOL_PORTS=11439,11440,11441,11442`.
 * *Règle 0* : `./gradlew -q publishToMavenLocal` OBLIGATOIRE après toute modif source.
-* *Version dérivée* : bumper le toml local (`bakery = "0.0.X"`) est obligatoire pour
-  qu'une release porte les changements — une version dérivée du catalog n'est PAS
-  une version publiée (leçon S-240, piège HTOWN S-218).
+* *Version dérivée* : bumper le toml local est obligatoire pour qu'une release porte les changements (leçon S-240).
 * *Pattern BDD runner dédié* : tout tag non couvert doit avoir son runner (S-082).
 * Commit/push autorisés (décision pilote 2026-09-17). Zéro secret.
 * Baby-step DDD/TDD/BDD strict — 1 fichier à la fois, gate `test` complète.

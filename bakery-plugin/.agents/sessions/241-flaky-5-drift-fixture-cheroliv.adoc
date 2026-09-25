@@ -1,0 +1,110 @@
+= Session 241 — FLAKY-5 : drift fixture cheroliv.com (baseline 2059/0)
+
+_Date_ : 2026-09-25
+_Borough_ : Bushwick 🟤 (bakery-gradle)
+_Type_ : Alignement fixtures/golden master + re-keying messages (méthode S-222)
+_Score_ : 9/10
+
+== Contexte
+
+Reprise bakery (hook standard, méthodo baby-step DDD/TDD/BDD, commit/push
+autorisés). Mission retenue par le pilote : **FLAKY-5** — les « 2 FAIL
+préexistants » cités dans toutes les gates cross-borough MEMPHIS depuis S-229
+(`FixtureAlignmentAuditorTest > cheroliv-com fixture is aligned` +
+`RealSiteI18nMigrationIntegrationTest > migration ... matches golden master`).
+Ce n'est pas un flake : c'est un **drift réel** de fixture (même famille que
+FLAKY-4 ✅ S-222).
+
+== Baseline confirmée (RED)
+
+`xml` JUnit : `FixtureAlignmentAuditorTest` 8 tests / **1 failure** ;
+`RealSiteI18nMigrationIntegrationTest` 2 tests / **1 failure**.
+Message : 5 templates divergent (`blog`, `blog_section`, `footer`, `header`,
+`menu`) + golden master `blog_section.thyme` (`aria-label="Close"` ≠ `"Fermer"`).
+
+== Cause racine — refonte chrome S-053/S-055 (nativement FR)
+
+Le site réel a refactoré son chrome (`CHE-I18N-CHROME` S-053 `dbae83de` +
+S-055 `f9f8419e`) : libellés d'interface **nativement français**
+(`aria-label="Fermer"`, `"Flux RSS"`, `"Basculer la navigation"`,
+`Clair`/`Sombre`/`Contraste élevé`, `Sélectionner la langue`), bloc
+`highlight.js` migré dans `header.thyme`, et surtout le **sélecteur de langue
+22 langues** (S-044 + NAV-2) qui a **renuméroté** les clés `menu.*` en
+introduisant 17 nouvelles clés drapeaux (`menu.16-32`) et décalé `footer.*`.
+
+La fixture bakery `i18n-fixtures/cheroliv-com/` (gelée S-222/S-044) n'avait pas
+suivi.
+
+== Livré (1) — resync des 5 templates (TDD RED→GREEN)
+
+Copie des 5 templates depuis `office/sites/cheroliv.com/jbake/templates/` vers
+la fixture, **secrets neutralisés** (`apiKey`/`appId` Firebase → placeholders ;
+le regex du `FixtureAlignmentAuditor` neutralise déjà ce seul écart).
+
+RED → GREEN : `FixtureAlignmentAuditorTest` **8/8 PASSED**.
+
+== Livré (2) — re-keying de `translations_en.properties` (reproductible)
+
+Le blocage suivant : la migration produisait des clés `menu.16-32` absentes du
+fichier gelé → **EN blanche** → `PostMigrationSnapshot.isComplete()` false.
+
+Procédure mécanique (zéro LLM, zéro devinette) :
+. **Dictionnaire FR→EN** extrait de l'ancien golden master **aligné** (HEAD,
+  119 paires via `awk` — `messages_fr` × `messages_en`).
+. **Règles dérivées du site EN réel** (full-template swap) pour le nouveau
+  chrome : `Basculer la navigation`→`Toggle navigation`, `Clair`→`Light`,
+  `Fermer`→`Close`, `Sélectionner la langue`→`Select language`,
+  `Sélectionner le thème de l'interface`→`Select interface theme`.
+. **Drapeaux emoji** = identité (chaque langue garde son drapeau dans tout
+  locale).
+. 137 clés générées, **0 valeur EN blanche**.
+
+== Livré (3) — régénération du golden master (procédure S-222)
+
+`PostMigrationSnapshotGenerator` : `@Disabled` retiré → run **delta-only**
+(cheroliv seul) → `@Disabled` restauré (mention S-241). Le churn `Properties.store`
+timestamp a été **réverté** à la valeur canonique S-222 (aligné cccp/magic) —
+delta-only, Économie d'Encre. Les 4 `messages*.properties` cccp/magic
+régénérés par le run ont été **restaurés** (timestamp seul).
+
+== Gates
+
+[cols="2,3"]
+|===
+| Gate | Résultat
+
+| `test` | **2059 tests, 0 FAIL** (baseline S-240 : 2059 / 2 FAIL → **les 2 FAIL résolus**)
+| `FixtureAlignmentAuditorTest` | 8/8 PASSED
+| `RealSiteI18nMigrationIntegrationTest` | 2/2 PASSED
+| suites cheroliv (Migration 5, GoldenMaster 3, Idempotence 3) | 0 FAIL
+| `functionalTest` + `nodeTest` | BUILD SUCCESSFUL (4m58s)
+| `cucumberTest` | 3285 tests, **5 failed = baseline exacte** (features 30/34/50/dns) — zéro nouvel échec
+| ktlint | delta **0 violation** (baseline dépôt main+functionalTest inchangée)
+| `publishToMavenLocal` | VERT (Règle 0)
+| grep secrets delta | 0 (clé Firebase neutralisée dans footer fixture)
+|===
+
+== Fichiers
+
+[cols="2,1,3"]
+|===
+| Fichier | État | Rôle
+
+| `src/test/resources/i18n-fixtures/cheroliv-com/jbake/templates/{blog,blog_section,footer,header,menu}.thyme` | modifié | resync site réel (secrets neutralisés)
+| `src/test/resources/i18n-fixtures/cheroliv-com/post-migration/templates/*` | régénéré | golden master (re-keying)
+| `src/test/resources/i18n-fixtures/cheroliv-com/translations_en.properties` | modifié | 121 → 137 clés (re-keying chrome/drapeaux)
+| `src/test/kotlin/bakery/i18n/snapshot/PostMigrationSnapshotGenerator.kt` | modifié | mention S-241 dans KDoc + `@Disabled`
+|===
+
+== Décision / suite
+
+* **FLAKY-5 SOLDÉ** — les gates cross-borough MEMPHIS n'ont plus besoin de la
+  mention « baseline exacte 2 FAIL ».
+* *Leçon* : le couple « fixture gelée ↔ site vivant » recrée le drift à chaque
+  refonte du site (FLAKY-4 S-222, FLAKY-5 S-241). Une garde d'alerte
+  automatique (le `FixtureAlignmentAuditor` la fournit déjà, mais elle lit le
+  site réel en dur `/home/cheroliv/workspace/...`) reste fragile en CI isolée —
+  candidat à un EPIC « fixture lifecycle » (assouplir ou skipper proprement).
+* *Reste* : absorption du split-brain cheroliv (D5) — désormais sereine sur une
+  baseline verte.
+* Aucun code de production modifié, zéro bump, zéro publication Central.

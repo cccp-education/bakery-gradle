@@ -5,9 +5,9 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-09-25 — ✅ **BKY-LANG-NAV-8 DÉPLOYÉ EN PRODUCTION** (S-240) : release bakery 0.0.20 publiée Central (chaîne DAG MEMPHIS 0.0.58 → bakery 0.0.20 → runner pin 0.0.58) + CI réelle `deploy-cccp-education`/`deploy-magic-stick` VERTE (tree EN cccp.education + magic-stick en production gh-pages, HTTP 200). + **bump cross-borough Gradle 9.7.1 → 9.8.0** (97 wrappers, 34 repos). **Blocage découvert** : Central `bakery-plugin:0.0.19` était périmé (S-233, sans feature NAV) → la CI échouait `materializeTemplates` (task not found). Leçon : une version dérivée du catalog n'est PAS une version publiée. Antérieur S-239 : brique N2 `bakeVariants`. Rapport `.agents/sessions/240-release-bakery-0.0.20-ci-reelle-gradle-9.8.0.adoc`.
+_Dernière mise à jour : 2026-09-25 — ✅ **FLAKY-5 SOLDÉ — drift fixture cheroliv.com aligné** (S-241). Les « 2 FAIL préexistants » depuis S-229 (`FixtureAlignmentAuditorTest` + `RealSiteI18nMigrationIntegrationTest`) n'étaient pas un flake mais un drift réel (famille FLAKY-4 S-222). Cause : refonte chrome `CHE-I18N-CHROME` S-053/S-055 (libellés nativement FR + sélecteur 22 langues → `menu.*` renuméroté +17 drapeaux, `footer.*` décalé). Livré : resync 5 templates (secrets neutralisés) + re-keying `translations_en.properties` (121→137) + golden master régénéré (delta-only, timestamp réverté). Gates : `test` **2059/0 FAIL** (baseline S-240 2059/2), `FixtureAlignmentAuditorTest` 8/8, `RealSiteI18nMigrationIntegrationTest` 2/2, `functionalTest`+`nodeTest` VERT, `cucumberTest` 3285/5 baseline exacte, ktlint delta 0, `publishToMavenLocal` VERT. Rapport `.agents/sessions/241-flaky-5-drift-fixture-cheroliv.adoc`.
 
-_Dernière mise à jour (antérieure) : 🟡 **BKY-LANG-NAV-8 — brique N2 `bakeVariants` livrée + magic-stick débloqué** (S-239) : (1) **Domaine pur** `bakery.i18n.variant` (DDD/TDD strict, 30 UT) — `VariantLayout` (loi du layout `i18n/{lang}/` + découvertes config-free), `VariantDeployability` (garde S-049 : tous les templates de référence requis ; seuls `.thyme`/`.ftl`/`.html`), `VariantBakePlan`, `VariantBakeAssembler` (racine jetable + shell content vide D8), `VariantBaker`. (2) **`BakeVariantsTask`** (`org.jbake.launcher.Main` via `ExecOperations`, pattern `serve`) + 6 FT + BDD feature 67 `@variant-bake` (6/6). (3) **Chaîne de déploiement** : `materializeTemplates` → `injectLangSwitch` → `bake` → `bakeVariants` → `pagefind` → `deploySite` (`deploySite` **dépend** de `bakeVariants`). (4) **Bug réel débloqué** : magic `feed.thyme` évaluait `published_posts[0].date` sans garde → avortement sur corpus vide ; ce n'était **pas** un pré-requis métier LLM (constat S-238 infirmé) mais un bug de robustesse de template (cccp garde déjà). Correctif ternaire + resync fixture/golden. **Dogfooding `/tmp`** : cccp 11 + magic 12 templates, arbre EN **baké** (homepage EN littérale + sélecteur page-aware + `feed.xml` rendu), **zéro LLM**. **Cross-borough `office/`** : fix feed magic + bundles gelés EN + chaîne i18n dans `deploy-{cccp-education,magic-stick}.yml`. Gates : `test` 2059 (2 FAIL FLAKY-5), `functionalTest` 164/0, `cucumberTest` 3285/5 baseline exacte, ktlint delta 0, `publishToMavenLocal` VERT. Rapport `.agents/sessions/239-bky-lang-nav-8-bake-variants.adoc`.
+_Dernière mise à jour (antérieure) : ✅ **BKY-LANG-NAV-8 DÉPLOYÉ EN PRODUCTION** (S-240) : release bakery 0.0.20 publiée Central (chaîne DAG MEMPHIS 0.0.58 → bakery 0.0.20 → runner pin 0.0.58) + CI réelle `deploy-cccp-education`/`deploy-magic-stick` VERTE (tree EN cccp.education + magic-stick en production gh-pages, HTTP 200). + **bump cross-borough Gradle 9.7.1 → 9.8.0** (97 wrappers, 34 repos). **Blocage découvert** : Central `bakery-plugin:0.0.19` était périmé (S-233, sans feature NAV) → la CI échouait `materializeTemplates` (task not found). Leçon : une version dérivée du catalog n'est PAS une version publiée. Antérieur S-239 : brique N2 `bakeVariants`. Rapport `.agents/sessions/240-release-bakery-0.0.20-ci-reelle-gradle-9.8.0.adoc`.
 _Dernière mise à jour (antérieure) : 2026-09-25 — 🟡 **BKY-LANG-NAV-8 — rollout partiel cccp/magic** (S-238) : (1) **delta layout** `bakery.langswitch.LangSwitchMenuLayout` (objet pur) résout le `menu.thyme` d'une langue dans les deux layouts coexistants — l'i18n matérialisé `i18n/{lang}/templates/` **prioritaire**, puis le variant direct `{lang}/templates/` (cheroliv/talaria backward compat), le défaut au root ; `InjectLangSwitchTask` délègue (RED UT/FT/BDD prouvés par revert → GREEN). (2) **Bug d'idempotence (dogfooding)** : après `injectLangSwitch`, une re-materialisation **keyait** le fragment généré (`menu.9`/`menu.10` absents du bundle gelé) → 2 clés non résolues, écriture **nulle** (variant périmé). Fix pur `bakery.i18n.LangSwitcherContainerMask.strip` + surcharge string `extractHardcodedText` + wiring `keyTemplate` ; 6 UT. (3) **Rollout partiel** : conteneur vide `lang-switcher-container` dans les `menu.thyme` réels `office/sites/{cccp.education,magic-stick}` (inerte en FR) + fixtures/golden masters resynchronisés + ordre `injectLangSwitch` après `materializeTemplates`. **Dogfooding `/tmp`** : cccp 11 + magic 12 templates, 0 clé non résolue, **zéro LLM**, variant EN **baké** (sélecteur page-aware, UTF-8 correct), 3e run no-op strict. Gates : `test` 2034 (2 FAIL FLAKY-5), `functionalTest` 158/0, `cucumberTest` 2872/5 baseline exacte, `nodeTest` VERT, ktlint baseline, `publishToMavenLocal` VERT. Rapport `.agents/sessions/238-…`._
 _Dernière mise à jour (antérieure) : 2026-09-25 — 🟡 **BKY-LANG-NAV-8 DÉBLOQUÉ — enabler livré** (S-237) : null-safety du cœur bakery **S-235 soldée** (`bakery.langswitch.LangSwitchPath.thymeleafHref()` + `thymeleafEachHref()` gardent `content.uri != null`, ternaire explicite OGNL, dégradation index D8, byte-identique cheroliv S-235) + `MessageBundleResolver` + `materializeTemplates` (matérialise un arbre `i18n/{lang}/templates/` déployable depuis un **bundle gelé**, **zéro LLM**). **Gisement pilote vérifié** : golden masters cccp/magic **byte-identiques** aux templates réels + `translations_en.properties` gelés (0 clé manquante, homepage EN incluse) → preuve réelle copie `/tmp` : cccp 11 + magic 12 templates, 0 clé non résolue, zéro LLM. **Reste rollout site** (sélecteur `menu.thyme` + wiring + CI, cross-borough). Gates : `test` 2022 (2 FAIL FLAKY-5), `functionalTest` VERT, `cucumberTest` 2864/5 baseline exacte, ktlint baseline, `publishToMavenLocal` VERT. Rapport `.agents/sessions/237-…`._
 _Dernière mise à jour (antérieure) : 2026-09-25 — ✅ **BKY-LANG-NAV-7 TERMINÉ — rollout talaria.school (durcissement same-page client-side)** (S-236). Deuxième rollout site ; travail **cross-borough** (`office/sites/talaria.school`, build autonome), **zéro source bakery modifiée**. talaria est **déjà client-side** (dictionnaire `TALARIA.I18N.setLang`, relocalisation en place) : **durcissement**, pas correctif. **Décision** : mode `dictionary` conservé (cadrage NAV-7 + D2 — `tree` serait NAV-8). **D3** : 14 vecteurs partagés épinglés côté site + `LangSwitchVectorsDriftGuardTest` (skip CI isolé). **D5** : module commun `lang-switch.js` (NAV-3) copié byte-identique `maquette/js/` + `jbake/assets/js/` ; `header.js` **délègue** à `LANG_SWITCH.attachLangSwitch({mode:'dictionary'})` (fin du handler bespoke = split-brain). **D6** : garde `LangSwitchClientParityGuard` (2 arbres + byte-identité + surface resolver/adapter). **Comportement** : node rejoue les 14 vecteurs + `preventDefault`/`setLang`/href jamais réécrit ; scénario BDD. **Annexe** : inputs `nodeTest` élargis (faux UP-TO-DATE). Gates site : `test` 337/0, `functionalTest` 32/0, `cucumberTest` 108/0, `nodeTest` 132/0, `check` VERT. Rapport `.agents/sessions/236-…`. Reste NAV-8 (cccp/magic-stick — i18n à créer)._
@@ -501,31 +501,35 @@ pilote). BKY-FPA-SITE ✅ TRANSFÉRÉ (S-216 → TRN-11 training). FLAKY-1/2/3 �
 
 '''
 
-== FLAKY-5 — Drift fixture cheroliv.com (chrome nativement FR) — 🟡 À FAIRE (découvert S-229)
+== FLAKY-5 — Drift fixture cheroliv.com (chrome nativement FR) — ✅ SOLDÉ (S-241)
 
-_Source : session 229 (BKY-LANG-NAV-1), stash-prouvé préexistant et non introduit._
+_Source : session 229 (BKY-LANG-NAV-1), stash-prouvé préexistant et non introduit. Résolu S-241._
 
 Le site réel `office/sites/cheroliv.com` a été refactoré côté chrome
 (`CHE-I18N-CHROME` S-053 `dbae83de` + S-055 `f9f8419e`, 22-23 sept 2026) : les
 libellés d'interface sont désormais **nativement français par construction**
 (`aria-label="Fermer"`, `aria-label="Flux RSS"`, `Sélectionner la langue`,
 menu de thème `Clair`/`Sombre`/`Contraste élevé`, `Basculer la navigation`),
-et le bloc `highlight.js` a migré dans `header.thyme`. La fixture bakery
-`i18n-fixtures/cheroliv-com/jbake/templates/` (gelée S-222) n'a pas suivi.
+et le bloc `highlight.js` a migré dans `header.thyme`. Le sélecteur 22 langues
+(S-044 + NAV-2) a en outre **renuméroté** les clés `menu.*` (17 nouvelles clés
+drapeaux `menu.16-32`) et décalé `footer.*`. La fixture bakery
+`i18n-fixtures/cheroliv-com/` (gelée S-222/S-044) n'avait pas suivi.
 
-*Impact* : 2 tests `test` rouges (préexistants) —
-`FixtureAlignmentAuditorTest > cheroliv-com fixture is aligned` et
-`RealSiteI18nMigrationIntegrationTest > migration from real site copy matches
-golden master`. **5 templates** divergent : `blog.thyme`, `blog_section.thyme`,
-`footer.thyme`, `header.thyme`, `menu.thyme`.
+*Correctif exécuté (procédure S-222, S-241)* : resync des 5 templates
+(`blog`, `blog_section`, `footer`, `header`, `menu`) depuis le site réel
+(**secrets Firebase neutralisés**) + **recâblage des clés messages** —
+`translations_en.properties` 121 → 137 clés (dictionnaire FR→EN extrait de
+l'ancien golden aligné + chrome ground-truth du site EN réel, drapeaux =
+identité) + régénération du golden master (delta-only cheroliv) via
+`PostMigrationSnapshotGenerator`, churn `Properties.store` timestamp réverté.
 
-*Preuve* : stash des 4 fichiers NAV-1 → mêmes 2 FAIL ; `cucumberTest`
-`2464 tests, 5 failed, 2011 skipped` identique sur arbre propre.
+*Résultat* : `test` **2059/0 FAIL** (les 2 FAIL résolus),
+`FixtureAlignmentAuditorTest` 8/8, `RealSiteI18nMigrationIntegrationTest` 2/2.
 
-*Correctif attendu* (procédure S-222, session dédiée) : resync des 5 templates
-depuis le site réel (secrets neutralisés) + recâblage des clés messages si la
-numérotation a bougé + régénération du golden master via
-`PostMigrationSnapshotGenerator` (retrait `@Disabled` → run → re-`@Disabled`).
+*Décision* : les gates cross-borough MEMPHIS n'ont plus besoin de la mention
+« baseline exacte 2 FAIL ». *Leçon* : le couple « fixture gelée ↔ site vivant »
+recrée le drift à chaque refonte (FLAKY-4 S-222, FLAKY-5 S-241) — candidat EPIC
+« fixture lifecycle » (la garde lit le site réel en dur, fragile en CI isolée).
 
 '''
 
@@ -2807,13 +2811,13 @@ Zéro code modifié — gouvernance pure. Voir rapport
 [cols="2,3]
 |===
 | Document | `BACKLOG.adoc`
-  | Version | 24.17 — Session 240 ✅ (release bakery 0.0.20 BKY-LANG-NAV publiée Central + CI réelle cccp/magic VERTE + tree EN en production + bump cross-borough Gradle 9.8.0)
+  | Version | 24.18 — Session 241 ✅ (FLAKY-5 soldé — drift fixture cheroliv.com aligné, `test` 2059/0 FAIL ; EPIC BKY-TEST-FLAKY terminé complet)
   | Historisé dans | `.agents/backup/Y2026-sessions-145-154/BACKLOG_avant_nettoyage_sess154.adoc`
   | Basé sur | Backup sess154 (1269 lignes) + rapports sessions 001-199 + EPIC BKY-DNS + EPIC PUB
-  | Prochaine màj | Session 241 — absorption split-brain cheroliv (D5) OU FLAKY-5 (resync fixture cheroliv.com chrome FR)
+  | Prochaine màj | Session 242 — absorption split-brain cheroliv (D5) OU EPIC « fixture lifecycle »
   |===
   '''
-  == ✅ EPIC BKY-TEST-FLAKY — Stabilisation des 3 FAIL i18n récurrents (S-028, cross-borough MEMPHIS) — ✅ TERMINÉ S-214 (+ FLAKY-4 ✅ S-222, FLAKY-5 🟡 S-229)
+  == ✅ EPIC BKY-TEST-FLAKY — Stabilisation des 3 FAIL i18n récurrents (S-028, cross-borough MEMPHIS) — ✅ TERMINÉ S-214 (+ FLAKY-4 ✅ S-222, FLAKY-5 ✅ S-241)
 
 _Origine : S-026/S-027/S-028 (gates MEMPHIS) — les mêmes 3 FAIL reviennent à
 chaque gate cross-borough et masquent les régressions réelles (comparaison
@@ -2829,6 +2833,7 @@ PROMPT_REPRISE S-027 bakery : "cucumber flaky (i18n-delta/dns/jbake-native)"._
 | FLAKY-2 | `FixtureAlignmentAuditorTest` — 1/7 FAIL : alignement fixtures i18n vs site réel désynchronisé → régénérer fixtures (audit idempotent) | P1 | ✅ TERMINÉ (S-214)
 | FLAKY-3 | `I18nDeltaWireCucumberTest` (feature 57 i18n delta wire) — scénario fil rouge cassé → diagnostic RED d'abord, fix ou re-tag | P1 | ✅ TERMINÉ (S-214)
 | FLAKY-4 | Drift `contact.thyme` récurrent (2 FAIL S-218→S-221) : site réel cheroliv.com a retiré le champ `subject` du contact (US-35, `d96dcec`), fixture + golden master non resynchronisés → resync fixture + recâblage `contact.6` + régénération golden master one-shot | P1 | ✅ TERMINÉ (S-222)
+| FLAKY-5 | Drift fixture cheroliv.com chrome nativement FR (S-053/S-055, 5 templates : blog/blog_section/footer/header/menu) : libellés FR natifs + sélecteur 22 langues ayant renuméroté `menu.*` (+17 drapeaux `menu.16-32`) et décalé `footer.*` → resync fixture (secrets neutralisés) + re-keying `translations_en.properties` (121→137) + régénération golden master one-shot | P1 | ✅ TERMINÉ (S-241)
 |===
 
 **Exécution S-214** : baseline RED 1670/3 FAIL (XML JUnit). FLAKY-2 :

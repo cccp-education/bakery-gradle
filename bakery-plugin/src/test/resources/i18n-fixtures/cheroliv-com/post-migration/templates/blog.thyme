@@ -98,7 +98,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="searchModalLabel" th:text="#{blog.3}">Rechercher un Article</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"                     <button type="button" class="btn-close" data-bs-dismiss="modal" th:attr="aria-label=#{blog.4}" aria-label="Close"></button>></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"                     <button type="button" class="btn-close" data-bs-dismiss="modal" th:attr="aria-label=#{blog.4}" aria-label="Fermer"></button>></button>
                 </div>
                 <div class="modal-body">
                     <form>

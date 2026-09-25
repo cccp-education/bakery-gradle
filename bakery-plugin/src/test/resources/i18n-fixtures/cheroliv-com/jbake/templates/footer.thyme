@@ -30,7 +30,7 @@
                         <!--                        <a href="#" aria-label="Twitter">-->
                         <!--                            <i class="fab fa-twitter"></i>-->
                         <!--                        </a>-->
-                        <a href="feed.xml" aria-label="RSS Feed">
+                        <a href="feed.xml" aria-label="Flux RSS">
                             <i class="fas fa-rss"></i>
                         </a>
                         <a th:href="${content.rootpath} + 'index.html#contact'" aria-label="Contact">
