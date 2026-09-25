@@ -5,6 +5,7 @@ import bakery.firebase.ValidateFirebaseConfigTask
 import bakery.i18n.ContentMigrationIntentionDsl
 import bakery.i18n.I18nMigrationIntentionDsl
 import bakery.i18n.LlmServiceTranslationAdapter
+import bakery.i18n.MaterializeTemplatesTask
 import bakery.i18n.MigrateContentI18nTask
 import bakery.i18n.MigrateToI18nTask
 import bakery.i18n.js.I18nClientMigrationIntentionDsl
@@ -316,6 +317,21 @@ object ContentTaskRegistrar {
      * @param iaConfig Configuration IA
      * @param i18nClientDsl Configuration intention depuis `bakery { i18nClient { ... } }`
      */
+    internal fun Project.registerMaterializeTemplatesTask(site: SiteConfiguration) {
+        // `bake.srcPath` is resolved to the `jbake/` directory (absolute) by
+        // `resolvePaths(configDir)`. i18n/{lang}/ lives next to the reference.
+        val bakeRoot = project.file(site.bake.srcPath)
+        tasks.register("materializeTemplates", MaterializeTemplatesTask::class.java) { task ->
+            task.group = BakeryConstants.TRANSFORM_GROUP
+            task.description =
+                "Matérialise un arbre de templates {lang} déployable depuis un bundle gelé (zéro LLM, JBake sans MessageResolver)"
+            task.siteDir = bakeRoot
+            task.materializeTargetLangs.set(project.providers.gradleProperty("materializeTargetLangs").orElse(""))
+            task.materializeSourceLang.set(project.providers.gradleProperty("materializeSourceLang").orElse(""))
+            task.materializeDryRun.set(project.providers.gradleProperty("materializeDryRun").orElse(""))
+        }
+    }
+
     internal fun Project.registerTranslateI18nClientTask(
         site: SiteConfiguration,
         iaConfig: IaConfig = IaConfig(),

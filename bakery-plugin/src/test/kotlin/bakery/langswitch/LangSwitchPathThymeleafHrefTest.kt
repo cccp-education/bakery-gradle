@@ -39,27 +39,42 @@ class LangSwitchPathThymeleafHrefTest {
 
     @Test
     fun `self link from default language points at the current page`() {
-        assertEquals("\${content.uri.substring(content.uri.lastIndexOf('/') + 1)}", href("fr", "fr"))
+        assertEquals(
+            "\${content.uri != null ? content.uri.substring(content.uri.lastIndexOf('/') + 1) : content.rootpath + 'index.html'}",
+            href("fr", "fr"),
+        )
     }
 
     @Test
     fun `self link from non-default language points at the current page`() {
-        assertEquals("\${content.uri.substring(content.uri.lastIndexOf('/') + 1)}", href("en", "en"))
+        assertEquals(
+            "\${content.uri != null ? content.uri.substring(content.uri.lastIndexOf('/') + 1) : content.rootpath + 'index.html'}",
+            href("en", "en"),
+        )
     }
 
     @Test
     fun `default language to non-default keeps the page under the language dir`() {
-        assertEquals("\${content.rootpath + 'en/' + content.uri}", href("fr", "en"))
+        assertEquals(
+            "\${content.uri != null ? content.rootpath + 'en/' + content.uri : content.rootpath + 'en/index.html'}",
+            href("fr", "en"),
+        )
     }
 
     @Test
     fun `non-default language back to default exits the language tree then keeps the page`() {
-        assertEquals("|../\${content.rootpath}\${content.uri}|", href("en", "fr"))
+        assertEquals(
+            "\${content.uri != null ? '../' + content.rootpath + '' + content.uri : '../' + content.rootpath + 'index.html'}",
+            href("en", "fr"),
+        )
     }
 
     @Test
     fun `non-default language to another non-default keeps the page`() {
-        assertEquals("|../\${content.rootpath}ar/\${content.uri}|", href("en", "ar"))
+        assertEquals(
+            "\${content.uri != null ? '../' + content.rootpath + 'ar/' + content.uri : '../' + content.rootpath + 'ar/index.html'}",
+            href("en", "ar"),
+        )
     }
 
     @Test

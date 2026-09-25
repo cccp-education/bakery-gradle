@@ -1,0 +1,157 @@
+= Session 237 — BKY-LANG-NAV-8 : null-safety cœur + réutilisation des bundles gelés (i18n cccp/magic-stick)
+
+_Date_ : 2026-09-25
+_Borough_ : Bushwick 🟤 (bakery-gradle) — pilotage EPIC `BKY-LANG-NAV`
+_Type_ : DDD/TDD/BDD strict — cœur + enabler cross-site (zéro LLM)
+_Score_ : 9/10
+
+== Contexte
+
+Reprise bakery à la demande pilote (hook d'ouverture standard), méthodologie
+baby-step DDD/TDD/BDD (unit → functional → cucumber), commit/push autorisés en
+clôture. Mission = **BKY-LANG-NAV-8** (phase site cccp.education / magic-stick,
+i18n à créer).
+
+**Challenge pilote décisif** : « tu ne peux pas déplacer ce qui a déjà été traduit
+par l'alignement sur l'infra bakery/cheroliv/talaria, en ayant recours à
+l'économie d'encre ? » — vérification faite, **oui**. Le gisement existe :
+
+* Les golden masters `i18n-fixtures/{cccp-education,magic-stick}/post-migration/templates/*`
+  sont **byte-identiques** aux templates réels des deux sites (11/11 et 12/12 vérifiés).
+* Leurs `#{key}` sont couverts **100 %** par `translations_en.properties` gelés
+  (0 clé manquante : 68 clés cccp, 44 magic).
+* Le contenu marketing de l'**accueil** vit dans le chrome (`index.N`) → l'accueil
+  EN est **entièrement gelé**.
+
+**Maillon manquant** : `jbake-core:2.7.0` installe **aucun MessageResolver** → un
+template `#{key}` n'est pas déployable (c'est pourquoi cheroliv déploie en
+*full-template swap*). Il fallait la brique déterministe « bundle gelé → template
+littéral résolu ».
+
+== Livré (1) — null-safety du cœur (pré-requis bloquant)
+
+Constat S-235 (`NAV-6`, dette) confirmé et soldé **côté bakery** :
+`bakery.langswitch.LangSwitchPath.thymeleafHref()` + `thymeleafEachHref()`
+embarquaient le **même bug** que cheroliv a corrigé site-side —
+`content.uri.substring(content.uri.lastIndexOf('/') + 1)` n'est pas null-safe, or
+`content.uri` est **null** sur les pages synthétiques (`archive.thyme`,
+`tags.thyme`, masterindex) qui rendent `menu.thyme`. Un site scaffoldé qui bake son
+archive **échouait au NPE**. Sans ce fix, injecter le sélecteur dans cccp/magic
+cassait le bake de l'archive.
+
+* Baby-step TDD strict : nouveau `LangSwitchPathNullSafetyTest` (6 UT) évalué au
+  `TemplateEngine` réel → **RED prouvé** (6/6 FAILED, `NullPointerException:
+  target is null for lastIndexOf`) → GREEN.
+* Correctif : ternaire explicite `content.uri != null` (Thymeleaf 3.0.14 OGNL
+  **n'accepte pas** l'opérateur Elvis `?:`), dégradation vers l'index de langue
+  (D8). **Byte-identique au correctif cheroliv prouvé** (S-235) — alignement D3.
+* Modèle ex-nihilo (`site-basic/templates/menu.thyme`, `site/templates/menu.thyme`)
+  mis à jour (pinné byte-à-byte contre `thymeleafEachHref`).
+* REFACTOR tests : 5 fichiers épinglaient l'ancienne forme buguée + steps BDD
+  (`LangSwitchSteps`, `I18nDeployEndToEndSteps`) raffinés : un `index.html` n'est
+  légitime **que** dans la branche gardée (`content.uri != null`) — jamais un href
+  page-blind. Nouvel invariant explicite (pas de faux vert).
+
+== Livré (2) — `MessageBundleResolver` (pont déterministe, zéro LLM)
+
+`bakery.i18n.MessageBundleResolver` — objet pur : substitue chaque `#{key}` par sa
+valeur de bundle, préserve le tag/attribut/expression, **rapporte** les clés non
+résolues (jamais un template corrompu). Idempotent (template déjà résolu = no-op).
+
+* 7 UT (`MessageBundleResolverTest`) RED → GREEN.
+* `FrozenBundleReuseIntegrationTest` (2 tests) **prouve sur les vrais golden
+  masters** : 0 clé non résolue, homepage EN matérialisée (cccp : « Common Content
+  Creator Proletarian », « Discover the plugins » ; magic : « Standardized
+  portable environment… », « A/B Architecture »).
+
+== Livré (3) — `materializeTemplates` (tâche Gradle, zéro LLM)
+
+`bakery.i18n.MaterializeTemplatesTask` : matérialise `i18n/{lang}/templates/`
+déployable depuis un bundle gelé.
+1. keyage des templates de référence (extraction `extractHardcodedText`, clé
+   space identique au golden master) ;
+2. résolution par `MessageBundleResolver` contre le bundle gelé.
+Langue sans bundle = **skippée, jamais inventée** (D8). Bundle complet = strict
+no-op au 2e run. Enregistrée groupe `transform` (`registerMaterializeTemplatesTask`).
+
+* FT `MaterializeTemplatesFunctionalTest` (5) RED → GREEN, dont :
+  * arbre EN matérialisé sans aucun LLM (littéral, 0 `#{` résiduel) ;
+  * 2e run strict no-op ;
+  * langue sans bundle skippée ;
+  * **UTF-8** : bug attrapé par le TDD (`Properties.load(InputStream)` lit en
+    ISO-8859-1 → `→` devient `â†'`), corrigé `load(Reader, UTF-8)`.
+
+== Preuve réelle (dogfooding, Règle 2, non destructif)
+
+Sur copie `/tmp/opencode` (jamais les sites réels) :
+* **cccp.education** : 11 templates matérialisés, **0 clé non résolue**, `→`
+  correct (UTF-8 vérifié) ;
+* **magic-stick** : 12 templates matérialisés, **0 clé non résolue**,
+  menu EN complet (`Home`, `Use cases`, `Architecture`, `Docs`, `Release notes`).
+* **Zéro appel LLM** sur les deux sites.
+
+== Périmètre restant (NAV-8 rollout site — session dédiée)
+
+Le rollout site réel n'est **pas** exécuté cette session. Constats de périmètre :
+* Les deux sites et leurs golden masters **n'ont pas de `lang-switcher-container`**
+  (marqueur requis par `injectLangSwitch`) — le sélecteur est à intégrer dans leurs
+  `menu.thyme`.
+* `InjectLangSwitchTask.resolveMenuThyme` résout `site/{lang}/templates` alors que
+  l'i18n vit sous `i18n/{lang}/templates` — petit delta de layout à traiter.
+* cccp/magic n'ont **pas** de build Gradle (consommateurs `site.yml` purs via
+  runner-gradle N3) : le wiring `materializeTemplates` + `injectLangSwitch` +
+  bake des variantes + CI (`deploy-i18n-site.yml`) est un chantier cross-borough.
+
+== Fichiers
+
+[cols="1,1,4"]
+|===
+| Fichier | État | Rôle
+
+| `src/main/kotlin/bakery/langswitch/LangSwitchPath.kt` | modifié | null-safety des 2 hôtes symboliques (D3/D8)
+| `src/main/kotlin/bakery/i18n/MessageBundleResolver.kt` | créé | pont bundle → template littéral (pur)
+| `src/main/kotlin/bakery/i18n/MaterializeTemplatesTask.kt` | créé | tâche `materializeTemplates` (zéro LLM)
+| `src/main/kotlin/bakery/ContentTaskRegistrar.kt` | modifié | enregistrement de la tâche
+| `src/main/kotlin/bakery/BakeryPlugin.kt` | modifié | câblage pipeline
+| `src/main/resources/site{,-basic}/templates/menu.thyme` | modifié | modèle ex-nihilo null-safe
+| 4 tests langswitch | modifiés | forme d'expression null-safe
+| 2 steps scénarios | modifiés | invariant `index.html` gardé
+| `src/test/kotlin/bakery/langswitch/LangSwitchPathNullSafetyTest.kt` | créé | 6 UT cœur
+| `src/test/kotlin/bakery/i18n/MessageBundleResolverTest.kt` | créé | 7 UT pont
+| `src/test/kotlin/bakery/i18n/FrozenBundleReuseIntegrationTest.kt` | créé | 2 tests preuve gelée
+| `src/functionalTest/kotlin/bakery/MaterializeTemplatesFunctionalTest.kt` | créé | 5 FT tâche
+| `src/functionalTest/kotlin/bakery/InjectLangSwitchFunctionalTest.kt` | modifié | forme null-safe
+|=== 
+
+== Gates
+
+[cols="2,3"]
+|===
+| Gate | Résultat
+
+| `test` | **2022 tests, 2 FAIL = FLAKY-5 préexistants** (baseline 2007 → +15 nets)
+| `functionalTest` | BUILD SUCCESSFUL 4m42s
+| `cucumberTest` | **2864 tests, 5 failed = baseline exacte stash-prouvée** (features 30/34/50/dns, hors périmètre)
+| `bakery.langswitch.*` + `bakery.i18n.*` | GREEN (features 51/55/66 : tous scénarios PASSED)
+| ktlint 3 source sets | **baseline identique avant/après** (mêmes 9 fichiers, aucun des miens)
+| `publishToMavenLocal` | VERT (Règle 0)
+| gate métier `grep REAC\|AFNOR\|SPG\|SPD\|FPA\|RNCP\|CDA` | 0
+|=== 
+
+== Incident de session (sécurité)
+
+En ouverture, l'agent a affiché par erreur le contenu de
+`office/sites/cccp.education/site.yml` (`cat`), révélant un token GitHub `gho_…`
+réel (fichier gitignoré, non tracké). Violation de la règle absolue AGENT.adoc
+§Secrets. Le token doit être **révoqué/régénéré** par le pilote. Aucun secret
+n'a été committé.
+
+== Décision / suite
+
+* **NAV-8 débloqué** : le gisement `cccp.education` + `magic-stick` est
+  **matérialisable sans LLM** (bundle gelé → arbre EN déployable).
+* *Reste* : rollout site NAV-8 (sélecteur + wiring + CI) — session dédiée
+  cross-borough.
+* *Dette S-235* (null-safety cœur bakery) **SOLDÉE**.
+* *Dette* : FLAKY-5 (drift fixture cheroliv.com) + ktlint baseline dépôt —
+  préexistants, non déclenchés.

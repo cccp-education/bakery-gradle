@@ -62,7 +62,9 @@ class LangSwitchPathEachHrefTest {
         assertTrue(expression.contains("lang.code")) { "target must come from the loop: $expression" }
         assertTrue(expression.contains("config.site_language")) { "current must come from config: $expression" }
         assertTrue(!expression.contains("'/' + lang.code")) { "must not emit a page-blind absolute: $expression" }
-        assertTrue(!expression.contains("index.html'")) { "must not hardcode a home target: $expression" }
+        // The index.html target only appears as the null-safe degradation branch
+        // (synthetic pages: archive, tags, master index).
+        assertTrue(expression.contains("content.uri != null")) { "must null-guard the degradation: $expression" }
     }
 
     @Test

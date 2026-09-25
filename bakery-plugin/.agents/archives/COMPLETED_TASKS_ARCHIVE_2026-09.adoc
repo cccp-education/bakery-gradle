@@ -1,5 +1,36 @@
 = Archive des Taches Terminees — Septembre 2026
 
+== Session 237 — 2026-09-25 — BKY-LANG-NAV-8 débloqué : null-safety cœur + réutilisation bundles gelés
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| Null-safety cœur `LangSwitchPath` (`thymeleafHref` + `thymeleafEachHref`), dette S-235 soldée, byte-identique cheroliv S-235
+| ✅ TERMINÉ
+
+| Modèle ex-nihilo null-safe (`site{,-basic}/templates/menu.thyme`)
+| ✅ TERMINÉ
+
+| `MessageBundleResolver` (objet pur, pont bundle → template littéral, 7 UT)
+| ✅ TERMINÉ
+
+| `MaterializeTemplatesTask` (`materializeTemplates`, zéro LLM, 5 FT + fix UTF-8)
+| ✅ TERMINÉ
+
+| `FrozenBundleReuseIntegrationTest` — preuve golden masters cccp + magic (0 clé non résolue)
+| ✅ TERMINÉ
+
+| Preuve réelle dogfooding copie `/tmp` : cccp 11 + magic 12 templates, zéro LLM
+| ✅ TERMINÉ
+
+| REFACTOR tests/steps BDD (invariant `index.html` gardé)
+| ✅ TERMINÉ
+|===
+
+Rapport `.agents/sessions/237-bky-lang-nav-8-null-safety-frozen-bundles.adoc`.
+Reste : rollout site NAV-8 (sélecteur + wiring + CI, cross-borough).
+
 == Session 236 — 2026-09-25 — BKY-LANG-NAV-7 : rollout talaria.school (harden same-page client-side)
 
 [cols="2,3"]

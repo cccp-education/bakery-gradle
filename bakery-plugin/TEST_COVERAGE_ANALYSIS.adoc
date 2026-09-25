@@ -1,6 +1,30 @@
 = Analyse de Couverture des Tests — Bakery Gradle Plugin
 
-_Derniere mise a jour : 2026-09-09 (Session 214 — EPIC BKY-TEST-FLAKY clôturé, +1 UT secrets (FixtureAlignmentAuditor.neutralizeSecrets), baseline stabilisée 1671/0)_
+_Derniere mise a jour : 2026-09-25 (Session 237 — BKY-LANG-NAV-8 débloqué : +6 UT null-safety cœur + 7 UT MessageBundleResolver + 2 tests intégration bundles gelés + 5 FT materializeTemplates = +20 nets, baseline 2022/2 FAIL FLAKY-5)_
+
+'''
+
+== Session 237 — BKY-LANG-NAV-8 enabler (null-safety cœur + réutilisation bundles gelés)
+
+**Tests ajoutés** :
+- `LangSwitchPathNullSafetyTest` : 6 UT (self défaut/non-défaut, défaut→non-défaut,
+  non-défaut→défaut, non-défaut→non-défaut, hôte `th:each`) — évalués au
+  `TemplateEngine` réel avec `content.uri = null` (pages synthétiques).
+- `MessageBundleResolverTest` : 7 UT (text node, attribut, clé inconnue préservée,
+  bundle vide, sans clé, idempotence, occurrences multiples).
+- `FrozenBundleReuseIntegrationTest` : 2 tests (golden masters cccp + magic :
+  0 clé non résolue, homepage EN matérialisée depuis le chrome gelé).
+- `MaterializeTemplatesFunctionalTest` : 5 FT (registration groupe transform,
+  matérialisation EN sans LLM, 2e run no-op, langue sans bundle skippée, UTF-8).
+
+**Tests corrigés / ré-alignés** (forme d'expression null-safe, dette S-235) :
+- `LangSwitchPathThymeleafHrefTest`, `LangSwitchUrlThymeleafHrefTest`,
+  `LangSwitchThymeleafRendererTest`, `LangSwitchPathEachHrefTest`,
+  `InjectLangSwitchFunctionalTest`, `LangSwitchSteps`, `I18nDeployEndToEndSteps`.
+
+**Baseline** : `./gradlew test` = 2022 tests, 2 FAIL = FLAKY-5 préexistants
+(drift fixture cheroliv.com), 3 skipped. `cucumberTest` 2864/5 baseline exacte
+stash-prouvée. `functionalTest` VERT.
 
 '''
 

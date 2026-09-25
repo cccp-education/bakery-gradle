@@ -39,17 +39,28 @@ object LangSwitchPath {
         require(targetLang.isNotBlank()) { "targetLang must not be blank" }
         require(defaultLang.isNotBlank()) { "defaultLang must not be blank" }
 
+        // `${content.uri}` is null on synthetic pages (`archive.thyme`,
+        // `tags.thyme`, the master index) which render `menu.thyme` with no page
+        // context. Thymeleaf 3.0.x OGNL has no Elvis `?:`, so every branch guards
+        // with an explicit ternary and degrades to the target language index —
+        // the D8 safe target, exactly like the site-side fix proven on cheroliv
+        // (S-235). This keeps the two hosts of the rule aligned (D3).
+        val hasUri = "content.uri != null"
+
         if (targetLang == currentLang) {
-            return "\${content.uri.substring(content.uri.lastIndexOf('/') + 1)}"
+            return "\${$hasUri ? content.uri.substring(content.uri.lastIndexOf('/') + 1) : " +
+                "content.rootpath + 'index.html'}"
         }
 
         if (currentLang == defaultLang) {
             val target = if (targetLang == defaultLang) "" else "$targetLang/"
-            return "\${content.rootpath + '$target' + content.uri}"
+            return "\${$hasUri ? content.rootpath + '$target' + content.uri : " +
+                "content.rootpath + '${target}index.html'}"
         }
 
         val target = if (targetLang == defaultLang) "" else "$targetLang/"
-        return "|../\${content.rootpath}${target}\${content.uri}|"
+        return "\${$hasUri ? '../' + content.rootpath + '$target' + content.uri : " +
+            "'../' + content.rootpath + '${target}index.html'}"
     }
 
     /**
@@ -72,10 +83,15 @@ object LangSwitchPath {
     fun thymeleafEachHref(defaultLang: String): String {
         require(defaultLang.isNotBlank()) { "defaultLang must not be blank" }
 
-        val self = "content.uri.substring(content.uri.lastIndexOf('/') + 1)"
-        val downToNonDefault = "content.rootpath + lang.code + '/' + content.uri"
-        val upToDefault = "'../' + content.rootpath + content.uri"
-        val upToNonDefault = "'../' + content.rootpath + lang.code + '/' + content.uri"
+        // No Elvis `?:` in Thymeleaf 3.0.x OGNL: each leaf guards on
+        // `content.uri != null` and degrades to its target language index when
+        // the menu is rendered on a synthetic page (`archive`, `tags`, master
+        // index) — the same null-safety contract as [thymeleafHref] (D3).
+        val hasUri = "content.uri != null"
+        val self = "$hasUri ? content.uri.substring(content.uri.lastIndexOf('/') + 1) : content.rootpath + 'index.html'"
+        val downToNonDefault = "$hasUri ? content.rootpath + lang.code + '/' + content.uri : content.rootpath + lang.code + '/index.html'"
+        val upToDefault = "$hasUri ? '../' + content.rootpath + content.uri : '../' + content.rootpath + 'index.html'"
+        val upToNonDefault = "$hasUri ? '../' + content.rootpath + lang.code + '/' + content.uri : '../' + content.rootpath + lang.code + '/index.html'"
 
         return "\${lang.code == config.site_language ? $self : " +
             "(config.site_language == '$defaultLang' ? $downToNonDefault : " +

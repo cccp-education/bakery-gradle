@@ -66,7 +66,7 @@ class LangSwitchThymeleafRendererTest {
         val renderer = LangSwitchThymeleafRenderer(labels)
         val rendered = renderer.render(links(listOf("fr", "en"), "fr", "fr", ""))
         assertTrue(
-            rendered.contains("th:href=\"\${content.rootpath + 'en/' + content.uri}\""),
+            rendered.contains("\${content.uri != null ? content.rootpath + 'en/' + content.uri : content.rootpath + 'en/index.html'}"),
             "EN link from FR root should be page-aware, got: $rendered",
         )
     }
@@ -76,7 +76,7 @@ class LangSwitchThymeleafRendererTest {
         val renderer = LangSwitchThymeleafRenderer(labels)
         val rendered = renderer.render(links(listOf("fr", "en"), "fr", "en", "en/"))
         assertTrue(
-            rendered.contains("th:href=\"|../\${content.rootpath}\${content.uri}|\""),
+            rendered.contains("\${content.uri != null ? '../' + content.rootpath + '' + content.uri : '../' + content.rootpath + 'index.html'}"),
             "FR link from EN subdir should be page-aware, got: $rendered",
         )
     }
@@ -86,7 +86,7 @@ class LangSwitchThymeleafRendererTest {
         val renderer = LangSwitchThymeleafRenderer(labels)
         val rendered = renderer.render(links(listOf("fr", "en"), "fr", "en", "en/"))
         assertTrue(
-            rendered.contains("th:href=\"\${content.uri.substring(content.uri.lastIndexOf('/') + 1)}\""),
+            rendered.contains("\${content.uri != null ? content.uri.substring(content.uri.lastIndexOf('/') + 1) : content.rootpath + 'index.html'}"),
             "EN self-link from EN subdir should point at the current page, got: $rendered",
         )
     }
@@ -96,18 +96,19 @@ class LangSwitchThymeleafRendererTest {
         val renderer = LangSwitchThymeleafRenderer(labels)
         val rendered = renderer.render(links(listOf("fr", "en", "ar"), "fr", "en", "en/"))
         assertTrue(
-            rendered.contains("th:href=\"|../\${content.rootpath}ar/\${content.uri}|\""),
+            rendered.contains("\${content.uri != null ? '../' + content.rootpath + 'ar/' + content.uri : '../' + content.rootpath + 'ar/index.html'}"),
             "AR link from EN subdir should be page-aware, got: $rendered",
         )
     }
 
     @Test
-    fun `rendered th href never hardcodes the page-blind index html`() {
+    fun `rendered th href keeps the page and null-guards the index degradation`() {
         val renderer = LangSwitchThymeleafRenderer(labels)
         val rendered = renderer.render(links(listOf("fr", "en"), "fr", "fr", ""))
-        assertFalse(
-            rendered.contains("'index.html'"),
-            "page-aware render must not emit a page-blind index.html href, got: $rendered",
+        assertTrue(rendered.contains("content.uri"), "page-aware render must keep the page: $rendered")
+        assertTrue(
+            rendered.contains("content.uri != null"),
+            "the index.html degradation must be null-guarded, got: $rendered",
         )
     }
 

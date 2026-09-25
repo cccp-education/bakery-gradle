@@ -35,7 +35,7 @@ class InjectLangSwitchFunctionalTest {
         assertThat(frContent).contains("data-lang=\"fr\"")
         assertThat(frContent).contains("data-lang=\"en\"")
         assertThat(frContent).contains("dropdown-menu")
-        assertThat(frContent).contains("\${content.rootpath + 'en/' + content.uri}")
+        assertThat(frContent).contains("\${content.uri != null ? content.rootpath + 'en/' + content.uri : content.rootpath + 'en/index.html'}")
 
         val enMenu = projectDir.resolve("site/en/templates/menu.thyme")
         assertThat(enMenu.exists()).isTrue()
@@ -56,7 +56,7 @@ class InjectLangSwitchFunctionalTest {
 
         val enMenu = projectDir.resolve("site/en/templates/menu.thyme")
         val enContent = enMenu.readText()
-        assertThat(enContent).contains("|../\${content.rootpath}\${content.uri}|")
+        assertThat(enContent).contains("\${content.uri != null ? '../' + content.rootpath + '' + content.uri : '../' + content.rootpath + 'index.html'}")
     }
 
     @Test
@@ -71,7 +71,7 @@ class InjectLangSwitchFunctionalTest {
 
         val frMenu = projectDir.resolve("site/templates/menu.thyme")
         val frContent = frMenu.readText()
-        assertThat(frContent).contains("\${content.rootpath + 'en/' + content.uri}")
+        assertThat(frContent).contains("\${content.uri != null ? content.rootpath + 'en/' + content.uri : content.rootpath + 'en/index.html'}")
     }
 
     @Test
@@ -87,8 +87,10 @@ class InjectLangSwitchFunctionalTest {
         val frMenu = projectDir.resolve("site/templates/menu.thyme")
         val frContent = frMenu.readText()
         val switcherBlock = frContent.substringAfter("lang-switcher-container").substringAfter("<ul")
-        assertThat(switcherBlock).doesNotContain("'index.html'")
-        assertThat(switcherBlock).doesNotContain("en/index.html")
+        // The page-aware branch keeps the page; the only `index.html` is the
+        // null-safe degradation (synthetic pages), guarded by `content.uri != null`.
+        assertThat(switcherBlock).contains("content.uri != null")
+        assertThat(switcherBlock).doesNotContain("th:href=\"en/index.html\"")
     }
 
     @Test
@@ -160,7 +162,7 @@ class InjectLangSwitchFunctionalTest {
 
         val enMenu = projectDir.resolve("site/en/templates/menu.thyme")
         val enContent = enMenu.readText()
-        assertThat(enContent).contains("|../\${content.rootpath}ar/\${content.uri}|")
+        assertThat(enContent).contains("\${content.uri != null ? '../' + content.rootpath + 'ar/' + content.uri : '../' + content.rootpath + 'ar/index.html'}")
     }
 
     private fun createProjectWithFixture(langCount: Int) {

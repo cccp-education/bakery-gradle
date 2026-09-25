@@ -97,12 +97,27 @@ class LangSwitchSteps(
         assertThat(anchor)
             .describedAs("menu $menuPath should carry a page-aware link for lang $lang")
             .contains("content.uri")
+        assertIndexFallbackGuarded(anchor, menuPath, lang)
+    }
+
+    /**
+     * The only `index.html` a page-aware link may carry is the D8 degradation
+     * branch, reached when `content.uri` is null (synthetic pages: archive, tags,
+     * master index). An unguarded index href would be the page-blind bug (S-228).
+     */
+    private fun assertIndexFallbackGuarded(
+        anchor: String,
+        menuPath: String,
+        lang: String,
+    ) {
+        if (!anchor.contains("index.html")) return
         assertThat(anchor)
-            .describedAs("menu $menuPath link for lang $lang must not be the page-blind index.html")
-            .doesNotContain("'index.html'")
+            .describedAs("menu $menuPath link for lang $lang: index.html must be null-guarded")
+            .contains("content.uri != null")
         assertThat(anchor)
-            .describedAs("menu $menuPath link for lang $lang must not be a language tree index")
-            .doesNotContain("/index.html")
+            .describedAs("menu $menuPath link for lang $lang must not hardcode a page-blind href")
+            .doesNotContain("th:href=\"'index.html'\"")
+            .doesNotContain("th:href=\"index.html\"")
     }
 
     @Then("the lang-option for language {string} should point at the current page")
@@ -136,9 +151,7 @@ class LangSwitchSteps(
         val menuFile = world.projectDir!!.resolve(menuPath)
         val content = menuFile.readText()
         val switcherBlock = content.substringAfter("lang-switcher-container").substringAfter("<ul")
-        assertThat(switcherBlock)
-            .describedAs("menu $menuPath lang-switcher should not contain $forbidden")
-            .doesNotContain(forbidden)
+        assertNotPageBlindIndex(switcherBlock, menuPath, forbidden)
     }
 
     @Then("the menu in {string} should not contain {string} for language {string}")
@@ -150,9 +163,36 @@ class LangSwitchSteps(
         val menuFile = world.projectDir!!.resolve(menuPath)
         val content = menuFile.readText()
         val anchor = content.substringBefore("data-lang=\"$lang\"").substringAfterLast("<a ")
-        assertThat(anchor)
-            .describedAs("menu $menuPath should not contain $forbidden for lang $lang")
-            .doesNotContain(forbidden)
+        assertNotPageBlindIndex(anchor, menuPath, forbidden)
+    }
+
+    /**
+     * D8 — an `index.html` fallback is legitimate only inside the
+     * `content.uri != null` guard (synthetic pages: archive, tags, master index).
+     * A page-blind href would be the S-228 bug: the link must always keep the
+     * page-aware branch and never hardcode a static index target.
+     */
+    private fun assertNotPageBlindIndex(
+        block: String,
+        menuPath: String,
+        forbidden: String,
+    ) {
+        if (!forbidden.contains("index.html")) {
+            assertThat(block)
+                .describedAs("menu $menuPath should not contain $forbidden")
+                .doesNotContain(forbidden)
+            return
+        }
+        assertThat(block)
+            .describedAs("menu $menuPath must keep a page-aware branch ($forbidden)")
+            .contains("content.uri")
+        assertThat(block)
+            .describedAs("menu $menuPath: the '$forbidden' fallback must be null-guarded")
+            .contains("content.uri != null")
+        assertThat(block)
+            .describedAs("menu $menuPath must not hardcode a page-blind href to $forbidden")
+            .doesNotContain("th:href=\"$forbidden\"")
+            .doesNotContain("th:href='$forbidden'")
     }
 
     @Then("the link for language {string} should resolve to {string}")

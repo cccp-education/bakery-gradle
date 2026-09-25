@@ -271,9 +271,16 @@ class I18nDeployEndToEndSteps {
         assertThat(anchor)
             .describedAs("FR menu link for language $lang should be page-aware")
             .contains("content.uri")
+        // D8 — a `/index.html` target is legitimate only as the null-guarded
+        // degradation (synthetic pages); a static page-blind href is the S-228 bug.
+        if (anchor.contains("/index.html")) {
+            assertThat(anchor)
+                .describedAs("FR menu link for language $lang: index fallback must be null-guarded")
+                .contains("content.uri != null")
+        }
         assertThat(anchor)
-            .describedAs("FR menu link for language $lang must not be a page-blind index")
-            .doesNotContain("/index.html")
+            .describedAs("FR menu link for language $lang must not hardcode a page-blind index")
+            .doesNotContain("th:href=\"index.html\"")
     }
 
     private fun translateFixtureTo(targetLangs: List<String>) {
