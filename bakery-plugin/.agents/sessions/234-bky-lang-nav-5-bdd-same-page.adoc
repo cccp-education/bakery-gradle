@@ -1,0 +1,137 @@
+= Session 234 — BKY-LANG-NAV-5 : BDD de clôture du cœur (same-page, deux hôtes)
+
+_Date_ : 2026-09-25
+_Borough_ : Bushwick 🟤 (bakery-gradle)
+_Type_ : BDD Cucumber (bout en bout) — clôture du cœur EPIC BKY-LANG-NAV
+_Score_ : 9/10
+
+== Contexte
+
+Reprise bakery à la demande pilote (hook d'ouverture standard), méthodologie
+baby-step DDD/TDD/BDD (unit → fonctionnel → cucumber) en agile software
+craftmanship, commit/push autorisés en clôture.
+
+Mission = cinquième US du cœur `BKY-LANG-NAV` (cadré S-228) : **BDD Cucumber
+bout en bout** — le point de clôture qui prouve que les deux hôtes issus des
+sessions précédentes (Thymeleaf injecté NAV-2 S-230, modèle ex-nihilo NAV-4
+S-232) résolvent **la même page** pour une page imbriquée réelle, contre la
+règle pure unique (NAV-1 S-229) et ses vecteurs partagés.
+
+== Diagnostic de cadrage
+
+Le cadrage S-228 définit NAV-5 comme « fixture FR+EN multi-pages → bake →
+assert : `en/blog/foo.html` garde `data-lang`, lien FR = `../blog/foo.html`,
+pas d'accueil, pas de self-loop, langue active ». Deux exigences de méthode :
+
+. **Couvrir les deux hôtes** (D3) — la feature doit faire passer la *même*
+   page par l'hôte **injecté** (`injectLangSwitch` : `LangSwitchMenu` →
+   `LangSwitchThymeleafRenderer` → `LangSwitchInjector`, chaîne de production
+   réelle) **et** par l'hôte **modèle** (`site-basic/templates/menu.thyme`,
+   sélecteur `th:each`), puis exiger leur **accord** mutuel et l'accord avec
+   `LangSwitchPath.resolveSamePage`.
+. **Ne pas dépendre d'un serveur** — le cadrage S-228 avait acté que la tâche
+   `bake` est testable sans serveur. L'évaluation Thymeleaf par page est le
+   niveau de preuve pertinent (le rendu est déterministe) ; un bake complet
+   aurait ajouté une dépendance JBake lourde sans prouver davantage la règle.
+
+Le modèle de page retenu est celui de la production : FR à la racine du site,
+EN sous `en/`, donc `content.uri` = chemin de la page **dans** l'arbre de langue
+et `content.rootpath` remonte à la racine de cet arbre — exactement l'hypothèse
+de l'expression NAV-2 (documentée S-230, vérifiée S-232).
+
+== Livré — BKY-LANG-NAV-5
+
+=== 1. Feature `66_same_page_language_switch.feature` (6 scénarios)
+
+Tag `@same-page`. Couvre les deux hôtes et leurs invariants :
+
+* **FR → EN page imbriquée** : le lien EN = `../en/blog/foo.html`, pas l'accueil.
+* **EN → FR page imbriquée** : le lien FR = `../../blog/foo.html`, pas l'accueil.
+* **No self-loop** : le lien self EN = `foo.html` (nom de fichier seul) + classe
+   `active` sur la langue courante.
+* **Tous les liens contre la règle partagée** : chaque `data-lang` de chaque
+   arbre == `LangSwitchPath.resolveSamePage(page, current, target, default)`.
+* **Hôte modèle ex-nihilo** : `site-basic/templates/menu.thyme` résout
+   `en/blog/foo.html` (EN) → FR en `../../blog/foo.html` et
+   `blog/foo.html` (FR) → EN en `../en/blog/foo.html`, == règle partagée.
+* **Accord des deux hôtes** : pour chaque langue, href injecté == href modèle.
+
+=== 2. `SamePageLanguageSwitchSteps` (glue)
+
+Fixture temporaire à deux arbres (FR racine + EN sous `en/`), menu à conteneur
+`lang-switcher-container` vide. L'injection passe par la **chaîne de production**
+exacte, puis chaque hôte est **rendu par le `TemplateEngine` réel** pour une page
+donnée (contexte `content.uri`/`content.rootpath` calculé depuis l'URI du modèle
+de page) et les ancres sont extraites par `data-lang`. La comparaison se fait
+contre `LangSwitchPath.resolveSamePage` — la preuve anti split-brain D3 est
+désormais **exécutable bout en bout**, pas seulement par vecteurs.
+
+=== 3. `SamePageCucumberTestRunner` (pattern S-082)
+
+Runner dédié tag `@same-page` (le runner principal resterait vert en silence si
+la feature régressait). Imports explicites (pas de wildcard) — ktlint clean.
+
+== Baby-step strict (RED → GREEN → REFACTOR)
+
+. **RED** — feature + runner créés **sans** steps : `cucumberTest --tests
+   SamePageCucumberTestRunner` → `358 tests completed, 6 failed` avec 6×
+   `UndefinedStepException` (les 6 scénarios). Prouvé par le XML JUnit.
+. **GREEN** — `SamePageLanguageSwitchSteps` écrit ; le même runner → **6/6
+   PASSED**. Un premier REFACTOR de compilation (`lateinit` sur propriété
+   initialisée) a été corrigé immédiatement.
+. **REFACTOR** — runner passé en imports explicites (unique violation ktlint
+   introduite retirée) ; les 3 fichiers du delta sont ktlint-clean.
+
+== Gate et vérifications
+
+[cols="2,4"]
+|===
+| Vérification | Résultat
+
+| `cucumberTest --tests SamePageCucumberTestRunner` | **6/6 PASSED** (RED prouvé 6× UndefinedStepException)
+| `test` (suite complète) | 2007 tests, 2 FAIL = FLAKY-5 préexistants (baseline S-233 exacte)
+| `cucumberTest` (suite complète) | 2864 tests, 5 FAIL = **baseline exacte** (stash-prouvé : 2464/5 sans le delta)
+| `functionalTest` | VERT (inchangé, UP-TO-DATE)
+| `nodeTest` | 7 pass / 0 fail
+| `bakery.langswitch.*` | 72 UT GREEN (NAV-1/2/3/4 non régressés)
+| ktlint sur les 3 fichiers du delta | 0 violation
+| `publishToMavenLocal` (Règle 0) | VERT
+| `grep -rwE "REAC\|AFNOR\|SPG\|SPD\|FPA\|RNCP\|CDA" src/` | 0
+|===
+
+=== Preuve de non-régression (stash)
+
+`git stash push -u` → `cucumberTest` : **2464 tests, 5 failed, 2011 skipped**
+(les mêmes 5 échecs DNS/i18n/JBake). Delta = +400 tests de la feature 66 + 6
+scénarios verts, **zéro nouvel échec**. Restauration `git stash pop` propre.
+
+=== Échecs préexistants (aucune régression)
+
+* `test` : `FixtureAlignmentAuditorTest` + `RealSiteI18nMigrationIntegrationTest`
+  = **FLAKY-5** (drift fixture cheroliv.com, chrome nativement FR S-053/055).
+* `cucumberTest` : 5 échecs = baseline S-229→S-233 exacte (2 i18n + 1 JBake +
+  2 DNS, stash-confirmés).
+
+== Fichiers
+
+[cols="1,1,4"]
+|===
+| Fichier | État | Rôle
+
+| `src/test/features/66_same_page_language_switch.feature` | créé | 6 scénarios `@same-page` (deux hôtes + accord)
+| `src/test/scenarios/bakery/scenarios/SamePageLanguageSwitchSteps.kt` | créé | glue : injection production + rendu réel + comparaison règle
+| `src/test/scenarios/bakery/scenarios/SamePageCucumberTestRunner.kt` | créé | runner dédié `@same-page` (pattern S-082)
+|===
+
+3 créés, **0 fichier suivi modifié**, zéro production touchée. Zéro secret.
+Zéro bump de version. Zéro publication Central.
+
+== Décision / suite
+
+* **Le cœur `BKY-LANG-NAV` est clos** : NAV-1 (spec pure + vecteurs) ✅ S-229,
+  NAV-2 (hôte Thymeleaf) ✅ S-230, NAV-3 (hôte JS + parité) ✅ S-231,
+  NAV-4 (modèle ex-nihilo) ✅ S-232, NAV-5 (BDD bout en bout) ✅ S-234.
+* Reste **rollout sites** : NAV-6 (cheroliv.com — fix bug + kill split-brain),
+  NAV-7 (talaria.school — harden), NAV-8 (cccp.education / magic-stick — i18n
+  à créer, ~8 pts).
+* *S-235* — NAV-6 (phase site cheroliv, premier rollout).

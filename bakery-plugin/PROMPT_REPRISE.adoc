@@ -1,43 +1,51 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 234
+:session: 235
 :date: 2026-09-25
-:etat: Session 233 ✅ — **Re-pin catalogue ws 0.0.57 + réalignement drift MEM-CAT-3** (maintenance build, cross-borough document 0.0.18). Antérieur S-232 : BKY-LANG-NAV-4 (modèle ex-nihilo conforme). S-231 : NAV-3. S-230 : NAV-2. S-229 : NAV-1. S-228 : cadrage.
-:epic_actif: **BKY-LANG-NAV** (🟡 NAV-0 ✅, NAV-1 ✅, NAV-2 ✅, NAV-3 ✅, NAV-4 ✅, NAV-5→8 À FAIRE) — P1, clôture du cœur NAV-5 (~3 pts), puis rollout sites NAV-6→8 (~13 pts).
-:epic_suivant: **NAV-5** (BDD Cucumber bout en bout, fixture FR+EN multi-pages) — clôture du cœur. Dépend de NAV-2 ✅ et NAV-4 ✅.
+:etat: Session 234 ✅ — **BKY-LANG-NAV-5 TERMINÉ — BDD de clôture du cœur** (fixture deux hôtes, 6/6 scénarios, accord injecté ∪ modèle ∪ règle). Antérieur S-233 : re-pin catalogue ws 0.0.57. S-232 : NAV-4. S-231 : NAV-3. S-230 : NAV-2. S-229 : NAV-1. S-228 : cadrage.
+:epic_actif: **BKY-LANG-NAV** (🟡 NAV-0 ✅, NAV-1 ✅, NAV-2 ✅, NAV-3 ✅, NAV-4 ✅, NAV-5 ✅, NAV-6→8 À FAIRE) — cœur CLOS, reste rollout sites (NAV-6→8, ~13 pts).
+:epic_suivant: **NAV-6** (phase site — cheroliv.com : fix bug + kill split-brain + `hreflang` conservé). Dépend de NAV-5 ✅.
 
-== État S-233
+== État S-234
 
-Maintenance build (hors EPIC) : le borough pinnait encore `workspace-catalog:0.0.56`
-+ platform `workspace-bom:0.0.48` (neutralisée) → résolvait `document-plugin 0.0.17`
-alors que MEMPHIS a publié **`0.0.18`** au catalogue `0.0.57`. Re-pin :
-`settings.gradle.kts` (`0.0.56 → 0.0.57`) + 3 platform pins
-(`0.0.48 → 0.0.57`) + toml local réaligné (`codebase-plugin 0.0.12 → 0.0.16`,
-`i18n-contracts 0.0.3 → 0.0.4`). Nouvelle garde `BakeryPluginPublicationTest`
-(`every workspace bom platform pin matches ws catalog bom version`, extrait
-**tous** les pins par regex). Preuve : `document-plugin → 0.0.18`. Version
-plugin bakery inchangée (`0.0.19`) — re-pin de consommation, zéro publication.
+**Le cœur `BKY-LANG-NAV` est clos.** NAV-5 (BDD bout en bout) livre la preuve
+exécutable de la décision D3 « une règle, deux hôtes, vecteurs partagés » :
+feature `66_same_page_language_switch.feature` (`@same-page`, 6 scénarios) +
+`SamePageLanguageSwitchSteps` + runner dédié `SamePageCucumberTestRunner`
+(pattern S-082). Une page imbriquée (`blog/foo.html` FR ↔ `en/blog/foo.html` EN)
+est injectée par la chaîne de production `injectLangSwitch` **et** rendue par
+l'hôte modèle ex-nihilo, les deux étant évalués au `TemplateEngine` réel et
+comparés à `LangSwitchPath.resolveSamePage`. Baby-step BDD strict RED (6×
+`UndefinedStepException`) → GREEN (6/6 PASSED). **Zéro production modifiée**
+(3 fichiers de test créés).
 
-Baseline : `test` 2007 (+1 = nouvelle garde, 2 FAIL = FLAKY-5 préexistants),
-`functionalTest` VERT, `publishToMavenLocal` VERT.
+Baseline : `test` 2007 (+0, 2 FAIL = FLAKY-5 préexistants), `cucumberTest`
+2864/5 = baseline exacte (stash-prouvé 2464/5), `functionalTest` VERT,
+`nodeTest` 7/7, `publishToMavenLocal` VERT.
 
-== Mission Session 234 — BKY-LANG-NAV-5 (BDD de clôture du cœur)
+== Mission Session 235 — BKY-LANG-NAV-6 (phase site cheroliv.com)
 
-*NAV-5 — Cucumber bout en bout.* Fixture FR+EN multi-pages → assert :
-`en/blog/foo.html` garde `data-lang`, le lien FR = `../blog/foo.html` (page
-préservée), pas d'accueil, pas de self-loop, langue active. Couvre les deux
-hôtes (Thymeleaf NAV-2, modèle/JS NAV-4).
+*NAV-6 — premier rollout site.* Migrer `office/sites/cheroliv.com` vers la règle
+commune : le sélecteur préserve la page (fin du retour à l'accueil) et le
+**split-brain est tué** — `com.cheroliv.i18n.LangSwitchLink.thymeleafHref()` +
+`LangSwitchMenuRenderer`/`LangSwitchSiteApplier`/`LangSwitchBlockInjector`/
+`InjectLangSwitchMain` consomment la règle commune (ou sont retirés au profit du
+task bakery `injectLangSwitch`). Décision D5 du cadrage à confirmer au cadrage
+de la phase site.
 
-*Tests* : feature BDD (page FR→EN, EN→FR, page imbriquée, no self-loop, active
-class) + runner dédié si nécessaire (pattern S-082).
+*Couverture* : préservation de page (page imbriquée réelle) + `hreflang`/SEO
+conservés (D9, les deux mécanismes ne doivent pas diverger).
+
+*Attention boundary* : `office/sites/*` sont des sites hors `foundry/`. Le
+cadrage D-pré-requis impose de travailler sur fixture/copie (`dry-run` par
+défaut), jamais de modification destructive du site réel sans accord pilote.
 
 == Reprendre à
 
 . `git status` dans bakery-gradle — vérifier qu'aucune session concurrente n'écrit.
-. `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc` (cadrage complet, D1→D10).
-. `src/test/features/51_lang_switch_url_resolver.feature` (BDD existante à
-   étendre ou compléter par une feature multi-pages).
-. `.agents/sessions/232-bky-lang-nav-4-modele-ex-nihilo.adoc` (rapport S-232) +
-   `.agents/sessions/233-repin-catalog-ws-0.0.57-drift-realign.adoc` (rapport S-233).
+. `.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc` (cadrage complet, D1→D10 + NAV-6).
+. `.agents/sessions/234-bky-lang-nav-5-bdd-same-page.adoc` (rapport S-234).
+. `office/sites/cheroliv.com/src/main/kotlin/com/cheroliv/i18n/LangSwitchLink.kt`
+   (le split-brain à tuer) + `InjectLangSwitchMain` (la chaîne à replier sur bakery).
 . Gate Économie d'Encre : ne relancer `test` que si le code source change.
 
 == Dette découverte (FLAKY-5)
@@ -45,7 +53,7 @@ class) + runner dédié si nécessaire (pattern S-082).
 `FixtureAlignmentAuditorTest` + `RealSiteI18nMigrationIntegrationTest` (cheroliv-com)
 = **2 FAIL préexistants** : drift fixture ↔ site réel (chrome nativement FR,
 S-053/055, 5 templates — `blog_section.thyme` golden master « Close » vs
-« Fermer »). Stash-prouvé non introduit par NAV-2/3/4 ni par le re-pin S-233.
+« Fermer »). Stash-prouvé non introduit par NAV-2/3/4/5 ni par le re-pin S-233.
 Session dédiée : resync fixture + régénération golden master
 (`PostMigrationSnapshotGenerator`). `koverThresholdCheck` + `ktlintKotlinScriptCheck`
 rouges à HEAD (baseline dépôt).
@@ -58,8 +66,7 @@ rouges à HEAD (baseline dépôt).
    de l'ajouter au catalogue MEMPHIS — garde D8 anti-ghost).
 * *Règle 0* : `./gradlew -q publishToMavenLocal` OBLIGATOIRE après toute
    modification du code source.
-* *MEM-CAT-3* : pin catalogue unique dans `settings.gradle.kts` +
-   platform `workspace-bom` ; garde `BakeryPluginPublicationTest` (3 tests)
-   attrape tout drift (dont le pin platform stale neutralisé par résolution).
+* *Pattern BDD runner dédié* : tout tag de feature non couvert par le runner
+   principal doit avoir son runner dédié (S-082) — sinon il est skippé en silence.
 * Commit/push autorisés (décision pilote 2026-09-17). Zéro secret.
 * Baby-step DDD/TDD/BDD strict — 1 fichier à la fois, gate `test` complète.

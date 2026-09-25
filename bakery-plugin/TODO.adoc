@@ -1,17 +1,17 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-09-25 — Session 233. **Re-pin catalogue ws 0.0.57 + réalignement drift MEM-CAT-3** : `settings.gradle.kts` (`0.0.56 → 0.0.57`) + 3 platform pins `workspace-bom:0.0.48 → 0.0.57` + toml réaligné (`codebase-plugin 0.0.16`, `i18n-contracts 0.0.4`). Nouvelle garde `BakeryPluginPublicationTest` `every workspace bom platform pin matches ws catalog bom version`. Preuve `document-plugin → 0.0.18`. Version plugin inchangée, zéro publication. Antérieur S-232 : **BKY-LANG-NAV-4 TERMINÉ** (modèle ex-nihilo conforme). Antérieur S-231 : NAV-3. S-230 : NAV-2. S-229 : NAV-1. S-228 : cadrage._
+_Dernière mise à jour : 2026-09-25 — Session 234. **BKY-LANG-NAV-5 TERMINÉ** (BDD de clôture du cœur, same-page deux hôtes) — **cœur EPIC BKY-LANG-NAV clos**. Antérieur S-233 : re-pin catalogue ws 0.0.57. S-232 : NAV-4 (modèle ex-nihilo conforme). S-231 : NAV-3. S-230 : NAV-2. S-229 : NAV-1. S-228 : cadrage._
 
-== EPIC BKY-LANG-NAV (S-228) — Changement de langue sans retour à l'accueil (same-page switching) 🟡 EN COURS
+== EPIC BKY-LANG-NAV (S-228) — Changement de langue sans retour à l'accueil (same-page switching) 🟡 EN COURS — CŒUR CLOS
 
 * [x] **BKY-LANG-NAV-0** : Cadrage EPIC (S2 + hybride, Thymeleaf conservé, spec unique + 2 hôtes + vecteurs partagés) ✅ S-228 (gouvernance pure)
 * [x] **BKY-LANG-NAV-1** : `LangSwitchPath` — spec pure `resolveSamePage(...)` + vecteurs partagés JSON ✅ S-229 (17 UT + 2 UT fixture-driven, 4 fichiers créés)
 * [x] **BKY-LANG-NAV-2** : Hôte Thymeleaf — `th:href` page-aware + FT fixture multi-pages ✅ S-230 (9+5+4 UT + renderer réécrit, FT 8/8, BDD 51 5/5)
 * [x] **BKY-LANG-NAV-3** : Hôte JS `lang-switch.js` + garde parité maquette↔jbake (présence + comportement) ✅ S-231 (node 7 + UT 7 + FT Oven 1, `nodeTest` câblé à `check` + CI)
-* [ ] **BKY-LANG-NAV-4** : Modèle ex-nihilo conforme (`site-basic` + `maquette/js`) (🟡 À FAIRE — débloqué par NAV-3, prochaine S-232)
-* [ ] **BKY-LANG-NAV-5** : BDD Cucumber fixture FR+EN multi-pages — clôture cœur (🟡 À FAIRE)
-* [ ] **BKY-LANG-NAV-6** : Phase site cheroliv.com — fix bug + kill split-brain (🟡 À FAIRE)
+* [x] **BKY-LANG-NAV-4** : Modèle ex-nihilo conforme (`site-basic` + `site/templates`) ✅ S-232 (`thymeleafEachHref` + `LangSwitchModelGuard`, 4+9 UT + FT 1→3)
+* [x] **BKY-LANG-NAV-5** : BDD Cucumber fixture FR+EN multi-pages — clôture cœur ✅ S-234 (feature 66 `@same-page` 6 scénarios + steps + runner dédié ; deux hôtes + règle pure, RED 6× UndefinedStep → GREEN 6/6)
+* [ ] **BKY-LANG-NAV-6** : Phase site cheroliv.com — fix bug + kill split-brain (🟡 À FAIRE — premier rollout, dépend NAV-5 ✅)
 * [ ] **BKY-LANG-NAV-7** : Phase site talaria.school — harden (🟡 À FAIRE)
 * [ ] **BKY-LANG-NAV-8** : Phase site cccp.education / magic-stick — i18n à créer (🟡 À FAIRE)
 

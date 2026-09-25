@@ -1,5 +1,33 @@
 = Archive des Taches Terminees — Septembre 2026
 
+== Session 234 — 2026-09-25 — BKY-LANG-NAV-5 : BDD de clôture du cœur (same-page, deux hôtes)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| BKY-LANG-NAV-5 — feature `66_same_page_language_switch.feature` (`@same-page`, 6 scénarios)
+| ✅ TERMINÉ
+
+| BKY-LANG-NAV-5 — `SamePageLanguageSwitchSteps` (injection chaîne production + rendu TemplateEngine réel + comparaison `LangSwitchPath.resolveSamePage`)
+| ✅ TERMINÉ
+
+| BKY-LANG-NAV-5 — runner dédié `SamePageCucumberTestRunner` (pattern S-082, imports explicites ktlint-clean)
+| ✅ TERMINÉ
+
+| Preuve D3 bout en bout — accord mutuel hôte injecté ∪ hôte modèle ex-nihilo ∪ règle pure, page imbriquée FR↔EN
+| ✅ TERMINÉ
+
+| Baby-step BDD strict — RED prouvé (6× `UndefinedStepException`) → GREEN (6/6 PASSED) → REFACTOR (0 violation ktlint)
+| ✅ TERMINÉ
+
+| Gates : `test` 2007 (2 FAIL = FLAKY-5 préexistants), `cucumberTest` 2864/5 = baseline exacte stash-prouvée (2464/5 hors delta), `functionalTest` VERT, `nodeTest` 7/7, `publishToMavenLocal` VERT
+| ✅ TERMINÉ
+
+| Cœur EPIC BKY-LANG-NAV clos (NAV-1 ✅ S-229, NAV-2 ✅ S-230, NAV-3 ✅ S-231, NAV-4 ✅ S-232, NAV-5 ✅ S-234) — reste rollout sites NAV-6→8
+| ✅ TERMINÉ
+|===
+
 == Session 233 — 2026-09-25 — Re-pin catalogue ws 0.0.57 + réalignement drift MEM-CAT-3
 
 [cols="2,3"]
