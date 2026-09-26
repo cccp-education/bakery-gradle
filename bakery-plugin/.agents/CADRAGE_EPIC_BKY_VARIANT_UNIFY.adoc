@@ -1,0 +1,151 @@
+= Cadrage — Absorption du split-brain `i18n.variant` (cheroliv ↔ bakery) 
+
+_Session 242 — 2026-09-26 — gouvernance pure, zéro code produit dans ce document._
+_Borough_ : Bushwick 🟤 (bakery-gradle), cross-borough `office/sites/cheroliv.com` (build autonome).
+
+== Contexte
+
+Décision D5 du cadrage `BKY-LANG-NAV` (`.agents/CADRAGE_EPIC_BKY_LANG_NAV.adoc`) :
+« Supprimer le split-brain cheroliv ». NAV-6 a traité ce split-brain pour la
+règle `LangSwitchPath` (frère côté site + vecteurs partagés épinglés + garde de
+dérive). NAV-8 (S-239) a créé un second domaine générique côté bakery
+(`bakery.i18n.variant`) qui recouvre partiellement le domaine i18n-variant du
+site. Le TODO S-241 laisse ouverte l'absorption de ce second split-brain.
+
+== Constat — recouvrement mesuré (S-242)
+
+Le domaine `office/sites/cheroliv.com/src/main/kotlin/com/cheroliv/` recouvre
+`bakery-plugin/src/main/kotlin/bakery/i18n/variant/` :
+
+[cols="2,2,2,3"]
+|===
+| cheroliv | bakery | Nature | Divergence réelle ?
+
+| `com.cheroliv.i18n.I18nLayout`
+| `bakery.i18n.variant.VariantLayout`
+| Racine de layout
+| *Non* — même loi (`{root}/i18n/{lang}/templates`), racine différente : cheroliv = `projectDir/jbake`, bakery = `bakeRoot` (adaptateur légitime)
+
+| `com.cheroliv.i18n.VariantBakeAssembler`
+| `bakery.i18n.variant.VariantBakeAssembler`
+| Assemblage racine jetable
+| *Non* — même logique (shell content vide D8, overlay `assets/` + `jbake.properties`), dépend du layout
+
+| `com.cheroliv.i18n.VariantServePlan`
+| `bakery.i18n.variant.VariantBakePlan` + `VariantDeployability`
+| Plan de bake
+| *Non* — même règle (référence exclue, variante incomplète exclue), découpage différent
+
+| `com.cheroliv.deploy.VariantDeployability`
+| `bakery.i18n.variant.VariantDeployability`
+| Règle de déployabilité
+| *OUI* — divergence de règle (voir ci-dessous)
+|===
+
+=== La divergence de règle (le seul split-brain de comportement)
+
+`bakery.i18n.variant.VariantDeployability.undeployableTemplates` filtre les
+entrées de la référence : `file.isFile && extension in {thyme, ftl, html}`. Un
+bundle `messages_{lang}.properties` co-localisé, un `.txt`, ou un **dossier**
+(`TODO/`) n'est pas un template rendu par JBake → jamais exigé.
+
+`com.cheroliv.deploy.VariantDeployability.undeployableTemplates` compare **tous**
+les noms d'entrées : `referenceTemplates.listFiles().orEmpty().map { it.name }`,
+sans filtre d'extension ni d'`isFile`. Conséquence : le dossier
+`jbake/templates/TODO/` (présent dans la référence et les 18 variantes du site
+réel, vérifié S-242) est traité comme un template exigé, et un bundle
+`messages_*.properties` éventuel le serait aussi. Une variante complète mais
+privée de ces entrées serait **faussement déclarée indéployable** et exclue du
+bake (faux négatif silencieux).
+
+C'est exactement le mode de défaillance que `bakery.i18n.variant` a été écrit
+pour éviter. Les deux règles doivent converger.
+
+== Décision — Option C (alignée sur le précédent NAV-6)
+
+Les options A (extraire `i18n.variant` en artefact N0/N1) et B (cheroliv
+consomme `bakery-plugin` comme lib) sont écartées :
+
+* **A** — publier un artefact N0/N1 pour ~150 lignes dont seule une règle
+  (~20 lignes) diverge : coût DAG (MEMPHIS + BOM + Central + coordination
+  runner) très supérieur au bénéfice. Réévaluable si un **troisième**
+  consommateur non-bakery apparaît.
+* **B** — couple le site minimaliste à un POM lourd (toute la chaîne
+  document/plantuml/langchain4j) pour une règle de fichiers. Contredit
+  l'architecture du site.
+
+**Retenu : C — convergence de la règle + vecteurs partagés + garde de dérive**,
+le patron déjà éprouvé NAV-6 :
+
+. **Aligner** `com.cheroliv.deploy.VariantDeployability` sur la règle bakery
+  (filtre `isFile` + extensions `thyme/ftl/html`) — TDD strict RED → GREEN.
+. **Vecteurs partagés** `bakery/i18n/variant/variant-bake-vectors.json` (source
+  unique, ressources bakery), rejoués par un test côté bakery **et** un test
+  côté cheroliv.
+. **Épingler** les vecteurs côté cheroliv (`src/test/resources/`) pour que sa
+  CI — qui n'a pas de checkout `foundry/` — rejoue le contrat.
+. **Garde de dérive** `VariantDeployabilityDriftGuardTest` (skip quand la source
+  bakery est hors d'atteinte), patron `LangSwitchPathDriftGuardTest`.
+. **Documenter** le périmètre : `I18nLayout`/`VariantBakeAssembler`/
+  `VariantServePlan` restent des **adaptateurs de layout** site-spécifiques
+  (racine `jbake/`), pas des duplicats de règle — pas de convergence forcée.
+
+== Périmètre — ce qui n'est PAS touché
+
+* Zéro tâche LLM (`migrateContentI18n`, `translateTemplates`,
+  `translateI18nClient` non invoquées).
+* Zéro lecture/écriture de `jbake/i18n/{lang}/` (contenu traduit intact).
+* Zéro modification des 123 fichiers sales préexistants du repo `office`
+  (périmètre git strict : seuls les fichiers du delta S-242).
+* Zéro publication Central, zéro bump BOM.
+
+== Livrables (baby-step DDD/TDD/BDD)
+
+[cols="1,3,2"]
+|===
+| # | Livrable | Nature
+
+| 1
+| `bakery/i18n/variant/variant-bake-vectors.json` (6 vecteurs) — contrat partagé
+| ressource bakery
+| 2
+| `VariantDeployabilityVectorsTest` (bakery) — rejoue les vecteurs sur la règle bakery
+| UT
+| 3
+| `com.cheroliv.deploy.VariantDeployability` — filtre `isFile` + extensions
+| code site (TDD)
+| 4
+| Vecteurs épinglés côté cheroliv + `VariantDeployabilityVectors` (loader) + test replay
+| UT site
+| 5
+| `VariantDeployabilityDriftGuardTest` (cheroliv) — byte-identité, skip CI isolé
+| UT site
+| 6
+| Ce document + clôture session
+| gouvernance
+|===
+
+== Vecteurs (schéma)
+
+[source,json]
+----
+{
+  "version": 1,
+  "templateExtensions": ["thyme", "ftl", "html"],
+  "vectors": [
+    { "name": "...",
+      "reference": ["menu.thyme", "TODO/"],   // "nom/" = dossier
+      "variant":   ["menu.thyme"],
+      "expected":  [] }
+  ]
+}
+----
+
+Les deux hôtes matérialisent chaque entrée (`nom/` → `mkdirs`, sinon
+`writeText`) puis comparent leur `undeployableTemplates` à `expected`.
+
+== Risque et parade
+
+*Risque* : la règle redivergera au prochain refactor d'un des deux côtés.
+*Parade* : les vecteurs partagés + la garde de dérive — une divergence rend un
+des deux tests rouge, sur le côté qui a forké (D3 anti split-brain).

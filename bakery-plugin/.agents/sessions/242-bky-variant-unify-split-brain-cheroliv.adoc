@@ -1,0 +1,122 @@
+= Session 242 — BKY-VARIANT-UNIFY : absorption du split-brain `i18n.variant` (cheroliv ↔ bakery)
+
+_Date_ : 2026-09-26
+_Borough_ : Bushwick 🟤 (bakery-gradle) + cross-borough `office/sites/cheroliv.com`
+_Type_ : DDD/TDD strict — convergence de règle + vecteurs partagés + garde anti-dérive
+_Score_ : 9/10
+
+== Contexte
+
+Mission S-242 (PROMPT_REPRISE S-241) : absorber le split-brain cheroliv (D5 du
+cadrage `BKY-LANG-NAV`). Le site duplique `VariantBakeAssembler`/`VariantServePlan`/
+`VariantDeployability` face au domaine generic `bakery.i18n.variant` (NAV-8, S-239).
+
+Contrainte pilote explicite : **aucune traduction, aucun fichier de contenu
+détruit** — uniquement l'alignement architectural.
+
+== Cadrage (option C)
+
+Options A (artefact N0/N1 partagé) et B (cheroliv consomme bakery-plugin) écartées
+au cadrage `.agents/CADRAGE_EPIC_BKY_VARIANT_UNIFY.adoc` : A coûte un DAG complet
+(MEMPHIS + BOM + Central + runner) pour ~150 lignes dont seule une règle (~20)
+diverge ; B couple le site minimal à un POM lourd. **Option C retenue, patron
+NAV-6** : convergence de la règle + vecteurs partagés épinglés + garde de dérive.
+
+== Audit — recouvrement mesuré
+
+[cols="2,2,2,3"]
+|===
+| cheroliv | bakery | Nature | Divergence
+
+| `com.cheroliv.i18n.I18nLayout`
+| `bakery.i18n.variant.VariantLayout`
+| Racine de layout
+| Non (racine différente : `projectDir/jbake` vs `bakeRoot`, adaptateur légitime)
+
+| `com.cheroliv.i18n.VariantBakeAssembler`
+| `bakery.i18n.variant.VariantBakeAssembler`
+| Assemblage
+| Non (même logique D8)
+
+| `com.cheroliv.i18n.VariantServePlan`
+| `bakery.i18n.variant.VariantBakePlan` + `VariantDeployability`
+| Plan de bake
+| Non (même règle, découpage différent)
+
+| `com.cheroliv.deploy.VariantDeployability`
+| `bakery.i18n.variant.VariantDeployability`
+| Déployabilité
+| **OUI** — filtre d'extensions absent
+|===
+
+=== La divergence de comportement (prouvée)
+
+`bakery` filtre `file.isFile && extension in {thyme, ftl, html}`. `cheroliv`
+comparait **toutes** les entrées (`referenceTemplates.listFiles().map { it.name }`).
+Conséquence : un bundle `messages_{lang}.properties`, un `.txt` ou un **dossier**
+(`jbake/templates/TODO/`, présent dans la référence + 18 variantes du site réel)
+était traité comme un template exigé → une variante complète pouvait être
+**faussement déclarée indéployable** et exclue silencieusement du bake.
+
+== Livré (baby-step DDD/TDD strict)
+
+. **Vecteurs partagés** `bakery/i18n/variant/variant-bake-vectors.json` (6 vecteurs,
+   `version: 1`) — source unique côté plugin bakery.
+. **`VariantDeployabilityVectorsTest`** (bakery, 2 UT) — rejoue les vecteurs sur la
+   règle bakery. GREEN dès la rédaction (la règle bakery était déjà correcte).
+. **Alignement `com.cheroliv.deploy.VariantDeployability`** — `isTemplate` +
+   `TEMPLATE_EXTENSIONS = {thyme, ftl, html}`. TDD strict : RED prouvé
+   (`messages_en.properties`, `TODO`, `notes.txt` faussement exigés) → GREEN.
+. **Vecteurs épinglés** côté cheroliv (`src/test/resources/bakery/i18n/variant/`,
+   byte-identique) + `VariantBakeVectors` (loader) + `VariantDeployabilityVectorsTest`
+   (1 UT replay).
+. **`VariantDeployabilityDriftGuardTest`** (cheroliv, 1 UT) — byte-identité au
+   source bakery, skip `assumeTrue` quand le workspace est absent (CI isolée),
+   patron `LangSwitchPathDriftGuardTest`.
+
+== Gates
+
+[cols="2,3"]
+|===
+| Gate | Résultat
+
+| bakery `test` | **2061 tests, 0 FAIL** (baseline S-241 2059/0 → **+2** : vecteurs bakery)
+| bakery `functionalTest` | BUILD SUCCESSFUL 3m24s
+| bakery `nodeTest` | BUILD SUCCESSFUL
+| bakery `cucumberTest` | **3285 tests, 5 failed = baseline exacte** (features 30/34/50/dns)
+| bakery `publishToMavenLocal` | VERT (Règle 0 — nouvelle ressource embarquée)
+| cheroliv `test` | **187 tests, 0 FAIL** (baseline 185/0 → **+2** : replay + garde)
+| cheroliv `cucumberTest` | **31 tests, 5 failed = baseline exacte** (stash-prouvé : identique sans delta)
+| cheroliv `functionalTest` + `nodeTest` | BUILD SUCCESSFUL 7m30s
+| Zéro secret | OUI — aucun contenu, aucune clé, zéro LLM
+|===
+
+== Fichiers
+
+[cols="2,1,3"]
+|===
+| Fichier | État | Rôle
+
+| `bakery-plugin/src/main/resources/bakery/i18n/variant/variant-bake-vectors.json` | créé | vecteurs partagés (source)
+| `bakery-plugin/src/test/kotlin/bakery/i18n/variant/VariantDeployabilityVectorsTest.kt` | créé | replay bakery
+| `bakery-plugin/.agents/CADRAGE_EPIC_BKY_VARIANT_UNIFY.adoc` | créé | cadrage
+| `office/sites/cheroliv.com/src/main/kotlin/com/cheroliv/deploy/VariantDeployability.kt` | modifié | filtre `isFile` + extensions (convergence)
+| `office/sites/cheroliv.com/src/test/kotlin/com/cheroliv/deploy/VariantDeployabilityVectorsTest.kt` | créé | replay site
+| `office/sites/cheroliv.com/src/test/kotlin/com/cheroliv/deploy/VariantBakeVectors.kt` | créé | loader + source canonique
+| `office/sites/cheroliv.com/src/test/kotlin/com/cheroliv/deploy/VariantDeployabilityDriftGuardTest.kt` | créé | garde anti-dérive
+| `office/sites/cheroliv.com/src/test/resources/bakery/i18n/variant/variant-bake-vectors.json` | créé | vecteurs épinglés (byte-identique)
+|===
+
+== Décision / suite
+
+* **Split-brain `i18n.variant` soldé** pour la seule divergence de comportement
+  (la règle de déployabilité). `I18nLayout`/`VariantBakeAssembler`/`VariantServePlan`
+  restent des adaptateurs de layout site-spécifiques — pas des duplicats de règle.
+* *Parade anti-dérive* : vecteurs partagés + garde byte-identité (une divergence
+  future rend un des deux tests rouge, sur le côté qui a forké, D3).
+* *Périmètre git* : seuls les 5 fichiers du delta cheroliv sont à committer — les
+  123+ fichiers sales préexistants du repo `office` (dont `jbake/i18n/**`) sont
+  **laissés intacts et non committés**.
+* *Reste* : MASS-6 (~675h LLM, accord pilote) ; EPIC « fixture lifecycle » (candidat).
+* Zéro code de production bakery modifié, zéro bump BOM, zéro publication Central,
+  zéro traduction, zéro contenu touché.

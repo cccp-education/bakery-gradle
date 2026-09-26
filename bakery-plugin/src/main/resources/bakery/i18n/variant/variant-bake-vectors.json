@@ -1,0 +1,43 @@
+{
+  "description": "BKY-VARIANT-UNIFY — shared i18n-variant deployability vectors. Single source of truth for the rule that decides whether an i18n/{lang} variant is structurally bakeable. Replayed by bakery.i18n.variant.VariantDeployability (plugin) and by com.cheroliv.deploy.VariantDeployability (cheroliv.com site host). Both hosts MUST produce these exact expectations. Do not fork.",
+  "version": 1,
+  "templateExtensions": ["thyme", "ftl", "html"],
+  "vectors": [
+    {
+      "name": "a variant carrying every reference template is deployable",
+      "reference": ["menu.thyme", "archive.thyme"],
+      "variant": ["menu.thyme", "archive.thyme"],
+      "expected": []
+    },
+    {
+      "name": "a missing reference template makes the variant undeployable",
+      "reference": ["menu.thyme", "archive.thyme"],
+      "variant": ["menu.thyme"],
+      "expected": ["archive.thyme"]
+    },
+    {
+      "name": "missing templates are reported sorted for a deterministic report",
+      "reference": ["z.thyme", "a.thyme", "m.thyme"],
+      "variant": [],
+      "expected": ["a.thyme", "m.thyme", "z.thyme"]
+    },
+    {
+      "name": "a message bundle co-located in the reference is not a template",
+      "reference": ["menu.thyme", "messages_en.properties"],
+      "variant": ["menu.thyme"],
+      "expected": []
+    },
+    {
+      "name": "a directory in the reference is not a template",
+      "reference": ["menu.thyme", "TODO/"],
+      "variant": ["menu.thyme"],
+      "expected": []
+    },
+    {
+      "name": "ftl and html are templates, other files are not",
+      "reference": ["page.ftl", "index.html", "notes.txt"],
+      "variant": ["page.ftl"],
+      "expected": ["index.html"]
+    }
+  ]
+}

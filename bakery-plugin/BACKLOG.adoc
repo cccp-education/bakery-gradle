@@ -5,7 +5,9 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-09-25 — ✅ **FLAKY-5 SOLDÉ — drift fixture cheroliv.com aligné** (S-241). Les « 2 FAIL préexistants » depuis S-229 (`FixtureAlignmentAuditorTest` + `RealSiteI18nMigrationIntegrationTest`) n'étaient pas un flake mais un drift réel (famille FLAKY-4 S-222). Cause : refonte chrome `CHE-I18N-CHROME` S-053/S-055 (libellés nativement FR + sélecteur 22 langues → `menu.*` renuméroté +17 drapeaux, `footer.*` décalé). Livré : resync 5 templates (secrets neutralisés) + re-keying `translations_en.properties` (121→137) + golden master régénéré (delta-only, timestamp réverté). Gates : `test` **2059/0 FAIL** (baseline S-240 2059/2), `FixtureAlignmentAuditorTest` 8/8, `RealSiteI18nMigrationIntegrationTest` 2/2, `functionalTest`+`nodeTest` VERT, `cucumberTest` 3285/5 baseline exacte, ktlint delta 0, `publishToMavenLocal` VERT. Rapport `.agents/sessions/241-flaky-5-drift-fixture-cheroliv.adoc`.
+_Dernière mise à jour : 2026-09-26 — ✅ **BKY-VARIANT-UNIFY — split-brain `i18n.variant` absorbé (cheroliv ↔ bakery)** (S-242, option C patron NAV-6 — D5 du cadrage `BKY-LANG-NAV`). Contrainte pilote : **aucune traduction, aucun contenu détruit**. **Audit** : `I18nLayout`/`VariantBakeAssembler`/`VariantServePlan` = adaptateurs de layout site-spécifiques (`projectDir/jbake` vs `bakeRoot`), seuls `com.cheroliv.deploy.VariantDeployability` divergeaient — comparaient **toutes** les entrées de `templates/` (bundle `messages_{lang}.properties`, `.txt`, dossier `jbake/templates/TODO/`) là où bakery ne compte que `.thyme/.ftl/.html` → variante complète **faussement indéployable**. **Livré** : vecteurs partagés `bakery/i18n/variant/variant-bake-vectors.json` (6 vecteurs) + convergence `VariantDeployability` cheroliv (TDD RED prouvé → GREEN) + vecteurs épinglés byte-identique + garde anti-dérive `VariantDeployabilityDriftGuardTest`. Gates : bakery `test` **2061/0** (+2), `functionalTest`/`nodeTest` VERT, `cucumberTest` 3285/5 baseline, `publishToMavenLocal` VERT ; cheroliv `test` **187/0** (+2), `cucumberTest` 31/5 baseline stash-prouvée, `functionalTest`+`nodeTest` VERT. Zéro code prod bakery modifié, zéro bump BOM, zéro publication Central, zéro LLM, zéro secret. Doc `.agents/CADRAGE_EPIC_BKY_VARIANT_UNIFY.adoc` + `.agents/sessions/242-…`.
+
+_Dernière mise à jour (antérieure) : 2026-09-25 — ✅ **FLAKY-5 SOLDÉ — drift fixture cheroliv.com aligné** (S-241). Les « 2 FAIL préexistants » depuis S-229 (`FixtureAlignmentAuditorTest` + `RealSiteI18nMigrationIntegrationTest`) n'étaient pas un flake mais un drift réel (famille FLAKY-4 S-222). Cause : refonte chrome `CHE-I18N-CHROME` S-053/S-055 (libellés nativement FR + sélecteur 22 langues → `menu.*` renuméroté +17 drapeaux, `footer.*` décalé). Livré : resync 5 templates (secrets neutralisés) + re-keying `translations_en.properties` (121→137) + golden master régénéré (delta-only, timestamp réverté). Gates : `test` **2059/0 FAIL** (baseline S-240 2059/2), `FixtureAlignmentAuditorTest` 8/8, `RealSiteI18nMigrationIntegrationTest` 2/2, `functionalTest`+`nodeTest` VERT, `cucumberTest` 3285/5 baseline exacte, ktlint delta 0, `publishToMavenLocal` VERT. Rapport `.agents/sessions/241-flaky-5-drift-fixture-cheroliv.adoc`.
 
 _Dernière mise à jour (antérieure) : ✅ **BKY-LANG-NAV-8 DÉPLOYÉ EN PRODUCTION** (S-240) : release bakery 0.0.20 publiée Central (chaîne DAG MEMPHIS 0.0.58 → bakery 0.0.20 → runner pin 0.0.58) + CI réelle `deploy-cccp-education`/`deploy-magic-stick` VERTE (tree EN cccp.education + magic-stick en production gh-pages, HTTP 200). + **bump cross-borough Gradle 9.7.1 → 9.8.0** (97 wrappers, 34 repos). **Blocage découvert** : Central `bakery-plugin:0.0.19` était périmé (S-233, sans feature NAV) → la CI échouait `materializeTemplates` (task not found). Leçon : une version dérivée du catalog n'est PAS une version publiée. Antérieur S-239 : brique N2 `bakeVariants`. Rapport `.agents/sessions/240-release-bakery-0.0.20-ci-reelle-gradle-9.8.0.adoc`.
 _Dernière mise à jour (antérieure) : 2026-09-25 — 🟡 **BKY-LANG-NAV-8 — rollout partiel cccp/magic** (S-238) : (1) **delta layout** `bakery.langswitch.LangSwitchMenuLayout` (objet pur) résout le `menu.thyme` d'une langue dans les deux layouts coexistants — l'i18n matérialisé `i18n/{lang}/templates/` **prioritaire**, puis le variant direct `{lang}/templates/` (cheroliv/talaria backward compat), le défaut au root ; `InjectLangSwitchTask` délègue (RED UT/FT/BDD prouvés par revert → GREEN). (2) **Bug d'idempotence (dogfooding)** : après `injectLangSwitch`, une re-materialisation **keyait** le fragment généré (`menu.9`/`menu.10` absents du bundle gelé) → 2 clés non résolues, écriture **nulle** (variant périmé). Fix pur `bakery.i18n.LangSwitcherContainerMask.strip` + surcharge string `extractHardcodedText` + wiring `keyTemplate` ; 6 UT. (3) **Rollout partiel** : conteneur vide `lang-switcher-container` dans les `menu.thyme` réels `office/sites/{cccp.education,magic-stick}` (inerte en FR) + fixtures/golden masters resynchronisés + ordre `injectLangSwitch` après `materializeTemplates`. **Dogfooding `/tmp`** : cccp 11 + magic 12 templates, 0 clé non résolue, **zéro LLM**, variant EN **baké** (sélecteur page-aware, UTF-8 correct), 3e run no-op strict. Gates : `test` 2034 (2 FAIL FLAKY-5), `functionalTest` 158/0, `cucumberTest` 2872/5 baseline exacte, `nodeTest` VERT, ktlint baseline, `publishToMavenLocal` VERT. Rapport `.agents/sessions/238-…`._
@@ -162,9 +164,7 @@ S-234 NAV-5 (clôture cœur ✅), S-235 NAV-6 ✅ (rollout cheroliv.com), S-236 
 _(S-233 a été consommée par la maintenance re-pin catalogue ws 0.0.57 ; NAV-5 livré S-234.)_
 
 _Risque principal_ : split-brain Thymeleaf ↔ JS (mode de défaillance propre à l'hybride)
-→ D3 (spec unique + vecteurs partagés) + D5 (suppression de la copie cheroliv).
-
-_Dette découverte S-235 (NAV-6)_ : `bakery.langswitch.LangSwitchPath.thymeleafHref()`
+→ D3 (spec unique + vecteurs partagés) + D5 (suppression de la copie cheroliv)._Dette découverte S-235 (NAV-6)_ : `bakery.langswitch.LangSwitchPath.thymeleafHref()`
 portait un **bug null-safety latent** — l'expression self-link
 `${content.uri.substring(content.uri.lastIndexOf('/') + 1)}` n'était pas null-safe,
 or `content.uri` est null sur les pages synthétiques (`archive.thyme`,
@@ -175,6 +175,102 @@ or `content.uri` est null sur les pages synthétiques (`archive.thyme`,
 Thymeleaf 3.0.14 OGNL sans Elvis) → dégradation vers l'index de langue (D8) ;
 modèle ex-nihilo aligné ; preuve `LangSwitchPathNullSafetyTest` (6 UT, RED
 `NullPointerException` → GREEN) ; byte-identique au correctif cheroliv S-235.
+
+'''
+
+== EPIC BKY-VARIANT-UNIFY — Absorption du split-brain `i18n.variant` (cheroliv ↔ bakery) ✅ TERMINÉ (S-242)
+
+_Origine : dette D5 du cadrage `BKY-LANG-NAV` (S-228) laissée ouverte par NAV-8 ;
+mission S-242 du PROMPT_REPRISE S-241. Contrainte pilote : **aucune traduction,
+aucun contenu détruit** — alignement architectural uniquement. Cadrage :
+`.agents/CADRAGE_EPIC_BKY_VARIANT_UNIFY.adoc`._
+
+=== Constat — recouvrement mesuré (S-242)
+
+`office/sites/cheroliv.com/src/main/kotlin/com/cheroliv/` recouvre
+`bakery-plugin/src/main/kotlin/bakery/i18n/variant/` :
+
+[cols="2,2,2,3"]
+|===
+| cheroliv | bakery | Nature | Divergence
+
+| `com.cheroliv.i18n.I18nLayout`
+| `bakery.i18n.variant.VariantLayout`
+| Racine de layout
+| *Non* — même loi (`{root}/i18n/{lang}/templates`), racine différente : cheroliv = `projectDir/jbake`, bakery = `bakeRoot` (adaptateur légitime)
+
+| `com.cheroliv.i18n.VariantBakeAssembler`
+| `bakery.i18n.variant.VariantBakeAssembler`
+| Assemblage racine jetable
+| *Non* — même logique (shell content vide D8, overlay `assets/` + `jbake.properties`)
+
+| `com.cheroliv.i18n.VariantServePlan`
+| `bakery.i18n.variant.VariantBakePlan` + `VariantDeployability`
+| Plan de bake
+| *Non* — même règle (référence exclue, variante incomplète exclue), découpage différent
+
+| `com.cheroliv.deploy.VariantDeployability`
+| `bakery.i18n.variant.VariantDeployability`
+| Déployabilité
+| *OUI* — filtre d'extensions absent
+|===
+
+La divergence de comportement : `bakery` filtre `file.isFile && extension in
+{thyme, ftl, html}` ; `cheroliv` comparait **toutes** les entrées
+(`referenceTemplates.listFiles().map { it.name }`). Un bundle
+`messages_{lang}.properties`, un `.txt`, ou un **dossier**
+(`jbake/templates/TODO/`, présent dans la référence + 18 variantes du site réel)
+était traité comme un template exigé → une variante complète pouvait être
+**faussement déclarée indéployable** et exclue silencieusement du bake.
+
+=== Décision — option C (patron NAV-6)
+
+A (artefact N0/N1 partagé) et B (cheroliv consomme `bakery-plugin` comme lib)
+écartées : A coûte un DAG complet (MEMPHIS + BOM + Central + runner) pour ~150
+lignes dont ~20 divergent ; B couple le site minimal à un POM lourd. Retenu :
+**convergence de la règle + vecteurs partagés épinglés + garde de dérive**.
+
+=== US (découpage) — ✅ TERMINÉ
+
+[cols="1,4,1,2"]
+|===
+| # | US | Pts | Statut
+
+| BKY-VARIANT-UNIFY-0
+| Cadrage EPIC (option C) — gouvernance pure, zéro code
+| 0
+| ✅ TERMINÉ (S-242)
+
+| BKY-VARIANT-UNIFY-1
+| Vecteurs partagés `bakery/i18n/variant/variant-bake-vectors.json` (6, `version: 1`) + `VariantDeployabilityVectorsTest` bakery (2 UT)
+| 1
+| ✅ TERMINÉ (S-242)
+
+| BKY-VARIANT-UNIFY-2
+| Convergence `com.cheroliv.deploy.VariantDeployability` (`isTemplate` + `TEMPLATE_EXTENSIONS`) — TDD RED → GREEN
+| 1
+| ✅ TERMINÉ (S-242)
+
+| BKY-VARIANT-UNIFY-3
+| Vecteurs épinglés cheroliv (byte-identique) + `VariantBakeVectors` loader + replay site (1 UT) + `VariantDeployabilityDriftGuardTest` (1 UT, skip CI isolée)
+| 1
+| ✅ TERMINÉ (S-242)
+|===
+
+_Total_ : ~3 pts, 4 US (dont US-0 à 0 pt).
+
+_Gates_ : bakery `test` **2061/0** (+2), `functionalTest`/`nodeTest` VERT,
+`cucumberTest` **3285/5 = baseline exacte**, `publishToMavenLocal` VERT ; cheroliv
+`test` **187/0** (+2), `cucumberTest` **31/5 = baseline exacte stash-prouvée**,
+`functionalTest`+`nodeTest` VERT. Zéro code prod bakery modifié, zéro bump BOM,
+zéro publication Central, zéro LLM, zéro secret.
+
+_Parade anti-dérive_ : vecteurs partagés + garde byte-identité — une divergence
+future rend un des deux tests rouge, sur le côté qui a forké (D3).
+
+_Reste hors périmètre_ : les 3 autres paires restent des adaptateurs de layout
+site-spécifiques (racine `jbake/`), pas des duplicats de règle — pas de
+convergence forcée. MASS-6 (accord pilote), EPIC « fixture lifecycle » (candidat).
 
 '''
 

@@ -1,5 +1,39 @@
 = Archive des Taches Terminees — Septembre 2026
 
+== Session 242 — 2026-09-26 — BKY-VARIANT-UNIFY : split-brain `i18n.variant` absorbé (cheroliv ↔ bakery)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| Cadrage option C (patron NAV-6, `.agents/CADRAGE_EPIC_BKY_VARIANT_UNIFY.adoc`)
+| ✅ TERMINÉ (A/B écartées — coût DAG / POM lourd)
+
+| Vecteurs partagés `bakery/i18n/variant/variant-bake-vectors.json` (6, `version: 1`)
+| ✅ TERMINÉ (source unique)
+
+| `VariantDeployabilityVectorsTest` bakery (2 UT replay)
+| ✅ VÉRIFIÉ (GREEN ; bug test `case-$index` attrapé par TDD)
+
+| Convergence `com.cheroliv.deploy.VariantDeployability` (`isTemplate` + `TEMPLATE_EXTENSIONS`)
+| ✅ TERMINÉ (RED prouvé → GREEN)
+
+| Vecteurs épinglés cheroliv (byte-identique) + loader + replay site
+| ✅ TERMINÉ (+1 UT)
+
+| `VariantDeployabilityDriftGuardTest` cheroliv (byte-identité, skip CI isolée)
+| ✅ TERMINÉ (+1 UT)
+
+| Gate bakery `test` 2061/0 (+2), `functionalTest`/`nodeTest` VERT
+| ✅ VÉRIFIÉ
+
+| Gate cheroliv `test` 187/0 (+2), `cucumberTest` 31/5 baseline exacte
+| ✅ VÉRIFIÉ (stash-prouvé)
+
+| Zéro traduction / zéro contenu touché / périmètre git strict (123+ fichiers sales intacts)
+| ✅ CONFORME
+|===
+
 == Session 241 — 2026-09-25 — FLAKY-5 : drift fixture cheroliv.com aligné (baseline 2059/0)
 
 [cols="2,3"]

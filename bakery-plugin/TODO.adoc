@@ -1,7 +1,7 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-09-25 — Session 241. **FLAKY-5 SOLDÉ** (drift fixture cheroliv.com, `test` 2059/0). Antérieur S-240 : release bakery 0.0.20 + CI réelle VERTE + Gradle 9.8.0. S-239 : brique N2 `bakeVariants`._
+_Dernière mise à jour : 2026-09-26 — Session 242. **BKY-VARIANT-UNIFY** (split-brain `i18n.variant` cheroliv ↔ bakery absorbé, zéro traduction). Antérieur S-241 : FLAKY-5 SOLDÉ (drift fixture cheroliv.com, `test` 2059/0). S-240 : release bakery 0.0.20 + CI réelle VERTE + Gradle 9.8.0. S-239 : brique N2 `bakeVariants`._
 
 == EPIC BKY-LANG-NAV (S-228) — Changement de langue sans retour à l'accueil (same-page switching) ✅ TERMINÉ 9/9 US
 
@@ -19,9 +19,9 @@ _Dernière mise à jour : 2026-09-25 — Session 241. **FLAKY-5 SOLDÉ** (drift 
 
 * [x] **`bakery.langswitch.LangSwitchPath.thymeleafHref`** (+ `thymeleafEachHref` du modèle) : expression self-link non null-safe → NPE « target is null for lastIndexOf » sur pages synthétiques (`archive`/`tags`/masterindex). ✅ **SOLDÉE S-237** (ternaire explicite OGNL, dégradation index D8, `LangSwitchPathNullSafetyTest` 6 UT RED → GREEN).
 
-=== Suite NAV-8 (split-brain cheroliv)
+=== Suite NAV-8 (split-brain cheroliv) ✅ SOLDÉ S-242
 
-* [ ] **Absorber le split-brain cheroliv (D5)** : `office/sites/cheroliv.com` duplique `VariantBakeAssembler`/`VariantServePlan`/`VariantDeployability` ; `bakery.i18n.variant` (S-239) est générique → à faire converger (session dédiée, cadrer le périmètre d'abord). 🟡 À FAIRE
+* [x] **Absorber le split-brain cheroliv (D5)** : `office/sites/cheroliv.com` dupliquait `VariantBakeAssembler`/`VariantServePlan`/`VariantDeployability` ; `bakery.i18n.variant` (S-239) générique. ✅ **TERMINÉ S-242** (BKY-VARIANT-UNIFY, option C) — seule `VariantDeployability` divergeait (filtre d'extensions absent → variante faussement indéployable) → convergée + vecteurs partagés `variant-bake-vectors.json` + garde anti-dérive. Les 3 autres = adaptateurs de layout légitimes. Zéro traduction.
 
 == NOUVEAU — Bump cross-borough Gradle 9.7.1 → 9.8.0 (S-240) ✅ TERMINÉ
 

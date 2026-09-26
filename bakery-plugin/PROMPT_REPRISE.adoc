@@ -1,53 +1,53 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 242
-:date: 2026-09-25
-:etat: Session 241 ✅ — **FLAKY-5 SOLDÉ : drift fixture cheroliv.com aligné** — `test` **2059/0 FAIL** (les « 2 FAIL préexistants » depuis S-229 sont résolus).
-:epic_actif: **BKY-TEST-FLAKY** ✅ TERMINÉ (FLAKY-1→5 tous clos). **BKY-LANG-NAV** ✅ TERMINÉ et déployé en production.
-:epic_suivant: **Absorber le split-brain cheroliv (D5)** — `office/sites/cheroliv.com` duplique `VariantBakeAssembler`/`VariantServePlan`/`VariantDeployability` ; `bakery.i18n.variant` (S-239) doit devenir la source unique. Baseline désormais verte.
+:session: 243
+:date: 2026-09-26
+:etat: Session 242 ✅ — **BKY-VARIANT-UNIFY : split-brain `i18n.variant` absorbé** (option C, patron NAV-6). bakery `test` **2061/0**, cheroliv `test` **187/0**.
+:epic_actif: **BKY-LANG-NAV** ✅ TERMINÉ. **BKY-VARIANT-UNIFY** ✅ TERMINÉ (D5 du cadrage NAV soldé pour la seule divergence de comportement).
+:epic_suivant: **EPIC « fixture lifecycle »** (candidat) — la garde `FixtureAlignmentAuditor` lit le site réel chemin absolu en dur → fragile en CI isolée ; cause racine des FLAKY-4/5 récurrents. OU **MASS-6** (bloqué accord pilote, ~675h LLM).
 :dette: ktlint baseline dépôt (rouge préexistant, main + functionalTest) — non déclenché.
 
-== État S-241
+== État S-242
 
-FLAKY-5 (découvert S-229) résolu, méthode S-222 :
+Split-brain cheroliv (D5) **soldé** — option C, méthode baby-step DDD/TDD strict,
+**zéro traduction, zéro contenu touché** (contrainte pilote explicite) :
 
-. **Resync 5 templates** (`blog`, `blog_section`, `footer`, `header`, `menu`)
-   depuis le site réel, **secrets Firebase neutralisés** → `FixtureAlignmentAuditorTest` 8/8.
-. **Re-keying `translations_en.properties`** (121 → 137 clés) : la refonte
-   chrome S-053/S-055 a renuméroté `menu.*` (+17 drapeaux `menu.16-32`) et
-   décalé `footer.*`. Dictionnaire FR→EN extrait de l'ancien golden aligné
-   (HEAD) + chrome ground-truth du site EN réel ; drapeaux = identité. 0 EN blanche.
-. **Golden master régénéré** (delta-only cheroliv) via
-   `PostMigrationSnapshotGenerator` (`@Disabled` retiré → run → restauré),
-   churn `Properties.store` timestamp réverté (canonique S-222), cccp/magic
-   restaurés (timestamp seul).
+. **Audit** : seuls `VariantDeployability` divergent (les 3 autres sont des
+   adaptateurs de layout légitimes, racine `jbake/` vs `bakeRoot`).
+. **Divergence prouvée RED** : cheroliv comparait **toutes** les entrées de
+   `templates/` (bundle `.properties`, `.txt`, dossier `TODO/`) là où bakery ne
+   compte que `.thyme/.ftl/.html` → variante complète faussement indéployable.
+. **Convergence** + **vecteurs partagés** `variant-bake-vectors.json` (6 vecteurs)
+   + **garde anti-dérive** cross-repo (patron `LangSwitchPathDriftGuardTest`).
 
-Gates : `test` **2059/0**, `FixtureAlignmentAuditorTest` 8/8,
-`RealSiteI18nMigrationIntegrationTest` 2/2, `functionalTest`+`nodeTest` VERT,
-`cucumberTest` 3285/5 = baseline exacte, ktlint delta 0, `publishToMavenLocal` VERT.
+Gates : bakery `test` **2061/0**, `functionalTest` VERT, `nodeTest` VERT,
+`cucumberTest` 3285/5 baseline ; cheroliv `test` **187/0**, `cucumberTest` 31/5
+baseline stash-prouvée, `functionalTest`+`nodeTest` VERT ; `publishToMavenLocal`
+VERT. Doc `.agents/CADRAGE_EPIC_BKY_VARIANT_UNIFY.adoc` +
+`.agents/sessions/242-…`.
 
-== Mission Session 242
+== Mission Session 243
 
-*Absorber le split-brain cheroliv (D5)* — cadrer d'abord le périmètre. Trois
-voies :
-. **A (recommandée)** : extraire la règle `i18n.variant` en artefact partagé
-   (N0/N1) consommé par bakery ET cheroliv — D10 du cadrage NAV était conditionné
-   à un second consommateur non-bakery : cheroliv **est** ce consommateur, donc
-   D10 est déclenché. Coût : publication Central + bump BOM.
-. **B** : cheroliv consomme `bakery-plugin` comme lib (`implementation`) —
-   contredit l'architecture (site minimaliste + POM lourd).
-. **C** : statu quo + garde anti-dérive épinglée (comme `LangSwitchPathDriftGuardTest`).
+Deux voies (à cadrer d'abord, zéro initiative) :
 
-**Attention** : cheroliv a de nombreux fichiers sales préexistants dans le repo
-`office` — NE PAS les committer. Périmètre à cadrer avant tout code.
+. **A (recommandée) — EPIC « fixture lifecycle »** : la garde
+   `FixtureAlignmentAuditor` lit `office/sites/cheroliv.com` par **chemin absolu
+   en dur** → fragile en CI isolée (skip de fait). Cause racine des recréations
+   de drift (FLAKY-4 S-222, FLAKY-5 S-241). Piste : rendre la source
+   paramétrable/skippable proprement, ou figer un hash du site réel comme
+   contrat versionné. Coût faible, zéro LLM.
+. **B — MASS-6** (108 articles × 10 langues, ~675h LLM) : **bloqué accord
+   pilote explicite** (coût). Ne pas engager sans GO.
 
-Alternative : EPIC « fixture lifecycle » (la garde `FixtureAlignmentAuditor` lit
-le site réel en dur ; fragile en CI isolée).
+Alternative : audit de dette (ktlint baseline dépôt rouge main+functionalTest —
+préexistant, jamais traité).
 
 == Reprendre à
 
-. `git status` dans bakery-gradle ET office (fichiers sales préexistants).
-. `.agents/sessions/241-…` (ce rapport) + 240 (release + Gradle 9.8.0).
-. `src/main/kotlin/bakery/i18n/variant/` (la brique) + `office/sites/cheroliv.com/src/main/kotlin/com/cheroliv/{i18n,deploy}/`.
+. `git status` dans bakery-gradle ET office (fichiers sales préexistants — NE PAS
+   committer les 123+ untracked/modifiés `jbake/i18n/**`, FPA, edster, graphify).
+. `.agents/sessions/242-…` (ce rapport) + 241 (FLAKY-5).
+. `src/main/resources/bakery/i18n/variant/variant-bake-vectors.json` (vecteurs
+   partagés) + les deux `VariantDeployability*`.
 . Gate Économie d'Encre : ne relancer `test`/`cucumber` que si le code source change.
 
 == Rappel
@@ -60,3 +60,5 @@ le site réel en dur ; fragile en CI isolée).
 * *Pattern BDD runner dédié* : tout tag non couvert doit avoir son runner (S-082).
 * Commit/push autorisés (décision pilote 2026-09-17). Zéro secret.
 * Baby-step DDD/TDD/BDD strict — 1 fichier à la fois, gate `test` complète.
+* **Ne jamais retraduire de contenu** : `migrateContentI18n`/`translateTemplates`/
+  `translateI18nClient` sont *metered* et destructrices — GO pilote requis.
