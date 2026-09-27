@@ -23,7 +23,6 @@ import kotlin.test.assertTrue
  * Pure domain: no I/O, no LLM, no Gradle.
  */
 class SwitcherBlockMaskTest {
-
     private val template =
         listOf(
             "<nav>",

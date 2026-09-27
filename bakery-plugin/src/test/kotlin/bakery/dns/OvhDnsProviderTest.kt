@@ -15,11 +15,9 @@ import org.junit.jupiter.api.Test
  * Methodology: DDD/TDD baby steps.
  */
 class OvhDnsProviderTest {
-
     private val credentials = OvhCredentials("ak", "as", "ck")
 
-    private fun provider(http: OvhHttp = StubOvhHttp()): OvhDnsProvider =
-        OvhDnsProvider(OvhDnsClient(credentials, http))
+    private fun provider(http: OvhHttp = StubOvhHttp()): OvhDnsProvider = OvhDnsProvider(OvhDnsClient(credentials, http))
 
     @Nested
     @DisplayName("identity")
@@ -73,7 +71,11 @@ class OvhDnsProviderTest {
      * Canned OVH wire responses keyed on method + path shape.
      */
     private class StubOvhHttp : OvhHttp {
-        override fun call(method: String, url: String, body: String?): OvhHttpResponse =
+        override fun call(
+            method: String,
+            url: String,
+            body: String?,
+        ): OvhHttpResponse =
             when {
                 method == "GET" && url.endsWith("/record") ->
                     OvhHttpResponse(200, "[123, 124]")

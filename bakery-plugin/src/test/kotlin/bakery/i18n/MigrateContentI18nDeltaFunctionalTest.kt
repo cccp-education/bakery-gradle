@@ -7,7 +7,6 @@ import org.gradle.testfixtures.ProjectBuilder
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import kotlin.test.assertEquals
@@ -189,7 +188,9 @@ class MigrateContentI18nDeltaFunctionalTest {
         fun `debug direct DocumentTranslator in bakery classpath`() {
             val fake = FakeTranslationService(" [EN]")
             val translator = document.translation.DocumentTranslator(fake)
-            val result = translator.translate("""= Intro
+            val result =
+                translator.translate(
+                    """= Intro
 
 == Heading One
 
@@ -198,7 +199,10 @@ First paragraph.
 == Heading Two
 
 Second paragraph.
-""", "fr", "en")
+""",
+                    "fr",
+                    "en",
+                )
             assertTrue(result.contains("Heading One [EN]"), "Heading One should be translated")
             assertTrue(result.contains("Second paragraph. [EN]"), "Second paragraph should be translated")
         }
@@ -210,7 +214,8 @@ Second paragraph.
             val src = testDir.resolve("src.adoc")
             val tgt = testDir.resolve("tgt.adoc")
 
-            src.writeText("""= Intro
+            src.writeText(
+                """= Intro
 
 == Heading One
 
@@ -219,10 +224,12 @@ First paragraph.
 == Heading Two
 
 Second paragraph.
-""")
+""",
+            )
             val first = service.translateSingleFileWithBlockDelta(src, tgt, emptyMap(), "fr", "en")
 
-            src.writeText("""= Intro
+            src.writeText(
+                """= Intro
 
 == Heading One
 
@@ -231,7 +238,8 @@ First paragraph modified.
 == Heading Two
 
 Second paragraph.
-""")
+""",
+            )
             service.translateSingleFileWithBlockDelta(src, tgt, first, "fr", "en")
 
             val content = tgt.readText()
@@ -247,7 +255,8 @@ Second paragraph.
             val src = testDir.resolve("src.adoc")
             val tgt = testDir.resolve("tgt.adoc")
 
-            src.writeText("""= Intro
+            src.writeText(
+                """= Intro
 
 == Heading One
 
@@ -256,10 +265,12 @@ First paragraph.
 == Heading Two
 
 Second paragraph.
-""")
+""",
+            )
             val first = service.translateSingleFileWithBlockDelta(src, tgt, emptyMap(), "fr", "en")
 
-            src.writeText("""= Intro
+            src.writeText(
+                """= Intro
 
 == Heading One
 
@@ -268,7 +279,8 @@ First paragraph modified.
 == Heading Two
 
 Second paragraph.
-""")
+""",
+            )
             service.translateSingleFileWithBlockDelta(src, tgt, first, "fr", "en")
             assertTrue(tgt.readText().contains("Second paragraph. [EN]"))
         }
@@ -277,7 +289,9 @@ Second paragraph.
         fun `debug exact task flow with checksum file roundtrip`() {
             val fake = FakeTranslationService(" [EN]")
             val sourceDir = testDir.resolve("src/content")
-            createAdocSource(sourceDir, "intro.adoc" to """= Intro
+            createAdocSource(
+                sourceDir,
+                "intro.adoc" to """= Intro
 
 == Heading One
 
@@ -286,7 +300,8 @@ First paragraph.
 == Heading Two
 
 Second paragraph.
-""")
+""",
+            )
             val outputBase = testDir.resolve("build/i18n")
             val langDir = outputBase.resolve("en")
             val relPath = "intro.adoc"
@@ -303,7 +318,8 @@ Second paragraph.
             checksumsFile.parentFile.mkdirs()
             checksumsFile.writeText(first.entries.joinToString("\n") { "${it.key}=${it.value.serialize()}" })
 
-            sourceDir.resolve("intro.adoc").writeText("""= Intro
+            sourceDir.resolve("intro.adoc").writeText(
+                """= Intro
 
 == Heading One
 
@@ -312,14 +328,19 @@ First paragraph modified.
 == Heading Two
 
 Second paragraph.
-""")
+""",
+            )
 
-            val loaded = checksumsFile.readLines()
-                .filter { it.contains("=") }
-                .associate { line ->
-                    val (idx, raw) = line.split("=", limit = 2)
-                    idx to document.translation.delta.BlockChecksumEntry.parse(raw)
-                }
+            val loaded =
+                checksumsFile
+                    .readLines()
+                    .filter { it.contains("=") }
+                    .associate { line ->
+                        val (idx, raw) = line.split("=", limit = 2)
+                        idx to
+                            document.translation.delta.BlockChecksumEntry
+                                .parse(raw)
+                    }
 
             contentService.translateSingleFileWithBlockDelta(sourceFile, targetFile, loaded, "fr", "en")
 
@@ -383,7 +404,8 @@ Second paragraph.
             assertTrue(afterFirst.contains("First paragraph. [EN]"))
             assertTrue(afterFirst.contains("Second paragraph. [EN]"))
 
-            sourceDir.resolve("intro.adoc").writeText("""= Intro
+            sourceDir.resolve("intro.adoc").writeText(
+                """= Intro
 
 == Heading One
 
@@ -392,7 +414,8 @@ First paragraph modified.
 == Heading Two
 
 Second paragraph.
-""")
+""",
+            )
 
             val task2 = setupTask("test-block-partial-2", sourceDir, outputBase)
             task2.translationService = FakeTranslationService(" [EN]")
@@ -577,10 +600,12 @@ First paragraph.
             )
             val outputBase = testDir.resolve("build/i18n")
 
-            val project = ProjectBuilder.builder()
-                .withProjectDir(testDir)
-                .withName("test-dsl-validation")
-                .build()
+            val project =
+                ProjectBuilder
+                    .builder()
+                    .withProjectDir(testDir)
+                    .withName("test-dsl-validation")
+                    .build()
             project.pluginManager.apply("java-base")
 
             val task = project.tasks.register("migrateContentI18n", MigrateContentI18nTask::class.java).get()
@@ -588,11 +613,12 @@ First paragraph.
             task.contentI18nOutput.set(outputBase.absolutePath)
             task.contentI18nTargetLangs.set("en")
             task.contentI18nDryRun.set("false")
-            task.dslIntention = ContentMigrationIntention(
-                sourceDir = sourceDir.absolutePath,
-                outputDir = outputBase.absolutePath,
-                validation = "STRICT",
-            )
+            task.dslIntention =
+                ContentMigrationIntention(
+                    sourceDir = sourceDir.absolutePath,
+                    outputDir = outputBase.absolutePath,
+                    validation = "STRICT",
+                )
             task.translationService = FakeTranslationService(" [EN]")
             task.executeContentMigration()
 

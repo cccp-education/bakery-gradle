@@ -19,12 +19,13 @@ import org.junit.jupiter.api.Test
  * Methodology: DDD/TDD baby steps.
  */
 class DnsProvisionerTest {
-
     private val a1 = DnsRecord("A", "@", "185.199.108.153", 3600)
     private val cname = DnsRecord("CNAME", "www", "pages-content.github.io.", 3600)
 
-    private fun provisioner(provider: DnsProvider, domain: String = "talaria.school") =
-        DnsProvisioner(provider, domain)
+    private fun provisioner(
+        provider: DnsProvider,
+        domain: String = "talaria.school",
+    ) = DnsProvisioner(provider, domain)
 
     @Nested
     @DisplayName("noop")
@@ -112,12 +113,13 @@ class DnsProvisionerTest {
         @Test
         @DisplayName("apply never refreshes when nothing was applied")
         fun `no refresh when nothing applied`() {
-            val provider = RecordingProvider(
-                listOf(
-                    ExistingDnsRecord(1L, a1),
-                    ExistingDnsRecord(2L, DnsRecord("A", "@", "203.0.113.9", 3600)),
-                ),
-            )
+            val provider =
+                RecordingProvider(
+                    listOf(
+                        ExistingDnsRecord(1L, a1),
+                        ExistingDnsRecord(2L, DnsRecord("A", "@", "203.0.113.9", 3600)),
+                    ),
+                )
             val result = provisioner(provider).reconcile(listOf(a1), dryRun = false, allowDelete = false)
             assertThat(result.applied).isEmpty()
             assertThat(result.skipped.filterIsInstance<DnsChange.Delete>()).hasSize(1)
@@ -131,12 +133,13 @@ class DnsProvisionerTest {
         @Test
         @DisplayName("an orphan in a desired slot is skipped without the purge flag")
         fun `orphan skipped without purge`() {
-            val provider = RecordingProvider(
-                listOf(
-                    ExistingDnsRecord(1L, a1),
-                    ExistingDnsRecord(2L, DnsRecord("A", "@", "203.0.113.9", 3600)),
-                ),
-            )
+            val provider =
+                RecordingProvider(
+                    listOf(
+                        ExistingDnsRecord(1L, a1),
+                        ExistingDnsRecord(2L, DnsRecord("A", "@", "203.0.113.9", 3600)),
+                    ),
+                )
             val result = provisioner(provider).reconcile(listOf(a1), dryRun = false, allowDelete = false)
             assertThat(result.applied).isEmpty()
             assertThat(result.skipped.filterIsInstance<DnsChange.Delete>()).hasSize(1)
@@ -146,12 +149,13 @@ class DnsProvisionerTest {
         @Test
         @DisplayName("an orphan in a desired slot is deleted and the zone refreshed with the purge flag")
         fun `orphan deleted with purge`() {
-            val provider = RecordingProvider(
-                listOf(
-                    ExistingDnsRecord(1L, a1),
-                    ExistingDnsRecord(2L, DnsRecord("A", "@", "203.0.113.9", 3600)),
-                ),
-            )
+            val provider =
+                RecordingProvider(
+                    listOf(
+                        ExistingDnsRecord(1L, a1),
+                        ExistingDnsRecord(2L, DnsRecord("A", "@", "203.0.113.9", 3600)),
+                    ),
+                )
             val result = provisioner(provider).reconcile(listOf(a1), dryRun = false, allowDelete = true)
             assertThat(result.applied.filterIsInstance<DnsChange.Delete>()).hasSize(1)
             assertThat(provider.calls).contains("delete:2")
@@ -163,7 +167,9 @@ class DnsProvisionerTest {
      * In-memory provider that records every call and keeps a mutable zone,
      * so reconciliation can be replayed to prove idempotence.
      */
-    private class RecordingProvider(initial: List<ExistingDnsRecord> = emptyList()) : DnsProvider {
+    private class RecordingProvider(
+        initial: List<ExistingDnsRecord> = emptyList(),
+    ) : DnsProvider {
         val calls = mutableListOf<String>()
         var current = initial.toMutableList()
         private var nextId = 1000L
@@ -173,19 +179,29 @@ class DnsProvisionerTest {
             return current.toList()
         }
 
-        override fun createRecord(domain: String, record: DnsRecord): Long {
+        override fun createRecord(
+            domain: String,
+            record: DnsRecord,
+        ): Long {
             calls += "create:${record.type}:${record.name}:${record.value}"
             val id = nextId++
             current += ExistingDnsRecord(id, record)
             return id
         }
 
-        override fun updateRecord(domain: String, id: Long, record: DnsRecord) {
+        override fun updateRecord(
+            domain: String,
+            id: Long,
+            record: DnsRecord,
+        ) {
             calls += "update:$id:${record.value}"
             current = current.map { if (it.id == id) ExistingDnsRecord(id, record) else it }.toMutableList()
         }
 
-        override fun deleteRecord(domain: String, id: Long) {
+        override fun deleteRecord(
+            domain: String,
+            id: Long,
+        ) {
             calls += "delete:$id"
             current = current.filterNot { it.id == id }.toMutableList()
         }

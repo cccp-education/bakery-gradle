@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test
  * Methodology: DDD/TDD baby steps.
  */
 class OvhDnsClientTest {
-
     private val credentials =
         OvhCredentials(
             applicationKey = "application-key",
@@ -29,7 +28,11 @@ class OvhDnsClientTest {
     ) : OvhHttp {
         val requests = mutableListOf<OvhHttpRequest>()
 
-        override fun call(method: String, url: String, body: String?): OvhHttpResponse {
+        override fun call(
+            method: String,
+            url: String,
+            body: String?,
+        ): OvhHttpResponse {
             requests.add(OvhHttpRequest(method, url, body))
             return handler(method, url, body)
         }

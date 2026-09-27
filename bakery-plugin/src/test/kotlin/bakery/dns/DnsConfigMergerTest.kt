@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test
  * moving to the next one.
  */
 class DnsConfigMergerTest {
-
     private val envConfig = DnsConfig(provider = "ovh", domain = "env.example.com", dryRun = true)
     private val propsConfig = DnsConfig(provider = "ovh", domain = "props.example.com", dryRun = true)
     private val yamlConfig = DnsConfig(provider = "ovh", domain = "yaml.example.com", dryRun = false)

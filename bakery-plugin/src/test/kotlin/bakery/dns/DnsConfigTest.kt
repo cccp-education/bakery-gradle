@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test
  * moving to the next one.
  */
 class DnsConfigTest {
-
     @Nested
     @DisplayName("DnsConfig defaults")
     inner class DnsConfigDefaults {

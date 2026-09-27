@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test
  * Methodology: DDD/TDD baby steps — pure object, no I/O.
  */
 class OvhSignatureTest {
-
     private val applicationSecret = "7c1c7adf9f9c0a5c2f3e4d5b6a7b8c9d0e1f2a3b"
     private val consumerKey = "consumer-key-123"
     private val recordUrl = "https://eu.api.ovh.com/1.0/domain/zone/talaria.school/record"

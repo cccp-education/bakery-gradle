@@ -103,6 +103,5 @@ class DnsDogfoodTalariaIntegrationTest {
             .hasSizeGreaterThanOrEqualTo(5)
     }
 
-    private fun OvhCredentials.isComplete(): Boolean =
-        listOf(applicationKey, applicationSecret, consumerKey).all { it.isNotBlank() }
+    private fun OvhCredentials.isComplete(): Boolean = listOf(applicationKey, applicationSecret, consumerKey).all { it.isNotBlank() }
 }

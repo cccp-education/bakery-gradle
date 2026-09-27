@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test
  * Methodology: DDD/TDD baby steps.
  */
 class DnsDiffTest {
-
     private val a1 = DnsRecord("A", "@", "185.199.108.153", 3600)
     private val a2 = DnsRecord("A", "@", "185.199.109.153", 3600)
     private val cname = DnsRecord("CNAME", "www", "pages-content.github.io.", 3600)
@@ -160,11 +159,12 @@ class DnsDiffTest {
         @DisplayName("one compute returns create, update and delete at once")
         fun `combined create update delete`() {
             val desired = listOf(a1, a2, cname)
-            val actual = listOf(
-                ExistingDnsRecord(1L, a1),
-                ExistingDnsRecord(2L, DnsRecord("CNAME", "www", "pages-content.github.io.", 7200)),
-                ExistingDnsRecord(3L, DnsRecord("A", "@", "203.0.113.9", 3600)),
-            )
+            val actual =
+                listOf(
+                    ExistingDnsRecord(1L, a1),
+                    ExistingDnsRecord(2L, DnsRecord("CNAME", "www", "pages-content.github.io.", 7200)),
+                    ExistingDnsRecord(3L, DnsRecord("A", "@", "203.0.113.9", 3600)),
+                )
             val changes = DnsDiff.compute(desired, actual)
             assertThat(changes.filterIsInstance<DnsChange.Create>()).hasSize(1)
             assertThat(changes.filterIsInstance<DnsChange.Update>()).hasSize(1)

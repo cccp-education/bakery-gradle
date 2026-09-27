@@ -129,21 +129,23 @@ class ContentMigrationIntentionTest {
 
     @Test
     fun `DSL validation field propagates to intention`() {
-        val dsl = ContentMigrationIntentionDsl().apply {
-            sourceDir = "site"
-            outputDir = "out"
-            validation = "STRICT"
-        }
+        val dsl =
+            ContentMigrationIntentionDsl().apply {
+                sourceDir = "site"
+                outputDir = "out"
+                validation = "STRICT"
+            }
         val intent = dsl.toIntention()
         assertEquals("STRICT", intent.validation)
     }
 
     @Test
     fun `DSL validation defaults to LENIENT`() {
-        val dsl = ContentMigrationIntentionDsl().apply {
-            sourceDir = "site"
-            outputDir = "out"
-        }
+        val dsl =
+            ContentMigrationIntentionDsl().apply {
+                sourceDir = "site"
+                outputDir = "out"
+            }
         val intent = dsl.toIntention()
         assertEquals("LENIENT", intent.validation)
     }

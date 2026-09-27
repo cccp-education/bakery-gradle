@@ -115,4 +115,5 @@ class I18nCatalogDocumentTest {
                     I18nCatalogDocument.Literal("fpa.note", "a\\b"),
                 )
         }
-    }}
+    }
+}

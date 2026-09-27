@@ -12,7 +12,6 @@ import kotlin.test.assertTrue
  * never tag markup, and must degrade instead of corrupting a template.
  */
 class TemplateTextTranslatorTest {
-
     @Test
     fun `visible text is translated and tags are preserved`() {
         val template =
@@ -112,12 +111,10 @@ class TemplateTextTranslatorTest {
     private class PrefixTranslationService(
         private val prefix: String,
     ) : TranslationService {
-        override fun translate(request: TranslationRequest): TranslationResult =
-            TranslationResult.Success("$prefix:${request.sourceText}")
+        override fun translate(request: TranslationRequest): TranslationResult = TranslationResult.Success("$prefix:${request.sourceText}")
     }
 
     private class FailingTranslationService : TranslationService {
-        override fun translate(request: TranslationRequest): TranslationResult =
-            TranslationResult.Failure("unavailable")
+        override fun translate(request: TranslationRequest): TranslationResult = TranslationResult.Failure("unavailable")
     }
 }

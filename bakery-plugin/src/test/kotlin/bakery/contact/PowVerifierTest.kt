@@ -34,7 +34,10 @@ class PowVerifierTest {
         }
     }
 
-    private fun findNonce(challenge: String, difficulty: Int): String {
+    private fun findNonce(
+        challenge: String,
+        difficulty: Int,
+    ): String {
         var i = 0
         while (true) {
             val nonce = i.toString()

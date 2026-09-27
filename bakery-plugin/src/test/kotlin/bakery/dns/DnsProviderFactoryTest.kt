@@ -16,10 +16,12 @@ import org.junit.jupiter.api.Test
  * Methodology: DDD/TDD baby steps.
  */
 class DnsProviderFactoryTest {
-
     private class FakeOvhHttp : OvhHttp {
-        override fun call(method: String, url: String, body: String?): OvhHttpResponse =
-            OvhHttpResponse(200, "[]")
+        override fun call(
+            method: String,
+            url: String,
+            body: String?,
+        ): OvhHttpResponse = OvhHttpResponse(200, "[]")
     }
 
     @Nested

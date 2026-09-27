@@ -18,7 +18,6 @@ import kotlin.test.assertTrue
  * so the caller keeps the source (the deltas are not marked translated).
  */
 class LlmServiceTranslationAdapterLeakGuardTest {
-
     @Test
     fun `a response echoing the prompt preamble is rejected`() {
         val leaked =

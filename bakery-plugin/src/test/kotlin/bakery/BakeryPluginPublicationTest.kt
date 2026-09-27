@@ -41,8 +41,7 @@ class BakeryPluginPublicationTest {
      * D5-RACE EPIC fixed (S-029). A missing property is an explicit error, never
      * a silent green.
      */
-    private fun publishedCatalogVersion(property: String): String =
-        PublishedCatalogVersion.require(property)
+    private fun publishedCatalogVersion(property: String): String = PublishedCatalogVersion.require(property)
 
     private fun bakeryVersionFrom(content: String): String =
         content

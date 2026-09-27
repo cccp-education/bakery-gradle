@@ -15,7 +15,6 @@ import kotlin.test.assertFailsWith
  * preserved.
  */
 class TemplateTranslationPlannerTest {
-
     @Test
     fun `a missing template is scheduled`() {
         val reference = mapOf("hero.thyme" to "<h1>Développeur</h1>")

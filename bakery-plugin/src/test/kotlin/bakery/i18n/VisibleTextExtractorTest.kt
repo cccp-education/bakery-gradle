@@ -11,15 +11,15 @@ import kotlin.test.assertTrue
  * attributes, comments, or `<script>`/`<style>` bodies.
  */
 class VisibleTextExtractorTest {
-
     @Test
     fun `a bare text node mixed with an inline span is extracted`() {
-        val template = """
+        val template =
+            """
             <h1 class="display-5 fw-bold mb-5">
                 Développeur
                 <span class="text-primary">spécialisé en Ingénierie Pédagogique</span>
             </h1>
-        """.trimIndent()
+            """.trimIndent()
 
         val segments = VisibleTextExtractor.extract(template)
 

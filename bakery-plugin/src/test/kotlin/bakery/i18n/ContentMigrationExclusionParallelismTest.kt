@@ -21,18 +21,18 @@ import kotlin.test.assertTrue
  *     effect at all.
  */
 class ContentMigrationExclusionParallelismTest {
-
     @Test
     fun `the delta excludes the requested subtrees`(
         @TempDir tempDir: File,
     ) {
         val source = createSource(tempDir)
 
-        val plan = ContentMigrationPlanner.plan(
-            sourceDir = source,
-            storedChecksums = emptyMap(),
-            excludePaths = setOf("draft", ".well-known"),
-        )
+        val plan =
+            ContentMigrationPlanner.plan(
+                sourceDir = source,
+                storedChecksums = emptyMap(),
+                excludePaths = setOf("draft", ".well-known"),
+            )
 
         assertTrue(
             plan.filesToTranslate.none { it.startsWith("draft/") },

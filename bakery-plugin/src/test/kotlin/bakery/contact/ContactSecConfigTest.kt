@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class ContactSecConfigTest {
-
     @Nested
     @DisplayName("defaults")
     inner class Defaults {

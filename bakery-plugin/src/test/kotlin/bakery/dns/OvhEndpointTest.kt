@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test
  * Pure DDD object — no I/O.
  */
 class OvhEndpointTest {
-
     @Nested
     @DisplayName("OVH API path builders")
     inner class PathBuilders {

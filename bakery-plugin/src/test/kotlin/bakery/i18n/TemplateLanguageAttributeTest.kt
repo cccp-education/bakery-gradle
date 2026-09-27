@@ -13,7 +13,6 @@ import kotlin.test.assertEquals
  * other attribute or the `hreflang` alternates.
  */
 class TemplateLanguageAttributeTest {
-
     @Test
     fun `the html lang attribute is rewritten to the target language`() {
         val template = """<html lang="fr" data-bs-theme="light">"""

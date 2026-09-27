@@ -125,7 +125,11 @@ class AccessibilityAuditTaskTest {
             }
 
             val task = project.tasks.getByName("accessibilityAudit") as AccessibilityAuditTask
-            val expected = project.layout.buildDirectory.dir("bake").get().asFile
+            val expected =
+                project.layout.buildDirectory
+                    .dir("bake")
+                    .get()
+                    .asFile
 
             assertEquals(expected, task.resolveAuditDir())
         }
@@ -156,7 +160,10 @@ class AccessibilityAuditTaskTest {
             }
 
             val task = project.tasks.getByName("accessibilityAudit") as AccessibilityAuditTask
-            val expected = project.layout.projectDirectory.dir("build/custom-bake").asFile
+            val expected =
+                project.layout.projectDirectory
+                    .dir("build/custom-bake")
+                    .asFile
 
             assertEquals(expected, task.resolveAuditDir())
         }

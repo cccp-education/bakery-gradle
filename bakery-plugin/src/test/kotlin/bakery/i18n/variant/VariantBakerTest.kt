@@ -46,7 +46,7 @@ class VariantBakerTest {
             bakedRoots[outputDir.name] = sourceRoot
             assembledHadSharedAssets[outputDir.name] =
                 sourceRoot.resolve("assets/styles.css").exists() &&
-                    sourceRoot.resolve("jbake.properties").exists()
+                sourceRoot.resolve("jbake.properties").exists()
             outputDir.mkdirs()
             outputDir.resolve("index.html").writeText("<html>${sourceRoot.name}</html>")
         }

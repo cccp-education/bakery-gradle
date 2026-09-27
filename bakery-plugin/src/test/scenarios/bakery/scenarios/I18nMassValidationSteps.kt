@@ -51,23 +51,27 @@ class I18nMassValidationSteps {
         val langDir = outputDir.resolve(targetLang)
         langDir.mkdirs()
 
-        val adocFiles = sourceDir.walkTopDown()
-            .filter { it.isFile && it.extension == "adoc" }
-            .toList()
+        val adocFiles =
+            sourceDir
+                .walkTopDown()
+                .filter { it.isFile && it.extension == "adoc" }
+                .toList()
 
-        val fileList = adocFiles.map { src ->
-            val relPath = src.relativeTo(sourceDir).path
-            val tgt = langDir.resolve(relPath)
-            tgt.parentFile.mkdirs()
-            src.copyTo(tgt, overwrite = true)
-            tgt
-        }
+        val fileList =
+            adocFiles.map { src ->
+                val relPath = src.relativeTo(sourceDir).path
+                val tgt = langDir.resolve(relPath)
+                tgt.parentFile.mkdirs()
+                src.copyTo(tgt, overwrite = true)
+                tgt
+            }
 
-        val mode = try {
-            ValidationMode.valueOf(validationMode)
-        } catch (e: IllegalArgumentException) {
-            ValidationMode.LENIENT
-        }
+        val mode =
+            try {
+                ValidationMode.valueOf(validationMode)
+            } catch (e: IllegalArgumentException) {
+                ValidationMode.LENIENT
+            }
 
         val plantUmlAdapter = PlantUmlTranslationAdapter(fakeTranslator, plantUmlValidationMode = mode)
         val contentService =
@@ -88,13 +92,18 @@ class I18nMassValidationSteps {
         val tableResults = contentService.drainTableValidationResults()
         val plantUmlResults = contentService.drainPlantUmlValidationResults()
 
-        val tableReport = document.translation.validation.TableValidationReport.fromResults(tableResults)
-        val plantUmlReport = document.translation.validation.PlantUmlValidationReport.fromResults(plantUmlResults)
+        val tableReport =
+            document.translation.validation.TableValidationReport
+                .fromResults(tableResults)
+        val plantUmlReport =
+            document.translation.validation.PlantUmlValidationReport
+                .fromResults(plantUmlResults)
 
-        val consolidated = bakery.i18n.ValidationReport(
-            table = tableReport.entries,
-            plantUml = plantUmlReport.entries,
-        )
+        val consolidated =
+            bakery.i18n.ValidationReport(
+                table = tableReport.entries,
+                plantUml = plantUmlReport.entries,
+            )
         val reportFile = outputDir.resolve("validation-report.json")
         reportFile.writeText(consolidated.toJson())
         lastReportFile = reportFile

@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test
  * Methodology: DDD/TDD baby steps — pure object, no I/O.
  */
 class OvhRecordMapperTest {
-
     private val json = jacksonObjectMapper()
 
     @Nested

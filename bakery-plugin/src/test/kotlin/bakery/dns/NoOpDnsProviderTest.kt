@@ -2,7 +2,6 @@ package bakery.dns
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 /**
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.Test
  * Methodology: DDD/TDD baby steps.
  */
 class NoOpDnsProviderTest {
-
     private val record = DnsRecord("A", "@", "185.199.108.153", 3600)
 
     @Test
@@ -47,8 +45,9 @@ class NoOpDnsProviderTest {
     @Test
     @DisplayName("reconciling through a noop provider is safe and never applies")
     fun `reconcile is safe`() {
-        val result = DnsProvisioner(NoOpDnsProvider(), "talaria.school")
-            .reconcile(listOf(record), dryRun = true, allowDelete = true)
+        val result =
+            DnsProvisioner(NoOpDnsProvider(), "talaria.school")
+                .reconcile(listOf(record), dryRun = true, allowDelete = true)
         assertThat(result.applied).isEmpty()
         assertThat(result.skipped).hasSize(1)
     }

@@ -145,8 +145,7 @@ class LangSwitchModelGuardTest {
                 .contains(expected)
         }
 
-        private fun resource(path: String): String? =
-            javaClass.classLoader.getResourceAsStream(path)?.use { it.readBytes().toString(UTF_8) }
+        private fun resource(path: String): String? = javaClass.classLoader.getResourceAsStream(path)?.use { it.readBytes().toString(UTF_8) }
     }
 
     /**

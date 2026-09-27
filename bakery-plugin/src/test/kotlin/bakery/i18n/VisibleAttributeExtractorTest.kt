@@ -16,7 +16,6 @@ import kotlin.test.assertTrue
  * Pure domain: no I/O, no LLM, no Gradle.
  */
 class VisibleAttributeExtractorTest {
-
     @Test
     fun `a placeholder is extracted`() {
         val template = """<input type="text" name="name" placeholder="Nom" required />"""

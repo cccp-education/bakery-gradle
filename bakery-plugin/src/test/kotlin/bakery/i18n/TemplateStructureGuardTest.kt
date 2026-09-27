@@ -15,7 +15,6 @@ import kotlin.test.assertTrue
  * corrupted output is rejected instead of deployed.
  */
 class TemplateStructureGuardTest {
-
     @Test
     fun `a well-formed template passes`() {
         val template =

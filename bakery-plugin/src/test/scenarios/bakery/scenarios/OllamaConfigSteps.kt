@@ -12,7 +12,6 @@ import io.cucumber.java.en.When
 import org.assertj.core.api.Assertions.assertThat
 import org.gradle.api.GradleException
 import org.gradle.testfixtures.ProjectBuilder
-import org.junit.jupiter.api.assertDoesNotThrow
 
 class OllamaConfigSteps {
     private var yamlString: String? = null

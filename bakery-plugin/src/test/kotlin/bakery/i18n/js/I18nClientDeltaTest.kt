@@ -59,8 +59,7 @@ class I18nClientDeltaTest {
         |  };
         """.trimMargin()
 
-    private fun files(vararg entries: Pair<String, String>): Map<String, String> =
-        linkedMapOf(*entries)
+    private fun files(vararg entries: Pair<String, String>): Map<String, String> = linkedMapOf(*entries)
 
     @Nested
     inner class ReferenceFloor {

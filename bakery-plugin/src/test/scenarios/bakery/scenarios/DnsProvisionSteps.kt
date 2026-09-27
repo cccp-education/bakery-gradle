@@ -19,7 +19,6 @@ import org.assertj.core.api.Assertions.assertThat
  * live zone, [DnsProvisioner] reconciles the desired records against it.
  */
 class DnsProvisionSteps {
-
     private val domain = "talaria.school"
     private var nextId = 1L
 
@@ -140,13 +139,20 @@ class DnsProvisionSteps {
     }
 
     @Then("the plan has {int} create and {int} delete")
-    fun thePlanHasCreatesAndDelete(creates: Int, deletes: Int) {
+    fun thePlanHasCreatesAndDelete(
+        creates: Int,
+        deletes: Int,
+    ) {
         thePlanHasCreates(creates)
         thePlanHasDelete(deletes)
     }
 
     @Then("the created record is {word} {string} pointing to {string}")
-    fun theCreatedRecordIs(type: String, name: String, value: String) {
+    fun theCreatedRecordIs(
+        type: String,
+        name: String,
+        value: String,
+    ) {
         val create = result!!.plan.filterIsInstance<DnsChange.Create>().single()
         assertThat(create.record.type).isEqualTo(type)
         assertThat(create.record.name).isEqualTo(name)
@@ -214,22 +220,31 @@ private class FakeDnsProvider(
     private val zone: MutableList<ExistingDnsRecord>,
     private val nextId: () -> Long,
 ) : DnsProvider {
-
     override fun listRecords(domain: String): List<ExistingDnsRecord> = zone.toList()
 
-    override fun createRecord(domain: String, record: DnsRecord): Long {
+    override fun createRecord(
+        domain: String,
+        record: DnsRecord,
+    ): Long {
         val id = nextId()
         zone += ExistingDnsRecord(id = id, record = record)
         return id
     }
 
-    override fun updateRecord(domain: String, id: Long, record: DnsRecord) {
+    override fun updateRecord(
+        domain: String,
+        id: Long,
+        record: DnsRecord,
+    ) {
         val index = zone.indexOfFirst { it.id == id }
         require(index >= 0) { "No existing record with id $id" }
         zone[index] = ExistingDnsRecord(id = id, record = record)
     }
 
-    override fun deleteRecord(domain: String, id: Long) {
+    override fun deleteRecord(
+        domain: String,
+        id: Long,
+    ) {
         zone.removeAll { it.id == id }
     }
 

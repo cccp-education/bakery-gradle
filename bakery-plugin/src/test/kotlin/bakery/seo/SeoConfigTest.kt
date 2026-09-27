@@ -18,7 +18,6 @@ import org.junit.jupiter.api.Test
  * moving to the next one.
  */
 class SeoConfigTest {
-
     @Nested
     @DisplayName("SeoConfig defaults")
     inner class SeoConfigDefaults {

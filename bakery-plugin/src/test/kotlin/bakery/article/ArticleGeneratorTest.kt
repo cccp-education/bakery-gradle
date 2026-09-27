@@ -296,7 +296,13 @@ class ArticleGeneratorTest {
 
         assertTrue(
             prompt.contains("Hindi"),
-            "Le prompt doit nommer la langue 'Hindi' pour lang='hi' — obtenu : ${prompt.lineSequence().first { it.contains("language", ignoreCase = true) || it.contains("langue", ignoreCase = true) }}",
+            "Le prompt doit nommer la langue 'Hindi' pour lang='hi' — obtenu : ${prompt.lineSequence().first {
+                it.contains(
+                    "language",
+                    ignoreCase = true,
+                ) ||
+                    it.contains("langue", ignoreCase = true)
+            }}",
         )
         assertTrue(prompt.contains("hi"), "Le prompt doit contenir le code 'hi'")
     }

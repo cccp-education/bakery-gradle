@@ -48,7 +48,6 @@ class TranslateI18nClientTaskTest {
             assertEquals("", task.i18nClientDryRun.get())
             assertNull(task.dslIntention)
             assertNull(task.translationService)
-
         }
     }
 
@@ -281,6 +280,7 @@ class TranslateI18nClientTaskTest {
 
             assertEquals(chromeWithMissingEn(), source.readText())
         }
+
         @Test
         fun `multiple source directories are merged`() {
             writeDictionary("maquette/js/i18n.js", chromeWithMissingEn())
@@ -445,7 +445,10 @@ class TranslateI18nClientTaskTest {
                 paths,
             )
             assertTrue(
-                I18nCatalogDocument.literals(updated, "en").first { it.path == "cda.title" }.value
+                I18nCatalogDocument
+                    .literals(updated, "en")
+                    .first { it.path == "cda.title" }
+                    .value
                     .startsWith("["),
             )
         }
@@ -647,7 +650,6 @@ class TranslateI18nClientTaskTest {
     }
 
     private inner class FailingTranslationService : TranslationService {
-        override fun translate(request: TranslationRequest): TranslationResult =
-            TranslationResult.Failure("quota exceeded")
+        override fun translate(request: TranslationRequest): TranslationResult = TranslationResult.Failure("quota exceeded")
     }
 }

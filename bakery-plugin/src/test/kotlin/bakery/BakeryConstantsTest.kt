@@ -8,10 +8,31 @@ import kotlin.test.assertTrue
 class BakeryConstantsTest {
     @Test
     fun `SUPPORTED_LANGS contains all 22 languages`() {
-        val expected = setOf(
-            "fr", "en", "zh", "hi", "es", "ar", "bn", "pt", "ru", "ur",
-            "it", "nl", "de", "el", "tr", "vi", "th", "id", "ko", "ja", "sr", "fa"
-        )
+        val expected =
+            setOf(
+                "fr",
+                "en",
+                "zh",
+                "hi",
+                "es",
+                "ar",
+                "bn",
+                "pt",
+                "ru",
+                "ur",
+                "it",
+                "nl",
+                "de",
+                "el",
+                "tr",
+                "vi",
+                "th",
+                "id",
+                "ko",
+                "ja",
+                "sr",
+                "fa",
+            )
         assertEquals(expected, BakeryConstants.SUPPORTED_LANGS)
         assertEquals(22, BakeryConstants.SUPPORTED_LANGS.size)
     }

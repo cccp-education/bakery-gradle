@@ -13,12 +13,13 @@ import kotlin.test.assertEquals
  * whole `i18n` tree back into every variant — the S-045 7.3 GB recursion.
  */
 class SourceTreeWalkTest {
-
     @TempDir
     lateinit var root: File
 
     @Test
-    fun `an excluded subtree is never descended`(@TempDir tempDir: File) {
+    fun `an excluded subtree is never descended`(
+        @TempDir tempDir: File,
+    ) {
         val source = root.resolve("src")
         source.resolve("content/blog").mkdirs()
         source.resolve("content/blog/a.adoc").writeText("= A")

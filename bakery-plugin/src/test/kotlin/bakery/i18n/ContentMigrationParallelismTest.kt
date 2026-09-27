@@ -20,7 +20,6 @@ import kotlin.test.assertEquals
  * option was absent and the value always fell back to 1.
  */
 class ContentMigrationParallelismTest {
-
     @Test
     fun `an intention accepts the full-pool ceiling`() {
         val intention = intention(parallelism = 25)

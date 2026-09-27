@@ -114,23 +114,17 @@ class I18nClientDictionarySteps {
     }
 
     @When("the i18n client task translates the dictionaries from fr to {string}")
-    fun translates(
-        targetLang: String,
-    ) {
+    fun translates(targetLang: String) {
         translate(targetLang)
     }
 
     @When("the i18n client task translates the dictionaries from fr to {string} again")
-    fun translatesAgain(
-        targetLang: String,
-    ) {
+    fun translatesAgain(targetLang: String) {
         translate(targetLang)
     }
 
     @Then("the i18n client task should report {string} missing keys")
-    fun assertMissingCount(
-        expected: String,
-    ) {
+    fun assertMissingCount(expected: String) {
         assertThat(lastMissing)
             .describedAs("Expected $expected missing keys")
             .isEqualTo(expected.toInt())
@@ -142,16 +136,12 @@ class I18nClientDictionarySteps {
     }
 
     @Then("the translation service should have received exactly {string} request")
-    fun assertRequestCountSingular(
-        expected: String,
-    ) {
+    fun assertRequestCountSingular(expected: String) {
         assertRequestCount(expected)
     }
 
     @Then("the translation service should have received exactly {string} requests")
-    fun assertRequestCountPlural(
-        expected: String,
-    ) {
+    fun assertRequestCountPlural(expected: String) {
         assertRequestCount(expected)
     }
 
@@ -310,7 +300,7 @@ class I18nClientDictionarySteps {
         |      }
         |    }
         |  };
-        """.trimMargin()
+            """.trimMargin()
     }
 
     private fun translate(targetLang: String) {

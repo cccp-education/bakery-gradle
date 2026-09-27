@@ -110,9 +110,11 @@ class FixtureAlignmentAuditorTest {
         val fixtureDir = tempDir.resolve("fixture/templates").apply { mkdirs() }
         val realDir = tempDir.resolve("real/templates").apply { mkdirs() }
 
-        fixtureDir.resolve("footer.thyme")
+        fixtureDir
+            .resolve("footer.thyme")
             .writeText("apiKey: \"REMPLACER_PAR_VOTRE_API_KEY\"\nappId: \"REMPLACER_PAR_VOTRE_APP_ID\"")
-        realDir.resolve("footer.thyme")
+        realDir
+            .resolve("footer.thyme")
             .writeText("apiKey: \"AIzaSyDa6zTpcWtA3qZarwK7Z7oMXxjxD33np3c\"\nappId: \"1:165984851604:web:6f99abe1747c81fa718681\"")
 
         val report = auditor.audit(fixtureDir, realDir)

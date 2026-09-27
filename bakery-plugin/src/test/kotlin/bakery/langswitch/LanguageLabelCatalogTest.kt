@@ -1,9 +1,9 @@
 package bakery.langswitch
 
+import contracts.i18n.LanguageCatalog
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-import contracts.i18n.LanguageCatalog
 
 /**
  * CHE-I18N-22 US-2 — the language switcher labels were a 10-entry hardcoded map

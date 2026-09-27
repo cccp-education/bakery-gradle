@@ -21,7 +21,6 @@ import java.util.concurrent.Executors
  * request/response round-trip. Zero real OVH network.
  */
 class OvhDnsClientFunctionalTest {
-
     private data class CapturedRequest(
         val method: String,
         val path: String,
@@ -53,9 +52,10 @@ class OvhDnsClientFunctionalTest {
                         CapturedRequest(
                             method = exchange.requestMethod,
                             path = exchange.requestURI.toString(),
-                            headers = exchange.requestHeaders.entries.associate { (k, v) ->
-                                k.lowercase() to v.joinToString(",")
-                            },
+                            headers =
+                                exchange.requestHeaders.entries.associate { (k, v) ->
+                                    k.lowercase() to v.joinToString(",")
+                                },
                             body = requestBody,
                         ),
                     )
@@ -77,8 +77,7 @@ class OvhDnsClientFunctionalTest {
 
     private fun baseUrl(): String = "http://127.0.0.1:${server.address.port}"
 
-    private fun client(): OvhDnsClient =
-        OvhDnsClient(credentials, JavaOvhHttp(credentials), baseUrl())
+    private fun client(): OvhDnsClient = OvhDnsClient(credentials, JavaOvhHttp(credentials), baseUrl())
 
     private fun assertSigned(request: CapturedRequest) {
         val timestamp = request.headers["x-ovh-timestamp"]

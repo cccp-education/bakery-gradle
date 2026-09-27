@@ -22,7 +22,6 @@ import org.assertj.core.api.Assertions.assertThat
  * prefixed with "template" so the shared glue namespace never collides (bug S-088).
  */
 class I18nTemplateTranslationSteps {
-
     private val reference =
         linkedMapOf(
             "hero.thyme" to
@@ -35,7 +34,7 @@ class I18nTemplateTranslationSteps {
                 <a data-lang="fr">Français</a>
                 <link rel="alternate" hreflang="fr" href="x"/>
                 <script>var label = "Développeur";</script>
-            """.trimIndent(),
+                """.trimIndent(),
             "blog.thyme" to "<p>Derniers articles et ressources</p>",
         )
 

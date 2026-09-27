@@ -25,7 +25,6 @@ import kotlin.test.assertTrue
  * Pure domain: no I/O, no LLM, no Gradle.
  */
 class TemplateAttributeRepairTest {
-
     private val reference =
         """
         <form>
@@ -99,7 +98,6 @@ class TemplateAttributeRepairTest {
     private class PrefixService(
         private val prefix: String,
     ) : TranslationService {
-        override fun translate(request: TranslationRequest): TranslationResult =
-            TranslationResult.Success("$prefix:${request.sourceText}")
+        override fun translate(request: TranslationRequest): TranslationResult = TranslationResult.Success("$prefix:${request.sourceText}")
     }
 }

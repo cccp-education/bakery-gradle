@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Test
  * Methodology: DDD/TDD baby steps.
  */
 class SeoPageMetaTest {
-
     private val siteHost = "https://example.com"
 
     @Nested
