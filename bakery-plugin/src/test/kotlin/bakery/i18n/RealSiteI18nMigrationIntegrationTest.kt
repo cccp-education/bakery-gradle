@@ -2,6 +2,8 @@ package bakery.i18n
 
 import bakery.i18n.snapshot.PostMigrationSnapshot
 import bakery.i18n.snapshot.PostMigrationSnapshotLoader
+import bakery.workspace.WorkspaceRoot
+import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
@@ -22,7 +24,7 @@ import kotlin.test.assertTrue
 class RealSiteI18nMigrationIntegrationTest {
     private val service = I18nMigrationService()
     private val loader = PostMigrationSnapshotLoader()
-    private val workspace = File("/home/cheroliv/workspace")
+    private val workspace = WorkspaceRoot.resolve()
 
     private data class SiteMapping(
         val fixtureId: String,
@@ -42,7 +44,7 @@ class RealSiteI18nMigrationIntegrationTest {
         @TempDir tempDir: File,
     ) {
         for (site in sites) {
-            val siteCopy = copyRealSite(site, tempDir.resolve(site.fixtureId))
+            val siteCopy = requireRealSiteCopy(site, tempDir.resolve(site.fixtureId))
             migrateThenCompare(site, siteCopy)
         }
     }
@@ -52,7 +54,7 @@ class RealSiteI18nMigrationIntegrationTest {
         @TempDir tempDir: File,
     ) {
         for (site in sites) {
-            val siteCopy = copyRealSite(site, tempDir.resolve(site.fixtureId))
+            val siteCopy = requireRealSiteCopy(site, tempDir.resolve(site.fixtureId))
             service.migrate(siteCopy, listOf("fr", "en"), "fr", dryRun = false)
 
             val beforeChecksums = checksumTemplates(siteCopy)
@@ -120,13 +122,26 @@ class RealSiteI18nMigrationIntegrationTest {
             .replace(Regex("apiKey:\\s*\"[^\"]+\""), "apiKey: \"PLACEHOLDER\"")
             .replace(Regex("appId:\\s*\"[^\"]+\""), "appId: \"PLACEHOLDER\"")
 
+    /**
+     * Resolves the real site, degrading to a JUnit assumption skip when the
+     * workspace is not checked out (isolated CI, fresh clone). BKY-CI-ISOLATION.
+     */
+    private fun requireRealSiteCopy(
+        site: SiteMapping,
+        targetDir: File,
+    ): File {
+        val realJbakeDir = workspace.resolve("office/sites/${site.realSiteDirName}/jbake")
+        assumeTrue(realJbakeDir.isDirectory) {
+            "site réel '${site.realSiteDirName}' introuvable — skip migration réelle (CI/checkout isolé)"
+        }
+        return copyRealSite(site, targetDir)
+    }
+
     private fun copyRealSite(
         site: SiteMapping,
         targetDir: File,
     ): File {
         val realJbakeDir = workspace.resolve("office/sites/${site.realSiteDirName}/jbake")
-        require(realJbakeDir.isDirectory) { "Répertoire site réel introuvable : $realJbakeDir" }
-
         realJbakeDir.walkTopDown().forEach { file ->
             val relativePath = file.relativeTo(realJbakeDir).path
             if (file.isDirectory) {

@@ -56,6 +56,15 @@ class DnsProvisionSteps {
         existingRecordId = id
     }
 
+    @Given("a zone with existing records")
+    fun aZoneWithExistingRecords(table: DataTable) {
+        zone.clear()
+        nextId = 1L
+        parseRecords(table).forEach { record ->
+            zone += ExistingDnsRecord(id = nextId++, record = record)
+        }
+    }
+
     @Given("desired records")
     fun desiredRecords(table: DataTable) {
         desired = parseRecords(table)

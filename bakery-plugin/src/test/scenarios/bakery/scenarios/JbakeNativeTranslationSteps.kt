@@ -131,6 +131,10 @@ class JbakeNativeTranslationSteps {
 
     @Then("the translated article should preserve summary attribute")
     fun translatedArticleShouldPreserveSummaryAttribute() {
-        assertThat(translatedContent).contains(":summary: Un article de test")
+        // The `:summary:` *attribute* is preserved (structure), while its value is
+        // translated — document-gradle's FrontmatterStaleDetector declares summary
+        // and description translatable (DocumentTranslatorTest contract).
+        assertThat(translatedContent).contains(":summary:")
+        assertThat(translatedContent).contains("[EN]")
     }
 }

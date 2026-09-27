@@ -82,7 +82,10 @@ dependencies {
 
 tasks.withType<Test> {
     forkEvery = 0
-    timeout.set(Duration.ofMinutes(5))
+    // BKY-CI-ISOLATION — a 5-min default was exceeded by functionalTest under
+    // parallel load (~4m50s alone), killing the task before results flushed.
+    // Task-specific overrides below take precedence.
+    timeout.set(Duration.ofMinutes(15))
     outputs.cacheIf { true }
 }
 
@@ -123,6 +126,21 @@ tasks.named<Test>("test") {
     classpath += files(tasks.named("jar"))
 
     systemProperty("gradle.plugin.repository", project.rootDir.resolve("build/libs").absolutePath)
+
+    // BKY-CI-ISOLATION — forward the optional workspace-root override to the test
+    // JVM. Absent (CI, fresh checkout) the guards resolve their local default and
+    // skip when the real site is unreachable. Present, it proves the isolated-CI
+    // behaviour locally: `./gradlew test -Dbakery.workspaceRoot=/nonexistent`.
+    providers.systemProperty("bakery.workspaceRoot").orNull?.let {
+        systemProperty("bakery.workspaceRoot", it)
+    }
+
+    // BKY-CI-ISOLATION (US-2c) — inject the *published* workspace catalog versions
+    // resolved by Gradle. BakeryPluginPublicationTest must never read a neighbour
+    // repository's working tree (racy between sessions, absent in isolated CI) —
+    // patron graphify-gradle D5-RACE (S-029).
+    systemProperty("bakery.publishedCatalog.bakeryVersion", ws.versions.bakery.plugin.get())
+    systemProperty("bakery.publishedCatalog.bomVersion", ws.versions.workspace.bom.get())
 
     useJUnitPlatform { excludeEngines("cucumber") }
 
@@ -353,7 +371,10 @@ val cucumberTest =
         maxParallelForks = 1
         forkEvery = 0
 
-        timeout.set(Duration.ofMinutes(5))
+        // BKY-CI-ISOLATION — the suite runs ~6 min; the former 5-min timeout was
+        // exceeded at the wire, killing the task before results flushed (flaky,
+        // non-deterministic failure counts). Raised to a safe margin.
+        timeout.set(Duration.ofMinutes(15))
 
         doLast {
             val tempDir = File(System.getProperty("java.io.tmpdir"))
@@ -382,6 +403,22 @@ tasks.check {
 koverConventions {
     enabled = true
     threshold = 85.0
+}
+
+// BKY-CI-ISOLATION (V7) — conventions-plugin 0.0.4's `koverThresholdCheck` reads
+// `build/reports/kover/xml/report.xml`, but kover 0.9.8 writes
+// `build/reports/kover/report.xml`. Bakery is the only consumer of that
+// convention, so the mismatch was never exercised. Align kover's XML output to
+// the path the threshold task expects.
+kover {
+    reports {
+        total {
+            xml {
+                onCheck = true
+                xmlFile.set(layout.buildDirectory.file("reports/kover/xml/report.xml"))
+            }
+        }
+    }
 }
 
 gradlePlugin {

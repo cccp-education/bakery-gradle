@@ -1,53 +1,55 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 243
-:date: 2026-09-26
-:etat: Session 242 ✅ — **BKY-VARIANT-UNIFY : split-brain `i18n.variant` absorbé** (option C, patron NAV-6). bakery `test` **2061/0**, cheroliv `test` **187/0**.
-:epic_actif: **BKY-LANG-NAV** ✅ TERMINÉ. **BKY-VARIANT-UNIFY** ✅ TERMINÉ (D5 du cadrage NAV soldé pour la seule divergence de comportement).
-:epic_suivant: **EPIC « fixture lifecycle »** (candidat) — la garde `FixtureAlignmentAuditor` lit le site réel chemin absolu en dur → fragile en CI isolée ; cause racine des FLAKY-4/5 récurrents. OU **MASS-6** (bloqué accord pilote, ~675h LLM).
-:dette: ktlint baseline dépôt (rouge préexistant, main + functionalTest) — non déclenché.
+:session: 244
+:date: 2026-09-27
+:etat: Session 243 ✅ — **BKY-CI-ISOLATION : CI bakery VERTE** (8 verrous levés). `build` SUCCESSFUL, `test` **2072/0**, `cucumberTest` **3294/0**, kover 89,21 %, ktlint baseline.
+:epic_actif: **BKY-LANG-NAV** ✅ / **BKY-VARIANT-UNIFY** ✅ / **BKY-CI-ISOLATION** ✅ TERMINÉ (S-243).
+:epic_suivant: **Dette ktlint** (EPIC « ktlint baseline cleanup », 171 fichiers baselinés) OU **correction racine conventions** (chemin kover 0.0.4) OU **MASS-6** (bloqué accord pilote, ~675h LLM).
+:dette: ktlint baseline gelé (`config/ktlint/baseline.xml`) — à résorber par EPIC dédié.
 
-== État S-242
+== État S-243
 
-Split-brain cheroliv (D5) **soldé** — option C, méthode baby-step DDD/TDD strict,
-**zéro traduction, zéro contenu touché** (contrainte pilote explicite) :
+La CI était **rouge sur 200/200 runs** (depuis ≥ 2026-06-14). Périmètre réel
+étendu à **8 verrous indépendants**, tous levés (baby-step DDD/TDD/BDD strict) :
 
-. **Audit** : seuls `VariantDeployability` divergent (les 3 autres sont des
-   adaptateurs de layout légitimes, racine `jbake/` vs `bakeRoot`).
-. **Divergence prouvée RED** : cheroliv comparait **toutes** les entrées de
-   `templates/` (bundle `.properties`, `.txt`, dossier `TODO/`) là où bakery ne
-   compte que `.thyme/.ftl/.html` → variante complète faussement indéployable.
-. **Convergence** + **vecteurs partagés** `variant-bake-vectors.json` (6 vecteurs)
-   + **garde anti-dérive** cross-repo (patron `LangSwitchPathDriftGuardTest`).
+. **V1** — JDK 24 CI vs `conventions-plugin:0.0.4` (JVM 25) → bump 25.
+. **V2/V3** — 2 gardes site lisaient le réel par chemin absolu + `require` →
+   `bakery.workspace.WorkspaceRoot` (seam + `assumeTrue`).
+. **V4** — `BakeryPluginPublicationTest` lisait `../workspace-bom` (voisin) →
+   version **injectée par Gradle** + `PublishedCatalogVersion` (patron graphify D5-RACE).
+. **V5** — 4 scénarios cucumber **périmés** (F30 `de`, F34 `th:text=`, DNS
+   orphan hors-scope, F50 `:summary:`) → réalignés sur la sémantique actuelle.
+. **V6** — timeout 5 min < durée réelle → 15 min (comptes déterministes).
+. **V7** — `koverThresholdCheck` (chemin `kover/xml/report.xml`) vs kover 0.9.8
+   (`kover/report.xml`) → `kover { xmlFile }` local.
+. **V8** — ktlint baseline dépôt rouge → `config/ktlint/baseline.xml`.
 
-Gates : bakery `test` **2061/0**, `functionalTest` VERT, `nodeTest` VERT,
-`cucumberTest` 3285/5 baseline ; cheroliv `test` **187/0**, `cucumberTest` 31/5
-baseline stash-prouvée, `functionalTest`+`nodeTest` VERT ; `publishToMavenLocal`
-VERT. Doc `.agents/CADRAGE_EPIC_BKY_VARIANT_UNIFY.adoc` +
-`.agents/sessions/242-…`.
+V5→V8 préexistaient (stash-prouvé), masqués par V1.
 
-== Mission Session 243
+Gates : `build` **VERT 5m28s** (`--rerun-tasks` 8m32s), `test` **2072/0**,
+`test -Dbakery.workspaceRoot=/nonexistent` **8 skipped 0 FAIL**,
+`functionalTest` **164/0**, `cucumberTest` **3294/0**, `nodeTest` VERT,
+kover **89,21 %**, ktlint VERT, `publishToMavenLocal` VERT. Doc
+`.agents/CADRAGE_EPIC_BKY_CI_ISOLATION.adoc` + `.agents/sessions/243-…`.
 
-Deux voies (à cadrer d'abord, zéro initiative) :
+== Mission Session 244
 
-. **A (recommandée) — EPIC « fixture lifecycle »** : la garde
-   `FixtureAlignmentAuditor` lit `office/sites/cheroliv.com` par **chemin absolu
-   en dur** → fragile en CI isolée (skip de fait). Cause racine des recréations
-   de drift (FLAKY-4 S-222, FLAKY-5 S-241). Piste : rendre la source
-   paramétrable/skippable proprement, ou figer un hash du site réel comme
-   contrat versionné. Coût faible, zéro LLM.
-. **B — MASS-6** (108 articles × 10 langues, ~675h LLM) : **bloqué accord
-   pilote explicite** (coût). Ne pas engager sans GO.
+À cadrer d'abord (zéro initiative) :
 
-Alternative : audit de dette (ktlint baseline dépôt rouge main+functionalTest —
-préexistant, jamais traité).
+. **A — Dette ktlint** : 171 fichiers baselinés. Réformater par lots (pattern
+   inverse de l'incident S-231 `ktlintFormat` global) : un lot = un commit,
+   régénérer le baseline à chaque lot jusqu'à disparition. Zéro LLM.
+. **B — Correction racine conventions** : `koverThresholdCheck` lit un chemin
+   hardcodé (bug 0.0.4) — corriger dans `conventions-gradle`, bump, propager,
+   retirer le workaround local bakery. Cross-borough (BOM + Central).
+. **C — MASS-6** (108 articles × 10 langues, ~675h LLM) : **bloqué accord
+   pilote explicite**. Ne pas engager sans GO.
 
 == Reprendre à
 
-. `git status` dans bakery-gradle ET office (fichiers sales préexistants — NE PAS
+. `git status` dans bakery-gradle (fichiers sales préexistants — NE PAS
    committer les 123+ untracked/modifiés `jbake/i18n/**`, FPA, edster, graphify).
-. `.agents/sessions/242-…` (ce rapport) + 241 (FLAKY-5).
-. `src/main/resources/bakery/i18n/variant/variant-bake-vectors.json` (vecteurs
-   partagés) + les deux `VariantDeployability*`.
+. `.agents/sessions/243-…` (ce rapport) + 242 (VARIANT-UNIFY).
+. `.agents/CADRAGE_EPIC_BKY_CI_ISOLATION.adoc` (8 verrous, DAG, hors périmètre).
 . Gate Économie d'Encre : ne relancer `test`/`cucumber` que si le code source change.
 
 == Rappel
@@ -58,6 +60,7 @@ préexistant, jamais traité).
 * *Règle 0* : `./gradlew -q publishToMavenLocal` OBLIGATOIRE après toute modif source.
 * *Version dérivée* : bumper le toml local est obligatoire pour qu'une release porte les changements (leçon S-240).
 * *Pattern BDD runner dédié* : tout tag non couvert doit avoir son runner (S-082).
+* *ktlint baseline* : `config/ktlint/baseline.xml` — NE PAS baseliner un fichier neuf.
 * Commit/push autorisés (décision pilote 2026-09-17). Zéro secret.
 * Baby-step DDD/TDD/BDD strict — 1 fichier à la fois, gate `test` complète.
 * **Ne jamais retraduire de contenu** : `migrateContentI18n`/`translateTemplates`/

@@ -1,0 +1,951 @@
+<?xml version="1.0" encoding="utf-8"?>
+<baseline version="1.0">
+    <file name="build.gradle.kts">
+        <error line="21" column="36" source="standard:chain-method-continuation" />
+        <error line="116" column="51" source="standard:chain-method-continuation" />
+        <error line="116" column="76" source="standard:chain-method-continuation" />
+        <error line="116" column="82" source="standard:chain-method-continuation" />
+        <error line="142" column="86" source="standard:chain-method-continuation" />
+        <error line="143" column="83" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/functionalTest/kotlin/bakery/ArchitectureValidationTest.kt">
+        <error line="98" column="160" source="standard:max-line-length" />
+    </file>
+    <file name="src/functionalTest/kotlin/bakery/BakeryPluginFunctionalTests.kt">
+        <error line="119" column="1" source="standard:no-consecutive-comments" />
+    </file>
+    <file name="src/functionalTest/kotlin/bakery/ContactSecFixtureFunctionalTest.kt">
+        <error line="116" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/functionalTest/kotlin/bakery/InjectSeoFunctionalTest.kt">
+        <error line="238" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/functionalTest/kotlin/bakery/ProvisionDnsFunctionalTest.kt">
+        <error line="171" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/functionalTest/kotlin/bakery/ScaffoldContactSecFunctionalTest.kt">
+        <error line="237" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/functionalTest/kotlin/bakery/TranslateI18nClientFunctionalTest.kt">
+        <error line="280" column="21" source="standard:string-template-indent" />
+        <error line="281" column="21" source="standard:string-template-indent" />
+        <error line="282" column="21" source="standard:string-template-indent" />
+        <error line="283" column="21" source="standard:string-template-indent" />
+        <error line="284" column="21" source="standard:string-template-indent" />
+        <error line="285" column="21" source="standard:string-template-indent" />
+        <error line="286" column="21" source="standard:string-template-indent" />
+        <error line="287" column="21" source="standard:string-template-indent" />
+        <error line="288" column="21" source="standard:string-template-indent" />
+        <error line="292" column="21" source="standard:string-template-indent" />
+        <error line="293" column="21" source="standard:string-template-indent" />
+        <error line="294" column="21" source="standard:string-template-indent" />
+    </file>
+    <file name="src/functionalTest/kotlin/bakery/TranslateTemplatesFunctionalTest.kt">
+        <error line="132" column="19" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/functionalTest/kotlin/bakery/tools.kt">
+        <error line="1" column="1" source="standard:filename" />
+    </file>
+    <file name="src/main/kotlin/bakery/BakeryPlugin.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+    </file>
+    <file name="src/main/kotlin/bakery/ContentTaskRegistrar.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+        <error line="17" column="1" source="standard:no-unused-imports" />
+    </file>
+    <file name="src/main/kotlin/bakery/DnsTaskRegistrar.kt">
+        <error line="31" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/main/kotlin/bakery/SiteConfiguration.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+    </file>
+    <file name="src/main/kotlin/bakery/a11y/ColorContrastRule.kt">
+        <error line="1" column="1" source="standard:filename" />
+    </file>
+    <file name="src/main/kotlin/bakery/contact/ContactSecConfig.kt">
+        <error line="34" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/main/kotlin/bakery/contact/ContactSecRenderer.kt">
+        <error line="4" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="146" column="29" source="standard:multiline-expression-wrapping" />
+        <error line="190" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/main/kotlin/bakery/contact/PowVerifier.kt">
+        <error line="12" column="16" source="standard:function-signature" />
+        <error line="12" column="35" source="standard:function-signature" />
+        <error line="12" column="50" source="standard:function-signature" />
+        <error line="12" column="65" source="standard:function-signature" />
+        <error line="45" column="28" source="standard:function-signature" />
+        <error line="45" column="45" source="standard:function-signature" />
+        <error line="45" column="60" source="standard:function-signature" />
+        <error line="58" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/main/kotlin/bakery/contact/RateLimiter.kt">
+        <error line="15" column="32" source="standard:class-signature" />
+        <error line="15" column="52" source="standard:class-signature" />
+        <error line="15" column="71" source="standard:class-signature" />
+        <error line="15" column="90" source="standard:class-signature" />
+        <error line="21" column="15" source="standard:function-signature" />
+        <error line="21" column="28" source="standard:function-signature" />
+        <error line="21" column="37" source="standard:function-signature" />
+        <error line="50" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/main/kotlin/bakery/contact/ScaffoldContactSecTask.kt">
+        <error line="117" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/main/kotlin/bakery/contact/SessionTokenManager.kt">
+        <error line="12" column="25" source="standard:class-signature" />
+        <error line="12" column="44" source="standard:class-signature" />
+        <error line="12" column="62" source="standard:class-signature" />
+        <error line="14" column="27" source="standard:class-signature" />
+        <error line="14" column="60" source="standard:class-signature" />
+        <error line="27" column="18" source="standard:function-signature" />
+        <error line="27" column="39" source="standard:function-signature" />
+        <error line="27" column="48" source="standard:function-signature" />
+        <error line="40" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/main/kotlin/bakery/contact/TurnstileClient.kt">
+        <error line="26" column="24" source="standard:class-signature" />
+        <error line="26" column="40" source="standard:class-signature" />
+        <error line="43" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/main/kotlin/bakery/dns/DnsChange.kt">
+        <error line="16" column="23" source="standard:class-signature" />
+        <error line="16" column="53" source="standard:class-signature" />
+    </file>
+    <file name="src/main/kotlin/bakery/dns/DnsConfig.kt">
+        <error line="26" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/main/kotlin/bakery/dns/DnsConfigMerger.kt">
+        <error line="15" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="79" column="70" source="standard:function-signature" />
+        <error line="81" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/main/kotlin/bakery/dns/DnsDiff.kt">
+        <error line="24" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="25" column="29" source="standard:class-signature" />
+        <error line="25" column="47" source="standard:class-signature" />
+        <error line="25" column="63" source="standard:class-signature" />
+        <error line="31" column="17" source="standard:function-signature" />
+        <error line="31" column="43" source="standard:function-signature" />
+        <error line="31" column="74" source="standard:function-signature" />
+    </file>
+    <file name="src/main/kotlin/bakery/dns/DnsProvider.kt">
+        <error line="16" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="21" column="22" source="standard:function-signature" />
+        <error line="21" column="38" source="standard:function-signature" />
+        <error line="21" column="55" source="standard:function-signature" />
+        <error line="24" column="22" source="standard:function-signature" />
+        <error line="24" column="38" source="standard:function-signature" />
+        <error line="24" column="48" source="standard:function-signature" />
+        <error line="24" column="65" source="standard:function-signature" />
+        <error line="27" column="22" source="standard:function-signature" />
+        <error line="27" column="38" source="standard:function-signature" />
+        <error line="27" column="46" source="standard:function-signature" />
+    </file>
+    <file name="src/main/kotlin/bakery/dns/DnsProviderFactory.kt">
+        <error line="12" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="13" column="17" source="standard:function-signature" />
+        <error line="13" column="31" source="standard:function-signature" />
+        <error line="13" column="62" source="standard:function-signature" />
+    </file>
+    <file name="src/main/kotlin/bakery/dns/DnsProvisioner.kt">
+        <error line="24" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/main/kotlin/bakery/dns/DnsRecord.kt">
+        <error line="18" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/main/kotlin/bakery/dns/JavaOvhHttp.kt">
+        <error line="19" column="19" source="standard:chain-method-continuation" />
+        <error line="23" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="24" column="23" source="standard:function-signature" />
+        <error line="24" column="39" source="standard:function-signature" />
+        <error line="24" column="52" source="standard:function-signature" />
+        <error line="24" column="65" source="standard:function-signature" />
+        <error line="37" column="24" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/main/kotlin/bakery/dns/NoOpDnsProvider.kt">
+        <error line="13" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="16" column="31" source="standard:function-signature" />
+        <error line="16" column="47" source="standard:function-signature" />
+        <error line="16" column="64" source="standard:function-signature" />
+        <error line="18" column="31" source="standard:function-signature" />
+        <error line="18" column="47" source="standard:function-signature" />
+        <error line="18" column="57" source="standard:function-signature" />
+        <error line="18" column="74" source="standard:function-signature" />
+        <error line="20" column="31" source="standard:function-signature" />
+        <error line="20" column="47" source="standard:function-signature" />
+        <error line="20" column="55" source="standard:function-signature" />
+    </file>
+    <file name="src/main/kotlin/bakery/dns/OvhCredentials.kt">
+        <error line="24" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/main/kotlin/bakery/dns/OvhDnsClient.kt">
+        <error line="24" column="23" source="standard:function-signature" />
+        <error line="24" column="39" source="standard:function-signature" />
+        <error line="24" column="64" source="standard:function-signature" />
+        <error line="39" column="19" source="standard:function-signature" />
+        <error line="39" column="35" source="standard:function-signature" />
+        <error line="39" column="43" source="standard:function-signature" />
+        <error line="45" column="22" source="standard:function-signature" />
+        <error line="45" column="38" source="standard:function-signature" />
+        <error line="45" column="55" source="standard:function-signature" />
+        <error line="58" column="22" source="standard:function-signature" />
+        <error line="58" column="38" source="standard:function-signature" />
+        <error line="58" column="48" source="standard:function-signature" />
+        <error line="58" column="65" source="standard:function-signature" />
+        <error line="64" column="22" source="standard:function-signature" />
+        <error line="64" column="38" source="standard:function-signature" />
+        <error line="64" column="46" source="standard:function-signature" />
+        <error line="73" column="22" source="standard:function-signature" />
+        <error line="73" column="38" source="standard:function-signature" />
+        <error line="73" column="52" source="standard:function-signature" />
+        <error line="73" column="67" source="standard:function-signature" />
+        <error line="73" column="81" source="standard:function-signature" />
+        <error line="85" column="29" source="standard:function-signature" />
+        <error line="85" column="56" source="standard:function-signature" />
+        <error line="85" column="70" source="standard:function-signature" />
+    </file>
+    <file name="src/main/kotlin/bakery/dns/OvhDnsProvider.kt">
+        <error line="14" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="18" column="31" source="standard:function-signature" />
+        <error line="18" column="47" source="standard:function-signature" />
+        <error line="18" column="64" source="standard:function-signature" />
+        <error line="18" column="73" source="standard:function-signature" />
+        <error line="21" column="31" source="standard:function-signature" />
+        <error line="21" column="47" source="standard:function-signature" />
+        <error line="21" column="57" source="standard:function-signature" />
+        <error line="21" column="74" source="standard:function-signature" />
+        <error line="25" column="31" source="standard:function-signature" />
+        <error line="25" column="47" source="standard:function-signature" />
+        <error line="25" column="55" source="standard:function-signature" />
+    </file>
+    <file name="src/main/kotlin/bakery/dns/OvhEndpoint.kt">
+        <error line="10" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="17" column="20" source="standard:function-signature" />
+        <error line="17" column="36" source="standard:function-signature" />
+        <error line="17" column="44" source="standard:function-signature" />
+    </file>
+    <file name="src/main/kotlin/bakery/dns/OvhHttp.kt">
+        <error line="10" column="14" source="standard:function-signature" />
+        <error line="10" column="30" source="standard:function-signature" />
+        <error line="10" column="43" source="standard:function-signature" />
+        <error line="10" column="56" source="standard:function-signature" />
+        <error line="14" column="28" source="standard:class-signature" />
+        <error line="14" column="45" source="standard:class-signature" />
+        <error line="14" column="61" source="standard:class-signature" />
+    </file>
+    <file name="src/main/kotlin/bakery/dns/OvhSignature.kt">
+        <error line="14" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/main/kotlin/bakery/dns/ProvisionDnsTask.kt">
+        <error line="29" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="113" column="51" source="standard:function-signature" />
+        <error line="114" column="82" source="standard:final-newline" />
+    </file>
+    <file name="src/main/kotlin/bakery/i18n/ContentMigrationPlanner.kt">
+        <error line="16" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/main/kotlin/bakery/i18n/I18nMigrationService.kt">
+        <error line="151" column="79" source="standard:function-signature" />
+    </file>
+    <file name="src/main/kotlin/bakery/i18n/LlmServiceTranslationAdapter.kt">
+        <error line="71" column="35" source="standard:multiline-expression-wrapping" />
+        <error line="80" column="39" source="standard:multiline-expression-wrapping" />
+        <error line="97" column="37" source="standard:multiline-expression-wrapping" />
+    </file>
+    <file name="src/main/kotlin/bakery/i18n/MigrateContentI18nTask.kt">
+        <error line="11" column="1" source="standard:no-unused-imports" />
+        <error line="115" column="30" source="standard:multiline-expression-wrapping" />
+        <error line="190" column="62" source="standard:chain-method-continuation" />
+        <error line="193" column="66" source="standard:chain-method-continuation" />
+        <error line="194" column="61" source="standard:chain-method-continuation" />
+        <error line="210" column="57" source="standard:multiline-expression-wrapping" />
+        <error line="287" column="28" source="standard:multiline-expression-wrapping" />
+        <error line="323" column="36" source="standard:function-signature" />
+        <error line="323" column="51" source="standard:function-signature" />
+        <error line="323" column="66" source="standard:function-signature" />
+        <error line="323" column="75" source="standard:function-signature" />
+        <error line="326" column="36" source="standard:function-signature" />
+        <error line="326" column="51" source="standard:function-signature" />
+        <error line="326" column="66" source="standard:function-signature" />
+    </file>
+    <file name="src/main/kotlin/bakery/i18n/SourceTree.kt">
+        <error line="21" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/main/kotlin/bakery/i18n/SwitcherBlockMask.kt">
+        <error line="20" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/main/kotlin/bakery/i18n/TemplateAttributeRepair.kt">
+        <error line="24" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/main/kotlin/bakery/i18n/TemplateLanguageAttribute.kt">
+        <error line="17" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/main/kotlin/bakery/i18n/TemplateScanner.kt">
+        <error line="19" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/main/kotlin/bakery/i18n/TemplateStructureGuard.kt">
+        <error line="18" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="77" column="24" source="standard:function-signature" />
+        <error line="77" column="38" source="standard:function-signature" />
+        <error line="77" column="47" source="standard:function-signature" />
+    </file>
+    <file name="src/main/kotlin/bakery/i18n/TemplateTextRepair.kt">
+        <error line="26" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/main/kotlin/bakery/i18n/TemplateTextTranslator.kt">
+        <error line="26" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/main/kotlin/bakery/i18n/TemplateTranslationPlanner.kt">
+        <error line="19" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/main/kotlin/bakery/i18n/TranslateTemplatesTask.kt">
+        <error line="5" column="1" source="standard:no-unused-imports" />
+        <error line="140" column="30" source="standard:chain-method-continuation" />
+        <error line="164" column="62" source="standard:chain-method-continuation" />
+        <error line="165" column="61" source="standard:chain-method-continuation" />
+        <error line="166" column="57" source="standard:chain-method-continuation" />
+        <error line="167" column="59" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/main/kotlin/bakery/i18n/VisibleAttributeExtractor.kt">
+        <error line="32" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/main/kotlin/bakery/i18n/VisibleTextExtractor.kt">
+        <error line="19" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="30" column="19" source="standard:argument-list-wrapping" />
+        <error line="30" column="25" source="standard:argument-list-wrapping" />
+        <error line="30" column="32" source="standard:argument-list-wrapping" />
+        <error line="30" column="39" source="standard:argument-list-wrapping" />
+        <error line="30" column="46" source="standard:argument-list-wrapping" />
+        <error line="30" column="54" source="standard:argument-list-wrapping" />
+        <error line="30" column="62" source="standard:argument-list-wrapping" />
+        <error line="30" column="70" source="standard:argument-list-wrapping" />
+        <error line="30" column="77" source="standard:argument-list-wrapping" />
+        <error line="30" column="84" source="standard:argument-list-wrapping" />
+        <error line="31" column="22" source="standard:argument-list-wrapping" />
+        <error line="31" column="29" source="standard:argument-list-wrapping" />
+        <error line="31" column="36" source="standard:argument-list-wrapping" />
+        <error line="31" column="43" source="standard:argument-list-wrapping" />
+        <error line="31" column="50" source="standard:argument-list-wrapping" />
+        <error line="31" column="57" source="standard:argument-list-wrapping" />
+        <error line="31" column="65" source="standard:argument-list-wrapping" />
+        <error line="31" column="73" source="standard:argument-list-wrapping" />
+        <error line="31" column="82" source="standard:argument-list-wrapping" />
+        <error line="32" column="21" source="standard:argument-list-wrapping" />
+        <error line="32" column="29" source="standard:argument-list-wrapping" />
+        <error line="32" column="38" source="standard:argument-list-wrapping" />
+        <error line="32" column="46" source="standard:argument-list-wrapping" />
+        <error line="32" column="55" source="standard:argument-list-wrapping" />
+        <error line="32" column="63" source="standard:argument-list-wrapping" />
+        <error line="32" column="71" source="standard:argument-list-wrapping" />
+        <error line="32" column="80" source="standard:argument-list-wrapping" />
+        <error line="33" column="22" source="standard:argument-list-wrapping" />
+        <error line="33" column="29" source="standard:argument-list-wrapping" />
+        <error line="33" column="35" source="standard:argument-list-wrapping" />
+        <error line="33" column="41" source="standard:argument-list-wrapping" />
+        <error line="33" column="47" source="standard:argument-list-wrapping" />
+        <error line="33" column="53" source="standard:argument-list-wrapping" />
+        <error line="33" column="59" source="standard:argument-list-wrapping" />
+        <error line="33" column="65" source="standard:argument-list-wrapping" />
+        <error line="33" column="71" source="standard:argument-list-wrapping" />
+        <error line="33" column="77" source="standard:argument-list-wrapping" />
+        <error line="33" column="83" source="standard:argument-list-wrapping" />
+        <error line="34" column="19" source="standard:argument-list-wrapping" />
+        <error line="34" column="25" source="standard:argument-list-wrapping" />
+        <error line="34" column="32" source="standard:argument-list-wrapping" />
+        <error line="34" column="38" source="standard:argument-list-wrapping" />
+        <error line="34" column="45" source="standard:argument-list-wrapping" />
+        <error line="34" column="52" source="standard:argument-list-wrapping" />
+        <error line="34" column="58" source="standard:argument-list-wrapping" />
+    </file>
+    <file name="src/main/kotlin/bakery/i18n/js/I18nCatalog.kt">
+        <error line="57" column="21" source="standard:chain-method-continuation" />
+        <error line="57" column="37" source="standard:chain-method-continuation" />
+        <error line="121" column="29" source="standard:multiline-expression-wrapping" />
+    </file>
+    <file name="src/main/kotlin/bakery/i18n/js/I18nCatalogDocument.kt">
+        <error line="59" column="13" source="standard:property-naming" />
+        <error line="68" column="13" source="standard:property-naming" />
+    </file>
+    <file name="src/main/kotlin/bakery/i18n/js/I18nJsDictionary.kt">
+        <error line="20" column="23" source="standard:multiline-expression-wrapping" />
+    </file>
+    <file name="src/main/kotlin/bakery/i18n/js/I18nJsObjectParser.kt">
+        <error line="172" column="53" source="standard:function-signature" />
+    </file>
+    <file name="src/main/kotlin/bakery/i18n/js/TranslateI18nClientTask.kt">
+        <error line="343" column="9" source="standard:function-signature" />
+        <error line="343" column="47" source="standard:function-signature" />
+        <error line="355" column="9" source="standard:function-signature" />
+        <error line="355" column="60" source="standard:function-signature" />
+        <error line="410" column="16" source="standard:chain-method-continuation" />
+        <error line="453" column="16" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/main/kotlin/bakery/i18n/path/ContentSourcePathResolver.kt">
+        <error line="34" column="61" source="standard:function-signature" />
+        <error line="37" column="33" source="standard:function-signature" />
+        <error line="37" column="50" source="standard:function-signature" />
+        <error line="37" column="67" source="standard:function-signature" />
+        <error line="43" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/main/kotlin/bakery/i18n/variant/VariantDeployability.kt">
+        <error line="26" column="50" source="standard:function-signature" />
+        <error line="37" column="39" source="standard:chain-method-continuation" />
+        <error line="37" column="51" source="standard:chain-method-continuation" />
+        <error line="37" column="61" source="standard:chain-method-continuation" />
+        <error line="37" column="77" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/main/kotlin/bakery/lens/SubgraphExtractor.kt">
+        <error line="5" column="1" source="standard:import-ordering" />
+    </file>
+    <file name="src/main/kotlin/bakery/seo/InjectSeoTask.kt">
+        <error line="118" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/main/kotlin/bakery/seo/SeoConfig.kt">
+        <error line="47" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/main/kotlin/bakery/seo/SeoInjector.kt">
+        <error line="39" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/main/kotlin/bakery/seo/SeoPageMeta.kt">
+        <error line="106" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/main/kotlin/bakery/seo/SeoThymeleafRenderer.kt">
+        <error line="15" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="64" column="30" source="standard:function-signature" />
+        <error line="64" column="49" source="standard:function-signature" />
+        <error line="64" column="65" source="standard:function-signature" />
+        <error line="100" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/main/kotlin/bakery/seo/SitemapHreflangBuilder.kt">
+        <error line="4" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="45" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/test/kotlin/bakery/AnalyticsNewsletterConfigTest.kt">
+        <error line="5" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/kotlin/bakery/AnalyticsNewsletterInjectionTest.kt">
+        <error line="3" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/kotlin/bakery/AnalyticsNewsletterTemplateTest.kt">
+        <error line="3" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/kotlin/bakery/AugmentedArticlesTemplateTest.kt">
+        <error line="109" column="161" source="standard:max-line-length" />
+    </file>
+    <file name="src/test/kotlin/bakery/BakeryConstantsTest.kt">
+        <error line="11" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="12" column="19" source="standard:argument-list-wrapping" />
+        <error line="12" column="25" source="standard:argument-list-wrapping" />
+        <error line="12" column="31" source="standard:argument-list-wrapping" />
+        <error line="12" column="37" source="standard:argument-list-wrapping" />
+        <error line="12" column="43" source="standard:argument-list-wrapping" />
+        <error line="12" column="49" source="standard:argument-list-wrapping" />
+        <error line="12" column="55" source="standard:argument-list-wrapping" />
+        <error line="12" column="61" source="standard:argument-list-wrapping" />
+        <error line="12" column="67" source="standard:argument-list-wrapping" />
+        <error line="13" column="19" source="standard:argument-list-wrapping" />
+        <error line="13" column="25" source="standard:argument-list-wrapping" />
+        <error line="13" column="31" source="standard:argument-list-wrapping" />
+        <error line="13" column="37" source="standard:argument-list-wrapping" />
+        <error line="13" column="43" source="standard:argument-list-wrapping" />
+        <error line="13" column="49" source="standard:argument-list-wrapping" />
+        <error line="13" column="55" source="standard:argument-list-wrapping" />
+        <error line="13" column="61" source="standard:argument-list-wrapping" />
+        <error line="13" column="67" source="standard:argument-list-wrapping" />
+        <error line="13" column="73" source="standard:argument-list-wrapping" />
+        <error line="13" column="79" source="standard:argument-list-wrapping" />
+        <error line="13" column="83" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/test/kotlin/bakery/BakeryPluginPublicationTest.kt">
+        <error line="46" column="68" source="standard:function-signature" />
+    </file>
+    <file name="src/test/kotlin/bakery/BakeryPluginTest.kt">
+        <error line="10" column="1" source="standard:no-wildcard-imports" />
+        <error line="448" column="17" source="standard:property-naming" />
+    </file>
+    <file name="src/test/kotlin/bakery/ConfigPromptsTest.kt">
+        <error line="6" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/kotlin/bakery/ConfigResolverTest.kt">
+        <error line="3" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/kotlin/bakery/DomainResolverTest.kt">
+        <error line="3" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/kotlin/bakery/FirebaseAuthConfigTest.kt">
+        <error line="5" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/kotlin/bakery/FirebaseAuthInjectionTest.kt">
+        <error line="3" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/kotlin/bakery/FirebaseAuthTemplateTest.kt">
+        <error line="3" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/kotlin/bakery/GoogleFormsConfigTest.kt">
+        <error line="5" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/kotlin/bakery/GoogleFormsInjectionTest.kt">
+        <error line="3" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/kotlin/bakery/GoogleFormsTemplateTest.kt">
+        <error line="3" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/kotlin/bakery/LayoutConfigTest.kt">
+        <error line="5" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/kotlin/bakery/LayoutInjectionTest.kt">
+        <error line="3" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/kotlin/bakery/LayoutTemplateTest.kt">
+        <error line="3" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/kotlin/bakery/OllamaConfigYamlTest.kt">
+        <error line="6" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/kotlin/bakery/ResolvedConfigsTest.kt">
+        <error line="6" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/kotlin/bakery/ThemeConfigTest.kt">
+        <error line="5" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/kotlin/bakery/ThemeInjectionTest.kt">
+        <error line="3" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/kotlin/bakery/ThemeTemplateTest.kt">
+        <error line="3" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/kotlin/bakery/ThymeleafRenderingTestFactory.kt">
+        <error line="11" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/kotlin/bakery/a11y/AccessibilityAuditTaskTest.kt">
+        <error line="128" column="57" source="standard:chain-method-continuation" />
+        <error line="128" column="69" source="standard:chain-method-continuation" />
+        <error line="128" column="75" source="standard:chain-method-continuation" />
+        <error line="159" column="59" source="standard:chain-method-continuation" />
+        <error line="159" column="84" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/test/kotlin/bakery/article/ArticleGeneratorTest.kt">
+        <error line="299" column="110" source="standard:function-literal" />
+        <error line="299" column="124" source="standard:argument-list-wrapping" />
+        <error line="299" column="136" source="standard:argument-list-wrapping" />
+        <error line="299" column="153" source="standard:argument-list-wrapping" />
+        <error line="299" column="170" source="standard:argument-list-wrapping" />
+        <error line="299" column="180" source="standard:argument-list-wrapping" />
+        <error line="299" column="197" source="standard:argument-list-wrapping" />
+        <error line="299" column="199" source="standard:function-literal" />
+    </file>
+    <file name="src/test/kotlin/bakery/contact/ContactSecConfigTest.kt">
+        <error line="12" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="87" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/test/kotlin/bakery/contact/ContactSecRendererTest.kt">
+        <error line="9" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="187" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/test/kotlin/bakery/contact/PowVerifierTest.kt">
+        <error line="37" column="27" source="standard:function-signature" />
+        <error line="37" column="46" source="standard:function-signature" />
+        <error line="37" column="61" source="standard:function-signature" />
+        <error line="113" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/test/kotlin/bakery/contact/RateLimiterTest.kt">
+        <error line="65" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/test/kotlin/bakery/contact/SessionTokenManagerTest.kt">
+        <error line="53" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/test/kotlin/bakery/contact/TurnstileClientTest.kt">
+        <error line="54" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/test/kotlin/bakery/dns/DnsConfigMergerTest.kt">
+        <error line="19" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="210" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/test/kotlin/bakery/dns/DnsConfigTest.kt">
+        <error line="21" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="187" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/test/kotlin/bakery/dns/DnsDiffTest.kt">
+        <error line="22" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="163" column="26" source="standard:multiline-expression-wrapping" />
+    </file>
+    <file name="src/test/kotlin/bakery/dns/DnsDogfoodTalariaIntegrationTest.kt">
+        <error line="106" column="55" source="standard:function-signature" />
+        <error line="108" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/test/kotlin/bakery/dns/DnsProviderFactoryTest.kt">
+        <error line="19" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="21" column="27" source="standard:function-signature" />
+        <error line="21" column="43" source="standard:function-signature" />
+        <error line="21" column="56" source="standard:function-signature" />
+        <error line="21" column="69" source="standard:function-signature" />
+        <error line="21" column="89" source="standard:function-signature" />
+    </file>
+    <file name="src/test/kotlin/bakery/dns/DnsProvisionerTest.kt">
+        <error line="22" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="26" column="29" source="standard:function-signature" />
+        <error line="26" column="52" source="standard:function-signature" />
+        <error line="26" column="85" source="standard:function-signature" />
+        <error line="26" column="88" source="standard:function-signature" />
+        <error line="115" column="28" source="standard:multiline-expression-wrapping" />
+        <error line="134" column="28" source="standard:multiline-expression-wrapping" />
+        <error line="149" column="28" source="standard:multiline-expression-wrapping" />
+        <error line="166" column="37" source="standard:class-signature" />
+        <error line="166" column="83" source="standard:class-signature" />
+        <error line="176" column="35" source="standard:function-signature" />
+        <error line="176" column="51" source="standard:function-signature" />
+        <error line="176" column="68" source="standard:function-signature" />
+        <error line="183" column="35" source="standard:function-signature" />
+        <error line="183" column="51" source="standard:function-signature" />
+        <error line="183" column="61" source="standard:function-signature" />
+        <error line="183" column="78" source="standard:function-signature" />
+        <error line="188" column="35" source="standard:function-signature" />
+        <error line="188" column="51" source="standard:function-signature" />
+        <error line="188" column="59" source="standard:function-signature" />
+    </file>
+    <file name="src/test/kotlin/bakery/dns/NoOpDnsProviderTest.kt">
+        <error line="5" column="1" source="standard:no-unused-imports" />
+        <error line="19" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="50" column="22" source="standard:multiline-expression-wrapping" />
+    </file>
+    <file name="src/test/kotlin/bakery/dns/OvhDnsClientFunctionalTest.kt">
+        <error line="24" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="56" column="39" source="standard:multiline-expression-wrapping" />
+        <error line="80" column="41" source="standard:function-signature" />
+    </file>
+    <file name="src/test/kotlin/bakery/dns/OvhDnsClientTest.kt">
+        <error line="19" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="32" column="27" source="standard:function-signature" />
+        <error line="32" column="43" source="standard:function-signature" />
+        <error line="32" column="56" source="standard:function-signature" />
+        <error line="32" column="69" source="standard:function-signature" />
+    </file>
+    <file name="src/test/kotlin/bakery/dns/OvhDnsProviderTest.kt">
+        <error line="18" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="21" column="74" source="standard:function-signature" />
+        <error line="76" column="27" source="standard:function-signature" />
+        <error line="76" column="43" source="standard:function-signature" />
+        <error line="76" column="56" source="standard:function-signature" />
+        <error line="76" column="69" source="standard:function-signature" />
+    </file>
+    <file name="src/test/kotlin/bakery/dns/OvhEndpointTest.kt">
+        <error line="14" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/test/kotlin/bakery/dns/OvhRecordMapperTest.kt">
+        <error line="19" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/test/kotlin/bakery/dns/OvhSignatureTest.kt">
+        <error line="21" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/test/kotlin/bakery/firebase/ValidateFirebaseConfigTaskTest.kt">
+        <error line="104" column="161" source="standard:max-line-length" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/ContentMigrationExclusionParallelismTest.kt">
+        <error line="24" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="31" column="20" source="standard:multiline-expression-wrapping" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/ContentMigrationIntentionTest.kt">
+        <error line="132" column="19" source="standard:multiline-expression-wrapping" />
+        <error line="143" column="19" source="standard:multiline-expression-wrapping" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/ContentMigrationParallelismTest.kt">
+        <error line="23" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/I18nMessagesTest.kt">
+        <error line="3" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/I18nTemplateMigrationTest.kt">
+        <error line="3" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/LlmServiceTranslationAdapterLeakGuardTest.kt">
+        <error line="21" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/MigrateContentI18nDeltaFunctionalTest.kt">
+        <error line="10" column="1" source="standard:no-unused-imports" />
+        <error line="192" column="26" source="standard:multiline-expression-wrapping" />
+        <error line="192" column="47" source="standard:wrapping" />
+        <error line="201" column="5" source="standard:wrapping" />
+        <error line="201" column="15" source="standard:wrapping" />
+        <error line="213" column="27" source="standard:wrapping" />
+        <error line="222" column="3" source="standard:wrapping" />
+        <error line="225" column="27" source="standard:wrapping" />
+        <error line="234" column="3" source="standard:wrapping" />
+        <error line="250" column="27" source="standard:wrapping" />
+        <error line="259" column="3" source="standard:wrapping" />
+        <error line="262" column="27" source="standard:wrapping" />
+        <error line="271" column="3" source="standard:wrapping" />
+        <error line="280" column="30" source="standard:wrapping" />
+        <error line="280" column="40" source="standard:wrapping" />
+        <error line="280" column="41" source="standard:multiline-expression-wrapping" />
+        <error line="289" column="3" source="standard:wrapping" />
+        <error line="306" column="55" source="standard:wrapping" />
+        <error line="315" column="3" source="standard:wrapping" />
+        <error line="317" column="26" source="standard:multiline-expression-wrapping" />
+        <error line="317" column="39" source="standard:chain-method-continuation" />
+        <error line="321" column="73" source="standard:chain-method-continuation" />
+        <error line="386" column="55" source="standard:wrapping" />
+        <error line="395" column="3" source="standard:wrapping" />
+        <error line="580" column="27" source="standard:multiline-expression-wrapping" />
+        <error line="580" column="41" source="standard:chain-method-continuation" />
+        <error line="591" column="33" source="standard:multiline-expression-wrapping" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/SourceTreeWalkTest.kt">
+        <error line="16" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="21" column="50" source="standard:parameter-list-wrapping" />
+        <error line="21" column="50" source="standard:function-signature" />
+        <error line="21" column="72" source="standard:parameter-list-wrapping" />
+        <error line="21" column="72" source="standard:function-signature" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/SwitcherBlockMaskTest.kt">
+        <error line="26" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/TemplateAttributeRepairTest.kt">
+        <error line="28" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="102" column="81" source="standard:function-signature" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/TemplateLanguageAttributeTest.kt">
+        <error line="16" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/TemplateStructureGuardTest.kt">
+        <error line="18" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/TemplateTextRepairTest.kt">
+        <error line="29" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="130" column="81" source="standard:function-signature" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/TemplateTextTranslatorTest.kt">
+        <error line="15" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="115" column="81" source="standard:function-signature" />
+        <error line="120" column="81" source="standard:function-signature" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/TemplateTranslationPlannerTest.kt">
+        <error line="18" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/VisibleAttributeExtractorTest.kt">
+        <error line="19" column="1" source="standard:no-empty-first-line-in-class-body" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/VisibleTextExtractorTest.kt">
+        <error line="14" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="17" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="17" column="24" source="standard:string-template-indent" />
+        <error line="22" column="9" source="standard:string-template-indent" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/audit/FixtureAlignmentAuditorTest.kt">
+        <error line="113" column="19" source="standard:chain-method-continuation" />
+        <error line="115" column="16" source="standard:chain-method-continuation" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/js/I18nCatalogDocumentTest.kt">
+        <error line="118" column="6" source="standard:curly-spacing" />
+        <error line="118" column="6" source="standard:curly-spacing" />
+        <error line="118" column="6" source="standard:statement-wrapping" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/js/I18nClientDeltaTest.kt">
+        <error line="62" column="83" source="standard:function-signature" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/js/TranslateI18nClientTaskTest.kt">
+        <error line="51" column="1" source="standard:no-blank-line-before-rbrace" />
+        <error line="284" column="1" source="standard:spacing-between-declarations-with-annotations" />
+        <error line="284" column="9" source="standard:blank-line-before-declaration" />
+        <error line="448" column="36" source="standard:chain-method-continuation" />
+        <error line="448" column="60" source="standard:chain-method-continuation" />
+        <error line="448" column="93" source="standard:chain-method-continuation" />
+        <error line="650" column="81" source="standard:function-signature" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/mass/I18nMassBatchCucumberTest.kt">
+        <error line="34" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/path/ContentSourcePathResolverTest.kt">
+        <error line="68" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/path/I18nSourcePathCucumberTest.kt">
+        <error line="34" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/test/kotlin/bakery/i18n/variant/VariantBakerTest.kt">
+        <error line="49" column="1" source="standard:indent" />
+    </file>
+    <file name="src/test/kotlin/bakery/langswitch/LangSwitchModelGuardTest.kt">
+        <error line="148" column="54" source="standard:function-signature" />
+    </file>
+    <file name="src/test/kotlin/bakery/langswitch/LangSwitchPathEachHrefTest.kt">
+        <error line="5" column="1" source="standard:no-unused-imports" />
+    </file>
+    <file name="src/test/kotlin/bakery/langswitch/LanguageLabelCatalogTest.kt">
+        <error line="3" column="1" source="standard:import-ordering" />
+    </file>
+    <file name="src/test/kotlin/bakery/lens/SubgraphExtractorTest.kt">
+        <error line="556" column="33" source="standard:trailing-comma-on-call-site" />
+        <error line="576" column="33" source="standard:trailing-comma-on-call-site" />
+    </file>
+    <file name="src/test/kotlin/bakery/scaffold/GenerateSiteFromIntentionTaskTest.kt">
+        <error line="175" column="161" source="standard:max-line-length" />
+        <error line="206" column="161" source="standard:max-line-length" />
+    </file>
+    <file name="src/test/kotlin/bakery/scaffold/ScaffoldGeneratorTest.kt">
+        <error line="530" column="161" source="standard:max-line-length" />
+    </file>
+    <file name="src/test/kotlin/bakery/seo/SeoConfigTest.kt">
+        <error line="21" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="186" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/test/kotlin/bakery/seo/SeoInjectorTest.kt">
+        <error line="87" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/test/kotlin/bakery/seo/SeoPageMetaTest.kt">
+        <error line="17" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="142" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/test/kotlin/bakery/seo/SeoThymeleafRendererTest.kt">
+        <error line="17" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="177" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/test/kotlin/bakery/seo/SitemapHreflangBuilderTest.kt">
+        <error line="9" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="17" column="23" source="standard:multiline-expression-wrapping" />
+        <error line="29" column="23" source="standard:multiline-expression-wrapping" />
+        <error line="48" column="23" source="standard:multiline-expression-wrapping" />
+        <error line="61" column="23" source="standard:multiline-expression-wrapping" />
+        <error line="74" column="23" source="standard:multiline-expression-wrapping" />
+        <error line="92" column="23" source="standard:multiline-expression-wrapping" />
+        <error line="109" column="23" source="standard:multiline-expression-wrapping" />
+        <error line="122" column="23" source="standard:multiline-expression-wrapping" />
+        <error line="135" column="23" source="standard:multiline-expression-wrapping" />
+        <error line="145" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/test/scenarios/bakery/scenarios/AugmentedContextN3Steps.kt">
+        <error line="29" column="9" source="standard:function-naming" />
+        <error line="45" column="9" source="standard:function-naming" />
+        <error line="82" column="9" source="standard:function-naming" />
+        <error line="88" column="9" source="standard:function-naming" />
+        <error line="96" column="9" source="standard:function-naming" />
+        <error line="103" column="9" source="standard:function-naming" />
+        <error line="109" column="9" source="standard:function-naming" />
+        <error line="116" column="9" source="standard:function-naming" />
+        <error line="123" column="9" source="standard:function-naming" />
+        <error line="135" column="9" source="standard:function-naming" />
+    </file>
+    <file name="src/test/scenarios/bakery/scenarios/BakeryWorld.kt">
+        <error line="5" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/scenarios/bakery/scenarios/ConfigResolutionCascadeSteps.kt">
+        <error line="3" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/scenarios/bakery/scenarios/ContactSecCucumberTestRunner.kt">
+        <error line="3" column="1" source="standard:no-wildcard-imports" />
+        <error line="16" column="34" source="standard:final-newline" />
+    </file>
+    <file name="src/test/scenarios/bakery/scenarios/ContactSecSteps.kt">
+        <error line="220" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/test/scenarios/bakery/scenarios/CucumberTestRunner.kt">
+        <error line="3" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/scenarios/bakery/scenarios/DnsCucumberTestRunner.kt">
+        <error line="3" column="1" source="standard:no-wildcard-imports" />
+        <error line="19" column="27" source="standard:final-newline" />
+    </file>
+    <file name="src/test/scenarios/bakery/scenarios/DnsProvisionSteps.kt">
+        <error line="22" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="143" column="36" source="standard:function-signature" />
+        <error line="143" column="50" source="standard:function-signature" />
+        <error line="143" column="62" source="standard:function-signature" />
+        <error line="149" column="28" source="standard:function-signature" />
+        <error line="149" column="42" source="standard:function-signature" />
+        <error line="149" column="56" source="standard:function-signature" />
+        <error line="149" column="69" source="standard:function-signature" />
+        <error line="217" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="220" column="31" source="standard:function-signature" />
+        <error line="220" column="47" source="standard:function-signature" />
+        <error line="220" column="64" source="standard:function-signature" />
+        <error line="226" column="31" source="standard:function-signature" />
+        <error line="226" column="47" source="standard:function-signature" />
+        <error line="226" column="57" source="standard:function-signature" />
+        <error line="226" column="74" source="standard:function-signature" />
+        <error line="232" column="31" source="standard:function-signature" />
+        <error line="232" column="47" source="standard:function-signature" />
+        <error line="232" column="55" source="standard:function-signature" />
+        <error line="243" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/test/scenarios/bakery/scenarios/I18nClientDictionarySteps.kt">
+        <error line="118" column="9" source="standard:function-signature" />
+        <error line="118" column="28" source="standard:function-signature" />
+        <error line="125" column="9" source="standard:function-signature" />
+        <error line="125" column="28" source="standard:function-signature" />
+        <error line="132" column="9" source="standard:function-signature" />
+        <error line="132" column="26" source="standard:function-signature" />
+        <error line="146" column="9" source="standard:function-signature" />
+        <error line="146" column="26" source="standard:function-signature" />
+        <error line="153" column="9" source="standard:function-signature" />
+        <error line="153" column="26" source="standard:function-signature" />
+        <error line="313" column="1" source="standard:indent" />
+    </file>
+    <file name="src/test/scenarios/bakery/scenarios/I18nMassBatchSteps.kt">
+        <error line="203" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/test/scenarios/bakery/scenarios/I18nMassValidationSteps.kt">
+        <error line="54" column="25" source="standard:multiline-expression-wrapping" />
+        <error line="54" column="34" source="standard:chain-method-continuation" />
+        <error line="58" column="24" source="standard:multiline-expression-wrapping" />
+        <error line="66" column="20" source="standard:multiline-expression-wrapping" />
+        <error line="91" column="80" source="standard:chain-method-continuation" />
+        <error line="92" column="86" source="standard:chain-method-continuation" />
+        <error line="94" column="28" source="standard:multiline-expression-wrapping" />
+    </file>
+    <file name="src/test/scenarios/bakery/scenarios/I18nSourcePathSteps.kt">
+        <error line="36" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/test/scenarios/bakery/scenarios/I18nTemplateTranslationSteps.kt">
+        <error line="25" column="1" source="standard:no-empty-first-line-in-class-body" />
+        <error line="38" column="1" source="standard:indent" />
+        <error line="38" column="13" source="standard:string-template-indent" />
+    </file>
+    <file name="src/test/scenarios/bakery/scenarios/LensSteps.kt">
+        <error line="47" column="9" source="standard:function-naming" />
+        <error line="74" column="9" source="standard:function-naming" />
+        <error line="82" column="9" source="standard:function-naming" />
+        <error line="105" column="9" source="standard:function-naming" />
+        <error line="111" column="9" source="standard:function-naming" />
+        <error line="117" column="9" source="standard:function-naming" />
+        <error line="123" column="9" source="standard:function-naming" />
+        <error line="129" column="9" source="standard:function-naming" />
+        <error line="137" column="9" source="standard:function-naming" />
+        <error line="151" column="9" source="standard:function-naming" />
+        <error line="159" column="9" source="standard:function-naming" />
+        <error line="164" column="9" source="standard:function-naming" />
+        <error line="170" column="9" source="standard:function-naming" />
+        <error line="181" column="9" source="standard:function-naming" />
+        <error line="198" column="9" source="standard:function-naming" />
+        <error line="203" column="9" source="standard:function-naming" />
+        <error line="208" column="9" source="standard:function-naming" />
+        <error line="218" column="9" source="standard:function-naming" />
+        <error line="223" column="9" source="standard:function-naming" />
+        <error line="232" column="9" source="standard:function-naming" />
+        <error line="243" column="9" source="standard:function-naming" />
+        <error line="266" column="9" source="standard:function-naming" />
+        <error line="363" column="9" source="standard:function-naming" />
+        <error line="386" column="9" source="standard:function-naming" />
+        <error line="404" column="9" source="standard:function-naming" />
+        <error line="419" column="9" source="standard:function-naming" />
+        <error line="434" column="9" source="standard:function-naming" />
+        <error line="440" column="9" source="standard:function-naming" />
+        <error line="447" column="9" source="standard:function-naming" />
+        <error line="452" column="9" source="standard:function-naming" />
+    </file>
+    <file name="src/test/scenarios/bakery/scenarios/OllamaConfigSteps.kt">
+        <error line="15" column="1" source="standard:no-unused-imports" />
+    </file>
+    <file name="src/test/scenarios/bakery/scenarios/SeoCucumberTestRunner.kt">
+        <error line="3" column="1" source="standard:no-wildcard-imports" />
+        <error line="16" column="27" source="standard:final-newline" />
+    </file>
+    <file name="src/test/scenarios/bakery/scenarios/SeoInjectionSteps.kt">
+        <error line="198" column="1" source="standard:final-newline" />
+    </file>
+    <file name="src/test/scenarios/bakery/scenarios/TemplateTranslationCucumberTestRunner.kt">
+        <error line="3" column="1" source="standard:no-wildcard-imports" />
+    </file>
+    <file name="src/test/scenarios/bakery/scenarios/TreeCucumberTestRunner.kt">
+        <error line="3" column="1" source="standard:no-wildcard-imports" />
+    </file>
+</baseline>

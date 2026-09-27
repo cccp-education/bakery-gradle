@@ -28,6 +28,14 @@ class BakeryWorld {
     var migrationSiteDir: String? = null
     var realSiteDir: File? = null
 
+    /**
+     * BKY-CI-ISOLATION — snapshot of the templates content captured right
+     * after a real site is copied, so a dry-run assertion can prove *nothing*
+     * changed (drift-proof) instead of relying on a content proxy that the real
+     * chrome invalidates (e.g. a legitimate `th:text` title).
+     */
+    var realSiteTemplatesSnapshot: Map<String, String>? = null
+
     // BKY-TREE — arbre de site partagé entre les steps Cucumber
     var siteTree: SiteTree? = null
 
@@ -434,7 +442,18 @@ $scaffoldIntentionBlock
         val targetDir = projectDir!!.resolve(name)
         sourceDir.copyRecursively(targetDir, overwrite = true)
         realSiteDir = targetDir
+        realSiteTemplatesSnapshot = snapshotTemplates(targetDir)
         return targetDir
+    }
+
+    /** Content of every Thymeleaf template under [siteDir], keyed by relative path. */
+    fun snapshotTemplates(siteDir: File): Map<String, String> {
+        val templatesDir = siteDir.resolve("templates")
+        if (!templatesDir.isDirectory) return emptyMap()
+        return templatesDir
+            .walkTopDown()
+            .filter { it.isFile && it.extension == "thyme" }
+            .associate { it.relativeTo(templatesDir).path to it.readText() }
     }
 
     /**

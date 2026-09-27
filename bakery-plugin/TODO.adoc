@@ -1,7 +1,21 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-09-26 — Session 242. **BKY-VARIANT-UNIFY** (split-brain `i18n.variant` cheroliv ↔ bakery absorbé, zéro traduction). Antérieur S-241 : FLAKY-5 SOLDÉ (drift fixture cheroliv.com, `test` 2059/0). S-240 : release bakery 0.0.20 + CI réelle VERTE + Gradle 9.8.0. S-239 : brique N2 `bakeVariants`._
+_Dernière mise à jour : 2026-09-27 — Session 243. **BKY-CI-ISOLATION** ✅ TERMINÉ — CI bakery VERTE (8 verrous levés : JDK 25, gardes workspace-aware, version catalogue injectée, 4 scénarios périmés réalignés, timeouts 15 min, chemin kover, ktlint baseline). `build` VERT 5m28s. Antérieur S-242 : BKY-VARIANT-UNIFY (split-brain `i18n.variant` absorbé, zéro traduction). S-241 : FLAKY-5 SOLDÉ (drift fixture cheroliv.com, `test` 2059/0). S-240 : release bakery 0.0.20 + CI réelle VERTE + Gradle 9.8.0. S-239 : brique N2 `bakeVariants`._
+
+== EPIC BKY-CI-ISOLATION (S-243) — CI verte (8 verrous) ✅ TERMINÉ
+
+* [x] **V1** : `.github/workflows/test.yml` JDK 24 → 25 (conventions-plugin 0.0.4 exige JVM 25)
+* [x] **V2/V3** : `bakery.workspace.WorkspaceRoot` (objet pur test, 8 UT) + `assumeTrue` sur `FixtureAlignmentAuditorTest`/`RealSiteI18nMigrationIntegrationTest`
+* [x] **V4** : `bakery.workspace.PublishedCatalogVersion` (3 UT) + version injectée par Gradle (patron graphify D5-RACE)
+* [x] **V5** : 4 scénarios cucumber périmés réalignés (F30 `xx`, F34 empreinte, DNS slot déclaré, F50 `:summary:` traduit)
+* [x] **V6** : timeout `cucumberTest` + `Test` global 5 → 15 min
+* [x] **V7** : chemin kover XML aligné (`reports/kover/xml/report.xml`, 89,21 % > 85 %)
+* [x] **V8** : ktlint baseline `config/ktlint/baseline.xml` (171 fichiers, zéro exemption de fichier neuf)
+* [ ] **S-244 — Dette ktlint** : résorber les 171 fichiers baselinés par lots (régénérer le baseline à chaque lot)
+* [ ] **S-244 — Correction racine conventions** : chemin hardcodé `koverThresholdCheck` (bug 0.0.4) → corriger dans `conventions-gradle`, bump, propager
+* [ ] **S-244 — F50 cross-borough** : sémantique `:summary:`/`:description:` portée par `document-gradle`
+* [ ] **MASS-6** : bloqué accord pilote explicite (~675h LLM)
 
 == EPIC BKY-LANG-NAV (S-228) — Changement de langue sans retour à l'accueil (same-page switching) ✅ TERMINÉ 9/9 US
 

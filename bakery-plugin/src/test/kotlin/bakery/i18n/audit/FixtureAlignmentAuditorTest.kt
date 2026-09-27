@@ -1,5 +1,7 @@
 package bakery.i18n.audit
 
+import bakery.workspace.WorkspaceRoot
+import org.junit.jupiter.api.Assumptions.assumeTrue
 import org.junit.jupiter.api.Test
 import java.io.File
 import kotlin.test.assertEquals
@@ -123,9 +125,11 @@ class FixtureAlignmentAuditorTest {
         siteDirName: String,
     ): FixtureAlignmentAuditor.AlignmentReport {
         val fixtureDir = loadResourceDir(fixtureResourcePath)
-        val realSiteDir = File("/home/cheroliv/workspace/office/sites/$siteDirName/jbake/templates")
-        require(realSiteDir.isDirectory) { "Répertoire site réel introuvable: $realSiteDir" }
-        return auditor.audit(fixtureDir, realSiteDir)
+        val realSiteDir = WorkspaceRoot.siteTemplates(WorkspaceRoot.resolve(), siteDirName)
+        assumeTrue(realSiteDir != null) {
+            "site réel '$siteDirName' introuvable — skip alignement (CI/checkout isolé)"
+        }
+        return auditor.audit(fixtureDir, realSiteDir!!)
     }
 
     private fun loadResourceDir(resourcePath: String): File {

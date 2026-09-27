@@ -56,17 +56,29 @@ Feature: DNS provisioning — idempotent reconciliation (BKY-DNS-5)
     Then the plan has 1 create and 1 delete
 
   Scenario: Delete an orphan record only with the purge flag
-    Given a zone with an existing record
-      | type | name | value         | ttl  |
-      | TXT  | _spf | v=spf1 -all  | 3600 |
+    Given a zone with existing records
+      | type | name | value                  | ttl  |
+      | A    | @    | 185.199.108.153        | 3600 |
+      | A    | @    | 185.199.111.111        | 3600 |
     And desired records
       | type | name | value                  | ttl  |
-      | CNAME | www | pages-content.github.io. | 3600 |
+      | A    | @    | 185.199.108.153        | 3600 |
     When I reconcile the desired records in dry run
     Then the plan has 1 delete
     And the delete is skipped in dry run
     When I reconcile and apply the desired records with delete allowed
     Then the orphan record is removed from the zone
+
+  Scenario: An out-of-scope record is never deleted (BKY-DNS-6 scoping)
+    Given a zone with existing records
+      | type | name | value                  | ttl  |
+      | TXT  | _spf | v=spf1 -all            | 3600 |
+    And desired records
+      | type | name | value                  | ttl  |
+      | CNAME | www | pages-content.github.io. | 3600 |
+    When I reconcile the desired records in dry run
+    Then the plan has 1 create
+    And the plan has 0 delete
 
   Scenario: Idempotence — a second run after applying is a no-op
     Given a zone without records

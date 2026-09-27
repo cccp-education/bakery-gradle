@@ -155,9 +155,15 @@ $buildScriptContent
 
     @And("the templates should NOT be modified")
     fun templatesShouldNotBeModified() {
+        val snapshot = world.realSiteTemplatesSnapshot
+        if (snapshot != null) {
+            assertThat(world.snapshotTemplates(world.realSiteDir!!))
+                .describedAs("dry-run must not modify any template (checksum-diff, drift-proof)")
+                .isEqualTo(snapshot)
+            return
+        }
         val headerFile = world.realSiteDir!!.resolve("templates/header.thyme")
-        val content = headerFile.readText()
-        assertThat(content).doesNotContain("th:text=")
+        assertThat(headerFile.readText()).doesNotContain("th:text=")
     }
 
     @And("messages_{word}.properties should exist in the templates directory")

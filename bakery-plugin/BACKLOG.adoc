@@ -5,7 +5,9 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-09-26 — ✅ **BKY-VARIANT-UNIFY — split-brain `i18n.variant` absorbé (cheroliv ↔ bakery)** (S-242, option C patron NAV-6 — D5 du cadrage `BKY-LANG-NAV`). Contrainte pilote : **aucune traduction, aucun contenu détruit**. **Audit** : `I18nLayout`/`VariantBakeAssembler`/`VariantServePlan` = adaptateurs de layout site-spécifiques (`projectDir/jbake` vs `bakeRoot`), seuls `com.cheroliv.deploy.VariantDeployability` divergeaient — comparaient **toutes** les entrées de `templates/` (bundle `messages_{lang}.properties`, `.txt`, dossier `jbake/templates/TODO/`) là où bakery ne compte que `.thyme/.ftl/.html` → variante complète **faussement indéployable**. **Livré** : vecteurs partagés `bakery/i18n/variant/variant-bake-vectors.json` (6 vecteurs) + convergence `VariantDeployability` cheroliv (TDD RED prouvé → GREEN) + vecteurs épinglés byte-identique + garde anti-dérive `VariantDeployabilityDriftGuardTest`. Gates : bakery `test` **2061/0** (+2), `functionalTest`/`nodeTest` VERT, `cucumberTest` 3285/5 baseline, `publishToMavenLocal` VERT ; cheroliv `test` **187/0** (+2), `cucumberTest` 31/5 baseline stash-prouvée, `functionalTest`+`nodeTest` VERT. Zéro code prod bakery modifié, zéro bump BOM, zéro publication Central, zéro LLM, zéro secret. Doc `.agents/CADRAGE_EPIC_BKY_VARIANT_UNIFY.adoc` + `.agents/sessions/242-…`.
+_Dernière mise à jour : 2026-09-27 — ✅ **BKY-CI-ISOLATION TERMINÉ (S-243) — CI bakery VERTE (8 verrous levés)**. L'audit d'ouverture a révélé la CI `Test` **rouge sur 200/200 runs** (depuis ≥ 2026-06-14) : échec en configuration (`conventions-plugin:0.0.4` exige JVM 25, workflow épinglait JDK 24). Périmètre étendu à 8 verrous : V1 JDK 24→25 ; V2/V3 gardes site → `WorkspaceRoot` + `assumeTrue` ; V4 version catalogue injectée par Gradle (patron graphify D5-RACE) ; V5 4 scénarios cucumber périmés réalignés ; V6 timeout 5→15 min ; V7 chemin kover aligné (89,21 % > 85 %) ; V8 ktlint baseline (171 fichiers). V5→V8 préexistaient (stash-prouvé), masqués par V1. `build` **VERT 5m28s**, `test` 2072/0, `cucumberTest` 3294/0, `publishToMavenLocal` VERT. `.agents/CADRAGE_EPIC_BKY_CI_ISOLATION.adoc`.
+
+_Dernière mise à jour (antérieure) : 2026-09-26 — ✅ **BKY-VARIANT-UNIFY — split-brain `i18n.variant` absorbé (cheroliv ↔ bakery)** (S-242, option C patron NAV-6 — D5 du cadrage `BKY-LANG-NAV`). Contrainte pilote : **aucune traduction, aucun contenu détruit**. **Audit** : `I18nLayout`/`VariantBakeAssembler`/`VariantServePlan` = adaptateurs de layout site-spécifiques (`projectDir/jbake` vs `bakeRoot`), seuls `com.cheroliv.deploy.VariantDeployability` divergeaient — comparaient **toutes** les entrées de `templates/` (bundle `messages_{lang}.properties`, `.txt`, dossier `jbake/templates/TODO/`) là où bakery ne compte que `.thyme/.ftl/.html` → variante complète **faussement indéployable**. **Livré** : vecteurs partagés `bakery/i18n/variant/variant-bake-vectors.json` (6 vecteurs) + convergence `VariantDeployability` cheroliv (TDD RED prouvé → GREEN) + vecteurs épinglés byte-identique + garde anti-dérive `VariantDeployabilityDriftGuardTest`. Gates : bakery `test` **2061/0** (+2), `functionalTest`/`nodeTest` VERT, `cucumberTest` 3285/5 baseline, `publishToMavenLocal` VERT ; cheroliv `test` **187/0** (+2), `cucumberTest` 31/5 baseline stash-prouvée, `functionalTest`+`nodeTest` VERT. Zéro code prod bakery modifié, zéro bump BOM, zéro publication Central, zéro LLM, zéro secret. Doc `.agents/CADRAGE_EPIC_BKY_VARIANT_UNIFY.adoc` + `.agents/sessions/242-…`.
 
 _Dernière mise à jour (antérieure) : 2026-09-25 — ✅ **FLAKY-5 SOLDÉ — drift fixture cheroliv.com aligné** (S-241). Les « 2 FAIL préexistants » depuis S-229 (`FixtureAlignmentAuditorTest` + `RealSiteI18nMigrationIntegrationTest`) n'étaient pas un flake mais un drift réel (famille FLAKY-4 S-222). Cause : refonte chrome `CHE-I18N-CHROME` S-053/S-055 (libellés nativement FR + sélecteur 22 langues → `menu.*` renuméroté +17 drapeaux, `footer.*` décalé). Livré : resync 5 templates (secrets neutralisés) + re-keying `translations_en.properties` (121→137) + golden master régénéré (delta-only, timestamp réverté). Gates : `test` **2059/0 FAIL** (baseline S-240 2059/2), `FixtureAlignmentAuditorTest` 8/8, `RealSiteI18nMigrationIntegrationTest` 2/2, `functionalTest`+`nodeTest` VERT, `cucumberTest` 3285/5 baseline exacte, ktlint delta 0, `publishToMavenLocal` VERT. Rapport `.agents/sessions/241-flaky-5-drift-fixture-cheroliv.adoc`.
 
@@ -32,6 +34,92 @@ _Dernière mise à jour (antérieure) : 2026-09-17 — ✅ **BKY-I18N-JS-6 TERMI
 _Dernière mise à jour (antérieure) : 2026-09-17 — ✅ **BKY-I18N-JS-5 TERMINÉ (S-223)** — le catalogue structurel (`i18n-content.js`, `TALARIA.I18N.CATALOG`), déclaré au cadrage talaria S-054 mais jamais traité, est désormais **classifié** (`I18nJsFormat` `FLAT`/`CATALOG`), **planifié en couverture** (`I18nCatalog` : langue/formation/champ) et son **ownership plat corrigé** (le catalogue ne capte plus les clés chrome — bug latent de corruption). Le 3e dictionnaire avait été oublié par l'EPIC que l'on croyait 4/4. REFACTOR `I18nJsBlockScanner` (scanner partagé). Dogfooding réel talaria (22 langues × 2 formations, 0 lacune). Gate `test` **1804/0 FAIL** (baseline 1777/0 → +27). Antérieur S-222 : ✅ **FLAKY-4 résolu** — drift fixture `contact.thyme` : le site réel cheroliv.com a retiré le champ `subject` du contact (US-35, `d96dcec` 2026-09-14), fixture + golden master non resynchronisés → resync fixture + recâblage `contact.6` + régénération golden master one-shot. Gate `test` **1777/0 FAIL** (fin des « 2 FAIL préexistants » mentionnés depuis S-218 dans toutes les gates cross-borough MEMPHIS). Antérieur S-221 : ✅ **Cross-borough T-I18N-BAKERY US-2/US-3** — `bakery.llm.IaConfigResolver` (pool LLM résolu depuis `site.yml → ollama:`) + câblage `translateI18nClient` + harness talaria réduit à un audit read-only. Antérieur S-220 : ✅ **EPIC BKY-I18N-JS TERMINÉ 4/4 US** — US-4 livrée : propagation `maquette/js/` → `jbake/assets/js/` byte-identique (`I18nClientPropagation` object pur, delta-only) + garde de format parse↔write (`I18nClientFormatGuard`) + test d'architecture frontière zéro HTTP direct. Domaine `bakery.i18n.js` clos (6 fichiers prod). Session 217 🟡 **EPIC BKY-LANG-22 EN COURS** — extension du contrat N0 `contracts.i18n.LanguageCatalog` de 10 → 22 langues (parité talaria.school : +it nl de el tr vi th id ko ja sr **fa RTL**). Livré et publié Central : `i18n-contracts:0.0.4` (bundle `c1a9de57`) + BOM/catalog `0.0.43` (bundle `eb310d04`) + propagation bakery/capsule/slider/document. **Reste en cours** : régénération du corpus dogfooding slider (27 fichiers gelés, 12 langues × 3 decks à produire via LLM metered — Loi Économie d'Encre), dogfooding capsule 22 langues, publication Central des consommateurs (bakery/capsule/slider). Session 216 ✅ transfert BKY-FPA-SITE → TRN-11 (training, pattern TRN-9) + arbitrage licence FPA tranché. Session 213 ✅ RENAME Vague 3 CLÔTURÉ transverse._
 
 '''
+
+== EPIC BKY-CI-ISOLATION — CI bakery verte : gardes workspace-aware + déblocage configuration (8 verrous) ✅ TERMINÉ (S-243)
+
+_Cadré à l'ouverture S-243 (mission A du PROMPT_REPRISE S-242 « fixture lifecycle »). L'audit a montré que la CI n'était pas seulement fragilisée par une garde : elle était **rouge sur 200/200 runs** (depuis ≥ 2026-06-14). Doc `.agents/CADRAGE_EPIC_BKY_CI_ISOLATION.adoc`._
+
+=== Constat — 8 verrous indépendants
+
+[cols="1,4,2"]
+|===
+| # | Verrou | Nature
+
+| V1
+| `.github/workflows/test.yml` JDK 24 vs `conventions-plugin:0.0.4` (JVM 25) → échec en configuration
+| Configuration
+
+| V2/V3
+| 2 gardes site lisaient `office/sites/…` par chemin absolu + `require` → échec en CI isolée
+| Test
+
+| V4
+| `BakeryPluginPublicationTest` lisait `../workspace-bom` (voisin, racy)
+| Test
+
+| V5
+| 4 scénarios cucumber périmés (F30 `de`, F34 `th:text=`, DNS orphan, F50 `:summary:`)
+| Test (drift d'évolution)
+
+| V6
+| timeout `cucumberTest`/`Test` 5 min < durée réelle → comptes non déterministes
+| Configuration
+
+| V7
+| `koverThresholdCheck` (conventions 0.0.4) lit `reports/kover/xml/report.xml`, kover 0.9.8 écrit `reports/kover/report.xml`
+| Bug latent conventions
+
+| V8
+| ktlint baseline dépôt rouge (619 violations / 68 fichiers)
+| Dette préexistante
+|===
+
+V5→V8 préexistaient (stash-prouvé) mais étaient masqués par V1/V5/V6.
+
+=== US (découpage) — ✅ TERMINÉ
+
+[cols="1,4,2"]
+|===
+| # | US | Statut
+
+| US-1
+| Bump JDK 24→25 (aligné capsule/document)
+| ✅ S-243
+
+| US-2a
+| `bakery.workspace.WorkspaceRoot` (objet pur test, 8 UT, précédence property > env > défaut)
+| ✅ S-243
+
+| US-2b
+| 2 gardes site skip-safe (`assumeTrue`) — preuve locale `-Dbakery.workspaceRoot=/nonexistent`
+| ✅ S-243
+
+| US-2c
+| `PublishedCatalogVersion` + version injectée par Gradle (patron graphify D5-RACE, 3 UT)
+| ✅ S-243
+
+| US-3
+| 4 scénarios cucumber périmés réalignés (F30/F34/DNS×2/F50)
+| ✅ S-243
+
+| US-4
+| Timeouts 5→15 min
+| ✅ S-243
+
+| US-5
+| Chemin kover XML aligné (89,21 % > 85 %)
+| ✅ S-243
+
+| US-6
+| ktlint baseline `config/ktlint/baseline.xml` (171 fichiers, zéro exemption de fichier neuf)
+| ✅ S-243
+|===
+
+=== Hors périmètre — EPICs séparés (S-244+)
+
+* **Dette ktlint** : résorption des 171 fichiers baselinés, par lots, régénération du baseline à chaque lot.
+* **Correction racine conventions** : chemin hardcodé de `koverThresholdCheck` (bug 0.0.4) — corriger dans `conventions-gradle`, bump, propager, retirer le workaround local.
+* **F50 cross-borough** : sémantique de traduction `:summary:`/`:description:` portée par `document-gradle`.
 
 == EPIC BKY-LANG-NAV — Changement de langue sans retour à l'accueil (same-page switching) — ✅ TERMINÉ (NAV-0 ✅ S-228, NAV-1 ✅ S-229, NAV-2 ✅ S-230, NAV-3 ✅ S-231, NAV-4 ✅ S-232, NAV-5 ✅ S-234, NAV-6 ✅ S-235, NAV-7 ✅ S-236, NAV-8 ✅ S-239/S-240 — brique + release + déploiement production)
 

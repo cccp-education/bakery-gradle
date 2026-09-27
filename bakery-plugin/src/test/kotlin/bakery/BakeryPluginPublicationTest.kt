@@ -1,5 +1,6 @@
 package bakery
 
+import bakery.workspace.PublishedCatalogVersion
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.io.File
@@ -7,10 +8,6 @@ import kotlin.text.Charsets.UTF_8
 
 class BakeryPluginPublicationTest {
     private val pluginDir = File(System.getProperty("user.dir")).absoluteFile
-
-    private val rootDir =
-        pluginDir.parentFile
-            ?: throw IllegalStateException("Cannot resolve repo root from plugin dir")
 
     @Test
     fun `plugin version matches root consumer catalog version`() {
@@ -28,9 +25,9 @@ class BakeryPluginPublicationTest {
 
         // Hygiène (D5) : la version self du toml local et la version self du catalog
         // ws doivent coïncider — le toml local reste pour le marker local, le ws
-        // catalog (0.0.29) est la source de vérité cross-borough.
+        // catalog est la source de vérité cross-borough.
         val pluginCatalogVersion = bakeryVersionFrom(pluginDir.resolve("gradle/libs.versions.toml").readText(UTF_8))
-        val wsCatalogVersion = bakeryVersionFrom(wsCatalogToml())
+        val wsCatalogVersion = publishedCatalogVersion(BAKERY_VERSION_PROPERTY)
 
         assertThat(pluginCatalogVersion)
             .withFailMessage("plugin catalog bakery version ($pluginCatalogVersion) must match ws catalog bakery version ($wsCatalogVersion)")
@@ -38,30 +35,22 @@ class BakeryPluginPublicationTest {
     }
 
     /**
-     * Reads the `ws` catalog toml resolved by Gradle (module cache) and extracts
-     * the `bakery-plugin` version. Fallback: parse the toml of the local MEMPHIS
-     * repo (workspace-bom) — same source file as the published catalog.
+     * BKY-CI-ISOLATION (US-2c) — the published workspace catalog version is
+     * *injected by Gradle* (`ws.versions.*`), never read from a neighbour
+     * repository's working tree. The old fallback
+     * (`../workspace-bom/gradle/libs.versions.toml`) is racy between sessions and
+     * absent from an isolated checkout — same failure mode graphify-gradle's
+     * D5-RACE EPIC fixed (S-029). A missing property is an explicit error, never
+     * a silent green.
      */
-    private fun wsCatalogToml(): String {
-        val wsRepoToml = rootDir.parentFile
-            ?.resolve("workspace-bom/gradle/libs.versions.toml")
-        if (wsRepoToml != null && wsRepoToml.exists()) return wsRepoToml.readText(UTF_8)
-        error("ws catalog toml introuvable — résolution ws impossible pour l'hygiène")
-    }
+    private fun publishedCatalogVersion(property: String): String =
+        PublishedCatalogVersion.require(property)
 
     private fun bakeryVersionFrom(content: String): String =
         content
             .lineSequence()
             .map { it.substringBefore('#').trim() }
             .first { it.startsWith("bakery-plugin =") || it.startsWith("bakery =") }
-            .substringAfter("\"")
-            .substringBefore("\"")
-
-    private fun bomVersionFrom(content: String): String =
-        content
-            .lineSequence()
-            .map { it.substringBefore('#').trim() }
-            .first { it.startsWith("workspace-bom =") }
             .substringAfter("\"")
             .substringBefore("\"")
 
@@ -75,7 +64,7 @@ class BakeryPluginPublicationTest {
     @Test
     fun `every workspace bom platform pin matches ws catalog bom version`() {
         val buildScript = pluginDir.resolve("build.gradle.kts").readText(UTF_8)
-        val wsBomVersion = bomVersionFrom(wsCatalogToml())
+        val wsBomVersion = publishedCatalogVersion(BOM_VERSION_PROPERTY)
         val pinnedVersions = workspaceBomPlatformPinsFrom(buildScript)
 
         assertThat(pinnedVersions)
@@ -108,5 +97,10 @@ class BakeryPluginPublicationTest {
 
         assertThat(buildScript).contains("group = \"education.cccp\"")
         assertThat(pluginId).isEqualTo("education.cccp.bakery")
+    }
+
+    private companion object {
+        const val BAKERY_VERSION_PROPERTY = "bakery.publishedCatalog.bakeryVersion"
+        const val BOM_VERSION_PROPERTY = "bakery.publishedCatalog.bomVersion"
     }
 }

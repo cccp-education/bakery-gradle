@@ -2,8 +2,8 @@
 Feature: Internationalisation — Langues multiples pour le site genere — BKY-I18N
 
   Le plugin bakery injecte `site.language={code}` dans `jbake.properties`
-  a partir de la cascade ConfigResolver. Les 10 langues supportees sont :
-  fr, en, zh, hi, es, ar, bn, pt, ru, ur.
+  a partir de la cascade ConfigResolver. Les 22 langues supportees viennent
+  du contrat N0 `contracts.i18n.LanguageCatalog` (BKY-LANG-22).
 
   Background:
     Given a new Bakery project
@@ -45,7 +45,7 @@ Feature: Internationalisation — Langues multiples pour le site genere — BKY-
 
   @fallback-unsupported
   Scenario: Fallback fr quand langue non supportee spécifiee
-    Given the site configuration contains language 'de'
+    Given the site configuration contains language 'xx'
     When I am executing the task 'generateSite'
     Then the build should succeed
     Then the file 'site/jbake.properties' should contain 'site.language=fr'

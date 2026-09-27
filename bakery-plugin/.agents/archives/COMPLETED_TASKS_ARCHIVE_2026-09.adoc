@@ -1,5 +1,51 @@
 = Archive des Taches Terminees — Septembre 2026
 
+== Session 243 — 2026-09-27 — BKY-CI-ISOLATION : CI bakery VERTE (8 verrous levés)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| Audit d'ouverture — CI rouge 200/200 runs depuis ≥ 2026-06-14
+| ✅ TERMINÉ (8 verrous identifiés)
+
+| V1 — `.github/workflows/test.yml` JDK 24 → 25 (conventions-plugin 0.0.4 exige JVM 25)
+| ✅ TERMINÉ
+
+| V2/V3 — `bakery.workspace.WorkspaceRoot` (resolver pur, 8 UT) + `assumeTrue` sur les 2 gardes site
+| ✅ TERMINÉ
+
+| V4 — `bakery.workspace.PublishedCatalogVersion` (3 UT) + version injectée par Gradle (patron graphify D5-RACE)
+| ✅ TERMINÉ
+
+| V5 — 4 scénarios cucumber périmés réalignés (F30 `de`, F34 `th:text=`, DNS orphan, F50 `:summary:`)
+| ✅ TERMINÉ
+
+| V6 — timeout `cucumberTest` + `Test` global 5 → 15 min
+| ✅ TERMINÉ
+
+| V7 — chemin kover XML aligné (`reports/kover/xml/report.xml`, 89,21 % > 85 %)
+| ✅ TERMINÉ
+
+| V8 — ktlint baseline `config/ktlint/baseline.xml` (171 fichiers, zéro exemption de fichier neuf)
+| ✅ TERMINÉ
+
+| Gate `build` (commande CI réelle)
+| ✅ BUILD SUCCESSFUL 5m28s (`--rerun-tasks` 8m32s)
+
+| `test` / `functionalTest` / `cucumberTest` / `nodeTest`
+| ✅ 2072/0 · 164/0 · 3294/0 · VERT
+
+| `publishToMavenLocal` (Règle 0) + gate métier + secrets
+| ✅ VERT · 0 · 0
+
+| Cadrage `.agents/CADRAGE_EPIC_BKY_CI_ISOLATION.adoc` + rapport session
+| ✅ TERMINÉ
+
+| Hors périmètre (EPICs séparés : dette ktlint, chemin kover conventions, F50 document-gradle)
+| 🟡 À CADRER S-244
+|===
+
 == Session 242 — 2026-09-26 — BKY-VARIANT-UNIFY : split-brain `i18n.variant` absorbé (cheroliv ↔ bakery)
 
 [cols="2,3"]

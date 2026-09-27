@@ -1,0 +1,212 @@
+= Cadrage — EPIC BKY-CI-ISOLATION : gardes workspace-aware (fixture lifecycle)
+
+_Session 243 — 2026-09-26 — gouvernance pure, zéro code dans ce document._
+_Borough_ : Bushwick 🟤 (bakery-gradle).
+
+== Contexte
+
+Mission A du `PROMPT_REPRISE` S-242 : la garde `FixtureAlignmentAuditor` lit
+`office/sites/cheroliv.com` par **chemin absolu en dur** → fragile en CI isolée.
+Cause racine récurrente des FLAKY-4 (S-222) et FLAKY-5 (S-241).
+
+L'audit d'ouverture S-243 a mesuré l'ampleur réelle : **la CI GitHub Actions est
+rouge sur la totalité des runs disponibles** (`Test` workflow, 200/200 en échec,
+remontant à 2026-06-14). Ce n'est donc pas une dette latente ponctuelle mais un
+**état de fait permanent** : aucune gate cross-borough ne peut être verte en CI.
+
+== Constat — 8 verrous indépendants
+
+[cols="1,3,2,2"]
+|===
+| # | Verrou | Manifestation | Nature
+
+| V1
+| `.github/workflows/test.yml:21` épingle **JDK 24** alors que
+  `conventions-plugin:0.0.4` (build.gradle.kts:12-15) **exige JVM 25**
+| `./gradlew build` échoue **en configuration** (`Dependency requires at least
+  JVM runtime version 25`) — rien ne compile
+| Configuration
+
+| V2
+| `FixtureAlignmentAuditorTest.kt:126-127` lit
+  `/home/cheroliv/workspace/office/sites/$name/jbake/templates` + `require(...)`
+| `IllegalArgumentException` en checkout isolé (pas de skip)
+| Test
+
+| V3
+| `RealSiteI18nMigrationIntegrationTest.kt:25,128` lit
+  `/home/cheroliv/workspace` + `require(realJbakeDir.isDirectory)`
+| `IllegalArgumentException` en checkout isolé
+| Test
+
+| V4
+| `BakeryPluginPublicationTest.kt:45-49` lit le *working tree* du dépôt voisin
+  `../workspace-bom/gradle/libs.versions.toml` via `rootDir.parentFile`
+| `error("ws catalog toml introuvable")` en checkout isolé
+| Test
+
+| V5
+| `cucumberTest` : 4 scénarios **périmés** (F30 fallback `de`, F34 dry-run
+  `th:text=`, DNS delete orphan hors-scope, F50 `:summary:`)
+| `3285/5` — baseline « exacte » citée depuis S-229, jamais corrigée
+| Test périmé (drift d'évolution légitime)
+
+| V6
+| `cucumberTest` timeout 5 min < durée réelle ~6 min ; timeout `Test` global
+  5 min < `functionalTest` ~4m50 sous charge
+| `Timeout has been exceeded` → comptes d'échecs non déterministes (5→3→4),
+  masquant V5
+| Configuration (timeout)
+
+| V7
+| `koverThresholdCheck` (conventions 0.0.4) lit `reports/kover/xml/report.xml`,
+  kover 0.9.8 écrit `reports/kover/report.xml`
+| `Kover report not found` — couverture réelle 89,2 % > 85 %
+| Bug latent conventions (bakery = seul consommateur)
+
+| V8
+| ktlint baseline dépôt rouge (269 main + 26 functionalTest + 324 test)
+| `ktlintMain*Check` / `ktlintFunctionalTest*Check` FAILED
+| Dette préexistante (jamais traitée, cf. PROMPT_REPRISE)
+|===
+
+V2/V3/V4 sont trois occurrences du **même anti-pattern** : un test de contrat
+lit une ressource *hors du dépôt* (site réel `office/`, dépôt voisin
+`workspace-bom/`) sans seam de résolution ni dégradation propre. Le patron de
+sortie existe pourtant déjà dans le dépôt :
+`DnsDogfoodTalariaIntegrationTest` et `I18nJsDictionaryTalariaIntegrationTest`
+font un `assumeTrue` propre ; `graphify-gradle` (EPIC D5-RACE, S-029) a résolu
+V4 pour son équivalent en **injectant la version du catalogue publié** par
+Gradle (`systemProperty`) au lieu de lire le voisin.
+
+V5/V6/V7/V8 ne sont **pas** causés par le delta S-243 : ils préexistent sur HEAD
+(stash-prouvé), mais étaient **masqués** — V5/V6 par la CI qui mourait en
+configuration (V1), V7/V8 par les tâches en amont qui échouaient. Ils ne sont
+apparus qu'au fur et à mesure que la chaîne avançait.
+
+== Décision — huit chantiers
+
+=== US-1 — Débloquer la configuration CI (V1)
+
+Bump `.github/workflows/test.yml` `java-version: '24'` → `'25'`, aligné sur
+`capsule-gradle` et `document-gradle` (déjà à 25 car consommateurs du même
+`conventions-plugin:0.0.4`). Aucun autre changement de workflow.
+
+=== US-2 — Rendre les gardes workspace-aware (V2/V3/V4)
+
+**Principe (DDD)** : extraire un objet pur de résolution de la racine workspace
+— source unique de vérité pour les trois tests — avec un **seam injectable**
+(propriété système > variable d'environnement > défaut local) et une
+**dégradation nullable** (`takeIf { isDirectory }`) consommée par `assumeTrue`.
+
+. **US-2a** — `bakery.workspace.WorkspaceRoot` (test helper, baby-step TDD) :
+  `resolve()` avec précédence `-Dbakery.workspaceRoot` > `WORKSPACE_ROOT` >
+  défaut `/home/cheroliv/workspace` ; `siteTemplates(siteDirName): File?` et
+  `siteJbake(siteDirName): File?` nullables. UT du resolver (présence, absence,
+  précédence).
+. **US-2b** — câbler `FixtureAlignmentAuditorTest` + `RealSiteI18nMigration
+  IntegrationTest` sur le resolver : `require(...)` → `assumeTrue(...)`. **Preuve
+  locale du skip** : lancer la suite avec `-Dbakery.workspaceRoot=/nonexistent`
+  → les tests **skippent** (pas d'échec), reproduisant la CI isolée sans elle.
+. **US-2c** — `BakeryPluginPublicationTest` : remplacer la lecture du voisin par
+  une **version injectée par Gradle** (patron graphify D5-RACE) —
+  `systemProperty("bakery.publishedCatalog.bakeryVersion", ws.versions.bakery.plugin.get())`
+  + `...bomVersion`. Objet pur `bakery.workspace.PublishedCatalogVersion.require`
+  (3 UT) : propriété absente/vide → erreur explicite, jamais de vert silencieux.
+
+=== US-3 — Réaligner les scénarios BDD périmés (V5)
+
+Les 4 scénarios testaient une sémantique **révolue** (drift d'évolution
+légitime), pas un bug produit :
+
+. **F30** — `de` est devenu une langue **supportée** (BKY-LANG-22, 22 langues via
+  `LanguageCatalog`) → le scénario de fallback utilise désormais `xx` (vraiment
+  inconnue) ; en-tête de feature réaligné 10 → 22 langues.
+. **F34** — l'assertion « dry-run n'a rien modifié » reposait sur l'absence de
+  `th:text=` dans `header.thyme`, or le chrome réel de cheroliv porte
+  légitimement un `th:text` (titre SEO dynamique) → remplacée par une **empreinte
+  avant/après** (`BakeryWorld.snapshotTemplates`), drift-proof.
+. **DNS** — le produit **scope** les suppressions aux slots déclarés (BKY-DNS-6
+  dogfooding, `DnsDiffTest` le documente) → le scénario d'orphelin utilise
+  désormais un slot déclaré ; nouveau scénario « out-of-scope jamais supprimé ».
+. **F50** — `document-gradle` **traduit** désormais `:summary:`/`:description:`
+  (`FrontmatterStaleDetector` TRANSLATABLE, `DocumentTranslatorTest` le pinne) →
+  l'assertion vérifie que l'attribut *et sa traduction* sont présents.
+
+=== US-4 — Assainir les timeouts (V6)
+
+`cucumberTest` et le timeout `Test` global passent de 5 → 15 min (marge sûre).
+Un timeout trop court tuait la tâche avant le flush des résultats → comptes
+d'échecs non déterministes masquant V5.
+
+=== US-5 — Aligner le chemin du rapport kover (V7)
+
+`kover { reports { total { xml { xmlFile.set(...) } } } }` local : aligne la
+sortie XML de kover 0.9.8 sur le chemin attendu par `koverThresholdCheck`
+(conventions 0.0.4). Bakery est le seul consommateur de cette convention, le
+bug était donc latent. Le bug racine reste à corriger côté conventions (EPIC
+séparé).
+
+=== US-6 — Baselinage ktlint (V8)
+
+`./gradlew ktlintGenerateBaseline` → `config/ktlint/baseline.xml` (171 fichiers,
+dette gelée). Réformater 68 fichiers reproduirait l'incident S-231
+(`ktlintFormat` global). Le baseline **n'exempte aucun fichier neuf** : les 3
+fichiers créés S-243 y sont absents (vérifié) ; toute violation nouvelle échoue.
+La dette racine reste à résorber (EPIC séparé).
+
+== Périmètre — ce qui n'est PAS touché
+
+* Zéro tâche LLM (`migrateContentI18n`, `translateTemplates`,
+  `translateI18nClient` non invoquées).
+* Zéro modification de `site.yml` (gitignoré) ni d'un fichier de contenu.
+* Zéro modification des fichiers sales préexistants du repo `office`.
+* Zéro bump BOM, zéro publication Central, zéro traduction.
+* Le tag `@personal` (feature 7) reste exclu par `CucumberTestRunner` — inchangé.
+
+== Critère de succès (vérifiable)
+
+CA1. `./gradlew test` local : **2072/0** (baseline S-242 2061/0 → +11).
+CA2. `./gradlew test -Dbakery.workspaceRoot=/nonexistent` : les tests
+     workspace-aware **skippent** (0 FAIL) — preuve de la CI isolée.
+CA3. `PublishedCatalogVersion` échoue **explicitement** quand la propriété
+     injectée est absente/vide (3 UT) — jamais de vert silencieux.
+CA4. `./gradlew build` (la commande CI réelle) : **BUILD SUCCESSFUL** —
+     `test` 2072/0 + `functionalTest` 164/0 + `cucumberTest` 3294/0 +
+     `nodeTest` + `koverThresholdCheck` 89,21 % > 85 % + ktlint (baseline).
+CA5. `./gradlew -q publishToMavenLocal` VERT (Règle 0).
+CA6. Push → run CI `Test` **vert** (première fois depuis ≥ 2026-06-14).
+
+== DAG
+
+----
+US-1 (JDK) ──────────────────┐
+US-2a (resolver pur) → US-2b ┼→ CA1..CA5 → push → CA6
+US-2a → US-2c ───────────────┤
+US-3 (BDD périmés) ──────────┤
+US-4 (timeouts) ─────────────┤
+US-5 (kover path) ───────────┤
+US-6 (ktlint baseline) ──────┘
+----
+
+== Risques et mitigations
+
+*Risque* : après V1, de nouveaux échecs CI apparaissent en cascade — **réalisé**
+(V5→V8). *Parade* : chaque verrou a été diagnostiqué puis traité, la chaîne
+complète `build` est verte localement avant le push.
+
+*Risque* : `assumeTrue` masque une vraie régression locale. *Parade* : le seam a
+un **défaut = chemin local réel** → en poste de dev, les tests s'exécutent
+normalement ; seul un override explicite (CI ou preuve locale) skippe.
+
+*Risque* : le baseline ktlint masque une dette qui ne sera jamais résorbée.
+*Parade* : EPIC « ktlint baseline cleanup » à cadrer ; le baseline n'exempte
+aucun fichier neuf, la dette ne peut donc que décroître.
+
+== Hors périmètre (EPICs séparés)
+
+* **F50 cross-borough** : la sémantique de traduction `:summary:` appartient à
+  `document-gradle` — ici seul le test bakery a été réaligné.
+* **V7 racine** : le chemin de rapport kover est un bug de
+  `conventions-gradle` 0.0.4 (corrigé localement, à corriger en amont).
+* **V8 racine** : résorption de la dette ktlint (171 fichiers baselinés).
