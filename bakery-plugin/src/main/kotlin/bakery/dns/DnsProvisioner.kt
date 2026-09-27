@@ -21,7 +21,6 @@ class DnsProvisioner(
     private val provider: DnsProvider,
     private val domain: String,
 ) {
-
     fun reconcile(
         desired: List<DnsRecord>,
         dryRun: Boolean = true,

@@ -11,7 +11,6 @@ import java.security.MessageDigest
  * reference `ovh.py` script).
  */
 object OvhSignature {
-
     /**
      * Computes the OVH request signature for the given call parameters.
      *

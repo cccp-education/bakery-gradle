@@ -10,14 +10,23 @@ package bakery.dns
  * guaranteed no-op and the real zone is never touched.
  */
 class NoOpDnsProvider : DnsProvider {
-
     override fun listRecords(domain: String): List<ExistingDnsRecord> = emptyList()
 
-    override fun createRecord(domain: String, record: DnsRecord): Long = 0L
+    override fun createRecord(
+        domain: String,
+        record: DnsRecord,
+    ): Long = 0L
 
-    override fun updateRecord(domain: String, id: Long, record: DnsRecord) = Unit
+    override fun updateRecord(
+        domain: String,
+        id: Long,
+        record: DnsRecord,
+    ) = Unit
 
-    override fun deleteRecord(domain: String, id: Long) = Unit
+    override fun deleteRecord(
+        domain: String,
+        id: Long,
+    ) = Unit
 
     override fun refreshZone(domain: String) = Unit
 

@@ -12,13 +12,20 @@ class RateLimiter(
     private val perDay: Int,
     private val globalCap: Int,
 ) {
-    private data class Counter(var hourCount: Int, var dayCount: Int, var firstSeen: Long)
+    private data class Counter(
+        var hourCount: Int,
+        var dayCount: Int,
+        var firstSeen: Long,
+    )
 
     private val counters = mutableMapOf<String, Counter>()
     private var globalDayCount = 0
     private var globalFirstSeen = 0L
 
-    fun allow(key: String, now: Long): Boolean {
+    fun allow(
+        key: String,
+        now: Long,
+    ): Boolean {
         val c = counters.getOrPut(key) { Counter(0, 0, now) }
         if (now - c.firstSeen >= HOUR_MS) c.hourCount = 0
         if (now - c.firstSeen >= DAY_MS) {

@@ -1,7 +1,7 @@
 package bakery
 
-import bakery.dns.DnsConfig
 import bakery.contact.ContactSecConfig
+import bakery.dns.DnsConfig
 import bakery.seo.SeoConfig
 import bakery.tree.SiteNodeDto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties

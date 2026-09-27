@@ -12,7 +12,6 @@ package bakery.seo
  * No I/O, no Gradle coupling — pure String generation.
  */
 class SeoThymeleafRenderer {
-
     fun render(
         meta: SeoPageMeta,
         config: SeoConfig,
@@ -61,7 +60,10 @@ class SeoThymeleafRenderer {
         return lines.joinToString("\n")
     }
 
-    private fun renderJsonLd(config: SeoConfig, siteHost: String): String {
+    private fun renderJsonLd(
+        config: SeoConfig,
+        siteHost: String,
+    ): String {
         val nodes = mutableListOf<String>()
 
         nodes +=

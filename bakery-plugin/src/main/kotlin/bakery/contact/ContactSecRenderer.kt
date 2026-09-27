@@ -1,7 +1,6 @@
 package bakery.contact
 
 class ContactSecRenderer {
-
     fun renderFooterFragment(config: ContactSecConfig): String {
         val turnstileDiv =
             if (config.turnstile != null && config.turnstile.siteKey.isNotBlank()) {
@@ -143,19 +142,20 @@ $turnstileDiv
     }
 
     fun renderFirestoreRules(config: ContactSecConfig): String {
-        val allowedFields = listOf(
-            "name",
-            "email",
-            "subject",
-            "message",
-            "session_token",
-            "ts_render",
-            "fp",
-            "pow_nonce",
-            "pow_challenge",
-            "cf-turnstile-response",
-            "created_at",
-        )
+        val allowedFields =
+            listOf(
+                "name",
+                "email",
+                "subject",
+                "message",
+                "session_token",
+                "ts_render",
+                "fp",
+                "pow_nonce",
+                "pow_challenge",
+                "cf-turnstile-response",
+                "created_at",
+            )
         val fieldsCheck =
             allowedFields.joinToString("\n          ") { field ->
                 "!(''${'$'}field' in request.resource.data) || request.resource.data.${'$'}field is ${if (field == "created_at") "timestamp" else "string"}"

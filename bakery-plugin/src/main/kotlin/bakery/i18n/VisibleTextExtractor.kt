@@ -16,7 +16,6 @@ package bakery.i18n
  * Pure domain: no I/O, no regex on the whole document, no Gradle.
  */
 object VisibleTextExtractor {
-
     private const val MIN_SEGMENT_LENGTH = 2
 
     /**
@@ -27,11 +26,56 @@ object VisibleTextExtractor {
      */
     private val FRENCH_MARKERS =
         setOf(
-            "le", "la", "les", "des", "une", "dans", "pour", "avec", "sur", "est", "sont",
-            "cette", "ces", "qui", "que", "aux", "par", "plus", "mais", "comme", "tout",
-            "tous", "sans", "entre", "leur", "leurs", "nous", "vous", "votre", "vos",
-            "notre", "nos", "au", "du", "ce", "et", "ou", "de", "un", "en", "il", "elle",
-            "je", "tu", "mon", "ma", "mes", "son", "sa", "ses",
+            "le",
+            "la",
+            "les",
+            "des",
+            "une",
+            "dans",
+            "pour",
+            "avec",
+            "sur",
+            "est",
+            "sont",
+            "cette",
+            "ces",
+            "qui",
+            "que",
+            "aux",
+            "par",
+            "plus",
+            "mais",
+            "comme",
+            "tout",
+            "tous",
+            "sans",
+            "entre",
+            "leur",
+            "leurs",
+            "nous",
+            "vous",
+            "votre",
+            "vos",
+            "notre",
+            "nos",
+            "au",
+            "du",
+            "ce",
+            "et",
+            "ou",
+            "de",
+            "un",
+            "en",
+            "il",
+            "elle",
+            "je",
+            "tu",
+            "mon",
+            "ma",
+            "mes",
+            "son",
+            "sa",
+            "ses",
         )
 
     private val WORD = Regex("[\\p{L}]{2,}")

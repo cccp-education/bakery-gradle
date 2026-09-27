@@ -11,18 +11,26 @@ package bakery.dns
 class OvhDnsProvider(
     private val client: OvhDnsClient,
 ) : DnsProvider {
-
     override fun listRecords(domain: String): List<ExistingDnsRecord> =
         client.listRecordIds(domain).map { id -> ExistingDnsRecord(id, client.getRecord(domain, id)) }
 
-    override fun createRecord(domain: String, record: DnsRecord): Long =
-        client.createRecord(domain, record)
+    override fun createRecord(
+        domain: String,
+        record: DnsRecord,
+    ): Long = client.createRecord(domain, record)
 
-    override fun updateRecord(domain: String, id: Long, record: DnsRecord) {
+    override fun updateRecord(
+        domain: String,
+        id: Long,
+        record: DnsRecord,
+    ) {
         client.updateRecord(domain, id, record)
     }
 
-    override fun deleteRecord(domain: String, id: Long) {
+    override fun deleteRecord(
+        domain: String,
+        id: Long,
+    ) {
         client.deleteRecord(domain, id)
     }
 

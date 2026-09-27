@@ -339,9 +339,7 @@ abstract class TranslateI18nClientTask : DefaultTask() {
         )
     }
 
-    private fun mergeNested(
-        maps: List<Map<String, List<String>>>,
-    ): Map<String, List<String>> {
+    private fun mergeNested(maps: List<Map<String, List<String>>>): Map<String, List<String>> {
         val merged = LinkedHashMap<String, List<String>>()
         for (map in maps) {
             for ((language, values) in map) {
@@ -351,9 +349,7 @@ abstract class TranslateI18nClientTask : DefaultTask() {
         return merged
     }
 
-    private fun mergeDoubleNested(
-        maps: List<Map<String, Map<String, List<String>>>>,
-    ): Map<String, Map<String, List<String>>> {
+    private fun mergeDoubleNested(maps: List<Map<String, Map<String, List<String>>>>): Map<String, Map<String, List<String>>> {
         val merged = LinkedHashMap<String, MutableMap<String, List<String>>>()
         for (map in maps) {
             for ((language, formations) in map) {
@@ -407,7 +403,8 @@ abstract class TranslateI18nClientTask : DefaultTask() {
         for (sourceDir in intention.sourceDirs) {
             val dir = resolveDir(sourceDir)
             if (!dir.exists()) continue
-            dir.walkTopDown()
+            dir
+                .walkTopDown()
                 .filter { it.isFile && it.extension == "js" }
                 .sortedBy { it.relativeTo(dir).path }
                 .forEach { file ->
@@ -450,7 +447,8 @@ abstract class TranslateI18nClientTask : DefaultTask() {
                 logger.warn("[translateI18nClient] Le repertoire source n'existe pas : {}", dir.absolutePath)
                 continue
             }
-            dir.walkTopDown()
+            dir
+                .walkTopDown()
                 .filter { it.isFile && it.extension == "js" }
                 .sortedBy { it.relativeTo(dir).path }
                 .forEach { file ->

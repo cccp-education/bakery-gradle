@@ -9,8 +9,10 @@ package bakery.dns
  * [OvhDnsClient] is supplied (i.e. OVH credentials configured).
  */
 object DnsProviderFactory {
-
-    fun resolve(name: String, ovhClient: OvhDnsClient? = null): DnsProvider =
+    fun resolve(
+        name: String,
+        ovhClient: OvhDnsClient? = null,
+    ): DnsProvider =
         when (name) {
             "ovh" -> ovhClient?.let { OvhDnsProvider(it) } ?: NoOpDnsProvider()
             else -> NoOpDnsProvider()

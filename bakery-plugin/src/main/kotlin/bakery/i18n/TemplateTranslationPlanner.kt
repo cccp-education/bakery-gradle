@@ -16,7 +16,6 @@ package bakery.i18n
  * Pure domain: no I/O, no LLM, no Gradle.
  */
 object TemplateTranslationPlanner {
-
     fun plan(
         reference: Map<String, String>,
         target: Map<String, String>,

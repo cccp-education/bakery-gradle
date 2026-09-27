@@ -23,7 +23,9 @@ sealed interface VerifyResult {
         override val success: Boolean = true
     }
 
-    data class Failure(val code: String) : VerifyResult {
+    data class Failure(
+        val code: String,
+    ) : VerifyResult {
         override val success: Boolean = false
     }
 }

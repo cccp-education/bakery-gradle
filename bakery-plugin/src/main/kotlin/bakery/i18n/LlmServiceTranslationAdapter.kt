@@ -68,25 +68,27 @@ class LlmServiceTranslationAdapter(
 
     private companion object {
         /** Literal fragments of [buildPrompt]'s preamble. */
-        val PROMPT_LEAK_MARKERS = listOf(
-            "you are a professional translator",
-            "preserve all backtick code spans",
-            "this text may be a fragment of a larger sentence",
-            "output only the translated text — no explanation",
-            "output only the translated text - no explanation",
-        )
+        val PROMPT_LEAK_MARKERS =
+            listOf(
+                "you are a professional translator",
+                "preserve all backtick code spans",
+                "this text may be a fragment of a larger sentence",
+                "output only the translated text — no explanation",
+                "output only the translated text - no explanation",
+            )
 
         /** Markers of the injected reference — never gained by a translated fragment. */
-        val STRUCTURAL_LEAK_MARKERS = listOf(
-            "th:replace",
-            "<!DOCTYPE html",
-            "```html",
-            ".thyme",
-            "thymeleaf",
-            "jbake reference",
-            "jbake-Referenz",
-            "directory structure",
-        )
+        val STRUCTURAL_LEAK_MARKERS =
+            listOf(
+                "th:replace",
+                "<!DOCTYPE html",
+                "```html",
+                ".thyme",
+                "thymeleaf",
+                "jbake reference",
+                "jbake-Referenz",
+                "directory structure",
+            )
 
         /**
          * CHE-I18N-QUALITY — fragments observed *inside* otherwise translated
@@ -94,15 +96,16 @@ class LlmServiceTranslationAdapter(
          * tested source-aware, so an article that legitimately carries the same
          * token is never flagged.
          */
-        val EMBEDDED_LEAK_MARKERS = listOf(
-            "(no output)",
-            "(no text to translate)",
-            "### ",
-            "jbake gradle plugin",
-            "calling the jbake cli",
-            "thymeleaf template examples",
-            "jbake configuration properties",
-        )
+        val EMBEDDED_LEAK_MARKERS =
+            listOf(
+                "(no output)",
+                "(no text to translate)",
+                "### ",
+                "jbake gradle plugin",
+                "calling the jbake cli",
+                "thymeleaf template examples",
+                "jbake configuration properties",
+            )
 
         /**
          * A translated fragment may grow (some languages are more verbose) but

@@ -15,7 +15,6 @@ package bakery.i18n
  * Pure domain: no regex on the whole document, no Gradle, no LLM.
  */
 object TemplateStructureGuard {
-
     fun isWellFormed(template: String): Boolean {
         var inRawBody = false
         var rawTag: String? = null
@@ -74,7 +73,10 @@ object TemplateStructureGuard {
         }
     }
 
-    private fun tagEnd(line: String, open: Int): Int {
+    private fun tagEnd(
+        line: String,
+        open: Int,
+    ): Int {
         var inQuotes = false
         var i = open + 1
         while (i < line.length) {

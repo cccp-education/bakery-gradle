@@ -9,7 +9,11 @@ import java.security.MessageDigest
  * Difficulty 0 = no PoW required (any nonce accepted).
  */
 object PowVerifier {
-    fun verify(challenge: String, nonce: String, difficulty: Int): Boolean {
+    fun verify(
+        challenge: String,
+        nonce: String,
+        difficulty: Int,
+    ): Boolean {
         if (difficulty == 0) return true
         val hash = sha256(challenge + nonce)
         return hash.startsWith("0".repeat(difficulty))
@@ -42,7 +46,10 @@ object ContentHeuristics {
 
     fun countUrls(text: String): Int = URL_REGEX.findAll(text).count()
 
-    fun isDuplicateSubject(subject: String, message: String): Boolean = subject == message
+    fun isDuplicateSubject(
+        subject: String,
+        message: String,
+    ): Boolean = subject == message
 
     fun isDisposableDomain(email: String): Boolean {
         val domain = email.substringAfter("@", "").lowercase()

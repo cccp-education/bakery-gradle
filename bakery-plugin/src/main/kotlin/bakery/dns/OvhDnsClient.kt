@@ -21,7 +21,10 @@ class OvhDnsClient(
     private val json = jacksonObjectMapper()
 
     /** Lists the ids of the records in the zone, optionally filtered by type. */
-    fun listRecordIds(domain: String, fieldType: String? = null): List<Long> {
+    fun listRecordIds(
+        domain: String,
+        fieldType: String? = null,
+    ): List<Long> {
         val query = if (fieldType.isNullOrBlank()) "" else "?fieldType=$fieldType"
         val response = call("GET", OvhEndpoint.recordListPath(domain) + query, null, "list records")
         return try {
@@ -36,13 +39,19 @@ class OvhDnsClient(
     }
 
     /** Fetches a single record and maps it back to a domain [DnsRecord]. */
-    fun getRecord(domain: String, id: Long): DnsRecord {
+    fun getRecord(
+        domain: String,
+        id: Long,
+    ): DnsRecord {
         val response = call("GET", OvhEndpoint.recordPath(domain, id), null, "get record")
         return parseRecord(response, "get record").toDnsRecord()
     }
 
     /** Creates a record and returns the new record id. */
-    fun createRecord(domain: String, record: DnsRecord): Long {
+    fun createRecord(
+        domain: String,
+        record: DnsRecord,
+    ): Long {
         val body = json.writeValueAsString(OvhRecord.fromDnsRecord(record))
         val response = call("POST", OvhEndpoint.recordListPath(domain), body, "create record")
         val wire = parseRecord(response, "create record")
@@ -55,13 +64,20 @@ class OvhDnsClient(
     }
 
     /** Updates an existing record (by id) to the desired [DnsRecord]. */
-    fun updateRecord(domain: String, id: Long, record: DnsRecord) {
+    fun updateRecord(
+        domain: String,
+        id: Long,
+        record: DnsRecord,
+    ) {
         val body = json.writeValueAsString(OvhRecord.fromDnsRecord(record))
         call("PUT", OvhEndpoint.recordPath(domain, id), body, "update record")
     }
 
     /** Deletes an existing record (by id). */
-    fun deleteRecord(domain: String, id: Long) {
+    fun deleteRecord(
+        domain: String,
+        id: Long,
+    ) {
         call("DELETE", OvhEndpoint.recordPath(domain, id), null, "delete record")
     }
 
@@ -70,7 +86,12 @@ class OvhDnsClient(
         call("POST", OvhEndpoint.refreshPath(domain), "{}", "refresh zone")
     }
 
-    private fun call(method: String, path: String, body: String?, action: String): OvhHttpResponse {
+    private fun call(
+        method: String,
+        path: String,
+        body: String?,
+        action: String,
+    ): OvhHttpResponse {
         val response = http.call(method, baseUrl + path, body)
         if (response.status !in 200..299) {
             throw OvhDnsException(
@@ -82,7 +103,10 @@ class OvhDnsClient(
         return response
     }
 
-    private fun parseRecord(response: OvhHttpResponse, action: String): OvhRecord =
+    private fun parseRecord(
+        response: OvhHttpResponse,
+        action: String,
+    ): OvhRecord =
         try {
             json.readValue<OvhRecord>(response.body)
         } catch (e: Exception) {

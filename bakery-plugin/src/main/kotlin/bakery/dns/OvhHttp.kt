@@ -7,8 +7,15 @@ package bakery.dns
  * [JavaOvhHttp] is the production adapter (java.net.http + signature).
  */
 interface OvhHttp {
-    fun call(method: String, url: String, body: String?): OvhHttpResponse
+    fun call(
+        method: String,
+        url: String,
+        body: String?,
+    ): OvhHttpResponse
 }
 
 /** Raw HTTP response — status code + body. */
-data class OvhHttpResponse(val status: Int, val body: String)
+data class OvhHttpResponse(
+    val status: Int,
+    val body: String,
+)

@@ -9,9 +9,14 @@ import java.security.SecureRandom
  * consumed exactly once (anti-replay). Storage is in-memory — the real
  * adapter (Apps Script CacheService) lives outside the domain.
  */
-data class SessionToken(val value: String, val issuedAt: Long)
+data class SessionToken(
+    val value: String,
+    val issuedAt: Long,
+)
 
-class SessionTokenManager(private val ttlMs: Long = 600000L) {
+class SessionTokenManager(
+    private val ttlMs: Long = 600000L,
+) {
     private val issued = mutableSetOf<String>()
     private val consumed = mutableSetOf<String>()
     private val random = SecureRandom()
@@ -24,7 +29,10 @@ class SessionTokenManager(private val ttlMs: Long = 600000L) {
         return SessionToken(value, issuedAt = now)
     }
 
-    fun validate(token: SessionToken, now: Long): Boolean {
+    fun validate(
+        token: SessionToken,
+        now: Long,
+    ): Boolean {
         if (token.value.isBlank()) return false
         if (!issued.contains(token.value)) return false
         if (consumed.contains(token.value)) return false

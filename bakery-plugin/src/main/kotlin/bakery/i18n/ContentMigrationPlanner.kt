@@ -13,7 +13,6 @@ import java.io.File
  * copy loop already applied.
  */
 object ContentMigrationPlanner {
-
     data class Plan(
         val filesToTranslate: List<String>,
         val checksums: Map<String, String>,

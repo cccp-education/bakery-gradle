@@ -2,7 +2,6 @@ package bakery.i18n
 
 import bakery.BakeryConstants
 import bakery.intention.ResolveIntention
-import bakery.intention.ResolveIntentionError
 import contracts.i18n.TranslationService
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
@@ -137,10 +136,11 @@ abstract class TranslateTemplatesTask : DefaultTask() {
             if (language == sourceLang) continue
             val targetDir = i18nRoot.resolve("$language/templates")
             val target =
-                templateFiles.associate {
-                    val relative = it.relativeTo(referenceDir).path
-                    relative to targetDir.resolve(relative)
-                }.filterValues { it.exists() }
+                templateFiles
+                    .associate {
+                        val relative = it.relativeTo(referenceDir).path
+                        relative to targetDir.resolve(relative)
+                    }.filterValues { it.exists() }
                     .mapValues { it.value.readText() }
 
             val toTranslate = TemplateTranslationPlanner.plan(reference, target, force = language in forceLangs)
@@ -161,10 +161,18 @@ abstract class TranslateTemplatesTask : DefaultTask() {
                 // Bound the concurrency to the healthy ports of the pool (pilot
                 // decision S-044): one worker per provider, never a shared
                 // mutable translator across threads.
-                val executor = java.util.concurrent.Executors.newFixedThreadPool(parallelism)
-                val translated = java.util.concurrent.atomic.AtomicInteger(0)
-                val failed = java.util.concurrent.atomic.AtomicInteger(0)
-                val rejected = java.util.concurrent.atomic.AtomicInteger(0)
+                val executor =
+                    java.util.concurrent.Executors
+                        .newFixedThreadPool(parallelism)
+                val translated =
+                    java.util.concurrent.atomic
+                        .AtomicInteger(0)
+                val failed =
+                    java.util.concurrent.atomic
+                        .AtomicInteger(0)
+                val rejected =
+                    java.util.concurrent.atomic
+                        .AtomicInteger(0)
                 val futures =
                     reference.keys
                         .filter { it in toTranslate }

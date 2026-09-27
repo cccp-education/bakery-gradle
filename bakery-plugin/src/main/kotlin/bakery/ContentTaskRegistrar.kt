@@ -1,6 +1,7 @@
 package bakery
 
 import bakery.article.GenerateArticleTask
+import bakery.contact.ScaffoldContactSecTask
 import bakery.firebase.ValidateFirebaseConfigTask
 import bakery.i18n.ContentMigrationIntentionDsl
 import bakery.i18n.I18nMigrationIntentionDsl
@@ -8,14 +9,11 @@ import bakery.i18n.LlmServiceTranslationAdapter
 import bakery.i18n.MaterializeTemplatesTask
 import bakery.i18n.MigrateContentI18nTask
 import bakery.i18n.MigrateToI18nTask
+import bakery.i18n.TranslateTemplatesTask
 import bakery.i18n.js.I18nClientMigrationIntentionDsl
 import bakery.i18n.js.TranslateI18nClientTask
-import bakery.i18n.TranslateTemplatesTask
 import bakery.i18n.rtl.RtlDirectionInjectionTask
 import bakery.langswitch.InjectLangSwitchTask
-import bakery.seo.InjectSeoTask
-import bakery.seo.SeoConfig
-import bakery.contact.ScaffoldContactSecTask
 import bakery.llm.IaConfig
 import bakery.llm.IaConfigResolver
 import bakery.llm.LlmService
@@ -23,6 +21,7 @@ import bakery.llm.OllamaLlmService
 import bakery.llm.PooledOllamaLlmService
 import bakery.scaffold.GenerateSiteFromIntentionTask
 import bakery.scaffold.ScaffoldIntentionDsl
+import bakery.seo.InjectSeoTask
 import bakery.theme.GenerateThemeTask
 import bakery.theme.ThemeIntentionDsl
 import org.gradle.api.Project

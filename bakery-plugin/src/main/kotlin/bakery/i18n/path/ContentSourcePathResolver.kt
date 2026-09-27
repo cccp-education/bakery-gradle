@@ -31,10 +31,12 @@ internal object ContentSourcePathResolver {
         }
     }
 
-    private fun sourceSegments(path: String): List<String> =
-        path.split("/").filter { it.isNotBlank() }
+    private fun sourceSegments(path: String): List<String> = path.split("/").filter { it.isNotBlank() }
 
-    private fun alreadyPrefixed(srcPath: String, sourceDir: String): Boolean {
+    private fun alreadyPrefixed(
+        srcPath: String,
+        sourceDir: String,
+    ): Boolean {
         val expected = sourceSegments(srcPath)
         if (expected.isEmpty()) return false
         val actual = sourceSegments(sourceDir)

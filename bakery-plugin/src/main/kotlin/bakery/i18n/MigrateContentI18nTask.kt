@@ -8,7 +8,6 @@ import contracts.i18n.TranslationService
 import document.translation.ContentTranslationService
 import document.translation.delta.ArticleModification
 import document.translation.delta.BlockChecksumEntry
-import document.translation.delta.ContentChecksum
 import document.translation.delta.I18nDelta
 import document.translation.delta.I18nDeltaApplier
 import document.translation.plantuml.PlantUmlTranslationAdapter
@@ -112,12 +111,13 @@ abstract class MigrateContentI18nTask : DefaultTask() {
         logger.lifecycle("[migrateContentI18n] Dry-run : {}", intention.dryRun)
         logger.lifecycle("[migrateContentI18n] Validation : {}", intention.validation)
 
-        val validationMode = try {
-            ValidationMode.valueOf(intention.validation)
-        } catch (e: IllegalArgumentException) {
-            logger.warn("[migrateContentI18n] Mode de validation '{}' invalide, fallback LENIENT.", intention.validation)
-            ValidationMode.LENIENT
-        }
+        val validationMode =
+            try {
+                ValidationMode.valueOf(intention.validation)
+            } catch (e: IllegalArgumentException) {
+                logger.warn("[migrateContentI18n] Mode de validation '{}' invalide, fallback LENIENT.", intention.validation)
+                ValidationMode.LENIENT
+            }
 
         val sourceDir = resolveSourceDir(intention)
         if (!sourceDir.exists()) {
@@ -187,11 +187,17 @@ abstract class MigrateContentI18nTask : DefaultTask() {
                 // ContentTranslationService so the translator's mutable validation
                 // lists are never shared across threads.
                 val workers = intention.parallelism.coerceAtLeast(1)
-                val executor = java.util.concurrent.Executors.newFixedThreadPool(workers)
+                val executor =
+                    java.util.concurrent.Executors
+                        .newFixedThreadPool(workers)
                 val tableResults = java.util.concurrent.ConcurrentLinkedQueue<TableValidationResult.Invalid>()
                 val plantUmlResults = java.util.concurrent.ConcurrentLinkedQueue<PlantUmlValidationResult.Invalid>()
-                var translatedCount = java.util.concurrent.atomic.AtomicInteger(0)
-                var errorCount = java.util.concurrent.atomic.AtomicInteger(0)
+                var translatedCount =
+                    java.util.concurrent.atomic
+                        .AtomicInteger(0)
+                var errorCount =
+                    java.util.concurrent.atomic
+                        .AtomicInteger(0)
 
                 val futures =
                     filesToTranslate.map { relPath ->
@@ -207,13 +213,14 @@ abstract class MigrateContentI18nTask : DefaultTask() {
                                 )
                             try {
                                 val previousBlockChecksums = loadBlockChecksums(langDir, relPath)
-                                val newBlockChecksums = workerService.translateSingleFileWithBlockDelta(
-                                    sourceFile = sourceFile,
-                                    targetFile = targetFile,
-                                    previousBlockChecksums = previousBlockChecksums,
-                                    sourceLanguage = intention.sourceLanguage,
-                                    targetLanguage = targetLang,
-                                )
+                                val newBlockChecksums =
+                                    workerService.translateSingleFileWithBlockDelta(
+                                        sourceFile = sourceFile,
+                                        targetFile = targetFile,
+                                        previousBlockChecksums = previousBlockChecksums,
+                                        sourceLanguage = intention.sourceLanguage,
+                                        targetLanguage = targetLang,
+                                    )
                                 storeBlockChecksums(langDir, relPath, newBlockChecksums)
                                 translatedCount.incrementAndGet()
                             } catch (e: Exception) {
@@ -284,10 +291,11 @@ abstract class MigrateContentI18nTask : DefaultTask() {
     ) {
         val tableReport = TableValidationReport.fromResults(tableResults)
         val plantUmlReport = PlantUmlValidationReport.fromResults(plantUmlResults)
-        val consolidated = ValidationReport(
-            table = tableReport.entries,
-            plantUml = plantUmlReport.entries,
-        )
+        val consolidated =
+            ValidationReport(
+                table = tableReport.entries,
+                plantUml = plantUmlReport.entries,
+            )
         val reportFile = outputBaseDir.resolve("validation-report.json")
         reportFile.writeText(consolidated.toJson())
         logger.lifecycle(
@@ -320,10 +328,15 @@ abstract class MigrateContentI18nTask : DefaultTask() {
         )
     }
 
-    private fun blockChecksumsFile(langDir: File, relPath: String): File =
-        langDir.resolve(".bakery-block-checksums").resolve("$relPath.checksums")
+    private fun blockChecksumsFile(
+        langDir: File,
+        relPath: String,
+    ): File = langDir.resolve(".bakery-block-checksums").resolve("$relPath.checksums")
 
-    private fun loadBlockChecksums(langDir: File, relPath: String): Map<String, BlockChecksumEntry> {
+    private fun loadBlockChecksums(
+        langDir: File,
+        relPath: String,
+    ): Map<String, BlockChecksumEntry> {
         val file = blockChecksumsFile(langDir, relPath)
         if (!file.exists()) return emptyMap()
         return file

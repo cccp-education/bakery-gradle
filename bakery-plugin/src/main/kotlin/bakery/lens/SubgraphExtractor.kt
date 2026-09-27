@@ -2,13 +2,13 @@ package bakery.lens
 
 // graphify-plugin 0.0.3 publishes the canonical package graphify.model —
 // the 0.0.2 relocation workaround (com.cheroliv.graphify.model) is removed.
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import graphify.model.GraphCommunity
 import graphify.model.GraphEdge
 import graphify.model.GraphModel
 import graphify.model.GraphNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import java.io.File
 
 /**

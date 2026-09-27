@@ -26,7 +26,6 @@ import org.gradle.work.DisableCachingByDefault
  */
 @DisableCachingByDefault(because = "DNS reconciliation — side effect on the live zone")
 abstract class ProvisionDnsTask : DefaultTask() {
-
     /** Provider handle, e.g. `ovh`. */
     @get:Input
     abstract val providerName: Property<String>
@@ -110,5 +109,4 @@ abstract class ProvisionDnsTask : DefaultTask() {
     }
 }
 
-private fun OvhCredentials.isComplete(): Boolean =
-    listOf(applicationKey, applicationSecret, consumerKey).all { it.isNotBlank() }
+private fun OvhCredentials.isComplete(): Boolean = listOf(applicationKey, applicationSecret, consumerKey).all { it.isNotBlank() }

@@ -148,8 +148,7 @@ class I18nMigrationService(
             .toList()
     }
 
-    fun extractHardcodedText(templateFile: File): MutableMap<String, String> =
-        extractHardcodedText(templateFile.readText(), templateFile.nameWithoutExtension)
+    fun extractHardcodedText(templateFile: File): MutableMap<String, String> = extractHardcodedText(templateFile.readText(), templateFile.nameWithoutExtension)
 
     /**
      * BKY-LANG-NAV-8 — string overload so a caller can key a template whose

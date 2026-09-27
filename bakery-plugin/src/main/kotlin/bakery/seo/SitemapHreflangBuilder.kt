@@ -1,7 +1,6 @@
 package bakery.seo
 
 class SitemapHreflangBuilder {
-
     fun build(
         siteHost: String,
         defaultLanguage: String,

@@ -18,7 +18,6 @@ import java.io.File
  * Pure domain: no Gradle, no I/O beyond the filesystem.
  */
 object SourceTree {
-
     fun walk(
         root: File,
         excludePaths: Set<String>,

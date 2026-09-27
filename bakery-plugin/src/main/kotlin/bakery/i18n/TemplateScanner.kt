@@ -16,7 +16,6 @@ package bakery.i18n
  * Pure domain: no I/O, no regex on the whole document, no Gradle.
  */
 internal object TemplateScanner {
-
     fun forEachRun(
         content: String,
         onMarkup: (String) -> Unit,

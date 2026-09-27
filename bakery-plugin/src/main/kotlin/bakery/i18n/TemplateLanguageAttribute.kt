@@ -14,7 +14,6 @@ package bakery.i18n
  * strict no-op (Ink Economy Law).
  */
 object TemplateLanguageAttribute {
-
     private val HTML_LANG = Regex("""(<html\b[^>]*?\blang\s*=\s*")[^"]*(")""")
 
     fun ensureLanguage(

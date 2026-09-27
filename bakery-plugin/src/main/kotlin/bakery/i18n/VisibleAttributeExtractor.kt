@@ -29,7 +29,6 @@ package bakery.i18n
  * Pure domain: no I/O, no LLM, no Gradle.
  */
 object VisibleAttributeExtractor {
-
     /**
      * The four prose-bearing attributes. The lookbehind keeps `th:placeholder`
      * (an interpolation) and `data-alt` (markup) out — only a *plain* attribute

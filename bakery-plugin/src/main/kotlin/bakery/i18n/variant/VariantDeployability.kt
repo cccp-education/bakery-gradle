@@ -23,8 +23,7 @@ object VariantDeployability {
     /** File extensions JBake renders as templates. */
     private val TEMPLATE_EXTENSIONS = setOf("thyme", "ftl", "html")
 
-    private fun isTemplate(file: File): Boolean =
-        file.isFile && file.extension.lowercase() in TEMPLATE_EXTENSIONS
+    private fun isTemplate(file: File): Boolean = file.isFile && file.extension.lowercase() in TEMPLATE_EXTENSIONS
 
     /**
      * The reference template names absent from the variant. Empty = the variant
@@ -34,7 +33,12 @@ object VariantDeployability {
         referenceTemplates: File,
         variantTemplates: File,
     ): List<String> {
-        val variant = variantTemplates.listFiles().orEmpty().map { it.name }.toSet()
+        val variant =
+            variantTemplates
+                .listFiles()
+                .orEmpty()
+                .map { it.name }
+                .toSet()
         return referenceTemplates
             .listFiles()
             .orEmpty()

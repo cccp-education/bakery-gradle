@@ -169,8 +169,7 @@ internal object I18nJsObjectParser {
             return if (pos > start) source.substring(start, pos) else null
         }
 
-        private fun isKeyChar(char: Char): Boolean =
-            char.isLetterOrDigit() || char == '_' || char == '-' || char == '.' || char == '$'
+        private fun isKeyChar(char: Char): Boolean = char.isLetterOrDigit() || char == '_' || char == '-' || char == '.' || char == '$'
 
         private fun skipWhitespace() {
             while (pos < source.length) {

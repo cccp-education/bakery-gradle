@@ -54,9 +54,11 @@ object I18nCatalog {
         indent: Int,
     ): List<Pair<String, String>> {
         val regex = Regex("^\\s{$indent}([a-zA-Z][a-zA-Z0-9_]*):\\s*\\{", RegexOption.MULTILINE)
-        return regex.findAll(source).mapNotNull { match ->
-            I18nJsBlockScanner.bodyFrom(source, match.range.first)?.let { match.groupValues[1] to it }
-        }.toList()
+        return regex
+            .findAll(source)
+            .mapNotNull { match ->
+                I18nJsBlockScanner.bodyFrom(source, match.range.first)?.let { match.groupValues[1] to it }
+            }.toList()
     }
 
     /** The body of the top-level `TALARIA.I18N.CATALOG = { ... }` object, or null. */
@@ -118,8 +120,9 @@ object I18nCatalog {
         formation: String,
     ): List<String> {
         val languageBody = languageBody(source, language) ?: return emptyList()
-        val formationBody = blocks(languageBody, FORMATION_INDENT).firstOrNull { it.first == formation }?.second
-            ?: return emptyList()
+        val formationBody =
+            blocks(languageBody, FORMATION_INDENT).firstOrNull { it.first == formation }?.second
+                ?: return emptyList()
         return Regex("^\\s{$FIELD_INDENT}([a-zA-Z][a-zA-Z0-9_]*):", RegexOption.MULTILINE)
             .findAll(formationBody)
             .map { it.groupValues[1] }

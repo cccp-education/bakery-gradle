@@ -21,7 +21,6 @@ package bakery.i18n
  * Pure domain: no I/O, no LLM, no Gradle.
  */
 object TemplateAttributeRepair {
-
     fun pending(
         reference: String,
         target: String,

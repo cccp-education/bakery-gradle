@@ -13,7 +13,9 @@ sealed interface DnsChange {
     val record: DnsRecord
 
     /** The desired record is missing from the zone — create it. */
-    data class Create(override val record: DnsRecord) : DnsChange
+    data class Create(
+        override val record: DnsRecord,
+    ) : DnsChange
 
     /** An existing record must be updated to match the desired one. */
     data class Update(

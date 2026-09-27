@@ -12,7 +12,6 @@ package bakery.dns
  * props/ENV, empty lists fall through.
  */
 object DnsConfigMerger {
-
     fun merge(
         env: DnsConfig,
         props: DnsConfig,
@@ -76,6 +75,5 @@ object DnsConfigMerger {
         return env
     }
 
-    private fun Map<String, Any?>.cliBoolean(key: String): Boolean? =
-        this[key]?.let { (it as? Boolean) ?: it.toString().toBoolean() }
+    private fun Map<String, Any?>.cliBoolean(key: String): Boolean? = this[key]?.let { (it as? Boolean) ?: it.toString().toBoolean() }
 }

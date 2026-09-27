@@ -17,7 +17,6 @@ package bakery.i18n
  * Pure domain: no I/O, no LLM, no Gradle.
  */
 object SwitcherBlockMask {
-
     const val START_MARKER = "<!-- che-i18n:lang-switcher:start -->"
     const val END_MARKER = "<!-- che-i18n:lang-switcher:end -->"
 

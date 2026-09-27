@@ -17,10 +17,11 @@ package bakery.i18n.js
 object I18nJsDictionary {
     private val LANGUAGE_BLOCK = Regex("^\\s{4}([a-z]{2}):\\s*\\{", RegexOption.MULTILINE)
 
-    private val KEY = Regex(
-        "^\\s*\"([a-zA-Z][a-zA-Z0-9._-]*)\":\\s*\"((?:[^\"\\\\]|\\\\.)*)\"",
-        RegexOption.MULTILINE,
-    )
+    private val KEY =
+        Regex(
+            "^\\s*\"([a-zA-Z][a-zA-Z0-9._-]*)\":\\s*\"((?:[^\"\\\\]|\\\\.)*)\"",
+            RegexOption.MULTILINE,
+        )
 
     private const val KEY_INDENT = "      "
 

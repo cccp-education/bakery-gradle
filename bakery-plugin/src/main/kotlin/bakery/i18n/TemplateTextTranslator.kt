@@ -23,7 +23,6 @@ import contracts.i18n.TranslationService
 class TemplateTextTranslator(
     private val translationService: TranslationService,
 ) {
-
     data class Result(
         val content: String,
         val translatedSegments: Int,

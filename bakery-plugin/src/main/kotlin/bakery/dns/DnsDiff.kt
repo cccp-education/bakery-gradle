@@ -21,14 +21,19 @@ package bakery.dns
  * Pure DDD object — no I/O, no Gradle coupling, fully unit-testable.
  */
 object DnsDiff {
-
-    private data class Slot(val type: String, val name: String)
+    private data class Slot(
+        val type: String,
+        val name: String,
+    )
 
     /**
      * Returns the ordered plan of [DnsChange] actions. Order: all
      * creates/updates grouped by desired slot, then all deletes.
      */
-    fun compute(desired: List<DnsRecord>, actual: List<ExistingDnsRecord>): List<DnsChange> {
+    fun compute(
+        desired: List<DnsRecord>,
+        actual: List<ExistingDnsRecord>,
+    ): List<DnsChange> {
         val desiredBySlot = desired.groupBy { Slot(it.type, it.name) }
         val actualBySlot = actual.groupBy { Slot(it.record.type, it.record.name) }
         val changes = mutableListOf<DnsChange>()

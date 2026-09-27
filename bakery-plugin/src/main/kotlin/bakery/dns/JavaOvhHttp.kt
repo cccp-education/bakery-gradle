@@ -16,12 +16,16 @@ import java.time.Duration
 class JavaOvhHttp(
     private val credentials: OvhCredentials,
     private val client: HttpClient =
-        HttpClient.newBuilder()
+        HttpClient
+            .newBuilder()
             .connectTimeout(Duration.ofSeconds(10))
             .build(),
 ) : OvhHttp {
-
-    override fun call(method: String, url: String, body: String?): OvhHttpResponse {
+    override fun call(
+        method: String,
+        url: String,
+        body: String?,
+    ): OvhHttpResponse {
         val timestamp = (System.currentTimeMillis() / 1000).toString()
         val signature =
             OvhSignature.sign(
@@ -34,7 +38,8 @@ class JavaOvhHttp(
             )
 
         val request =
-            HttpRequest.newBuilder(URI.create(url))
+            HttpRequest
+                .newBuilder(URI.create(url))
                 .method(method, bodyPublisher(body))
                 .header("X-Ovh-Application", credentials.applicationKey)
                 .header("X-Ovh-Consumer", credentials.consumerKey)

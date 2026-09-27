@@ -56,8 +56,8 @@ object I18nCatalogDocument {
         source: String,
         language: String,
     ): List<LocatedLiteral> {
-        val object_ = languageObject(source, language) ?: return emptyList()
-        return locatedLiteralsIn(object_, "")
+        val jsObject = languageObject(source, language) ?: return emptyList()
+        return locatedLiteralsIn(jsObject, "")
     }
 
     /** Ordered literals of the object opening at [brace] in [source]. */
@@ -65,8 +65,8 @@ object I18nCatalogDocument {
         source: String,
         brace: Int,
     ): List<LocatedLiteral> {
-        val object_ = I18nJsObjectParser.parseObjectAt(source, brace) ?: return emptyList()
-        return locatedLiteralsIn(object_, "")
+        val jsObject = I18nJsObjectParser.parseObjectAt(source, brace) ?: return emptyList()
+        return locatedLiteralsIn(jsObject, "")
     }
 
     /** Structural object of [language], or null when the block/source is absent. */

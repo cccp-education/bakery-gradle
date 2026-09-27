@@ -13,18 +13,27 @@ package bakery.dns
  * [DnsProviderFactory].
  */
 interface DnsProvider {
-
     /** Lists the records currently present in the zone. */
     fun listRecords(domain: String): List<ExistingDnsRecord>
 
     /** Creates a record and returns its id. */
-    fun createRecord(domain: String, record: DnsRecord): Long
+    fun createRecord(
+        domain: String,
+        record: DnsRecord,
+    ): Long
 
     /** Updates an existing record (by id) to the desired one. */
-    fun updateRecord(domain: String, id: Long, record: DnsRecord)
+    fun updateRecord(
+        domain: String,
+        id: Long,
+        record: DnsRecord,
+    )
 
     /** Deletes an existing record (by id). */
-    fun deleteRecord(domain: String, id: Long)
+    fun deleteRecord(
+        domain: String,
+        id: Long,
+    )
 
     /** Triggers a zone refresh so pending changes propagate. */
     fun refreshZone(domain: String)
