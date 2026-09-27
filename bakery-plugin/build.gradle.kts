@@ -97,6 +97,12 @@ tasks.withType<Test> {
         "XDG_CONFIG_HOME",
         layout.projectDirectory.dir("config/xdg").asFile.absolutePath,
     )
+
+    // BKY-CI-ISOLATION (V12) — pin the JVM timezone. `SiteContextCollector`
+    // renders feed dates with `ZoneId.systemDefault()`; a `+0200` timestamp is
+    // `2024-07-24` in Europe/Paris but `2024-07-23` under the runner's UTC.
+    // A fixed zone keeps assertions deterministic across environments.
+    systemProperty("user.timezone", "Europe/Paris")
 }
 
 // ────────────────────────────────────────────────────────────
