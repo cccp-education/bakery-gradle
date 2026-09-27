@@ -1,0 +1,103 @@
+= Session 246 — Cadrage mission B : bug latent `configureKover` no-op (conventions)
+
+_Date_ : 2026-09-27
+_Borough_ : Bushwick 🟤 (bakery-gradle, ouverture) + ABIDJAN 🟤 (conventions-gradle, producteur)
+_Type_ : Cadrage / gouvernance pure — zéro code modifié
+_Score_ : 8/10
+
+== Contexte
+
+Reprise bakery (`foundry/public/bakery-gradle/bakery-plugin`) sur `PROMPT_REPRISE`
+S-246. Ouverture conforme : `AGENT.adoc`, `.agents/INDEX.adoc`, `PROMPT_REPRISE.adoc`,
+`BACKLOG.adoc`, `TODO.adoc`, `git status` (arbre propre, `313e94a7`), gate
+d'environnement `./gradlew compileKotlin compileTestKotlin` **VERT**.
+
+Le PROMPT_REPRISE proposait 4 missions (A F50 cross-borough, B `configureKover`
+no-op, C publication bakery 0.0.21, D MASS-6 bloqué LLM). **Décision pilote : B.**
+
+== Constat de cadrage (sources vérifiées)
+
+`conventions-plugin/src/main/kotlin/build/KoverConventionsPlugin.kt` (0.0.5) :
+
+* `configureKover(project)` (lignes 27-62) atteint l'extension kover par
+  **réflexion** via `invokeMethod(kover, koverClass, "currentProject")`.
+* Or l'API kover `0.9.8` expose **deux** méthodes homonymes
+  (`javap` sur `KoverProjectExtension`) :
+  ** `currentProject(Action<KoverCurrentProjectVariantsConfig>)` — l'action, 1 param ;**
+  ** `getCurrentProject(): KoverCurrentProjectVariantsConfig` — le getter, 0 param.**
+* `invokeMethod(…, "currentProject", vararg args)` cherche une méthode nommée
+  `currentProject` de `parameterCount == 0` → **ne trouve jamais** `getCurrentProject()`
+  (nom JVM différent). Retour `null` → **tout le bloc est silencieusement sauté**.
+* **Conséquence** : depuis toujours (le bloc est né dans `996ddae`, CNV-12),
+  `includedSourceSets = {main, functionalTest}` et `onCheck = true` (html + xml)
+  **ne sont jamais posés**. C'est pourquoi bakery devait configurer kover lui-même
+  et pourquoi le workaround S-243 V7 était nécessaire.
+
+=== Intention attendue par le code mort
+
+* `includedSourceSets.addAll("main", "functionalTest")` — les sources mesurées
+  sont `main` + `functionalTest`. **`e2eTest` et `test` seraient exclus** de la
+  couverture. Les tests (`test`) ne sont jamais comptés dans kover de toute façon ;
+  l'exclusion réelle porte sur `e2eTest` (Playwright, non exécuté par `check`).
+* `onCheck = true` (html + xml) sur le variant `total` — les rapports s'attachent à
+  `check`.
+
+=== Périmètre — un bug latent en cachait un autre
+
+Le chemin XML (bug corrigé S-245/0.0.5) était **orthogonal** : `resolveXmlReportFile`
+lit la propriété réelle, indépendamment de `configureKover`. Le workaround bakery
+retiré, `koverThresholdCheck` est VERT (89,20 %). Le no-op restant est **distinct**.
+
+== Question de décision (à trancher en S-247 avant le premier baby-step)
+
+Trois options, avec impact sur le seuil de couverture bakery (85 %) :
+
+. **Option A — corriger en typé `KoverProjectExtension`** (`kover.currentProject {
+  sources { includedSourceSets.addAll("main","functionalTest") } ; reports { total {
+  html { onCheck.set(true) } ; xml { onCheck.set(true) } } }`) : fidèle au code mort,
+  mais **restreint la couverture à main+functionalTest** → `e2eTest` exclu (déjà
+  non exécuté par `check`) → le seuil peut **changer**. Bump `0.0.6` + propagation.
+. **Option B — ne poser que `onCheck`** (laisser `includedSourceSets` au défaut
+  kover = tous les source sets) : supprime le no-op, `onCheck` devient effectif,
+  couverture bakery **inchangée** (89,20 %). Bump `0.0.6` + propagation.
+. **Option C — supprimer `configureKover`** (code mort, zéro intention utile) :
+  plus honnête que le patch, zéro changement de comportement. Bump `0.0.6`.
+
+*Recommandation* : **B** (le plus proche de l'intention `onCheck` sans changer la
+sémantique de couverture du seul consommateur), sauf si le pilote veut aligner
+sur la lettre du code mort (A).
+
+== Note — propagation bakery
+
+Bakery pinne les 4 conventions `0.0.5` **en dur** dans `settings.gradle.kts`
+(`pluginManagement`), la contrainte BOM MEMPHIS `conventions-plugin 0.0.4`
+n'étant **pas consommée** (constaté S-245). Un fix `0.0.6` se propage donc par
+re-pin bakery (4 ids) — pas par bump BOM (release MEMPHIS séparée si demandée).
+
+== Livré
+
+* **Zéro code modifié** (mission de cadrage, décision pilote « B » puis arrêt de
+  session sur demande pilote).
+* `git status` bakery : **propre** avant et après (aucun delta à committer).
+* Le cadrage ci-dessus est le livrable.
+
+== Gates
+
+[cols="2,3"]
+|===
+| Gate | Résultat
+
+| bakery `git status` | propre (`313e94a7`), rien à valider
+| bakery `compileKotlin compileTestKotlin` | **VERT** (environnement validé)
+| conventions `git status` | 1 fichier modifié **préexistant** (`.agents/SESSIONS_HISTORY.adoc`, session parallèle, 208 lignes supprimées) — **laissé hors périmètre**
+| gate métier `src/` | non applicable (zéro code)
+| Secrets | 0
+|===
+
+== Suite
+
+* **S-247** : reprendre mission B — trancher Option A/B/C, puis baby-step
+  DDD/TDD/BDD strict côté producteur (`KoverConventionsPlugin`, RED prouvé par
+  revert) + bump `0.0.6` + propagation bakery (re-pin 4 ids).
+* Alternative non choisie : F50 cross-borough (document-gradle), publication
+  bakery 0.0.21 (sur demande), MASS-6 (bloquée LLM).

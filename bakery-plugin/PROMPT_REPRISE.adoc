@@ -1,61 +1,50 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 246
+:session: 247
 :date: 2026-09-27
-:etat: Session 245 ✅ — **Correction racine conventions `koverThresholdCheck`** (cross-borough conventions-plugin 0.0.4→0.0.5 publié Central) + propagation bakery (workaround retiré).
-:epic_actif: **Correction racine conventions** ✅ TERMINÉ (S-245).
-:epic_suivant: **F50 cross-borough** (`:summary:` document) OU **Bug latent `configureKover` no-op** (réflexion conventions) OU **Publication bakery 0.0.21** OU **MASS-6** (bloqué accord pilote, ~675h LLM).
-:dette: kover path résolu ; reste `configureKover` no-op (conventions 0.0.5, découvert S-245) + F50 (document).
+:etat: Session 246 — **Cadrage mission B** (`configureKover` no-op) — décision pilote prise, **zéro code modifié** (arrêt de session sur demande pilote).
+:epic_actif: **Bug latent `configureKover` no-op** (conventions 0.0.5) — CADRÉ, prêt à implémenter.
+:epic_suivant: **Implémenter mission B** (Option A/B/C à trancher) Puis F50 cross-borough OU publication bakery 0.0.21 OU MASS-6 (bloqué LLM).
+:dette: kover path résolu (S-245) ; `configureKover` no-op cadré (S-246), à corriger.
 
-== État S-245
+== État S-246
 
-Mission A du PROMPT_REPRISE S-244 : corriger la racine du bug kover (chemin XML
-hardcodé) dans `conventions-gradle`, bumper, propager, retirer le workaround.
+Reprise bakery : ouverture lue (AGENT/INDEX/PROMPT_REPRISE/BACKLOG/TODO), `git
+status` propre (`313e94a7`), `compileKotlin compileTestKotlin` **VERT**.
+Pilote a choisi la **mission B** (`configureKover` no-op) puis a demandé la
+clôture avant implémentation. **Zéro code modifié.** Rapport
+`.agents/sessions/246-cadrage-configurekover-noop.adoc`.
 
-* **conventions-plugin 0.0.4 → 0.0.5** (cross-borough, repo ABIDJAN).
-* 2 baby-steps DDD/TDD/BDD strict : `KoverCoverage` (objet pur, 6 UT) +
-  `resolveXmlReportFile` (lit la propriété réelle `reports.total.xml.xmlFile`,
-  fallback défaut kover 0.9.8).
-* RED prouvé : 2 FT TestKit (`Kover report not found`) + 2/3 scénarios BDD par
-  revert ciblé. GREEN : 3/3.
-* Publication Central : bundle `08a7b16f-d90d-4d2f-b63e-0a4c0b7bfcc2`
-  (AUTOMATIC), 4 plugin markers + pom/jar 0.0.5 repo1 HTTP 200.
-* Propagation bakery : 4 ids conventions 0.0.5 + **retrait du workaround**
-  (S-243 V7, 20 lignes). `koverThresholdCheck` VERT 89,20 % > 85 % sans le
-  workaround.
+== Constat de cadrage (vérifié)
 
-Gates : conventions `check` VERT (test 53/0, functionalTest 26/0, cucumberTest
-47/0) ; bakery `test` 2073/0, `functionalTest` 164/0, `cucumberTest` 3294/0,
-gate métier 0, zéro secret. Rapport `.agents/sessions/245-…`.
+* API kover `0.9.8` expose **deux** `currentProject` distincts (`javap`) :
+  `currentProject(Action)` (1 param) et `getCurrentProject()` (0 param).
+* `invokeMethod(…, "currentProject")` cherche `parameterCount == 0` → ne matche
+  jamais `getCurrentProject()` (nom JVM différent) → **bloc silencieusement
+  sauté** ; `includedSourceSets={main,functionalTest}` + `onCheck=true` (html/xml)
+  **jamais posés** depuis `996ddae` (CNV-12).
+* Orthogonal au fix S-245 (chemin XML) : le no-op est un bug **distinct**.
 
-== Découverte S-245 (à traiter)
+== Mission Session 247 — implémenter B
 
-* **Bug latent `configureKover` no-op** (conventions 0.0.5, préexistant) : le
-  helper `invokeMethod(…, "currentProject")` ne matche jamais le getter Java
-  `getCurrentProject()` → `includedSourceSets`/`onCheck` jamais posés. Non
-  corrigé S-245 (sémantique ambiguë : `includedSourceSets = {main, functionalTest}`
-  exclurait `e2eTest` de la couverture bakery → change le seuil). À cadrer.
-* **BOM MEMPHIS** : contrainte `conventions-plugin 0.0.4` (catalogue) — non
-  consommée par bakery (pin dur `pluginManagement`). Bump BOM = release MEMPHIS.
+Trancher d'abord l'intention (voir cadrage S-246 §Question de décision) :
 
-== Mission Session 246
+. **Option A** — corriger en typé `KoverProjectExtension` fidèle au code mort
+   (`includedSourceSets = {main, functionalTest}` + `onCheck`) → `e2eTest` exclu,
+   seuil bakery **peut changer**.
+. **Option B (recommandée)** — ne poser que `onCheck` (laisser
+   `includedSourceSets` au défaut) → couverture bakery **inchangée** (89,20 %).
+. **Option C** — supprimer `configureKover` (code mort, zéro intention utile).
 
-À cadrer d'abord (zéro initiative) :
-
-. **A — F50 cross-borough** : sémantique `:summary:`/`:description:` portée par
-   `document-gradle` (seul le test bakery avait été réaligné S-243).
-. **B — Bug latent `configureKover` no-op** (conventions) : décider de l'intention
-   (`includedSourceSets`/`onCheck`), corriger en typé (`KoverProjectExtension`),
-   bump 0.0.6, propager. Impact seuil couverture bakery → à cadrer.
-. **C — Publication bakery 0.0.21** : porte S-241→S-245 (dont bug produit
-   `GitService.ensureHeadOnBranch` S-243 + bump conventions 0.0.5). Sur demande pilote.
-. **D — MASS-6** (108 articles × 10 langues, ~675h LLM) : **bloqué accord pilote
-   explicite**. Ne pas engager sans GO.
+Puis **baby-step DDD/TDD/BDD strict côté producteur** (`KoverConventionsPlugin`) :
+RED prouvé par revert → GREEN ; **bump conventions `0.0.5 → 0.0.6`** + publication
+Central + **propagation bakery** (re-pin des 4 ids dans `settings.gradle.kts` ;
+BOM MEMPHIS non consommé — release séparée si demandée).
 
 == Reprendre à
 
-. `git status` dans bakery-gradle (arbre propre à la clôture S-245).
-. `.agents/sessions/245-conventions-kover-path-fix.adoc` (2 baby-steps, bundles).
-. conventions-gradle : `.agents/sessions/018-…` (le fix producteur).
+. `.agents/sessions/246-cadrage-configurekover-noop.adoc` (§Constat + §Question).
+. `conventions-plugin/src/main/kotlin/build/KoverConventionsPlugin.kt:27-62`.
+. `KoverThresholdCheckFunctionalTest.kt` (patron FT TestKit existant).
 . Gate Économie d'Encre : ne relancer `test`/`cucumber` que si le code change.
 
 == Rappel

@@ -1,7 +1,16 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-09-27 — Session 245. **Correction racine conventions `koverThresholdCheck`** ✅ TERMINÉ (cross-borough ABIDJAN) — conventions-plugin 0.0.4 → 0.0.5 publié Central (bundle `08a7b16f`), propagation bakery (workaround retiré), `koverThresholdCheck` VERT 89,20 % sans workaround. Découverte : `configureKover` no-op (bug latent distinct). Antérieur S-244 : BKY-KTLINT-CLEANUP (dette ktlint RÉSORBÉE, baseline vide). S-243 : BKY-CI-ISOLATION (CI VERTE, 13 verrous dont le bug produit `GitService.ensureHeadOnBranch`)._
+_Dernière mise à jour : 2026-09-27 — Session 246 ⏸️. **Cadrage mission B (`configureKover` no-op, conventions)** — décision pilote, **zéro code modifié** (arrêt sur demande pilote). Constat vérifié `javap` : kover 0.9.8 expose `currentProject(Action)` (1 param) **et** `getCurrentProject()` (0 param) ; `invokeMethod(…,"currentProject")` cherche `parameterCount == 0` → no-op depuis `996ddae` (CNV-12). 3 options cadrées (A typage fidèle / **B recommandée** `onCheck` seul / C suppression code mort). Implémentation S-247. Antérieur S-245 : correction racine conventions `koverThresholdCheck` ✅ (0.0.5 Central + workaround retiré). S-244 : BKY-KTLINT-CLEANUP (dette ktlint RÉSORBÉE). S-243 : BKY-CI-ISOLATION (CI VERTE)._
+
+== Mission B (S-246 cadrée → S-247 à implémenter) — `configureKover` no-op (conventions)
+
+* [x] **Cadrage S-246** : constat vérifié aux sources (`javap` → 2 méthodes `currentProject`), 3 options documentées, périmètre orthogonal au fix S-245
+* [ ] **S-247 — trancher Option A/B/C** (B recommandée : `onCheck` seul, couverture bakery inchangée 89,20 %)
+* [ ] **S-247 — baby-step DDD/TDD/BDD producteur** (`KoverConventionsPlugin`, RED prouvé par revert) + bump conventions `0.0.6` + propagation bakery (re-pin 4 ids)
+* [ ] **S-247+ — F50 cross-borough** : sémantique `:summary:`/`:description:` portée par `document-gradle`
+* [ ] **S-247+ (option) — publication bakery 0.0.21** : porte S-241→S-245 — sur demande pilote
+* [ ] **MASS-6** : bloqué accord pilote explicite (~675h LLM)
 
 == EPIC — Correction racine conventions `koverThresholdCheck` (S-245) ✅ TERMINÉ
 
@@ -12,9 +21,9 @@ _Dernière mise à jour : 2026-09-27 — Session 245. **Correction racine conven
 * [x] **conventions-plugin 0.0.4 → 0.0.5** + `publishToMavenLocal` + Central (bundle `08a7b16f-d90d-4d2f-b63e-0a4c0b7bfcc2`)
 * [x] **Propagation bakery** : 4 ids conventions 0.0.5 + retrait du workaround (20 lignes)
 * [x] **Preuve** : `koverThresholdCheck` bakery VERT 89,20 % > 85 % sans workaround
-* [ ] **Découverte à cadrer** : bug latent `configureKover` no-op (conventions, `currentProject` ≠ `getCurrentProject()`), sémantique ambiguë
-* [ ] **S-246 — F50 cross-borough** : sémantique `:summary:`/`:description:` portée par `document-gradle`
-* [ ] **S-246 (option) — publication bakery 0.0.21** : porte S-241→S-245 — sur demande pilote
+* [x] **Cadrage S-246** : bug latent `configureKover` no-op — constat vérifié `javap`, 3 options (A/B/C), périmètre orthogonal au fix S-245 → voir section « Mission B » ci-dessus
+* [ ] **S-247 — F50 cross-borough** : sémantique `:summary:`/`:description:` portée par `document-gradle`
+* [ ] **S-247 (option) — publication bakery 0.0.21** : porte S-241→S-245 — sur demande pilote
 * [ ] **MASS-6** : bloqué accord pilote explicite (~675h LLM)
 
 == EPIC BKY-KTLINT-CLEANUP (S-244) — Dette ktlint résorbée (baseline 171 → 0) ✅ TERMINÉ
@@ -28,8 +37,8 @@ _Dernière mise à jour : 2026-09-27 — Session 245. **Correction racine conven
 * [x] **Lot 5c** : `max-line-length` (5 JSON `@Suppress`) + `property-naming` → **baseline vide** — `4f3828a2`
 * [x] **Découverte** : le lot ne peut pas être scopé fichier via la tâche Gradle (`include`/`setSource` ignorés) — outil = CLI ktlint 1.5.0, lot = source set
 * [x] **S-245 — Correction racine conventions** : chemin hardcodé `koverThresholdCheck` (bug 0.0.4) → conventions 0.0.5 publiée + propagation bakery ✅ (voir EPIC S-245 ci-dessus)
-* [ ] **S-246 — F50 cross-borough** : sémantique `:summary:`/`:description:` portée par `document-gradle`
-* [ ] **S-246 (option) — publication bakery 0.0.21** : porte S-241→S-245 (dont le bug produit GitService) — sur demande pilote
+* [ ] **S-247 — F50 cross-borough** : sémantique `:summary:`/`:description:` portée par `document-gradle`
+* [ ] **S-247 (option) — publication bakery 0.0.21** : porte S-241→S-245 (dont le bug produit GitService) — sur demande pilote
 * [ ] **MASS-6** : bloqué accord pilote explicite (~675h LLM)
 
 == EPIC BKY-CI-ISOLATION (S-243) — CI verte (13 verrous) ✅ TERMINÉ

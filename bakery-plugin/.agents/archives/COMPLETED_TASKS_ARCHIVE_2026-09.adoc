@@ -1,5 +1,27 @@
 = Archive des Taches Terminees — Septembre 2026
 
+== Session 246 — 2026-09-27 — Cadrage mission B : bug latent `configureKover` no-op (conventions)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| Ouverture bakery conforme (`git status` propre `313e94a7`, `compileKotlin compileTestKotlin` VERT)
+| ✅ FAIT
+
+| Constat vérifié aux sources (`javap` kover `0.9.8`) : `currentProject(Action)` (1 param) vs `getCurrentProject()` (0 param) → `invokeMethod` no-op depuis `996ddae` (CNV-12)
+| ✅ FAIT
+
+| 3 options cadrées (A typage fidèle / **B recommandée** `onCheck` seul / C suppression code mort) — décision à trancher S-247
+| ✅ FAIT
+
+| Zéro code modifié — cadrage = livrable (arrêt de session sur demande pilote)
+| ✅ FAIT
+
+| Rapport `.agents/sessions/246-cadrage-configurekover-noop.adoc`
+| ✅ CRÉÉ
+|===
+
 == Session 245 — 2026-09-27 — Correction racine conventions `koverThresholdCheck` (cross-borough)
 
 [cols="2,3"]
