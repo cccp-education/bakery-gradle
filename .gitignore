@@ -11,3 +11,5 @@ _msg_.txt
 postgresql.yml
 .kotlin
 readme-truth.yml
+# BKY-CI-ISOLATION (V12) — JGit runtime cache written under XDG_CONFIG_HOME
+bakery-plugin/config/xdg/jgit/
