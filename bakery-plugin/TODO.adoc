@@ -1,9 +1,9 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-09-27 — Session 243. **BKY-CI-ISOLATION** ✅ TERMINÉ — CI bakery VERTE (8 verrous levés : JDK 25, gardes workspace-aware, version catalogue injectée, 4 scénarios périmés réalignés, timeouts 15 min, chemin kover, ktlint baseline). `build` VERT 5m28s. Antérieur S-242 : BKY-VARIANT-UNIFY (split-brain `i18n.variant` absorbé, zéro traduction). S-241 : FLAKY-5 SOLDÉ (drift fixture cheroliv.com, `test` 2059/0). S-240 : release bakery 0.0.20 + CI réelle VERTE + Gradle 9.8.0. S-239 : brique N2 `bakeVariants`._
+_Dernière mise à jour : 2026-09-27 — Session 243. **BKY-CI-ISOLATION** ✅ TERMINÉ — CI bakery VERTE (13 verrous, dont le bug produit `GitService.ensureHeadOnBranch`). `build` VERT 5m28s. Antérieur S-242 : BKY-VARIANT-UNIFY (split-brain `i18n.variant` absorbé, zéro traduction). S-241 : FLAKY-5 SOLDÉ (drift fixture cheroliv.com, `test` 2059/0). S-240 : release bakery 0.0.20 + CI réelle VERTE + Gradle 9.8.0. S-239 : brique N2 `bakeVariants`._
 
-== EPIC BKY-CI-ISOLATION (S-243) — CI verte (8 verrous) ✅ TERMINÉ
+== EPIC BKY-CI-ISOLATION (S-243) — CI verte (13 verrous) ✅ TERMINÉ
 
 * [x] **V1** : `.github/workflows/test.yml` JDK 24 → 25 (conventions-plugin 0.0.4 exige JVM 25)
 * [x] **V2/V3** : `bakery.workspace.WorkspaceRoot` (objet pur test, 8 UT) + `assumeTrue` sur `FixtureAlignmentAuditorTest`/`RealSiteI18nMigrationIntegrationTest`

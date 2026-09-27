@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-09-27 — ✅ **BKY-CI-ISOLATION TERMINÉ (S-243) — CI bakery VERTE (8 verrous levés)**. L'audit d'ouverture a révélé la CI `Test` **rouge sur 200/200 runs** (depuis ≥ 2026-06-14) : échec en configuration (`conventions-plugin:0.0.4` exige JVM 25, workflow épinglait JDK 24). Périmètre étendu à 8 verrous : V1 JDK 24→25 ; V2/V3 gardes site → `WorkspaceRoot` + `assumeTrue` ; V4 version catalogue injectée par Gradle (patron graphify D5-RACE) ; V5 4 scénarios cucumber périmés réalignés ; V6 timeout 5→15 min ; V7 chemin kover aligné (89,21 % > 85 %) ; V8 ktlint baseline (171 fichiers). V5→V8 préexistaient (stash-prouvé), masqués par V1. `build` **VERT 5m28s**, `test` 2072/0, `cucumberTest` 3294/0, `publishToMavenLocal` VERT. `.agents/CADRAGE_EPIC_BKY_CI_ISOLATION.adoc`.
+_Dernière mise à jour : 2026-09-27 — ✅ **BKY-CI-ISOLATION TERMINÉ (S-243) — CI bakery VERTE (13 verrous levés, dont 1 bug produit)**. L'audit d'ouverture a révélé la CI `Test` **rouge sur 200/200 runs** (depuis ≥ 2026-06-14) : échec en configuration (`conventions-plugin:0.0.4` exige JVM 25, workflow épinglait JDK 24). Périmètre étendu à 13 verrous (V1→V13) : V1 JDK 24→25 ; V2/V3 gardes site → `WorkspaceRoot` + `assumeTrue` ; V4 version catalogue injectée par Gradle (patron graphify D5-RACE) ; V5 4 scénarios cucumber périmés réalignés ; V6 timeout 5→15 min ; V7 chemin kover aligné (89,21 % > 85 %) ; V8 ktlint baseline (171 fichiers). V9 `site.yml` in-repo ; V10 `.editorconfig` tracké ; V11 bug produit `GitService.ensureHeadOnBranch` ; V12 `XDG_CONFIG_HOME` ; V13 timezone. V5→V8 préexistaient (stash-prouvé), masqués par V1. `build` **VERT 5m28s**, `test` 2072/0, `cucumberTest` 3294/0, `publishToMavenLocal` VERT. `.agents/CADRAGE_EPIC_BKY_CI_ISOLATION.adoc`.
 
 _Dernière mise à jour (antérieure) : 2026-09-26 — ✅ **BKY-VARIANT-UNIFY — split-brain `i18n.variant` absorbé (cheroliv ↔ bakery)** (S-242, option C patron NAV-6 — D5 du cadrage `BKY-LANG-NAV`). Contrainte pilote : **aucune traduction, aucun contenu détruit**. **Audit** : `I18nLayout`/`VariantBakeAssembler`/`VariantServePlan` = adaptateurs de layout site-spécifiques (`projectDir/jbake` vs `bakeRoot`), seuls `com.cheroliv.deploy.VariantDeployability` divergeaient — comparaient **toutes** les entrées de `templates/` (bundle `messages_{lang}.properties`, `.txt`, dossier `jbake/templates/TODO/`) là où bakery ne compte que `.thyme/.ftl/.html` → variante complète **faussement indéployable**. **Livré** : vecteurs partagés `bakery/i18n/variant/variant-bake-vectors.json` (6 vecteurs) + convergence `VariantDeployability` cheroliv (TDD RED prouvé → GREEN) + vecteurs épinglés byte-identique + garde anti-dérive `VariantDeployabilityDriftGuardTest`. Gates : bakery `test` **2061/0** (+2), `functionalTest`/`nodeTest` VERT, `cucumberTest` 3285/5 baseline, `publishToMavenLocal` VERT ; cheroliv `test` **187/0** (+2), `cucumberTest` 31/5 baseline stash-prouvée, `functionalTest`+`nodeTest` VERT. Zéro code prod bakery modifié, zéro bump BOM, zéro publication Central, zéro LLM, zéro secret. Doc `.agents/CADRAGE_EPIC_BKY_VARIANT_UNIFY.adoc` + `.agents/sessions/242-…`.
 
@@ -35,11 +35,11 @@ _Dernière mise à jour (antérieure) : 2026-09-17 — ✅ **BKY-I18N-JS-5 TERMI
 
 '''
 
-== EPIC BKY-CI-ISOLATION — CI bakery verte : gardes workspace-aware + déblocage configuration (8 verrous) ✅ TERMINÉ (S-243)
+== EPIC BKY-CI-ISOLATION — CI bakery verte : dépôt auto-suffisant — 13 verrous ✅ TERMINÉ (S-243)
 
 _Cadré à l'ouverture S-243 (mission A du PROMPT_REPRISE S-242 « fixture lifecycle »). L'audit a montré que la CI n'était pas seulement fragilisée par une garde : elle était **rouge sur 200/200 runs** (depuis ≥ 2026-06-14). Doc `.agents/CADRAGE_EPIC_BKY_CI_ISOLATION.adoc`._
 
-=== Constat — 8 verrous indépendants
+=== Constat — 13 verrous indépendants
 
 [cols="1,4,2"]
 |===
