@@ -659,8 +659,8 @@ The project provides three GitHub Actions workflows.
 
 `.github/workflows/website.yml` — Deploys site on push to `main`:
 
-.Required secret: `BAKERY_GRADLE_PLUGIN` containing the full `site.yml` content.
-.The workflow injects this secret → `site.yml` → runs `deploySite`.
+.Required secret: `SITE_YML` containing the full `site.yml` content.
+.The workflow injects this secret → `site.yml` → runs `publishSite`.
 
 === README Generation
 
@@ -673,7 +673,7 @@ on push to `main` when `README_plantuml*.adoc` files change, using the
 [arabic]
 . Navigate to your GitHub repository *Settings* > *Secrets and variables* > *Actions*
 . Click *New repository secret*
-. Name: `BAKERY_GRADLE_PLUGIN`
+. Name: `SITE_YML`
 . Secret: entire `site.yml` content
 . Click *Add secret*
 

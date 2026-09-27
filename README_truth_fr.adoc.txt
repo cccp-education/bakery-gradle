@@ -283,14 +283,14 @@ Pour rendre ce workflow opérationnel, vous devez configurer un secret de dépô
 
 === Configuration du secret
 
-Le processus d'intégration continue nécessite un secret GitHub nommé `BAKERY_DEMO_CONFIG`. Le contenu de ce secret doit être le même que votre fichier de configuration `site.yml`. Le workflow utilise ce secret pour générer le fichier `site.yml` nécessaire à la tâche `publishSite` au moment de l'exécution.
+Le processus d'intégration continue nécessite un secret GitHub nommé `SITE_YML`. Le contenu de ce secret doit être le même que votre fichier de configuration `site.yml`. Le workflow utilise ce secret pour générer le fichier `site.yml` nécessaire à la tâche `publishSite` au moment de l'exécution.
 
 Suivez ces étapes pour créer le secret :
 
 .  Naviguez vers votre dépôt GitHub.
 .  Allez dans **Settings** > **Secrets and variables** > **Actions**.
 .  Cliquez sur le bouton **New repository secret**.
-.  Pour le **Name**, entrez `BAKERY_DEMO_CONFIG`.
+.  Pour le **Name**, entrez `SITE_YML`.
 .  Pour le **Secret**, copiez et collez l'intégralité du contenu de votre fichier local `site.yml`.
 .  Cliquez sur **Add secret**.
 

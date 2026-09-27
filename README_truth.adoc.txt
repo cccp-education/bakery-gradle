@@ -284,13 +284,13 @@ To make this workflow operational, you must configure a repository secret.
 
 === Secret Configuration
 
-The continuous integration process requires a GitHub Secret named `BAKERY_DEMO_CONFIG`. The content of this secret must be the same as your `site.yml` configuration file. The workflow uses this secret to generate the `site.yml` file needed by the `publishSite` task at runtime.
+The continuous integration process requires a GitHub Secret named `SITE_YML`. The content of this secret must be the same as your `site.yml` configuration file. The workflow uses this secret to generate the `site.yml` file needed by the `publishSite` task at runtime.
 
 .Follow these steps to create the secret:
 .  Navigate to your GitHub repository.
 .  Go to **Settings** > **Secrets and variables** > **Actions**.
 .  Click on the **New repository secret** button.
-.  For the **Name**, enter `BAKERY_DEMO_CONFIG`.
+.  For the **Name**, enter `SITE_YML`.
 .  For the **Secret**, copy and paste the entire content of your local `site.yml` file.
 .  Click **Add secret**.
 
