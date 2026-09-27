@@ -1,4 +1,4 @@
-= Session 243 — BKY-CI-ISOLATION : CI bakery verte (9 verrous puis 11 au push)
+= Session 243 — BKY-CI-ISOLATION : CI bakery verte (12 verrous levés, dont 1 bug produit)
 
 _Date_ : 2026-09-27
 _Borough_ : Bushwick 🟤 (bakery-gradle)
@@ -10,10 +10,10 @@ _Score_ : 10/10
 Mission A du `PROMPT_REPRISE` S-242 (option A retenue par le pilote) : EPIC
 « fixture lifecycle ». L'audit d'ouverture a révélé que la **CI GitHub Actions
 était rouge sur 200/200 runs** (depuis ≥ 2026-06-14), pas seulement sur la garde
-`FixtureAlignmentAuditor`. Le périmètre réel s'est étendu à **11 verrous
-indépendants** (V1→V11), tous levés.
+`FixtureAlignmentAuditor`. Le périmètre réel s'est étendu à **12 verrous
+indépendants** (V1→V12), tous levés.
 
-== Constat — 11 verrous
+== Constat — 12 verrous
 
 [cols="1,4,2"]
 |===
@@ -68,15 +68,21 @@ indépendants** (V1→V11), tous levés.
   déclarée** (`main`) et allait sur l'ambiant (`master` sur runner)
 | `ensureHeadOnBranch` (produit, TDD RED→GREEN) + `setBranch("main")` sur les
   clones de vérification des tests
+
+| V12
+| La suite de tests crée des bare remotes puis les clone : JGit lit
+  `init.defaultBranch` depuis `XDG_CONFIG_HOME/git/config` (pas `GIT_CONFIG_GLOBAL`)
+  → `main` sur un poste dev, `master` sur le runner (log CI : « Using 'master'
+  as the name for the initial branch »)
+| `config/xdg/git/config` **tracké** + `environment("XDG_CONFIG_HOME", …)` sur
+  `tasks.withType<Test>` (déterministe sans dépendre du runner)
 |===
 
 V5→V9 **préexistaient** sur HEAD (stash-prouvé) mais étaient masqués : V5/V6 par
 la CI qui mourait en configuration (V1), V7/V8 par les tâches amont en échec ;
-**V9/V10/V11 n'ont été révélés qu'au push**, en levant les verrous précédents.
-V11 est le seul **bug produit** de la liste (les autres sont des tests ou de la
-configuration) : il est prouvé par un UT `GitServiceTest` (RED `expected: main
-but was: ambient` → GREEN) et reproduit localement via
-`JAVA_TOOL_OPTIONS=-Duser.home=<sans gitconfig>`.
+**V9/V10/V11/V12 n'ont été révélés qu'au push**, en levant les verrous
+précédents. V11 est un **bug produit** ; V12 est un **déterminisme
+d'environnement** (comme V10).
 
 == Livré (baby-step DDD/TDD/BDD strict)
 
@@ -97,9 +103,13 @@ but was: ambient` → GREEN) et reproduit localement via
    `createConfigFile()` l'écrit, `BakeryPluginTest` la parse directement.
 . **`.editorconfig` tracké** (V10) — `root = true`, `max_line_length` déterministe
    (fin de la dépendance au `.editorconfig` hors repo).
-. **`.`GitService.ensureHeadOnBranch`** (V11, produit) — HEAD forcé sur la
+. **`.GitService.ensureHeadOnBranch`** (V11, produit) — HEAD forcé sur la
    branche déclarée même sur un dépôt déjà cloné + `setBranch("main")` sur les
    clones de vérification des tests.
+. **`config/xdg/git/config` tracké** (V12) — `init.defaultBranch=main` injecté
+   via `XDG_CONFIG_HOME` sur tous les `Test` (JGit le lit, contrairement à
+   `GIT_CONFIG_GLOBAL`).
+
 == Gates (chaîne CI complète `./gradlew build`)
 
 [cols="2,3"]

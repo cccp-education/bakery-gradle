@@ -87,6 +87,16 @@ tasks.withType<Test> {
     // Task-specific overrides below take precedence.
     timeout.set(Duration.ofMinutes(15))
     outputs.cacheIf { true }
+
+    // BKY-CI-ISOLATION (V11) — pin JGit's default initial branch. The suite
+    // creates bare remotes and clones them; JGit reads `init.defaultBranch`
+    // from XDG_CONFIG_HOME/git/config (not GIT_CONFIG_GLOBAL). A dev box may
+    // default to `main`, the CI runner to `master`, so the same test would be
+    // green locally and red on CI. This tracked config makes it deterministic.
+    environment(
+        "XDG_CONFIG_HOME",
+        layout.projectDirectory.dir("config/xdg").asFile.absolutePath,
+    )
 }
 
 // ────────────────────────────────────────────────────────────

@@ -1,0 +1,3 @@
+[filesystem "Eclipse Adoptium|25.0.4|/dev/mapper/vgxubuntu-root"]
+	timestampResolution = 4080 nanoseconds
+	minRacyThreshold = 0 nanoseconds
