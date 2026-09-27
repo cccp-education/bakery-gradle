@@ -1,83 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <baseline version="1.0">
-    <file name="src/test/kotlin/bakery/AnalyticsNewsletterConfigTest.kt">
-        <error line="5" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/kotlin/bakery/AnalyticsNewsletterInjectionTest.kt">
-        <error line="3" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/kotlin/bakery/AnalyticsNewsletterTemplateTest.kt">
-        <error line="3" column="1" source="standard:no-wildcard-imports" />
-    </file>
     <file name="src/test/kotlin/bakery/AugmentedArticlesTemplateTest.kt">
         <error line="109" column="161" source="standard:max-line-length" />
     </file>
     <file name="src/test/kotlin/bakery/BakeryPluginTest.kt">
-        <error line="10" column="1" source="standard:no-wildcard-imports" />
-        <error line="445" column="17" source="standard:property-naming" />
-    </file>
-    <file name="src/test/kotlin/bakery/ConfigPromptsTest.kt">
-        <error line="6" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/kotlin/bakery/ConfigResolverTest.kt">
-        <error line="3" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/kotlin/bakery/DomainResolverTest.kt">
-        <error line="3" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/kotlin/bakery/FirebaseAuthConfigTest.kt">
-        <error line="5" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/kotlin/bakery/FirebaseAuthInjectionTest.kt">
-        <error line="3" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/kotlin/bakery/FirebaseAuthTemplateTest.kt">
-        <error line="3" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/kotlin/bakery/GoogleFormsConfigTest.kt">
-        <error line="5" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/kotlin/bakery/GoogleFormsInjectionTest.kt">
-        <error line="3" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/kotlin/bakery/GoogleFormsTemplateTest.kt">
-        <error line="3" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/kotlin/bakery/LayoutConfigTest.kt">
-        <error line="5" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/kotlin/bakery/LayoutInjectionTest.kt">
-        <error line="3" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/kotlin/bakery/LayoutTemplateTest.kt">
-        <error line="3" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/kotlin/bakery/OllamaConfigYamlTest.kt">
-        <error line="6" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/kotlin/bakery/ResolvedConfigsTest.kt">
-        <error line="6" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/kotlin/bakery/ThemeConfigTest.kt">
-        <error line="5" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/kotlin/bakery/ThemeInjectionTest.kt">
-        <error line="3" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/kotlin/bakery/ThemeTemplateTest.kt">
-        <error line="3" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/kotlin/bakery/ThymeleafRenderingTestFactory.kt">
-        <error line="11" column="1" source="standard:no-wildcard-imports" />
+        <error line="449" column="17" source="standard:property-naming" />
     </file>
     <file name="src/test/kotlin/bakery/firebase/ValidateFirebaseConfigTaskTest.kt">
         <error line="104" column="161" source="standard:max-line-length" />
-    </file>
-    <file name="src/test/kotlin/bakery/i18n/I18nMessagesTest.kt">
-        <error line="3" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/kotlin/bakery/i18n/I18nTemplateMigrationTest.kt">
-        <error line="3" column="1" source="standard:no-wildcard-imports" />
     </file>
     <file name="src/test/kotlin/bakery/scaffold/GenerateSiteFromIntentionTaskTest.kt">
         <error line="175" column="161" source="standard:max-line-length" />
@@ -85,29 +15,5 @@
     </file>
     <file name="src/test/kotlin/bakery/scaffold/ScaffoldGeneratorTest.kt">
         <error line="530" column="161" source="standard:max-line-length" />
-    </file>
-    <file name="src/test/scenarios/bakery/scenarios/BakeryWorld.kt">
-        <error line="5" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/scenarios/bakery/scenarios/ConfigResolutionCascadeSteps.kt">
-        <error line="3" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/scenarios/bakery/scenarios/ContactSecCucumberTestRunner.kt">
-        <error line="3" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/scenarios/bakery/scenarios/CucumberTestRunner.kt">
-        <error line="3" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/scenarios/bakery/scenarios/DnsCucumberTestRunner.kt">
-        <error line="3" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/scenarios/bakery/scenarios/SeoCucumberTestRunner.kt">
-        <error line="3" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/scenarios/bakery/scenarios/TemplateTranslationCucumberTestRunner.kt">
-        <error line="3" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/scenarios/bakery/scenarios/TreeCucumberTestRunner.kt">
-        <error line="3" column="1" source="standard:no-wildcard-imports" />
     </file>
 </baseline>

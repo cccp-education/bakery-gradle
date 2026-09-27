@@ -1,6 +1,19 @@
 package bakery.scenarios
 
-import bakery.*
+import bakery.AnalyticsConfig
+import bakery.BakeryExtension
+import bakery.CommentsConfig
+import bakery.ConfigResolutionError
+import bakery.ConfigResolver
+import bakery.FirebaseAuthConfig
+import bakery.FirebaseProjectInfo
+import bakery.GoogleFormsConfig
+import bakery.LayoutConfig
+import bakery.LayoutType
+import bakery.NewsletterConfig
+import bakery.ResolvedConfigs
+import bakery.SiteConfiguration
+import bakery.ThemeConfig
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When

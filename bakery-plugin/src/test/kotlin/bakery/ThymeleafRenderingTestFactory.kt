@@ -8,7 +8,7 @@ import org.thymeleaf.templatemode.TemplateMode
 import org.thymeleaf.templateresolver.FileTemplateResolver
 import java.io.File
 import java.io.InputStreamReader
-import java.util.*
+import java.util.Properties
 
 /**
  * Helper for Thymeleaf rendering tests (BKY-JB-9).

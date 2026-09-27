@@ -2,8 +2,13 @@ package bakery.scenarios
 
 import bakery.createConfigFile
 import bakery.tree.SiteTree
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers.Default
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.cancel
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner.create
 import org.slf4j.Logger
