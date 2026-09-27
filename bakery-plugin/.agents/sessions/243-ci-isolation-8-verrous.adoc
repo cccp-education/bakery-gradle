@@ -1,4 +1,4 @@
-= Session 243 — BKY-CI-ISOLATION : CI bakery verte (8 verrous levés)
+= Session 243 — BKY-CI-ISOLATION : CI bakery verte (9 verrous puis 11 au push)
 
 _Date_ : 2026-09-27
 _Borough_ : Bushwick 🟤 (bakery-gradle)
@@ -10,10 +10,10 @@ _Score_ : 10/10
 Mission A du `PROMPT_REPRISE` S-242 (option A retenue par le pilote) : EPIC
 « fixture lifecycle ». L'audit d'ouverture a révélé que la **CI GitHub Actions
 était rouge sur 200/200 runs** (depuis ≥ 2026-06-14), pas seulement sur la garde
-`FixtureAlignmentAuditor`. Le périmètre réel s'est étendu à **9 verrous
-indépendants** (V1→V9), tous levés.
+`FixtureAlignmentAuditor`. Le périmètre réel s'est étendu à **11 verrous
+indépendants** (V1→V11), tous levés.
 
-== Constat — 9 verrous
+== Constat — 11 verrous
 
 [cols="1,4,2"]
 |===
@@ -55,12 +55,21 @@ indépendants** (V1→V9), tous levés.
 | `tools.kt::createConfigFile()` + `BakeryPluginTest:109` lisaient `../../site.yml`
   (**gitignoré**, hors repo, absent en CI)
 | `FuncTestsConstants.SITE_CONFIG_YML` in-repo (config canonique, secrets factices)
+
+| V10
+| ktlint `max_line_length` venait du `.editorconfig` **racine workspace** (hors
+  repo) = 160 local, défaut 140 en CI → baseline valide en local, violé en CI
+| `.editorconfig` **tracké** à la racine du repo (`root = true`)
+
+| V11
+| `ProfilePublisherFunctionalTest` : bare remote `HEAD` + clone **sans branche**
+  → dépend de `init.defaultBranch` ambiant (`main` local, `master` sur runner)
+| `setInitialBranch("main")` sur les 5 bare remotes + `setBranch("main")` au clone
 |===
 
 V5→V9 **préexistaient** sur HEAD (stash-prouvé) mais étaient masqués : V5/V6 par
-la CI qui mourait en configuration (V1), V7/V8 par les tâches amont en échec,
-**V9 révélé seulement au push** (la CI, une fois V1/V5/V6 levés, a atteint
-`functionalTest` et exposé la lecture du `site.yml` externe).
+la CI qui mourait en configuration (V1), V7/V8 par les tâches amont en échec ;
+**V9/V10/V11 n'ont été révélés qu'au push**, en levant les verrous précédents.
 
 == Livré (baby-step DDD/TDD/BDD strict)
 
@@ -79,6 +88,10 @@ la CI qui mourait en configuration (V1), V7/V8 par les tâches amont en échec,
 . **ktlint baseline** : 171 fichiers gelés.
 . **`FuncTestsConstants.SITE_CONFIG_YML`** (V9) — config canonique in-repo ;
    `createConfigFile()` l'écrit, `BakeryPluginTest` la parse directement.
+. **`.editorconfig` tracké** (V10) — `root = true`, `max_line_length` déterministe
+   (fin de la dépendance au `.editorconfig` hors repo).
+. **Bare remotes épinglés** (V11) — `setInitialBranch("main")` + clone
+   `setBranch("main")` (fin de la dépendance à `init.defaultBranch`).
 
 == Gates (chaîne CI complète `./gradlew build`)
 

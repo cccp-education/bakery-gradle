@@ -25,6 +25,10 @@ class ProfilePublisherFunctionalTest {
             Git
                 .init()
                 .setBare(true)
+                // BKY-CI-ISOLATION (V11) — pin the remote's initial branch. Without
+                // it, HEAD follows the ambient init.defaultBranch; when it points at
+                // a branch nobody pushes to, a branch-less clone checks out nothing.
+                .setInitialBranch("main")
                 .setDirectory(bareRemoteDir)
                 .call()
                 .close()
@@ -100,6 +104,10 @@ profileFiles:
             Git
                 .init()
                 .setBare(true)
+                // BKY-CI-ISOLATION (V11) — pin the remote's initial branch. Without
+                // it, HEAD follows the ambient init.defaultBranch; when it points at
+                // a branch nobody pushes to, a branch-less clone checks out nothing.
+                .setInitialBranch("main")
                 .setDirectory(bareRemoteDir)
                 .call()
                 .close()
@@ -179,6 +187,10 @@ profileFiles:
             Git
                 .init()
                 .setBare(true)
+                // BKY-CI-ISOLATION (V11) — pin the remote's initial branch. Without
+                // it, HEAD follows the ambient init.defaultBranch; when it points at
+                // a branch nobody pushes to, a branch-less clone checks out nothing.
+                .setInitialBranch("main")
                 .setDirectory(bareRemoteDir)
                 .call()
                 .close()
@@ -248,6 +260,11 @@ profileFiles:
                 Git
                     .cloneRepository()
                     .setURI(remoteUri)
+                    // BKY-CI-ISOLATION (V11) — clone the pushed branch explicitly:
+                    // a branch-less clone depends on the bare remote's HEAD, which
+                    // is ambient-git-config dependent (init.defaultBranch), so the
+                    // assertion passed on a dev box and failed on the CI runner.
+                    .setBranch("main")
                     .setDirectory(cloneDir)
                     .call()
             assertThat(cloneDir.resolve("README.md")).hasContent("deploy v2")
@@ -270,6 +287,10 @@ profileFiles:
             Git
                 .init()
                 .setBare(true)
+                // BKY-CI-ISOLATION (V11) — pin the remote's initial branch. Without
+                // it, HEAD follows the ambient init.defaultBranch; when it points at
+                // a branch nobody pushes to, a branch-less clone checks out nothing.
+                .setInitialBranch("main")
                 .setDirectory(bareRemoteDir)
                 .call()
                 .close()
@@ -394,6 +415,10 @@ bake:
             Git
                 .init()
                 .setBare(true)
+                // BKY-CI-ISOLATION (V11) — pin the remote's initial branch. Without
+                // it, HEAD follows the ambient init.defaultBranch; when it points at
+                // a branch nobody pushes to, a branch-less clone checks out nothing.
+                .setInitialBranch("main")
                 .setDirectory(bareRemoteDir)
                 .call()
                 .close()
