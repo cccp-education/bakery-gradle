@@ -103,6 +103,9 @@ class BakeryPluginFunctionalTests {
                 .apply(::println)
         }
 
+    //    @kotlin.test.Ignore
+    //    @Test
+
     /**
      * # Mode interactif
      * ./gradlew collectSiteConfig
@@ -116,8 +119,6 @@ class BakeryPluginFunctionalTests {
      * # Mode non-interactif (échoue si paramètres manquants)
      * ./gradlew collectSiteConfig --no-interactive -PGitHubUsername=username
      */
-//    @kotlin.test.Ignore
-//    @Test
     fun `test collectSiteConfig task without config file with --no-interactive parameter`() {
         projectDir.deleteConfigFile()
         info("$CONFIG_FILE file successfully deleted.")

@@ -277,21 +277,21 @@ class TranslateI18nClientFunctionalTest {
         val enBlock =
             if (complete) {
                 """
-                    fpa: {
-                      title: "Trainer",
-                      modules: [
-                        { title: "M1", desc: "D1" }
-                      ]
-                    },
-                    cda: {
-                      title: "Designer"
-                    }
+                fpa: {
+                  title: "Trainer",
+                  modules: [
+                    { title: "M1", desc: "D1" }
+                  ]
+                },
+                cda: {
+                  title: "Designer"
+                }
                 """.trimIndent()
             } else {
                 """
-                    fpa: {
-                      title: "Trainer"
-                    }
+                fpa: {
+                  title: "Trainer"
+                }
                 """.trimIndent()
             }
         catalogueFile().also {

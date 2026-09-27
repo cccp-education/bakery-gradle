@@ -95,7 +95,10 @@ class ArchitectureValidationTest {
                 """.trimIndent(),
             )
 
-            val baseThyme = """<!DOCTYPE html><html><head><title th:text="|Test - ${'$'}{content.title}|"></title></head><body th:utext="${'$'}{content.body}"></body></html>"""
+            val baseThyme =
+                """<!DOCTYPE html><html><head>""" +
+                    """<title th:text="|Test - ${'$'}{content.title}|"></title>""" +
+                    """</head><body th:utext="${'$'}{content.body}"></body></html>"""
             templatesDir.resolve("index.thyme").writeText(baseThyme)
             templatesDir.resolve("post.thyme").writeText(baseThyme)
             templatesDir.resolve("page.thyme").writeText(baseThyme)

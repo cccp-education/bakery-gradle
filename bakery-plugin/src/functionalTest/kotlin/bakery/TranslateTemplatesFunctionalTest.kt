@@ -129,7 +129,8 @@ class TranslateTemplatesFunctionalTest {
         // A template already translated keeps its copy (preserved), but declares
         // the French source language — a WCAG 3.1.1 violation to repair for free.
         projectDir.resolve("jbake/i18n/de/templates").mkdirs()
-        projectDir.resolve("jbake/i18n/de/templates/hero.thyme")
+        projectDir
+            .resolve("jbake/i18n/de/templates/hero.thyme")
             .writeText("""<html lang="fr"><body><h1 class="hero">Entwickler</h1></body></html>""")
 
         GradleRunner
