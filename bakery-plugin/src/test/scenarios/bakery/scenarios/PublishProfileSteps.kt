@@ -14,6 +14,7 @@ import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.transport.RefSpec
+import org.eclipse.jgit.transport.URIish
 import org.gradle.testkit.runner.GradleRunner.create
 import org.junit.jupiter.api.fail
 import java.nio.file.Files
@@ -71,6 +72,11 @@ class PublishProfileSteps(
             Git
                 .init()
                 .setBare(true)
+                // BKY-CI-ISOLATION (V11) — pin the remote HEAD to the branch the
+                // scenario pushes to; otherwise it follows the ambient
+                // init.defaultBranch (master on CI) and branch-less clones of the
+                // simulated remote check out nothing.
+                .setInitialBranch("main")
                 .setDirectory(remoteDir)
                 .call()
         bareGit.close()
@@ -124,12 +130,22 @@ class PublishProfileSteps(
                 )
 
         val tempDir = Files.createTempDirectory("simulated-remote-clone-").toFile()
+        // BKY-CI-ISOLATION (V11) — seed the (empty) remote deterministically on
+        // `main`. Cloning an empty remote leaves HEAD on the ambient
+        // init.defaultBranch (master on CI), so a commit then a
+        // `refs/heads/main` push failed with "Source ref refs/heads/main doesn't
+        // resolve". Init with the declared branch instead of cloning.
         val cloneGit =
             Git
-                .cloneRepository()
-                .setURI(remoteUri)
+                .init()
+                .setInitialBranch("main")
                 .setDirectory(tempDir)
                 .call()
+        cloneGit
+            .remoteAdd()
+            .setName("origin")
+            .setUri(URIish(remoteUri))
+            .call()
         try {
             tempDir.resolve(fileName).writeText(content, UTF_8)
             cloneGit.add().addFilepattern(fileName).call()
