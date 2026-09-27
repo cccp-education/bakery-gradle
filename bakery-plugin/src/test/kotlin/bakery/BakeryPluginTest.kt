@@ -106,14 +106,11 @@ class BakeryPluginTest {
 
         @BeforeAll
         fun `load and validate configuration before all tests`() {
-            val configPath = "../../site.yml"
-            val configFile = File(configPath)
-            assertThat(configFile)
-                .describedAs("Configuration file '%s' not found.", configPath)
-                .exists()
+            // BKY-CI-ISOLATION (V9) — parse the in-repo canonical config instead of
+            // the gitignored `../../site.yml` (absent from an isolated checkout).
+            // FuncTestsConstants is on the test classpath via functionalTest.output.
             config =
-                configFile
-                    .readText()
+                FuncTestsConstants.SITE_CONFIG_YML
                     .run(yamlMapper::readValue)
         }
 

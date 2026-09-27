@@ -58,12 +58,11 @@ fun File.createDependenciesFile() {
 }
 
 fun File.createConfigFile() {
-    val configFile =
-        File("")
-            .absoluteFile.parentFile
-            ?.parentFile
-            ?.resolve(CONFIG_FILE)
-    configFile?.copyTo(resolve(CONFIG_FILE), true)
+    // BKY-CI-ISOLATION (V9) — write the in-repo canonical config instead of
+    // copying `../../site.yml`, a gitignored file absent from an isolated
+    // checkout (and carrying real credentials). Single source shared with
+    // BakeryPluginTest via FuncTestsConstants.SITE_CONFIG_YML.
+    resolve(CONFIG_FILE).writeText(FuncTestsConstants.SITE_CONFIG_YML, UTF_8)
 }
 
 object FuncTestsConstants {
@@ -105,6 +104,86 @@ bakery { configPath = file("$CONFIG_FILE").absolutePath }
 
             [bundles]
         """
+
+    /**
+     * BKY-CI-ISOLATION (V9) — canonical in-repo test configuration.
+     *
+     * Replaces the former copy of the gitignored `../../site.yml` (absent from an
+     * isolated checkout, and carrying real credentials). The values satisfy the
+     * `BakeryPluginTest.SiteConfigurationParsingTest` contract without leaking any
+     * secret: username/password are the documented 8/40-char placeholders.
+     */
+    const val SITE_CONFIG_YML = """
+bake:
+  srcPath: "site"
+  destDirPath: "bake"
+  cname: "bakery"
+pushPage:
+  from: "bake"
+  to: "cvs"
+  repo:
+    name: "thymeleaf.cheroliv.com"
+    repository: "https://github.com/pages-content/bakery.git"
+    credentials:
+      username: "username"
+      password: "passwordpasswordpasswordpasswordpassword"
+  branch: "main"
+  message: "thymeleaf.cheroliv.com"
+pushMaquette:
+  from: "maquette"
+  to: "cvs"
+  repo:
+    name: "cheroliv-maquette"
+    repository: "https://github.com/pages-content/cheroliv-maquette.git"
+    credentials:
+      username: "username"
+      password: "passwordpasswordpasswordpasswordpassword"
+  branch: "main"
+  message: "cheroliv-maquette"
+firebase:
+  project:
+    projectId: "bakery-contact-form"
+    apiKey: "REMPLACER_PAR_VOTRE_API_KEY"
+  firestore:
+    contacts:
+      name: contacts
+      fields:
+        - name: id
+          type: string
+        - name: created_at
+          type: timestamp
+        - name: name
+          type: string
+        - name: email
+          type: string
+        - name: phone
+          type: string
+      rulesEnabled: true
+    messages:
+      name: messages
+      fields:
+        - name: id
+          type: string
+        - name: created_at
+          type: timestamp
+        - name: contact_id
+          type: string
+        - name: subject
+          type: string
+        - name: message
+          type: string
+  callable:
+    name: handleContactForm
+    params:
+      - name: p_name
+        type: string
+      - name: p_email
+        type: string
+      - name: p_subject
+        type: string
+      - name: p_message
+        type: string
+    """
 
     val buildScriptListOfStringContained =
         listOf(

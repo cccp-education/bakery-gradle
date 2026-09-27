@@ -10,10 +10,10 @@ _Score_ : 10/10
 Mission A du `PROMPT_REPRISE` S-242 (option A retenue par le pilote) : EPIC
 « fixture lifecycle ». L'audit d'ouverture a révélé que la **CI GitHub Actions
 était rouge sur 200/200 runs** (depuis ≥ 2026-06-14), pas seulement sur la garde
-`FixtureAlignmentAuditor`. Le périmètre réel s'est étendu à **8 verrous
-indépendants** (V1→V8), tous levés.
+`FixtureAlignmentAuditor`. Le périmètre réel s'est étendu à **9 verrous
+indépendants** (V1→V9), tous levés.
 
-== Constat — 8 verrous
+== Constat — 9 verrous
 
 [cols="1,4,2"]
 |===
@@ -45,15 +45,22 @@ indépendants** (V1→V8), tous levés.
 
 | V7
 | `koverThresholdCheck` lit `reports/kover/xml/report.xml`, kover 0.9.8 écrit `reports/kover/report.xml`
-| `kover { ... xmlFile }` local (89,21 % > 85 %)
+| `kover { ... xmlFile }` local (89,20 % > 85 %)
 
 | V8
 | ktlint baseline dépôt rouge (619 violations / 171 fichiers)
 | `config/ktlint/baseline.xml` (dette gelée, zéro exemption de fichier neuf)
+
+| V9
+| `tools.kt::createConfigFile()` + `BakeryPluginTest:109` lisaient `../../site.yml`
+  (**gitignoré**, hors repo, absent en CI)
+| `FuncTestsConstants.SITE_CONFIG_YML` in-repo (config canonique, secrets factices)
 |===
 
-V5→V8 **préexistaient** sur HEAD (stash-prouvé) mais étaient masqués : V5/V6 par
-la CI qui mourait en configuration (V1), V7/V8 par les tâches amont en échec.
+V5→V9 **préexistaient** sur HEAD (stash-prouvé) mais étaient masqués : V5/V6 par
+la CI qui mourait en configuration (V1), V7/V8 par les tâches amont en échec,
+**V9 révélé seulement au push** (la CI, une fois V1/V5/V6 levés, a atteint
+`functionalTest` et exposé la lecture du `site.yml` externe).
 
 == Livré (baby-step DDD/TDD/BDD strict)
 
@@ -70,6 +77,8 @@ la CI qui mourait en configuration (V1), V7/V8 par les tâches amont en échec.
 . **Timeouts** 5 → 15 min (2 tâches).
 . **kover** : chemin XML aligné.
 . **ktlint baseline** : 171 fichiers gelés.
+. **`FuncTestsConstants.SITE_CONFIG_YML`** (V9) — config canonique in-repo ;
+   `createConfigFile()` l'écrit, `BakeryPluginTest` la parse directement.
 
 == Gates (chaîne CI complète `./gradlew build`)
 
@@ -78,13 +87,13 @@ la CI qui mourait en configuration (V1), V7/V8 par les tâches amont en échec.
 | Gate | Résultat
 
 | `build` (commande CI réelle) | **BUILD SUCCESSFUL 5m28s** (première fois verte)
-| `build --rerun-tasks` | **BUILD SUCCESSFUL 8m32s** (preuve non-cachée)
+| `build --rerun-tasks` | **BUILD SUCCESSFUL 11m12s** (preuve non-cachée)
 | `test` | **2072 tests, 0 FAIL** (baseline S-242 2061/0 → **+11**)
 | `test -Dbakery.workspaceRoot=/nonexistent` | **2072, 8 skipped, 0 FAIL** (preuve CI isolée)
-| `functionalTest` | **164, 0 FAIL**
+| `functionalTest` | **164, 0 FAIL** (0 dépendance au `site.yml` externe)
 | `cucumberTest` | **3294, 0 FAIL** (baseline 3285/5 → **+9, 5 FAIL résolus**)
 | `nodeTest` | VERT
-| `koverThresholdCheck` | **89,21 %** > 85 %
+| `koverThresholdCheck` | **89,20 %** > 85 %
 | ktlint (Main/Test/FunctionalTest/E2eTest) | VERT (baseline)
 | `publishToMavenLocal` | VERT (Règle 0)
 | Gate métier `REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA` src/ | **0**
@@ -104,6 +113,8 @@ la CI qui mourait en configuration (V1), V7/V8 par les tâches amont en échec.
 | `bakery-plugin/src/test/kotlin/bakery/workspace/PublishedCatalogVersion.kt` | créé | garde version injectée
 | `bakery-plugin/src/test/kotlin/bakery/workspace/PublishedCatalogVersionTest.kt` | créé | 3 UT
 | `bakery-plugin/config/ktlint/baseline.xml` | créé | ktlint baseline (171 fichiers)
+| `bakery-plugin/src/functionalTest/kotlin/bakery/tools.kt` | modifié | `SITE_CONFIG_YML` in-repo (V9)
+| `bakery-plugin/src/test/kotlin/bakery/BakeryPluginTest.kt` | modifié | parse la config in-repo (V9)
 | `bakery-plugin/src/test/features/30_i18n_language_switch.feature` | modifié | fallback `xx` + en-tête 22 langues
 | `bakery-plugin/src/test/features/dns_provision.feature` | modifié | slot déclaré + scénario out-of-scope
 | `bakery-plugin/src/test/scenarios/.../DnsProvisionSteps.kt` | modifié | step zone multi-records
@@ -112,8 +123,7 @@ la CI qui mourait en configuration (V1), V7/V8 par les tâches amont en échec.
 | `bakery-plugin/src/test/scenarios/.../JbakeNativeTranslationSteps.kt` | modifié | `:summary:` traduit
 | `bakery-plugin/src/test/kotlin/bakery/i18n/audit/FixtureAlignmentAuditorTest.kt` | modifié | skip-safe
 | `bakery-plugin/src/test/kotlin/bakery/i18n/RealSiteI18nMigrationIntegrationTest.kt` | modifié | skip-safe
-| `bakery-plugin/src/test/kotlin/bakery/BakeryPluginPublicationTest.kt` | modifié | version injectée
-| `bakery-plugin/.agents/CADRAGE_EPIC_BKY_CI_ISOLATION.adoc` | créé | cadrage 8 verrous
+| `bakery-plugin/.agents/CADRAGE_EPIC_BKY_CI_ISOLATION.adoc` | créé | cadrage 9 verrous
 |===
 
 == Décision / suite
@@ -124,8 +134,9 @@ la CI qui mourait en configuration (V1), V7/V8 par les tâches amont en échec.
   correction racine du chemin kover dans `conventions-gradle` ; sémantique F50
   cross-borough document-gradle.
 * *Leçon* : une CI morte en configuration **masque** l'ensemble de la dette
-  aval. Débloquer la *première* étape révèle les suivantes en cascade (V1 →
-  V5/V6 → V7/V8). Chaque verrou a été diagnostiqué, traité, puis la chaîne
-  complète re-vérifiée avant le push.
+  aval. Débloquer la *première* étape révèle les suivantes en cascade
+  (V1 → V5/V6 → V7/V8 → **V9 au push**). Chaque verrou a été diagnostiqué,
+  traité, puis la chaîne complète re-vérifiée avant le push.
 * Baby-step DDD/TDD/BDD strict : 1 fichier à la fois, RED → GREEN → REFACTOR,
   gate `test` complète. Zéro LLM, zéro secret, zéro traduction.
+

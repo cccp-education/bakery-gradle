@@ -66,18 +66,30 @@ remontant à 2026-06-14). Ce n'est donc pas une dette latente ponctuelle mais un
 
 | V8
 | ktlint baseline dépôt rouge (269 main + 26 functionalTest + 324 test)
-| `ktlintMain*Check` / `ktlintFunctionalTest*Check` FAILED
+| ktlintMain*Check / ktlintFunctionalTest*Check FAILED
 | Dette préexistante (jamais traitée, cf. PROMPT_REPRISE)
+
+| V9
+| `tools.kt::createConfigFile()` + `BakeryPluginTest` lisaient
+  `../../site.yml` — fichier **gitignoré** (`**/site.yml`) donc absent d'un
+  checkout isolé (et porteur de vraies credentials)
+| 11 × `BakeryPluginFunctionalTests` `NoSuchFileException` + 1 `BakeryPluginTest`
+  en CI (0 en local, où le fichier existe)
+| Test (couplage hors repo)
 |===
 
-V2/V3/V4 sont trois occurrences du **même anti-pattern** : un test de contrat
-lit une ressource *hors du dépôt* (site réel `office/`, dépôt voisin
-`workspace-bom/`) sans seam de résolution ni dégradation propre. Le patron de
-sortie existe pourtant déjà dans le dépôt :
+V2/V3/V4/V9 sont quatre occurrences du **même anti-pattern** : un test lit une
+ressource *hors du dépôt* (site réel `office/`, dépôt voisin `workspace-bom/`,
+`site.yml` gitignoré racine) sans seam de résolution ni dégradation propre. Le
+patron de sortie existe pourtant déjà dans le dépôt :
 `DnsDogfoodTalariaIntegrationTest` et `I18nJsDictionaryTalariaIntegrationTest`
 font un `assumeTrue` propre ; `graphify-gradle` (EPIC D5-RACE, S-029) a résolu
 V4 pour son équivalent en **injectant la version du catalogue publié** par
 Gradle (`systemProperty`) au lieu de lire le voisin.
+
+V9 n'a été **révélé qu'après le push** : la CI mourait auparavant sur V1 puis
+bloquait sur V5/V6 ; une fois ces verrous levés, `functionalTest` a atteint le
+code et a exposé la lecture du `site.yml` externe.
 
 V5/V6/V7/V8 ne sont **pas** causés par le delta S-243 : ils préexistent sur HEAD
 (stash-prouvé), mais étaient **masqués** — V5/V6 par la CI qui mourait en
@@ -155,6 +167,15 @@ dette gelée). Réformater 68 fichiers reproduirait l'incident S-231
 fichiers créés S-243 y sont absents (vérifié) ; toute violation nouvelle échoue.
 La dette racine reste à résorber (EPIC séparé).
 
+=== US-7 — Dé-coupler les tests du `site.yml` hors repo (V9)
+
+Objet `FuncTestsConstants.SITE_CONFIG_YML` : configuration canonique **in-repo**
+(fonctionnellement équivalente, secrets factices). `tools.kt::createConfigFile()`
+l'écrit au lieu de copier `../../site.yml` (gitignoré, absent en CI) ;
+`BakeryPluginTest.SiteConfigurationParsingTest` la parse directement
+(`FuncTestsConstants` est sur le classpath test via `functionalTest.output`).
+Zéro lecture d'un fichier hors dépôt, zéro secret.
+
 == Périmètre — ce qui n'est PAS touché
 
 * Zéro tâche LLM (`migrateContentI18n`, `translateTemplates`,
@@ -181,12 +202,13 @@ CA6. Push → run CI `Test` **vert** (première fois depuis ≥ 2026-06-14).
 
 ----
 US-1 (JDK) ──────────────────┐
-US-2a (resolver pur) → US-2b ┼→ CA1..CA5 → push → CA6
+US-2a (resolver pur) → US-2b ┼→ CA1..CA5 → push → CA6 (V9 révélé)
 US-2a → US-2c ───────────────┤
 US-3 (BDD périmés) ──────────┤
 US-4 (timeouts) ─────────────┤
 US-5 (kover path) ───────────┤
-US-6 (ktlint baseline) ──────┘
+US-6 (ktlint baseline) ──────┤
+US-7 (site.yml in-repo) ─────┘
 ----
 
 == Risques et mitigations
