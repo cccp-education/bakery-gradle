@@ -18,7 +18,9 @@ plugins {
 group = "education.cccp"
 // MEM-CAT-3 (D3) — version propre dérivée du catalog workspace publié (pin unique settings).
 // Remplace le toml local dupliqué — fixe durablement BakeryPluginPublicationTest.
-version = ws.versions.bakery.plugin.get()
+version =
+    ws.versions.bakery.plugin
+        .get()
 
 repositories {
     mavenLocal()
@@ -95,7 +97,9 @@ tasks.withType<Test> {
     // green locally and red on CI. This tracked config makes it deterministic.
     environment(
         "XDG_CONFIG_HOME",
-        layout.projectDirectory.dir("config/xdg").asFile.absolutePath,
+        layout.projectDirectory
+            .dir("config/xdg")
+            .asFile.absolutePath,
     )
 
     // BKY-CI-ISOLATION (V12) — pin the JVM timezone. `SiteContextCollector`
@@ -129,7 +133,11 @@ val nodeTest =
 
         commandLine("node", "--test", "src/test/node/*.test.mjs")
         doLast {
-            val resultsDir = layout.buildDirectory.dir("node-test-results").get().asFile
+            val resultsDir =
+                layout.buildDirectory
+                    .dir("node-test-results")
+                    .get()
+                    .asFile
             resultsDir.mkdirs()
             resultsDir.resolve("ok").writeText("ok")
         }
@@ -155,8 +163,16 @@ tasks.named<Test>("test") {
     // resolved by Gradle. BakeryPluginPublicationTest must never read a neighbour
     // repository's working tree (racy between sessions, absent in isolated CI) —
     // patron graphify-gradle D5-RACE (S-029).
-    systemProperty("bakery.publishedCatalog.bakeryVersion", ws.versions.bakery.plugin.get())
-    systemProperty("bakery.publishedCatalog.bomVersion", ws.versions.workspace.bom.get())
+    systemProperty(
+        "bakery.publishedCatalog.bakeryVersion",
+        ws.versions.bakery.plugin
+            .get(),
+    )
+    systemProperty(
+        "bakery.publishedCatalog.bomVersion",
+        ws.versions.workspace.bom
+            .get(),
+    )
 
     useJUnitPlatform { excludeEngines("cucumber") }
 

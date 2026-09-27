@@ -12,16 +12,14 @@ class BakeryPluginPublicationTest {
     @Test
     fun `plugin version matches root consumer catalog version`() {
         val buildScript = pluginDir.resolve("build.gradle.kts").readText(UTF_8)
-        val versionLine =
-            buildScript
-                .lineSequence()
-                .first { it.trimStart().startsWith("version =") }
 
         // MEM-CAT-3 (D3) — la version self est dérivée du catalog workspace publié :
         // `version = ws.versions.bakery.plugin.get()`. Plus de version littérale en double.
-        assertThat(versionLine)
+        // Whitespace-insensitive (S-244) : la garde ne doit pas casser quand ktlint
+        // reformate la chaîne sur plusieurs lignes (`chain-method-continuation`).
+        assertThat(buildScript.withoutWhitespace())
             .withFailMessage("build.gradle.kts version must derive from the published workspace catalog (ws.versions.bakery.plugin)")
-            .contains("ws.versions.bakery.plugin.get()")
+            .contains("version=ws.versions.bakery.plugin.get()")
 
         // Hygiène (D5) : la version self du toml local et la version self du catalog
         // ws doivent coïncider — le toml local reste pour le marker local, le ws
@@ -98,6 +96,8 @@ class BakeryPluginPublicationTest {
         assertThat(buildScript).contains("group = \"education.cccp\"")
         assertThat(pluginId).isEqualTo("education.cccp.bakery")
     }
+
+    private fun String.withoutWhitespace(): String = filterNot { it.isWhitespace() }
 
     private companion object {
         const val BAKERY_VERSION_PROPERTY = "bakery.publishedCatalog.bakeryVersion"
