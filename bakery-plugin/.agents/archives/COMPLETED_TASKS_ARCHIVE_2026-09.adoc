@@ -1,5 +1,42 @@
 = Archive des Taches Terminees — Septembre 2026
 
+== Session 244 — 2026-09-27 — BKY-KTLINT-CLEANUP : dette ktlint résorbée (baseline 171 → 0)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| Lot 1 — `build.gradle.kts` + durcissement `BakeryPluginPublicationTest` (garde whitespace-insensitive, RED→GREEN)
+| ✅ TERMINÉ (`056808b2`)
+
+| Lot 2 — `src/main` 57 fichiers + `object_`→`jsObject` + `ColorContrastRule.kt`→`ContrastResult.kt`
+| ✅ TERMINÉ (`e708d459`)
+
+| Lot 3 — `src/functionalTest` 9 fichiers + `tools.kt`→`Tools.kt` + max-line HTML + no-consecutive-comments
+| ✅ TERMINÉ (`aec275e4`)
+
+| Lot 4 — `src/test` 67 fichiers (imports réordonnés/inutilisés retirés)
+| ✅ TERMINÉ (`df5bc9d3`)
+
+| Lot 5a — `function-naming` : 40 steps backtick → camelCase
+| ✅ TERMINÉ (`19b3c9f6`)
+
+| Lot 5b — `no-wildcard-imports` : 32 fichiers, imports explicites
+| ✅ TERMINÉ (`6e9221a6`)
+
+| Lot 5c — `max-line-length` (5 JSON `@Suppress`) + `property-naming` → baseline vide
+| ✅ TERMINÉ (`4f3828a2`)
+
+| `config/ktlint/baseline.xml` — 171 fichiers gelés S-243 → **VIDE**
+| ✅ TERMINÉ
+
+| Gate `./gradlew build` (test 5642/0, functionalTest 272/0, cucumberTest 0 échec, kover, ktlint, nodeTest)
+| ✅ VERT 5m11s
+
+| `publishToMavenLocal` (Règle 0) + gate métier + zéro secret
+| ✅ VERT
+|===
+
 == Session 243 — 2026-09-27 — BKY-CI-ISOLATION : CI bakery VERTE (13 verrous levés)
 
 [cols="2,3"]

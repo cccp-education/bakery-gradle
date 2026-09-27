@@ -5,7 +5,8 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-09-27 — ✅ **BKY-CI-ISOLATION TERMINÉ (S-243) — CI bakery VERTE (13 verrous levés, dont 1 bug produit)**. L'audit d'ouverture a révélé la CI `Test` **rouge sur 200/200 runs** (depuis ≥ 2026-06-14) : échec en configuration (`conventions-plugin:0.0.4` exige JVM 25, workflow épinglait JDK 24). Périmètre étendu à 13 verrous (V1→V13) : V1 JDK 24→25 ; V2/V3 gardes site → `WorkspaceRoot` + `assumeTrue` ; V4 version catalogue injectée par Gradle (patron graphify D5-RACE) ; V5 4 scénarios cucumber périmés réalignés ; V6 timeout 5→15 min ; V7 chemin kover aligné (89,21 % > 85 %) ; V8 ktlint baseline (171 fichiers). V9 `site.yml` in-repo ; V10 `.editorconfig` tracké ; V11 bug produit `GitService.ensureHeadOnBranch` ; V12 `XDG_CONFIG_HOME` ; V13 timezone. V5→V8 préexistaient (stash-prouvé), masqués par V1. `build` **VERT 5m28s**, `test` 2072/0, `cucumberTest` 3294/0, `publishToMavenLocal` VERT. `.agents/CADRAGE_EPIC_BKY_CI_ISOLATION.adoc`.
+_Dernière mise à jour : 2026-09-27 — ✅ **BKY-KTLINT-CLEANUP TERMINÉ (S-244) — dette ktlint INTÉGRALEMENT RÉSORBÉE** : `config/ktlint/baseline.xml` VIDE (171 fichiers gelés S-243 → 0). 7 lots = 7 commits. `./gradlew build` **VERT 5m11s**, `test` 5642/0, `cucumberTest` 0 échec, `publishToMavenLocal` VERT. Découverte : le lot ne peut pas être scopé fichier via la tâche Gradle (`include`/`setSource` ignorés par ktlint-gradle) — outil = CLI ktlint 1.5.0, lot = source set. Rapport `.agents/sessions/244-ktlint-debt-resorbed.adoc`.
+_Dernière mise à jour (antérieure) : 2026-09-27 — ✅ **BKY-CI-ISOLATION TERMINÉ (S-243) — CI bakery VERTE (13 verrous levés, dont 1 bug produit)**. L'audit d'ouverture a révélé la CI `Test` **rouge sur 200/200 runs** (depuis ≥ 2026-06-14) : échec en configuration (`conventions-plugin:0.0.4` exige JVM 25, workflow épinglait JDK 24). Périmètre étendu à 13 verrous (V1→V13) : V1 JDK 24→25 ; V2/V3 gardes site → `WorkspaceRoot` + `assumeTrue` ; V4 version catalogue injectée par Gradle (patron graphify D5-RACE) ; V5 4 scénarios cucumber périmés réalignés ; V6 timeout 5→15 min ; V7 chemin kover aligné (89,21 % > 85 %) ; V8 ktlint baseline (171 fichiers). V9 `site.yml` in-repo ; V10 `.editorconfig` tracké ; V11 bug produit `GitService.ensureHeadOnBranch` ; V12 `XDG_CONFIG_HOME` ; V13 timezone. V5→V8 préexistaient (stash-prouvé), masqués par V1. `build` **VERT 5m28s**, `test` 2072/0, `cucumberTest` 3294/0, `publishToMavenLocal` VERT. `.agents/CADRAGE_EPIC_BKY_CI_ISOLATION.adoc`.
 
 _Dernière mise à jour (antérieure) : 2026-09-26 — ✅ **BKY-VARIANT-UNIFY — split-brain `i18n.variant` absorbé (cheroliv ↔ bakery)** (S-242, option C patron NAV-6 — D5 du cadrage `BKY-LANG-NAV`). Contrainte pilote : **aucune traduction, aucun contenu détruit**. **Audit** : `I18nLayout`/`VariantBakeAssembler`/`VariantServePlan` = adaptateurs de layout site-spécifiques (`projectDir/jbake` vs `bakeRoot`), seuls `com.cheroliv.deploy.VariantDeployability` divergeaient — comparaient **toutes** les entrées de `templates/` (bundle `messages_{lang}.properties`, `.txt`, dossier `jbake/templates/TODO/`) là où bakery ne compte que `.thyme/.ftl/.html` → variante complète **faussement indéployable**. **Livré** : vecteurs partagés `bakery/i18n/variant/variant-bake-vectors.json` (6 vecteurs) + convergence `VariantDeployability` cheroliv (TDD RED prouvé → GREEN) + vecteurs épinglés byte-identique + garde anti-dérive `VariantDeployabilityDriftGuardTest`. Gates : bakery `test` **2061/0** (+2), `functionalTest`/`nodeTest` VERT, `cucumberTest` 3285/5 baseline, `publishToMavenLocal` VERT ; cheroliv `test` **187/0** (+2), `cucumberTest` 31/5 baseline stash-prouvée, `functionalTest`+`nodeTest` VERT. Zéro code prod bakery modifié, zéro bump BOM, zéro publication Central, zéro LLM, zéro secret. Doc `.agents/CADRAGE_EPIC_BKY_VARIANT_UNIFY.adoc` + `.agents/sessions/242-…`.
 
@@ -111,15 +112,68 @@ V5→V8 préexistaient (stash-prouvé) mais étaient masqués par V1/V5/V6.
 | ✅ S-243
 
 | US-6
-| ktlint baseline `config/ktlint/baseline.xml` (171 fichiers, zéro exemption de fichier neuf)
-| ✅ S-243
+| ktlint baseline `config/ktlint/baseline.xml` (171 fichiers, zéro exemption de fichier neuf) — **résorbé S-244, baseline vide**
+| ✅ S-243 → ✅ S-244
 |===
 
-=== Hors périmètre — EPICs séparés (S-244+)
+=== Hors périmètre — EPICs séparés
 
-* **Dette ktlint** : résorption des 171 fichiers baselinés, par lots, régénération du baseline à chaque lot.
+* ✅ **Dette ktlint** — RÉSORBÉE (S-244, EPIC BKY-KTLINT-CLEANUP) : `config/ktlint/baseline.xml` est **VIDE** (171 fichiers gelés S-243 → 0), en 7 lots/commits. Le baseline n'exempte plus rien.
 * **Correction racine conventions** : chemin hardcodé de `koverThresholdCheck` (bug 0.0.4) — corriger dans `conventions-gradle`, bump, propager, retirer le workaround local.
 * **F50 cross-borough** : sémantique de traduction `:summary:`/`:description:` portée par `document-gradle`.
+
+== EPIC BKY-KTLINT-CLEANUP — Résorption de la dette ktlint (baseline 171 → 0) ✅ TERMINÉ (S-244)
+
+_Mission A du PROMPT_REPRISE S-243. Le baseline gelé en S-243 (`config/ktlint/baseline.xml`, 171 fichiers, 619 violations) est intégralement résorbé._
+
+=== Constat
+
+619 violations classifiées : `function-signature` 181, `argument-list-wrapping` 71,
+`no-empty-first-line-in-class-body` 60, `final-newline` 49, `chain-method-continuation` 43,
+`function-naming` 40, `multiline-expression-wrapping` 38, `no-wildcard-imports` 32,
+puis 84 diverses. Répartition : `src/test` 102 fichiers, `src/main` 59,
+`src/functionalTest` 9, `build.gradle.kts` 1.
+
+=== Découverte — le lot ne peut pas être un fichier (tâche Gradle)
+
+`include(...)`/`setSource(...)` sur `runKtlintFormatOver*` (init-script) sont **ignorés**
+par ktlint-gradle 12.2.0 (la `source` FileCollection est ré-appliquée). Prouvé : un run
+« scopé » sur un fichier sonde a reformaté **63 fichiers de `src/test`** (mode d'échec
+S-231 reproduit), **revert immédiat**. Outil correct pour un scope fichier : le **CLI
+ktlint 1.5.0** (`com.pinterest.ktlint.Main`, classpath résolu via une configuration
+Gradle jetable). Lot effectif retenu = **source set**.
+
+=== US (découpage) — ✅ TERMINÉ
+
+[cols="1,4,2"]
+|===
+| # | US | Statut
+
+| US-1
+| `build.gradle.kts` + durcissement `BakeryPluginPublicationTest` (garde whitespace-insensitive)
+| ✅ S-244 (`056808b2`)
+
+| US-2
+| `src/main` 57 fichiers + `object_`→`jsObject` + `ColorContrastRule.kt`→`ContrastResult.kt`
+| ✅ S-244 (`e708d459`)
+
+| US-3
+| `src/functionalTest` 9 fichiers + `tools.kt`→`Tools.kt` + max-line HTML + no-consecutive-comments
+| ✅ S-244 (`aec275e4`)
+
+| US-4
+| `src/test` 67 fichiers (imports)
+| ✅ S-244 (`df5bc9d3`)
+
+| US-5
+| `function-naming` (40 steps backtick → camelCase) + `no-wildcard-imports` (32) + `max-line-length`/`property-naming`
+| ✅ S-244 (`19b3c9f6`, `6e9221a6`, `4f3828a2`)
+|===
+
+Gates : `./gradlew build` **VERT 5m11s**, `test` **5642/0**, `functionalTest` **272/0**,
+`cucumberTest` 0 échec, `nodeTest` VERT, kover VERT, `ktlintCheck` VERT **baseline vide**,
+`publishToMavenLocal` VERT, gate métier 0, zéro secret. Rapport
+`.agents/sessions/244-ktlint-debt-resorbed.adoc`.
 
 == EPIC BKY-LANG-NAV — Changement de langue sans retour à l'accueil (same-page switching) — ✅ TERMINÉ (NAV-0 ✅ S-228, NAV-1 ✅ S-229, NAV-2 ✅ S-230, NAV-3 ✅ S-231, NAV-4 ✅ S-232, NAV-5 ✅ S-234, NAV-6 ✅ S-235, NAV-7 ✅ S-236, NAV-8 ✅ S-239/S-240 — brique + release + déploiement production)
 

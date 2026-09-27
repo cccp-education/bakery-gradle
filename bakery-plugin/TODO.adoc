@@ -1,21 +1,32 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-09-27 — Session 243. **BKY-CI-ISOLATION** ✅ TERMINÉ — CI bakery VERTE (13 verrous, dont le bug produit `GitService.ensureHeadOnBranch`). `build` VERT 5m28s. Antérieur S-242 : BKY-VARIANT-UNIFY (split-brain `i18n.variant` absorbé, zéro traduction). S-241 : FLAKY-5 SOLDÉ (drift fixture cheroliv.com, `test` 2059/0). S-240 : release bakery 0.0.20 + CI réelle VERTE + Gradle 9.8.0. S-239 : brique N2 `bakeVariants`._
+_Dernière mise à jour : 2026-09-27 — Session 244. **BKY-KTLINT-CLEANUP** ✅ TERMINÉ — dette ktlint INTÉGRALEMENT RÉSORBÉE, `config/ktlint/baseline.xml` **VIDE** (171 → 0), 7 lots/commits. `./gradlew build` VERT 5m11s, `test` 5642/0. Antérieur S-243 : BKY-CI-ISOLATION (CI bakery VERTE, 13 verrous dont le bug produit `GitService.ensureHeadOnBranch`). S-242 : BKY-VARIANT-UNIFY (split-brain `i18n.variant` absorbé). S-241 : FLAKY-5 SOLDÉ. S-240 : release bakery 0.0.20 + CI réelle VERTE + Gradle 9.8.0._
+
+== EPIC BKY-KTLINT-CLEANUP (S-244) — Dette ktlint résorbée (baseline 171 → 0) ✅ TERMINÉ
+
+* [x] **Lot 1** : `build.gradle.kts` + durcissement `BakeryPluginPublicationTest` (garde whitespace-insensitive, RED→GREEN) — `056808b2`
+* [x] **Lot 2** : `src/main` 57 fichiers + `object_`→`jsObject` + `ColorContrastRule.kt`→`ContrastResult.kt` — `e708d459`
+* [x] **Lot 3** : `src/functionalTest` 9 fichiers + `tools.kt`→`Tools.kt` + max-line HTML + no-consecutive-comments — `aec275e4`
+* [x] **Lot 4** : `src/test` 67 fichiers (imports) — `df5bc9d3`
+* [x] **Lot 5a** : `function-naming` — 40 steps backtick → camelCase — `19b3c9f6`
+* [x] **Lot 5b** : `no-wildcard-imports` — 32 fichiers, imports explicites — `6e9221a6`
+* [x] **Lot 5c** : `max-line-length` (5 JSON `@Suppress`) + `property-naming` → **baseline vide** — `4f3828a2`
+* [x] **Découverte** : le lot ne peut pas être scopé fichier via la tâche Gradle (`include`/`setSource` ignorés) — outil = CLI ktlint 1.5.0, lot = source set
+* [ ] **S-245 — Correction racine conventions** : chemin hardcodé `koverThresholdCheck` (bug 0.0.4) → corriger dans `conventions-gradle`, bump, propager
+* [ ] **S-245 — F50 cross-borough** : sémantique `:summary:`/`:description:` portée par `document-gradle`
+* [ ] **S-245 (option) — publication bakery 0.0.21** : porte S-241→S-244 (dont le bug produit GitService) — sur demande pilote
+* [ ] **MASS-6** : bloqué accord pilote explicite (~675h LLM)
 
 == EPIC BKY-CI-ISOLATION (S-243) — CI verte (13 verrous) ✅ TERMINÉ
 
 * [x] **V1** : `.github/workflows/test.yml` JDK 24 → 25 (conventions-plugin 0.0.4 exige JVM 25)
 * [x] **V2/V3** : `bakery.workspace.WorkspaceRoot` (objet pur test, 8 UT) + `assumeTrue` sur `FixtureAlignmentAuditorTest`/`RealSiteI18nMigrationIntegrationTest`
 * [x] **V4** : `bakery.workspace.PublishedCatalogVersion` (3 UT) + version injectée par Gradle (patron graphify D5-RACE)
-* [x] **V5** : 4 scénarios cucumber périmés réalignés (F30 `xx`, F34 empreinte, DNS slot déclaré, F50 `:summary:` traduit)
+* [x] **V5** : 4 scénarios cucumber périmés réalignés (F30 fallback `xx`, F34 empreinte, DNS slot déclaré, F50 `:summary:` traduit)
 * [x] **V6** : timeout `cucumberTest` + `Test` global 5 → 15 min
 * [x] **V7** : chemin kover XML aligné (`reports/kover/xml/report.xml`, 89,21 % > 85 %)
-* [x] **V8** : ktlint baseline `config/ktlint/baseline.xml` (171 fichiers, zéro exemption de fichier neuf)
-* [ ] **S-244 — Dette ktlint** : résorber les 171 fichiers baselinés par lots (régénérer le baseline à chaque lot)
-* [ ] **S-244 — Correction racine conventions** : chemin hardcodé `koverThresholdCheck` (bug 0.0.4) → corriger dans `conventions-gradle`, bump, propager
-* [ ] **S-244 — F50 cross-borough** : sémantique `:summary:`/`:description:` portée par `document-gradle`
-* [ ] **MASS-6** : bloqué accord pilote explicite (~675h LLM)
+* [x] **V8** : ktlint baseline `config/ktlint/baseline.xml` (171 fichiers, zéro exemption de fichier neuf) — **résorbé S-244**
 
 == EPIC BKY-LANG-NAV (S-228) — Changement de langue sans retour à l'accueil (same-page switching) ✅ TERMINÉ 9/9 US
 

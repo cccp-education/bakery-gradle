@@ -1,0 +1,161 @@
+= Session 244 — Dette ktlint intégralement résorbée (baseline 171 → 0)
+
+_Date_ : 2026-09-27
+_Borough_ : Bushwick 🟤 (bakery-gradle)
+_Type_ : DDD/TDD/BDD strict — refactoring de style par lots + durcissement d'une garde
+_Score_ : 9/10
+
+== Contexte
+
+Mission A du `PROMPT_REPRISE` S-243 : **résorber la dette ktlint** gelée en S-243
+(`config/ktlint/baseline.xml`, 171 fichiers, 953 lignes). Contrainte méthodologique
+n°1 : leçon S-231 — `ktlintFormat` global a reformaté 126 fichiers hors périmètre.
+La mission impose « un lot = un commit, régénérer le baseline à chaque lot ».
+
+== Constat de cadrage
+
+L'audit d'ouverture a classifié les 619 violations par règle :
+
+[cols="1,2,6"]
+|===
+| Règle | Volume | Auto-fixable
+
+| `function-signature` | 181 | oui
+| `argument-list-wrapping` | 71 | oui
+| `no-empty-first-line-in-class-body` | 60 | oui
+| `final-newline` | 49 | oui
+| `chain-method-continuation` | 43 | oui
+| `function-naming` | 40 | **non**
+| `multiline-expression-wrapping` | 38 | oui
+| `no-wildcard-imports` | 32 | **non**
+| `class-signature` | 21 | oui
+| autres (wrapping, indent, property-naming, filename, imports…) | 84 | mixte
+|===
+
+Répartition par source set : `src/test` 102 fichiers, `src/main` 59,
+`src/functionalTest` 9, `build.gradle.kts` 1.
+
+== Découverte méthodologique — le lot NE PEUT PAS être un fichier
+
+La tentative naturelle — scoper `runKtlintFormatOver*` par `include(...)` ou
+`setSource(files(...))` via init-script — a été **prouvée inopérante** : le plugin
+ktlint-gradle (12.2.0) ré-applique sa `source` FileCollection, ignorant le
+`PatternFilterable` de la tâche. La preuve : un run « scopé » sur un fichier sonde
+a reformaté **63 fichiers de `src/test`**. C'est *exactement* le mode d'échec S-231.
+
+*Revert immédiat* (`git checkout -- src/`), puis recherche du bon outil.
+
+*Solution retenue* : le **CLI ktlint 1.5.0** (`com.pinterest.ktlint.Main`), dont le
+classpath a été résolu une fois via une configuration Gradle jetable
+(`ktlint-cli:1.5.0`). Le CLI accepte des *chemins de fichiers explicites* → scope
+au fichier près, zéro effet de bord.
+
+*Lot effectif retenu* : le **source set** (la seule frontière fiable côté tâche
+Gradle), ou le fichier via le CLI pour les corrections manuelles.
+
+== Livré (7 commits, un par lot)
+
+[cols="1,3"]
+|===
+| Lot | Contenu
+
+| **1** `056808b2`
+| `build.gradle.kts` (chain-method-continuation) + **durcissement
+  `BakeryPluginPublicationTest`** (voir ci-dessous)
+
+| **2** `e708d459`
+| `src/main` — 57 fichiers formatés + 2 violations manuelles (`I18nCatalogDocument`
+  `object_` → `jsObject` ; `ColorContrastRule.kt` → `ContrastResult.kt`, `git mv`)
+
+| **3** `aec275e4`
+| `src/functionalTest` — 9 fichiers + 3 manuelles (`max-line-length` HTML,
+  `no-consecutive-comments`, `tools.kt` → `Tools.kt`)
+
+| **4** `df5bc9d3`
+| `src/test` — 67 fichiers (imports réordonnés, imports inutilisés retirés)
+
+| **5a** `19b3c9f6`
+| `function-naming` — 40 méthodes `backtick` de `LensSteps`/`AugmentedContextN3Steps`
+  → camelCase (convention des 55 autres fichiers de steps)
+
+| **5b** `6e9221a6`
+| `no-wildcard-imports` — 32 fichiers, imports explicites (Assertions ×21,
+  Constants cucumber ×6, junit ×2, coroutines, java.util, bakery)
+
+| **5c** `4f3828a2`
+| `max-line-length` (5 littéraux JSON, `@Suppress` ciblé) + `property-naming`
+  (`CNAME_VALUE` → `cnameValue`) — **baseline VIDE**
+|===
+
+=== Bug découvert au lot 1 — garde fragile
+
+Le reformatage de `build.gradle.kts` a fait passer `BakeryPluginPublicationTest`
+**RED** : la garde parsait le script **ligne à ligne**
+(`lineSequence().first { it.startsWith("version =") }.contains(...)`), or ktlint
+découpe désormais `version = ws.versions.bakery.plugin.get()` sur 3 lignes
+(`chain-method-continuation`). Même famille que F34 (S-243, proxy `th:text=`) :
+une assertion couplée à la **forme** du source plutôt qu'à son contenu.
+
+Correctif : garde **whitespace-insensitive** (`buildScript.withoutWhitespace()`,
+assertion sur `version=ws.versions.bakery.plugin.get()`), RED → GREEN prouvé.
+Le lot 1 a été **reconstruit** pour inclure le correctif (chaque commit reste vert).
+
+== Preuves de non-régression
+
+* *Behavior-neutral* : sur `src/main`, les **5824 littéraux de chaîne** sont
+  byte-identiques avant/après (extraction + `diff`). Sur le lot wildcard, le diff
+  ne contient **que des lignes d'import** (aucune ligne de corps modifiée).
+* *Compilation* : `compileKotlin`, `compileTestKotlin`,
+  `compileFunctionalTestKotlin` VERTS à chaque lot.
+* *Tests* : `test` **5642/0**, `functionalTest` **272/0**, `cucumberTest` 0 échec.
+* *Sanity outillage* : le CLI ktlint détecte bien une violation sur un fichier
+  témoin (`Bad.kt`) — la sortie vide sur le projet est donc **significative**,
+  pas un faux vert.
+
+== Gates (clôture)
+
+[cols="2,3"]
+|===
+| Gate | Résultat
+
+| `./gradlew build` (commande CI réelle) | **BUILD SUCCESSFUL 5m11s**
+| `test` | **5642, 0 FAIL**
+| `functionalTest` | **272, 0 FAIL**
+| `cucumberTest` | **0 échec**
+| `nodeTest` | VERT (inclus dans `check`)
+| `koverThresholdCheck` | VERT
+| `ktlintCheck` (baseline **vide**) | VERT — toute violation nouvelle échouera
+| `./gradlew -q publishToMavenLocal` | VERT (Règle 0)
+| Gate métier `REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA` src/ | **0**
+| Secrets delta | 0
+|===
+
+== Résultat
+
+* **La dette ktlint est intégralement résorbée** : `config/ktlint/baseline.xml`
+  est désormais **vide** (`<baseline version="1.0"></baseline>`). Les 171 fichiers
+  gelés en S-243 sont tous conformes. La règle S-243 (« le baseline n'exempte
+  aucun fichier neuf ») est poussée à son terme : **plus aucune exemption**.
+* 1 bug latent corrigé (`BakeryPluginPublicationTest`, famille F34).
+* 3 fichiers renommés (conformité `filename`) : `ContrastResult.kt`, `Tools.kt`.
+* 0 ligne de logique métier modifiée, 0 dépendance, 0 bump BOM, 0 publication
+  Central, 0 LLM, 0 secret.
+
+== Incident
+
+Un commit parallèle du pilote (`f45be8be update java 24 to 25`, `website.yml`)
+est intercalé dans l'historique de session — il ne fait pas partie de la mission
+et n'a pas été modifié. Les 7 lots ktlint s'empilent proprement dessus.
+
+== Leçons
+
+. *Un filtre de tâche Gradle peut être ignoré en silence* : ne jamais supposer
+  qu'`include(...)` scope la tâche ; **vérifier le périmètre effectif** (`git status`)
+  immédiatement après le premier run. C'est la vérification qui a attrapé S-231 bis.
+. *Le CLI ktlint résolu par Gradle* est l'outil de scope fichier : classpath
+  résolu via une configuration jetable, jamais de bricolage de tâche.
+. *Une garde qui parse la forme du source est un bug dormant* : F34 (S-243) puis
+  lot 1 (S-244) — deux occurrences. Toute assertion textuelle doit être
+  whitespace-insensitive.
+. *La résorption par lots tient la dette décroissante* : 171 → 170 → 111 → 102 →
+  38 → 36 → 5 → **0**, chaque valeur prouvée par `ktlintGenerateBaseline`.
