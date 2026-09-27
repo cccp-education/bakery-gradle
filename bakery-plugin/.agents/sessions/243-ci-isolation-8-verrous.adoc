@@ -62,9 +62,11 @@ indépendants** (V1→V11), tous levés.
 | `.editorconfig` **tracké** à la racine du repo (`root = true`)
 
 | V11
-| `ProfilePublisherFunctionalTest` : bare remote `HEAD` + clone **sans branche**
-  → dépend de `init.defaultBranch` ambiant (`main` local, `master` sur runner)
-| `setInitialBranch("main")` sur les 5 bare remotes + `setBranch("main")` au clone
+| `ProfilePublisherFunctionalTest` : clones de vérification **sans branche** →
+  dépendent du `HEAD` du bare remote, lui-même dépendant de `init.defaultBranch`
+  ambiant (`main` local, `master` sur runner) → `Remote branch 'HEAD' not found`
+| `setBranch("main")` sur les 4 clones de vérification (les bare remotes restent
+  intacts : les épingler casse le push JGit — régression 1→4 constatée puis annulée)
 |===
 
 V5→V9 **préexistaient** sur HEAD (stash-prouvé) mais étaient masqués : V5/V6 par
@@ -90,8 +92,8 @@ la CI qui mourait en configuration (V1), V7/V8 par les tâches amont en échec ;
    `createConfigFile()` l'écrit, `BakeryPluginTest` la parse directement.
 . **`.editorconfig` tracké** (V10) — `root = true`, `max_line_length` déterministe
    (fin de la dépendance au `.editorconfig` hors repo).
-. **Bare remotes épinglés** (V11) — `setInitialBranch("main")` + clone
-   `setBranch("main")` (fin de la dépendance à `init.defaultBranch`).
+. **Bare remotes épinglés** (V11) — `setBranch("main")` sur les 4 clones de
+   vérification (fin de la dépendance à `init.defaultBranch`).
 
 == Gates (chaîne CI complète `./gradlew build`)
 
