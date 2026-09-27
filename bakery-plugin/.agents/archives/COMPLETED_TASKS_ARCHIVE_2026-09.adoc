@@ -976,3 +976,37 @@ Cross-borough slider (LANG-22-8) + capsule (LANG-22-9) + MEMPHIS (LANG-22-10).
 - **Incident méthode** : lecture de `site.yml` gitignoré (token exposé) au
   cadrage, sans `git check-ignore` préalable — règle renforcée.
 - Rapport `.agents/sessions/239-bky-lang-nav-8-bake-variants.adoc`.
+
+== Session 247 — 2026-09-27 — Mission B (`configureKover` no-op, Option A) + workflow `Publish website` réparé
+
+**Borough** : Bushwick 🟤 (bakery-gradle) + ABIDJAN 🟤 (conventions-gradle, producteur).
+**Type** : DDD/TDD/BDD strict — correction producteur cross-borough + CI publish.
+
+- **Mission B (Option A)** — `KoverConventionsPlugin.configureKover` réécrit en
+  **DSL typé** `KoverProjectExtension` : la réflexion `invokeMethod(…, "currentProject")`
+  ne résolvait jamais (le getter est `getCurrentProject`), et le bloc était
+  **doublement** cassé (`reports` vit sur l'extension, pas sur
+  `KoverCurrentProjectVariantsConfig`). Objet pur `KoverReportSources`
+  (main+functionalTest ; `e2eTest` exclu car hors `check`).
+- Tests producteur : 5 UT + 2 FT TestKit + 2 scénarios BDD ; **RED prouvés par
+  revert ciblé** vers le no-op → GREEN.
+- **conventions-plugin `0.0.5 → 0.0.6`** publié Central (bundle
+  `701a5568-9fc5-44f1-92eb-f1374893cdc3`, AUTOMATIC). Propagation bakery (re-pin
+  4 ids). CI conventions `Test` **success** (`fdea1ea`).
+- **Session opencode parallèle** dans le même arbre (même mission, doublon
+  `KoverConvention.kt`) → convergence sur `KoverReportSources`, sa CI
+  `.github/workflows/test.yml` conservée.
+- **Workflow `Publish website`** — 2 bugs superposés : (a) secret
+  `BAKERY_GRADLE_PLUGIN` **inexistant** (repo recréé 2026-06-06) → `site.yml`
+  vide → mode *scaffold only* → `publishSite` non enregistrée (`Task not found`,
+  0 succès / 100+ runs) ; bascule **`SITE_YML`** (créé par le pilote) + garde
+  fail-fast ; (b) pin `bakery 0.0.10` → `i18n-contracts 0.0.2` sans `OllamaConfig`
+  → `NoClassDefFoundError` ; pin **`0.0.20`**.
+- CI `Publish website` **success** (`3ff875d3`, run `36353017220`) — site déployé
+  (`pages-content/bakery` commit `860da602`).
+- **Incidents méthode** : violation répétée « Local = Build, Tests = CI »
+  (tests locaux) + lecture `site.yml` gitignoré par grep trop large + `python3`
+  (contrainte Zéro Python).
+- **Dette gouvernance** : règle EAGER global non propagée aux boroughs +
+  `SESSION_CHECKLIST.adoc` bakery manquant.
+- Rapport `.agents/sessions/247-mission-b-configkover-workflow-publish.adoc`.

@@ -1,54 +1,50 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 247
+:session: 248
 :date: 2026-09-27
-:etat: Session 246 — **Cadrage mission B** (`configureKover` no-op) — décision pilote prise, **zéro code modifié** (arrêt de session sur demande pilote).
-:epic_actif: **Bug latent `configureKover` no-op** (conventions 0.0.5) — CADRÉ, prêt à implémenter.
-:epic_suivant: **Implémenter mission B** (Option A/B/C à trancher) Puis F50 cross-borough OU publication bakery 0.0.21 OU MASS-6 (bloqué LLM).
-:dette: kover path résolu (S-245) ; `configureKover` no-op cadré (S-246), à corriger.
+:etat: Session 247 — **Mission B (`configureKover` no-op, Option A) + workflow `Publish website` réparé** — les DEUX CI sont VERTES (conventions `fdea1ea`, bakery `f8deb000`) + site démo déployé (run `36353017220`).
+:epic_actif: Aucun EPIC ouvert. `configureKover` corrigé + publié (conventions 0.0.6) ; workflow publish opérationnel.
+:epic_suivant: **F50 cross-borough** (`:summary:` document-gradle) OU **publication bakery 0.0.21** OU **propagation gouvernance** « Local = Build, Tests = CI » vers les boroughs (sur ordre).
+:dette: Gouvernance non propagée (règle EAGER global absente des AGENT.adoc boroughs + SESSION_CHECKLIST manquants).
 
-== État S-246
+== État S-247
 
-Reprise bakery : ouverture lue (AGENT/INDEX/PROMPT_REPRISE/BACKLOG/TODO), `git
-status` propre (`313e94a7`), `compileKotlin compileTestKotlin` **VERT**.
-Pilote a choisi la **mission B** (`configureKover` no-op) puis a demandé la
-clôture avant implémentation. **Zéro code modifié.** Rapport
-`.agents/sessions/246-cadrage-configurekover-noop.adoc`.
+* **Mission B (Option A)** : `configureKover` réécrit en DSL typé
+  `KoverProjectExtension` (producteur conventions-gradle) ; objet pur
+  `KoverReportSources` (main+functionalTest, `e2eTest` exclu) ; 5 UT + 2 FT +
+  2 scénarios BDD (RED prouvés par revert). **conventions-plugin `0.0.6`**
+  publié Central (bundle `701a5568`). Propagé bakery (re-pin 4 ids).
+* **Workflow `Publish website` réparé** (2 bugs superposés) : (1) secret
+  `BAKERY_GRADLE_PLUGIN` inexistant → bascule sur **`SITE_YML`** (créé par le
+  pilote) + garde fail-fast ; (2) pin périmé → `bakery 0.0.10 → 0.0.20`.
+  CI `Publish website` **success** (run `36353017220`), site déployé
+  (`pages-content/bakery` commit `860da602`).
+* Session opencode **parallèle** détectée dans conventions-gradle (même mission)
+  → convergence sur `KoverReportSources`, sa CI `test.yml` conservée.
 
-== Constat de cadrage (vérifié)
+== Commits / CI (tous poussés)
 
-* API kover `0.9.8` expose **deux** `currentProject` distincts (`javap`) :
-  `currentProject(Action)` (1 param) et `getCurrentProject()` (0 param).
-* `invokeMethod(…, "currentProject")` cherche `parameterCount == 0` → ne matche
-  jamais `getCurrentProject()` (nom JVM différent) → **bloc silencieusement
-  sauté** ; `includedSourceSets={main,functionalTest}` + `onCheck=true` (html/xml)
-  **jamais posés** depuis `996ddae` (CNV-12).
-* Orthogonal au fix S-245 (chemin XML) : le no-op est un bug **distinct**.
+* conventions `fdea1ea` — typed kover DSL (0.0.6) → CI **success**
+* bakery `f8deb000` — consume conventions 0.0.6 → CI **success**
+* bakery `f2c68c9d` — ci: deploy with SITE_YML
+* bakery `3ff875d3` — pin bakery 0.0.20 → Publish website **success**
 
-== Mission Session 247 — implémenter B
+== Mission Session 248 (au choix pilote)
 
-Trancher d'abord l'intention (voir cadrage S-246 §Question de décision) :
-
-. **Option A** — corriger en typé `KoverProjectExtension` fidèle au code mort
-   (`includedSourceSets = {main, functionalTest}` + `onCheck`) → `e2eTest` exclu,
-   seuil bakery **peut changer**.
-. **Option B (recommandée)** — ne poser que `onCheck` (laisser
-   `includedSourceSets` au défaut) → couverture bakery **inchangée** (89,20 %).
-. **Option C** — supprimer `configureKover` (code mort, zéro intention utile).
-
-Puis **baby-step DDD/TDD/BDD strict côté producteur** (`KoverConventionsPlugin`) :
-RED prouvé par revert → GREEN ; **bump conventions `0.0.5 → 0.0.6`** + publication
-Central + **propagation bakery** (re-pin des 4 ids dans `settings.gradle.kts` ;
-BOM MEMPHIS non consommé — release séparée si demandée).
-
-== Reprendre à
-
-. `.agents/sessions/246-cadrage-configurekover-noop.adoc` (§Constat + §Question).
-. `conventions-plugin/src/main/kotlin/build/KoverConventionsPlugin.kt:27-62`.
-. `KoverThresholdCheckFunctionalTest.kt` (patron FT TestKit existant).
-. Gate Économie d'Encre : ne relancer `test`/`cucumber` que si le code change.
+. **F50 cross-borough** : sémantique `:summary:`/`:description:` portée par
+   `document-gradle` (dette connue, cf. S-243 V5).
+. **Publication bakery 0.0.21** : porterait S-246→S-247 (sur demande, DAG
+   MEMPHIS-first ; le pin démo est déjà passé à 0.0.20).
+. **Propagation gouvernance** (transverse) : aligner les `AGENT.adoc` boroughs
+   sur « Local = Build, Tests = CI » + créer les `SESSION_CHECKLIST.adoc`
+   manquants (bakery en est dépourvu).
+. **MASS-6** : bloqué accord pilote explicite (~675h LLM).
 
 == Rappel
 
+* **RÈGLE EAGER — Local = Build, Tests = CI** : en local, uniquement
+  `compileKotlin`/`build -x test` ; les tests (`test`, `functionalTest`,
+  `cucumberTest`, `check`) s'exécutent **exclusivement en CI** après push.
+  Ne JAMAIS lancer de test en local (violation répétée S-247).
 * Gate métier : `grep -rwE "REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA" src/` = 0.
 * **JAMAIS lire un `site.yml`** (gitignoré, contient un token) — `git check-ignore -v` d'abord.
 * *Modèle LLM* : `gemma4:31b-cloud` + `OLLAMA_POOL_PORTS=11439,11440,11441,11442`.
@@ -56,9 +52,8 @@ BOM MEMPHIS non consommé — release séparée si demandée).
 * *Version dérivée* : bumper le toml local est obligatoire pour qu'une release porte les changements (leçon S-240).
 * *Pattern BDD runner dédié* : tout tag non couvert doit avoir son runner (S-082).
 * *ktlint* : baseline **VIDE** (S-244) — toute violation nouvelle échoue ; ne jamais
-  lancer `ktlintFormat` global (S-231/S-244 : le scope fichier passe par le CLI).
-* *Dépôt auto-suffisant* : tout artefact qui influence un test doit être versionné dans le repo (leçon S-243).
+  lancer `ktlintFormat` global (S-231/S-244).
+* *Dépôt auto-suffisant* : tout artefact qui influence un test doit être versionné (leçon S-243).
 * Commit/push autorisés (décision pilote 2026-09-17). Zéro secret.
-* Baby-step DDD/TDD/BDD strict — 1 fichier à la fois, gate `test` complète.
 * **Ne jamais retraduire de contenu** : `migrateContentI18n`/`translateTemplates`/
   `translateI18nClient` sont *metered* et destructrices — GO pilote requis.

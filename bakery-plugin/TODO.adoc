@@ -1,15 +1,27 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-09-27 — Session 246 ⏸️. **Cadrage mission B (`configureKover` no-op, conventions)** — décision pilote, **zéro code modifié** (arrêt sur demande pilote). Constat vérifié `javap` : kover 0.9.8 expose `currentProject(Action)` (1 param) **et** `getCurrentProject()` (0 param) ; `invokeMethod(…,"currentProject")` cherche `parameterCount == 0` → no-op depuis `996ddae` (CNV-12). 3 options cadrées (A typage fidèle / **B recommandée** `onCheck` seul / C suppression code mort). Implémentation S-247. Antérieur S-245 : correction racine conventions `koverThresholdCheck` ✅ (0.0.5 Central + workaround retiré). S-244 : BKY-KTLINT-CLEANUP (dette ktlint RÉSORBÉE). S-243 : BKY-CI-ISOLATION (CI VERTE)._
+_Dernière mise à jour : 2026-09-27 — Session 247 ✅. **Mission B (`configureKover` no-op, Option A) IMPLÉMENTÉE + workflow `Publish website` RÉPARÉ**. Producteur conventions : DSL typé `KoverProjectExtension` + `KoverReportSources` (main+functionalTest, e2eTest exclu), 5 UT + 2 FT + 2 BDD (RED prouvés par revert), **conventions 0.0.6** Central (bundle `701a5568`), propagation bakery (re-pin 4 ids). Workflow publish : secret **`SITE_YML`** (remplace `BAKERY_GRADLE_PLUGIN` inexistant) + pin `bakery 0.0.20` (remplace 0.0.10 périmé) → **CI `Publish website` success** (run `36353017220`), site déployé. Antérieur S-246 : cadrage mission B. S-245 : correction racine conventions `koverThresholdCheck`. S-244 : BKY-KTLINT-CLEANUP. S-243 : BKY-CI-ISOLATION._
 
-== Mission B (S-246 cadrée → S-247 à implémenter) — `configureKover` no-op (conventions)
+== Mission B (S-247 ✅ TERMINÉE) — `configureKover` no-op (conventions)
 
 * [x] **Cadrage S-246** : constat vérifié aux sources (`javap` → 2 méthodes `currentProject`), 3 options documentées, périmètre orthogonal au fix S-245
-* [ ] **S-247 — trancher Option A/B/C** (B recommandée : `onCheck` seul, couverture bakery inchangée 89,20 %)
-* [ ] **S-247 — baby-step DDD/TDD/BDD producteur** (`KoverConventionsPlugin`, RED prouvé par revert) + bump conventions `0.0.6` + propagation bakery (re-pin 4 ids)
-* [ ] **S-247+ — F50 cross-borough** : sémantique `:summary:`/`:description:` portée par `document-gradle`
-* [ ] **S-247+ (option) — publication bakery 0.0.21** : porte S-241→S-245 — sur demande pilote
+* [x] **S-247 — Option A tranchée** (DSL typé fidèle au contrat déclaré ; `e2eTest` exclu → seuil bakery ≈ 88,9 % > 85 %)
+* [x] **S-247 — baby-step DDD/TDD/BDD producteur** (`KoverConventionsPlugin` typé + `KoverReportSources`, RED prouvé par revert) + bump conventions `0.0.6` + propagation bakery (re-pin 4 ids)
+* [x] **S-247 — CI** : conventions `Test` success (`fdea1ea`) + bakery `Test` success (`f8deb000`)
+
+== Workflow `Publish website` (S-247 ✅ TERMINÉ) — site démo buildé en remote
+
+* [x] **Secret** : `BAKERY_GRADLE_PLUGIN` inexistant → bascule **`SITE_YML`** (créé par le pilote) + garde fail-fast explicite
+* [x] **Pin périmé** : `bakery 0.0.10 → 0.0.20` (`gradle/libs.versions.toml`) — évite le `NoClassDefFoundError` (`i18n-contracts 0.0.2` sans `OllamaConfig`)
+* [x] **Workflow durci** : `setup-gradle`, `chmod +x gradlew`, `--no-daemon`
+* [x] **Preuve** : CI `Publish website` **success** (run `36353017220`), site déployé (`pages-content/bakery` commit `860da602`)
+
+== Suite (S-248+, sur ordre pilote)
+
+* [ ] **F50 cross-borough** : sémantique `:summary:`/`:description:` portée par `document-gradle`
+* [ ] **Publication bakery 0.0.21** : porterait S-246/S-247 — sur demande pilote (DAG MEMPHIS-first)
+* [ ] **Propagation gouvernance** : règle « Local = Build, Tests = CI » vers les `AGENT.adoc` boroughs + `SESSION_CHECKLIST.adoc` manquants (bakery en est dépourvu)
 * [ ] **MASS-6** : bloqué accord pilote explicite (~675h LLM)
 
 == EPIC — Correction racine conventions `koverThresholdCheck` (S-245) ✅ TERMINÉ
@@ -22,9 +34,6 @@ _Dernière mise à jour : 2026-09-27 — Session 246 ⏸️. **Cadrage mission B
 * [x] **Propagation bakery** : 4 ids conventions 0.0.5 + retrait du workaround (20 lignes)
 * [x] **Preuve** : `koverThresholdCheck` bakery VERT 89,20 % > 85 % sans workaround
 * [x] **Cadrage S-246** : bug latent `configureKover` no-op — constat vérifié `javap`, 3 options (A/B/C), périmètre orthogonal au fix S-245 → voir section « Mission B » ci-dessus
-* [ ] **S-247 — F50 cross-borough** : sémantique `:summary:`/`:description:` portée par `document-gradle`
-* [ ] **S-247 (option) — publication bakery 0.0.21** : porte S-241→S-245 — sur demande pilote
-* [ ] **MASS-6** : bloqué accord pilote explicite (~675h LLM)
 
 == EPIC BKY-KTLINT-CLEANUP (S-244) — Dette ktlint résorbée (baseline 171 → 0) ✅ TERMINÉ
 
@@ -37,9 +46,6 @@ _Dernière mise à jour : 2026-09-27 — Session 246 ⏸️. **Cadrage mission B
 * [x] **Lot 5c** : `max-line-length` (5 JSON `@Suppress`) + `property-naming` → **baseline vide** — `4f3828a2`
 * [x] **Découverte** : le lot ne peut pas être scopé fichier via la tâche Gradle (`include`/`setSource` ignorés) — outil = CLI ktlint 1.5.0, lot = source set
 * [x] **S-245 — Correction racine conventions** : chemin hardcodé `koverThresholdCheck` (bug 0.0.4) → conventions 0.0.5 publiée + propagation bakery ✅ (voir EPIC S-245 ci-dessus)
-* [ ] **S-247 — F50 cross-borough** : sémantique `:summary:`/`:description:` portée par `document-gradle`
-* [ ] **S-247 (option) — publication bakery 0.0.21** : porte S-241→S-245 (dont le bug produit GitService) — sur demande pilote
-* [ ] **MASS-6** : bloqué accord pilote explicite (~675h LLM)
 
 == EPIC BKY-CI-ISOLATION (S-243) — CI verte (13 verrous) ✅ TERMINÉ
 
