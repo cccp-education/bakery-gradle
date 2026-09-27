@@ -26,7 +26,7 @@ class AugmentedContextN3Steps {
     private val mapper = jacksonObjectMapper()
 
     @Given("a minimal baked site directory")
-    fun `a minimal baked site directory`() {
+    fun aMinimalBakedSiteDirectory() {
         val tempRoot = Files.createTempDirectory("bakery-lens5-test-").toFile()
         tempRoot.deleteOnExit()
         bakedDir = tempRoot.resolve("bake")
@@ -42,7 +42,7 @@ class AugmentedContextN3Steps {
     }
 
     @Given("a composite-context.json file with {int} non-empty channels")
-    fun `a composite-context json file with non-empty channels`(channelCount: Int) {
+    fun aCompositeContextJsonFileWithNonEmptyChannels(channelCount: Int) {
         val tempRoot = bakedDir.parentFile
         val compositeFile = tempRoot.resolve("composite-context.json")
         val sections =
@@ -79,13 +79,13 @@ class AugmentedContextN3Steps {
     }
 
     @Given("the augmented context is enabled with contextPath set to the composite-context file")
-    fun `the augmented context is enabled with contextPath set to composite-context file`() {
+    fun theAugmentedContextIsEnabledWithContextPathSetToCompositeContextFile() {
         // DSL already configured in the previous step
         assertThat(augmentedContextDsl.enabled).isTrue()
     }
 
     @Given("the augmented context is enabled with contextPath set to a non-existent file")
-    fun `the augmented context is enabled with contextPath set to non-existent file`() {
+    fun theAugmentedContextIsEnabledWithContextPathSetToNonExistentFile() {
         augmentedContextDsl = AugmentedContextDsl()
         augmentedContextDsl.enabled = true
         augmentedContextDsl.contextPath = "/nonexistent/composite-context.json"
@@ -93,34 +93,34 @@ class AugmentedContextN3Steps {
     }
 
     @Given("the augmented context is disabled")
-    fun `the augmented context is disabled`() {
+    fun theAugmentedContextIsDisabled() {
         augmentedContextDsl = AugmentedContextDsl()
         augmentedContextDsl.enabled = false
         augmentedContextDsl.contextPath = "/nonexistent/composite-context.json"
     }
 
     @When("I collect site context with augmented context")
-    fun `i collect site context with augmented context`() {
+    fun iCollectSiteContextWithAugmentedContext() {
         SiteContextCollector.collectWithAugmentedContext(bakedDir, outputDir, augmentedContextDsl)
         metadataFile = outputDir.resolve("metadata.json")
     }
 
     @Then("the metadata.json should contain {string}")
-    fun `the metadata json should contain`(key: String) {
+    fun theMetadataJsonShouldContain(key: String) {
         assertThat(metadataFile).exists()
         val metadata: Map<String, Any> = mapper.readValue(metadataFile)
         assertThat(metadata).containsKey(key)
     }
 
     @Then("the metadata.json should not contain {string}")
-    fun `the metadata json should not contain`(key: String) {
+    fun theMetadataJsonShouldNotContain(key: String) {
         assertThat(metadataFile).exists()
         val metadata: Map<String, Any> = mapper.readValue(metadataFile)
         assertThat(metadata).doesNotContainKey(key)
     }
 
     @Then("the augmentedEntries channels should have {int} entries")
-    fun `the augmentedEntries channels should have entries`(count: Int) {
+    fun theAugmentedEntriesChannelsShouldHaveEntries(count: Int) {
         val metadata: Map<String, Any> = mapper.readValue(metadataFile)
 
         @Suppress("UNCHECKED_CAST")
@@ -132,7 +132,7 @@ class AugmentedContextN3Steps {
     }
 
     @Then("the augmentedEntries channels should be empty")
-    fun `the augmentedEntries channels should be empty`() {
+    fun theAugmentedEntriesChannelsShouldBeEmpty() {
         val metadata: Map<String, Any> = mapper.readValue(metadataFile)
 
         @Suppress("UNCHECKED_CAST")

@@ -86,18 +86,6 @@
     <file name="src/test/kotlin/bakery/scaffold/ScaffoldGeneratorTest.kt">
         <error line="530" column="161" source="standard:max-line-length" />
     </file>
-    <file name="src/test/scenarios/bakery/scenarios/AugmentedContextN3Steps.kt">
-        <error line="29" column="9" source="standard:function-naming" />
-        <error line="45" column="9" source="standard:function-naming" />
-        <error line="82" column="9" source="standard:function-naming" />
-        <error line="88" column="9" source="standard:function-naming" />
-        <error line="96" column="9" source="standard:function-naming" />
-        <error line="103" column="9" source="standard:function-naming" />
-        <error line="109" column="9" source="standard:function-naming" />
-        <error line="116" column="9" source="standard:function-naming" />
-        <error line="123" column="9" source="standard:function-naming" />
-        <error line="135" column="9" source="standard:function-naming" />
-    </file>
     <file name="src/test/scenarios/bakery/scenarios/BakeryWorld.kt">
         <error line="5" column="1" source="standard:no-wildcard-imports" />
     </file>
@@ -112,38 +100,6 @@
     </file>
     <file name="src/test/scenarios/bakery/scenarios/DnsCucumberTestRunner.kt">
         <error line="3" column="1" source="standard:no-wildcard-imports" />
-    </file>
-    <file name="src/test/scenarios/bakery/scenarios/LensSteps.kt">
-        <error line="47" column="9" source="standard:function-naming" />
-        <error line="74" column="9" source="standard:function-naming" />
-        <error line="82" column="9" source="standard:function-naming" />
-        <error line="105" column="9" source="standard:function-naming" />
-        <error line="111" column="9" source="standard:function-naming" />
-        <error line="117" column="9" source="standard:function-naming" />
-        <error line="123" column="9" source="standard:function-naming" />
-        <error line="129" column="9" source="standard:function-naming" />
-        <error line="137" column="9" source="standard:function-naming" />
-        <error line="151" column="9" source="standard:function-naming" />
-        <error line="159" column="9" source="standard:function-naming" />
-        <error line="164" column="9" source="standard:function-naming" />
-        <error line="170" column="9" source="standard:function-naming" />
-        <error line="181" column="9" source="standard:function-naming" />
-        <error line="198" column="9" source="standard:function-naming" />
-        <error line="203" column="9" source="standard:function-naming" />
-        <error line="208" column="9" source="standard:function-naming" />
-        <error line="218" column="9" source="standard:function-naming" />
-        <error line="223" column="9" source="standard:function-naming" />
-        <error line="232" column="9" source="standard:function-naming" />
-        <error line="243" column="9" source="standard:function-naming" />
-        <error line="266" column="9" source="standard:function-naming" />
-        <error line="363" column="9" source="standard:function-naming" />
-        <error line="386" column="9" source="standard:function-naming" />
-        <error line="404" column="9" source="standard:function-naming" />
-        <error line="419" column="9" source="standard:function-naming" />
-        <error line="434" column="9" source="standard:function-naming" />
-        <error line="440" column="9" source="standard:function-naming" />
-        <error line="447" column="9" source="standard:function-naming" />
-        <error line="452" column="9" source="standard:function-naming" />
     </file>
     <file name="src/test/scenarios/bakery/scenarios/SeoCucumberTestRunner.kt">
         <error line="3" column="1" source="standard:no-wildcard-imports" />

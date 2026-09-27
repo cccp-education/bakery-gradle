@@ -44,7 +44,7 @@ class LensSteps(
     // ─── Scénario 1 : Scoring hybride ───
 
     @Given("a subgraph with 6 nodes and 4 communities")
-    fun `a subgraph with 6 nodes and 4 communities`() {
+    fun aSubgraphWith6NodesAnd4Communities() {
         val nodes =
             listOf(
                 GraphNode("page.md", "Page Courante", "file", "community-a"),
@@ -71,7 +71,7 @@ class LensSteps(
     }
 
     @Given("a RAG result with similarity {double} for node {string}")
-    fun `a RAG result with similarity for node`(
+    fun aRAGResultWithSimilarityForNode(
         similarity: Double,
         nodeId: String,
     ) {
@@ -79,7 +79,7 @@ class LensSteps(
     }
 
     @When("I score node {string} with current page tags {string}")
-    fun `i score node with current page tags`(
+    fun iScoreNodeWithCurrentPageTags(
         nodeId: String,
         tags: String,
     ) {
@@ -102,31 +102,31 @@ class LensSteps(
     }
 
     @Then("the scored node should have ragSimilarity {double}")
-    fun `the scored node should have ragSimilarity`(expected: Double) {
+    fun theScoredNodeShouldHaveRagSimilarity(expected: Double) {
         assertThat(lastScoredNode).isNotNull
         assertThat(lastScoredNode!!.ragSimilarity).isEqualTo(expected)
     }
 
     @Then("the scored node should have graphProximity greater than {double}")
-    fun `the scored node should have graphProximity greater than`(expected: Double) {
+    fun theScoredNodeShouldHaveGraphProximityGreaterThan(expected: Double) {
         assertThat(lastScoredNode).isNotNull
         assertThat(lastScoredNode!!.graphProximity).isGreaterThan(expected)
     }
 
     @Then("the scored node should have tagOverlap greater than {double}")
-    fun `the scored node should have tagOverlap greater than`(expected: Double) {
+    fun theScoredNodeShouldHaveTagOverlapGreaterThan(expected: Double) {
         assertThat(lastScoredNode).isNotNull
         assertThat(lastScoredNode!!.tagOverlap).isGreaterThan(expected)
     }
 
     @Then("the scored node should have crossRefCount at least {int}")
-    fun `the scored node should have crossRefCount at least`(expected: Int) {
+    fun theScoredNodeShouldHaveCrossRefCountAtLeast(expected: Int) {
         assertThat(lastScoredNode).isNotNull
         assertThat(lastScoredNode!!.crossRefCount).isGreaterThanOrEqualTo(expected)
     }
 
     @Then("the final score should be greater than {double}")
-    fun `the final score should be greater than`(expected: Double) {
+    fun theFinalScoreShouldBeGreaterThan(expected: Double) {
         assertThat(lastScoredNode).isNotNull
         assertThat(lastScoredNode!!.score).isGreaterThan(expected)
     }
@@ -134,7 +134,7 @@ class LensSteps(
     // ─── Scénario 2 : Filtrage des règles ───
 
     @Given("a list of scored nodes with tags {string}, {string}, and {string}")
-    fun `a list of scored nodes with tags draft wip and published`(
+    fun aListOfScoredNodesWithTagsDraftWipAndPublished(
         tag1: String,
         tag2: String,
         tag3: String,
@@ -148,7 +148,7 @@ class LensSteps(
     }
 
     @Given("lens rules with excludeTags containing {string}")
-    fun `lens rules with excludeTags containing`(excludedTags: String) {
+    fun lensRulesWithExcludeTagsContaining(excludedTags: String) {
         rules =
             LensRules(
                 excludeTags = excludedTags.split(",").map { it.trim() },
@@ -156,18 +156,18 @@ class LensSteps(
     }
 
     @When("I apply lens rules to the scored nodes")
-    fun `i apply lens rules to the scored nodes`() {
+    fun iApplyLensRulesToTheScoredNodes() {
         filteredNodes = service.applyRules(scoredNodes, rules)
     }
 
     @Then("the result should not contain any node with tag {string}")
-    fun `the result should not contain any node with tag`(tag: String) {
+    fun theResultShouldNotContainAnyNodeWithTag(tag: String) {
         val nodeWithTag = filteredNodes.firstOrNull { it.tags.any { t -> t.equals(tag, ignoreCase = true) } }
         assertThat(nodeWithTag).isNull()
     }
 
     @Then("the result should contain exactly {int} node(s) with tag {string}")
-    fun `the result should contain exactly count nodes with tag`(
+    fun theResultShouldContainExactlyCountNodesWithTag(
         count: Int,
         tag: String,
     ) {
@@ -178,7 +178,7 @@ class LensSteps(
     // ─── Scénario 3 : Budget ───
 
     @Given("a scored node list with {int} nodes and scores {double}, {double}, {double}, {double}, {double}")
-    fun `a scored node list with 5 nodes and scores`(
+    fun aScoredNodeListWith5NodesAndScores(
         count: Int,
         s1: Double,
         s2: Double,
@@ -195,17 +195,17 @@ class LensSteps(
     }
 
     @Given("a maxArticles budget of {int}")
-    fun `a maxArticles budget of`(value: Int) {
+    fun aMaxArticlesBudgetOf(value: Int) {
         this.maxArticles = value
     }
 
     @Given("a minSimilarity threshold of {double}")
-    fun `a minSimilarity threshold of`(value: Double) {
+    fun aMinSimilarityThresholdOf(value: Double) {
         this.minSimilarity = value
     }
 
     @When("I apply budget filtering")
-    fun `i apply budget filtering`() {
+    fun iApplyBudgetFiltering() {
         // Truncate à maxArticles après filtrage minSimilarity
         filteredNodes =
             scoredNodes
@@ -215,12 +215,12 @@ class LensSteps(
     }
 
     @Then("all nodes should have score greater than or equal to {double}")
-    fun `all nodes should have score greater than or equal to`(expectedMin: Double) {
+    fun allNodesShouldHaveScoreGreaterThanOrEqualTo(expectedMin: Double) {
         assertThat(filteredNodes).allMatch { it.score >= expectedMin }
     }
 
     @Then("the result should be ordered by score descending")
-    fun `the result should be ordered by score descending`() {
+    fun theResultShouldBeOrderedByScoreDescending() {
         for (i in 0 until filteredNodes.size - 1) {
             assertThat(filteredNodes[i].score).isGreaterThanOrEqualTo(filteredNodes[i + 1].score)
         }
@@ -229,7 +229,7 @@ class LensSteps(
     // ─── Assertion générique partagée ───
 
     @Then("the result should have exactly {int} nodes")
-    fun `the result should have exactly nodes`(count: Int) {
+    fun theResultShouldHaveExactlyNodes(count: Int) {
         assertThat(filteredNodes).hasSize(count)
     }
 
@@ -240,7 +240,7 @@ class LensSteps(
     // ─── Feature 17 : Augmented Context Lens — injection jbake.properties ───
 
     @Given("the bakery DSL defines augmentedContext as enabled with maxArticlesPerPage {int} and minSimilarity {double}")
-    fun `the bakery DSL defines augmentedContext enabled with budget`(
+    fun theBakeryDSLDefinesAugmentedContextEnabledWithBudget(
         maxArticles: Int,
         minSimilarity: Double,
     ) {
@@ -263,7 +263,7 @@ class LensSteps(
     }
 
     @Given("the bakery DSL defines augmentedContext as disabled")
-    fun `the bakery DSL defines augmentedContext disabled`() {
+    fun theBakeryDSLDefinesAugmentedContextDisabled() {
         val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
         val buildFile = projectDir.resolve("build.gradle.kts")
         val content = buildFile.readText(Charsets.UTF_8)
@@ -360,7 +360,7 @@ class LensSteps(
     }
 
     @Given("the bakery DSL defines augmentedContext with lens scope={string} and communities {string}")
-    fun `the bakery DSL defines augmentedContext with lens scope and communities`(
+    fun theBakeryDSLDefinesAugmentedContextWithLensScopeAndCommunities(
         scope: String,
         communities: String,
     ) {
@@ -383,7 +383,7 @@ class LensSteps(
     }
 
     @Given("the bakery DSL defines augmentedContext with lens graphFilePath={string}")
-    fun `the bakery DSL defines augmentedContext with lens graphFilePath`(graphFilePath: String) {
+    fun theBakeryDSLDefinesAugmentedContextWithLensGraphFilePath(graphFilePath: String) {
         val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
         val buildFile = projectDir.resolve("build.gradle.kts")
         val content = buildFile.readText(Charsets.UTF_8)
@@ -401,7 +401,7 @@ class LensSteps(
     }
 
     @When("I extract a subgraph with communities {string}")
-    fun `i extract a subgraph with communities`(communities: String) {
+    fun iExtractASubgraphWithCommunities(communities: String) {
         val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
         extractor = SubgraphExtractor()
         val communityList = communities.split(",").map { it.trim() }
@@ -416,7 +416,7 @@ class LensSteps(
     }
 
     @When("I extract a subgraph with scope {string}")
-    fun `i extract a subgraph with scope`(scope: String) {
+    fun iExtractASubgraphWithScope(scope: String) {
         val projectDir = world.projectDir ?: throw IllegalStateException("Project dir not initialized")
         extractor = SubgraphExtractor()
         val lensScope = LensScope.valueOf(scope)
@@ -431,25 +431,25 @@ class LensSteps(
     }
 
     @Then("the subgraph should only contain nodes from community {string}")
-    fun `the subgraph should only contain nodes from community`(communityId: String) {
+    fun theSubgraphShouldOnlyContainNodesFromCommunity(communityId: String) {
         assertThat(extractedSubgraph.nodes).isNotEmpty
         assertThat(extractedSubgraph.nodes).allMatch { it.community == communityId }
     }
 
     @Then("the subgraph should contain nodes from all communities")
-    fun `the subgraph should contain nodes from all communities`() {
+    fun theSubgraphShouldContainNodesFromAllCommunities() {
         assertThat(extractedSubgraph.nodes).isNotEmpty
         val uniqueCommunities = extractedSubgraph.nodes.mapNotNull { it.community }.toSet()
         assertThat(uniqueCommunities).hasSizeGreaterThanOrEqualTo(2)
     }
 
     @Then("the subgraph should contain {int} nodes")
-    fun `the subgraph should contain nodes`(count: Int) {
+    fun theSubgraphShouldContainNodes(count: Int) {
         assertThat(extractedSubgraph.nodeCount).isEqualTo(count)
     }
 
     @Then("the subgraph should contain all original nodes")
-    fun `the subgraph should contain all original nodes`() {
+    fun theSubgraphShouldContainAllOriginalNodes() {
         // En scope FULL, tous les nœuds du graphe sont conservés
         assertThat(extractedSubgraph.nodes).isNotEmpty
     }
