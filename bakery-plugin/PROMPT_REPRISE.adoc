@@ -1,70 +1,61 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 245
+:session: 246
 :date: 2026-09-27
-:etat: Session 244 ✅ — **Dette ktlint INTÉGRALEMENT RÉSORBÉE** — `config/ktlint/baseline.xml` VIDE (171 fichiers gelés S-243 → 0). 7 lots, 1 bug latent corrigé.
-:epic_actif: **BKY-KTLINT-CLEANUP** ✅ TERMINÉ (S-244).
-:epic_suivant: **Correction racine conventions** (chemin kover 0.0.4) OU **F50 cross-borough** (`:summary:` document) OU **MASS-6** (bloqué accord pilote, ~675h LLM).
-:dette: aucune — baseline ktlint vide.
+:etat: Session 245 ✅ — **Correction racine conventions `koverThresholdCheck`** (cross-borough conventions-plugin 0.0.4→0.0.5 publié Central) + propagation bakery (workaround retiré).
+:epic_actif: **Correction racine conventions** ✅ TERMINÉ (S-245).
+:epic_suivant: **F50 cross-borough** (`:summary:` document) OU **Bug latent `configureKover` no-op** (réflexion conventions) OU **Publication bakery 0.0.21** OU **MASS-6** (bloqué accord pilote, ~675h LLM).
+:dette: kover path résolu ; reste `configureKover` no-op (conventions 0.0.5, découvert S-245) + F50 (document).
 
-== État S-244
+== État S-245
 
-Mission A du PROMPT_REPRISE S-243 : résorber les 171 fichiers baselinés.
-Livré en **7 lots = 7 commits** (baby-step DDD/TDD/BDD strict) :
+Mission A du PROMPT_REPRISE S-244 : corriger la racine du bug kover (chemin XML
+hardcodé) dans `conventions-gradle`, bumper, propager, retirer le workaround.
 
-. `056808b2` — `build.gradle.kts` + **durcissement `BakeryPluginPublicationTest`**
-   (garde parsait le script ligne à ligne → cassait dès que ktlint découpait
-   `version = ws.versions.bakery.plugin.get()` sur 3 lignes ; rendue
-   whitespace-insensitive, RED → GREEN).
-. `e708d459` — `src/main` (57 fichiers) + `object_`→`jsObject`,
-   `ColorContrastRule.kt`→`ContrastResult.kt`.
-. `aec275e4` — `src/functionalTest` (9) + `tools.kt`→`Tools.kt`, max-line HTML.
-. `df5bc9d3` — `src/test` (67, imports).
-. `19b3c9f6` — `function-naming` : 40 steps `backtick` → camelCase.
-. `6e9221a6` — `no-wildcard-imports` : 32 fichiers, imports explicites.
-. `4f3828a2` — `max-line-length` (5 JSON, `@Suppress` ciblé) + `property-naming`
-   (`CNAME_VALUE`→`cnameValue`) → **baseline vide**.
+* **conventions-plugin 0.0.4 → 0.0.5** (cross-borough, repo ABIDJAN).
+* 2 baby-steps DDD/TDD/BDD strict : `KoverCoverage` (objet pur, 6 UT) +
+  `resolveXmlReportFile` (lit la propriété réelle `reports.total.xml.xmlFile`,
+  fallback défaut kover 0.9.8).
+* RED prouvé : 2 FT TestKit (`Kover report not found`) + 2/3 scénarios BDD par
+  revert ciblé. GREEN : 3/3.
+* Publication Central : bundle `08a7b16f-d90d-4d2f-b63e-0a4c0b7bfcc2`
+  (AUTOMATIC), 4 plugin markers + pom/jar 0.0.5 repo1 HTTP 200.
+* Propagation bakery : 4 ids conventions 0.0.5 + **retrait du workaround**
+  (S-243 V7, 20 lignes). `koverThresholdCheck` VERT 89,20 % > 85 % sans le
+  workaround.
 
-Résultat : `config/ktlint/baseline.xml` = `<baseline version="1.0"></baseline>`.
-Plus aucune exemption ktlint. Toute violation nouvelle échoue.
+Gates : conventions `check` VERT (test 53/0, functionalTest 26/0, cucumberTest
+47/0) ; bakery `test` 2073/0, `functionalTest` 164/0, `cucumberTest` 3294/0,
+gate métier 0, zéro secret. Rapport `.agents/sessions/245-…`.
 
-Gates : `./gradlew build` **BUILD SUCCESSFUL 5m11s** ; `test` **5642/0**,
-`functionalTest` **272/0**, `cucumberTest` 0 échec, `nodeTest` VERT, kover VERT,
-`ktlintCheck` VERT (baseline vide), `publishToMavenLocal` VERT, gate métier 0,
-zéro secret. Rapport `.agents/sessions/244-ktlint-debt-resorbed.adoc`.
+== Découverte S-245 (à traiter)
 
-== Leçon méthodologique (importante)
+* **Bug latent `configureKover` no-op** (conventions 0.0.5, préexistant) : le
+  helper `invokeMethod(…, "currentProject")` ne matche jamais le getter Java
+  `getCurrentProject()` → `includedSourceSets`/`onCheck` jamais posés. Non
+  corrigé S-245 (sémantique ambiguë : `includedSourceSets = {main, functionalTest}`
+  exclurait `e2eTest` de la couverture bakery → change le seuil). À cadrer.
+* **BOM MEMPHIS** : contrainte `conventions-plugin 0.0.4` (catalogue) — non
+  consommée par bakery (pin dur `pluginManagement`). Bump BOM = release MEMPHIS.
 
-Le scope d'un lot **NE peut PAS** être un fichier via la tâche Gradle : le plugin
-ktlint-gradle 12.2.0 ignore `include(...)`/`setSource(...)` (le `PatternFilterable`
-est ré-écrasé). Prouvé : un run « scopé » a reformaté 63 fichiers de `src/test`
-(S-231 bis), **revert immédiat**. 
-
-*Outil correct pour un scope fichier* : le **CLI ktlint** (classpath résolu via une
-configuration Gradle jetable `ktlint-cli:1.5.0`, cf. `/tmp/ktlint-cli-cp.txt` dans
-la session). *Toujours vérifier `git status` juste après le premier run.*
-
-== Mission Session 245
+== Mission Session 246
 
 À cadrer d'abord (zéro initiative) :
 
-. **A — Correction racine conventions** : `koverThresholdCheck` (conventions
-   `0.0.4`) lit un chemin XML hardcodé ; bug latent corrigé localement en bakery
-   (S-243 V7). Corriger dans `conventions-gradle`, bump, propager, retirer le
-   workaround local bakery. Cross-borough (BOM + Central).
-. **B — F50 cross-borough** : sémantique de traduction `:summary:`/`:description:`
-   portée par `document-gradle` — seul le test bakery avait été réaligné (S-243).
-. **C — MASS-6** (108 articles × 10 langues, ~675h LLM) : **bloqué accord pilote
+. **A — F50 cross-borough** : sémantique `:summary:`/`:description:` portée par
+   `document-gradle` (seul le test bakery avait été réaligné S-243).
+. **B — Bug latent `configureKover` no-op** (conventions) : décider de l'intention
+   (`includedSourceSets`/`onCheck`), corriger en typé (`KoverProjectExtension`),
+   bump 0.0.6, propager. Impact seuil couverture bakery → à cadrer.
+. **C — Publication bakery 0.0.21** : porte S-241→S-245 (dont bug produit
+   `GitService.ensureHeadOnBranch` S-243 + bump conventions 0.0.5). Sur demande pilote.
+. **D — MASS-6** (108 articles × 10 langues, ~675h LLM) : **bloqué accord pilote
    explicite**. Ne pas engager sans GO.
-. **D — Publication** : bakery a 0.0.20 publié (S-240) ; HEAD porte S-241→S-244
-   (fixtures, variant-unify, CI-isolation, ktlint). Une release 0.0.21 pourrait
-   porter ces changements (dont le **bug produit** `GitService.ensureHeadOnBranch`
-   S-243). Sur demande pilote.
 
 == Reprendre à
 
-. `git status` dans bakery-gradle (arbre propre à la clôture S-244).
-. `.agents/sessions/244-ktlint-debt-resorbed.adoc` (7 lots, outil CLI).
-. `.agents/CADRAGE_EPIC_BKY_CI_ISOLATION.adoc` § Hors périmètre (A/B ci-dessus).
+. `git status` dans bakery-gradle (arbre propre à la clôture S-245).
+. `.agents/sessions/245-conventions-kover-path-fix.adoc` (2 baby-steps, bundles).
+. conventions-gradle : `.agents/sessions/018-…` (le fix producteur).
 . Gate Économie d'Encre : ne relancer `test`/`cucumber` que si le code change.
 
 == Rappel

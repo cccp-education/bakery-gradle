@@ -1,7 +1,21 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-09-27 — Session 244. **BKY-KTLINT-CLEANUP** ✅ TERMINÉ — dette ktlint INTÉGRALEMENT RÉSORBÉE, `config/ktlint/baseline.xml` **VIDE** (171 → 0), 7 lots/commits. `./gradlew build` VERT 5m11s, `test` 5642/0. Antérieur S-243 : BKY-CI-ISOLATION (CI bakery VERTE, 13 verrous dont le bug produit `GitService.ensureHeadOnBranch`). S-242 : BKY-VARIANT-UNIFY (split-brain `i18n.variant` absorbé). S-241 : FLAKY-5 SOLDÉ. S-240 : release bakery 0.0.20 + CI réelle VERTE + Gradle 9.8.0._
+_Dernière mise à jour : 2026-09-27 — Session 245. **Correction racine conventions `koverThresholdCheck`** ✅ TERMINÉ (cross-borough ABIDJAN) — conventions-plugin 0.0.4 → 0.0.5 publié Central (bundle `08a7b16f`), propagation bakery (workaround retiré), `koverThresholdCheck` VERT 89,20 % sans workaround. Découverte : `configureKover` no-op (bug latent distinct). Antérieur S-244 : BKY-KTLINT-CLEANUP (dette ktlint RÉSORBÉE, baseline vide). S-243 : BKY-CI-ISOLATION (CI VERTE, 13 verrous dont le bug produit `GitService.ensureHeadOnBranch`)._
+
+== EPIC — Correction racine conventions `koverThresholdCheck` (S-245) ✅ TERMINÉ
+
+* [x] **Producteur** `KoverCoverage` objet pur (6 UT : agrégation INSTRUCTION, ratio, vide, seuil inclusif)
+* [x] **Producteur** `resolveXmlReportFile` lit la propriété réelle `kover.reports.total.xml.xmlFile` (+ fallback défaut kover 0.9.8)
+* [x] **Producteur** `KoverThresholdCheckFunctionalTest` 2 FT TestKit (RED `Kover report not found` → GREEN)
+* [x] **Producteur** `kover-threshold-check.feature` 3 scénarios BDD + steps (RED 2/3 par revert → GREEN 3/3)
+* [x] **conventions-plugin 0.0.4 → 0.0.5** + `publishToMavenLocal` + Central (bundle `08a7b16f-d90d-4d2f-b63e-0a4c0b7bfcc2`)
+* [x] **Propagation bakery** : 4 ids conventions 0.0.5 + retrait du workaround (20 lignes)
+* [x] **Preuve** : `koverThresholdCheck` bakery VERT 89,20 % > 85 % sans workaround
+* [ ] **Découverte à cadrer** : bug latent `configureKover` no-op (conventions, `currentProject` ≠ `getCurrentProject()`), sémantique ambiguë
+* [ ] **S-246 — F50 cross-borough** : sémantique `:summary:`/`:description:` portée par `document-gradle`
+* [ ] **S-246 (option) — publication bakery 0.0.21** : porte S-241→S-245 — sur demande pilote
+* [ ] **MASS-6** : bloqué accord pilote explicite (~675h LLM)
 
 == EPIC BKY-KTLINT-CLEANUP (S-244) — Dette ktlint résorbée (baseline 171 → 0) ✅ TERMINÉ
 
@@ -13,9 +27,9 @@ _Dernière mise à jour : 2026-09-27 — Session 244. **BKY-KTLINT-CLEANUP** ✅
 * [x] **Lot 5b** : `no-wildcard-imports` — 32 fichiers, imports explicites — `6e9221a6`
 * [x] **Lot 5c** : `max-line-length` (5 JSON `@Suppress`) + `property-naming` → **baseline vide** — `4f3828a2`
 * [x] **Découverte** : le lot ne peut pas être scopé fichier via la tâche Gradle (`include`/`setSource` ignorés) — outil = CLI ktlint 1.5.0, lot = source set
-* [ ] **S-245 — Correction racine conventions** : chemin hardcodé `koverThresholdCheck` (bug 0.0.4) → corriger dans `conventions-gradle`, bump, propager
-* [ ] **S-245 — F50 cross-borough** : sémantique `:summary:`/`:description:` portée par `document-gradle`
-* [ ] **S-245 (option) — publication bakery 0.0.21** : porte S-241→S-244 (dont le bug produit GitService) — sur demande pilote
+* [x] **S-245 — Correction racine conventions** : chemin hardcodé `koverThresholdCheck` (bug 0.0.4) → conventions 0.0.5 publiée + propagation bakery ✅ (voir EPIC S-245 ci-dessus)
+* [ ] **S-246 — F50 cross-borough** : sémantique `:summary:`/`:description:` portée par `document-gradle`
+* [ ] **S-246 (option) — publication bakery 0.0.21** : porte S-241→S-245 (dont le bug produit GitService) — sur demande pilote
 * [ ] **MASS-6** : bloqué accord pilote explicite (~675h LLM)
 
 == EPIC BKY-CI-ISOLATION (S-243) — CI verte (13 verrous) ✅ TERMINÉ

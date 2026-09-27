@@ -1,0 +1,124 @@
+= Session 245 — Correction racine conventions : `koverThresholdCheck` lit le vrai rapport kover
+
+_Date_ : 2026-09-27
+_Borough_ : Bushwick 🟤 (bakery-gradle) + ABIDJAN 🟤 (conventions-gradle, cross-borough)
+_Type_ : DDD/TDD/BDD strict — dette cross-borough (bug latent producteur) + propagation
+_Score_ : 9/10
+
+== Contexte
+
+Mission A du `PROMPT_REPRISE` S-245. Le PROMPT_REPRISE S-243/244 documentait une
+dette cross-borough : `koverThresholdCheck` (conventions-plugin `0.0.4`) lit un
+**chemin XML hardcodé** `build/reports/kover/xml/report.xml`, alors que kover
+`0.9.8` écrit `build/reports/kover/report.xml`. Bakery était le **seul
+consommateur** de la convention kover — le workaround local (S-243 V7) masquait
+le bug, mais toute nouvelle convention kover serait fausse.
+
+Les sessions précédentes (S-243 V7, S-244) avaient explicitement classé la
+« correction racine conventions » **hors périmètre**. Le pilote a choisi la
+mission A (« A ») : corriger en amont, bump, propager, retirer le workaround.
+
+== Constat de cadrage (vérifié dans les sources)
+
+* `KoverConventionsPlugin.kt:69-72` (0.0.4) lit
+  `project.layout.buildDirectory.file("reports/kover/xml/report.xml")`.
+* le plugin kover `0.9.8` écrit par défaut
+  `reports/kover/report${variant}.xml` (sources `kotlinx/kover/.../Paths.kt:30` —
+  `xmlReportPath`), soit `reports/kover/report.xml` pour le variant total.
+* **Découverte annexe** (bug latent distinct, non corrigé — voir backlog) : le
+  helper `invokeMethod(…, "currentProject")` ne matche jamais le getter Java
+  `getCurrentProject()` → `configureKover` (includedSourceSets / onCheck) est
+  **silencieusement no-op**. C'est pourquoi bakery devait tout configurer
+  lui-même. Hors périmètre : l'intention exacte de ce code mort est ambiguë
+  (`includedSourceSets = {main, functionalTest}` exclurait `e2eTest` de la
+  couverture bakery → changement de sémantique du seuil).
+
+== Le fix (2 baby-steps DDD/TDD/BDD)
+
+=== Baby-step 1 — concept pur `KoverCoverage` (DDD/TDD)
+
+`build.KoverCoverage` (nouvel objet pur, zéro Gradle) : `summarize(xml): Summary`
+(missed/covered/percent) + `meetsThreshold(xml, threshold)`. Le `Summary`
+encapsule la sémantique **invariante sous la hiérarchie** : les compteurs
+`INSTRUCTION` sont répétés à chaque niveau (parent = somme des enfants), donc
+sommer tous les compteurs donne le même ratio que le compteur racine.
+
+`KoverCoverageTest` : **6 UT** (agrégation, ratio, rapport vide sans division,
+seuil inclusif à la borne, sous-seuil, ignore les compteurs non-INSTRUCTION).
+RED → GREEN simple (nouveau type, `Unresolved reference` au premier jet).
+
+=== Baby-step 2 — résolution du vrai chemin (TDD)
+
+`KoverConventionsPlugin.resolveXmlReportFile(project)` : lit la propriété
+**réelle** `kover.reports.total.xml.xmlFile` (source de vérité — respecte un
+`xmlFile` surchargé par le consommateur, immunise contre le drift de chemin),
+fallback sur le défaut kover `0.9.8`. Le `doLast` consomme `KoverCoverage`.
+
+`KoverThresholdCheckFunctionalTest` (TestKit, **RED prouvé**) : 2 FT — défaut
+kover + chemin custom. RED initial = `Kover report not found. Run
+'koverXmlReport' first.` (chemin hardcodé inexistant), puis GREEN après fix.
+
+=== Baby-step 3 — BDD Cucumber
+
+`kover-threshold-check.feature` (3 scénarios) + `KoverThresholdCheckSteps`
+(TestKit réel) : succès sur défaut, chemin custom respecté, échec si couverture
+sous le seuil. **RED prouvé par revert ciblé** de la fonction (2/3 scénarios
+échouent avec le chemin hardcodé) → GREEN (3/3).
+
+== Livré
+
+* conventions-plugin `0.0.4` → **`0.0.5`** (version + root build self-pin).
+* `KoverCoverage.kt` (nouveau, prod pur) + `KoverCoverageTest` (6 UT).
+* `KoverConventionsPlugin.kt` : `resolveXmlReportFile` + usage de `KoverCoverage`
+  (fin de la regex inline + du chemin hardcodé).
+* `KoverThresholdCheckFunctionalTest` (2 FT) + `kover-threshold-check.feature`
+  (3 scénarios) + `KoverThresholdCheckSteps`.
+* **Publication** : `publishToMavenLocal` + `publishAggregationToCentralPortal
+  --no-daemon` → bundle `08a7b16f-d90d-4d2f-b63e-0a4c0b7bfcc2` (AUTOMATIC).
+  Propagation repo1 : pom/jar `0.0.5` HTTP 200 + 4 plugin markers (kover,
+  gradle-plugin, publishing, lint) HTTP 200.
+* **Propagation bakery** : 4 ids conventions `0.0.4` → `0.0.5` + retrait du
+  workaround kover local (20 lignes, `build.gradle.kts`).
+
+== Preuves de non-régression
+
+[cols="2,3"]
+|===
+| Gate | Résultat
+
+| conventions `./gradlew check` | **BUILD SUCCESSFUL 2m39s**
+| conventions `test` | **53/0** (baseline 47 → +6 `KoverCoverage`)
+| conventions `functionalTest` | **26/0** (baseline 24 → +2 `KoverThresholdCheck`)
+| conventions `cucumberTest` | **47/0** (baseline 44 → +3 `kover-threshold-check`)
+| bakery `koverThresholdCheck` (SANS workaround) | **Instruction coverage 89,20 % > 85 %** ✅
+| bakery `test --rerun-tasks` | **2073/0, 3 skipped**
+| bakery `functionalTest --rerun-tasks` | **164/0**
+| bakery `cucumberTest --rerun-tasks` | **3294, 0 FAIL** (2814 skipped — scénarios non taggés)
+| bakery gate métier `REAC\|AFNOR\|SPG\|SPD\|FPA\|RNCP\|CDA` src/ | **0**
+| Secrets | 0
+|===
+
+== Périmètre cross-borough
+
+* Seul **bakery** consomme `education.cccp.build.kover` (vérifié : `grep -rln`
+  sur `foundry/` + `office/`). Les autres boroughs utilisent
+  `gradle-plugin`/`publishing`/`cucumber` `0.0.4` — **non affectés** par le bug
+  kover, non re-pinnés (Économie d'Encre : pas de bump cosmétique).
+* BOM MEMPHIS `conventions-plugin 0.0.4` : contrainte `api()` **non consommée**
+  par bakery (qui pinne en dur dans `pluginManagement`) → bump BOM = EPIC
+  release MEMPHIS séparé, hors périmètre.
+
+== Leçons
+
+. *Un workaround local masque un bug producteur* : la dette était connue
+  (S-243 V7) mais classée « hors périmètre » deux fois. Le fix racine est
+  petit (2 baby-steps) et supprime définitivement le workaround.
+. *Lire la propriété configurée, jamais le chemin supposé* : kover expose
+  `reports.total.xml.xmlFile` — le fix est robuste à toute surcharge, là où le
+  chemin hardcodé était fragile.
+. *La hiérarchie XML est invariante en ratio* : sommer tous les compteurs
+  `INSTRUCTION` est équivalent au compteur racine (parent = somme des enfants).
+. *Un bug latent en cache un autre* : `configureKover` (réflexion
+  `currentProject` vs `getCurrentProject`) est no-op depuis toujours — découvert
+  en lisant le producteur, documenté au backlog, **non corrigé** (sémantique
+  ambiguë, hors périmètre A).

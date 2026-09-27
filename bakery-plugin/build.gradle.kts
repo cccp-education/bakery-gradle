@@ -9,10 +9,10 @@ plugins {
     alias(libs.plugins.publish)
     alias(libs.plugins.kover)
     alias(libs.plugins.node.gradle)
-    id("education.cccp.build.gradle-plugin") version "0.0.4"
-    id("education.cccp.build.publishing") version "0.0.4"
-    id("education.cccp.build.lint") version "0.0.4"
-    id("education.cccp.build.kover") version "0.0.4"
+    id("education.cccp.build.gradle-plugin") version "0.0.5"
+    id("education.cccp.build.publishing") version "0.0.5"
+    id("education.cccp.build.lint") version "0.0.5"
+    id("education.cccp.build.kover") version "0.0.5"
 }
 
 group = "education.cccp"
@@ -435,22 +435,6 @@ tasks.check {
 koverConventions {
     enabled = true
     threshold = 85.0
-}
-
-// BKY-CI-ISOLATION (V7) — conventions-plugin 0.0.4's `koverThresholdCheck` reads
-// `build/reports/kover/xml/report.xml`, but kover 0.9.8 writes
-// `build/reports/kover/report.xml`. Bakery is the only consumer of that
-// convention, so the mismatch was never exercised. Align kover's XML output to
-// the path the threshold task expects.
-kover {
-    reports {
-        total {
-            xml {
-                onCheck = true
-                xmlFile.set(layout.buildDirectory.file("reports/kover/xml/report.xml"))
-            }
-        }
-    }
 }
 
 gradlePlugin {

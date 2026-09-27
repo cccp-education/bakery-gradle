@@ -1,5 +1,51 @@
 = Archive des Taches Terminees — Septembre 2026
 
+== Session 245 — 2026-09-27 — Correction racine conventions `koverThresholdCheck` (cross-borough)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| producteur : `KoverCoverage` objet pur (6 UT — agrégation INSTRUCTION, ratio, vide, seuil inclusif)
+| ✅ TERMINÉ
+
+| producteur : `resolveXmlReportFile` lit la propriété réelle `kover.reports.total.xml.xmlFile` (+ fallback défaut kover)
+| ✅ TERMINÉ
+
+| producteur : `KoverThresholdCheckFunctionalTest` 2 FT TestKit (défaut + custom)
+| ✅ TERMINÉ (RED `Kover report not found` → GREEN)
+
+| producteur : `kover-threshold-check.feature` 3 scénarios BDD + steps
+| ✅ TERMINÉ (RED 2/3 par revert ciblé → GREEN 3/3)
+
+| conventions-plugin 0.0.4 → 0.0.5 (version + root build self-pin) + `publishToMavenLocal`
+| ✅ TERMINÉ
+
+| Publication Maven Central (nmcp AUTOMATIC)
+| ✅ TERMINÉ (bundle `08a7b16f-d90d-4d2f-b63e-0a4c0b7bfcc2`, 4 plugin markers repo1 200)
+
+| propagation bakery : 4 ids conventions 0.0.4→0.0.5
+| ✅ TERMINÉ
+
+| propagation bakery : retrait du workaround kover local (S-243 V7, 20 lignes)
+| ✅ TERMINÉ
+
+| Preuve end-to-end : `koverThresholdCheck` bakery SANS workaround
+| ✅ VERT 89,20 % > 85 %
+
+| Découverte : `configureKover` no-op (`invokeMethod "currentProject"` ≠ `getCurrentProject()`)
+| 🟡 documenté backlog (hors périmètre, sémantique ambiguë)
+
+| Gates conventions : `check` (test 53/0, functionalTest 26/0, cucumberTest 47/0)
+| ✅ VERT
+
+| Gates bakery : test 2073/0, functionalTest 164/0, cucumberTest 3294/0, nodeTest VERT
+| ✅ VERT
+
+| Gate métier `REAC\|AFNOR\|SPG\|SPD\|FPA\|RNCP\|CDA` src/ + secrets
+| ✅ 0 / 0
+|===
+
 == Session 244 — 2026-09-27 — BKY-KTLINT-CLEANUP : dette ktlint résorbée (baseline 171 → 0)
 
 [cols="2,3"]

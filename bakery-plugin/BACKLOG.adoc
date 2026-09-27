@@ -119,8 +119,9 @@ V5→V8 préexistaient (stash-prouvé) mais étaient masqués par V1/V5/V6.
 === Hors périmètre — EPICs séparés
 
 * ✅ **Dette ktlint** — RÉSORBÉE (S-244, EPIC BKY-KTLINT-CLEANUP) : `config/ktlint/baseline.xml` est **VIDE** (171 fichiers gelés S-243 → 0), en 7 lots/commits. Le baseline n'exempte plus rien.
-* **Correction racine conventions** : chemin hardcodé de `koverThresholdCheck` (bug 0.0.4) — corriger dans `conventions-gradle`, bump, propager, retirer le workaround local.
-* **F50 cross-borough** : sémantique de traduction `:summary:`/`:description:` portée par `document-gradle`.
+* ✅ **Correction racine conventions** — RÉSOLUE (S-245, cross-borough ABIDJAN) : chemin hardcodé `koverThresholdCheck` corrigé dans `conventions-gradle` (`KoverCoverage` objet pur + résolution de la propriété réelle `reports.total.xml.xmlFile`), bump `0.0.4 → 0.0.5` publié Central (bundle `08a7b16f`), propagation bakery (workaround local retiré). Preuve : `koverThresholdCheck` bakery VERT 89,20 % > 85 % **sans** workaround.
+* 🟡 **Bug latent `configureKover` no-op** (conventions, découvert S-245) : `invokeMethod(…, "currentProject")` ne matche jamais le getter Java `getCurrentProject()` (Kotlin `val`) → `includedSourceSets`/`onCheck` jamais posés. Non corrigé S-245 (sémantique ambiguë : `includedSourceSets = {main, functionalTest}` exclurait `e2eTest` de la couverture bakery → changement de seuil). À cadrer (EPIC séparé).
+* 🟡 **F50 cross-borough** : sémantique de traduction `:summary:`/`:description:` portée par `document-gradle`.
 
 == EPIC BKY-KTLINT-CLEANUP — Résorption de la dette ktlint (baseline 171 → 0) ✅ TERMINÉ (S-244)
 
