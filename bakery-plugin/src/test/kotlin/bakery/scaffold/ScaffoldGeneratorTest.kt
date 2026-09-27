@@ -527,6 +527,8 @@ class ScaffoldGeneratorTest {
     @Test
     fun `parseResponse handles compact JSON without spaces`() {
         val generator = ScaffoldGenerator()
+
+        @Suppress("ktlint:standard:max-line-length")
         val compactJson = """{"siteType":"blog","projectName":"mon-blog","description":"Mon blog technique","templates":["blog.thyme","post.thyme"],"metadata":{"title":"Mon Blog","description":"Blog technique","tags":["kotlin"],"layout":"post","language":"fr"}}"""
         val intention = ScaffoldIntention(description = "test", projectName = "fallback")
 

@@ -172,6 +172,7 @@ class GenerateSiteFromIntentionTaskTest {
         @Test
         fun `task creates site yml when executed with FakeLlmService`() {
             // Use a single-line compact JSON to avoid indentation parsing issues
+            @Suppress("ktlint:standard:max-line-length")
             val fakeResponse = """{"siteType":"blog","projectName":"mon-blog","description":"Mon blog technique","templates":["blog.thyme","post.thyme"],"metadata":{"title":"Mon Blog","description":"Blog technique","tags":["kotlin"],"layout":"post","language":"fr"}}"""
             val fakeLlm = FakeLlmService(fakeResponse)
 
@@ -203,6 +204,7 @@ class GenerateSiteFromIntentionTaskTest {
 
         @Test
         fun `task creates site yml with tree section when LLM returns tree`() {
+            @Suppress("ktlint:standard:max-line-length")
             val fakeResponse = """{"siteType":"formation","projectName":"ma-formation","description":"Formation métier","tree":{"type":"site","path":"","sections":[{"type":"section","path":"modules","articles":[{"type":"article","path":"modules/intro"},{"type":"article","path":"modules/avance"}]}]},"metadata":{"title":"Ma Formation","description":"Formation métier","tags":["formation"],"layout":"page","language":"fr"}}"""
             val fakeLlm = FakeLlmService(fakeResponse)
 

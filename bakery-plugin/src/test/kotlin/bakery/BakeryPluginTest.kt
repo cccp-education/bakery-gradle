@@ -445,9 +445,8 @@ class BakeryPluginTest {
 
         @Test
         fun `createCnameFile should create CNAME file with correct content when cname is provided`() {
-            @Suppress("LocalVariableName")
-            val CNAME_VALUE = "test.cheroliv.com"
-            val siteConfiguration = createFakeSiteConfiguration(CNAME_VALUE)
+            val cnameValue = "test.cheroliv.com"
+            val siteConfiguration = createFakeSiteConfiguration(cnameValue)
             project.layout.buildDirectory
                 .get()
                 .asFile
@@ -457,7 +456,7 @@ class BakeryPluginTest {
                     file(siteConfiguration.bake.destDirPath).apply { get().asFile.mkdir() }
                     file("${siteConfiguration.bake.destDirPath}/CNAME").get().asFile.apply {
                         createNewFile()
-                        writeText(CNAME_VALUE, UTF_8)
+                        writeText(cnameValue, UTF_8)
                     }
                 }
             project.layout.buildDirectory
@@ -478,7 +477,7 @@ class BakeryPluginTest {
                         .readText(UTF_8)
                         .run(::assertThat)
                         .describedAs("CNAME file should contain 'test.cheroliv.com'")
-                        .contains(CNAME_VALUE)
+                        .contains(cnameValue)
                 }
             siteConfiguration.createCnameFile(project)
 
@@ -490,8 +489,8 @@ class BakeryPluginTest {
             expectedCnameFile
                 .readText(UTF_8)
                 .run(::assertThat)
-                .describedAs("CNAME file should contains '$CNAME_VALUE'")
-                .isEqualTo(CNAME_VALUE)
+                .describedAs("CNAME file should contains '$cnameValue'")
+                .isEqualTo(cnameValue)
         }
 
         @Test

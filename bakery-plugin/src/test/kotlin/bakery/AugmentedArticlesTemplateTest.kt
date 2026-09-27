@@ -106,6 +106,7 @@ class AugmentedArticlesTemplateTest {
 
         @Test
         fun `renders data-augmented-context attribute with JSON`() {
+            @Suppress("ktlint:standard:max-line-length")
             val augmentedData = """{"version":"1.0","pipeline":"LENS","scoredNodes":[{"id":"node-1","title":"Article","uri":"/a.html","score":0.92,"channels":["RAG"]}],"totalCandidates":1}"""
             val html =
                 factory.render(

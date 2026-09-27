@@ -101,6 +101,8 @@ class ValidateFirebaseConfigTaskTest {
         @Test
         fun `parseLlmResponse with errors and warnings`() {
             val task = createTask()
+
+            @Suppress("ktlint:standard:max-line-length")
             val response = """{"errors": [{"field": "apiKey", "message": "Invalid format"}], "warnings": [{"field": "authDomain", "message": "Consider using custom domain"}]}"""
             val result = task.parseLlmResponse(response)
             assertEquals(1, result.errors.size)
