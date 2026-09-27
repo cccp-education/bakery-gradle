@@ -62,16 +62,21 @@ indépendants** (V1→V11), tous levés.
 | `.editorconfig` **tracké** à la racine du repo (`root = true`)
 
 | V11
-| `ProfilePublisherFunctionalTest` : clones de vérification **sans branche** →
-  dépendent du `HEAD` du bare remote, lui-même dépendant de `init.defaultBranch`
-  ambiant (`main` local, `master` sur runner) → `Remote branch 'HEAD' not found`
-| `setBranch("main")` sur les 4 clones de vérification (les bare remotes restent
-  intacts : les épingler casse le push JGit — régression 1→4 constatée puis annulée)
+| **Bug produit** `GitService.initRepository` : `Git.init().setInitialBranch(branch)`
+  est un **no-op sur un dépôt déjà existant** (le `cloneAndOverlay` d'un remote
+  vide, dont HEAD suit `init.defaultBranch`). Le commit/push **ignorait la branche
+  déclarée** (`main`) et allait sur l'ambiant (`master` sur runner)
+| `ensureHeadOnBranch` (produit, TDD RED→GREEN) + `setBranch("main")` sur les
+  clones de vérification des tests
 |===
 
 V5→V9 **préexistaient** sur HEAD (stash-prouvé) mais étaient masqués : V5/V6 par
 la CI qui mourait en configuration (V1), V7/V8 par les tâches amont en échec ;
 **V9/V10/V11 n'ont été révélés qu'au push**, en levant les verrous précédents.
+V11 est le seul **bug produit** de la liste (les autres sont des tests ou de la
+configuration) : il est prouvé par un UT `GitServiceTest` (RED `expected: main
+but was: ambient` → GREEN) et reproduit localement via
+`JAVA_TOOL_OPTIONS=-Duser.home=<sans gitconfig>`.
 
 == Livré (baby-step DDD/TDD/BDD strict)
 
@@ -92,9 +97,9 @@ la CI qui mourait en configuration (V1), V7/V8 par les tâches amont en échec ;
    `createConfigFile()` l'écrit, `BakeryPluginTest` la parse directement.
 . **`.editorconfig` tracké** (V10) — `root = true`, `max_line_length` déterministe
    (fin de la dépendance au `.editorconfig` hors repo).
-. **Bare remotes épinglés** (V11) — `setBranch("main")` sur les 4 clones de
-   vérification (fin de la dépendance à `init.defaultBranch`).
-
+. **`.`GitService.ensureHeadOnBranch`** (V11, produit) — HEAD forcé sur la
+   branche déclarée même sur un dépôt déjà cloné + `setBranch("main")` sur les
+   clones de vérification des tests.
 == Gates (chaîne CI complète `./gradlew build`)
 
 [cols="2,3"]

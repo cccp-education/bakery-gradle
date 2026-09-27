@@ -7,6 +7,7 @@ import bakery.FileSystemManager.copyBakedFilesToRepo
 import bakery.FileSystemManager.createRepoDir
 import bakery.RepositoryConfiguration.Companion.ORIGIN
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.lib.Constants
 import org.eclipse.jgit.revwalk.RevCommit
 import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 import org.eclipse.jgit.transport.PushResult
@@ -277,8 +278,28 @@ object GitService {
         if (!git.repository.directory.isDirectory) {
             throw Exception("Repository path must be a directory")
         }
+        ensureHeadOnBranch(git, branch, logger)
         logger.info("Repository initialized successfully.")
         return git
+    }
+
+    /**
+     * BKY-CI-ISOLATION (V11) — `Git.init().setInitialBranch(branch)` is a no-op on a
+     * repository that already exists (notably the `cloneAndOverlay` of an empty
+     * remote, whose HEAD follows the ambient `init.defaultBranch`). The subsequent
+     * commit/push then silently landed on that ambient branch instead of the
+     * declared one. Force HEAD onto the declared branch when it diverges.
+     */
+    private fun ensureHeadOnBranch(
+        git: Git,
+        branch: String,
+        logger: Logger,
+    ) {
+        if (branch.isBlank() || git.repository.branch == branch) return
+        logger.info("Moving HEAD from '${git.repository.branch}' to declared branch '$branch'")
+        git.repository
+            .updateRef(Constants.HEAD, true)
+            .link(Constants.R_HEADS + branch)
     }
 
     private fun Git.addRemote(

@@ -188,6 +188,46 @@ class GitServiceTest {
             val commit = GitService.initAddCommit(repoDir, config, logger)
             assertThat(commit.fullMessage).contains("deploy: test")
         }
+
+        @Test
+        fun `initAddCommit honors the declared branch on an already-initialized repo`() {
+            // BKY-CI-ISOLATION (V11) — `Git.init().setInitialBranch()` is a no-op on a
+            // repo that already exists (e.g. the cloneAndOverlay of an empty remote,
+            // whose HEAD follows the ambient init.defaultBranch). The commit then
+            // landed on the ambient branch, silently ignoring the declared `branch`.
+            val repoDir = tempDir.resolve("repo-preinitialized")
+            repoDir.mkdirs()
+            // Simulate a clone/reinit whose HEAD points at a non-declared branch.
+            Git
+                .init()
+                .setInitialBranch("ambient")
+                .setDirectory(repoDir)
+                .call()
+                .close()
+            repoDir.resolve("index.html").writeText("<h1>Hello</h1>")
+
+            val config =
+                GitPushConfiguration(
+                    from = "",
+                    to = "",
+                    repo =
+                        RepositoryConfiguration(
+                            name = "test",
+                            repository = "https://github.com/test/test.git",
+                            credentials = RepositoryCredentials("user", "token"),
+                        ),
+                    branch = "main",
+                    message = "deploy: branch guard",
+                )
+
+            GitService.initAddCommit(repoDir, config, logger)
+
+            val git = Git.open(repoDir)
+            assertThat(git.repository.branch)
+                .describedAs("the declared branch must win over the ambient one")
+                .isEqualTo("main")
+            git.close()
+        }
     }
 
     @Nested
