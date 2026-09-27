@@ -1,4 +1,4 @@
-= Session 243 — BKY-CI-ISOLATION : CI bakery verte (12 verrous levés, dont 1 bug produit)
+= Session 243 — BKY-CI-ISOLATION : CI bakery verte (13 verrous levés, dont 1 bug produit)
 
 _Date_ : 2026-09-27
 _Borough_ : Bushwick 🟤 (bakery-gradle)
@@ -10,10 +10,10 @@ _Score_ : 10/10
 Mission A du `PROMPT_REPRISE` S-242 (option A retenue par le pilote) : EPIC
 « fixture lifecycle ». L'audit d'ouverture a révélé que la **CI GitHub Actions
 était rouge sur 200/200 runs** (depuis ≥ 2026-06-14), pas seulement sur la garde
-`FixtureAlignmentAuditor`. Le périmètre réel s'est étendu à **12 verrous
-indépendants** (V1→V12), tous levés.
+`FixtureAlignmentAuditor`. Le périmètre réel s'est étendu à **13 verrous
+indépendants** (V1→V13), tous levés.
 
-== Constat — 12 verrous
+== Constat — 13 verrous
 
 [cols="1,4,2"]
 |===
@@ -76,13 +76,19 @@ indépendants** (V1→V12), tous levés.
   as the name for the initial branch »)
 | `config/xdg/git/config` **tracké** + `environment("XDG_CONFIG_HOME", …)` sur
   `tasks.withType<Test>` (déterministe sans dépendre du runner)
+
+| V13
+| `SiteContextCollector` rend les dates de feed avec `ZoneId.systemDefault()` :
+  un `<pubDate>` `+0200` vaut `2024-07-24` en Europe/Paris mais `2024-07-23`
+  sous le `TZ=UTC` du runner
+| `systemProperty("user.timezone", "Europe/Paris")` sur `tasks.withType<Test>`
 |===
 
 V5→V9 **préexistaient** sur HEAD (stash-prouvé) mais étaient masqués : V5/V6 par
 la CI qui mourait en configuration (V1), V7/V8 par les tâches amont en échec ;
-**V9/V10/V11/V12 n'ont été révélés qu'au push**, en levant les verrous
-précédents. V11 est un **bug produit** ; V12 est un **déterminisme
-d'environnement** (comme V10).
+**V9→V13 n'ont été révélés qu'au push**, en levant les verrous précédents, un par
+un. V11 est un **bug produit** ; V10/V12/V13 sont du **déterminisme
+d'environnement** (fichier/XDG/timezone hors repo).
 
 == Livré (baby-step DDD/TDD/BDD strict)
 
@@ -109,6 +115,8 @@ d'environnement** (comme V10).
 . **`config/xdg/git/config` tracké** (V12) — `init.defaultBranch=main` injecté
    via `XDG_CONFIG_HOME` sur tous les `Test` (JGit le lit, contrairement à
    `GIT_CONFIG_GLOBAL`).
+. **Timezone JVM épinglée** (V13) — `user.timezone=Europe/Paris` sur tous les
+   `Test` (dates de feed déterministes, indépendamment du fuseau du runner).
 
 == Gates (chaîne CI complète `./gradlew build`)
 
@@ -116,14 +124,16 @@ d'environnement** (comme V10).
 |===
 | Gate | Résultat
 
-| `build` (commande CI réelle) | **BUILD SUCCESSFUL 5m28s** (première fois verte)
-| `build --rerun-tasks` | **BUILD SUCCESSFUL 11m12s** (preuve non-cachée)
-| `test` | **2072 tests, 0 FAIL** (baseline S-242 2061/0 → **+11**)
+| **CI GitHub Actions `Test`** | **success** (run `36314219098`, commit `073d6f9`) — **première fois verte depuis ≥ 2026-06-14** (200/200 runs rouges avant)
+| `build` (commande CI réelle) | **BUILD SUCCESSFUL 4m20s**
+| `build --rerun-tasks` | **BUILD SUCCESSFUL 10m35s** (preuve non-cachée)
+| `test` | **2073 tests, 0 FAIL** (baseline S-242 2061/0 → **+12**)
+| `test` sous `TZ=UTC` + `user.home` vide | **2073, 0 FAIL** (preuve CI-hostile)
 | `test -Dbakery.workspaceRoot=/nonexistent` | **2072, 8 skipped, 0 FAIL** (preuve CI isolée)
 | `functionalTest` | **164, 0 FAIL** (0 dépendance au `site.yml` externe)
 | `cucumberTest` | **3294, 0 FAIL** (baseline 3285/5 → **+9, 5 FAIL résolus**)
 | `nodeTest` | VERT
-| `koverThresholdCheck` | **89,20 %** > 85 %
+| `koverThresholdCheck` | **89,21 %** > 85 %
 | ktlint (Main/Test/FunctionalTest/E2eTest) | VERT (baseline)
 | `publishToMavenLocal` | VERT (Règle 0)
 | Gate métier `REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA` src/ | **0**
@@ -153,20 +163,33 @@ d'environnement** (comme V10).
 | `bakery-plugin/src/test/scenarios/.../JbakeNativeTranslationSteps.kt` | modifié | `:summary:` traduit
 | `bakery-plugin/src/test/kotlin/bakery/i18n/audit/FixtureAlignmentAuditorTest.kt` | modifié | skip-safe
 | `bakery-plugin/src/test/kotlin/bakery/i18n/RealSiteI18nMigrationIntegrationTest.kt` | modifié | skip-safe
-| `bakery-plugin/.agents/CADRAGE_EPIC_BKY_CI_ISOLATION.adoc` | créé | cadrage 9 verrous
+| `bakery-plugin/src/main/kotlin/bakery/GitService.kt` | modifié | `ensureHeadOnBranch` (V11, bug produit)
+| `bakery-plugin/src/test/kotlin/bakery/GitServiceTest.kt` | modifié | +1 UT non-régression (V11)
+| `bakery-plugin/src/functionalTest/kotlin/bakery/ProfilePublisherFunctionalTest.kt` | modifié | `setBranch("main")` clones (V11)
+| `bakery-plugin/src/test/scenarios/.../PublishProfileSteps.kt` | modifié | seed sur `main` (V11b)
+| `bakery-plugin/.editorconfig` | créé | ktlint déterministe (V10)
+| `bakery-plugin/config/xdg/git/config` | créé | `init.defaultBranch=main` (V12)
+| `bakery-plugin/.agents/CADRAGE_EPIC_BKY_CI_ISOLATION.adoc` | créé | cadrage
 |===
 
 == Décision / suite
 
-* **CI bakery verte** — première fois depuis ≥ 2026-06-14. Le hook de fin de
-  session peut désormais citer une gate `build` réelle.
+* **CI bakery verte** — première fois depuis ≥ 2026-06-14 (run `36314219098`,
+  `success`). Le hook de fin de session peut désormais citer une gate `build`
+  réelle, et la CI est un filet de sécurité effectif.
+* *Bug produit corrigé* : `GitService` honorait la branche déclarée **seulement**
+  sur un dépôt neuf (`Git.init`), jamais après le `cloneAndOverlay` d'un remote —
+  le push partait sur `master` au lieu de `main`. `ensureHeadOnBranch` le
+  garantit désormais, prouvé par un UT TDD.
 * *Hors périmètre (EPICs séparés)* : résorption dette ktlint (171 fichiers) ;
   correction racine du chemin kover dans `conventions-gradle` ; sémantique F50
   cross-borough document-gradle.
 * *Leçon* : une CI morte en configuration **masque** l'ensemble de la dette
-  aval. Débloquer la *première* étape révèle les suivantes en cascade
-  (V1 → V5/V6 → V7/V8 → **V9 au push**). Chaque verrou a été diagnostiqué,
-  traité, puis la chaîne complète re-vérifiée avant le push.
+  aval. Débloquer la *première* étape révèle les suivantes en cascade — ici
+  **13 verrous**, dont 1 vrai bug produit et 3 déterminismes d'environnement
+  (`.editorconfig`, `XDG_CONFIG_HOME`, timezone) tous dus à des fichiers lus
+  **hors du dépôt**. La parade systématique : **rendre le dépôt auto-suffisant**
+  (tout ce qui influence un test doit être versionné dans le repo).
 * Baby-step DDD/TDD/BDD strict : 1 fichier à la fois, RED → GREEN → REFACTOR,
   gate `test` complète. Zéro LLM, zéro secret, zéro traduction.
 

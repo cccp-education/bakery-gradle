@@ -1,13 +1,13 @@
 = Archive des Taches Terminees — Septembre 2026
 
-== Session 243 — 2026-09-27 — BKY-CI-ISOLATION : CI bakery VERTE (8 verrous levés)
+== Session 243 — 2026-09-27 — BKY-CI-ISOLATION : CI bakery VERTE (13 verrous levés)
 
 [cols="2,3"]
 |===
 | Tâche | Statut
 
 | Audit d'ouverture — CI rouge 200/200 runs depuis ≥ 2026-06-14
-| ✅ TERMINÉ (8 verrous identifiés)
+| ✅ TERMINÉ (13 verrous identifiés)
 
 | V1 — `.github/workflows/test.yml` JDK 24 → 25 (conventions-plugin 0.0.4 exige JVM 25)
 | ✅ TERMINÉ
@@ -30,11 +30,29 @@
 | V8 — ktlint baseline `config/ktlint/baseline.xml` (171 fichiers, zéro exemption de fichier neuf)
 | ✅ TERMINÉ
 
-| Gate `build` (commande CI réelle)
-| ✅ BUILD SUCCESSFUL 5m28s (`--rerun-tasks` 8m32s)
+| V9 — tests dé-couplés du `site.yml` gitignoré (`FuncTestsConstants.SITE_CONFIG_YML` in-repo)
+| ✅ TERMINÉ
+
+| V10 — `.editorconfig` tracké (`root = true`, `max_line_length` déterministe)
+| ✅ TERMINÉ
+
+| V11 — **bug produit** `GitService.ensureHeadOnBranch` : la branche déclarée était ignorée après `cloneAndOverlay` (UT TDD RED→GREEN)
+| ✅ TERMINÉ
+
+| V12 — `config/xdg/git/config` tracké (`init.defaultBranch=main`) + `environment("XDG_CONFIG_HOME", …)`
+| ✅ TERMINÉ
+
+| V13 — timezone JVM épinglée (`user.timezone=Europe/Paris`, dates de feed déterministes)
+| ✅ TERMINÉ
+
+| Gate `build` (commande CI réelle) + `build --rerun-tasks`
+| ✅ BUILD SUCCESSFUL 4m20s / 10m35s
+
+| CI GitHub Actions `Test`
+| ✅ **success** (run `36314219098`) — **première fois depuis ≥ 2026-06-14**
 
 | `test` / `functionalTest` / `cucumberTest` / `nodeTest`
-| ✅ 2072/0 · 164/0 · 3294/0 · VERT
+| ✅ 2073/0 · 164/0 · 3294/0 · VERT
 
 | `publishToMavenLocal` (Règle 0) + gate métier + secrets
 | ✅ VERT · 0 · 0
