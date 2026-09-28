@@ -1,0 +1,29 @@
+= Vocabulaire technique emprunté
+@CherOliv
+2026-07-18
+:jbake-title: Vocabulaire technique emprunté
+:jbake-type: post
+:jbake-status: published
+:jbake-date: 2026-07-18
+:jbake-tags: plantuml, borrow, referential
+:summary: Un article avec du vocabulaire technique (RFC/referential) à préserver.
+
+== Referential RFC
+
+Le diagramme suivant mélange des labels traduisibles et du vocabulaire
+technique RFC/ISO 9001 qui doit être emprunté tel quel (stratégie BorrowVocabulary).
+
+[source,plantuml]
+----
+@startuml
+"Concepteur" --> (Valider les "RFC")
+"Testeur" --> (Compléter le "ISO 9001")
+"ISO" --> (Publier le "ISO")
+@enduml
+----
+
+== Texte technique
+
+Le référentiel RFC et la certification ISO 9001 définissent le cadre
+d'évaluation. Les acronymes ISO, NFP et PDCA sont empruntés
+sans modification lors de la traduction.
