@@ -1,42 +1,46 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 248
-:date: 2026-09-27
-:etat: Session 247 — **Mission B (`configureKover` no-op, Option A) + workflow `Publish website` réparé** — les DEUX CI sont VERTES (conventions `fdea1ea`, bakery `f8deb000`) + site démo déployé (run `36353017220`).
-:epic_actif: Aucun EPIC ouvert. `configureKover` corrigé + publié (conventions 0.0.6) ; workflow publish opérationnel.
-:epic_suivant: **F50 cross-borough** (`:summary:` document-gradle) OU **publication bakery 0.0.21** OU **propagation gouvernance** « Local = Build, Tests = CI » vers les boroughs (sur ordre).
+:session: 249
+:date: 2026-09-30
+:etat: Session 248 — **release bakery 0.0.21 (fix drift workspace-bom)**. POM importe désormais BOM 0.0.61 → document-plugin 0.0.19. Central bundle `05e89298`.
+:epic_actif: Aucun EPIC ouvert. Chaîne cohérente cheroliv → runner (catalog 0.0.61) → bakery 0.0.21 → document 0.0.19.
+:epic_suivant: **F50 cross-borough** (`:summary:` document-gradle) OU **propagation gouvernance** « Local = Build, Tests = CI » vers les boroughs.
 :dette: Gouvernance non propagée (règle EAGER global absente des AGENT.adoc boroughs + SESSION_CHECKLIST manquants).
 
-== État S-247
+== État S-248
 
-* **Mission B (Option A)** : `configureKover` réécrit en DSL typé
-  `KoverProjectExtension` (producteur conventions-gradle) ; objet pur
-  `KoverReportSources` (main+functionalTest, `e2eTest` exclu) ; 5 UT + 2 FT +
-  2 scénarios BDD (RED prouvés par revert). **conventions-plugin `0.0.6`**
-  publié Central (bundle `701a5568`). Propagé bakery (re-pin 4 ids).
-* **Workflow `Publish website` réparé** (2 bugs superposés) : (1) secret
-  `BAKERY_GRADLE_PLUGIN` inexistant → bascule sur **`SITE_YML`** (créé par le
-  pilote) + garde fail-fast ; (2) pin périmé → `bakery 0.0.10 → 0.0.20`.
-  CI `Publish website` **success** (run `36353017220`), site déployé
-  (`pages-content/bakery` commit `860da602`).
-* Session opencode **parallèle** détectée dans conventions-gradle (même mission)
-  → convergence sur `KoverReportSources`, sa CI `test.yml` conservée.
+* **Drift corrigé** : `bakery-plugin 0.0.20` importait `workspace-bom:0.0.58`
+  → constraint `document-plugin:0.0.18`, alors que 0.0.19 était publié (S-276
+  MEMPHIS). Tout consommateur sans le workaround du runner résolvait 0.0.18
+  (classe du **piège #13**).
+* **Fix** : re-pin catalog `0.0.58 → 0.0.61` + 3 platform pins `workspace-bom`
+  `0.0.58 → 0.0.61` + toml local `bakery 0.0.20 → 0.0.21` (version self dérivée
+  du catalogue, règle S-240). Aucun code Kotlin modifié.
+* **Vérification** : `dependencyInsight` → `document-plugin:0.0.19` ; `compileKotlin`
+  VERT ; `publishToMavenLocal` VERT.
+* **Publication** : DAG MEMPHIS-first — MEMPHIS 0.0.61 (bundle `1b2a170e`) puis
+  bakery 0.0.21 (bundle `05e89298` AUTOMATIC). Le validateur Central a rejeté la
+  1re tentative tant que le BOM 0.0.61 n'avait pas propagé (404, piège #1 —
+  attente ~12 min). Propagation confirmée : POM HTTP 200 (BOM 0.0.61) + marker
+  200.
+* **Preuve tiers** (mavenCentral seul, sans mavenLocal) : bakery 0.0.21 →
+  document 0.0.19.
+* Gates : `compileKotlin` VERT, `publishToMavenLocal` VERT, zéro test local
+  (règle EAGER), zéro secret.
 
-== Commits / CI (tous poussés)
+== Commits / CI
 
-* conventions `fdea1ea` — typed kover DSL (0.0.6) → CI **success**
-* bakery `f8deb000` — consume conventions 0.0.6 → CI **success**
-* bakery `f2c68c9d` — ci: deploy with SITE_YML
-* bakery `3ff875d3` — pin bakery 0.0.20 → Publish website **success**
+* MEMPHIS 0.0.61 : bundle `1b2a170e-5392-4453-a350-e179c5c908af`.
+* bakery 0.0.21 : bundle `05e89298-9019-4f63-8be7-c730e25f3ce4`.
+* runner-gradle : catalog 0.0.60 → 0.0.61 + force BOM aligné.
+* cheroliv.com : reçoit désormais bakery 0.0.21 → document 0.0.19.
 
-== Mission Session 248 (au choix pilote)
+== Mission Session 249 (au choix pilote)
 
 . **F50 cross-borough** : sémantique `:summary:`/`:description:` portée par
-   `document-gradle` (dette connue, cf. S-243 V5).
-. **Publication bakery 0.0.21** : porterait S-246→S-247 (sur demande, DAG
-   MEMPHIS-first ; le pin démo est déjà passé à 0.0.20).
+   `document-gradle`.
 . **Propagation gouvernance** (transverse) : aligner les `AGENT.adoc` boroughs
    sur « Local = Build, Tests = CI » + créer les `SESSION_CHECKLIST.adoc`
-   manquants (bakery en est dépourvu).
+   manquants.
 . **MASS-6** : bloqué accord pilote explicite (~675h LLM).
 
 == Rappel
@@ -44,7 +48,6 @@
 * **RÈGLE EAGER — Local = Build, Tests = CI** : en local, uniquement
   `compileKotlin`/`build -x test` ; les tests (`test`, `functionalTest`,
   `cucumberTest`, `check`) s'exécutent **exclusivement en CI** après push.
-  Ne JAMAIS lancer de test en local (violation répétée S-247).
 * Gate métier : `grep -rwE "REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA" src/` = 0.
 * **JAMAIS lire un `site.yml`** (gitignoré, contient un token) — `git check-ignore -v` d'abord.
 * *Modèle LLM* : `gemma4:31b-cloud` + `OLLAMA_POOL_PORTS=11439,11440,11441,11442`.

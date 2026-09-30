@@ -1,0 +1,64 @@
+= Session 248 — publication bakery 0.0.21 (fix drift workspace-bom)
+
+:session: 248
+:date: 2026-09-30
+:borough: bakery-gradle (Bushwick 🟤)
+
+== Contexte
+
+Session de maintenance cross-borough déclenchée depuis cheroliv.com (S-058).
+Question pilote : « est-ce que bakery utilise la dernière version de document
+et est-ce que cheroliv utilise la dernière version de bakery ? »
+
+Audit de la chaîne réelle :
+`cheroliv.com → runner-gradle (N3) → bakery-plugin (N2) → document-plugin`.
+
+**Faille trouvée** : `bakery-plugin 0.0.20` (publié S-240/S-247) importait
+`workspace-bom:0.0.58` (pin local) → la constraint figeait
+`document-plugin:0.0.18`, alors que **0.0.19** était publié Central (S-276).
+Sans le workaround du runner (`force("...workspace-bom:0.0.60")`), tout
+consommateur de bakery résolvait document 0.0.18.
+
+Classe du **piège #13** (drift catalogue MEMPHIS) : le pin
+`platform workspace-bom` n'avait pas suivi le catalogue publié.
+
+== Contenu 0.0.21
+
+- `settings.gradle.kts` : catalog `0.0.58` → **`0.0.61`** (pin unique D4).
+- `build.gradle.kts` : 3 platform pins `workspace-bom` `0.0.58` → **`0.0.61`**
+  (main + functionalTest + e2eTest).
+- `gradle/libs.versions.toml` : `bakery = "0.0.20"` → **`0.0.21`** (version self
+  dérivée du catalog publié — règle S-240).
+- Aucun changement de code Kotlin.
+
+== Vérification
+
+- `dependencyInsight --dependency document-plugin --configuration
+  runtimeClasspath` : `document-plugin:0.0.19 (by constraint)` via
+  `workspace-bom:0.0.61` — avant : `0.0.18`.
+- `compileKotlin` VERT.
+- `publishToMavenLocal` VERT — POM importe `workspace-bom:0.0.61`.
+
+== Publication
+
+- Ordre DAG MEMPHIS-first : **MEMPHIS 0.0.61** d'abord (bundle
+  `1b2a170e-5392-4453-a350-e179c5c908af`), puis **bakery 0.0.21**.
+- Première tentative rejetée par le validateur Central : les dépendances sans
+  version (contraintes par le BOM) étaient « missing » car le BOM 0.0.61
+  n'avait **pas encore propagé** (404). Attente de propagation (~12 min,
+  piège #1) → re-tentative.
+- Central bundle bakery `05e89298-9019-4f63-8be7-c730e25f3ce4` (AUTOMATIC).
+- Propagation vérifiée : POM HTTP 200 (importe BOM 0.0.61) + plugin marker
+  HTTP 200.
+- Preuve consommateur tiers mavenCentral seul (sans mavenLocal) : bakery
+  0.0.21 → document 0.0.19.
+
+== Gates
+
+- `compileKotlin` VERT ; `publishToMavenLocal` VERT.
+- Aucun test local (règle EAGER Local = Build, Tests = CI).
+
+== Suite
+
+- **runner-gradle** (S-031) : re-pin catalog 0.0.60 → 0.0.61 + force BOM aligné.
+- **cheroliv.com** : reçoit désormais bakery 0.0.21 → document 0.0.19.
