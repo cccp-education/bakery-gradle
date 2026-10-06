@@ -461,17 +461,21 @@ Second paragraph.
     }
 
     /**
-     * DOC-TRANSLATE-RESILIENCE — the cross-borough convergence contract: a block
-     * whose LLM call fails is stored PENDING by document-gradle, and the bakery
-     * file-level delta must re-schedule the byte-unchanged file so the block is
-     * re-attempted. Without the paired bakery fix the fallback would freeze at
-     * the file gate.
+     * DOC-TRANSLATE-RESILIENCE — the cross-borough convergence contract, bakery
+     * side: a file whose block checksums hold a `PENDING` block must be
+     * re-scheduled even though its source is byte-unchanged.
+     *
+     * Self-contained: the PENDING entry is seeded directly into the block
+     * checksum file (the format document-gradle persists), so the assertion
+     * holds regardless of the document-plugin version resolved from Central.
+     * Without the bakery fix the file-level delta preserves the byte-unchanged
+     * file and the translation service is never called again.
      */
     @Nested
     @TestInstance(TestInstance.Lifecycle.PER_CLASS)
     inner class PendingBlockRetryConvergence {
         @Test
-        fun `a failed block is retried on the next run and converges`() {
+        fun `a file with a PENDING block is re-translated even when its source is unchanged`() {
             val sourceDir = testDir.resolve("src/content")
             createAdocSource(
                 sourceDir,
@@ -487,52 +491,55 @@ Second paragraph.
 """,
             )
             val outputBase = testDir.resolve("build/i18n")
-            val failingPhrase = "Second paragraph."
+            val relPath = "intro.adoc"
+            val enDir = outputBase.resolve("en")
 
-            // Run 1 — the LLM fails on the second paragraph.
-            val fragile = ControllableTranslationService(failingPhrase, failing = true)
+            // Run 1 — a normal translation writes the article and its block checksums.
+            val first = FakeTranslationService(" [EN]")
             val task1 = setupTask("test-pending-1", sourceDir, outputBase)
-            task1.translationService = fragile
+            task1.translationService = first
             task1.executeContentMigration()
 
-            val enDir = outputBase.resolve("en")
-            val afterFirst = enDir.resolve("intro.adoc").readText()
-            assertTrue(afterFirst.contains("First paragraph. [EN]"))
-            // the silent fallback is emitted for the failed block
-            assertTrue(afterFirst.contains("Second paragraph."))
-            assertFalse(afterFirst.contains("Second paragraph. [EN]"))
-            // the failed block is stored PENDING (never TRANSLATED)
-            val blockChecksums = enDir.resolve(".bakery-block-checksums/intro.adoc.checksums").readText()
-            assertTrue(
-                blockChecksums.contains("PENDING"),
-                "a failed block must be stored PENDING, not frozen as TRANSLATED:\n$blockChecksums",
-            )
+            val checksumFile = enDir.resolve(".bakery-block-checksums/$relPath.checksums")
+            assertTrue(checksumFile.exists(), "block checksums must exist after the first run")
 
-            // Run 2 — unchanged source, the pool recovered.
-            val recovered = ControllableTranslationService(failingPhrase, failing = false)
+            // Seed a PENDING block, exactly as document-gradle persists a failed
+            // LLM block (index 3 = the second paragraph after the heading).
+            val seeded =
+                checksumFile
+                    .readLines()
+                    .joinToString("\n") { line ->
+                        if (line.startsWith("3=")) "${line.substringBefore(":")}:PENDING" else line
+                    }
+            checksumFile.writeText(seeded)
+            assertTrue(checksumFile.readText().contains("PENDING"))
+
+            // Run 2 — unchanged source, the pool recovered. Without the fix the
+            // file is byte-identical and preserved: the service must still be
+            // re-entered because a block is PENDING.
+            val second = CountingTranslationService(" [EN]")
             val task2 = setupTask("test-pending-2", sourceDir, outputBase)
-            task2.translationService = recovered
+            task2.translationService = second
             task2.executeContentMigration()
 
-            val afterSecond = enDir.resolve("intro.adoc").readText()
-            assertTrue(afterSecond.contains("Second paragraph. [EN]"))
-            val blockChecksumsAfter = enDir.resolve(".bakery-block-checksums/intro.adoc.checksums").readText()
-            assertFalse(blockChecksumsAfter.contains("PENDING"))
+            assertTrue(
+                second.calls > 0,
+                "a file with a PENDING block must be re-translated, but the service was never called again",
+            )
         }
     }
 
-    private class ControllableTranslationService(
-        private val failingPhrase: String,
-        private val failing: Boolean,
+    private class CountingTranslationService(
+        private val suffix: String,
     ) : TranslationService {
+        var calls = 0
+            private set
+
         override fun translate(request: TranslationRequest): TranslationResult {
+            calls++
             val sourceText = request.sourceText
             if (sourceText.isBlank()) return TranslationResult.Success(sourceText)
-            return if (failing && sourceText == failingPhrase) {
-                TranslationResult.Failure("LLM quota exceeded")
-            } else {
-                TranslationResult.Success("$sourceText [EN]")
-            }
+            return TranslationResult.Success("$sourceText$suffix")
         }
     }
 
