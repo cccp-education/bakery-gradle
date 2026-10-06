@@ -1,10 +1,15 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 250
+:session: 251
 :date: 2026-10-06
-:etat: Session 249 — **BKY-PENDING-RETRY ✅** (fix cross-borough document-gradle) : le delta fichier rouvre le retry d'un bloc `PENDING`. Local = Build VERT, Tests = CI.
+:etat: Session 250 — **PUB bakery 0.0.23 ✅** (porte BKY-PENDING-RETRY S-249 + `TemplateStructureGuard` S-250). Central bundle `be3b5905`, chaine DAG BOM 0.0.65 → document 0.0.20 → bakery 0.0.23. Local = Build VERT, Tests = CI.
 :epic_actif: Aucun EPIC ouvert.
-:epic_suivant: **Publication bakery 0.0.23** (porte BKY-PENDING-RETRY S-249 + `TemplateStructureGuard` S-250) — accord pilote, priorité 3 cheroliv S-063. OU **F50 cross-borough** (`:summary:` document-gradle). OU **propagation gouvernance** « Local = Build, Tests = CI ».
-:dette: Gouvernance non propagée (AGENT.adoc boroughs + SESSION_CHECKLIST manquants).
+:epic_suivant: **F50 cross-borough** (`:summary:` document-gradle). OU **propagation gouvernance** « Local = Build, Tests = CI ».
+
+== État S-250
+
+* **Publication** : bakery 0.0.23 Central (re-pin catalog/BOM 0.0.65, toml
+  `bakery = 0.0.23`). Fix P0 : `kotlin-stdlib-jdk8` versionless retiré (shim vide
+  depuis Kotlin 1.8). Garde `BakeryPluginPublicationTest` VERTE (3 platform pins 0.0.65).
 
 == État S-249
 

@@ -1,0 +1,43 @@
+= Session 250 — PUB 0.0.23 : distribution BKY-PENDING-RETRY + TemplateStructureGuard
+
+:date: 2026-10-06
+:borough: Bushwick (bakery-gradle) + MEMPHIS (workspace-bom)
+:epic: PUB / propagation DAG
+:type: PUB cross-borough (accord pilote explicite)
+
+== Mission
+
+Propager `bakery-plugin 0.0.23` (porte `TemplateStructureGuard` S-250 +
+`PendingBlockRetry` S-249) jusqu'à cheroliv.com, à la demande du pilote.
+
+== Chaîne DAG
+
+. *MEMPHIS* — BOM/catalog **0.0.65** (entrée `bakery-plugin = 0.0.23`).
+   Bundle `f9faa2fc`, propagation repo1 HTTP 200.
+. *bakery* — re-pin catalog/BOM `0.0.63 → 0.0.65` + toml `bakery = 0.0.23`.
+   Version dérivée **0.0.23**. `publishToMavenLocal` VERT. Central bundle
+   `be3b5905`.
+
+== Fix `kotlin-stdlib-jdk8`
+
+Même découverte P0 que document-gradle (S-281) : la dépendance versionless
+empêche la publication Central. L'artefact `-jdk8` est un shim vide (0 classe)
+depuis Kotlin 1.8, inutile sous JDK 25 → **retrait** des 3 sites
+(`implementation` + 2 configurations de test). BOM 0.0.65 épingle l'alias.
+
+== Preuves
+
+[cols="2,3",options="header"]
+|===
+| Gate | Résultat
+
+| Compiles | VERT
+| Version dérivée | `0.0.23`
+| Garde `BakeryPluginPublicationTest` | VERT (pin 0.0.65, toml bakery 0.0.23, 3 platform pins)
+| Central `bakery-plugin/0.0.23` | bundle `be3b5905`, POM + JAR 200, propagation repo1 200
+|===
+
+== Suite
+
+Le runner N3 résout `bakery 0.0.23 → workspace-bom 0.0.65 → document-plugin
+0.0.20` ; la re-convergence cheroliv (S-064) exploite le retry `PENDING`.

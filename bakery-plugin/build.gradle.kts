@@ -31,9 +31,11 @@ repositories {
 dependencies {
     // BOM — workspace version alignment (workspace-bom, MEMPHIS)
     // MEM-CAT-3 (D5) — platform 0.0.61 : contraint document-plugin 0.0.19/i18n-contracts sans hardcode.
-    implementation(platform("education.cccp:workspace-bom:0.0.63"))
+    implementation(platform("education.cccp:workspace-bom:0.0.65"))
 
-    implementation(kotlin("stdlib-jdk8"))
+    // kotlin-stdlib is pulled transitively (and pinned by the BOM). The
+    // kotlin-stdlib-jdk8 shim is an empty artifact since Kotlin 1.8 and
+    // pointless on JDK 25; it is no longer published versionless.
 
     api(libs.bundles.jbake)
     api(libs.bundles.jgit)
@@ -196,10 +198,9 @@ val functionalTest: SourceSet by sourceSets.creating {
 
 // 2. Ajouter GradleTestKit à functionalTest (SANS hériter de testImplementation)
 dependencies {
-    add(functionalTest.implementationConfigurationName, platform("education.cccp:workspace-bom:0.0.63"))
+    add(functionalTest.implementationConfigurationName, platform("education.cccp:workspace-bom:0.0.65"))
 
     add(functionalTest.implementationConfigurationName, gradleTestKit())
-    add(functionalTest.implementationConfigurationName, kotlin("stdlib-jdk8"))
     add(functionalTest.implementationConfigurationName, kotlin("test-junit5"))
 
     // Ajouter les dépendances nécessaires explicitement
@@ -259,12 +260,11 @@ val e2eTest: SourceSet by sourceSets.creating {
 
 // 2. Dépendances e2eTest : Playwright + JUnit5 + AssertJ + full test runtime
 dependencies {
-    add(e2eTest.implementationConfigurationName, platform("education.cccp:workspace-bom:0.0.63"))
+    add(e2eTest.implementationConfigurationName, platform("education.cccp:workspace-bom:0.0.65"))
 
     add(e2eTest.implementationConfigurationName, sourceSets.main.get().output)
     add(e2eTest.implementationConfigurationName, sourceSets.test.get().output)
     add(e2eTest.implementationConfigurationName, libs.playwright)
-    add(e2eTest.implementationConfigurationName, kotlin("stdlib-jdk8"))
     add(e2eTest.implementationConfigurationName, kotlin("test-junit5"))
     add(e2eTest.implementationConfigurationName, libs.assertj.core)
     add(e2eTest.implementationConfigurationName, libs.thymeleaf)
