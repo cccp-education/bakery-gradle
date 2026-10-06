@@ -1,0 +1,61 @@
+= Archive des Tâches Terminées — Octobre 2026
+
+== Session 249 — 2026-10-06 — BKY-PENDING-RETRY (fix cross-borough document-gradle)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| `bakery.i18n.PendingBlockRetry` (domaine pur) : `filesWithPendingBlocks`
+| ✅ (4 UT)
+| Câblage `MigrateContentI18nTask` (`filesToTranslate = toTranslate + pendingRetry`)
+| ✅
+| FT `PendingBlockRetryConvergence` (2 runs, source inchangée)
+| ✅
+|===
+
+*Mission* : fix cross-borough (priorité 2 dette cheroliv S-052). Le grain **fichier**
+du delta bakery préservait un fichier cible byte-inchangé, gelant le bloc `PENDING`
+posé par document-gradle (S-280) → fallback FR silencieux permanent.
+*Livré* : `PendingBlockRetry` + câblage + FT. Correctif **apparié** (grain bloc +
+grain fichier).
+*Gates locaux (Local = Build, Tests = CI)* : compiles VERT, `assemble` +
+`validatePlugins` VERT, zéro secret. Zéro bump/publication.
+*Rapport* : `.agents/sessions/249-pending-block-retry.adoc`.
+
+== Session 248 — 2026-09-30 — release bakery 0.0.21 (fix drift workspace-bom)
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| Re-pin catalog `0.0.58→0.0.61` + 3 platform pins `workspace-bom 0.0.58→0.0.61`
+| ✅
+| Toml local `bakery 0.0.20→0.0.21` (version dérivée)
+| ✅
+| Publication Central bakery 0.0.21 (bundle `05e89298`) + MEMPHIS 0.0.61 (`1b2a170e`)
+| ✅
+|===
+
+*Mission* : `bakery-plugin 0.0.20` importait `workspace-bom:0.0.58` →
+constraint `document-plugin:0.0.18`, alors que 0.0.19 était publié (piège #13).
+*Gates* : `compileKotlin` + `publishToMavenLocal` VERT ; POM HTTP 200 + marker 200.
+*Rapport* : `.agents/sessions/248-release-0.0.21-drift-fix.adoc`.
+
+== Session 247 — 2026-09-27 — Mission B (`configureKover` no-op) + workflow `Publish website`
+
+[cols="2,3"]
+|===
+| Tâche | Statut
+
+| `KoverConventionsPlugin.configureKover` réécrit en DSL typé `KoverProjectExtension`
+| ✅
+| Objet pur `KoverReportSources` (main+functionalTest) + 5 UT + 2 FT + 2 BDD
+| ✅
+| conventions-plugin `0.0.5 → 0.0.6` publié Central
+| ✅
+| Workflow `Publish website` réparé (secret `SITE_YML` + pin `0.0.20`)
+| ✅
+|===
+
+*Rapport* : `.agents/sessions/247-mission-b-configkover-workflow-publish.adoc`.

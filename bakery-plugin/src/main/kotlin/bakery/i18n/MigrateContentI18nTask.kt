@@ -161,12 +161,23 @@ abstract class MigrateContentI18nTask : DefaultTask() {
             val applier = I18nDeltaApplier(delta, existingTargetFiles)
             val applicationResult = applier.apply()
 
-            val filesToTranslate = applicationResult.toTranslate.paths
+            // DOC-TRANSLATE-RESILIENCE (cross-borough) — a file whose block
+            // checksums hold a PENDING block (a failed LLM call document-gradle
+            // refused to freeze as TRANSLATED) must be retried even though its
+            // source is byte-unchanged and the file-level delta preserves it.
+            // Otherwise the silent source-language fallback stays frozen at the
+            // file gate.
+            val pendingRetry =
+                PendingBlockRetry.filesWithPendingBlocks(existingTargetFiles) { relPath ->
+                    loadBlockChecksums(langDir, relPath)
+                }
+            val filesToTranslate = applicationResult.toTranslate.paths + pendingRetry
             logger.lifecycle(
-                "[migrateContentI18n] [{}] Delta : {} à traduire, {} préservés.",
+                "[migrateContentI18n] [{}] Delta : {} à traduire, {} préservés (dont {} retentés PENDING).",
                 targetLang,
                 filesToTranslate.size,
-                applicationResult.toPreserve.paths.size,
+                applicationResult.toPreserve.paths.size - pendingRetry.size,
+                pendingRetry.size,
             )
 
             copyNonAdocFiles(sourceDir, langDir, intention.excludePaths.toSet())

@@ -5,7 +5,8 @@
 :icons: font
 :sectnums:
 
-_Dernière mise à jour : 2026-09-27 — ✅ **BKY-KTLINT-CLEANUP TERMINÉ (S-244) — dette ktlint INTÉGRALEMENT RÉSORBÉE** : `config/ktlint/baseline.xml` VIDE (171 fichiers gelés S-243 → 0). 7 lots = 7 commits. `./gradlew build` **VERT 5m11s**, `test` 5642/0, `cucumberTest` 0 échec, `publishToMavenLocal` VERT. Découverte : le lot ne peut pas être scopé fichier via la tâche Gradle (`include`/`setSource` ignorés par ktlint-gradle) — outil = CLI ktlint 1.5.0, lot = source set. Rapport `.agents/sessions/244-ktlint-debt-resorbed.adoc`.
+_Dernière mise à jour : 2026-10-06 — ✅ **BKY-PENDING-RETRY (fix cross-borough document-gradle, S-249)** : le delta fichier rouvre le retry d'un bloc `PENDING`. `bakery.i18n.PendingBlockRetry.filesWithPendingBlocks` (domaine pur, 4 UT) + câblage `MigrateContentI18nTask` (les fichiers byte-inchangés portant un bloc `PENDING` sont retirés de `toPreserve` et ajoutés à `toTranslate`) + FT `PendingBlockRetryConvergence` (2 runs, source inchangée, `PENDING` → convergence). Correctif **apparié** avec `document-gradle` DOC-TRANSLATE-RESILIENCE (S-280) : sans le grain fichier, le `PENDING` bloc serait gelé ; sans le grain bloc, le fallback silencieux resterait `TRANSLATED`. Gates (Local = Build, Tests = CI) : compiles VERT, `assemble` + `validatePlugins` VERT, zéro secret. Rapport `.agents/sessions/249-pending-block-retry.adoc`.
+_Dernière mise à jour (antérieure) : 2026-09-27 — ✅ **BKY-KTLINT-CLEANUP TERMINÉ (S-244) — dette ktlint INTÉGRALEMENT RÉSORBÉE** : `config/ktlint/baseline.xml` VIDE (171 fichiers gelés S-243 → 0). 7 lots = 7 commits. `./gradlew build` **VERT 5m11s**, `test` 5642/0, `cucumberTest` 0 échec, `publishToMavenLocal` VERT. Découverte : le lot ne peut pas être scopé fichier via la tâche Gradle (`include`/`setSource` ignorés par ktlint-gradle) — outil = CLI ktlint 1.5.0, lot = source set. Rapport `.agents/sessions/244-ktlint-debt-resorbed.adoc`.
 _Dernière mise à jour (antérieure) : 2026-09-27 — ✅ **BKY-CI-ISOLATION TERMINÉ (S-243) — CI bakery VERTE (13 verrous levés, dont 1 bug produit)**. L'audit d'ouverture a révélé la CI `Test` **rouge sur 200/200 runs** (depuis ≥ 2026-06-14) : échec en configuration (`conventions-plugin:0.0.4` exige JVM 25, workflow épinglait JDK 24). Périmètre étendu à 13 verrous (V1→V13) : V1 JDK 24→25 ; V2/V3 gardes site → `WorkspaceRoot` + `assumeTrue` ; V4 version catalogue injectée par Gradle (patron graphify D5-RACE) ; V5 4 scénarios cucumber périmés réalignés ; V6 timeout 5→15 min ; V7 chemin kover aligné (89,21 % > 85 %) ; V8 ktlint baseline (171 fichiers). V9 `site.yml` in-repo ; V10 `.editorconfig` tracké ; V11 bug produit `GitService.ensureHeadOnBranch` ; V12 `XDG_CONFIG_HOME` ; V13 timezone. V5→V8 préexistaient (stash-prouvé), masqués par V1. `build` **VERT 5m28s**, `test` 2072/0, `cucumberTest` 3294/0, `publishToMavenLocal` VERT. `.agents/CADRAGE_EPIC_BKY_CI_ISOLATION.adoc`.
 
 _Dernière mise à jour (antérieure) : 2026-09-26 — ✅ **BKY-VARIANT-UNIFY — split-brain `i18n.variant` absorbé (cheroliv ↔ bakery)** (S-242, option C patron NAV-6 — D5 du cadrage `BKY-LANG-NAV`). Contrainte pilote : **aucune traduction, aucun contenu détruit**. **Audit** : `I18nLayout`/`VariantBakeAssembler`/`VariantServePlan` = adaptateurs de layout site-spécifiques (`projectDir/jbake` vs `bakeRoot`), seuls `com.cheroliv.deploy.VariantDeployability` divergeaient — comparaient **toutes** les entrées de `templates/` (bundle `messages_{lang}.properties`, `.txt`, dossier `jbake/templates/TODO/`) là où bakery ne compte que `.thyme/.ftl/.html` → variante complète **faussement indéployable**. **Livré** : vecteurs partagés `bakery/i18n/variant/variant-bake-vectors.json` (6 vecteurs) + convergence `VariantDeployability` cheroliv (TDD RED prouvé → GREEN) + vecteurs épinglés byte-identique + garde anti-dérive `VariantDeployabilityDriftGuardTest`. Gates : bakery `test` **2061/0** (+2), `functionalTest`/`nodeTest` VERT, `cucumberTest` 3285/5 baseline, `publishToMavenLocal` VERT ; cheroliv `test` **187/0** (+2), `cucumberTest` 31/5 baseline stash-prouvée, `functionalTest`+`nodeTest` VERT. Zéro code prod bakery modifié, zéro bump BOM, zéro publication Central, zéro LLM, zéro secret. Doc `.agents/CADRAGE_EPIC_BKY_VARIANT_UNIFY.adoc` + `.agents/sessions/242-…`.
@@ -35,6 +36,40 @@ _Dernière mise à jour (antérieure) : 2026-09-17 — ✅ **BKY-I18N-JS-6 TERMI
 _Dernière mise à jour (antérieure) : 2026-09-17 — ✅ **BKY-I18N-JS-5 TERMINÉ (S-223)** — le catalogue structurel (`i18n-content.js`, `TALARIA.I18N.CATALOG`), déclaré au cadrage talaria S-054 mais jamais traité, est désormais **classifié** (`I18nJsFormat` `FLAT`/`CATALOG`), **planifié en couverture** (`I18nCatalog` : langue/formation/champ) et son **ownership plat corrigé** (le catalogue ne capte plus les clés chrome — bug latent de corruption). Le 3e dictionnaire avait été oublié par l'EPIC que l'on croyait 4/4. REFACTOR `I18nJsBlockScanner` (scanner partagé). Dogfooding réel talaria (22 langues × 2 formations, 0 lacune). Gate `test` **1804/0 FAIL** (baseline 1777/0 → +27). Antérieur S-222 : ✅ **FLAKY-4 résolu** — drift fixture `contact.thyme` : le site réel cheroliv.com a retiré le champ `subject` du contact (US-35, `d96dcec` 2026-09-14), fixture + golden master non resynchronisés → resync fixture + recâblage `contact.6` + régénération golden master one-shot. Gate `test` **1777/0 FAIL** (fin des « 2 FAIL préexistants » mentionnés depuis S-218 dans toutes les gates cross-borough MEMPHIS). Antérieur S-221 : ✅ **Cross-borough T-I18N-BAKERY US-2/US-3** — `bakery.llm.IaConfigResolver` (pool LLM résolu depuis `site.yml → ollama:`) + câblage `translateI18nClient` + harness talaria réduit à un audit read-only. Antérieur S-220 : ✅ **EPIC BKY-I18N-JS TERMINÉ 4/4 US** — US-4 livrée : propagation `maquette/js/` → `jbake/assets/js/` byte-identique (`I18nClientPropagation` object pur, delta-only) + garde de format parse↔write (`I18nClientFormatGuard`) + test d'architecture frontière zéro HTTP direct. Domaine `bakery.i18n.js` clos (6 fichiers prod). Session 217 🟡 **EPIC BKY-LANG-22 EN COURS** — extension du contrat N0 `contracts.i18n.LanguageCatalog` de 10 → 22 langues (parité talaria.school : +it nl de el tr vi th id ko ja sr **fa RTL**). Livré et publié Central : `i18n-contracts:0.0.4` (bundle `c1a9de57`) + BOM/catalog `0.0.43` (bundle `eb310d04`) + propagation bakery/capsule/slider/document. **Reste en cours** : régénération du corpus dogfooding slider (27 fichiers gelés, 12 langues × 3 decks à produire via LLM metered — Loi Économie d'Encre), dogfooding capsule 22 langues, publication Central des consommateurs (bakery/capsule/slider). Session 216 ✅ transfert BKY-FPA-SITE → TRN-11 (training, pattern TRN-9) + arbitrage licence FPA tranché. Session 213 ✅ RENAME Vague 3 CLÔTURÉ transverse._
 
 '''
+
+== EPIC BKY-PENDING-RETRY — Le delta fichier rouvre le retry d'un bloc PENDING ✅ TERMINÉ (S-249)
+
+_Origine_ : priorité 2 de la dette cross-borough cheroliv S-052. Le fix
+document-gradle DOC-TRANSLATE-RESILIENCE (S-280) marque `PENDING` un bloc dont
+l'appel LLM a échoué — mais le gate **fichier** de bakery (`I18nDeltaApplier`)
+préserve tout fichier cible byte-identique, donc le bloc n'est **jamais**
+re-tenté. Le fix doit être **apparié** (grain bloc + grain fichier).
+
+|===
+| US | Description | Pts | Statut
+
+| BKY-PENDING-RETRY-1
+| `bakery.i18n.PendingBlockRetry` (domaine pur) : `filesWithPendingBlocks(existingTargetFiles, blockChecksumsOf)` — un fichier est retenté ssi un de ses blocs est `PENDING` ; 4 UT
+| 1
+| ✅ TERMINÉ (S-249)
+
+| BKY-PENDING-RETRY-2
+| Câblage `MigrateContentI18nTask` : `filesToTranslate = toTranslate + pendingRetry` (les fichiers à `PENDING` sortent de `toPreserve`)
+| 1
+| ✅ TERMINÉ (S-249)
+
+| BKY-PENDING-RETRY-3
+| FT `PendingBlockRetryConvergence` : run 1 (échec LLM) → bloc `PENDING` persisté ; run 2 (source inchangée, LLM récupéré) → `TRANSLATED`, plus aucun `PENDING`
+| 2
+| ✅ TERMINÉ (S-249)
+|===
+
+*Boundary* : bakery possède le grain **fichier** (`MigrateContentI18nTask`,
+`I18nDeltaApplier`) ; document-gradle possède le grain **bloc** (`doTranslate`,
+`BlockChecksum`, `ContentTranslationService`, S-280). Aucun contrat N0 touché.
+*Publication* : ce fix + `TemplateStructureGuard` S-250 sortent en **bakery 0.0.23**
+(accord pilote, priorité 3 cheroliv S-063).
+*Rapport* : `.agents/sessions/249-pending-block-retry.adoc`.
 
 == EPIC BKY-CI-ISOLATION — CI bakery verte : dépôt auto-suffisant — 13 verrous ✅ TERMINÉ (S-243)
 

@@ -1,0 +1,44 @@
+= PROMPT_REPRISE — Bakery Gradle Plugin
+:session: 250
+:date: 2026-10-06
+:etat: Session 249 — **BKY-PENDING-RETRY ✅** (fix cross-borough document-gradle) : le delta fichier rouvre le retry d'un bloc `PENDING`. Local = Build VERT, Tests = CI.
+:epic_actif: Aucun EPIC ouvert.
+:epic_suivant: **Publication bakery 0.0.23** (porte BKY-PENDING-RETRY S-249 + `TemplateStructureGuard` S-250) — accord pilote, priorité 3 cheroliv S-063. OU **F50 cross-borough** (`:summary:` document-gradle). OU **propagation gouvernance** « Local = Build, Tests = CI ».
+:dette: Gouvernance non propagée (AGENT.adoc boroughs + SESSION_CHECKLIST manquants).
+
+== État S-249
+
+* **Fix cross-borough** : `bakery.i18n.PendingBlockRetry` (domaine pur, 4 UT) +
+  câblage `MigrateContentI18nTask` (les fichiers byte-inchangés portant un bloc
+  `PENDING` sont retirés de `toPreserve` et ajoutés à `toTranslate`) + FT
+  `PendingBlockRetryConvergence` (2 runs, source inchangée).
+* **Correctif apparié** : document-gradle DOC-TRANSLATE-RESILIENCE (S-280)
+  marque le grain **bloc** `PENDING` ; bakery rouvre le grain **fichier**.
+  Sans l'un, l'autre est inerte.
+* Gates (Local = Build, Tests = CI) : `compileKotlin`/`compileTestKotlin` VERT,
+  `assemble` + `validatePlugins` VERT ; aucun test local. Zéro bump/publication,
+  zéro secret.
+
+== État chaîne (S-249)
+
+* Chaîne cohérente : cheroliv → runner → bakery 0.0.21 → document 0.0.19.
+* **Non distribué** : DOC-TRANSLATE-RESILIENCE (document) + BKY-PENDING-RETRY
+  (bakery) + `TemplateStructureGuard` (S-250) — publication sur accord pilote.
+
+== Mission Session 250 (au choix pilote)
+
+. **Publication bakery 0.0.23** : porte BKY-PENDING-RETRY + `TemplateStructureGuard`
+   S-250 ; chaîne DAG MEMPHIS-first ; requise pour que le fix atteigne
+   cheroliv.com (re-convergence du pool vivant).
+. **F50 cross-borough** : sémantique `:summary:`/`:description:` portée par
+   `document-gradle`.
+. **Propagation gouvernance** (transverse) : `AGENT.adoc` boroughs + `SESSION_CHECKLIST.adoc`.
+. **MASS-6** : bloqué accord pilote explicite (~675h LLM).
+
+== Rappel
+
+* **RÈGLE EAGER — Local = Build, Tests = CI** : en local, uniquement
+  `compileKotlin`/`build -x test` ; les tests (`test`, `functionalTest`,
+  `cucumberTest`, `check`) s'exécutent **exclusivement en CI** après push.
+* **Zéro Python** ; English only code/tests/features (gouvernance .adoc en français).
+* Commit/push sur accord pilote ; zéro secret en clair.
