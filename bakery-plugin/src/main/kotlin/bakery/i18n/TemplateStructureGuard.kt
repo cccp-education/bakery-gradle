@@ -25,7 +25,6 @@ package bakery.i18n
  * Pure domain: no regex on the whole document, no Gradle, no LLM.
  */
 object TemplateStructureGuard {
-
     private val RAW_TAGS = listOf("script", "style")
 
     fun isWellFormed(template: String): Boolean {
@@ -54,10 +53,11 @@ object TemplateStructureGuard {
                 if (inTag) {
                     when (line[i]) {
                         '"' -> inQuotes = !inQuotes
-                        '>' -> if (!inQuotes) {
-                            inTag = false
-                            inQuotes = false
-                        }
+                        '>' ->
+                            if (!inQuotes) {
+                                inTag = false
+                                inQuotes = false
+                            }
                     }
                     i++
                     continue

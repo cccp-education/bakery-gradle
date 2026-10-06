@@ -18,7 +18,6 @@ import document.translation.delta.BlockTranslationStatus
  * without Gradle, files or an LLM.
  */
 object PendingBlockRetry {
-
     fun filesWithPendingBlocks(
         existingTargetFiles: Set<String>,
         blockChecksumsOf: (String) -> Map<String, BlockChecksumEntry>,
