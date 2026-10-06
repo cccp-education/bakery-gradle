@@ -52,9 +52,34 @@ class TemplateStructureGuardTest {
     }
 
     @Test
-    fun `every line must close its own tag open`() {
+    fun `a tag left open at the end of the document fails`() {
         assertFalse(TemplateStructureGuard.isWellFormed("<div class=\"x\" th:if=\"${'$'}{y}"))
 
         assertTrue(TemplateStructureGuard.isWellFormed("<div class=\"x\" th:if=\"${'$'}{y}\">"))
+    }
+
+    @Test
+    fun `a tag that legitimately opens on one line and closes later passes`() {
+        // S-250 — the real cheroliv.com corpus carries multi-line tags
+        // (`header.thyme` `th:block th:with="…`, `menu.thyme`, `index.thyme`).
+        // The old line-local rule rejected 13 of the 20 reference templates and
+        // blocked id/ko/sr/fa translation. The skeleton must be tracked across
+        // the whole document.
+        val template =
+            """
+            <th:block th:with="canonUri=(${'$'}{canonOverride != null} ? ${'$'}{canonOverride} : ''),
+                               pageDesc=${'$'}{#strings.defaultString(content.summary)}">
+                <link rel="canonical" th:href="${'$'}{config.site_host}"/>
+            </th:block>
+            """.trimIndent()
+
+        assertTrue(TemplateStructureGuard.isWellFormed(template))
+    }
+
+    @Test
+    fun `an unclosed comment at the end of the document fails`() {
+        assertFalse(TemplateStructureGuard.isWellFormed("<!-- a comment <div> that never closes"))
+
+        assertTrue(TemplateStructureGuard.isWellFormed("<!-- a comment <div> -->\n<p>ok</p>"))
     }
 }
