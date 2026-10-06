@@ -27,7 +27,22 @@ Conclusion : bakery doit **re-scheduler** les fichiers dont les checksums de
 blocs contiennent un `PENDING`.
 
 Gates locaux (Local = Build, Tests = CI) : `compileKotlin`/`compileTestKotlin`
-VERT, `assemble` + `validatePlugins` VERT. **Aucun test local**.
+VERT, `assemble` + `validatePlugins` VERT, `ktlintCheck` VERT. **Aucun test local**.
+
+**Preuve CI** : run CI bakery `Test` **37443100752** (commit `68d776c5`) →
+**success** ; `Publish website` **37443100696** → success.
+
+**Incident CI (2 itérations)** : (1) le nouveau `PendingBlockRetry` (et le
+`TemplateStructureGuard` S-250) violaient ktlint (`no-empty-first-line-in-class-body`,
+`multiline-expression-wrapping`, `trailing-comma-on-call-site`,
+`blank-line-before-declaration`) → CI rouge **avant tout test** ; corrigé
+(session formatage). (2) Le FT de convergence end-to-end échouait car la CI bakery
+résout `document-plugin 0.0.19` **depuis Central** — version antérieure au fix
+bloc `PENDING` (0.0.20 non publié). Le FT a été rendu **auto-portant** : il sème
+un bloc `PENDING` directement dans le fichier de checksums (format persisté par
+document-gradle) et asserte que le fichier byte-inchangé est re-traduit — l'assertion
+tient quelque soit la version résolue depuis Central (la convergence de bout en
+bout nécessite la propagation 0.0.20/0.0.23).
 
 == Décisions
 
