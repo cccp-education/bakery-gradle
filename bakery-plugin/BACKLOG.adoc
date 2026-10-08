@@ -5,6 +5,37 @@
 :icons: font
 :sectnums:
 
+== 🟡 EPIC BKY-PLANTUML-D1 — exclusion epubcheck (fix D1 SVG blancs, GBL-007)
+
+*GBL* : EPIC transverse **GBL-007** (BACKLOG racine workspace) — propriété du
+pipeline PlantUML. Décision pilote : le borough plantuml possède le bloc ; bakery
+possède le bake et **exclut** la dépendance fautive.
+
+*Contexte* : les diagrammes PlantUML rendaient **blanc** au déploiement.
+Cause racine prouvée (bake frais, cache `.asciidoctor/` vidé) :
+`net.sf.saxon:Saxon-HE:11.4` — tiré par `document-plugin → org.w3c:epubcheck:5.2.1`
+— sérialise les SVG avec `xmlns=''` sur `<title>`/`<defs>`/`<g>` → le navigateur
+ne peint plus. La branche Saxon 11.x est fautive (11.4/11.7 testés) ; 9.9.1-7
+correct. Ni PlantUML ni un dual-JAR (fausses pistes écartées).
+
+[cols="1,4,1,2", options="header"]
+|===
+| US | Description | Pts | Statut
+
+| BKY-PLT-1 | **Exclusion `epubcheck` à la source** — `implementation("education.cccp:document-plugin") { exclude(group = "org.w3c", module = "epubcheck") }` (bakery n'exécute aucune validation EPUB, grep `src/` = 0) | 1 | ✅ S-250 (bakery 0.0.24)
+| BKY-PLT-2 | **Publication bakery 0.0.24** + BOM/catalog 0.0.70 (DAG MEMPHIS) — porter le fix aux consommateurs | 1 | ✅ S-250 (bundle `715977a9`, BOM `620d9d24`)
+| BKY-PLT-3 | **Garde anti-drift toolchain** — empêcher la réintroduction du Saxon 11.x fautif sur le classpath de bake (source unique de versions) | 2 | 🟡 À FAIRE
+| BKY-PLT-4 | **D2 corpus** — re-générer les variantes gelées (blocs PlantUML `@startuml` bruts) : purge ciblée du store delta + re-traduction | 3 | 🟡 À FAIRE (+ cheroliv)
+|===
+
+*Total restant* : ~5 pts. *Déjà livré* : exclusion + publication (preuve production
+`37850462245` : SVG `xmlns=''`=0, rendu σ≈8711). *Dépend de* : `plantuml-contracts`,
+`document-gradle`.
+
+_Dernière mise à jour : 2026-10-08 — ✅ **BKY-PLANTUML-D1 (S-250)** : exclusion
+`epubcheck` (fix D1 SVG blancs) + publication bakery 0.0.24 / BOM 0.0.70.
+Rapport `.agents/sessions/250-exclude-epubcheck-saxon-white-svg.adoc`.
+
 _Dernière mise à jour : 2026-10-06 — ✅ **BKY-PENDING-RETRY (fix cross-borough document-gradle, S-249)** : le delta fichier rouvre le retry d'un bloc `PENDING`. `bakery.i18n.PendingBlockRetry.filesWithPendingBlocks` (domaine pur, 4 UT) + câblage `MigrateContentI18nTask` (les fichiers byte-inchangés portant un bloc `PENDING` sont retirés de `toPreserve` et ajoutés à `toTranslate`) + FT `PendingBlockRetryConvergence` (2 runs, source inchangée, `PENDING` → convergence). Correctif **apparié** avec `document-gradle` DOC-TRANSLATE-RESILIENCE (S-280) : sans le grain fichier, le `PENDING` bloc serait gelé ; sans le grain bloc, le fallback silencieux resterait `TRANSLATED`. Gates (Local = Build, Tests = CI) : compiles VERT, `assemble` + `validatePlugins` VERT, zéro secret. Rapport `.agents/sessions/249-pending-block-retry.adoc`.
 _Dernière mise à jour (antérieure) : 2026-09-27 — ✅ **BKY-KTLINT-CLEANUP TERMINÉ (S-244) — dette ktlint INTÉGRALEMENT RÉSORBÉE** : `config/ktlint/baseline.xml` VIDE (171 fichiers gelés S-243 → 0). 7 lots = 7 commits. `./gradlew build` **VERT 5m11s**, `test` 5642/0, `cucumberTest` 0 échec, `publishToMavenLocal` VERT. Découverte : le lot ne peut pas être scopé fichier via la tâche Gradle (`include`/`setSource` ignorés par ktlint-gradle) — outil = CLI ktlint 1.5.0, lot = source set. Rapport `.agents/sessions/244-ktlint-debt-resorbed.adoc`.
 _Dernière mise à jour (antérieure) : 2026-09-27 — ✅ **BKY-CI-ISOLATION TERMINÉ (S-243) — CI bakery VERTE (13 verrous levés, dont 1 bug produit)**. L'audit d'ouverture a révélé la CI `Test` **rouge sur 200/200 runs** (depuis ≥ 2026-06-14) : échec en configuration (`conventions-plugin:0.0.4` exige JVM 25, workflow épinglait JDK 24). Périmètre étendu à 13 verrous (V1→V13) : V1 JDK 24→25 ; V2/V3 gardes site → `WorkspaceRoot` + `assumeTrue` ; V4 version catalogue injectée par Gradle (patron graphify D5-RACE) ; V5 4 scénarios cucumber périmés réalignés ; V6 timeout 5→15 min ; V7 chemin kover aligné (89,21 % > 85 %) ; V8 ktlint baseline (171 fichiers). V9 `site.yml` in-repo ; V10 `.editorconfig` tracké ; V11 bug produit `GitService.ensureHeadOnBranch` ; V12 `XDG_CONFIG_HOME` ; V13 timezone. V5→V8 préexistaient (stash-prouvé), masqués par V1. `build` **VERT 5m28s**, `test` 2072/0, `cucumberTest` 3294/0, `publishToMavenLocal` VERT. `.agents/CADRAGE_EPIC_BKY_CI_ISOLATION.adoc`.
