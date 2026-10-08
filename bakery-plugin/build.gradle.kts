@@ -49,7 +49,16 @@ dependencies {
     implementation("education.cccp:i18n-contracts:0.0.4")
     // MEM-CAT-3 (D5) — document-plugin sans version : la version vient du platform
     // workspace-bom (constraint document-plugin), plus de hardcode local.
-    implementation("education.cccp:document-plugin")
+    // PLT-DIAGRAM-OWNERSHIP US-5 (S-221) — CHE-DIAGRAM D1 (white diagrams):
+    // document-plugin drags `org.w3c:epubcheck:5.2.1` which drags
+    // `net.sf.saxon:Saxon-HE:11.4`. PlantUML serialises its SVG through the Saxon
+    // on the bake classpath; 11.x emits `xmlns=''` (+ hex entities) on the root
+    // child elements → the browser renders a uniform white box. bakery never runs
+    // any EPUB validation (zero `epubcheck` reference in its source), so epubcheck
+    // is excluded here: the bake falls back to a correct serializer.
+    implementation("education.cccp:document-plugin") {
+        exclude(group = "org.w3c", module = "epubcheck")
+    }
 
     // LLM — LangChain4j + Ollama (BKY-IA-0)
     implementation(libs.langchain4j.ollama)

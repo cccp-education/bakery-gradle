@@ -1,0 +1,45 @@
+= Session 250 — US-5 PLT-DIAGRAM-OWNERSHIP : exclusion epubcheck (fix D1 CHE-DIAGRAM, SVG blancs)
+
+_Date_ : 2026-10-08
+_Borough_ : bakery-gradle (Bushwick / N2)
+_Type_ : fix cross-borough / DDD-TDD
+
+== Mission d'ouverture
+
+Suite de l'EPIC cross-borough **PLT-DIAGRAM-OWNERSHIP** (plantuml-gradle). Le
+symptôme CHE-DIAGRAM D1 : les diagrammes PlantUML rendent **blanc** sur le site
+déployé. Cause racine prouvée côté runner (S-033) : le sérialiseur **Saxon 11.4**,
+tiré par `document-plugin → epubcheck:5.2.1`, émet `xmlns=''` sur les SVG → blanc.
+
+Cette session **porte le fix à la source** dans bakery (propriétaire du bake).
+
+== Diagnostic affiné
+
+* `net.sf.saxon:Saxon-HE:11.4` **et** `9.6.0-4` viennent **tous deux** de
+  `org.w3c:epubcheck:5.2.1` (via `document-plugin`). La branche Saxon 11.x (testé :
+  11.4, 11.7) produit `xmlns=''` ; la 9.x (9.9.1-7) produit un SVG correct.
+* **bakery ne référence `epubcheck` nulle part** (grep `src/` = 0) : c'est une
+  dépendance transitive inutile au bake (bakery n'exécute aucune validation EPUB).
+* Preuve de mécanisme : un force **project-level** NE corrige PAS (Saxon chargé via
+  le classpath du **plugin** bakery) ; seul un force au niveau du **buildscript**
+  agit. L'exclusion à la source est donc le remède propre.
+
+== Livré
+
+* `bakery-plugin/build.gradle.kts` : la dépendance
+  `implementation("education.cccp:document-plugin")` **exclut**
+  `org.w3c:epubcheck` → Saxon 11.4 disparaît du classpath runtime.
+* Preuves :
+  * `dependencyInsight --configuration runtimeClasspath --dependency org.w3c:epubcheck`
+    → **No dependencies matching**.
+  * `dependencyInsight --configuration runtimeClasspath --dependency net.sf.saxon:Saxon-HE`
+    → **No dependencies matching** (Saxon 11.4 retiré).
+  * `document-plugin:0.0.20 (by constraint)` → toujours résoluble.
+  * `compileKotlin` VERT.
+
+== Reste
+
+* Publication bakery **0.0.24** (porter le fix aux consommateurs) — DAG MEMPHIS.
+* Le force Saxon du runner (S-033) reste en place jusqu'à ce que le fix source soit
+  distribué (bakery 0.0.23 publié ne porte pas encore l'exclusion).
+* Dogfooding : déploiement cheroliv.com réel (US-7).

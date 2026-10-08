@@ -1,5 +1,18 @@
 = Archive des Tâches Terminées — Octobre 2026
 
+== Session 250 — 2026-10-08 — exclusion epubcheck (fix D1 CHE-DIAGRAM, SVG blancs)
+
+=== Fait
+- [x] Cause prouvée : `net.sf.saxon:Saxon-HE:11.4` (via `document-plugin → epubcheck:5.2.1`) → SVG `xmlns=''` → blanc
+- [x] bakery n'utilise pas epubcheck (grep `src/` = 0) → exclusion à la source
+- [x] `implementation("education.cccp:document-plugin") { exclude(group = "org.w3c", module = "epubcheck") }`
+- [x] `dependencyInsight` runtimeClasspath : epubcheck + Saxon-HE retirés ; document-plugin intact
+- [x] `compileKotlin` VERT
+
+=== Prochaine session (251)
+- Publication bakery **0.0.24** (DAG MEMPHIS) pour distribuer le fix
+- Dogfooding cheroliv.com (US-7)
+
 == Session 249 — 2026-10-06 — BKY-PENDING-RETRY (fix cross-borough document-gradle)
 
 [cols="2,3"]

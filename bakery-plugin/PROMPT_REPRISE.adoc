@@ -1,62 +1,33 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 249
-:date: 2026-09-30
-:etat: Session 248 — **release bakery 0.0.21 (fix drift workspace-bom)**. POM importe désormais BOM 0.0.61 → document-plugin 0.0.19. Central bundle `05e89298`.
-:epic_actif: Aucun EPIC ouvert. Chaîne cohérente cheroliv → runner (catalog 0.0.61) → bakery 0.0.21 → document 0.0.19.
-:epic_suivant: **F50 cross-borough** (`:summary:` document-gradle) OU **propagation gouvernance** « Local = Build, Tests = CI » vers les boroughs.
-:dette: Gouvernance non propagée (règle EAGER global absente des AGENT.adoc boroughs + SESSION_CHECKLIST manquants).
+:session: 252
+:date: 2026-10-08
+:etat: Session 251 — **exclusion epubcheck (fix D1 CHE-DIAGRAM : SVG blancs)**. `net.sf.saxon:Saxon-HE:11.4` (via `document-plugin → epubcheck:5.2.1`) sérialise les SVG PlantUML avec `xmlns=''` → blanc. bakery n'utilise pas epubcheck → exclusion à la source. `compileKotlin` VERT, `dependencyInsight` : epubcheck + Saxon-HE retirés.
+:epic_actif: PLT-DIAGRAM-OWNERSHIP (US-5 : fix D1 porté dans bakery).
+:epic_suivant: **Publication bakery 0.0.24** (distribuer le fix, DAG MEMPHIS) OU dogfooding cheroliv.com (US-7).
 
-== État S-248
+== État S-251
 
-* **Drift corrigé** : `bakery-plugin 0.0.20` importait `workspace-bom:0.0.58`
-  → constraint `document-plugin:0.0.18`, alors que 0.0.19 était publié (S-276
-  MEMPHIS). Tout consommateur sans le workaround du runner résolvait 0.0.18
-  (classe du **piège #13**).
-* **Fix** : re-pin catalog `0.0.58 → 0.0.61` + 3 platform pins `workspace-bom`
-  `0.0.58 → 0.0.61` + toml local `bakery 0.0.20 → 0.0.21` (version self dérivée
-  du catalogue, règle S-240). Aucun code Kotlin modifié.
-* **Vérification** : `dependencyInsight` → `document-plugin:0.0.19` ; `compileKotlin`
-  VERT ; `publishToMavenLocal` VERT.
-* **Publication** : DAG MEMPHIS-first — MEMPHIS 0.0.61 (bundle `1b2a170e`) puis
-  bakery 0.0.21 (bundle `05e89298` AUTOMATIC). Le validateur Central a rejeté la
-  1re tentative tant que le BOM 0.0.61 n'avait pas propagé (404, piège #1 —
-  attente ~12 min). Propagation confirmée : POM HTTP 200 (BOM 0.0.61) + marker
-  200.
-* **Preuve tiers** (mavenCentral seul, sans mavenLocal) : bakery 0.0.21 →
-  document 0.0.19.
-* Gates : `compileKotlin` VERT, `publishToMavenLocal` VERT, zéro test local
-  (règle EAGER), zéro secret.
+* **Cause prouvée** : `net.sf.saxon:Saxon-HE:11.4` (branche 11.x fautive) sérialise
+  les SVG avec `xmlns=''` sur `<title>`/`<defs>`/`<g>` → rendu blanc. Saxon 9.9.1-7
+  correct.
+* **Fix** : `implementation("education.cccp:document-plugin") { exclude(group = "org.w3c", module = "epubcheck") }`.
+  bakery n'exécute aucune validation EPUB (grep `src/` = 0).
+* **Preuves** : `dependencyInsight` runtimeClasspath → epubcheck **et** Saxon-HE
+  `No dependencies matching` ; `document-plugin:0.0.20 (by constraint)` intact ;
+  `compileKotlin` VERT.
+* **Note** : le force Saxon du runner (S-033) reste en place jusqu'à distribution
+  de bakery 0.0.24 (bakery 0.0.23 publié ne porte pas l'exclusion).
 
-== Commits / CI
+== Mission Session 252 (au choix pilote)
 
-* MEMPHIS 0.0.61 : bundle `1b2a170e-5392-4453-a350-e179c5c908af`.
-* bakery 0.0.21 : bundle `05e89298-9019-4f63-8be7-c730e25f3ce4`.
-* runner-gradle : catalog 0.0.60 → 0.0.61 + force BOM aligné.
-* cheroliv.com : reçoit désormais bakery 0.0.21 → document 0.0.19.
-
-== Mission Session 249 (au choix pilote)
-
-. **F50 cross-borough** : sémantique `:summary:`/`:description:` portée par
-   `document-gradle`.
-. **Propagation gouvernance** (transverse) : aligner les `AGENT.adoc` boroughs
-   sur « Local = Build, Tests = CI » + créer les `SESSION_CHECKLIST.adoc`
-   manquants.
-. **MASS-6** : bloqué accord pilote explicite (~675h LLM).
+. **Publication bakery 0.0.24** : distribuer le fix D1 (chaîne DAG MEMPHIS-first).
+. **Dogfooding cheroliv.com** (US-7) : déployer et valider les diagrammes visibles.
+. **F50 cross-borough** / **Propagation gouvernance** (transverse).
 
 == Rappel
 
 * **RÈGLE EAGER — Local = Build, Tests = CI** : en local, uniquement
-  `compileKotlin`/`build -x test` ; les tests (`test`, `functionalTest`,
-  `cucumberTest`, `check`) s'exécutent **exclusivement en CI** après push.
-* Gate métier : `grep -rwE "REAC|AFNOR|SPG|SPD|FPA|RNCP|CDA" src/` = 0.
-* **JAMAIS lire un `site.yml`** (gitignoré, contient un token) — `git check-ignore -v` d'abord.
-* *Modèle LLM* : `gemma4:31b-cloud` + `OLLAMA_POOL_PORTS=11439,11440,11441,11442`.
-* *Règle 0* : `./gradlew -q publishToMavenLocal` OBLIGATOIRE après toute modif source.
-* *Version dérivée* : bumper le toml local est obligatoire pour qu'une release porte les changements (leçon S-240).
-* *Pattern BDD runner dédié* : tout tag non couvert doit avoir son runner (S-082).
-* *ktlint* : baseline **VIDE** (S-244) — toute violation nouvelle échoue ; ne jamais
-  lancer `ktlintFormat` global (S-231/S-244).
-* *Dépôt auto-suffisant* : tout artefact qui influence un test doit être versionné (leçon S-243).
-* Commit/push autorisés (décision pilote 2026-09-17). Zéro secret.
-* **Ne jamais retraduire de contenu** : `migrateContentI18n`/`translateTemplates`/
-  `translateI18nClient` sont *metered* et destructrices — GO pilote requis.
+  `compileKotlin`/`build -x test` ; les tests s'exécutent **exclusivement en CI**.
+* **Zéro Python** ; English only code/tests/features (gouvernance .adoc en français).
+* Commit/push sur accord pilote ; zéro secret en clair.
+
