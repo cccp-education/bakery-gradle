@@ -6,8 +6,9 @@ import contracts.i18n.TranslationService
 import document.translation.AsciiDocParser
 import document.translation.ContentTranslationService
 import document.translation.JbakeNativeRenderer
-import document.translation.plantuml.PlantUmlTranslationAdapter
 import document.translation.validation.ValidationMode
+import plantuml.boundary.PlantumlSyntaxValidatorAdapter
+import plantuml.boundary.PlantumlTranslationPortAdapter
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
 import org.assertj.core.api.Assertions.assertThat
@@ -73,14 +74,19 @@ class I18nMassValidationSteps {
                 ValidationMode.LENIENT
             }
 
-        val plantUmlAdapter = PlantUmlTranslationAdapter(fakeTranslator, plantUmlValidationMode = mode)
+        val plantUmlPort =
+            PlantumlTranslationPortAdapter(
+                translator = fakeTranslator,
+                validator = PlantumlSyntaxValidatorAdapter(),
+            )
         val contentService =
             ContentTranslationService(
                 fakeTranslator,
                 parser = AsciiDocParser(),
                 renderer = JbakeNativeRenderer(),
                 jbakeRenderer = JbakeNativeRenderer(),
-                plantUmlAdapter = plantUmlAdapter,
+                plantUmlPort = plantUmlPort,
+                plantUmlValidationMode = mode,
             )
         contentService.translateFiles(
             files = fileList,

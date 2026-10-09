@@ -10,12 +10,13 @@ import document.translation.delta.ArticleModification
 import document.translation.delta.BlockChecksumEntry
 import document.translation.delta.I18nDelta
 import document.translation.delta.I18nDeltaApplier
-import document.translation.plantuml.PlantUmlTranslationAdapter
 import document.translation.validation.PlantUmlValidationReport
 import document.translation.validation.PlantUmlValidationResult
 import document.translation.validation.TableValidationReport
 import document.translation.validation.TableValidationResult
 import document.translation.validation.ValidationMode
+import plantuml.boundary.PlantumlSyntaxValidatorAdapter
+import plantuml.boundary.PlantumlTranslationPortAdapter
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -183,12 +184,21 @@ abstract class MigrateContentI18nTask : DefaultTask() {
             copyNonAdocFiles(sourceDir, langDir, intention.excludePaths.toSet())
 
             if (translationService != null && filesToTranslate.isNotEmpty()) {
-                val plantUmlAdapter = PlantUmlTranslationAdapter(translationService, plantUmlValidationMode = validationMode)
+                // PLT-DIAGRAM-OWNERSHIP US-4 (option A) — bakery owns the N0 port
+                // implementation (plantuml borough) and injects it into document.
+                // The round-trip gate (validator) guarantees a translated diagram
+                // block still parses (D5).
+                val plantUmlPort =
+                    PlantumlTranslationPortAdapter(
+                        translator = translationService,
+                        validator = PlantumlSyntaxValidatorAdapter(),
+                    )
                 val contentService =
                     ContentTranslationService(
                         translationService,
                         parallelism = intention.parallelism,
-                        plantUmlAdapter = plantUmlAdapter,
+                        plantUmlPort = plantUmlPort,
+                        plantUmlValidationMode = validationMode,
                     )
                 // CHE-I18N-22 US-4 (defect 2) — the previous file-by-file loop was
                 // sequential: `parallelism` reached the service but nothing drove it
@@ -220,7 +230,12 @@ abstract class MigrateContentI18nTask : DefaultTask() {
                                 ContentTranslationService(
                                     translationService,
                                     parallelism = 1,
-                                    plantUmlAdapter = PlantUmlTranslationAdapter(translationService, plantUmlValidationMode = validationMode),
+                                    plantUmlPort =
+                                        PlantumlTranslationPortAdapter(
+                                            translator = translationService,
+                                            validator = PlantumlSyntaxValidatorAdapter(),
+                                        ),
+                                    plantUmlValidationMode = validationMode,
                                 )
                             try {
                                 val previousBlockChecksums = loadBlockChecksums(langDir, relPath)

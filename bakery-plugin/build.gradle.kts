@@ -31,7 +31,7 @@ repositories {
 dependencies {
     // BOM — workspace version alignment (workspace-bom, MEMPHIS)
     // MEM-CAT-3 (D5) — platform 0.0.61 : contraint document-plugin 0.0.19/i18n-contracts sans hardcode.
-    implementation(platform("education.cccp:workspace-bom:0.0.70"))
+    implementation(platform("education.cccp:workspace-bom:0.0.74"))
 
     // kotlin-stdlib is pulled transitively (and pinned by the BOM). The
     // kotlin-stdlib-jdk8 shim is an empty artifact since Kotlin 1.8 and
@@ -59,6 +59,13 @@ dependencies {
     implementation("education.cccp:document-plugin") {
         exclude(group = "org.w3c", module = "epubcheck")
     }
+
+    // PLT-DIAGRAM-OWNERSHIP US-4 (option A) — bakery builds the N0 PlantUML
+    // translation port (`PlantumlTranslationPortAdapter` + `PlantumlSyntaxValidatorAdapter`)
+    // and injects it into document. The plantuml borough owns the port
+    // implementation; document only delegates (D1/D3).
+    implementation("education.cccp:plantuml-plugin")
+    implementation("education.cccp:plantuml-contracts")
 
     // LLM — LangChain4j + Ollama (BKY-IA-0)
     implementation(libs.langchain4j.ollama)
@@ -207,7 +214,7 @@ val functionalTest: SourceSet by sourceSets.creating {
 
 // 2. Ajouter GradleTestKit à functionalTest (SANS hériter de testImplementation)
 dependencies {
-    add(functionalTest.implementationConfigurationName, platform("education.cccp:workspace-bom:0.0.70"))
+    add(functionalTest.implementationConfigurationName, platform("education.cccp:workspace-bom:0.0.74"))
 
     add(functionalTest.implementationConfigurationName, gradleTestKit())
     add(functionalTest.implementationConfigurationName, kotlin("test-junit5"))
@@ -269,7 +276,7 @@ val e2eTest: SourceSet by sourceSets.creating {
 
 // 2. Dépendances e2eTest : Playwright + JUnit5 + AssertJ + full test runtime
 dependencies {
-    add(e2eTest.implementationConfigurationName, platform("education.cccp:workspace-bom:0.0.70"))
+    add(e2eTest.implementationConfigurationName, platform("education.cccp:workspace-bom:0.0.74"))
 
     add(e2eTest.implementationConfigurationName, sourceSets.main.get().output)
     add(e2eTest.implementationConfigurationName, sourceSets.test.get().output)

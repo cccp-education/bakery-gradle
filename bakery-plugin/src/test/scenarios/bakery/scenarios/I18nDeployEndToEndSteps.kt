@@ -10,7 +10,8 @@ import contracts.i18n.TranslationService
 import document.translation.AsciiDocParser
 import document.translation.ContentTranslationService
 import document.translation.JbakeNativeRenderer
-import document.translation.plantuml.PlantUmlTranslationAdapter
+import plantuml.boundary.PlantumlSyntaxValidatorAdapter
+import plantuml.boundary.PlantumlTranslationPortAdapter
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
@@ -92,14 +93,14 @@ class I18nDeployEndToEndSteps {
                     return TranslationResult.Success("[$target] $translated")
                 }
             }
-        val plantUmlAdapter = PlantUmlTranslationAdapter(fakeTranslator)
+        val plantUmlPort = PlantumlTranslationPortAdapter(fakeTranslator, validator = PlantumlSyntaxValidatorAdapter())
         translationService =
             ContentTranslationService(
                 fakeTranslator,
                 parser = AsciiDocParser(),
                 renderer = JbakeNativeRenderer(),
                 jbakeRenderer = JbakeNativeRenderer(),
-                plantUmlAdapter = plantUmlAdapter,
+                plantUmlPort = plantUmlPort,
             )
     }
 

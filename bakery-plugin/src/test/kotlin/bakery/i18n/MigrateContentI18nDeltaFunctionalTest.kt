@@ -250,8 +250,8 @@ Second paragraph.
         @Test
         fun `debug with plantuml adapter and parsed blocks`() {
             val fake = FakeTranslationService(" [EN]")
-            val plantUmlAdapter = document.translation.plantuml.PlantUmlTranslationAdapter(fake)
-            val service = document.translation.ContentTranslationService(fake, plantUmlAdapter = plantUmlAdapter)
+            val plantUmlPort = plantuml.boundary.PlantumlTranslationPortAdapter(fake, validator = plantuml.boundary.PlantumlSyntaxValidatorAdapter())
+            val service = document.translation.ContentTranslationService(fake, plantUmlPort = plantUmlPort)
             val src = testDir.resolve("src.adoc")
             val tgt = testDir.resolve("tgt.adoc")
 
@@ -309,8 +309,8 @@ Second paragraph.
             val targetFile = langDir.resolve(relPath)
             targetFile.parentFile.mkdirs()
 
-            val plantUmlAdapter = document.translation.plantuml.PlantUmlTranslationAdapter(fake)
-            val contentService = document.translation.ContentTranslationService(fake, plantUmlAdapter = plantUmlAdapter)
+            val plantUmlPort = plantuml.boundary.PlantumlTranslationPortAdapter(fake, validator = plantuml.boundary.PlantumlSyntaxValidatorAdapter())
+            val contentService = document.translation.ContentTranslationService(fake, plantUmlPort = plantUmlPort)
 
             val first = contentService.translateSingleFileWithBlockDelta(sourceFile, targetFile, emptyMap(), "fr", "en")
 

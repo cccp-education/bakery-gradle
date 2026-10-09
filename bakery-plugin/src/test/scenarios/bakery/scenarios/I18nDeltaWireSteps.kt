@@ -10,7 +10,8 @@ import document.translation.delta.ArticleModification
 import document.translation.delta.ContentChecksum
 import document.translation.delta.I18nDelta
 import document.translation.delta.I18nDeltaApplier
-import document.translation.plantuml.PlantUmlTranslationAdapter
+import plantuml.boundary.PlantumlSyntaxValidatorAdapter
+import plantuml.boundary.PlantumlTranslationPortAdapter
 import io.cucumber.java.en.And
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
@@ -124,14 +125,14 @@ class I18nDeltaWireSteps {
 
         if (filesToTranslate.isNotEmpty()) {
             val fileList = filesToTranslate.map { langDir.resolve(it) }
-            val plantUmlAdapter = PlantUmlTranslationAdapter(fakeTranslator)
+            val plantUmlPort = PlantumlTranslationPortAdapter(fakeTranslator, validator = PlantumlSyntaxValidatorAdapter())
             val contentService =
                 ContentTranslationService(
                     fakeTranslator,
                     parser = AsciiDocParser(),
                     renderer = JbakeNativeRenderer(),
                     jbakeRenderer = JbakeNativeRenderer(),
-                    plantUmlAdapter = plantUmlAdapter,
+                    plantUmlPort = plantUmlPort,
                 )
             contentService.translateFiles(
                 files = fileList,
