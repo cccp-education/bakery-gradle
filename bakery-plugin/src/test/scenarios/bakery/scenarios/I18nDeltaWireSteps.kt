@@ -10,13 +10,13 @@ import document.translation.delta.ArticleModification
 import document.translation.delta.ContentChecksum
 import document.translation.delta.I18nDelta
 import document.translation.delta.I18nDeltaApplier
-import plantuml.boundary.PlantumlSyntaxValidatorAdapter
-import plantuml.boundary.PlantumlTranslationPortAdapter
 import io.cucumber.java.en.And
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
 import org.assertj.core.api.Assertions.assertThat
+import plantuml.boundary.PlantumlSyntaxValidatorAdapter
+import plantuml.boundary.PlantumlTranslationPortAdapter
 import java.io.File
 import java.nio.file.Files
 

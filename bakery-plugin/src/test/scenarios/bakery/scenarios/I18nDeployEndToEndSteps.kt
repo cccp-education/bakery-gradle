@@ -10,12 +10,12 @@ import contracts.i18n.TranslationService
 import document.translation.AsciiDocParser
 import document.translation.ContentTranslationService
 import document.translation.JbakeNativeRenderer
-import plantuml.boundary.PlantumlSyntaxValidatorAdapter
-import plantuml.boundary.PlantumlTranslationPortAdapter
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
 import org.assertj.core.api.Assertions.assertThat
+import plantuml.boundary.PlantumlSyntaxValidatorAdapter
+import plantuml.boundary.PlantumlTranslationPortAdapter
 import java.io.File
 import java.nio.file.Files
 

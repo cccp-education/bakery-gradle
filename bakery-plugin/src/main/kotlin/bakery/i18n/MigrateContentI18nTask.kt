@@ -15,8 +15,6 @@ import document.translation.validation.PlantUmlValidationResult
 import document.translation.validation.TableValidationReport
 import document.translation.validation.TableValidationResult
 import document.translation.validation.ValidationMode
-import plantuml.boundary.PlantumlSyntaxValidatorAdapter
-import plantuml.boundary.PlantumlTranslationPortAdapter
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -25,6 +23,8 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.work.DisableCachingByDefault
+import plantuml.boundary.PlantumlSyntaxValidatorAdapter
+import plantuml.boundary.PlantumlTranslationPortAdapter
 import java.io.File
 
 @DisableCachingByDefault(because = "Migration contenu i18n — résultat non-déterministe (LLM), non-cacheable")
