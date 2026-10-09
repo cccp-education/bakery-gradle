@@ -1,0 +1,56 @@
+= Session 251 — US-4b : bakery injecte le port N0 PlantUML (option A)
+:session: 251
+:date: 2026-10-09
+:type: feat cross-borough (DDD) + release
+:statut: ✅ TERMINÉ
+
+== Mission
+
+EPIC cross-borough **PLT-DIAGRAM-OWNERSHIP** (GBL-007), **US-4b** (option A) —
+bakery (orchestrateur) construit l'implémentation du port N0 PlantUML et
+l'injecte dans document.
+
+== Livrable
+
+* **build.gradle.kts** : déps `education.cccp:plantuml-plugin` + `plantuml-contracts`
+  (document 0.0.23 ne les fournit plus transitivement) ; pin catalog/BOM `0.0.74`.
+* **`MigrateContentI18nTask`** (2 sites) : construit
+  `PlantumlTranslationPortAdapter(translator = translationService, validator = PlantumlSyntaxValidatorAdapter())`
+  et l'injecte via `ContentTranslationService(plantUmlPort = …, plantUmlValidationMode = …)`.
+  Le validator = round-trip D5 (un bloc traduit invalide est rejeté).
+* **Tests** : suppression de `53_plantuml_translation_adapter.feature` +
+  `PlantUmlTranslationSteps` (le comportement appartient au port N0 de plantuml,
+  déjà testé) ; 6 fichiers recâblés sur le port (`I18nDeltaWireSteps`,
+  `I18nDeployEndToEndSteps`, `I18nDeployMultiSiteSteps`, `I18nMassBatchSteps`,
+  `I18nMassValidationSteps`, `I18nMassMultiLangSteps`, `MigrateContentI18nDeltaFunctionalTest`).
+* **Version** : bakery `0.0.24 → 0.0.25`.
+
+== Release chain (DAG Central)
+
+MEMPHIS `0.0.72`/`0.0.73`/`0.0.74` → document `0.0.22`/`0.0.23` → bakery `0.0.25`.
+Bundles : `34e13aeb`, `35241063`, `e53fcacb`, `9c614f2e`, `c6f30a60`, **`08607bbf`**.
+
+Découverte (piège #59) : bakery consomme `document-plugin` depuis **Central**
+(BOM-pinné), donc document 0.0.23 doit être publié **avant** que bakery compile
+contre le nouveau seam. Le premier essai de publication bakery a échoué
+(`Dependency version information is missing`) car le BOM 0.0.74 n'était pas encore
+propagé sur Central (validation du portail).
+
+== Gates (Local = Build, Tests = CI)
+
+* Compiles VERT (3 source sets), `assemble` + `validatePlugins` VERT.
+* `ktlintCheck` VERT (ordre des imports corrigé, baseline vide S-244).
+* **CI bakery run `37876162815` VERTE**.
+* Zéro secret.
+
+== Fichiers
+
+[cols="1,3"]
+|===
+| Type | Fichier
+
+| prod (modifié) | `src/main/kotlin/bakery/i18n/MigrateContentI18nTask.kt`
+| build | `build.gradle.kts`, `settings.gradle.kts`, `gradle/libs.versions.toml`
+| test (supprimé) | `53_plantuml_translation_adapter.feature`, `PlantUmlTranslationSteps.kt`
+| test (modifié) | 6 steps + 1 FT
+|===

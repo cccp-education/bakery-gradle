@@ -1,28 +1,23 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
 :session: 252
-:date: 2026-10-08
-:etat: Session 251 — **exclusion epubcheck (fix D1 CHE-DIAGRAM : SVG blancs)**. `net.sf.saxon:Saxon-HE:11.4` (via `document-plugin → epubcheck:5.2.1`) sérialise les SVG PlantUML avec `xmlns=''` → blanc. bakery n'utilise pas epubcheck → exclusion à la source. `compileKotlin` VERT, `dependencyInsight` : epubcheck + Saxon-HE retirés.
-:epic_actif: PLT-DIAGRAM-OWNERSHIP (US-5 : fix D1 porté dans bakery).
-:epic_suivant: **Publication bakery 0.0.24** (distribuer le fix, DAG MEMPHIS) OU dogfooding cheroliv.com (US-7).
+:date: 2026-10-09
+:etat: Session 251 — **US-4b (option A) : bakery injecte le port N0 PlantUML**. `MigrateContentI18nTask` construit `PlantumlTranslationPortAdapter` (+ `PlantumlSyntaxValidatorAdapter` = round-trip D5) et l'injecte dans `ContentTranslationService(plantUmlPort = …)`. `plantuml-plugin` + `plantuml-contracts` ajoutés en dépendances. Document ne réimplémente plus la traduction (types privés supprimés). Release chain MEMPHIS 0.0.74 / document 0.0.23 / bakery 0.0.25 publiés Central. CI bakery VERTE run `37876162815`.
+:epic_actif: PLT-DIAGRAM-OWNERSHIP (US-4 option A terminée côté document+bakery).
+:epic_suivant: **DOC-PLT-4** (re-générer les variantes gelées) OU **US-7** (dogfooding re-bake cheroliv.com).
 
 == État S-251
 
-* **Cause prouvée** : `net.sf.saxon:Saxon-HE:11.4` (branche 11.x fautive) sérialise
-  les SVG avec `xmlns=''` sur `<title>`/`<defs>`/`<g>` → rendu blanc. Saxon 9.9.1-7
-  correct.
-* **Fix** : `implementation("education.cccp:document-plugin") { exclude(group = "org.w3c", module = "epubcheck") }`.
-  bakery n'exécute aucune validation EPUB (grep `src/` = 0).
-* **Preuves** : `dependencyInsight` runtimeClasspath → epubcheck **et** Saxon-HE
-  `No dependencies matching` ; `document-plugin:0.0.20 (by constraint)` intact ;
-  `compileKotlin` VERT.
-* **Note** : le force Saxon du runner (S-033) reste en place jusqu'à distribution
-  de bakery 0.0.24 (bakery 0.0.23 publié ne porte pas l'exclusion).
+* **Délégation** : document 100 % port N0 ; bakery possède le câblage (D1/D3).
+* **Release** : MEMPHIS 0.0.72/0.0.73/0.0.74 ; document 0.0.22/0.0.23 ; bakery 0.0.25.
+* **Piège #59** : un consommateur Central ne voit pas le HEAD — publier document
+  AVANT que bakery compile contre le nouveau seam (DAG strict N0→N2).
 
 == Mission Session 252 (au choix pilote)
 
-. **Publication bakery 0.0.24** : distribuer le fix D1 (chaîne DAG MEMPHIS-first).
-. **Dogfooding cheroliv.com** (US-7) : déployer et valider les diagrammes visibles.
-. **F50 cross-borough** / **Propagation gouvernance** (transverse).
+. **DOC-PLT-4** — re-générer les variantes gelées (`@startuml` bruts) : purge
+   ciblée du store delta + re-traduction (le fix a priori ne répare pas l'existant).
+. **US-7** — dogfooding : re-bake cheroliv.com, zéro diagramme blanc/dégradé.
+. **DOC-PLT-5** — chaîne E2E bakery → document → port → plantuml (rendu non blanc).
 
 == Rappel
 
@@ -30,4 +25,4 @@
   `compileKotlin`/`build -x test` ; les tests s'exécutent **exclusivement en CI**.
 * **Zéro Python** ; English only code/tests/features (gouvernance .adoc en français).
 * Commit/push sur accord pilote ; zéro secret en clair.
-
+* `ktlintCheck` : baseline VIDE depuis S-244 — tout fichier touché doit passer.
