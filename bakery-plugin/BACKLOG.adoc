@@ -46,7 +46,7 @@ socle arbre, voir `BACKLOG.adoc` § `BKY-TREE`.
 réutilise les chrome contracts + `PendingBlockRetry` ; rapport `template-tree` ;
 BDD `@template-tree`. Adossé à `BKY-TREE` (composite), pas un second modèle.
 | 3
-| 🟡 À FAIRE
+| ✅ S-253 — `bakery.tree.TemplateTreeAudit` (statut par `template × langue` : `MISSING`/`UNTRANSLATED`/`TRANSLATED` ; `TemplateTree` + `render()` déterministe ; BDD `@template-tree`)
 
 | G-1b
 | **Orchestration delta par sous-arbre.** Câbler l'audit dans `MigrateContentI18nTask` /

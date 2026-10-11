@@ -1,9 +1,9 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 253
+:session: 254
 :date: 2026-10-11
-:etat: Session 252 — **Cadrage GBL-010 (arbre de traduction, branche Template + orchestration data)**. Reformulation persistée dans `BACKLOG.adoc` § EPIC GBL-010 (G-1/G-1b). Gouvernance pure, zéro code.
+:etat: Session 253 — **GBL-010 G-1 (branche Template) livrée** : `bakery.tree.TemplateTreeAudit` (statut par `template × langue` : `MISSING`/`UNTRANSLATED`/`TRANSLATED`). Reformulation persistée depuis S-252.
 :epic_actif: GBL-010 (branche A + orchestration data) ; PLT-DIAGRAM-OWNERSHIP (US-4 ✅ S-251/S-284).
-:epic_suivant: **G-1** (audit de l'arbre templates) OU **G-1b** (delta par sous-arbre) OU **US-7** (dogfooding re-bake cheroliv.com).
+:epic_suivant: **G-1b** (delta par sous-arbre) OU **US-7** (dogfooding re-bake cheroliv.com) OU **G-5**.
 
 == Vision (GBL-010)
 
@@ -11,25 +11,27 @@ La traduction d'un site est un **arbre à deux branches** : **A Templates**
 (`translateTemplates`, chrome natif) et **B Data** (articles → document → AST →
 feuille `[plantuml]`). bakery possède **la branche A** et **l'orchestration de la
 branche B** (`MigrateContentI18nTask` + `I18nDeltaApplier` + `PendingBlockRetry` +
-`SubtreeI18nPlanner`). Un nœud, un propriétaire, un **statut**
-(`MISSING`/`PENDING`/`TRANSLATED`/`BROKEN`) ; reprise en **économie d'encre**.
-Cadrage racine : `CADRAGE_EPIC_GBL_010_ARBRE_TRADUCTION_SITE.adoc`.
+`SubtreeI18nPlanner`). Un nœud, un propriétaire, un **statut** ; reprise en
+**économie d'encre**. Cadrage racine : `CADRAGE_EPIC_GBL_010_ARBRE_TRADUCTION_SITE.adoc`.
 
-== État S-252
+== État S-253
 
-* **Cadrage** : `BACKLOG.adoc` § EPIC GBL-010 ajouté (prompt reformulé bakery,
-  G-1 `bakery.tree.TemplateTreeAudit` ~3 pts, G-1b delta par sous-arbre ~3 pts).
-* **Socle** : EPIC `BKY-TREE` (composite Site→Section→Article→AST) = fondation.
-* **Feuille plantuml** : `GBL-007` US-1/2/3 ✅ (`plantuml-contracts` + port + round-trip).
+* **Livré** : `bakery.tree.TemplateTreeAudit` — `TemplateTree` + `TemplateNode`
+  (statut `MISSING`/`UNTRANSLATED`/`TRANSLATED` par `template × langue`) +
+  `render()` déterministe. BDD `@template-tree` (steps uniques).
+  Preuve réelle : `de` a 1 template byte-identique (résidu copy-FR) que
+  `VariantDeployability` (moitié *missing*) ne voyait pas.
+* **Socle** : EPIC `BKY-TREE` (composite Site→Section→Article→AST).
+* **Feuille plantuml** : `GBL-007` US-1/2/3 ✅.
 
-== Mission Session 253 (au choix pilote)
+== Mission Session 254 (au choix pilote)
 
-. **G-1** — audit de l'arbre templates (`bakery.tree.TemplateTreeAudit` : walk
-   `template × slot × langue` → statut ; réutilise les chrome contracts +
-   `PendingBlockRetry`) ; rapport `template-tree` ; BDD `@template-tree`.
 . **G-1b** — câblage delta par sous-arbre (`MigrateContentI18nTask`/`translateTemplates`) :
    ne re-traiter que les nœuds non-verts ; preuve second passage no-op.
-. **DOC-PLT-4 / US-7** — re-générer les variantes gelées / dogfooding re-bake cheroliv.com.
+. **US-7** — dogfooding : re-bake cheroliv.com, zéro diagramme blanc/dégradé.
+. **DOC-PLT-4** — re-générer les variantes gelées (`@startuml` bruts).
+. **G-5** — reprise économie d'encre : traiter les nœuds `templates`/`articles`
+   révélés par l'arbre unifié cheroliv.
 
 == Rappel
 

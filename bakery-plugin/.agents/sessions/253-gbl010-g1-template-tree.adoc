@@ -1,0 +1,74 @@
+= Session 253 — GBL-010 G-1 : arbre des templates (branche A de l'arbre de traduction)
+
+_Date_ : 2026-10-11
+_Borough_ : bakery-gradle (N2)
+_Type_ : feat (DDD/TDD/BDD) — branche Template de l'arbre de traduction
+_Méthode_ : baby-step DDD/TDD/BDD strict (RED → GREEN → REFACTOR), unit → cucumber
+
+== Mission
+
+EPIC transverse **GBL-010**, branche A, **G-1** : bakery possède la **branche
+Template** (jbake/Thymeleaf, les pages). Pour chaque `template × langue`, il doit
+exposer un **statut** (`MISSING`/`UNTRANSLATED`/`TRANSLATED`) — le nœud
+`templates` de l'arbre unifié (G-4). `VariantDeployability` ne connaissait que la
+moitié *missing* ; l'audit complète la vue (le statut byte-identique = piège copy-FR
+S-043/S-044).
+
+Vision pilote : *« une branche pour le template jbake, l'autre pour la data. »*
+
+== Livrable — domaine pur `bakery.tree.TemplateTreeAudit`
+
+* `TemplateTranslationStatus` (`MISSING`/`UNTRANSLATED`/`TRANSLATED`),
+  `TemplateNode(language, template, status)`, `TemplateTree` (`unconverged`,
+  `isConverged`, `forLanguage`, `count`, `render()` **déterministe**).
+* `TemplateTreeAudit.of(referenceTemplates, variantTemplates, referenceLanguage)`
+  — liste les templates de référence (`.thyme`/`.ftl`/`.html`, miroir de
+  `VariantDeployability`), puis pour chaque langue : `MISSING` (absent),
+  `UNTRANSLATED` (byte-identique au référence), `TRANSLATED` (diffère). Générique :
+  le layout est fourni par l'appelant (aucune hypothèse site).
+
+== Preuve réelle (corpus cheroliv.com, hors test)
+
+[source]
+----
+en : total=19 untranslated(byte-identical)=0 missing=0
+de : total=19 untranslated(byte-identical)=1 missing=0   ← résidu copy-FR détecté
+ru : total=19 untranslated(byte-identical)=0 missing=0
+----
+
+La règle byte-identique (UNTRANSLATED) attrape le template `de` resté au français —
+invisible à `VariantDeployability` (qui ne voit que *missing*).
+
+== Tests (Local = Build, Tests = CI)
+
+* **RED** : `compileTestKotlin` échoue (`Unresolved reference 'TemplateTranslationStatus'`).
+* **GREEN** : `compileKotlin compileTestKotlin compileFunctionalTestKotlin` VERT.
+* **Unit** — `TemplateTreeAuditTest` (6) : byte-identique → UNTRANSLATED ; diffère →
+  TRANSLATED ; absent → MISSING ; bundle `messages_*.properties` ignoré ; convergé
+  quand tous TRANSLATED ; `render()` déterministe.
+* **BDD** — `68_template_tree.feature` `@template-tree` (3 scénarios) +
+  `TemplateTreeSteps` (glue `bakery.scenarios`, steps uniques — S-088).
+
+== Fichiers
+
+[cols="1,3"]
+|===
+| Type | Fichier
+
+| prod (nouveau) | `src/main/kotlin/bakery/tree/TemplateTreeAudit.kt`
+| test (nouveau) | `src/test/kotlin/bakery/tree/TemplateTreeAuditTest.kt`
+| test (nouveau) | `src/test/scenarios/bakery/scenarios/TemplateTreeSteps.kt`
+| test (nouveau) | `src/test/features/68_template_tree.feature`
+|===
+
+== Notes
+
+* Baby-step DDD/TDD/BDD strict : RED compile prouvé → GREEN compile. Aucun test local.
+* Zéro secret, zéro Python. ktlint conventions 0.0.7 (fichiers neufs conformes).
+
+== Reste EPIC GBL-010
+
+* **G-1b** — câblage delta par sous-arbre (`MigrateContentI18nTask`/`translateTemplates`).
+* **G-3 (reste)** — statut par bloc + correction IA (plantuml).
+* **G-5** — reprise économie d'encre + dogfooding.
+* **Fichier à lire en priorité** : `PROMPT_REPRISE.adoc` (session 254).

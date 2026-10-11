@@ -1,5 +1,19 @@
 = Archive des Tâches Terminées — Octobre 2026
 
+== Session 253 — 2026-10-11 — GBL-010 G-1 : arbre des templates (branche A)
+
+=== Fait
+- [x] Domaine pur `bakery.tree.TemplateTreeAudit` : statut par `template × langue` (`MISSING`/`UNTRANSLATED`/`TRANSLATED`)
+- [x] `TemplateTree` (`unconverged`/`isConverged`/`forLanguage`/`count`/`render()` déterministe) + `TemplateNode`
+- [x] Générique (layout fourni par l'appelant) ; complète `VariantDeployability` (moitié *missing*)
+- [x] Preuve réelle : `de` a 1 template byte-identique (résidu copy-FR) détecté
+- [x] 6 unit `TemplateTreeAuditTest` + BDD `@template-tree` (3 scénarios, steps uniques)
+- [x] RED compile prouvé → GREEN compile ; zéro secret, zéro Python
+
+=== Prochaine session (254)
+- G-1b câblage delta par sous-arbre ; US-7 dogfooding ; G-5 reprise économie d'encre
+- Fichier à lire en priorité : `PROMPT_REPRISE.adoc` (session 254)
+
 == Session 252 — 2026-10-11 — Cadrage GBL-010 : arbre de traduction (branche Template + orchestration data)
 
 === Fait
