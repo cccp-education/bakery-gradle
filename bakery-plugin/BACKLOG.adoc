@@ -5,6 +5,62 @@
 :icons: font
 :sectnums:
 
+== 🟡 EPIC GBL-010 — Arbre de traduction (branche Template + orchestration data)
+
+*GBL* : EPIC transverse **GBL-010** (`CADRAGE_EPIC_GBL_010_ARBRE_TRADUCTION_SITE.adoc`,
+racine workspace). Demande pilote S-069 (reprise cheroliv.com) : la traduction d'un
+site est un **arbre à deux branches** — templates (pages) et data (articles →
+document → AST → `[plantuml]`).
+
+*Prompt reformulé (spécifique bakery)* :
+
+[quote]
+----
+bakery possède la BRANCHE TEMPLATE et l'ORCHESTRATION de la BRANCHE DATA.
+
+- Branche A — Templates (jbake/Thymeleaf) : `translateTemplates`,
+  `materializeTemplates`, le chrome natif (nav/footer/blog/article/contact/home),
+  `TemplateStructureGuard`. bakery expose, par nœud `template × slot × langue`, un
+  STATUT de traduction (`MISSING`/`PENDING`/`TRANSLATED`/`BROKEN`).
+- Orchestration Data : `MigrateContentI18nTask` + `I18nDeltaApplier` +
+  `PendingBlockRetry` + `SubtreeI18nPlanner` traversent l'arbre des articles et
+  pilotent le delta par sous-arbre (Loi de l'Économie d'Encre) : ne re-traduire que
+  les feuilles non-vertes.
+- Le bake reste à bakery ; la version du toolchain (asciidoctor-diagram/
+  plantuml/saxon) est gouvernée et alimentée par plantuml.
+
+Le modèle d'arbre existe déjà (EPIC BKY-TREE, Site→Section→Article→AST) : G-1
+l'étend d'un AUDIT DE STATUT PAR NŒUD, pas d'un second modèle.
+----
+
+*Cadrage* : `CADRAGE_EPIC_GBL_010_ARBRE_TRADUCTION_SITE.adoc` (racine) ; pour le
+socle arbre, voir `BACKLOG.adoc` § `BKY-TREE`.
+
+[cols="1,4,1,2", options="header"]
+|===
+| US | Description | Pts | Statut
+
+| G-1
+| **Branche A — audit de l'arbre templates.** Domaine pur `bakery.tree.TemplateTreeAudit`
+(walk `template × slot × langue` → `MISSING`/`PENDING`/`TRANSLATED`/`BROKEN`),
+réutilise les chrome contracts + `PendingBlockRetry` ; rapport `template-tree` ;
+BDD `@template-tree`. Adossé à `BKY-TREE` (composite), pas un second modèle.
+| 3
+| 🟡 À FAIRE
+
+| G-1b
+| **Orchestration delta par sous-arbre.** Câbler l'audit dans `MigrateContentI18nTask` /
+`translateTemplates` : ne re-traiter que les nœuds non-verts (reprise économie
+d'encre) ; preuve second passage no-op.
+| 3
+| 🟡 À FAIRE
+|===
+
+*Dépend de* : `BKY-TREE` (socle), `plantuml-contracts` (pour le statut feuille),
+`document-gradle` / `plantuml-gradle` (branche B).
+*Relie* : `GBL-007` (feuille plantuml), `BKY-PLANTUML-D1` (bake/toolchain),
+`BKY-TREE` (composite site).
+
 == 🟡 EPIC BKY-PLANTUML-D1 — exclusion epubcheck (fix D1 SVG blancs, GBL-007)
 
 *GBL* : EPIC transverse **GBL-007** (BACKLOG racine workspace) — propriété du

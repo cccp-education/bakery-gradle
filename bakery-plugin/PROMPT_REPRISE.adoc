@@ -1,23 +1,35 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 252
-:date: 2026-10-09
-:etat: Session 251 — **US-4b (option A) : bakery injecte le port N0 PlantUML**. `MigrateContentI18nTask` construit `PlantumlTranslationPortAdapter` (+ `PlantumlSyntaxValidatorAdapter` = round-trip D5) et l'injecte dans `ContentTranslationService(plantUmlPort = …)`. `plantuml-plugin` + `plantuml-contracts` ajoutés en dépendances. Document ne réimplémente plus la traduction (types privés supprimés). Release chain MEMPHIS 0.0.74 / document 0.0.23 / bakery 0.0.25 publiés Central. CI bakery VERTE run `37876162815`.
-:epic_actif: PLT-DIAGRAM-OWNERSHIP (US-4 option A terminée côté document+bakery).
-:epic_suivant: **DOC-PLT-4** (re-générer les variantes gelées) OU **US-7** (dogfooding re-bake cheroliv.com).
+:session: 253
+:date: 2026-10-11
+:etat: Session 252 — **Cadrage GBL-010 (arbre de traduction, branche Template + orchestration data)**. Reformulation persistée dans `BACKLOG.adoc` § EPIC GBL-010 (G-1/G-1b). Gouvernance pure, zéro code.
+:epic_actif: GBL-010 (branche A + orchestration data) ; PLT-DIAGRAM-OWNERSHIP (US-4 ✅ S-251/S-284).
+:epic_suivant: **G-1** (audit de l'arbre templates) OU **G-1b** (delta par sous-arbre) OU **US-7** (dogfooding re-bake cheroliv.com).
 
-== État S-251
+== Vision (GBL-010)
 
-* **Délégation** : document 100 % port N0 ; bakery possède le câblage (D1/D3).
-* **Release** : MEMPHIS 0.0.72/0.0.73/0.0.74 ; document 0.0.22/0.0.23 ; bakery 0.0.25.
-* **Piège #59** : un consommateur Central ne voit pas le HEAD — publier document
-  AVANT que bakery compile contre le nouveau seam (DAG strict N0→N2).
+La traduction d'un site est un **arbre à deux branches** : **A Templates**
+(`translateTemplates`, chrome natif) et **B Data** (articles → document → AST →
+feuille `[plantuml]`). bakery possède **la branche A** et **l'orchestration de la
+branche B** (`MigrateContentI18nTask` + `I18nDeltaApplier` + `PendingBlockRetry` +
+`SubtreeI18nPlanner`). Un nœud, un propriétaire, un **statut**
+(`MISSING`/`PENDING`/`TRANSLATED`/`BROKEN`) ; reprise en **économie d'encre**.
+Cadrage racine : `CADRAGE_EPIC_GBL_010_ARBRE_TRADUCTION_SITE.adoc`.
 
-== Mission Session 252 (au choix pilote)
+== État S-252
 
-. **DOC-PLT-4** — re-générer les variantes gelées (`@startuml` bruts) : purge
-   ciblée du store delta + re-traduction (le fix a priori ne répare pas l'existant).
-. **US-7** — dogfooding : re-bake cheroliv.com, zéro diagramme blanc/dégradé.
-. **DOC-PLT-5** — chaîne E2E bakery → document → port → plantuml (rendu non blanc).
+* **Cadrage** : `BACKLOG.adoc` § EPIC GBL-010 ajouté (prompt reformulé bakery,
+  G-1 `bakery.tree.TemplateTreeAudit` ~3 pts, G-1b delta par sous-arbre ~3 pts).
+* **Socle** : EPIC `BKY-TREE` (composite Site→Section→Article→AST) = fondation.
+* **Feuille plantuml** : `GBL-007` US-1/2/3 ✅ (`plantuml-contracts` + port + round-trip).
+
+== Mission Session 253 (au choix pilote)
+
+. **G-1** — audit de l'arbre templates (`bakery.tree.TemplateTreeAudit` : walk
+   `template × slot × langue` → statut ; réutilise les chrome contracts +
+   `PendingBlockRetry`) ; rapport `template-tree` ; BDD `@template-tree`.
+. **G-1b** — câblage delta par sous-arbre (`MigrateContentI18nTask`/`translateTemplates`) :
+   ne re-traiter que les nœuds non-verts ; preuve second passage no-op.
+. **DOC-PLT-4 / US-7** — re-générer les variantes gelées / dogfooding re-bake cheroliv.com.
 
 == Rappel
 
@@ -26,3 +38,4 @@
 * **Zéro Python** ; English only code/tests/features (gouvernance .adoc en français).
 * Commit/push sur accord pilote ; zéro secret en clair.
 * `ktlintCheck` : baseline VIDE depuis S-244 — tout fichier touché doit passer.
+* Piège #59 : un consommateur Central ne voit pas le HEAD (DAG strict N0→N2).

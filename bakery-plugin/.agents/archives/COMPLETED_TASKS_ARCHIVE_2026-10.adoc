@@ -1,5 +1,19 @@
 = Archive des Tâches Terminées — Octobre 2026
 
+== Session 252 — 2026-10-11 — Cadrage GBL-010 : arbre de traduction (branche Template + orchestration data)
+
+=== Fait
+- [x] Modèle d'arbre (2 branches) : A Templates (bakery) + B Data (document → AST → feuille plantuml)
+- [x] Statut par nœud (`MISSING`/`PENDING`/`TRANSLATED`/`BROKEN`) + reprise économie d'encre
+- [x] `BACKLOG.adoc` § EPIC GBL-010 : prompt reformulé bakery + G-1 (`TemplateTreeAudit`) + G-1b (delta par sous-arbre)
+- [x] Adossé à `BKY-TREE` ; relie `GBL-007` (feuille plantuml)
+- [x] Cadrage racine `CADRAGE_EPIC_GBL_010_ARBRE_TRADUCTION_SITE.adoc`
+
+=== Prochaine session (253)
+- G-1 audit de l'arbre templates ; G-1b delta par sous-arbre
+- DOC-PLT-4 / US-7 re-génération variantes / dogfooding re-bake cheroliv
+- Fichier à lire en priorité : `PROMPT_REPRISE.adoc` (session 253)
+
 == Session 250 — 2026-10-08 — exclusion epubcheck (fix D1 CHE-DIAGRAM, SVG blancs)
 
 === Fait

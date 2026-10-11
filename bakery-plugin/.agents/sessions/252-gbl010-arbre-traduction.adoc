@@ -1,0 +1,53 @@
+= Session 252 — Cadrage GBL-010 : arbre de traduction (branche Template + orchestration data)
+
+_Date_ : 2026-10-11
+_Borough_ : bakery-gradle (N2)
+_Type_ : cadrage / gouvernance pure (pattern S-057/S-063)
+_Méthode_ : baby-step DDD/TDD/BDD (documentée, code à venir)
+
+== Mission
+
+Demande pilote (S-069, reprise cheroliv.com) : la traduction d'un site est **un
+arbre à deux branches** — Templates (pages) et Data (articles → document → AST →
+feuille `[plantuml]`). Persister la **reformulation spécifique bakery** dans le
+backlog, avec vision + roadmap pour la suite. Session de gouvernance pure : **zéro
+code**.
+
+== Livrable
+
+* **`BACKLOG.adoc` § EPIC GBL-010** — prompt reformulé (bakery possède la **branche
+  A Templates** + **l'orchestration de la branche B Data**) ; 2 US :
+  * **G-1** — `bakery.tree.TemplateTreeAudit` (walk `template × slot × langue` →
+    statut `MISSING`/`PENDING`/`TRANSLATED`/`BROKEN`, réutilise les chrome
+    contracts + `PendingBlockRetry`) ; rapport `template-tree` ; BDD `@template-tree`.
+  * **G-1b** — câblage delta par sous-arbre (`MigrateContentI18nTask` /
+    `translateTemplates`) : ne re-traiter que les nœuds non-verts ; preuve second
+    passage no-op.
+* **PROMPT_REPRISE** (session 253) / **INDEX** / **SESSIONS_HISTORY** / archive —
+  synchronisés.
+
+== Vision (GBL-010)
+
+[source]
+----
+RACINE — le site translatable
+├── BRANCHE A — Templates (jbake/Thymeleaf, les pages)   → bakery (translateTemplates)
+└── BRANCHE B — Data (les articles)                      → document (article → AST)
+    └── blocs `[plantuml]` (feuille)                     → plantuml
+----
+
+Un nœud, un propriétaire, un **statut** ; reprise en **économie d'encre**.
+Cadrage racine : `CADRAGE_EPIC_GBL_010_ARBRE_TRADUCTION_SITE.adoc`.
+**Adossé** à `BKY-TREE` (composite Site→Section→Article→AST) — pas un second modèle.
+
+== Notes
+
+* Gouvernance pure : zéro code, zéro test, zéro publication.
+* `GBL-007` US-1/2/3 ✅ (feuille plantuml) ; US-4 ✅ S-251/S-284 (délégation document).
+* Zéro secret, zéro Python.
+
+== Reste (S-253→)
+
+* **G-1** audit de l'arbre templates ; **G-1b** delta par sous-arbre.
+* **DOC-PLT-4 / US-7** re-génération variantes / dogfooding re-bake cheroliv.
+* **Fichier à lire en priorité** : `PROMPT_REPRISE.adoc` (session 253).
