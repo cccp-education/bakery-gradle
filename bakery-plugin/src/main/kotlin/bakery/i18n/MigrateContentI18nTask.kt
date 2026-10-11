@@ -32,6 +32,17 @@ abstract class MigrateContentI18nTask : DefaultTask() {
     @get:Internal
     var translationService: TranslationService? = null
 
+    /**
+     * CHE-DIAGRAM D2 / GBL-010 branche B — optional dedicated provider for the
+     * `[plantuml]` leaf labels. `null` (default) reuses [translationService], so
+     * the prose and the diagrams are translated by the same model (strict
+     * backward compatibility). When set, only the plantuml port is routed here,
+     * letting the caller send diagrams to a second model (e.g. a diagram
+     * *correction* model) while the prose keeps the content model.
+     */
+    @get:Internal
+    var plantumlTranslationService: TranslationService? = null
+
     @get:Internal
     var contentRootDir: File? = null
 
@@ -184,13 +195,16 @@ abstract class MigrateContentI18nTask : DefaultTask() {
             copyNonAdocFiles(sourceDir, langDir, intention.excludePaths.toSet())
 
             if (translationService != null && filesToTranslate.isNotEmpty()) {
+                // CHE-DIAGRAM D2 / GBL-010 branche B — the plantuml leaf may be
+                // routed to a dedicated model; default = the content model.
+                val diagramService = plantumlTranslationService ?: translationService
                 // PLT-DIAGRAM-OWNERSHIP US-4 (option A) — bakery owns the N0 port
                 // implementation (plantuml borough) and injects it into document.
                 // The round-trip gate (validator) guarantees a translated diagram
                 // block still parses (D5).
                 val plantUmlPort =
                     PlantumlTranslationPortAdapter(
-                        translator = translationService,
+                        translator = diagramService,
                         validator = PlantumlSyntaxValidatorAdapter(),
                     )
                 val contentService =
@@ -232,7 +246,7 @@ abstract class MigrateContentI18nTask : DefaultTask() {
                                     parallelism = 1,
                                     plantUmlPort =
                                         PlantumlTranslationPortAdapter(
-                                            translator = translationService,
+                                            translator = diagramService,
                                             validator = PlantumlSyntaxValidatorAdapter(),
                                         ),
                                     plantUmlValidationMode = validationMode,

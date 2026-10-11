@@ -38,6 +38,11 @@ object IaConfigResolver {
             timeout = Duration.ofSeconds(ollama.timeoutSeconds),
             enabled = true,
             portRange = ollama.portRange,
+            // The dedicated diagram model is a *caller* decision that the YAML
+            // pool cannot express: it must survive the pool activation, otherwise
+            // a `-PllmPlantumlModel` override would be silently dropped whenever
+            // the site declares an `ollama:` section.
+            plantumlModelName = dsl.plantumlModelName,
         )
     }
 }

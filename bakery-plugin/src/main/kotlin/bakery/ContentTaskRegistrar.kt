@@ -258,6 +258,15 @@ object ContentTaskRegistrar {
             )
 
             createLlmServiceIfEnabled(resolvedIaConfig) { task.translationService = it.let(::LlmServiceTranslationAdapter) }
+            // CHE-DIAGRAM D2 / GBL-010 branche B — an optional dedicated model for
+            // the plantuml leaf. Absent (default) = the content model, so the
+            // plantuml port keeps a single provider (strict backward compat).
+            val diagramModel = resolvedIaConfig.plantumlModelName
+            if (diagramModel != null && diagramModel != resolvedIaConfig.modelName) {
+                createLlmServiceIfEnabled(resolvedIaConfig, diagramModel) {
+                    task.plantumlTranslationService = it.let(::LlmServiceTranslationAdapter)
+                }
+            }
             project.logger.info("[BakeryPlugin] migrateContentI18n IA ${if (resolvedIaConfig.enabled) "activé" else "désactivé (ia.enabled = false)"}")
         }
     }
@@ -469,6 +478,7 @@ object ContentTaskRegistrar {
     /** Construit un [LlmService] si l'IA est activée et l'injecte via [applyService]. */
     private fun createLlmServiceIfEnabled(
         iaConfig: IaConfig,
+        modelName: String = iaConfig.modelName,
         applyService: (LlmService) -> Unit,
     ) {
         if (iaConfig.enabled) {
@@ -476,13 +486,13 @@ object ContentTaskRegistrar {
                 if (iaConfig.portRange != null) {
                     PooledOllamaLlmService.create(
                         portRange = iaConfig.portRange!!,
-                        modelName = iaConfig.modelName,
+                        modelName = modelName,
                         timeout = iaConfig.timeout,
                     )
                 } else {
                     OllamaLlmService.create(
                         baseUrl = iaConfig.baseUrl,
-                        modelName = iaConfig.modelName,
+                        modelName = modelName,
                         timeout = iaConfig.timeout,
                     )
                 }

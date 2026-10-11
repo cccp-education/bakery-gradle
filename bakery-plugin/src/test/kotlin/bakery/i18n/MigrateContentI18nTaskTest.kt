@@ -58,6 +58,7 @@ class MigrateContentI18nTaskTest {
             assertEquals("", task.contentI18nDryRun.get())
             assertNull(task.dslIntention)
             assertNull(task.translationService)
+            assertNull(task.plantumlTranslationService)
             assertNull(task.contentRootDir)
         }
     }

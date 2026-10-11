@@ -4,6 +4,7 @@ import java.time.Duration
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class IaConfigTest {
@@ -63,5 +64,17 @@ class IaConfigTest {
         assertEquals("phi", config.modelName)
         assertEquals(Duration.ofSeconds(30), config.timeout)
         assertEquals(false, config.enabled)
+    }
+
+    @Test
+    fun `the dedicated diagram model is null by default`() {
+        val config = IaConfig()
+        assertNull(config.plantumlModelName)
+    }
+
+    @Test
+    fun `the dedicated diagram model can be overridden`() {
+        val config = IaConfig(plantumlModelName = "deepseek-v4-flash:cloud")
+        assertEquals("deepseek-v4-flash:cloud", config.plantumlModelName)
     }
 }

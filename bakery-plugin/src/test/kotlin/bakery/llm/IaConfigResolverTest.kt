@@ -100,4 +100,21 @@ class IaConfigResolverTest {
         assertTrue(resolved.enabled)
         assertEquals(11437..11465, resolved.portRange)
     }
+
+    @Test
+    fun `the dedicated diagram model is null by default`() {
+        val resolved = IaConfigResolver.resolve(IaConfig(), ollama())
+
+        assertNull(resolved.plantumlModelName)
+    }
+
+    @Test
+    fun `a dsl diagram model survives the pool activation`() {
+        val dsl = IaConfig(plantumlModelName = "deepseek-v4-flash:cloud")
+
+        val resolved = IaConfigResolver.resolve(dsl, ollama())
+
+        assertEquals("deepseek-v4-flash:cloud", resolved.plantumlModelName)
+        assertEquals("nemotron-3-super:cloud", resolved.modelName)
+    }
 }

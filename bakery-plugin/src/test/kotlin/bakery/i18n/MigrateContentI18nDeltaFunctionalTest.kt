@@ -461,6 +461,62 @@ Second paragraph.
     }
 
     /**
+     * CHE-DIAGRAM D2 / GBL-010 branche B — the `[plantuml]` leaf can be routed to
+     * a dedicated model while the prose keeps the content model. This is the
+     * cross-borough capability the cheroliv.com diagram *correction* re-run needs
+     * (prose `nemotron`, diagrams `deepseek`).
+     */
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class DiagramModelRouting {
+        private fun plantumlArticle() =
+            """= Intro
+
+Bonjour le monde.
+
+[plantuml,stack,svg]
+----
+@startuml
+rectangle "Base de données" as DB
+@enduml
+----
+"""
+
+        @Test
+        fun `a dedicated diagram model translates the plantuml labels while the prose keeps the content model`() {
+            val sourceDir = testDir.resolve("src/content")
+            createAdocSource(sourceDir, "intro.adoc" to plantumlArticle())
+            val outputBase = testDir.resolve("build/i18n")
+
+            val task = setupTask("test-diagram-model", sourceDir, outputBase)
+            task.translationService = FakeTranslationService(" [P]")
+            task.plantumlTranslationService = FakeTranslationService(" [D]")
+
+            task.executeContentMigration()
+
+            val content = outputBase.resolve("en/intro.adoc").readText()
+            assertTrue(content.contains("Bonjour le monde. [P]"), "the prose must use the content model: $content")
+            assertTrue(content.contains("Base de données [D]"), "the diagram label must use the diagram model: $content")
+            assertFalse(content.contains("Base de données [P]"), "the diagram label must not use the content model: $content")
+        }
+
+        @Test
+        fun `without a dedicated diagram model the plantuml labels use the content model`() {
+            val sourceDir = testDir.resolve("src/content")
+            createAdocSource(sourceDir, "intro.adoc" to plantumlArticle())
+            val outputBase = testDir.resolve("build/i18n")
+
+            val task = setupTask("test-diagram-model-default", sourceDir, outputBase)
+            task.translationService = FakeTranslationService(" [P]")
+
+            task.executeContentMigration()
+
+            val content = outputBase.resolve("en/intro.adoc").readText()
+            assertTrue(content.contains("Base de données [P]"), "backward compat: the label uses the content model: $content")
+        }
+    }
+
+    /**
      * DOC-TRANSLATE-RESILIENCE — the cross-borough convergence contract, bakery
      * side: a file whose block checksums hold a `PENDING` block must be
      * re-scheduled even though its source is byte-unchanged.
