@@ -1,8 +1,8 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 254
+:session: 255
 :date: 2026-10-11
-:etat: Session 253 — **GBL-010 G-1 (branche Template) livrée** : `bakery.tree.TemplateTreeAudit` (statut par `template × langue` : `MISSING`/`UNTRANSLATED`/`TRANSLATED`). Reformulation persistée depuis S-252.
-:epic_actif: GBL-010 (branche A + orchestration data) ; PLT-DIAGRAM-OWNERSHIP (US-4 ✅ S-251/S-284).
+:etat: Session 254 — **Release 0.0.26** ✅ (bump + dépendances + Central : `jgit 6.10→7.8.0`, `asciidoctorj-diagram 3.0.1→3.2.1`, pins `0.0.78` ; bundle `c96e3a5c`). Livré S-253 : arbre des templates `TemplateTreeAudit`.
+:epic_actif: GBL-010 (branche A ✅ G-1) ; PLT-DIAGRAM-OWNERSHIP (US-4 ✅).
 :epic_suivant: **G-1b** (delta par sous-arbre) OU **US-7** (dogfooding re-bake cheroliv.com) OU **G-5**.
 
 == Vision (GBL-010)
