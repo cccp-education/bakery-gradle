@@ -259,10 +259,15 @@ object ContentTaskRegistrar {
 
             createLlmServiceIfEnabled(resolvedIaConfig) { task.translationService = it.let(::LlmServiceTranslationAdapter) }
             // CHE-DIAGRAM D2 / GBL-010 branche B — an optional dedicated model for
-            // the plantuml leaf. Absent (default) = the content model, so the
+            // the plantuml leaf. Sourced from the code DSL (`ia.plantumlModelName`)
+            // or the `-PllmPlantumlModel` project property, so the *shared runner*
+            // need not reference the DSL property (it must keep compiling against
+            // the published bakery). Absent (default) = the content model, so the
             // plantuml port keeps a single provider (strict backward compat).
-            val diagramModel = resolvedIaConfig.plantumlModelName
-            if (diagramModel != null && diagramModel != resolvedIaConfig.modelName) {
+            val diagramModel =
+                resolvedIaConfig.plantumlModelName
+                    ?: (project.findProperty("llmPlantumlModel") as String?)
+            if (!diagramModel.isNullOrBlank() && diagramModel != resolvedIaConfig.modelName) {
                 createLlmServiceIfEnabled(resolvedIaConfig, diagramModel) {
                     task.plantumlTranslationService = it.let(::LlmServiceTranslationAdapter)
                 }
