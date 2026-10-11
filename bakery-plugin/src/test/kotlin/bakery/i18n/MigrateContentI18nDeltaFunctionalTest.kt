@@ -583,6 +583,37 @@ Second paragraph.
                 "a file with a PENDING block must be re-translated, but the service was never called again",
             )
         }
+
+        @Test
+        fun `an excluded draft with a PENDING block is never retried`() {
+            val sourceDir = testDir.resolve("src/content")
+            sourceDir.mkdirs()
+            sourceDir.resolve("draft/0001_draft.adoc").also {
+                it.parentFile.mkdirs()
+                it.writeText("= Draft\n\nBrouillon.")
+            }
+            val outputBase = testDir.resolve("build/i18n")
+            val relPath = "draft/0001_draft.adoc"
+            val enDir = outputBase.resolve("en")
+            // Legacy corpus: the draft was translated before the exclusion existed,
+            // and its block store carries a PENDING block (a past LLM failure).
+            enDir.resolve(relPath).also {
+                it.parentFile.mkdirs()
+                it.writeText("= Draft\n\nDraft.")
+            }
+            enDir.resolve(".bakery-block-checksums/$relPath.checksums").also {
+                it.parentFile.mkdirs()
+                it.writeText("0=abc:PENDING")
+            }
+
+            val second = CountingTranslationService(" [EN]")
+            val task = setupTask("test-pending-draft", sourceDir, outputBase)
+            task.contentI18nExcludePaths.set("draft")
+            task.translationService = second
+            task.executeContentMigration()
+
+            assertEquals(0, second.calls, "an excluded draft must never be retried")
+        }
     }
 
     private class CountingTranslationService(

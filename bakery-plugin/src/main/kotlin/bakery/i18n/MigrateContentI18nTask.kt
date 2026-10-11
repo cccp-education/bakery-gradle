@@ -179,8 +179,18 @@ abstract class MigrateContentI18nTask : DefaultTask() {
             // source is byte-unchanged and the file-level delta preserves it.
             // Otherwise the silent source-language fallback stays frozen at the
             // file gate.
+            // Never retry an excluded subtree (`content/draft`, `content/.well-known`):
+            // `PendingBlockRetry` scans the target tree, which may still hold legacy
+            // translations of the excluded drafts — retrying them would burn the
+            // metered budget on never-deployed content (S-073, `excludePaths` must
+            // narrow the *retry* set exactly as it narrows the delta).
+            val retryCandidates =
+                existingTargetFiles
+                    .filterNot { rel ->
+                        ContentMigrationPlanner.isExcluded(rel, intention.excludePaths.toSet())
+                    }.toSet()
             val pendingRetry =
-                PendingBlockRetry.filesWithPendingBlocks(existingTargetFiles) { relPath ->
+                PendingBlockRetry.filesWithPendingBlocks(retryCandidates) { relPath ->
                     loadBlockChecksums(langDir, relPath)
                 }
             val filesToTranslate = applicationResult.toTranslate.paths + pendingRetry
