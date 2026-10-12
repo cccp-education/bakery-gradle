@@ -15,7 +15,6 @@ import java.nio.file.Files
  * the *missing* half.
  */
 class TemplateTreeAuditTest {
-
     @Test
     fun `a variant template byte-identical to the reference is untranslated`() {
         val root = root()
@@ -86,7 +85,10 @@ class TemplateTreeAuditTest {
         assertThat(rendered).doesNotContain("2026-")
     }
 
-    private fun audit(root: File, vararg languages: String): TemplateTree =
+    private fun audit(
+        root: File,
+        vararg languages: String,
+    ): TemplateTree =
         TemplateTreeAudit.of(
             referenceTemplates = reference(root),
             variantTemplates = languages.associateWith { variant(root, it) },
@@ -96,9 +98,16 @@ class TemplateTreeAuditTest {
 
     private fun reference(root: File): File = root.resolve("templates")
 
-    private fun variant(root: File, language: String): File = root.resolve("i18n/$language/templates")
+    private fun variant(
+        root: File,
+        language: String,
+    ): File = root.resolve("i18n/$language/templates")
 
-    private fun template(dir: File, name: String, text: String) {
+    private fun template(
+        dir: File,
+        name: String,
+        text: String,
+    ) {
         dir.mkdirs()
         dir.resolve(name).writeText(text)
     }

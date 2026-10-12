@@ -17,7 +17,6 @@ import java.nio.file.Files
  * these names must not collide with another bakery steps class.
  */
 class TemplateTreeSteps {
-
     private val root: File = Files.createTempDirectory("bakery-template-tree-bdd").toFile()
     private val reference: File = root.resolve("templates")
     private var tree: TemplateTree? = null
