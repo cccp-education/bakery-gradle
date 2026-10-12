@@ -1,5 +1,7 @@
 = Historique des Sessions — Bakery Gradle Plugin
 
+  _Derniere mise a jour : 2026-10-13 — Session 256 ✅ — **Pins `0.0.87` (plantuml-plugin 0.0.10)**. Alignement DAG (release plantuml S-242/PLT-MAINTAIN) : `workspace-bom`/`workspace-catalog 0.0.78 → 0.0.87`, `plantuml-plugin` résolu **0.0.10** via catalogue. `compileKotlin` VERT. Prérequis propagés (bundles `01b2eb65`, `68b00422`). Rapport `.agents/sessions/256-pins-0.0.87-plantuml-0.0.10.adoc`._
+
   _Derniere mise a jour : 2026-10-12 — Session 255 ✅ — **Fix ktlint (`TemplateTreeAudit.kt` blank line)**. Régression introduite S-253 (GBL-010 G-1) : ligne vide après `object TemplateTreeAudit {` → `standard:no-empty-first-line-in-class-body`, baseline ktlint vide → `:ktlintMainSourceSetCheck` rouge (bloquait le job cross-borough MEMPHIS `runAllTests`). Correctif : suppression de la ligne vide. `ktlintMainSourceSetCheck` BUILD SUCCESSFUL. Rapport `.agents/sessions/255-fix-ktlint-template-tree.adoc`._
 
   _Derniere mise a jour (anterieure) : 2026-10-11 — Session 254 ✅ — **Release 0.0.26 (bump + dépendances + Central)**. Accord pilote : `bakery 0.0.25 → 0.0.26`, pins catalog/BOM `0.0.74 → 0.0.78`, **`jgit 6.10.0 → 7.8.0`** (montée majeure API-compatible), `asciidoctorj-diagram 3.0.1 → 3.2.1`. `publishToMavenLocal` + Central bundle `c96e3a5c-c6b1-41bd-abd6-445219874603` (AUTOMATIC), propagation repo1 HTTP 200 ; POM importe `workspace-bom:0.0.78`. Compile 3 source sets VERT. Ordre DAG respecté (document 0.0.24 propagé avant). Zéro secret. Rapport `.agents/sessions/254-release-0.0.26-bump-deps.adoc`._

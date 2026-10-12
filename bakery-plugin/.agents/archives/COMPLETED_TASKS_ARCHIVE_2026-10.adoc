@@ -1,5 +1,12 @@
 = Archive des Tâches Terminées — Octobre 2026
 
+== Session 256 — 2026-10-13 — Pins `0.0.87` (plantuml-plugin 0.0.10)
+
+=== Fait
+- [x] `workspace-bom` / `workspace-catalog 0.0.78 → 0.0.87` (`build.gradle.kts` ×3, `settings.gradle.kts`)
+- [x] `plantuml-plugin` résolu **0.0.10** via catalogue ws
+- [x] `compileKotlin` VERT ; prérequis DAG propagés (bundle `01b2eb65` MEMPHIS, `68b00422` plantuml)
+
 == Session 254 — 2026-10-11 — Release 0.0.26 (bump + dépendances + Central)
 
 === Fait

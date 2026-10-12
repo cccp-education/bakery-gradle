@@ -1,0 +1,25 @@
+= Session 256 — Pins `0.0.87` (plantuml-plugin 0.0.10)
+:session: 256
+:date: 2026-10-13
+:borough: bakery-gradle
+:type: release / consumer
+:statut: TERMINÉ
+
+== Mission
+
+Aligner `bakery-gradle` sur la release **plantuml 0.0.10** (PLT-MAINTAIN).
+
+== Livré
+
+* Pins `workspace-bom` / `workspace-catalog 0.0.78 → 0.0.87`
+  (`build.gradle.kts` ×3, `settings.gradle.kts`).
+* `plantuml-plugin` résolu **0.0.10** via le catalogue ws.
+* `compileKotlin` VERT.
+
+== DAG / prérequis
+
+* MEMPHIS catalog `0.0.87` (bundle `01b2eb65`) + plantuml `0.0.10` Central
+  (bundle `68b00422`), propagation repo1 HTTP 200.
+* Zéro secret, zéro Python.
+
+_Score : 9/10 (consommation DAG, zéro régression)._
