@@ -27,10 +27,19 @@ S-244) ne l'exempte pas → `check` rouge. Régression non détectée par S-253/
 `src/main/kotlin/bakery/tree/TemplateTreeAudit.kt` : suppression de la ligne vide
 après `object TemplateTreeAudit {` (KDoc déplacé en première ligne du corps).
 
+**Second passage (test sources)** : après le premier push, `:ktlintTestSourceSetCheck`
+échouait aussi (mêmes fichiers S-253) — `TemplateTreeAuditTest.kt` (blank line class
+body + wrapping des arguments L89/99/101) + `TemplateTreeSteps.kt` (blank line class
+body). `ktlintFormat` exécuté : **seuls ces 2 fichiers** (non-conformes) ont changé
+— tout le reste était déjà conforme (baseline vide depuis S-244). `ktlintCheck` VERT.
+
 == Vérification
 
-* `./gradlew ktlintMainSourceSetCheck` **BUILD SUCCESSFUL** (JDK 25) — plus aucune
-  violation (`Summary error count` vide).
+* `./gradlew ktlintMainSourceSetCheck` puis `ktlintTestSourceSetCheck` / `ktlintCheck`
+  **BUILD SUCCESSFUL** (JDK 25) — plus aucune violation.
+* `compileTestKotlin` VERT.
+* **Preuve cross-borough** : job MEMPHIS `runAllTests` **SUCCESS** (run `38241612161`,
+  10m0s) — les 5 boroughs testés (api-key-pool, bakery, dashboard, planner, slider) passent.
 
 == Note
 
