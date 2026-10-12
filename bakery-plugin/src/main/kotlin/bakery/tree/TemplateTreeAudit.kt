@@ -59,7 +59,6 @@ data class TemplateTree(
 }
 
 object TemplateTreeAudit {
-
     /** File extensions JBake renders as templates (mirrors VariantDeployability). */
     private val TEMPLATE_EXTENSIONS = setOf("thyme", "ftl", "html")
 

@@ -1,0 +1,39 @@
+= Session 255 — Fix ktlint (`TemplateTreeAudit.kt` : blank line class body)
+:session: 255
+:date: 2026-10-12
+:type: fix (cross-borough)
+
+== Contexte / symptôme
+
+Le job **cross-borough** `runAllTests` de MEMPHIS (`workspace-bom`) exécute
+`./gradlew check` dans `bakery-plugin/` et échoue :
+
+----
+> Task :ktlintMainSourceSetCheck FAILED
+.../bakery/tree/TemplateTreeAudit.kt:62:1: Class body should not start with blank line
+  (standard:no-empty-first-line-in-class-body)
+----
+
+== Cause racine
+
+`TemplateTreeAudit.kt` (introduit S-253, GBL-010 G-1) a une **ligne vide** juste
+après `object TemplateTreeAudit {` → violation ktlint
+`standard:no-empty-first-line-in-class-body`. La baseline ktlint (vide depuis
+S-244) ne l'exempte pas → `check` rouge. Régression non détectée par S-253/S-254
+(ktlint non relancé).
+
+== Correctif
+
+`src/main/kotlin/bakery/tree/TemplateTreeAudit.kt` : suppression de la ligne vide
+après `object TemplateTreeAudit {` (KDoc déplacé en première ligne du corps).
+
+== Vérification
+
+* `./gradlew ktlintMainSourceSetCheck` **BUILD SUCCESSFUL** (JDK 25) — plus aucune
+  violation (`Summary error count` vide).
+
+== Note
+
+Fix purement formatage (zéro logique). Bloque le job cross-borough MEMPHIS.
+
+_Score : 8/10._
