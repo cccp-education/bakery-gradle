@@ -1,0 +1,86 @@
+= Session 260 — Rééquilibrage des shards functional : tentative puis REVERT (mesure non concluante)
+
+:date: 2026-10-15
+:type: ci
+:score: 7/10
+
+== Contexte
+
+Mission transverse (pilotée depuis `workspace-bom`, session MEMPHIS S-299) :
+ramener le wall-clock **cross-borough** `workspace-bom` **sous 5 min**. Le levier
+côté bakery : **rééquilibrer les 6 shards `functionalTestShard{A..F}`** (la partition
+S-259 laissait `max(shard)` ≈ 179-201s, chemin critique du run).
+
+Données d'entrée : run cross-borough `38772146984` — durées **par classe** extraites
+des rapports Gradle HTML (shards A..F). Sommes par shard : A 175s, B 110s, C 179s,
+D 164s, E 127s, F 167s (wall) ; les sommes des classes vont de 175 (B) à 285 (F).
+
+== Livré puis reverté
+
+Un rééquilibrage complet (28 classes repackées en bins de **somme** ≈ 238-246,
+d'après un modèle `wall ≈ 0,62 × somme`) a été poussé : commit `ced3d5a7`
+(`ci(bakery): S-299 rebalance functional shards from measured per-class wall`).
+La garde `bakery.ci.BakeryCucumberShardCoverageTest` restait satisfaite (union
+exacte des 28 classes, disjoint — vérifié localement : `diff` classes @Test ↔
+`includeTestsMatching` = **IDENTICAL**, zéro doublon).
+
+**Mesure (2 runs cross-borough) :**
+
+[cols="3,2,4"]
+|===
+| Run | Wall-clock | Constat
+
+| `38776049435` | 5m57s | `functional-shard-A` = **257s** (nouveau max)
+| `38777085226` | 5m18s | `functional-shard-A` = **226s** (encore le max)
+|===
+
+Le bin reconstitué (`ArchitectureValidationTest` + `InjectLangSwitchFunctionalTest`
++ `TranslateI18nClientOllamaConfigFunctionalTest`) est **systématiquement** le plus
+long. Et les durées **par classe** sont radicalement instables d'un run à l'autre :
+
+[cols="3,2,2"]
+|===
+| Classe | Run `38772146984` | Runs S-299
+
+| `TreeBakeFunctionalTest` | 50,0s | **3,6s** / 4,6s
+| `TranslateI18nClientOllamaConfigFunctionalTest` | 11,8s | **66,7s** / 71,3s
+| `InjectLangSwitchFunctionalTest` | 67,8s | 107,5s / 117,5s
+| `ArchitectureValidationTest` | 112,5s | 134,3s / 143,3s
+|===
+
+La contention TestKit entre classes **co-planifiées** est *pairwise* et
+**imprévisible** : un modèle fondé sur la somme des durées mesurées une fois ne
+prédit rien. Le rééquilibrage a donc été **REVERTÉ** : commit `b951b91e`
+(`Revert "ci(bakery): S-299 rebalance functional shards..."`). **Net : aucune
+modification du code bakery.**
+
+== Verdict
+
+* Le **rééquilibrage de shards TestKit est un tirage** (variance par classe ×5) :
+  ne pas modifier la partition S-259 sans preuve ; la mesure est indispensable.
+* La partition S-259 est **conservée** (noms de tâches A..F stables, couverture
+  kover 85 % et garde intactes).
+* Les gains réels de la cible < 5 min viennent **côté workspace-bom** (exclusion
+  `e2eTest` du job coverage + fusion `nodeTest`) — voir
+  `workspace-bom/.agents/sessions/299-ci-cross-borough-sous-5min.adoc`.
+
+== Fichiers modifiés
+
+* `bakery-plugin/build.gradle.kts` — modifié (`ced3d5a7`) puis **restauré**
+  (`b951b91e`) : net **zéro** (état S-259).
+
+== Commits / CI
+
+* `ced3d5a7` — rééquilibrage (poussé).
+* `b951b91e` — revert (partition S-259 restaurée).
+* Runs cross-borough associés : `38776049435` (5m57s), `38777085226` (5m18s),
+  `38779104005` (4m56s, partition S-259 restaurée).
+
+== Leçons
+
+1. **Mesurer, ne pas déduire.** Un modèle `wall = k × somme` calibré sur un run
+   unique est invalide : la variance inter-runs par classe atteint ×5.
+2. **La contention des builds GradleTestKit imbriqués est pairwise.** Déplacer des
+   classes peut *créer* un bin pathologique (ici `functional-shard-A`).
+3. Un revert propre est un livrable : il préserve la partition validée et documente
+   l'impasse, évitant qu'une session future ne retente le même rééquilibrage.

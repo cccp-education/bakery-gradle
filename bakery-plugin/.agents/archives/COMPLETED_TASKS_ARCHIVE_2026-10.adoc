@@ -156,3 +156,17 @@ constraint `document-plugin:0.0.18`, alors que 0.0.19 était publié (piège #13
 |===
 
 *Rapport* : `.agents/sessions/247-mission-b-configkover-workflow-publish.adoc`.
+
+== S-260 — Rééquilibrage shards functional : tentative puis REVERT (net zéro) ✅
+
+* Mission transverse (pilotée `workspace-bom` S-299) : ramener le wall-clock
+  cross-borough < 5 min via un rééquilibrage des 6 shards `functionalTestShard{A..F}`.
+* Rééquilibrage complet poussé (`ced3d5a7`, bins de somme ≈ 238-246) → **mesuré non
+  concluant** : bin reconstitué systématiquement le plus long (257s/226s) ; durées
+  par classe TestKit **×5 entre runs** (`TreeBake` 50s→3,6s ; `TranslateI18nClientOllamaConfig`
+  11,8s→66,7s). Contention pairwise imprévisible.
+* **REVERT** (`b951b91e`) : partition **S-259 restaurée**. **Net : zéro modification
+  du code bakery.**
+* Leçon : ne pas rééquilibrer sur une mesure unique ; les gains < 5 min sont côté
+  `workspace-bom` (exclusion `e2eTest` du job coverage + fusion `nodeTest`).
+* Commits `ced3d5a7` + `b951b91e`. Rapport `.agents/sessions/260-ci-functional-shard-revert.adoc`.
