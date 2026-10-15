@@ -201,6 +201,9 @@ tasks.named<Test>("test") {
     filter {
         excludeTestsMatching("bakery.scenarios.*")
         excludeTestsMatching("contracts.pipeline.scenarios.*")
+        // CI shards are a CI-only concern (run by their own tasks); keep them out
+        // of the unit `test` discovery so a @Suite class never hangs here.
+        excludeTestsMatching("bakery.ci.shards.*")
     }
 
     maxParallelForks = 2
@@ -404,6 +407,12 @@ val cucumberTest =
             excludeEngines("junit-jupiter")
         }
 
+        // CI shards are run by their own dedicated tasks (`.github/workflows/test.yml`);
+        // exclude them from the local aggregate discovery to avoid double execution.
+        filter {
+            excludeTestsMatching("bakery.ci.shards.*")
+        }
+
         systemProperty("cucumber.junit-platform.naming-strategy", "long")
         systemProperty("org.gradle.daemon", "false")
 
@@ -441,6 +450,171 @@ val cucumberTest =
                 }
         }
     }
+
+// ────────────────────────────────────────────────────────────
+// CI shards — parallel `.github/workflows/test.yml`
+// ────────────────────────────────────────────────────────────
+// The monolithic `cucumberTest` (all 71 features) and `functionalTest` (23
+// classes) are split in CI into exhaustive, disjoint shards, each on its own
+// runner machine. Exhaustiveness/disjointness are guarded by
+// `bakery.ci.BakeryCucumberShardCoverageTest`.
+//
+// Local = Build (tests = CI): the shards execute only when `CI` is set, so the
+// local `check` shape is unchanged. Kover pulls every instrumented `Test` task,
+// but a skipped shard has no binary report and kover tolerates its absence.
+data class CucumberTaskSpec(
+    val taskName: String,
+    val description: String,
+    val runnerClass: String,
+)
+
+fun registerCucumberTask(spec: CucumberTaskSpec): TaskProvider<Test> =
+    tasks.register<Test>(spec.taskName) {
+        description = spec.description
+        group = "verification"
+
+        testClassesDirs = sourceSets.test.get().output.classesDirs
+        classpath =
+            configurations.testRuntimeClasspath.get() +
+                sourceSets.test.get().output +
+                functionalTest.output +
+                sourceSets.main.get().output +
+                files(tasks.jar.get().archiveFile)
+
+        dependsOn(tasks.classes)
+        dependsOn(functionalTest.classesTaskName)
+
+        useJUnitPlatform { excludeEngines("junit-jupiter") }
+
+        systemProperty("cucumber.junit-platform.naming-strategy", "long")
+        systemProperty("org.gradle.daemon", "false")
+
+        testLogging {
+            events("passed", "skipped", "failed")
+            showStandardStreams = false
+            exceptionFormat = FULL
+        }
+
+        maxParallelForks = 1
+        forkEvery = 0
+        timeout.set(Duration.ofMinutes(15))
+
+        onlyIf { System.getenv("CI") != null }
+
+        filter { includeTestsMatching(spec.runnerClass) }
+    }
+
+val cucumberShardSpecs =
+    listOf(
+        CucumberTaskSpec(
+            "cucumberTestShardJbakeCore",
+            "CI shard — jbake core (foundations, components, tasks, article, lens, config, i18n deploy)",
+            "bakery.ci.shards.CucumberShardJbakeCoreRunner",
+        ),
+        CucumberTaskSpec(
+            "cucumberTestShardLensTree",
+            "CI shard — augmented context, config resolution, accessibility, pivot YAML, site tree",
+            "bakery.ci.shards.CucumberShardLensTreeRunner",
+        ),
+        CucumberTaskSpec(
+            "cucumberTestShardLangSwitch",
+            "CI shard — language switcher, RTL, SEO, contact security, variant bake, i18n migration, DNS",
+            "bakery.ci.shards.CucumberShardLangSwitchRunner",
+        ),
+        CucumberTaskSpec(
+            "cucumberTestShardI18nMassPipeline",
+            "CI shard — i18n mass/client/template, config mapping, N0 pipeline-contracts",
+            "bakery.ci.shards.CucumberShardI18nMassPipelineRunner",
+        ),
+    )
+
+val cucumberShardTasks = cucumberShardSpecs.map { registerCucumberTask(it) }
+
+tasks.register("cucumberShards") {
+    description = "Runs every CI BDD shard (exhaustive, disjoint parallel partition)."
+    group = "verification"
+    dependsOn(cucumberShardTasks)
+}
+
+// ── functionalTest shards (2) ─────────────────────────────────
+// Same shape as `functionalTest`, narrowed by class. The partition is guarded
+// by `bakery.ci.BakeryCucumberShardCoverageTest`.
+val functionalTestShardA =
+    tasks.register<Test>("functionalTestShardA") {
+        description = "Runs functional tests — shard A (JBake/rendering/template/lang-switch)."
+        group = "verification"
+
+        testClassesDirs = functionalTest.output.classesDirs
+        classpath = configurations[functionalTest.runtimeClasspathConfigurationName] + functionalTest.output
+
+        useJUnitPlatform()
+
+        testLogging {
+            events("passed", "skipped", "failed")
+            showStandardStreams = true
+        }
+        failOnNoDiscoveredTests = false
+
+        systemProperty("test.timeout.multiplier", "2")
+        maxParallelForks = 3
+        onlyIf { System.getenv("CI") != null }
+
+        filter {
+            includeTestsMatching("bakery.BakeVariantsFunctionalTest")
+            includeTestsMatching("bakery.CherolivComDogfoodingDryRunFunctionalTest")
+            includeTestsMatching("bakery.ContactSecFixtureFunctionalTest")
+            includeTestsMatching("bakery.ContentI18nExcludePathsFunctionalTest")
+            includeTestsMatching("bakery.ContentI18nParallelismFunctionalTest")
+            includeTestsMatching("bakery.GeneratePivotYamlFunctionalTest")
+            includeTestsMatching("bakery.I18nDeployTaskOrderingFunctionalTest")
+            includeTestsMatching("bakery.InjectLangSwitchFunctionalTest")
+            includeTestsMatching("bakery.InjectRtlDirectionFunctionalTest")
+            includeTestsMatching("bakery.InjectSeoFunctionalTest")
+            includeTestsMatching("bakery.LangSwitchScaffoldFunctionalTest")
+            includeTestsMatching("bakery.MaterializeTemplatesFunctionalTest")
+        }
+    }
+
+val functionalTestShardB =
+    tasks.register<Test>("functionalTestShardB") {
+        description = "Runs functional tests — shard B (i18n migration/deploy/translate/plugins)."
+        group = "verification"
+
+        testClassesDirs = functionalTest.output.classesDirs
+        classpath = configurations[functionalTest.runtimeClasspathConfigurationName] + functionalTest.output
+
+        useJUnitPlatform()
+
+        testLogging {
+            events("passed", "skipped", "failed")
+            showStandardStreams = true
+        }
+        failOnNoDiscoveredTests = false
+
+        systemProperty("test.timeout.multiplier", "2")
+        maxParallelForks = 3
+        onlyIf { System.getenv("CI") != null }
+
+        filter {
+            includeTestsMatching("bakery.MigrateContentI18nDeploySmokeFunctionalTest")
+            includeTestsMatching("bakery.PageAssetsFunctionalTest")
+            includeTestsMatching("bakery.ProfilePublisherFunctionalTest")
+            includeTestsMatching("bakery.ProvisionDnsFunctionalTest")
+            includeTestsMatching("bakery.ScaffoldContactSecFunctionalTest")
+            includeTestsMatching("bakery.SiteOllamaActivatesTranslationPoolFunctionalTest")
+            includeTestsMatching("bakery.TranslateI18nClientFunctionalTest")
+            includeTestsMatching("bakery.TranslateI18nClientOllamaConfigFunctionalTest")
+            includeTestsMatching("bakery.TranslateTemplatesFunctionalTest")
+            includeTestsMatching("bakery.TreeBakeFunctionalTest")
+            includeTestsMatching("bakery.VerifyConfigurationMappingFunctionalTest")
+        }
+    }
+
+tasks.register("functionalShards") {
+    description = "Runs every functionalTest shard (exhaustive, disjoint parallel partition)."
+    group = "verification"
+    dependsOn(functionalTestShardA, functionalTestShardB)
+}
 
 tasks.check {
     dependsOn(functionalTestTask)
