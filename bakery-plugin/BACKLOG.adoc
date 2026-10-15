@@ -34,7 +34,7 @@ couverture fusionnée **88,93 %** identique au monolithique (iso-couverture).
 *Révision S-258* : BDD porté à **8 shards** + functional à **3** ; wall-clock
 mesuré **5 m 15 s** (itération 1) à **5 m 32 s** (finale), CI verte `38763893180`.
 *Révision S-259 — cible < 5 min ATTEINTE* : functional porté à **6 shards** +
-`cache-cleanup: never` ; CI verte `38768434298` (att. 2) **4 m 53 s** (record ;
+`cache-cleanup: never` ; CI verte `38770251570` **4 m 42 s** (record ; run `38768434298` att. 2 = 4 m 53 s,
 run 1 `38767527591` = 4 m 58 s) contre 5 m 50 s (S-258). L'hypothèse « cache chaud
 → compilation FROM-CACHE » est **falsifiée** (preuve log : entrée `gradle-home`
 ~1 Mo, `Cache hit … not saving cache`, cache de build local non persisté entre

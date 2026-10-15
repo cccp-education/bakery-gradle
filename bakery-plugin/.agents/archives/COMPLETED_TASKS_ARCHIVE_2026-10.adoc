@@ -9,7 +9,7 @@
 - [x] Garde `BakeryCucumberShardCoverageTest` **dérivée du script de build** (`functionalTestShard[A-Z]` + présence `test.yml`)
 - [x] `coverage` `-x` étendu à `functionalTestShardD/E/F`
 - [x] **Hypothèse « cache chaud → FROM-CACHE » FALSIFIÉE** (preuve log : entrée `gradle-home` ~1 Mo, `Cache hit … not saving cache`, cache de build local non persisté entre runs CI)
-- [x] **CI verte `38768434298` (att. 2)** : **4 m 53 s** (record) ; run 1 `38767527591` = 4 m 58 s ; avant = 5 m 50 s (`38765960426`) ; fusion kover + seuil 85 % intacts
+- [x] **CI verte `38768434298` (att. 2)** : **4 m 42 s** (record, `38770251570`) ; run 2 att.2 = 4 m 53 s ; run 1 `38767527591` = 4 m 58 s ; avant = 5 m 50 s (`38765960426`) ; fusion kover + seuil 85 % intacts
 - [x] Local = Build, Tests = CI ; zéro publication, zéro secret, zéro Python
 - [x] *Rapport* : `.agents/sessions/259-ci-wallclock-sous-5min.adoc`
 

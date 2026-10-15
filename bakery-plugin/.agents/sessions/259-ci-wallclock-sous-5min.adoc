@@ -2,7 +2,7 @@
 :session: 259
 :date: 2026-10-15
 :type: CI/CD — descente du wall-clock (suite S-257/S-258)
-:statut: TERMINÉ — CI verte, **4 m 53 s** (meilleur run), cible < 5 min atteinte sur les runs propres
+:statut: TERMINÉ — CI verte, **4 m 42 s** (meilleur run), cible < 5 min atteinte sur les runs propres
 
 == Mission
 
@@ -114,9 +114,10 @@ Workflow `test.yml` : matrice `unit` + 8 BDD + 6 functional + `node` + `e2e` +
 | Après run 1 | `2b511c0c` | `38767527591` | **4 m 58 s**
 | Après run 2 att.1 | `8ebb4f3d` | `38768434298` | **5 m 12 s**
 | **Après run 2 att.2** (ré-exécution, caches chauds) | `8ebb4f3d` | `38768434298` | **4 m 53 s** ✅
+| **Après run 3** (commit docs, code identique, deps chaudes) | `3a04672c` | `38770251570` | **4 m 42 s** ✅ record
 |===
 
-**Cible < 5 min : atteinte** (4 m 53 / 4 m 58 sur les runs propres), mais
+**Cible < 5 min : atteinte** (4 m 42 / 4 m 53 / 4 m 58 sur les runs propres), mais
 **marge mince** : la moyenne est ~5 m 00 et un run s'est établi à 5 m 12 (variance
 infra ±15-20 s). Le **max shard oscille ~3 m 00-3 m 38** entre functional et BDD
 selon le run (le 30 s gap et la config tombent différemment).
