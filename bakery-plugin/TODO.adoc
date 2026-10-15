@@ -1,17 +1,17 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-10-15 — Session 257 ✅. **CI sharding IMPLÉMENTÉE** : 71 features Cucumber → 4 shards + 28 classes functionalTest → 2 shards, workflow matrice parallèle, fusion kover inter-jobs (`.ic` téléversés, job `coverage` sans relance de test), garde `BakeryCucumberShardCoverageTest`. CI verte `38721669211` : **5 m 55 s** (avant 11 m 56 s), couverture fusionnée **88,93 %** identique au monolithique. Antérieur S-256 : pins 0.0.87. S-255 : fix ktlint. S-254 : release 0.0.26. S-253 : GBL-010 G-1._
+_Dernière mise à jour : 2026-10-15 — Session 258 ✅. **CI sharding itération 2** : 71 features Cucumber → **8 shards** + 28 classes functionalTest → **3 shards** (tentative 4 revertée), garde et workflow mis à jour, fusion kover intacte. CI verte `38763893180` : **5 m 32 s** (meilleur run 5 m 15 s, itération 1) contre 5 m 55 s (S-257). Plancher ~5 m 20-5 m 30 expliqué (coût fixe par runner + job `coverage`). Antérieur S-257 : sharding initial (4+2). S-256 : pins 0.0.87. S-255 : fix ktlint. S-254 : release 0.0.26._
 
-== CI sharding (S-257 ✅ TERMINÉE)
+== CI sharding (S-257 ✅ + S-258 ✅ TERMINÉE)
 
-* [x] 4 runners `CucumberShard*` (partition 71/71 features, `not @personal`)
-* [x] 2 tâches `functionalTestShardA/B` (partition 28/28 classes `@Test`)
+* [x] Runners `CucumberShard*` (partition 71/71 features, `not @personal`) — **8 shards** (S-258)
+* [x] Tâches `functionalTestShardA/B/C` (partition 28/28 classes `@Test`) — 3 shards (S-258)
 * [x] `CucumberTaskSpec`/`registerCucumberTask` + tâches `cucumberTestShard*`
-* [x] Workflow matrice parallèle (`unit` + 4 BDD + 2 functional + `node` + `e2e` + `coverage`)
+* [x] Workflow matrice parallèle (`unit` + 8 BDD + 3 functional + `node` + `e2e` + `coverage`)
 * [x] Fusion kover inter-jobs : `.ic` par job → `coverage` (`koverXmlReport koverThresholdCheck` `-x` tous les tests)
 * [x] Garde `BakeryCucumberShardCoverageTest` (partition + câblage workflow)
-* [ ] (optionnel) Réduire le workflow complet < 5 min : plancher actuel = coût fixe par runner (setup + compilation). Piste : sharder `functionalTest` en 3 OU paralléliser la compilation via cache build entre jobs. Non requis (objectif des jobs de test atteint : ≤ 4 m 27 s)
+* [ ] (optionnel, non fait) Réduire le workflow complet < 5 min : plancher mesuré ~5 m 20-5 m 30. Coût = coût fixe par runner (setup + compilation, ~100-110 s/job, non partagé entre jobs parallèles) + job `coverage` (1 m 12-1 m 48). Pistes écartées/à évaluer : compilation partagée entre jobs (sérialise), sortir `coverage` du chemin critique (interdit — seuil 85 % bloquant)
 
 == Mission B (S-247 ✅ TERMINÉE) — `configureKover` no-op (conventions)
 

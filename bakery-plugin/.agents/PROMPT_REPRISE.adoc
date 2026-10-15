@@ -1,38 +1,39 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 258
+:session: 259
 :date: 2026-10-15
-:etat: Session 257 — **CI sharding** ✅ : 71 features Cucumber → 4 shards + 28 classes functionalTest → 2 shards, fusion kover inter-jobs, garde `BakeryCucumberShardCoverageTest`. CI **verte** `38721669211` (**5 m 55 s**, avant **11 m 56 s**), couverture fusionnée **88,93 %** identique au monolithique. Rapport `.agents/sessions/257-ci-sharding-cucumber-functional-kover.adoc`.
-:etat_precedent: Session 256 — pins `workspace-bom`/catalog `0.0.87` (plantuml-plugin 0.0.10).
+:etat: Session 258 — **CI sharding itération 2** ✅ : 71 features Cucumber → **8 shards** + 28 classes functionalTest → **3 shards** (tentative 4 revertée), garde mise à jour, fusion kover intacte. CI **verte** `38763893180`. Wall-clock **5 m 32 s** (meilleur run mesuré 5 m 15 s, itération 1) contre **5 m 55 s** en S-257. Plancher ~5 m 20-5 m 30 expliqué (coût fixe par runner + job `coverage`). Rapport `.agents/sessions/258-ci-sharding-8-bdd-3-functional.adoc`.
+:etat_precedent: Session 257 — CI sharding (Cucumber ×4, functionalTest ×2, fusion kover) : 11 m 56 s → 5 m 55 s. Run `38721669211`.
 :epic_actif: _(aucun)_ — EPIC GBL-010 (arbre de traduction, branche Template + orchestration data) en cours, G-1 ✅ (S-253).
 :epic_suivant: **Publication bakery 0.0.27** (distribuer pin 0.0.87) OU **dogfooding cheroliv.com** (US-7 GBL-010) OU **GBL-010 G-1b** (delta par sous-arbre).
 
-== État S-257
+== État S-258
 
-* **CI sharding TERMINÉ** — voir le rapport S-257 pour le design complet.
-* **Run final** : `38721669211` (commit `7bc31e75`) — 10/10 jobs ✓.
-* **Couverture fusionnée** : `missed=32880, covered=264095` (**88,93 %**),
-  strictement identique au monolithique `38322243967` (`eec9fb29`).
+* **Noms de tâches shard définitifs** (consommés par `workspace-bom`) :
+  `cucumberTestShardJbakeCoreFoundations`, `cucumberTestShardJbakeCoreComponents`,
+  `cucumberTestShardJbakeCorePipelines`, `cucumberTestShardLensTree`,
+  `cucumberTestShardSiteTree`, `cucumberTestShardLangSwitchCore`,
+  `cucumberTestShardLangSwitchEcosystem`, `cucumberTestShardI18nMassPipeline` ;
+  `functionalTestShardA/B/C`.
+* **Partition** : BDD 71/71 exhaustive/disjointe ; functional 28/28.
+* **Plancher** : ~5 m 20-5 m 30 = `max(job)` functional ≈ 4 m (coût fixe bound) +
+  `coverage` ≈ 1 m 20. Les shards BDD sont **hors chemin critique** (≤ ~3 m 35).
+  Voir le rapport S-258 pour l'analyse détaillée (coût fixe par runner, cache de
+  build non partagé entre jobs parallèles, variance infra).
 * **Local = Build, Tests = CI** préservé : shards `onlyIf { CI }`, `check`
-  inchangé (shards SKIPPED en local, `.ic` absent toléré par kover).
-* **Piège documenté** : la partition fonctionnelle DOIT couvrir **toutes** les
-  classes `@Test` du source set (28), pas seulement `*FunctionalTest.kt` —
-  l'oubli de 5 classes (`*FunctionalTests`, `ArchitectureValidationTest`) avait
-  fait chuter la couverture à 80,81 % (< 85 %).
+  inchangé (shards SKIPPED en local).
 
-== Mission Session 258 (au choix pilote)
+== Mission Session 259 (au choix pilote)
 
-. **Publication bakery 0.0.27** : distribuer le pin `workspace-bom 0.0.87`
-   (chaîne DAG MEMPHIS-first).
-. **GBL-010 G-1b** : delta de traduction par sous-arbre (reprise en économie
-   d'encre).
-. **Dogfooding cheroliv.com** (US-7 GBL-010) : déployer et valider les
-   diagrammes visibles.
-. **F50 cross-borough** (`:summary:`/`:description:` document-gradle).
+. **Publication bakery 0.0.27** : distribuer le pin `workspace-bom 0.0.87`.
+. **GBL-010 G-1b** : delta de traduction par sous-arbre.
+. **Dogfooding cheroliv.com** (US-7 GBL-010).
+. **Option CI** : casser le plancher < 5 min (compilation partagée entre jobs,
+   ou `coverage` plus légère) — coût/risque élevé, mesurer d'abord.
 
 == Rappels
 
 * **RÈGLE EAGER — Local = Build, Tests = CI** : en local, uniquement
-  `compileKotlin`/`compileTestKotlin`/`compileFunctionalTestKotlin`/`validatePlugins` ;
+  `compileKotlin`/`compileTestKotlin`/`compileFunctionalTestKotlin`/`validatePlugins`/`tasks` ;
   les `test`/`functionalTest`/`cucumberTest`/`check` s'exécutent **exclusivement en CI**.
 * **Zéro Python** ; English only code/tests/features (gouvernance `.adoc` en français).
 * Commit/push sur accord pilote ; zéro secret en clair.

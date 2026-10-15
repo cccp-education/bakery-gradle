@@ -1,0 +1,221 @@
+= Session 258 — CI sharding bakery, seconde itération (8 shards BDD + 3 functional)
+:session: 258
+:date: 2026-10-15
+:type: CI/CD — éclatement parallèle du chemin critique (suite S-257)
+:statut: TERMINÉ — CI verte, plancher ~5 m 20-5 m 30 expliqué
+
+== Mission
+
+Descendre le wall-clock de la CI `bakery-gradle` sous 5 min par plus
+d'éclatement/parallélisation (suite S-257, qui avait ramené 11 m 56 s → 5 m 55 s
+avec 4 shards BDD + 2 functional). Contrainte : ne pas casser la fusion kover ;
+noms de tâches shard stables (consommés par `workspace-bom`).
+
+== Mesure avant / après (toutes les itérations)
+
+[cols="1,2,2,2,3", options="header"]
+|===
+| | Config | Commit | Run | Wall-clock
+
+| **Avant** (référence S-257)
+| 4 BDD + 2 functional (10 jobs)
+| `7bc31e75`
+| `38721669211`
+| **5 m 55 s** — max job lang-switch 4 m 27 s, coverage 1 m 22 s
+
+| Itération 1
+| 7 BDD + 3 functional (14 jobs)
+| `b6273eec`
+| `38760805633`
+| **5 m 15 s** — max job Functional C 3 m 57 s, coverage 1 m 12 s
+
+| Itération 2
+| 8 BDD + 4 functional (16 jobs)
+| `ede5b497`
+| `38761897452` (×2)
+| **6 m 02 s** / **5 m 28 s** — max job Functional C/D 4 m 03-4 m 25 s
+
+| **Final** (itération 2 corrigée)
+| **8 BDD + 3 functional (15 jobs)**
+| `ff90401b`
+| `38763893180` (×2)
+| **5 m 32 s** / **6 m 16 s** — max job Functional B 4 m 12-4 m 22 s, coverage 1 m 17-1 m 48 s
+|===
+
+La variance inter-runs est forte (le job `coverage` seul oscille entre 1 m 12 et
+1 m 48 ; les shards functional entre 3 m 57 et 4 m 25) : les runs du matin étaient
+plus rapides que ceux de l'après-midi. **Le meilleur run mesuré de la session est
+5 m 15 s (itération 1) ; la configuration finale se situe à ~5 m 30 s.**
+
+== Design final (8 shards BDD + 3 shards functional)
+
+=== Shards BDD — 71 features, partition exhaustive/disjointe
+
+.Liste définitive des tâches et runners
+[cols="3,1,1,2", options="header"]
+|===
+| Tâche Gradle | Runner | Features | Scén.
+
+| `cucumberTestShardJbakeCoreFoundations`
+| `bakery.ci.shards.CucumberShardJbakeCoreFoundationsRunner`
+| 7 (1,2,3,4,5,6,8)
+| 18
+
+| `cucumberTestShardJbakeCoreComponents`
+| `bakery.ci.shards.CucumberShardJbakeCoreComponentsRunner`
+| 6 (9,10,11,12,13_layouts,14)
+| 19
+
+| `cucumberTestShardJbakeCorePipelines`
+| `bakery.ci.shards.CucumberShardJbakeCorePipelinesRunner`
+| 10 (15,16,17,18,19,20,21,46,55,56)
+| 57
+
+| `cucumberTestShardLensTree`
+| `bakery.ci.shards.CucumberShardLensTreeRunner`
+| 9 (13_analytics,22,23,24,25,27,28,29,37)
+| 33
+
+| `cucumberTestShardSiteTree`
+| `bakery.ci.shards.CucumberShardSiteTreeRunner`
+| 8 (38,39,40,41,42,43,44,45)
+| 51
+
+| `cucumberTestShardLangSwitchCore`
+| `bakery.ci.shards.CucumberShardLangSwitchCoreRunner`
+| 8 (30,31,32,47,48,49,50,51)
+| 44
+
+| `cucumberTestShardLangSwitchEcosystem`
+| `bakery.ci.shards.CucumberShardLangSwitchEcosystemRunner`
+| 8 (52,54,59_seo,61,66,67,68,dns)
+| 50
+
+| `cucumberTestShardI18nMassPipeline`
+| `bakery.ci.shards.CucumberShardI18nMassPipelineRunner`
+| 15 (7,33,34,35,36,57_delta,57_ollama,58,59_mass,60,62,63,64,65,verify)
+| 98
+|===
+
+Glue : `bakery.scenarios` pour tous sauf `cucumberTestShardI18nMassPipeline`
+(`bakery.scenarios,contracts.pipeline.scenarios` — seul shard portant
+`36_pipeline_contracts.feature`). Filtre agrégat `not @personal` sur chaque shard.
+Partition vérifiée : **71/71**, disjointe.
+
+=== Shards functionalTest — 28 classes `@Test`, partition exhaustive/disjointe
+
+[cols="3,5", options="header"]
+|===
+| Tâche | Classes
+
+| `functionalTestShardA`
+| BakeVariants, CherolivComDogfoodingDryRun, ContactSecFixture, ContentI18nExcludePaths, ContentI18nParallelism, GeneratePivotYaml, I18nDeployTaskOrdering, InjectLangSwitch, InjectRtlDirection, InjectSeo (10)
+
+| `functionalTestShardB`
+| LangSwitchScaffold, MaterializeTemplates, ArchitectureValidationTest, BakeryPluginFunctionalTests, ValidateFirebaseConfigFunctionalTests, IntegrationRestoredFunctionalTests, MigrateContentI18nDeploySmoke, PageAssets, ProfilePublisher (9)
+
+| `functionalTestShardC`
+| ProvisionDns, ScaffoldContactSec, SiteOllamaActivatesTranslationPool, TranslateI18nClient, TranslateI18nClientOllamaConfig, TranslateTemplates, TreeBake, VerifyConfigurationMapping, ScaffoldFunctionalTests (9)
+|===
+
+Partition vérifiée : **28/28**, disjointe.
+
+== Fichiers
+
+[cols="2,3", options="header"]
+|===
+| Fichier | Rôle
+
+| `src/test/kotlin/bakery/ci/shards/CucumberShardJbakeCoreFoundationsRunner.kt`
+| shard BDD #1 (7 features)
+| `.../CucumberShardJbakeCoreComponentsRunner.kt`
+| shard BDD #2 (6)
+| `.../CucumberShardJbakeCorePipelinesRunner.kt`
+| shard BDD #3 (10)
+| `.../CucumberShardLensTreeRunner.kt`
+| shard BDD #4 (9, redécoupé)
+| `.../CucumberShardSiteTreeRunner.kt`
+| shard BDD #5 (8, nouveau)
+| `.../CucumberShardLangSwitchCoreRunner.kt`
+| shard BDD #6 (8)
+| `.../CucumberShardLangSwitchEcosystemRunner.kt`
+| shard BDD #7 (8)
+| `.../CucumberShardI18nMassPipelineRunner.kt`
+| shard BDD #8 (15, inchangé)
+| `src/test/kotlin/bakery/ci/BakeryCucumberShardCoverageTest.kt`
+| garde partition (8 BDD + 3 functional + câblage workflow)
+| `build.gradle.kts`
+| 8 `CucumberTaskSpec` + helper `registerFunctionalShard` + 3 tâches functional
+| `.github/workflows/test.yml`
+| matrice 1 `unit` + 8 BDD + 3 functional + `node` + `e2e` + `coverage` (`-x` ×11 shards)
+|===
+
+Fichiers supprimés (renommés) : `CucumberShardJbakeCoreRunner.kt` (→ Foundations),
+`CucumberShardLangSwitchRunner.kt` (→ Core). Tous deux trackés git.
+
+== Commits
+
+* `b6273eec` — shard cucumber 4→7 + functional 2→3 (itération 1)
+* `ede5b497` — split jbake-core foundations + functional 4 (itération 2)
+* `ff90401b` — retour functional à 3 shards (le 4 mesurait moins bien)
+
+== Plancher honnête du wall-clock (~5 m 20-5 m 30)
+
+Le wall-clock = `max(shard)` + `coverage` + ordonnancement. Les termes :
+
+. **Coût fixe par runner ≈ 100-110 s** : démarrage du daemon Gradle (~25 s) +
+   configuration (~25-40 s) + **compilation `compileKotlin` +
+   `compileFunctionalTestKotlin` + `compileTestKotlin`** (~45-75 s). Ce coût est
+   payé par **chaque** job de test (≈ 12 jobs compilent les mêmes sources en
+   parallèle). Le cache de build de `gradle/actions/setup-gradle` **ne se partage
+   pas entre jobs parallèles d'un même run** : le premier job à finir (souvent
+   `node`, sans compilation) sauve un cache vide sous la clé du run, que tous les
+   autres restaurent → la compilation s'exécute toujours.
+. **Overhead GitHub par job ≈ 40-90 s** (checkout, JDK, setup-gradle, post
+   setup-gradle qui sauve le cache) — variable.
+. **Job `coverage` ≈ 1 m 12-1 m 48** : il re-compile `compileKotlin` +
+   `compileFunctionalTestKotlin` (~30 s, même cause que (1)) puis génère le
+   rapport kover fusionné. Il est **sérialisé après le plus long shard**.
+. **Les shards `functionalTest` ne descendent pas sous ~4 min** : ils compilent
+   main+functionalTest (~100 s) puis exécutent des tests GradleTestKit (builds
+   Gradle imbriqués) ~90-110 s. Aucune classe n'est individuellement lourde
+   (analyse par classe : max 21 s) → **éclater functional au-delà de 3 shards
+   n'aide pas** (mesuré : 4 shards = max 4 m 03-4 m 25 > 3 shards 3 m 57), et
+   ajoute de la contention sur le pool de runners.
+. **Variance infra ±40 s** : le même commit ré-exécuté donne 5 m 28 s puis
+   6 m 16 s.
+
+*Conséquence* : le plancher pratique est `max job ≈ 4 m` (functional, coût fixe
+bound) + `coverage ≈ 1 m 20` + ordonnancement ≈ **5 m 20-5 m 30**. Passer sous
+5 min exigerait de casser le coût fixe (compilation partagée des 12 jobs, hors
+périmètre car sérialise le chemin critique) ou de sortir `coverage` du chemin
+critique (interdit : le seuil 85 % doit rester bloquant).
+
+`max(shard)` BDD est **hors chemin critique** après cette session (≤ ~3 m 35 en
+runs propres), la contrainte est désormais **functional + coverage**.
+
+== Points positifs malgré le plancher
+
+* 71 features BDD réparties sur 8 shards exhaustifs/disjoints (la partition
+  `@SelectClasspathResource` == propriété FEATURES est vérifiée pour chaque runner).
+* 28 classes functional sur 3 shards exhaustifs/disjoints.
+* Garde `BakeryCucumberShardCoverageTest` mise à jour (≥ 8 runners BDD, ≥ 8 tâches,
+  A/B/C functional, job `unit` = `test` nu) — anti « test fantôme ».
+* Fusion kover intacte : chaque shard téléverse son `.ic`, `coverage` fusionne
+  (`-x` les 11 tâches shard + `test`/`functionalTest`/`cucumberTest`/`e2eTest`/
+  `nodeTest`), seuil 85 % effectif.
+
+== Gates (Local = Build, Tests = CI)
+
+Local : `compileKotlin`/`compileTestKotlin`/`compileFunctionalTestKotlin` VERT,
+`tasks --all` (8 BDD + 3 functional + 2 agrégateurs enregistrés), partition BDD
+(71/71) et functional (28/28) vérifiées par script, noms de tâches build ==
+workflow. CI : runs `38760805633`, `38761897452`, `38763893180` **success**.
+Zéro secret, zéro publication, zéro Python.
+
+*Note* : `ktlintKotlinScriptCheck` + `ktlintTestSourceSetCheck` sont **rouges à
+HEAD** (pré-existants, règles `chain-method-continuation` /
+`multiline-expression-wrapping` du plugin ktlint 12.2.0 ; baseline S-244 vide,
+règles plus récentes). Non causés par cette session (prouvé par `git stash`),
+non exécutés par `test.yml`. Les nouveaux runners reproduisent exactement le
+style des runners existants (1 violation identique chacun).

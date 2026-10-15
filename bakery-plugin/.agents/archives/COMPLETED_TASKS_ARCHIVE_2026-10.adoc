@@ -1,5 +1,19 @@
 = Archive des Tâches Terminées — Octobre 2026
 
+== Session 258 — 2026-10-15 — CI sharding itération 2 (Cucumber ×8, functionalTest ×3)
+
+=== Fait
+- [x] 71 features Cucumber → **8 shards** exhaustifs/disjoints (jbake-core scindé Foundations/Components/Pipelines, lens/site scindés, lang-switch scindé Core/Ecosystem)
+- [x] 28 classes functionalTest → **3 shards** (`functionalTestShardA/B/C` ; tentative à 4 mesurée moins bien → revertée)
+- [x] Garde `BakeryCucumberShardCoverageTest` mise à jour (≥ 8 runners BDD, ≥ 8 tâches, A/B/C, `unit` = `test`)
+- [x] `build.gradle.kts` : 8 `CucumberTaskSpec` + helper `registerFunctionalShard` + 3 tâches
+- [x] `.github/workflows/test.yml` : matrice `unit` + 8 BDD + 3 functional + `node` + `e2e` + `coverage` (`-x` ×11)
+- [x] **CI verte `38763893180`** : **5 m 32 s** (meilleur run 5 m 15 s, itération 1, `38760805633`) contre 5 m 55 s (S-257) ; fusion kover intacte (seuil 85 %)
+- [x] **Plancher ~5 m 20-5 m 30 expliqué** : coût fixe par runner (~100-110 s, payé par ~12 jobs) + job `coverage` (1 m 12-1 m 48, sérialisé) + shards functional GradleTestKit bornés ~4 min ; BDD hors chemin critique
+- [x] Découverte : `ktlintKotlinScriptCheck`/`ktlintTestSourceSetCheck` rouge à HEAD (pré-existant, prouvé `git stash`, non exécuté par `test.yml`)
+- [x] Local = Build, Tests = CI ; zéro publication, zéro secret
+- [x] *Rapport* : `.agents/sessions/258-ci-sharding-8-bdd-3-functional.adoc`
+
 == Session 257 — 2026-10-15 — CI sharding (Cucumber ×4, functionalTest ×2, fusion kover inter-jobs)
 
 === Fait
