@@ -1,7 +1,17 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-09-27 — Session 247 ✅. **Mission B (`configureKover` no-op, Option A) IMPLÉMENTÉE + workflow `Publish website` RÉPARÉ**. Producteur conventions : DSL typé `KoverProjectExtension` + `KoverReportSources` (main+functionalTest, e2eTest exclu), 5 UT + 2 FT + 2 BDD (RED prouvés par revert), **conventions 0.0.6** Central (bundle `701a5568`), propagation bakery (re-pin 4 ids). Workflow publish : secret **`SITE_YML`** (remplace `BAKERY_GRADLE_PLUGIN` inexistant) + pin `bakery 0.0.20` (remplace 0.0.10 périmé) → **CI `Publish website` success** (run `36353017220`), site déployé. Antérieur S-246 : cadrage mission B. S-245 : correction racine conventions `koverThresholdCheck`. S-244 : BKY-KTLINT-CLEANUP. S-243 : BKY-CI-ISOLATION._
+_Dernière mise à jour : 2026-10-15 — Session 257 ✅. **CI sharding IMPLÉMENTÉE** : 71 features Cucumber → 4 shards + 28 classes functionalTest → 2 shards, workflow matrice parallèle, fusion kover inter-jobs (`.ic` téléversés, job `coverage` sans relance de test), garde `BakeryCucumberShardCoverageTest`. CI verte `38721669211` : **5 m 55 s** (avant 11 m 56 s), couverture fusionnée **88,93 %** identique au monolithique. Antérieur S-256 : pins 0.0.87. S-255 : fix ktlint. S-254 : release 0.0.26. S-253 : GBL-010 G-1._
+
+== CI sharding (S-257 ✅ TERMINÉE)
+
+* [x] 4 runners `CucumberShard*` (partition 71/71 features, `not @personal`)
+* [x] 2 tâches `functionalTestShardA/B` (partition 28/28 classes `@Test`)
+* [x] `CucumberTaskSpec`/`registerCucumberTask` + tâches `cucumberTestShard*`
+* [x] Workflow matrice parallèle (`unit` + 4 BDD + 2 functional + `node` + `e2e` + `coverage`)
+* [x] Fusion kover inter-jobs : `.ic` par job → `coverage` (`koverXmlReport koverThresholdCheck` `-x` tous les tests)
+* [x] Garde `BakeryCucumberShardCoverageTest` (partition + câblage workflow)
+* [ ] (optionnel) Réduire le workflow complet < 5 min : plancher actuel = coût fixe par runner (setup + compilation). Piste : sharder `functionalTest` en 3 OU paralléliser la compilation via cache build entre jobs. Non requis (objectif des jobs de test atteint : ≤ 4 m 27 s)
 
 == Mission B (S-247 ✅ TERMINÉE) — `configureKover` no-op (conventions)
 

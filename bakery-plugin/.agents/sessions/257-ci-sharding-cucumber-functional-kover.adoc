@@ -1,0 +1,202 @@
+= Session 257 — CI sharding bakery (Cucumber ×4, functionalTest ×2, fusion kover inter-jobs)
+
+:session: 257
+:date: 2026-10-15
+:type: CI/CD — sharding parallèle + fusion de couverture
+:statut: TERMINÉ — CI verte, couverture fusionnée exacte (88,93 %)
+
+== Mission
+
+Éclater les tests de `bakery-gradle` en shards parallèles (CI GitHub Actions),
+fusionner la couverture kover entre jobs, et ramener le « build+test » sous ~5 min.
+Cible : 71 features Cucumber → 4 shards exhaustifs/disjoints ; 28 classes
+functionalTest → 2 shards ; garde anti « test fantôme » ; fusion `.ic` inter-jobs.
+
+== Mesure avant / après
+
+[cols="2,2,2,2", options="header"]
+|===
+| | Run | Commit | Durée workflow `Test`
+
+| **Avant** (job unique monolithique `./gradlew build`)
+| `38322243967`
+| `eec9fb29` (S-256)
+| **11 m 56 s**
+
+| Après (1re itération — diagnostic)
+| `38719613190`
+| `bfd13fe3`
+| échec Coverage (80,81 %)
+
+| Après (2e itération — correctif)
+| `38720694147`
+| `dd55ea4f`
+| succès, ~6 m 43 s
+
+| **Après (final)**
+| `38721669211`
+| `7bc31e75`
+| **5 m 55 s**
+|===
+
+*Gain* : **11 m 56 s → 5 m 55 s (≈ ×2,0)**. Couverture fusionnée **88,93 %**
+(`missed=32880, covered=264095`) **strictement identique** au run monolithique
+(`38322243967` : 88,93 %, mêmes compteurs) — la partition est **iso-couverture**.
+
+== Design
+
+=== 1. Shards Cucumber (4) — partition des 71 features
+
+Runners `@Suite @IncludeEngines("cucumber") @SelectClasspathResource(...)` +
+`@ConfigurationParameter` FEATURES/GLUE/PLUGIN/FILTER_TAGS (patron
+`codebase-plugin/CucumberShard*Runner.kt`), dans `bakery.ci.shards` :
+
+[cols="3,1,1", options="header"]
+|===
+| Runner | Features | Scénarios
+
+| `CucumberShardJbakeCoreRunner`
+| 23
+| 84
+
+| `CucumberShardLensTreeRunner`
+| 17
+| 87
+
+| `CucumberShardLangSwitchRunner`
+| 16
+| 94
+
+| `CucumberShardI18nMassPipelineRunner`
+| 15
+| 95
+|===
+
+* Disjoint/exhaustif : **71/71** (vérifié `comm`), filtre agrégat `not @personal`
+  (seule exclusion réellement appliquée par l'agrégat `bakery.scenarios.CucumberTestRunner`).
+* `36_pipeline_contracts.feature` (seule feature `@pipeline-contracts`) est dans
+  le shard `I18nMassPipeline`, dont le GLUE est
+  `bakery.scenarios,contracts.pipeline.scenarios` (ses steps vivent côté
+  `contracts.pipeline.scenarios`). Intersection des textes de steps entre les deux
+  glue = **vide** (vérifié) → pas de collision.
+* Tâches Gradle `cucumberTestShard{JbakeCore,LensTree,LangSwitch,I18nMassPipeline}`
+  (spec `CucumberTaskSpec` + `registerCucumberTask`, mirror du classpath `cucumberTest`).
+
+=== 2. Shards functionalTest (2)
+
+`functionalTestShardA` (16 classes / ~84 tests) + `functionalTestShardB`
+(12 classes / ~83 tests) via `filter { includeTestsMatching("bakery.X") }`.
+**28/28** classes partitionnées (exhaustif/disjoint, vérifié).
+
+*Découverte de la 1re itération* : la partition initiale ne listait que les 23
+`*FunctionalTest.kt` ; **5 classes de test** du source set fonctionnel ne
+respectent pas ce motif (`*FunctionalTests`, `ArchitectureValidationTest`) et
+étaient silencieusement perdues → couverture fusionnée **80,81 %** (< 85 %). Le
+correctif liste les **28** classes (`@Test` présent) et la garde détecte désormais
+toute classe `@Test` non couverte.
+
+=== 3. Garde anti « test fantôme »
+
+`bakery.ci.BakeryCucumberShardCoverageTest` (patron S-269
+`CodebaseCucumberShardCoverageTest`), parsing statique des sources :
+. partition Cucumber disjointe et exhaustive des 71 features + filtre
+  `not @personal` ;
+. chaque runner enregistré comme tâche Gradle **et** invoqué par le workflow ;
+. partition fonctionnelle disjointe/exhaustive des 28 classes `@Test` + les 2
+  shards invoqués par le workflow ;
+. le job `unit` exécute le `test` nu.
+
+=== 4. Fusion kover inter-jobs
+
+Chaque job téléverse `bakery-plugin/build/kover/bin-reports/*.ic`
+(`actions/upload-artifact@v4`, `if-no-files-found: error`). Le job `coverage`
+(`needs: [unit, functional-shard, bdd-shard, e2e]`) les télécharge tous
+(`actions/download-artifact@v4`, `pattern: kover-ic-*`, `merge-multiple: true`)
+dans `build/kover/bin-reports/`, puis :
+
+[source,bash]
+----
+./gradlew koverXmlReport koverThresholdCheck \
+  -x test -x functionalTest -x cucumberTest -x e2eTest -x nodeTest \
+  -x functionalTestShardA -x functionalTestShardB \
+  -x cucumberTestShardJbakeCore -x cucumberTestShardLensTree \
+  -x cucumberTestShardLangSwitch -x cucumberTestShardI18nMassPipeline
+----
+
+* **Mécanisme validé localement** (report-only, zéro test) : `koverXmlReport`
+  agrège les `.ic` présents même quand la tâche est `-x` ; un `.ic` **absent** est
+  toléré (pas d'échec). 8/8 `.ic` téléchargés, seuil 85 % appliqué.
+* **Preuve CI** : `Instruction coverage: 88,93% (missed=32880, covered=264095)`
+  — identique au monolithique. `BUILD SUCCESSFUL`.
+
+=== 5. Local = Build, Tests = CI
+
+Les shards sont gardés `onlyIf { System.getenv("CI") != null }` : en local
+`./gradlew check` est inchangé (kover tire les shards, mais ils sont **SKIPPED** ;
+un `.ic` absent est toléré). `check` conserve `functionalTest` + `cucumberTest` +
+`nodeTest`. Les shards sont exclus de la découverte de `test` et `cucumberTest`
+(`excludeTestsMatching("bakery.ci.shards.*")`).
+
+== Fichiers
+
+[cols="2,3", options="header"]
+|===
+| Fichier | Rôle
+
+| `src/test/kotlin/bakery/ci/shards/CucumberShardJbakeCoreRunner.kt`
+| shard Cucumber #1 (23 features)
+| `src/test/kotlin/bakery/ci/shards/CucumberShardLensTreeRunner.kt`
+| shard Cucumber #2 (17)
+| `src/test/kotlin/bakery/ci/shards/CucumberShardLangSwitchRunner.kt`
+| shard Cucumber #3 (16)
+| `src/test/kotlin/bakery/ci/shards/CucumberShardI18nMassPipelineRunner.kt`
+| shard Cucumber #4 (15, glue double)
+| `src/test/kotlin/bakery/ci/BakeryCucumberShardCoverageTest.kt`
+| garde partition (Cucumber + functional + workflow)
+| `build.gradle.kts`
+| `CucumberTaskSpec`/`registerCucumberTask`, 4+2 tâches shard, filtres
+| `.github/workflows/test.yml`
+| matrice `unit` + 4 BDD + 2 functional + `node` + `e2e` + `coverage`
+|===
+
+== Commits
+
+* `bfd13fe3` — `ci(bakery): shard cucumber (4) + functionalTest (2) in parallel matrix, merge kover across jobs`
+* `dd55ea4f` — `fix(bakery): functional shards must cover every @Test class (28, not only *FunctionalTest)`
+* `7bc31e75` — `ci(bakery): restore gradle/actions/setup-gradle (build cache) in every job`
+
+== Détail des jobs (run final `38721669211`)
+
+[cols="2,2,2", options="header"]
+|===
+| Job | Durée | Conclusion
+
+| Node Tests | 1 m 3 s | ✓
+| Unit Tests (`test`, porte la garde) | 3 m 39 s | ✓
+| BDD · i18n-mass-pipeline | 3 m 40 s | ✓
+| BDD · lens-tree | 3 m 56 s | ✓
+| BDD · jbake-core | 4 m 5 s | ✓
+| Functional · A | 4 m 18 s | ✓
+| Functional · B | 4 m 22 s | ✓
+| BDD · lang-switch | 4 m 27 s | ✓
+| E2E (Playwright) | 3 m 28 s | ✓
+| **Coverage (merged)** | 1 m 22 s | ✓ (88,93 %)
+|===
+
+== Limites honnêtes
+
+* La cible **< 5 min** n'est atteinte qu'**au niveau des jobs de test** (le plus
+  long : 4 m 27 s). Le **workflow complet** est à **5 m 55 s** : le plancher est
+  imposé par le coût fixe **par runner** (setup GitHub ≈ 1 min + configuration /
+  compilation Gradle ≈ 1 m 35 s) et par le job `coverage` (1 m 22 s) qui dépend de
+  tous les autres. Passer à 3 shards functional réduirait la partie *tests* mais
+  pas le coût fixe de compilation (payé par chaque runner) → gain marginal.
+* `gradle/actions/setup-gradle@v4` (cache build) restauré (il existait dans
+  l'ancien workflow) : gain mesuré sur Functional A (5 m 2 s → 4 m 18 s).
+
+== Gates (Local = Build, Tests = CI)
+
+Local : `compileKotlin`/`compileTestKotlin`/`compileFunctionalTestKotlin` VERT,
+`validatePlugins` VERT, `tasks` (4+2 shards + 2 agrégateurs enregistrés).
+CI : run `38721669211` **success**, couverture fusionnée 88,93 %. Zéro secret,
+zéro publication, zéro Python.

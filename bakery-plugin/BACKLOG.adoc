@@ -5,6 +5,31 @@
 :icons: font
 :sectnums:
 
+== ✅ EPIC BKY-CI-SHARD — Sharding CI + fusion kover inter-jobs (TERMINÉ S-257)
+
+Objectif pilote : ramener le « build+test » de bakery sous ~5 min. Livré (S-257) :
+71 features Cucumber → **4 shards** exhaustifs/disjoints, 28 classes functionalTest
+→ **2 shards**, workflow `test.yml` en matrice parallèle (`unit` + 4 BDD + 2
+functional + `node` + `e2e` + `coverage`), **fusion kover inter-jobs** (`.ic` par
+job → job `coverage` sans relance de test), garde `BakeryCucumberShardCoverageTest`.
+
+[cols="3,3,1", options="header"]
+|===
+| US | Livrable | Statut
+
+| BKY-CI-SHARD-1 | 4 runners `CucumberShard*` (71/71 features) | ✅ TERMINÉ (S-257)
+| BKY-CI-SHARD-2 | `CucumberTaskSpec`/`registerCucumberTask` + tâches `cucumberTestShard*` | ✅ TERMINÉ (S-257)
+| BKY-CI-SHARD-3 | 2 tâches `functionalTestShardA/B` (28/28 classes) | ✅ TERMINÉ (S-257)
+| BKY-CI-SHARD-4 | Garde `BakeryCucumberShardCoverageTest` (patron S-269) | ✅ TERMINÉ (S-257)
+| BKY-CI-SHARD-5 | Workflow matrice parallèle + fusion kover `.ic` inter-jobs | ✅ TERMINÉ (S-257)
+|===
+
+*Mesure* : CI `38721669211` **5 m 55 s** (avant **11 m 56 s** `38322243967`),
+couverture fusionnée **88,93 %** identique au monolithique (iso-couverture).
+*Réserve* : le workflow complet reste > 5 min (plancher = coût fixe par runner
+setup+compilation) ; les jobs de test sont à ≤ 4 m 27 s. Rapport
+`.agents/sessions/257-ci-sharding-cucumber-functional-kover.adoc`.
+
 == 🟡 EPIC GBL-010 — Arbre de traduction (branche Template + orchestration data)
 
 *GBL* : EPIC transverse **GBL-010** (`CADRAGE_EPIC_GBL_010_ARBRE_TRADUCTION_SITE.adoc`,

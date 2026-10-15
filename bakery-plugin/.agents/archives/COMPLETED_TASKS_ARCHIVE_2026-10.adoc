@@ -1,5 +1,18 @@
 = Archive des Tâches Terminées — Octobre 2026
 
+== Session 257 — 2026-10-15 — CI sharding (Cucumber ×4, functionalTest ×2, fusion kover inter-jobs)
+
+=== Fait
+- [x] 71 features Cucumber → **4 shards** exhaustifs/disjoints (`CucumberShard{JbakeCore,LensTree,LangSwitch,I18nMassPipeline}Runner`, filtre `not @personal`)
+- [x] 28 classes functionalTest → **2 shards** (`functionalTestShardA/B`)
+- [x] Garde `bakery.ci.BakeryCucumberShardCoverageTest` (partition + câblage workflow, patron S-269)
+- [x] `build.gradle.kts` : `CucumberTaskSpec`/`registerCucumberTask` + 4+2 tâches shard + filtres
+- [x] `.github/workflows/test.yml` : matrice `unit` + 4 BDD + 2 functional + `node` + `e2e` + `coverage`
+- [x] **Fusion kover inter-jobs** : `.ic` téléversés par job, job `coverage` les télécharge et exécute `koverXmlReport koverThresholdCheck` **sans relancer les tests** (`-x` ×11)
+- [x] **CI verte `38721669211`** : **5 m 55 s** (avant **11 m 56 s**), couverture fusionnée **88,93 %** identique au monolithique
+- [x] Découverte : 5 classes `@Test` hors motif `*FunctionalTest.kt` → couverture 80,81 %, corrigée (28/28)
+- [x] Local = Build, Tests = CI (shards `onlyIf { CI }`) ; zéro publication, zéro secret
+
 == Session 256 — 2026-10-13 — Pins `0.0.87` (plantuml-plugin 0.0.10)
 
 === Fait
