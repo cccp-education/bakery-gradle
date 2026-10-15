@@ -28,7 +28,9 @@ jobs:
         with:
           java-version: '25'
           distribution: 'temurin'
-          cache: gradle
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -73,7 +75,9 @@ jobs:
         with:
           java-version: '25'
           distribution: 'temurin'
-          cache: gradle
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -121,7 +125,9 @@ jobs:
         with:
           java-version: '25'
           distribution: 'temurin'
-          cache: gradle
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -155,7 +161,9 @@ jobs:
         with:
           java-version: '25'
           distribution: 'temurin'
-          cache: gradle
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -181,7 +189,9 @@ jobs:
         with:
           java-version: '25'
           distribution: 'temurin'
-          cache: gradle
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -223,7 +233,9 @@ jobs:
         with:
           java-version: '25'
           distribution: 'temurin'
-          cache: gradle
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Download every coverage binary report
         uses: actions/download-artifact@v4
