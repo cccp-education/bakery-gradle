@@ -603,6 +603,9 @@ val functionalTestShardA =
         includeTestsMatching("bakery.ContentI18nExcludePathsFunctionalTest")
         includeTestsMatching("bakery.ContentI18nParallelismFunctionalTest")
         includeTestsMatching("bakery.I18nDeployTaskOrderingFunctionalTest")
+        includeTestsMatching("bakery.TranslateI18nClientFunctionalTest")
+        includeTestsMatching("bakery.ContactSecFixtureFunctionalTest")
+        includeTestsMatching("bakery.LangSwitchScaffoldFunctionalTest")
     }
 
 val functionalTestShardB =
@@ -657,10 +660,7 @@ val functionalTestShardF =
         includeTestsMatching("bakery.GeneratePivotYamlFunctionalTest")
         includeTestsMatching("bakery.IntegrationRestoredFunctionalTests")
         includeTestsMatching("bakery.TranslateTemplatesFunctionalTest")
-        includeTestsMatching("bakery.TranslateI18nClientFunctionalTest")
         includeTestsMatching("bakery.InjectRtlDirectionFunctionalTest")
-        includeTestsMatching("bakery.ContactSecFixtureFunctionalTest")
-        includeTestsMatching("bakery.LangSwitchScaffoldFunctionalTest")
         includeTestsMatching("bakery.TranslateI18nClientOllamaConfigFunctionalTest")
     }
 

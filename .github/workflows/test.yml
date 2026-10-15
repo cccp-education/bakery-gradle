@@ -91,11 +91,13 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          # S-259 — restore the shared Gradle User Home written by `unit` (the
-          # only cache writer) so `compileKotlin`/`compileTestKotlin`/
-          # `compileFunctionalTestKotlin` come FROM-CACHE. Read-only ⇒ the
-          # costly post-job cache-cleanup Gradle build is skipped entirely.
-          cache-read-only: true
+          # S-259 — keep writing this job's own Gradle User Home, but skip the
+          # post-job cache-cleanup Gradle build (~3-40 s/job, re-starts a
+          # single-use daemon + reconfigures). Disabling cleanup also stops the
+          # local build cache (`caches/build-cache-1`) from being purged, so a
+          # subsequent run of the *same* job restores warm compile outputs
+          # (FROM-CACHE).
+          cache-cleanup: never
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -155,10 +157,9 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          # S-259 — read-only: restore the shared warm Gradle User Home written by
-          # `unit` (FROM-CACHE compile) and never pay the post-job cache-cleanup
-          # Gradle build. Only `unit` writes the shared cache.
-          cache-read-only: true
+          # S-259 — skip the post-job cache-cleanup Gradle build; keep the local
+          # build cache so the next run of this job restores FROM-CACHE compile.
+          cache-cleanup: never
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -274,9 +275,9 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          # S-259 — read-only: restore the shared warm Gradle User Home (FROM-CACHE
-          # compile) and skip the post-job cache-cleanup Gradle build.
-          cache-read-only: true
+          # S-259 — skip the post-job cache-cleanup Gradle build; keep the local
+          # build cache so the next run restores FROM-CACHE compile.
+          cache-cleanup: never
 
       - name: Download every coverage binary report
         uses: actions/download-artifact@v4
