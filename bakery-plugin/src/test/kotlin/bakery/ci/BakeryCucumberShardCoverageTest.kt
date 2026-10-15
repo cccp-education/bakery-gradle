@@ -63,12 +63,12 @@ class BakeryCucumberShardCoverageTest {
 
     private fun allFunctionalClasses(): Set<String> =
         functionalDir.walkTopDown()
-            .filter { it.isFile && it.name.endsWith("FunctionalTest.kt") }
+            .filter { it.isFile && it.name.endsWith(".kt") && it.readText().contains("@Test") }
             .map { it.nameWithoutExtension }
             .toSet()
 
     private fun buildFunctionalClasses(): List<String> =
-        Regex("""includeTestsMatching\("bakery\.([A-Za-z0-9]+FunctionalTest)"\)""")
+        Regex("""includeTestsMatching\("bakery\.([A-Za-z0-9]+)"\)""")
             .findAll(buildScript.readText())
             .map { it.groupValues[1] }
             .toList()

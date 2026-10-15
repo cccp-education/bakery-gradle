@@ -572,6 +572,10 @@ val functionalTestShardA =
             includeTestsMatching("bakery.InjectSeoFunctionalTest")
             includeTestsMatching("bakery.LangSwitchScaffoldFunctionalTest")
             includeTestsMatching("bakery.MaterializeTemplatesFunctionalTest")
+            includeTestsMatching("bakery.ArchitectureValidationTest")
+            includeTestsMatching("bakery.BakeryPluginFunctionalTests")
+            includeTestsMatching("bakery.ValidateFirebaseConfigFunctionalTests")
+            includeTestsMatching("bakery.IntegrationRestoredFunctionalTests")
         }
     }
 
@@ -607,6 +611,7 @@ val functionalTestShardB =
             includeTestsMatching("bakery.TranslateTemplatesFunctionalTest")
             includeTestsMatching("bakery.TreeBakeFunctionalTest")
             includeTestsMatching("bakery.VerifyConfigurationMappingFunctionalTest")
+            includeTestsMatching("bakery.ScaffoldFunctionalTests")
         }
     }
 
