@@ -558,7 +558,7 @@ tasks.register("cucumberShards") {
     dependsOn(cucumberShardTasks)
 }
 
-// ── functionalTest shards (3) ─────────────────────────────────
+// ── functionalTest shards (6, S-259) ──────────────────────────
 // Same shape as `functionalTest`, narrowed by class. The partition is guarded
 // by `bakery.ci.BakeryCucumberShardCoverageTest` (every @Test class exactly once).
 fun registerFunctionalShard(
@@ -588,59 +588,93 @@ fun registerFunctionalShard(
         filter(configureFilter)
     }
 
+// S-259 — rebalanced to 6 shards (A–F). The previous 3-shard split left the
+// critical-path shard at ~4 m 30 s (its per-class test wall ≈ the sum of the
+// class spans: this suite's GradleTestKit nested builds barely parallelise, so
+// the shard wall tracks the work *sum*, not the work / forks). Six shards of
+// ≈ 50-67 s of span each flatten `max(shard)` well under the BDD critical path.
+// Balanced by measured per-class wall (S-258 CI run `38765960426`).
 val functionalTestShardA =
     registerFunctionalShard(
         "functionalTestShardA",
-        "Runs functional tests — shard A (bake variants, dogfooding dry-run, i18n content, pivot YAML, injection).",
+        "Runs functional tests — shard A (bake variants, i18n content).",
     ) {
         includeTestsMatching("bakery.BakeVariantsFunctionalTest")
-        includeTestsMatching("bakery.CherolivComDogfoodingDryRunFunctionalTest")
-        includeTestsMatching("bakery.ContactSecFixtureFunctionalTest")
         includeTestsMatching("bakery.ContentI18nExcludePathsFunctionalTest")
         includeTestsMatching("bakery.ContentI18nParallelismFunctionalTest")
-        includeTestsMatching("bakery.GeneratePivotYamlFunctionalTest")
         includeTestsMatching("bakery.I18nDeployTaskOrderingFunctionalTest")
-        includeTestsMatching("bakery.InjectLangSwitchFunctionalTest")
-        includeTestsMatching("bakery.InjectRtlDirectionFunctionalTest")
-        includeTestsMatching("bakery.InjectSeoFunctionalTest")
     }
 
 val functionalTestShardB =
     registerFunctionalShard(
         "functionalTestShardB",
-        "Runs functional tests — shard B (scaffolding, template materialization, plugin contract, deploy smoke, assets).",
+        "Runs functional tests — shard B (scaffolding, tree bake, config mapping, ollama pool).",
     ) {
-        includeTestsMatching("bakery.LangSwitchScaffoldFunctionalTest")
-        includeTestsMatching("bakery.MaterializeTemplatesFunctionalTest")
-        includeTestsMatching("bakery.ArchitectureValidationTest")
-        includeTestsMatching("bakery.BakeryPluginFunctionalTests")
-        includeTestsMatching("bakery.ValidateFirebaseConfigFunctionalTests")
-        includeTestsMatching("bakery.IntegrationRestoredFunctionalTests")
-        includeTestsMatching("bakery.MigrateContentI18nDeploySmokeFunctionalTest")
-        includeTestsMatching("bakery.PageAssetsFunctionalTest")
-        includeTestsMatching("bakery.ProfilePublisherFunctionalTest")
+        includeTestsMatching("bakery.ScaffoldFunctionalTests")
+        includeTestsMatching("bakery.TreeBakeFunctionalTest")
+        includeTestsMatching("bakery.VerifyConfigurationMappingFunctionalTest")
+        includeTestsMatching("bakery.SiteOllamaActivatesTranslationPoolFunctionalTest")
     }
 
 val functionalTestShardC =
     registerFunctionalShard(
         "functionalTestShardC",
-        "Runs functional tests — shard C (dns, contact security, translation, tree bake, config mapping).",
+        "Runs functional tests — shard C (plugin contract, integration, assets, dogfooding dry-run).",
     ) {
-        includeTestsMatching("bakery.ProvisionDnsFunctionalTest")
+        includeTestsMatching("bakery.BakeryPluginFunctionalTests")
+        includeTestsMatching("bakery.ArchitectureValidationTest")
+        includeTestsMatching("bakery.ValidateFirebaseConfigFunctionalTests")
+        includeTestsMatching("bakery.PageAssetsFunctionalTest")
+        includeTestsMatching("bakery.CherolivComDogfoodingDryRunFunctionalTest")
+    }
+
+val functionalTestShardD =
+    registerFunctionalShard(
+        "functionalTestShardD",
+        "Runs functional tests — shard D (template materialization, profile publisher, seo, i18n deploy smoke).",
+    ) {
+        includeTestsMatching("bakery.MaterializeTemplatesFunctionalTest")
+        includeTestsMatching("bakery.ProfilePublisherFunctionalTest")
+        includeTestsMatching("bakery.InjectSeoFunctionalTest")
+        includeTestsMatching("bakery.MigrateContentI18nDeploySmokeFunctionalTest")
+    }
+
+val functionalTestShardE =
+    registerFunctionalShard(
+        "functionalTestShardE",
+        "Runs functional tests — shard E (dns, contact security, lang switch injection).",
+    ) {
         includeTestsMatching("bakery.ScaffoldContactSecFunctionalTest")
-        includeTestsMatching("bakery.SiteOllamaActivatesTranslationPoolFunctionalTest")
-        includeTestsMatching("bakery.TranslateI18nClientFunctionalTest")
-        includeTestsMatching("bakery.TranslateI18nClientOllamaConfigFunctionalTest")
+        includeTestsMatching("bakery.ProvisionDnsFunctionalTest")
+        includeTestsMatching("bakery.InjectLangSwitchFunctionalTest")
+    }
+
+val functionalTestShardF =
+    registerFunctionalShard(
+        "functionalTestShardF",
+        "Runs functional tests — shard F (pivot YAML, translation, rtl, contact fixture, scaffold).",
+    ) {
+        includeTestsMatching("bakery.GeneratePivotYamlFunctionalTest")
+        includeTestsMatching("bakery.IntegrationRestoredFunctionalTests")
         includeTestsMatching("bakery.TranslateTemplatesFunctionalTest")
-        includeTestsMatching("bakery.TreeBakeFunctionalTest")
-        includeTestsMatching("bakery.VerifyConfigurationMappingFunctionalTest")
-        includeTestsMatching("bakery.ScaffoldFunctionalTests")
+        includeTestsMatching("bakery.TranslateI18nClientFunctionalTest")
+        includeTestsMatching("bakery.InjectRtlDirectionFunctionalTest")
+        includeTestsMatching("bakery.ContactSecFixtureFunctionalTest")
+        includeTestsMatching("bakery.LangSwitchScaffoldFunctionalTest")
+        includeTestsMatching("bakery.TranslateI18nClientOllamaConfigFunctionalTest")
     }
 
 tasks.register("functionalShards") {
     description = "Runs every functionalTest shard (exhaustive, disjoint parallel partition)."
     group = "verification"
-    dependsOn(functionalTestShardA, functionalTestShardB, functionalTestShardC)
+    dependsOn(
+        functionalTestShardA,
+        functionalTestShardB,
+        functionalTestShardC,
+        functionalTestShardD,
+        functionalTestShardE,
+        functionalTestShardF,
+    )
 }
 
 tasks.check {

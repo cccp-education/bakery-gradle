@@ -139,10 +139,24 @@ class BakeryCucumberShardCoverageTest {
             .describedAs("no functional class may be selected twice (disjoint partition)")
             .isEqualTo(classes.toSet().size)
 
+        // Every functional shard task declared in the build must be wired into CI
+        // (S-259: the partition is 6 shards A–F; the assertion is derived from the
+        // build script so adding/removing a shard cannot silently desync).
+        val shardTasks =
+            Regex("""functionalTestShard[A-Z]""")
+                .findAll(buildScript.readText())
+                .map { it.value }
+                .toSet()
+        assertThat(shardTasks)
+            .describedAs("functional shard tasks declared in build.gradle.kts")
+            .hasSizeGreaterThanOrEqualTo(6)
+
         val ci = workflow.readText()
-        assertThat(ci).contains("functionalTestShardA")
-        assertThat(ci).contains("functionalTestShardB")
-        assertThat(ci).contains("functionalTestShardC")
+        shardTasks.forEach { task ->
+            assertThat(ci)
+                .describedAs("test.yml must run %s", task)
+                .contains(task)
+        }
     }
 
     @Test
