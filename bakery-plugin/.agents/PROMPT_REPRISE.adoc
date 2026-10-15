@@ -1,34 +1,34 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 259
+:session: 260
 :date: 2026-10-15
-:etat: Session 258 — **CI sharding itération 2** ✅ : 71 features Cucumber → **8 shards** + 28 classes functionalTest → **3 shards** (tentative 4 revertée), garde mise à jour, fusion kover intacte. CI **verte** `38763893180`. Wall-clock **5 m 32 s** (meilleur run mesuré 5 m 15 s, itération 1) contre **5 m 55 s** en S-257. Plancher ~5 m 20-5 m 30 expliqué (coût fixe par runner + job `coverage`). Rapport `.agents/sessions/258-ci-sharding-8-bdd-3-functional.adoc`.
-:etat_precedent: Session 257 — CI sharding (Cucumber ×4, functionalTest ×2, fusion kover) : 11 m 56 s → 5 m 55 s. Run `38721669211`.
-:epic_actif: _(aucun)_ — EPIC GBL-010 (arbre de traduction, branche Template + orchestration data) en cours, G-1 ✅ (S-253).
-:epic_suivant: **Publication bakery 0.0.27** (distribuer pin 0.0.87) OU **dogfooding cheroliv.com** (US-7 GBL-010) OU **GBL-010 G-1b** (delta par sous-arbre).
+:etat: Session 259 — **CI sous 5 min** ✅ : functionalTest **3 → 6 shards** (A–F, équilibrés) + **`cache-cleanup: never`** sur les 6 jobs `setup-gradle`. CI **verte** `38768434298` (att. 2) : **4 m 53 s** (meilleur run ; run 1 `38767527591` = 4 m 58 s, run 2 att.1 = 5 m 12 s). Contre **5 m 50 s** (S-258, run `38765960426`). Garde + fusion kover intactes. **Hypothèse « cache chaud → FROM-CACHE » FALSIFIÉE** (preuve log : `gradle-home` ~1 Mo, `Cache hit … not saving cache` ; cache de build local non persisté entre runs) ; le goulot réel est **configuration ~21-42 s** + **gap constant ~30 s** avant la tâche `Test`, pas la compilation. Rapport `.agents/sessions/259-ci-wallclock-sous-5min.adoc`.
+:etat_precedent: Session 258 — CI sharding itération 2 (Cucumber ×8, functionalTest ×3), CI verte `38763893180` = 5 m 32 s.
+:epic_actif: _(aucun)_ — EPIC GBL-010 (arbre de traduction) en cours, G-1 ✅ (S-253).
+:epic_suivant: **Publication bakery 0.0.27** (distribuer pin 0.0.87) OU **GBL-010 G-1b** (delta par sous-arbre) OU **dogfooding cheroliv.com** (US-7 GBL-010) OU affiner la CI (gap 30 s / configuration).
 
-== État S-258
+== État S-259
 
 * **Noms de tâches shard définitifs** (consommés par `workspace-bom`) :
-  `cucumberTestShardJbakeCoreFoundations`, `cucumberTestShardJbakeCoreComponents`,
+  BDD (8) : `cucumberTestShardJbakeCoreFoundations`, `cucumberTestShardJbakeCoreComponents`,
   `cucumberTestShardJbakeCorePipelines`, `cucumberTestShardLensTree`,
   `cucumberTestShardSiteTree`, `cucumberTestShardLangSwitchCore`,
   `cucumberTestShardLangSwitchEcosystem`, `cucumberTestShardI18nMassPipeline` ;
-  `functionalTestShardA/B/C`.
-* **Partition** : BDD 71/71 exhaustive/disjointe ; functional 28/28.
-* **Plancher** : ~5 m 20-5 m 30 = `max(job)` functional ≈ 4 m (coût fixe bound) +
-  `coverage` ≈ 1 m 20. Les shards BDD sont **hors chemin critique** (≤ ~3 m 35).
-  Voir le rapport S-258 pour l'analyse détaillée (coût fixe par runner, cache de
-  build non partagé entre jobs parallèles, variance infra).
+  functional (6) : `functionalTestShardA` → `functionalTestShardF`.
+* **Partition** : BDD 71/71 exhaustive/disjointe ; functional 28/28 (6 shards).
+* **Wall-clock** : 5 m 50 s (avant) → **4 m 53 s** (meilleur après). Cible
+  < 5 min **atteinte** mais marge mince (moyenne ~5 m 00).
+* **Leads CI non soldés** (dans le rapport S-259) : configuration 21-42 s/job ;
+  gap constant ~30 s avant la tâche `Test` ; cache de build local non partagé.
 * **Local = Build, Tests = CI** préservé : shards `onlyIf { CI }`, `check`
   inchangé (shards SKIPPED en local).
 
-== Mission Session 259 (au choix pilote)
+== Mission Session 260 (au choix pilote)
 
 . **Publication bakery 0.0.27** : distribuer le pin `workspace-bom 0.0.87`.
 . **GBL-010 G-1b** : delta de traduction par sous-arbre.
 . **Dogfooding cheroliv.com** (US-7 GBL-010).
-. **Option CI** : casser le plancher < 5 min (compilation partagée entre jobs,
-   ou `coverage` plus légère) — coût/risque élevé, mesurer d'abord.
+. **Affiner la CI** : élucider le gap de 30 s (snapshot de classpath / kover) —
+  meilleur candidat à un gain de marge.
 
 == Rappels
 

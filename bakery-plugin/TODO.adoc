@@ -1,17 +1,17 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-10-15 — Session 258 ✅. **CI sharding itération 2** : 71 features Cucumber → **8 shards** + 28 classes functionalTest → **3 shards** (tentative 4 revertée), garde et workflow mis à jour, fusion kover intacte. CI verte `38763893180` : **5 m 32 s** (meilleur run 5 m 15 s, itération 1) contre 5 m 55 s (S-257). Plancher ~5 m 20-5 m 30 expliqué (coût fixe par runner + job `coverage`). Antérieur S-257 : sharding initial (4+2). S-256 : pins 0.0.87. S-255 : fix ktlint. S-254 : release 0.0.26._
+_Dernière mise à jour : 2026-10-15 — Session 259 ✅. **CI sous 5 min** : functionalTest **3 → 6 shards** (A–F) + **`cache-cleanup: never`** sur les 6 jobs `setup-gradle`. CI verte `38768434298` (att. 2) : **4 m 53 s** (record ; run 1 4 m 58 s) contre 5 m 50 s (S-258). Hypothèse « cache chaud → FROM-CACHE » **falsifiée** (cache de build local non persisté entre runs) ; goulot = configuration (21-42 s/job) + gap constant ~30 s avant la tâche `Test`. Antérieur S-258 : 8 BDD + 3 functional. S-257 : sharding initial (4+2). S-256 : pins 0.0.87. S-255 : fix ktlint. S-254 : release 0.0.26._
 
-== CI sharding (S-257 ✅ + S-258 ✅ TERMINÉE)
+== CI sharding (S-257 ✅ + S-258 ✅ + S-259 ✅ TERMINÉE)
 
 * [x] Runners `CucumberShard*` (partition 71/71 features, `not @personal`) — **8 shards** (S-258)
-* [x] Tâches `functionalTestShardA/B/C` (partition 28/28 classes `@Test`) — 3 shards (S-258)
+* [x] Tâches `functionalTestShardA…F` (partition 28/28 classes `@Test`) — **6 shards** (S-259 ; 3 en S-258)
 * [x] `CucumberTaskSpec`/`registerCucumberTask` + tâches `cucumberTestShard*`
-* [x] Workflow matrice parallèle (`unit` + 8 BDD + 3 functional + `node` + `e2e` + `coverage`)
+* [x] Workflow matrice parallèle (`unit` + 8 BDD + 6 functional + `node` + `e2e` + `coverage`) (S-259)
 * [x] Fusion kover inter-jobs : `.ic` par job → `coverage` (`koverXmlReport koverThresholdCheck` `-x` tous les tests)
-* [x] Garde `BakeryCucumberShardCoverageTest` (partition + câblage workflow)
-* [ ] (optionnel, non fait) Réduire le workflow complet < 5 min : plancher mesuré ~5 m 20-5 m 30. Coût = coût fixe par runner (setup + compilation, ~100-110 s/job, non partagé entre jobs parallèles) + job `coverage` (1 m 12-1 m 48). Pistes écartées/à évaluer : compilation partagée entre jobs (sérialise), sortir `coverage` du chemin critique (interdit — seuil 85 % bloquant)
+* [x] Garde `BakeryCucumberShardCoverageTest` (dérivée du script de build + câblage workflow) (S-259)
+* [x] **Workflow complet < 5 min** (S-259) : **4 m 53 s** (record, `38768434298` att. 2). Leviers : 6 shards functional + `cache-cleanup: never`. Hypothèse compilation-FROM-CACHE **falsifiée** (cache de build local non partagé entre runs CI). Marge mince → leads : configuration 21-42 s/job, gap constant ~30 s avant la tâche `Test`, `coverage` 1 m 18-1 m 24 (piste : sortir `coverage` du chemin critique interdite — seuil 85 % bloquant)
 
 == Mission B (S-247 ✅ TERMINÉE) — `configureKover` no-op (conventions)
 

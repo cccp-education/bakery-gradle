@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-== ✅ EPIC BKY-CI-SHARD — Sharding CI + fusion kover inter-jobs (TERMINÉ S-257, révisé S-258)
+== ✅ EPIC BKY-CI-SHARD — Sharding CI + fusion kover inter-jobs (TERMINÉ S-257, révisé S-258, S-259)
 
 Objectif pilote : ramener le « build+test » de bakery sous ~5 min. Livré (S-257) :
 71 features Cucumber → **4 shards** exhaustifs/disjoints, 28 classes functionalTest
@@ -24,18 +24,26 @@ job → job `coverage` sans relance de test), garde `BakeryCucumberShardCoverage
 | BKY-CI-SHARD-5 | Workflow matrice parallèle + fusion kover `.ic` inter-jobs | ✅ TERMINÉ (S-257)
 | BKY-CI-SHARD-6 | Répartition BDD 4 → **8 shards** (jbake-core ×3, lens/site scindés) | ✅ TERMINÉ (S-258)
 | BKY-CI-SHARD-7 | functionalTest → **3 shards** (A/B/C ; 4 testé puis reverté) | ✅ TERMINÉ (S-258)
+| BKY-CI-SHARD-8 | functionalTest 3 → **6 shards** équilibrés (A–F) | ✅ TERMINÉ (S-259)
+| BKY-CI-SHARD-9 | **`cache-cleanup: never`** sur les 6 jobs `setup-gradle` | ✅ TERMINÉ (S-259)
+| BKY-CI-SHARD-10 | Garde **dérivée du script de build** (`functionalTestShard[A-Z]`) | ✅ TERMINÉ (S-259)
 |===
 
 *Mesure* : CI `38721669211` **5 m 55 s** (avant **11 m 56 s** `38322243967`),
 couverture fusionnée **88,93 %** identique au monolithique (iso-couverture).
 *Révision S-258* : BDD porté à **8 shards** + functional à **3** ; wall-clock
 mesuré **5 m 15 s** (itération 1) à **5 m 32 s** (finale), CI verte `38763893180`.
-*Réserve (plancher ~5 m 20-5 m 30)* : coût fixe par runner (setup + compilation,
-payé par ~12 jobs) + job `coverage` (1 m 12-1 m 48, sérialisé après le plus long
-shard) + shards functional GradleTestKit bornés ~4 min. BDD est hors chemin
-critique ; la contrainte est **functional + coverage**. Rapports
+*Révision S-259 — cible < 5 min ATTEINTE* : functional porté à **6 shards** +
+`cache-cleanup: never` ; CI verte `38768434298` (att. 2) **4 m 53 s** (record ;
+run 1 `38767527591` = 4 m 58 s) contre 5 m 50 s (S-258). L'hypothèse « cache chaud
+→ compilation FROM-CACHE » est **falsifiée** (preuve log : entrée `gradle-home`
+~1 Mo, `Cache hit … not saving cache`, cache de build local non persisté entre
+runs CI) ; le goulot réel est la **configuration (21-42 s/job)** + un **gap
+constant ~30 s** avant la tâche `Test`. *Réserve* : marge mince (moyenne ~5 m 00),
+`coverage` 1 m 18-1 m 24 sérialisé, gap 30 s inexpliqué. Rapports
 `.agents/sessions/257-ci-sharding-cucumber-functional-kover.adoc`,
-`.agents/sessions/258-ci-sharding-8-bdd-3-functional.adoc`.
+`.agents/sessions/258-ci-sharding-8-bdd-3-functional.adoc`,
+`.agents/sessions/259-ci-wallclock-sous-5min.adoc`.
 
 == 🟡 EPIC GBL-010 — Arbre de traduction (branche Template + orchestration data)
 

@@ -1,0 +1,156 @@
+= Session 259 — CI bakery sous 5 min (6 shards functional + cache-cleanup désactivé)
+:session: 259
+:date: 2026-10-15
+:type: CI/CD — descente du wall-clock (suite S-257/S-258)
+:statut: TERMINÉ — CI verte, **4 m 53 s** (meilleur run), cible < 5 min atteinte sur les runs propres
+
+== Mission
+
+Descendre le wall-clock de la CI `bakery-gradle` **sous 5 min** — d'abord en
+téstant l'hypothèse pilote « la compilation est rejouée par chaque job, un cache
+chaud la servirait FROM-CACHE », puis par plus de parallélisation. Contraintes :
+ne pas casser la fusion kover (seuil 85 %) ni la garde
+`bakery.ci.BakeryCucumberShardCoverageTest` ; noms de tâches shard documentés
+(consommés par `workspace-bom`) ; Local = Build, Tests = CI.
+
+== Diagnostic (preuve log, run `38765960426`, S-258)
+
+=== 1. La compilation est bien rejouée — mais elle n'est PAS le goulot
+
+`> Task :compileKotlin` / `:compileFunctionalTestKotlin` / `:compileTestKotlin`
+apparaissent **sans suffixe `FROM-CACHE` ni `UP-TO-DATE`** dans tous les jobs
+(recompilation complète). Mesure par horodatage des lignes :
+
+[cols="2,2,2", options="header"]
+|===
+| Poste du coût fixe (par job) | Mesure | Commentaire
+| Setup GitHub (checkout + JDK + setup-gradle + node) | ~16-23 s | non critique
+| Démarrage daemon Gradle | 8-15 s | forké à froid par job
+| **Configuration** | **21-42 s** | le plus gros poste fixe, variable
+| Compilation (main + test) | ~5-30 s | `compileKotlin` seul ≈ 25-30 s
+| `pluginUnderTestMetadata` → début tâche `Test` | **~30,0 s** (gap) | constant, inexpliqué
+| Overhead post-job (avant S-259) | **3-41 s** | cache-cleanup Gradle
+|===
+
+Le coût fixe total ≈ **90-110 s/job** mais il est dominé par la
+**configuration** et un **gap de 30,0 s** entre la dernière tâche de compilation
+et le démarrage de la tâche `Test`, **pas** par la compilation (~5-30 s).
+
+=== 2. L'hypothèse « cache chaud partagé » est FALSIFIÉE
+
+Le fichier `.ic` de la config `gradle-home` pèse **~1 Mo** et, à la sauvegarde :
+`Cache hit occurred on the cache key gradle-home-v1|Linux-X64|functional-shard[…]-<sha>, not saving cache.`
+Le **cache de build local** (`caches/build-cache-1`, 113 Mo en local, 1652
+entrées) **n'est pas persisté/restauré** entre les runs CI : la clé
+`setup-gradle` est **par job+matrice+SHA** (immuable, premier écrivain gagne) et
+les jobs parallèles d'un même run démarrent avant la sauvegarde des autres. Un
+job `cache-read-only` ne ré-écrit jamais et restaure indéfiniment une entrée
+stale. **Résultat mesuré : aucune compilation FROM-CACHE**, même après
+désactivation du cleanup et passage en « all writers ». Le levier « warm cache »
+du prompt **ne produit pas de gain sur ce dépôt**.
+
+=== 3. Chemins critiques mesurés
+
+[cols="2,2,3", options="header"]
+|===
+| Run | Max shard | Chemin critique
+| S-258 (baseline) `38765960426` | Functional · A 4 m 26 | A 4 m 26 + coverage 1 m 19 = **5 m 45**
+| S-259 run 1 `38767527591` | Functional · F 3 m 29 | F 3 m 29 + coverage 1 m 24 = **4 m 58**
+| S-259 run 2 `38768434298` att.2 | BDD · lens-tree 3 m 32 | 3 m 32 + coverage 1 m 18 = **4 m 53**
+|===
+
+== Leviers appliqués
+
+. **functionalTest 3 → 6 shards équilibrés (A–F)** : la suite GradleTestKit
+  parallélise peu (le wall d'un shard suit le **sum** des classes, pas
+  sum/forks) — 3 shards laissaient le max à ~4 m 30. 6 shards de ~50-67 s de
+  « span » par classe (équilibrage mesuré au run `38765960426`).
+. **`cache-cleanup: never` sur les 6 jobs `setup-gradle`** : supprime le build
+  Gradle post-job (~3-41 s, démarre un daemon single-use + reconfigure). Le post
+  passe à ~1-2 s (`Cache … not saving cache`), la variance de fin de job
+  disparaît.
+. **Rebalancement A↔F** : 3 classes légères déplacées du shard critique F vers A.
+. **Garde `BakeryCucumberShardCoverageTest`** : la liste des 6 shards functional
+  est **dérivée du script de build** (regex `functionalTestShard[A-Z]`) et chaque
+  tâche est vérifiée présente dans `test.yml` — anti « test fantôme », robuste à
+  l'ajout/retrait d'un shard.
+. **Fusion kover intacte** : job `coverage` `-x` étendu à `functionalTestShardD/E/F`.
+
+Commits : `2b511c0c` (6 shards + cleanup off, tentative read-only) puis
+`8ebb4f3d` (**final** : all-writers + cleanup off + rebalance A↔F).
+
+== Partition finale — noms de tâches shard définitifs (consommés par `workspace-bom`)
+
+=== BDD — 8 shards (71/71 features, exhaustif/disjoint, `not @personal`)
+
+`cucumberTestShardJbakeCoreFoundations`, `cucumberTestShardJbakeCoreComponents`,
+`cucumberTestShardJbakeCorePipelines`, `cucumberTestShardLensTree`,
+`cucumberTestShardSiteTree`, `cucumberTestShardLangSwitchCore`,
+`cucumberTestShardLangSwitchEcosystem`, `cucumberTestShardI18nMassPipeline`
+(runners `bakery.ci.shards.CucumberShard*Runner`).
+
+=== functionalTest — 6 shards (28/28 classes `@Test`, exhaustif/disjoint)
+
+[cols="3,5", options="header"]
+|===
+| Tâche | Classes
+| `functionalTestShardA` | BakeVariantsFunctionalTest, ContentI18nExcludePathsFunctionalTest, ContentI18nParallelismFunctionalTest, I18nDeployTaskOrderingFunctionalTest, TranslateI18nClientFunctionalTest, ContactSecFixtureFunctionalTest, LangSwitchScaffoldFunctionalTest
+| `functionalTestShardB` | ScaffoldFunctionalTests, TreeBakeFunctionalTest, VerifyConfigurationMappingFunctionalTest, SiteOllamaActivatesTranslationPoolFunctionalTest
+| `functionalTestShardC` | BakeryPluginFunctionalTests, ArchitectureValidationTest, ValidateFirebaseConfigFunctionalTests, PageAssetsFunctionalTest, CherolivComDogfoodingDryRunFunctionalTest
+| `functionalTestShardD` | MaterializeTemplatesFunctionalTest, ProfilePublisherFunctionalTest, InjectSeoFunctionalTest, MigrateContentI18nDeploySmokeFunctionalTest
+| `functionalTestShardE` | ScaffoldContactSecFunctionalTest, ProvisionDnsFunctionalTest, InjectLangSwitchFunctionalTest
+| `functionalTestShardF` | GeneratePivotYamlFunctionalTest, IntegrationRestoredFunctionalTests, TranslateTemplatesFunctionalTest, InjectRtlDirectionFunctionalTest, TranslateI18nClientOllamaConfigFunctionalTest
+|===
+
+Workflow `test.yml` : matrice `unit` + 8 BDD + 6 functional + `node` + `e2e` +
+`coverage` = **18 jobs**. `coverage` `needs: [unit, functional-shard, bdd-shard, e2e]`.
+
+== Mesures avant / après (CI verte à chaque run)
+
+[cols="1,2,2,2", options="header"]
+|===
+| | Commit | Run | Wall-clock
+| Avant (S-258) | `cc528421` | `38765960426` | **5 m 50 s** (meilleur S-258 : 5 m 15)
+| Après run 1 | `2b511c0c` | `38767527591` | **4 m 58 s**
+| Après run 2 att.1 | `8ebb4f3d` | `38768434298` | **5 m 12 s**
+| **Après run 2 att.2** (ré-exécution, caches chauds) | `8ebb4f3d` | `38768434298` | **4 m 53 s** ✅
+|===
+
+**Cible < 5 min : atteinte** (4 m 53 / 4 m 58 sur les runs propres), mais
+**marge mince** : la moyenne est ~5 m 00 et un run s'est établi à 5 m 12 (variance
+infra ±15-20 s). Le **max shard oscille ~3 m 00-3 m 38** entre functional et BDD
+selon le run (le 30 s gap et la config tombent différemment).
+
+== Plancher résiduel (leads non soldés)
+
+. **Configuration ~21-42 s/job** : plus gros poste fixe, non partageable
+  (config cache = répertoire projet, non caché par `setup-gradle` ; 1 invocation
+  Gradle/job → pas de réutilisation intra-job).
+. **Gap constant de ~30,0 s** entre la fin de compilation et le démarrage de la
+  tâche `Test` (functional + BDD, absent de `unit`). Piste : snapshot de
+  classpath / résolution kover. Non élucidé — reste le meilleur candidat à un
+  gain futur (~30 s × chemin critique).
+. **Job `coverage` 1 m 18-1 m 24** sérialisé après le max shard et re-compilant
+  (~5 s) : son poste dominant est la configuration (~32 s).
+. **Cache de build non partagé** entre runs : bloque tout gain « FROM-CACHE ».
+  Contourner exigerait un cache de build distant (hors périmètre, infra tierce)
+  ou un job `warmup` sérialisé (~1 m 45, pire).
+
+== Gates (Local = Build, Tests = CI)
+
+Local : `compileKotlin`/`compileTestKotlin`/`compileFunctionalTestKotlin` VERT ;
+`./gradlew tasks --all` → 8 BDD + 6 functional enregistrés ; partition
+functional vérifiée par script (28/28, disjointe) ; `diff` classes `@Test` =
+build shards **exact**. CI : runs `38767527591`, `38768434298` (att. 1 et 2)
+**success**, couverture fusionnée + seuil 85 % VERT, zéro secret, zéro Python,
+zéro publication.
+
+== Fichiers
+
+`bakery-plugin/build.gradle.kts` (partition 6 functional + `functionalShards`),
+`.github/workflows/test.yml` (matrice 6 functional + `cache-cleanup: never` +
+`-x` étendu), `bakery-plugin/src/test/kotlin/bakery/ci/BakeryCucumberShardCoverageTest.kt`
+(garde dérivée du build).
+
+*Note* : `ktlintKotlinScriptCheck`/`ktlintTestSourceSetCheck` restent rouges à
+HEAD (préexistants, règles ktlint 12.2.0 ; non exécutés par `test.yml`).

@@ -1,5 +1,18 @@
 = Archive des Tâches Terminées — Octobre 2026
 
+== Session 259 — 2026-10-15 — CI sous 5 min (functionalTest ×6 + cache-cleanup off)
+
+=== Fait
+- [x] **functionalTest 3 → 6 shards** équilibrés (`functionalTestShardA`…`F`, partition 28/28 exhaustive/disjointe)
+- [x] **`cache-cleanup: never`** sur les 6 jobs `setup-gradle` (post-job ~3-41 s → ~1-2 s)
+- [x] Rebalancement A↔F (3 classes légères déplacées du shard critique)
+- [x] Garde `BakeryCucumberShardCoverageTest` **dérivée du script de build** (`functionalTestShard[A-Z]` + présence `test.yml`)
+- [x] `coverage` `-x` étendu à `functionalTestShardD/E/F`
+- [x] **Hypothèse « cache chaud → FROM-CACHE » FALSIFIÉE** (preuve log : entrée `gradle-home` ~1 Mo, `Cache hit … not saving cache`, cache de build local non persisté entre runs CI)
+- [x] **CI verte `38768434298` (att. 2)** : **4 m 53 s** (record) ; run 1 `38767527591` = 4 m 58 s ; avant = 5 m 50 s (`38765960426`) ; fusion kover + seuil 85 % intacts
+- [x] Local = Build, Tests = CI ; zéro publication, zéro secret, zéro Python
+- [x] *Rapport* : `.agents/sessions/259-ci-wallclock-sous-5min.adoc`
+
 == Session 258 — 2026-10-15 — CI sharding itération 2 (Cucumber ×8, functionalTest ×3)
 
 === Fait
