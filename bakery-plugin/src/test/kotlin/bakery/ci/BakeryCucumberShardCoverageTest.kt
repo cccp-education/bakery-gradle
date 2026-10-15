@@ -143,7 +143,6 @@ class BakeryCucumberShardCoverageTest {
         assertThat(ci).contains("functionalTestShardA")
         assertThat(ci).contains("functionalTestShardB")
         assertThat(ci).contains("functionalTestShardC")
-        assertThat(ci).contains("functionalTestShardD")
     }
 
     @Test

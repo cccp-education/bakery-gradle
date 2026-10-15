@@ -48,7 +48,7 @@ jobs:
           path: bakery-plugin/build/kover/bin-reports/*.ic
           if-no-files-found: error
 
-  # ── functionalTest shards (4 parallel machines) ─────────────────────────────
+  # ── functionalTest shards (3 parallel machines) ─────────────────────────────
   # The 28 @Test functional classes are split in `.github/workflows/test.yml`
   # into an exhaustive, disjoint partition; guarded by
   # `bakery.ci.BakeryCucumberShardCoverageTest`.
@@ -66,8 +66,6 @@ jobs:
             task: functionalTestShardB
           - name: "C"
             task: functionalTestShardC
-          - name: "D"
-            task: functionalTestShardD
     defaults:
       run:
         working-directory: bakery-plugin
@@ -263,7 +261,7 @@ jobs:
         run: >
           ./gradlew koverXmlReport koverThresholdCheck
           -x test -x functionalTest -x cucumberTest -x e2eTest -x nodeTest
-          -x functionalTestShardA -x functionalTestShardB -x functionalTestShardC -x functionalTestShardD
+          -x functionalTestShardA -x functionalTestShardB -x functionalTestShardC
           -x cucumberTestShardJbakeCoreFoundations -x cucumberTestShardJbakeCoreComponents
           -x cucumberTestShardJbakeCorePipelines
           -x cucumberTestShardLensTree -x cucumberTestShardSiteTree

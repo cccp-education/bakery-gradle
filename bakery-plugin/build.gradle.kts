@@ -558,7 +558,7 @@ tasks.register("cucumberShards") {
     dependsOn(cucumberShardTasks)
 }
 
-// ── functionalTest shards (4) ─────────────────────────────────
+// ── functionalTest shards (3) ─────────────────────────────────
 // Same shape as `functionalTest`, narrowed by class. The partition is guarded
 // by `bakery.ci.BakeryCucumberShardCoverageTest` (every @Test class exactly once).
 fun registerFunctionalShard(
@@ -591,7 +591,7 @@ fun registerFunctionalShard(
 val functionalTestShardA =
     registerFunctionalShard(
         "functionalTestShardA",
-        "Runs functional tests — shard A (bake variants, dogfooding dry-run, i18n content, pivot YAML).",
+        "Runs functional tests — shard A (bake variants, dogfooding dry-run, i18n content, pivot YAML, injection).",
     ) {
         includeTestsMatching("bakery.BakeVariantsFunctionalTest")
         includeTestsMatching("bakery.CherolivComDogfoodingDryRunFunctionalTest")
@@ -600,41 +600,34 @@ val functionalTestShardA =
         includeTestsMatching("bakery.ContentI18nParallelismFunctionalTest")
         includeTestsMatching("bakery.GeneratePivotYamlFunctionalTest")
         includeTestsMatching("bakery.I18nDeployTaskOrderingFunctionalTest")
+        includeTestsMatching("bakery.InjectLangSwitchFunctionalTest")
+        includeTestsMatching("bakery.InjectRtlDirectionFunctionalTest")
+        includeTestsMatching("bakery.InjectSeoFunctionalTest")
     }
 
 val functionalTestShardB =
     registerFunctionalShard(
         "functionalTestShardB",
-        "Runs functional tests — shard B (lang-switch/SEO injection, template materialization, plugin contract).",
+        "Runs functional tests — shard B (scaffolding, template materialization, plugin contract, deploy smoke, assets).",
     ) {
-        includeTestsMatching("bakery.InjectLangSwitchFunctionalTest")
-        includeTestsMatching("bakery.InjectRtlDirectionFunctionalTest")
-        includeTestsMatching("bakery.InjectSeoFunctionalTest")
         includeTestsMatching("bakery.LangSwitchScaffoldFunctionalTest")
         includeTestsMatching("bakery.MaterializeTemplatesFunctionalTest")
         includeTestsMatching("bakery.ArchitectureValidationTest")
         includeTestsMatching("bakery.BakeryPluginFunctionalTests")
-    }
-
-val functionalTestShardC =
-    registerFunctionalShard(
-        "functionalTestShardC",
-        "Runs functional tests — shard C (firebase config, integrestored, deploy smoke, assets, dns, contact).",
-    ) {
         includeTestsMatching("bakery.ValidateFirebaseConfigFunctionalTests")
         includeTestsMatching("bakery.IntegrationRestoredFunctionalTests")
         includeTestsMatching("bakery.MigrateContentI18nDeploySmokeFunctionalTest")
         includeTestsMatching("bakery.PageAssetsFunctionalTest")
         includeTestsMatching("bakery.ProfilePublisherFunctionalTest")
-        includeTestsMatching("bakery.ProvisionDnsFunctionalTest")
-        includeTestsMatching("bakery.ScaffoldContactSecFunctionalTest")
     }
 
-val functionalTestShardD =
+val functionalTestShardC =
     registerFunctionalShard(
-        "functionalTestShardD",
-        "Runs functional tests — shard D (translation pool/client/templates, tree bake, config mapping, scaffold).",
+        "functionalTestShardC",
+        "Runs functional tests — shard C (dns, contact security, translation, tree bake, config mapping).",
     ) {
+        includeTestsMatching("bakery.ProvisionDnsFunctionalTest")
+        includeTestsMatching("bakery.ScaffoldContactSecFunctionalTest")
         includeTestsMatching("bakery.SiteOllamaActivatesTranslationPoolFunctionalTest")
         includeTestsMatching("bakery.TranslateI18nClientFunctionalTest")
         includeTestsMatching("bakery.TranslateI18nClientOllamaConfigFunctionalTest")
@@ -647,7 +640,7 @@ val functionalTestShardD =
 tasks.register("functionalShards") {
     description = "Runs every functionalTest shard (exhaustive, disjoint parallel partition)."
     group = "verification"
-    dependsOn(functionalTestShardA, functionalTestShardB, functionalTestShardC, functionalTestShardD)
+    dependsOn(functionalTestShardA, functionalTestShardB, functionalTestShardC)
 }
 
 tasks.check {
