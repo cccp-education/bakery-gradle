@@ -77,8 +77,8 @@ class BakeryCucumberShardCoverageTest {
     fun `the cucumber shards cover every feature exactly once and exclude personal`() {
         val runners = shardRunners()
         assertThat(runners)
-            .describedAs("CI shard runners must exist (7)")
-            .hasSizeGreaterThanOrEqualTo(7)
+            .describedAs("CI shard runners must exist (8)")
+            .hasSizeGreaterThanOrEqualTo(8)
 
         runners.forEach { r ->
             assertThat(runnerFeatures(r))
@@ -120,7 +120,7 @@ class BakeryCucumberShardCoverageTest {
 
         assertThat(buildShardTasks)
             .describedAs("shard CucumberTaskSpec tasks")
-            .hasSizeGreaterThanOrEqualTo(7)
+            .hasSizeGreaterThanOrEqualTo(8)
         assertThat(ciShardTasks)
             .describedAs("test.yml must run every shard task")
             .containsExactlyInAnyOrderElementsOf(buildShardTasks)
@@ -143,6 +143,7 @@ class BakeryCucumberShardCoverageTest {
         assertThat(ci).contains("functionalTestShardA")
         assertThat(ci).contains("functionalTestShardB")
         assertThat(ci).contains("functionalTestShardC")
+        assertThat(ci).contains("functionalTestShardD")
     }
 
     @Test

@@ -48,7 +48,7 @@ jobs:
           path: bakery-plugin/build/kover/bin-reports/*.ic
           if-no-files-found: error
 
-  # ── functionalTest shards (3 parallel machines) ─────────────────────────────
+  # ── functionalTest shards (4 parallel machines) ─────────────────────────────
   # The 28 @Test functional classes are split in `.github/workflows/test.yml`
   # into an exhaustive, disjoint partition; guarded by
   # `bakery.ci.BakeryCucumberShardCoverageTest`.
@@ -66,6 +66,8 @@ jobs:
             task: functionalTestShardB
           - name: "C"
             task: functionalTestShardC
+          - name: "D"
+            task: functionalTestShardD
     defaults:
       run:
         working-directory: bakery-plugin
@@ -97,7 +99,7 @@ jobs:
           path: bakery-plugin/build/kover/bin-reports/*.ic
           if-no-files-found: error
 
-  # ── BDD shards (7 parallel machines) ─────────────────────────────────────────
+  # ── BDD shards (8 parallel machines) ─────────────────────────────────────────
   # The 71 features are split into an exhaustive, disjoint partition; guarded by
   # `bakery.ci.BakeryCucumberShardCoverageTest`.
   bdd-shard:
@@ -110,6 +112,8 @@ jobs:
         include:
           - name: "jbake-core-foundations"
             task: cucumberTestShardJbakeCoreFoundations
+          - name: "jbake-core-components"
+            task: cucumberTestShardJbakeCoreComponents
           - name: "jbake-core-pipelines"
             task: cucumberTestShardJbakeCorePipelines
           - name: "lens-tree"
@@ -259,8 +263,9 @@ jobs:
         run: >
           ./gradlew koverXmlReport koverThresholdCheck
           -x test -x functionalTest -x cucumberTest -x e2eTest -x nodeTest
-          -x functionalTestShardA -x functionalTestShardB -x functionalTestShardC
-          -x cucumberTestShardJbakeCoreFoundations -x cucumberTestShardJbakeCorePipelines
+          -x functionalTestShardA -x functionalTestShardB -x functionalTestShardC -x functionalTestShardD
+          -x cucumberTestShardJbakeCoreFoundations -x cucumberTestShardJbakeCoreComponents
+          -x cucumberTestShardJbakeCorePipelines
           -x cucumberTestShardLensTree -x cucumberTestShardSiteTree
           -x cucumberTestShardLangSwitchCore -x cucumberTestShardLangSwitchEcosystem
           -x cucumberTestShardI18nMassPipeline
