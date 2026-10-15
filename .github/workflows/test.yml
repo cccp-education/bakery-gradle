@@ -48,9 +48,9 @@ jobs:
           path: bakery-plugin/build/kover/bin-reports/*.ic
           if-no-files-found: error
 
-  # ── functionalTest shards (2 parallel machines) ──────────────────────────────
-  # The 23 functional classes are split in `.github/workflows/test.yml` into an
-  # exhaustive, disjoint partition; guarded by
+  # ── functionalTest shards (3 parallel machines) ─────────────────────────────
+  # The 28 @Test functional classes are split in `.github/workflows/test.yml`
+  # into an exhaustive, disjoint partition; guarded by
   # `bakery.ci.BakeryCucumberShardCoverageTest`.
   functional-shard:
     name: Functional · ${{ matrix.name }}
@@ -64,6 +64,8 @@ jobs:
             task: functionalTestShardA
           - name: "B"
             task: functionalTestShardB
+          - name: "C"
+            task: functionalTestShardC
     defaults:
       run:
         working-directory: bakery-plugin
@@ -95,7 +97,7 @@ jobs:
           path: bakery-plugin/build/kover/bin-reports/*.ic
           if-no-files-found: error
 
-  # ── BDD shards (4 parallel machines) ─────────────────────────────────────────
+  # ── BDD shards (7 parallel machines) ─────────────────────────────────────────
   # The 71 features are split into an exhaustive, disjoint partition; guarded by
   # `bakery.ci.BakeryCucumberShardCoverageTest`.
   bdd-shard:
@@ -106,12 +108,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name: "jbake-core"
-            task: cucumberTestShardJbakeCore
+          - name: "jbake-core-foundations"
+            task: cucumberTestShardJbakeCoreFoundations
+          - name: "jbake-core-pipelines"
+            task: cucumberTestShardJbakeCorePipelines
           - name: "lens-tree"
             task: cucumberTestShardLensTree
-          - name: "lang-switch"
-            task: cucumberTestShardLangSwitch
+          - name: "site-tree"
+            task: cucumberTestShardSiteTree
+          - name: "lang-switch-core"
+            task: cucumberTestShardLangSwitchCore
+          - name: "lang-switch-ecosystem"
+            task: cucumberTestShardLangSwitchEcosystem
           - name: "i18n-mass-pipeline"
             task: cucumberTestShardI18nMassPipeline
     defaults:
@@ -251,9 +259,11 @@ jobs:
         run: >
           ./gradlew koverXmlReport koverThresholdCheck
           -x test -x functionalTest -x cucumberTest -x e2eTest -x nodeTest
-          -x functionalTestShardA -x functionalTestShardB
-          -x cucumberTestShardJbakeCore -x cucumberTestShardLensTree
-          -x cucumberTestShardLangSwitch -x cucumberTestShardI18nMassPipeline
+          -x functionalTestShardA -x functionalTestShardB -x functionalTestShardC
+          -x cucumberTestShardJbakeCoreFoundations -x cucumberTestShardJbakeCorePipelines
+          -x cucumberTestShardLensTree -x cucumberTestShardSiteTree
+          -x cucumberTestShardLangSwitchCore -x cucumberTestShardLangSwitchEcosystem
+          -x cucumberTestShardI18nMassPipeline
 
       - name: Upload merged coverage report
         if: always()

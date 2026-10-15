@@ -19,8 +19,8 @@ import java.io.File
  *    preserves the aggregate exclusion (`not @personal`);
  * 2. every Cucumber shard runner is registered as a Gradle task **and** invoked
  *    by the CI workflow;
- * 3. the functional shard tasks partition **every** `*FunctionalTest` class and
- *    both are invoked by the CI workflow;
+ * 3. the functional shard tasks partition **every** `@Test` functional class and
+ *    all are invoked by the CI workflow;
  * 4. the `unit` job runs the plain `test` task.
  */
 class BakeryCucumberShardCoverageTest {
@@ -77,8 +77,8 @@ class BakeryCucumberShardCoverageTest {
     fun `the cucumber shards cover every feature exactly once and exclude personal`() {
         val runners = shardRunners()
         assertThat(runners)
-            .describedAs("CI shard runners must exist (4)")
-            .hasSizeGreaterThanOrEqualTo(4)
+            .describedAs("CI shard runners must exist (7)")
+            .hasSizeGreaterThanOrEqualTo(7)
 
         runners.forEach { r ->
             assertThat(runnerFeatures(r))
@@ -120,7 +120,7 @@ class BakeryCucumberShardCoverageTest {
 
         assertThat(buildShardTasks)
             .describedAs("shard CucumberTaskSpec tasks")
-            .hasSizeGreaterThanOrEqualTo(4)
+            .hasSizeGreaterThanOrEqualTo(7)
         assertThat(ciShardTasks)
             .describedAs("test.yml must run every shard task")
             .containsExactlyInAnyOrderElementsOf(buildShardTasks)
@@ -142,6 +142,7 @@ class BakeryCucumberShardCoverageTest {
         val ci = workflow.readText()
         assertThat(ci).contains("functionalTestShardA")
         assertThat(ci).contains("functionalTestShardB")
+        assertThat(ci).contains("functionalTestShardC")
     }
 
     @Test
