@@ -236,6 +236,15 @@ jobs:
         with:
           node-version: '22'
 
+      # Cache the Playwright Chromium download (~150 MB). Keyed by the catalog
+      # (any dependency bump refreshes it) so the browser is not re-downloaded on
+      # every run; `installPlaywright` already skips when Chromium is present.
+      - name: Cache Playwright Chromium
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('bakery-plugin/gradle/libs.versions.toml') }}
+
       - name: Install Playwright Chromium
         run: ./gradlew installPlaywright
 
