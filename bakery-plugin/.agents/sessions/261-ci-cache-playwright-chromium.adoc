@@ -1,0 +1,27 @@
+= Session 261 — Cache CI du Chromium Playwright (job E2E)
+:toc:
+
+== Contexte
+
+Maintenance CI (cache cross-borough, cf. `workspace-bom/.agents/CADRAGE_CI_CACHE.adoc`).
+Le job **E2E (Playwright)** de `test.yml` exécutait `./gradlew installPlaywright` à
+chaque run : la tâche a un `onlyIf` (skip si Chromium présent) mais **aucun cache
+GitHub Actions** ne restaurait `~/.cache/ms-playwright` → Chromium (~150 Mo)
+re-téléchargé à chaque run.
+
+== Correctif
+
+Ajout, avant `installPlaywright`, d'un `actions/cache@v4` sur `~/.cache/ms-playwright`,
+clé `playwright-chromium-${{ runner.os }}-${{ hashFiles('bakery-plugin/gradle/libs.versions.toml') }}`
+(tout bump de dépendance rafraîchit le cache → pas de désync de version). Sur cache
+chaud, `installPlaywright` **skip** (Chromium déjà présent) → plus de téléchargement.
+
+== Portée
+
+`.github/workflows/test.yml` (job `e2e`) uniquement ; aucun code plugin modifié.
+
+== Rappel (contrainte)
+
+Le cache GitHub Actions est **scopé par dépôt** (repo + ref). Il ne franchit pas la
+frontière d'un dépôt — la mutualisation entre boroughs exigerait un runner self-hosted
+(disque persistant) ou une image conteneur pré-bakée.
