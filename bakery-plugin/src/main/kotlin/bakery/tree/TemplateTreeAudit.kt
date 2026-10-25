@@ -15,6 +15,10 @@ import java.io.File
  * unified tree (GBL-010 G-4) needs the full per-node status. This audit supplies
  * it, generically, for any site layout the caller hands in.
  *
+ * The audit walks the reference tree **recursively** and reports each template by
+ * its path relative to `templates/` (e.g. `blog/post.thyme`), so the production
+ * `translateTemplates` task and the unified tree can share the same node identity.
+ *
  * Pure domain: reads the filesystem, no Gradle, no LLM, no network.
  */
 enum class TemplateTranslationStatus {
@@ -52,7 +56,10 @@ data class TemplateTree(
                     "missing: ${count(TemplateTranslationStatus.MISSING)}",
             )
             appendLine()
-            unconverged.forEach { node ->
+            // GBL-010 G-1b — expose every node, not only the unconverged ones:
+            // the unified tree (G-4) needs the green leaves too, and a converged
+            // report must still name them.
+            nodes.forEach { node ->
                 appendLine("* ${node.language}/${node.template} — ${node.status.name}")
             }
         }
@@ -69,18 +76,19 @@ object TemplateTreeAudit {
     ): TemplateTree {
         val references =
             referenceTemplates
-                .listFiles()
-                .orEmpty()
+                .walkTopDown()
                 .filter { it.isFile && it.extension.lowercase() in TEMPLATE_EXTENSIONS }
-                .sortedBy { it.name }
+                .sortedBy { it.relativeTo(referenceTemplates).path }
+                .toList()
 
         val nodes =
             variantTemplates.entries
                 .sortedBy { it.key }
                 .flatMap { (language, variantDir) ->
                     references.map { reference ->
-                        val variant = variantDir.resolve(reference.name)
-                        TemplateNode(language, reference.name, statusOf(reference, variant))
+                        val relativePath = reference.relativeTo(referenceTemplates).path
+                        val variant = variantDir.resolve(relativePath)
+                        TemplateNode(language, relativePath, statusOf(reference, variant))
                     }
                 }
 

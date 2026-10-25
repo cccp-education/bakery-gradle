@@ -476,13 +476,16 @@ fun registerCucumberTask(spec: CucumberTaskSpec): TaskProvider<Test> =
         description = spec.description
         group = "verification"
 
-        testClassesDirs = sourceSets.test.get().output.classesDirs
+        testClassesDirs =
+            sourceSets.test
+                .get()
+                .output.classesDirs
         classpath =
             configurations.testRuntimeClasspath.get() +
-                sourceSets.test.get().output +
-                functionalTest.output +
-                sourceSets.main.get().output +
-                files(tasks.jar.get().archiveFile)
+            sourceSets.test.get().output +
+            functionalTest.output +
+            sourceSets.main.get().output +
+            files(tasks.jar.get().archiveFile)
 
         dependsOn(tasks.classes)
         dependsOn(functionalTest.classesTaskName)

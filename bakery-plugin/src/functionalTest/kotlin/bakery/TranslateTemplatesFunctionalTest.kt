@@ -199,6 +199,58 @@ class TranslateTemplatesFunctionalTest {
         }
     }
 
+    @Test
+    fun `the template tree report exposes the per-node statuses`() {
+        createSite(ollamaSection = true)
+        projectDir.resolve("jbake/i18n/de/templates").mkdirs()
+        projectDir
+            .resolve("jbake/i18n/de/templates/hero.thyme")
+            .writeText("""<h1 class="hero">Entwickler</h1>""")
+
+        GradleRunner
+            .create()
+            .withProjectDir(projectDir)
+            .withPluginClasspath()
+            .withArguments(
+                "translateTemplates",
+                "--templateTargetLangs=de",
+                "--templateSourceLang=fr",
+                "--templateDryRun=true",
+                "--info",
+            ).build()
+
+        val report = projectDir.resolve("build/bakery/template-tree.adoc")
+        assertThat(report).exists()
+        val text = report.readText()
+        assertThat(text).contains("templates:")
+        assertThat(text).contains("de/hero.thyme — TRANSLATED")
+    }
+
+    @Test
+    fun `a complete variant is a strict no-op through the tree audit`() {
+        createSite(ollamaSection = true)
+        projectDir.resolve("jbake/i18n/de/templates").mkdirs()
+        projectDir
+            .resolve("jbake/i18n/de/templates/hero.thyme")
+            .writeText("""<h1 class="hero">Entwickler</h1>""")
+
+        val result =
+            GradleRunner
+                .create()
+                .withProjectDir(projectDir)
+                .withPluginClasspath()
+                .withArguments(
+                    "translateTemplates",
+                    "--templateTargetLangs=de",
+                    "--templateSourceLang=fr",
+                    "--templateDryRun=true",
+                    "--info",
+                ).build()
+
+        assertThat(result.output).contains("templates: 1 · translated: 1")
+        assertThat(result.output).doesNotContain("[de] DRY-RUN hero.thyme")
+    }
+
     private fun createSite(ollamaSection: Boolean = false) {
         projectDir.resolve("settings.gradle.kts").writeText(
             """

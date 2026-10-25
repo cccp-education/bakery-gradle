@@ -301,6 +301,13 @@ object ContentTaskRegistrar {
             task.description =
                 "Traduit les templates Thymeleaf dans chaque langue cible (swap de copies complètes, JBake sans MessageResolver)"
             task.siteDir = bakeRoot
+            // GBL-010 G-1b — deterministic audit report consumed by the unified
+            // translation tree (G-4). It is produced in dry-run too.
+            task.templateTreeReport =
+                project.layout.buildDirectory
+                    .file("bakery/template-tree.adoc")
+                    .get()
+                    .asFile
             task.templateTargetLangs.set(project.providers.gradleProperty("templateTargetLangs").orElse(""))
             task.templateSourceLang.set(project.providers.gradleProperty("templateSourceLang").orElse(""))
             task.templateDryRun.set(project.providers.gradleProperty("templateDryRun").orElse(""))

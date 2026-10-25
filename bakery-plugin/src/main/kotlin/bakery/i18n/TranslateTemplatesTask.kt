@@ -2,6 +2,8 @@ package bakery.i18n
 
 import bakery.BakeryConstants
 import bakery.intention.ResolveIntention
+import bakery.tree.TemplateTree
+import bakery.tree.TemplateTreeAudit
 import contracts.i18n.TranslationService
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
@@ -40,6 +42,14 @@ abstract class TranslateTemplatesTask : DefaultTask() {
 
     @get:Internal
     var siteDir: File? = null
+
+    /**
+     * GBL-010 G-1b — the `template-tree` audit report (status per template ×
+     * language), consumed by the unified translation tree (G-4). Optional: the
+     * task still runs when no report path is wired.
+     */
+    @get:Internal
+    var templateTreeReport: File? = null
 
     @get:Input
     @get:Optional
@@ -123,27 +133,46 @@ abstract class TranslateTemplatesTask : DefaultTask() {
             logger.lifecycle("[translateTemplates] Langues forcées : {}", forceLangs.joinToString(", "))
         }
 
+        val templateFiles =
+            referenceDir
+                .walkTopDown()
+                .filter { it.isFile && it.extension == "thyme" }
+                .sortedBy { it.relativeTo(referenceDir).path }
+                .toList()
+        val reference = templateFiles.associate { it.relativeTo(referenceDir).path to it.readText() }
+
+        // GBL-010 G-1b — the audit is the single status source for the planning
+        // step: missing/untranslated → scheduled, translated → preserved. The
+        // report is written even when the IA is disabled (a dry-run/audit pass).
+        val variantDirs =
+            targetLangs
+                .filter { it != sourceLang }
+                .associateWith { i18nRoot.resolve("$it/templates") }
+        val tree =
+            TemplateTreeAudit.of(
+                referenceTemplates = referenceDir,
+                variantTemplates = variantDirs,
+                referenceLanguage = sourceLang,
+            )
+        writeTemplateTreeReport(tree)
+        logTemplateTreeSummary(tree)
+
         val service = translationService
         if (service == null) {
             logger.warn("[translateTemplates] Aucun TranslationService — aucun template traduit.")
             return
         }
 
-        val templateFiles = referenceDir.walkTopDown().filter { it.isFile && it.extension == "thyme" }.toList()
-        val reference = templateFiles.associate { it.relativeTo(referenceDir).path to it.readText() }
-
         for (language in targetLangs) {
             if (language == sourceLang) continue
             val targetDir = i18nRoot.resolve("$language/templates")
-            val target =
-                templateFiles
-                    .associate {
-                        val relative = it.relativeTo(referenceDir).path
-                        relative to targetDir.resolve(relative)
-                    }.filterValues { it.exists() }
-                    .mapValues { it.value.readText() }
-
-            val toTranslate = TemplateTranslationPlanner.plan(reference, target, force = language in forceLangs)
+            val toTranslate =
+                TemplateTranslationPlanner.plan(
+                    tree = tree,
+                    language = language,
+                    force = language in forceLangs,
+                    include = { it.template.endsWith(".thyme") },
+                )
 
             var translatedFiles = 0
             var failedSegments = 0
@@ -268,6 +297,31 @@ abstract class TranslateTemplatesTask : DefaultTask() {
                     aligned,
                 )
             }
+        }
+    }
+
+    /** GBL-010 G-1b — writes the deterministic `template-tree` report (G-4 input). */
+    private fun writeTemplateTreeReport(tree: TemplateTree) {
+        val report = templateTreeReport ?: return
+        try {
+            report.parentFile?.mkdirs()
+            report.writeText(tree.render())
+        } catch (e: Exception) {
+            logger.warn("[translateTemplates] Rapport template-tree non écrit : {}", e.message)
+        }
+    }
+
+    /** GBL-010 G-1b — makes the per-node status visible in the task log. */
+    private fun logTemplateTreeSummary(tree: TemplateTree) {
+        val summary = tree.render().lineSequence().firstOrNull { it.startsWith("templates:") } ?: return
+        logger.lifecycle("[translateTemplates] {}", summary)
+        tree.unconverged.forEach { node ->
+            logger.lifecycle(
+                "[translateTemplates] arbre : {}/{} — {}",
+                node.language,
+                node.template,
+                node.status,
+            )
         }
     }
 

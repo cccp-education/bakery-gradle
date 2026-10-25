@@ -74,6 +74,18 @@ class TemplateTreeAuditTest {
     }
 
     @Test
+    fun `a nested template is identified by its relative path`() {
+        val root = root()
+        template(reference(root), "blog/post.thyme", "Bonjour")
+        template(variant(root, "en"), "blog/post.thyme", "Hello")
+
+        val tree = audit(root, "en")
+
+        assertThat(tree.nodes.single().template).isEqualTo("blog/post.thyme")
+        assertThat(tree.nodes.single().status).isEqualTo(TemplateTranslationStatus.TRANSLATED)
+    }
+
+    @Test
     fun `the render is deterministic and names the statuses`() {
         val root = root()
         template(reference(root), "footer.thyme", "Bonjour")

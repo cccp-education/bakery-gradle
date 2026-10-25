@@ -1,5 +1,8 @@
 package bakery.i18n
 
+import bakery.tree.TemplateNode
+import bakery.tree.TemplateTranslationStatus
+import bakery.tree.TemplateTree
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
@@ -124,6 +127,66 @@ class TemplateTranslationPlannerTest {
 
         assertEquals(listOf("hero.thyme"), plan)
     }
+
+    @Test
+    fun `a converged template tree is a strict no-op`() {
+        val tree =
+            treeOf(
+                node("en", "hero.thyme", TemplateTranslationStatus.TRANSLATED),
+                node("en", "blog/post.thyme", TemplateTranslationStatus.TRANSLATED),
+            )
+
+        assertEquals(emptyList(), TemplateTranslationPlanner.plan(tree, "en"))
+    }
+
+    @Test
+    fun `only the non-green tree nodes are scheduled`() {
+        val tree =
+            treeOf(
+                node("en", "hero.thyme", TemplateTranslationStatus.TRANSLATED),
+                node("en", "blog/post.thyme", TemplateTranslationStatus.UNTRANSLATED),
+                node("en", "archive.thyme", TemplateTranslationStatus.MISSING),
+            )
+
+        assertEquals(
+            listOf("blog/post.thyme", "archive.thyme"),
+            TemplateTranslationPlanner.plan(tree, "en"),
+        )
+    }
+
+    @Test
+    fun `a forced tree plan regenerates every node of the language`() {
+        val tree =
+            treeOf(
+                node("en", "hero.thyme", TemplateTranslationStatus.TRANSLATED),
+                node("de", "hero.thyme", TemplateTranslationStatus.UNTRANSLATED),
+            )
+
+        assertEquals(listOf("hero.thyme"), TemplateTranslationPlanner.plan(tree, "en", force = true))
+        assertEquals(listOf("hero.thyme"), TemplateTranslationPlanner.plan(tree, "de"))
+    }
+
+    @Test
+    fun `the tree plan can be scoped to thyme templates only`() {
+        val tree =
+            treeOf(
+                node("en", "hero.thyme", TemplateTranslationStatus.UNTRANSLATED),
+                node("en", "index.html", TemplateTranslationStatus.UNTRANSLATED),
+            )
+
+        assertEquals(
+            listOf("hero.thyme"),
+            TemplateTranslationPlanner.plan(tree, "en", include = { it.template.endsWith(".thyme") }),
+        )
+    }
+
+    private fun treeOf(vararg nodes: TemplateNode): TemplateTree = TemplateTree("fr", nodes.toList())
+
+    private fun node(
+        language: String,
+        template: String,
+        status: TemplateTranslationStatus,
+    ): TemplateNode = TemplateNode(language, template, status)
 
     @Test
     fun `parallelism inside one to twenty-five is accepted`() {

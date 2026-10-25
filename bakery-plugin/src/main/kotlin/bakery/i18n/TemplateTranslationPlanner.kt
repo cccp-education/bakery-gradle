@@ -1,5 +1,9 @@
 package bakery.i18n
 
+import bakery.tree.TemplateNode
+import bakery.tree.TemplateTranslationStatus
+import bakery.tree.TemplateTree
+
 /**
  * CHE-I18N-22 US-7b — decides which templates of a target language still need
  * translation (full-template swap strategy, JBake has no MessageResolver).
@@ -28,6 +32,31 @@ object TemplateTranslationPlanner {
                 existing == reference.getValue(relativePath)
             }.keys
             .toList()
+    }
+
+    /**
+     * GBL-010 G-1b — status-driven plan from the [TemplateTree] audit.
+     *
+     * This is the production rule: only a node whose status is not
+     * [TemplateTranslationStatus.TRANSLATED] is scheduled — the second run over a
+     * converged variant is a strict no-op. [include] narrows the node set (the
+     * `translateTemplates` task owns `.thyme` files only) without duplicating the
+     * status rule.
+     */
+    fun plan(
+        tree: TemplateTree,
+        language: String,
+        force: Boolean = false,
+        include: (TemplateNode) -> Boolean = { true },
+    ): List<String> {
+        val nodes = tree.nodes.filter { it.language == language && include(it) }
+        return if (force) {
+            nodes.map { it.template }
+        } else {
+            nodes
+                .filter { it.status != TemplateTranslationStatus.TRANSLATED }
+                .map { it.template }
+        }
     }
 
     /**

@@ -6,10 +6,10 @@ import bakery.intention.ResolveIntention
 import bakery.intention.ResolveIntentionError
 import contracts.i18n.TranslationService
 import document.translation.ContentTranslationService
-import document.translation.delta.ArticleModification
 import document.translation.delta.BlockChecksumEntry
-import document.translation.delta.I18nDelta
 import document.translation.delta.I18nDeltaApplier
+import document.translation.plan.SubtreeI18nPlanner
+import document.translation.tree.SiteNode
 import document.translation.validation.PlantUmlValidationReport
 import document.translation.validation.PlantUmlValidationResult
 import document.translation.validation.TableValidationReport
@@ -157,7 +157,15 @@ abstract class MigrateContentI18nTask : DefaultTask() {
         for (targetLang in intention.targetLanguages) {
             val langDir = outputBaseDir.resolve(targetLang)
             val storedChecksums = loadStoredChecksums(langDir)
-            val delta = computeDelta(storedChecksums, currentChecksums)
+            // GBL-010 G-1b — the production delta is the tree/leaf-aware
+            // `SubtreeI18nPlanner` (document N2), not a second flat checksum
+            // rule. Its scope is the whole content tree today; a subtree path
+            // can be supplied without changing this task.
+            val delta =
+                SubtreeI18nPlanner(
+                    articles = currentChecksums.keys.sorted().map { SiteNode.Article(path = it) },
+                    beforeChecksums = storedChecksums,
+                ).computeDelta(currentChecksums)
 
             val existingTargetFiles =
                 if (langDir.exists()) {
@@ -408,20 +416,6 @@ abstract class MigrateContentI18nTask : DefaultTask() {
         file.writeText(
             checksums.entries.joinToString("\n") { "${it.key}=${it.value.serialize()}" },
         )
-    }
-
-    private fun computeDelta(
-        beforeChecksums: Map<String, String>,
-        afterChecksums: Map<String, String>,
-    ): I18nDelta {
-        val modified = mutableListOf<ArticleModification>()
-        for ((path, afterHash) in afterChecksums) {
-            val beforeHash = beforeChecksums[path]
-            if (beforeHash == null || beforeHash != afterHash) {
-                modified.add(ArticleModification(path, beforeHash, afterHash, 0))
-            }
-        }
-        return I18nDelta(modified, emptyList(), afterChecksums)
     }
 
     internal fun resolveIntention(): ContentMigrationIntention {
