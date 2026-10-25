@@ -1,7 +1,7 @@
 = TODO — Bakery Plugin
 :description: Pense-bête informel — idées, pas un plan. Voir BACKLOG.adoc pour les priorités.
 
-_Dernière mise à jour : 2026-10-15 — Session 259 ✅. **CI sous 5 min** : functionalTest **3 → 6 shards** (A–F) + **`cache-cleanup: never`** sur les 6 jobs `setup-gradle`. CI verte `38768434298` (att. 2) : **4 m 53 s** (record ; run 1 4 m 58 s) contre 5 m 50 s (S-258). Hypothèse « cache chaud → FROM-CACHE » **falsifiée** (cache de build local non persisté entre runs) ; goulot = configuration (21-42 s/job) + gap constant ~30 s avant la tâche `Test`. Antérieur S-258 : 8 BDD + 3 functional. S-257 : sharding initial (4+2). S-256 : pins 0.0.87. S-255 : fix ktlint. S-254 : release 0.0.26._
+_Dernière mise à jour : 2026-10-25 — Session 262 ✅. **GBL-010 G-1b** : `TemplateTreeAudit` récursif câblé dans `translateTemplates` (rapport `build/bakery/template-tree.adoc`, planification par statut) + `MigrateContentI18nTask` délègue son delta à `SubtreeI18nPlanner`. CI `40237469042` verte. Reste G-4/G-5 et release 0.0.29. Antérieur : S-259 **CI sous 5 min** : functionalTest **3 → 6 shards** (A–F) + **`cache-cleanup: never`** sur les 6 jobs `setup-gradle`. CI verte `38768434298` (att. 2) : **4 m 53 s** (record ; run 1 4 m 58 s) contre 5 m 50 s (S-258). Hypothèse « cache chaud → FROM-CACHE » **falsifiée** (cache de build local non persisté entre runs) ; goulot = configuration (21-42 s/job) + gap constant ~30 s avant la tâche `Test`. Antérieur S-258 : 8 BDD + 3 functional. S-257 : sharding initial (4+2). S-256 : pins 0.0.87. S-255 : fix ktlint. S-254 : release 0.0.26._
 
 == CI sharding (S-257 ✅ + S-258 ✅ + S-259 ✅ TERMINÉE)
 

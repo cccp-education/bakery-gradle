@@ -93,11 +93,16 @@ BDD `@template-tree`. Adossé à `BKY-TREE` (composite), pas un second modèle.
 `translateTemplates` : ne re-traiter que les nœuds non-verts (reprise économie
 d'encre) ; preuve second passage no-op.
 | 3
-| 🟡 À FAIRE
+| ✅ S-262 — `TemplateTreeAudit` récursif (chemins relatifs) + `TemplateTranslationPlanner.plan(tree, …)` ; `translateTemplates` écrit `build/bakery/template-tree.adoc` et ne programme que les nœuds non-verts ; `MigrateContentI18nTask` délègue son delta à `SubtreeI18nPlanner` (document N2). 4 UT + 1 UT + 2 FT ; second passage no-op. CI `40237469042` VERTE.
 |===
 
 *Dépend de* : `BKY-TREE` (socle), `plantuml-contracts` (pour le statut feuille),
 `document-gradle` / `plantuml-gradle` (branche B).
+
+*Statut GBL-010* : `G-1` ✅ S-253 + `G-1b` ✅ S-262 — audit et orchestration de la
+branche Template câblés, delta Data délégué au planner document. Reste **G-4**
+(audit unifié cheroliv.com) et **G-5** (reprise économie d'encre sur corpus réel),
+plus la release `0.0.29` (sur accord pilote).
 *Relie* : `GBL-007` (feuille plantuml), `BKY-PLANTUML-D1` (bake/toolchain),
 `BKY-TREE` (composite site).
 

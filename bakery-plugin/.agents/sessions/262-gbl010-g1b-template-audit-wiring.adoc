@@ -1,0 +1,110 @@
+= Session 262 — GBL-010 G-1b : audit de l'arbre templates câblé + delta par sous-arbre
+:session: 262
+:date: 2026-10-25
+:borough: Bushwick — bakery-gradle (N2)
+:epic: GBL-010 (arbre de traduction — branche Template + orchestration Data)
+:statut: ✅ TERMINÉE
+
+'''
+== Contexte
+
+`G-1` (S-253) avait livré `bakery.tree.TemplateTreeAudit` mais **test-only** :
+`translateTemplates` continuait de comparer les maps de contenu (`TemplateTranslationPlanner.plan(reference, target)`)
+et `MigrateContentI18nTask` gardait sa propre règle de delta plate. `G-1b` devait
+câbler l'audit dans la production : ne re-traiter que les nœuds non-verts, prouver
+le second passage no-op, et rendre l'arbre exploitable par `G-4`.
+
+Ouverture : HEAD `4ded27b2` (`release(bakery): 0.0.28 — BOM 0.0.101`, document
+0.0.25), posé par une session de release concurrente ; working tree propre.
+`G-1b` est construit **au-dessus** de cette release, **sans bump ni publication**.
+
+'''
+== Livré
+
+=== Branche Template (`translateTemplates`)
+
+* `TemplateTreeAudit` — walk **récursif** de `templates/`, nœud identifié par son
+  **chemin relatif** (`blog/post.thyme`) ; `render()` expose désormais **tous** les
+  nœuds (y compris `TRANSLATED`), pas seulement les non-convergés.
+* `TemplateTranslationPlanner.plan(tree, language, force, include)` — règle de
+  planification **pilotée par le statut** de l'arbre : `MISSING`/`UNTRANSLATED`
+  programmés, `TRANSLATED` préservé ; `force` régénère la langue, `include`
+  restreint au périmètre `.thyme` de la tâche. La règle map historique reste
+  disponible pour ses tests/BDD.
+* `TranslateTemplatesTask` — construit l'audit de toutes les variantes, écrit le
+  rapport **`build/bakery/template-tree.adoc`** (même en dry-run / IA désactivée),
+  journalise la synthèse et les nœuds non-verts, puis planifie via l'arbre. Le
+  chemin d'écriture est câblé par `ContentTaskRegistrar`.
+* Le rapport est un **artefact d'audit** (`@Internal File`) : il ne rend pas la
+  tâche « up-to-date » et ne la dispense jamais de traduire.
+
+=== Branche Data (`migrateContentI18n`)
+
+* `MigrateContentI18nTask` délègue désormais son delta à **`SubtreeI18nPlanner`**
+  (document N2) au lieu de dupliquer une règle plate `computeDelta`. Le plan porte
+  le grain article/feuille ; `PendingBlockRetry` et le delta de blocs restent
+  inchangés. Le périmètre est l'arbre complet aujourd'hui ; un `subtreePath` peut
+  être fourni sans changer la tâche (suivi `G-4`).
+* Suppression de la méthode privée `computeDelta` et de ses imports morts.
+
+=== Hygiène
+
+* `ktlintKotlinScriptFormat` corrige un drift **pré-existant** de
+  `build.gradle.kts` (`chain-method-continuation` + indentation, lignes 479-485),
+  qui faisait échouer `ktlintKotlinScriptCheck` à HEAD.
+
+'''
+== Tests
+
+* `TemplateTranslationPlannerTest` — **+4 UT** : arbre convergé = no-op strict,
+  seuls les nœuds non-verts programmés, `force` par langue, périmètre `.thyme`.
+* `TemplateTreeAuditTest` — **+1 UT** : template imbriqué identifié par son chemin
+  relatif (fixture parent-dirs corrigée après RED CI).
+* `TranslateTemplatesFunctionalTest` — **+2 FT** : le rapport
+  `build/bakery/template-tree.adoc` expose le statut par nœud ; une variante
+  complète est un no-op strict (aucun `DRY-RUN`).
+* Tests historiques préservés (planner map, audit flat, 7 features `@templates`,
+  delta article).
+
+Gates locales : `compileKotlin` / `compileTestKotlin` /
+`compileFunctionalTestKotlin` VERT, `assemble` + `validatePlugins` VERT,
+`ktlintMainSourceSetCheck` + `ktlintFunctionalTestSourceSetCheck` VERT.
+`ktlintTestSourceSetCheck` reste rouge sur des fichiers **pré-existants**
+`bakery/ci/*` (constat S-258, non causé par cette session ; nos fichiers de test
+ne figurent pas dans le rapport).
+
+**Preuve CI** : run **`40237469042`** (commit `8ad3a1eb`) — **`Build & Test` success**,
+16/16 jobs verts, `Coverage (merged)` vert, `Publish to Maven Central` skipped
+(pas de tag). Le premier run `40237006224` était rouge sur **1 test** : la fixture
+imbriquée du nouveau test n'avait pas créé `blog/` ; correctif test-only `8ad3a1eb`.
+
+**`publishToMavenLocal` volontairement non exécuté** : la version `0.0.28` est
+celle d'une release concurrente ; republier localement sous le même numéro
+créerait un split-brain mavenLocal ↔ Central (piège #16/#59). La CI construit
+depuis les sources. Prochaine release = **0.0.29** (DAG MEMPHIS-first), sur accord
+pilote.
+
+'''
+== Reste
+
+* **G-4** — audit d'arbre unifié (`translation-tree.json`, cheroliv.com) : fusion
+  des rapports templates (`template-tree.adoc`), article→AST (document, S-289) et
+  feuilles PlantUML.
+* **G-5** — reprise économie d'encre : purge/retry ciblés des nœuds non-verts,
+  preuve second passage no-op sur le corpus réel.
+* Optionnel : exposer `contentI18nSubtree` dans `migrateContentI18n` (le planner
+  le supporte déjà) pour une reprise strictement scoped.
+* Release `0.0.29` (G-1b + document 0.0.25) — accord pilote + MEMPHIS.
+
+'''
+== Pièges
+
+1. *(S-262)* L'audit doit être **récursif** et identifié par chemin relatif : un
+   `listFiles()` top-level casse dès qu'un template vit dans `blog/`.
+2. *(S-262)* Le rapport `template-tree` est un artefact d'audit `@Internal` : le
+   déclarer `@OutputFile` rendrait `translateTemplates` up-to-date et sauterait la
+   traduction.
+3. *(S-262)* `SubtreeI18nPlanner` est un type **document N2** ; il se consomme tel
+   quel, sans nouveau contrat N0 ni bump MEMPHIS.
+4. *(S-262)* Release concurrente `0.0.28` : ne pas publier localement sous le même
+   numéro ; la prochaine release doit bumper (0.0.29).

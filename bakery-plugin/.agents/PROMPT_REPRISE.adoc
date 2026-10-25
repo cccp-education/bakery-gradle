@@ -1,48 +1,51 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 262
-:date: 2026-10-15
-:etat: Session 261 — **Cache CI du Chromium Playwright (job E2E)** ✅ — ajout `actions/cache@v4` sur `~/.cache/ms-playwright` (clé = hash du catalogue) avant `installPlaywright` ; workflow-only. Cf. `workspace-bom/.agents/CADRAGE_CI_CACHE.adoc`. Rapport `.agents/sessions/261-ci-cache-playwright-chromium.adoc`.
-:etat_260: Session 260 — **Rééquilibrage shards functional : tentative puis REVERT** (mission transverse pilotée `workspace-bom` S-299, cible cross-borough < 5 min). Un rééquilibrage complet des 6 shards (28 classes repackées en bins de somme ≈ 238-246) a été poussé (`ced3d5a7`) puis **mesuré non concluant** : le bin reconstitué (`ArchitectureValidationTest` + `InjectLangSwitch` + `TranslateI18nClientOllamaConfig`) est **systématiquement** le plus long (257s puis 226s), et les durées par classe TestKit varient **×5 entre runs** (`TreeBake` 50s→3,6s ; `TranslateI18nClientOllamaConfig` 11,8s→66,7s). La contention entre classes co-planifiées est pairwise et imprévisible → **REVERT** (`b951b91e`, partition S-259 restaurée). **Net : zéro modification du code bakery.** Verdict : le rééquilibrage de shards TestKit est un tirage ; les gains < 5 min viennent côté `workspace-bom` (exclusion `e2eTest` du job coverage + fusion `nodeTest`). Rapport `.agents/sessions/260-ci-functional-shard-revert.adoc`.
-:etat_precedent: Session 259 — **CI sous 5 min** ✅ : functionalTest **3 → 6 shards** + `cache-cleanup: never` ; CI verte 4 m 42 s (record, run `38770251570`) contre 5 m 50 s (S-258). Rapport `.agents/sessions/259-ci-wallclock-sous-5min.adoc`.
-:epic_actif: _(aucun)_ — EPIC GBL-010 (arbre de traduction) en cours, G-1 ✅ (S-253).
-:epic_suivant: **Publication bakery 0.0.27** (distribuer pin 0.0.87) OU **GBL-010 G-1b** (delta par sous-arbre) OU **dogfooding cheroliv.com** (US-7 GBL-010) OU affiner la CI (gap 30 s / configuration).
 
-== État S-260
+:session: 263
+:date: 2026-10-25
+:etat: S-262 (2026-10-25) — **GBL-010 G-1b : audit templates câblé + delta par sous-arbre** ✅. `TemplateTreeAudit` récursif (chemins relatifs, `render()` expose tous les nœuds) ; `TemplateTranslationPlanner.plan(tree, language, force, include)` pilote `translateTemplates` par statut ; rapport `build/bakery/template-tree.adoc` ; `MigrateContentI18nTask` délègue son delta à `SubtreeI18nPlanner` (document N2). +4 UT planner + 1 UT audit imbriqué + 2 FT. CI `40237469042` (commit `8ad3a1eb`) **VERTE** 16/16 jobs. `ktlintKotlinScriptCheck` réparé (drift pré-existant). `publishToMavenLocal` non exécuté (release concurrente `0.0.28`) ; prochaine release `0.0.29`.
+:epic_actif: GBL-010 — `G-1` (S-253) + `G-1b` (S-262) ✅.
+:epic_suivant: **G-4** (audit unifié cheroliv.com) OU **G-5** (reprise économie d'encre) OU **release 0.0.29** (accord pilote).
 
-* **Aucun changement de code bakery** : le rééquilibrage des shards functional a
-  été **reverté** (commit `b951b91e`) — la partition **S-259 est en vigueur**.
-* **Partition** : BDD 8 shards (71/71) ; functional 6 shards A..F (28/28) — noms
-  stables, consommés par `workspace-bom`.
-* **Leçon** : ne pas rééquilibrer les shards TestKit sur la base d'une mesure
-  unique (variance par classe ×5, contention pairwise imprévisible).
-* Les gains de la cible cross-borough < 5 min (US-5 EPIC MEM-CI-SHARD, `workspace-bom`
-  S-299) sont portés par `workspace-bom` : exclusion `e2eTest`/`installPlaywright`
-  du job `bakery-coverage` (kover lançait la suite E2E ~35s sans raison) + fusion
-  `nodeTest` dans `unit` (22 → 21 jobs). Wall-clock `5m34s → 4m56s`.
+== Vision (GBL-010)
 
-== État S-259 (en vigueur — partition conservée)
+La traduction d'un site est un **arbre à deux branches** : **A Templates**
+(`translateTemplates`, chrome natif) et **B Data** (articles → document → AST →
+feuille `[plantuml]`). bakery possède la branche A et l'orchestration de la
+branche B (`MigrateContentI18nTask` + `I18nDeltaApplier` + `PendingBlockRetry` +
+`SubtreeI18nPlanner`). Un nœud, un propriétaire, un **statut** ; reprise en
+**économie d'encre**. Cadrage racine : `CADRAGE_EPIC_GBL_010_ARBRE_TRADUCTION_SITE.adoc`.
 
-* **Noms de tâches shard définitifs** (consommés par `workspace-bom`) :
-  BDD (8) : `cucumberTestShardJbakeCoreFoundations`, `cucumberTestShardJbakeCoreComponents`,
-  `cucumberTestShardJbakeCorePipelines`, `cucumberTestShardLensTree`,
-  `cucumberTestShardSiteTree`, `cucumberTestShardLangSwitchCore`,
-  `cucumberTestShardLangSwitchEcosystem`, `cucumberTestShardI18nMassPipeline` ;
-  functional (6) : `functionalTestShardA` → `functionalTestShardF`.
-* **Partition** : BDD 71/71 exhaustive/disjointe ; functional 28/28 (6 shards).
-* **Wall-clock** : 5 m 50 s (avant) → **4 m 53 s** (meilleur après). Cible
-  < 5 min **atteinte** mais marge mince (moyenne ~5 m 00).
-* **Leads CI non soldés** (dans le rapport S-259) : configuration 21-42 s/job ;
-  gap constant ~30 s avant la tâche `Test` ; cache de build local non partagé.
-* **Local = Build, Tests = CI** préservé : shards `onlyIf { CI }`, `check`
-  inchangé (shards SKIPPED en local).
+== État S-262
 
-== Mission Session 260 (au choix pilote)
+* **Branche A** : `TemplateTreeAudit` est la source de statut de production.
+  `translateTemplates` ne programme que `MISSING`/`UNTRANSLATED` ; un nœud
+  `TRANSLATED` est préservé (second passage = no-op strict). Le rapport
+  `build/bakery/template-tree.adoc` liste chaque `langue/template — STATUT`
+  (y compris les verts) pour l'audit unifié **G-4**.
+* **Branche B** : `MigrateContentI18nTask` utilise `SubtreeI18nPlanner` (document
+  N2) pour le delta article ; `PendingBlockRetry` et le delta de blocs sont
+  inchangés. Le périmètre est l'arbre complet aujourd'hui ; `subtreePath` est
+  disponible pour une reprise strictement scoped.
+* **Version** : `0.0.28` (BOM `0.0.101`, document `0.0.25`) posée par une release
+  concurrente `4ded27b2` ; **G-1b n'est pas dans la 0.0.28 publiée**. Prochaine
+  release = `0.0.29` (DAG MEMPHIS-first), sur accord pilote.
+* **CI** : run `40237469042` (commit `8ad3a1eb`) `Build & Test` **success**,
+  16/16 jobs, coverage vert. Le run `40237006224` était rouge sur 1 test
+  **test-only** (fixture imbriquée sans `bakery/`), corrigé.
 
-. **Publication bakery 0.0.27** : distribuer le pin `workspace-bom 0.0.87`.
-. **GBL-010 G-1b** : delta de traduction par sous-arbre.
-. **Dogfooding cheroliv.com** (US-7 GBL-010).
-. **Affiner la CI** : élucider le gap de 30 s (snapshot de classpath / kover) —
-  meilleur candidat à un gain de marge.
+== Mission session 263 — sur décision pilote
+
+. **G-4 — audit d'arbre unifié** (recommandé) : fusionner `template-tree.adoc`
+   (bakery), l'arbre article→AST (document `ArticleTreeAudit`, S-286/S-289) et les
+   feuilles PlantUML (`plantuml.repair`, S-236→S-239) en `translation-tree.json`
+   côté `office/sites/cheroliv.com`. Un nœud, un statut, un propriétaire.
+. **G-5 — reprise économie d'encre** : purge/retry ciblés des nœuds non-verts,
+   preuve second passage no-op sur le corpus réel (cheroliv.com, lecture seule).
+3. **Release `0.0.29`** : distribuer G-1b + document 0.0.25, DAG MEMPHIS-first,
+   **accord pilote explicite** + tag `v*` (release gate CI).
+4. **US-7 — dogfooding cheroliv.com** : re-bake réel, zéro diagramme blanc/dégradé.
+5. Expérimental : exposer `contentI18nSubtree` dans `migrateContentI18n`
+   (le planner supporte déjà `subtreePath`).
 
 == Rappels
 
@@ -50,5 +53,19 @@
   `compileKotlin`/`compileTestKotlin`/`compileFunctionalTestKotlin`/`validatePlugins`/`tasks` ;
   les `test`/`functionalTest`/`cucumberTest`/`check` s'exécutent **exclusivement en CI**.
 * **Zéro Python** ; English only code/tests/features (gouvernance `.adoc` en français).
-* Commit/push sur accord pilote ; zéro secret en clair.
+* Commit/push sur accord pilote ; indexer **explicitement** les fichiers de sa
+  session (jamais `git add -A` quand plusieurs sessions partagent le working tree).
 * Ne pas lire les fichiers gitignorés (`site.yml`, `local.properties`).
+* `ktlintTestSourceSetCheck` reste rouge sur des fichiers `bakery/ci/*`
+  **pré-existants** (S-258) ; ne pas les reformater dans une autre session.
+* **Piège `publishToMavenLocal`** : ne jamais publier une version déjà Central
+  (ou en cours de release concurrente) — split-brain mavenLocal↔Central.
+
+== Pièges G-1b
+
+1. L'audit doit être **récursif** et identifié par chemin relatif (`blog/post.thyme`) :
+   un `listFiles()` top-level casse dès qu'un template vit dans un sous-dossier.
+2. Le rapport `template-tree` est un artefact d'audit `@Internal` : le déclarer
+   `@OutputFile` rendrait `translateTemplates` up-to-date et sauterait la traduction.
+3. `SubtreeI18nPlanner` est un type **document N2** ; il se consomme tel quel, sans
+   nouveau contrat N0 ni bump MEMPHIS.

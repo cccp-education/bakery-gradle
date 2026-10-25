@@ -1,5 +1,23 @@
 = Archive des Tâches Terminées — Octobre 2026
 
+== Session 262 — 2026-10-25 — GBL-010 G-1b : audit templates câblé + delta par sous-arbre
+
+=== Fait
+- [x] `TemplateTreeAudit` récursif, nœuds identifiés par chemin relatif (`blog/post.thyme`), `render()` expose tous les nœuds (y compris `TRANSLATED`)
+- [x] `TemplateTranslationPlanner.plan(tree, language, force, include)` — planification pilotée par le statut
+- [x] `translateTemplates` construit l'audit, écrit `build/bakery/template-tree.adoc`, journalise les statuts et ne programme que les nœuds non-verts
+- [x] `MigrateContentI18nTask` délègue son delta à `SubtreeI18nPlanner` (document N2), suppression de la règle plate dupliquée
+- [x] 4 UT planner + 1 UT audit imbriqué + 2 FT (rapport + no-op strict)
+- [x] `ktlintKotlinScriptFormat` corrige le drift pré-existant de `build.gradle.kts`
+- [x] CI `40237469042` (commit `8ad3a1eb`) **VERTE** 16/16 jobs, coverage vert
+- [x] `publishToMavenLocal` non exécuté : version `0.0.28` d'une release concurrente (split-brain) ; prochaine release `0.0.29`
+- [x] Local = Build, Tests = CI ; zéro bump, zéro publication, zéro secret
+
+=== Reste
+- **G-4** audit unifié cheroliv.com (`translation-tree.json`)
+- **G-5** reprise économie d'encre sur corpus réel
+- Expérimental : `contentI18nSubtree` (le planner supporte `subtreePath`)
+
 == Session 259 — 2026-10-15 — CI sous 5 min (functionalTest ×6 + cache-cleanup off)
 
 === Fait

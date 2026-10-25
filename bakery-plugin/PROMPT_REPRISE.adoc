@@ -1,43 +1,15 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 256
-:date: 2026-10-13
-:etat: Session 256 — **Pins `0.0.87` (plantuml-plugin 0.0.10)** ✅ (pins `workspace-bom`/`catalog 0.0.78 → 0.0.87`, `plantuml-plugin` résolu 0.0.10, `compileKotlin` VERT). Livré S-255 : fix ktlint `TemplateTreeAudit` ; S-254 : Release 0.0.26.
-:epic_actif: GBL-010 (branche A ✅ G-1) ; PLT-DIAGRAM-OWNERSHIP (US-4 ✅).
-:epic_suivant: **G-1b** (delta par sous-arbre) OU **US-7** (dogfooding re-bake cheroliv.com) OU **G-5**.
 
-== Vision (GBL-010)
+:session: 263
+:date: 2026-10-25
+:etat: S-262 (2026-10-25) — **GBL-010 G-1b** ✅ : audit templates câblé (`TemplateTreeAudit` récursif + rapport `build/bakery/template-tree.adoc` + planification par statut) et delta article délégué à `SubtreeI18nPlanner` (document N2). CI `40237469042` VERTE. Reste G-4/G-5 ; release `0.0.29` sur accord.
+:epic_suivant: **G-4** (audit unifié cheroliv.com) OU **G-5** (économie d'encre) OU **release 0.0.29**.
 
-La traduction d'un site est un **arbre à deux branches** : **A Templates**
-(`translateTemplates`, chrome natif) et **B Data** (articles → document → AST →
-feuille `[plantuml]`). bakery possède **la branche A** et **l'orchestration de la
-branche B** (`MigrateContentI18nTask` + `I18nDeltaApplier` + `PendingBlockRetry` +
-`SubtreeI18nPlanner`). Un nœud, un propriétaire, un **statut** ; reprise en
-**économie d'encre**. Cadrage racine : `CADRAGE_EPIC_GBL_010_ARBRE_TRADUCTION_SITE.adoc`.
+La source canonique complète est `.agents/PROMPT_REPRISE.adoc` (même session 263).
 
-== État S-253
+== Rappels
 
-* **Livré** : `bakery.tree.TemplateTreeAudit` — `TemplateTree` + `TemplateNode`
-  (statut `MISSING`/`UNTRANSLATED`/`TRANSLATED` par `template × langue`) +
-  `render()` déterministe. BDD `@template-tree` (steps uniques).
-  Preuve réelle : `de` a 1 template byte-identique (résidu copy-FR) que
-  `VariantDeployability` (moitié *missing*) ne voyait pas.
-* **Socle** : EPIC `BKY-TREE` (composite Site→Section→Article→AST).
-* **Feuille plantuml** : `GBL-007` US-1/2/3 ✅.
-
-== Mission Session 254 (au choix pilote)
-
-. **G-1b** — câblage delta par sous-arbre (`MigrateContentI18nTask`/`translateTemplates`) :
-   ne re-traiter que les nœuds non-verts ; preuve second passage no-op.
-. **US-7** — dogfooding : re-bake cheroliv.com, zéro diagramme blanc/dégradé.
-. **DOC-PLT-4** — re-générer les variantes gelées (`@startuml` bruts).
-. **G-5** — reprise économie d'encre : traiter les nœuds `templates`/`articles`
-   révélés par l'arbre unifié cheroliv.
-
-== Rappel
-
-* **RÈGLE EAGER — Local = Build, Tests = CI** : en local, uniquement
-  `compileKotlin`/`build -x test` ; les tests s'exécutent **exclusivement en CI**.
-* **Zéro Python** ; English only code/tests/features (gouvernance .adoc en français).
-* Commit/push sur accord pilote ; zéro secret en clair.
-* `ktlintCheck` : baseline VIDE depuis S-244 — tout fichier touché doit passer.
-* Piège #59 : un consommateur Central ne voit pas le HEAD (DAG strict N0→N2).
+* Local = Build, Tests = CI ; zéro Python ; English only code/tests/features.
+* Commit/push sur accord pilote ; indexer explicitement (jamais `git add -A`).
+* Ne pas lire les fichiers gitignorés (`site.yml`).
+* `publishToMavenLocal` interdit sur une version déjà Central / en release concurrente.
