@@ -32,8 +32,9 @@ repositories {
 
 dependencies {
     // BOM — workspace version alignment (workspace-bom, MEMPHIS)
-    // MEM-CAT-3 (D5) — platform 0.0.61 : contraint document-plugin 0.0.19/i18n-contracts sans hardcode.
-    implementation(platform("education.cccp:workspace-bom:0.0.87"))
+    // MEM-CAT-3 (D5) — platform 0.0.100 : contraint document-plugin 0.0.24,
+    // plantuml-plugin 0.0.10, codebase-plugin 0.0.18 sans hardcode.
+    implementation(platform("education.cccp:workspace-bom:0.0.100"))
 
     // kotlin-stdlib is pulled transitively (and pinned by the BOM). The
     // kotlin-stdlib-jdk8 shim is an empty artifact since Kotlin 1.8 and
@@ -219,7 +220,7 @@ val functionalTest: SourceSet by sourceSets.creating {
 
 // 2. Ajouter GradleTestKit à functionalTest (SANS hériter de testImplementation)
 dependencies {
-    add(functionalTest.implementationConfigurationName, platform("education.cccp:workspace-bom:0.0.87"))
+    add(functionalTest.implementationConfigurationName, platform("education.cccp:workspace-bom:0.0.100"))
 
     add(functionalTest.implementationConfigurationName, gradleTestKit())
     add(functionalTest.implementationConfigurationName, kotlin("test-junit5"))
@@ -281,7 +282,7 @@ val e2eTest: SourceSet by sourceSets.creating {
 
 // 2. Dépendances e2eTest : Playwright + JUnit5 + AssertJ + full test runtime
 dependencies {
-    add(e2eTest.implementationConfigurationName, platform("education.cccp:workspace-bom:0.0.87"))
+    add(e2eTest.implementationConfigurationName, platform("education.cccp:workspace-bom:0.0.100"))
 
     add(e2eTest.implementationConfigurationName, sourceSets.main.get().output)
     add(e2eTest.implementationConfigurationName, sourceSets.test.get().output)
