@@ -121,6 +121,9 @@ class TemplateTreeAuditTest {
         text: String,
     ) {
         dir.mkdirs()
-        dir.resolve(name).writeText(text)
+        dir.resolve(name).also {
+            it.parentFile.mkdirs()
+            it.writeText(text)
+        }
     }
 }
