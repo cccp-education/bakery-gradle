@@ -5,30 +5,70 @@
 :icons: font
 :sectnums:
 
-== REVUE I18N S-263 — Gates de sortie i18n (À ARBITRER)
+== 🟡 EPIC BKY-I18N-OUTPUT — Le contrat de sortie de la branche Templates (CADRÉ S-077, revue i18n S-263)
 
-Avis externe daté et non arbitré : `.agents/i18n_review.adoc`. Constats mesurés sur
-`office/sites/cheroliv.com` (corpus local + site déployé) : sentinelles/refus LLM
-visibles (30 fichiers), macro `toc::[]` traduite (142), perte `options="header"`
-(88 → 0 sur 21 langues), duplication d'articles (4 EN, jusqu'à 9 en `hi`),
-diagrammes `@startuml` bruts, résidus FR dans les diagrammes, `canonical`/`og:*`
-en français, RTL absent (ar/fa/ur).
+*Source* : revue externe `.agents/i18n_review.adoc` (S-263) ; mesure de l'artefact
+cheroliv.com (S-077 : 1 397 défauts documentés / 0 non documenté, gate
+`ArtifactIntegrityContract`).
 
-*Pré-requis* : re-mesurer le delta HEAD ↔ site déployé (S-076 non déployé au moment
-de l'audit) ; re-prouver RED chaque défaut retenu. Rattachement recommandé : **G-4**
-(rapport d'artefact), pas un EPIC séparé.
+*Constat* : bakery possède le moteur et la branche Templates ; ses gardes
+vérifient l'**état** (fichier présent, chrome convergé, prose non byte-identique)
+mais pas le **rendu** publié : `<title>`/`canonical`/`og:*` restent français sur
+`/en/`, `/ar/`, `/ja/` ; `dir="rtl"` est absent pour `ar`/`fa`/`ur` ; le chrome
+sous le plancher prose (≤ 2 jetons) reste gelé. Le gate d'artefact de S-077 est
+porté par cheroliv.com (mesure) — bakery doit maintenant **corriger ce qu'il
+possède** et **consommer** ce rapport.
 
-[cols="3,3,1", options="header"]
+*Boundary* : bakery possède les templates, le head/SEO et le RTL (branche A) ;
+document possède la déduplication de l'AST (`DOC-I18N-OUTPUT`) ; MEMPHIS possède
+`PreserveRule` (`MEM-I18N-PRESERVE`). Le gate d'artefact reste au site.
+
+*DAG* : prolonge `GBL-010` G-1/G-1b (✅), ne le remplace pas. Consomme
+`MEM-I18N-PRESERVE` (N0) et `CB-I18N-SAFETY` (N1).
+
+[cols="1,4,1,2", options="header"]
 |===
-| Candidat | Livrable | Statut
+| US | Description | Pts | Statut
 
-| I18N-GATE-1 | Gate « intégrité structurelle » FR↔variante (tables + `options="header"`, macros, ids de diagrammes, nb de sections) | À ARBITRER
-| I18N-GATE-2 | Gate « langue + sentinelle » (refus LLM, placeholders `__+`, détection de langue) | À ARBITRER
-| I18N-GATE-3 | Gate « rendu diagramme » (zéro `@startuml` dans le HTML, σ>0 sur les SVG) | À ARBITRER
-| I18N-SEO-1 | `canonical` auto-référent par locale + `og:locale`/`og:image`/`title`/`description` localisés | À ARBITRER
-| I18N-SEO-2 | `dir="rtl"` + CSS logique pour `ar`, `fa`, `ur` | À ARBITRER
-| I18N-DEDUP-1 | Clé de bloc `(article, index, hash)` + writer strictement idempotent + assertion de taille | À ARBITRER
+| BKY-OUT-1
+| **Head/SEO localisés par locale** — `title`, meta description, `canonical`
+  auto-référent, `og:locale`, `og:url`, `og:image` dérivés de la langue de la page ;
+  plus aucune variante ne se déclare canonical du FR (défaut S-033 non soldé)
+| 3
+| 🟡 À FAIRE
+
+| BKY-OUT-2
+| **RTL réel** — `dir="rtl"` sur `<html>` + CSS logique pour `ar`, `fa`, `ur`
+  (le `RtlDirectionInjector` actuel ne sert qu'aux slides, jamais au HTML)
+| 2
+| 🟡 À FAIRE
+
+| BKY-OUT-3
+| **Chrome sous le plancher prose** — garde **scopée templates** pour les libellés
+  de 1-2 jetons, sans élargir `MIN_TOKENS` globalement (faux positifs technologies) ;
+  catalogue natif par surface ou `translateTemplates` delta-only
+| 3
+| 🟡 À FAIRE
+
+| BKY-OUT-4
+| **Adoption `PreserveRule` (N0)** — `SwitcherBlockMask`/`TemplateTextRepair`
+  consomment le catalogue N0 : macros/attributs/fences/identifiants jamais
+  traduits ; garde anti-split-brain avec document/plantuml
+| 2
+| 🟡 À FAIRE
+
+| BKY-OUT-5
+| **Consommation du rapport d'artefact** — la CI bakery publie/lit
+  `artifact-integrity` du site consommateur et refuse un delta non documenté
+  (aucun compteur de store ne peut verdir la sortie)
+| 2
+| 🟡 À FAIRE
 |===
+
+*Total* : 5 US ~12 pts. *Référence* : les candidats S-263 `I18N-GATE-1/2/3` sont
+**portés par cheroliv.com S-077** (mesure) ; `I18N-DEDUP-1` est porté par
+`DOC-I18N-OUTPUT` ; `I18N-SEO-1/2` sont les US BKY-OUT-1/2. *Doc* :
+`.agents/i18n_review.adoc`, `CADRAGE_EPIC_GBL_010_ARBRE_TRADUCTION_SITE.adoc`.
 
 == ✅ EPIC BKY-CI-SHARD — Sharding CI + fusion kover inter-jobs (TERMINÉ S-257, révisé S-258, S-259)
 
