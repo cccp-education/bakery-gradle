@@ -1,11 +1,11 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
 
-:session: 263
-:date: 2026-10-25
-:etat: S-262 (2026-10-25) — **GBL-010 G-1b** ✅ : audit templates câblé (`TemplateTreeAudit` récursif + rapport `build/bakery/template-tree.adoc` + planification par statut) et delta article délégué à `SubtreeI18nPlanner` (document N2). CI `40237469042` VERTE. Reste G-4/G-5 ; release `0.0.29` sur accord.
-:epic_suivant: **G-4** (audit unifié cheroliv.com) OU **G-5** (économie d'encre) OU **release 0.0.29**.
+:session: 264
+:date: 2026-10-26
+:etat: S-263 (2026-10-26) — **Revue externe i18n** (documentaire, zéro code) : `.agents/i18n_review.adoc` (9 classes de défauts chiffrées, avis par borough, plan P0/P1/P2) + pointeurs de non-orphelinage côté site. Aucun fichier `src/` modifié, aucun test, aucune publication. G-4/G-5/release `0.0.29` reportés.
+:epic_suivant: **G-4** (audit unifié cheroliv.com) OU **G-5** (économie d'encre) OU **release 0.0.29**. Les gates P0 de la revue sont des candidats à arbitrer (à rattacher à G-4).
 
-La source canonique complète est `.agents/PROMPT_REPRISE.adoc` (même session 263).
+La source canonique complète est `.agents/PROMPT_REPRISE.adoc` (même session 264).
 
 == Rappels
 

@@ -5,6 +5,31 @@
 :icons: font
 :sectnums:
 
+== REVUE I18N S-263 — Gates de sortie i18n (À ARBITRER)
+
+Avis externe daté et non arbitré : `.agents/i18n_review.adoc`. Constats mesurés sur
+`office/sites/cheroliv.com` (corpus local + site déployé) : sentinelles/refus LLM
+visibles (30 fichiers), macro `toc::[]` traduite (142), perte `options="header"`
+(88 → 0 sur 21 langues), duplication d'articles (4 EN, jusqu'à 9 en `hi`),
+diagrammes `@startuml` bruts, résidus FR dans les diagrammes, `canonical`/`og:*`
+en français, RTL absent (ar/fa/ur).
+
+*Pré-requis* : re-mesurer le delta HEAD ↔ site déployé (S-076 non déployé au moment
+de l'audit) ; re-prouver RED chaque défaut retenu. Rattachement recommandé : **G-4**
+(rapport d'artefact), pas un EPIC séparé.
+
+[cols="3,3,1", options="header"]
+|===
+| Candidat | Livrable | Statut
+
+| I18N-GATE-1 | Gate « intégrité structurelle » FR↔variante (tables + `options="header"`, macros, ids de diagrammes, nb de sections) | À ARBITRER
+| I18N-GATE-2 | Gate « langue + sentinelle » (refus LLM, placeholders `__+`, détection de langue) | À ARBITRER
+| I18N-GATE-3 | Gate « rendu diagramme » (zéro `@startuml` dans le HTML, σ>0 sur les SVG) | À ARBITRER
+| I18N-SEO-1 | `canonical` auto-référent par locale + `og:locale`/`og:image`/`title`/`description` localisés | À ARBITRER
+| I18N-SEO-2 | `dir="rtl"` + CSS logique pour `ar`, `fa`, `ur` | À ARBITRER
+| I18N-DEDUP-1 | Clé de bloc `(article, index, hash)` + writer strictement idempotent + assertion de taille | À ARBITRER
+|===
+
 == ✅ EPIC BKY-CI-SHARD — Sharding CI + fusion kover inter-jobs (TERMINÉ S-257, révisé S-258, S-259)
 
 Objectif pilote : ramener le « build+test » de bakery sous ~5 min. Livré (S-257) :

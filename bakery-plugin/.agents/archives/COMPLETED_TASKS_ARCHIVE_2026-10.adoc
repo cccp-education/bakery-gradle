@@ -1,5 +1,20 @@
 = Archive des Tâches Terminées — Octobre 2026
 
+== Session 263 — 2026-10-26 — Revue externe i18n (qualité des 21 langues + boroughs)
+
+=== Fait
+- [x] Audit du corpus local `office/sites/cheroliv.com` (lecture seule) et du site déployé
+- [x] Livrable `.agents/i18n_review.adoc` : verdict, forces, 9 classes de défauts mesurés, avis par borough, plan de remédiation P0/P1/P2
+- [x] Constats chiffrés : sentinelles/refus LLM 30 fichiers, `toc::[]` traduite 142, `options="header"` 88 → 0, duplication 4 EN / 9 `hi`, diagrammes `@startuml` bruts, résidus FR, `canonical`/`og:*` en FR, RTL absent
+- [x] Pointeurs de non-orphelinage côté site (repo `office`) : `PROMPT_REPRISE.adoc` + `.agents/INDEX.adoc`
+- [x] Décision : avis daté et non arbitré, source de constats uniquement ; aucun borough nouveau convoqué ; re-prouver RED avant correctif
+- [x] Aucun fichier `src/` modifié, aucun test, aucune publication, zéro bump, zéro secret (Local = Build, Tests = CI)
+- [x] G-4/G-5/release `0.0.29` reportés à S-264
+
+=== Livrable
+- `.agents/i18n_review.adoc`
+- `.agents/sessions/263-revue-externe-i18n.adoc`
+
 == Session 262 — 2026-10-25 — GBL-010 G-1b : audit templates câblé + delta par sous-arbre
 
 === Fait

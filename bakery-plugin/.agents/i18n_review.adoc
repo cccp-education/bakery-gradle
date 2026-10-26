@@ -1,0 +1,78 @@
+J'ai audité le corpus local (`office/sites/cheroliv.com`) *et* le site déployé. Voici un avis mesuré, pas complaisant.
+
+== Verdict global
+
+Le *travail d'ingénierie* est très au-dessus de la moyenne : 112 articles publiés × 21 langues = ~2 350 articles, chrome/templates traduits, hreflang, switch de langue, titres et résumés localisés, et même les labels PlantUML. Partir du français seul et arriver à ça en quelques sessions, c'est solide. La faiblesse n'est pas la traduction : c'est la *vérification*. Le « 0 PENDING / 0 cassé » (`PROMPT_REPRISE.adoc:9`) mesure l'état du *store* de blocs, pas la validité de l'*artefact publié*. C'est un faux vert, exactement la leçon S-269/S-243 de ta gouvernance.
+
+== Ce qui est vraiment fort
+
+* *Prose* : quand elle passe, elle est bonne. Titres, résumés, corps EN/JA/AR/ES sont idiomatiques et le vocabulaire technique est préservé (Gradle, PlantUML, OpenCode…).
+* *Diagrammes* : les labels sont réellement traduits (`title Session Evolution — From Session 1 to 150+`, `Active Sessions`, `raw .md`) — ce n'est pas du décor.
+* *Plantuml N2* : `PlantumlTermShield` (placeholders `__PLT0__`, restauration, refus d'écrire si un placeholder est perdu), `TextClassifier`, `TranslationStrategy`, `PlantumlSyntaxValidatorAdapter`, glossaire — c'est le meilleur morceau du dispositif, avec une vraie doctrine « préserver plutôt que casser ».
+* *Réparation déterministe* (S-076) : `PlantumlLabelJoiner` + 87 articles réparés sans LLM, exclusion de `bakeVariants` du deploy. Bon réflexe de traiter la cause, pas le symptôme.
+
+== Ce qui est cassé aujourd'hui (mesuré sur le live)
+
+. *Sentinelles LLM visibles* — 30 fichiers. Thaï : 23 fichiers. Exemple live : `th/.../0119...` contient « _No text was provided to translate. Please send the French text…_ » au milieu du paragraphe. Serbe (`sr/.../0103...`) contient carrément un méta-commentaire : « _The provided answer is intentionally garbled due to the model's inability…_ ». C'est le pire défaut : il est public.
+. *Macro `toc::[]` traduite* — 142 fichiers (`tik::[]`, `тик::[]`, `içindekiler::[]`…). Résultat live : `<dt class="hdlist1">tik</dt>`, la TOC disparaît et un faux terme de glossaire apparaît. Une règle « ne jamais traduire une macro AsciiDoc » suffirait.
+. *Tableaux déstructurés* — 88 tables FR ont `options="header"` ; *0 sur les 21 langues*. Le live le prouve : 2 `<thead>` en FR, *0 en EN*.
+. *Duplication de contenu* — 4 articles EN dépassent 150 % du FR (0106 +52 %, 0108 +123 %, 0110 +113 %, 0122 +102 %) ; jusqu'à 9 fichiers en hindi. Exemple : `jbake/i18n/en/.../0108...` a le même diagramme aux lignes 516, 875 et 1863, et 12 titres de section dupliqués. Le périmètre traduit a 246 diagrammes FR pour *292* en EN (+19 %).
+. *Diagrammes non rendus* — live : 0108 EN = 9 `@startuml` bruts, 0108 JA = 17 bruts / 2 SVG. Sur 0119/0126, c'est propre (0 brut). Le chantier diagrammes est donc à mi-chemin, et le déploiement live n'a pas encore absorbé S-076.
+. *Résidus français dans les diagrammes* — dans *toutes* les langues : `80 Go HBM`, `128 Go unifié`, `Tous modèles <128 Go` (`en/.../0119...:47`), `|= Couleur |= Projet`, `(Aujourd'hui)`, `L'honnêteté plutôt que le vide`. + 26 `alt=` et 30 notes encore français en EN.
+. *SEO localisée non câblée* — sur `/en/`, `/ar/`, `/ja/`… le `<title>`, la meta description, `canonical`, `og:url`, `og:locale=fr_FR` et `og:image=og-images/fr/…` pointent tous vers le français (`header.thyme:11`, `:47`). Les titres d'articles sont traduits, mais chaque page se déclare canonical de la version FR : Google va consolider et ignorer les 21 variantes.
+. *RTL absent du site* — `lang="ar"` mais aucun `dir="rtl"`, aucune règle CSS. Le `RtlDirectionInjector` de bakery sert aux *slides* (`:lang: rtl`), pas au HTML du site. 3 langues sur 21 sont en layout LTR avec des glyphes RTL.
+. *Qualité irrégulière sur la prose éditoriale* — EN : « _If you hesitate, wouldn't in a second_ », « _I groped between three approaches Classic ways_ » ; ES : « _Si dudan ni siquiera solo un segundo_ », « _esto pattern_ ». Les parties informatives passent, les hooks/leads/conclusions sont les plus abîmés.
+
+== Avis sur les boroughs
+
+[cols="2,4,6", options="header"]
+|===
+| Borough | Rôle | Avis
+
+| *MEMPHIS (N0)*
+| `i18n-contracts`, `LanguageCatalog` 22 langues, `TranslationService`
+| Bon socle, mais il manque le contrat le plus utile : *ce qui ne se traduit jamais* (macros, attributs, specs de tableau, fences, identifiants). Aujourd'hui bakery, document et plantuml réimplémentent chacun leur politique → c'est un cas « seuil à 2 » évident.
+
+| *bakery (N2)*
+| bake, templates, i18n JS, variant/audit/path/rtl
+| Le moteur est bon, mais il porte les défauts de sortie : duplication, perte `options="header"`, `toc`, head/SEO non localisés. Ses gardes vérifient l'état, pas le rendu.
+
+| *document (N2)*
+| AST AsciiDoc, prose, classifieur
+| La bonne architecture (pivot AST, delta, idempotence), mais le `TextTranslatableClassifier` est trop naïf : il laisse passer des macros et rate des blocs prose. Le store de blocs permet la réinsertion multiple → duplication.
+
+| *plantuml (N2)*
+| extraction/classification/labels/term shield/syntaxe
+| Le meilleur borough du process. `PlantumlTermShield` est exactement la bonne idée. Il reste à transformer `PlantumlSyntaxValidatorAdapter` en *gate bloquant sur le corpus réel* (pas seulement en test unitaire), et à y brancher les notes non quotées *avant* écriture.
+
+| *runner (N3)*
+| orchestration LLM, convergence
+| Propre, mais c'est lui qui produit le faux vert. `reportConvergence` doit devenir un *rapport d'artefact* (langue détectée, sentinelles, intégrité structurelle), pas un compteur de blocs.
+
+| *codebase (N1)*
+| hub LLM, adapters
+| Le vrai manque : aucune *validation de sortie LLM* (langue cible ≠ langue source, refus, placeholder `__` restitué, sortie tronquée) ni politique de résilience partagée. C'est ici que doit vivre un `TranslationSafetyWrapper` (Gradle-free), réutilisé par bakery/document/site — pas dans capsule.
+|===
+
+En résumé sur les boroughs : *la répartition des responsabilités est juste* (N0 contrats → N2 producteurs → N3 orchestration). Ce qui manque n'est pas un borough de production, c'est *une couche de vérification* — et une seule : celle qui compare la variante au pivot FR, et le rendu au HTML attendu.
+
+== Plan de remédiation que je recommanderais
+
+*P0 — arrêter l'hémorragie, déterministe, zéro LLM*
+
+. Gate « intégrité structurelle » : pour chaque variante, comparer au FR le squelette AST (nb de tables + `options="header"`, macros `toc::`/`include::`/`image::`, ids de diagrammes, nb de sections). Toute déviation = violation bloquante. Ça attrape les points 2, 3 et 4 d'un coup.
+. Gate « langue + sentinelle » : phrases de refus, placeholders `__+`, détection de langue sur la prose. Ça attrape le point 1.
+. Gate « rendu diagramme » : après bake, zéro `@startuml` dans le HTML + σ>0 sur les SVG (recette déjà écrite dans `CADRAGE_EPIC_CHE_DIAGRAM.adoc`). Ça attrape le point 5.
+
+*P1 — correction éditoriale / SEO*
+
+. `canonical` auto-référent par locale, `og:locale`/`og:image`/`title`/`description` localisés (impact SEO maximal, effort minimal).
+. `dir="rtl"` + CSS logique pour `ar`, `fa`, `ur`.
+. Déduplication : clé de bloc `(article, index, hash)` + writer strictement idempotent ; assertion `taille(variante) < 1,2 × taille(FR)`.
+
+*P2 — montée en qualité*
+
+. Extraire la politique « non traduisible » en contrat N0 (`PreserveRule`/`TranslatableRegion`) et faire converger `SwitcherBlockMask` (bakery), `TextTranslatableClassifier` (document) et `PlantumlTermShield` (plantuml) sur ce contrat.
+. Post-édition ciblée des zones éditoriales (lead, hook, conclusion) avec le modèle fort, ou re-segmentation pour éviter les phrases longues qui font dérailler la MT.
+
+Le point important : tu n'as pas un problème de traduction, tu as un problème de *contrat de sortie*. Le jour où `reportConvergence` mesurera le HTML publié et pas le store, ces défauts deviendront impossibles à publier — et là, ton 21/21 sera vrai.

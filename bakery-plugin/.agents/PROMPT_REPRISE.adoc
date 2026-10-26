@@ -1,10 +1,21 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
 
-:session: 263
-:date: 2026-10-25
-:etat: S-262 (2026-10-25) — **GBL-010 G-1b : audit templates câblé + delta par sous-arbre** ✅. `TemplateTreeAudit` récursif (chemins relatifs, `render()` expose tous les nœuds) ; `TemplateTranslationPlanner.plan(tree, language, force, include)` pilote `translateTemplates` par statut ; rapport `build/bakery/template-tree.adoc` ; `MigrateContentI18nTask` délègue son delta à `SubtreeI18nPlanner` (document N2). +4 UT planner + 1 UT audit imbriqué + 2 FT. CI `40237469042` (commit `8ad3a1eb`) **VERTE** 16/16 jobs. `ktlintKotlinScriptCheck` réparé (drift pré-existant). `publishToMavenLocal` non exécuté (release concurrente `0.0.28`) ; prochaine release `0.0.29`.
-:epic_actif: GBL-010 — `G-1` (S-253) + `G-1b` (S-262) ✅.
-:epic_suivant: **G-4** (audit unifié cheroliv.com) OU **G-5** (reprise économie d'encre) OU **release 0.0.29** (accord pilote).
+:session: 264
+:date: 2026-10-26
+:etat: S-263 (2026-10-26) — **Revue externe i18n** (documentaire, zéro code). Avis mesuré sur la qualité des 21 langues de cheroliv.com et sur les boroughs engagés : `.agents/i18n_review.adoc` (9 classes de défauts chiffrées, avis par borough, plan P0/P1/P2). Pointeurs de non-orphelinage posés côté site (`office/sites/cheroliv.com` : `PROMPT_REPRISE.adoc` + `.agents/INDEX.adoc`). Aucun fichier `src/` modifié, aucun test, aucune publication. Les missions G-4/G-5/release `0.0.29` de S-263 sont **reportées**.
+:epic_actif: GBL-010 — `G-1` (S-253) + `G-1b` (S-262) TERMINÉS.
+:epic_suivant: **G-4** (audit unifié cheroliv.com) OU **G-5** (reprise économie d'encre) OU **release 0.0.29** (accord pilote). Les gates P0 de la revue (intégrité structurelle, langue/sentinelle, rendu diagramme) sont des **candidats à arbitrer** — à rattacher à G-4 plutôt qu'à un EPIC séparé.
+
+== Revue externe i18n (S-263)
+
+* Doc : `.agents/i18n_review.adoc` — **avis daté et non arbitré**, source de constats
+  uniquement (jamais un cadrage ni ce PROMPT_REPRISE).
+* Constats mesurés : sentinelles/refus LLM visibles (30 fichiers), macro `toc::[]`
+  traduite (142), perte `options="header"` (88 → 0 sur 21 langues), duplication
+  d'articles (4 EN, jusqu'à 9 en `hi`), diagrammes `@startuml` bruts, résidus FR
+  dans les diagrammes, `canonical`/`og:*` en français, RTL absent (ar/fa/ur).
+* Avant tout correctif : re-mesurer le delta HEAD ↔ site déployé (S-076 non déployé
+  au moment de l'audit) et **re-prouver RED** chaque défaut retenu.
 
 == Vision (GBL-010)
 

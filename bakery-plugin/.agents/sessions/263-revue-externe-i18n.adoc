@@ -1,0 +1,112 @@
+= Session 263 — Revue externe i18n (qualité des 21 langues + boroughs engagés)
+:toc:
+
+== Contexte
+
+Demande pilote : porter un avis mesuré sur la qualité des traductions de
+`office/sites/cheroliv.com` (prose + diagrammes) et sur les boroughs engagés dans
+le processus d'internationalisation. Session **documentaire** : aucun code bakery
+modifié, aucun test modifié, aucune publication.
+
+Mission de la session 263 initialement proposée par S-262 (`G-4` audit unifié,
+`G-5` économie d'encre, release `0.0.29`) : **non consommée**, reportée S-264.
+
+== Périmètre audité
+
+* Corpus local `office/sites/cheroliv.com` (lecture seule) : 184 fichiers FR
+  (dont 72 drafts exclus), 112 articles publiés × 21 langues = ~2 350 variantes.
+* Site déployé (`https://cheroliv.com`) : pages `/en/`, `/ar/`, `/ja/`, `/th/`,
+  `/sr/`, et articles 0108/0119/0123/0125/0126.
+* Chaîne de production lue : bakery (bake, `migrateContentI18n`, `i18n/variant`,
+  `i18n/rtl`, `i18n/js`), document (pivot AST), plantuml (`boundary` :
+  `PlantumlTermShield`, `TextClassifier`, `PlantumlSyntaxValidatorAdapter`),
+  runner (orchestration), MEMPHIS (`i18n-contracts`), codebase (hub LLM).
+
+== Livrable
+
+* `.agents/i18n_review.adoc` — avis daté (78 lignes) : verdict, forces, 9 classes
+  de défauts mesurés, avis par borough, plan de remédiation P0/P1/P2.
+* Pointeurs de non-orphelinage côté site (repo `office`) :
+  `office/sites/cheroliv.com/PROMPT_REPRISE.adoc` (renvoi 5 lignes) et
+  `office/sites/cheroliv.com/.agents/INDEX.adoc` (section « Revue externe i18n —
+  2026-10-26 »).
+
+== Constats mesurés (échantillon)
+
+[cols="3,1,6"]
+|===
+| Défaut | Volume | Preuve
+
+| Sentinelles / refus LLM visibles | 30 fichiers (th : 23, sr : 2)
+| `th/.../0119...` : « No text was provided to translate… » ; `sr/.../0103...` :
+méta-commentaire « intentionally garbled due to the model's inability… »
+
+| Macro `toc::[]` traduite | 142 fichiers
+| `tik::[]`, `тик::[]`, `içindekiler::[]` → rendu live `<dt class="hdlist1">tik</dt>`,
+TOC perdue
+
+| Perte `options="header"` | 88 tables FR → 0 sur 21 langues
+| live 0119 : 2 `<thead>` en FR, 0 en EN
+
+| Duplication d'articles | 4 EN > 150 % du FR (0108 +123 %, 0110 +113 %)
+et jusqu'à 9 fichiers en `hi`
+| `en/.../0108...` : diagramme `diag-session-flow` aux lignes 516, 875, 1863 ;
+12 titres de section dupliqués
+
+| Diagrammes non rendus | 0108 EN = 9 `@startuml` bruts ; 0108 JA = 17 bruts / 2 SVG
+| pages live ; S-076 non déployé au moment de l'audit
+
+| Résidus FR dans les diagrammes | toutes langues
+| `80 Go HBM`, `128 Go unifié`, `Tous modèles <128 Go` (`en/.../0119...:47`),
+`|= Couleur |= Projet`, `(Aujourd'hui)` ; 26 `alt=` et 30 notes FR en EN
+
+| SEO localisée non câblée | 21 locales
+| `header.thyme:11` canonical → FR ; `og:locale=fr_FR`, `og:image=og-images/fr/…`
+
+| RTL absent | 3 langues (ar, fa, ur)
+| `lang="ar"` sans `dir="rtl"`, aucune règle CSS ; `RtlDirectionInjector` bakery
+ne sert qu'aux slides
+|===
+
+== Avis par borough (synthèse)
+
+* *MEMPHIS (N0)* — bon socle (`LanguageCatalog` 22 langues, `TranslationService`) ;
+  manque le contrat « ce qui ne se traduit jamais » (macros, attributs, specs de
+  tableau, fences, identifiants), réimplémenté trois fois.
+* *bakery (N2)* — moteur et outillage de variantes solides ; porte les défauts de
+  sortie (duplication, tableaux, `toc`, head/SEO) ; gardes au niveau état, pas rendu.
+* *document (N2)* — bonne architecture (pivot AST, delta, idempotence) ;
+  `TextTranslatableClassifier` trop naïf ; store de blocs autorisant la réinsertion
+  multiple.
+* *plantuml (N2)* — le meilleur morceau (`PlantumlTermShield`, stratégies, glossaire,
+  validateur de syntaxe) ; à transformer en gate bloquant sur le corpus réel.
+* *runner (N3)* — orchestration propre, mais `reportConvergence` est un faux vert
+  (état du store, pas de l'artefact).
+* *codebase (N1)* — aucune validation de sortie LLM (langue cible, refus,
+  placeholders) ; `TranslationSafetyWrapper` à faire vivre ici, partagé.
+
+== Décisions
+
+. La revue est un *avis externe daté et non arbitré* — source de constats, jamais
+  un cadrage ni un PROMPT_REPRISE.
+. Aucun borough nouveau n'est convoqué (review/dashboards hors périmètre, maturité
+  insuffisante) ; la couche de vérification reste dans la chaîne existante.
+. Chaque défaut retenu devra être re-prouvé RED avant correctif ; le delta
+  HEAD ↔ site déployé (S-076 non déployé) doit être re-mesuré.
+. Les gates P0 (intégrité structurelle, langue/sentinelle, rendu diagramme) sont
+  des *candidats* à arbitrer en S-264 (G-4/G-5).
+
+== Gates de la session
+
+* Aucun fichier `src/` modifié → aucun `compileKotlin`/`test`/`check` requis
+  (règle Local = Build, Tests = CI).
+* Aucune publication, aucun bump de version, zéro secret.
+* Vérification de périmètre : `git status --short` bakery = 1 fichier non suivi
+  (`.agents/i18n_review.adoc`) + les fichiers de gouvernance de clôture.
+
+== Suite
+
+* S-264 : `G-4` (audit unifié cheroliv.com) ou `G-5` (économie d'encre) ou
+  `release 0.0.29` — inchangé.
+* Si le pilote arbitre les gates P0 : les rattacher à `G-4` (le rapport d'artefact
+  est le même objet) plutôt qu'ouvrir un EPIC séparé.
