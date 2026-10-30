@@ -282,7 +282,8 @@ class BakeryPlugin : Plugin<Project> {
         }
         project.tasks.named("pagefind").configure { task ->
             task.mustRunAfter("bakeVariants")
-        }        project.tasks.named("deploySite").configure { task ->
+        }
+        project.tasks.named("deploySite").configure { task ->
             task.dependsOn("bakeVariants")
         }
     }
