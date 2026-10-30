@@ -8,6 +8,7 @@ import bakery.ContentTaskRegistrar.registerGenerateSiteFromIntentionTask
 import bakery.ContentTaskRegistrar.registerGenerateThemeTask
 import bakery.ContentTaskRegistrar.registerInjectLangSwitchTask
 import bakery.ContentTaskRegistrar.registerInjectSeoTask
+import bakery.ContentTaskRegistrar.registerLocalizeSeoHeadTask
 import bakery.ContentTaskRegistrar.registerMaterializeTemplatesTask
 import bakery.ContentTaskRegistrar.registerMigrateContentI18nTask
 import bakery.ContentTaskRegistrar.registerMigrateToI18nTask
@@ -226,6 +227,7 @@ class BakeryPlugin : Plugin<Project> {
         project.registerAccessibilityAuditTask(bakeryExtension, resolvedSite)
         project.registerInjectLangSwitchTask(resolvedSite)
         project.registerInjectSeoTask(resolvedSite)
+        project.registerLocalizeSeoHeadTask(resolvedSite)
         project.registerScaffoldContactSecTask(resolvedSite)
         wireI18nDeployTaskOrdering(project)
     }

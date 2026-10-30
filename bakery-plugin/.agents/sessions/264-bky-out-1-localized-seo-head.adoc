@@ -1,0 +1,125 @@
+= Session 264 — BKY-OUT-1 : le head SEO des variantes déclare sa propre locale
+:session: 264
+:date: 2026-10-30
+:epic: BKY-I18N-OUTPUT (BKY-OUT-1)
+:statut: ✅ TERMINÉ
+
+== Contexte
+
+Suite de la session cheroliv.com S-078 (catalogue des refus LLM élargi). La revue
+externe S-263 (`i18n_review.adoc`) mesurait sur le site publié : « sur `/en/`,
+`/ar/`, `/ja/`… le `canonical`, `og:url`, `og:locale=fr_FR` et
+`og:image=og-images/fr/…` pointent tous vers le français ». Vérification :
+`<html lang>` est déjà correct par variante (la traduction le pose), mais les
+**quatre autres champs sont aveugles à la langue** dans les 21 `header.thyme` de
+variante. Conséquence : chaque page traduite se déclare canonical du FR.
+
+Bakery possède la branche Templates (head/SEO) — c'est donc ici que le correctif
+vit (BACKLOG `BKY-I18N-OUTPUT` / `BKY-OUT-1`).
+
+== Deux défauts mesurés, pas un
+
+. **Les literals SEO ne sont jamais localisés.** Un `header.thyme` de variante est
+  une *copie* du head de référence, traduite par `translateTemplates` ; rien ne
+  réécrit `canonical`/`og:url`/`og:locale`/`og:image`. Mesure sur cheroliv.com :
+  21 variantes, 4 champs × 21 = 84 déviations.
+. **`injectSeo` ne sait pas lire le layout i18n.** `InjectSeoTask.resolveHeaderThyme`
+  ne sonde que `templates/` et `{lang}/templates/` alors que le layout produit par
+  `materializeTemplates` (et utilisé par le site) est `i18n/{lang}/templates/`.
+  `injectLangSwitch` le savait déjà (`LangSwitchMenuLayout`) — **deux producteurs
+  lisant le même site de deux façons**, le split-brain exact que la doctrine
+  « seuil à 2 » interdit.
+
+== Livré (baby-step DDD/TDD/BDD)
+
+=== Domaine pur — `bakery.seo.LocalizedSeoHead`
+
+* `localeOf(language)` — catalogue `og:locale` `ll_CC` pour les 22 langues du
+  workspace ; une langue inconnue retombe sur **son propre code**, jamais sur la
+  locale de référence (ce qui reproduirait le défaut).
+* `rewrite(header, language, defaultLanguage, ogImageLanguage)` — réécrit **quatre
+  champs** et rien d'autre :
+  ** `canonical` et `og:url` : préfixe `'{lang}/'` (la référence reste
+  auto-référente, sans préfixe) ;
+  ** `og:locale` : la locale de la variante ;
+  ** `og:images/{lang}/` : le répertoire de cartes à utiliser.
+* **Idempotent par construction** (un chemin déjà préfixé est reconnu), et
+  strictement borné : `<title>`/description suivent déjà `content.title`/`summary`
+  traduits, `dir="rtl"` appartient à `BKY-OUT-2`, `<html lang>` reste intact (le
+  réécrire masquerait un défaut de traduction au lieu de le rapporter).
+* Les alternates `hreflang` ne sont **jamais** touchés (garde testée).
+
+=== Règle de layout unique — `bakery.i18n.I18nTemplateLayout`
+
+`relativeCandidates(fileName, lang, defaultLang)` + `resolve(...)` :
+`templates/` pour la référence, `i18n/{lang}/templates/` puis le legacy
+`{lang}/templates/`. `LangSwitchMenuLayout` **délègue** désormais (API et tests
+inchangés) — une règle, deux lecteurs.
+
+=== Tâche `localizeSeoHead`
+
+Walk des variantes, applique le domaine, écrit seulement si le contenu change.
+Le répertoire de cartes est résolu depuis le disque (`assets/og-images/{lang}/`) :
+une langue sans cartes retombe sur la **référence** — le seul jeu complet mesuré
+(110 cartes `fr`, 107 `en`, 0 pour les 20 autres). Un jeu partiel produirait un
+`og:image` 404 pour les articles absents, pire qu'une carte de référence.
+Enregistrée dans `ContentTaskRegistrar` (groupe `transform`) et câblée dans
+`BakeryPlugin` à côté de `injectSeo`.
+
+=== Tests
+
+* `LocalizedSeoHeadTest` — 13 UT (catalogue 6 langues, langue inconnue, langue
+  blanche rejetée, canonical/og:url/og:locale/og:image, référence sans préfixe,
+  idempotence, double préfixe interdit, head sans SEO byte-identique, alternates
+  préservés).
+* `I18nTemplateLayoutTest` — 5 UT (ordre des candidats, i18n prioritaire sur
+  legacy, absence → `null`, langue blanche rejetée).
+* `LocalizeSeoHeadFunctionalTest` — **7 FT TestKit** (canonical, og:url,
+  og:locale, cartes de la langue, repli référence, référence sans préfixe,
+  idempotence, tâche visible dans le groupe `transform`).
+* BDD `69_seo_head_locale.feature` — **6 scénarios** `@seo @locale` +
+  `SeoHeadLocaleSteps` (steps préfixés, S-088) ; feature rattachée au shard
+  `LangSwitchEcosystem` et classe FT à `functionalTestShardD` (garde
+  `BakeryCucumberShardCoverageTest` **verte**).
+* RED prouvé : `compileTestKotlin` → `Unresolved reference 'I18nTemplateLayout'`
+  / `'LocalizedSeoHead'` avant implémentation.
+
+=== Dogfooding réel (cheroliv.com, lecture/écriture déterministe)
+
+Consommateur transitoire `/tmp/opencode/seohead-dogfood` (`includeBuild` du plugin,
+Règle 2), `bake.srcPath` pointé sur `office/sites/cheroliv.com/jbake` :
+**21 heads localisés**, second passage `localised 0` (idempotence prouvée).
+Preuve sur le diff : `en` → `canonical … + 'en/' +`, `og:locale en_US`,
+`og-images/en/` ; `ar` → `'ar/'`, `ar_AR` ; `sr` → `'sr/'`, `sr_RS` ; les 20
+langues sans cartes gardent `og-images/fr/` (référence).
+
+== Gates
+
+[cols="2,3", options="header"]
+|===
+| Gate | Résultat
+
+| `test` ciblé `bakery.seo.*` | VERT
+| `cucumberTestShardLangSwitchEcosystem` (CI=1) | VERT (56 tests)
+| `functionalTest --tests LocalizeSeoHeadFunctionalTest` | **7/7 PASSED**
+| `BakeryCucumberShardCoverageTest` | VERT (partition BDD + FT)
+| `test` complet / `check` | délégués à la CI du push (Local = Build, Tests = CI)
+|===
+
+== Reste
+
+* **Adoption site** : le site consomme le head localisé (21 fichiers régénérés) ;
+  une garde côté site (`ArtifactIntegrity` ou `DeploymentContract`) doit refuser
+  un `canonical` non préfixé — candidat `CHE-ADOPT`/`BKY-OUT-5`.
+* `BKY-OUT-2` (RTL réel), `BKY-OUT-3` (chrome sous le plancher), `BKY-OUT-4`
+  (`PreserveRule` N0), `BKY-OUT-5` (consommation du rapport d'artefact).
+* `injectSeo` reste volontairement hors périmètre : il rend le même fragment pour
+  toutes les langues (bug réel, consommateur inconnu) — à cadrer si un site
+  l'utilise.
+
+== Périmètre / secrets
+
+Code : 3 fichiers production (`LocalizedSeoHead.kt`, `LocalizeSeoHeadTask.kt`,
+`I18nTemplateLayout.kt`), 1 refactor (`LangSwitchMenuLayout`), wiring
+(`ContentTaskRegistrar`, `BakeryPlugin`, `build.gradle.kts` shards), 3 fichiers de
+test, 1 feature. Aucun run LLM, zéro publication, zéro secret, zéro Python.

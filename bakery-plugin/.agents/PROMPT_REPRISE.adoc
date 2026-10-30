@@ -1,82 +1,70 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
 
-:session: 264
-:date: 2026-10-26
-:etat: S-263 (2026-10-26) — **Revue externe i18n** (documentaire, zéro code). Avis mesuré sur la qualité des 21 langues de cheroliv.com et sur les boroughs engagés : `.agents/i18n_review.adoc` (9 classes de défauts chiffrées, avis par borough, plan P0/P1/P2). Pointeurs de non-orphelinage posés côté site (`office/sites/cheroliv.com` : `PROMPT_REPRISE.adoc` + `.agents/INDEX.adoc`). Aucun fichier `src/` modifié, aucun test, aucune publication. Les missions G-4/G-5/release `0.0.29` de S-263 sont **reportées**.
-:epic_actif: GBL-010 — `G-1` (S-253) + `G-1b` (S-262) TERMINÉS.
-:epic_suivant: **G-4** (audit unifié cheroliv.com) OU **G-5** (reprise économie d'encre) OU **release 0.0.29** (accord pilote). Les gates P0 de la revue (intégrité structurelle, langue/sentinelle, rendu diagramme) sont des **candidats à arbitrer** — à rattacher à G-4 plutôt qu'à un EPIC séparé.
-
-== Revue externe i18n (S-263)
-
-* Doc : `.agents/i18n_review.adoc` — **avis daté et non arbitré**, source de constats
-  uniquement (jamais un cadrage ni ce PROMPT_REPRISE).
-* Constats mesurés : sentinelles/refus LLM visibles (30 fichiers), macro `toc::[]`
-  traduite (142), perte `options="header"` (88 → 0 sur 21 langues), duplication
-  d'articles (4 EN, jusqu'à 9 en `hi`), diagrammes `@startuml` bruts, résidus FR
-  dans les diagrammes, `canonical`/`og:*` en français, RTL absent (ar/fa/ur).
-* Avant tout correctif : re-mesurer le delta HEAD ↔ site déployé (S-076 non déployé
-  au moment de l'audit) et **re-prouver RED** chaque défaut retenu.
+:session: 265
+:date: 2026-10-30
+:etat: S-264 (2026-10-30) — **BKY-OUT-1 : le head SEO des variantes déclare sa propre locale** ✅. Revue S-263 : `canonical`/`og:url`/`og:locale=fr_FR`/`og:images/fr` sur `/en/`, `/ar/`, `/ja/` — 21 `header.thyme` de variante portaient le head du FR. **Livré** : `bakery.seo.LocalizedSeoHead` (pur : catalogue `og:locale` 22 langues, `rewrite` borné à canonical/og:url/og:locale/og:images, idempotent, alternates jamais touchés) + `bakery.i18n.I18nTemplateLayout` (layout unique `templates/` → `i18n/{lang}/templates/` → legacy ; `LangSwitchMenuLayout` délègue — `injectSeo` ne savait pas lire le layout i18n) + tâche `localizeSeoHead` (repli cartes = référence). Tests : 13 UT + 5 UT + **7 FT TestKit** + BDD `@seo @locale` 6 scénarios (`LangSwitchEcosystem` + `functionalTestShardD`, garde verte), RED prouvé. **Dogfooding** `/tmp` sur cheroliv.com : 21 heads localisés, second passage `localised 0`. Rapport `.agents/sessions/264-bky-out-1-localized-seo-head.adoc`.
+:epic_actif: `BKY-I18N-OUTPUT` — `BKY-OUT-1` ✅ S-264 (1/5 US).
+:epic_suivant: `BKY-OUT-2` (RTL) / `BKY-OUT-3` (chrome) / `BKY-OUT-4` (`PreserveRule`) / `BKY-OUT-5` (rapport d'artefact) ; ou release `0.0.29` (accord pilote).
 
 == Vision (GBL-010)
 
-La traduction d'un site est un **arbre à deux branches** : **A Templates**
-(`translateTemplates`, chrome natif) et **B Data** (articles → document → AST →
-feuille `[plantuml]`). bakery possède la branche A et l'orchestration de la
-branche B (`MigrateContentI18nTask` + `I18nDeltaApplier` + `PendingBlockRetry` +
-`SubtreeI18nPlanner`). Un nœud, un propriétaire, un **statut** ; reprise en
-**économie d'encre**. Cadrage racine : `CADRAGE_EPIC_GBL_010_ARBRE_TRADUCTION_SITE.adoc`.
+Arbre à deux branches : **A Templates** (`translateTemplates`, chrome natif) et
+**B Data** (articles → document → AST → feuille `[plantuml]`). bakery possède la
+branche A et l'orchestration de la branche B (`MigrateContentI18nTask` +
+`I18nDeltaApplier` + `PendingBlockRetry` + `SubtreeI18nPlanner`). Un nœud, un
+propriétaire, un **statut** ; reprise en **économie d'encre**. Cadrage :
+`CADRAGE_EPIC_GBL_010_ARBRE_TRADUCTION_SITE.adoc`.
 
-== État S-262
+== Où en est la branche A (S-262 → S-264)
 
-* **Branche A** : `TemplateTreeAudit` est la source de statut de production.
-  `translateTemplates` ne programme que `MISSING`/`UNTRANSLATED` ; un nœud
-  `TRANSLATED` est préservé (second passage = no-op strict). Le rapport
-  `build/bakery/template-tree.adoc` liste chaque `langue/template — STATUT`
-  (y compris les verts) pour l'audit unifié **G-4**.
-* **Branche B** : `MigrateContentI18nTask` utilise `SubtreeI18nPlanner` (document
-  N2) pour le delta article ; `PendingBlockRetry` et le delta de blocs sont
-  inchangés. Le périmètre est l'arbre complet aujourd'hui ; `subtreePath` est
-  disponible pour une reprise strictement scoped.
-* **Version** : `0.0.28` (BOM `0.0.101`, document `0.0.25`) posée par une release
-  concurrente `4ded27b2` ; **G-1b n'est pas dans la 0.0.28 publiée**. Prochaine
-  release = `0.0.29` (DAG MEMPHIS-first), sur accord pilote.
-* **CI** : run `40237469042` (commit `8ad3a1eb`) `Build & Test` **success**,
-  16/16 jobs, coverage vert. Le run `40237006224` était rouge sur 1 test
-  **test-only** (fixture imbriquée sans `bakery/`), corrigé.
+* `TemplateTreeAudit` = source de statut ; `translateTemplates` ne programme que
+  `MISSING`/`UNTRANSLATED`, un `TRANSLATED` est préservé ; rapport
+  `build/bakery/template-tree.adoc` (nœud → statut) pour l'audit **G-4**.
+* **Le head est localisé par construction** : ne jamais réintroduire un `canonical`
+  sans préfixe dans une variante.
+* `injectSeo` reste **hors périmètre** (rend le même fragment pour toutes les
+  langues — bug réel, consommateur inconnu, à cadrer si un site l'utilise).
+* `<title>`/description suivent déjà `content.title`/`summary` traduits ; le
+  *fallback* (page sans titre) reste FR — hors `BKY-OUT-1`.
 
-== Mission session 263 — sur décision pilote
+== Constats S-263 encore ouverts
 
-. **G-4 — audit d'arbre unifié** (recommandé) : fusionner `template-tree.adoc`
-   (bakery), l'arbre article→AST (document `ArticleTreeAudit`, S-286/S-289) et les
-   feuilles PlantUML (`plantuml.repair`, S-236→S-239) en `translation-tree.json`
-   côté `office/sites/cheroliv.com`. Un nœud, un statut, un propriétaire.
-. **G-5 — reprise économie d'encre** : purge/retry ciblés des nœuds non-verts,
-   preuve second passage no-op sur le corpus réel (cheroliv.com, lecture seule).
-3. **Release `0.0.29`** : distribuer G-1b + document 0.0.25, DAG MEMPHIS-first,
-   **accord pilote explicite** + tag `v*` (release gate CI).
-4. **US-7 — dogfooding cheroliv.com** : re-bake réel, zéro diagramme blanc/dégradé.
-5. Expérimental : exposer `contentI18nSubtree` dans `migrateContentI18n`
-   (le planner supporte déjà `subtreePath`).
+Refus LLM côté articles (traité site : cheroliv S-078 → 330 mesurés), `toc::[]`
+traduite (142), `options="header"` perdu (88 → 0), duplication 4 EN / 9 `hi`,
+`@startuml` bruts, résidus FR dans les diagrammes, **RTL absent** (`ar`/`fa`/`ur`).
+Chaque défaut retenu doit être **re-prouvé RED** avant correctif.
+
+== Mission session 265 — sur décision pilote
+
+. **BKY-OUT-2 — RTL réel** (recommandé) : `dir="rtl"` sur `<html>` + CSS logique
+   pour `ar`/`fa`/`ur` dans les heads de variante (le `RtlDirectionInjector` ne
+   sert qu'aux slides). Même forme que `localizeSeoHead` : domaine pur + tâche
+   déterministe + FT + BDD.
+. **BKY-OUT-3** : garde **scopée templates** pour les libellés 1-2 jetons (sans
+   élargir `MIN_TOKENS` — faux positifs technologies).
+. **BKY-OUT-5** : la CI lit `artifact-integrity` du site et refuse un delta non
+   documenté.
+. **Adoption site** : garde cheroliv.com refusant un `canonical` non préfixé
+   (candidat `CHE-ADOPT`) — la régression ne doit pas revenir.
+. **Release `0.0.29`** (accord pilote) : G-1b + document `0.0.25` + `BKY-OUT-1`,
+   DAG MEMPHIS-first + tag `v*`.
 
 == Rappels
 
-* **RÈGLE EAGER — Local = Build, Tests = CI** : en local, uniquement
-  `compileKotlin`/`compileTestKotlin`/`compileFunctionalTestKotlin`/`validatePlugins`/`tasks` ;
-  les `test`/`functionalTest`/`cucumberTest`/`check` s'exécutent **exclusivement en CI**.
-* **Zéro Python** ; English only code/tests/features (gouvernance `.adoc` en français).
-* Commit/push sur accord pilote ; indexer **explicitement** les fichiers de sa
-  session (jamais `git add -A` quand plusieurs sessions partagent le working tree).
+* **Local = Build, Tests = CI** : en local uniquement `compileKotlin`/
+  `compileTestKotlin`/`compileFunctionalTestKotlin`/`validatePlugins`/`tasks` ;
+  les shards ont `onlyIf { CI != null }`.
+* **Zéro Python** ; English only code/tests/features (gouvernance `.adoc` en FR).
+* Commit/push sur accord pilote ; indexer **explicitement** ses fichiers.
 * Ne pas lire les fichiers gitignorés (`site.yml`, `local.properties`).
-* `ktlintTestSourceSetCheck` reste rouge sur des fichiers `bakery/ci/*`
-  **pré-existants** (S-258) ; ne pas les reformater dans une autre session.
-* **Piège `publishToMavenLocal`** : ne jamais publier une version déjà Central
-  (ou en cours de release concurrente) — split-brain mavenLocal↔Central.
+* `ktlintTestSourceSetCheck` rouge sur `bakery/ci/*` **pré-existant** (S-258).
+* **Dogfooding réel** : consommateur `/tmp` avec
+  `pluginManagement { includeBuild("…/bakery-plugin") }` — plugin local sans
+  publication, site réparé de façon déterministe.
 
-== Pièges G-1b
+== Pièges BKY-OUT-1
 
-1. L'audit doit être **récursif** et identifié par chemin relatif (`blog/post.thyme`) :
-   un `listFiles()` top-level casse dès qu'un template vit dans un sous-dossier.
-2. Le rapport `template-tree` est un artefact d'audit `@Internal` : le déclarer
-   `@OutputFile` rendrait `translateTemplates` up-to-date et sauterait la traduction.
-3. `SubtreeI18nPlanner` est un type **document N2** ; il se consomme tel quel, sans
-   nouveau contrat N0 ni bump MEMPHIS.
+1. Un `header.thyme` de variante est une **copie traduite** : tout literal SEO y est gelé (réparer par re-traduction coûte un LLM et évince des blocs).
+2. Le **layout** vient de `I18nTemplateLayout` — `injectSeo` avait sa propre sonde et ratait `i18n/{lang}/`.
+3. `og:image` : ne jamais dériver naïvement `og-images/{lang}/` — seules `fr`
+   (110) et `en` (107) existent ; un jeu partiel = cartes 404.

@@ -203,3 +203,31 @@ constraint `document-plugin:0.0.18`, alors que 0.0.19 était publié (piège #13
 * Leçon : ne pas rééquilibrer sur une mesure unique ; les gains < 5 min sont côté
   `workspace-bom` (exclusion `e2eTest` du job coverage + fusion `nodeTest`).
 * Commits `ced3d5a7` + `b951b91e`. Rapport `.agents/sessions/260-ci-functional-shard-revert.adoc`.
+
+== Session 2026-10-30 — BKY-OUT-1 : head SEO localisé par variante
+
+=== Fait
+* **Deux défauts mesurés** ✅ — (1) les 21 `header.thyme` de variante portent le
+  `canonical`, l'`og:url`, l'`og:locale=fr_FR` et l'`og:images/fr/` du FR ;
+  (2) `InjectSeoTask` ne sonde que `templates/` et `{lang}/templates/` alors que
+  le layout produit est `i18n/{lang}/templates/` (`injectLangSwitch` le savait).
+* **`LocalizedSeoHead`** ✅ — domaine pur : catalogue `og:locale` `ll_CC` des 22
+  langues (inconnue → son propre code), `rewrite` borné à 4 champs, idempotent,
+  alternates `hreflang` jamais touchés.
+* **`I18nTemplateLayout`** ✅ — règle de layout unique ; `LangSwitchMenuLayout`
+  délègue (API/tests inchangés).
+* **Tâche `localizeSeoHead`** ✅ — walk des variantes, repli cartes = référence
+  (seul jeu complet : 110 `fr`, 107 `en`, 0 ailleurs), enregistrée groupe
+  `transform`.
+* **Tests** ✅ — 13 UT + 5 UT layout + 7 FT TestKit + BDD `@seo @locale`
+  6 scénarios (shard `LangSwitchEcosystem`, FT shard D, garde de shards verte) ;
+  RED prouvé.
+* **Dogfooding réel** ✅ — consommateur `/tmp` sur `cheroliv.com` : 21 heads
+  localisés, second passage `localised 0`.
+
+=== Prochaine session (265)
+* **BKY-OUT-2** RTL réel (`dir="rtl"` + CSS logique pour `ar`/`fa`/`ur`).
+* **BKY-OUT-3** chrome ≤ 2 jetons (garde scopée templates).
+* **BKY-OUT-5** consommer `artifact-integrity` du site en CI.
+* **Adoption site** : garde cheroliv.com refusant un `canonical` non préfixé.
+* **Fichier à lire en priorité** : `.agents/PROMPT_REPRISE.adoc` (session 265).

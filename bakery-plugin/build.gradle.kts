@@ -643,6 +643,7 @@ val functionalTestShardD =
         includeTestsMatching("bakery.MaterializeTemplatesFunctionalTest")
         includeTestsMatching("bakery.ProfilePublisherFunctionalTest")
         includeTestsMatching("bakery.InjectSeoFunctionalTest")
+        includeTestsMatching("bakery.LocalizeSeoHeadFunctionalTest")
         includeTestsMatching("bakery.MigrateContentI18nDeploySmokeFunctionalTest")
     }
 

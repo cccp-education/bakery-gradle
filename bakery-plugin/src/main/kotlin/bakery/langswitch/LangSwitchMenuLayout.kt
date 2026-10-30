@@ -1,5 +1,6 @@
 package bakery.langswitch
 
+import bakery.i18n.I18nTemplateLayout
 import java.io.File
 
 /**
@@ -19,6 +20,10 @@ import java.io.File
  * when present, then the direct variant, then the reference root when the
  * request targets the default language.
  *
+ * BKY-OUT-1 — the ordering now lives in [I18nTemplateLayout]; this object keeps
+ * the `menu.thyme` name so every caller (and its tests) is unchanged, and the
+ * SEO head reader resolves the *same* rule instead of re-inventing it.
+ *
  * Domain-pure: relative candidate order and a filesystem probe only. No Gradle.
  */
 object LangSwitchMenuLayout {
@@ -31,13 +36,7 @@ object LangSwitchMenuLayout {
     fun relativeCandidates(
         lang: String,
         defaultLang: String,
-    ): List<String> {
-        require(lang.isNotBlank()) { "lang must not be blank" }
-        require(defaultLang.isNotBlank()) { "defaultLang must not be blank" }
-
-        if (lang == defaultLang) return listOf("templates/$MENU_THYME")
-        return listOf("i18n/$lang/templates/$MENU_THYME", "$lang/templates/$MENU_THYME")
-    }
+    ): List<String> = I18nTemplateLayout.relativeCandidates(MENU_THYME, lang, defaultLang)
 
     /**
      * Resolves the existing menu file for `{lang}`, or `null` when the language
@@ -48,9 +47,5 @@ object LangSwitchMenuLayout {
         siteRoot: File,
         lang: String,
         defaultLang: String,
-    ): File? =
-        relativeCandidates(lang, defaultLang)
-            .asSequence()
-            .map { siteRoot.resolve(it) }
-            .firstOrNull { it.isFile }
+    ): File? = I18nTemplateLayout.resolve(siteRoot, MENU_THYME, lang, defaultLang)
 }

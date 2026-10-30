@@ -13,9 +13,11 @@ cheroliv.com (S-077 : 1 397 défauts documentés / 0 non documenté, gate
 
 *Constat* : bakery possède le moteur et la branche Templates ; ses gardes
 vérifient l'**état** (fichier présent, chrome convergé, prose non byte-identique)
-mais pas le **rendu** publié : `<title>`/`canonical`/`og:*` restent français sur
-`/en/`, `/ar/`, `/ja/` ; `dir="rtl"` est absent pour `ar`/`fa`/`ur` ; le chrome
-sous le plancher prose (≤ 2 jetons) reste gelé. Le gate d'artefact de S-077 est
+mais pas le **rendu** publié : `canonical`/`og:url`/`og:locale`/`og:image`
+restaient français sur `/en/`, `/ar/`, `/ja/` (**BKY-OUT-1 ✅ S-264** : le head est
+localisé par `localizeSeoHead`, `<title>`/description suivent déjà le contenu
+traduit) ; `dir="rtl"` est absent pour `ar`/`fa`/`ur` ; le chrome sous le plancher
+prose (≤ 2 jetons) reste gelé. Le gate d'artefact de S-077 est
 porté par cheroliv.com (mesure) — bakery doit maintenant **corriger ce qu'il
 possède** et **consommer** ce rapport.
 
@@ -35,7 +37,7 @@ document possède la déduplication de l'AST (`DOC-I18N-OUTPUT`) ; MEMPHIS poss�
   auto-référent, `og:locale`, `og:url`, `og:image` dérivés de la langue de la page ;
   plus aucune variante ne se déclare canonical du FR (défaut S-033 non soldé)
 | 3
-| 🟡 À FAIRE
+| ✅ S-264
 
 | BKY-OUT-2
 | **RTL réel** — `dir="rtl"` sur `<html>` + CSS logique pour `ar`, `fa`, `ur`

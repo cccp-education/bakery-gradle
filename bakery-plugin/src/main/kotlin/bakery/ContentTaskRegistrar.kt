@@ -22,6 +22,7 @@ import bakery.llm.PooledOllamaLlmService
 import bakery.scaffold.GenerateSiteFromIntentionTask
 import bakery.scaffold.ScaffoldIntentionDsl
 import bakery.seo.InjectSeoTask
+import bakery.seo.LocalizeSeoHeadTask
 import bakery.theme.GenerateThemeTask
 import bakery.theme.ThemeIntentionDsl
 import org.gradle.api.Project
@@ -413,6 +414,26 @@ object ContentTaskRegistrar {
             task.seoConfig = site.seo
             task.defaultLanguage = site.language
             task.supportedLanguages = site.supportedLanguages
+            task.languages = site.supportedLanguages
+        }
+    }
+
+    /**
+     * Enregistre la tâche `localizeSeoHead` (BKY-OUT-1) qui localise le head des
+     * templates de variante : canonical et og:url préfixés `{lang}/`, `og:locale`
+     * de la langue, `og:images/{lang}/` quand les cartes existent. Déterministe,
+     * idempotent, sans LLM.
+     *
+     *  site Configuration du site (bake.srcPath, site.language, site.supportedLanguages)
+     */
+    internal fun Project.registerLocalizeSeoHeadTask(site: SiteConfiguration) {
+        val contentRoot = project.projectDir.resolve(site.bake.srcPath)
+        tasks.register("localizeSeoHead", LocalizeSeoHeadTask::class.java) { task ->
+            task.group = BakeryConstants.TRANSFORM_GROUP
+            task.description =
+                "Localises the SEO head of every variant template (canonical, og:url, og:locale, og:image)"
+            task.siteDir = contentRoot
+            task.defaultLanguage = site.language
             task.languages = site.supportedLanguages
         }
     }
