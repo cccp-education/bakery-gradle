@@ -237,13 +237,16 @@ jobs:
           node-version: '22'
 
       # Cache the Playwright Chromium download (~150 MB). Keyed by the catalog
-      # (any dependency bump refreshes it) so the browser is not re-downloaded on
-      # every run; `installPlaywright` already skips when Chromium is present.
+      # (any dependency bump refreshes it) AND by the runner image (`ImageOS`,
+      # e.g. ubuntu24 → ubuntu26): a browser built for one distro is not usable
+      # on the next one, and `runner.os` stays `Linux` across the migration, so
+      # an OS-only key restores a stale Chromium and `playwright install` skips
+      # → "Failed to install browsers" (S-264, ubuntu-latest → 26.04).
       - name: Cache Playwright Chromium
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('bakery-plugin/gradle/libs.versions.toml') }}
+          key: playwright-chromium-${{ runner.os }}-${{ env.ImageOS }}-${{ hashFiles('bakery-plugin/gradle/libs.versions.toml') }}
 
       - name: Install Playwright Chromium
         run: ./gradlew installPlaywright

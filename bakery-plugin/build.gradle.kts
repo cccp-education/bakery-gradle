@@ -343,7 +343,13 @@ tasks.register<NpxTask>("installPlaywright") {
     args.addAll("install", "chromium")
     onlyIf {
         val cache = file("${System.getProperty("user.home")}/.cache/ms-playwright")
-        cache.listFiles()?.none { it.name.startsWith("chromium-") } ?: true
+        // A directory prefix is not a browser: a Chromium built for another distro
+        // (runner image migration) or a half-extracted cache leaves the dir but
+        // no runnable binary, and Playwright then fails with "Failed to install
+        // browsers". Require the executable itself (S-264).
+        cache.listFiles()?.none { dir ->
+            dir.name.startsWith("chromium-") && dir.resolve("chrome-linux/chrome").canExecute()
+        } ?: true
     }
 }
 
