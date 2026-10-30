@@ -270,10 +270,19 @@ class BakeryPlugin : Plugin<Project> {
             task.mustRunAfter("materializeTemplates")
             task.mustRunAfter("injectLangSwitch")
         }
+        // BKY-OUT-1 — a variant head is a *copy* of the reference head: it must be
+        // localised after the template chain produced it (translation or
+        // materialisation) and after `injectSeo` injected its fragment, else the
+        // French canonical/og:locale of the reference wins. Soft ordering: a site
+        // that does not request `localizeSeoHead` is unaffected.
+        project.tasks.named("localizeSeoHead").configure { task ->
+            task.mustRunAfter("translateTemplates")
+            task.mustRunAfter("materializeTemplates")
+            task.mustRunAfter("injectSeo")
+        }
         project.tasks.named("pagefind").configure { task ->
             task.mustRunAfter("bakeVariants")
-        }
-        project.tasks.named("deploySite").configure { task ->
+        }        project.tasks.named("deploySite").configure { task ->
             task.dependsOn("bakeVariants")
         }
     }
