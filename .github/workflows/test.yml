@@ -211,7 +211,13 @@ jobs:
   # ── E2E (Playwright) ─────────────────────────────────────────────────────────
   e2e:
     name: E2E (Playwright)
-    runs-on: ubuntu-latest
+    # S-264 — `ubuntu-latest` migrated to 26.04 (2026-10) and the Playwright
+    # version pinned in the catalog has no Chromium build for it:
+    # "ERROR: Playwright does not support chromium on ubuntu26.04-x64". The E2E
+    # job is pinned to the last supported image; unpin once the Playwright
+    # dependency supports 26.04 (the cache key hashes this file, so the browser
+    # cache is invalidated by the change).
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     defaults:
       run:
@@ -237,16 +243,14 @@ jobs:
           node-version: '22'
 
       # Cache the Playwright Chromium download (~150 MB). Keyed by the catalog
-      # (any dependency bump refreshes it) AND by the runner image (`ImageOS`,
-      # e.g. ubuntu24 → ubuntu26): a browser built for one distro is not usable
-      # on the next one, and `runner.os` stays `Linux` across the migration, so
-      # an OS-only key restores a stale Chromium and `playwright install` skips
-      # → "Failed to install browsers" (S-264, ubuntu-latest → 26.04).
+      # (any dependency bump refreshes it) AND by this workflow (a runner-image
+      # change must invalidate the browser: a Chromium built for another distro
+      # is unusable and `playwright install` then fails or is skipped).
       - name: Cache Playwright Chromium
         uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-chromium-${{ runner.os }}-${{ env.ImageOS }}-${{ hashFiles('bakery-plugin/gradle/libs.versions.toml') }}
+          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('bakery-plugin/gradle/libs.versions.toml', '.github/workflows/test.yml') }}
 
       - name: Install Playwright Chromium
         run: ./gradlew installPlaywright
