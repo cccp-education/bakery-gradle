@@ -123,3 +123,25 @@ Code : 3 fichiers production (`LocalizedSeoHead.kt`, `LocalizeSeoHeadTask.kt`,
 `I18nTemplateLayout.kt`), 1 refactor (`LangSwitchMenuLayout`), wiring
 (`ContentTaskRegistrar`, `BakeryPlugin`, `build.gradle.kts` shards), 3 fichiers de
 test, 1 feature. Aucun run LLM, zéro publication, zéro secret, zéro Python.
+
+== CI — E2E débloqué (image runner `ubuntu-26.04`)
+
+Le job `E2E (Playwright)` était **rouge sur chaque push** alors que tout le reste
+était vert (`26 tests, 1 failed, 25 skipped`, `PlaywrightSanityTest`). Log :
+`ERROR: Playwright does not support chromium on ubuntu26.04-x64`. `ubuntu-latest`
+a migré en 26.04 (2026-10) et la version de Playwright épinglée au catalogue n'a
+pas de build Chromium pour cette distribution. Le cache du navigateur (clé
+`playwright-chromium-${runner.os}-…`, ~713 Mo) restaurait en plus un Chromium
+d'une autre distribution, et `installPlaywright` sautait l'installation parce
+qu'un répertoire `chromium-` existait.
+
+* **e2e** épinglé `runs-on: ubuntu-24.04` (dernière image supportée ; condition
+  de dé-épinglage documentée : bump Playwright).
+* **clé de cache** enrichie du hash de `.github/workflows/test.yml` → tout
+  changement d'image/pin invalide le navigateur (l'ancienne clé ne variait
+  qu'avec `runner.os`, constant entre distributions).
+* **`installPlaywright.onlyIf`** exige désormais l'exécutable
+  (`chrome-linux/chrome`, `canExecute`), plus un simple préfixe de répertoire.
+
+Test-infra only, comportement du plugin inchangé. **CI verte** `41123289471`
+(18/18 jobs, 0 échec, 0 skip).
