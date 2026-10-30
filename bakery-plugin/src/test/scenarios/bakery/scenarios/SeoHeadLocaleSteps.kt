@@ -37,6 +37,7 @@ class SeoHeadLocaleSteps {
     ) {
         beforeRewrite = rewritten
         rewritten = LocalizedSeoHead.rewrite(rewritten, language, "fr", ogImageLanguage)
+        rewritten = bakery.i18n.DocumentDirection.apply(rewritten, language)
     }
 
     @Then("the head canonical is prefixed with {string}")
@@ -74,6 +75,16 @@ class SeoHeadLocaleSteps {
     @Then("the head is unchanged")
     fun theHeadIsUnchanged() {
         assertThat(rewritten).isEqualTo(beforeRewrite)
+    }
+
+    @Then("the head declares the direction {string}")
+    fun theHeadDeclaresTheDirection(direction: String) {
+        assertThat(rewritten).contains("dir=\"$direction\"")
+    }
+
+    @Then("the head carries no direction")
+    fun theHeadCarriesNoDirection() {
+        assertThat(rewritten).doesNotContain("dir=")
     }
 
     private companion object {

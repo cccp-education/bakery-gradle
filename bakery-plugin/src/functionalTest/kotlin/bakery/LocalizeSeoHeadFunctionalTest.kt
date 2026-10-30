@@ -87,6 +87,26 @@ class LocalizeSeoHeadFunctionalTest {
     }
 
     @Test
+    fun `localizeSeoHead sets dir rtl on an rtl head`() {
+        createProjectWithVariants()
+
+        run("localizeSeoHead")
+
+        assertThat(projectDir.resolve("site/i18n/ar/templates/header.thyme").readText())
+            .contains("<html xmlns:th=\"http://www.thymeleaf.org\" lang=\"fr\" dir=\"rtl\">")
+    }
+
+    @Test
+    fun `localizeSeoHead leaves an ltr head without dir`() {
+        createProjectWithVariants()
+
+        run("localizeSeoHead")
+
+        assertThat(projectDir.resolve("site/i18n/de/templates/header.thyme").readText())
+            .doesNotContain("dir=")
+    }
+
+    @Test
     fun `localizeSeoHead is registered in the transform group`() {
         createProjectWithVariants()
 
@@ -122,14 +142,14 @@ class LocalizeSeoHeadFunctionalTest {
               srcPath: site
               destDirPath: build/output
             language: fr
-            supportedLanguages: [fr, en, de]
+            supportedLanguages: [fr, en, de, ar]
             """.trimIndent(),
         )
 
         val siteDir = projectDir.resolve("site")
         siteDir.resolve("templates").mkdirs()
         siteDir.resolve("templates/header.thyme").writeText(head())
-        listOf("en", "de").forEach { lang ->
+        listOf("en", "de", "ar").forEach { lang ->
             val dir = siteDir.resolve("i18n/$lang/templates")
             dir.mkdirs()
             dir.resolve("header.thyme").writeText(head())

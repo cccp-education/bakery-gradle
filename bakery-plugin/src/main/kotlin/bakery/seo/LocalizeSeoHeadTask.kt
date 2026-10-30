@@ -1,6 +1,7 @@
 package bakery.seo
 
 import bakery.BakeryConstants
+import bakery.i18n.DocumentDirection
 import bakery.i18n.I18nTemplateLayout
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Internal
@@ -9,7 +10,8 @@ import org.gradle.work.DisableCachingByDefault
 import java.io.File
 
 /**
- * BKY-OUT-1 — localises the SEO head of every variant template.
+ * BKY-OUT-1 / BKY-OUT-2 — localises every variant head: SEO fields and document
+ * direction.
  *
  * Walks the variant `header.thyme` of each configured language (the layout is
  * [I18nTemplateLayout], the *same* rule `injectLangSwitch` uses) and applies
@@ -39,7 +41,7 @@ abstract class LocalizeSeoHeadTask : DefaultTask() {
     init {
         group = BakeryConstants.TRANSFORM_GROUP
         description =
-            "Localises the SEO head of every variant template (canonical, og:url, og:locale, og:image language)"
+            "Localises every variant head: canonical/og:url/og:locale/og:image language and the document direction (dir=rtl for ar/fa/ur)"
     }
 
     @TaskAction
@@ -66,7 +68,8 @@ abstract class LocalizeSeoHeadTask : DefaultTask() {
 
             val ogImageLanguage = resolveOgImageLanguage(language, availableOgLanguageDirs)
             val original = header.readText()
-            val updated = LocalizedSeoHead.rewrite(original, language, defaultLanguage, ogImageLanguage)
+            val localised = LocalizedSeoHead.rewrite(original, language, defaultLanguage, ogImageLanguage)
+            val updated = DocumentDirection.apply(localised, language)
 
             if (updated != original) {
                 header.writeText(updated)

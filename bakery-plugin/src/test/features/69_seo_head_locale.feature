@@ -6,6 +6,16 @@ Feature: Localised SEO head of the variant pages (BKY-OUT-1)
   is the variant locale, and `og:image` reads the variant card directory when it
   exists (reference fallback otherwise). Deterministic, idempotent, no LLM.
 
+  Scenario: An Arabic head declares the right-to-left direction
+    Given a locale head fixture for the language "ar"
+    When the head is localised for "ar" with og images for "fr"
+    Then the head declares the direction "rtl"
+
+  Scenario: A left-to-right head carries no direction
+    Given a locale head fixture for the language "de"
+    When the head is localised for "de" with og images for "fr"
+    Then the head carries no direction
+
   Scenario: A variant declares its own canonical and og url
     Given a locale head fixture for the language "en"
     When the head is localised for "en" with og images for "en"
