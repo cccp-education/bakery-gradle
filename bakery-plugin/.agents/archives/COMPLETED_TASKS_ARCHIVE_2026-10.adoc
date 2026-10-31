@@ -253,3 +253,26 @@ constraint `document-plugin:0.0.18`, alors que 0.0.19 était publié (piège #13
 * **BKY-OUT-4** `PreserveRule` N0 + convergence bakery/document/plantuml.
 * **330 refus** cheroliv : éviction des blocs refusés + run metered.
 * **Fichier à lire en priorité** : `.agents/PROMPT_REPRISE.adoc` (session 266).
+
+== Session 2026-10-31 — S-266 : pins dérivés (une seule source de version)
+
+=== Fait
+* **`gradle.properties`** ✅ — `workspaceVersion=0.0.113`, unique littéral.
+* **`settings.gradle.kts` / `build.gradle.kts`** ✅ — la catalog et les 3 pins
+  `platform("…workspace-bom:$workspaceVersion")` dérivent de la propriété ;
+  propriété absente = erreur explicite.
+* **Garde** ✅ — `BakeryPluginPublicationTest.the workspace version is declared once
+  and matches the published catalog` : la propriété égale le BOM déclaré par la
+  catalog publiée (injecté, patron D5-RACE) et aucun littéral
+  `workspace-bom:\d` / `workspace-catalog:\d` ne subsiste. Parser de littéraux
+  mort supprimé.
+* **Effet** ✅ — la classe « deux versions divergent en silence » (4 corrections en
+  une journée : 0.0.105 → 0.0.113) devient impossible dans ce repo. CI verte.
+* **À répliquer** — même patron 3 fichiers + garde dans `document`, `plantuml`,
+  `runner` (une session chacun).
+
+=== Prochaine session (267)
+* Répliquer le patron « une seule source de version » dans `document` (puis
+  `plantuml`, `runner`).
+* `BKY-OUT-3` (chrome ≤ 2 jetons), `BKY-OUT-4` (adoptions `DOC/PLT-I18N-PRESERVE`).
+* **Fichier à lire en priorité** : `.agents/PROMPT_REPRISE.adoc` (session 267).
