@@ -1,0 +1,54 @@
+= CADRAGE — BKY-OUT-4 / MEM-I18N-PRESERVE : le contrat « ce qui ne se traduit jamais »
+:date: 2026-10-30
+:statut: 🟡 CADRÉ (audit) — code et publication **conditionnés** à l'adoption des 2 consommateurs
+
+== Constat (audit S-265)
+
+La revue S-263 recommande un contrat N0 `PreserveRule`/`TranslatableRegion` : macros
+AsciiDoc, attributs de bloc, fences, code inline, ancres, références d'attribut,
+URLs. Le BACKLOG `BKY-OUT-4` l'assigne à bakery en nommant `SwitcherBlockMask` et
+`TemplateTextRepair` comme consommateurs. **Cet audit invalide cette attribution** :
+
+* `bakery.i18n.TemplateTextTranslator` n'envoie au modèle que les **runs de texte
+  visible** (`VisibleTextExtractor`) et les valeurs d'attributs
+  (`VisibleAttributeExtractor`) ; les balises, les `th:*` et le squelette du
+  template ne sont jamais soumis. `SwitcherBlockMask` masque le bloc du sélecteur
+  de langue (81 lignes générées) — ce n'est pas une politique « ne pas traduire ».
+  **bakery n'a donc pas de liste locale de tokens à converger** : il ne consommera
+  pas ce contrat.
+* Les deux consommateurs réels sont : `document` (`TextTranslatableClassifier` —
+  classifie des blocs entiers avant traduction) et `plantuml`
+  (`PlantumlTermShield` — placeholders `__PLT0__` + restauration). Ce sont eux qui
+  réimplémentent la politique, exactement le « seuil à 2 » de la doctrine S-195.
+
+== Décision
+
+. **N0** : `contracts.i18n.PreserveRule` (enum `id` + `Regex`) +
+   `PreserveCatalog.mask(text, prefix)` / `restore(masked, preserved)` dans
+   `i18n-contracts` (`0.0.4 → 0.0.5`). Pur, aucune dépendance Gradle, aucun I/O.
+   Règles : `asciidoc-macro`, `block-attribute`, `fence`, `inline-code`, `anchor`,
+   `attribute-reference`, `url`. Masquage déterministe, plus long match gagnant.
+. **Ordre DAG obligatoire** : la publication de `i18n-contracts:0.0.5` n'a lieu
+   **qu'avec** la première adoption (document **ou** plantuml) dans la même
+   fenêtre — un contrat N0 sans consommateur est du code mort (leçon `BKY-OUT-5`).
+. **Adoptions** (une session chacune, propriétaires distincts) :
+   ** `DOC-I18N-PRESERVE` — `TextTranslatableClassifier` remplace sa liste locale
+     par `PreserveCatalog.preserve()` ; garde anti-split-brain (rejeu de vecteurs
+     partagés, pattern `variant-bake-vectors.json`).
+   ** `PLT-I18N-PRESERVE` — `PlantumlTermShield` garde ses placeholders (contrat
+     de rendu) mais sa **sélection de termes** vient du catalogue N0.
+. **bakery** : hors périmètre (aucun token à protéger) ; `BKY-OUT-4` est donc
+   **re-scopé** en `MEM-I18N-PRESERVE` (N0) + `DOC/PLT-I18N-PRESERVE` (N2).
+
+== Pourquoi ne pas coder maintenant
+
+Coder et publier `i18n-contracts:0.0.5` sans adoption produirait un artefact que
+personne ne consomme, avec un bump BOM/catalogue à propager dans 20+ boroughs pour
+zéro effet. La doctrine est explicite : N0 = contrats **consommés**, pas contrats
+espérés. Cette session laisse donc le cadrage, pas le module.
+
+== Reste
+
+* Cadrage `DOC-I18N-PRESERVE` (lecture de `TextTranslatableClassifier` + vecteurs).
+* Puis N0 `0.0.5` + adoption document (même session), BOM `0.0.110`, propagation.
+* Puis `PLT-I18N-PRESERVE` (plantuml) — deuxième consommateur, garde de non-régression.

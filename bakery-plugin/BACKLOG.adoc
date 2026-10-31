@@ -57,7 +57,7 @@ document possède la déduplication de l'AST (`DOC-I18N-OUTPUT`) ; MEMPHIS poss�
   consomment le catalogue N0 : macros/attributs/fences/identifiants jamais
   traduits ; garde anti-split-brain avec document/plantuml
 | 2
-| 🟡 À FAIRE
+| 🟡 RE-SCOPÉ (cadré S-265) → `MEM-I18N-PRESERVE` (N0) + `DOC/PLT-I18N-PRESERVE` ; bakery n'a aucun token à protéger (cf. `.agents/CADRAGE_EPIC_MEM_I18N_PRESERVE.adoc`)
 
 | BKY-OUT-5
 | **Consommation du rapport d'artefact** — la CI bakery publie/lit
