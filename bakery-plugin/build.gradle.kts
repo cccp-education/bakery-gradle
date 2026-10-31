@@ -5,6 +5,11 @@ import org.gradle.api.tasks.testing.TestFilter
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import java.time.Duration
 
+// S-083 — single source of truth for the workspace version (gradle.properties).
+val workspaceVersion: String =
+    providers.gradleProperty("workspaceVersion").orNull?.takeIf { it.isNotBlank() }
+        ?: error("workspaceVersion is missing from gradle.properties")
+
 plugins {
     `java-library`
     alias(libs.plugins.kotlin.jvm)
@@ -34,7 +39,7 @@ dependencies {
     // BOM — workspace version alignment (workspace-bom, MEMPHIS)
     // MEM-CAT-3 (D5) — platform 0.0.100 : contraint document-plugin 0.0.24,
     // plantuml-plugin 0.0.10, codebase-plugin 0.0.18 sans hardcode.
-    implementation(platform("education.cccp:workspace-bom:0.0.109"))
+    implementation(platform("education.cccp:workspace-bom:$workspaceVersion"))
 
     // kotlin-stdlib is pulled transitively (and pinned by the BOM). The
     // kotlin-stdlib-jdk8 shim is an empty artifact since Kotlin 1.8 and
@@ -220,7 +225,7 @@ val functionalTest: SourceSet by sourceSets.creating {
 
 // 2. Ajouter GradleTestKit à functionalTest (SANS hériter de testImplementation)
 dependencies {
-    add(functionalTest.implementationConfigurationName, platform("education.cccp:workspace-bom:0.0.109"))
+    add(functionalTest.implementationConfigurationName, platform("education.cccp:workspace-bom:$workspaceVersion"))
 
     add(functionalTest.implementationConfigurationName, gradleTestKit())
     add(functionalTest.implementationConfigurationName, kotlin("test-junit5"))
@@ -282,7 +287,7 @@ val e2eTest: SourceSet by sourceSets.creating {
 
 // 2. Dépendances e2eTest : Playwright + JUnit5 + AssertJ + full test runtime
 dependencies {
-    add(e2eTest.implementationConfigurationName, platform("education.cccp:workspace-bom:0.0.109"))
+    add(e2eTest.implementationConfigurationName, platform("education.cccp:workspace-bom:$workspaceVersion"))
 
     add(e2eTest.implementationConfigurationName, sourceSets.main.get().output)
     add(e2eTest.implementationConfigurationName, sourceSets.test.get().output)

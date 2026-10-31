@@ -37,12 +37,16 @@ dependencyResolutionManagement {
 }
 
 // ── MEM-CAT-3 — Catalog workspace publié (MEMPHIS) : pin unique par borough (D4) ──
-// education.cccp:workspace-catalog:0.0.109 — source de vérité des versions cross-borough.
-// Le borough ne bump que ce pin ; les versions plugins éducatives viennent de ws.*.
+// S-083 — la version vit dans `gradle.properties` (`workspaceVersion`) : plus de
+// littéral ici ni dans build.gradle.kts, donc plus de dérive entre les deux.
+val workspaceVersion: String =
+    providers.gradleProperty("workspaceVersion").orNull?.takeIf { it.isNotBlank() }
+        ?: error("workspaceVersion is missing from gradle.properties")
+
 dependencyResolutionManagement {
     versionCatalogs {
         create("ws") {
-            from("education.cccp:workspace-catalog:0.0.109")
+            from("education.cccp:workspace-catalog:$workspaceVersion")
         }
     }
 }

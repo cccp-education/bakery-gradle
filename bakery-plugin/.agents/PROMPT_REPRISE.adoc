@@ -1,8 +1,8 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
 
-:session: 266
+:session: 267
 :date: 2026-10-30
-:etat: S-265 (2026-10-30) — **BKY-OUT-2 (RTL réel) + release 0.0.30** ✅. `DocumentDirection` (pur : `ar`/`fa`/`ur` en `dir="rtl"`, retrait d'un rtl hérité, idempotent) intégré à `localizeSeoHead` (une passe : SEO + direction) ; 8 UT + 2 FT + 2 BDD. **Release** : MEMPHIS catalog/BOM `0.0.109` (bundle `d5060ac2`, déclare bakery 0.0.30) → bakery-plugin **0.0.30** (bundle `a913cee7`, AUTOMATIC, propagation repo1 200 ×3) → `runner-gradle` pin `0.0.109` → `buildEnvironment` résout **bakery 0.0.30** pour cheroliv.com et talaria.school. Incident documenté : premier envoi Central refusé (BOM 0.0.109 non encore propagée → POM sans versions), attente du 200 repo1 puis succès. **BKY-OUT-5 re-scopé** : la garde d`artefact vit déjà dans le `check` du site (S-077/078/079) ; la partie CI bakery appartient à `RUN-I18N-ARTIFACT` (runner). Rapport `.agents/sessions/265-bky-out-2-rtl-release-0.0.30.adoc`.
+:etat: S-266 (2026-10-31) — **pins dérivés** ✅ : `workspaceVersion` unique dans `gradle.properties`, `settings`/`build` en dérivent, garde « déclaré une fois + égal au BOM de la catalog publiée + zéro littéral ». Rapport `.agents/sessions/266-single-source-workspace-version.adoc`.
 :epic_actif: `BKY-I18N-OUTPUT` — `BKY-OUT-1` ✅ S-264, `BKY-OUT-2` ✅ S-265, `BKY-OUT-5` ✅ S-265 (re-scopé) (3/5 US).
 :epic_suivant: `BKY-OUT-3` (chrome ≤ 2 jetons) OU `BKY-OUT-4` (`PreserveRule` N0, MEMPHIS). Release `0.0.30` faite.
 

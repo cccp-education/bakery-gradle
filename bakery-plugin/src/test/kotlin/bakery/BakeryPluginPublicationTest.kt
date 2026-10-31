@@ -59,25 +59,28 @@ class BakeryPluginPublicationTest {
      * platform pins are extracted and must equal the ws catalog version.
      */
     @Test
-    fun `every workspace bom platform pin matches ws catalog bom version`() {
+    fun `the workspace version is declared once and matches the published catalog`() {
         val buildScript = pluginDir.resolve("build.gradle.kts").readText(UTF_8)
+        val settingsScript = pluginDir.resolve("settings.gradle.kts").readText(UTF_8)
+        val properties = pluginDir.resolve("gradle.properties").readText(UTF_8)
         val wsBomVersion = publishedCatalogVersion(BOM_VERSION_PROPERTY)
-        val pinnedVersions = workspaceBomPlatformPinsFrom(buildScript)
 
-        assertThat(pinnedVersions)
-            .withFailMessage("no workspace-bom platform pin found in build.gradle.kts")
-            .isNotEmpty()
+        // S-083 — une seule source : `workspaceVersion` dans gradle.properties. Ni
+        // settings ni build ne portent de littéral (c'etait la classe de bug : la
+        // version dupliquée dérivait silencieusement de la catalog publiée).
+        assertThat(properties).contains("workspaceVersion=$wsBomVersion")
+        assertThat(settingsScript).contains("workspace-catalog:\$workspaceVersion")
+        assertThat(buildScript).contains("workspace-bom:\$workspaceVersion")
 
-        assertThat(pinnedVersions)
-            .withFailMessage("every workspace-bom platform pin must use the ws catalog BOM version ($wsBomVersion), found: $pinnedVersions")
-            .containsOnly(wsBomVersion)
+        val literals =
+            Regex("""workspace-(?:bom|catalog):\d""")
+                .findAll(settingsScript + buildScript)
+                .map { it.value }
+                .toList()
+        assertThat(literals)
+            .withFailMessage("no hardcoded workspace version may remain: $literals")
+            .isEmpty()
     }
-
-    private fun workspaceBomPlatformPinsFrom(buildScript: String): List<String> =
-        Regex("""platform\("education\.cccp:workspace-bom:([^"]+)"\)""")
-            .findAll(buildScript)
-            .map { it.groupValues[1] }
-            .toList()
 
     @Test
     fun `plugin group and id are stable for publication`() {

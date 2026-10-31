@@ -1,0 +1,38 @@
+= Session 266 — pins dérivés : une seule source de version workspace
+:session: 266
+:date: 2026-10-31
+:statut: ✅ TERMINÉ (bakery = implémentation de référence)
+
+== Contexte
+
+En une journée, quatre dérives de pin ont été corrigées à la main
+(`0.0.105 → 0.0.109 → 0.0.110 → 0.0.111`, et la catalog est déjà à `0.0.113`
+posée par des sessions parallèles). Chaque repo portait **deux littéraux** : le
+`from("…workspace-catalog:X")` de `settings.gradle.kts` et les
+`platform("…workspace-bom:X")` de `build.gradle.kts`, plus la garde qui recopiait
+la valeur attendue.
+
+== Livré (bakery, patron à répliquer)
+
+* `gradle.properties` : `workspaceVersion=0.0.113` — **unique** littéral.
+* `settings.gradle.kts` : `from("…workspace-catalog:$workspaceVersion")`, propriété
+  absente → erreur explicite (jamais un vert silencieux).
+* `build.gradle.kts` : les **3** pins `platform("…workspace-bom:$workspaceVersion")`
+  dérivent de la même propriété ; la fonction privée de parsing de littéraux est
+  supprimée (code mort).
+* Garde `BakeryPluginPublicationTest.the workspace version is declared once and
+  matches the published catalog` : la propriété doit égaler le **BOM déclaré par
+  la catalog publiée** (injecté par Gradle, patron D5-RACE) **et** aucun littéral
+  `workspace-bom:\d` / `workspace-catalog:\d` ne doit subsister dans les scripts.
+
+== Effet
+
+La classe de bug « deux versions qui divergent silencieusement » devient
+impossible **dans ce repo** : un bump = une ligne ; une valeur périmée = build
+rouge. Reste à répliquer dans `document`, `plantuml`, `runner` (une session
+chacun, même patron 3 fichiers + garde).
+
+== Gates
+
+`BakeryPluginPublicationTest` 3/3, `help`/`compileKotlin` VERT ; CI complète au
+push.
