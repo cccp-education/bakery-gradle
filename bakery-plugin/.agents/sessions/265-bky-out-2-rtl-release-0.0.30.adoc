@@ -1,0 +1,63 @@
+= Session 265 — BKY-OUT-2 (RTL réel) + release 0.0.30 (durabilité)
+:session: 265
+:date: 2026-10-30
+:epic: BKY-I18N-OUTPUT (BKY-OUT-2)
+:statut: ✅ TERMINÉ
+
+== Contexte
+
+Suite de S-264 (BKY-OUT-1, head SEO localisé). Deux dettes restaient : le RTL
+absent (`lang="ar"` sans `dir="rtl"`, review S-263) et la **non-distribution** de
+BKY-OUT-1 : la 0.0.29 publiée ne contient pas `localizeSeoHead`, donc un
+`translateTemplates` manuel réécrivait les heads en FR sans possibilité de les
+réparer par l'outil.
+
+== BKY-OUT-2 — direction du document
+
+* `bakery.i18n.DocumentDirection` (pur) : `RTL_LANGUAGES = ar/fa/ur`, `isRtl`,
+  `apply(header, language)` pose `dir="rtl"` sur la balise `<html>`, **retire** un
+  `rtl` hérité pour une langue LTR, conserve la forme auto-fermante, idempotent.
+* `localizeSeoHead` localise désormais **tout le head** en une passe (champs SEO
+  + direction) — un seul task à câbler, pas deux.
+* Tests : 8 UT + 2 FT TestKit + 2 scénarios BDD (shard `LangSwitchEcosystem`,
+  58/58 verts).
+* Dogfooding cheroliv.com : `ar`/`fa`/`ur` portent `dir="rtl"`, `de`/`en` intacts ;
+  les 4 espacements physiques de `styles.css` passés en logique
+  (`margin-inline-end`, `padding-inline-start`) côté site.
+
+== Release 0.0.30 (DAG MEMPHIS-first)
+
+. MEMPHIS `workspace-bom`/`workspace-catalog` **0.0.108 → 0.0.109** (déclare
+  `bakery-plugin = 0.0.30`), bundle `d5060ac2`, AUTOMATIC.
+. bakery re-pin `workspace-catalog/BOM 0.0.105 → 0.0.109` + self version
+  `0.0.29 → 0.0.30`, publication bundle `a913cee7`, AUTOMATIC.
+   **Incident** : premier envoi refusé (`Dependency version information is
+   missing` pour 9 dépendances) — la BOM 0.0.109 n'était pas encore propagée sur
+   repo1, donc la plateforme ne contraignait rien pendant la génération du POM.
+   Attente de la propagation (404 → 200), second envoi propre. **Leçon** : un
+   `publishAggregationToCentralPortal` de consommateur doit attendre le 200 repo1
+   de la BOM, pas seulement la fin de l'upload MEMPHIS.
+. Propagation vérifiée : `workspace-bom`, `workspace-catalog`, `bakery-plugin`
+   0.0.30 → repo1 **200**.
+. `runner-gradle` pin `0.0.105 → 0.0.109` ; `buildEnvironment -PsiteName=cheroliv.com`
+   résout **`education.cccp:bakery-plugin:0.0.30`** — cheroliv.com et talaria.school
+   (même point d'entrée runner) sont équipés.
+
+== BKY-OUT-5 — re-scopé (honnête)
+
+La consommation du rapport d'artefact **existe déjà côté site** : S-077
+(`ArtifactIntegrityContract`), S-078 (`RefusalCatalog`) et S-079
+(`SeoHeadLocaleContract`) sont dans `DeploymentContract.verify` → `check` du site.
+Un compteur de store ne peut plus verdir la sortie. La partie « CI bakery lit le
+rapport du site » appartient à l'orchestrateur de convergence (`RUN-I18N-ARTIFACT`,
+runner N3) : implémenter un consommateur dans bakery serait du code sans
+producteur.
+
+== Reste (S-266)
+
+* **BKY-OUT-3** — chrome sous le plancher prose (libellés 1-2 jetons) : garde
+  scopée templates, catalogue natif par surface.
+* **BKY-OUT-4** — `PreserveRule` N0 (MEMPHIS) + convergence bakery/document/plantuml.
+* **330 refus LLM** (cheroliv) : outillage d'éviction des blocs refusés + run
+  metered (pool Ollama), puis élagage de la baseline du site.
+* `injectSeo` toujours aveugle à la langue (feature inutilisée par les sites).

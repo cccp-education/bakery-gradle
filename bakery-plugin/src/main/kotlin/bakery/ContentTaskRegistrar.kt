@@ -431,7 +431,7 @@ object ContentTaskRegistrar {
         tasks.register("localizeSeoHead", LocalizeSeoHeadTask::class.java) { task ->
             task.group = BakeryConstants.TRANSFORM_GROUP
             task.description =
-                "Localises the SEO head of every variant template (canonical, og:url, og:locale, og:image)"
+                "Localises every variant head: canonical/og:url/og:locale/og:image language and dir=rtl for ar/fa/ur"
             task.siteDir = contentRoot
             task.defaultLanguage = site.language
             task.languages = site.supportedLanguages

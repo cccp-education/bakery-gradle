@@ -43,7 +43,7 @@ document possède la déduplication de l'AST (`DOC-I18N-OUTPUT`) ; MEMPHIS poss�
 | **RTL réel** — `dir="rtl"` sur `<html>` + CSS logique pour `ar`, `fa`, `ur`
   (le `RtlDirectionInjector` actuel ne sert qu'aux slides, jamais au HTML)
 | 2
-| 🟡 À FAIRE
+| ✅ S-265
 
 | BKY-OUT-3
 | **Chrome sous le plancher prose** — garde **scopée templates** pour les libellés
@@ -64,7 +64,7 @@ document possède la déduplication de l'AST (`DOC-I18N-OUTPUT`) ; MEMPHIS poss�
   `artifact-integrity` du site consommateur et refuse un delta non documenté
   (aucun compteur de store ne peut verdir la sortie)
 | 2
-| 🟡 À FAIRE
+| ✅ S-265 (porté par le site S-077/S-078/S-079 ; CI bakery → `RUN-I18N-ARTIFACT`)
 |===
 
 *Total* : 5 US ~12 pts. *Référence* : les candidats S-263 `I18N-GATE-1/2/3` sont

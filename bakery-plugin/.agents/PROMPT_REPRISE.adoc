@@ -1,10 +1,10 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
 
-:session: 265
+:session: 266
 :date: 2026-10-30
-:etat: S-264 (2026-10-30) — **BKY-OUT-1 : le head SEO des variantes déclare sa propre locale** ✅. Revue S-263 : `canonical`/`og:url`/`og:locale=fr_FR`/`og:images/fr` sur `/en/`, `/ar/`, `/ja/` — 21 `header.thyme` de variante portaient le head du FR. **Livré** : `bakery.seo.LocalizedSeoHead` (pur : catalogue `og:locale` 22 langues, `rewrite` borné à canonical/og:url/og:locale/og:images, idempotent, alternates jamais touchés) + `bakery.i18n.I18nTemplateLayout` (layout unique `templates/` → `i18n/{lang}/templates/` → legacy ; `LangSwitchMenuLayout` délègue — `injectSeo` ne savait pas lire le layout i18n) + tâche `localizeSeoHead` (repli cartes = référence). Tests : 13 UT + 5 UT + **7 FT TestKit** + BDD `@seo @locale` 6 scénarios (`LangSwitchEcosystem` + `functionalTestShardD`, garde verte), RED prouvé. **Dogfooding** `/tmp` sur cheroliv.com : 21 heads localisés, second passage `localised 0`. Rapport `.agents/sessions/264-bky-out-1-localized-seo-head.adoc`.
-:epic_actif: `BKY-I18N-OUTPUT` — `BKY-OUT-1` ✅ S-264 (1/5 US).
-:epic_suivant: `BKY-OUT-2` (RTL) / `BKY-OUT-3` (chrome) / `BKY-OUT-4` (`PreserveRule`) / `BKY-OUT-5` (rapport d'artefact) ; ou release `0.0.29` (accord pilote).
+:etat: S-265 (2026-10-30) — **BKY-OUT-2 (RTL réel) + release 0.0.30** ✅. `DocumentDirection` (pur : `ar`/`fa`/`ur` en `dir="rtl"`, retrait d'un rtl hérité, idempotent) intégré à `localizeSeoHead` (une passe : SEO + direction) ; 8 UT + 2 FT + 2 BDD. **Release** : MEMPHIS catalog/BOM `0.0.109` (bundle `d5060ac2`, déclare bakery 0.0.30) → bakery-plugin **0.0.30** (bundle `a913cee7`, AUTOMATIC, propagation repo1 200 ×3) → `runner-gradle` pin `0.0.109` → `buildEnvironment` résout **bakery 0.0.30** pour cheroliv.com et talaria.school. Incident documenté : premier envoi Central refusé (BOM 0.0.109 non encore propagée → POM sans versions), attente du 200 repo1 puis succès. **BKY-OUT-5 re-scopé** : la garde d`artefact vit déjà dans le `check` du site (S-077/078/079) ; la partie CI bakery appartient à `RUN-I18N-ARTIFACT` (runner). Rapport `.agents/sessions/265-bky-out-2-rtl-release-0.0.30.adoc`.
+:epic_actif: `BKY-I18N-OUTPUT` — `BKY-OUT-1` ✅ S-264, `BKY-OUT-2` ✅ S-265, `BKY-OUT-5` ✅ S-265 (re-scopé) (3/5 US).
+:epic_suivant: `BKY-OUT-3` (chrome ≤ 2 jetons) OU `BKY-OUT-4` (`PreserveRule` N0, MEMPHIS). Release `0.0.30` faite.
 
 == Vision (GBL-010)
 

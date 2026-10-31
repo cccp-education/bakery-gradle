@@ -231,3 +231,25 @@ constraint `document-plugin:0.0.18`, alors que 0.0.19 était publié (piège #13
 * **BKY-OUT-5** consommer `artifact-integrity` du site en CI.
 * **Adoption site** : garde cheroliv.com refusant un `canonical` non préfixé.
 * **Fichier à lire en priorité** : `.agents/PROMPT_REPRISE.adoc` (session 265).
+
+== Session 2026-10-30 — BKY-OUT-2 (RTL réel) + release 0.0.30
+
+=== Fait
+* **`DocumentDirection`** ✅ — domaine pur : `ar`/`fa`/`ur` en `dir="rtl"` sur
+  `<html>`, retrait d'un `rtl` hérité pour une langue LTR, idempotent, forme
+  auto-fermante préservée ; intégré à `localizeSeoHead` (une seule passe).
+* **Tests** ✅ — 8 UT, 2 FT TestKit, 2 scénarios BDD (shard 58/58).
+* **Dogfooding cheroliv.com** ✅ — `ar`/`fa`/`ur` en RTL, CSS de site passé en
+  propriétés logiques (4 espacements).
+* **Release `0.0.30`** ✅ — DAG MEMPHIS-first : catalog/BOM `0.0.109` (bundle
+  `d5060ac2`) → bakery `0.0.30` (bundle `a913cee7`) → propagation repo1 200 ×3 →
+  `runner-gradle` pin `0.0.109` (résout bakery 0.0.30 pour cheroliv/talaria).
+  Incident : premier envoi refusé (BOM pas encore propagée) → attente du 200.
+* **BKY-OUT-5** ✅ re-scopé : la garde d'artefact est déjà dans le `check` du site
+  (S-077/S-078/S-079) ; la partie CI appartient à `RUN-I18N-ARTIFACT` (runner).
+
+=== Prochaine session (266)
+* **BKY-OUT-3** chrome ≤ 2 jetons (garde scopée templates).
+* **BKY-OUT-4** `PreserveRule` N0 + convergence bakery/document/plantuml.
+* **330 refus** cheroliv : éviction des blocs refusés + run metered.
+* **Fichier à lire en priorité** : `.agents/PROMPT_REPRISE.adoc` (session 266).
