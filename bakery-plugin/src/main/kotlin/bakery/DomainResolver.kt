@@ -7,8 +7,7 @@ import arrow.core.Either
  * the name used in diagnostics.
  *
  * XB-FP-3 (arrow-kt): [resolveOutcome] returns an immutable [Outcome] — value plus
- * the optional failure — instead of mutating a shared `MutableList`. The legacy
- * [resolve] keeps the historical signature for callers/tests and delegates to it.
+ * the optional failure — instead of mutating a shared `MutableList`.
  */
 data class DomainResolver<T>(
     val name: String,
@@ -41,18 +40,4 @@ data class DomainResolver<T>(
             },
             ifRight = { resolved -> Outcome(resolved) },
         )
-
-    /**
-     * Historical signature retained for external callers and existing tests.
-     * Kept thin: it adds the outcome error to the caller-provided list.
-     */
-    @Deprecated(
-        "Use resolveOutcome() — the mutable error list is shared-state (XB-FP-3).",
-        ReplaceWith("resolveOutcome()"),
-    )
-    fun resolve(errors: MutableList<ConfigResolutionError>): T {
-        val outcome = resolveOutcome()
-        outcome.error?.let(errors::add)
-        return outcome.value
-    }
 }

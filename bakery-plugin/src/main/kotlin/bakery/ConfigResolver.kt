@@ -34,17 +34,9 @@ object ConfigResolver {
     /**
      * Loads all bakery-related properties from the Gradle project.
      * Merges CLI -P params and gradle.properties into a single map.
-     * Project.properties includes both sources.
+     * Gradle properties include both sources.
      */
-    fun loadProperties(project: Project): Map<String, String> {
-        val result = mutableMapOf<String, String>()
-        project.properties.forEach { (key, value) ->
-            if (key.startsWith("bakery.")) {
-                result[key] = value.toString()
-            }
-        }
-        return result
-    }
+    fun loadProperties(project: Project): Map<String, String> = project.providers.gradlePropertiesPrefixedBy("bakery.").get()
 
     /**
      * Loads properties from a map (for testing or direct usage).

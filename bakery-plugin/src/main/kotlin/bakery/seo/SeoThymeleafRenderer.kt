@@ -69,8 +69,8 @@ class SeoThymeleafRenderer {
         nodes +=
             """      {"@type":"WebSite","name":"${escape(config.siteName)}","url":"$siteHost","inLanguage":"${config.inLanguage}"}"""
 
-        if (config.person != null) {
-            val p = config.person!!
+        val p = config.person
+        if (p != null) {
             val sameAs =
                 if (p.sameAs.isEmpty()) {
                     "[]"

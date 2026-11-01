@@ -34,7 +34,7 @@ object SiteManager {
             return msg.left()
         }
 
-        val configPath = properties[BakeryConstants.BAKERY_CONFIG_PATH_KEY]?.toString()
+        val configPath = providers.gradleProperty(BakeryConstants.BAKERY_CONFIG_PATH_KEY).orNull
         if (!configPath.isNullOrBlank() && configPath.isYmlUri) {
             bakeryExtension.configPath.set(configPath)
             logger.lifecycle("[bakery] Configuration loaded from gradle.properties: $configPath")

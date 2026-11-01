@@ -2,6 +2,7 @@ package bakery
 
 import bakery.lens.AugmentedContextDsl
 import bakery.lens.AugmentedContextResolver
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.rometools.rome.io.SyndFeedInput
 import com.rometools.rome.io.XmlReader
@@ -104,8 +105,7 @@ object SiteContextCollector {
 
         val mapper = jacksonObjectMapper()
         val metadata: MutableMap<String, Any> =
-            mapper.readValue(metadataFile, MutableMap::class.java)
-                as MutableMap<String, Any>
+            mapper.readValue(metadataFile, object : TypeReference<MutableMap<String, Any>>() {})
 
         if (augmentedEntries.isNotEmpty()) {
             metadata["augmentedEntries"] = augmentedEntries
@@ -122,14 +122,14 @@ object SiteContextCollector {
 
         return runCatching {
             SyndFeedInput().build(XmlReader(feedFile)).entries.map { entry ->
-                val title: String = entry.title as? String ?: ""
-                val url: String = (entry.link as? String)?.let { normalizeUrl(it) } ?: ""
+                val title: String = entry.title ?: ""
+                val url: String = entry.link?.let { normalizeUrl(it) } ?: ""
                 val date: String =
-                    (entry.publishedDate as? java.util.Date)?.let {
+                    entry.publishedDate?.let {
                         isoDate.format(it.toInstant().atZone(ZoneId.systemDefault()).toLocalDate())
                     } ?: ""
-                val tags: List<String> = entry.categories.map { (it.name as? String)?.trim() ?: "" }.filter { it.isNotBlank() }
-                val author: String = entry.author as? String ?: ""
+                val tags: List<String> = entry.categories.map { it.name?.trim() ?: "" }.filter { it.isNotBlank() }
+                val author: String = entry.author ?: ""
 
                 mapOf(
                     "title" to title,
