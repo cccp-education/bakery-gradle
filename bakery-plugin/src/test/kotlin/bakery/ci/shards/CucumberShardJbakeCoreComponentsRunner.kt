@@ -27,9 +27,10 @@ import org.junit.platform.suite.api.Suite
 @SelectClasspathResource("features/14_theme_system.feature")
 @ConfigurationParameter(
     key = FEATURES_PROPERTY_NAME,
-    value = "src/test/features/9_generate_article.feature,src/test/features/10_thymeleaf_components.feature," +
-        "src/test/features/11_google_forms_embed.feature,src/test/features/12_firebase_auth_comments.feature," +
-        "src/test/features/13_layouts.feature,src/test/features/14_theme_system.feature",
+    value =
+        "src/test/features/9_generate_article.feature,src/test/features/10_thymeleaf_components.feature," +
+            "src/test/features/11_google_forms_embed.feature,src/test/features/12_firebase_auth_comments.feature," +
+            "src/test/features/13_layouts.feature,src/test/features/14_theme_system.feature",
 )
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "bakery.scenarios")
 @ConfigurationParameter(

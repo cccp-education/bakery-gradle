@@ -14,7 +14,6 @@ import java.io.File
  * `injectSeo` did not, so the same site layout was read two different ways.
  */
 class I18nTemplateLayoutTest {
-
     @Test
     fun `the reference lives in the templates directory`() {
         assertThat(I18nTemplateLayout.relativeCandidates("header.thyme", "fr", "fr"))

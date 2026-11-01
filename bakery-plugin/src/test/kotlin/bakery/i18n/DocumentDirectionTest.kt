@@ -12,7 +12,6 @@ import org.junit.jupiter.api.assertThrows
  * the idempotence of the rewrite.
  */
 class DocumentDirectionTest {
-
     @Test
     fun `arabic persian and urdu are right to left`() {
         assertThat(DocumentDirection.RTL_LANGUAGES).containsExactlyInAnyOrder("ar", "fa", "ur")

@@ -30,11 +30,12 @@ import org.junit.platform.suite.api.Suite
 @SelectClasspathResource("features/37_accessibility_audit.feature")
 @ConfigurationParameter(
     key = FEATURES_PROPERTY_NAME,
-    value = "src/test/features/13_analytics_newsletter.feature,src/test/features/22_augmented_context_lens.feature," +
-        "src/test/features/23_augmented_context_n3.feature,src/test/features/24_augmented_articles_template.feature," +
-        "src/test/features/25_scaffold_intention_ia.feature,src/test/features/27_theme_intention.feature," +
-        "src/test/features/28_validate_firebase_config.feature,src/test/features/29_config_resolution_cascade.feature," +
-        "src/test/features/37_accessibility_audit.feature",
+    value =
+        "src/test/features/13_analytics_newsletter.feature,src/test/features/22_augmented_context_lens.feature," +
+            "src/test/features/23_augmented_context_n3.feature,src/test/features/24_augmented_articles_template.feature," +
+            "src/test/features/25_scaffold_intention_ia.feature,src/test/features/27_theme_intention.feature," +
+            "src/test/features/28_validate_firebase_config.feature,src/test/features/29_config_resolution_cascade.feature," +
+            "src/test/features/37_accessibility_audit.feature",
 )
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "bakery.scenarios")
 @ConfigurationParameter(

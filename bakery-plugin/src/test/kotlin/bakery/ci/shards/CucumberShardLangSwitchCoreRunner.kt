@@ -29,10 +29,11 @@ import org.junit.platform.suite.api.Suite
 @SelectClasspathResource("features/51_lang_switch_url_resolver.feature")
 @ConfigurationParameter(
     key = FEATURES_PROPERTY_NAME,
-    value = "src/test/features/30_i18n_language_switch.feature,src/test/features/31_i18n_migration.feature," +
-        "src/test/features/32_i18n_migration.feature,src/test/features/47_page_assets.feature," +
-        "src/test/features/48_tree_bake_config.feature,src/test/features/49_asciidoc_parser_jbake_native.feature," +
-        "src/test/features/50_jbake_native_translation.feature,src/test/features/51_lang_switch_url_resolver.feature",
+    value =
+        "src/test/features/30_i18n_language_switch.feature,src/test/features/31_i18n_migration.feature," +
+            "src/test/features/32_i18n_migration.feature,src/test/features/47_page_assets.feature," +
+            "src/test/features/48_tree_bake_config.feature,src/test/features/49_asciidoc_parser_jbake_native.feature," +
+            "src/test/features/50_jbake_native_translation.feature,src/test/features/51_lang_switch_url_resolver.feature",
 )
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "bakery.scenarios")
 @ConfigurationParameter(

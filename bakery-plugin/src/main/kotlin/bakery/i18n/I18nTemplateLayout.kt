@@ -19,7 +19,6 @@ import java.io.File
  * single probe the caller needs.
  */
 object I18nTemplateLayout {
-
     /** Ordered relative paths to probe for `{fileName}` of [lang], most specific first. */
     fun relativeCandidates(
         fileName: String,

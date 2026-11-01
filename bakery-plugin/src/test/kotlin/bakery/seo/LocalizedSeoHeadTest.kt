@@ -17,7 +17,6 @@ import org.junit.jupiter.api.assertThrows
  * variant language — no LLM, no re-translation, idempotent.
  */
 class LocalizedSeoHeadTest {
-
     @Test
     fun `the og locale catalog maps every workspace language`() {
         assertThat(LocalizedSeoHead.localeOf("fr")).isEqualTo("fr_FR")

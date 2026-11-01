@@ -461,18 +461,19 @@ object ConfigResolver {
                 listOf("fr"),
             ).resolveOutcome()
 
-        val errors = listOfNotNull(
-            firebase.error,
-            googleForms.error,
-            firebaseAuth.error,
-            comments.error,
-            analytics.error,
-            newsletter.error,
-            theme.error,
-            layout.error,
-            language.error,
-            supportedLanguages.error,
-        )
+        val errors =
+            listOfNotNull(
+                firebase.error,
+                googleForms.error,
+                firebaseAuth.error,
+                comments.error,
+                analytics.error,
+                newsletter.error,
+                theme.error,
+                layout.error,
+                language.error,
+                supportedLanguages.error,
+            )
 
         return ResolvedConfigs(
             firebase = firebase.value,

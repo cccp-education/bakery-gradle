@@ -38,14 +38,15 @@ import org.junit.platform.suite.api.Suite
 @SelectClasspathResource("features/verify_configuration_mapping.feature")
 @ConfigurationParameter(
     key = FEATURES_PROPERTY_NAME,
-    value = "src/test/features/7_ci_cd_cheroliv_com_validation.feature," +
-        "src/test/features/33_i18n_migration_magic_stick.feature,src/test/features/34_i18n_migration_prod_gen.feature," +
-        "src/test/features/35_i18n_migration_auto_translation.feature,src/test/features/36_pipeline_contracts.feature," +
-        "src/test/features/57_i18n_delta_wire.feature,src/test/features/57_ollama_config.feature," +
-        "src/test/features/58_i18n_ci_ollama_device_key.feature,src/test/features/59_i18n_mass_validation.feature," +
-        "src/test/features/60_i18n_mass_multi_lang.feature,src/test/features/62_i18n_mass_batch_annual.feature," +
-        "src/test/features/63_i18n_source_path_resolution.feature,src/test/features/64_i18n_client_dictionary.feature," +
-        "src/test/features/65_i18n_template_translation.feature,src/test/features/verify_configuration_mapping.feature",
+    value =
+        "src/test/features/7_ci_cd_cheroliv_com_validation.feature," +
+            "src/test/features/33_i18n_migration_magic_stick.feature,src/test/features/34_i18n_migration_prod_gen.feature," +
+            "src/test/features/35_i18n_migration_auto_translation.feature,src/test/features/36_pipeline_contracts.feature," +
+            "src/test/features/57_i18n_delta_wire.feature,src/test/features/57_ollama_config.feature," +
+            "src/test/features/58_i18n_ci_ollama_device_key.feature,src/test/features/59_i18n_mass_validation.feature," +
+            "src/test/features/60_i18n_mass_multi_lang.feature,src/test/features/62_i18n_mass_batch_annual.feature," +
+            "src/test/features/63_i18n_source_path_resolution.feature,src/test/features/64_i18n_client_dictionary.feature," +
+            "src/test/features/65_i18n_template_translation.feature,src/test/features/verify_configuration_mapping.feature",
 )
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "bakery.scenarios,contracts.pipeline.scenarios")
 @ConfigurationParameter(

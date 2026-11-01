@@ -28,10 +28,11 @@ import org.junit.platform.suite.api.Suite
 @SelectClasspathResource("features/8_ia_configuration.feature")
 @ConfigurationParameter(
     key = FEATURES_PROPERTY_NAME,
-    value = "src/test/features/1_minimal_configuration.feature,src/test/features/2_init_site_task.feature," +
-        "src/test/features/3_configure_site_task.feature,src/test/features/4_contact_form.feature," +
-        "src/test/features/5_publish_profile_task.feature,src/test/features/6_site_scaffolding.feature," +
-        "src/test/features/8_ia_configuration.feature",
+    value =
+        "src/test/features/1_minimal_configuration.feature,src/test/features/2_init_site_task.feature," +
+            "src/test/features/3_configure_site_task.feature,src/test/features/4_contact_form.feature," +
+            "src/test/features/5_publish_profile_task.feature,src/test/features/6_site_scaffolding.feature," +
+            "src/test/features/8_ia_configuration.feature",
 )
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "bakery.scenarios")
 @ConfigurationParameter(

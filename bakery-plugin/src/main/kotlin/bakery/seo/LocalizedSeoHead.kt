@@ -26,7 +26,6 @@ package bakery.seo
  * construction (a prefixed path is recognised and left alone).
  */
 object LocalizedSeoHead {
-
     /**
      * The `og:locale` catalog: the Facebook `ll_CC` form expected by crawlers.
      * An unknown language falls back to its own code — never to the reference

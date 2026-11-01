@@ -28,10 +28,11 @@ import org.junit.platform.suite.api.Suite
 @SelectClasspathResource("features/45_scaffold_tree.feature")
 @ConfigurationParameter(
     key = FEATURES_PROPERTY_NAME,
-    value = "src/test/features/38_generate_pivot_yaml.feature,src/test/features/39_site_tree_node.feature," +
-        "src/test/features/40_site_tree_traversal.feature,src/test/features/41_site_tree_content.feature," +
-        "src/test/features/42_site_tree_yaml.feature,src/test/features/43_site_tree_theme.feature," +
-        "src/test/features/44_site_tree_i18n_subtree.feature,src/test/features/45_scaffold_tree.feature",
+    value =
+        "src/test/features/38_generate_pivot_yaml.feature,src/test/features/39_site_tree_node.feature," +
+            "src/test/features/40_site_tree_traversal.feature,src/test/features/41_site_tree_content.feature," +
+            "src/test/features/42_site_tree_yaml.feature,src/test/features/43_site_tree_theme.feature," +
+            "src/test/features/44_site_tree_i18n_subtree.feature,src/test/features/45_scaffold_tree.feature",
 )
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "bakery.scenarios")
 @ConfigurationParameter(

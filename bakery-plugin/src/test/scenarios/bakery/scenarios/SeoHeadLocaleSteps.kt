@@ -53,7 +53,8 @@ class SeoHeadLocaleSteps {
     ) {
         beforeRewrite = rewritten
         val available =
-            directories.split(",")
+            directories
+                .split(",")
                 .map { it.trim() }
                 .filter { it.isNotEmpty() }
                 .toSet()

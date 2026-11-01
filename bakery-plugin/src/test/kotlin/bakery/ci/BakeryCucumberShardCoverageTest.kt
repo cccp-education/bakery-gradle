@@ -24,17 +24,17 @@ import java.io.File
  * 4. the `unit` job runs the plain `test` task.
  */
 class BakeryCucumberShardCoverageTest {
-
-    private val repoRoot: File = run {
-        var dir = File(System.getProperty("user.dir")).absoluteFile
-        while (dir.parentFile != null && !dir.resolve(".github/workflows/test.yml").isFile) {
-            dir = dir.parentFile
+    private val repoRoot: File =
+        run {
+            var dir = File(System.getProperty("user.dir")).absoluteFile
+            while (dir.parentFile != null && !dir.resolve(".github/workflows/test.yml").isFile) {
+                dir = dir.parentFile
+            }
+            check(dir.resolve(".github/workflows/test.yml").isFile) {
+                "test.yml not found above ${System.getProperty("user.dir")}"
+            }
+            dir
         }
-        check(dir.resolve(".github/workflows/test.yml").isFile) {
-            "test.yml not found above ${System.getProperty("user.dir")}"
-        }
-        dir
-    }
 
     private val shardsDir = repoRoot.resolve("bakery-plugin/src/test/kotlin/bakery/ci/shards")
     private val featuresDir = repoRoot.resolve("bakery-plugin/src/test/features")
@@ -43,12 +43,14 @@ class BakeryCucumberShardCoverageTest {
     private val workflow = repoRoot.resolve(".github/workflows/test.yml")
 
     private fun allFeatures(): Set<String> =
-        featuresDir.listFiles { f -> f.isFile && f.name.endsWith(".feature") }!!
+        featuresDir
+            .listFiles { f -> f.isFile && f.name.endsWith(".feature") }!!
             .map { it.name }
             .toSet()
 
     private fun shardRunners(): List<File> =
-        shardsDir.listFiles { f -> f.isFile && f.name.startsWith("CucumberShard") && f.name.endsWith("Runner.kt") }!!
+        shardsDir
+            .listFiles { f -> f.isFile && f.name.startsWith("CucumberShard") && f.name.endsWith("Runner.kt") }!!
             .sortedBy { it.name }
 
     private fun runnerFeatures(runner: File): List<String> =
@@ -59,10 +61,13 @@ class BakeryCucumberShardCoverageTest {
 
     private fun runnerTags(runner: File): String =
         Regex("""FILTER_TAGS_PROPERTY_NAME,\s*value = "([^"]*)"""")
-            .find(runner.readText())?.groupValues?.get(1) ?: ""
+            .find(runner.readText())
+            ?.groupValues
+            ?.get(1) ?: ""
 
     private fun allFunctionalClasses(): Set<String> =
-        functionalDir.walkTopDown()
+        functionalDir
+            .walkTopDown()
             .filter { it.isFile && it.name.endsWith(".kt") && it.readText().contains("@Test") }
             .map { it.nameWithoutExtension }
             .toSet()
@@ -113,10 +118,16 @@ class BakeryCucumberShardCoverageTest {
                 .contains(runner)
         }
 
-        val buildShardTasks = Regex("""cucumberTestShard[A-Za-z0-9]+""")
-            .findAll(build).map { it.value }.toSet()
-        val ciShardTasks = Regex("""cucumberTestShard[A-Za-z0-9]+""")
-            .findAll(ci).map { it.value }.toSet()
+        val buildShardTasks =
+            Regex("""cucumberTestShard[A-Za-z0-9]+""")
+                .findAll(build)
+                .map { it.value }
+                .toSet()
+        val ciShardTasks =
+            Regex("""cucumberTestShard[A-Za-z0-9]+""")
+                .findAll(ci)
+                .map { it.value }
+                .toSet()
 
         assertThat(buildShardTasks)
             .describedAs("shard CucumberTaskSpec tasks")
@@ -164,5 +175,27 @@ class BakeryCucumberShardCoverageTest {
         assertThat(workflow.readText())
             .describedAs("test.yml must run the unit `test` task")
             .contains("./gradlew test")
+    }
+
+    /**
+     * MEM-LINT-GATE (S-324) — the lint gate must be **executed** by CI, and it
+     * must not be **silenced**. Measured before: `ktlintCheck` was red at HEAD
+     * (7 main + 25 test violations) because this workflow only runs `test`, the
+     * shards and the kover merge — never `check`; the baseline had been emptied
+     * in S-244, so every violation was a real failure nobody saw.
+     */
+    @Test
+    fun `the unit job runs ktlint and the baseline exempts no file`() {
+        assertThat(workflow.readText())
+            .describedAs("test.yml must run the ktlint gate (MEM-LINT-GATE, S-324)")
+            .contains("./gradlew ktlintCheck")
+
+        val baseline = repoRoot.resolve("bakery-plugin/config/ktlint/baseline.xml")
+        assertThat(baseline)
+            .describedAs("the ktlint baseline must exist")
+            .isFile()
+        assertThat(baseline.readText())
+            .describedAs("the ktlint baseline must exempt no file (S-244 doctrine)")
+            .doesNotContain("<file")
     }
 }

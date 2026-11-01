@@ -15,7 +15,6 @@ package bakery.i18n
  * Pure value object: no I/O, no Gradle.
  */
 object DocumentDirection {
-
     /** The right-to-left languages of the workspace catalog. */
     val RTL_LANGUAGES: Set<String> = setOf("ar", "fa", "ur")
 

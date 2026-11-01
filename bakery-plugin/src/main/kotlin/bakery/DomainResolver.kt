@@ -15,7 +15,6 @@ data class DomainResolver<T>(
     val resolver: () -> T,
     val fallback: T,
 ) {
-
     /** Immutable resolution outcome: the resolved value and the failure, if any. */
     data class Outcome<T>(
         val value: T,
@@ -32,11 +31,12 @@ data class DomainResolver<T>(
             ifLeft = { throwable ->
                 Outcome(
                     value = fallback,
-                    error = ConfigResolutionError.DomainFailure(
-                        domain = name,
-                        message = throwable.message ?: "Unknown error",
-                        cause = throwable as? Exception,
-                    ),
+                    error =
+                        ConfigResolutionError.DomainFailure(
+                            domain = name,
+                            message = throwable.message ?: "Unknown error",
+                            cause = throwable as? Exception,
+                        ),
                 )
             },
             ifRight = { resolved -> Outcome(resolved) },

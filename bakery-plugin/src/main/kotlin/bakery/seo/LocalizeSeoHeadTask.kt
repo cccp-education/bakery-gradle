@@ -91,7 +91,8 @@ abstract class LocalizeSeoHeadTask : DefaultTask() {
      * Which one a variant reads is the pure rule [OgImageLanguage].
      */
     private fun availableOgLanguageDirs(site: File): Set<String> =
-        site.resolve(ogImagesRelativePath)
+        site
+            .resolve(ogImagesRelativePath)
             .listFiles()
             .orEmpty()
             .filter { it.isDirectory }

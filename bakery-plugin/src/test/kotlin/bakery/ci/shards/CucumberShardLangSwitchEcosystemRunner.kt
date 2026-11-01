@@ -30,12 +30,13 @@ import org.junit.platform.suite.api.Suite
 @SelectClasspathResource("features/dns_provision.feature")
 @ConfigurationParameter(
     key = FEATURES_PROPERTY_NAME,
-    value = "src/test/features/52_rtl_direction_injection.feature," +
-        "src/test/features/54_rtl_direction_injection_task.feature,src/test/features/59_seo_injection.feature," +
-        "src/test/features/61_contact_sec.feature,src/test/features/69_seo_head_locale.feature," +
-        "src/test/features/66_same_page_language_switch.feature," +
-        "src/test/features/67_variant_bake.feature,src/test/features/68_template_tree.feature," +
-        "src/test/features/dns_provision.feature",
+    value =
+        "src/test/features/52_rtl_direction_injection.feature," +
+            "src/test/features/54_rtl_direction_injection_task.feature,src/test/features/59_seo_injection.feature," +
+            "src/test/features/61_contact_sec.feature,src/test/features/69_seo_head_locale.feature," +
+            "src/test/features/66_same_page_language_switch.feature," +
+            "src/test/features/67_variant_bake.feature,src/test/features/68_template_tree.feature," +
+            "src/test/features/dns_provision.feature",
 )
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "bakery.scenarios")
 @ConfigurationParameter(

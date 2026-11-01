@@ -33,11 +33,12 @@ import org.junit.platform.suite.api.Suite
 @SelectClasspathResource("features/56_i18n_deploy_multi_site.feature")
 @ConfigurationParameter(
     key = FEATURES_PROPERTY_NAME,
-    value = "src/test/features/15_e2e_thymeleaf_components.feature,src/test/features/16_article_intention.feature," +
-        "src/test/features/17_augmented_context_lens.feature,src/test/features/18_subgraph_extraction.feature," +
-        "src/test/features/19_lens_hybrid_scoring.feature,src/test/features/20_config_resolver_cascade.feature," +
-        "src/test/features/21_save_configuration.feature,src/test/features/46_i18n_real_migration.feature," +
-        "src/test/features/55_i18n_deploy_end_to_end.feature,src/test/features/56_i18n_deploy_multi_site.feature",
+    value =
+        "src/test/features/15_e2e_thymeleaf_components.feature,src/test/features/16_article_intention.feature," +
+            "src/test/features/17_augmented_context_lens.feature,src/test/features/18_subgraph_extraction.feature," +
+            "src/test/features/19_lens_hybrid_scoring.feature,src/test/features/20_config_resolver_cascade.feature," +
+            "src/test/features/21_save_configuration.feature,src/test/features/46_i18n_real_migration.feature," +
+            "src/test/features/55_i18n_deploy_end_to_end.feature,src/test/features/56_i18n_deploy_multi_site.feature",
 )
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "bakery.scenarios")
 @ConfigurationParameter(
