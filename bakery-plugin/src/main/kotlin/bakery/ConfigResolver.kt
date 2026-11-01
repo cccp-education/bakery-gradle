@@ -395,37 +395,47 @@ object ConfigResolver {
         extension: BakeryExtension,
         site: SiteConfiguration,
     ): Pair<ResolvedConfigs, List<ConfigResolutionError>> {
-        val errors = mutableListOf<ConfigResolutionError>()
+        // XB-FP-3 (arrow-kt): one pure, typed binding per domain — no shared
+        // MutableList and no positional `as` casts. Each resolver captures its
+        // failure as a value (`Either.catch` in DomainResolver.resolveOutcome)
+        // and falls back, so every domain is always resolved; the collected
+        // errors are an immutable list built once at the end.
+        val firebase = DomainResolver("firebase", { resolveFirebaseConfig(props, site.firebase) }, FirebaseProjectInfo(projectId = "", apiKey = "")).resolveOutcome()
+        val googleForms = DomainResolver("googleForms", { resolveGoogleFormsConfig(props, extension.googleForms, site.googleForms) }, GoogleFormsConfig()).resolveOutcome()
+        val firebaseAuth = DomainResolver("firebaseAuth", { resolveFirebaseAuthConfig(props, extension.firebaseAuth, site.firebaseAuth) }, FirebaseAuthConfig()).resolveOutcome()
+        val comments = DomainResolver("comments", { resolveCommentsConfig(props, extension.commentsConfig, site.comments) }, CommentsConfig()).resolveOutcome()
+        val analytics = DomainResolver("analytics", { resolveAnalyticsConfig(props, extension.analytics, site.analytics) }, AnalyticsConfig()).resolveOutcome()
+        val newsletter = DomainResolver("newsletter", { resolveNewsletterConfig(props, extension.newsletter, site.newsletter) }, NewsletterConfig()).resolveOutcome()
+        val theme = DomainResolver("theme", { resolveThemeConfig(props, extension.theme, site.theme) }, ThemeConfig()).resolveOutcome()
+        val layout = DomainResolver("layout", { resolveLayoutConfig(props, extension.layout, site.layout) }, LayoutConfig()).resolveOutcome()
+        val language = DomainResolver("language", { resolveLanguage(props, extension, site) }, "fr").resolveOutcome()
+        val supportedLanguages = DomainResolver("supportedLanguages", { resolveSupportedLanguages(props, extension, site) }, listOf("fr")).resolveOutcome()
 
-        val domainResolvers: List<DomainResolver<*>> =
-            listOf(
-                DomainResolver("firebase", { resolveFirebaseConfig(props, site.firebase) }, FirebaseProjectInfo(projectId = "", apiKey = "")),
-                DomainResolver("googleForms", { resolveGoogleFormsConfig(props, extension.googleForms, site.googleForms) }, GoogleFormsConfig()),
-                DomainResolver("firebaseAuth", { resolveFirebaseAuthConfig(props, extension.firebaseAuth, site.firebaseAuth) }, FirebaseAuthConfig()),
-                DomainResolver("comments", { resolveCommentsConfig(props, extension.commentsConfig, site.comments) }, CommentsConfig()),
-                DomainResolver("analytics", { resolveAnalyticsConfig(props, extension.analytics, site.analytics) }, AnalyticsConfig()),
-                DomainResolver("newsletter", { resolveNewsletterConfig(props, extension.newsletter, site.newsletter) }, NewsletterConfig()),
-                DomainResolver("theme", { resolveThemeConfig(props, extension.theme, site.theme) }, ThemeConfig()),
-                DomainResolver("layout", { resolveLayoutConfig(props, extension.layout, site.layout) }, LayoutConfig()),
-                DomainResolver("language", { resolveLanguage(props, extension, site) }, "fr"),
-                DomainResolver("supportedLanguages", { resolveSupportedLanguages(props, extension, site) }, listOf("fr")),
-            )
+        val errors = listOfNotNull(
+            firebase.error,
+            googleForms.error,
+            firebaseAuth.error,
+            comments.error,
+            analytics.error,
+            newsletter.error,
+            theme.error,
+            layout.error,
+            language.error,
+            supportedLanguages.error,
+        )
 
-        val resolved = domainResolvers.map { it.resolve(errors) }
-
-        @Suppress("UNCHECKED_CAST")
         return ResolvedConfigs(
-            firebase = resolved[0] as FirebaseProjectInfo,
-            googleForms = resolved[1] as GoogleFormsConfig,
-            firebaseAuth = resolved[2] as FirebaseAuthConfig,
-            comments = resolved[3] as CommentsConfig,
-            analytics = resolved[4] as AnalyticsConfig,
-            newsletter = resolved[5] as NewsletterConfig,
-            theme = resolved[6] as ThemeConfig,
-            layout = resolved[7] as LayoutConfig,
-            language = resolved[8] as String,
-            supportedLanguages = resolved[9] as List<String>,
-        ) to errors.toList()
+            firebase = firebase.value,
+            googleForms = googleForms.value,
+            firebaseAuth = firebaseAuth.value,
+            comments = comments.value,
+            analytics = analytics.value,
+            newsletter = newsletter.value,
+            theme = theme.value,
+            layout = layout.value,
+            language = language.value,
+            supportedLanguages = supportedLanguages.value,
+        ) to errors
     }
 
     fun resolveLanguage(
