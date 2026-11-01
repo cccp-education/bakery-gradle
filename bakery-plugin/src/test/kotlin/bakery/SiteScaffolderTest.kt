@@ -253,9 +253,6 @@ class SiteScaffolderTest {
         @Test
         fun `resolveSiteType should return BLOG when siteType property is null`() {
             val ext = mockBakeryExtension(null, null, null)
-            org.mockito.kotlin
-                .whenever(ext.siteType)
-                .thenReturn(null)
             assertThat(SiteScaffolder.resolveSiteType(ext)).isEqualTo(SiteType.BLOG)
         }
     }

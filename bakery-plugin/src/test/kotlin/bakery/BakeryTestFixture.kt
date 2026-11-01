@@ -21,6 +21,7 @@ import org.gradle.api.plugins.ExtensionContainer
 import org.gradle.api.plugins.PluginContainer
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.TaskCollection
 import org.gradle.api.tasks.TaskContainer
 import org.jbake.gradle.JBakeExtension
@@ -216,6 +217,14 @@ private fun mockProject(
 ): Project {
     val project = mock<Project>()
     val pluginManager = mock<org.gradle.api.plugins.PluginManager>()
+    val providers = mock<ProviderFactory>()
+    val gradleProperty = mock<Provider<String>>()
+    val gradleProperties = mock<Provider<Map<String, String>>>()
+    whenever(gradleProperty.orNull).thenReturn(null)
+    whenever(providers.gradleProperty(any<String>())).thenReturn(gradleProperty)
+    whenever(gradleProperties.get()).thenReturn(emptyMap())
+    whenever(providers.gradlePropertiesPrefixedBy(any<String>())).thenReturn(gradleProperties)
+    whenever(project.providers).thenReturn(providers)
     whenever(project.extensions).thenReturn(extContainer)
     whenever(project.configurations).thenReturn(confContainer)
     whenever(project.dependencies).thenReturn(depHandler)
