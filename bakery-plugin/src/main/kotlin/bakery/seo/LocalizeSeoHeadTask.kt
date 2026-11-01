@@ -66,7 +66,7 @@ abstract class LocalizeSeoHeadTask : DefaultTask() {
                 continue
             }
 
-            val ogImageLanguage = resolveOgImageLanguage(language, availableOgLanguageDirs)
+            val ogImageLanguage = OgImageLanguage.resolve(language, defaultLanguage, availableOgLanguageDirs)
             val original = header.readText()
             val localised = LocalizedSeoHead.rewrite(original, language, defaultLanguage, ogImageLanguage)
             val updated = DocumentDirection.apply(localised, language)
@@ -86,6 +86,10 @@ abstract class LocalizeSeoHeadTask : DefaultTask() {
         logger.lifecycle("[localizeSeoHead] Processed ${languages.size} language(s), localised $changedCount head(s)")
     }
 
+    /**
+     * The directories that hold any cards: the single disk probe the task needs.
+     * Which one a variant reads is the pure rule [OgImageLanguage].
+     */
     private fun availableOgLanguageDirs(site: File): Set<String> =
         site.resolve(ogImagesRelativePath)
             .listFiles()
@@ -93,17 +97,6 @@ abstract class LocalizeSeoHeadTask : DefaultTask() {
             .filter { it.isDirectory }
             .map { it.name }
             .toSet()
-
-    /**
-     * The directory that actually holds this language's cards: its own when it
-     * exists, else the **reference** — the only complete set (measured: 110 fr
-     * cards, 107 en, none for the 20 others). A partial set would 404 the card of
-     * an article that has no image in it, which is worse than a reference card.
-     */
-    private fun resolveOgImageLanguage(
-        language: String,
-        available: Set<String>,
-    ): String = if (language in available) language else defaultLanguage
 
     private companion object {
         const val HEADER_THYME = "header.thyme"

@@ -1,6 +1,7 @@
 package bakery.scenarios
 
 import bakery.seo.LocalizedSeoHead
+import bakery.seo.OgImageLanguage
 import io.cucumber.java.en.Given
 import io.cucumber.java.en.Then
 import io.cucumber.java.en.When
@@ -36,6 +37,27 @@ class SeoHeadLocaleSteps {
         ogImageLanguage: String,
     ) {
         beforeRewrite = rewritten
+        rewritten = LocalizedSeoHead.rewrite(rewritten, language, "fr", ogImageLanguage)
+        rewritten = bakery.i18n.DocumentDirection.apply(rewritten, language)
+    }
+
+    /**
+     * The card directory is **chosen** from what exists on disk, exactly as the
+     * task does it: the variant's own directory when it is present, the reference
+     * otherwise ([OgImageLanguage]).
+     */
+    @When("the head is localised for {string} with the available og directories {string}")
+    fun theHeadIsLocalisedWithAvailableDirectories(
+        language: String,
+        directories: String,
+    ) {
+        beforeRewrite = rewritten
+        val available =
+            directories.split(",")
+                .map { it.trim() }
+                .filter { it.isNotEmpty() }
+                .toSet()
+        val ogImageLanguage = OgImageLanguage.resolve(language, "fr", available)
         rewritten = LocalizedSeoHead.rewrite(rewritten, language, "fr", ogImageLanguage)
         rewritten = bakery.i18n.DocumentDirection.apply(rewritten, language)
     }

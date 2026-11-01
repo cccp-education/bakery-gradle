@@ -35,6 +35,17 @@ Feature: Localised SEO head of the variant pages (BKY-OUT-1)
     Then the head og image reads "og-images/fr/"
     And the head declares og locale "de_DE"
 
+  Scenario: The card directory is the variant's own when it exists on disk
+    Given a locale head fixture for the language "en"
+    When the head is localised for "en" with the available og directories "fr, en"
+    Then the head og image reads "og-images/en/"
+
+  Scenario: A variant without its own cards reads the reference directory
+    Given a locale head fixture for the language "de"
+    When the head is localised for "de" with the available og directories "fr, en"
+    Then the head og image reads "og-images/fr/"
+    And the head og image does not read "og-images/de/"
+
   Scenario: The reference language keeps an auto-referent canonical
     Given a locale head fixture for the language "fr"
     When the head is localised for "fr" with og images for "fr"
