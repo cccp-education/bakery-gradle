@@ -31,7 +31,7 @@ import kotlin.text.Charsets.UTF_8
 
 class BakeryPluginFunctionalTests {
     companion object {
-        const val VERSION = "0.0.9"
+        const val VERSION = TestVersions.PLUGIN_VERSION
         private val log: Logger by lazy { getLogger(BakeryPluginFunctionalTests::class.java) }
 
         private fun info(message: String) =

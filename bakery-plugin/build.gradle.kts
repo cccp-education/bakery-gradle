@@ -229,6 +229,14 @@ tasks.named<Test>("test") {
     maxParallelForks = 2
 }
 
+// 0. XB-FP-7 (S-322) — fixtures shared by unit/BDD and functional/TestKit.
+// Before this source set, every BDD shard compiled the whole `functionalTest`
+// tree (30 files, ~7 100 lines) just for `FuncTestsConstants` and
+// `createConfigFile`.
+val sharedTest: SourceSet by sourceSets.creating {
+    java { srcDirs("src/sharedTest/kotlin") }
+}
+
 // 1. Créer le SourceSet functionalTest
 val functionalTest: SourceSet by sourceSets.creating {
     java { srcDirs("src/functionalTest/kotlin") }
@@ -261,6 +269,12 @@ dependencies {
     libs.bundles.jgit
         .get()
         .forEach { add(functionalTest.implementationConfigurationName, it) }
+
+    // XB-FP-7 (S-322) — shared fixtures compiled once for both suites.
+    add(sharedTest.implementationConfigurationName, platform("education.cccp:workspace-bom:$workspaceVersion"))
+    add(sharedTest.implementationConfigurationName, kotlin("stdlib"))
+    add(sharedTest.implementationConfigurationName, libs.assertj.core)
+    add(functionalTest.implementationConfigurationName, sharedTest.output)
 }
 
 // 3. Tâche pour les tests fonctionnels
@@ -269,7 +283,7 @@ val functionalTestTask =
         description = "Runs functional tests."
         group = "verification"
         testClassesDirs = functionalTest.output.classesDirs
-        classpath = configurations[functionalTest.runtimeClasspathConfigurationName] + functionalTest.output
+        classpath = configurations[functionalTest.runtimeClasspathConfigurationName] + functionalTest.output + sharedTest.output
 
         useJUnitPlatform()
 
@@ -398,7 +412,7 @@ configurations.named("testRuntimeOnly").configure {
 }
 
 // 6. Ajouter les classes compilées de functionalTest au classpath de test
-dependencies { testImplementation(functionalTest.output) }
+dependencies { testImplementation(sharedTest.output) }
 
 configurations {
     // Exclure logback-classic du classpath de test
@@ -423,7 +437,6 @@ val cucumberTest =
 
         classpath = configurations.testRuntimeClasspath.get() +
             sourceSets.test.get().output +
-            functionalTest.output +
             sourceSets.main.get().output +
             files(tasks.jar.get().archiveFile)
 
@@ -448,7 +461,6 @@ val cucumberTest =
             exceptionFormat = FULL
         }
 
-        dependsOn(functionalTest.classesTaskName)
         dependsOn(tasks.classes)
 
         maxParallelForks = 1
@@ -506,12 +518,10 @@ fun registerCucumberTask(spec: CucumberTaskSpec): TaskProvider<Test> =
         classpath =
             configurations.testRuntimeClasspath.get() +
             sourceSets.test.get().output +
-            functionalTest.output +
             sourceSets.main.get().output +
             files(tasks.jar.get().archiveFile)
 
         dependsOn(tasks.classes)
-        dependsOn(functionalTest.classesTaskName)
 
         useJUnitPlatform { excludeEngines("junit-jupiter") }
 
@@ -598,7 +608,7 @@ fun registerFunctionalShard(
         group = "verification"
 
         testClassesDirs = functionalTest.output.classesDirs
-        classpath = configurations[functionalTest.runtimeClasspathConfigurationName] + functionalTest.output
+        classpath = configurations[functionalTest.runtimeClasspathConfigurationName] + functionalTest.output + sharedTest.output
 
         useJUnitPlatform()
 
