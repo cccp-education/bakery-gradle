@@ -400,16 +400,66 @@ object ConfigResolver {
         // failure as a value (`Either.catch` in DomainResolver.resolveOutcome)
         // and falls back, so every domain is always resolved; the collected
         // errors are an immutable list built once at the end.
-        val firebase = DomainResolver("firebase", { resolveFirebaseConfig(props, site.firebase) }, FirebaseProjectInfo(projectId = "", apiKey = "")).resolveOutcome()
-        val googleForms = DomainResolver("googleForms", { resolveGoogleFormsConfig(props, extension.googleForms, site.googleForms) }, GoogleFormsConfig()).resolveOutcome()
-        val firebaseAuth = DomainResolver("firebaseAuth", { resolveFirebaseAuthConfig(props, extension.firebaseAuth, site.firebaseAuth) }, FirebaseAuthConfig()).resolveOutcome()
-        val comments = DomainResolver("comments", { resolveCommentsConfig(props, extension.commentsConfig, site.comments) }, CommentsConfig()).resolveOutcome()
-        val analytics = DomainResolver("analytics", { resolveAnalyticsConfig(props, extension.analytics, site.analytics) }, AnalyticsConfig()).resolveOutcome()
-        val newsletter = DomainResolver("newsletter", { resolveNewsletterConfig(props, extension.newsletter, site.newsletter) }, NewsletterConfig()).resolveOutcome()
-        val theme = DomainResolver("theme", { resolveThemeConfig(props, extension.theme, site.theme) }, ThemeConfig()).resolveOutcome()
-        val layout = DomainResolver("layout", { resolveLayoutConfig(props, extension.layout, site.layout) }, LayoutConfig()).resolveOutcome()
-        val language = DomainResolver("language", { resolveLanguage(props, extension, site) }, "fr").resolveOutcome()
-        val supportedLanguages = DomainResolver("supportedLanguages", { resolveSupportedLanguages(props, extension, site) }, listOf("fr")).resolveOutcome()
+        val firebase =
+            DomainResolver(
+                "firebase",
+                { resolveFirebaseConfig(props, site.firebase) },
+                FirebaseProjectInfo(projectId = "", apiKey = ""),
+            ).resolveOutcome()
+        val googleForms =
+            DomainResolver(
+                "googleForms",
+                { resolveGoogleFormsConfig(props, extension.googleForms, site.googleForms) },
+                GoogleFormsConfig(),
+            ).resolveOutcome()
+        val firebaseAuth =
+            DomainResolver(
+                "firebaseAuth",
+                { resolveFirebaseAuthConfig(props, extension.firebaseAuth, site.firebaseAuth) },
+                FirebaseAuthConfig(),
+            ).resolveOutcome()
+        val comments =
+            DomainResolver(
+                "comments",
+                { resolveCommentsConfig(props, extension.commentsConfig, site.comments) },
+                CommentsConfig(),
+            ).resolveOutcome()
+        val analytics =
+            DomainResolver(
+                "analytics",
+                { resolveAnalyticsConfig(props, extension.analytics, site.analytics) },
+                AnalyticsConfig(),
+            ).resolveOutcome()
+        val newsletter =
+            DomainResolver(
+                "newsletter",
+                { resolveNewsletterConfig(props, extension.newsletter, site.newsletter) },
+                NewsletterConfig(),
+            ).resolveOutcome()
+        val theme =
+            DomainResolver(
+                "theme",
+                { resolveThemeConfig(props, extension.theme, site.theme) },
+                ThemeConfig(),
+            ).resolveOutcome()
+        val layout =
+            DomainResolver(
+                "layout",
+                { resolveLayoutConfig(props, extension.layout, site.layout) },
+                LayoutConfig(),
+            ).resolveOutcome()
+        val language =
+            DomainResolver(
+                "language",
+                { resolveLanguage(props, extension, site) },
+                "fr",
+            ).resolveOutcome()
+        val supportedLanguages =
+            DomainResolver(
+                "supportedLanguages",
+                { resolveSupportedLanguages(props, extension, site) },
+                listOf("fr"),
+            ).resolveOutcome()
 
         val errors = listOfNotNull(
             firebase.error,
