@@ -43,11 +43,6 @@ class BakeryConstantsTest {
     }
 
     @Test
-    fun `SUPPORTED_LANGS is immutable`() {
-        assertTrue(BakeryConstants.SUPPORTED_LANGS is Set<String>)
-    }
-
-    @Test
     fun `SUPPORTED_LANGS includes most spoken languages`() {
         assertTrue("en" in BakeryConstants.SUPPORTED_LANGS)
         assertTrue("zh" in BakeryConstants.SUPPORTED_LANGS)

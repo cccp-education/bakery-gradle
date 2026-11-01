@@ -169,7 +169,7 @@ class SiteTreeYamlTest {
 
         assertTrue(parsed is Article)
         assertEquals("s/a", parsed.path)
-        assertNull((parsed as Article).content)
+        assertNull(parsed.content)
     }
 
     @Test
@@ -189,16 +189,16 @@ class SiteTreeYamlTest {
         val parsed = yaml.parse(serialized)
 
         assertTrue(parsed is Article)
-        val config = (parsed as Article).outputConfig
+        val config = parsed.outputConfig
         assertNotNull(config)
-        val parsedAssets = config!!.assets
+        val parsedAssets = config.assets
         assertNotNull(parsedAssets)
         assertEquals(1, parsedAssets.css?.size)
         assertEquals("theme.css", parsedAssets.css!![0].path)
-        assertEquals("sha256-abc", parsedAssets.css!![0].integrity)
+        assertEquals("sha256-abc", parsedAssets.css[0].integrity)
         assertEquals(1, parsedAssets.js?.size)
         assertEquals("app.js", parsedAssets.js!![0].path)
-        assertEquals(true, parsedAssets.js!![0].defer)
+        assertEquals(true, parsedAssets.js[0].defer)
     }
 
     @Test

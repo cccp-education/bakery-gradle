@@ -146,8 +146,8 @@ class DnsConfigTest {
 
             assertThat(config.dns).isNotNull
             assertThat(config.dns!!.credentials.applicationKey).isEqualTo("my-app-key")
-            assertThat(config.dns!!.credentials.applicationSecret).isEqualTo("my-app-secret")
-            assertThat(config.dns!!.credentials.consumerKey).isEqualTo("my-consumer-key")
+            assertThat(config.dns.credentials.applicationSecret).isEqualTo("my-app-secret")
+            assertThat(config.dns.credentials.consumerKey).isEqualTo("my-consumer-key")
             assertThat(config.dns.toString()).doesNotContain("my-app-secret")
         }
 

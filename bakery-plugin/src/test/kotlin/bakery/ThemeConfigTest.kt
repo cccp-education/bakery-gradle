@@ -28,11 +28,11 @@ class ThemeConfigTest {
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.theme)
         assertEquals("dark", config.theme!!.mode)
-        assertEquals("#e74c3c", config.theme!!.primaryColor)
-        assertEquals("#2ecc71", config.theme!!.secondaryColor)
-        assertEquals("Inter", config.theme!!.fontFamily)
-        assertEquals("/img/logo.png", config.theme!!.logoUrl)
-        assertEquals("/img/favicon.ico", config.theme!!.faviconUrl)
+        assertEquals("#e74c3c", config.theme.primaryColor)
+        assertEquals("#2ecc71", config.theme.secondaryColor)
+        assertEquals("Inter", config.theme.fontFamily)
+        assertEquals("/img/logo.png", config.theme.logoUrl)
+        assertEquals("/img/favicon.ico", config.theme.faviconUrl)
     }
 
     @Test
@@ -60,11 +60,11 @@ class ThemeConfigTest {
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.theme)
         assertEquals("auto", config.theme!!.mode)
-        assertEquals("#0d6efd", config.theme!!.primaryColor)
-        assertEquals("#6c757d", config.theme!!.secondaryColor)
-        assertEquals("", config.theme!!.fontFamily)
-        assertEquals("", config.theme!!.logoUrl)
-        assertEquals("", config.theme!!.faviconUrl)
+        assertEquals("#0d6efd", config.theme.primaryColor)
+        assertEquals("#6c757d", config.theme.secondaryColor)
+        assertEquals("", config.theme.fontFamily)
+        assertEquals("", config.theme.logoUrl)
+        assertEquals("", config.theme.faviconUrl)
     }
 
     @Test
@@ -81,7 +81,7 @@ class ThemeConfigTest {
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.theme)
         assertEquals("light", config.theme!!.mode)
-        assertEquals("#ff6600", config.theme!!.primaryColor)
+        assertEquals("#ff6600", config.theme.primaryColor)
     }
 
     @Test
@@ -98,7 +98,7 @@ class ThemeConfigTest {
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.theme)
         assertEquals("dark", config.theme!!.mode)
-        assertEquals("Fira Code", config.theme!!.fontFamily)
+        assertEquals("Fira Code", config.theme.fontFamily)
     }
 
     @Test
@@ -115,8 +115,8 @@ class ThemeConfigTest {
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.theme)
         assertEquals("auto", config.theme!!.mode)
-        assertEquals("/assets/brand.svg", config.theme!!.logoUrl)
-        assertEquals("/assets/icon.png", config.theme!!.faviconUrl)
+        assertEquals("/assets/brand.svg", config.theme.logoUrl)
+        assertEquals("/assets/icon.png", config.theme.faviconUrl)
     }
 
     @Test
@@ -138,7 +138,7 @@ class ThemeConfigTest {
         assertNotNull(config.analytics)
         assertNotNull(config.theme)
         assertEquals("dark", config.theme!!.mode)
-        assertEquals("#1a1a2e", config.theme!!.primaryColor)
+        assertEquals("#1a1a2e", config.theme.primaryColor)
     }
 
     // BKY-IA-2 — Theme variant + extended properties
@@ -175,10 +175,10 @@ class ThemeConfigTest {
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.theme)
         assertEquals("documentation", config.theme!!.variant)
-        assertEquals("#8e44ad", config.theme!!.accentColor)
-        assertEquals("#fafafa", config.theme!!.backgroundColor)
-        assertEquals("#333333", config.theme!!.textColor)
-        assertEquals("Inter", config.theme!!.headingFont)
+        assertEquals("#8e44ad", config.theme.accentColor)
+        assertEquals("#fafafa", config.theme.backgroundColor)
+        assertEquals("#333333", config.theme.textColor)
+        assertEquals("Inter", config.theme.headingFont)
     }
 
     @Test
@@ -195,7 +195,7 @@ class ThemeConfigTest {
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.theme)
         assertEquals("magazine", config.theme!!.variant)
-        assertEquals("#ff6600", config.theme!!.primaryColor)
+        assertEquals("#ff6600", config.theme.primaryColor)
     }
 
     @Test

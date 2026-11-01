@@ -104,7 +104,7 @@ class GenerateArticleTaskTest {
         val articleFile = blogDir.listFiles()?.firstOrNull { it.name.endsWith(".adoc") }
         assertNotNull(articleFile, "Article file should exist")
 
-        val content = articleFile!!.readText(Charsets.UTF_8)
+        val content = articleFile.readText(Charsets.UTF_8)
         assertTrue(content.contains("= Découvrir Kotlin pour Gradle"), "Should contain title")
         assertTrue(content.contains(":description:"), "Should contain description metadata")
         assertTrue(content.contains(":tags:"), "Should contain tags metadata")
@@ -221,7 +221,7 @@ class GenerateArticleTaskTest {
         assertNotNull(articleFile)
 
         assertTrue(
-            articleFile!!.name.startsWith("decouvrir-kotlin-pour-gradle"),
+            articleFile.name.startsWith("decouvrir-kotlin-pour-gradle"),
             "Filename should be based on slug: ${articleFile.name}",
         )
     }

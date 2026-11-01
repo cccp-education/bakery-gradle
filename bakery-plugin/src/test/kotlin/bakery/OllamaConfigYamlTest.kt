@@ -36,18 +36,18 @@ $keysYaml
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.ollama)
         assertEquals("gemma4:31b-cloud", config.ollama!!.model)
-        assertEquals(11437, config.ollama!!.portStart)
-        assertEquals(11465, config.ollama!!.portEnd)
-        assertEquals(300L, config.ollama!!.timeoutSeconds)
-        assertEquals(29, config.ollama!!.deviceKeys.size)
-        assertEquals("ollama-11437", config.ollama!!.deviceKeys[0].keyName)
+        assertEquals(11437, config.ollama.portStart)
+        assertEquals(11465, config.ollama.portEnd)
+        assertEquals(300L, config.ollama.timeoutSeconds)
+        assertEquals(29, config.ollama.deviceKeys.size)
+        assertEquals("ollama-11437", config.ollama.deviceKeys[0].keyName)
         assertTrue(
-            config.ollama!!
+            config.ollama
                 .deviceKeys[0]
                 .privateKey
                 .contains("fake-key-11437"),
         )
-        assertEquals("ollama-11465", config.ollama!!.deviceKeys[28].keyName)
+        assertEquals("ollama-11465", config.ollama.deviceKeys[28].keyName)
     }
 
     @Test
@@ -77,11 +77,11 @@ $keysYaml
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.ollama)
         assertEquals("gemma4:31b-cloud", config.ollama!!.model)
-        assertEquals(11437, config.ollama!!.portStart)
-        assertEquals(11465, config.ollama!!.portEnd)
-        assertEquals(300L, config.ollama!!.timeoutSeconds)
-        assertEquals(1, config.ollama!!.deviceKeys.size)
-        assertTrue(config.ollama!!.isConfigured)
+        assertEquals(11437, config.ollama.portStart)
+        assertEquals(11465, config.ollama.portEnd)
+        assertEquals(300L, config.ollama.timeoutSeconds)
+        assertEquals(1, config.ollama.deviceKeys.size)
+        assertTrue(config.ollama.isConfigured)
     }
 
     @Test
@@ -97,7 +97,7 @@ $keysYaml
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.ollama)
         assertFalse(config.ollama!!.isConfigured)
-        assertTrue(config.ollama!!.deviceKeys.isEmpty())
+        assertTrue(config.ollama.deviceKeys.isEmpty())
     }
 
     @Test
@@ -126,10 +126,10 @@ $keysYaml
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.ollama)
         assertEquals(11440, config.ollama!!.portStart)
-        assertEquals(11450, config.ollama!!.portEnd)
-        assertEquals(11440..11450, config.ollama!!.portRange)
-        assertEquals(11, config.ollama!!.baseUrls().size)
-        assertEquals("http://localhost:11440", config.ollama!!.baseUrls().first())
-        assertEquals("http://localhost:11450", config.ollama!!.baseUrls().last())
+        assertEquals(11450, config.ollama.portEnd)
+        assertEquals(11440..11450, config.ollama.portRange)
+        assertEquals(11, config.ollama.baseUrls().size)
+        assertEquals("http://localhost:11440", config.ollama.baseUrls().first())
+        assertEquals("http://localhost:11450", config.ollama.baseUrls().last())
     }
 }

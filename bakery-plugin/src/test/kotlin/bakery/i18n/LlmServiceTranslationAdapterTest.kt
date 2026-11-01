@@ -98,7 +98,7 @@ class LlmServiceTranslationAdapterTest {
         val result = adapter.translate(TranslationRequest("Bonjour", "fr", "en"))
 
         assertTrue(result is contracts.i18n.TranslationResult.Success)
-        assertEquals("Hello world", (result as contracts.i18n.TranslationResult.Success).translatedText)
+        assertEquals("Hello world", result.translatedText)
     }
 
     @Test

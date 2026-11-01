@@ -26,8 +26,8 @@ class FirebaseAuthConfigTest {
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.firebaseAuth)
         assertEquals("AIzaSyDemo123", config.firebaseAuth!!.apiKey)
-        assertEquals("my-app.firebaseapp.com", config.firebaseAuth!!.authDomain)
-        assertEquals("my-app", config.firebaseAuth!!.projectId)
+        assertEquals("my-app.firebaseapp.com", config.firebaseAuth.authDomain)
+        assertEquals("my-app", config.firebaseAuth.projectId)
     }
 
     @Test
@@ -56,7 +56,7 @@ class FirebaseAuthConfigTest {
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.comments)
         assertTrue(config.comments!!.enabled)
-        assertEquals("session-comments", config.comments!!.collection)
+        assertEquals("session-comments", config.comments.collection)
     }
 
     @Test

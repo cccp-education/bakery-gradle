@@ -69,7 +69,7 @@ class AccessibilityAuditTaskTest {
             val task = project.tasks.register("accessibilityAudit", AccessibilityAuditTask::class.java).get()
             val configuredDir = tempDir.resolve("custom-bake")
             configuredDir.mkdirs()
-            (task.auditDir as org.gradle.api.file.DirectoryProperty).set(configuredDir)
+            task.auditDir.set(configuredDir)
 
             assertEquals(configuredDir, task.resolveAuditDir())
         }
@@ -192,7 +192,7 @@ class AccessibilityAuditTaskTest {
             )
 
             val task = project.tasks.register("accessibilityAudit", AccessibilityAuditTask::class.java).get()
-            (task.auditDir as org.gradle.api.file.DirectoryProperty).set(bakedDir)
+            task.auditDir.set(bakedDir)
             task.reportPath.set("build/reports/a11y-test.json")
 
             task.executeAudit()
@@ -216,7 +216,7 @@ class AccessibilityAuditTaskTest {
             project.pluginManager.apply("java-base")
 
             val task = project.tasks.register("accessibilityAudit", AccessibilityAuditTask::class.java).get()
-            (task.auditDir as org.gradle.api.file.DirectoryProperty).set(File("/nonexistent/bake"))
+            task.auditDir.set(File("/nonexistent/bake"))
 
             assertThrows<IllegalStateException> {
                 task.executeAudit()
@@ -240,7 +240,7 @@ class AccessibilityAuditTaskTest {
             )
 
             val task = project.tasks.register("accessibilityAudit", AccessibilityAuditTask::class.java).get()
-            (task.auditDir as org.gradle.api.file.DirectoryProperty).set(bakedDir)
+            task.auditDir.set(bakedDir)
             task.reportPath.set("build/reports/a11y-fail.json")
 
             task.executeAudit()
@@ -265,7 +265,7 @@ class AccessibilityAuditTaskTest {
             val bakedDir = auditTempDir.resolve("build/bake").apply { mkdirs() }
 
             val task = project.tasks.register("accessibilityAudit", AccessibilityAuditTask::class.java).get()
-            (task.auditDir as org.gradle.api.file.DirectoryProperty).set(bakedDir)
+            task.auditDir.set(bakedDir)
             task.reportPath.set("build/reports/a11y-empty.json")
 
             task.executeAudit()
@@ -296,7 +296,7 @@ class AccessibilityAuditTaskTest {
             )
 
             val task = project.tasks.register("accessibilityAudit", AccessibilityAuditTask::class.java).get()
-            (task.auditDir as org.gradle.api.file.DirectoryProperty).set(bakedDir)
+            task.auditDir.set(bakedDir)
             task.reportPath.set("build/reports/a11y-gate.json")
             task.failOnNonCompliant.set(true)
 
@@ -322,7 +322,7 @@ class AccessibilityAuditTaskTest {
             )
 
             val task = project.tasks.register("accessibilityAudit", AccessibilityAuditTask::class.java).get()
-            (task.auditDir as org.gradle.api.file.DirectoryProperty).set(bakedDir)
+            task.auditDir.set(bakedDir)
             task.reportPath.set("build/reports/a11y-no-gate.json")
             task.failOnNonCompliant.set(false)
 

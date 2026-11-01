@@ -24,9 +24,9 @@ class GoogleFormsConfigTest {
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.googleForms)
         assertEquals("1ABCDEF-x1234567890", config.googleForms!!.formId)
-        assertEquals("640", config.googleForms!!.width)
-        assertEquals("800", config.googleForms!!.height)
-        assertFalse(config.googleForms!!.allowMultiple)
+        assertEquals("640", config.googleForms.width)
+        assertEquals("800", config.googleForms.height)
+        assertFalse(config.googleForms.allowMultiple)
     }
 
     @Test

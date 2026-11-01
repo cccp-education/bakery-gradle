@@ -123,10 +123,10 @@ class SeoConfigTest {
             assertThat(seo.inLanguage).isEqualTo("fr")
             assertThat(seo.person).isNotNull
             assertThat(seo.person!!.name).isEqualTo("Jane Doe")
-            assertThat(seo.person!!.url).isEqualTo("https://example.com/about")
-            assertThat(seo.person!!.jobTitle).isEqualTo("Software Engineer")
-            assertThat(seo.person!!.sameAs).hasSize(2)
-            assertThat(seo.person!!.sameAs[0]).isEqualTo("https://github.com/jane")
+            assertThat(seo.person.url).isEqualTo("https://example.com/about")
+            assertThat(seo.person.jobTitle).isEqualTo("Software Engineer")
+            assertThat(seo.person.sameAs).hasSize(2)
+            assertThat(seo.person.sameAs[0]).isEqualTo("https://github.com/jane")
         }
 
         @Test
@@ -144,9 +144,9 @@ class SeoConfigTest {
 
             assertThat(config.seo).isNotNull
             assertThat(config.seo!!.twitterHandle).isNull()
-            assertThat(config.seo!!.websiteUrl).isNull()
-            assertThat(config.seo!!.person).isNull()
-            assertThat(config.seo!!.inLanguage).isEqualTo("fr")
+            assertThat(config.seo.websiteUrl).isNull()
+            assertThat(config.seo.person).isNull()
+            assertThat(config.seo.inLanguage).isEqualTo("fr")
         }
 
         @Test

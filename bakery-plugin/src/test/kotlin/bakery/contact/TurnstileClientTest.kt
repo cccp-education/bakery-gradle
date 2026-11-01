@@ -30,7 +30,7 @@ class TurnstileClientTest {
         fun `failure carries code`() {
             val r = VerifyResult.Failure(code = "invalid-input-response")
             assertThat(r.success).isFalse
-            assertThat((r as VerifyResult.Failure).code).isEqualTo("invalid-input-response")
+            assertThat(r.code).isEqualTo("invalid-input-response")
         }
 
         @Test

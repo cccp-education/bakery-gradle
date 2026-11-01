@@ -113,7 +113,7 @@ class SiteScaffolderTest {
 
         @Test
         fun `extension should have sitesBaseDir property`() {
-            val extension = project.extensions.create("bakery_test", BakeryExtension::class.java) as BakeryExtension
+            val extension = project.extensions.create("bakery_test", BakeryExtension::class.java)
             val sitesBaseDir: Property<String> = extension.sitesBaseDir
             assertThat(sitesBaseDir).isNotNull
             assertThat(sitesBaseDir.isPresent).isFalse
@@ -122,7 +122,7 @@ class SiteScaffolderTest {
 
         @Test
         fun `extension should have siteName property`() {
-            val extension = project.extensions.create("bakery_test2", BakeryExtension::class.java) as BakeryExtension
+            val extension = project.extensions.create("bakery_test2", BakeryExtension::class.java)
             val siteName: Property<String> = extension.siteName
             assertThat(siteName).isNotNull
             assertThat(siteName.isPresent).isFalse

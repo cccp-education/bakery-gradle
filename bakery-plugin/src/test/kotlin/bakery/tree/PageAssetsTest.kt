@@ -58,7 +58,7 @@ class PageAssetsTest {
         val assets = PageAssets(css = css)
         assertEquals(2, assets.css?.size)
         assertEquals("style.css", assets.css!![0].path)
-        assertEquals("print.css", assets.css!![1].path)
+        assertEquals("print.css", assets.css[1].path)
         assertNull(assets.js)
     }
 
@@ -68,7 +68,7 @@ class PageAssetsTest {
         val assets = PageAssets(js = js)
         assertEquals(1, assets.js?.size)
         assertEquals("app.js", assets.js!![0].path)
-        assertEquals(true, assets.js!![0].defer)
+        assertEquals(true, assets.js[0].defer)
         assertNull(assets.css)
     }
 

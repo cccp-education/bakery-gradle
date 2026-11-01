@@ -58,7 +58,6 @@ class SiteTreeTest {
         val leaves = tree.leaves()
 
         assertEquals(2, leaves.size)
-        assertTrue(leaves.all { it is Article })
         assertEquals(
             listOf("formations/ab-partition", "formations/cd-partition"),
             leaves.map { it.path },

@@ -64,7 +64,7 @@ class ScaffoldGeneratorTreeTest {
 
             assertNotNull(output.tree)
             assertTrue(output.tree is SiteNode.Site)
-            val site = output.tree as SiteNode.Site
+            val site = output.tree
             assertEquals(2, site.sections.size)
             assertEquals("formations", site.sections.first().path)
         }

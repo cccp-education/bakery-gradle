@@ -214,8 +214,8 @@ class ContentTest {
         val article = Article(path = "formations/ab-partition", content = Content(pivot))
 
         assertTrue(article.content != null)
-        assertEquals(pivot, article.content!!.pivot)
-        assertEquals(3, article.content!!.blocs().size)
+        assertEquals(pivot, article.content.pivot)
+        assertEquals(3, article.content.blocs().size)
     }
 
     @Test

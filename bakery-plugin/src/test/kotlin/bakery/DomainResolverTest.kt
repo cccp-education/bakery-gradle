@@ -1,10 +1,8 @@
 package bakery
 
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertSame
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertInstanceOf
@@ -31,96 +29,86 @@ class DomainResolverTest {
     inner class Resolve {
         @Test
         fun `returns resolved value when resolver succeeds`() {
-            val errors = mutableListOf<ConfigResolutionError>()
             val expected = FirebaseProjectInfo(projectId = "p1", apiKey = "k1")
             val dr = DomainResolver("firebase", { expected }, FirebaseProjectInfo())
 
-            val result = dr.resolve(errors)
+            val outcome = dr.resolveOutcome()
 
-            assertEquals(expected, result)
-            assertTrue(errors.isEmpty(), "No error expected on success")
+            assertEquals(expected, outcome.value)
+            assertNull(outcome.error, "No error expected on success")
         }
 
         @Test
         fun `returns fallback when resolver throws`() {
-            val errors = mutableListOf<ConfigResolutionError>()
             val fallback = ThemeConfig()
             val dr = DomainResolver("theme", { throw RuntimeException("boom") }, fallback)
 
-            val result = dr.resolve(errors)
+            val outcome = dr.resolveOutcome()
 
-            assertEquals(fallback, result)
+            assertEquals(fallback, outcome.value)
         }
 
         @Test
         fun `accumulates DomainFailure error when resolver throws`() {
-            val errors = mutableListOf<ConfigResolutionError>()
             val dr = DomainResolver("analytics", { throw RuntimeException("parse fail") }, AnalyticsConfig())
 
-            dr.resolve(errors)
+            val outcome = dr.resolveOutcome()
 
-            assertEquals(1, errors.size)
-            val error = assertInstanceOf<ConfigResolutionError.DomainFailure>(errors[0])
+            val error = assertInstanceOf<ConfigResolutionError.DomainFailure>(outcome.error)
             assertEquals("analytics", error.domain)
             assertEquals("parse fail", error.message)
         }
 
         @Test
         fun `error message falls back to Unknown error when exception has no message`() {
-            val errors = mutableListOf<ConfigResolutionError>()
             val dr = DomainResolver("language", { throw RuntimeException() }, "fr")
 
-            dr.resolve(errors)
+            val outcome = dr.resolveOutcome()
 
-            val error = errors[0] as ConfigResolutionError.DomainFailure
+            val error = assertInstanceOf<ConfigResolutionError.DomainFailure>(outcome.error)
             assertEquals("Unknown error", error.message)
         }
 
         @Test
         fun `captures exception as cause when it is an Exception subtype`() {
-            val errors = mutableListOf<ConfigResolutionError>()
             val cause = RuntimeException("boom")
             val dr = DomainResolver("theme", { throw cause }, ThemeConfig())
 
-            dr.resolve(errors)
+            val outcome = dr.resolveOutcome()
 
-            val error = errors[0] as ConfigResolutionError.DomainFailure
+            val error = assertInstanceOf<ConfigResolutionError.DomainFailure>(outcome.error)
             assertSame(cause, error.cause)
         }
 
         @Test
         fun `cause is null when thrown throwable is not an Exception subtype`() {
-            val errors = mutableListOf<ConfigResolutionError>()
             val dr = DomainResolver("lang", { throw Throwable("not exception") }, "fr")
 
-            dr.resolve(errors)
+            val outcome = dr.resolveOutcome()
 
-            val error = errors[0] as ConfigResolutionError.DomainFailure
+            val error = assertInstanceOf<ConfigResolutionError.DomainFailure>(outcome.error)
             assertNull(error.cause)
         }
 
         @Test
         fun `does not accumulate error on success`() {
-            val errors = mutableListOf<ConfigResolutionError>()
             val dr = DomainResolver("comments", { CommentsConfig(enabled = true) }, CommentsConfig())
 
-            dr.resolve(errors)
+            val outcome = dr.resolveOutcome()
 
-            assertTrue(errors.isEmpty())
+            assertNull(outcome.error)
         }
 
         @Test
-        fun `multiple resolvers accumulate errors independently`() {
-            val errors = mutableListOf<ConfigResolutionError>()
+        fun `multiple resolvers report errors independently`() {
             val dr1 = DomainResolver("firebase", { throw RuntimeException("e1") }, FirebaseProjectInfo())
             val dr2 = DomainResolver("theme", { throw RuntimeException("e2") }, ThemeConfig())
 
-            dr1.resolve(errors)
-            dr2.resolve(errors)
+            val first = assertInstanceOf<ConfigResolutionError.DomainFailure>(dr1.resolveOutcome().error)
+            val second = assertInstanceOf<ConfigResolutionError.DomainFailure>(dr2.resolveOutcome().error)
 
-            assertEquals(2, errors.size)
-            assertEquals("firebase", (errors[0] as ConfigResolutionError.DomainFailure).domain)
-            assertEquals("theme", (errors[1] as ConfigResolutionError.DomainFailure).domain)
+            assertEquals("firebase", first.domain)
+            assertEquals("theme", second.domain)
         }
     }
 }

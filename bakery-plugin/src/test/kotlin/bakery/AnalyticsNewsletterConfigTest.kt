@@ -27,8 +27,8 @@ class AnalyticsNewsletterConfigTest {
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.analytics)
         assertEquals("plausible", config.analytics!!.provider)
-        assertEquals("my-site.com", config.analytics!!.domain)
-        assertEquals("https://plausible.io/js/script.js", config.analytics!!.scriptSrc)
+        assertEquals("my-site.com", config.analytics.domain)
+        assertEquals("https://plausible.io/js/script.js", config.analytics.scriptSrc)
     }
 
     @Test
@@ -58,8 +58,8 @@ class AnalyticsNewsletterConfigTest {
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.newsletter)
         assertTrue(config.newsletter!!.enabled)
-        assertEquals("mailchimp", config.newsletter!!.provider)
-        assertEquals("https://mailchimp.us1.list-manage.com/subscribe/post?u=xxx&id=yyy", config.newsletter!!.endpoint)
+        assertEquals("mailchimp", config.newsletter.provider)
+        assertEquals("https://mailchimp.us1.list-manage.com/subscribe/post?u=xxx&id=yyy", config.newsletter.endpoint)
     }
 
     @Test
@@ -110,8 +110,8 @@ class AnalyticsNewsletterConfigTest {
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.analytics)
         assertEquals("plausible", config.analytics!!.provider)
-        assertEquals("", config.analytics!!.domain)
-        assertEquals("", config.analytics!!.scriptSrc)
+        assertEquals("", config.analytics.domain)
+        assertEquals("", config.analytics.scriptSrc)
     }
 
     @Test
@@ -128,6 +128,6 @@ class AnalyticsNewsletterConfigTest {
         val config = mapper.readValue(yaml, SiteConfiguration::class.java)
         assertNotNull(config.newsletter)
         assertFalse(config.newsletter!!.enabled)
-        assertEquals("mailerlite", config.newsletter!!.provider)
+        assertEquals("mailerlite", config.newsletter.provider)
     }
 }

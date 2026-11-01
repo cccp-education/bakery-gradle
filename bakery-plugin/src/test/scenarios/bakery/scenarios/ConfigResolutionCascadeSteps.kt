@@ -32,7 +32,7 @@ class ConfigResolutionCascadeSteps {
     fun createNewBakeryProject() {
         val tempDir = File(System.getProperty("java.io.tmpdir"), "bakery-cascade-test-${System.currentTimeMillis()}").apply { mkdirs() }
         project = ProjectBuilder.builder().withProjectDir(tempDir).build()
-        extension = project.extensions.create("bakery_cascade_test", BakeryExtension::class.java) as BakeryExtension
+        extension = project.extensions.create("bakery_cascade_test", BakeryExtension::class.java)
     }
 
     @When("I resolve all configs with defaults")

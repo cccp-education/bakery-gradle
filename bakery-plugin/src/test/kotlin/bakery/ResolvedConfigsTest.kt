@@ -490,17 +490,6 @@ class ResolvedConfigsTest {
         }
 
         @Test
-        fun `resolveAllDataDriven returns ResolvedConfigs data class`() {
-            val props = emptyMap<String, String>()
-            val extension = createExtension()
-            val site = createSite()
-
-            val (configs, _) = ConfigResolver.resolveAllDataDriven(props, extension, site)
-
-            assertTrue(configs is ResolvedConfigs)
-        }
-
-        @Test
         fun `resolveAllDataDriven resolves language domain identically to resolveAll`() {
             val props = mapOf("bakery.language.language" to "ar")
             val extension = createExtension()
