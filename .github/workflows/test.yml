@@ -44,6 +44,13 @@ jobs:
       - name: Run unit tests
         run: ./gradlew test
 
+      # MEM-LINT-GATE (workspace-bom S-324) — `check` was never run by this
+      # workflow, so the ktlint gate (empty baseline since S-244) was silently
+      # red at HEAD. Same job, same daemon: the gate costs ~10 s and can no
+      # longer rot unseen.
+      - name: Lint (ktlint)
+        run: ./gradlew ktlintCheck
+
       - name: Upload coverage binary report
         if: always()
         uses: actions/upload-artifact@v4
