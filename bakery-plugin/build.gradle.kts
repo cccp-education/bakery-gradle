@@ -133,6 +133,18 @@ tasks.withType<Test> {
     // `2024-07-24` in Europe/Paris but `2024-07-23` under the runner's UTC.
     // A fixed zone keeps assertions deterministic across environments.
     systemProperty("user.timezone", "Europe/Paris")
+
+    // XB-FP-7 — Gradle TestKit home OUTSIDE `build/` so it can be restored from
+    // the cross-borough dependency cache. Default is `build/tmp/<task>/work/
+    // .gradle-test-kit` (953 MB to 2.5 GB locally), recreated per job and
+    // re-resolving 118 jars for each of the 179 nested builds. One shared home
+    // per worker JVM keeps the nested-build resolution out of every shard.
+    // (Per-fork isolation via `org.gradle.test.worker` is a later step: first
+    // measure the shared home, which is what the cache can actually persist.)
+    systemProperty(
+        "org.gradle.testkit.dir",
+        File(System.getProperty("user.home"), ".gradle-testkit").absolutePath,
+    )
 }
 
 // ────────────────────────────────────────────────────────────
