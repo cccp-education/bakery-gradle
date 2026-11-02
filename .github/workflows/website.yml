@@ -29,6 +29,9 @@ jobs:
         env:
           SITE_YML: ${{ secrets.SITE_YML }}
         run: |
+          # MEM-CI-GATE-2.4 (S-340) — errexit: the `printf > site.yml` write could
+          # fail (permissions/disk) and be masked by the final `publishSite`.
+          set -euo pipefail
           if [ -z "$SITE_YML" ]; then
             echo "::error::SITE_YML secret is not set — cannot deploy. Add it in Settings > Secrets and variables > Actions."
             exit 1
