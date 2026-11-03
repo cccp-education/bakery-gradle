@@ -46,7 +46,7 @@
 
     <!-- Pagefind UI CSS -->
     <link th:with="rootpath=(${content.rootpath != null} ? ${content.rootpath} : '')"
-          th:href="${rootpath}+'_pagefind/pagefind-ui.css'"
+          th:href="${rootpath}+'pagefind/pagefind-ui.css'"
           rel="stylesheet"/>
 
     <!-- highlight.js: theme will be managed dynamically by script.js -->
