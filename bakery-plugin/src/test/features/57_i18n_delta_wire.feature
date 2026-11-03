@@ -29,3 +29,19 @@ Feature: i18n delta wire — SubtreeI18nPlanner cabled in MigrateContentI18nTask
     When the delta-wire task migrates content from fr to "en" again
     Then the delta-wire task should report "1" files translated for language "en"
     And the delta-wire task should report "3" files preserved for language "en"
+
+  Scenario: A divergent variant is preserved when the rebuild is disabled
+    Given the delta-wire task has already migrated content from fr to "en"
+    And the variant article "introduction-pivot.adoc" has a divergent block structure for language "en"
+    When the delta-wire task migrates content from fr to "en" again
+    Then the delta-wire task should report "0" files translated for language "en"
+    And the divergent rebuild plan should list 0 article for language "en"
+
+  Scenario: A divergent variant is rebuilt when the rebuild is enabled
+    Given the delta-wire task has already migrated content from fr to "en"
+    And the variant article "introduction-pivot.adoc" has a divergent block structure for language "en"
+    And the delta-wire task runs with divergent rebuild enabled
+    When the delta-wire task migrates content from fr to "en" again
+    Then the delta-wire task should report "1" files translated for language "en"
+    And the delta-wire task should report "3" files preserved for language "en"
+    And the divergent rebuild plan should list 1 article for language "en"

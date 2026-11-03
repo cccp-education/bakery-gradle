@@ -11,6 +11,12 @@ data class ContentMigrationIntention(
     val excludePaths: List<String> = emptyList(),
     val parallelism: Int = 1,
     val validation: String = "LENIENT",
+    /**
+     * GBL-010 P3 — when true, a structurally divergent variant is rebuilt from
+     * the reference article instead of being preserved by the file delta. Opt-in
+     * because the rebuild is a metered, full-article translation.
+     */
+    val reopenDivergent: Boolean = false,
 ) {
     init {
         require(sourceDir.isNotBlank()) { "Le repertoire source (sourceDir) est obligatoire pour la migration de contenu." }

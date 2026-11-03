@@ -98,6 +98,16 @@ abstract class MigrateContentI18nTask : DefaultTask() {
     @get:Option(option = "contentI18nExcludePaths", description = "Chemins relatifs à exclure de la traduction (ex: draft,.well-known)")
     abstract val contentI18nExcludePaths: Property<String>
 
+    /**
+     * GBL-010 P3 — rebuild the structurally divergent variants (full article,
+     * reset block store) instead of freezing them at the file delta. Opt-in: a
+     * divergent leaf costs a full metered translation, so the operator decides.
+     */
+    @get:Input
+    @get:Optional
+    @get:Option(option = "contentI18nReopenDivergent", description = "Reconstruit les variantes structurellement divergentes (true/false)")
+    abstract val contentI18nReopenDivergent: Property<String>
+
     init {
         group = BakeryConstants.TRANSFORM_GROUP
         description =
@@ -110,6 +120,7 @@ abstract class MigrateContentI18nTask : DefaultTask() {
         contentI18nValidation.convention("")
         contentI18nParallelism.convention("")
         contentI18nExcludePaths.convention("")
+        contentI18nReopenDivergent.convention("")
     }
 
     @TaskAction
@@ -153,6 +164,7 @@ abstract class MigrateContentI18nTask : DefaultTask() {
 
         val allTableValidationResults = mutableListOf<TableValidationResult.Invalid>()
         val allPlantUmlValidationResults = mutableListOf<PlantUmlValidationResult.Invalid>()
+        val divergentByLanguage = sortedMapOf<String, List<String>>()
 
         for (targetLang in intention.targetLanguages) {
             val langDir = outputBaseDir.resolve(targetLang)
@@ -181,6 +193,32 @@ abstract class MigrateContentI18nTask : DefaultTask() {
             val applier = I18nDeltaApplier(delta, existingTargetFiles)
             val applicationResult = applier.apply()
 
+            // GBL-010 P3 — a structurally divergent variant is frozen by the file
+            // delta (its source is byte-unchanged). Opt-in: name it, reset its block
+            // store and force a full rebuild. The block store is emptied so even a
+            // stale variant on disk cannot take the preserved-index path.
+            val divergent =
+                if (intention.reopenDivergent) {
+                    DivergentArticlePlanner.divergent(
+                        sourceDir = sourceDir,
+                        variantDir = langDir,
+                        existingTargetFiles = existingTargetFiles,
+                        excludePaths = intention.excludePaths.toSet(),
+                    )
+                } else {
+                    emptyList()
+                }
+            if (divergent.isNotEmpty()) {
+                val reset = DivergentArticlePlanner.resetStores(langDir.resolve(".bakery-block-checksums"), divergent)
+                divergentByLanguage[targetLang] = divergent
+                logger.lifecycle(
+                    "[migrateContentI18n] [{}] Divergents à reconstruire : {} (stores réinitialisés : {}).",
+                    targetLang,
+                    divergent.size,
+                    reset.size,
+                )
+            }
+
             // DOC-TRANSLATE-RESILIENCE (cross-borough) — a file whose block
             // checksums hold a PENDING block (a failed LLM call document-gradle
             // refused to freeze as TRANSLATED) must be retried even though its
@@ -201,13 +239,14 @@ abstract class MigrateContentI18nTask : DefaultTask() {
                 PendingBlockRetry.filesWithPendingBlocks(retryCandidates) { relPath ->
                     loadBlockChecksums(langDir, relPath)
                 }
-            val filesToTranslate = applicationResult.toTranslate.paths + pendingRetry
+            val filesToTranslate = (applicationResult.toTranslate.paths + pendingRetry + divergent).distinct()
             logger.lifecycle(
-                "[migrateContentI18n] [{}] Delta : {} à traduire, {} préservés (dont {} retentés PENDING).",
+                "[migrateContentI18n] [{}] Delta : {} à traduire, {} préservés (dont {} retentés PENDING, {} divergents reconstruits).",
                 targetLang,
                 filesToTranslate.size,
-                applicationResult.toPreserve.paths.size - pendingRetry.size,
+                (applicationResult.toPreserve.paths - filesToTranslate.toSet()).size,
                 pendingRetry.size,
+                divergent.size,
             )
 
             copyNonAdocFiles(sourceDir, langDir, intention.excludePaths.toSet())
@@ -318,6 +357,11 @@ abstract class MigrateContentI18nTask : DefaultTask() {
         }
 
         writeValidationReport(outputBaseDir, allTableValidationResults, allPlantUmlValidationResults)
+        if (divergentByLanguage.isNotEmpty()) {
+            val report = outputBaseDir.resolve("divergent-rebuild.adoc")
+            report.writeText(DivergentRebuildReport.render(divergentByLanguage))
+            logger.lifecycle("[migrateContentI18n] Plan de reconstruction : {}", report.absolutePath)
+        }
     }
 
     private fun copyNonAdocFiles(
@@ -488,6 +532,13 @@ abstract class MigrateContentI18nTask : DefaultTask() {
                 .toIntOrNull()
                 ?: 1
 
+        val resolvedReopenDivergent =
+            ResolveIntention.fromCliBoolean(
+                contentI18nReopenDivergent.orNull,
+                dslIntention?.reopenDivergent,
+                false,
+            )
+
         return ContentMigrationIntention(
             sourceDir = resolvedSource,
             outputDir = resolvedOutput,
@@ -497,6 +548,7 @@ abstract class MigrateContentI18nTask : DefaultTask() {
             excludePaths = resolvedExclude,
             parallelism = resolvedParallelism,
             validation = resolvedValidation,
+            reopenDivergent = resolvedReopenDivergent,
         )
     }
 

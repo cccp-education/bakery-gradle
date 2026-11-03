@@ -249,6 +249,7 @@ object ContentTaskRegistrar {
             task.contentI18nTargetLangs.set(project.providers.gradleProperty("contentI18nTargetLangs").orElse(""))
             task.contentI18nSourceLang.set(project.providers.gradleProperty("contentI18nSourceLang").orElse(""))
             task.contentI18nDryRun.set(project.providers.gradleProperty("contentI18nDryRun").orElse(""))
+            task.contentI18nReopenDivergent.set(project.providers.gradleProperty("contentI18nReopenDivergent").orElse(""))
 
             resolveIntention(
                 dsl = contentMigrationDsl,

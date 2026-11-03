@@ -41,7 +41,8 @@ _Dernière mise à jour : 2026-10-26 — Session 263 (revue externe i18n, docume
 == Suite (S-248+, sur ordre pilote)
 
 * [ ] **F50 cross-borough** : sémantique `:summary:`/`:description:` portée par `document-gradle`
-* [ ] **Publication bakery 0.0.21** : porterait S-246/S-247 — sur demande pilote (DAG MEMPHIS-first)
+* [x] **Publication bakery 0.0.21** : publiée S-248 ; remplacée par **0.0.33** (correctif adapter `document.baseURI`, source déjà corrigée) — DAG MEMPHIS-first
+* [ ] **Publication bakery 0.0.33** : après MEMPHIS 0.0.125 (catalogue), porter le correctif d'import Pagefind aux consommateurs Central
 * [ ] **Propagation gouvernance** : règle « Local = Build, Tests = CI » vers les `AGENT.adoc` boroughs + `SESSION_CHECKLIST.adoc` manquants (bakery en est dépourvu)
 * [ ] **MASS-6** : bloqué accord pilote explicite (~675h LLM)
 

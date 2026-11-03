@@ -35,6 +35,7 @@ class MigrateContentI18nDeltaFunctionalTest {
         outputBase: File,
         targetLangs: String = "en",
         dryRun: String = "false",
+        reopenDivergent: String = "",
     ): MigrateContentI18nTask {
         val project =
             ProjectBuilder
@@ -49,6 +50,7 @@ class MigrateContentI18nDeltaFunctionalTest {
         task.contentI18nOutput.set(outputBase.absolutePath)
         task.contentI18nTargetLangs.set(targetLangs)
         task.contentI18nDryRun.set(dryRun)
+        task.contentI18nReopenDivergent.set(reopenDivergent)
         return task
     }
 
@@ -794,6 +796,58 @@ First paragraph.
 
             val reportFile = outputBase.resolve("validation-report.json")
             assertTrue(reportFile.exists())
+        }
+    }
+
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class DivergentRebuild {
+        private val source = "= Intro\n\nFirst paragraph.\n\nSecond paragraph.\n"
+
+        private fun firstMigration(
+            sourceDir: File,
+            outputBase: File,
+        ): File {
+            createAdocSource(sourceDir, "intro.adoc" to source)
+            val first = setupTask("test-divergent-first", sourceDir, outputBase)
+            first.translationService = FakeTranslationService(" [EN]")
+            first.executeContentMigration()
+            return outputBase.resolve("en/intro.adoc")
+        }
+
+        @Test
+        fun `a divergent variant is preserved when the rebuild is not enabled`() {
+            val sourceDir = testDir.resolve("src/content")
+            val outputBase = testDir.resolve("build/i18n")
+            val variant = firstMigration(sourceDir, outputBase)
+
+            variant.writeText("= Intro\n\nFirst paragraph.\n")
+
+            val second = setupTask("test-divergent-default", sourceDir, outputBase)
+            second.translationService = FakeTranslationService(" [EN]")
+            second.executeContentMigration()
+
+            assertEquals("= Intro\n\nFirst paragraph.\n", variant.readText())
+            assertFalse(outputBase.resolve("divergent-rebuild.adoc").exists())
+        }
+
+        @Test
+        fun `a divergent variant is rebuilt when the rebuild is enabled`() {
+            val sourceDir = testDir.resolve("src/content")
+            val outputBase = testDir.resolve("build/i18n")
+            val variant = firstMigration(sourceDir, outputBase)
+
+            variant.writeText("= Intro\n\nFirst paragraph.\n")
+
+            val rebuild = setupTask("test-divergent-rebuild", sourceDir, outputBase, reopenDivergent = "true")
+            rebuild.translationService = FakeTranslationService(" [EN]")
+            rebuild.executeContentMigration()
+
+            val rebuilt = variant.readText()
+            assertTrue(rebuilt.contains("[EN]"))
+            assertTrue(rebuilt.contains("Second paragraph"))
+            val plan = outputBase.resolve("divergent-rebuild.adoc").readText()
+            assertTrue(plan.contains("| en | intro.adoc"))
         }
     }
 }

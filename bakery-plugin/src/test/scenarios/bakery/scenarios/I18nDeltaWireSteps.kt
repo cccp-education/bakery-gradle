@@ -1,5 +1,6 @@
 package bakery.scenarios
 
+import bakery.i18n.DivergentArticlePlanner
 import contracts.i18n.TranslationRequest
 import contracts.i18n.TranslationResult
 import contracts.i18n.TranslationService
@@ -27,6 +28,8 @@ class I18nDeltaWireSteps {
     private lateinit var fakeTranslator: TranslationService
     private var lastTranslatedCount: Int = -1
     private var lastPreservedCount: Int = -1
+    private var reopenDivergent: Boolean = false
+    private var divergentPlan: List<String> = emptyList()
 
     @Given("a cheroliv-com-i18n-deploy fixture with 4 French articles for delta wire")
     fun setupFixture() {
@@ -60,6 +63,31 @@ class I18nDeltaWireSteps {
         val article = sourceDir.resolve("blog/$articleName")
         assertThat(article).exists()
         article.writeText(article.readText() + "\n\nModified content for delta test.")
+    }
+
+    @Given("the variant article {string} has a divergent block structure for language {string}")
+    fun divergeVariant(
+        articleName: String,
+        lang: String,
+    ) {
+        val variant = outputDir.resolve(lang).resolve("blog/$articleName")
+        assertThat(variant).exists()
+        variant.writeText("= Divergent\n\nOnly one paragraph.\n")
+    }
+
+    @Given("the delta-wire task runs with divergent rebuild enabled")
+    fun enableDivergentRebuild() {
+        reopenDivergent = true
+    }
+
+    @Then("the divergent rebuild plan should list {int} article for language {string}")
+    fun assertDivergentPlan(
+        expected: Int,
+        lang: String,
+    ) {
+        assertThat(divergentPlan)
+            .describedAs("Expected $expected divergent article(s) for $lang")
+            .hasSize(expected)
     }
 
     @When("the delta-wire task migrates content from fr to {string} for the first time")
@@ -112,9 +140,22 @@ class I18nDeltaWireSteps {
         val applier = I18nDeltaApplier(delta, existingTargetFiles)
         val result = applier.apply()
 
-        val filesToTranslate = result.toTranslate.paths
+        val divergent =
+            if (reopenDivergent) {
+                DivergentArticlePlanner
+                    .divergent(
+                        sourceDir = sourceDir,
+                        variantDir = langDir,
+                        existingTargetFiles = existingTargetFiles,
+                    ).also { DivergentArticlePlanner.resetStores(langDir.resolve(".bakery-block-checksums"), it) }
+            } else {
+                emptyList()
+            }
+        divergentPlan = divergent
+
+        val filesToTranslate = (result.toTranslate.paths + divergent).distinct()
         lastTranslatedCount = filesToTranslate.size
-        lastPreservedCount = result.toPreserve.paths.size
+        lastPreservedCount = (result.toPreserve.paths - filesToTranslate.toSet()).size
 
         for (relPath in filesToTranslate) {
             val sourceFile = sourceDir.resolve(relPath)
