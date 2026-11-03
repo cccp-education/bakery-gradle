@@ -5,7 +5,7 @@
 :icons: font
 :sectnums:
 
-== 🟡 EPIC BKY-SEARCH — Pagefind headless : moteur de recherche natif du template bakery (CADRÉ 2026-11-03)
+== ✅ EPIC BKY-SEARCH — Pagefind headless : moteur de recherche natif du template bakery (TERMINÉ 7/7, 2026-11-03)
 
 *Source* : décision pilote consignée dans le backlog du site consommateur
 (dépôt privé, EPIC `CHE-SEARCH`). Le site garde son orchestration de staging
@@ -79,7 +79,7 @@ câblage `PagefindUI` dans les templates par défaut (`src/main/resources/site` 
 | **Tests** : UT domaine, FT TestKit (`pagefind` skip si `npx` absent, pattern
   `assumeTrue`), BDD `@search`, `nodeTest` de l'adapter avec un faux Pagefind, CI.
 | 3
-| 🟡 PARTIEL — UT + `nodeTest` + CI ✅ ; FT TestKit + BDD `@search` à faire
+| ✅ 2026-11-03 (UT domaine + `ValidateSearchIndexTaskTest` + BDD `@search` + `nodeTest` ; CI `41569896705`)
 
 | BKY-SEARCH-6
 | **Release + adoption** : publication Central, bump catalogue MEMPHIS, adoption
@@ -88,7 +88,7 @@ câblage `PagefindUI` dans les templates par défaut (`src/main/resources/site` 
 | ✅ 2026-11-03 (MEMPHIS 0.0.123 `d99cea06` ; bakery 0.0.31 `c821b0ad` ; runner 0.0.123 ; site `validateSearchIndex` + deploy `41568818825`)
 |===
 
-*Total* : 7 US ~16 pts. *Boundary* : bakery = moteur, adapter, templates par
+*Total* : 7 US ~16 pts (**7/7 livrées**). *Boundary* : bakery = moteur, adapter, templates par
 défaut, gardes génériques ; consommateur = staging, `site.yml`, contenu et gardes
 de corpus. Aucun contenu privé ni secret dans bakery.
 

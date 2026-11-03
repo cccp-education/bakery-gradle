@@ -1,6 +1,6 @@
 = Session 267 — BKY-SEARCH : Pagefind headless, guard et index par langue
 :date: 2026-11-03
-:statut: 6/7 US (BKY-SEARCH-5 : FT TestKit + BDD `@search` restant)
+:statut: 7/7 US (BKY-SEARCH-5 : BDD `@search` + `ValidateSearchIndexTaskTest`)
 
 == Mission
 
@@ -35,5 +35,6 @@ que Pagefind 1.6 écrit `pagefind/`.
 
 == Reste
 
-`BKY-SEARCH-5` : FT TestKit du chemin `pagefind` (skip si `npx` absent) et BDD
-`@search`.
+Aucun. `BKY-SEARCH-5` : `ValidateSearchIndexTaskTest` (entrée absente/malformée,
+langue manquante) + BDD `search_pagefind.feature` (`@search`, shard
+`jbake-core-pipelines`) ; CI `41569896705` verte.
