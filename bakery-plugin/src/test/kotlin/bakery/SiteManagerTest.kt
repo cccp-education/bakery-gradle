@@ -4,6 +4,7 @@ import bakery.BakeryConstants.COLLECT_GROUP
 import bakery.BakeryConstants.DEPLOY_GROUP
 import bakery.BakeryConstants.INFO_GROUP
 import bakery.BakeryConstants.TRANSFORM_GROUP
+import bakery.BakeryConstants.VALIDATE_GROUP
 import bakery.DeployTaskRegistrar.registerDeployMaquetteTask
 import bakery.DeployTaskRegistrar.registerDeploySiteTask
 import bakery.FileSystemManager.from
@@ -12,6 +13,8 @@ import bakery.SiteManager.createJBakeRuntimeConfiguration
 import bakery.SiteTaskRegistrar.registerCollectSiteConfigTask
 import bakery.SiteTaskRegistrar.registerPagefindTask
 import bakery.SiteTaskRegistrar.registerServeTask
+import bakery.SiteTaskRegistrar.registerValidateSearchIndexTask
+import bakery.search.ValidateSearchIndexTask
 import com.github.gradle.node.npm.task.NpxTask
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -382,6 +385,34 @@ class SiteManagerTest {
             assertThat(site.bake).isNotNull
             assertThat(site.bake.srcPath).isEqualTo("site")
             assertThat(site.bake.destDirPath).isEqualTo("bake")
+        }
+    }
+
+    @Nested
+    inner class RegisterValidateSearchIndexTaskTest {
+        @TempDir
+        lateinit var tempDir: File
+        private lateinit var project: Project
+
+        @BeforeEach
+        fun setUp() {
+            project = ProjectBuilder.builder().withProjectDir(tempDir).build()
+        }
+
+        @Test
+        fun `registers a validation task depending on pagefind`() {
+            val site =
+                SiteConfiguration(
+                    bake = BakeConfiguration("jbake", "bake"),
+                    pushPage = GitPushConfiguration(),
+                )
+
+            project.registerValidateSearchIndexTask(site)
+
+            val task = project.tasks.getByName("validateSearchIndex")
+            assertThat(task).isInstanceOf(ValidateSearchIndexTask::class.java)
+            assertThat(task.group).isEqualTo(VALIDATE_GROUP)
+            assertThat(task.dependsOn.map { it.toString() }).anyMatch { it.contains("pagefind") }
         }
     }
 }

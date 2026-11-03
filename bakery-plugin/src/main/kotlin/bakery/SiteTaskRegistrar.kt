@@ -5,6 +5,7 @@ import bakery.ConfigPrompts.getOrPrompt
 import bakery.ConfigPrompts.saveConfiguration
 import bakery.FileSystemManager.copyResourceDirectory
 import bakery.FileSystemManager.from
+import bakery.search.ValidateSearchIndexTask
 import com.github.gradle.node.npm.task.NpxTask
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -147,6 +148,18 @@ object SiteTaskRegistrar {
                     }
                 }
             }
+        }
+    }
+
+    internal fun Project.registerValidateSearchIndexTask(site: SiteConfiguration) {
+        tasks.register("validateSearchIndex", ValidateSearchIndexTask::class.java) { task ->
+            task.group = BakeryConstants.VALIDATE_GROUP
+            task.description = "Verify the Pagefind bundle carries one non-empty index per staged language."
+            task.dependsOn("pagefind")
+            task.bakeDir.set(layout.buildDirectory.dir(site.bake.destDirPath))
+            task.referenceLanguage.set(site.language)
+            task.minimumPages.set(1)
+            task.strict.set(true)
         }
     }
 

@@ -91,6 +91,7 @@ class BakeryPluginFullPipelineTest {
         assertThat(project.tasks.findByName("deployMaquette")).isNotNull
         assertThat(project.tasks.findByName("publishSite")).isNotNull
         assertThat(project.tasks.findByName("pagefind")).isNotNull
+        assertThat(project.tasks.findByName("validateSearchIndex")).isNotNull
         assertThat(project.tasks.findByName("serve")).isNotNull
         assertThat(project.tasks.findByName("collectSiteConfig")).isNotNull
         assertThat(project.tasks.findByName("collectSiteContext")).isNotNull

@@ -34,6 +34,7 @@ import bakery.SiteTaskRegistrar.registerCollectSiteConfigTask
 import bakery.SiteTaskRegistrar.registerGenerateSiteTask
 import bakery.SiteTaskRegistrar.registerPagefindTask
 import bakery.SiteTaskRegistrar.registerServeTask
+import bakery.SiteTaskRegistrar.registerValidateSearchIndexTask
 import bakery.a11y.AccessibilityTaskRegistrar.registerAccessibilityAuditTask
 import bakery.pivot.PivotTaskRegistrar.registerGeneratePivotYamlTask
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -207,6 +208,7 @@ class BakeryPlugin : Plugin<Project> {
         // avant deploySite (registrar enregistre la dépendance lazy).
         project.registerProvisionDnsTask(resolvedSite)
         project.registerPagefindTask(resolvedSite)
+        project.registerValidateSearchIndexTask(resolvedSite)
         // BKY-FIX-1 : deployProfile est enregistrée sans condition ; la tâche
         // valide elle-même la présence de pushProfile au runtime.
         project.registerDeployProfileTask()
