@@ -1,0 +1,39 @@
+= Session 267 — BKY-SEARCH : Pagefind headless, guard et index par langue
+:date: 2026-11-03
+:statut: 6/7 US (BKY-SEARCH-5 : FT TestKit + BDD `@search` restant)
+
+== Mission
+
+Rendre la recherche du template bakery exploitable sans casser les contrats de
+chrome des consommateurs : `PagefindUI` remplaçait le formulaire et faisait perdre
+les ancres `keywords`/`searchSubmit` ; les templates pointaient `_pagefind/` alors
+que Pagefind 1.6 écrit `pagefind/`.
+
+== Livré
+
+* Domaine pur `bakery.search` : `SearchBundle`, `SearchIndex`/`PagefindEntry`
+  (parseur tolérant `include_characters`), `PagefindIndexContract`,
+  `BakedLanguages`.
+* Adapter JS `search-pagefind.js` headless (formulaire conservé, import paresseux,
+  rendu des résultats), copie byte-identique `site/assets/js` ↔ `maquette/js`.
+* Templates par défaut : `pagefind/`, formulaire + `#pagefind-results`, 10 bundles
+  `messages_*.properties` (`action.search.keywords`/`noResults`), footer headless.
+* `validateSearchIndex` : compare l'entrée Pagefind aux langues réellement
+  stagées (racine + sous-dossiers `index.html`), échoue si une langue manque ou
+  indexe zéro page.
+* Tests : `SearchBundleTest`, `PagefindEntryTest`, `PagefindIndexContractTest`,
+  `PagefindTemplateWiringTest`, `BakedLanguagesTest`, `search-pagefind.test.mjs`
+  (9/9), garde de task dans `SiteManagerTest`.
+
+== Preuves
+
+* CI : `41553514148` (18 jobs), `41560626492` (`validateSearchIndex`), `41567243565`.
+* Central : MEMPHIS BOM/catalog `0.0.123` (bundle `d99cea06`), bakery `0.0.31`
+  (bundle `c821b0ad`) ; runner pin `0.0.123`.
+* Consommateur : `validateSearchIndex` exécuté dans le déploiement
+  `41568818825` ✅ ; index 22 langues chargé par `<html lang>`.
+
+== Reste
+
+`BKY-SEARCH-5` : FT TestKit du chemin `pagefind` (skip si `npx` absent) et BDD
+`@search`.
