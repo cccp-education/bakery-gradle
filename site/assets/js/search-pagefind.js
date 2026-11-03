@@ -57,8 +57,16 @@
         return value && value.trim() ? value.trim() : (fallback || '');
     }
 
+    // The adapter is a classic script: a dynamic `import()` resolves against the
+    // *script* URL (`/js/search-pagefind.js`), not the document. Resolve against
+    // `document.baseURI` so a root page and a `{lang}/` variant both reach the
+    // single shared `pagefind/` bundle.
+    function resolveImportUrl(path, baseURI) {
+        return new URL(importSpecifier(path), baseURI).href;
+    }
+
     function loadDefault(path) {
-        return import(path);
+        return import(resolveImportUrl(path, document.baseURI));
     }
 
     function renderItem(doc, data) {
@@ -172,6 +180,7 @@
         bootstrap: bootstrap,
         bundlePath: bundlePath,
         importSpecifier: importSpecifier,
+        resolveImportUrl: resolveImportUrl,
         emptyLabel: emptyLabel,
         normaliseQuery: normaliseQuery,
         renderItem: renderItem,

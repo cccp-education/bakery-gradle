@@ -81,6 +81,21 @@ test('a bare bundle path is normalised to a dynamic import specifier', () => {
     assert.equal(search.importSpecifier('https://cdn.example/pagefind/pagefind.js'), 'https://cdn.example/pagefind/pagefind.js');
 });
 
+test('the import URL is resolved against the document, not the script', () => {
+    assert.equal(
+        search.resolveImportUrl('pagefind/pagefind.js', 'https://cheroliv.com/'),
+        'https://cheroliv.com/pagefind/pagefind.js',
+    );
+    assert.equal(
+        search.resolveImportUrl('../pagefind/pagefind.js', 'https://cheroliv.com/en/'),
+        'https://cheroliv.com/pagefind/pagefind.js',
+    );
+    assert.equal(
+        search.resolveImportUrl('../../pagefind/pagefind.js', 'https://cheroliv.com/en/blog/post.html'),
+        'https://cheroliv.com/pagefind/pagefind.js',
+    );
+});
+
 test('the empty label is read from the result container, then falls back', () => {
     const container = fakeElement('div');
     container.setAttribute('data-empty-label', 'Aucun résultat.');
