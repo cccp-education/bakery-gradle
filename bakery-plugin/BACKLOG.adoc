@@ -73,7 +73,7 @@ câblage `PagefindUI` dans les templates par défaut (`src/main/resources/site` 
   langues déclarées) ; mode d'indexation d'un répertoire arbitraire (staging custom
   côté consommateur, `-x bake`).
 | 2
-| 🟡 PARTIEL — index par langue prouvé en production (site, deploy `41554523570`, 22 entrées) ; `validateSearchIndex` à faire
+| ✅ 2026-11-03 (CI `41560626492` : `validateSearchIndex` + `BakedLanguages`)
 
 | BKY-SEARCH-5
 | **Tests** : UT domaine, FT TestKit (`pagefind` skip si `npx` absent, pattern
