@@ -27,13 +27,12 @@ import com.fasterxml.jackson.module.kotlin.readValue
 data class SearchLanguage(
     val code: String,
     val hash: String,
-    val wasm: String,
+    val wasm: String?,
     val pageCount: Int,
 ) {
     init {
         require(code.isNotBlank()) { "code must not be blank" }
         require(hash.isNotBlank()) { "hash must not be blank" }
-        require(wasm.isNotBlank()) { "wasm must not be blank" }
         require(pageCount >= 0) { "pageCount must not be negative" }
     }
 }
@@ -80,7 +79,7 @@ object PagefindEntry {
 
     private data class LanguageDto(
         val hash: String = "",
-        val wasm: String = "",
+        val wasm: String? = null,
         @JsonProperty("page_count") val pageCount: Int = 0,
     )
 

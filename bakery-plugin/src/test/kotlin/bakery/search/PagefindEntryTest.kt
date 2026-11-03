@@ -47,6 +47,15 @@ class PagefindEntryTest {
         }
 
         @Test
+        fun `a language without a wasm module is valid`() {
+            val json = """{"version":"1.6.0","languages":{"bn":{"hash":"h","wasm":null,"page_count":1}}}"""
+
+            val index = PagefindEntry.parse(json).getOrNull()
+
+            assertThat(index!!.languagesByCode["bn"]!!.wasm).isNull()
+        }
+
+        @Test
         fun `malformed JSON is returned as a domain error, never thrown`() {
             val result = PagefindEntry.parse("{not json")
 
