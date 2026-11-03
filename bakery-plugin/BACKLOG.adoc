@@ -5,6 +5,93 @@
 :icons: font
 :sectnums:
 
+== 🟡 EPIC BKY-SEARCH — Pagefind headless : moteur de recherche natif du template bakery (CADRÉ 2026-11-03)
+
+*Source* : décision pilote consignée dans le backlog du site consommateur
+(dépôt privé, EPIC `CHE-SEARCH`). Le site garde son orchestration de staging
+(privée) ; bakery porte **tout le mutualisable** — la capacité générique ne
+dépend d'aucun contenu, fixture ni secret du jardin secret.
+
+*Constat* : le moteur existe déjà — tâche `pagefind` (`SiteTaskRegistrar`) et
+câblage `PagefindUI` dans les templates par défaut (`src/main/resources/site` et
+`site/`) — mais il n'est pas exploitable tel quel :
+1. les templates référencent `_pagefind/` alors que Pagefind 1.6 écrit `pagefind/`
+   (404) ;
+2. `PagefindUI` **remplace** le formulaire : les contrats de chrome par ancres des
+   consommateurs perdent `keywords`/`searchSubmit` (couverture silencieusement
+   perdue) ;
+3. le flux `bake → bakeVariants → pagefind` indexe bien l'arbre, mais un staging
+   custom peut n'indexer que la référence ;
+4. aucune garde ne vérifie l'index par langue.
+
+*Décisions* :
+* **Pagefind headless** (`pagefind/pagefind.js`), pas `PagefindUI` : le `<form>` et
+  ses ancres restent la surface du chrome consommateur.
+* Un seul bundle `pagefind/` contenant **un index par langue** (comportement natif :
+  `<html lang>` → un index indépendant, chargé à la demande). Aucune sortie
+  physique par langue (elle dupliquerait le runtime pour aucun gain client).
+* Chemin `pagefind/` (jamais `_pagefind/`) ; pas de `.nojekyll` requis.
+* Le staging propre à un consommateur (privé) n'entre pas dans bakery ; bakery
+  fournit une tâche d'indexation d'un répertoire quelconque.
+
+[cols="1,4,1,2", options="header"]
+|===
+| US | Description | Pts | Statut
+
+| BKY-SEARCH-0
+| **Cadrage + décision** (ce document) : headless, formulaire conservé, index par
+  langue, chemin `pagefind/`, boundary staging.
+| 1
+| ✅ 2026-11-03
+
+| BKY-SEARCH-1
+| **Domaine pur `bakery.search`** : `SearchBundle` (racine `pagefind/`, langues
+  attendues), `SearchIndex` (lecture de `pagefind-entry.json`), `SearchWiring`
+  (ancres form + conteneur de résultats + import) ; `PagefindIndexContract`
+  (une entrée par langue, `page_count > 0`, aucune langue manquante).
+| 3
+| 🟡 À FAIRE
+
+| BKY-SEARCH-2
+| **Templates par défaut** (`resources/site` + `site/`) : corriger `_pagefind/`
+  → `pagefind/`, conserver le `<form>` et ses ancres, ajouter
+  `#pagefind-results`, charger l'adapter. Tests de non-régression sur les ancres.
+| 2
+| 🟡 À FAIRE
+
+| BKY-SEARCH-3
+| **Adapter JS `search-pagefind.js`** (assets bakery) : chargement paresseux au
+  `show.bs.modal`, `import(rootpath + 'pagefind/pagefind.js')`, `search()`, rendu
+  des résultats ; copie byte-identique `maquette/js` ↔ `jbake/assets/js` (parité
+  existante, pattern `lang-switch.js`). Zéro `PagefindUI`.
+| 3
+| 🟡 À FAIRE
+
+| BKY-SEARCH-4
+| **Index par langue dans le pipeline** : garantir `pagefind` après `bakeVariants`
+  (déjà `mustRunAfter`) ; tâche `validateSearchIndex` (langues de l'arbre ==
+  langues déclarées) ; mode d'indexation d'un répertoire arbitraire (staging custom
+  côté consommateur, `-x bake`).
+| 2
+| 🟡 À FAIRE
+
+| BKY-SEARCH-5
+| **Tests** : UT domaine, FT TestKit (`pagefind` skip si `npx` absent, pattern
+  `assumeTrue`), BDD `@search`, `nodeTest` de l'adapter avec un faux Pagefind, CI.
+| 3
+| 🟡 À FAIRE
+
+| BKY-SEARCH-6
+| **Release + adoption** : publication Central, bump catalogue MEMPHIS, adoption
+  du consommateur, README 10 langues (convention bakery).
+| 2
+| 🟡 À FAIRE
+|===
+
+*Total* : 7 US ~16 pts. *Boundary* : bakery = moteur, adapter, templates par
+défaut, gardes génériques ; consommateur = staging, `site.yml`, contenu et gardes
+de corpus. Aucun contenu privé ni secret dans bakery.
+
 == 🟡 EPIC BKY-I18N-OUTPUT — Le contrat de sortie de la branche Templates (CADRÉ S-077, revue i18n S-263)
 
 *Source* : revue externe `.agents/i18n_review.adoc` (S-263) ; mesure de l'artefact
