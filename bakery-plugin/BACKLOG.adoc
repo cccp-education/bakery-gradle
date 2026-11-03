@@ -50,14 +50,14 @@ câblage `PagefindUI` dans les templates par défaut (`src/main/resources/site` 
   (ancres form + conteneur de résultats + import) ; `PagefindIndexContract`
   (une entrée par langue, `page_count > 0`, aucune langue manquante).
 | 3
-| 🟡 À FAIRE
+| ✅ 2026-11-03 (CI `41553514148`)
 
 | BKY-SEARCH-2
 | **Templates par défaut** (`resources/site` + `site/`) : corriger `_pagefind/`
   → `pagefind/`, conserver le `<form>` et ses ancres, ajouter
   `#pagefind-results`, charger l'adapter. Tests de non-régression sur les ancres.
 | 2
-| 🟡 À FAIRE
+| ✅ 2026-11-03 (CI `41553514148`)
 
 | BKY-SEARCH-3
 | **Adapter JS `search-pagefind.js`** (assets bakery) : chargement paresseux au
@@ -65,7 +65,7 @@ câblage `PagefindUI` dans les templates par défaut (`src/main/resources/site` 
   des résultats ; copie byte-identique `maquette/js` ↔ `jbake/assets/js` (parité
   existante, pattern `lang-switch.js`). Zéro `PagefindUI`.
 | 3
-| 🟡 À FAIRE
+| ✅ 2026-11-03 (CI `41553514148`, node 9/9)
 
 | BKY-SEARCH-4
 | **Index par langue dans le pipeline** : garantir `pagefind` après `bakeVariants`
@@ -79,7 +79,7 @@ câblage `PagefindUI` dans les templates par défaut (`src/main/resources/site` 
 | **Tests** : UT domaine, FT TestKit (`pagefind` skip si `npx` absent, pattern
   `assumeTrue`), BDD `@search`, `nodeTest` de l'adapter avec un faux Pagefind, CI.
 | 3
-| 🟡 À FAIRE
+| 🟡 PARTIEL — UT + `nodeTest` + CI ✅ ; FT TestKit + BDD `@search` à faire
 
 | BKY-SEARCH-6
 | **Release + adoption** : publication Central, bump catalogue MEMPHIS, adoption
@@ -91,6 +91,11 @@ câblage `PagefindUI` dans les templates par défaut (`src/main/resources/site` 
 *Total* : 7 US ~16 pts. *Boundary* : bakery = moteur, adapter, templates par
 défaut, gardes génériques ; consommateur = staging, `site.yml`, contenu et gardes
 de corpus. Aucun contenu privé ni secret dans bakery.
+
+*Preuve S-267* : CI `41553514148` **verte** (18 jobs, dont `Unit Tests`,
+`Node Tests` 9/9, 8 shards BDD, 6 shards functional, E2E). Découverte CI : le
+`pagefind-entry.json` réel porte `include_characters` → le parser tolère désormais
+les champs inconnus (`FAIL_ON_UNKNOWN_PROPERTIES=false`).
 
 == 🟡 EPIC BKY-I18N-OUTPUT — Le contrat de sortie de la branche Templates (CADRÉ S-077, revue i18n S-263)
 
