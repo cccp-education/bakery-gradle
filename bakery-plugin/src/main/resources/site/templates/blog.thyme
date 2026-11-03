@@ -99,7 +99,26 @@
 						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 					</div>
 					<div class="modal-body">
-						<div id="pagefind-search"></div>
+						<form id="pagefind-search-form"
+							  role="search"
+							  th:attr="data-pagefind-script=@{${content.rootpath} + 'pagefind/pagefind.js'}">
+							<div class="mb-3">
+								<label class="visually-hidden"
+									   for="pagefind-search-input"
+									   th:text="#{action.search}">Search</label>
+								<input id="pagefind-search-input"
+									   type="search"
+									   class="form-control"
+									   autocomplete="off"
+									   th:placeholder="#{action.search.keywords}"
+									   placeholder="Keywords...">
+							</div>
+							<button type="submit" class="btn btn-primary" th:text="#{action.search}">Search</button>
+						</form>
+						<div id="pagefind-results"
+							 class="mt-4"
+							 aria-live="polite"
+							 th:attr="data-empty-label=#{action.search.noResults}"></div>
 					</div>
 				</div>
 			</div>

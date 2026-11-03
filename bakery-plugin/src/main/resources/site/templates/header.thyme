@@ -38,9 +38,6 @@
         <!-- Theme CSS Variables (BKY-JB-6) -->
         <div th:replace="~{theme-script :: theme-script}"></div>
 
-        <!-- Pagefind UI CSS -->
-        <link th:with="rootpath=(${content.rootpath != null} ? ${content.rootpath} : '')" th:href="${rootpath}+'pagefind/pagefind-ui.css'" rel="stylesheet" />
-
         <!-- highlight.js: theme will be managed dynamically by script.js -->
         <link id="highlight-js-theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css"
               th:href="@{https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css}">
