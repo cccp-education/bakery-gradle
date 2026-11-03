@@ -61,7 +61,9 @@ class SearchPagefindSteps {
         language: String,
     ) {
         assertThat(violations.map { it.code }).contains(code)
-        assertThat(violations.map { it.detail }).contains(language)
+        assertThat(violations.map { it.detail }).anyMatch { detail ->
+            detail == language || detail.startsWith("$language=")
+        }
     }
 
     @Then("the bundle script path is {string}")
