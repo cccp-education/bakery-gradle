@@ -36,7 +36,20 @@
 
     function bundlePath(form, fallback) {
         var value = form && form.getAttribute ? form.getAttribute('data-pagefind-script') : null;
-        return value && value.trim() ? value.trim() : (fallback || DEFAULT_SCRIPT);
+        return importSpecifier(value && value.trim() ? value.trim() : (fallback || DEFAULT_SCRIPT));
+    }
+
+    // A dynamic `import()` requires a URL: a bare `pagefind/pagefind.js` is
+    // rejected as a module specifier. The templates keep the short, readable
+    // value; the adapter normalises it to `./pagefind/pagefind.js` (or leaves
+    // `/…`, `./…`, `../…` and absolute URLs untouched).
+    function importSpecifier(value) {
+        var path = String(value == null ? '' : value).trim();
+        if (!path) return './' + DEFAULT_SCRIPT;
+        if (path.charAt(0) === '/' || path.indexOf('./') === 0 || path.indexOf('../') === 0 || /^[a-z]+:/i.test(path)) {
+            return path;
+        }
+        return './' + path;
     }
 
     function emptyLabel(container, fallback) {
@@ -158,6 +171,7 @@
         attach: attach,
         bootstrap: bootstrap,
         bundlePath: bundlePath,
+        importSpecifier: importSpecifier,
         emptyLabel: emptyLabel,
         normaliseQuery: normaliseQuery,
         renderItem: renderItem,

@@ -70,7 +70,15 @@ test('the bundle path is read from the form, then falls back to the default', ()
     const form = fakeElement('form');
     form.setAttribute('data-pagefind-script', '  ../pagefind/pagefind.js  ');
     assert.equal(search.bundlePath(form), '../pagefind/pagefind.js');
-    assert.equal(search.bundlePath(fakeElement('form')), search.DEFAULT_SCRIPT);
+    assert.equal(search.bundlePath(fakeElement('form')), './' + search.DEFAULT_SCRIPT);
+});
+
+test('a bare bundle path is normalised to a dynamic import specifier', () => {
+    const form = fakeElement('form');
+    form.setAttribute('data-pagefind-script', 'pagefind/pagefind.js');
+    assert.equal(search.bundlePath(form), './pagefind/pagefind.js');
+    assert.equal(search.importSpecifier('/pagefind/pagefind.js'), '/pagefind/pagefind.js');
+    assert.equal(search.importSpecifier('https://cdn.example/pagefind/pagefind.js'), 'https://cdn.example/pagefind/pagefind.js');
 });
 
 test('the empty label is read from the result container, then falls back', () => {
