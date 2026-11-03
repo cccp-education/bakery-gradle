@@ -50,8 +50,8 @@ class StructuralDivergenceTest {
 
     @Test
     fun `the diagram language is compared case-insensitively`() {
-        val source = "= Title\n\n[PlantUML]\n----\n@startuml\nA -> B\n@enduml\n----\n"
-        val variant = "= Title\n\n[plantuml]\n----\n@startuml\nA -> B\n@enduml\n----\n"
+        val source = "= Title\n\n[source,PlantUML]\n----\n@startuml\nA -> B\n@enduml\n----\n"
+        val variant = "= Title\n\n[source,plantuml]\n----\n@startuml\nA -> B\n@enduml\n----\n"
         assertTrue(aligned(source, variant))
     }
 
