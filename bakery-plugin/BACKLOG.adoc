@@ -73,7 +73,7 @@ câblage `PagefindUI` dans les templates par défaut (`src/main/resources/site` 
   langues déclarées) ; mode d'indexation d'un répertoire arbitraire (staging custom
   côté consommateur, `-x bake`).
 | 2
-| 🟡 À FAIRE
+| 🟡 PARTIEL — index par langue prouvé en production (site, deploy `41554523570`, 22 entrées) ; `validateSearchIndex` à faire
 
 | BKY-SEARCH-5
 | **Tests** : UT domaine, FT TestKit (`pagefind` skip si `npx` absent, pattern
@@ -95,7 +95,9 @@ de corpus. Aucun contenu privé ni secret dans bakery.
 *Preuve S-267* : CI `41553514148` **verte** (18 jobs, dont `Unit Tests`,
 `Node Tests` 9/9, 8 shards BDD, 6 shards functional, E2E). Découverte CI : le
 `pagefind-entry.json` réel porte `include_characters` → le parser tolère désormais
-les champs inconnus (`FAIL_ON_UNKNOWN_PROPERTIES=false`).
+les champs inconnus (`FAIL_ON_UNKNOWN_PROPERTIES=false`). Le consommateur privé a
+prouvé l'index par langue en production (`pagefind -x bake -x bakeVariants` après
+assemblage, deploy `41554523570` : 22 entrées `pagefind-entry.json`).
 
 == 🟡 EPIC BKY-I18N-OUTPUT — Le contrat de sortie de la branche Templates (CADRÉ S-077, revue i18n S-263)
 
