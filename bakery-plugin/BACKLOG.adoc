@@ -85,7 +85,7 @@ câblage `PagefindUI` dans les templates par défaut (`src/main/resources/site` 
 | **Release + adoption** : publication Central, bump catalogue MEMPHIS, adoption
   du consommateur, README 10 langues (convention bakery).
 | 2
-| ✅ 2026-11-03 (MEMPHIS 0.0.123 `d99cea06` ; bakery 0.0.31 `c821b0ad` ; runner 0.0.123 ; site `validateSearchIndex` + deploy `41568818825`)
+| ✅ 2026-11-03 (MEMPHIS 0.0.124 ; bakery **0.0.32** — `wasm:null` ; runner 0.0.124 ; site `validateSearchIndex` + deploy `41587758121`). Correctifs source post-release (import URL `document.baseURI`) → release **0.0.33** à publier si le consommateur Central doit en bénéficier.
 |===
 
 *Total* : 7 US ~16 pts (**7/7 livrées**). *Boundary* : bakery = moteur, adapter, templates par

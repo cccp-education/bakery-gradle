@@ -33,8 +33,17 @@ que Pagefind 1.6 écrit `pagefind/`.
 * Consommateur : `validateSearchIndex` exécuté dans le déploiement
   `41568818825` ✅ ; index 22 langues chargé par `<html lang>`.
 
+== Post-release
+
+Deux correctifs révélés par le déploiement réel : `wasm` est `null` pour une
+langue sans module (`bn`) — `SearchLanguage.wasm` nullable, publié en **0.0.32**
+(MEMPHIS 0.0.124) ; et l'import de l'adapter est résolu contre
+`document.baseURI` (un classic script résout `import()` depuis `/js/`). Le second
+est en source ; prochaine release **0.0.33** si le consommateur Central doit en
+bénéficier (le site consomme sa copie byte-identique).
+
 == Reste
 
-Aucun. `BKY-SEARCH-5` : `ValidateSearchIndexTaskTest` (entrée absente/malformée,
-langue manquante) + BDD `search_pagefind.feature` (`@search`, shard
-`jbake-core-pipelines`) ; CI `41569896705` verte.
+Aucun US `BKY-SEARCH`. `BKY-SEARCH-5` : `ValidateSearchIndexTaskTest` (entrée
+absente/malformée, langue manquante) + BDD `search_pagefind.feature` (`@search`,
+shard `jbake-core-pipelines`) ; CI `41569896705` verte.
