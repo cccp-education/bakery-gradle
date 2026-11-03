@@ -48,7 +48,10 @@ class I18nDeltaWireSteps {
                     val target = request.targetLanguage
                     val sourceText = request.sourceText
                     if (sourceText.isBlank()) return TranslationResult.Success(sourceText)
-                    return TranslationResult.Success("[$target] $sourceText")
+                    // Suffix, never a `[lang]` prefix: a paragraph line starting with
+                    // `[` is parsed as an AsciiDoc block attribute, which would make
+                    // every first-pass variant structurally divergent (measured).
+                    return TranslationResult.Success("$sourceText [$target]")
                 }
             }
     }
@@ -156,9 +159,6 @@ class I18nDeltaWireSteps {
         val filesToTranslate = (result.toTranslate.paths + divergent).distinct()
         lastTranslatedCount = filesToTranslate.size
         lastPreservedCount = (result.toPreserve.paths - filesToTranslate.toSet()).size
-        println(
-            "[delta-wire] translated=$filesToTranslate preserved=${result.toPreserve.paths} divergent=$divergent",
-        )
 
         for (relPath in filesToTranslate) {
             val sourceFile = sourceDir.resolve(relPath)
