@@ -1,10 +1,10 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
 
-:session: 267
-:date: 2026-10-30
-:etat: S-266 (2026-10-31) — **pins dérivés** ✅ : `workspaceVersion` unique dans `gradle.properties`, `settings`/`build` en dérivent, garde « déclaré une fois + égal au BOM de la catalog publiée + zéro littéral ». Rapport `.agents/sessions/266-single-source-workspace-version.adoc`.
-:epic_actif: `BKY-I18N-OUTPUT` — `BKY-OUT-1` ✅ S-264, `BKY-OUT-2` ✅ S-265, `BKY-OUT-5` ✅ S-265 (re-scopé) (3/5 US).
-:epic_suivant: `BKY-OUT-3` (chrome ≤ 2 jetons) OU `BKY-OUT-4` (`PreserveRule` N0, MEMPHIS). Release `0.0.30` faite.
+:session: 268
+:date: 2026-11-03
+:etat: S-267 (2026-11-03) — **BKY-SEARCH 7/7** ✅ : domaine `bakery.search`, `PagefindIndexContract`, adapter headless `search-pagefind.js`, templates par défaut, `validateSearchIndex`, BDD `@search`. Release **0.0.32** (`wasm:null` toléré), MEMPHIS 0.0.124, runner 0.0.124. Correctifs source `document.baseURI` → release **0.0.33** à publier. Rapports `.agents/sessions/267-bky-search-pagefind.adoc`.
+:epic_actif: `BKY-I18N-OUTPUT` — `BKY-OUT-3` (chrome ≤ 2 jetons) reste ouvert ; `BKY-PLT-3` (garde anti-drift Saxon) ouvert.
+:epic_suivant: `BKY-OUT-3` + `BKY-PLT-3` ; release `0.0.33` (adapter import URL).
 
 == Vision (GBL-010)
 
