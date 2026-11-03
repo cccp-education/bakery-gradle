@@ -156,6 +156,9 @@ class I18nDeltaWireSteps {
         val filesToTranslate = (result.toTranslate.paths + divergent).distinct()
         lastTranslatedCount = filesToTranslate.size
         lastPreservedCount = (result.toPreserve.paths - filesToTranslate.toSet()).size
+        println(
+            "[delta-wire] translated=$filesToTranslate preserved=${result.toPreserve.paths} divergent=$divergent",
+        )
 
         for (relPath in filesToTranslate) {
             val sourceFile = sourceDir.resolve(relPath)
