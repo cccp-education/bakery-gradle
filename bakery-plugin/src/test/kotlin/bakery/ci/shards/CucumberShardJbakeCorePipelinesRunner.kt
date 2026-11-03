@@ -31,6 +31,7 @@ import org.junit.platform.suite.api.Suite
 @SelectClasspathResource("features/46_i18n_real_migration.feature")
 @SelectClasspathResource("features/55_i18n_deploy_end_to_end.feature")
 @SelectClasspathResource("features/56_i18n_deploy_multi_site.feature")
+@SelectClasspathResource("features/search_pagefind.feature")
 @ConfigurationParameter(
     key = FEATURES_PROPERTY_NAME,
     value =
@@ -38,7 +39,8 @@ import org.junit.platform.suite.api.Suite
             "src/test/features/17_augmented_context_lens.feature,src/test/features/18_subgraph_extraction.feature," +
             "src/test/features/19_lens_hybrid_scoring.feature,src/test/features/20_config_resolver_cascade.feature," +
             "src/test/features/21_save_configuration.feature,src/test/features/46_i18n_real_migration.feature," +
-            "src/test/features/55_i18n_deploy_end_to_end.feature,src/test/features/56_i18n_deploy_multi_site.feature",
+            "src/test/features/55_i18n_deploy_end_to_end.feature,src/test/features/56_i18n_deploy_multi_site.feature," +
+            "src/test/features/search_pagefind.feature",
 )
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "bakery.scenarios")
 @ConfigurationParameter(
