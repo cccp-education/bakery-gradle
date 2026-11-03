@@ -4,6 +4,7 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 
@@ -57,7 +58,12 @@ sealed interface SearchIndexError {
 }
 
 object PagefindEntry {
-    private val mapper = jacksonObjectMapper()
+    // The entry file carries `include_characters` and may gain future fields;
+    // the adapter only needs the per-language indexes, so unknown properties
+    // are tolerated instead of turning a valid bundle into a parse failure.
+    private val mapper =
+        jacksonObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
     fun parse(json: String): Either<SearchIndexError, SearchIndex> =
         Either
