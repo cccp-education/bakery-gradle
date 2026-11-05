@@ -1,0 +1,18 @@
+= Archive des tâches complétées — Novembre 2026
+
+== Session 268 — 2026-11-05 — BKY-OUT-3 + BKY-PLT-3 + Portal
+
+=== Fait
+* `BKY-OUT-3` : `isShortFrenchLabel` / `extractShortLabels`, `TemplateTextRepair`
+  (`isFrenchProse || isShortFrenchLabel`), `SwitcherBlockMask` ; 6 UT + 3 UT +
+  BDD feature 65 ; `MIN_TOKENS` global inchangé.
+* `BKY-PLT-3` : `SaxonToolchainGuard` (test source) + injection des coordonnées
+  résolues ; 6 UT ; RED prouvé.
+* CI `Test` `42030834035` **18/18 verte**.
+* Portal : 0.0.34 soumis ; **0.0.35 publié** avec
+  `configurationCache = false` / `isolatedProjects = false`.
+* Central : 0.0.33 publié ; 0.0.34+ au **2026-12-01** (quota Sonatype).
+
+=== Prochaine session
+* `BKY-PLT-4` (corpus D2, metered) ; `BKY-OUT-4` re-scopé hors bakery.
+* Release Central 0.0.36 au reset ; re-pin runner.

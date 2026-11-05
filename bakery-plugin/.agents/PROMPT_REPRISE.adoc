@@ -1,70 +1,49 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-
-:session: 268
-:date: 2026-11-03
-:etat: S-267 (2026-11-03) — **BKY-SEARCH 7/7** ✅ : domaine `bakery.search`, `PagefindIndexContract`, adapter headless `search-pagefind.js`, templates par défaut, `validateSearchIndex`, BDD `@search`. Release **0.0.32** (`wasm:null` toléré), MEMPHIS 0.0.124, runner 0.0.124. Correctifs source `document.baseURI` → release **0.0.33** à publier. Rapports `.agents/sessions/267-bky-search-pagefind.adoc`.
-:epic_actif: `BKY-I18N-OUTPUT` — `BKY-OUT-3` (chrome ≤ 2 jetons) reste ouvert ; `BKY-PLT-3` (garde anti-drift Saxon) ouvert.
-:epic_suivant: `BKY-OUT-3` + `BKY-PLT-3` ; release `0.0.33` (adapter import URL).
+:session: 269
+:date: 2026-11-05
+:etat: S-268 — BKY-OUT-3 + BKY-PLT-3 ✅ (CI 18/18) ; Portal 0.0.34 (soumission) + 0.0.35 (compatibilité) ; 0.0.33 Central ; 0.0.34/0.0.36 Central au reset du 2026-12-01
+:epic_actif: BKY-I18N-OUTPUT — BKY-OUT-3 ✅ ; BKY-OUT-4 re-scopé hors bakery ; BKY-PLT-3 ✅
+:epic_suivant: BKY-PLT-4 (corpus D2, metered) ; propagation Central 0.0.36
 
 == Vision (GBL-010)
 
 Arbre à deux branches : **A Templates** (`translateTemplates`, chrome natif) et
 **B Data** (articles → document → AST → feuille `[plantuml]`). bakery possède la
 branche A et l'orchestration de la branche B (`MigrateContentI18nTask` +
-`I18nDeltaApplier` + `PendingBlockRetry` + `SubtreeI18nPlanner`). Un nœud, un
-propriétaire, un **statut** ; reprise en **économie d'encre**. Cadrage :
+`I18nDeltaApplier` + `PendingBlockRetry` + `SubtreeI18nPlanner`). Cadrage :
 `CADRAGE_EPIC_GBL_010_ARBRE_TRADUCTION_SITE.adoc`.
 
-== Où en est la branche A (S-262 → S-264)
+== Acquis S-268 (2026-11-05)
 
-* `TemplateTreeAudit` = source de statut ; `translateTemplates` ne programme que
-  `MISSING`/`UNTRANSLATED`, un `TRANSLATED` est préservé ; rapport
-  `build/bakery/template-tree.adoc` (nœud → statut) pour l'audit **G-4**.
-* **Le head est localisé par construction** : ne jamais réintroduire un `canonical`
-  sans préfixe dans une variante.
-* `injectSeo` reste **hors périmètre** (rend le même fragment pour toutes les
-  langues — bug réel, consommateur inconnu, à cadrer si un site l'utilise).
-* `<title>`/description suivent déjà `content.title`/`summary` traduits ; le
-  *fallback* (page sans titre) reste FR — hors `BKY-OUT-1`.
+* **BKY-OUT-3** : `VisibleTextExtractor.isShortFrenchLabel` / `extractShortLabels`
+  (1-2 jetons, diacritique ou mot FR natif) ; `TemplateTextRepair.pending()`
+  accepte `isFrenchProse || isShortFrenchLabel` ; masque `SwitcherBlockMask`
+  autour de l'extraction (le nom de langue du sélecteur n'est pas réparé).
+  6 UT + 3 UT + BDD feature 65. `MIN_TOKENS` global inchangé.
+* **BKY-PLT-3** : `bakery.toolchain.SaxonToolchainGuard` (test source) interdit
+  Saxon-HE 11.x, autorise 9.9.1-7 ; coordonnées résolues injectées dans `test`
+  depuis `runtimeClasspath`/`functionalTestRuntimeClasspath`. 6 UT, RED prouvé.
+* **CI** : `Test` run `42030834035` **18/18 verte**.
+* **Portal** : `0.0.34` soumis (en attente) ; `0.0.35` publié avec
+  `compatibility { configurationCache = false; isolatedProjects = false }`
+  (créé 2026-11-05 19:00:31) ; clé **cccp-education** (env unset).
+* **Central** : `0.0.33` (P3) publié ; 0.0.34/0.0.35 bloqués par le quota
+  Sonatype jusqu'au **2026-12-01**.
 
-== Constats S-263 encore ouverts
+== Reste
 
-Refus LLM côté articles (traité site : cheroliv S-078 → 330 mesurés), `toc::[]`
-traduite (142), `options="header"` perdu (88 → 0), duplication 4 EN / 9 `hi`,
-`@startuml` bruts, résidus FR dans les diagrammes, **RTL absent** (`ar`/`fa`/`ur`).
-Chaque défaut retenu doit être **re-prouvé RED** avant correctif.
-
-== Mission session 265 — sur décision pilote
-
-. **BKY-OUT-2 — RTL réel** (recommandé) : `dir="rtl"` sur `<html>` + CSS logique
-   pour `ar`/`fa`/`ur` dans les heads de variante (le `RtlDirectionInjector` ne
-   sert qu'aux slides). Même forme que `localizeSeoHead` : domaine pur + tâche
-   déterministe + FT + BDD.
-. **BKY-OUT-3** : garde **scopée templates** pour les libellés 1-2 jetons (sans
-   élargir `MIN_TOKENS` — faux positifs technologies).
-. **BKY-OUT-5** : la CI lit `artifact-integrity` du site et refuse un delta non
-   documenté.
-. **Adoption site** : garde cheroliv.com refusant un `canonical` non préfixé
-   (candidat `CHE-ADOPT`) — la régression ne doit pas revenir.
-. **Release `0.0.29`** (accord pilote) : G-1b + document `0.0.25` + `BKY-OUT-1`,
-   DAG MEMPHIS-first + tag `v*`.
+* **BKY-PLT-4** : re-génération du corpus D2 (blocs `@startuml` bruts) —
+  metered, accord pilote.
+* **BKY-OUT-4** : re-scopé vers `MEM-I18N-PRESERVE` (N0) + `DOC/PLT-I18N-PRESERVE`.
+* **Release Central 0.0.36** (ou 0.0.34/0.0.35) au reset du quota ; re-pinner
+  le runner.
+* `BKY-PLT-3` reste test-only (non publié).
 
 == Rappels
 
-* **Local = Build, Tests = CI** : en local uniquement `compileKotlin`/
-  `compileTestKotlin`/`compileFunctionalTestKotlin`/`validatePlugins`/`tasks` ;
-  les shards ont `onlyIf { CI != null }`.
+* **Local = Build, Tests = CI** : compiler seulement ; les shards ont
+  `onlyIf { CI != null }`.
 * **Zéro Python** ; English only code/tests/features (gouvernance `.adoc` en FR).
 * Commit/push sur accord pilote ; indexer **explicitement** ses fichiers.
 * Ne pas lire les fichiers gitignorés (`site.yml`, `local.properties`).
 * `ktlintTestSourceSetCheck` rouge sur `bakery/ci/*` **pré-existant** (S-258).
-* **Dogfooding réel** : consommateur `/tmp` avec
-  `pluginManagement { includeBuild("…/bakery-plugin") }` — plugin local sans
-  publication, site réparé de façon déterministe.
-
-== Pièges BKY-OUT-1
-
-1. Un `header.thyme` de variante est une **copie traduite** : tout literal SEO y est gelé (réparer par re-traduction coûte un LLM et évince des blocs).
-2. Le **layout** vient de `I18nTemplateLayout` — `injectSeo` avait sa propre sonde et ratait `i18n/{lang}/`.
-3. `og:image` : ne jamais dériver naïvement `og-images/{lang}/` — seules `fr`
-   (110) et `en` (107) existent ; un jeu partiel = cartes 404.
