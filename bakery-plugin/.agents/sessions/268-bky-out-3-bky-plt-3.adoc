@@ -94,3 +94,17 @@ compte) demande une preuve de propriété du domaine `cccp.education` :
 
 La version `0.0.34` reste en attente d'approbation ; aucun nouveau versionnage
 n'est nécessaire pour un correctif DNS seul.
+
+=== TXT de vérification créé chez OVH (2026-11-05)
+
+* API OVH utilisée (clé `ovh-key` de `configuration/settings/e3p0.yaml`, valeurs
+  jamais affichées) — le consumer key a les droits DNS (GET/POST sur
+  `/domain/zone/cccp.education`).
+* Enregistrement créé : `POST /domain/zone/cccp.education/record`
+  → id **5446975723**, `fieldType=TXT`, `subDomain=""`,
+  `target="gradle-verification=0DP7KRFSFBI0F0USNT7UI5GQDPUBC"`, `ttl=0`.
+* Zone rafraîchie : `POST /domain/zone/cccp.education/refresh` → 200.
+* Vérifié sur les serveurs autoritatifs `ns109.ovh.net` / `dns109.ovh.net` et via
+  DoH (Google, Cloudflare) : la valeur est présente.
+* Les TXT existants (`lyqq8ne4um`, `v=spf1 …`, `1|www.cccp.education`) sont
+  conservés.
