@@ -108,3 +108,14 @@ n'est nécessaire pour un correctif DNS seul.
   DoH (Google, Cloudflare) : la valeur est présente.
 * Les TXT existants (`lyqq8ne4um`, `v=spf1 …`, `1|www.cccp.education`) sont
   conservés.
+
+=== Portal 0.0.35 — déclaration de compatibilité publiée (2026-11-05)
+
+* La source déclare déjà `compatibility { features { configurationCache = false;
+  isolatedProjects = false } }` dans `gradlePlugin.plugins.create("bakery")`.
+* `bakery-plugin **0.0.35**` publié sur le Plugin Portal via override d'init
+  script (créé 2026-11-05 19:00:31), clé **cccp-education**
+  (`env -u GRADLE_PUBLISH_KEY -u GRADLE_PUBLISH_SECRET`), POM importe
+  `workspace-bom:0.0.125` (publié).
+* C'est la version qui porte la déclaration de compatibilité ; `0.0.34` reste
+  la soumission initiale en attente. Central bloqué jusqu'au 2026-12-01.
