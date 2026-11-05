@@ -3,6 +3,7 @@ import org.gradle.api.Action
 import org.gradle.api.file.DuplicatesStrategy.EXCLUDE
 import org.gradle.api.tasks.testing.TestFilter
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+import org.gradle.plugin.compatibility.compatibility
 import java.time.Duration
 
 // S-083 — single source of truth for the workspace version (gradle.properties).
@@ -757,6 +758,12 @@ gradlePlugin {
             displayName = "Bakery Plugin"
             description = "Gradle plugin for static site generation."
             tags.set(listOf("jbake", "static-site-generator", "blog", "jgit", "asciidoc", "markdown", "thymeleaf"))
+            compatibility {
+                features {
+                    configurationCache.set(false)
+                    isolatedProjects.set(false)
+                }
+            }
         }
     }
     website = "https://cccp-education.github.io/"
