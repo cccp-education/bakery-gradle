@@ -58,3 +58,23 @@ sans toucher à la publication :
   Saxon reste dans le source set `test` (non publié).
 * `BKY-PLT-4` (re-génération du corpus gelé) reste ouvert ; `BKY-OUT-4` est
   re-scopé hors bakery.
+
+== Publication Gradle Plugin Portal (fallback Sonatype)
+
+Sonatype Central est bloqué (quota mensuel, reset 2026-12-01). Le Plugin Portal a
+été utilisé comme canal de publication de secours, avec la clé API **cccp-education**
+(`gradle.publish.key/secret` de `~/.gradle/gradle.properties`, étiquetée
+`gradle_plugin_portal_key_cccp_education` ; l'ancienne clé `cheroliv-com` est
+commentée). Les variables d'environnement `GRADLE_PUBLISH_KEY`/`SECRET` (autre jeu)
+ont été explicitement retirées du processus (`env -u`) pour éviter toute ambiguïté.
+
+* Version publiée : **`education.cccp.bakery 0.0.34`** (override par init script,
+  le catalogue 0.0.125 déclare encore 0.0.33 ; POM importe `workspace-bom 0.0.125`,
+  déjà publié, donc les dépendances sont résolvables).
+* Commande : `env -u GRADLE_PUBLISH_KEY -u GRADLE_PUBLISH_SECRET ./gradlew publishPlugins -I /tmp/opencode/publish034.init.gradle --no-daemon`
+* Résultat : `Your new plugin education.cccp.bakery has been submitted for approval
+  by Gradle engineers.` → **revue manuelle initiale en cours**.
+* Le Portal peut demander une preuve de propriété du domaine `cccp.education` par
+  enregistrement TXT (OVH) ; l'email de l'admin fournira la valeur exacte.
+* Quand Sonatype rouvrira : publier la **même 0.0.34** sur Central (doublon
+  Portal/Central accepté par décision pilote).
