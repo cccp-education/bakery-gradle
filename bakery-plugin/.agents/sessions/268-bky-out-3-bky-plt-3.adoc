@@ -78,3 +78,19 @@ ont été explicitement retirées du processus (`env -u`) pour éviter toute amb
   enregistrement TXT (OVH) ; l'email de l'admin fournira la valeur exacte.
 * Quand Sonatype rouvrira : publier la **même 0.0.34** sur Central (doublon
   Portal/Central accepté par décision pilote).
+
+=== Approbation Portal : vérification DNS demandée (email Gradle)
+
+L'email Gradle (adressé à `cccp.education@gmail.com`, ce qui confirme le bon
+compte) demande une preuve de propriété du domaine `cccp.education` :
+
+* Enregistrement à créer (OVH, zone `cccp.education`, racine `@`) :
+  `TXT "gradle-verification=0DP7KRFSFBI0F0USNT7UI5GQDPUBC"`
+* Vérification : `dig TXT cccp.education +short` doit afficher la valeur.
+* Les TXT existants (`v=spf1 …`, `lyqq8ne4um`, `1|www.cccp.education`) ne doivent
+  pas être supprimés.
+* Alternative non retenue : lier le compte GitHub et utiliser
+  `io.github.cccp-education.bakery` (changement d'ID/groupe, nouvelle revue).
+
+La version `0.0.34` reste en attente d'approbation ; aucun nouveau versionnage
+n'est nécessaire pour un correctif DNS seul.
