@@ -90,6 +90,41 @@ class TemplateTextRepairTest {
     }
 
     @Test
+    fun `a short French label under the prose floor is pending`() {
+        val reference = "<h2>Innovation Pédagogique</h2><a>Me Contacter</a><span>React</span>"
+
+        assertEquals(
+            listOf("Innovation Pédagogique", "Me Contacter"),
+            TemplateTextRepair.pending(reference, reference),
+        )
+    }
+
+    @Test
+    fun `a translated short label is not pending`() {
+        val reference = "<h2>Innovation Pédagogique</h2><a>Me Contacter</a><span>React</span>"
+        val target = "<h2>Pedagogical Innovation</h2><a>Contact Me</a><span>React</span>"
+
+        assertTrue(TemplateTextRepair.pending(reference, target).isEmpty())
+    }
+
+    @Test
+    fun `a language name inside the switcher block is never a short label to repair`() {
+        val reference =
+            """
+            <header>Me Contacter</header>
+            <!-- che-i18n:lang-switcher:start -->
+            <a>Français</a>
+            <!-- che-i18n:lang-switcher:end -->
+            """.trimIndent()
+
+        assertEquals(listOf("Me Contacter"), TemplateTextRepair.pending(reference, reference))
+
+        val repaired = TemplateTextRepair.repair(reference, mapOf("Me Contacter" to "Contact Me"))
+        assertTrue(repaired.contains("Français"), "The generated switcher block must stay untouched: $repaired")
+        assertTrue(repaired.contains("Contact Me"))
+    }
+
+    @Test
     fun `the repair substitutes only the pending runs`() {
         val target =
             """

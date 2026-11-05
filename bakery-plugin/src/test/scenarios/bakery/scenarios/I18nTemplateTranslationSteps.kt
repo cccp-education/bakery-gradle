@@ -300,6 +300,7 @@ class I18nTemplateTranslationSteps {
                 <h2>Contact</h2>
                 <p>Prêt à démarrer votre projet ? Contactez-moi !</p>
                 <button>Envoyer le Message</button>
+                <a>Me Contacter</a>
                 <a>Android, SpringBoot, React</a>
             </section>
             """.trimIndent()
@@ -310,6 +311,7 @@ class I18nTemplateTranslationSteps {
                 <h2>Contact</h2>
                 <p>Send the Message</p>
                 <button>Envoyer le Message</button>
+                <a>Me Contacter</a>
                 <a>Android, SpringBoot, React</a>
             </section>
             """.trimIndent()

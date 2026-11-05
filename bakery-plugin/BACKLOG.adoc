@@ -144,7 +144,7 @@ document possède la déduplication de l'AST (`DOC-I18N-OUTPUT`) ; MEMPHIS poss�
   de 1-2 jetons, sans élargir `MIN_TOKENS` globalement (faux positifs technologies) ;
   catalogue natif par surface ou `translateTemplates` delta-only
 | 3
-| 🟡 À FAIRE
+| ✅ S-268 — `VisibleTextExtractor.isShortFrenchLabel`/`extractShortLabels` (diacritique FR ou mot français exclusif, 1-2 jetons ; technologies jamais flaggées) + câblage `TemplateTextRepair.pending` (gardes prose **ou** libellé court). `MIN_TOKENS` global inchangé. UT `ShortLabelExtractorTest` + `TemplateTextRepairTest` + scénario BDD `@templates`. Déterministe, zéro LLM.
 
 | BKY-OUT-4
 | **Adoption `PreserveRule` (N0)** — `SwitcherBlockMask`/`TemplateTextRepair`
@@ -286,7 +286,7 @@ correct. Ni PlantUML ni un dual-JAR (fausses pistes écartées).
 
 | BKY-PLT-1 | **Exclusion `epubcheck` à la source** — `implementation("education.cccp:document-plugin") { exclude(group = "org.w3c", module = "epubcheck") }` (bakery n'exécute aucune validation EPUB, grep `src/` = 0) | 1 | ✅ S-250 (bakery 0.0.24)
 | BKY-PLT-2 | **Publication bakery 0.0.24** + BOM/catalog 0.0.70 (DAG MEMPHIS) — porter le fix aux consommateurs | 1 | ✅ S-250 (bundle `715977a9`, BOM `620d9d24`)
-| BKY-PLT-3 | **Garde anti-drift toolchain** — empêcher la réintroduction du Saxon 11.x fautif sur le classpath de bake (source unique de versions) | 2 | 🟡 À FAIRE
+| BKY-PLT-3 | **Garde anti-drift toolchain** — empêcher la réintroduction du Saxon 11.x fautif sur le classpath de bake (source unique de versions) | 2 | ✅ S-268 — `bakery.toolchain.SaxonToolchainGuard` (règle pure 11.x fautif / 9.9.x correct) + `SaxonToolchainGuardTest` ; Gradle injecte les coordonnées `net.sf.saxon` résolues de `runtimeClasspath` et `functionalTestRuntimeClasspath` dans `test` (patron `PublishedCatalogVersion`), donc `check` échoue si la branche 11.x revient. Vecteurs faux prouvés (11.0/11.4/11.7), 9.9.1-7 autorisé.
 | BKY-PLT-4 | **D2 corpus** — re-générer les variantes gelées (blocs PlantUML `@startuml` bruts) : purge ciblée du store delta + re-traduction | 3 | 🟡 À FAIRE (+ cheroliv)
 |===
 

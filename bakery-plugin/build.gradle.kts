@@ -212,6 +212,26 @@ tasks.named<Test>("test") {
             .get(),
     )
 
+    // BKY-PLT-3 — inject the resolved Saxon coordinates of the bake and functional
+    // classpaths. SaxonToolchainGuardTest fails `check` if the faulty 11.x branch
+    // returns (document-plugin -> epubcheck -> Saxon-HE:11.4 serialises SVG with
+    // `xmlns=''`; BKY-PLANTUML-D1). Resolution is deferred to execution time so
+    // configuration stays cheap; the test never resolves a configuration itself.
+    doFirst {
+        fun saxonOf(configurationName: String): String =
+            project.configurations
+                .getByName(configurationName)
+                .resolvedConfiguration
+                .resolvedArtifacts
+                .filter { it.moduleVersion.id.group == "net.sf.saxon" }
+                .joinToString("\n") {
+                    "${it.moduleVersion.id.group}:${it.moduleVersion.id.name}:${it.moduleVersion.id.version}"
+                }
+
+        systemProperty("bakery.saxon.runtimeClasspath", saxonOf("runtimeClasspath"))
+        systemProperty("bakery.saxon.functionalTestRuntimeClasspath", saxonOf("functionalTestRuntimeClasspath"))
+    }
+
     useJUnitPlatform { excludeEngines("cucumber") }
 
     // Exclude Cucumber step definitions and runners from unit test discovery.

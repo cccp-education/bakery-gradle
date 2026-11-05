@@ -93,7 +93,68 @@ object VisibleTextExtractor {
         }
     }
 
+    /**
+     * BKY-OUT-3 — a **short French label**: one or two tokens that carry a French
+     * diacritic or a French-only word (`Me Contacter`, `Innovation Pédagogique`).
+     *
+     * The prose rule needs [MIN_TOKENS] tokens, so a label under that floor was
+     * invisible to the template guard. The floor stays global on purpose:
+     * technology names (`React`, `Spring Boot`) and language codes share short
+     * tokens and must never be flagged. Only the template guard calls this second
+     * predicate, as the complement of [isFrenchProse].
+     */
+    fun isShortFrenchLabel(text: String): Boolean {
+        val tokens = text.trim().split(Regex("\\s+")).filter { it.isNotBlank() }
+        if (tokens.isEmpty() || tokens.size >= MIN_TOKENS) return false
+        if (text.any { it.lowercaseChar() in FRENCH_DIACRITICS }) return true
+        return tokens.any { token ->
+            WORD.findAll(token).any { it.value.lowercase() in FRENCH_ONLY_WORDS }
+        }
+    }
+
     private const val MIN_TOKENS = 3
+
+    private val FRENCH_DIACRITICS = "àâäçéèêëîïôöùûüÿœæ".toSet()
+
+    /**
+     * Words that exist in French and not in English, so a one- or two-token run
+     * carrying one is a French label and never a technology name.
+     */
+    private val FRENCH_ONLY_WORDS =
+        setOf(
+            "contacter",
+            "écrire",
+            "découvrir",
+            "savoir",
+            "propos",
+            "bienvenue",
+            "parcours",
+            "réalisations",
+            "projets",
+            "formation",
+            "formations",
+            "pédagogique",
+            "compétences",
+            "expérience",
+            "à",
+            "été",
+        )
+
+    /**
+     * BKY-OUT-3 — short French labels only (the complement of [extract] under the
+     * prose floor). Used by the template translation guard, never by the
+     * whole-template translator.
+     */
+    fun extractShortLabels(content: String): List<String> {
+        if (content.isEmpty()) return emptyList()
+
+        val segments = LinkedHashSet<String>()
+        TemplateScanner.forEachRun(content, onMarkup = {}, onText = { text ->
+            val candidate = text.trim()
+            if (isShortFrenchLabel(candidate)) segments.add(candidate)
+        })
+        return segments.toList()
+    }
 
     fun extract(content: String): List<String> {
         if (content.isEmpty()) return emptyList()

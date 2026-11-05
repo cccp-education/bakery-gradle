@@ -1,0 +1,60 @@
+= Session 268 — BKY-OUT-3 (libellés courts) + BKY-PLT-3 (garde Saxon 11.x)
+:date: 2026-11-05
+:statut: 2/2 US livrées (déterministe, zéro LLM)
+
+== Mission
+
+Fermer les deux US ouvertes du BACKLOG, sans élargir le plancher prose global et
+sans toucher à la publication :
+
+* `BKY-OUT-3` — garde **scopée templates** pour les libellés français de 1-2 jetons
+  (`Me Contacter`, `Innovation Pédagogique`), invisibles au plancher `MIN_TOKENS = 3`.
+* `BKY-PLT-3` — garde anti-drift du toolchain Saxon : empêcher la branche 11.x
+  (fautive sur les SVG, `xmlns=''`) de revenir sur le classpath de bake.
+
+== BKY-OUT-3 — livré
+
+* `bakery.i18n.VisibleTextExtractor` : `isShortFrenchLabel` (1-2 jetons portant un
+  diacritique français **ou** un mot français exclusif ; technologies et codes de
+  langue jamais flaggés) + `extractShortLabels`. `MIN_TOKENS` global **inchangé**.
+* `bakery.i18n.TemplateTextRepair.pending` : le guard de réparation des variantes
+  préservées accepte désormais prose **ou** libellé court. Le bloc généré du
+  sélecteur de langue est masqué (`SwitcherBlockMask`) avant l'extraction, sinon
+  `Français` (1 jeton, diacritique) serait réparé par erreur ; `repair` masque /
+  démasque de la même façon.
+* Tests : `ShortLabelExtractorTest` (6 cas miroirs du site + technos/codes),
+  `TemplateTextRepairTest` (+3 : libellé court pending, libellé court traduit non
+  pending, nom de langue du switcher protégé), scénario BDD `@templates` étendu
+  (`EN:Me Contacter`) dans la feature 65 existante (shard inchangé).
+
+== BKY-PLT-3 — livré
+
+* `bakery.toolchain.SaxonToolchainGuard` (source set `test`, pure) : `Artifact`,
+  `parse`, `violations` ; `net.sf.saxon:Saxon-HE` majeur **11** interdit, `9.9.1-7`
+  autorisé.
+* `SaxonToolchainGuardTest` : vecteurs faux prouvés par construction (`11.0`,
+  `11.4`, `11.7`), vecteurs corrects (`9.9.1-7`, `9.9`, `10.0`, `12.5`), artefact
+  homonyme non flaggé, et lecture des classpaths injectés.
+* `build.gradle.kts` : le task `test` injecte, à l'exécution, les coordonnées
+  `net.sf.saxon` résolues de `runtimeClasspath` (**bake**) et
+  `functionalTestRuntimeClasspath` (patron `PublishedCatalogVersion`) ; un 11.x
+  fait échouer `test`, donc `check`. Le guard n'est pas publié (source set test).
+
+== Preuves locales (Local = Build, Tests = CI)
+
+* `compileKotlin compileTestKotlin compileFunctionalTestKotlin validatePlugins` —
+  BUILD SUCCESSFUL.
+* `ktlintCheck` — BUILD SUCCESSFUL (baseline vide).
+* Aucun `test`/`functionalTest`/`cucumberTest`/`check` exécuté localement.
+* RED par construction : constantes `11.0`/`11.4`/`11.7` du test Saxon ; libellé
+  court absent de l'ancien `pending` (assertion dédiée).
+
+== Reste (release séparée)
+
+* Aucun bump de version, aucune publication Central dans cette session.
+* Prochaine release consommateur : DAG MEMPHIS-first `workspace-bom`/catalog bump
+  (déclarer `bakery-plugin 0.0.34`) puis `bakery-plugin 0.0.34` Central ; le
+  changement `BKY-OUT-3` est du code production et doit être publié, le guard
+  Saxon reste dans le source set `test` (non publié).
+* `BKY-PLT-4` (re-génération du corpus gelé) reste ouvert ; `BKY-OUT-4` est
+  re-scopé hors bakery.

@@ -60,6 +60,7 @@ Feature: i18n template translation — swap de copies completes et convergence
     Given a translated variant whose visible text is still French
     When I repair the variant text into "en"
     Then the repaired variant contains "EN:Envoyer le Message"
+    And the repaired variant contains "EN:Me Contacter"
     And the repaired variant preserves the already translated "Send the Message"
 
   Scenario: A converged variant is a strict no-op on the second text repair
