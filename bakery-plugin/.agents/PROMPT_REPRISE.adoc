@@ -3,7 +3,20 @@
 :date: 2026-11-05
 :etat: S-268 — BKY-OUT-3 + BKY-PLT-3 ✅ (CI 18/18) ; Portal 0.0.34 (soumission) + 0.0.35 (compatibilité) ; 0.0.33 Central ; 0.0.34/0.0.36 Central au reset du 2026-12-01
 :epic_actif: BKY-I18N-OUTPUT — BKY-OUT-3 ✅ ; BKY-OUT-4 re-scopé hors bakery ; BKY-PLT-3 ✅
-:epic_suivant: BKY-PLT-4 (corpus D2, metered) ; propagation Central 0.0.36
+:epic_suivant: **durcissement du prompt de traduction** (C6 prose) ; BKY-PLT-4 (corpus D2, metered) ; propagation Central 0.0.36
+
+== Décision pilote (2026-11-05) — C6 prose / modèle
+
+* **`gpt-oss:120b-cloud` est explicitement REFUSÉ** pour le C6 prose
+  (décision pilote). Aucun autre modèle sans accord explicite.
+* Le modèle C6 reste **`nemotron-3-super:cloud` sur `localhost:11434`**.
+* Prochaine tâche bakery : **durcir `LlmServiceTranslationAdapter.buildPrompt`** :
+  retourner uniquement le texte traduit du fragment ; interdire d'ajouter ou
+  supprimer des lignes, titres `=`, tables `|===`, fences, attributs `[...]` ;
+  un heading reste du texte brut. Ajouter un **retry one-shot** sur rejet du
+  garde structurel (document 0.0.31), puis refaire le pilote `en` côté site.
+* Alternatives autorisées **uniquement sur décision pilote** :
+  `gemma4:31b-cloud` ou `deepseek-v4.1-flash:cloud`.
 
 == Vision (GBL-010)
 

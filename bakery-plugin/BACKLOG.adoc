@@ -5,6 +5,16 @@
 :icons: font
 :sectnums:
 
+== Décision pilote (2026-11-05) — C6 prose / modèle
+
+* `gpt-oss:120b-cloud` **refusé** pour le C6 prose ; le modèle reste
+  `nemotron-3-super:cloud` sur `localhost:11434`.
+* Prochaine US : durcir `LlmServiceTranslationAdapter.buildPrompt` (fragment
+  seul, aucune structure AsciiDoc, heading en texte brut) + retry one-shot sur
+  rejet du garde structurel ; puis pilote `en` côté site.
+* Alternatives (`gemma4:31b-cloud`, `deepseek-v4.1-flash:cloud`) uniquement sur
+  décision pilote explicite.
+
 == ✅ EPIC BKY-SEARCH — Pagefind headless : moteur de recherche natif du template bakery (TERMINÉ 7/7, 2026-11-03)
 
 *Source* : décision pilote consignée dans le backlog du site consommateur
