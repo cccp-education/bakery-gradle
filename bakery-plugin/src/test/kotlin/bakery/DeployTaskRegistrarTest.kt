@@ -38,4 +38,25 @@ class DeployTaskRegistrarTest {
         assertThat(deployProfile.description).isEqualTo("Push profile files (e.g. README.md) to GitHub repository")
         assertThat(deployProfile).isInstanceOf(DeployProfileTask::class.java)
     }
+
+    @Test
+    fun `registerCiMirrorTask creates pushCiMirror task in deploy group`() {
+        val project = createProject()
+        val configDir = tempDir.resolve("site").apply { mkdirs() }
+        val site =
+            SiteConfiguration(
+                pushCiMirror =
+                    GitPushConfiguration(
+                        repo = RepositoryConfiguration(repository = "https://example.com/ci.git"),
+                    ),
+            )
+
+        DeployTaskRegistrar.run { project.registerCiMirrorTask(site, configDir) }
+
+        val task = project.tasks.findByName("pushCiMirror")
+        assertThat(task).isNotNull
+        assertThat(task!!.group).isEqualTo(BakeryConstants.DEPLOY_GROUP)
+        assertThat(task.description)
+            .isEqualTo("Copies the site source + mirror workflows to build/ and pushes them to the CI runner repo.")
+    }
 }

@@ -17,6 +17,7 @@ import bakery.ContentTaskRegistrar.registerScaffoldContactSecTask
 import bakery.ContentTaskRegistrar.registerTranslateI18nClientTask
 import bakery.ContentTaskRegistrar.registerTranslateTemplatesTask
 import bakery.ContentTaskRegistrar.registerValidateFirebaseConfigTask
+import bakery.DeployTaskRegistrar.registerCiMirrorTask
 import bakery.DeployTaskRegistrar.registerDeployMaquetteTask
 import bakery.DeployTaskRegistrar.registerDeployProfileTask
 import bakery.DeployTaskRegistrar.registerDeploySiteTask
@@ -202,6 +203,7 @@ class BakeryPlugin : Plugin<Project> {
         project.configureJBakePlugin(resolvedSite)
         project.configureBakeTask(resolvedSite)
         project.registerDeploySiteTask(resolvedSite)
+        project.registerCiMirrorTask(resolvedSite, configDir)
         project.registerPublishSiteTask()
         project.registerDeployMaquetteTask(resolvedSite)
         // BKY-DNS-4 — provisionDns seulement si section dns présente, chaînée

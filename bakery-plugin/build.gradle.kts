@@ -699,6 +699,7 @@ val functionalTestShardD =
         includeTestsMatching("bakery.InjectSeoFunctionalTest")
         includeTestsMatching("bakery.LocalizeSeoHeadFunctionalTest")
         includeTestsMatching("bakery.MigrateContentI18nDeploySmokeFunctionalTest")
+        includeTestsMatching("bakery.CiMirrorFunctionalTest")
     }
 
 val functionalTestShardE =

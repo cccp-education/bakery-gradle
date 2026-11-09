@@ -41,6 +41,12 @@ data class SiteConfiguration(
     val bake: BakeConfiguration = BakeConfiguration(),
     val pushPage: GitPushConfiguration = GitPushConfiguration(),
     val pushMaquette: GitPushConfiguration = GitPushConfiguration(),
+    /**
+     * BKY-CI-MIRROR — publish the site source + mirror workflows to a CI runner
+     * repo (e.g. cheroliv-contact/cheroliv.com). The repo is a derived mirror,
+     * never a source of truth; `from`/`to` are build-relative scratch dirs.
+     */
+    val pushCiMirror: GitPushConfiguration = GitPushConfiguration(),
     val pushProfile: GitPushConfiguration? = null,
     val profileFiles: List<String> = emptyList(),
     val pushSource: GitPushConfiguration? = null,

@@ -3,6 +3,7 @@ package bakery
 import bakery.FileSystemManager.createCnameFile
 import bakery.GitService.pushPages
 import org.gradle.api.Project
+import java.io.File
 import java.io.File.separator
 
 object DeployTaskRegistrar {
@@ -96,6 +97,57 @@ object DeployTaskRegistrar {
             .apply(logger::lifecycle)
 
         uiDir.copyRecursively(uiBuildDir, overwrite = true)
+    }
+
+    /**
+     * BKY-CI-MIRROR — publishes the site source (single source of truth:
+     * `office/sites/<site>`) plus the workflow overlay (`.ci-mirror/`) to a CI
+     * runner repository.
+     *
+     * It reuses the exact same primitive as [registerDeploySiteTask]:
+     * `registerGitPushTask` → `GitService.pushPages` (copy into `build/`,
+     * `git init/add/commit`, force-push with the configured credentials).
+     * Only the source and the target repository differ.
+     *
+     * `pushCiMirror.to` is the build-relative scratch dir (default `ci-mirror-push`);
+     * `pushCiMirror.from` is ignored (the payload is always `build/ci-mirror`),
+     * mirroring `deploySite` whose source is `bake.destDirPath`, not `pushPage.from`.
+     */
+    internal fun Project.registerCiMirrorTask(
+        site: SiteConfiguration,
+        configDir: File,
+    ) {
+        val buildDir = layout.buildDirectory.get().asFile
+        val mirror = site.pushCiMirror
+        val payloadDir = buildDir.resolve("ci-mirror")
+        val scratchDir = buildDir.resolve(mirror.to.ifBlank { "ci-mirror-push" })
+        val overlayDir = configDir.resolve(".ci-mirror")
+
+        registerGitPushTask(
+            taskName = "pushCiMirror",
+            taskDescription =
+                "Copies the site source + mirror workflows to build/ and pushes them to the CI runner repo.",
+            doFirstAction = {
+                if (mirror.repo.repository.isBlank()) {
+                    throw IllegalStateException(
+                        "pushCiMirror.repo.repository is not configured in " +
+                            "${configDir.resolve("site.yml").absolutePath}",
+                    )
+                }
+                CiMirrorPayload.assemble(configDir, payloadDir, overlayDir).fold(
+                    ifLeft = { throw IllegalStateException(it) },
+                    ifRight = {
+                        logger.lifecycle(
+                            "[bakery] CI mirror payload: ${it.siteFiles} site files + " +
+                                "${it.overlayFiles} overlay files → ${it.payloadRoot}",
+                        )
+                    },
+                )
+            },
+            fromPath = { payloadDir.absolutePath },
+            toPath = { scratchDir.absolutePath },
+            gitConfig = mirror,
+        )
     }
 
     internal fun Project.registerPublishSiteTask() {
