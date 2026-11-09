@@ -476,3 +476,7 @@ _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
   | quizz-benchmark-gradle | `~/workspace/foundry/private/quizz-benchmark-gradle/quizz-benchmark-plugin` | Audit 053 | 2026-04-30
   | runner-gradle | `~/workspace/foundry/public/runner-gradle` | 029 | 2026-05-12
   |===
+
+== Session 269 — JitPack mirror (CNV-16)
+
+Publication JitPack de bakery-plugin 0.0.33. JitPack : 0.0.33 — POM HTTP 200.
