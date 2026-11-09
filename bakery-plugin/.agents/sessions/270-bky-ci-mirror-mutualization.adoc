@@ -1,0 +1,60 @@
+= Session 270 — BKY-CI-MIRROR : mutualisation du push vers un repo runner
+:date: 2026-11-09
+:statut: Livré + CI verte ; release/rollout en attente (DAG multi-borough)
+:ci: cccp-education/bakery-gradle — `Test` run `42663258332` ✅ 17/17
+
+== Demande pilote
+
+Les dépôts runners (`cheroliv-contact/cheroliv.com`, `talariaschool/talaria-school`,
+`cccp-edu/magic-stick`, `cccp-edu/cccp.education`) ne doivent PAS être des sources
+de vérité. `office/sites/<site>` reste la seule source. Les runners reçoivent une
+copie au `commit`/`push` (miroir dérivé), pour que leurs Actions tournent sous un
+autre compte (contournement du blocage billing `cheroliv`).
+
+Décision : **mutualiser dans bakery** plutôt que dupliquer la logique JGit dans
+`office`. `pushCiMirror` réutilise la même primitive que `deploySite`.
+
+== Mutualisation
+
+Le geste est identique à `deploySite` :
+`registerGitPushTask` → `GitService.pushPages` (copie dans `build/`,
+`git init/add/commit`, force-push avec les credentials de `site.yml`).
+Seules la source (site source au lieu du bake) et la cible (repo runner) changent.
+
+== Livré
+
+* `SiteConfiguration.pushCiMirror` — même forme que `pushPage`/`pushMaquette`.
+  `to` = répertoire scratch under `build/` (défaut `ci-mirror-push`) ; `from`
+  ignoré (payload fixe `build/ci-mirror`, comme `deploySite` ignore `pushPage.from`).
+* `bakery.CiMirrorPayload` (domaine pur) : copie `office/sites/<site>` sous
+  `sites/<site>/` puis l'overlay `.ci-mirror/` à la racine ; exclut `.agents/`,
+  `.git/`, `.github/`, `.gradle/`, `.kotlin/`, `.idea/`, `build/`, `.ci-mirror/`,
+  `site.yml`, `site.yml.bak*`, `local.properties`, `graph.json`, `*.iml`.
+* `DeployTaskRegistrar.registerCiMirrorTask` + wiring `BakeryPlugin`.
+* Tests : `CiMirrorPayloadTest` (6 UT), `CiMirrorFunctionalTest` (TestKit + remote
+  bare réel), `DeployTaskRegistrarTest` (+1 UT). Functional shard D.
+
+== Preuves CI
+
+* `Unit Tests` : `CiMirrorPayloadTest` 6/6 PASSED + ktlint VERT.
+* `Functional · D` : `CiMirrorFunctionalTest > pushCiMirror pushes the site source
+  and the workflow overlay to the target repo() PASSED`.
+* `Test` run `42663258332` **17/17 jobs verts** (coverage mergée incluse).
+* `Publish website` run `42663257862` ✅.
+
+== Reste (DAG, non exécuté)
+
+1. **MEMPHIS** : catalog/BOM déclare `bakery-plugin` à la prochaine version.
+2. **bakery** : `workspaceVersion` → nouveau catalog, puis `publishPlugins` /
+   Central (credentials Portal absents localement — blocage).
+3. **runner-gradle** : re-pin du catalog.
+4. **Sites** : overlays `office/sites/<site>/.ci-mirror/` (workflows exécutés sur
+   le payload, sans `checkout cheroliv/office`, `on: push`), `pushCiMirror` dans
+   `site.yml`, amorçage des miroirs, suppression d'`OFFICE_CHECKOUT_TOKEN`.
+
+== Fichiers
+
+`bakery-plugin/src/main/kotlin/bakery/{CiMirrorPayload,SiteConfiguration,DeployTaskRegistrar,BakeryPlugin}.kt`,
+`src/test/kotlin/bakery/{CiMirrorPayloadTest,DeployTaskRegistrarTest}.kt`,
+`src/functionalTest/kotlin/bakery/CiMirrorFunctionalTest.kt`, `build.gradle.kts`.
+Commit `bbb2b56d`, poussé sur `cccp-education/bakery-gradle`.
