@@ -15,6 +15,26 @@
 * Alternatives (`gemma4:31b-cloud`, `deepseek-v4.1-flash:cloud`) uniquement sur
   décision pilote explicite.
 
+== ✅ EPIC BKY-CI-MIRROR — publication de la source vers un repo runner (TERMINÉ 4/4, 2026-11-10)
+
+*Source* : décision pilote 2026-11-10 — les dépôts runners
+(`cheroliv-contact/cheroliv.com`, `talariaschool/talaria-school`,
+`cccp-edu/magic-stick`, `cccp-edu/cccp.education`) reçoivent une **copie** au
+`commit`/`push` ; `office/sites/<site>` reste l'unique source de vérité.
+
+* Décision : **mutualiser dans bakery** (pas de duplication JGit). `pushCiMirror`
+  réutilise `registerGitPushTask` → `GitService.pushPages` (même primitive que
+  `deploySite`).
+* Cible de publication : **JitPack** (CNV-16), version dérivée du tag (`-Pversion`).
+* Livré : `SiteConfiguration.pushCiMirror`, `CiMirrorPayload` (pur), overlays
+  `.ci-mirror/` des 4 sites, releases JitPack `0.0.36`/`0.0.37`/`0.0.38`,
+  `runner-gradle` shim `useModule`, miroirs amorcés, `OFFICE_CHECKOUT_TOKEN`
+  supprimé.
+* Fix : `copyBakedFilesToRepo` préserve le bit exécutable (`COPY_ATTRIBUTES`).
+* Preuves : CI bakery verte, payload `gradlew` `100755`, talaria `check` vert,
+  cccp.education deploy live 200, cheroliv `unit` vert (cucumber = dette
+  `ur/0084`).
+
 == ✅ EPIC BKY-SEARCH — Pagefind headless : moteur de recherche natif du template bakery (TERMINÉ 7/7, 2026-11-03)
 
 *Source* : décision pilote consignée dans le backlog du site consommateur

@@ -16,3 +16,15 @@
 === Prochaine session
 * `BKY-PLT-4` (corpus D2, metered) ; `BKY-OUT-4` re-scopé hors bakery.
 * Release Central 0.0.36 au reset ; re-pin runner.
+
+== Session 270 — BKY-CI-MIRROR (2026-11-10)
+
+* `pushCiMirror` mutualisé sur `registerGitPushTask`/`GitService.pushPages`
+  (même primitive que `deploySite`) ; `CiMirrorPayload` (pur) + overlays
+  `.ci-mirror/` pour 4 sites.
+* `copyBakedFilesToRepo` préserve les attributs (exec bit) — fix 0.0.38.
+* Releases JitPack **0.0.36 → 0.0.37 → 0.0.38** ; `runner-gradle` shim
+  `useModule` ; miroirs amorcés ; `OFFICE_CHECKOUT_TOKEN` supprimé.
+* Preuves : CI bakery verte, payload `gradlew` `100755`, talaria `check` vert,
+  cccp.education deploy live 200, cheroliv `unit` vert (dette `ur/0084`).
+* Rapport `.agents/sessions/270-bky-ci-mirror-mutualization.adoc`.

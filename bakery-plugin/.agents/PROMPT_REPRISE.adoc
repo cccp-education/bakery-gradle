@@ -1,61 +1,53 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 269
-:date: 2026-11-05
-:etat: S-268 — BKY-OUT-3 + BKY-PLT-3 ✅ (CI 18/18) ; Portal 0.0.34 (soumission) + 0.0.35 (compatibilité) ; 0.0.33 Central ; 0.0.34/0.0.36 Central au reset du 2026-12-01
-:epic_actif: BKY-I18N-OUTPUT — BKY-OUT-3 ✅ ; BKY-OUT-4 re-scopé hors bakery ; BKY-PLT-3 ✅
-:epic_suivant: **durcissement du prompt de traduction** (C6 prose) ; BKY-PLT-4 (corpus D2, metered) ; propagation Central 0.0.36
+:session: 271
+:date: 2026-11-10
+:etat: S-270 ✅ — **BKY-CI-MIRROR** : `pushCiMirror` mutualisé sur `GitService.pushPages`, `CiMirrorPayload`, overlays `.ci-mirror`, releases JitPack 0.0.36/0.0.37/**0.0.38** ; 4 miroirs amorcés, payload validé.
+:epic_actif: BKY-CI-MIRROR ✅ ; BKY-OUT-3 / BKY-PLT-3 ✅ (S-268)
+:epic_suivant: dette contenu `ur/0084` (site cheroliv, **metered — accord requis**) ; BKY-PLT-4 (corpus D2) ; release Central 0.0.39 au reset 2026-12-01.
 
-== Décision pilote (2026-11-05) — C6 prose / modèle
+== Décision pilote (2026-11-10) — publication sur JitPack
 
-* **`gpt-oss:120b-cloud` est explicitement REFUSÉ** pour le C6 prose
-  (décision pilote). Aucun autre modèle sans accord explicite.
-* Le modèle C6 reste **`nemotron-3-super:cloud` sur `localhost:11434`**.
-* Prochaine tâche bakery : **durcir `LlmServiceTranslationAdapter.buildPrompt`** :
-  retourner uniquement le texte traduit du fragment ; interdire d'ajouter ou
-  supprimer des lignes, titres `=`, tables `|===`, fences, attributs `[...]` ;
-  un heading reste du texte brut. Ajouter un **retry one-shot** sur rejet du
-  garde structurel (document 0.0.31), puis refaire le pilote `en` côté site.
-* Alternatives autorisées **uniquement sur décision pilote** :
-  `gemma4:31b-cloud` ou `deepseek-v4.1-flash:cloud`.
+* Cible de publication : **JitPack** (ni Sonatype, ni Plugin Portal).
+  `jitpack.yml` passe `-Pversion="${VERSION#v}"` ; le build refuse un build
+  `JITPACK=true` sans la propriété (CNV-16). Normal local/CI : fallback catalog.
+* Central bloqué (quota org) jusqu'au **2026-12-01** ; MEMPHIS `0.0.129`
+  (catalog + `bakery-plugin 0.0.36`) reste un brouillon **non requis** pour JitPack.
+* Portal abandonné (la soumission 0.0.36 est sans effet).
 
-== Vision (GBL-010)
+== Décision pilote (2026-11-05) — C6 prose / modèle (inchangée)
 
-Arbre à deux branches : **A Templates** (`translateTemplates`, chrome natif) et
-**B Data** (articles → document → AST → feuille `[plantuml]`). bakery possède la
-branche A et l'orchestration de la branche B (`MigrateContentI18nTask` +
-`I18nDeltaApplier` + `PendingBlockRetry` + `SubtreeI18nPlanner`). Cadrage :
-`CADRAGE_EPIC_GBL_010_ARBRE_TRADUCTION_SITE.adoc`.
+* `gpt-oss:120b-cloud` **REFUSÉ**. Modèle C6 : `nemotron-3-super:cloud` sur
+  `localhost:11434`. Alternatives sur accord explicite : `gemma4:31b-cloud`,
+  `deepseek-v4.1-flash:cloud`.
 
-== Acquis S-268 (2026-11-05)
+== S-270 — BKY-CI-MIRROR (mutualisation du push runner)
 
-* **BKY-OUT-3** : `VisibleTextExtractor.isShortFrenchLabel` / `extractShortLabels`
-  (1-2 jetons, diacritique ou mot FR natif) ; `TemplateTextRepair.pending()`
-  accepte `isFrenchProse || isShortFrenchLabel` ; masque `SwitcherBlockMask`
-  autour de l'extraction (le nom de langue du sélecteur n'est pas réparé).
-  6 UT + 3 UT + BDD feature 65. `MIN_TOKENS` global inchangé.
-* **BKY-PLT-3** : `bakery.toolchain.SaxonToolchainGuard` (test source) interdit
-  Saxon-HE 11.x, autorise 9.9.1-7 ; coordonnées résolues injectées dans `test`
-  depuis `runtimeClasspath`/`functionalTestRuntimeClasspath`. 6 UT, RED prouvé.
-* **CI** : `Test` run `42030834035` **18/18 verte**.
-* **Portal** : `0.0.34` soumis (en attente) ; `0.0.35` publié avec
-  `compatibility { configurationCache = false; isolatedProjects = false }`
-  (créé 2026-11-05 19:00:31) ; clé **cccp-education** (env unset).
-* **Central** : `0.0.33` (P3) publié ; 0.0.34/0.0.35 bloqués par le quota
-  Sonatype jusqu'au **2026-12-01**.
+* `SiteConfiguration.pushCiMirror` + `DeployTaskRegistrar.registerCiMirrorTask`
+  réutilisent **la même primitive** que `deploySite` : `registerGitPushTask` →
+  `GitService.pushPages` (copie dans `build/`, `git init/add/commit`, force-push).
+* `bakery.CiMirrorPayload` (domaine pur) : `office/sites/<site>` → payload
+  `sites/<site>/` + overlay `.ci-mirror/` à la racine ; exclut `.agents/`,
+  `.github/`, `build/`, `.gradle/`, `.kotlin/`, `.idea/`, `site.yml*`, etc.
+* `copyBakedFilesToRepo` **préserve les attributs** (exec bit) et échoue si la
+  source manque (0.0.38).
+* Releases JitPack : **0.0.36** (feature) → 0.0.37 (`COPY_ATTRIBUTES` payload) →
+  **0.0.38** (`copyBakedFilesToRepo`). `runner-gradle` shim `useModule` → 0.0.38.
+* Overlays office des 4 sites + amorçage réel ; `OFFICE_CHECKOUT_TOKEN` supprimé.
+* Preuves : CI bakery verte (`Test`), payload `gradlew` `100755`, talaria `check`
+  vert, cccp.education deploy live 200, cheroliv `unit` vert (cucumber = dette
+  `ur/0084`, antérieure).
+* Rapport : `.agents/sessions/270-bky-ci-mirror-mutualization.adoc`.
 
 == Reste
 
-* **BKY-PLT-4** : re-génération du corpus D2 (blocs `@startuml` bruts) —
-  metered, accord pilote.
-* **BKY-OUT-4** : re-scopé vers `MEM-I18N-PRESERVE` (N0) + `DOC/PLT-I18N-PRESERVE`.
-* **Release Central 0.0.36** (ou 0.0.34/0.0.35) au reset du quota ; re-pinner
-  le runner.
-* `BKY-PLT-3` reste test-only (non publié).
+* **Dette contenu `ur/0084`** (site cheroliv) : re-traduction FR→UR **metered**,
+  accord pilote + modèle requis ; seul rouge du test site.
+* **BKY-PLT-4** : corpus D2 (`@startuml` bruts) — metered.
+* **Release Central 0.0.39** au reset du quota ; re-pin runner.
 
 == Rappels
 
-* **Local = Build, Tests = CI** : compiler seulement ; les shards ont
-  `onlyIf { CI != null }`.
+* **Local = Build, Tests = CI** : compiler seulement ; shards `onlyIf { CI }`.
 * **Zéro Python** ; English only code/tests/features (gouvernance `.adoc` en FR).
 * Commit/push sur accord pilote ; indexer **explicitement** ses fichiers.
 * Ne pas lire les fichiers gitignorés (`site.yml`, `local.properties`).

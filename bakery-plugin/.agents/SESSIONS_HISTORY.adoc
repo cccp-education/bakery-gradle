@@ -137,3 +137,15 @@ _Derniere mise a jour (anterieure) : 2026-10-26 — Session 263 — **Revue exte
 Publication JitPack de bakery-plugin 0.0.33. JitPack : 0.0.33 — POM HTTP 200. Shim `useModule` pour
 `education.cccp.build.*` (tag JitPack `0.0.15`). Rapport
 `bakery-plugin/.agents/sessions/269-jitpack-mirror.adoc`.
+
+== Session 270 — BKY-CI-MIRROR (pushCiMirror mutualisé + JitPack 0.0.38) — 2026-11-10
+
+`pushCiMirror` réutilise `registerGitPushTask` → `GitService.pushPages` (même
+primitive que `deploySite`). `CiMirrorPayload` (pur) assemble
+`office/sites/<site>` + overlay `.ci-mirror/` ; `copyBakedFilesToRepo` préserve
+les attributs (exec bit) et échoue si la source manque. Releases JitPack 0.0.36
+→ 0.0.37 → **0.0.38** ; `runner-gradle` shim `useModule` ; 4 miroirs amorcés ;
+`OFFICE_CHECKOUT_TOKEN` supprimé. Preuves : CI bakery verte, payload `gradlew`
+`100755`, talaria `check` vert, cccp.education deploy live 200, cheroliv `unit`
+vert (cucumber = dette `ur/0084`). Rapport
+`bakery-plugin/.agents/sessions/270-bky-ci-mirror-mutualization.adoc`.
