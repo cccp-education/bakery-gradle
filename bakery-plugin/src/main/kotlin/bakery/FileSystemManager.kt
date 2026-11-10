@@ -14,6 +14,8 @@ import org.slf4j.Logger
 import java.io.File
 import java.io.IOException
 import java.net.URI
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.util.jar.JarFile
 import kotlin.text.Charsets.UTF_8
 
@@ -190,7 +192,7 @@ object FileSystemManager {
                 .also { "bakeDirPath : $it".let(logger::info) }
                 .let(::File)
                 .apply {
-                    copyRecursively(repoDir, true)
+                    copyTreePreservingAttributes(this, repoDir)
                     deleteRecursively()
                 }.run {
                     if (!exists()) {
@@ -203,6 +205,32 @@ object FileSystemManager {
         } catch (e: Exception) {
             (e.message ?: "An error occurred during file copy.").left()
         }
+
+    /**
+     * BKY-CI-MIRROR — `File.copyRecursively` drops the POSIX mode, so the CI
+     * mirror payload's `gradlew` was committed non-executable (100644) and the
+     * site `./gradlew` failed with `Permission denied`. Copy with the file
+     * attributes (mode, timestamps) preserved.
+     */
+    internal fun copyTreePreservingAttributes(
+        source: File,
+        target: File,
+    ) {
+        source.walkTopDown().forEach { file ->
+            val destination = target.resolve(file.relativeTo(source))
+            if (file.isDirectory) {
+                destination.mkdirs()
+            } else {
+                destination.parentFile?.mkdirs()
+                Files.copy(
+                    file.toPath(),
+                    destination.toPath(),
+                    StandardCopyOption.REPLACE_EXISTING,
+                    StandardCopyOption.COPY_ATTRIBUTES,
+                )
+            }
+        }
+    }
 
     val yamlMapper: ObjectMapper by lazy {
         YAMLFactory()

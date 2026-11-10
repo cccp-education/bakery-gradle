@@ -45,6 +45,8 @@ class CiMirrorFunctionalTest {
         val siteDir = projectDir.resolve("office/sites/demo").apply { mkdirs() }
         siteDir.resolve("jbake").mkdirs()
         siteDir.resolve("jbake/index.adoc").writeText("= Demo", UTF_8)
+        siteDir.resolve("gradlew").writeText("#!/bin/sh\n", UTF_8)
+        assertThat(siteDir.resolve("gradlew").setExecutable(true)).isTrue()
         siteDir.resolve("maquette").mkdirs()
         siteDir.resolve(".agents/sessions").mkdirs()
         siteDir.resolve(".agents/sessions/s1.adoc").writeText("governance", UTF_8)
@@ -92,6 +94,7 @@ class CiMirrorFunctionalTest {
             .use { _ -> }
 
         assertThat(cloneDir.resolve("sites/demo/jbake/index.adoc")).exists().hasContent("= Demo")
+        assertThat(cloneDir.resolve("sites/demo/gradlew").canExecute()).isTrue()
         assertThat(cloneDir.resolve(".github/workflows/ci.yml")).exists().hasContent("name: CI")
         assertThat(cloneDir.resolve("sites/demo/site.yml")).doesNotExist()
         assertThat(cloneDir.resolve("sites/demo/.agents/sessions/s1.adoc")).doesNotExist()
