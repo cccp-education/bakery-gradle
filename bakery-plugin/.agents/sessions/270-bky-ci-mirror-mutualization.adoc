@@ -69,14 +69,16 @@ La cible de publication est **JitPack** (ni Sonatype, ni le Plugin Portal).
 * **bakery 0.0.36** : tag `v0.0.36` → JitPack
   `com.github.cccp-education.bakery-gradle:bakery-plugin:0.0.36` (POM importe
   `workspace-bom:0.0.125`). Version dérivée du tag via `-Pversion` (CNV-16).
-* **Correctif exec bit** : `CiMirrorPayload` copie avec `COPY_ATTRIBUTES` (unit
-  test), mais `copyBakedFilesToRepo` (GitService) recopie en `copyRecursively` et
-  perd le bit → `./gradlew: Permission denied`. Fix propre à porter dans bakery
-  `0.0.38` ; workaround dans les overlays de test/validation (`chmod +x gradlew`).
-* **bakery 0.0.37** : tag `v0.0.37` (COPY_ATTRIBUTES) → JitPack ; `runner-gradle`
-  résout `education.cccp.bakery` via `useModule` → JitPack `0.0.37`.
-* **Overlays `.ci-mirror/`** (office `513282d2` + `9a8a3abb`) + amorçage réel des
-  4 miroirs par `pushCiMirror`. Payload validé : cheroliv `unit` vert (le
-  `cucumberTest` échoue sur la dette connue `ur/0084`), talaria `check` vert
-  (unit + functional + cucumber + node). `OFFICE_CHECKOUT_TOKEN` supprimé.
+* **Correctif exec bit (0.0.37 → 0.0.38)** : `CiMirrorPayload` copie avec
+  `COPY_ATTRIBUTES` (0.0.37), mais `copyBakedFilesToRepo` recopiait en
+  `copyRecursively` et perdait le bit → `./gradlew: Permission denied`.
+  **0.0.38** : `copyBakedFilesToRepo` préserve les attributs et échoue
+  explicitement si le répertoire source manque. Payload `gradlew` = `100755`,
+  `chmod` retiré des overlays, `./gradlew` fonctionne (tag `v0.0.38` → JitPack).
+* `runner-gradle` résout `bakery 0.0.38` (JitPack).
+* **Overlays `.ci-mirror/`** (office `513282d2` + `9a8a3abb` + `37a873c5`) +
+  amorçage réel des 4 miroirs par `pushCiMirror`. Payload validé : cheroliv
+  `unit` vert (le `cucumberTest` échoue sur la dette connue `ur/0084`), talaria
+  `check` vert (unit + functional + cucumber + node). `OFFICE_CHECKOUT_TOKEN`
+  supprimé.
 
