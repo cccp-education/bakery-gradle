@@ -18,8 +18,9 @@ class BakeryPluginPublicationTest {
         // Whitespace-insensitive (S-244) : la garde ne doit pas casser quand ktlint
         // reformate la chaîne sur plusieurs lignes (`chain-method-continuation`).
         assertThat(buildScript.withoutWhitespace())
-            .withFailMessage("build.gradle.kts version must derive from the published workspace catalog (ws.versions.bakery.plugin)")
-            .contains("version=ws.versions.bakery.plugin.get()")
+            .withFailMessage("build.gradle.kts version must use -Pversion (JitPack) with ws.versions.bakery.plugin fallback")
+            .contains("version=versionProperty.getOrElse(catalogVersion)")
+            .contains("ws.versions.bakery.plugin.get()")
 
         // Hygiène (D5) : la version self du toml local et la version self du catalog
         // ws doivent coïncider — le toml local reste pour le marker local, le ws

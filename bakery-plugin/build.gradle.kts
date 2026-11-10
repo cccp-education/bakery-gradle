@@ -25,10 +25,21 @@ plugins {
 
 group = "education.cccp"
 // MEM-CAT-3 (D3) — version propre dérivée du catalog workspace publié (pin unique settings).
-// Remplace le toml local dupliqué — fixe durablement BakeryPluginPublicationTest.
-version =
+// CNV-16 — JitPack derives the published version from the git tag (`-Pversion`);
+// normal local/CI builds keep the catalog fallback. A JitPack build without the
+// property is refused so the served artefact can never diverge from its tag.
+val jitpackBuild = providers.environmentVariable("JITPACK").orNull == "true"
+val versionProperty = providers.gradleProperty("version")
+if (jitpackBuild && !versionProperty.isPresent) {
+    error(
+        "JitPack build requires -Pversion=\"\${VERSION#v}\" (see jitpack.yml). " +
+            "Refusing to publish an artefact whose version does not match the git tag.",
+    )
+}
+val catalogVersion =
     ws.versions.bakery.plugin
         .get()
+version = versionProperty.getOrElse(catalogVersion)
 
 repositories {
     mavenLocal()
