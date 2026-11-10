@@ -216,6 +216,9 @@ object FileSystemManager {
         source: File,
         target: File,
     ) {
+        if (!source.exists()) {
+            throw IOException("${source.absolutePath} does not exist")
+        }
         source.walkTopDown().forEach { file ->
             val destination = target.resolve(file.relativeTo(source))
             if (file.isDirectory) {
