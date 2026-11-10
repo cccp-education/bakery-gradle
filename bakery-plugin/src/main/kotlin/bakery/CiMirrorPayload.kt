@@ -146,7 +146,12 @@ object CiMirrorPayload {
                     if (isExcluded(relative)) return FileVisitResult.CONTINUE
                     val target = targetRoot.resolve(relative)
                     target.parent?.toFile()?.mkdirs()
-                    Files.copy(file, target, StandardCopyOption.REPLACE_EXISTING)
+                    Files.copy(
+                        file,
+                        target,
+                        StandardCopyOption.REPLACE_EXISTING,
+                        StandardCopyOption.COPY_ATTRIBUTES,
+                    )
                     copied++
                     return FileVisitResult.CONTINUE
                 }

@@ -101,6 +101,21 @@ class CiMirrorPayloadTest {
     }
 
     @Test
+    fun `preserves the executable bit of the payload scripts`() {
+        val siteDir = tempDir.resolve("office/sites/demo").apply { mkdirs() }
+        siteDir.resolve("jbake").mkdirs()
+        siteDir.resolve("gradlew").writeText("#!/bin/sh\n")
+        assertThat(siteDir.resolve("gradlew").setExecutable(true)).isTrue()
+        siteDir.resolve(".ci-mirror").mkdirs()
+        siteDir.resolve(".ci-mirror/README.adoc").writeText("= mirror")
+        val payloadDir = tempDir.resolve("build/ci-mirror")
+
+        CiMirrorPayload.assemble(siteDir, payloadDir, siteDir.resolve(".ci-mirror"))
+
+        assertThat(payloadDir.resolve("sites/demo/gradlew").canExecute()).isTrue()
+    }
+
+    @Test
     fun `fails clearly when the overlay is missing`() {
         val siteDir = tempDir.resolve("office/sites/demo").apply { mkdirs() }
 
