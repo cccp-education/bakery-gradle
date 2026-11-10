@@ -58,3 +58,19 @@ Seules la source (site source au lieu du bake) et la cible (repo runner) changen
 `src/test/kotlin/bakery/{CiMirrorPayloadTest,DeployTaskRegistrarTest}.kt`,
 `src/functionalTest/kotlin/bakery/CiMirrorFunctionalTest.kt`, `build.gradle.kts`.
 Commit `bbb2b56d`, poussé sur `cccp-education/bakery-gradle`.
+
+== Release (tentative 2026-11-09)
+
+* **MEMPHIS** : `0.0.129` + `bakery-plugin 0.0.36` (commits `ff87155`, `8816be1`),
+  CI `runAllTests` `42668331780` ✅. Publication Central **bloquée** :
+  `Publishing blocked: monthly release count limit, resets 2026-12-01`.
+* **bakery 0.0.36** : soumis au **Plugin Portal** (override de version par init
+  script, POM importe `workspace-bom:0.0.125` déjà publié), clé cccp-education
+  (`gradle.publish.key/secret`, `env -u GRADLE_PUBLISH_KEY -u GRADLE_PUBLISH_SECRET`).
+  En attente d'approbation Gradle (marker `0.0.36` → 404).
+* **Overlays `.ci-mirror/`** des 4 sites livrés (office commit `513282d2`) :
+  workflows sur le payload (`actions/checkout` self, `on: push`), sans
+  `OFFICE_CHECKOUT_TOKEN`.
+* Reste dès approbation : force bakery `0.0.36` dans `runner-gradle`, config
+  `pushCiMirror` + amorçage des miroirs, suppression d'`OFFICE_CHECKOUT_TOKEN`.
+
