@@ -59,18 +59,24 @@ Seules la source (site source au lieu du bake) et la cible (repo runner) changen
 `src/functionalTest/kotlin/bakery/CiMirrorFunctionalTest.kt`, `build.gradle.kts`.
 Commit `bbb2b56d`, poussé sur `cccp-education/bakery-gradle`.
 
-== Release (tentative 2026-11-09)
+== Décision pilote : JitPack (2026-11-10)
 
-* **MEMPHIS** : `0.0.129` + `bakery-plugin 0.0.36` (commits `ff87155`, `8816be1`),
-  CI `runAllTests` `42668331780` ✅. Publication Central **bloquée** :
-  `Publishing blocked: monthly release count limit, resets 2026-12-01`.
-* **bakery 0.0.36** : soumis au **Plugin Portal** (override de version par init
-  script, POM importe `workspace-bom:0.0.125` déjà publié), clé cccp-education
-  (`gradle.publish.key/secret`, `env -u GRADLE_PUBLISH_KEY -u GRADLE_PUBLISH_SECRET`).
-  En attente d'approbation Gradle (marker `0.0.36` → 404).
-* **Overlays `.ci-mirror/`** des 4 sites livrés (office commit `513282d2`) :
-  workflows sur le payload (`actions/checkout` self, `on: push`), sans
-  `OFFICE_CHECKOUT_TOKEN`.
-* Reste dès approbation : force bakery `0.0.36` dans `runner-gradle`, config
-  `pushCiMirror` + amorçage des miroirs, suppression d'`OFFICE_CHECKOUT_TOKEN`.
+La cible de publication est **JitPack** (ni Sonatype, ni le Plugin Portal).
+
+* **MEMPHIS 0.0.129** (commits `ff87155`, `8816be1`, CI `42668331780` ✅) :
+  conservé comme brouillon ; Central bloqué (quota, reset 2026-12-01). Non requis
+  pour la voie JitPack.
+* **bakery 0.0.36** : tag `v0.0.36` → JitPack
+  `com.github.cccp-education.bakery-gradle:bakery-plugin:0.0.36` (POM importe
+  `workspace-bom:0.0.125`). Version dérivée du tag via `-Pversion` (CNV-16).
+* **Correctif exec bit** : `CiMirrorPayload` copie avec `COPY_ATTRIBUTES` (unit
+  test), mais `copyBakedFilesToRepo` (GitService) recopie en `copyRecursively` et
+  perd le bit → `./gradlew: Permission denied`. Fix propre à porter dans bakery
+  `0.0.38` ; workaround dans les overlays de test/validation (`chmod +x gradlew`).
+* **bakery 0.0.37** : tag `v0.0.37` (COPY_ATTRIBUTES) → JitPack ; `runner-gradle`
+  résout `education.cccp.bakery` via `useModule` → JitPack `0.0.37`.
+* **Overlays `.ci-mirror/`** (office `513282d2` + `9a8a3abb`) + amorçage réel des
+  4 miroirs par `pushCiMirror`. Payload validé : cheroliv `unit` vert (le
+  `cucumberTest` échoue sur la dette connue `ur/0084`), talaria `check` vert
+  (unit + functional + cucumber + node). `OFFICE_CHECKOUT_TOKEN` supprimé.
 
