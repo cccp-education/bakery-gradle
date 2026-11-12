@@ -10,25 +10,35 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import plantuml.boundary.PlantumlSyntaxValidatorAdapter
 import plantuml.boundary.PlantumlTranslationPortAdapter
+import plantuml.service.DiagramOutputProbe
+import plantuml.service.DiagramOutputVerdict
+import plantuml.service.PlantumlService
 import java.io.File
 
 /**
- * GBL-007 / PLT-DIAGRAM-OWNERSHIP US-6a — the **end-to-end transmission chain**
- * (contract level, no bake).
+ * GBL-007 / PLT-DIAGRAM-OWNERSHIP US-6 — the **end-to-end transmission chain**
+ * bakery → document → N0 port (plantuml) → N0 validator → render.
  *
- * Proves on a real AsciiDoc article that the chain
- * bakery → document (`ContentTranslationService`) → N0 `PlantUmlTranslationPort`
- * (plantuml) → N0 validator:
- * 1. extracts the `[plantuml]` block;
- * 2. translates its labels (the port modifies the block);
- * 3. keeps the translated block **re-parsable** (round-trip validation).
+ * - **US-6a (contract)**: the translated `[plantuml]` block keeps translated
+ *   labels and is re-parsable (`SyntaxValidationResult.Valid`).
+ * - **US-6b (render)**: the translated block produces a **real image** (shared
+ *   `DiagramOutputProbe` verdict `Rendered`), never PlantUML's textual fallback —
+ *   the "white diagram" vector (CHE-DIAGRAM D1/D2).
  *
- * The LLM is replaced by a deterministic N0 [TranslationService] fake: the test
- * is network-free and CI-friendly (no metered call, no PlantUML render).
+ * The LLM is replaced by a deterministic N0 [TranslationService] fake: the test is
+ * network-free. The render uses the PlantUML library already on the classpath
+ * (sequence diagram: no external toolchain).
  */
 class PlantUmlTranslationChainTest {
     @TempDir
     lateinit var tempDir: File
+
+    private val labels =
+        mapOf(
+            "Utilisateur" to "User",
+            "Système" to "System",
+            "Commander" to "Order",
+        )
 
     private class FakeTranslator(
         private val labels: Map<String, String>,
@@ -54,25 +64,15 @@ class PlantUmlTranslationChainTest {
         ----
         """.trimIndent() + "\n"
 
-    @Test
-    fun `the translated plantuml block keeps its labels translated and its syntax valid`() {
+    private fun translate(): String {
         val source = tempDir.resolve("source.adoc").apply { writeText(article) }
         val target = tempDir.resolve("target.adoc")
-
         val port =
             PlantumlTranslationPortAdapter(
-                translator =
-                    FakeTranslator(
-                        mapOf(
-                            "Utilisateur" to "User",
-                            "Système" to "System",
-                            "Commander" to "Order",
-                        ),
-                    ),
+                translator = FakeTranslator(labels),
                 validator = PlantumlSyntaxValidatorAdapter(),
             )
-        val service = ContentTranslationService(FakeTranslator(emptyMap()), plantUmlPort = port)
-
+        val service = ContentTranslationService(FakeTranslator(labels), plantUmlPort = port)
         service.translateSingleFileWithBlockDelta(
             sourceFile = source,
             targetFile = target,
@@ -80,21 +80,39 @@ class PlantUmlTranslationChainTest {
             sourceLanguage = "fr",
             targetLanguage = "en",
         )
+        return target.readText()
+    }
 
-        val translated = target.readText()
+    private fun rawBlock(translated: String): String =
+        Regex("""\[plantuml]\s*----\s*(.*?)\s*----""", RegexOption.DOT_MATCHES_ALL)
+            .find(translated)
+            ?.groupValues
+            ?.get(1)
+            ?: error("no plantuml block in the translated output:\n$translated")
+
+    @Test
+    fun `the translated plantuml block keeps its labels translated and its syntax valid`() {
+        val translated = translate()
+
         assertThat(translated).contains("@startuml").contains("@enduml")
         assertThat(translated).contains("User")
         assertThat(translated).contains("System")
         assertThat(translated).contains("Order")
         assertThat(translated).doesNotContain("Utilisateur")
 
-        val rawBlock =
-            Regex("""\[plantuml]\s*----\s*(.*?)\s*----""", RegexOption.DOT_MATCHES_ALL)
-                .find(translated)
-                ?.groupValues
-                ?.get(1)
-        assertThat(rawBlock).isNotNull()
-        assertThat(PlantumlSyntaxValidatorAdapter().validate(rawBlock!!))
+        assertThat(PlantumlSyntaxValidatorAdapter().validate(rawBlock(translated)))
             .isInstanceOf(SyntaxValidationResult.Valid::class.java)
+    }
+
+    @Test
+    fun `the translated block renders as a real image, never the textual fallback`() {
+        val raw = rawBlock(translate())
+
+        val bytes = PlantumlService().renderPng(raw)
+
+        assertThat(bytes).isNotNull()
+        val verdict = DiagramOutputProbe.probe(bytes!!, raw, PlantumlSyntaxValidatorAdapter())
+        assertThat(verdict).isInstanceOf(DiagramOutputVerdict.Rendered::class.java)
+        assertThat((verdict as DiagramOutputVerdict.Rendered).byteLength).isGreaterThan(0L)
     }
 }
