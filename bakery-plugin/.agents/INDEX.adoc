@@ -59,7 +59,7 @@ _Toute modification du code source du plugin DOIT etre suivie de `./gradlew -q p
 * Commit/push/merge autorisés (décision pilote 2026-09-17). Ne JAMAIS commiter de secret.
 
 * Autorise : `git status`, `git diff`, `git log`, `git show` (lecture seule)
-* Interdit : `git add`, `git commit`, `git push`, `git merge`, `git rebase` (sauf ordre explicite)
+* Autorisé (décision pilote 2026-11-11) : `git add`, `git commit`, `git push` ; `merge/rebase` sur ordre explicite
 
 _Procedure obligatoire avant tout commit_ :
 . Montrer les modifications (`git diff --stat`)
