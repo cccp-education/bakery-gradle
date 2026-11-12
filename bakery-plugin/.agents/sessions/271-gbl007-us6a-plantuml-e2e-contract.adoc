@@ -52,3 +52,19 @@ US-4 (document délègue, vérifié côté document) et US-5 (toolchain, S-222) 
 ✅ : le reste réel est **US-6a (ce test) → US-6b → US-7**. GBL-010 est plus avancé
 que son tableau (G-1/G-1b/G-2/G-2b/G-3/G-4 ✅ ; G-5 partiel). CAP-VIRAL est
 ✅ TERMINÉ (S-142) malgré une ligne racine périmée.
+
+== US-6b — niveau rendu (même session)
+
+Test ajouté : le bloc **traduit** est rendu via `PlantumlService.renderPng(...)` et
+l'artefact est vérifié par la **sonde partagée** `DiagramOutputProbe` :
+
+* verdict attendu `DiagramOutputVerdict.Rendered` (vraie image PNG, magic bytes) ;
+* jamais `NotAnImage` (le fallback textuel de PlantUML = vecteur « diagramme blanc ») ;
+* `byteLength > 0`.
+
+Aucune toolchain externe : diagramme de séquence (layout interne PlantUML), zéro
+`dot`, zéro bake asciidoctor-diagram. **CI verte** : `Test` `43148851600`
+(commit `69ae1ec3`).
+
+*Reste* : US-7 (re-bake cheroliv.com + `DiagramIntegrity`) → clôture
+`PLT-DIAGRAM-OWNERSHIP` 8/8.

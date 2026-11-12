@@ -24,8 +24,8 @@ bakery {
         timeout = java.time.Duration.ofSeconds(300)
     }
     contentI18nMigration {
-        sourceDir = "/home/cheroliv/workspace/office/sites/cheroliv.com/jbake"
-        outputDir = "/home/cheroliv/workspace/office/sites/cheroliv.com/i18n"
+        sourceDir = "${System.getProperty("user.home")}/workspace/office/sites/cheroliv.com/jbake"
+        outputDir = "${System.getProperty("user.home")}/workspace/office/sites/cheroliv.com/i18n"
         sourceLanguage = "fr"
         targetLanguages = listOf("en")
         dryRun = false

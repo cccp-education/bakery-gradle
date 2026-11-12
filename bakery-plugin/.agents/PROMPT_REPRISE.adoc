@@ -1,8 +1,8 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
 :session: 272
 :date: 2026-11-12
-:etat: S-271 ✅ — **GBL-007 US-6a** : test E2E contrat PlantUML (bloc extrait + labels traduits + round-trip valide, N0 réel, zéro LLM).
-:epic_actif: PLT-DIAGRAM-OWNERSHIP 6/8 → US-6a ✅ ; reste US-6b (rendu, gaté) + US-7 (cheroliv).
+:etat: S-271 ✅ — **GBL-007 US-6a + US-6b** : test E2E contrat (labels traduits + round-trip) ET rendu (PNG réel via `DiagramOutputProbe`, jamais le fallback textuel), N0 réel, zéro LLM.
+:epic_actif: PLT-DIAGRAM-OWNERSHIP 7/8 → US-6a + US-6b ✅ ; reste US-7 (re-bake cheroliv + DiagramIntegrity).
 :epic_suivant: US-6b (SVG non blanc) ; US-7 re-bake cheroliv ; release Central 0.0.39 au reset 2026-12-01.
 
 == Décision pilote (2026-11-10) — publication sur JitPack
