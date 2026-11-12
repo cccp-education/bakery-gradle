@@ -48,8 +48,8 @@ class PlantUmlTranslationChainTest {
         [plantuml]
         ----
         @startuml
-        actor Utilisateur
-        Utilisateur -> Système : Commander
+        actor "Utilisateur" as U
+        U -> "Système" : "Commander"
         @enduml
         ----
         """.trimIndent() + "\n"
