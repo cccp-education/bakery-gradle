@@ -149,3 +149,11 @@ les attributs (exec bit) et échoue si la source manque. Releases JitPack 0.0.36
 `100755`, talaria `check` vert, cccp.education deploy live 200, cheroliv `unit`
 vert (cucumber = dette `ur/0084`). Rapport
 `bakery-plugin/.agents/sessions/270-bky-ci-mirror-mutualization.adoc`.
+
+== Session 271 — GBL-007 / PLT-DIAGRAM-OWNERSHIP US-6a — 2026-11-12
+
+Test E2E contrat `PlantUmlTranslationChainTest` (bakery.i18n) : article AsciiDoc
+réel → `ContentTranslationService` → port N0 `PlantumlTranslationPortAdapter` +
+validateur N0 réel → bloc traduit (labels EN) et **re-parsable**. Fake N0
+`TranslationService` (zéro réseau/LLM). Local = Build vert (`compileTestKotlin`).
+Rapport `.agents/sessions/271-gbl007-us6a-plantuml-e2e-contract.adoc`.

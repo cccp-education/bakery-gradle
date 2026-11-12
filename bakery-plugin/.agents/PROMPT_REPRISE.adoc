@@ -1,9 +1,9 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 271
-:date: 2026-11-10
-:etat: S-270 ✅ — **BKY-CI-MIRROR** : `pushCiMirror` mutualisé sur `GitService.pushPages`, `CiMirrorPayload`, overlays `.ci-mirror`, releases JitPack 0.0.36/0.0.37/**0.0.38** ; 4 miroirs amorcés, payload validé.
-:epic_actif: BKY-CI-MIRROR ✅ ; BKY-OUT-3 / BKY-PLT-3 ✅ (S-268)
-:epic_suivant: dette contenu `ur/0084` (site cheroliv, **metered — accord requis**) ; BKY-PLT-4 (corpus D2) ; release Central 0.0.39 au reset 2026-12-01.
+:session: 272
+:date: 2026-11-12
+:etat: S-271 ✅ — **GBL-007 US-6a** : test E2E contrat PlantUML (bloc extrait + labels traduits + round-trip valide, N0 réel, zéro LLM).
+:epic_actif: PLT-DIAGRAM-OWNERSHIP 6/8 → US-6a ✅ ; reste US-6b (rendu, gaté) + US-7 (cheroliv).
+:epic_suivant: US-6b (SVG non blanc) ; US-7 re-bake cheroliv ; release Central 0.0.39 au reset 2026-12-01.
 
 == Décision pilote (2026-11-10) — publication sur JitPack
 

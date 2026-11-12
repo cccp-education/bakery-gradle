@@ -1,0 +1,54 @@
+= Rapport de session 271 — GBL-007 / PLT-DIAGRAM-OWNERSHIP US-6a
+:session: 271
+:borough: Bushwick (bakery)
+:date: 2026-11-12
+:statut: ✅ TERMINÉ (test-only ; CI déléguée)
+
+== Mission
+
+US-6a de `PLT-DIAGRAM-OWNERSHIP` (GBL-007), cadrée S-241 : prouver la **chaîne
+de transmission E2E** au niveau **contrat** (sans bake, sans LLM) —
+bloc `[plantuml]` extrait, labels traduits, **round-trip valide**.
+
+== Contexte
+
+Le cadrage S-241 constatait : MEMPHIS N0 ✅, plantuml ✅ (port + validateur),
+document ✅ (US-4 délègue), bakery 🟡 partiel (les FT dry-run vérifiaient
+« pas de crash » mais pas « labels traduits + syntaxe valide »). Aucun nouveau
+code de domaine n'est nécessaire : la preuve manquait.
+
+== Livré (test-only)
+
+`PlantUmlTranslationChainTest` (`bakery.i18n`) — test unitaire d'intégration
+inter-borough, hermétique :
+
+* fake N0 `TranslationService` déterministe (substitution de labels, zéro réseau) ;
+* port réel `PlantumlTranslationPortAdapter` + validateur réel
+  `PlantumlSyntaxValidatorAdapter` (N0) ;
+* `ContentTranslationService.translateSingleFileWithBlockDelta(...)` sur un
+  article AsciiDoc **réel** contenant un bloc `[plantuml]`.
+
+Assertions :
+1. le bloc traduit contient les labels anglais (`User`, `System`, `Order`) ;
+2. plus aucun label source (`Utilisateur`) ;
+3. `@startuml`/`@enduml` préservés ;
+4. le bloc extrait est **re-parsable** : `SyntaxValidationResult.Valid`.
+
+== Gates
+
+* Local = Build : `compileTestKotlin` **VERT** (zéro test local).
+* Tests délégués à la CI bakery (gate PR `Fast Tests`).
+
+== Suite
+
+* US-6b (S-243) : niveau **rendu** — SVG/PNG non blanc au bake (gaté toolchain).
+* US-7 (S-244) : re-bake cheroliv.com + garde `DiagramIntegrity`.
+* Clore `PLT-DIAGRAM-OWNERSHIP` 8/8 après US-6b/US-7.
+
+== Note de synchronisation backlog racine
+
+Le tableau racine annonçait GBL-007 « US-4 partiel ; US-5/6/7 restants » alors que
+US-4 (document délègue, vérifié côté document) et US-5 (toolchain, S-222) sont
+✅ : le reste réel est **US-6a (ce test) → US-6b → US-7**. GBL-010 est plus avancé
+que son tableau (G-1/G-1b/G-2/G-2b/G-3/G-4 ✅ ; G-5 partiel). CAP-VIRAL est
+✅ TERMINÉ (S-142) malgré une ligne racine périmée.
