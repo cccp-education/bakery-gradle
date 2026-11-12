@@ -170,3 +170,11 @@ d'instrumentation, pas un déficit de test.
 Les 15% restants sont structurellement inaccessibles à l'instrumentation
 Kover (closures doLast, code dans functionalTest/, branches mockées).
 Le vrai coverage est >95% si on compte FT + Cucumber + E2E.
+
+== Session 271 (2026-11-12) — GBL-007 US-6a/US-6b
+
+`PlantUmlTranslationChainTest` (2 tests d'intégration inter-borough, hermitiques) :
+(1) contrat — article réel → `ContentTranslationService` → port N0 + validateur N0
+(labels traduits, bloc re-parsable) ; (2) rendu — `PlantumlService.renderPng` +
+`DiagramOutputProbe` → `Rendered` (jamais le fallback textuel). Fake N0
+`TranslationService` (zéro réseau/LLM). CI `Test` `43147892547` / `43148851600`.
