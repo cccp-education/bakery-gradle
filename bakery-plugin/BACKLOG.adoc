@@ -3485,6 +3485,6 @@ double compte)._
 | GBL-013-4
 | Vague 1 — migrer `bakery-gradle` (image + scripts + adapter), preuve P1→P4 en CI
 | —
-| 🟡 À FAIRE
+| ✅ S-226 (**partiel**) — job `unit` dans l'image via `ci/run.sh test`, run `43492246746` **VERT** ; shards/e2e/coverage restent sur l'hôte (navigateur Playwright). Gardes `BakeryCucumberShardCoverageTest` alignés sur le contrat ; `FileSystemManagerTest` rendu **root-safe** (le conteneur tourne en root, une copie vers un dossier read-only n'échoue plus).
 |===
 
