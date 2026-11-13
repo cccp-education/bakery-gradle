@@ -19,9 +19,9 @@ coroutines = "1.10.2"
 node-gradle = "7.1.0"
 kover = "0.9.8"
 codebase = "0.0.18"
-codebase-contracts = "0.0.2"
+codebase-contracts = "0.0.136"
 codebase-plugin = "0.0.18"
-i18n-contracts = "0.0.4"
+i18n-contracts = "0.0.136"
 thymeleaf = "3.0.14.RELEASE"
 rome = "2.1.0"
 
@@ -54,10 +54,10 @@ kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-t
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
 logback-classic = { module = "ch.qos.logback:logback-classic" }
 node-gradle = { module = "com.github.node-gradle:gradle-node-plugin", version.ref = "node-gradle" }
-graphify-plugin = { module = "education.cccp:graphify-plugin", version.ref = "graphify" }
-codebase-contracts = { module = "education.cccp:codebase-contracts", version.ref = "codebase-contracts" }
-codebase-plugin = { module = "education.cccp:codebase-plugin", version.ref = "codebase-plugin" }
-i18n-contracts = { module = "education.cccp:i18n-contracts", version.ref = "i18n-contracts" }
+graphify-plugin = { module = "com.github.cccp-education.graphify-gradle:graphify-plugin", version.ref = "graphify" }
+codebase-contracts = { module = "com.github.cccp-education.workspace-bom:codebase-contracts", version.ref = "codebase-contracts" }
+codebase-plugin = { module = "com.github.cccp-education.codebase-gradle:codebase-plugin", version.ref = "codebase-plugin" }
+i18n-contracts = { module = "com.github.cccp-education.workspace-bom:i18n-contracts", version.ref = "i18n-contracts" }
 langchain4j-ollama = { module = "dev.langchain4j:langchain4j-ollama" }
 thymeleaf = { module = "org.thymeleaf:thymeleaf", version.ref = "thymeleaf" }
 playwright = { module = "com.microsoft.playwright:playwright" }
