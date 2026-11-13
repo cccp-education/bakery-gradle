@@ -1,54 +1,46 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 272
-:date: 2026-11-12
-:etat: S-271 ✅ — **GBL-007 US-6a + US-6b** : test E2E contrat (labels traduits + round-trip) ET rendu (PNG réel via `DiagramOutputProbe`, jamais le fallback textuel), N0 réel, zéro LLM.
-:epic_actif: PLT-DIAGRAM-OWNERSHIP 7/8 → US-6a + US-6b ✅ ; reste US-7 (re-bake cheroliv + DiagramIntegrity).
-:epic_suivant: US-6b (SVG non blanc) ; US-7 re-bake cheroliv ; release Central 0.0.39 au reset 2026-12-01.
+:session: 274
+:date: 2026-11-13
+:etat: S-273 ⚠️ — **CNV-17 : JitPack canal unique, EXCEPTION bakery** (consommation revertée à `fc47a822` ; publication `0.0.38` conservée sur JitPack).
+:epic_actif: PLT-DIAGRAM-OWNERSHIP 7/8 (US-7 re-bake cheroliv + DiagramIntegrity).
+:epic_suivant: **US-3c** (plantuml `0.0.17`, faux traducteurs, réactivation JitPack) ; dette `ur/0084` ; BKY-PLT-4 ; release Central 0.0.39 au reset 2026-12-01.
 
-== Décision pilote (2026-11-10) — publication sur JitPack
+== Décision pilote — JitPack canal unique (2026-11-13)
 
-* Cible de publication : **JitPack** (ni Sonatype, ni Plugin Portal).
-  `jitpack.yml` passe `-Pversion="${VERSION#v}"` ; le build refuse un build
-  `JITPACK=true` sans la propriété (CNV-16). Normal local/CI : fallback catalog.
-* Central bloqué (quota org) jusqu'au **2026-12-01** ; MEMPHIS `0.0.129`
-  (catalog + `bakery-plugin 0.0.36`) reste un brouillon **non requis** pour JitPack.
-* Portal abandonné (la soumission 0.0.36 est sans effet).
+* JitPack = canal unique des artefacts publics ; un artefact = un canal = un nom
+  = une version. `foundry/private/**` et `office/**` exclus. N0
+  `workspace-bom 0.0.136`, conventions `0.0.17`.
+* Cadrage : `conventions-gradle/conventions-plugin/.agents/CADRAGE_EPIC_CNV_17_JITPACK_PRIMARY.adoc`.
 
-== Décision pilote (2026-11-05) — C6 prose / modèle (inchangée)
+== Session 273 (TERMINÉE) — CNV-17, exception bakery
 
-* `gpt-oss:120b-cloud` **REFUSÉ**. Modèle C6 : `nemotron-3-super:cloud` sur
-  `localhost:11434`. Alternatives sur accord explicite : `gemma4:31b-cloud`,
-  `deepseek-v4.1-flash:cloud`.
+* La migration a été appliquée (`cf5bc6a3`, `889c3fac`, `f3377da0`) puis
+  **intégralement revertée** (`63a738c5`, `78699998`, `31ad140a`) : le build est
+  revenu à l'état **`fc47a822`** — catalogue `workspace-catalog:v0.0.133`
+  (JitPack, préfixe `v`) + plateforme `education.cccp:workspace-bom:0.0.115`
+  (Central) + shim conventions `0.0.16`.
+* **Motif** : les tests bakery encodent l'ancien contrat de traduction plantuml,
+  alors que l'artefact JitPack `plantuml-plugin 0.0.16` porte la garde de langue
+  `PLT-OUT-3`. La consommation JitPack échoue sur les faux traducteurs.
+* **Conservé** : la **publication** `bakery-plugin 0.0.38` sur JitPack (déjà
+  publiée, immuable).
+* CI **verte** : `Test` `43474229144` + `Publish website` `43474229152`
+  (commit `31ad140a`). Le run rouge `43472822940` (`f3377da0`) documente le
+  constat déclencheur.
+* Rapport `.agents/sessions/273-cnv-17-jitpack-channel.adoc`.
 
-== S-270 — BKY-CI-MIRROR (mutualisation du push runner)
+== Mission Session 274 — US-3c
 
-* `SiteConfiguration.pushCiMirror` + `DeployTaskRegistrar.registerCiMirrorTask`
-  réutilisent **la même primitive** que `deploySite` : `registerGitPushTask` →
-  `GitService.pushPages` (copie dans `build/`, `git init/add/commit`, force-push).
-* `bakery.CiMirrorPayload` (domaine pur) : `office/sites/<site>` → payload
-  `sites/<site>/` + overlay `.ci-mirror/` à la racine ; exclut `.agents/`,
-  `.github/`, `build/`, `.gradle/`, `.kotlin/`, `.idea/`, `site.yml*`, etc.
-* `copyBakedFilesToRepo` **préserve les attributs** (exec bit) et échoue si la
-  source manque (0.0.38).
-* Releases JitPack : **0.0.36** (feature) → 0.0.37 (`COPY_ATTRIBUTES` payload) →
-  **0.0.38** (`copyBakedFilesToRepo`). `runner-gradle` shim `useModule` → 0.0.38.
-* Overlays office des 4 sites + amorçage réel ; `OFFICE_CHECKOUT_TOKEN` supprimé.
-* Preuves : CI bakery verte (`Test`), payload `gradlew` `100755`, talaria `check`
-  vert, cccp.education deploy live 200, cheroliv `unit` vert (cucumber = dette
-  `ur/0084`, antérieure).
-* Rapport : `.agents/sessions/270-bky-ci-mirror-mutualization.adoc`.
-
-== Reste
-
-* **Dette contenu `ur/0084`** (site cheroliv) : re-traduction FR→UR **metered**,
-  accord pilote + modèle requis ; seul rouge du test site.
-* **BKY-PLT-4** : corpus D2 (`@startuml` bruts) — metered.
-* **Release Central 0.0.39** au reset du quota ; re-pin runner.
+. Re-releaser `plantuml-plugin 0.0.17` depuis son HEAD (JitPack, tag neuf).
+. Adapter les faux traducteurs des tests bakery pour produire une langue cible
+   **sans résidu français** (contrat `PLT-OUT-3`).
+. Réactiver la consommation JitPack (catalogue `0.0.136` + plateforme JitPack).
+. Puis dette `ur/0084` (site cheroliv, metered) et BKY-PLT-4.
 
 == Rappels
 
-* **Local = Build, Tests = CI** : compiler seulement ; shards `onlyIf { CI }`.
-* **Zéro Python** ; English only code/tests/features (gouvernance `.adoc` en FR).
-* Commit/push sur accord pilote ; indexer **explicitement** ses fichiers.
-* Ne pas lire les fichiers gitignorés (`site.yml`, `local.properties`).
-* `ktlintTestSourceSetCheck` rouge sur `bakery/ci/*` **pré-existant** (S-258).
+* Local = Build, Tests = CI ; zéro Python ; English only code/tests/features.
+* Commit/push sur accord pilote ; indexer explicitement (jamais `git add -A`).
+* Ne pas lire les fichiers gitignorés (`site.yml`).
+* `publishToMavenLocal` interdit sur une version déjà Central / en release
+  concurrente. Ne jamais réutiliser un tag JitPack publié.

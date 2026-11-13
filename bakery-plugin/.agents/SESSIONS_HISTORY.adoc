@@ -157,3 +157,16 @@ réel → `ContentTranslationService` → port N0 `PlantumlTranslationPortAdapte
 validateur N0 réel → bloc traduit (labels EN) et **re-parsable**. Fake N0
 `TranslationService` (zéro réseau/LLM). Local = Build vert (`compileTestKotlin`).
 Rapport `.agents/sessions/271-gbl007-us6a-plantuml-e2e-contract.adoc`.
+
+== Session 273 — CNV-17 : JitPack canal unique, exception bakery — 2026-11-13
+
+La consommation JitPack (`catalogue 0.0.136` + plateforme JitPack) a été
+appliquée puis **intégralement revertée** (`63a738c5`, `78699998`, `31ad140a`) :
+l'état du build revient à **`fc47a822`** (catalogue JitPack `v0.0.133` +
+plateforme BOM Central `0.0.115`). Motif : les tests encodent l'ancien contrat
+plantuml, alors que l'artefact JitPack `plantuml-plugin 0.0.16` porte la garde
+de langue `PLT-OUT-3`. La **publication** `bakery-plugin 0.0.38` reste sur
+JitPack. CI **verte** `Test` `43474229144` + `Publish website` `43474229152`
+(commit `31ad140a`). Suite US-3c : re-releaser plantuml `0.0.17`, adapter les
+faux traducteurs, puis réactiver la consommation JitPack. Rapport
+`.agents/sessions/273-cnv-17-jitpack-channel.adoc`.

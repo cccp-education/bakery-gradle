@@ -5,6 +5,24 @@
 :icons: font
 :sectnums:
 
+== ⚠️ Session 273 — CNV-17 (JitPack canal unique) — EXCEPTION bakery
+
+* Décision pilote : JitPack = canal **unique** des artefacts publics ; un
+  artefact = un canal = un nom = une version (N0 `workspace-bom 0.0.136`,
+  conventions `0.0.17`).
+* La consommation JitPack a été appliquée (`cf5bc6a3`, `889c3fac`, `f3377da0`)
+  puis **intégralement revertée** (`63a738c5`, `78699998`, `31ad140a`) : build
+  revenu à **`fc47a822`** — catalogue `workspace-catalog:v0.0.133` + plateforme
+  `education.cccp:workspace-bom:0.0.115` (Central) + shim `0.0.16`.
+* Motif : les tests encodent l'ancien contrat plantuml ; l'artefact JitPack
+  `plantuml-plugin 0.0.16` porte la garde de langue `PLT-OUT-3`.
+* **Publication** `bakery-plugin 0.0.38` : reste sur JitPack (immuable).
+* CI verte : `Test` `43474229144` + `Publish website` `43474229152`
+  (commit `31ad140a`).
+* Suite **US-3c** : re-releaser plantuml `0.0.17`, adapter les faux traducteurs
+  des tests, puis réactiver la consommation JitPack.
+* Rapport `.agents/sessions/273-cnv-17-jitpack-channel.adoc`.
+
 == Décision pilote (2026-11-05) — C6 prose / modèle
 
 * `gpt-oss:120b-cloud` **refusé** pour le C6 prose ; le modèle reste
@@ -3453,3 +3471,20 @@ neutralisée RealSite test, grep secrets = 0). Gate finale :
 *Gate de clôture EPIC* : ✅ `./gradlew test` (bakery-plugin/) 1671/0 FAIL —
 les gates cross-borough MEMPHIS n'ont plus besoin de la mention "baseline
 exacte 3 FAIL". Baby-step BDD strict : diagnostic RED → fix → GREEN.
+
+== EPIC GBL-013 — Portabilité de la CI (transverse) — S-226
+
+_Cadrage racine : `.agents/CADRAGE_EPIC_GBL_013_PORTABILITE_CI.adoc` (jardin secret)._
+_Vague 1 : migrer ce dépôt sur l'image `cccp-ci-base` + `ci/run.sh <job>` ; adapter
+GitHub Actions réduit à `uses:`/`ci/run.sh`. Points portés par l'EPIC racine (pas de
+double compte)._
+
+|===
+| US | Contenu | Pts | Statut
+
+| GBL-013-4
+| Vague 1 — migrer `bakery-gradle` (image + scripts + adapter), preuve P1→P4 en CI
+| —
+| 🟡 À FAIRE
+|===
+

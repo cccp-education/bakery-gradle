@@ -1,11 +1,11 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
 
-:session: 273
-:date: 2026-11-10
-:etat: S-270 ✅ — BKY-CI-MIRROR (pushCiMirror mutualisé, JitPack 0.0.36→0.0.38, 4 miroirs amorcés). Détail dans `.agents/PROMPT_REPRISE.adoc`.
-:epic_suivant: dette `ur/0084` (site cheroliv, metered) ; BKY-PLT-4 ; release Central 0.0.39 au reset 2026-12-01.
+:session: 274
+:date: 2026-11-13
+:etat: S-273 ⚠️ — CNV-17 : JitPack canal unique, **exception bakery** (consommation revertée à `fc47a822` ; publication `0.0.38` conservée sur JitPack). Détail dans `.agents/PROMPT_REPRISE.adoc`.
+:epic_suivant: **US-3c** (plantuml `0.0.17`, faux traducteurs, réactivation JitPack) ; dette `ur/0084` (site cheroliv, metered) ; BKY-PLT-4 ; release Central 0.0.39 au reset 2026-12-01.
 
-La source canonique complète est `.agents/PROMPT_REPRISE.adoc` (même session 270).
+La source canonique complète est `.agents/PROMPT_REPRISE.adoc` (même session 273).
 
 == Rappels
 
@@ -13,3 +13,4 @@ La source canonique complète est `.agents/PROMPT_REPRISE.adoc` (même session 2
 * Commit/push sur accord pilote ; indexer explicitement (jamais `git add -A`).
 * Ne pas lire les fichiers gitignorés (`site.yml`).
 * `publishToMavenLocal` interdit sur une version déjà Central / en release concurrente.
+* JitPack publié = immuable : ne jamais réutiliser un tag.

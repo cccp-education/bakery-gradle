@@ -1,0 +1,58 @@
+= Session 273 — CNV-17 : JitPack canal unique (exception bakery)
+:toc:
+
+:_date_: 2026-11-13
+:_borough_: Bushwick (bakery-gradle, N2)
+:_session_precedente_: 272 (catalogue JitPack `v0.0.133` + split plateforme BOM)
+:_statut_: ⚠️ **exception documentée** — publication JitPack conservée, consommation REVERTÉE
+
+== Contexte
+
+Décision pilote « mise en sécurité de la chaîne de publication en optant pour la
+**totalité** vers JitPack » : JitPack = canal unique des artefacts publics.
+N0 amont `workspace-bom 0.0.136`, conventions `0.0.17` ; cadrage
+`conventions-gradle/conventions-plugin/.agents/CADRAGE_EPIC_CNV_17_JITPACK_PRIMARY.adoc`.
+
+== Changements
+
+La migration CNV-17 a été appliquée (`cf5bc6a3`, `889c3fac`, `f3377da0`) puis
+**intégralement revertée** (`63a738c5`, `78699998`, `31ad140a`). L'état du build
+est de nouveau celui de **`fc47a822`** :
+
+* catalogue `ws` ← `workspace-catalog:v0.0.133` (JitPack, préfixe `v`) ;
+* plateforme BOM ← `education.cccp:workspace-bom:0.0.115` (Central) ;
+* shim conventions `0.0.16`.
+
+**Motif mesuré** : les tests bakery encodent l'ancien contrat de traduction
+plantuml, alors que l'artefact JitPack `plantuml-plugin 0.0.16` embarque la
+nouvelle garde de langue `PLT-OUT-3` (refus d'un texte resté en langue source).
+La consommation JitPack échoue donc sur les faux traducteurs des tests.
+
+**Conservé** : la **publication** `bakery-plugin 0.0.38` sur JitPack (déjà
+publiée, immuable) — le canal de publication n'est pas annulé.
+
+== Preuves CI
+
+|===
+| Run | Commit | Workflow | Verdict
+
+| `43474229144` | `31ad140a` | `Test` | ✅ **success**
+| `43474229152` | `31ad140a` | `Publish website` | ✅ **success**
+|===
+
+Le run `43472822940` (commit `f3377da0`) est rouge : preuve du constat qui a
+déclenché le revert.
+
+== Fichiers touchés
+
+Aucun fichier de code ou de build modifié **net** (commits CNV-17 annulés).
+Gouvernance de clôture uniquement : rapport 273, `SESSIONS_HISTORY.adoc`,
+`INDEX.adoc`, `PROMPT_REPRISE.adoc` (+ pointeur racine), `BACKLOG.adoc`.
+
+== Suite — US-3c
+
+. Re-releaser `plantuml-plugin 0.0.17` depuis son HEAD (JitPack).
+. Adapter les faux traducteurs des tests bakery pour produire une langue cible
+   **sans résidu français** (contrat `PLT-OUT-3`).
+. Réactiver la consommation JitPack (catalogue `0.0.136` + plateforme JitPack).
+. Ne réutiliser ni tag ni version publiée.
