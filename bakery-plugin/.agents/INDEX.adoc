@@ -484,3 +484,6 @@ _Note_ : Cet index est maintenu automatiquement par l'agent en fin de session.
 == Session 269 — JitPack mirror (CNV-16)
 
 Publication JitPack de bakery-plugin 0.0.33. JitPack : 0.0.33 — POM HTTP 200.
+
+== Session 275 — GBL-013 (clôture) — 2026-11-14
+Job unit dans l'image, gardes alignés, test root-safe ; run 43492246746.

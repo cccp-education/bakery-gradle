@@ -44,3 +44,8 @@
 * Ne pas lire les fichiers gitignorés (`site.yml`).
 * `publishToMavenLocal` interdit sur une version déjà Central / en release
   concurrente. Ne jamais réutiliser un tag JitPack publié.
+
+== GBL-013 (clôture) — 2026-11-14
+Portabilité CI livrée : image \`cccp-ci-base\`, \`ci/run.sh\`, adapter fin.
+Rapport \`.agents/sessions/275-gbl-013-wave1.adoc\`. Reste : US-5→US-9 (cadrage racine
+\`.agents/CADRAGE_EPIC_GBL_013_PORTABILITE_CI.adoc\`).

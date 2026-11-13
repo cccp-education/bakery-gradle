@@ -1,0 +1,24 @@
+= Session 275 — GBL-013 vague 1 : job `unit` dans l'image
+:date: 2026-11-14
+:borough: Bushwick (bakery-gradle)
+
+== Livré
+
+* `ci/run.sh` (`test` = `./gradlew test ktlintCheck`).
+* `.github/workflows/test.yml` : job `unit` migré (`container:` épinglé sur
+  `cccpeducation/cccp-ci-base@sha256:4722c1bc…`, plus de `setup-java`/
+  `setup-node`, `ci/run.sh test`). Run `43492246746` **VERT**.
+
+== Gardes alignés
+
+* `BakeryCucumberShardCoverageTest` validait `./gradlew test`/`ktlintCheck`
+  **dans** `test.yml` : il valide désormais la délégation `ci/run.sh test` et le
+  contenu de `ci/run.sh`.
+* `FileSystemManagerTest` (copie vers un dossier read-only) dépendait des
+  permissions Unix : en **root** (conteneur), la copie réussit. Rendu root-safe
+  (cible = fichier → échec déterministe pour tout utilisateur).
+
+== Reste
+
+Shards BDD/functional, `e2e` et `coverage` restent sur l'hôte (navigateur
+Playwright).

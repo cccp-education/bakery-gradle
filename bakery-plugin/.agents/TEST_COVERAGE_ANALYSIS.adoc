@@ -185,3 +185,8 @@ Le vrai coverage est >95% si on compte FT + Cucumber + E2E.
   (`workspaceCatalogVersion` JitPack / `workspaceBomVersion` Central), version
   plateforme injectée.
 - Aucun test de production modifié ; couverture inchangée (CI `43363062530`).
+
+== GBL-013 (S-275) — delta tests
+
+* `FileSystemManagerTest` — cas `returns failure when copy throws IOException` rendu root-safe (cible = fichier, échec déterministe).
+* `BakeryCucumberShardCoverageTest` — 2 gardes alignés sur `ci/run.sh test` (délégation + `./gradlew test` dans le script).

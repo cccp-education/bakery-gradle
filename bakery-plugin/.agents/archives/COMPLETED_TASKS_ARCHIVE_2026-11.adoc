@@ -28,3 +28,5 @@
 * Preuves : CI bakery verte, payload `gradlew` `100755`, talaria `check` vert,
   cccp.education deploy live 200, cheroliv `unit` vert (dette `ur/0084`).
 * Rapport `.agents/sessions/270-bky-ci-mirror-mutualization.adoc`.
+
+* GBL-013 — portabilité CI (session close) : voir `.agents/sessions/` (rapport dédié).

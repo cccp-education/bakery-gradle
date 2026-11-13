@@ -170,3 +170,7 @@ JitPack. CI **verte** `Test` `43474229144` + `Publish website` `43474229152`
 (commit `31ad140a`). Suite US-3c : re-releaser plantuml `0.0.17`, adapter les
 faux traducteurs, puis réactiver la consommation JitPack. Rapport
 `.agents/sessions/273-cnv-17-jitpack-channel.adoc`.
+
+== Session 275 — GBL-013 vague 1 : job unit dans l'image — 2026-11-14
+
+ci/run.sh (test = test ktlintCheck) + job unit migré ; gardes BakeryCucumberShardCoverageTest alignés ; FileSystemManagerTest root-safe. Run 43492246746 VERT. Shards/e2e/coverage restent hôte. Rapport `.agents/sessions/275-gbl-013-wave1.adoc`.
