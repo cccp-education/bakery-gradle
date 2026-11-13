@@ -178,3 +178,10 @@ Le vrai coverage est >95% si on compte FT + Cucumber + E2E.
 (labels traduits, bloc re-parsable) ; (2) rendu — `PlantumlService.renderPng` +
 `DiagramOutputProbe` → `Rendered` (jamais le fallback textuel). Fake N0
 `TranslationService` (zéro réseau/LLM). CI `Test` `43147892547` / `43148851600`.
+
+== Session 272 — catalogue JitPack + `bakery 0.0.38`
+
+- Test-only : `BakeryPluginPublicationTest` — garde à deux sources
+  (`workspaceCatalogVersion` JitPack / `workspaceBomVersion` Central), version
+  plateforme injectée.
+- Aucun test de production modifié ; couverture inchangée (CI `43363062530`).

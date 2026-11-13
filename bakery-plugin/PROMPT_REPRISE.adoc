@@ -1,6 +1,6 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
 
-:session: 271
+:session: 273
 :date: 2026-11-10
 :etat: S-270 ✅ — BKY-CI-MIRROR (pushCiMirror mutualisé, JitPack 0.0.36→0.0.38, 4 miroirs amorcés). Détail dans `.agents/PROMPT_REPRISE.adoc`.
 :epic_suivant: dette `ur/0084` (site cheroliv, metered) ; BKY-PLT-4 ; release Central 0.0.39 au reset 2026-12-01.
