@@ -42,20 +42,23 @@ dependencyResolutionManagement {
         mavenLocal()
         mavenCentral()
         google()
+        // CNV-16 — JitPack channel (Central suspended until 2026-12-01).
+        maven("https://jitpack.io")
     }
 }
 
 // ── MEM-CAT-3 — Catalog workspace publié (MEMPHIS) : pin unique par borough (D4) ──
-// S-083 — la version vit dans `gradle.properties` (`workspaceVersion`) : plus de
-// littéral ici ni dans build.gradle.kts, donc plus de dérive entre les deux.
-val workspaceVersion: String =
-    providers.gradleProperty("workspaceVersion").orNull?.takeIf { it.isNotBlank() }
-        ?: error("workspaceVersion is missing from gradle.properties")
+// CNV-16 — la version du catalogue vit dans `gradle.properties`
+// (`workspaceCatalogVersion`, tag JitPack) ; la plateforme BOM dans
+// `workspaceBomVersion` (dernière release Maven Central). Aucun littéral ici.
+val workspaceCatalogVersion: String =
+    providers.gradleProperty("workspaceCatalogVersion").orNull?.takeIf { it.isNotBlank() }
+        ?: error("workspaceCatalogVersion is missing from gradle.properties")
 
 dependencyResolutionManagement {
     versionCatalogs {
         create("ws") {
-            from("education.cccp:workspace-catalog:$workspaceVersion")
+            from("com.github.cccp-education.workspace-bom:workspace-catalog:$workspaceCatalogVersion")
         }
     }
 }

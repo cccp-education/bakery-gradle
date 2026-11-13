@@ -1,0 +1,31 @@
+= Session 272 — catalogue JitPack `v0.0.133` + `bakery 0.0.38` + plateforme BOM découplée
+:toc:
+
+:_date_: 2026-11-13
+:_borough_: Bushwick (bakery-gradle, N2)
+:_session_precedente_: 271 (GBL-007 US-6a)
+:_statut_: ✅ version build = artefact déployé (0.0.38)
+
+== Livré
+
+* `gradle.properties` : la source unique `workspaceVersion` est scindée en deux
+  sources explicites (CNV-16) :
+  - `workspaceCatalogVersion=v0.0.133` (catalogue **JitPack**) ;
+  - `workspaceBomVersion=0.0.115` (plateforme BOM **Central** — le BOM JitPack
+    n'est pas une `platform` valide : POM réécrit en `<dependencies>`, pas de
+    `.module`).
+* `settings.gradle.kts` : `from("com.github.cccp-education.workspace-bom:workspace-catalog:$workspaceCatalogVersion")`
+  + dépôt `https://jitpack.io` ; `build.gradle.kts` : les 4 pins plateforme
+  utilisent `$workspaceBomVersion` (aucun littéral).
+* `gradle/libs.versions.toml` : `bakery = "0.0.33" → "0.0.38"` (version
+  réellement déployée sur JitPack). Version build : **0.0.38**.
+* `BakeryPluginPublicationTest` : la garde vérifie les deux sources
+  (`workspaceCatalogVersion == v<catalog.workspace-bom>`,
+  `workspaceBomVersion == <injecté>`), l'usage `$variable` dans settings/build,
+  et l'absence de littéral ; la version plateforme est injectée par Gradle
+  (`bakery.publishedCatalog.platformBomVersion`).
+
+== Gates
+
+Local = Build : `compileKotlin`, `compileTestKotlin`, `ktlintCheck` VERTS ;
+`properties` → `version: 0.0.38`. Tests = CI du commit. Zéro publication.

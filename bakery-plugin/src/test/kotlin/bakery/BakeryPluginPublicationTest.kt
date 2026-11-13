@@ -65,13 +65,16 @@ class BakeryPluginPublicationTest {
         val settingsScript = pluginDir.resolve("settings.gradle.kts").readText(UTF_8)
         val properties = pluginDir.resolve("gradle.properties").readText(UTF_8)
         val wsBomVersion = publishedCatalogVersion(BOM_VERSION_PROPERTY)
+        val platformBomVersion = publishedCatalogVersion(PLATFORM_BOM_VERSION_PROPERTY)
 
-        // S-083 — une seule source : `workspaceVersion` dans gradle.properties. Ni
-        // settings ni build ne portent de littéral (c'etait la classe de bug : la
-        // version dupliquée dérivait silencieusement de la catalog publiée).
-        assertThat(properties).contains("workspaceVersion=$wsBomVersion")
-        assertThat(settingsScript).contains("workspace-catalog:\$workspaceVersion")
-        assertThat(buildScript).contains("workspace-bom:\$workspaceVersion")
+        // CNV-16 — two single sources in gradle.properties: the JitPack catalog
+        // tag (must equal the catalog's workspace-bom version, prefix `v`) and the
+        // Central BOM platform (the JitPack BOM POM is not a valid platform).
+        // Neither settings nor build may carry a literal (the S-083 bug class).
+        assertThat(properties).contains("workspaceCatalogVersion=v$wsBomVersion")
+        assertThat(properties).contains("workspaceBomVersion=$platformBomVersion")
+        assertThat(settingsScript).contains("workspace-catalog:\$workspaceCatalogVersion")
+        assertThat(buildScript).contains("workspace-bom:\$workspaceBomVersion")
 
         val literals =
             Regex("""workspace-(?:bom|catalog):\d""")
@@ -105,5 +108,6 @@ class BakeryPluginPublicationTest {
     private companion object {
         const val BAKERY_VERSION_PROPERTY = "bakery.publishedCatalog.bakeryVersion"
         const val BOM_VERSION_PROPERTY = "bakery.publishedCatalog.bomVersion"
+        const val PLATFORM_BOM_VERSION_PROPERTY = "bakery.publishedCatalog.platformBomVersion"
     }
 }

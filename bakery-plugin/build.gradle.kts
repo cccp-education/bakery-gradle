@@ -6,10 +6,12 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
 import org.gradle.plugin.compatibility.compatibility
 import java.time.Duration
 
-// S-083 — single source of truth for the workspace version (gradle.properties).
-val workspaceVersion: String =
-    providers.gradleProperty("workspaceVersion").orNull?.takeIf { it.isNotBlank() }
-        ?: error("workspaceVersion is missing from gradle.properties")
+// CNV-16 — single source of truth for the BOM platform version
+// (gradle.properties `workspaceBomVersion`) : the catalog comes from JitPack,
+// the platform stays on the last Maven Central release.
+val workspaceBomVersion: String =
+    providers.gradleProperty("workspaceBomVersion").orNull?.takeIf { it.isNotBlank() }
+        ?: error("workspaceBomVersion is missing from gradle.properties")
 
 plugins {
     `java-library`
@@ -51,7 +53,7 @@ dependencies {
     // BOM — workspace version alignment (workspace-bom, MEMPHIS)
     // MEM-CAT-3 (D5) — platform 0.0.100 : contraint document-plugin 0.0.24,
     // plantuml-plugin 0.0.10, codebase-plugin 0.0.18 sans hardcode.
-    implementation(platform("education.cccp:workspace-bom:$workspaceVersion"))
+    implementation(platform("education.cccp:workspace-bom:$workspaceBomVersion"))
 
     // kotlin-stdlib is pulled transitively (and pinned by the BOM). The
     // kotlin-stdlib-jdk8 shim is an empty artifact since Kotlin 1.8 and
@@ -223,6 +225,13 @@ tasks.named<Test>("test") {
         ws.versions.workspace.bom
             .get(),
     )
+    // CNV-16 — the platform value is no longer derivable from the JitPack
+    // catalog (its BOM POM is not a platform); it is injected so the guard can
+    // still detect any drift with the `gradle.properties` single source.
+    systemProperty(
+        "bakery.publishedCatalog.platformBomVersion",
+        workspaceBomVersion,
+    )
 
     // BKY-PLT-3 — inject the resolved Saxon coordinates of the bake and functional
     // classpaths. SaxonToolchainGuardTest fails `check` if the faulty 11.x branch
@@ -277,7 +286,7 @@ val functionalTest: SourceSet by sourceSets.creating {
 
 // 2. Ajouter GradleTestKit à functionalTest (SANS hériter de testImplementation)
 dependencies {
-    add(functionalTest.implementationConfigurationName, platform("education.cccp:workspace-bom:$workspaceVersion"))
+    add(functionalTest.implementationConfigurationName, platform("education.cccp:workspace-bom:$workspaceBomVersion"))
 
     add(functionalTest.implementationConfigurationName, gradleTestKit())
     add(functionalTest.implementationConfigurationName, kotlin("test-junit5"))
@@ -303,7 +312,7 @@ dependencies {
         .forEach { add(functionalTest.implementationConfigurationName, it) }
 
     // XB-FP-7 (S-322) — shared fixtures compiled once for both suites.
-    add(sharedTest.implementationConfigurationName, platform("education.cccp:workspace-bom:$workspaceVersion"))
+    add(sharedTest.implementationConfigurationName, platform("education.cccp:workspace-bom:$workspaceBomVersion"))
     add(sharedTest.implementationConfigurationName, kotlin("stdlib"))
     add(sharedTest.implementationConfigurationName, libs.assertj.core)
     add(functionalTest.implementationConfigurationName, sharedTest.output)
@@ -345,7 +354,7 @@ val e2eTest: SourceSet by sourceSets.creating {
 
 // 2. Dépendances e2eTest : Playwright + JUnit5 + AssertJ + full test runtime
 dependencies {
-    add(e2eTest.implementationConfigurationName, platform("education.cccp:workspace-bom:$workspaceVersion"))
+    add(e2eTest.implementationConfigurationName, platform("education.cccp:workspace-bom:$workspaceBomVersion"))
 
     add(e2eTest.implementationConfigurationName, sourceSets.main.get().output)
     add(e2eTest.implementationConfigurationName, sourceSets.test.get().output)
