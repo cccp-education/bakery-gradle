@@ -183,3 +183,9 @@ release JitPack **0.0.39** (tag `v0.0.39`, POM 200) ; `runner-gradle` adopté
 (run `43515519584`) ; 12 copies `.ci-mirror` supprimées côté office. Bakery CI
 `43514053202` verte. Rapport `.agents/sessions/276-gbl-013-us6-ci-mirror-actions.adoc`.
 
+
+== Session 277 — EAGER : publication JitPack canal unique — 2026-11-14
+
+Alignement EAGER : JitPack canal unique ; Maven Central/Sonatype et
+Gradle Plugin Portal **retirés**. Aucun code, aucun test, aucune
+publication. Rapport `.agents/sessions/277-eager-publication-jitpack-only.adoc`.

@@ -488,3 +488,9 @@ Publication JitPack de bakery-plugin 0.0.33. JitPack : 0.0.33 — POM HTTP 200.
 
 == Session 275 — GBL-013 (clôture) — 2026-11-14
 Job unit dans l'image, gardes alignés, test root-safe ; run 43492246746.
+
+== Session 277 — EAGER : publication JitPack canal unique (2026-11-14)
+
+Alignement EAGER (AGENT/PROMPT_REPRISE) : JitPack canal unique ;
+Central/Portal retirés. Zéro code. Rapport
+`.agents/sessions/277-eager-publication-jitpack-only.adoc`.
