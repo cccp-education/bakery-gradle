@@ -190,3 +190,11 @@ Le vrai coverage est >95% si on compte FT + Cucumber + E2E.
 
 * `FileSystemManagerTest` — cas `returns failure when copy throws IOException` rendu root-safe (cible = fichier, échec déterministe).
 * `BakeryCucumberShardCoverageTest` — 2 gardes alignés sur `ci/run.sh test` (délégation + `./gradlew test` dans le script).
+
+== GBL-013 US-6 (S-276) — delta tests
+
+* `CiMirrorPayloadTest` — **+2 tests** : injection des actions canoniques
+  `office/.github/actions/` dans le payload (`actionsDir`, compteur
+  `overlayFiles`) et tolérance d'un répertoire d'actions absent. Aucun test
+  métier modifié.
+
