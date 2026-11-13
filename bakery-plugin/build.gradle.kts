@@ -53,7 +53,7 @@ dependencies {
     // BOM — workspace version alignment (workspace-bom, MEMPHIS)
     // MEM-CAT-3 (D5) — platform 0.0.100 : contraint document-plugin 0.0.24,
     // plantuml-plugin 0.0.10, codebase-plugin 0.0.18 sans hardcode.
-    implementation(platform("com.github.cccp-education.workspace-bom:workspace-bom:0.0.136"))
+    implementation(platform("education.cccp:workspace-bom:$workspaceBomVersion"))
 
     // kotlin-stdlib is pulled transitively (and pinned by the BOM). The
     // kotlin-stdlib-jdk8 shim is an empty artifact since Kotlin 1.8 and
@@ -67,8 +67,8 @@ dependencies {
     implementation(libs.graphify.plugin)
     implementation(libs.codebase.contracts)
     implementation(libs.codebase.plugin)
-    implementation("com.github.cccp-education:api-key-pool-gradle:0.0.1")
-    implementation("com.github.cccp-education.workspace-bom:i18n-contracts:0.0.136")
+    implementation("education.cccp:api-key-pool:0.0.1")
+    implementation("education.cccp:i18n-contracts:0.0.4")
     // MEM-CAT-3 (D5) — document-plugin sans version : la version vient du platform
     // workspace-bom (constraint document-plugin), plus de hardcode local.
     // PLT-DIAGRAM-OWNERSHIP US-5 (S-221) — CHE-DIAGRAM D1 (white diagrams):
@@ -78,7 +78,7 @@ dependencies {
     // child elements → the browser renders a uniform white box. bakery never runs
     // any EPUB validation (zero `epubcheck` reference in its source), so epubcheck
     // is excluded here: the bake falls back to a correct serializer.
-    implementation("com.github.cccp-education.document-gradle:document-plugin") {
+    implementation("education.cccp:document-plugin") {
         exclude(group = "org.w3c", module = "epubcheck")
     }
 
@@ -86,8 +86,8 @@ dependencies {
     // translation port (`PlantumlTranslationPortAdapter` + `PlantumlSyntaxValidatorAdapter`)
     // and injects it into document. The plantuml borough owns the port
     // implementation; document only delegates (D1/D3).
-    implementation("com.github.cccp-education.plantuml-gradle:plantuml-plugin")
-    implementation("com.github.cccp-education.workspace-bom:plantuml-contracts")
+    implementation("education.cccp:plantuml-plugin")
+    implementation("education.cccp:plantuml-contracts")
 
     // LLM — LangChain4j + Ollama (BKY-IA-0)
     implementation(libs.langchain4j.ollama)
@@ -286,7 +286,7 @@ val functionalTest: SourceSet by sourceSets.creating {
 
 // 2. Ajouter GradleTestKit à functionalTest (SANS hériter de testImplementation)
 dependencies {
-    add(functionalTest.implementationConfigurationName, platform("com.github.cccp-education.workspace-bom:workspace-bom:0.0.136"))
+    add(functionalTest.implementationConfigurationName, platform("education.cccp:workspace-bom:$workspaceBomVersion"))
 
     add(functionalTest.implementationConfigurationName, gradleTestKit())
     add(functionalTest.implementationConfigurationName, kotlin("test-junit5"))
@@ -312,7 +312,7 @@ dependencies {
         .forEach { add(functionalTest.implementationConfigurationName, it) }
 
     // XB-FP-7 (S-322) — shared fixtures compiled once for both suites.
-    add(sharedTest.implementationConfigurationName, platform("com.github.cccp-education.workspace-bom:workspace-bom:0.0.136"))
+    add(sharedTest.implementationConfigurationName, platform("education.cccp:workspace-bom:$workspaceBomVersion"))
     add(sharedTest.implementationConfigurationName, kotlin("stdlib"))
     add(sharedTest.implementationConfigurationName, libs.assertj.core)
     add(functionalTest.implementationConfigurationName, sharedTest.output)
@@ -354,7 +354,7 @@ val e2eTest: SourceSet by sourceSets.creating {
 
 // 2. Dépendances e2eTest : Playwright + JUnit5 + AssertJ + full test runtime
 dependencies {
-    add(e2eTest.implementationConfigurationName, platform("com.github.cccp-education.workspace-bom:workspace-bom:0.0.136"))
+    add(e2eTest.implementationConfigurationName, platform("education.cccp:workspace-bom:$workspaceBomVersion"))
 
     add(e2eTest.implementationConfigurationName, sourceSets.main.get().output)
     add(e2eTest.implementationConfigurationName, sourceSets.test.get().output)

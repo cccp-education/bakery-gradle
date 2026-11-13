@@ -14,7 +14,7 @@ pluginManagement {
 pluginManagement.repositories.maven("https://jitpack.io")
 pluginManagement.resolutionStrategy.eachPlugin {
     if (requested.id.id.startsWith("education.cccp.build.")) {
-        useModule("com.github.cccp-education.conventions-gradle:conventions-plugin:v0.0.17")
+        useModule("com.github.cccp-education.conventions-gradle:conventions-plugin:0.0.16")
     }
 }
 
@@ -64,5 +64,3 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "bakery-plugin"
-
-dependencyResolutionManagement.repositories.maven("https://jitpack.io")
