@@ -136,4 +136,62 @@ class CiMirrorPayloadTest {
         assertThat(result.isLeft()).isTrue()
         assertThat(result.fold(ifLeft = { it }, ifRight = { "" })).contains("Site directory not found")
     }
+
+    @Test
+    fun `injects the office canonical actions into the payload`() {
+        val siteDir = tempDir.resolve("office/sites/demo").apply { mkdirs() }
+        siteDir.resolve("jbake").mkdirs()
+        siteDir.resolve("jbake/index.adoc").writeText("= Home")
+        siteDir.resolve(".ci-mirror").mkdirs()
+        siteDir.resolve(".ci-mirror/README.adoc").writeText("= mirror")
+        val actionsDir = tempDir.resolve("office/.github/actions").apply { mkdirs() }
+        actionsDir.resolve("detect-site-change").mkdirs()
+        actionsDir.resolve("detect-site-change/action.yml").writeText("name: detect")
+        actionsDir.resolve("mark-site-deployed").mkdirs()
+        actionsDir.resolve("mark-site-deployed/action.yml").writeText("name: mark")
+        val payloadDir = tempDir.resolve("build/ci-mirror")
+
+        val result =
+            CiMirrorPayload.assemble(
+                siteDir,
+                payloadDir,
+                siteDir.resolve(".ci-mirror"),
+                actionsDir,
+            )
+
+        val summary =
+            result.fold(
+                ifLeft = { error -> throw AssertionError(error) },
+                ifRight = { it },
+            )
+        assertThat(summary.overlayFiles).isEqualTo(3)
+        assertThat(payloadDir.resolve(".github/actions/detect-site-change/action.yml"))
+            .exists()
+            .hasContent("name: detect")
+        assertThat(payloadDir.resolve(".github/actions/mark-site-deployed/action.yml"))
+            .exists()
+            .hasContent("name: mark")
+        // The overlay itself does not duplicate the actions.
+        assertThat(siteDir.resolve(".ci-mirror/.github/actions")).doesNotExist()
+    }
+
+    @Test
+    fun `tolerates a missing actions directory`() {
+        val siteDir = tempDir.resolve("office/sites/demo").apply { mkdirs() }
+        siteDir.resolve("jbake").mkdirs()
+        siteDir.resolve("jbake/index.adoc").writeText("= Home")
+        siteDir.resolve(".ci-mirror").mkdirs()
+        siteDir.resolve(".ci-mirror/README.adoc").writeText("= mirror")
+
+        val result =
+            CiMirrorPayload.assemble(
+                siteDir,
+                tempDir.resolve("payload"),
+                siteDir.resolve(".ci-mirror"),
+                tempDir.resolve("office/.github/actions"),
+            )
+
+        assertThat(result.isRight()).isTrue()
+        assertThat(tempDir.resolve("payload/.github/actions")).doesNotExist()
+    }
 }

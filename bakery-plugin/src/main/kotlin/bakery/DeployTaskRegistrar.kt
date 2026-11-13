@@ -122,6 +122,14 @@ object DeployTaskRegistrar {
         val payloadDir = buildDir.resolve("ci-mirror")
         val scratchDir = buildDir.resolve(mirror.to.ifBlank { "ci-mirror-push" })
         val overlayDir = configDir.resolve(".ci-mirror")
+        // GBL-013 US-6 — single source of the three composite actions:
+        // office/.github/actions (configDir is office/sites/<site>).
+        val actionsDir =
+            configDir
+                .absoluteFile
+                .parentFile
+                ?.parentFile
+                ?.resolve(".github/actions")
 
         registerGitPushTask(
             taskName = "pushCiMirror",
@@ -134,7 +142,7 @@ object DeployTaskRegistrar {
                             "${configDir.resolve("site.yml").absolutePath}",
                     )
                 }
-                CiMirrorPayload.assemble(configDir, payloadDir, overlayDir).fold(
+                CiMirrorPayload.assemble(configDir, payloadDir, overlayDir, actionsDir).fold(
                     ifLeft = { throw IllegalStateException(it) },
                     ifRight = {
                         logger.lifecycle(

@@ -24,6 +24,11 @@ import java.nio.file.attribute.BasicFileAttributes
  * source) carries the repository-level files: the `.github/workflows/` YAML
  * definitions, the `.github/actions/` composites and `README.adoc`.
  *
+ * GBL-013 US-6 — the three composite actions are a **single source** in the
+ * office hub (`office/.github/actions/`); [assemble] injects them into the
+ * payload when [actionsDir] is provided, so a site overlay never duplicates
+ * them.
+ *
  * Pure filesystem domain: no Gradle, no JGit, no network.
  */
 object CiMirrorPayload {
@@ -71,8 +76,10 @@ object CiMirrorPayload {
     }
 
     /**
-     * Assembles [payloadDir] from [siteDir] (copied under `sites/<siteDir.name>/`)
-     * and [overlayDir] (copied at the payload root).
+     * Assembles [payloadDir] from [siteDir] (copied under `sites/<siteDir.name>/`),
+     * [overlayDir] (copied at the payload root) and, when provided,
+     * [actionsDir] (the office hub's canonical `.github/actions`, injected under
+     * `.github/actions/` so the overlays do not duplicate the composites).
      *
      * @return the copy summary, or a human-readable error.
      */
@@ -80,6 +87,7 @@ object CiMirrorPayload {
         siteDir: File,
         payloadDir: File,
         overlayDir: File,
+        actionsDir: File? = null,
     ): Either<String, Summary> {
         if (!siteDir.isDirectory) {
             return "Site directory not found: ${siteDir.absolutePath}".left()
@@ -95,12 +103,22 @@ object CiMirrorPayload {
 
             val siteFiles = copyTree(siteDir.toPath(), siteTarget.toPath(), siteDir.toPath(), ::isExcluded)
             val overlayFiles = copyTree(overlayDir.toPath(), payloadDir.toPath(), overlayDir.toPath()) { false }
+            val actionsFiles =
+                if (actionsDir != null && actionsDir.isDirectory) {
+                    copyTree(
+                        actionsDir.toPath(),
+                        payloadDir.resolve(".github/actions").toPath(),
+                        actionsDir.toPath(),
+                    ) { false }
+                } else {
+                    0
+                }
 
             Summary(
                 siteName = siteDir.name,
                 payloadRoot = payloadDir.absolutePath,
                 siteFiles = siteFiles,
-                overlayFiles = overlayFiles,
+                overlayFiles = overlayFiles + actionsFiles,
             ).right()
         } catch (e: IOException) {
             "Failed to assemble CI mirror payload: ${e.message}".left()
