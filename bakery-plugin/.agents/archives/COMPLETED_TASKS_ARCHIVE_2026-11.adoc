@@ -40,3 +40,4 @@
 * 12 copies `.ci-mirror` supprimées côté office ; CI bakery `43514053202` verte.
 * Rapport `.agents/sessions/276-gbl-013-us6-ci-mirror-actions.adoc`.
 
+* Session 277 — EAGER : publication JitPack canal unique (AGENT/PROMPT_REPRISE alignés ; Central/Portal retirés) — 2026-11-14.
