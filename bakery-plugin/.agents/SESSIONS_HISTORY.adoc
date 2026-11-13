@@ -174,3 +174,12 @@ faux traducteurs, puis réactiver la consommation JitPack. Rapport
 == Session 275 — GBL-013 vague 1 : job unit dans l'image — 2026-11-14
 
 ci/run.sh (test = test ktlintCheck) + job unit migré ; gardes BakeryCucumberShardCoverageTest alignés ; FileSystemManagerTest root-safe. Run 43492246746 VERT. Shards/e2e/coverage restent hôte. Rapport `.agents/sessions/275-gbl-013-wave1.adoc`.
+
+== Session 276 — GBL-013 US-6 : actions `.ci-mirror` mutualisées — 2026-11-14
+
+`CiMirrorPayload` injecte les actions canoniques `office/.github/actions/` dans
+le payload (`actionsDir`), 2 UT ; `DeployTaskRegistrar` résout la source unique ;
+release JitPack **0.0.39** (tag `v0.0.39`, POM 200) ; `runner-gradle` adopté
+(run `43515519584`) ; 12 copies `.ci-mirror` supprimées côté office. Bakery CI
+`43514053202` verte. Rapport `.agents/sessions/276-gbl-013-us6-ci-mirror-actions.adoc`.
+

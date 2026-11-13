@@ -30,3 +30,13 @@
 * Rapport `.agents/sessions/270-bky-ci-mirror-mutualization.adoc`.
 
 * GBL-013 — portabilité CI (session close) : voir `.agents/sessions/` (rapport dédié).
+
+== S-276 — GBL-013 US-6 : actions `.ci-mirror` mutualisées ✅
+
+* `CiMirrorPayload.assemble(..., actionsDir)` injecte les actions canoniques
+  `office/.github/actions/` ; 2 UT ; répertoire absent toléré.
+* Release JitPack `0.0.39` (tag `v0.0.39`, POM 200) ; `runner-gradle` → 0.0.39
+  (run `43515519584` VERT).
+* 12 copies `.ci-mirror` supprimées côté office ; CI bakery `43514053202` verte.
+* Rapport `.agents/sessions/276-gbl-013-us6-ci-mirror-actions.adoc`.
+

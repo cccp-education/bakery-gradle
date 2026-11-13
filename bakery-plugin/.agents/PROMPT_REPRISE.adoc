@@ -1,9 +1,19 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 274
-:date: 2026-11-13
-:etat: S-273 ⚠️ — **CNV-17 : JitPack canal unique, EXCEPTION bakery** (consommation revertée à `fc47a822` ; publication `0.0.38` conservée sur JitPack).
+:session: 277
+:date: 2026-11-14
+:etat: S-276 ✅ — **GBL-013 US-6** : `CiMirrorPayload` injecte les actions canoniques (`actionsDir`, 2 UT) ; release JitPack `0.0.39` ; `runner-gradle` adopté ; 12 copies `.ci-mirror` supprimées côté office.
 :epic_actif: PLT-DIAGRAM-OWNERSHIP 7/8 (US-7 re-bake cheroliv + DiagramIntegrity).
 :epic_suivant: **US-3c** (plantuml `0.0.17`, faux traducteurs, réactivation JitPack) ; dette `ur/0084` ; BKY-PLT-4 ; release Central 0.0.39 au reset 2026-12-01.
+
+== Session 276 — GBL-013 US-6 : actions `.ci-mirror` mutualisées
+
+* `CiMirrorPayload.assemble(..., actionsDir)` injecte `office/.github/actions/`
+  sous `.github/actions/` du payload ; répertoire absent toléré.
+* `DeployTaskRegistrar` résout `configDir.parent.parent/.github/actions`.
+* 2 UT ; release JitPack `0.0.39` (tag `v0.0.39`, POM 200) ; runner → `0.0.39`
+  (run `43515519584` VERT) ; 12 copies `.ci-mirror` supprimées côté office.
+* Bakery CI `43514053202` verte. Rapport
+  `.agents/sessions/276-gbl-013-us6-ci-mirror-actions.adoc`.
 
 == Décision pilote — JitPack canal unique (2026-11-13)
 

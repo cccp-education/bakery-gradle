@@ -1,0 +1,31 @@
+= Session 276 — GBL-013 US-6 : actions `.ci-mirror` mutualisées + release JitPack 0.0.39
+:date: 2026-11-14
+:borough: Bushwick (bakery-gradle)
+
+== Livré
+
+* `CiMirrorPayload.assemble(siteDir, payloadDir, overlayDir, actionsDir = null)` :
+  injecte les actions canoniques `office/.github/actions/` sous
+  `.github/actions/` dans le payload. Compteur `overlayFiles` étendu, répertoire
+  absent toléré (backward compat).
+* `DeployTaskRegistrar.registerCiMirrorTask` : `actionsDir` résolu depuis
+  `configDir` (`office/sites/<site>` → `office/.github/actions`).
+* Tests : 2 UT (`injects the office canonical actions`, `tolerates a missing
+  actions directory`).
+* Release JitPack **`bakery-plugin 0.0.39`** (tag `v0.0.39`, POM HTTP 200) ;
+  `runner-gradle` shim → `0.0.39` (run `43515519584` VERT).
+* `office` : les 12 copies `.ci-mirror/.github/actions/*` supprimées ; les 4
+  overlays ne portent plus que les workflows + README ; doc `RUNNER_REPOS`
+  alignée.
+
+== Preuves
+
+* Bakery CI `43514053202` **VERTE** (commit `0dcb2812`).
+* Runner CI `43515519584` **VERTE** (commit `18b4149`).
+* Compiles + `ktlintCheck` VERTS ; zéro test local.
+
+== Reste
+
+La migration des 11 workflows `office` vers l'image reste **bloquée** par le
+canal privé (`cheroliv/cccp-ci-base` privé, secrets absents) — même blocage que
+US-7. L'unification des actions est livrée.
