@@ -67,11 +67,11 @@ class BakeryPluginPublicationTest {
         val wsBomVersion = publishedCatalogVersion(BOM_VERSION_PROPERTY)
         val platformBomVersion = publishedCatalogVersion(PLATFORM_BOM_VERSION_PROPERTY)
 
-        // CNV-17 — JitPack is the single publication channel: the catalog and the
-        // BOM are both served by JitPack at the same version, so the catalog tag
-        // and the BOM version are equal and carry **no `v` prefix** (D2).
+        // CNV-16 — two single sources in gradle.properties: the JitPack catalog
+        // tag (must equal the catalog's workspace-bom version, prefix `v`) and the
+        // Central BOM platform (the JitPack BOM POM is not a valid platform).
         // Neither settings nor build may carry a literal (the S-083 bug class).
-        assertThat(properties).contains("workspaceCatalogVersion=$wsBomVersion")
+        assertThat(properties).contains("workspaceCatalogVersion=v$wsBomVersion")
         assertThat(properties).contains("workspaceBomVersion=$platformBomVersion")
         assertThat(settingsScript).contains("workspace-catalog:\$workspaceCatalogVersion")
         assertThat(buildScript).contains("workspace-bom:\$workspaceBomVersion")
