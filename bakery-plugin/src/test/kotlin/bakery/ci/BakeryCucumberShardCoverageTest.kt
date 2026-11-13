@@ -174,7 +174,10 @@ class BakeryCucumberShardCoverageTest {
     @Test
     fun `the unit job runs the plain test task`() {
         assertThat(workflow.readText())
-            .describedAs("test.yml must run the unit `test` task")
+            .describedAs("test.yml must delegate the unit job to the ci contract (GBL-013)")
+            .contains("ci/run.sh test")
+        assertThat(contract.readText())
+            .describedAs("ci/run.sh must run the unit `./gradlew test` task")
             .contains("./gradlew test")
     }
 
