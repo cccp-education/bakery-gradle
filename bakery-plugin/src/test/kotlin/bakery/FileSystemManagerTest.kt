@@ -138,8 +138,11 @@ class FileSystemManagerTest {
         fun `returns failure when copy throws IOException`() {
             val bakeDir = tempDir.resolve("bake").apply { mkdirs() }
             bakeDir.resolve("file.txt").writeText("content")
-            val repoDir = tempDir.resolve("repo").apply { mkdirs() }
-            repoDir.setReadOnly()
+            // A regular file where the target directory is expected: the copy
+            // fails with an IOException for every user. A read-only directory is
+            // NOT a failure when the CI image runs as root (the permission check
+            // is bypassed), which made this test environment-dependent.
+            val repoDir = tempDir.resolve("repo").apply { writeText("not a directory") }
 
             val result = copyBakedFilesToRepo(bakeDir.absolutePath, repoDir, logger)
 

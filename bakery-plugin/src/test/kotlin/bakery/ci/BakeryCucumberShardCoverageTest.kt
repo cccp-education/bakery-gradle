@@ -41,6 +41,7 @@ class BakeryCucumberShardCoverageTest {
     private val functionalDir = repoRoot.resolve("bakery-plugin/src/functionalTest/kotlin")
     private val buildScript = repoRoot.resolve("bakery-plugin/build.gradle.kts")
     private val workflow = repoRoot.resolve(".github/workflows/test.yml")
+    private val contract = repoRoot.resolve("ci/run.sh")
 
     private fun allFeatures(): Set<String> =
         featuresDir
@@ -187,8 +188,11 @@ class BakeryCucumberShardCoverageTest {
     @Test
     fun `the unit job runs ktlint and the baseline exempts no file`() {
         assertThat(workflow.readText())
-            .describedAs("test.yml must run the ktlint gate (MEM-LINT-GATE, S-324)")
-            .contains("./gradlew ktlintCheck")
+            .describedAs("test.yml must delegate the unit job to the ci contract (GBL-013)")
+            .contains("ci/run.sh test")
+        assertThat(contract.readText())
+            .describedAs("ci/run.sh must run the ktlint gate (MEM-LINT-GATE, S-324)")
+            .contains("ktlintCheck")
 
         val baseline = repoRoot.resolve("bakery-plugin/config/ktlint/baseline.xml")
         assertThat(baseline)
