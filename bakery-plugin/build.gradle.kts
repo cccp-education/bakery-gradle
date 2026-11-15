@@ -78,12 +78,12 @@ dependencies {
     api(libs.commons.io)
     implementation(libs.node.gradle)
 
-    implementation(libs.graphify.plugin)
-    implementation(libs.codebase.contracts)
-    implementation(libs.codebase.plugin)
     // GBL-014 — cross-borough N2/N0 artefacts are read from the channel-projected
     // `ws` catalogue: JitPack relabels them as `com.github.cccp-education...`,
     // Central keeps `education.cccp...`. Never a literal coordinate here.
+    implementation(ws.graphify.plugin)
+    implementation(ws.codebase.contracts)
+    implementation(ws.codebase.plugin)
     implementation(ws.api.key.pool.plugin)
     implementation(ws.i18n.contracts)
     // MEM-CAT-3 (D5) — document-plugin version comes from the `ws` catalogue.
@@ -136,6 +136,48 @@ dependencies {
 
     // Cucumber dependencies
     testImplementation(libs.bundles.cucumber)
+}
+
+// GBL-014 — channel projection of the *transitive* coordinates, `jitpack` only.
+// JitPack relabels the artefact it builds, never the coordinates written in its
+// published POM: the cross-borough plugins keep referencing `education.cccp`
+// modules and importing the Central BOM platform. Left as-is, a JitPack consumer
+// would load two copies of every contract (same FQNs from two groups) and the
+// Central BOM. On `jitpack` each such module is substituted for its relabelled
+// counterpart read from the `ws` catalogue (the single source of versions).
+if (!centralChannel) {
+    configurations.configureEach {
+        resolutionStrategy.dependencySubstitution {
+            val relabelled =
+                listOf(
+                    ws.agent.contracts,
+                    ws.codebase.contracts,
+                    ws.codebase.plugin,
+                    ws.document.plugin,
+                    ws.graphify.plugin,
+                    ws.i18n.contracts,
+                    ws.llm.pool.contracts,
+                    ws.ocr.contracts,
+                    ws.opencode.session.contracts,
+                    ws.pipeline.contracts,
+                    ws.plantuml.contracts,
+                    ws.plantuml.plugin,
+                )
+            relabelled.forEach { dependency ->
+                val alias = dependency.get()
+                substitute(module("education.cccp:${alias.module.name}"))
+                    .using(
+                        module(
+                            "${alias.module.group}:${alias.module.name}:${alias.versionConstraint.requiredVersion}",
+                        ),
+                    )
+            }
+        }
+        // The Central BOM platform imported by the upstream POMs is dropped (it is
+        // never re-imported as a platform: the JitPack BOM POM has no
+        // `dependencyManagement`); the alignment comes from the `ws` catalogue.
+        exclude(group = "education.cccp", module = "workspace-bom")
+    }
 }
 
 tasks.withType<Test> {
@@ -392,8 +434,8 @@ dependencies {
     add(e2eTest.implementationConfigurationName, libs.bundles.cucumber)
     add(e2eTest.implementationConfigurationName, libs.langchain4j.ollama)
     add(e2eTest.implementationConfigurationName, libs.node.gradle)
-    add(e2eTest.implementationConfigurationName, libs.graphify.plugin)
-    add(e2eTest.implementationConfigurationName, libs.codebase.contracts)
+    add(e2eTest.implementationConfigurationName, ws.graphify.plugin)
+    add(e2eTest.implementationConfigurationName, ws.codebase.contracts)
     add(e2eTest.implementationConfigurationName, libs.bundles.coroutines)
     add(e2eTest.implementationConfigurationName, libs.kotlinx.coroutines.test)
     add(e2eTest.implementationConfigurationName, libs.slf4j.api)
