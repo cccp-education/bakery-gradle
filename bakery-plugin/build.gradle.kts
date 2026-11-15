@@ -185,7 +185,8 @@ tasks.withType<Test> {
 // JS runtime can prove. `node --test` runs the `.test.mjs` suite against both
 // shipped copies of the module (maquette + publication), byte-identical.
 node {
-    download = false
+    download = true
+    version = "26.13.1"
 }
 
 val nodeTest =
