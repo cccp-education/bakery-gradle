@@ -51,11 +51,11 @@ dependencyResolutionManagement {
 }
 
 // ── MEM-CAT-3 — Catalog workspace publié (MEMPHIS) : pin unique par borough (D4) ──
-// GBL-014 — the catalogue is projected by channel: on JitPack the *relabelled*
-// catalogue (`com.github.cccp-education...`) is served at the tag version without
-// its `v` prefix; on Central it is `education.cccp:workspace-catalog`.
-// The version itself lives in `gradle.properties` (`workspaceCatalogVersion`)
-// and is the same value on both channels. No literal here.
+// GBL-014 — the catalogue is projected by channel: on JitPack the relabelled
+// catalogue (`com.github.cccp-education...`) is served by the tag; on Central it
+// is `education.cccp:workspace-catalog` (the `v` prefix is a tag-only concern).
+// The version itself lives in `gradle.properties` (`workspaceCatalogVersion`);
+// the platform BOM version lives in `workspaceBomVersion`. No literal here.
 val workspaceCatalogVersion: String =
     providers.gradleProperty("workspaceCatalogVersion").orNull?.takeIf { it.isNotBlank() }
         ?: error("workspaceCatalogVersion is missing from gradle.properties")
@@ -64,7 +64,7 @@ dependencyResolutionManagement {
     versionCatalogs {
         create("ws") {
             if (publicationChannel == "central") {
-                from("education.cccp:workspace-catalog:$workspaceCatalogVersion")
+                from("education.cccp:workspace-catalog:${workspaceCatalogVersion.removePrefix("v")}")
             } else {
                 from("com.github.cccp-education.workspace-bom:workspace-catalog:$workspaceCatalogVersion")
             }
