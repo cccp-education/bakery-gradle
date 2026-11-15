@@ -1,0 +1,131 @@
+= Session 279 — GBL-014-5b (suite) : audit du catalogue relabellé 0.0.136 — adoption BLOQUÉE par la dérive des tags JitPack
+:date: 2026-11-15
+:scope: bakery-plugin — pin du catalogue, projection de canal, garde de publication
+:statut: ⚠️ AUDIT LIVRÉ / ADOPTION REVERTÉE — `Test` `43681403218` VERTE (18/18), `Publish website` `43681403258` VERTE
+
+== Mission
+
+Solder la dette de canal de `bakery` (GBL-014-5b, suite) : le pin
+`workspaceCatalogVersion=v0.0.133` sert un catalogue JitPack encore aux
+coordonnées `education.cccp`, alors que la projection JitPack relabellée
+(`0.0.136`) est annoncée comme déjà servie.
+
+== 1. Ce que JitPack sert réellement (mesures HTTP)
+
+[cols="3,1,2", options="header"]
+|===
+| URL | HTTP | Taille
+| `workspace-catalog/0.0.133/workspace-catalog-0.0.133.toml` | 200 | 20 762 o
+| `workspace-catalog/v0.0.133/workspace-catalog-v0.0.133.toml` | 200 | 20 762 o
+| `workspace-catalog/0.0.136/workspace-catalog-0.0.136.toml` | 200 | 21 290 o
+| `workspace-catalog/v0.0.136/workspace-catalog-v0.0.136.toml` | **404** | 47 o
+| `workspace-bom/{0.0.133,v0.0.133,0.0.136,v0.0.136}.pom` | 200 ×4 | —
+|===
+
+Constat : le tag `vX.Y.Z` est bien publié en version `X.Y.Z` (sans `v`) à
+partir de `0.0.136` ; `v0.0.133` reste servi (legacy, contenu Central).
+
+== 2. Contenu du catalogue 0.0.136 — relabel OK, versions NON identiques
+
+* `[libraries]` : toutes les coordonnées sont relabellées
+  (`com.github.cccp-education.workspace-bom:<contrat>` pour les N0,
+  `com.github.cccp-education.<repo>:<plugin>` pour les N2) — c'est la
+  projection attendue.
+* `[versions]` : **la prémisse « versions identiques » est fausse**.
+  * contrats relabellés au tag : `agent-contracts 0.0.4 → 0.0.136`,
+    `catalog-contracts 0.0.1 → 0.0.136`, `codebase-contracts 0.0.2 → 0.0.136`,
+    `i18n-contracts 0.0.5 → 0.0.136`, `llm-pool-contracts 0.0.2 → 0.0.136`,
+    `ocr-contracts 0.0.1 → 0.0.136`, `opencode-session-contracts 0.0.2 → 0.0.136`,
+    `pipeline-contracts 0.0.2 → 0.0.136`, `plantuml-contracts 0.0.1 → 0.0.136`,
+    `runtime-contracts 0.0.1 → 0.0.136` ;
+  * `vibecoding-contracts 0.0.1` **disparaît** ;
+  * `video-kernel 0.7.0 → 0.9.1` (vrai bump) ;
+  * `youtube-auth-plugin 0.0.2 → "v0.0.4"` (**préfixe `v` dans un
+    `version.ref`** — défaut amont) ;
+  * `workspace-bom 0.0.133 → 0.0.136`.
+
+== 3. Adoption tentée (commit `ee496ac3`, reverté)
+
+* pin `workspaceCatalogVersion=0.0.136` (sans `v`) ; branche `central` alignée
+  sur la même valeur ;
+* `libs.graphify/codebase*` → accesseurs `ws.*` (zéro coordonnée directe) ;
+* substitution des arêtes `education.cccp:<x>` écrites dans les POM publiés
+  vers leurs homologues relabellés lus dans le catalogue, et exclusion de la
+  plateforme BOM centrale en `jitpack` ;
+* garde `BakeryPluginPublicationTest` réécrite en invariant par canal (5 tests :
+  sources semver uniques, coordonnée choisie par canal, plateforme
+  `central`-only par analyse des blocs `if (centralChannel)`, pin ==
+  `workspace-bom` déclaré par le catalogue servi).
+
+Preuves locales (`-Pchannel=jitpack`) :
+
+* compiles des 5 source sets : **BUILD SUCCESSFUL** ;
+* `verifyChannel` : `CHANNEL OK` ;
+* résolution `runtimeClasspath` : **seules** les coordonnées
+  `com.github.cccp-education.*` sont *résolues* (les arêtes `education.cccp`
+  n'apparaissent que comme sources de substitution `→ com.github…`) ; la
+  plateforme BOM centrale n'apparaît plus.
+
+== 4. Pourquoi l'adoption est bloquée (CI `43680724558` rouge)
+
+* `Unit Tests` : `ktlintTestSourceSetCheck` — 2 fonctions multi-paramètres de la
+  garde à reformater (corrigeable).
+* `BDD · i18n-mass-pipeline` : `Translation marker [lang] is present in body`
+  **échoue** — le corps du fichier `en/0115_…adoc` reste **le français
+  source** : la traduction est rejetée avant écriture.
+
+Cause racine mesurée : **les tags de publication JitPack ne pointent pas sur le
+commit de la release Central du même numéro**.
+
+[cols="2,3,3", options="header"]
+|===
+| Dépôt | Tag JitPack | Release Central du même numéro
+| `document-gradle` | `v0.0.30` = `7cdff0e` (2026-11-09) | 0.0.30 publié 2026-11-02
+| `codebase-gradle` | `v0.0.18` = `4e2343b` (2026-11-09) | 0.0.18 publié 2026-10-14
+| `graphify-gradle` | `v0.0.5` = `be90af6` (2026-11-09) | 0.0.5 publié 2026-09-17
+| `plantuml-gradle` | `v0.0.16` = `30dbfdc` (2026-11-09) | 0.0.16 publié 2026-11-02
+|===
+
+Le tag `v0.0.30` de `document` contient **DOC-OUT-2** (`a75e509`, 2026-11-04,
+postérieur à la release du 2026-11-02) : le JAR JitPack porte
+`document.translation.TranslationOutputIntegrity` (absent du JAR Central). Ce
+garde structurel rejette le faux traducteur gelé de bakery (`"[en] $source"`),
+la traduction échoue et le fichier source est conservé → marqueur absent.
+S-273 avait déjà documenté la même dérive pour `plantuml v0.0.16`
+(garde de langue `PLT-OUT-3`).
+
+Conséquence : adopter le catalogue relabellé **met à niveau silencieusement
+tous les plugins cross-borough** vers du code non testé au numéro de version
+annoncé. Ce n'est pas un simple bump de pin.
+
+== 5. Décision
+
+* **Revert** `2c9451a5` : retour à l'état S-278 (`v0.0.133` + plugins Central).
+  CI **verte** : `Test` `43681403218` (18/18), `Publish website` `43681403258`.
+* Ne pas mélanger les canaux (invariant GBL-014) ; ne pas adapter les tests
+  gelés hors permission explicite.
+* Le patch d'adoption est conservé dans l'historique (`ee496ac3`) pour
+  réapplication après réalignement amont.
+
+== 6. Suites (recommandations)
+
+. **Amont** (`document`, `plantuml`, `codebase`, `graphify`) : taguer le commit
+  exact de la release (ou bumper la version puis publier) pour qu'un tag
+  JitPack serve *le même code* que la release du même numéro.
+. **MEMPHIS** : corriger `youtube-auth-plugin = "v0.0.4"` (préfixe `v` dans un
+  `version.ref`).
+. **bakery** : réappliquer `ee496ac3` (pin `0.0.136` + garde par canal) une
+  fois les tags réalignés ; les preuves de compilation/`verifyChannel`/
+  résolution sont acquises.
+. Si le pilote préfère adopter le code amont plus récent, l'adaptation du faux
+  traducteur (sortie structurellement valide) requiert une permission
+  explicite hors périmètre de cette session.
+
+== Gates
+
+* Local = Build : compiles 5 source sets et `verifyChannel` VERTS sur le patch
+  (`-Pchannel=jitpack`) ; `ktlint` à corriger sur la seule garde.
+* CI = preuve : rouge `43680724558` (patch), verte `43681403218` /
+  `43681403258` (revert).
+* Zéro secret, zéro Python, aucun autre dépôt modifié, zéro tag, zéro
+  publication.

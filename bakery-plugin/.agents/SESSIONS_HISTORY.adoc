@@ -201,3 +201,29 @@ Compilations 5 source sets VERTS, `verifyChannel` OK, CI `Test` `43663467157`
 (18/18) et `Publish website` `43663467047` vertes. Reste : pin catalogue
 `v0.0.133` encore aux coordonnées Central (garde à assouplir ou tag
 `v0.0.136`). Rapport `.agents/sessions/278-gbl-014-5b-bakery-channel-projection.adoc`.
+
+== Session 279 — GBL-014-5b (suite) : audit du catalogue relabellé — 2026-11-15
+
+Audit de la dette de canal. **Mesuré** : JitPack sert
+`workspace-catalog:0.0.136` (200, sans `v`) et `v0.0.133` (200, legacy
+Central) ; `v0.0.136` = 404. Le catalogue 0.0.136 relabelle bien les
+`[libraries]` (`com.github.cccp-education.*`) mais ses `[versions]` diffèrent
+(contrats relabellés au tag 0.0.136, `video-kernel 0.7.0→0.9.1`,
+`youtube-auth-plugin = "v0.0.4"`). Le patch `ee496ac3` (pin 0.0.136, accesseurs
+`ws.*`, substitution des arêtes `education.cccp` écrites dans les POM publiés,
+exclusion de la plateforme BOM centrale en `jitpack`, garde
+`BakeryPluginPublicationTest` réécrite en invariant par canal) compilait les 5
+source sets, `verifyChannel` OK et résolvait **uniquement** des coordonnées
+`com.github.*`. CI `43680724558` **rouge** : `ktlint` sur la garde (2 règles) et
+BDD `i18n-mass` (marqueur `[en]` absent = traduction rejetée). **Cause racine**
+mesurée : les tags de publication JitPack ne pointent pas sur les commits des
+releases Central du même numéro — `document v0.0.30` (`7cdff0e`, 2026-11-09)
+embarque DOC-OUT-2 (`a75e509`, 2026-11-04, `TranslationOutputIntegrity`, absent
+du JAR Central du 2026-11-02) ; idem `codebase v0.0.18`, `graphify v0.0.5`,
+`plantuml v0.0.16` (tags du 2026-11-09). Adopter le relabel met à niveau
+silencieusement les plugins vers du code non testé. **Revert `2c9451a5`** →
+CI verte `Test` `43681403218` (18/18) + `Publish website` `43681403258`.
+Suites : réaligner les tags amont (ou bumper), corriger le `v` de
+`youtube-auth`, puis réappliquer `ee496ac3`. Zéro secret, zéro Python, aucun
+autre dépôt modifié. Rapport
+`.agents/sessions/279-gbl-014-5b-relabelled-catalogue-audit.adoc`.

@@ -3498,7 +3498,20 @@ double compte)._
   `-Pchannel`/`verifyChannel`. Garde `BakeryPluginPublicationTest` **non
   modifiée** (chaînes conservées). CI `Test` `43663467157` (18/18) et
   `Publish website` `43663467047` vertes.
-* 🟡 Reste : pin `workspaceCatalogVersion=v0.0.133` encore aux coordonnées
-  Central (le relabel JitPack des alias n'arrive qu'en `0.0.136`, servi sans
-  préfixe `v` alors que la garde impose `v<version>`) — assouplir la garde
-  (permission explicite) ou publier un tag `v0.0.136` du catalogue.
+* ⚠️ **S-279 (audit)** : `workspace-catalog:0.0.136` est bien servi (200, sans
+  `v` ; `v0.0.136` = 404) et `[libraries]` relabellés, mais les `[versions]` ne
+  sont **pas identiques** (contrats au tag `0.0.136`, `video-kernel 0.7.0→0.9.1`,
+  `youtube-auth = "v0.0.4"`). Le patch `ee496ac3` (pin `0.0.136` + `ws.*` +
+  substitution des arêtes `education.cccp` des POM publiés + garde par canal)
+  compilait/résolvait 100 % `com.github.*` mais la CI `43680724558` était rouge
+  (BDD `i18n-mass` : traduction rejetée) → **revert `2c9451a5`**, CI verte
+  `43681403218`/`43681403258`.
+* 🔴 **Reste (bloqué amont)** : les tags de publication JitPack ne pointent pas
+  sur les commits des releases Central du même numéro — `document v0.0.30`
+  (2026-11-09) embarque DOC-OUT-2 (`a75e509`, 2026-11-04) absent du JAR Central
+  (2026-11-02) ; idem `codebase v0.0.18`, `graphify v0.0.5`,
+  `plantuml v0.0.16` (tags du 2026-11-09). Adopter le relabel met à niveau
+  silencieusement les plugins vers du code non testé. Prérequis : réaligner les
+  tags amont (taguer le commit exact de la release ou bumper), corriger
+  `youtube-auth-plugin = "v0.0.4"` (MEMPHIS), puis réappliquer `ee496ac3`.
+  Rapport `.agents/sessions/279-gbl-014-5b-relabelled-catalogue-audit.adoc`.

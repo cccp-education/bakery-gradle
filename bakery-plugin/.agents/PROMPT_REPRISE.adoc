@@ -1,9 +1,27 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 278
+:session: 279
 :date: 2026-11-15
-:etat: S-278 ✅ — **GBL-014-5b** : settings conditionnels `-Pchannel` (racine + plugin), catalogue `ws` projeté par canal, 5 coordonnées Central en dur → accesseurs `ws.*`, 4 `platform(workspace-bom)` restreintes à `central`, shim `0.0.18`, `ci/run.sh` `-Pchannel`/`verifyChannel`. Aucun test modifié. CI `Test` `43663467157` (18/18) + `Publish website` `43663467047` vertes.
+:etat: S-279 ⚠️ — **GBL-014-5b (suite)** : audit du catalogue relabellé `0.0.136`. JitPack sert `workspace-catalog:0.0.136` (sans `v`) mais les **tags de publication JitPack ≠ releases Central du même numéro** (`document v0.0.30` = commit du 2026-11-09, contient DOC-OUT-2 absent du JAR Central du 2026-11-02). L'adoption (commit `ee496ac3`) compilait et résolvait 100 % `com.github.*` mais cassait le BDD `i18n-mass` (traduction rejetée par le nouveau garde structurel) → **revert `2c9451a5`**, CI verte `Test` `43681403218` (18/18) + `Publish website` `43681403258`.
 :epic_actif: PLT-DIAGRAM-OWNERSHIP 7/8 (US-7 re-bake cheroliv + DiagramIntegrity).
-:epic_suivant: pin catalogue `v0.0.133` encore aux coordonnées Central (assouplir `BakeryPluginPublicationTest` avec permission, ou tag `v0.0.136` relabellé) ; **US-3c** ; dette `ur/0084` ; release Central 0.0.39 au reset 2026-12-01.
+:epic_suivant: **réaligner les tags JitPack** (document/plantuml/codebase/graphify : taguer le commit exact de la release ou bumper) puis réappliquer `ee496ac3` ; MEMPHIS : corriger `youtube-auth-plugin = "v0.0.4"` ; **US-3c** ; dette `ur/0084`.
+
+== Session 279 — GBL-014-5b (suite) : audit du catalogue relabellé
+
+* Mesures HTTP : `0.0.136` = 200, `v0.0.136` = 404 ; `v0.0.133` encore servi
+  (legacy Central). `[libraries]` relabellés OK, mais `[versions]` **non
+  identiques** (contrats au tag `0.0.136`, `video-kernel 0.7.0→0.9.1`,
+  `youtube-auth = "v0.0.4"`).
+* Patch `ee496ac3` : pin `0.0.136`, `ws.*` partout, substitution des arêtes
+  `education.cccp` des POM publiés, BOM central exclu en `jitpack`, garde
+  `BakeryPluginPublicationTest` réécrite par canal. Compiles 5 source sets et
+  `verifyChannel` VERTS ; résolution runtimeClasspath = `com.github.*` only.
+* **Blocage** : CI `43680724558` rouge — BDD `i18n-mass` (marqueur `[en]`
+  absent) parce que le tag JitPack `document v0.0.30` embarque DOC-OUT-2
+  (rejette le faux traducteur gelé) et non la release Central testée. Même
+  dérive systémique pour codebase/graphify/plantuml (tags du 2026-11-09).
+* Décision : revert `2c9451a5`, garder `v0.0.133` tant que les tags ne sont
+  pas réalignés ; ne pas mélanger les canaux, ne pas adapter les tests gelés.
+* Rapport `.agents/sessions/279-gbl-014-5b-relabelled-catalogue-audit.adoc`.
 
 == Session 278 — GBL-014-5b : projection du canal
 
@@ -33,28 +51,10 @@
 
 == Session 273 (TERMINÉE) — CNV-17, exception bakery
 
-* La migration a été appliquée (`cf5bc6a3`, `889c3fac`, `f3377da0`) puis
-  **intégralement revertée** (`63a738c5`, `78699998`, `31ad140a`) : le build est
-  revenu à l'état **`fc47a822`** — catalogue `workspace-catalog:v0.0.133`
-  (JitPack, préfixe `v`) + plateforme `education.cccp:workspace-bom:0.0.115`
-  (Central) + shim conventions `0.0.16`.
-* **Motif** : les tests bakery encodent l'ancien contrat de traduction plantuml,
-  alors que l'artefact JitPack `plantuml-plugin 0.0.16` porte la garde de langue
-  `PLT-OUT-3`. La consommation JitPack échoue sur les faux traducteurs.
-* **Conservé** : la **publication** `bakery-plugin 0.0.38` sur JitPack (déjà
-  publiée, immuable).
-* CI **verte** : `Test` `43474229144` + `Publish website` `43474229152`
-  (commit `31ad140a`). Le run rouge `43472822940` (`f3377da0`) documente le
-  constat déclencheur.
+* Migration JitPack appliquée puis **revertée** (état `fc47a822`) : tests gelés
+  vs `plantuml-plugin 0.0.16` JitPack (garde `PLT-OUT-3`). Publication
+  `bakery-plugin 0.0.38` conservée (immuable). CI `43474229144` verte.
 * Rapport `.agents/sessions/273-cnv-17-jitpack-channel.adoc`.
-
-== Mission Session 274 — US-3c
-
-. Re-releaser `plantuml-plugin 0.0.17` depuis son HEAD (JitPack, tag neuf).
-. Adapter les faux traducteurs des tests bakery pour produire une langue cible
-   **sans résidu français** (contrat `PLT-OUT-3`).
-. Réactiver la consommation JitPack (catalogue `0.0.136` + plateforme JitPack).
-. Puis dette `ur/0084` (site cheroliv, metered) et BKY-PLT-4.
 
 == Rappels
 

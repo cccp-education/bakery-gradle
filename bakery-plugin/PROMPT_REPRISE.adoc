@@ -1,10 +1,10 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 278
+:session: 279
 :date: 2026-11-15
-:etat: S-278 ✅ — **GBL-014-5b** : settings conditionnels `-Pchannel` (racine + plugin), catalogue `ws` projeté par canal, 5 coordonnées Central en dur → accesseurs `ws.*`, 4 `platform(workspace-bom)` restreintes à `central`, shim `0.0.18`, `ci/run.sh` `-Pchannel`/`verifyChannel`. Aucun test modifié. CI `Test` `43663467157` (18/18) + `Publish website` `43663467047` vertes.
-:epic_suivant: pin catalogue `v0.0.133` encore aux coordonnées Central (assouplir `BakeryPluginPublicationTest` avec permission, ou publier un tag `v0.0.136` relabellé) ; **US-3c** (plantuml `0.0.17`, faux traducteurs, réactivation JitPack) ; dette `ur/0084` (site cheroliv, metered) ; BKY-PLT-4 ; release Central 0.0.39 au reset 2026-12-01.
+:etat: S-279 ⚠️ — **GBL-014-5b (suite)** : audit du catalogue relabellé `0.0.136`. `workspace-catalog:0.0.136` est servi (sans `v`) mais les **tags JitPack ≠ releases Central du même numéro** (`document v0.0.30` embarque DOC-OUT-2 absent du JAR Central). Le patch `ee496ac3` (pin + `ws.*` + garde par canal) compilait et résolvait 100 % `com.github.*` mais cassait le BDD `i18n-mass` → **revert `2c9451a5`**, CI verte `Test` `43681403218` + `Publish website` `43681403258`.
+:epic_suivant: **réaligner les tags JitPack** (document/plantuml/codebase/graphify) puis réappliquer `ee496ac3` ; MEMPHIS `youtube-auth = "v0.0.4"` ; **US-3c** ; dette `ur/0084`.
 
-La source canonique complète est `.agents/PROMPT_REPRISE.adoc` (même session 278).
+La source canonique complète est `.agents/PROMPT_REPRISE.adoc` (même session 279).
 
 == Rappels
 
