@@ -1,10 +1,10 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 279
+:session: 280
 :date: 2026-11-15
-:etat: S-279 ⚠️ — **GBL-014-5b (suite)** : audit du catalogue relabellé `0.0.136`. `workspace-catalog:0.0.136` est servi (sans `v`) mais les **tags JitPack ≠ releases Central du même numéro** (`document v0.0.30` embarque DOC-OUT-2 absent du JAR Central). Le patch `ee496ac3` (pin + `ws.*` + garde par canal) compilait et résolvait 100 % `com.github.*` mais cassait le BDD `i18n-mass` → **revert `2c9451a5`**, CI verte `Test` `43681403218` + `Publish website` `43681403258`.
+:etat: ✅ S-280 — **GBL-014-4 + GBL-013-10** : shim `conventions-plugin 0.0.19`, actions `node24`-natives, Node **26.13.1** dans l'image CI (`sha256:03ead378…`) **et** dans le plugin Gradle Node (`download = true`). `Test` `43672589887`/`43683429806`/`43690069058`, `Publish website` `43672589904`/`43683429820`/`43690069092` vertes. **GBL-014-5b reste bloqué amont** (dérive des tags JitPack, audit S-279, revert `2c9451a5`).
 :epic_suivant: **réaligner les tags JitPack** (document/plantuml/codebase/graphify) puis réappliquer `ee496ac3` ; MEMPHIS `youtube-auth = "v0.0.4"` ; **US-3c** ; dette `ur/0084`.
 
-La source canonique complète est `.agents/PROMPT_REPRISE.adoc` (même session 279).
+La source canonique complète est `.agents/PROMPT_REPRISE.adoc` (même session 280).
 
 == Rappels
 

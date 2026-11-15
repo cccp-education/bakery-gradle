@@ -3486,6 +3486,11 @@ double compte)._
 | Vague 1 — migrer `bakery-gradle` (image + scripts + adapter), preuve P1→P4 en CI
 | —
 | ✅ S-226 (**partiel**) — job `unit` dans l'image via `ci/run.sh test`, run `43492246746` **VERT** ; shards/e2e/coverage restent sur l'hôte (navigateur Playwright). Gardes `BakeryCucumberShardCoverageTest` alignés sur le contrat ; `FileSystemManagerTest` rendu **root-safe** (le conteneur tourne en root, une copie vers un dossier read-only n'échoue plus).
+
+| GBL-013-10
+| Node 26 LTS (26.13.1) + actions `node24`-natives, image et plugin alignés
+| —
+| ✅ S-280 — `setup-node@v6` + `node-version: '26'` (4×), `node { download = true; version = "26.13.1" }`, digest `sha256:03ead378…`. `Test` `43683429806`/`43690069058` + `Publish website` `43683429820`/`43690069092` vertes.
 |===
 
 
@@ -3498,6 +3503,13 @@ double compte)._
   `-Pchannel`/`verifyChannel`. Garde `BakeryPluginPublicationTest` **non
   modifiée** (chaînes conservées). CI `Test` `43663467157` (18/18) et
   `Publish website` `43663467047` vertes.
+* ✅ **S-280 (US-4)** : shim `conventions-plugin 0.0.19` (racine + plugin,
+  `fad9ba67`) ; `Test` `43672589887` + `Publish website` `43672589904`.
+* ✅ **S-280 (GBL-013-10)** : actions `node24`-natives, `node-version: '26'`,
+  `node { download = true; version = "26.13.1" }` (`c800349e`) et digest image
+  `sha256:03ead378…` (`375dc53a`) ; `Test` `43683429806`/`43690069058` +
+  `Publish website` `43683429820`/`43690069092`.
+* Rapport `.agents/sessions/280-gbl-014-4-and-node-lts.adoc`.
 * ⚠️ **S-279 (audit)** : `workspace-catalog:0.0.136` est bien servi (200, sans
   `v` ; `v0.0.136` = 404) et `[libraries]` relabellés, mais les `[versions]` ne
   sont **pas identiques** (contrats au tag `0.0.136`, `video-kernel 0.7.0→0.9.1`,

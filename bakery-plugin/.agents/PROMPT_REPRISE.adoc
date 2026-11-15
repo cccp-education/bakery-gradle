@@ -1,60 +1,53 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 279
+:session: 280
 :date: 2026-11-15
-:etat: S-279 ⚠️ — **GBL-014-5b (suite)** : audit du catalogue relabellé `0.0.136`. JitPack sert `workspace-catalog:0.0.136` (sans `v`) mais les **tags de publication JitPack ≠ releases Central du même numéro** (`document v0.0.30` = commit du 2026-11-09, contient DOC-OUT-2 absent du JAR Central du 2026-11-02). L'adoption (commit `ee496ac3`) compilait et résolvait 100 % `com.github.*` mais cassait le BDD `i18n-mass` (traduction rejetée par le nouveau garde structurel) → **revert `2c9451a5`**, CI verte `Test` `43681403218` (18/18) + `Publish website` `43681403258`.
+:etat: ✅ S-280 — GBL-014-4 (shim `conventions-plugin 0.0.19`) + GBL-013-10 (actions `node24`-natives, Node 26.13.1 dans l'image **et** dans le plugin Gradle Node). GBL-014-5b reste **bloqué amont**.
 :epic_actif: PLT-DIAGRAM-OWNERSHIP 7/8 (US-7 re-bake cheroliv + DiagramIntegrity).
-:epic_suivant: **réaligner les tags JitPack** (document/plantuml/codebase/graphify : taguer le commit exact de la release ou bumper) puis réappliquer `ee496ac3` ; MEMPHIS : corriger `youtube-auth-plugin = "v0.0.4"` ; **US-3c** ; dette `ur/0084`.
+:epic_suivant: **réaligner les tags JitPack** (document/plantuml/codebase/graphify) puis réappliquer `ee496ac3` ; MEMPHIS `youtube-auth = "v0.0.4"` ; **US-3c** ; dette `ur/0084`.
 
-== Session 279 — GBL-014-5b (suite) : audit du catalogue relabellé
+== Session 280 (TERMINÉE) — transversal du 2026-11-15
 
-* Mesures HTTP : `0.0.136` = 200, `v0.0.136` = 404 ; `v0.0.133` encore servi
-  (legacy Central). `[libraries]` relabellés OK, mais `[versions]` **non
-  identiques** (contrats au tag `0.0.136`, `video-kernel 0.7.0→0.9.1`,
-  `youtube-auth = "v0.0.4"`).
-* Patch `ee496ac3` : pin `0.0.136`, `ws.*` partout, substitution des arêtes
-  `education.cccp` des POM publiés, BOM central exclu en `jitpack`, garde
-  `BakeryPluginPublicationTest` réécrite par canal. Compiles 5 source sets et
-  `verifyChannel` VERTS ; résolution runtimeClasspath = `com.github.*` only.
-* **Blocage** : CI `43680724558` rouge — BDD `i18n-mass` (marqueur `[en]`
-  absent) parce que le tag JitPack `document v0.0.30` embarque DOC-OUT-2
-  (rejette le faux traducteur gelé) et non la release Central testée. Même
-  dérive systémique pour codebase/graphify/plantuml (tags du 2026-11-09).
-* Décision : revert `2c9451a5`, garder `v0.0.133` tant que les tags ne sont
-  pas réalignés ; ne pas mélanger les canaux, ne pas adapter les tests gelés.
-* Rapport `.agents/sessions/279-gbl-014-5b-relabelled-catalogue-audit.adoc`.
+* **GBL-014-4** (`fad9ba67`) : shim `conventions-plugin 0.0.18 → 0.0.19`
+  (racine + plugin) ; condition `channel == "jitpack"` conservée.
+  `Test` `43672589887` + `Publish website` `43672589904`.
+* **GBL-013-10** (`c800349e`) : `checkout@v7`, `setup-java@v6`,
+  `setup-gradle@v6`, `setup-node@v6`, `upload-artifact@v7`,
+  `download-artifact@v8`, `cache@v6` ; `node-version: '22' → '26'` (4×) ;
+  `node { download = true; version = "26.13.1" }` — fin du `download = false`
+  qui prenait le Node du runner. `Test` `43683429806` + `Publish website`
+  `43683429820`.
+* **GBL-013-10** (`375dc53a`) : digest
+  `sha256:4722c1bc… → sha256:03ead378…` ; `Test` `43690069058` +
+  `Publish website` `43690069092`.
+* Rapport `.agents/sessions/280-gbl-014-4-and-node-lts.adoc`.
 
-== Session 278 — GBL-014-5b : projection du canal
+== Session 279 (TERMINÉE) — GBL-014-5b (suite), adoption revertée
 
-* Settings `-Pchannel` (JitPack repo + shim `0.0.18` seulement en `jitpack`),
-  catalogue `ws` par canal, dépendances par `ws.*`, plateforme `central`-only.
-* Preuves : compilations 5 source sets, `verifyChannel` OK, `Test`
-  `43663467157` (18/18), `Publish website` `43663467047`.
-* Reste : catalogue `0.0.133` encore aux coordonnées Central (garde).
+* JitPack sert `workspace-catalog:0.0.136` (200, sans `v` ; `v0.0.136` = 404)
+  mais les `[versions]` diffèrent (contrats au tag 0.0.136,
+  `video-kernel 0.7.0→0.9.1`, `youtube-auth = "v0.0.4"`).
+* Le patch `ee496ac3` (pin `0.0.136`, `ws.*`, substitution des arêtes
+  `education.cccp`, BOM centrale exclue en `jitpack`, garde par canal)
+  compilait/résolvait 100 % `com.github.*` mais cassait le BDD `i18n-mass` :
+  les tags JitPack ne pointent pas sur les commits des releases Central du même
+  numéro (`document v0.0.30` embarque DOC-OUT-2, absent du JAR Central).
+* **Revert `2c9451a5`** ; CI verte `Test` `43681403218` (18/18) +
+  `Publish website` `43681403258`. Rapport
+  `.agents/sessions/279-gbl-014-5b-relabelled-catalogue-audit.adoc`.
+
+== Session 278 (TERMINÉE) — GBL-014-5b projection du canal
+
+* Settings `-Pchannel` (racine + plugin), catalogue `ws` par canal,
+  `ws.*` partout, 4 `platform(workspace-bom)` restreintes à `central`.
+* `Test` `43663467157` / `Publish website` `43663467047`.
 * Rapport `.agents/sessions/278-gbl-014-5b-bakery-channel-projection.adoc`.
 
-== Session 276 — GBL-013 US-6 : actions `.ci-mirror` mutualisées
+== État
 
-* `CiMirrorPayload.assemble(..., actionsDir)` injecte `office/.github/actions/`
-  sous `.github/actions/` du payload ; répertoire absent toléré.
-* `DeployTaskRegistrar` résout `configDir.parent.parent/.github/actions`.
-* 2 UT ; release JitPack `0.0.39` (tag `v0.0.39`, POM 200) ; runner → `0.0.39`
-  (run `43515519584` VERT) ; 12 copies `.ci-mirror` supprimées côté office.
-* Bakery CI `43514053202` verte. Rapport
-  `.agents/sessions/276-gbl-013-us6-ci-mirror-actions.adoc`.
-
-== Décision pilote — JitPack canal unique (2026-11-13)
-
-* JitPack = canal unique des artefacts publics ; un artefact = un canal = un nom
-  = une version. `foundry/private/**` et `office/**` exclus. N0
-  `workspace-bom 0.0.136`, conventions `0.0.17`.
-* Cadrage : `conventions-gradle/conventions-plugin/.agents/CADRAGE_EPIC_CNV_17_JITPACK_PRIMARY.adoc`.
-
-== Session 273 (TERMINÉE) — CNV-17, exception bakery
-
-* Migration JitPack appliquée puis **revertée** (état `fc47a822`) : tests gelés
-  vs `plantuml-plugin 0.0.16` JitPack (garde `PLT-OUT-3`). Publication
-  `bakery-plugin 0.0.38` conservée (immuable). CI `43474229144` verte.
-* Rapport `.agents/sessions/273-cnv-17-jitpack-channel.adoc`.
+* Catalogue consommé : `workspace-catalog v0.0.133` (JitPack) ; plateforme BOM
+  Central `0.0.115` ; shim conventions `0.0.19`. Version plugin `0.0.39`
+  (JitPack, tag publié).
+* Local = Build, Tests = CI ; working tree propre.
 
 == Rappels
 
@@ -63,8 +56,5 @@
 * Ne pas lire les fichiers gitignorés (`site.yml`).
 * `publishToMavenLocal` interdit sur une version déjà Central / en release
   concurrente. Ne jamais réutiliser un tag JitPack publié.
-
-== GBL-013 (clôture) — 2026-11-14
-Portabilité CI livrée : image \`cccp-ci-base\`, \`ci/run.sh\`, adapter fin.
-Rapport \`.agents/sessions/275-gbl-013-wave1.adoc\`. Reste : US-5→US-9 (cadrage racine
-\`.agents/CADRAGE_EPIC_GBL_013_PORTABILITE_CI.adoc\`).
+* Ne pas modifier les tests gelés hors permission explicite ; ne pas mélanger
+  les canaux.

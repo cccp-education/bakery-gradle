@@ -1,0 +1,110 @@
+= Session 280 — GBL-014-4/GBL-013-10 : shim 0.0.19, actions `node24`, Node 26 LTS (image + plugin)
+:date: 2026-11-15
+:scope: bakery-gradle — pin du shim conventions, actions GitHub, runtime Node (image CI et plugin Gradle Node)
+:statut: ✅ LIVRÉ — `Test` `43672589887`, `43683429806`, `43690069058` ; `Publish website` `43672589904`, `43683429820`, `43690069092` VERTES
+
+== Contexte
+
+Session globale 229 (travaux du 2026-11-15). Cette entrée **complète** les
+rapports S-278 (projection de canal) et S-279 (audit du catalogue relabellé,
+adoption revertée) sans les réécrire : elle consigne la vague
+`conventions 0.0.19` (GBL-014-4) et la migration Node 26 LTS / actions
+`node24`-natives (GBL-013-10). Aucun code métier, aucun test, aucune garde de
+publication modifiée.
+
+== 1. GBL-014-4 — shim `conventions-plugin` `0.0.18 → 0.0.19`
+
+Commit `fad9ba67` — `settings.gradle.kts` racine + `bakery-plugin/settings.gradle.kts`.
+
+* Le shim `useModule(...)` passe à `0.0.19` (condition `channel == "jitpack"`
+  conservée telle que posée en S-278).
+* `0.0.19` apporte `ChannelConsistency` sémantique et `verifyChannel` dans
+  `.lint`/`.publishing`.
+* CI : `Test` **`43672589887`** (18/18) + `Publish website` **`43672589904`**.
+* Rappel : la garde `BakeryPluginPublicationTest` reste celle de S-278/S-279 ;
+  GBL-014-5b (catalogue relabellé) reste **bloqué amont** (dérive des tags
+  JitPack), aucun pin `0.0.136` réintroduit.
+
+== 2. GBL-013-10 — actions `node24`-natives et Node 26 dans les workflows
+
+Commit `c800349e` — 4 fichiers, 39 lignes remplacées.
+
+[cols="2,1,1", options="header"]
+|===
+| Action | Avant | Après
+
+| `actions/checkout` | `v4` | `v7`
+| `actions/setup-java` | `v4` | `v6`
+| `gradle/actions/setup-gradle` | `v4` | `v6`
+| `actions/setup-node` | `v4` | `v6`
+| `actions/upload-artifact` | `v4` | `v7`
+| `actions/download-artifact` | `v4` | `v8`
+| `actions/cache` | `v4` | `v6`
+|===
+
+`node-version: '22'` → **`'26'`** dans `test.yml` (4 occurrences). Le fichier
+`readme_plantuml.yml` et `website.yml` sont alignés sur `checkout@v7` /
+`setup-java@v6` / `setup-gradle@v6`.
+
+== 3. GBL-013-10 — le plugin Gradle Node ne dépend plus du runner
+
+Commit `c800349e` — `bakery-plugin/build.gradle.kts` (bloc `node { }`) :
+
+[source,kotlin]
+----
+node {
+    download = true
+    version = "26.13.1"
+}
+----
+
+Avant : `download = false` — le plugin utilisait le Node **du runner**, donc
+une version implicite (22) différente de celle des workflows. Désormais le
+plugin télécharge la **dernière LTS 26.13.1**, alignée sur l'image et sur
+`setup-node`. `nodeTest` (`node --test` sur les deux copies byte-identiques du
+module `lang-switch.js`) s'exécute donc sur le même runtime qu'en CI.
+
+== 4. GBL-013-10 — repin du digest `cccp-ci-base`
+
+Commit `375dc53a` — `.github/workflows/test.yml` :
+
+----
+cccp-ci-base@sha256:4722c1bc… → cccp-ci-base@sha256:03ead3787ed8f09068cc582191e4cd8f5e48e3ce696fe53836ecd826de57ea1f
+----
+
+Image reconstruite par `conventions-gradle` S-053 (NodeSource `setup_26.x`),
+smoke `node --version` = **v26.13.1**. Digest identique dans les quatre dépôts
+de la vague.
+
+== Preuves CI
+
+[cols="1,2,1", options="header"]
+|===
+| Commit | Run | Résultat
+
+| `fad9ba67` | `43672589887` (`Test`) | ✅ 18/18
+| `fad9ba67` | `43672589904` (`Publish website`) | ✅
+| `c800349e` | `43683429806` (`Test`) | ✅ 18/18
+| `c800349e` | `43683429820` (`Publish website`) | ✅
+| `375dc53a` | `43690069058` (`Test`) | ✅ 18/18
+| `375dc53a` | `43690069092` (`Publish website`) | ✅
+|===
+
+`Publish website` est la preuve métier : les 4 sites (cccp, magic-stick,
+talaria, cheroliv) sont bakés et déployés avec Node 26.13.1, sans régression
+d'assets `lang-switch.js`.
+
+== Fichiers
+
+`.agents` uniquement en clôture (ce rapport, `PROMPT_REPRISE`,
+`.agents/INDEX.adoc`, `.agents/SESSIONS_HISTORY.adoc`, archive 2026-11).
+Aucun fichier `src/`, aucun test, aucune garde modifiée, aucun secret.
+
+== Reste
+
+. **GBL-014-5b bloqué amont** : réaligner les tags JitPack
+  (`document`/`plantuml`/`codebase`/`graphify`) sur les commits des releases
+  du même numéro, corriger `youtube-auth-plugin = "v0.0.4"` (MEMPHIS), puis
+  réappliquer `ee496ac3`.
+. GBL-014-5 rollout `0.0.20` (le shim reste `0.0.19` ici).
+. `CHANNEL=central` inopérant avant US-7 (markers après 2026-12-01).

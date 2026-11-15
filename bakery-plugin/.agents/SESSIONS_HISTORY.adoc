@@ -227,3 +227,16 @@ Suites : réaligner les tags amont (ou bumper), corriger le `v` de
 `youtube-auth`, puis réappliquer `ee496ac3`. Zéro secret, zéro Python, aucun
 autre dépôt modifié. Rapport
 `.agents/sessions/279-gbl-014-5b-relabelled-catalogue-audit.adoc`.
+
+== Session 280 — GBL-014-4 + GBL-013-10 : shim 0.0.19 et Node 26 LTS — 2026-11-15
+
+Shim `conventions-plugin` `0.0.18 → 0.0.19` (racine + plugin) ; actions
+`node24`-natives (`checkout@v7`, `setup-java@v6`, `setup-gradle@v6`,
+`setup-node@v6`, `upload-artifact@v7`, `download-artifact@v8`, `cache@v6`) ;
+`node-version: '22' → '26'` (4 occurrences) et bloc
+`node { download = true; version = "26.13.1" }` dans `bakery-plugin` (fin du
+`download = false` qui prenait le Node du runner) ; digest `cccp-ci-base`
+`sha256:03ead378…` (image Node 26.13.1). `Test` `43672589887`/`43683429806`/
+`43690069058` + `Publish website` `43672589904`/`43683429820`/`43690069092`
+vertes. GBL-014-5b reste bloqué amont. Aucun code métier, aucun test, aucune
+publication. Rapport `.agents/sessions/280-gbl-014-4-and-node-lts.adoc`.
