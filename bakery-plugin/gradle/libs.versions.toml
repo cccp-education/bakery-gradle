@@ -24,6 +24,17 @@ codebase-plugin = "0.0.18"
 i18n-contracts = "0.0.4"
 thymeleaf = "3.0.14.RELEASE"
 rome = "2.1.0"
+# GBL-014 — the `jitpack` channel has no `platform(...)` (the JitPack BOM POM is
+# not a platform), so every alias used by the build carries its own version.
+# Values mirror the published workspace catalogue (`ws`, the single source of
+# versions); on the `central` channel they are also the BOM-constrained values.
+jackson = "2.21.2"
+cucumber = "7.34.3"
+junit-platform = "1.14.3"
+logback = "1.5.32"
+langchain4j = "1.22.0"
+playwright = "1.52.0"
+arrow = "2.3.0"
 
 
 [libraries]
@@ -42,28 +53,29 @@ jgit-archive = { group = "org.eclipse.jgit", name = "org.eclipse.jgit.archive", 
 xz = { group = "org.tukaani", name = "xz", version.ref = "xz" }
 jbake = { group = "org.jbake", name = "jbake-core", version.ref = "jbake" }
 gradle-tooling-api = { group = "org.gradle", name = "gradle-tooling-api", version.ref = "gradle" }
-cucumber-java = { module = "io.cucumber:cucumber-java" }
-cucumber-junit-platform-engine = { module = "io.cucumber:cucumber-junit-platform-engine" }
-cucumber-picocontainer = { module = "io.cucumber:cucumber-picocontainer" }
-junit-platform-suite = { module = "org.junit.platform:junit-platform-suite" }
-jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin" }
-jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml" }
-kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core" }
+cucumber-java = { module = "io.cucumber:cucumber-java", version.ref = "cucumber" }
+cucumber-junit-platform-engine = { module = "io.cucumber:cucumber-junit-platform-engine", version.ref = "cucumber" }
+cucumber-picocontainer = { module = "io.cucumber:cucumber-picocontainer", version.ref = "cucumber" }
+junit-platform-suite = { module = "org.junit.platform:junit-platform-suite", version.ref = "junit-platform" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit-platform" }
+jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-jdk8 = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-jdk8", version.ref = "coroutines" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
-logback-classic = { module = "ch.qos.logback:logback-classic" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 node-gradle = { module = "com.github.node-gradle:gradle-node-plugin", version.ref = "node-gradle" }
 graphify-plugin = { module = "education.cccp:graphify-plugin", version.ref = "graphify" }
 codebase-contracts = { module = "education.cccp:codebase-contracts", version.ref = "codebase-contracts" }
 codebase-plugin = { module = "education.cccp:codebase-plugin", version.ref = "codebase-plugin" }
 i18n-contracts = { module = "education.cccp:i18n-contracts", version.ref = "i18n-contracts" }
-langchain4j-ollama = { module = "dev.langchain4j:langchain4j-ollama" }
+langchain4j-ollama = { module = "dev.langchain4j:langchain4j-ollama", version.ref = "langchain4j" }
 thymeleaf = { module = "org.thymeleaf:thymeleaf", version.ref = "thymeleaf" }
-playwright = { module = "com.microsoft.playwright:playwright" }
+playwright = { module = "com.microsoft.playwright:playwright", version.ref = "playwright" }
 rome = { module = "com.rometools:rome", version.ref = "rome" }
-arrow-core = { module = "io.arrow-kt:arrow-core" }
-arrow-fx-coroutines = { module = "io.arrow-kt:arrow-fx-coroutines" }
+arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
+arrow-fx-coroutines = { module = "io.arrow-kt:arrow-fx-coroutines", version.ref = "arrow" }
 
 
 [plugins]

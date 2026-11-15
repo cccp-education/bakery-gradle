@@ -13,6 +13,15 @@ val workspaceBomVersion: String =
     providers.gradleProperty("workspaceBomVersion").orNull?.takeIf { it.isNotBlank() }
         ?: error("workspaceBomVersion is missing from gradle.properties")
 
+// GBL-014 — the publication channel is a build property, never a branch.
+// `jitpack` (default): coordinates come from the JitPack-projected `ws` catalog,
+// and no `platform(...)` is declared. `central`: the real Central BOM is a
+// platform. The JitPack BOM POM is never imported as a platform (its relabel
+// loses `dependencyManagement` and the module metadata).
+val publicationChannel: String =
+    providers.gradleProperty("channel").getOrElse("jitpack")
+val centralChannel = publicationChannel == "central"
+
 plugins {
     `java-library`
     alias(libs.plugins.kotlin.jvm)
@@ -53,7 +62,12 @@ dependencies {
     // BOM — workspace version alignment (workspace-bom, MEMPHIS)
     // MEM-CAT-3 (D5) — platform 0.0.100 : contraint document-plugin 0.0.24,
     // plantuml-plugin 0.0.10, codebase-plugin 0.0.18 sans hardcode.
-    implementation(platform("education.cccp:workspace-bom:$workspaceBomVersion"))
+    // GBL-014 — the Central BOM is a real platform; on JitPack the alignment
+    // comes from the channel-projected catalogue (the JitPack BOM POM is not a
+    // valid platform: no `dependencyManagement`, no module metadata).
+    if (centralChannel) {
+        implementation(platform("education.cccp:workspace-bom:$workspaceBomVersion"))
+    }
 
     // kotlin-stdlib is pulled transitively (and pinned by the BOM). The
     // kotlin-stdlib-jdk8 shim is an empty artifact since Kotlin 1.8 and
@@ -67,10 +81,12 @@ dependencies {
     implementation(libs.graphify.plugin)
     implementation(libs.codebase.contracts)
     implementation(libs.codebase.plugin)
-    implementation("education.cccp:api-key-pool:0.0.1")
-    implementation("education.cccp:i18n-contracts:0.0.4")
-    // MEM-CAT-3 (D5) — document-plugin sans version : la version vient du platform
-    // workspace-bom (constraint document-plugin), plus de hardcode local.
+    // GBL-014 — cross-borough N2/N0 artefacts are read from the channel-projected
+    // `ws` catalogue: JitPack relabels them as `com.github.cccp-education...`,
+    // Central keeps `education.cccp...`. Never a literal coordinate here.
+    implementation(ws.api.key.pool.plugin)
+    implementation(ws.i18n.contracts)
+    // MEM-CAT-3 (D5) — document-plugin version comes from the `ws` catalogue.
     // PLT-DIAGRAM-OWNERSHIP US-5 (S-221) — CHE-DIAGRAM D1 (white diagrams):
     // document-plugin drags `org.w3c:epubcheck:5.2.1` which drags
     // `net.sf.saxon:Saxon-HE:11.4`. PlantUML serialises its SVG through the Saxon
@@ -78,7 +94,7 @@ dependencies {
     // child elements → the browser renders a uniform white box. bakery never runs
     // any EPUB validation (zero `epubcheck` reference in its source), so epubcheck
     // is excluded here: the bake falls back to a correct serializer.
-    implementation("education.cccp:document-plugin") {
+    implementation(ws.document.plugin) {
         exclude(group = "org.w3c", module = "epubcheck")
     }
 
@@ -86,8 +102,8 @@ dependencies {
     // translation port (`PlantumlTranslationPortAdapter` + `PlantumlSyntaxValidatorAdapter`)
     // and injects it into document. The plantuml borough owns the port
     // implementation; document only delegates (D1/D3).
-    implementation("education.cccp:plantuml-plugin")
-    implementation("education.cccp:plantuml-contracts")
+    implementation(ws.plantuml.plugin)
+    implementation(ws.plantuml.contracts)
 
     // LLM — LangChain4j + Ollama (BKY-IA-0)
     implementation(libs.langchain4j.ollama)
@@ -107,7 +123,7 @@ dependencies {
     testImplementation(libs.bundles.coroutines)
 
     testImplementation(kotlin("test-junit5"))
-    testImplementation("org.junit.platform:junit-platform-launcher")
+    testImplementation(libs.junit.platform.launcher)
     testImplementation(libs.slf4j.api)
     testRuntimeOnly(libs.logback.classic)
 
@@ -286,7 +302,10 @@ val functionalTest: SourceSet by sourceSets.creating {
 
 // 2. Ajouter GradleTestKit à functionalTest (SANS hériter de testImplementation)
 dependencies {
-    add(functionalTest.implementationConfigurationName, platform("education.cccp:workspace-bom:$workspaceBomVersion"))
+    // GBL-014 — Central BOM platform only on the `central` channel (see main deps).
+    if (centralChannel) {
+        add(functionalTest.implementationConfigurationName, platform("education.cccp:workspace-bom:$workspaceBomVersion"))
+    }
 
     add(functionalTest.implementationConfigurationName, gradleTestKit())
     add(functionalTest.implementationConfigurationName, kotlin("test-junit5"))
@@ -294,7 +313,7 @@ dependencies {
     // Ajouter les dépendances nécessaires explicitement
     add(functionalTest.implementationConfigurationName, libs.slf4j.api)
     add(functionalTest.runtimeOnlyConfigurationName, libs.logback.classic)
-    add(functionalTest.runtimeOnlyConfigurationName, "org.junit.platform:junit-platform-launcher")
+    add(functionalTest.runtimeOnlyConfigurationName, libs.junit.platform.launcher)
 
     // CORRECTION: Ajouter AssertJ pour les assertions
     add(functionalTest.implementationConfigurationName, libs.assertj.core)
@@ -312,7 +331,9 @@ dependencies {
         .forEach { add(functionalTest.implementationConfigurationName, it) }
 
     // XB-FP-7 (S-322) — shared fixtures compiled once for both suites.
-    add(sharedTest.implementationConfigurationName, platform("education.cccp:workspace-bom:$workspaceBomVersion"))
+    if (centralChannel) {
+        add(sharedTest.implementationConfigurationName, platform("education.cccp:workspace-bom:$workspaceBomVersion"))
+    }
     add(sharedTest.implementationConfigurationName, kotlin("stdlib"))
     add(sharedTest.implementationConfigurationName, libs.assertj.core)
     add(functionalTest.implementationConfigurationName, sharedTest.output)
@@ -354,7 +375,10 @@ val e2eTest: SourceSet by sourceSets.creating {
 
 // 2. Dépendances e2eTest : Playwright + JUnit5 + AssertJ + full test runtime
 dependencies {
-    add(e2eTest.implementationConfigurationName, platform("education.cccp:workspace-bom:$workspaceBomVersion"))
+    // GBL-014 — Central BOM platform only on the `central` channel (see main deps).
+    if (centralChannel) {
+        add(e2eTest.implementationConfigurationName, platform("education.cccp:workspace-bom:$workspaceBomVersion"))
+    }
 
     add(e2eTest.implementationConfigurationName, sourceSets.main.get().output)
     add(e2eTest.implementationConfigurationName, sourceSets.test.get().output)
@@ -376,7 +400,7 @@ dependencies {
     add(e2eTest.implementationConfigurationName, libs.mockito.kotlin)
     add(e2eTest.implementationConfigurationName, libs.mockito.junit.jupiter)
     add(e2eTest.runtimeOnlyConfigurationName, libs.logback.classic)
-    add(e2eTest.runtimeOnlyConfigurationName, "org.junit.platform:junit-platform-launcher")
+    add(e2eTest.runtimeOnlyConfigurationName, libs.junit.platform.launcher)
 }
 
 // 3. Tâche e2eTest — Playwright browser tests (séparés de check)
