@@ -3488,3 +3488,17 @@ double compte)._
 | ✅ S-226 (**partiel**) — job `unit` dans l'image via `ci/run.sh test`, run `43492246746` **VERT** ; shards/e2e/coverage restent sur l'hôte (navigateur Playwright). Gardes `BakeryCucumberShardCoverageTest` alignés sur le contrat ; `FileSystemManagerTest` rendu **root-safe** (le conteneur tourne en root, une copie vers un dossier read-only n'échoue plus).
 |===
 
+
+== GBL-014-5b — projection du canal sur bakery
+
+* ✅ **S-278** : settings conditionnels `-Pchannel` (racine + plugin),
+  catalogue `ws` projeté par canal, 5 coordonnées Central en dur → accesseurs
+  `ws.*`, 4 `platform(workspace-bom)` restreintes à `central`, versions
+  explicites dans le catalogue local, shim `0.0.18`, `ci/run.sh`
+  `-Pchannel`/`verifyChannel`. Garde `BakeryPluginPublicationTest` **non
+  modifiée** (chaînes conservées). CI `Test` `43663467157` (18/18) et
+  `Publish website` `43663467047` vertes.
+* 🟡 Reste : pin `workspaceCatalogVersion=v0.0.133` encore aux coordonnées
+  Central (le relabel JitPack des alias n'arrive qu'en `0.0.136`, servi sans
+  préfixe `v` alors que la garde impose `v<version>`) — assouplir la garde
+  (permission explicite) ou publier un tag `v0.0.136` du catalogue.

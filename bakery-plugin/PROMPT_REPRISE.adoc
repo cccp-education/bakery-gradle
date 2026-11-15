@@ -1,16 +1,15 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
+:session: 278
+:date: 2026-11-15
+:etat: S-278 ✅ — **GBL-014-5b** : settings conditionnels `-Pchannel` (racine + plugin), catalogue `ws` projeté par canal, 5 coordonnées Central en dur → accesseurs `ws.*`, 4 `platform(workspace-bom)` restreintes à `central`, shim `0.0.18`, `ci/run.sh` `-Pchannel`/`verifyChannel`. Aucun test modifié. CI `Test` `43663467157` (18/18) + `Publish website` `43663467047` vertes.
+:epic_suivant: pin catalogue `v0.0.133` encore aux coordonnées Central (assouplir `BakeryPluginPublicationTest` avec permission, ou publier un tag `v0.0.136` relabellé) ; **US-3c** (plantuml `0.0.17`, faux traducteurs, réactivation JitPack) ; dette `ur/0084` (site cheroliv, metered) ; BKY-PLT-4 ; release Central 0.0.39 au reset 2026-12-01.
 
-:session: 274
-:date: 2026-11-13
-:etat: S-273 ⚠️ — CNV-17 : JitPack canal unique, **exception bakery** (consommation revertée à `fc47a822` ; publication `0.0.38` conservée sur JitPack). Détail dans `.agents/PROMPT_REPRISE.adoc`.
-:epic_suivant: **US-3c** (plantuml `0.0.17`, faux traducteurs, réactivation JitPack) ; dette `ur/0084` (site cheroliv, metered) ; BKY-PLT-4 ; release Central 0.0.39 au reset 2026-12-01.
-
-La source canonique complète est `.agents/PROMPT_REPRISE.adoc` (même session 273).
+La source canonique complète est `.agents/PROMPT_REPRISE.adoc` (même session 278).
 
 == Rappels
 
 * Local = Build, Tests = CI ; zéro Python ; English only code/tests/features.
-* Commit/push sur accord pilote ; indexer explicitement (jamais `git add -A`).
+* Commit/push sur accord pilote ; indexer explicitement.
 * Ne pas lire les fichiers gitignorés (`site.yml`).
 * `publishToMavenLocal` interdit sur une version déjà Central / en release concurrente.
 * JitPack publié = immuable : ne jamais réutiliser un tag.

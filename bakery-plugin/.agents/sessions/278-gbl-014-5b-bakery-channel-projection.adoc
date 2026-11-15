@@ -1,0 +1,64 @@
+= Session 278 — GBL-014-5b : projection du canal sur bakery
+:date: 2026-11-15
+:scope: bakery-plugin — settings conditionnels, catalogue et plateforme par canal
+:statut: ✅ LIVRÉE — `Test` `43663467157` VERTE (18/18 jobs), `Publish website` `43663467047` VERTE
+
+== Contexte
+
+Dernier dépôt non projeté sur le canal de publication dual (GBL-014) : `bakery`
+mélangeait les canaux — catalogue `ws` lu depuis JitPack, mais plateforme
+`platform("education.cccp:workspace-bom:…")` (Maven Central) dans les **4**
+source sets et **5** coordonnées `education.cccp` en dur (dont
+`document-plugin` et `plantuml-plugin` **sans version**, donc dépendantes de la
+plateforme).
+
+== Décisions
+
+* **Settings conditionnels** (racine + plugin) : `val publicationChannel` ;
+  dépôt JitPack + shim `useModule(conventions-plugin:0.0.18)` **seulement** en
+  `jitpack` ; le `maven("https://jitpack.io")` du
+  `dependencyResolutionManagement` devient lui aussi conditionnel.
+* **Catalogue `ws` projeté par canal** : `jitpack` →
+  `com.github.cccp-education.workspace-bom:workspace-catalog:$workspaceCatalogVersion` ;
+  `central` → `education.cccp:workspace-catalog:<version sans préfixe v>`.
+* **Coordonnées par le catalogue** : les 5 dépendances en dur passent aux
+  accesseurs `ws.*` (projection de canal automatique — `com.github.cccp-education.*`
+  en jitpack, `education.cccp.*` en central).
+* **Plateforme central-only** : les 4 `platform(workspace-bom)` sont dans la
+  branche `central`. En `jitpack`, l'alignement vient du catalogue (le BOM
+  JitPack n'est pas une `platform` — D5). Les versions qui étaient fournies
+  implicitement par la plateforme sont désormais explicites dans le catalogue
+  local (`jackson 2.21.2`, `cucumber 7.34.3`, `junit-platform 1.14.3`,
+  `logback 1.5.32`, `langchain4j 1.22.0`, `playwright 1.52.0`, `arrow 2.3.0`,
+  alias `junit-platform-launcher`) — valeurs du catalogue `ws`.
+* **Garde préservée sans modification** : `BakeryPluginPublicationTest` exige
+  les chaînes `workspaceCatalogVersion=v…`, `workspaceBomVersion=…`,
+  `workspace-catalog:$workspaceCatalogVersion` et
+  `workspace-bom:$workspaceBomVersion` — elles restent présentes (la dernière
+  dans la branche `central`). **Aucun test modifié.**
+* `ci/run.sh` : `channel="${CHANNEL:-jitpack}"`, `-Pchannel="$channel"`,
+  `verifyChannel` sur le job `fast|test`.
+
+== Preuves (Local = Build, Tests = CI)
+
+* Compilations des 5 source sets (`main`, `test`, `functionalTest`,
+  `sharedTest`, `e2eTest`) `-Pchannel=jitpack` : **BUILD SUCCESSFUL 2m33s**.
+* `verifyChannel -Pchannel=jitpack` : `CHANNEL OK`.
+* `ktlintCheck` VERT (scripts `.kts` inclus) ; `bash -n ci/run.sh` OK.
+* Commit `4be0066c` ; **`Test` `43663467157` ✅ 18/18**, **`Publish website`
+  `43663467047` ✅**.
+
+== Reste (dette de conception, hors périmètre)
+
+* Le pin `workspaceCatalogVersion=v0.0.133` sert un catalogue JitPack encore
+  aux coordonnées `education.cccp` (le relabel JitPack des alias n'apparaît
+  qu'en `0.0.136`). Bump impossible sans toucher la garde : elle impose
+  `workspaceCatalogVersion=v<workspace-bom>`, or JitPack ne sert `0.0.136`
+  que **sans** préfixe `v`. Aujourd'hui les coordonnées `education.cccp` du
+  catalogue existent sur Central (document 0.0.30, plantuml 0.0.16,
+  i18n-contracts 0.0.5, api-key-pool 0.0.2 → HTTP 200), d'où le vert.
+  Séparation complète = assouplir la garde (permission explicite) **ou**
+  publier un tag `v0.0.136` du catalogue relabellé.
+* Effet de bord assumé : le BOM Central `0.0.115` contraignait document 0.0.26
+  / plantuml 0.0.14 ; le catalogue `ws` amène 0.0.30 / 0.0.16 (CI verte).
+* Canal `central` non exerçable avant le reset Sonatype (2026-12-01).

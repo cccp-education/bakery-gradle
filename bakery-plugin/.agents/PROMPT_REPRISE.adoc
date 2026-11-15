@@ -1,9 +1,18 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 277
-:date: 2026-11-14
-:etat: S-276 ✅ — **GBL-013 US-6** : `CiMirrorPayload` injecte les actions canoniques (`actionsDir`, 2 UT) ; release JitPack `0.0.39` ; `runner-gradle` adopté ; 12 copies `.ci-mirror` supprimées côté office.
+:session: 278
+:date: 2026-11-15
+:etat: S-278 ✅ — **GBL-014-5b** : settings conditionnels `-Pchannel` (racine + plugin), catalogue `ws` projeté par canal, 5 coordonnées Central en dur → accesseurs `ws.*`, 4 `platform(workspace-bom)` restreintes à `central`, shim `0.0.18`, `ci/run.sh` `-Pchannel`/`verifyChannel`. Aucun test modifié. CI `Test` `43663467157` (18/18) + `Publish website` `43663467047` vertes.
 :epic_actif: PLT-DIAGRAM-OWNERSHIP 7/8 (US-7 re-bake cheroliv + DiagramIntegrity).
-:epic_suivant: **US-3c** (plantuml `0.0.17`, faux traducteurs, réactivation JitPack) ; dette `ur/0084` ; BKY-PLT-4 ; release Central 0.0.39 au reset 2026-12-01.
+:epic_suivant: pin catalogue `v0.0.133` encore aux coordonnées Central (assouplir `BakeryPluginPublicationTest` avec permission, ou tag `v0.0.136` relabellé) ; **US-3c** ; dette `ur/0084` ; release Central 0.0.39 au reset 2026-12-01.
+
+== Session 278 — GBL-014-5b : projection du canal
+
+* Settings `-Pchannel` (JitPack repo + shim `0.0.18` seulement en `jitpack`),
+  catalogue `ws` par canal, dépendances par `ws.*`, plateforme `central`-only.
+* Preuves : compilations 5 source sets, `verifyChannel` OK, `Test`
+  `43663467157` (18/18), `Publish website` `43663467047`.
+* Reste : catalogue `0.0.133` encore aux coordonnées Central (garde).
+* Rapport `.agents/sessions/278-gbl-014-5b-bakery-channel-projection.adoc`.
 
 == Session 276 — GBL-013 US-6 : actions `.ci-mirror` mutualisées
 
