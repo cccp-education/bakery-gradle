@@ -131,7 +131,9 @@ Le premier push a révélé trois défauts réels (BDD verts, 15/18 jobs verts) 
   `[netlify] skipped — payload unchanged since the last deployment`.
 
 Re-gates (Local = Build) : compiles ×3, `assemble`, `validatePlugins`,
-`ktlintCheck` VERTS. Nouveau push pour la preuve CI définitive.
+`ktlintCheck` VERTS. **Preuve CI définitive** (commit `1a60ec41`) : run
+`44226716284` **VERT** (18/18 jobs, 0 échec) + `Publish website`
+`44226716350` **VERT**.
 
 == Gates exécutés (Local = Build)
 

@@ -24,8 +24,9 @@
   `70_netlify_deploy.feature` rattachée au shard `LangSwitchEcosystem` ;
   `NetlifyFunctionalTest` dans le shard functional E.
 * Gates Local = Build : compiles ×3, `assemble`, `validatePlugins`,
-  `ktlintCheck` VERTS. `publishToMavenLocal` **non exécuté** (0.0.39 déjà
-  publiée, aucun consommateur mavenLocal requis).
+  `ktlintCheck` VERTS. **CI verte** `44226716284` (18/18) + `Publish website`
+  `44226716350` (commit `1a60ec41`). `publishToMavenLocal` **non exécuté**
+  (0.0.39 déjà publiée, aucun consommateur mavenLocal requis).
 * Rapport `.agents/sessions/282-bky-netlify-us1-us7.adoc`.
 
 == Mission S-283 — BKY-NETLIFY-8 (sur accord pilote uniquement)

@@ -139,7 +139,8 @@ externe. Implémentation : `bakery.deploy` (`DeployPayload`, `DeployTarget`,
 `NetlifyTaskRegistrar`). 6 fichiers de test unitaire (33 UT), 1 functional
 (6 tests, stub loopback), 1 feature (5 scénarios) + runner dédié ; shard BDD
 `LangSwitchEcosystem` et shard functional E mis à jour. Aucun test lancé en
-local (Local = Build, Tests = CI).
+local (Local = Build, Tests = CI) : **CI verte** `44226716284` (18/18) +
+`Publish website` `44226716350` (commit `1a60ec41`).
 
 *Hors périmètre* : création du site Netlify, domaine/HTTPS/certificats,
 variables d'environnement Netlify, fonctions/edge, DNS Netlify (`dns:` reste
