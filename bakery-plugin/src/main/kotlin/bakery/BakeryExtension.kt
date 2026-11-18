@@ -7,6 +7,7 @@ import bakery.i18n.I18nMigrationIntentionDsl
 import bakery.i18n.js.I18nClientMigrationIntentionDsl
 import bakery.lens.AugmentedContextDsl
 import bakery.llm.IaConfig
+import bakery.netlify.NetlifyDsl
 import bakery.scaffold.ScaffoldIntentionDsl
 import bakery.theme.ThemeIntentionDsl
 import org.gradle.api.Action
@@ -96,6 +97,9 @@ open class BakeryExtension
         /** Configuration Accessibilité (auditDir, reportPath, conformanceLevel) — BKY-A11Y-1 */
         val a11y: AccessibilityDsl = AccessibilityDsl(objects)
 
+        /** Configuration Netlify (siteId, tokenEnv, deploy, toml) — BKY-NETLIFY */
+        val netlify: NetlifyDsl = NetlifyDsl()
+
         /** Langue active du site (code ISO 639-1, ex: "fr", "en", "ar") — BKY-I18N */
         val language: Property<String> = objects.property(String::class.java)
 
@@ -180,5 +184,10 @@ open class BakeryExtension
         /** DSL : bakery { a11y { ... } } — BKY-A11Y-1 */
         fun a11y(action: Action<AccessibilityDsl>) {
             action.execute(a11y)
+        }
+
+        /** DSL : bakery { netlify { ... } } — BKY-NETLIFY */
+        fun netlify(action: Action<NetlifyDsl>) {
+            action.execute(netlify)
         }
     }

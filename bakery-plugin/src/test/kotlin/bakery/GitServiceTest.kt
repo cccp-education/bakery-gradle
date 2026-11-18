@@ -688,6 +688,52 @@ class GitServiceTest {
         }
 
         @Test
+        fun `pushPages keeps the baked payload on disk after a successful push`() {
+            // BKY-NETLIFY (D4) — a second target reads the same tree.
+            val destDir = tempDir.resolve("bakedOutputKept").apply { mkdirs() }
+            destDir.resolve("index.html").writeText("<h1>Site</h1>")
+            val repoDir = tempDir.resolve("gh-pages-kept")
+
+            val remoteDir = tempDir.resolve("remote-kept.git").apply { mkdirs() }
+            val remoteGit =
+                Git
+                    .init()
+                    .setDirectory(remoteDir)
+                    .setBare(true)
+                    .call()
+            try {
+                val config =
+                    GitPushConfiguration(
+                        from = "",
+                        to = "",
+                        repo =
+                            RepositoryConfiguration(
+                                name = "pages",
+                                repository = remoteDir.toURI().toString(),
+                                credentials = RepositoryCredentials("testuser", "testtoken"),
+                            ),
+                        branch = "gh-pages",
+                        message = "ci: deploy bakery site",
+                    )
+
+                val result =
+                    GitService.pushPages(
+                        destPath = { destDir.absolutePath },
+                        pathTo = { repoDir.absolutePath },
+                        git = config,
+                        logger = logger,
+                    )
+
+                assertThat(result.isRight()).isTrue()
+                assertThat(destDir).exists()
+                assertThat(destDir.resolve("index.html")).hasContent("<h1>Site</h1>")
+                assertThat(repoDir).doesNotExist()
+            } finally {
+                remoteGit.close()
+            }
+        }
+
+        @Test
         fun `pushPages returns Left when pushToRemote throws an exception`() {
             val destDir = tempDir.resolve("bakedOutputWithException").apply { mkdirs() }
             destDir.resolve("index.html").writeText("<h1>Site</h1>")

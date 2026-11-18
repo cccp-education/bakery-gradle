@@ -92,7 +92,10 @@ object GitService {
                 },
             )
         } finally {
-            cleanupPublicationArtifacts(repoDir, destPath(), logger)
+            // BKY-NETLIFY (D4) — only the temporary repository is removed. The
+            // baked tree stays on disk so another target (and any post-deploy
+            // check) can consume the exact payload that was shipped.
+            cleanupPublicationArtifacts(repoDir, logger)
         }
     }
 
@@ -187,7 +190,6 @@ object GitService {
 
     private fun cleanupPublicationArtifacts(
         repoDir: File,
-        destPath: String,
         logger: Logger,
     ) {
         logger.info("Cleaning up publication artifacts.")
@@ -195,11 +197,6 @@ object GitService {
             if (repoDir.exists()) {
                 repoDir.deleteRecursively()
                 logger.info("Deleted temporary repository directory: $repoDir")
-            }
-            val destDir = File(destPath)
-            if (destDir.exists()) {
-                destDir.deleteRecursively()
-                logger.info("Deleted baked output directory: $destDir")
             }
         } catch (e: Exception) {
             logger.error("Error during cleanup: ${e.message}", e)

@@ -279,11 +279,11 @@ Tous les tests (68 UT + 10 Cucumber) utilisent des templates synthétiques dans 
 == EPIC BKY-NETLIFY — cible de déploiement Netlify 🟡 CADRÉ S-281
 
 * [x] **NETLIFY-0** : Cadrage (15 décisions, 9 US ~25 pts) ✅ S-281 — `.agents/CADRAGE_EPIC_BKY_NETLIFY.adoc`
-* [ ] **NETLIFY-1** : `DeployPayload` + `DeployTarget`/`DeployOutcome` + payload survivant au push (prérequis)
-* [ ] **NETLIFY-2** : `NetlifyConfig` + cascade + `verifyConfigurationMapping` Netlify-only + redaction
-* [ ] **NETLIFY-3** : `NetlifyDeployPlan` (digest, skip/force/dry-run, exclusions `CNAME`)
-* [ ] **NETLIFY-4** : port `NetlifyHttp` + `JavaNetlifyHttp` + `NetlifyApiClient` (erreurs `401/404/422/429`)
-* [ ] **NETLIFY-5** : `DeployNetlifyTask` + `generateNetlifyToml` + agrégats + ordre vs `deploySite`
-* [ ] **NETLIFY-6** : BDD `@netlify` + runner + FT TestKit + câblage CI sans jeton
-* [ ] **NETLIFY-7** : `netlify.toml`/`_headers`/`_redirects` + docs
-* [ ] **NETLIFY-8** : dogfooding réel (accord pilote) + smoke 200 + release `-Pchannel`
+* [x] **NETLIFY-1** : `DeployPayload` + `DeployTarget`/`DeployOutcome` + payload survivant au push ✅ S-282
+* [x] **NETLIFY-2** : `NetlifyConfig` + cascade + `verifyConfigurationMapping` Netlify-only + redaction ✅ S-282
+* [x] **NETLIFY-3** : `NetlifyDeployPlan` (digest, skip/force/dry-run, exclusions `CNAME`) ✅ S-282
+* [x] **NETLIFY-4** : port `NetlifyHttp` + `JavaNetlifyHttp` + `NetlifyApiClient` (erreurs `401/404/422/429`) ✅ S-282
+* [x] **NETLIFY-5** : `DeployNetlifyTask` + `generateNetlifyToml` + agrégats + ordre vs `deploySite` ✅ S-282
+* [x] **NETLIFY-6** : BDD `@netlify` + runner + FT TestKit + câblage CI sans jeton ✅ S-282
+* [x] **NETLIFY-7** : `netlify.toml`/`_headers`/`_redirects` + docs ✅ S-282
+* [ ] **NETLIFY-8** : dogfooding réel (accord pilote) + smoke 200 + release `-Pchannel` — **BLOQUÉ** (jeton + site réel)

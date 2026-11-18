@@ -12,9 +12,9 @@ import org.junit.platform.suite.api.Suite
 /**
  * CI shard — language switch ecosystem: RTL direction injection (domain and
  * task), SEO injection, contact security, same-page language switch, variant
- * bake, template tree and DNS provisioning.
+ * bake, template tree, DNS provisioning and the Netlify deployment plan.
  *
- * One of six exhaustive, disjoint feature shards; guarded by
+ * One of eight exhaustive, disjoint feature shards; guarded by
  * `bakery.ci.BakeryCucumberShardCoverageTest`.
  */
 @Suite
@@ -28,6 +28,7 @@ import org.junit.platform.suite.api.Suite
 @SelectClasspathResource("features/68_template_tree.feature")
 @SelectClasspathResource("features/69_seo_head_locale.feature")
 @SelectClasspathResource("features/dns_provision.feature")
+@SelectClasspathResource("features/70_netlify_deploy.feature")
 @ConfigurationParameter(
     key = FEATURES_PROPERTY_NAME,
     value =
@@ -36,7 +37,7 @@ import org.junit.platform.suite.api.Suite
             "src/test/features/61_contact_sec.feature,src/test/features/69_seo_head_locale.feature," +
             "src/test/features/66_same_page_language_switch.feature," +
             "src/test/features/67_variant_bake.feature,src/test/features/68_template_tree.feature," +
-            "src/test/features/dns_provision.feature",
+            "src/test/features/dns_provision.feature,src/test/features/70_netlify_deploy.feature",
 )
 @ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "bakery.scenarios")
 @ConfigurationParameter(

@@ -87,6 +87,48 @@ Ports `11434–11436` are forbidden. Rotate over `11437–11465` (29 ports).
 Authorized models: `gpt-oss:120b-cloud`, `gemma4:31b-cloud`.
 Bakery default: `http://localhost:11464` + `gpt-oss:120b-cloud` (see `IaConfig.kt`).
 
+## Deployment targets (Pages + Netlify)
+
+`deploySite` (a forced Git push, served by GitHub Pages) is unchanged. Netlify is
+an **additive** target: a site without a `netlify:` section sees no new task.
+
+```yaml
+# site.yml — optional
+netlify:
+  siteId: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"   # never a secret
+  tokenEnv: NETLIFY_AUTH_TOKEN                      # NAME of the env variable
+  deploy:
+    exclude: ["**/*.bak"]
+    message: "bakery deploy"
+    force: false
+    dryRun: false
+  verifyUrl: "https://example.org/"                 # optional live smoke
+  toml:
+    enabled: false                                  # netlify.toml + _headers/_redirects
+```
+
+| Task | What it does |
+|------|--------------|
+| `deployNetlify` | Ships the baked tree to the Netlify API (direct upload, no rebuild). |
+| `publishSiteNetlify` | `bake` + `deployNetlify` + `accessibilityAudit`. |
+| `publishSiteAll` | `publishSite` + `publishSiteNetlify` (only when a Git target is also configured). |
+| `generateNetlifyToml` | Writes `netlify.toml` / `_headers` / `_redirects` (output only, opt-in). |
+
+Rules:
+- The payload is **shared**: `build/<bake.destDirPath>` survives `deploySite`
+  (only the temporary Git repo is removed), so both targets ship the same tree.
+- `CNAME`, `**/*.bak` and `.git/**` are never part of a Netlify payload.
+- The payload digest (SHA-256 over path + content) is stored in
+  `build/bakery/netlify/last-deploy.json`; an unchanged payload is **skipped**
+  without any network call (`force = true` overrides). `dryRun` prints the plan
+  and never reads the token.
+- The token is read **only** from the environment (`tokenEnv`), never from
+  `site.yml`, a Gradle property or the command line. A present section with a
+  missing token fails loudly (no false green).
+- The deploy never creates the Netlify site, domain, HTTPS or DNS: those are
+  platform/consumer concerns. Direct upload is the default; `netlify.toml` only
+  documents the secondary "Netlify builds from Git" mode.
+
 ## Test matrix
 
 | Task | SourceSet | Scope | Timeout | Parallelism |
@@ -180,6 +222,7 @@ All EPICs closed (see `bakery-plugin/.agents/INDEX.adoc`):
 - **BKY-CR-V6** (3 structural duplications, 8/8 pts) — ✅
 - **BKY-A11Y-1** (WCAG/RGAA accessibility, 13/13 pts) — ✅
 - **BKY-FIX-1** (deployProfile without site.yml) — ✅
+- **BKY-NETLIFY** (Netlify deployment target: additive, digest-aware, dry-run) — ✅ (live dogfooding pending a token)
 
 ## Architecture docs
 

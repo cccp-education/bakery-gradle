@@ -182,6 +182,14 @@ object FileSystemManager {
             }
         }
 
+    /**
+     * Copies the baked tree into the publication repository.
+     *
+     * BKY-NETLIFY (D4) — the baked tree is **not** deleted any more: a second
+     * deployment target must be able to consume the same payload in the same
+     * build, and a post-deploy check must be able to inspect what was shipped.
+     * Only the temporary repository is cleaned up (see `GitService`).
+     */
     fun copyBakedFilesToRepo(
         bakeDirPath: String,
         repoDir: File,
@@ -191,16 +199,7 @@ object FileSystemManager {
             bakeDirPath
                 .also { "bakeDirPath : $it".let(logger::info) }
                 .let(::File)
-                .apply {
-                    copyTreePreservingAttributes(this, repoDir)
-                    deleteRecursively()
-                }.run {
-                    if (!exists()) {
-                        logger.info("$name directory successfully deleted.")
-                    } else {
-                        throw IOException("$name must not exist.")
-                    }
-                }
+                .apply { copyTreePreservingAttributes(this, repoDir) }
             Unit.right()
         } catch (e: Exception) {
             (e.message ?: "An error occurred during file copy.").left()

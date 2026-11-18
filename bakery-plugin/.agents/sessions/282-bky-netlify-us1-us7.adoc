@@ -1,0 +1,159 @@
+= Session 282 — BKY-NETLIFY US-1 → US-7 (cible de déploiement Netlify)
+:session: 282
+:date: 2026-11-15
+:type: implémentation (DDD/TDD/BDD, tests = CI)
+:statut: ✅ TERMINÉE — 7/9 US ; US-8 bloquée par un préalable externe
+
+== Mission
+
+Suite de S-281 (cadrage). Traiter les US de l'EPIC `BKY-NETLIFY` : livrer la
+cible Netlify additive sans toucher au contrat de la cible historique
+(`deploySite` → GitHub Pages).
+
+== Ouverture
+
+* `git status` propre sur `main` au début de la session (commit de cadrage
+  `1b46145f`).
+* `./gradlew tasks --all` VERT (1m09s), compiles 3 source sets VERTS (2m13s) —
+  aucune suite de tests lancée (Local = Build, Tests = CI).
+
+== Ce qui a été livré
+
+=== US-1 — le payload survit au déploiement
+
+* `bakery.deploy.DeployPayload` (pur) : racine, exclusions (`.git`, `CNAME`,
+  `**/*.bak`, extras), listing **ordonné**, SHA-256 par contenu, digest
+  `(chemin, hash)` — insensible à l'ordre, sensible à un octet et à un renommage.
+* `bakery.deploy.DeployTarget` (`GitPages` | `Netlify`) et `DeployOutcome`
+  (`Deployed` | `Skipped` | `Failed`) — le transport Git est *enveloppé*, pas
+  réécrit.
+* **Deux suppressions retirées** (constat C4 corrigé) :
+  `FileSystemManager.copyBakedFilesToRepo` ne supprime plus `bakeDir` après
+  copie, et `GitService.cleanupPublicationArtifacts` ne supprime plus que le
+  dépôt temporaire. Deux cibles lisent donc le même arbre dans le même build.
+* Tests : `DeployPayloadTest` (9 UT), `GitServiceTest` (payload conservé après
+  push), `FileSystemManagerTest` (bakeDir conservé).
+
+=== US-2 — configuration + garde
+
+* `bakery.netlify.NetlifyConfig` (+ `NetlifyDeployOptions`, `NetlifyTomlOptions`),
+  `SiteConfiguration.netlify` (section optionnelle, `null` = aucune tâche).
+* `NetlifyDsl` + `BakeryExtension.netlify { … }`.
+* `NetlifyConfigResolver` : cascade CLI > gradle.properties > DSL > site.yml >
+  défauts via `ConfigResolver` (chaque couche testée).
+* `VerifyConfigurationMappingTask` : `pushPage.from/to` non requis quand
+  `netlify.siteId` est configuré ; le résumé expose `siteId`/`tokenEnv` et jamais
+  un jeton.
+* Tests : `NetlifyConfigResolverTest` (5 UT), `VerifyConfigurationMappingNetlifyTest`
+  (3 UT).
+
+=== US-3 — plan pur + économie d'encre
+
+* `NetlifyDeployPlan`, `NetlifyDecision` (`Deploy` | `Skip` | `Fail`),
+  `NetlifyPlanner` : site id vide = échec, payload vide = échec, digest identique
+  pour le même site = `Skip` (sauf `force`), autre site = deploy, `dryRun`
+  n'uploade jamais.
+* `NetlifyDeploymentRecord` + `NetlifyDeploymentRecordStore` (JSON
+  `last-deploy.json`, fichier illisible = « pas de précédent », dégradation
+  silencieuse).
+* Tests : `NetlifyPlannerTest` (6 UT).
+
+=== US-4 — port + adapter + client API
+
+* `NetlifyHttp` (port), `JavaNetlifyHttp` (`java.net.http`, en-tête
+  `Authorization` seulement si jeton non vide), `NetlifyApiClient` (création de
+  déploiement, polling borné, mapping `401`/`404`/`429`/`4xx`/`5xx`, messages
+  sans jeton).
+* Décision : **pas de retry POST** (non idempotent — un `5xx` peut avoir créé le
+  déploiement) ; le poll GET est borné et injectable (`sleeper`) pour les tests.
+* Tests : `NetlifyApiClientTest` (6 UT).
+
+=== US-5 — tâches + câblage
+
+* `DeployNetlifyTask` : `@DisableCachingByDefault`,
+  `@InputDirectory @PathSensitive(RELATIVE)`, jeton `@Internal`, `dryRun` sans
+  lecture du jeton, skip avant jeton, échec explicite si jeton absent, rapport
+  `build/bakery/netlify/deploy.json`, record `last-deploy.json`, smoke opt-in
+  (`verifyUrl`).
+* `GenerateNetlifyTomlTask` : `netlify.toml`, `_headers`, `_redirects`
+  déterministes (opt-in).
+* `NetlifyTaskRegistrar` : enregistrement conditionnel, `publishSiteNetlify`,
+  `publishSiteAll` (seulement si une cible Git existe), ordre
+  `deployNetlify` → `mustRunAfter("deploySite")`, dépendances
+  `bake`/`bakeVariants`/`pagefind`.
+* `BakeryPlugin` : résolution de la config et enregistrement dans le pipeline
+  complet uniquement.
+
+=== US-6 — tests + CI
+
+* `NetlifyFunctionalTest` (6 FT TestKit) : tâche absente sans section ; jeton
+  absent = échec explicite ; dry-run sans jeton et sans appel réseau (URL
+  injoignable) ; skip sans jeton (record pré-écrit) ; fichiers de plateforme ;
+  upload réel contre un **stub loopback** (`com.sun.net.httpserver`) + record
+  écrit, jeton absent du record.
+* BDD `70_netlify_deploy.feature` (5 scénarios `@netlify` : skip, autre site,
+  dry-run, exclusions `CNAME`/`.bak`, variantes `{lang}/` + `pagefind/`, site id
+  manquant) + `NetlifySteps` + `NetlifyCucumberTestRunner`.
+* Rattachement : feature ajoutée au shard `CucumberShardLangSwitchEcosystemRunner`
+  (partition exhaustive/disjointe) ; `NetlifyFunctionalTest` ajouté au shard
+  functional E. Aucun jeton en CI.
+
+=== US-7 — plateforme + documentation
+
+* `NetlifyTomlRenderer` (toml/headers/redirects déterministes).
+* `README.md` : section « Deployment targets (Pages + Netlify) » (contrat
+  `site.yml`, tâches, règles payload/jeton/digest, frontière).
+* Tests : `NetlifyPlatformFilesTest` (4 UT).
+
+== US-8 — non traitée (bloquée)
+
+Le dogfooding réel exige un **jeton Netlify** et un **`siteId`** réels, ainsi
+qu'un accord pilote — aucun n'est disponible en session. US-8 reste 🟡 BLOQUÉ
+dans le backlog ; rien n'a été simulé ni déclaré « vérifié ».
+
+== Gates exécutés (Local = Build)
+
+[cols="3,2", options="header"]
+|===
+| Commande | Résultat
+
+| `./gradlew compileKotlin compileTestKotlin compileFunctionalTestKotlin`
+| ✅ VERT
+| `./gradlew assemble validatePlugins`
+| ✅ VERT (`@PathSensitive` ajouté après le premier échec)
+| `./gradlew ktlintCheck`
+| ✅ VERT (3 violations corrigées)
+| `./gradlew tasks --all`
+| ✅ VERT
+|===
+
+* Aucune suite de tests n'a été lancée localement (règle EAGER : les preuves
+  sont les runs CI du commit poussé).
+* `publishToMavenLocal` **non exécuté** : la version `0.0.39` est déjà publiée
+  (JitPack) et aucun consommateur mavenLocal n'est requis (les FT utilisent
+  `withPluginClasspath`). Règle « ne jamais republier une version publiée ».
+* `grep` secrets : jeton uniquement lu depuis l'environnement ; aucun secret
+  dans les fichiers (tests avec `test-token`/stub loopback).
+
+== Fichiers
+
+Créés (production) :
+`bakery/deploy/DeployPayload.kt`, `bakery/deploy/DeployOutcome.kt`,
+`bakery/netlify/{NetlifyConfig,NetlifyDsl,NetlifyConfigResolver,NetlifyDeployPlan,NetlifyDeploymentRecordStore,NetlifyHttp,JavaNetlifyHttp,NetlifyApiClient,NetlifyArchive,NetlifyTomlRenderer,DeployNetlifyTask,GenerateNetlifyTomlTask,NetlifyTaskRegistrar}.kt`.
+
+Créés (tests) : `DeployPayloadTest`, `NetlifyConfigResolverTest`,
+`NetlifyPlannerTest`, `NetlifyApiClientTest`, `NetlifyPlatformFilesTest`,
+`VerifyConfigurationMappingNetlifyTest`, `NetlifyFunctionalTest`,
+`NetlifySteps`, `NetlifyCucumberTestRunner`, `70_netlify_deploy.feature`.
+
+Modifiés : `BakeryPlugin`, `BakeryExtension`, `SiteConfiguration`,
+`VerifyConfigurationMappingTask`, `FileSystemManager`, `GitService`,
+`FileSystemManagerTest`, `GitServiceTest`, shard BDD, `build.gradle.kts`
+(classpath main pour les FT + shard E), `README.md`, `BACKLOG.adoc`,
+`TODO.adoc`, `.agents/CADRAGE_EPIC_BKY_NETLIFY.adoc`, INDEX/history/archive.
+
+== Suite
+
+S-283 (sur accord pilote) : US-8 — déploiement réel d'un site (jeton + `siteId`),
+smoke `curl` 200, release selon `-Pchannel`, adoption consommateur. Sinon,
+retour aux dettes : GBL-014-5b (bloqué amont), GBL-007 US-7, `ur/0084`.

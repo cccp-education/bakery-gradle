@@ -1,64 +1,56 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 281
+:session: 282
 :date: 2026-11-15
-:etat: ✅ S-281 — **EPIC BKY-NETLIFY CADRÉ** (gouvernance pure, zéro code) : 15 décisions, 9 US ~25 pts, doc + backlog.
-:epic_actif: BKY-NETLIFY 1/9 (US-0 cadrage ✅)
-:epic_suivant: **BKY-NETLIFY-1** (payload survivant au déploiement). Dettes en attente : GBL-014-5b (bloqué amont), GBL-007 US-7, `ur/0084` (cheroliv), US-3c (plantuml).
+:etat: ✅ S-282 — **BKY-NETLIFY US-1→7 livrées** (EPIC 7/9). US-8 bloquée par un jeton + `siteId` réels.
+:epic_actif: BKY-NETLIFY 7/9 (US-8 🟡 BLOQUÉE)
+:epic_suivant: **BKY-NETLIFY-8** (dogfooding réel + smoke 200 + release `-Pchannel`) sur accord pilote. Sinon : GBL-007 US-7 ; GBL-014-5b bloqué amont ; `ur/0084` (cheroliv).
 
-== Session 281 (TERMINÉE) — cadrage de la cible Netlify
+== Session 282 (TERMINÉE) — Netlify US-1→7
 
-* Demande pilote : ajouter **Netlify** comme autre cible de déploiement du site
-  statique, et cadrer l'EPIC dans le backlog.
-* Livré : `.agents/CADRAGE_EPIC_BKY_NETLIFY.adoc` (constats C1→C12, décisions
-  D1→D15, contrat `site.yml`, 9 US, DAG, frontière, risques R1→R10) +
-  `BACKLOG.adoc` § BKY-NETLIFY (en tête) + rapport
-  `.agents/sessions/281-cadrage-epic-bky-netlify.adoc`.
-* Faits mesurés qui commandent le découpage :
-  **`cleanupPublicationArtifacts` détruit `build/<destDirPath>`** dans le
-  `finally` de `GitService.pushPages` (`GitService.kt:94-96`, `:188-207`) →
-  aucune seconde cible ne peut lire le payload aujourd'hui ;
-  `CNAME` est écrit dans le payload (`createCnameFile`) ;
-  `verifyConfigurationMapping` exige `pushPage.from/to` ;
-  le payload porte `{lang}/` (`bakeVariants`) + `pagefind/` ;
-  jeton/secrets suivent le patron `dns` (`tokenEnv`, `@Internal`, redaction).
-* Ouverture : `git status` propre, `tasks` VERT 1m09s, compiles 3 source sets
-  VERT 2m13s, `grep -ri netlify src/` = 0.
+* Cible **additive** : `deploySite`/`publishSite` inchangés. Nouveaux :
+  `deployNetlify`, `generateNetlifyToml`, `publishSiteNetlify`,
+  `publishSiteAll` (seulement si une cible Git existe).
+* **Payload partagé** : `DeployPayload` (pur, exclusions, digest) +
+  `FileSystemManager.copyBakedFilesToRepo` **et**
+  `GitService.cleanupPublicationArtifacts` ne suppriment plus le bake.
+* **Direct API** : `NetlifyHttp`/`JavaNetlifyHttp`/`NetlifyApiClient` (JDK 25,
+  mapping `401/404/429/5xx`, **pas de retry POST** — non idempotent).
+* **Économie d'encre** : digest SHA-256 ⇒ `Skipped` (zéro réseau) ;
+  `last-deploy.json` ; `force` explicite ; `dryRun` sans lecture du jeton.
+* **Sécurité** : jeton uniquement via `tokenEnv` (nom de variable), `@Internal`,
+  échec explicite s'il manque ; aucun jeton loggé.
+* **Tests écrits (non lancés en local)** : 33 UT + 6 FT TestKit (stub loopback
+  `com.sun.net.httpserver`) + 5 scénarios `@netlify` + runner dédié ;
+  `70_netlify_deploy.feature` rattachée au shard `LangSwitchEcosystem` ;
+  `NetlifyFunctionalTest` dans le shard functional E.
+* Gates Local = Build : compiles ×3, `assemble`, `validatePlugins`,
+  `ktlintCheck` VERTS. `publishToMavenLocal` **non exécuté** (0.0.39 déjà
+  publiée, aucun consommateur mavenLocal requis).
+* Rapport `.agents/sessions/282-bky-netlify-us1-us7.adoc`.
 
-== Mission S-282 — BKY-NETLIFY-1 (3 pts, prérequis dur)
+== Mission S-283 — BKY-NETLIFY-8 (sur accord pilote uniquement)
 
-* **DDD/TDD strict** (baby-step, RED par compilation prouvé).
-* `bakery.deploy.DeployPayload` (objet pur) : racine, exclusions (`CNAME`,
-  `.git/**`, `**/*.bak`), listing **ordonné**, digest SHA-256 sur
-  `(chemin relatif, sha256(contenu))`.
-* `DeployTarget` (sealed `GitPages` | `Netlify`) et `DeployOutcome`
-  (sealed `Deployed` | `Skipped` | `Failed`) — **envelopper** le chemin Git,
-  ne pas réécrire `GitService`.
-* **Retirer la suppression du répertoire baké** de
-  `cleanupPublicationArtifacts` (garder la suppression du dépôt temporaire) :
-  deux cibles doivent pouvoir lire le même arbre.
-* Tests : UT payload/digest (ordre des entrées indifférent, un octet change le
-  digest, exclusions) ; FT `deploySite` **deux fois** (arbre présent après push,
-  second envoi déterministe) ; BDD `@deploy` non régressée.
-* **Ne pas** toucher : `publishSite` (contrat consommé par 4 workflows
-  `office`), `pushCiMirror`, `deployMaquette`, DNS.
-* Gates : compiles VERT, `assemble`, `validatePlugins` ; preuve = CI du commit
-  poussé (Local = Build, Tests = CI). Zéro secret.
+* Préalables : un **`siteId` Netlify réel**, un **jeton** hors dépôt (env), et
+  l'accord pilote. Sans ces trois éléments : **ne rien simuler**, traiter une
+  autre dette à la place.
+* Déroulé : `deployNetlify` sur un site de test → `curl` HTTP 200 du domaine →
+  `deploy.json`/`last-deploy.json` vérifiés → adoption d'un consommateur
+  (`office`/runner N3) → tag de release selon `-Pchannel` (GBL-014).
+* Respecter : ne jamais écrire le jeton dans `site.yml`/`gradle.properties`/une
+  commande visible ; ne jamais publier un dépôt de site.
 
 == État
 
-* Catalogue consommé : `workspace-catalog v0.0.133` (JitPack) ; plateforme BOM
-  Central `0.0.115` ; shim conventions `0.0.19`. Version plugin `0.0.39`
-  (JitPack, tag publié). Working tree propre à la clôture S-281.
-* Aucune publication, aucun bump, aucun changement de code en S-281.
+* Catalogue `workspace-catalog v0.0.133` (JitPack) ; plateforme BOM Central
+  `0.0.115` ; shim conventions `0.0.19` ; version plugin `0.0.39` (JitPack).
+* EPIC BKY-NETLIFY : 7/9 livrées ; US-8 ouverte.
 
 == Rappels
 
 * Local = Build, Tests = CI ; zéro Python ; English only code/tests/features.
 * Commit/push sur accord pilote ; indexer explicitement (jamais `git add -A`).
 * Ne pas lire les fichiers gitignorés (`site.yml`).
-* `publishToMavenLocal` interdit sur une version déjà Central / en release
-  concurrente. Ne jamais réutiliser un tag JitPack publié.
-* Ne pas modifier les tests gelés hors permission explicite ; ne pas mélanger
-  les canaux (`-Pchannel`).
-* Le cadrage BKY-NETLIFY est la référence : toute extension (création de site,
-  DNS, HTTPS) = EPIC séparé, hors périmètre.
+* Ne jamais réutiliser un tag JitPack publié ; ne pas mélanger les canaux.
+* Ne pas modifier les tests gelés hors permission explicite.
+* Toute extension Netlify (création de site, DNS, HTTPS, fonctions) = EPIC
+  séparé — la frontière est actée dans `.agents/CADRAGE_EPIC_BKY_NETLIFY.adoc`.

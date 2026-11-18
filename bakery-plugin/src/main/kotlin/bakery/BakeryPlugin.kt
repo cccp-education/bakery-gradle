@@ -37,6 +37,8 @@ import bakery.SiteTaskRegistrar.registerPagefindTask
 import bakery.SiteTaskRegistrar.registerServeTask
 import bakery.SiteTaskRegistrar.registerValidateSearchIndexTask
 import bakery.a11y.AccessibilityTaskRegistrar.registerAccessibilityAuditTask
+import bakery.netlify.NetlifyConfigResolver
+import bakery.netlify.NetlifyTaskRegistrar.registerNetlifyTasks
 import bakery.pivot.PivotTaskRegistrar.registerGeneratePivotYamlTask
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.gradle.api.Plugin
@@ -205,6 +207,16 @@ class BakeryPlugin : Plugin<Project> {
         project.registerDeploySiteTask(resolvedSite)
         project.registerCiMirrorTask(resolvedSite, configDir)
         project.registerPublishSiteTask()
+        // BKY-NETLIFY (D1) — additive target, registered only when configured.
+        val netlifyConfig =
+            NetlifyConfigResolver.resolve(
+                ConfigResolver.loadProperties(project),
+                bakeryExtension.netlify,
+                site.netlify,
+            )
+        if (site.netlify != null || netlifyConfig.siteId.isNotBlank() || netlifyConfig.toml.enabled) {
+            project.registerNetlifyTasks(resolvedSite, netlifyConfig)
+        }
         project.registerDeployMaquetteTask(resolvedSite)
         // BKY-DNS-4 — provisionDns seulement si section dns présente, chaînée
         // avant deploySite (registrar enregistre la dépendance lazy).

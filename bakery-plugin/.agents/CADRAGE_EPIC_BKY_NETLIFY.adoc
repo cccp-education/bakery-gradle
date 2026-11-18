@@ -49,12 +49,13 @@ répliquer pour une cible optionnelle.
 `BakeryPlugin.kt:287-292`, `DnsTaskRegistrar.kt:14-36`
 
 | C4
-| **Le payload est détruit par le déploiement.** Le `finally` de `pushPages`
-appelle `cleanupPublicationArtifacts`, qui supprime le dépôt temporaire **et**
+| **Le payload est détruit par le déploiement.** Deux suppressions se cumulent :
+`copyBakedFilesToRepo` supprime `bakeDir` juste après la copie, puis le
+`finally` de `pushPages` (`cleanupPublicationArtifacts`) supprime à nouveau
 `build/<destDirPath>`. Après un `deploySite`, l'arbre baké n'existe plus : deux
 cibles dans le même build ne peuvent pas lire le même payload sans re-baker.
 C'est le **blocage structurel** de toute seconde cible.
-| `GitService.kt:94-96`, `GitService.kt:188-207`
+| `FileSystemManager.kt:185-207`, `GitService.kt:94-96`, `GitService.kt:188-207`
 
 | C5
 | `CNAME` (domaine GitHub Pages) est écrit **dans** le payload par `deploySite`
@@ -148,12 +149,13 @@ pas réécrit : `GitService` garde son comportement observable.
 
 === D4 — Le payload survit au déploiement (US-1, prérequis dur)
 
-`GitService.pushPages` ne supprime plus que son **dépôt temporaire** ; le répertoire
-baké reste sur disque. Deux cibles peuvent ainsi consommer le même arbre, et un
-smoke post-déploiement peut lire ce qui a été publié. La suppression du payload
-était un artefact de nettoyage, pas une garantie : elle est retirée avec un test
-de non-régression explicite (déploiement deux fois = arbre présent, second envoi
-identique).
+Les **deux** suppressions sont retirées : `copyBakedFilesToRepo` ne supprime plus
+`bakeDir` et `GitService.pushPages` ne supprime plus que son **dépôt
+temporaire** ; le répertoire baké reste sur disque. Deux cibles peuvent ainsi
+consommer le même arbre, et un smoke post-déploiement peut lire ce qui a été
+publié. La suppression du payload était un artefact de nettoyage, pas une
+garantie : elle est retirée avec des tests de non-régression explicites
+(`FileSystemManagerTest`, `GitServiceTest`).
 
 === D5 — Une seule définition du payload
 
@@ -306,79 +308,83 @@ configuration, frontière, risques, découpage.
 
 | BKY-NETLIFY-1
 | **Payload découplé du transport.** `DeployPayload` pur (racine, exclusions,
-listing ordonné, digest) ; `GitService.pushPages` ne supprime plus que le dépôt
-temporaire ; `DeployOutcome`/`DeployTarget` enveloppent le chemin Git sans changer
-son comportement. Tests : UT payload/digest (ordre-insensible aux entrées,
-sensible à un octet), FT `deploySite` deux fois (arbre présent, second envoi
-déterministe), BDD `@deploy` non régressé.
+listing ordonné, digest) ; **les deux** suppressions sont retirées
+(`copyBakedFilesToRepo` et `cleanupPublicationArtifacts`) ; `DeployOutcome`/
+`DeployTarget` enveloppent le chemin Git sans changer son comportement. Tests :
+UT payload/digest (ordre-insensible, sensible à un octet, globs) +
+`GitServiceTest` (payload conservé après push) + `FileSystemManagerTest`.
 | 3
-| 🟡 À FAIRE
+| ✅ S-282
 
 | BKY-NETLIFY-2
 | **Configuration.** `NetlifyConfig` (+ `DeployOptions`, `TomlOptions`),
-`SiteConfiguration.netlify`, `ResolvedConfigs`/`ConfigResolver` (cascade D12),
-DSL `bakery { netlify { … } }`, `verifyConfigurationMapping` accepte un site
-Netlify-only (`pushPage` non requis si `netlify.siteId` présent), `toString()`
-masqué. Tests : 4 couches de cascade + garde de mapping + redaction.
+`SiteConfiguration.netlify`, `NetlifyConfigResolver` (`ConfigResolver`, cascade
+D12), DSL `bakery { netlify { … } }`, `verifyConfigurationMapping` accepte un site
+Netlify-only (`pushPage` non requis si `netlify.siteId` présent) et résume
+`siteId`/`tokenEnv` sans jamais exposer de jeton. Tests : 4 couches de cascade +
+garde de mapping.
 | 3
-| 🟡 À FAIRE
+| ✅ S-282
 
 | BKY-NETLIFY-3
-| **Plan de déploiement pur.** `NetlifyDeployPlan` : payload → manifeste
-(chemins, tailles), digest, décision `Deployed`/`Skipped`/`Failed` à partir de
-`last-deploy.json`, exclusions, `force`, `dryRun`. Aucune I/O réseau. Tests : plan
-inchangé = skip, `force` = deploy, `CNAME` exclu, rapport déterministe.
+| **Plan de déploiement pur.** `NetlifyDeployPlan` + `NetlifyPlanner` : payload →
+digest, décision `Deploy`/`Skip`/`Fail` à partir de `last-deploy.json`,
+exclusions, `force`, `dryRun` ; `NetlifyDeploymentRecordStore` (JSON, dégradation
+silencieuse). Aucune I/O réseau. Tests : plan inchangé = skip, `force` = deploy,
+site différent = deploy, dry-run n'uploade pas.
 | 3
-| 🟡 À FAIRE
+| ✅ S-282
 
 | BKY-NETLIFY-4
 | **Port + adapter API.** `NetlifyHttp` (port) + `JavaNetlifyHttp`
 (`java.net.http`), `NetlifyApiClient` : création de déploiement (archive),
-interrogation d'état, mapping d'erreurs (`401` jeton, `404` site inconnu, `422`
-payload, `429` quota), timeouts, retry borné sur `5xx`/`429`. Aucun jeton loggé.
-Tests : adapter contre stub loopback (`com.sun.net.httpserver`), matrice d'erreurs.
+interrogation d'état bornée, mapping d'erreurs (`401` jeton, `404` site inconnu,
+`422` payload, `429` quota, `5xx` indisponibilité), timeouts. Aucun jeton loggé.
+**Pas de retry POST** (non idempotent : un `5xx` peut avoir créé le déploiement).
+Tests : fake transport + stub loopback.
 | 4
-| 🟡 À FAIRE
+| ✅ S-282
 
 | BKY-NETLIFY-5
-| **Tâche + câblage.** `DeployNetlifyTask` (`@DisableCachingByDefault`), jeton
-`@Internal`, rapport `deploy.json`, `generateNetlifyToml`, enregistrement
-conditionnel, `publishSiteNetlify`, `publishSiteAll`, ordre D15. Tests : FT TestKit
-(section absente = tâche absente ; section présente + jeton absent = échec
-explicite ; dry-run ne fait aucun appel).
+| **Tâche + câblage.** `DeployNetlifyTask` (`@DisableCachingByDefault`,
+`@PathSensitive`), jeton `@Internal`, rapport `deploy.json`, enregistrement
+conditionnel, `publishSiteNetlify`, `publishSiteAll`, ordre D15. Tests : FT
+TestKit (section absente = tâche absente ; jeton absent = échec explicite ;
+dry-run = zéro appel ; skip sans jeton ; upload loopback + record).
 | 3
-| 🟡 À FAIRE
+| ✅ S-282
 
 | BKY-NETLIFY-6
-| **Tests complets + CI.** BDD `@netlify` (plan skip/déploiement/erreur,
-exclusions, parité `{lang}/` + `pagefind/`) + runner dédié (pattern S-082) +
-câblage `test.yml` (aucun jeton en CI, stub uniquement) + mise à jour de la garde
-de couverture de shards si une feature est ajoutée.
+| **Tests complets + CI.** BDD `@netlify` (skip, dry-run, exclusions, variantes
+`{lang}/` + `pagefind/`, site id manquant) + runner dédié (pattern S-082) +
+feature rattachée au shard `LangSwitchEcosystem` + `NetlifyFunctionalTest` dans
+le shard functional E. Aucun jeton en CI, stub loopback uniquement.
 | 3
-| 🟡 À FAIRE
+| ✅ S-282
 
 | BKY-NETLIFY-7
 | **`netlify.toml` + fichiers de plateforme.** Rendu déterministe (publish dir,
-404, en-têtes, redirections des variantes de langue), `_headers`/`_redirects`
-générés seulement si demandés. Docs consommateur (section site.yml + tâches).
+404, en-têtes de sécurité, redirection SPA opt-in), `_headers`/`_redirects`
+générés seulement si demandés. Documentation consommateur dans `README.md`.
 | 2
-| 🟡 À FAIRE
+| ✅ S-282
 
 | BKY-NETLIFY-8
 | **Dogfooding + release.** Déploiement réel d'un site (accord pilote, jeton
 fourni hors dépôt), smoke HTTP 200 sur l'hôte Netlify, rapport de session,
-README (EN) + adoption consommateur, tag de release selon le canal courant
-(`-Pchannel`, GBL-014). Aucune publication de dépôt de site.
+adoption consommateur, tag de release selon le canal courant (`-Pchannel`,
+GBL-014). Aucune publication de dépôt de site.
 | 3
-| 🟡 À FAIRE
+| 🟡 BLOQUÉ — jeton Netlify + `siteId` réel et accord pilote requis
 |===
 
-*Total* : 9 US ~25 pts. *DAG* : `0 → 1 → {2, 3} → 4 → 5 → 6 → 7 → 8`
-(US-2 et US-3 parallélisables après US-1 ; US-4 avant US-5).
+*Total* : 9 US ~25 pts. *Avancement S-282* : **7/9 livrées** (US-1→7), US-8
+bloquée par un préalable externe (jeton + site Netlify réels).
+*DAG* : `0 → 1 → {2, 3} → 4 → 5 → 6 → 7 → 8` (US-2 et US-3 parallélisables
+après US-1 ; US-4 avant US-5).
 
-*Projection* (rythme observé, une US lourde par session) :
-S-282 US-1 · S-283 US-2+3 · S-284 US-4 · S-285 US-5 · S-286 US-6 · S-287 US-7 ·
-S-288 US-8.
+*Projection résiduelle* : S-283 US-8 uniquement (dogfooding + release), sur
+accord pilote explicite.
 
 == Frontière
 

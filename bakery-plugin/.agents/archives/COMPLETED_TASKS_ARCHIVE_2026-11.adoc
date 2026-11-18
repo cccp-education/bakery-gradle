@@ -67,3 +67,18 @@
   sets VERT 2m13s, `grep -ri netlify src/` = 0.
 * Doc `.agents/CADRAGE_EPIC_BKY_NETLIFY.adoc` + `BACKLOG.adoc` § BKY-NETLIFY.
 * Rapport `.agents/sessions/281-cadrage-epic-bky-netlify.adoc`.
+
+== S-282 — BKY-NETLIFY US-1→7 ✅ (US-8 bloquée)
+
+* `bakery.deploy` : `DeployPayload` (exclusions, digest), `DeployTarget`,
+  `DeployOutcome`.
+* Payload conservé après push (`copyBakedFilesToRepo` + `GitService`).
+* `bakery.netlify` : config + cascade + DSL + garde Netlify-only ; plan pur
+  (digest ⇒ skip, force, dry-run) ; record `last-deploy.json` ; port/adapter
+  HTTP + client API (mapping erreurs, pas de retry POST) ; `DeployNetlifyTask`,
+  `GenerateNetlifyTomlTask`, `NetlifyTomlRenderer`, `NetlifyTaskRegistrar`.
+* Tests écrits (non lancés en local) : 33 UT + 6 FT TestKit (stub loopback) +
+  5 scénarios `@netlify` + runner ; shards BDD/functional mis à jour.
+* Gates : compiles ×3, `assemble`, `validatePlugins`, `ktlintCheck` VERTS.
+* US-8 non traitée (jeton/site réels + accord pilote) — zéro simulation.
+* Rapport `.agents/sessions/282-bky-netlify-us1-us7.adoc`.

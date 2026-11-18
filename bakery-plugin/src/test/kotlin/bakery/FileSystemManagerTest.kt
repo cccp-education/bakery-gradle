@@ -82,7 +82,7 @@ class FileSystemManagerTest {
         lateinit var tempDir: File
 
         @Test
-        fun `copies files from bakeDir to repoDir and deletes bakeDir`() {
+        fun `copies files from bakeDir to repoDir and keeps bakeDir for the next target`() {
             val bakeDir = tempDir.resolve("bake").apply { mkdirs() }
             bakeDir.resolve("index.html").writeText("hello")
             val repoDir = tempDir.resolve("repo").apply { mkdirs() }
@@ -91,7 +91,9 @@ class FileSystemManagerTest {
 
             assertThat(result).isInstanceOf(Right::class.java)
             assertThat(repoDir.resolve("index.html")).exists().hasContent("hello")
-            assertThat(bakeDir).doesNotExist()
+            // BKY-NETLIFY (D4) — a second deployment target consumes the same tree.
+            assertThat(bakeDir).exists()
+            assertThat(bakeDir.resolve("index.html")).hasContent("hello")
         }
 
         @Test
@@ -119,7 +121,7 @@ class FileSystemManagerTest {
 
             assertThat(result).isInstanceOf(Right::class.java)
             assertThat(repoDir.resolve("assets/style.css")).exists().hasContent("body{}")
-            assertThat(bakeDir).doesNotExist()
+            assertThat(bakeDir).exists()
         }
 
         @Test

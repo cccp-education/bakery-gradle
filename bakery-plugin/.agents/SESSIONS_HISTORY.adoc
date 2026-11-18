@@ -266,3 +266,35 @@ frontière stricte (pas de site/DNS/HTTPS). **9 US ~25 pts**, DAG
 + `BACKLOG.adoc` § BKY-NETLIFY. Ouverture : `git status` propre, `tasks` VERT
 1m09s, compiles 3 source sets VERT 2m13s, `grep -ri netlify src/` = 0.
 Rapport `.agents/sessions/281-cadrage-epic-bky-netlify.adoc`.
+
+== Session 282 — BKY-NETLIFY US-1→7 (implémentation) — 2026-11-15
+
+Implémentation de l'EPIC cadré S-281 (7/9 US). **Payload partagé** : nouveau
+domaine `bakery.deploy` (`DeployPayload` pur : exclusions, listing ordonné,
+SHA-256 par contenu, digest `(chemin, hash)` ; `DeployTarget`/`DeployOutcome`) et
+suppression retirée aux **deux** endroits qui détruisaient l'arbre baké
+(`FileSystemManager.copyBakedFilesToRepo`, `GitService.cleanupPublicationArtifacts`)
+— deux cibles lisent le même payload. **Configuration** : `bakery.netlify`
+(`NetlifyConfig`, `NetlifyDeployOptions`, `NetlifyTomlOptions`, `NetlifyDsl`,
+`NetlifyConfigResolver` cascade 4 couches) + garde `verifyConfigurationMapping`
+Netlify-only ; `siteId`/`tokenEnv` résumés, jamais de jeton. **Plan** :
+`NetlifyPlanner` (`Deploy`/`Skip`/`Fail`, digest ⇒ skip, `force`, `dryRun`) +
+`NetlifyDeploymentRecordStore` (`last-deploy.json`). **API** : `NetlifyHttp` +
+`JavaNetlifyHttp` (`java.net.http`, Authorization conditionnel) +
+`NetlifyApiClient` (création, polling borné, mapping `401/404/429/4xx/5xx`, pas
+de retry POST non idempotent). **Tâches** : `DeployNetlifyTask`
+(`@DisableCachingByDefault`, `@PathSensitive`, jeton `@Internal`, échec explicite,
+dry-run sans jeton, rapport, smoke opt-in), `GenerateNetlifyTomlTask` +
+`NetlifyTomlRenderer`, `NetlifyTaskRegistrar` (`deployNetlify`,
+`generateNetlifyToml`, `publishSiteNetlify`, `publishSiteAll`,
+`mustRunAfter("deploySite")`). **Tests écrits** (non lancés en local, Local =
+Build) : `DeployPayloadTest` 9, `NetlifyConfigResolverTest` 5,
+`NetlifyPlannerTest` 6, `NetlifyApiClientTest` 6, `NetlifyPlatformFilesTest` 4,
+`VerifyConfigurationMappingNetlifyTest` 3, `NetlifyFunctionalTest` 6 (TestKit,
+stub loopback `com.sun.net.httpserver`), BDD `70_netlify_deploy.feature` 5
+scénarios + `NetlifySteps` + `NetlifyCucumberTestRunner` ; shard BDD
+`LangSwitchEcosystem` + shard functional E mis à jour. Gates : compiles 3 source
+sets, `assemble`, `validatePlugins`, `ktlintCheck` VERTS ; `publishToMavenLocal`
+non exécuté (0.0.39 déjà publiée). **US-8 BLOQUÉE** (jeton + `siteId` réels +
+accord pilote) — aucune simulation. Rapport
+`.agents/sessions/282-bky-netlify-us1-us7.adoc`.

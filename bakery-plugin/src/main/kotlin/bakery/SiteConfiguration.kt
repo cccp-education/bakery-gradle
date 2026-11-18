@@ -2,6 +2,7 @@ package bakery
 
 import bakery.contact.ContactSecConfig
 import bakery.dns.DnsConfig
+import bakery.netlify.NetlifyConfig
 import bakery.seo.SeoConfig
 import bakery.tree.SiteNodeDto
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
@@ -65,6 +66,8 @@ data class SiteConfiguration(
     val ollama: OllamaConfig? = null,
     /** DNS provisioning — null means no provisioning at all (BKY-DNS). */
     val dns: DnsConfig? = null,
+    /** Netlify deployment target — null means no Netlify task (BKY-NETLIFY). */
+    val netlify: NetlifyConfig? = null,
     /** SEO injection — null means no SEO injection at all (BKY-SEO). */
     val seo: SeoConfig? = null,
     /** Contact form security scaffold — null means no scaffold (BKY-CONTACT-SEC). */

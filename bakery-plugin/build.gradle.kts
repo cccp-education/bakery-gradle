@@ -338,6 +338,9 @@ dependencies {
     add(sharedTest.implementationConfigurationName, kotlin("stdlib"))
     add(sharedTest.implementationConfigurationName, libs.assertj.core)
     add(functionalTest.implementationConfigurationName, sharedTest.output)
+    // BKY-NETLIFY — functional tests assert the payload digest the plugin will
+    // compute (same pure object), so the main output is on the test classpath.
+    add(functionalTest.implementationConfigurationName, sourceSets.main.get().output)
 }
 
 // 3. Tâche pour les tests fonctionnels
@@ -750,10 +753,11 @@ val functionalTestShardD =
 val functionalTestShardE =
     registerFunctionalShard(
         "functionalTestShardE",
-        "Runs functional tests — shard E (dns, contact security, lang switch injection).",
+        "Runs functional tests — shard E (dns, netlify, contact security, lang switch injection).",
     ) {
         includeTestsMatching("bakery.ScaffoldContactSecFunctionalTest")
         includeTestsMatching("bakery.ProvisionDnsFunctionalTest")
+        includeTestsMatching("bakery.NetlifyFunctionalTest")
         includeTestsMatching("bakery.InjectLangSwitchFunctionalTest")
     }
 

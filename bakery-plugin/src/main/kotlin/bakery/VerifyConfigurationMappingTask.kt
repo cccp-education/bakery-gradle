@@ -66,8 +66,11 @@ abstract class VerifyConfigurationMappingTask : DefaultTask() {
 
         if (site.bake.srcPath.isBlank()) missing.add("bake.srcPath")
         if (site.bake.destDirPath.isBlank()) missing.add("bake.destDirPath")
-        if (site.pushPage.from.isBlank()) missing.add("pushPage.from")
-        if (site.pushPage.to.isBlank()) missing.add("pushPage.to")
+        // BKY-NETLIFY (D1/D10) — a Netlify-only site has no Git push target.
+        if (site.netlify?.isConfigured != true) {
+            if (site.pushPage.from.isBlank()) missing.add("pushPage.from")
+            if (site.pushPage.to.isBlank()) missing.add("pushPage.to")
+        }
         if (site.pushMaquette.from.isBlank()) missing.add("pushMaquette.from")
         if (site.pushMaquette.to.isBlank()) missing.add("pushMaquette.to")
 
@@ -103,6 +106,13 @@ abstract class VerifyConfigurationMappingTask : DefaultTask() {
                 append(", ollama.model=${ollama.model}")
                 append(", ollama.ports=${ollama.portStart}-${ollama.portEnd}")
                 append(", ollama.deviceKeys=${ollama.deviceKeys.size}")
+            }
+            val netlify = site.netlify
+            if (netlify != null && netlify.isConfigured) {
+                // siteId is public; the token is never part of the configuration.
+                append(", netlify.siteId=${netlify.siteId}")
+                append(", netlify.tokenEnv=${netlify.tokenEnv}")
+                append(", netlify.dryRun=${netlify.deploy.dryRun}")
             }
         }
     }
