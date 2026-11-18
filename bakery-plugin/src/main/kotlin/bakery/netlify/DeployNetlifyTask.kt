@@ -13,6 +13,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.LocalState
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -72,7 +73,10 @@ abstract class DeployNetlifyTask : DefaultTask() {
     @get:Internal
     abstract val apiBaseUrl: Property<String>
 
-    @get:OutputFile
+    // Local state, NOT an output: Gradle cleans stale outputs before a first
+    // execution, which would delete the previous deployment digest and turn a
+    // legitimate skip into a fresh upload (discovered by the CI functional run).
+    @get:LocalState
     abstract val recordFile: RegularFileProperty
 
     @get:OutputFile

@@ -111,6 +111,28 @@ Le dogfooding réel exige un **jeton Netlify** et un **`siteId`** réels, ainsi
 qu'un accord pilote — aucun n'est disponible en session. US-8 reste 🟡 BLOQUÉ
 dans le backlog ; rien n'a été simulé ni déclaré « vérifié ».
 
+== Itération CI (run `44225748648` — 3 échecs corrigés)
+
+Le premier push a révélé trois défauts réels (BDD verts, 15/18 jobs verts) :
+
+. **`DeployPayloadTest` — exclusion `.git` à toute profondeur.** Le glob
+  `.git/**` n'ancrait que la racine ; `BASE_EXCLUDES` devient `**/.git/**`
+  (racine + sous-répertoires).
+. **`NetlifyConfigResolverTest` — sémantique de cascade.** Le test attendait
+  qu'un booléen DSL égal au défaut surcharge le YAML ; `ConfigResolver` considère
+  qu'un booléen égal au défaut n'est pas « explicitement posé ». Test corrigé
+  (valeur DSL non-défaut gagne) + test explicite de la règle
+  (« un DSL égal au défaut ne surcharge pas le YAML »).
+. **`NetlifyFunctionalTest` — le skip ne skippait pas.** `last-deploy.json` était
+  déclaré `@OutputFile` : Gradle **nettoie les sorties obsolètes** avant la
+  première exécution et supprimait le record → plan `Deploy` → échec « token
+  empty » (25 tests, 1 échec). Le record est désormais `@LocalState` (état, pas
+  sortie). Reproduit et vérifié en composite locale (`includeBuild` du plugin) :
+  `[netlify] skipped — payload unchanged since the last deployment`.
+
+Re-gates (Local = Build) : compiles ×3, `assemble`, `validatePlugins`,
+`ktlintCheck` VERTS. Nouveau push pour la preuve CI définitive.
+
 == Gates exécutés (Local = Build)
 
 [cols="3,2", options="header"]

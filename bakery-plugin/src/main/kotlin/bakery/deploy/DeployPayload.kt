@@ -25,8 +25,8 @@ data class PayloadFile(
  * never re-bake their own tree; they only filter what they must not ship.
  */
 object DeployPayload {
-    /** Git metadata is never part of a site payload. */
-    val BASE_EXCLUDES: List<String> = listOf(".git/**")
+    /** Git metadata (any depth) is never part of a site payload. */
+    val BASE_EXCLUDES: List<String> = listOf("**/.git/**")
 
     /**
      * Netlify owns the domain binding: `CNAME` is a GitHub Pages artifact and

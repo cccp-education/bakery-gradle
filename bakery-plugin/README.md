@@ -117,7 +117,7 @@ netlify:
 Rules:
 - The payload is **shared**: `build/<bake.destDirPath>` survives `deploySite`
   (only the temporary Git repo is removed), so both targets ship the same tree.
-- `CNAME`, `**/*.bak` and `.git/**` are never part of a Netlify payload.
+- `CNAME`, `**/*.bak` and any `.git` directory are never part of a Netlify payload.
 - The payload digest (SHA-256 over path + content) is stored in
   `build/bakery/netlify/last-deploy.json`; an unchanged payload is **skipped**
   without any network call (`force = true` overrides). `dryRun` prints the plan

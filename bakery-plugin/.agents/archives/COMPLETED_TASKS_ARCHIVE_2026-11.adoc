@@ -81,4 +81,7 @@
   5 scénarios `@netlify` + runner ; shards BDD/functional mis à jour.
 * Gates : compiles ×3, `assemble`, `validatePlugins`, `ktlintCheck` VERTS.
 * US-8 non traitée (jeton/site réels + accord pilote) — zéro simulation.
+* Itération CI `44225748648` : 3 défauts corrigés (`**/.git/**` à toute
+  profondeur ; test de cascade DSL aligné sur `ConfigResolver` ; `last-deploy.json`
+  en `@LocalState` — `@OutputFile` était nettoyé avant la 1re exécution).
 * Rapport `.agents/sessions/282-bky-netlify-us1-us7.adoc`.

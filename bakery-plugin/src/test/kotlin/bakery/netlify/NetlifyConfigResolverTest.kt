@@ -45,22 +45,38 @@ class NetlifyConfigResolverTest {
     }
 
     @Test
-    @DisplayName("DSL wins over site.yml")
+    @DisplayName("non-default DSL values win over site.yml")
     fun dslWinsOverYaml() {
+        val yamlWithoutFlags =
+            yaml.copy(deploy = yaml.deploy.copy(force = false, dryRun = false))
         val dsl =
             NetlifyDsl().apply {
                 siteId = "dsl-site"
                 message = "dsl message"
-                force = false
+                force = true
+                dryRun = true
                 exclude = "one.bak, two.bak"
             }
 
-        val resolved = NetlifyConfigResolver.resolve(emptyMap(), dsl, yaml = yaml)
+        val resolved = NetlifyConfigResolver.resolve(emptyMap(), dsl, yaml = yamlWithoutFlags)
 
         assertThat(resolved.siteId).isEqualTo("dsl-site")
         assertThat(resolved.deploy.message).isEqualTo("dsl message")
-        assertThat(resolved.deploy.force).isFalse
+        assertThat(resolved.deploy.force).isTrue
+        assertThat(resolved.deploy.dryRun).isTrue
         assertThat(resolved.deploy.exclude).containsExactly("one.bak", "two.bak")
+    }
+
+    @Test
+    @DisplayName("a DSL value equal to the default does not override site.yml")
+    fun defaultDslDoesNotOverrideYaml() {
+        // Cascade semantics (ConfigResolver): a boolean equal to the default is
+        // not "explicitly set", so the YAML layer wins.
+        val dsl = NetlifyDsl().apply { force = false }
+
+        val resolved = NetlifyConfigResolver.resolve(emptyMap(), dsl, yaml = yaml)
+
+        assertThat(resolved.deploy.force).isTrue
     }
 
     @Test
