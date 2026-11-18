@@ -240,3 +240,29 @@ Shim `conventions-plugin` `0.0.18 → 0.0.19` (racine + plugin) ; actions
 `43690069058` + `Publish website` `43672589904`/`43683429820`/`43690069092`
 vertes. GBL-014-5b reste bloqué amont. Aucun code métier, aucun test, aucune
 publication. Rapport `.agents/sessions/280-gbl-014-4-and-node-lts.adoc`.
+
+== Session 281 — EPIC BKY-NETLIFY CADRÉ (cible de déploiement Netlify) — 2026-11-15
+
+Demande pilote : ajouter Netlify comme autre cible de déploiement du site
+statique. **Gouvernance pure** : aucun code, aucun test, aucune publication.
+Audit mesuré : le déploiement est **uniquement** un push Git (`deploySite` →
+`GitService.pushPages`, JGit `push --force`), sans notion de cible ;
+`cleanupPublicationArtifacts` supprime **`build/<destDirPath>`** dans le
+`finally` du push (`GitService.kt:94-96`, `:188-207`) — blocage structurel de
+toute seconde cible ; `CNAME` est écrit dans le payload (`createCnameFile`) ;
+`verifyConfigurationMapping` exige `pushPage.from/to` (`:69-70`) ; le payload
+porte `{lang}/` (`bakeVariants`) + `pagefind/` ; le jeton doit suivre le patron
+`dns` (`DnsConfig.dryRun`, `OvhCredentials` masquées, `DnsTaskRegistrar`
+conditionnel, `OvhHttp`/`JavaOvhHttp` port+adapter `java.net.http`).
+**15 décisions** : cible additive (`deployNetlify`, `generateNetlifyToml`,
+`publishSiteNetlify`, `publishSiteAll` ; `deploySite`/`publishSite` inchangés),
+déploiement direct par API (pas de re-build Netlify), payload unique survivant au
+push (`DeployPayload` + digest), jeton par **nom** de variable (`tokenEnv`,
+`@Internal`, redaction, échec explicite s'il manque), économie d'encre (digest
+identique ⇒ `Skipped`, zéro réseau), `netlify.toml` secondaire, cascade de
+configuration testée, parité `{lang}/`+`pagefind/`, zéro dépendance nouvelle,
+frontière stricte (pas de site/DNS/HTTPS). **9 US ~25 pts**, DAG
+`0 → 1 → {2,3} → 4 → 5 → 6 → 7 → 8`. Livrables : `.agents/CADRAGE_EPIC_BKY_NETLIFY.adoc`
++ `BACKLOG.adoc` § BKY-NETLIFY. Ouverture : `git status` propre, `tasks` VERT
+1m09s, compiles 3 source sets VERT 2m13s, `grep -ri netlify src/` = 0.
+Rapport `.agents/sessions/281-cadrage-epic-bky-netlify.adoc`.

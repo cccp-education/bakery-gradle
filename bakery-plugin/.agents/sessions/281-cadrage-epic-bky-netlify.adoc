@@ -1,0 +1,143 @@
+= Session 281 — Cadrage EPIC BKY-NETLIFY (cible de déploiement Netlify)
+:session: 281
+:date: 2026-11-15
+:type: cadrage (gouvernance pure, zéro code)
+:statut: ✅ TERMINÉE
+
+== Mission
+
+Demande pilote : « ouvre une session sur bakery, j'ai besoin de lui ajouter une
+autre cible de déploiement qui est netlify pour le site statique, cadre cette
+épique dans le backlog ».
+
+Livrable : un cadrage complet (constats mesurés, décisions, contrat de
+configuration, découpage en US, DAG, frontière, risques) + l'EPIC inscrit au
+`BACKLOG.adoc`. Aucune ligne de code de production, aucun test, aucune
+publication.
+
+== Ouverture (conforme au hook)
+
+. `PROMPT_REPRISE.adoc` lu (mission S-280 terminée ; GBL-014-5b bloqué amont).
+. `AGENT.adoc` lu (règles absolues, Local = Build).
+. `.agents/INDEX.adoc` lu (S-280 ; 272/273 obsolètes dans le bloc « session en
+   cours », corrigé).
+. `git status --short --branch` → `## main...origin/main` (arbre propre).
+. `./gradlew tasks --all` → `BUILD SUCCESSFUL in 1m 9s`.
+. `./gradlew compileKotlin compileTestKotlin compileFunctionalTestKotlin` →
+   `BUILD SUCCESSFUL in 2m 13s` (**aucun test local**).
+. Note : `SESSION_CHECKLIST.adoc` n'existe pas dans ce borough (dette de
+   gouvernance déjà signalée S-247) ; le hook global a été appliqué via
+   `AGENT.adoc` + `PROMPT_REPRISE.adoc` + `.agents/INDEX.adoc`.
+
+== Audit (lecture seule)
+
+[cols="1,5", options="header"]
+|===
+| Fichier | Ce qui a été établi
+
+| `DeployTaskRegistrar.kt`
+| `deploySite` = `registerGitPushTask` → `GitService.pushPages` ;
+`publishSite` agrège `bake` + `deploySite` + `accessibilityAudit` ;
+`provisionDns` est le patron d'une cible optionnelle chaînée avant le déploiement.
+
+| `GitService.kt`
+| Push JGit (`init`/`add`/`commit`/`push --force`) ; `finally` →
+`cleanupPublicationArtifacts` **supprime `build/<destDirPath>`** (blocage
+structurel pour une seconde cible) ; credentials mappées.
+
+| `SiteConfiguration.kt`
+| Six sections de push, toutes `GitPushConfiguration` ; aucun `DeployTarget`.
+
+| `BakeryPlugin.kt`
+| Pipeline complet + ordre i18n/déploiement : `bake` → `bakeVariants` →
+`pagefind` → `deploySite` ; `deploySite` dépend de `bakeVariants`.
+
+| `VerifyConfigurationMappingTask.kt`
+| `pushPage.from`/`to` requis ; un site Netlify-only échouerait la garde.
+
+| `FileSystemManager.kt`
+| `createCnameFile` écrit `CNAME` **dans** le payload (Pages).
+
+| `dns/*`
+| Patron réutilisable : `DnsConfig` (section optionnelle, dry-run par défaut,
+credentials masquées), `DnsTaskRegistrar` (enregistrement conditionnel + chaînage
+avant `deploySite`), `OvhHttp`/`JavaOvhHttp` (port + adapter `java.net.http`).
+
+| `ConfigResolver.kt` / `BakeryExtension.kt`
+| Cascade 5 couches pour `theme`/`analytics`/`dns` ; `pushPage` n'en bénéficie
+pas (YAML seul) — toute promesse de cascade pour `netlify` doit être testée.
+
+| `office/.github/workflows/deploy-talaria.yml`, `office/sites/RUNNER_REPOS.adoc`
+| Le déploiement réel tourne depuis `office` via le runner N3 (`publishSite`) +
+smoke du domaine vivant ; les dépôts runners ne sont jamais publiés.
+
+| `.agents/encyclopedies/historic-genesis/GEMINI.adoc:58-60`
+| Netlify n'existait que comme **intention historique** (« Épopée 7 »), jamais
+cadrée ni implémentée ; `grep -ri netlify src/` = 0.
+|===
+
+== Décisions structurantes (15, détail dans le cadrage)
+
+. Cible **additive** : `deploySite`/`publishSite` inchangés ; `deployNetlify`,
+   `generateNetlifyToml`, `publishSiteNetlify`, `publishSiteAll`.
+. Déploiement **direct par API** (l'arbre est déjà baké ; Netlify ne re-build pas).
+. `DeployTarget`/`DeployOutcome` explicites, chemin Git **enveloppé** (pas réécrit).
+. **Le payload survit au push** (US-1, prérequis dur) : `GitService` ne supprime
+   plus que son dépôt temporaire.
+. Une seule définition du payload (`DeployPayload` : racine, exclusions, listing
+   ordonné, digest SHA-256).
+. Jeton = **nom de variable** (`tokenEnv`), `@Internal`, redaction, échec explicite
+   s'il manque (jamais un skip silencieux).
+. Économie d'Encre : digest identique → `Skipped("unchanged")`, zéro réseau.
+. Pas de dry-run par défaut ; `--netlifyDryRun` = plan sans appel.
+. Preuve : `deployId`/`deployUrl` + rapport + smoke opt-in du domaine.
+. Frontière : bakery publie, ne crée pas le site, ne gère pas DNS/HTTPS.
+. `netlify.toml` = sortie secondaire (mode « build from git »), pas la source.
+. Cascade de configuration honorée **et testée** (leçon : `pushPage` ne l'honore
+   pas aujourd'hui).
+. Parité multi-langue (`{lang}/`) et recherche (`pagefind/`) verrouillée par test.
+. Aucune dépendance d'exécution nouvelle (JDK `HttpClient`, `java.util.zip`,
+   Jackson).
+. `deployNetlify.mustRunAfter("deploySite")` + `CNAME` exclu (pas de course).
+
+== Découpage
+
+9 US, ~25 pts : `0` cadrage (✅) · `1` payload/transport · `2` configuration ·
+`3` plan digest/skip · `4` port+adapter API · `5` tâche+câblage · `6` tests+CI ·
+`7` `netlify.toml` · `8` dogfooding+release.
+DAG `0 → 1 → {2,3} → 4 → 5 → 6 → 7 → 8`.
+Projection : S-282 US-1 · S-283 US-2+3 · S-284 US-4 · S-285 US-5 · S-286 US-6 ·
+S-287 US-7 · S-288 US-8.
+
+== Fichiers modifiés / créés
+
+[cols="2,1", options="header"]
+|===
+| Fichier | Nature
+
+| `.agents/CADRAGE_EPIC_BKY_NETLIFY.adoc` | créé (cadrage complet, 460 lignes)
+| `BACKLOG.adoc` | EPIC BKY-NETLIFY ajouté en tête (9 US + décisions + frontière)
+| `.agents/INDEX.adoc` | ligne S-281 + bloc « session en cours/prochaine » corrigé
+| `.agents/SESSIONS_HISTORY.adoc` | entrée S-281
+| `.agents/archives/COMPLETED_TASKS_ARCHIVE_2026-11.adoc` | entrée S-281
+| `PROMPT_REPRISE.adoc` | mission S-282 (BKY-NETLIFY-1)
+| `.agents/sessions/281-cadrage-epic-bky-netlify.adoc` | ce rapport
+|===
+
+Aucun fichier `src/`, aucun test, aucun `build.gradle.kts`, aucun workflow,
+aucun secret.
+
+== Gates
+
+* Local = Build : `tasks` VERT, compiles 3 source sets VERT (2m13s).
+* Aucun test local (règle EAGER) ; aucun changement de code ⇒ aucune preuve CI
+  requise pour cette session.
+* `grep -ri "netlify" src/` = 0 (état initial préservé).
+* Zéro secret, zéro Python.
+
+== Suite
+
+S-282 : **BKY-NETLIFY-1** — `DeployPayload` pur + `DeployOutcome`/`DeployTarget`
++ retrait de la suppression du payload dans `GitService`, avec FT « déploiement
+deux fois » et BDD `@deploy` non régressé. C'est le prérequis de toute seconde
+cible ; rien d'autre ne doit être implémenté avant.

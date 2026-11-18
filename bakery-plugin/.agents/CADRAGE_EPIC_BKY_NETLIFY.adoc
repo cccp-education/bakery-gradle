@@ -1,0 +1,460 @@
+= Cadrage — EPIC BKY-NETLIFY — Cible de déploiement Netlify
+:toc: left
+:toclevels: 3
+:icons: font
+:sectnums:
+:session: 281
+:date: 2026-11-15
+:statut: 🟡 CADRÉ — 9 US, ~25 pts
+:source: demande pilote S-281 (« ajouter une autre cible de déploiement qui est netlify pour le site statique »)
+
+== Demande pilote
+
+Ajouter **une autre cible de déploiement** — Netlify — pour le site statique
+produit par bakery, sans casser la cible historique (push Git → GitHub Pages).
+Cadrer l'EPIC dans le backlog.
+
+Le déploiement actuel n'est pas « GitHub Pages » en tant que tel : c'est un
+**push Git forcé** vers un dépôt/branche servis par Pages. Netlify est le
+premier **fournisseur non-Git** du pipeline ; il force donc à nommer la notion
+de *cible* (aujourd'hui implicite) et à découpler le *payload* de son
+*transport*.
+
+== Constats (audit S-281)
+
+[cols="1,3,6", options="header"]
+|===
+| # | Constat | Preuve
+
+| C1
+| Le déploiement est **exclusivement un push Git**. `deploySite` délègue à
+`GitService.pushPages` (JGit : `init` + `add` + `commit` + `push --force`).
+GitHub Pages n'est qu'une conséquence du dépôt/branche ciblés.
+| `DeployTaskRegistrar.kt:34-54`, `GitService.kt:55-97`, `GitService.kt:99-131`
+
+| C2
+| **Zéro abstraction de cible.** `SiteConfiguration` expose six sections de push,
+toutes de type `GitPushConfiguration` (`pushPage`, `pushMaquette`, `pushCiMirror`,
+`pushProfile`, `pushSource`, `pushTemplate`). Aucun `DeployTarget`, aucun
+`DeployOutcome`, aucun client HTTP de déploiement.
+| `SiteConfiguration.kt:11-72`
+
+| C3
+| **Graphe de tâches** : `bake → bakeVariants → pagefind → deploySite` ;
+`publishSite = bake + deploySite + accessibilityAudit` ; `deploySite` dépend de
+`bakeVariants` (S-239). `provisionDns` n'est enregistrée **que** si la section
+`dns:` existe et est chaînée **avant** `deploySite` — c'est le patron exact à
+répliquer pour une cible optionnelle.
+| `DeployTaskRegistrar.kt:161-170`, `BakeryPlugin.kt:188-237`,
+`BakeryPlugin.kt:287-292`, `DnsTaskRegistrar.kt:14-36`
+
+| C4
+| **Le payload est détruit par le déploiement.** Le `finally` de `pushPages`
+appelle `cleanupPublicationArtifacts`, qui supprime le dépôt temporaire **et**
+`build/<destDirPath>`. Après un `deploySite`, l'arbre baké n'existe plus : deux
+cibles dans le même build ne peuvent pas lire le même payload sans re-baker.
+C'est le **blocage structurel** de toute seconde cible.
+| `GitService.kt:94-96`, `GitService.kt:188-207`
+
+| C5
+| `CNAME` (domaine GitHub Pages) est écrit **dans** le payload par `deploySite`
+(`createCnameFile`). Un envoi Netlify qui l'inclurait transporterait un artefact
+d'un autre fournisseur (Netlify gère le domaine côté plateforme).
+| `FileSystemManager.kt:245-258`, `DeployTaskRegistrar.kt:49`
+
+| C6
+| `verifyConfigurationMapping` **exige** `pushPage.from`/`pushPage.to` et rapporte
+`pushPage.repo`/`branch`. Un site « Netlify seulement » échouerait la garde
+aujourd'hui.
+| `VerifyConfigurationMappingTask.kt:69-88`
+
+| C7
+| Le payload déployable contient l'arbre **multi-langue** (`{lang}/` produit par
+`bakeVariants`) et l'index **Pagefind** (`pagefind/`, un index par langue). Une
+cible qui ne publierait pas ce même arbre perdrait silencieusement les langues et
+la recherche (classe de bug corrigée en S-239).
+| `BakeryPlugin.kt:263-292`, `BACKLOG.adoc` § BKY-SEARCH, § BKY-LANG-NAV
+
+| C8
+| **Politique de secrets déjà établie** : `site.yml` est gitignoré et injecté en
+CI depuis un secret ; credentials masquées (`RepositoryCredentials.toString`) ;
+`OvhCredentials` masquées et `@Internal` sur la tâche ; `dns.dryRun = true` par
+défaut. Un jeton Netlify doit suivre *exactement* ce modèle.
+| `SiteConfiguration.kt:31-37`, `dns/DnsConfig.kt:17-30`,
+`dns/ProvisionDnsTask.kt`, `dns/DnsTaskRegistrar.kt`
+
+| C9
+| **Aucun code Netlify n'existe** (`grep -ri netlify src/` = 0). L'idée est
+seulement une *intention* historique jamais cadrée, jamais backloggée, jamais
+implémentée.
+| `encyclopedies/historic-genesis/GEMINI.adoc:58-60`
+
+| C10
+| **Précédent de port/adapter HTTP dans bakery** : `dns/OvhHttp` (port) +
+`dns/JavaOvhHttp` (adapter `java.net.http.HttpClient`). Aucune dépendance HTTP
+supplémentaire n'est nécessaire pour Netlify (JDK 25 + `java.util.zip` pour le
+payload).
+| `dns/OvhHttp.kt:1-18`, `dns/JavaOvhHttp.kt`
+
+| C11
+| **Le déploiement réel est piloté depuis `office`** via le runner N3
+(`./gradlew publishSite -PsiteName=…`), avec un secret injecté puis un smoke
+HTTP du domaine vivant après déploiement. Toute nouvelle cible doit fournir la
+même preuve « l'hôte vivant sert bien ce bake ».
+| `office/.github/workflows/deploy-talaria.yml:83-135`,
+`office/sites/RUNNER_REPOS.adoc`
+
+| C12
+| La cascade de configuration documentée (CLI > gradle.properties > DSL >
+`site.yml` > défauts) est honorée par `theme`, `analytics`, `dns`… mais **pas**
+par `pushPage` (lu du YAML seul). Toute prétention de cascade pour `netlify` doit
+être implémentée *et* testée couche par couche — ou explicitement restreinte.
+| `ConfigResolver.kt:182-379`, `BakeryExtension.kt:35-184`, `AGENT.adoc:185-202`
+|===
+
+== Décisions
+
+=== D1 — Cible **additive**, jamais un remplacement
+
+`deploySite` (push Git → Pages) et `pushCiMirror` gardent leur sémantique ;
+`publishSite` est **inchangée** (contrat consommé par 4 workflows `office` et par
+`runner-gradle`). Nouvelles tâches :
+
+* `generateNetlifyToml` (groupe `generate`),
+* `deployNetlify` (groupe `deploy`),
+* `publishSiteNetlify` (agrégat : `bake` + `deployNetlify` + `accessibilityAudit`),
+* `publishSiteAll` (agrégat optionnel : `publishSite` + `publishSiteNetlify`).
+
+Un site sans section `netlify:` ne voit **aucune** tâche nouvelle
+(enregistrement conditionnel, patron `DnsTaskRegistrar`).
+
+=== D2 — Déploiement **direct par API** comme mécanisme primaire
+
+Bakery a déjà produit l'arbre (bake + variantes + pagefind) : laisser Netlify
+re-builder dupliquerait le travail et pourrait diverger (versions Node/JRuby,
+contenu non commité). Le déploiement primaire est donc un **envoi du payload**
+à l'API Netlify, adressé par contenu (Netlify déduplique les fichiers
+identiques, l'envoi reste bon marché).
+
+Le mode « Netlify construit depuis un dépôt Git » (D11 + `netlify.toml`) est
+**secondaire**, opt-in, et n'entre pas dans le chemin par défaut.
+
+=== D3 — Contrat de cible explicite, sans réécriture du transport Git
+
+Domaine `bakery.deploy` : `DeployTarget` (sealed `GitPages` | `Netlify`),
+`DeployOutcome` (sealed `Deployed(url, deployId)` | `Skipped(reason)` |
+`Failed(message)`), `DeployPayload`. Le chemin Git est **enveloppé** (US-1),
+pas réécrit : `GitService` garde son comportement observable.
+
+=== D4 — Le payload survit au déploiement (US-1, prérequis dur)
+
+`GitService.pushPages` ne supprime plus que son **dépôt temporaire** ; le répertoire
+baké reste sur disque. Deux cibles peuvent ainsi consommer le même arbre, et un
+smoke post-déploiement peut lire ce qui a été publié. La suppression du payload
+était un artefact de nettoyage, pas une garantie : elle est retirée avec un test
+de non-régression explicite (déploiement deux fois = arbre présent, second envoi
+identique).
+
+=== D5 — Une seule définition du payload
+
+`DeployPayload` (objet pur) : racine `build/<bake.destDirPath>`, exclusions
+(`CNAME`, `.git/**`, `**/*.bak`), listing **ordonné** et déterministe, digest
+SHA-256 sur `(chemin relatif, sha256(contenu))`. Les deux cibles partagent cette
+définition ; aucun filtre spécifique n'est dupliqué dans les tâches.
+
+=== D6 — Le jeton n'est jamais une valeur de configuration
+
+`NetlifyConfig` porte le **nom** de la variable (`tokenEnv: NETLIFY_AUTH_TOKEN`),
+jamais le jeton. Résolution : variable d'environnement uniquement (jamais une
+propriété Gradle, qui apparaîtrait dans `ps`/les logs). La tâche porte le jeton en
+`@Internal` (jamais haché, jamais mis en cache), `toString()` masqué, aucune ligne
+de journal ne le contient. Section présente + jeton absent ⇒ **échec explicite**
+(jamais un skip silencieux qui ferait un faux vert).
+
+=== D7 — Économie d'Encre : digest avant réseau
+
+`build/bakery/netlify/last-deploy.json` conserve `siteId`, `digest`, `deployId`,
+`deployUrl`, horodatage. Digest identique + `--netlifyForce` absent ⇒
+`Skipped("unchanged")`, **zéro appel réseau**. On ne compte pas sur la
+déduplication de Netlify pour éviter un envoi.
+
+=== D8 — Pas de dry-run par défaut ; un dry-run explicite et utile
+
+Contrairement à `provisionDns` (mutation d'une zone partagée), un déploiement est
+une action **explicitement demandée**. `--netlifyDryRun` imprime le plan
+(site, nombre de fichiers, octets, digest, exclusions) et n'effectue aucun appel.
+En CI sans jeton, la preuve reste le test fonctionnel sur stub loopback — jamais
+un vrai déploiement.
+
+=== D9 — Preuve du déploiement
+
+La tâche imprime `deployId` + `deployUrl`/`ssl_url` et écrit le rapport
+`build/bakery/netlify/deploy.json`. Un smoke opt-in (`--netlifySmokeUrl`) vérifie
+que l'hôte vivant sert un marqueur du bake (même discipline que le smoke
+post-déploiement talaria). En CI, ce smoke n'est activé que par le dogfooding.
+
+=== D10 — Frontière : bakery publie, ne provisionne pas
+
+Hors périmètre : création du site Netlify, domaine/HTTPS/certificats, variables
+d'environnement Netlify, fonctions/edge, analytics, rollback d'interface,
+provisionnement DNS Netlify (le domaine `dns:` reste OVH, BKY-DNS). `siteId` est
+fourni par le pilote.
+
+=== D11 — `netlify.toml` est une sortie, pas une source de vérité
+
+`generateNetlifyToml` écrit un `netlify.toml` déterministe (publish dir, redirections
+404, en-têtes de sécurité de base, `[[headers]]` pour les assets). Il sert au mode
+secondaire « Netlify build from git » et documente le site ; il n'est **pas**
+utilisé par l'envoi direct (qui transporte l'arbre déjà baké).
+
+=== D12 — Cascade de configuration honorée et testée
+
+`netlify` suit la cascade sur les champs non secrets : `site.yml` < DSL <
+`gradle.properties` (`bakery.netlify.*`) < CLI (`-Pbakery.netlify.*`), via
+`ConfigResolver` (comme `theme`/`analytics`). Le jeton fait exception (D6). Chaque
+couche est couverte par un test : aucune prétention non prouvée (leçon C12).
+
+=== D13 — Parité multi-langue et recherche
+
+Le payload Netlify est l'arbre post-`bakeVariants`/`pagefind` : `{lang}/` et
+`pagefind/` présents quand le site les déclare. Un test le verrouille ; aucune
+cible ne re-bake son propre arbre.
+
+=== D14 — Aucune dépendance d'exécution nouvelle
+
+`java.net.http.HttpClient` (déjà utilisé par `dns/JavaOvhHttp`), `java.util.zip`
+(JDK), Jackson (déjà présent). Pas de SDK Netlify, pas de client HTTP tiers.
+
+=== D15 — Pas de course entre cibles
+
+`deployNetlify.mustRunAfter("deploySite")` (douce) et exclusion systématique de
+`CNAME` : jamais deux écritures concurrentes du même répertoire. Un seul site
+`site.yml` décrit une seule identité de publication.
+
+== Architecture cible
+
+[source]
+----
+                    ┌─────────────────────────────────────────────┐
+bake ─▶ bakeVariants ─▶ pagefind ─┬─▶ deploySite (Git push → Pages) │  existant
+                                  │      └─ cleanup : dépôt tmp seulement (US-1)
+                                  │
+                                  └─▶ deployNetlify (API)          │  nouveau
+                                         └─ DeployPayload (pur)     │
+                                            ├─ exclusions (CNAME…)  │
+                                            ├─ digest SHA-256       │
+                                            └─ last-deploy.json     │
+----
+
+.Graphe des tâches (nouveau)
+[cols="2,3", options="header"]
+|===
+| Tâche | Dépendances / ordre
+
+| `generateNetlifyToml`
+| `dependsOn("bake")` (écrit dans le payload), `mustRunAfter("bakeVariants")`
+
+| `deployNetlify`
+| `dependsOn("bake", "bakeVariants", "pagefind")`, `mustRunAfter("deploySite")`
+
+| `publishSiteNetlify`
+| `dependsOn("bake", "deployNetlify", "accessibilityAudit")`
+
+| `publishSiteAll`
+| `dependsOn("publishSite", "publishSiteNetlify")`
+|===
+
+== Contrat de configuration
+
+[source,yaml]
+----
+# site.yml — section optionnelle ; absente = aucune tâche Netlify
+netlify:
+  siteId: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"   # jamais un secret
+  tokenEnv: NETLIFY_AUTH_TOKEN                      # NOM de la variable, jamais le jeton
+  deploy:
+    exclude: ["CNAME", "**/*.bak"]                  # D5 (CNAME toujours exclu)
+    message: "bakery deploy"
+  verifyUrl: "https://talaria.school/"              # smoke opt-in (D9)
+  toml:                                             # D11 (mode secondaire)
+    enabled: false
+    publishDir: "bakery-plugin/build/site"
+----
+
+[cols="2,3,3", options="header"]
+|===
+| Couche | Clé | Portée
+
+| `site.yml` | `netlify.*` | base, non secrète
+| DSL | `bakery { netlify { siteId = "…" } }` | surcharge locale
+| `gradle.properties` | `bakery.netlify.siteId=…` | surcharge machine/CI
+| CLI | `-Pbakery.netlify.siteId=…` | surcharge d'exécution
+| Variable d'env | `NETLIFY_AUTH_TOKEN` (nom configurable) | **jeton uniquement**
+|===
+
+== User Stories
+
+[cols="1,4,1,2", options="header"]
+|===
+| US | Description | Pts | Statut
+
+| BKY-NETLIFY-0
+| **Cadrage + décision** (ce document) : constats, décisions, contrat de
+configuration, frontière, risques, découpage.
+| 1
+| ✅ S-281
+
+| BKY-NETLIFY-1
+| **Payload découplé du transport.** `DeployPayload` pur (racine, exclusions,
+listing ordonné, digest) ; `GitService.pushPages` ne supprime plus que le dépôt
+temporaire ; `DeployOutcome`/`DeployTarget` enveloppent le chemin Git sans changer
+son comportement. Tests : UT payload/digest (ordre-insensible aux entrées,
+sensible à un octet), FT `deploySite` deux fois (arbre présent, second envoi
+déterministe), BDD `@deploy` non régressé.
+| 3
+| 🟡 À FAIRE
+
+| BKY-NETLIFY-2
+| **Configuration.** `NetlifyConfig` (+ `DeployOptions`, `TomlOptions`),
+`SiteConfiguration.netlify`, `ResolvedConfigs`/`ConfigResolver` (cascade D12),
+DSL `bakery { netlify { … } }`, `verifyConfigurationMapping` accepte un site
+Netlify-only (`pushPage` non requis si `netlify.siteId` présent), `toString()`
+masqué. Tests : 4 couches de cascade + garde de mapping + redaction.
+| 3
+| 🟡 À FAIRE
+
+| BKY-NETLIFY-3
+| **Plan de déploiement pur.** `NetlifyDeployPlan` : payload → manifeste
+(chemins, tailles), digest, décision `Deployed`/`Skipped`/`Failed` à partir de
+`last-deploy.json`, exclusions, `force`, `dryRun`. Aucune I/O réseau. Tests : plan
+inchangé = skip, `force` = deploy, `CNAME` exclu, rapport déterministe.
+| 3
+| 🟡 À FAIRE
+
+| BKY-NETLIFY-4
+| **Port + adapter API.** `NetlifyHttp` (port) + `JavaNetlifyHttp`
+(`java.net.http`), `NetlifyApiClient` : création de déploiement (archive),
+interrogation d'état, mapping d'erreurs (`401` jeton, `404` site inconnu, `422`
+payload, `429` quota), timeouts, retry borné sur `5xx`/`429`. Aucun jeton loggé.
+Tests : adapter contre stub loopback (`com.sun.net.httpserver`), matrice d'erreurs.
+| 4
+| 🟡 À FAIRE
+
+| BKY-NETLIFY-5
+| **Tâche + câblage.** `DeployNetlifyTask` (`@DisableCachingByDefault`), jeton
+`@Internal`, rapport `deploy.json`, `generateNetlifyToml`, enregistrement
+conditionnel, `publishSiteNetlify`, `publishSiteAll`, ordre D15. Tests : FT TestKit
+(section absente = tâche absente ; section présente + jeton absent = échec
+explicite ; dry-run ne fait aucun appel).
+| 3
+| 🟡 À FAIRE
+
+| BKY-NETLIFY-6
+| **Tests complets + CI.** BDD `@netlify` (plan skip/déploiement/erreur,
+exclusions, parité `{lang}/` + `pagefind/`) + runner dédié (pattern S-082) +
+câblage `test.yml` (aucun jeton en CI, stub uniquement) + mise à jour de la garde
+de couverture de shards si une feature est ajoutée.
+| 3
+| 🟡 À FAIRE
+
+| BKY-NETLIFY-7
+| **`netlify.toml` + fichiers de plateforme.** Rendu déterministe (publish dir,
+404, en-têtes, redirections des variantes de langue), `_headers`/`_redirects`
+générés seulement si demandés. Docs consommateur (section site.yml + tâches).
+| 2
+| 🟡 À FAIRE
+
+| BKY-NETLIFY-8
+| **Dogfooding + release.** Déploiement réel d'un site (accord pilote, jeton
+fourni hors dépôt), smoke HTTP 200 sur l'hôte Netlify, rapport de session,
+README (EN) + adoption consommateur, tag de release selon le canal courant
+(`-Pchannel`, GBL-014). Aucune publication de dépôt de site.
+| 3
+| 🟡 À FAIRE
+|===
+
+*Total* : 9 US ~25 pts. *DAG* : `0 → 1 → {2, 3} → 4 → 5 → 6 → 7 → 8`
+(US-2 et US-3 parallélisables après US-1 ; US-4 avant US-5).
+
+*Projection* (rythme observé, une US lourde par session) :
+S-282 US-1 · S-283 US-2+3 · S-284 US-4 · S-285 US-5 · S-286 US-6 · S-287 US-7 ·
+S-288 US-8.
+
+== Frontière
+
+* **Bakery** : payload, plan, digest, adapter API, tâche, `netlify.toml`, gardes,
+rapport.
+* **Consommateur (site)** : `site.yml` (`siteId`, `tokenEnv`, options), jeton en
+secret CI, choix de la cible, smoke du domaine.
+* **`office` / runner N3** : injection du secret et appel de `publishSiteNetlify`
+(si un site l'adopte) ; aucune logique de déploiement dupliquée.
+* **JAMAIS** : création de site Netlify, DNS/HTTPS, variables d'environnement,
+publication d'un dépôt de site sur un canal d'artefacts (règle des dépôts de site).
+
+== Risques et mitigations
+
+[cols="1,3,4", options="header"]
+|===
+| # | Risque | Mitigation
+
+| R1
+| Retirer la suppression du payload (US-1) surprend un consommateur qui comptait
+sur le nettoyage disque. | Seul le dépôt temporaire reste supprimé ; FT explicite ;
+rapport de session ; aucun contrat public changé (le répertoire est sous `build/`).
+
+| R2
+| Dérive de l'API Netlify (endpoints de déploiement). | Un seul adapter, endpoint
+centralisé, tests de contrat sur fixtures, erreurs explicites (`404`/`410`).
+
+| R3
+| Fuite du jeton. | D6 (nom de variable, `@Internal`, redaction, jamais de log) +
+`grep` de fin de session + test de redaction.
+
+| R4
+| Faux vert : section présente, jeton absent, tâche qui « skip ». | Échec explicite
+obligatoire (D6) ; seul le dry-run est silencieux sur le réseau.
+
+| R5
+| Payload volumineux (22 langues) : temps d'envoi / mémoire. | ZIP en flux,
+`--netlifyDryRun` affiche octets/fichiers avant tout envoi, déduplication par
+contenu côté Netlify.
+
+| R6
+| Duplication de logique entre `deploySite` et `deployNetlify`. | `DeployPayload`
+unique (D5) ; `DeployOutcome` unique ; aucun filtre propre à une tâche.
+
+| R7
+| Divergence « Netlify build from git » vs envoi direct. | D2 : l'envoi direct est
+le chemin par défaut ; `netlify.toml` est secondaire et documenté comme tel.
+
+| R8
+| Prétendre une cascade de configuration non implémentée (leçon C12). | D12 :
+chaque couche testée, ou pas de prétention.
+
+| R9
+| Smoke du domaine trompé par un cache/CDN. | Marqueur de build unique ou
+`?cachebust` ; smoke opt-in, jamais dans le chemin CI standard.
+
+| R10
+| Extension de périmètre (site, DNS, fonctions). | D10 : liste explicite des
+non-objectifs ; toute extension = EPIC séparé.
+|===
+
+== Preuves d'ouverture de session (S-281)
+
+[cols="2,5", options="header"]
+|===
+| Vérification | Résultat
+
+| `git status --short --branch`
+| `## main...origin/main` — arbre propre (aucun fichier modifié)
+
+| `./gradlew tasks --all`
+| `BUILD SUCCESSFUL in 1m 9s`
+
+| `./gradlew compileKotlin compileTestKotlin compileFunctionalTestKotlin`
+| `BUILD SUCCESSFUL in 2m 13s` (Local = Build ; aucun test local)
+
+| `grep -ri netlify src/`
+| 0 occurrence (C9)
+|===

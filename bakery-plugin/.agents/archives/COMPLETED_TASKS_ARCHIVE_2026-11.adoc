@@ -52,3 +52,18 @@
 * CI `43672589887`, `43683429806`, `43690069058` + `Publish website`
   `43672589904`, `43683429820`, `43690069092` vertes.
 * Rapport `.agents/sessions/280-gbl-014-4-and-node-lts.adoc`.
+
+== S-281 — EPIC BKY-NETLIFY CADRÉ (gouvernance pure) 🟡
+
+* Demande pilote : Netlify comme autre cible de déploiement du site statique.
+* Audit : déploiement = push Git uniquement ; `cleanupPublicationArtifacts`
+  détruit le payload (`GitService.kt:94-96`, `:188-207`) ; `CNAME` dans le
+  payload ; `verifyConfigurationMapping` exige `pushPage.from/to` ; payload
+  multi-langue + Pagefind ; patrons `dns` (section optionnelle, port/adapter,
+  secrets masqués).
+* 15 décisions, 9 US ~25 pts (`BKY-NETLIFY-0` ✅, 1→8 🟡). DAG
+  `0 → 1 → {2,3} → 4 → 5 → 6 → 7 → 8`.
+* Zéro code, zéro test, zéro publication. `tasks` VERT 1m09s, compiles 3 source
+  sets VERT 2m13s, `grep -ri netlify src/` = 0.
+* Doc `.agents/CADRAGE_EPIC_BKY_NETLIFY.adoc` + `BACKLOG.adoc` § BKY-NETLIFY.
+* Rapport `.agents/sessions/281-cadrage-epic-bky-netlify.adoc`.

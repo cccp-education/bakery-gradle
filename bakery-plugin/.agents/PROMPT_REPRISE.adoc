@@ -1,53 +1,55 @@
 = PROMPT_REPRISE — Bakery Gradle Plugin
-:session: 280
+:session: 281
 :date: 2026-11-15
-:etat: ✅ S-280 — GBL-014-4 (shim `conventions-plugin 0.0.19`) + GBL-013-10 (actions `node24`-natives, Node 26.13.1 dans l'image **et** dans le plugin Gradle Node). GBL-014-5b reste **bloqué amont**.
-:epic_actif: PLT-DIAGRAM-OWNERSHIP 7/8 (US-7 re-bake cheroliv + DiagramIntegrity).
-:epic_suivant: **réaligner les tags JitPack** (document/plantuml/codebase/graphify) puis réappliquer `ee496ac3` ; MEMPHIS `youtube-auth = "v0.0.4"` ; **US-3c** ; dette `ur/0084`.
+:etat: ✅ S-281 — **EPIC BKY-NETLIFY CADRÉ** (gouvernance pure, zéro code) : 15 décisions, 9 US ~25 pts, doc + backlog.
+:epic_actif: BKY-NETLIFY 1/9 (US-0 cadrage ✅)
+:epic_suivant: **BKY-NETLIFY-1** (payload survivant au déploiement). Dettes en attente : GBL-014-5b (bloqué amont), GBL-007 US-7, `ur/0084` (cheroliv), US-3c (plantuml).
 
-== Session 280 (TERMINÉE) — transversal du 2026-11-15
+== Session 281 (TERMINÉE) — cadrage de la cible Netlify
 
-* **GBL-014-4** (`fad9ba67`) : shim `conventions-plugin 0.0.18 → 0.0.19`
-  (racine + plugin) ; condition `channel == "jitpack"` conservée.
-  `Test` `43672589887` + `Publish website` `43672589904`.
-* **GBL-013-10** (`c800349e`) : `checkout@v7`, `setup-java@v6`,
-  `setup-gradle@v6`, `setup-node@v6`, `upload-artifact@v7`,
-  `download-artifact@v8`, `cache@v6` ; `node-version: '22' → '26'` (4×) ;
-  `node { download = true; version = "26.13.1" }` — fin du `download = false`
-  qui prenait le Node du runner. `Test` `43683429806` + `Publish website`
-  `43683429820`.
-* **GBL-013-10** (`375dc53a`) : digest
-  `sha256:4722c1bc… → sha256:03ead378…` ; `Test` `43690069058` +
-  `Publish website` `43690069092`.
-* Rapport `.agents/sessions/280-gbl-014-4-and-node-lts.adoc`.
+* Demande pilote : ajouter **Netlify** comme autre cible de déploiement du site
+  statique, et cadrer l'EPIC dans le backlog.
+* Livré : `.agents/CADRAGE_EPIC_BKY_NETLIFY.adoc` (constats C1→C12, décisions
+  D1→D15, contrat `site.yml`, 9 US, DAG, frontière, risques R1→R10) +
+  `BACKLOG.adoc` § BKY-NETLIFY (en tête) + rapport
+  `.agents/sessions/281-cadrage-epic-bky-netlify.adoc`.
+* Faits mesurés qui commandent le découpage :
+  **`cleanupPublicationArtifacts` détruit `build/<destDirPath>`** dans le
+  `finally` de `GitService.pushPages` (`GitService.kt:94-96`, `:188-207`) →
+  aucune seconde cible ne peut lire le payload aujourd'hui ;
+  `CNAME` est écrit dans le payload (`createCnameFile`) ;
+  `verifyConfigurationMapping` exige `pushPage.from/to` ;
+  le payload porte `{lang}/` (`bakeVariants`) + `pagefind/` ;
+  jeton/secrets suivent le patron `dns` (`tokenEnv`, `@Internal`, redaction).
+* Ouverture : `git status` propre, `tasks` VERT 1m09s, compiles 3 source sets
+  VERT 2m13s, `grep -ri netlify src/` = 0.
 
-== Session 279 (TERMINÉE) — GBL-014-5b (suite), adoption revertée
+== Mission S-282 — BKY-NETLIFY-1 (3 pts, prérequis dur)
 
-* JitPack sert `workspace-catalog:0.0.136` (200, sans `v` ; `v0.0.136` = 404)
-  mais les `[versions]` diffèrent (contrats au tag 0.0.136,
-  `video-kernel 0.7.0→0.9.1`, `youtube-auth = "v0.0.4"`).
-* Le patch `ee496ac3` (pin `0.0.136`, `ws.*`, substitution des arêtes
-  `education.cccp`, BOM centrale exclue en `jitpack`, garde par canal)
-  compilait/résolvait 100 % `com.github.*` mais cassait le BDD `i18n-mass` :
-  les tags JitPack ne pointent pas sur les commits des releases Central du même
-  numéro (`document v0.0.30` embarque DOC-OUT-2, absent du JAR Central).
-* **Revert `2c9451a5`** ; CI verte `Test` `43681403218` (18/18) +
-  `Publish website` `43681403258`. Rapport
-  `.agents/sessions/279-gbl-014-5b-relabelled-catalogue-audit.adoc`.
-
-== Session 278 (TERMINÉE) — GBL-014-5b projection du canal
-
-* Settings `-Pchannel` (racine + plugin), catalogue `ws` par canal,
-  `ws.*` partout, 4 `platform(workspace-bom)` restreintes à `central`.
-* `Test` `43663467157` / `Publish website` `43663467047`.
-* Rapport `.agents/sessions/278-gbl-014-5b-bakery-channel-projection.adoc`.
+* **DDD/TDD strict** (baby-step, RED par compilation prouvé).
+* `bakery.deploy.DeployPayload` (objet pur) : racine, exclusions (`CNAME`,
+  `.git/**`, `**/*.bak`), listing **ordonné**, digest SHA-256 sur
+  `(chemin relatif, sha256(contenu))`.
+* `DeployTarget` (sealed `GitPages` | `Netlify`) et `DeployOutcome`
+  (sealed `Deployed` | `Skipped` | `Failed`) — **envelopper** le chemin Git,
+  ne pas réécrire `GitService`.
+* **Retirer la suppression du répertoire baké** de
+  `cleanupPublicationArtifacts` (garder la suppression du dépôt temporaire) :
+  deux cibles doivent pouvoir lire le même arbre.
+* Tests : UT payload/digest (ordre des entrées indifférent, un octet change le
+  digest, exclusions) ; FT `deploySite` **deux fois** (arbre présent après push,
+  second envoi déterministe) ; BDD `@deploy` non régressée.
+* **Ne pas** toucher : `publishSite` (contrat consommé par 4 workflows
+  `office`), `pushCiMirror`, `deployMaquette`, DNS.
+* Gates : compiles VERT, `assemble`, `validatePlugins` ; preuve = CI du commit
+  poussé (Local = Build, Tests = CI). Zéro secret.
 
 == État
 
 * Catalogue consommé : `workspace-catalog v0.0.133` (JitPack) ; plateforme BOM
   Central `0.0.115` ; shim conventions `0.0.19`. Version plugin `0.0.39`
-  (JitPack, tag publié).
-* Local = Build, Tests = CI ; working tree propre.
+  (JitPack, tag publié). Working tree propre à la clôture S-281.
+* Aucune publication, aucun bump, aucun changement de code en S-281.
 
 == Rappels
 
@@ -57,4 +59,6 @@
 * `publishToMavenLocal` interdit sur une version déjà Central / en release
   concurrente. Ne jamais réutiliser un tag JitPack publié.
 * Ne pas modifier les tests gelés hors permission explicite ; ne pas mélanger
-  les canaux.
+  les canaux (`-Pchannel`).
+* Le cadrage BKY-NETLIFY est la référence : toute extension (création de site,
+  DNS, HTTPS) = EPIC séparé, hors périmètre.

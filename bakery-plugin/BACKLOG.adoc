@@ -33,6 +33,105 @@
 * Alternatives (`gemma4:31b-cloud`, `deepseek-v4.1-flash:cloud`) uniquement sur
   décision pilote explicite.
 
+== 🟡 EPIC BKY-NETLIFY — Cible de déploiement Netlify (CADRÉ S-281)
+
+*Source* : demande pilote S-281 — « ajouter une autre cible de déploiement qui
+est netlify pour le site statique ». Cadrage complet :
+`.agents/CADRAGE_EPIC_BKY_NETLIFY.adoc`.
+
+*Constat* : le déploiement bakery est **uniquement un push Git** (`deploySite` →
+`GitService.pushPages` → GitHub Pages) ; il n'existe aucune notion de *cible*.
+Trois faits rendent Netlify non trivial :
+. **le payload est détruit par le déploiement** — `cleanupPublicationArtifacts`
+   supprime `build/<bake.destDirPath>` dans le `finally` de `pushPages`
+   (`GitService.kt:94-96`, `:188-207`) : deux cibles dans un même build ne
+   peuvent pas lire le même arbre ;
+. `CNAME` (domaine Pages) est écrit **dans** le payload (`createCnameFile`) et
+   ne doit pas partir chez Netlify ;
+. `verifyConfigurationMapping` exige `pushPage.from/to` (`:69-70`) : un site
+   « Netlify seulement » échouerait la garde.
+Le payload déployable porte aussi `{lang}/` (`bakeVariants`) et `pagefind/` : une
+cible qui ne publie pas ce même arbre perd langues et recherche silencieusement.
+
+*Décisions* : cible **additive** (`deploySite`/`publishSite` inchangés ;
+`deployNetlify`, `generateNetlifyToml`, `publishSiteNetlify`, `publishSiteAll`) ;
+déploiement **direct par API** (bakery a déjà baké ; Netlify ne re-build pas) ;
+payload unique (`DeployPayload` pur, exclusions, digest) **survivant** au push ;
+jeton par **nom** de variable d'environnement (`tokenEnv`), `@Internal`, jamais
+loggé, échec explicite s'il manque ; **économie d'encre** (digest =
+`Skipped("unchanged")`, zéro réseau) ; `netlify.toml` = sortie secondaire ;
+frontière stricte (pas de création de site / DNS / HTTPS). Patrons réutilisés :
+`DnsTaskRegistrar` (section optionnelle, chaînée avant déploiement) et
+`dns/OvhHttp` + `JavaOvhHttp` (port + adapter `java.net.http`).
+
+[cols="1,4,1,2", options="header"]
+|===
+| US | Description | Pts | Statut
+
+| BKY-NETLIFY-0
+| Cadrage + décisions + contrat de configuration (doc dédiée).
+| 1
+| ✅ S-281
+
+| BKY-NETLIFY-1
+| Payload découplé du transport : `DeployPayload` (pur, exclusions, digest),
+  `GitService` ne supprime plus le répertoire baké, `DeployTarget`/`DeployOutcome`
+  enveloppent le chemin Git (comportement inchangé). UT + FT « deux déploiements ».
+| 3
+| 🟡 À FAIRE
+
+| BKY-NETLIFY-2
+| `NetlifyConfig` + `SiteConfiguration.netlify` + cascade (`ConfigResolver`,
+  DSL, gradle.properties, CLI) + garde `verifyConfigurationMapping` acceptant
+  Netlify-only + redaction des secrets.
+| 3
+| 🟡 À FAIRE
+
+| BKY-NETLIFY-3
+| `NetlifyDeployPlan` (pur) : manifeste, digest, skip/force/dry-run, exclusions
+  (`CNAME`), rapport déterministe, `last-deploy.json`.
+| 3
+| 🟡 À FAIRE
+
+| BKY-NETLIFY-4
+| Port `NetlifyHttp` + `JavaNetlifyHttp` + `NetlifyApiClient` (création de
+  déploiement, état, mapping `401`/`404`/`422`/`429`, timeouts, retry borné).
+| 4
+| 🟡 À FAIRE
+
+| BKY-NETLIFY-5
+| `DeployNetlifyTask` (`@DisableCachingByDefault`, jeton `@Internal`) +
+  `generateNetlifyToml` + enregistrement conditionnel + `publishSiteNetlify` /
+  `publishSiteAll` + ordre `mustRunAfter("deploySite")` + rapport.
+| 3
+| 🟡 À FAIRE
+
+| BKY-NETLIFY-6
+| Tests : BDD `@netlify` + runner dédié (S-082), parité `{lang}/` + `pagefind/`,
+  FT TestKit (section absente = tâche absente ; jeton absent = échec explicite ;
+  dry-run = zéro appel), câblage CI sans jeton.
+| 3
+| 🟡 À FAIRE
+
+| BKY-NETLIFY-7
+| `netlify.toml` déterministe + `_headers`/`_redirects` (mode secondaire
+  « build from git ») + documentation consommateur.
+| 2
+| 🟡 À FAIRE
+
+| BKY-NETLIFY-8
+| Dogfooding réel (accord pilote) : déploiement d'un site, smoke HTTP 200,
+  README, adoption, tag de release selon `-Pchannel`.
+| 3
+| 🟡 À FAIRE
+|===
+
+*Total* : 9 US ~25 pts. *DAG* : `0 → 1 → {2, 3} → 4 → 5 → 6 → 7 → 8`.
+
+*Hors périmètre* : création du site Netlify, domaine/HTTPS/certificats,
+variables d'environnement Netlify, fonctions/edge, DNS Netlify (`dns:` reste
+OVH), remplacement de GitHub Pages.
+
 == ✅ EPIC BKY-CI-MIRROR — publication de la source vers un repo runner (TERMINÉ 4/4, 2026-11-10)
 
 *Source* : décision pilote 2026-11-10 — les dépôts runners
